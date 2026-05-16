@@ -680,13 +680,14 @@ export default function AdminPage() {
                           />
                           {adminSearchResults.length > 0 && (
                             <div className="absolute z-10 mt-1 w-full rounded-md border bg-white shadow-lg">
-                              {adminSearchResults.filter((emp) => emp.userId).map((emp) => (
+                              {adminSearchResults.map((emp) => (
                                 <div
                                   key={emp.rowId}
-                                  onClick={() => addAdmin(emp)}
-                                  className="cursor-pointer px-3 py-2 text-sm text-gray-800 hover:bg-gray-50"
+                                  onClick={() => { if (emp.userId) addAdmin(emp); }}
+                                  className={`px-3 py-2 text-sm text-gray-800 ${emp.userId ? "cursor-pointer hover:bg-gray-50" : "pointer-events-none opacity-50"}`}
                                 >
                                   {emp.name}-{emp.dept1 || "未知部门"}-{emp.position || "未知职务"}
+                                  {!emp.userId && <span className="text-gray-400"> (未关联用户)</span>}
                                 </div>
                               ))}
                             </div>
@@ -765,13 +766,14 @@ export default function AdminPage() {
                         />
                         {memberSearchResults.length > 0 && (
                           <div className="absolute z-10 mt-1 w-full rounded-md border bg-white shadow-lg">
-                            {memberSearchResults.filter((emp) => emp.userId).map((emp) => (
+                            {memberSearchResults.map((emp) => (
                               <div
                                 key={emp.rowId}
-                                onClick={() => addMember(emp)}
-                                className="cursor-pointer px-3 py-2 text-sm text-gray-800 hover:bg-gray-50"
+                                onClick={() => { if (emp.userId) addMember(emp); }}
+                                className={`px-3 py-2 text-sm text-gray-800 ${emp.userId ? "cursor-pointer hover:bg-gray-50" : "pointer-events-none opacity-50"}`}
                               >
                                 {emp.name}-{emp.dept1 || "未知部门"}-{emp.position || "未知职务"}
+                                {!emp.userId && <span className="text-gray-400"> (未关联用户)</span>}
                               </div>
                             ))}
                           </div>
@@ -1071,13 +1073,14 @@ export default function AdminPage() {
                   />
                   {sysAdminSearchResults.length > 0 && (
                     <div className="absolute z-10 mt-1 w-full rounded-md border bg-white shadow-lg">
-                      {sysAdminSearchResults.filter((emp) => emp.userId).map((emp) => (
+                      {sysAdminSearchResults.map((emp) => (
                         <div
                           key={emp.rowId}
-                          onClick={() => addSysAdmin(emp.userId)}
-                          className="cursor-pointer px-3 py-2 text-sm text-gray-800 hover:bg-gray-50"
+                          onClick={() => { if (emp.userId) addSysAdmin(emp.userId); }}
+                          className={`px-3 py-2 text-sm text-gray-800 ${emp.userId ? "cursor-pointer hover:bg-gray-50" : "pointer-events-none opacity-50"}`}
                         >
                           {emp.name}-{emp.dept1 || "未知部门"}-{emp.position || "未知职务"}
+                          {!emp.userId && <span className="text-gray-400"> (未关联用户)</span>}
                         </div>
                       ))}
                     </div>
@@ -1178,13 +1181,14 @@ export default function AdminPage() {
                               />
                               {deptAdminSearchResults.length > 0 && (
                                 <div className="absolute right-0 z-10 mt-1 w-56 rounded-md border bg-white shadow-lg">
-                                  {deptAdminSearchResults.filter((emp) => emp.userId).map((emp) => (
+                                  {deptAdminSearchResults.map((emp) => (
                                     <div
                                       key={emp.rowId}
-                                      onClick={() => addDeptAdmin(dept.dept1, dept.company, emp.userId)}
-                                      className="cursor-pointer px-3 py-2 text-sm text-gray-800 hover:bg-gray-50"
+                                      onClick={() => { if (emp.userId) addDeptAdmin(dept.dept1, dept.company, emp.userId); }}
+                                      className={`px-3 py-2 text-sm text-gray-800 ${emp.userId ? "cursor-pointer hover:bg-gray-50" : "pointer-events-none opacity-50"}`}
                                     >
                                       {emp.name}-{emp.dept1 || "未知部门"}-{emp.position || "未知职务"}
+                                      {!emp.userId && <span className="text-gray-400"> (未关联用户)</span>}
                                     </div>
                                   ))}
                                 </div>

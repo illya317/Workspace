@@ -63,6 +63,9 @@ interface Employee {
   status?: string | null;
   leaveDate?: string | null;
   alias?: string | null;
+  deleted?: boolean | null;
+  deletedTime?: string | null;
+  deletedBy?: string | null;
 }
 
 interface FieldDef {
@@ -154,9 +157,9 @@ function CodeTab({
     const map: Record<string, number> = {};
     for (const c of codes) {
       if (type === "department") {
-        map[c.code] = employees.filter((e) => e.dept1 === c.name && e.status !== "离职").length;
+        map[c.code] = employees.filter((e) => e.dept1 === c.name && e.status !== "离职" && !e.deleted).length;
       } else {
-        map[c.code] = employees.filter((e) => e.position && e.position.includes(c.name) && e.status !== "离职").length;
+        map[c.code] = employees.filter((e) => e.position && e.position.includes(c.name) && e.status !== "离职" && !e.deleted).length;
       }
     }
     setStats(map);
@@ -597,7 +600,8 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
   const [showDeptSuggestions, setShowDeptSuggestions] = useState(false);
   const deptBlurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [confirmResignModal, setConfirmResignModal] = useState<{ open: boolean; emp: Employee | null }>({ open: false, emp: null });
+  const [confirmResignModal, setConfirmResignModal] = useState<{ open: boolean; emp: Employee | null; isLastPosition: boolean }>({ open: false, emp: null, isLastPosition: false });
+  const [rosterFilter, setRosterFilter] = useState<"在职" | "全部">("在职");
 
   async function loadRoster() {
     setLoading(true);
@@ -605,6 +609,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
     if (selectedCompany) params.set("company", selectedCompany);
     if (filterDept) params.set("dept", filterDept);
     if (keyword) params.set("keyword", keyword);
+    params.set("status", rosterFilter);
     const res = await fetch(`/api/employees?${params.toString()}`);
     if (res.ok) {
       const data = await res.json();
@@ -618,7 +623,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
 
   useEffect(() => {
     loadRoster();
-  }, [selectedCompany, filterDept]);
+  }, [selectedCompany, filterDept, rosterFilter]);
 
   useEffect(() => {
     if (editingCell && inputRef.current) {
@@ -677,29 +682,58 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
     if (e.key === "Escape") setEditingCell(null);
   }
 
-  async function markResigned(emp: Employee) {
+  async function markResigned(emp: Employee, isLastPosition: boolean) {
     const today = new Date().toISOString().slice(0, 10);
-    const res = await fetch(`/api/employees/${emp.id}`, {
+    const operator = user.name;
+
+    // 公共：软删除
+    const delRes = await fetch(`/api/employees/${emp.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ field: "status", value: "离职" }),
+      body: JSON.stringify({ field: "deleted", value: true }),
     });
-    if (res.ok) {
+    if (delRes.ok) {
       await fetch(`/api/employees/${emp.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ field: "leaveDate", value: today }),
+        body: JSON.stringify({ field: "deletedTime", value: today }),
       });
-      setEmployees((prev) =>
-        prev.map((e) => (e.id === emp.id ? { ...e, status: "离职", leaveDate: today } : e))
-      );
-      setSaveTip("已标记离职");
-      setTimeout(() => setSaveTip(""), 1500);
-    } else {
-      setSaveTip("操作失败");
-      setTimeout(() => setSaveTip(""), 2000);
+      await fetch(`/api/employees/${emp.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ field: "deletedBy", value: operator }),
+      });
     }
-    setConfirmResignModal({ open: false, emp: null });
+
+    if (isLastPosition) {
+      // 最后一个岗位：额外标记离职
+      const res = await fetch(`/api/employees/${emp.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ field: "status", value: "离职" }),
+      });
+      if (res.ok) {
+        await fetch(`/api/employees/${emp.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ field: "leaveDate", value: today }),
+        });
+        setEmployees((prev) =>
+          prev.map((e) => (e.id === emp.id ? { ...e, status: "离职", leaveDate: today, deleted: true, deletedTime: today, deletedBy: operator } : e))
+        );
+        setSaveTip("已标记离职");
+        setTimeout(() => setSaveTip(""), 1500);
+      } else {
+        setSaveTip("操作失败");
+        setTimeout(() => setSaveTip(""), 2000);
+      }
+    } else {
+      // 还有其他岗位：仅软删除，前端移除该行
+      setEmployees((prev) => prev.filter((e) => e.id !== emp.id));
+      setSaveTip("已移除该岗位");
+      setTimeout(() => setSaveTip(""), 1500);
+    }
+    setConfirmResignModal({ open: false, emp: null, isLastPosition: false });
   }
 
   function downloadExcel() {
@@ -707,6 +741,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
     if (selectedCompany) params.set("company", selectedCompany);
     if (filterDept) params.set("dept", filterDept);
     if (keyword) params.set("keyword", keyword);
+    params.set("status", rosterFilter);
     params.set("export", "1");
     window.open(`/api/employees?${params.toString()}`, "_blank");
   }
@@ -734,7 +769,21 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
   return (
     <div className="space-y-4">
       {/* 筛选 */}
-      <div className="flex flex-wrap gap-3 rounded-lg bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-center gap-3 rounded-lg bg-white p-4 shadow-sm">
+        <div className="flex rounded-md border border-gray-200 overflow-hidden">
+          <button
+            onClick={() => { setRosterFilter("在职"); }}
+            className={`px-3 py-1.5 text-sm ${rosterFilter === "在职" ? "bg-emerald-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+          >
+            在职
+          </button>
+          <button
+            onClick={() => { setRosterFilter("全部"); }}
+            className={`px-3 py-1.5 text-sm ${rosterFilter === "全部" ? "bg-emerald-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+          >
+            全部
+          </button>
+        </div>
         <div className="relative">
           <input
             type="text"
@@ -791,7 +840,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
           搜索
         </button>
         <button
-          onClick={() => { setFilterDept(""); setDeptQuery(""); setKeyword(""); loadRoster(); }}
+          onClick={() => { setFilterDept(""); setDeptQuery(""); setKeyword(""); setRosterFilter("在职"); loadRoster(); }}
           className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
         >
           重置
@@ -886,9 +935,16 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
                         </td>
                         {f.key === "employeeId" && editMode && user?.isWorkListAdmin && (
                           <td className="w-8 whitespace-nowrap px-1 py-2 text-center">
-                            {emp.status !== "离职" && (
+                            {emp.status !== "离职" && !emp.deleted && (
                               <button
-                                onClick={(e) => { e.stopPropagation(); setConfirmResignModal({ open: true, emp }); }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const otherActive = employees.filter(
+                                    (e2) => e2.employeeId === emp.employeeId && e2.id !== emp.id && e2.status !== "离职" && !e2.deleted
+                                  );
+                                  const isLastPosition = otherActive.length === 0;
+                                  setConfirmResignModal({ open: true, emp, isLastPosition });
+                                }}
                                 className="text-red-400 hover:text-red-600"
                                 title="标记离职"
                               >
@@ -907,23 +963,29 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
         )}
       </div>
 
-      {/* 标记离职确认框 */}
+      {/* 标记离职/移除岗位确认框 */}
       {confirmResignModal.open && confirmResignModal.emp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-800">确认标记离职</h3>
+            <h3 className="mb-2 text-lg font-semibold text-gray-800">
+              {confirmResignModal.isLastPosition ? "确认标记离职" : "确认移除岗位"}
+            </h3>
             <p className="mb-6 text-sm text-gray-600">
-              确定将 <strong>{confirmResignModal.emp.name}</strong> 标记为离职？
+              {confirmResignModal.isLastPosition ? (
+                <>确定将 <strong>{confirmResignModal.emp.name}</strong> 标记为离职？</>
+              ) : (
+                <><strong>{confirmResignModal.emp.name}</strong> 还有其他在职岗位，确定移除当前岗位？</>
+              )}
             </p>
             <div className="flex justify-end gap-3">
               <button
-                onClick={() => setConfirmResignModal({ open: false, emp: null })}
+                onClick={() => setConfirmResignModal({ open: false, emp: null, isLastPosition: false })}
                 className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
               >
                 取消
               </button>
               <button
-                onClick={() => markResigned(confirmResignModal.emp!)}
+                onClick={() => markResigned(confirmResignModal.emp!, confirmResignModal.isLastPosition)}
                 className="rounded-md bg-red-500 px-4 py-2 text-sm text-white hover:bg-red-600"
               >
                 确定

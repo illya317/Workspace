@@ -177,6 +177,9 @@ model Employee {
   leaveDate     String?
   status        String?  @default("在职")
   alias         String?
+  deleted       Boolean? @default(false)
+  deletedTime   String?
+  deletedBy     String?
 }
 
 model FieldPermission {

@@ -82,6 +82,13 @@ export async function GET(request: Request) {
   }
   if (dept) where.dept1 = { contains: dept };
 
+  // 在职/全部筛选（默认只看在职）
+  const statusFilter = searchParams.get("status") || "在职";
+  if (statusFilter === "在职") {
+    where.status = "在职";
+    where.deleted = false;
+  }
+
   const employees = await prisma.employee.findMany({
     where,
     orderBy: [{ employeeId: "asc" }],

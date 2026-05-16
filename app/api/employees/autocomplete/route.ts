@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 
   if (type === "dept") {
     const depts = await prisma.employee.findMany({
-      where: q ? { dept1: { contains: q } } : {},
+      where: q ? { dept1: { contains: q }, deleted: false } : { deleted: false },
       select: { dept1: true },
       distinct: ["dept1"],
     });
@@ -33,7 +33,7 @@ export async function GET(request: Request) {
 
   if (type === "name") {
     const employees = await prisma.employee.findMany({
-      where: q ? { name: { contains: q } } : {},
+      where: q ? { name: { contains: q }, deleted: { not: true } } : { deleted: { not: true } },
       select: { name: true, alias: true, dept1: true, position: true },
       distinct: ["name"],
       take: 20,

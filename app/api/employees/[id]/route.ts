@@ -31,7 +31,7 @@ export async function PUT(
     "education", "title", "school", "major", "majorRelevant",
     "phone", "office1", "office2", "office3",
     "attendance1", "attendance2", "joinDate", "nature",
-    "status", "leaveDate",
+    "status", "leaveDate", "deleted", "deletedTime", "deletedBy",
   ];
   if (!allowedFields.includes(field)) {
     return NextResponse.json({ error: "非法字段" }, { status: 400 });
