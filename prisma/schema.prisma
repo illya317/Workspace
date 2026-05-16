@@ -152,7 +152,7 @@ model WorkParticipant {
 // 保留旧 Employee 表完整结构（数据迁移前不删除字段）
 model Employee {
   id            Int      @id @default(autoincrement())
-  employeeId    String
+  employeeId    String   @unique
   name          String
   alias         String?
   company       String?
