@@ -170,13 +170,19 @@ function CodeTab({
       const allowedCompanies = PREFIX_TO_COMPANIES[prefix] || [];
       const companyEmps = employees.filter((e) => allowedCompanies.includes(e.company || ""));
       if (type === "department") {
-        map[c.code] = companyEmps.filter((e) => e.dept1 === c.name).length;
+        map[c.code] = new Set(
+          companyEmps.filter((e) => e.dept1 === c.name).map((e) => e.employeeId)
+        ).size;
       } else {
-        map[c.code] = companyEmps.filter((e) => {
-          if (!e.position) return false;
-          const positions = e.position.split("、").map((p) => p.trim());
-          return positions.includes(c.name);
-        }).length;
+        map[c.code] = new Set(
+          companyEmps
+            .filter((e) => {
+              if (!e.position) return false;
+              const positions = e.position.split("、").map((p) => p.trim());
+              return positions.includes(c.name);
+            })
+            .map((e) => e.employeeId)
+        ).size;
       }
     }
     setStats(map);
