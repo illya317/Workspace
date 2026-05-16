@@ -1170,7 +1170,7 @@ export default function AdminPage() {
                       <div
                         key={p.key}
                         onClick={() => {
-                          setSelectedPermission(p.key);
+                          setSelectedPermission(selectedPermission === p.key ? "" : p.key);
                           setPermListSearchQuery("");
                         }}
                         className={`cursor-pointer rounded-md border p-3 ${
