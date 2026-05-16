@@ -16,7 +16,15 @@ export async function GET(request: Request) {
   // 获取所有在职员工（数据量小，内存匹配拼音）
   const allEmployees = await prisma.employee.findMany({
     where: { status: "在职", deleted: false },
-    select: { id: true, employeeId: true, name: true, alias: true, dept1: true, position: true },
+    select: {
+      id: true,
+      employeeId: true,
+      name: true,
+      alias: true,
+      dept1: true,
+      position: true,
+      user: { select: { id: true } },
+    },
   });
 
   // 匹配逻辑：姓名/别名包含 或 拼音首字母包含
@@ -51,14 +59,6 @@ export async function GET(request: Request) {
     return true;
   }).slice(0, 20);
 
-  // 按 employeeId 获取关联的 userId
-  const uniqueEmployeeIds = [...new Set(deduped.map((e) => e.employeeId))];
-  const users = await prisma.user.findMany({
-    where: { employeeId: { in: uniqueEmployeeIds } },
-    select: { id: true, employeeId: true },
-  });
-  const userMap = new Map(users.map((u) => [u.employeeId, u.id]));
-
   const items = deduped.map((e) => ({
     rowId: e.id,
     employeeId: e.employeeId,
@@ -66,7 +66,7 @@ export async function GET(request: Request) {
     alias: e.alias || "",
     dept1: e.dept1 || "",
     position: e.position || "",
-    userId: userMap.get(e.employeeId) || null,
+    userId: e.user?.id ?? null,
   }));
 
   return NextResponse.json({ items });

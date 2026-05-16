@@ -31,6 +31,7 @@ model User {
   fieldPermissions   FieldPermission[]
   positions          UserPosition[]
   reports            WeeklyReport[]
+  employees          Employee[]
 }
 
 model ReportGroup {
@@ -180,6 +181,8 @@ model Employee {
   deleted       Boolean? @default(false)
   deletedTime   String?
   deletedBy     String?
+  userId        Int?
+  user          User?    @relation(fields: [userId], references: [id])
 }
 
 model FieldPermission {

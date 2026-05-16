@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useRef, Fragment } from "react";
+import { useEffect, useState, useRef, Fragment, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import UserMenu from "@/app/components/UserMenu";
+import { matchEmployee } from "@/lib/search";
 
 interface User {
   id: number;
@@ -603,12 +604,12 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
   const [confirmResignModal, setConfirmResignModal] = useState<{ open: boolean; emp: Employee | null; isLastPosition: boolean }>({ open: false, emp: null, isLastPosition: false });
   const [rosterFilter, setRosterFilter] = useState<"在职" | "全部">("在职");
 
-  async function loadRoster() {
+  async function loadRoster(deptOverride?: string) {
     setLoading(true);
     const params = new URLSearchParams();
     if (selectedCompany) params.set("company", selectedCompany);
-    if (filterDept) params.set("dept", filterDept);
-    if (keyword) params.set("keyword", keyword);
+    const deptParam = deptOverride !== undefined ? deptOverride : filterDept;
+    if (deptParam) params.set("dept", deptParam);
     params.set("status", rosterFilter);
     const res = await fetch(`/api/employees?${params.toString()}`);
     if (res.ok) {
@@ -834,7 +835,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
           className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
         />
         <button
-          onClick={loadRoster}
+          onClick={() => loadRoster()}
           className="rounded-md bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700"
         >
           搜索

@@ -6,7 +6,7 @@ export function getInitials(name: string): string {
 }
 
 export function matchEmployee(
-  employee: { name: string | null; alias: string | null; employeeId: string | null },
+  employee: { name?: string | null; alias?: string | null; employeeId?: string | null },
   keyword: string
 ): boolean {
   const query = keyword.toLowerCase();
