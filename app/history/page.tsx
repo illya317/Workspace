@@ -1,0 +1,256 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Image from "next/image";
+import UserMenu from "@/app/components/UserMenu";
+import NavLink from "@/app/components/NavLink";
+
+interface ReportItemData {
+  id: number;
+  category: string;
+  plan: string;
+  completion: string | null;
+  nextGoal: string | null;
+  sortOrder: number;
+}
+
+interface Report {
+  id: number;
+  year: number;
+  weekNumber: number;
+  taskName: string;
+  notes: string | null;
+  version: number;
+  reportGroupId?: number | null;
+  items: ReportItemData[];
+  user?: {
+    name: string;
+    departmentName: string | null;
+  };
+}
+
+interface User {
+  id: number;
+  name: string;
+  departmentId: number;
+  departmentName?: string | null;
+}
+
+export default function HistoryPage() {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetchUserAndReports();
+  }, []);
+
+  async function fetchUserAndReports() {
+    try {
+      const userRes = await fetch("/api/auth/me");
+      if (!userRes.ok) {
+        router.push("/login");
+        return;
+      }
+      const userData = await userRes.json();
+      setUser(userData.user);
+      await fetchReports(userData.user);
+    } catch {
+      router.push("/login");
+    }
+  }
+
+  async function fetchReports(currentUser: User) {
+    try {
+      // 获取可查看的周报部门
+      const rgRes = await fetch("/api/report-groups/my");
+      if (!rgRes.ok) {
+        router.push("/login");
+        return;
+      }
+      const rgData = await rgRes.json();
+      const viewGroupIds = (rgData.viewGroups || []).map((g: any) => g.id);
+
+      let allReports: Report[] = [];
+
+      // 查新数据（有 reportGroupId 的）
+      if (viewGroupIds.length > 0) {
+        const res = await fetch(`/api/reports?reportGroupIds=${viewGroupIds.join(",")}`);
+        if (res.ok) {
+          const data = await res.json();
+          allReports = [...(data.reports || [])];
+        }
+      }
+
+      // 查旧数据（兼容：无 reportGroupId，按 scopeId）
+      if (currentUser?.departmentId) {
+        const oldRes = await fetch(`/api/reports?scopeId=${currentUser.departmentId}`);
+        if (oldRes.ok) {
+          const oldData = await oldRes.json();
+          const oldReports = (oldData.reports || []).filter((r: Report) => !r.reportGroupId);
+          allReports = [...allReports, ...oldReports];
+        }
+      }
+
+      // 去重（按 id）
+      const seen = new Set<number>();
+      allReports = allReports.filter((r) => {
+        if (seen.has(r.id)) return false;
+        seen.add(r.id);
+        return true;
+      });
+
+      // 排序
+      allReports.sort((a, b) => {
+        if (a.year !== b.year) return b.year - a.year;
+        return b.weekNumber - a.weekNumber;
+      });
+
+      setReports(allReports);
+    } catch {
+      router.push("/login");
+    }
+    setLoading(false);
+  }
+
+  function renderItems(items: ReportItemData[], category: string) {
+    const filtered = items
+      .filter((i) => i.category === category)
+      .sort((a, b) => a.sortOrder - b.sortOrder);
+
+    if (filtered.length === 0) return null;
+
+    return (
+      <div className="space-y-2">
+        {filtered.map((item, index) => (
+          <div key={item.id} className="rounded-md bg-gray-50 p-3">
+            <div className="mb-1 text-xs font-medium text-gray-500">
+              第 {index + 1} 条
+            </div>
+            <div className="grid grid-cols-1 gap-1 text-sm md:grid-cols-2">
+              <div>
+                <span className="text-xs text-gray-400">完成：</span>
+                <span className="text-gray-700">{item.completion || "-"}</span>
+              </div>
+              <div>
+                <span className="text-xs text-gray-400">目标：</span>
+                <span className="text-gray-700">{item.nextGoal || "-"}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-gray-500">加载中...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="bg-white shadow-sm">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2">
+            <Image src="/company/logo.png" alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"} width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
+          </div>
+          <div className="flex items-center gap-5">
+            <button
+              onClick={() => router.push("/portal")}
+              className="text-sm text-gray-500 hover:text-emerald-600"
+            >
+              返回入口
+            </button>
+            <NavLink href="/dashboard">填写周报</NavLink>
+            <NavLink href="/works">工作清单</NavLink>
+            <NavLink href="/history">历史记录</NavLink>
+            <UserMenu user={user} />
+          </div>
+        </div>
+      </nav>
+      <main className="mx-auto max-w-4xl px-4 py-8">
+        <h2 className="mb-6 text-xl font-semibold text-gray-800">历史周报</h2>
+
+        {reports.length === 0 ? (
+          <div className="rounded-lg bg-white p-8 text-center shadow-sm">
+            <p className="text-gray-500">暂无周报记录</p>
+            <Link href="/dashboard" className="mt-2 inline-block text-sm text-emerald-500 hover:underline">
+              去填写第一份周报
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {reports.map((report) => (
+              <div key={report.id} className="rounded-lg bg-white p-4 shadow-sm">
+                <div
+                  className="flex cursor-pointer items-center justify-between"
+                  onClick={() => setExpanded(expanded === report.id ? null : report.id)}
+                >
+                  <div>
+                    <h3 className="font-medium text-gray-800">
+                      {report.year} 年第 {report.weekNumber} 周
+                    </h3>
+                    <p className="text-sm text-gray-500">
+                      {report.taskName}
+                      {report.user?.name && (
+                        <span className="ml-2 text-xs text-gray-400">
+                          填写人：{report.user.name}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {report.version > 1 && (
+                      <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700">
+                        V{report.version}
+                      </span>
+                    )}
+                    <span className="text-sm text-gray-400">
+                      {expanded === report.id ? "收起" : "展开"}
+                    </span>
+                  </div>
+                </div>
+
+                {expanded === report.id && (
+                  <div className="mt-4 space-y-4 border-t pt-4">
+                    {/* 日常工作 */}
+                    {report.items.some((i) => i.category === "routine") && (
+                      <div>
+                        <h4 className="mb-2 text-sm font-semibold text-emerald-700">日常工作</h4>
+                        {renderItems(report.items, "routine")}
+                      </div>
+                    )}
+
+                    {/* 其他工作 */}
+                    {report.items.some((i) => i.category === "non-routine") && (
+                      <div>
+                        <h4 className="mb-2 text-sm font-semibold text-gray-700">其他工作</h4>
+                        {renderItems(report.items, "non-routine")}
+                      </div>
+                    )}
+
+                    {/* 备注 */}
+                    {report.notes && (
+                      <div className="text-sm">
+                        <span className="font-medium text-gray-700">备注：</span>
+                        <span className="text-gray-600">{report.notes}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}
