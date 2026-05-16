@@ -98,7 +98,7 @@ export default function AdminPage() {
   const [groupMembers, setGroupMembers] = useState<Array<{ userId: number; name: string; dept1: string; position: string }>>([]);
   const [groupAdmins, setGroupAdmins] = useState<Array<{ id: number; name: string; dept1: string; position: string }>>([]);
   const [adminUserIds, setAdminUserIds] = useState<number[]>([]);
-  const [showAdminEdit, setShowAdminEdit] = useState(false);
+  const [isEditingGroup, setIsEditingGroup] = useState(false);
   const [memberSearchQuery, setMemberSearchQuery] = useState("");
   const [memberSearchResults, setMemberSearchResults] = useState<Array<{ rowId: number; employeeId: string; name: string; dept1: string; position: string; userId: number | null }>>([]);
   const [memberSearchTimer, setMemberSearchTimer] = useState<ReturnType<typeof setTimeout> | null>(null);
@@ -317,7 +317,7 @@ export default function AdminPage() {
 
   async function selectGroup(groupId: number | null) {
     setSelectedGroupId(groupId);
-    setShowAdminEdit(false);
+    setIsEditingGroup(false);
     setMemberSearchQuery("");
     setMemberSearchResults([]);
 
@@ -632,43 +632,35 @@ export default function AdminPage() {
               const selectedGroup = reportGroups.find((g) => g.id === selectedGroupId);
               if (!selectedGroup) return null;
               const isAdminOfSelected = user?.isWorkListAdmin || groupAdmins.some((a) => a.id === user?.id);
+              const canEdit = user?.isWorkListAdmin || isAdminOfSelected;
               return (
                 <div className="space-y-4">
-                  {/* 基本信息 + 负责人 */}
+                  {/* 基本信息 */}
                   <div className="rounded-lg bg-white p-4 shadow-sm">
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex items-start justify-between">
                       <div>
                         <h3 className="text-base font-semibold text-gray-800">{selectedGroup.name}</h3>
                         <p className="text-xs text-gray-500">
                           {selectedGroup.description || "无描述"} · 排序 {selectedGroup.sortOrder}
                         </p>
                       </div>
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-xs text-gray-500">负责人：</span>
-                        {groupAdmins.length === 0 && (
-                          <span className="text-xs text-gray-400">未设置</span>
-                        )}
-                        {groupAdmins.map((a) => (
-                          <span key={a.id} className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">
-                            {a.name}
-                          </span>
-                        ))}
-                        {user?.isWorkListAdmin && (
-                          <button
-                            onClick={() => setShowAdminEdit(!showAdminEdit)}
-                            className="text-xs text-emerald-600 hover:text-emerald-800"
-                          >
-                            {showAdminEdit ? "取消" : "编辑"}
-                          </button>
-                        )}
-                      </div>
+                      {canEdit && (
+                        <button
+                          onClick={() => setIsEditingGroup(!isEditingGroup)}
+                          className="text-xs text-emerald-600 hover:text-emerald-800"
+                        >
+                          {isEditingGroup ? "取消" : "设置"}
+                        </button>
+                      )}
                     </div>
+                  </div>
 
-                    {showAdminEdit && user?.isWorkListAdmin && (
-                      <div className="mt-3 border-t pt-3">
-                        <h3 className="mb-3 text-sm font-semibold text-gray-700">负责人</h3>
+                  {/* 负责人 */}
+                  {user?.isWorkListAdmin && (
+                    <div className="rounded-lg bg-white p-4 shadow-sm">
+                      <h3 className="mb-3 text-sm font-semibold text-gray-700">负责人</h3>
 
-                        {/* 搜索 */}
+                      {isEditingGroup && (
                         <div className="relative mb-3">
                           <input
                             type="text"
@@ -687,7 +679,7 @@ export default function AdminPage() {
                             <div className="absolute z-10 mt-1 w-full rounded-md border bg-white shadow-lg">
                               {adminSearchResults.map((emp) => (
                                 <div
-                                  key={emp.rowId}
+                                  key={`admin-${emp.rowId}-${emp.dept1}-${emp.position}`}
                                   onClick={() => { if (emp.userId) addAdmin(emp); }}
                                   className={`px-3 py-2 text-sm text-gray-800 ${emp.userId ? "cursor-pointer hover:bg-gray-50" : "pointer-events-none opacity-50"}`}
                                 >
@@ -698,35 +690,104 @@ export default function AdminPage() {
                             </div>
                           )}
                         </div>
+                      )}
 
-                        {/* 已选负责人 */}
-                        <div className="mb-3 flex flex-wrap gap-2">
-                          {groupAdmins.map((a) => (
-                            <span
-                              key={a.id}
-                              className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs text-emerald-700"
-                            >
-                              {a.name}-{a.dept1 || "未知部门"}-{a.position || "未知职务"}
+                      <div className="mb-3 flex flex-wrap gap-2">
+                        {groupAdmins.map((a) => (
+                          <span
+                            key={a.id}
+                            className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs text-emerald-700"
+                          >
+                            {a.name}
+                            {isEditingGroup && (
                               <button
                                 onClick={() => removeAdmin(a.id)}
                                 className="ml-1 text-emerald-500 hover:text-emerald-800"
                               >
                                 ×
                               </button>
-                            </span>
-                          ))}
-                          {groupAdmins.length === 0 && (
-                            <span className="text-xs text-gray-400">暂未选择负责人</span>
+                            )}
+                          </span>
+                        ))}
+                        {groupAdmins.length === 0 && (
+                          <span className="text-xs text-gray-400">暂未选择负责人</span>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 填写人员 */}
+                  {isAdminOfSelected && (
+                    <div className="rounded-lg bg-white p-4 shadow-sm">
+                      <h3 className="mb-3 text-sm font-semibold text-gray-700">填写人员</h3>
+
+                      {isEditingGroup && (
+                        <div className="relative mb-3">
+                          <input
+                            type="text"
+                            value={memberSearchQuery}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              setMemberSearchQuery(val);
+                              if (memberSearchTimer) clearTimeout(memberSearchTimer);
+                              const timer = setTimeout(() => searchEmployees(val), 300);
+                              setMemberSearchTimer(timer);
+                            }}
+                            placeholder="输入姓名搜索花名册..."
+                            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none"
+                          />
+                          {memberSearchResults.length > 0 && (
+                            <div className="absolute z-10 mt-1 w-full rounded-md border bg-white shadow-lg">
+                              {memberSearchResults.map((emp) => (
+                                <div
+                                  key={`member-${emp.rowId}-${emp.dept1}-${emp.position}`}
+                                  onClick={() => { if (emp.userId) addMember(emp); }}
+                                  className={`px-3 py-2 text-sm text-gray-800 ${emp.userId ? "cursor-pointer hover:bg-gray-50" : "pointer-events-none opacity-50"}`}
+                                >
+                                  {emp.name}-{emp.dept1 || "未知部门"}-{emp.position || "未知职务"}
+                                  {!emp.userId && <span className="text-gray-400"> (未关联用户)</span>}
+                                </div>
+                              ))}
+                            </div>
                           )}
                         </div>
+                      )}
 
-                        <div className="mt-2 flex gap-2">
+                      <div className="mb-3 flex flex-wrap gap-2">
+                        {groupMembers.map((m) => (
+                          <span
+                            key={m.userId}
+                            className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs text-emerald-700"
+                          >
+                            {m.name}
+                            {isEditingGroup && (
+                              <button
+                                onClick={() => removeMember(m.userId)}
+                                className="ml-1 text-emerald-500 hover:text-emerald-800"
+                              >
+                                ×
+                              </button>
+                            )}
+                          </span>
+                        ))}
+                        {groupMembers.length === 0 && (
+                          <span className="text-xs text-gray-400">暂无填写人员</span>
+                        )}
+                      </div>
+
+                      {isEditingGroup && (
+                        <div className="flex gap-2">
                           <button
-                            onClick={() => {
-                              saveAdmins(selectedGroupId);
-                              setShowAdminEdit(false);
+                            onClick={async () => {
+                              await Promise.all([
+                                saveAdmins(selectedGroupId),
+                                saveMembers(selectedGroupId),
+                              ]);
+                              setIsEditingGroup(false);
                               setAdminSearchQuery("");
                               setAdminSearchResults([]);
+                              setMemberSearchQuery("");
+                              setMemberSearchResults([]);
                               selectGroup(selectedGroupId);
                             }}
                             className="rounded-md bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-700"
@@ -735,9 +796,11 @@ export default function AdminPage() {
                           </button>
                           <button
                             onClick={() => {
-                              setShowAdminEdit(false);
+                              setIsEditingGroup(false);
                               setAdminSearchQuery("");
                               setAdminSearchResults([]);
+                              setMemberSearchQuery("");
+                              setMemberSearchResults([]);
                               selectGroup(selectedGroupId);
                             }}
                             className="rounded-md border border-gray-300 px-3 py-1 text-xs text-gray-600 hover:bg-gray-50"
@@ -745,73 +808,7 @@ export default function AdminPage() {
                             取消
                           </button>
                         </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* 填写人员 */}
-                  {isAdminOfSelected && (
-                    <div className="rounded-lg bg-white p-4 shadow-sm">
-                      <h3 className="mb-3 text-sm font-semibold text-gray-700">填写人员</h3>
-
-                      {/* 搜索 */}
-                      <div className="relative mb-3">
-                        <input
-                          type="text"
-                          value={memberSearchQuery}
-                          onChange={(e) => {
-                            const val = e.target.value;
-                            setMemberSearchQuery(val);
-                            if (memberSearchTimer) clearTimeout(memberSearchTimer);
-                            const timer = setTimeout(() => searchEmployees(val), 300);
-                            setMemberSearchTimer(timer);
-                          }}
-                          placeholder="输入姓名搜索花名册..."
-                          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none"
-                        />
-                        {memberSearchResults.length > 0 && (
-                          <div className="absolute z-10 mt-1 w-full rounded-md border bg-white shadow-lg">
-                            {memberSearchResults.map((emp) => (
-                              <div
-                                key={emp.rowId}
-                                onClick={() => { if (emp.userId) addMember(emp); }}
-                                className={`px-3 py-2 text-sm text-gray-800 ${emp.userId ? "cursor-pointer hover:bg-gray-50" : "pointer-events-none opacity-50"}`}
-                              >
-                                {emp.name}-{emp.dept1 || "未知部门"}-{emp.position || "未知职务"}
-                                {!emp.userId && <span className="text-gray-400"> (未关联用户)</span>}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* 已选成员 */}
-                      <div className="mb-3 flex flex-wrap gap-2">
-                        {groupMembers.map((m) => (
-                          <span
-                            key={m.userId}
-                            className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs text-emerald-700"
-                          >
-                            {m.name}-{m.dept1 || "未知部门"}-{m.position || "未知职务"}
-                            <button
-                              onClick={() => removeMember(m.userId)}
-                              className="ml-1 text-emerald-500 hover:text-emerald-800"
-                            >
-                              ×
-                            </button>
-                          </span>
-                        ))}
-                        {groupMembers.length === 0 && (
-                          <span className="text-xs text-gray-400">暂无填写人员</span>
-                        )}
-                      </div>
-
-                      <button
-                        onClick={() => saveMembers(selectedGroupId)}
-                        className="rounded-md bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-700"
-                      >
-                        保存填写人员
-                      </button>
+                      )}
                     </div>
                   )}
 
