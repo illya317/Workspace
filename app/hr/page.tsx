@@ -787,6 +787,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
   });
 
   // 计算合并信息：同 employeeId 且字段值相同的单元格合并
+  // 注意：新 API 下同一员工的多岗位行共享同一个 emp.id，所以必须用行索引做 key
   const mergeInfo = (() => {
     const info = new Map<number, Record<string, { rowspan: number; skip: boolean }>>();
     let i = 0;
@@ -803,10 +804,11 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
           const values = group.map((e) => (e as any)[key]);
           const allSame = values.every((v) => v === values[0]);
           if (allSame) {
-            group.forEach((e, idx) => {
-              const map = info.get(e.id) || {};
+            group.forEach((_, idx) => {
+              const globalIdx = i + idx;
+              const map = info.get(globalIdx) || {};
               map[key] = { rowspan: group.length, skip: idx !== 0 };
-              info.set(e.id, map);
+              info.set(globalIdx, map);
             });
           }
         }
@@ -953,10 +955,10 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
               </tr>
             </thead>
             <tbody>
-              {sortedEmployees.map((emp) => {
-                const empMerge = mergeInfo.get(emp.id) || {};
+              {sortedEmployees.map((emp, rowIndex) => {
+                const empMerge = mergeInfo.get(rowIndex) || {};
                 return (
-                  <tr key={emp.id} className={`border-b last:border-0 hover:bg-gray-50 ${emp.status === "离职" ? "bg-gray-100" : ""}`}>
+                  <tr key={`${emp.employeeId}-${rowIndex}`} className={`border-b last:border-0 hover:bg-gray-50 ${emp.status === "离职" ? "bg-gray-100" : ""}`}>
                     {displayFields.map((f) => {
                       const merge = empMerge[f.key];
                       if (merge?.skip) {
