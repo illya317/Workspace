@@ -153,14 +153,30 @@ function CodeTab({
     load();
   }, [apiPath, companyCode]);
 
+  // 编码前缀对应的公司名（01/02/03 共享）
+  const PREFIX_TO_COMPANIES: Record<string, string[]> = {
+    "01": ["丰华生物", "丰华天力通", "丰华悦通"],
+    "02": ["丰华生物", "丰华天力通", "丰华悦通"],
+    "03": ["丰华生物", "丰华天力通", "丰华悦通"],
+    "04": ["丰华制药"],
+    "05": ["加拿大"],
+  };
+
   // 计算每个编码的人数统计
   useEffect(() => {
     const map: Record<string, number> = {};
     for (const c of codes) {
+      const prefix = c.code.slice(0, 2);
+      const allowedCompanies = PREFIX_TO_COMPANIES[prefix] || [];
+      const companyEmps = employees.filter((e) => allowedCompanies.includes(e.company || ""));
       if (type === "department") {
-        map[c.code] = employees.filter((e) => e.dept1 === c.name && e.status !== "离职" && !e.deleted).length;
+        map[c.code] = companyEmps.filter((e) => e.dept1 === c.name).length;
       } else {
-        map[c.code] = employees.filter((e) => e.position && e.position.includes(c.name) && e.status !== "离职" && !e.deleted).length;
+        map[c.code] = companyEmps.filter((e) => {
+          if (!e.position) return false;
+          const positions = e.position.split("、").map((p) => p.trim());
+          return positions.includes(c.name);
+        }).length;
       }
     }
     setStats(map);
@@ -648,7 +664,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
     const res = await fetch(`/api/employees/autocomplete?type=dept&q=${encodeURIComponent(query)}`);
     if (res.ok) {
       const data = await res.json();
-      setDeptSuggestions(data.suggestions || []);
+      setDeptSuggestions(data.items || []);
     }
   }
 
