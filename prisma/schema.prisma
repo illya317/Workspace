@@ -35,15 +35,17 @@ model User {
 }
 
 model ReportGroup {
-  id          Int                 @id @default(autoincrement())
-  name        String
-  description String?
-  sortOrder   Int                 @default(0)
-  createdAt   DateTime            @default(now())
-  admins      ReportGroupAdmin[]
-  members     ReportGroupMember[]
-  viewers     ReportGroupViewer[]
-  reports     WeeklyReport[]
+  id           Int                 @id @default(autoincrement())
+  name         String
+  description  String?
+  sortOrder    Int                 @default(0)
+  departmentId Int?
+  department   Department?         @relation(fields: [departmentId], references: [id])
+  createdAt    DateTime            @default(now())
+  admins       ReportGroupAdmin[]
+  members      ReportGroupMember[]
+  viewers      ReportGroupViewer[]
+  reports      WeeklyReport[]
 }
 
 model ReportGroupAdmin {
@@ -147,10 +149,12 @@ model WorkParticipant {
   @@index([workItemId])
 }
 
+// 保留旧 Employee 表完整结构（数据迁移前不删除字段）
 model Employee {
   id            Int      @id @default(autoincrement())
-  employeeId    String
+  employeeId    String   @unique
   name          String
+  alias         String?
   company       String?
   center        String?
   dept1         String?
@@ -177,12 +181,66 @@ model Employee {
   updatedAt     DateTime @updatedAt
   leaveDate     String?
   status        String?  @default("在职")
-  alias         String?
   deleted       Boolean? @default(false)
   deletedTime   String?
   deletedBy     String?
   userId        Int?
   user          User?    @relation(fields: [userId], references: [id])
+  positions     EmployeePosition[]
+}
+
+// 新增部门表
+model Department {
+  id                Int                @id @default(autoincrement())
+  code              String             @unique
+  name              String
+  company           String
+  level             Int
+  parentId          Int?
+  parent            Department?        @relation("DeptHierarchy", fields: [parentId], references: [id])
+  children          Department[]       @relation("DeptHierarchy")
+  managerId         String?
+  positions         DepartmentPosition[]
+  employeePositions EmployeePosition[]
+  reportGroups      ReportGroup[]
+  createdAt         DateTime           @default(now())
+}
+
+// 新增岗位表
+model Position {
+  id                Int                @id @default(autoincrement())
+  code              String             @unique
+  name              String
+  company           String
+  departments       DepartmentPosition[]
+  employeePositions EmployeePosition[]
+  createdAt         DateTime           @default(now())
+}
+
+// 新增员工岗位关联表
+model EmployeePosition {
+  id           Int        @id @default(autoincrement())
+  employeeId   Int
+  employee     Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  departmentId Int
+  department   Department @relation(fields: [departmentId], references: [id])
+  positionId   Int
+  position     Position   @relation(fields: [positionId], references: [id])
+  center       String?
+  isPrimary    Boolean    @default(false)
+  sortOrder    Int        @default(0)
+  createdAt    DateTime   @default(now())
+}
+
+// 新增部门-岗位配置表
+model DepartmentPosition {
+  id           Int        @id @default(autoincrement())
+  departmentId Int
+  positionId   Int
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  position     Position   @relation(fields: [positionId], references: [id], onDelete: Cascade)
+
+  @@unique([departmentId, positionId])
 }
 
 model FieldPermission {
@@ -212,13 +270,13 @@ model CompanyCode {
 }
 
 model DepartmentCode {
-  code        String  @id  // 格式: companyCode+deptCode 如 "01001" / "04001"
+  code        String  @id
   name        String
   companyCode String?
 }
 
 model PositionCode {
-  code        String  @id  // 格式: companyCode+positionCode 如 "01001" / "04001"
+  code        String  @id
   name        String
   companyCode String?
 }

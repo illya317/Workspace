@@ -162,7 +162,7 @@ export default function DashboardPage() {
         const actualPrevWeek = prevWeek < 1 ? 52 : prevWeek;
         return fetch(`/api/reports?year=${prevYear}&week=${actualPrevWeek}${rgParam}`);
       })(),
-      fetch(`/api/works?deptId=${user.departmentId}`),
+      fetch(rgId ? `/api/works?reportGroupId=${rgId}` : `/api/works?deptId=${user.departmentId}`),
     ]);
 
     const reportsData = await reportsRes.json();

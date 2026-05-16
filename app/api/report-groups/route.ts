@@ -18,6 +18,7 @@ export async function GET(request: Request) {
     groups = await prisma.reportGroup.findMany({
       orderBy: { sortOrder: "asc" },
       include: {
+        department: { select: { id: true, name: true } },
         _count: {
           select: { members: true, viewers: true, reports: true },
         },
@@ -37,6 +38,7 @@ export async function GET(request: Request) {
       where: { id: { in: groupIds } },
       orderBy: { sortOrder: "asc" },
       include: {
+        department: { select: { id: true, name: true } },
         _count: {
           select: { members: true, viewers: true, reports: true },
         },
@@ -52,7 +54,7 @@ export async function POST(request: Request) {
   if (error) return NextResponse.json({ error }, { status });
 
   const body = await request.json();
-  const { name, description, sortOrder } = body;
+  const { name, description, sortOrder, departmentId } = body;
 
   if (!name) {
     return NextResponse.json({ error: "名称不能为空" }, { status: 400 });
@@ -63,6 +65,7 @@ export async function POST(request: Request) {
       name,
       description: description || null,
       sortOrder: sortOrder ?? 0,
+      departmentId: departmentId || null,
     },
   });
 

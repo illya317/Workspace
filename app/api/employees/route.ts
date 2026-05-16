@@ -73,41 +73,115 @@ export async function GET(request: Request) {
     return companyName;
   }
 
-  const where: any = {};
-  // 公司隔离：非管理员只能看自己公司数据
-  if (!user?.isWorkListAdmin && user?.company) {
-    where.company = resolveCompanyFilter(user.company);
-  } else if (company) {
-    where.company = resolveCompanyFilter(company);
-  }
-  if (dept) where.dept1 = { contains: dept };
-
   // 在职/离职筛选（默认只看在职）
   const statusFilter = searchParams.get("status") || "在职";
+  const employeeWhere: any = {};
   if (statusFilter === "在职") {
-    where.status = "在职";
-    where.deleted = false;
+    employeeWhere.status = "在职";
+    employeeWhere.deleted = false;
   } else if (statusFilter === "离职") {
-    where.status = "离职";
+    employeeWhere.status = "离职";
   }
 
-  const employees = await prisma.employee.findMany({
-    where,
+  // 1. 获取基础员工列表
+  let baseEmployees = await prisma.employee.findMany({
+    where: employeeWhere,
     orderBy: [{ employeeId: "asc" }],
   });
 
   // 关键词支持拼音首字母搜索
-  let filteredEmployees = employees;
   if (keyword) {
-    const query = keyword.toLowerCase();
-    filteredEmployees = employees.filter((e) => matchEmployee(e, query));
+    baseEmployees = baseEmployees.filter((e) => matchEmployee(e, keyword));
   }
+
+  const employeeIds = baseEmployees.map((e) => e.id);
+  const empMap = new Map(baseEmployees.map((e) => [e.id, e]));
+
+  // 2. 查询 EmployeePosition（带部门和岗位筛选）
+  const epWhere: any = { employeeId: { in: employeeIds } };
+  if (dept) {
+    epWhere.department = { name: { contains: dept } };
+  }
+
+  // 公司隔离：非管理员只能看自己公司数据
+  const targetCompany = !user?.isWorkListAdmin && user?.company
+    ? resolveCompanyFilter(user.company)
+    : company || "";
+  if (targetCompany) {
+    epWhere.department = {
+      ...(epWhere.department || {}),
+      company: resolveCompanyFilter(targetCompany),
+    };
+  }
+
+  const eps = await prisma.employeePosition.findMany({
+    where: epWhere,
+    include: { department: true, position: true },
+    orderBy: [{ employeeId: "asc" }, { sortOrder: "asc" }],
+  });
+
+  // 3. 扁平化为前端兼容格式
+  function flattenRow(emp: any, ep: any) {
+    return {
+      id: emp.id,
+      employeeId: emp.employeeId,
+      name: emp.name,
+      alias: emp.alias,
+      company: ep?.department?.company ?? emp.company ?? "",
+      center: ep?.center ?? emp.center ?? "",
+      dept1: ep?.department?.name ?? emp.dept1 ?? "",
+      dept2: emp.dept2 ?? "",
+      position: ep?.position?.name ?? emp.position ?? "",
+      gender: emp.gender,
+      ethnicity: emp.ethnicity,
+      hometown: emp.hometown,
+      politics: emp.politics,
+      education: emp.education,
+      title: emp.title,
+      school: emp.school,
+      major: emp.major,
+      majorRelevant: emp.majorRelevant,
+      phone: emp.phone,
+      office1: emp.office1,
+      office2: emp.office2,
+      office3: emp.office3,
+      attendance1: emp.attendance1,
+      attendance2: emp.attendance2,
+      joinDate: emp.joinDate,
+      nature: emp.nature,
+      status: emp.status,
+      leaveDate: emp.leaveDate,
+      deleted: emp.deleted,
+      deletedTime: emp.deletedTime,
+      deletedBy: emp.deletedBy,
+      userId: emp.userId,
+    };
+  }
+
+  const rows: any[] = [];
+  const epEmpIds = new Set(eps.map((ep) => ep.employeeId));
+
+  for (const ep of eps) {
+    const emp = empMap.get(ep.employeeId);
+    if (emp) rows.push(flattenRow(emp, ep));
+  }
+
+  // 无岗位筛选时，补充没有 EmployeePosition 的员工
+  if (!dept && !targetCompany) {
+    for (const emp of baseEmployees) {
+      if (!epEmpIds.has(emp.id)) {
+        rows.push(flattenRow(emp, null));
+      }
+    }
+  }
+
+  // 保持 employeeId 排序，同员工多岗位保持连续
+  rows.sort((a, b) => a.employeeId.localeCompare(b.employeeId));
 
   const visibleFields = await getVisibleFields(payload.userId, !!user?.isWorkListAdmin);
 
   if (exportExcel) {
-    // 按权限过滤字段后导出 Excel
-    const exportData = filteredEmployees.map((emp) => {
+    const exportData = rows.map((emp) => {
       const row: Record<string, any> = {};
       for (const f of FIELDS) {
         if (visibleFields.includes(f.key)) {
@@ -131,12 +205,13 @@ export async function GET(request: Request) {
   }
 
   // 所有公司和部门（不随筛选变化，用于下拉框）
+  // TODO: 后续改从 Department 表获取
   const companyWhere: any = {};
   if (!user?.isWorkListAdmin && user?.company) {
     companyWhere.company = resolveCompanyFilter(user.company);
   }
-  const allCompanies = [...new Set((await prisma.employee.findMany({ where: companyWhere, select: { company: true } })).map(e => e.company).filter(Boolean))];
-  const allDepts = [...new Set((await prisma.employee.findMany({ where: companyWhere, select: { dept1: true } })).map(e => e.dept1).filter(Boolean))];
+  const allCompanies = [...new Set((await prisma.employee.findMany({ where: companyWhere, select: { company: true } })).map((e: any) => e.company).filter(Boolean))];
+  const allDepts = [...new Set((await prisma.employee.findMany({ where: companyWhere, select: { dept1: true } })).map((e: any) => e.dept1).filter(Boolean))];
 
-  return NextResponse.json({ employees: filteredEmployees, fields: FIELDS, visibleFields, allCompanies, allDepts });
+  return NextResponse.json({ employees: rows, fields: FIELDS, visibleFields, allCompanies, allDepts });
 }

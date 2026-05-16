@@ -22,28 +22,21 @@ export async function GET(request: Request) {
   const where: any = {};
   if (company) where.company = company;
 
-  const depts = await prisma.department.findMany({
+  const positions = await prisma.position.findMany({
     where,
     include: {
       _count: { select: { employeePositions: true } },
-      parent: { select: { id: true, name: true } },
-      children: { select: { id: true, name: true } },
     },
     orderBy: { code: "asc" },
   });
 
   return NextResponse.json({
-    departments: depts.map((d) => ({
-      id: d.id,
-      code: d.code,
-      name: d.name,
-      company: d.company,
-      level: d.level,
-      parentId: d.parentId,
-      parentName: d.parent?.name || null,
-      managerId: d.managerId,
-      headcount: d._count.employeePositions,
-      children: d.children.map((c) => ({ id: c.id, name: c.name })),
+    positions: positions.map((p) => ({
+      id: p.id,
+      code: p.code,
+      name: p.name,
+      company: p.company,
+      headcount: p._count.employeePositions,
     })),
   });
 }
@@ -58,24 +51,17 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { code, name, company, level, parentId, managerId } = body;
+  const { code, name, company } = body;
 
   if (!code || !name || !company) {
     return NextResponse.json({ error: "缺少必填字段" }, { status: 400 });
   }
 
   try {
-    const created = await prisma.department.create({
-      data: {
-        code,
-        name,
-        company,
-        level: level || 1,
-        parentId: parentId || null,
-        managerId: managerId || null,
-      },
+    const created = await prisma.position.create({
+      data: { code, name, company },
     });
-    return NextResponse.json({ success: true, department: created });
+    return NextResponse.json({ success: true, position: created });
   } catch (e: any) {
     if (e.code === "P2002") {
       return NextResponse.json({ error: "编码已存在" }, { status: 409 });
@@ -94,7 +80,7 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { id, code, name, company, level, parentId, managerId } = body;
+  const { id, code, name, company } = body;
 
   if (!id) {
     return NextResponse.json({ error: "缺少id" }, { status: 400 });
@@ -104,22 +90,19 @@ export async function PUT(request: Request) {
   if (code !== undefined) data.code = code;
   if (name !== undefined) data.name = name;
   if (company !== undefined) data.company = company;
-  if (level !== undefined) data.level = level;
-  if (parentId !== undefined) data.parentId = parentId || null;
-  if (managerId !== undefined) data.managerId = managerId || null;
 
   try {
-    const updated = await prisma.department.update({
+    const updated = await prisma.position.update({
       where: { id },
       data,
     });
-    return NextResponse.json({ success: true, department: updated });
+    return NextResponse.json({ success: true, position: updated });
   } catch (e: any) {
     if (e.code === "P2002") {
       return NextResponse.json({ error: "编码已存在" }, { status: 409 });
     }
     if (e.code === "P2025") {
-      return NextResponse.json({ error: "部门不存在" }, { status: 404 });
+      return NextResponse.json({ error: "岗位不存在" }, { status: 404 });
     }
     throw e;
   }
@@ -141,14 +124,14 @@ export async function DELETE(request: Request) {
   }
 
   try {
-    await prisma.department.delete({ where: { id: parseInt(id) } });
+    await prisma.position.delete({ where: { id: parseInt(id) } });
     return NextResponse.json({ success: true });
   } catch (e: any) {
     if (e.code === "P2025") {
-      return NextResponse.json({ error: "部门不存在" }, { status: 404 });
+      return NextResponse.json({ error: "岗位不存在" }, { status: 404 });
     }
     if (e.code === "P2003") {
-      return NextResponse.json({ error: "该部门下有关联岗位，无法删除" }, { status: 409 });
+      return NextResponse.json({ error: "该岗位下有关联员工，无法删除" }, { status: 409 });
     }
     throw e;
   }

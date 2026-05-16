@@ -38,6 +38,7 @@ export async function GET(request: Request) {
   const category = searchParams.get("category");
   const includeArchived = searchParams.get("includeArchived") === "true";
   const deptIdParam = searchParams.get("deptId");
+  const reportGroupIdParam = searchParams.get("reportGroupId");
 
   let departmentId = payload.departmentId;
   if (deptIdParam) {
@@ -46,6 +47,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "无权限" }, { status: 403 });
     }
     departmentId = parseInt(deptIdParam);
+  }
+  if (reportGroupIdParam) {
+    const rg = await prisma.reportGroup.findUnique({
+      where: { id: parseInt(reportGroupIdParam) },
+      select: { departmentId: true },
+    });
+    if (rg?.departmentId) {
+      departmentId = rg.departmentId;
+    }
   }
 
   const where: { departmentId: number; category?: string; isArchived?: boolean } = {

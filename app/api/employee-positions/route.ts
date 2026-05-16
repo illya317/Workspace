@@ -17,33 +17,37 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const company = searchParams.get("company") || "";
+  const employeeId = searchParams.get("employeeId");
 
   const where: any = {};
-  if (company) where.company = company;
+  if (employeeId) where.employeeId = parseInt(employeeId);
 
-  const depts = await prisma.department.findMany({
+  const eps = await prisma.employeePosition.findMany({
     where,
     include: {
-      _count: { select: { employeePositions: true } },
-      parent: { select: { id: true, name: true } },
-      children: { select: { id: true, name: true } },
+      employee: { select: { id: true, employeeId: true, name: true } },
+      department: { select: { id: true, code: true, name: true, company: true } },
+      position: { select: { id: true, code: true, name: true } },
     },
-    orderBy: { code: "asc" },
+    orderBy: [{ employeeId: "asc" }, { sortOrder: "asc" }],
   });
 
   return NextResponse.json({
-    departments: depts.map((d) => ({
-      id: d.id,
-      code: d.code,
-      name: d.name,
-      company: d.company,
-      level: d.level,
-      parentId: d.parentId,
-      parentName: d.parent?.name || null,
-      managerId: d.managerId,
-      headcount: d._count.employeePositions,
-      children: d.children.map((c) => ({ id: c.id, name: c.name })),
+    employeePositions: eps.map((ep) => ({
+      id: ep.id,
+      employeeId: ep.employeeId,
+      employeeName: ep.employee?.name,
+      employeeCode: ep.employee?.employeeId,
+      departmentId: ep.departmentId,
+      departmentName: ep.department?.name,
+      departmentCode: ep.department?.code,
+      departmentCompany: ep.department?.company,
+      positionId: ep.positionId,
+      positionName: ep.position?.name,
+      positionCode: ep.position?.code,
+      center: ep.center,
+      isPrimary: ep.isPrimary,
+      sortOrder: ep.sortOrder,
     })),
   });
 }
@@ -58,27 +62,26 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { code, name, company, level, parentId, managerId } = body;
+  const { employeeId, departmentId, positionId, center, isPrimary } = body;
 
-  if (!code || !name || !company) {
+  if (!employeeId || !departmentId || !positionId) {
     return NextResponse.json({ error: "缺少必填字段" }, { status: 400 });
   }
 
   try {
-    const created = await prisma.department.create({
+    const created = await prisma.employeePosition.create({
       data: {
-        code,
-        name,
-        company,
-        level: level || 1,
-        parentId: parentId || null,
-        managerId: managerId || null,
+        employeeId: parseInt(employeeId),
+        departmentId: parseInt(departmentId),
+        positionId: parseInt(positionId),
+        center: center || null,
+        isPrimary: isPrimary || false,
       },
     });
-    return NextResponse.json({ success: true, department: created });
+    return NextResponse.json({ success: true, employeePosition: created });
   } catch (e: any) {
-    if (e.code === "P2002") {
-      return NextResponse.json({ error: "编码已存在" }, { status: 409 });
+    if (e.code === "P2003") {
+      return NextResponse.json({ error: "员工、部门或岗位不存在" }, { status: 400 });
     }
     throw e;
   }
@@ -94,32 +97,28 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { id, code, name, company, level, parentId, managerId } = body;
+  const { id, departmentId, positionId, center, isPrimary, sortOrder } = body;
 
   if (!id) {
     return NextResponse.json({ error: "缺少id" }, { status: 400 });
   }
 
   const data: any = {};
-  if (code !== undefined) data.code = code;
-  if (name !== undefined) data.name = name;
-  if (company !== undefined) data.company = company;
-  if (level !== undefined) data.level = level;
-  if (parentId !== undefined) data.parentId = parentId || null;
-  if (managerId !== undefined) data.managerId = managerId || null;
+  if (departmentId !== undefined) data.departmentId = parseInt(departmentId);
+  if (positionId !== undefined) data.positionId = parseInt(positionId);
+  if (center !== undefined) data.center = center || null;
+  if (isPrimary !== undefined) data.isPrimary = isPrimary;
+  if (sortOrder !== undefined) data.sortOrder = sortOrder;
 
   try {
-    const updated = await prisma.department.update({
+    const updated = await prisma.employeePosition.update({
       where: { id },
       data,
     });
-    return NextResponse.json({ success: true, department: updated });
+    return NextResponse.json({ success: true, employeePosition: updated });
   } catch (e: any) {
-    if (e.code === "P2002") {
-      return NextResponse.json({ error: "编码已存在" }, { status: 409 });
-    }
     if (e.code === "P2025") {
-      return NextResponse.json({ error: "部门不存在" }, { status: 404 });
+      return NextResponse.json({ error: "记录不存在" }, { status: 404 });
     }
     throw e;
   }
@@ -141,14 +140,11 @@ export async function DELETE(request: Request) {
   }
 
   try {
-    await prisma.department.delete({ where: { id: parseInt(id) } });
+    await prisma.employeePosition.delete({ where: { id: parseInt(id) } });
     return NextResponse.json({ success: true });
   } catch (e: any) {
     if (e.code === "P2025") {
-      return NextResponse.json({ error: "部门不存在" }, { status: 404 });
-    }
-    if (e.code === "P2003") {
-      return NextResponse.json({ error: "该部门下有关联岗位，无法删除" }, { status: 409 });
+      return NextResponse.json({ error: "记录不存在" }, { status: 404 });
     }
     throw e;
   }
