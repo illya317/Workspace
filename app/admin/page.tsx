@@ -692,9 +692,9 @@ export default function AdminPage() {
                         ) : (
                           <div>
                             <h3 className="text-base font-semibold text-gray-800">{selectedGroup.name}</h3>
-                            <p className="text-xs text-gray-500">
-                              {selectedGroup.description || "无描述"}
-                            </p>
+                            {selectedGroup.description && (
+                              <p className="text-xs text-gray-500">{selectedGroup.description}</p>
+                            )}
                           </div>
                         )}
                       </div>
