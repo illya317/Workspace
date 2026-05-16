@@ -644,7 +644,7 @@ export default function AdminPage() {
                           <span className="text-xs text-gray-400">未设置</span>
                         )}
                         {groupAdmins.map((a) => (
-                          <span key={a.id} className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700">
+                          <span key={a.id} className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">
                             {a.name}
                           </span>
                         ))}
@@ -699,12 +699,12 @@ export default function AdminPage() {
                           {groupAdmins.map((a) => (
                             <span
                               key={a.id}
-                              className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-xs text-blue-700"
+                              className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs text-emerald-700"
                             >
                               {a.name}-{a.dept1 || "未知部门"}-{a.position || "未知职务"}
                               <button
                                 onClick={() => removeAdmin(a.id)}
-                                className="ml-1 text-blue-500 hover:text-blue-800"
+                                className="ml-1 text-emerald-500 hover:text-emerald-800"
                               >
                                 ×
                               </button>
@@ -1107,20 +1107,28 @@ export default function AdminPage() {
                 >
                   全部
                 </button>
-                {[...new Set(departments.map((d) => d.company).filter(Boolean))].sort().map((c) => (
-                  <button
-                    key={c}
-                    onClick={() => setDeptAdminCompany(c)}
-                    className={`pb-2 text-sm font-medium ${deptAdminCompany === c ? "border-b-2 border-emerald-500 text-emerald-600" : "text-gray-500 hover:text-gray-700"}`}
-                  >
-                    {c}
-                  </button>
-                ))}
+                <button
+                  onClick={() => setDeptAdminCompany("丰华制药")}
+                  className={`pb-2 text-sm font-medium ${deptAdminCompany === "丰华制药" ? "border-b-2 border-emerald-500 text-emerald-600" : "text-gray-500 hover:text-gray-700"}`}
+                >
+                  丰华制药
+                </button>
+                <button
+                  onClick={() => setDeptAdminCompany("丰华生物")}
+                  className={`pb-2 text-sm font-medium ${deptAdminCompany === "丰华生物" ? "border-b-2 border-emerald-500 text-emerald-600" : "text-gray-500 hover:text-gray-700"}`}
+                >
+                  丰华生物
+                </button>
               </div>
 
               <div className="space-y-3">
                 {departments
-                  .filter((d) => !deptAdminCompany || d.company === deptAdminCompany)
+                  .filter((d) => {
+                    if (!deptAdminCompany) return true;
+                    const subs = ["丰华生物", "丰华天力通", "丰华悦通", "加拿大"];
+                    const isSub = subs.includes(deptAdminCompany);
+                    return isSub ? subs.includes(d.company) : d.company === deptAdminCompany;
+                  })
                   .map((dept) => {
                     const admins = deptAdmins.filter(
                       (a) => a.dept1 === dept.dept1 && a.company === dept.company
@@ -1135,7 +1143,7 @@ export default function AdminPage() {
                           {admins.map((a) => (
                             <span
                               key={a.id}
-                              className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-700"
+                              className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700"
                             >
                               {a.user.name}
                               <button
@@ -1150,7 +1158,7 @@ export default function AdminPage() {
                                     },
                                   })
                                 }
-                                className="ml-1 text-blue-500 hover:text-blue-800"
+                                className="ml-1 text-emerald-500 hover:text-emerald-800"
                               >
                                 ×
                               </button>
