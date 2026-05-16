@@ -27,6 +27,7 @@ export async function GET(request: Request) {
       departmentName: true,
       departmentId: true,
       isWorkListAdmin: true,
+      canLogin: true,
       canSelectAnyWeek: true,
       canAccessHR: true,
       canAccessWorks: true,
