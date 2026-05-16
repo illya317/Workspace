@@ -610,6 +610,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
     if (selectedCompany) params.set("company", selectedCompany);
     const deptParam = deptOverride !== undefined ? deptOverride : filterDept;
     if (deptParam) params.set("dept", deptParam);
+    if (keyword) params.set("keyword", keyword);
     params.set("status", rosterFilter);
     const res = await fetch(`/api/employees?${params.toString()}`);
     if (res.ok) {
@@ -835,7 +836,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
           className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
         />
         <button
-          onClick={() => loadRoster()}
+          onClick={() => loadRoster(deptQuery)}
           className="rounded-md bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700"
         >
           搜索

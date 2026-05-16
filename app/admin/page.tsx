@@ -1504,7 +1504,7 @@ function PermissionTablePanel({
                   : "border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
               }`}
             >
-              有权限的
+              有权限
             </button>
             <button
               onClick={() => setPermTab("not")}
@@ -1514,7 +1514,7 @@ function PermissionTablePanel({
                   : "border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
               }`}
             >
-              没权限的
+              无权限
             </button>
           </div>
 
@@ -1544,7 +1544,7 @@ function PermissionTablePanel({
                     <div key={u.id} className="rounded-md border border-gray-200 p-3 flex items-center justify-between">
                       <div>
                         <div className="text-sm font-medium text-gray-800">{u.name}</div>
-                        <div className="text-xs text-gray-500">{u.username} · {u.departmentName || "无部门"}</div>
+                        <div className="text-xs text-gray-500">{[u.username, u.departmentName].filter(Boolean).join(" · ") || "无部门"}</div>
                       </div>
                       <button
                         onClick={() => toggleUserPerm(u.id, selectedPermission, true)}
@@ -1576,7 +1576,7 @@ function PermissionTablePanel({
                     <div key={u.id} className="rounded-md border border-gray-200 p-3 flex items-center justify-between">
                       <div>
                         <div className="text-sm font-medium text-gray-800">{u.name}</div>
-                        <div className="text-xs text-gray-500">{u.username} · {u.departmentName || "无部门"}</div>
+                        <div className="text-xs text-gray-500">{[u.username, u.departmentName].filter(Boolean).join(" · ") || "无部门"}</div>
                       </div>
                       <button
                         onClick={() => toggleUserPerm(u.id, selectedPermission, false)}
