@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import NavLink from "@/app/components/NavLink";
 import UserMenu from "@/app/components/UserMenu";
-import { getInitials } from "@/lib/search";
+import { matchEmployee } from "@/lib/search";
 
 interface User {
   id: number;
@@ -1281,7 +1281,6 @@ function PermissionTablePanel({
   const [permSearchResults, setPermSearchResults] = useState<User[]>([]);
   const [selectedPermission, setSelectedPermission] = useState("");
   const [selectedUserPerm, setSelectedUserPerm] = useState<User | null>(null);
-  const [permTab, setPermTab] = useState<"has" | "not">("has");
   const [localUsers, setLocalUsers] = useState<User[]>(users);
   const [permToast, setPermToast] = useState<{ show: boolean; message: string }>({ show: false, message: "" });
   const [listSearchQuery, setListSearchQuery] = useState("");
@@ -1340,26 +1339,12 @@ function PermissionTablePanel({
     ? localUsers.filter((u) => (u as any)[selectedPermission] !== true)
     : [];
 
-  const query = listSearchQuery.trim().toLowerCase();
+  const query = listSearchQuery.trim();
   const filteredUsersWithPerm = query
-    ? usersWithPerm.filter(
-        (u) =>
-          u.name.toLowerCase().includes(query) ||
-          (u.username?.toLowerCase().includes(query) ?? false) ||
-          (u.departmentName?.toLowerCase().includes(query) ?? false) ||
-          (u.employeeId?.toLowerCase().includes(query) ?? false) ||
-          getInitials(u.name).includes(query)
-      )
+    ? usersWithPerm.filter((u) => matchEmployee(u, query))
     : usersWithPerm;
   const filteredUsersWithoutPerm = query
-    ? usersWithoutPerm.filter(
-        (u) =>
-          u.name.toLowerCase().includes(query) ||
-          (u.username?.toLowerCase().includes(query) ?? false) ||
-          (u.departmentName?.toLowerCase().includes(query) ?? false) ||
-          (u.employeeId?.toLowerCase().includes(query) ?? false) ||
-          getInitials(u.name).includes(query)
-      )
+    ? usersWithoutPerm.filter((u) => matchEmployee(u, query))
     : usersWithoutPerm;
 
   return (
@@ -1408,7 +1393,6 @@ function PermissionTablePanel({
                 key={p.key}
                 onClick={() => {
                   setSelectedPermission(p.key);
-                  setPermTab("has");
                   setListSearchQuery("");
                 }}
                 className={`cursor-pointer rounded-md border p-3 ${
@@ -1501,29 +1485,6 @@ function PermissionTablePanel({
       {/* 按权限视图：选中权限后的子Tab */}
       {permView === "by-permission" && selectedPermission && (
         <div className="rounded-lg bg-white p-4 shadow-sm">
-          <div className="flex gap-2 mb-4 border-b border-gray-200 pb-3">
-            <button
-              onClick={() => setPermTab("has")}
-              className={`rounded-md px-4 py-1.5 text-sm ${
-                permTab === "has"
-                  ? "bg-emerald-600 text-white"
-                  : "border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              有权限
-            </button>
-            <button
-              onClick={() => setPermTab("not")}
-              className={`rounded-md px-4 py-1.5 text-sm ${
-                permTab === "not"
-                  ? "bg-emerald-600 text-white"
-                  : "border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              无权限
-            </button>
-          </div>
-
           {/* 列表搜索 */}
           <div className="mb-4">
             <input
@@ -1535,69 +1496,39 @@ function PermissionTablePanel({
             />
           </div>
 
-          {permTab === "has" && (
-            <div>
-              <p className="mb-2 text-sm text-gray-600">
-                共有 <span className="font-semibold">{usersWithPerm.length}</span> 人拥有「
-                {allPermissions.find((p) => p.key === selectedPermission)?.label}」权限
-                {listSearchQuery.trim() && filteredUsersWithPerm.length !== usersWithPerm.length
-                  ? `，筛选后 ${filteredUsersWithPerm.length} 人`
-                  : ""}
-              </p>
-              {filteredUsersWithPerm.length > 0 ? (
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
-                  {filteredUsersWithPerm.map((u) => (
+          <div>
+            <p className="mb-2 text-sm text-gray-600">
+              共 <span className="font-semibold">{localUsers.length}</span> 人，
+              <span className="font-semibold text-emerald-600">{usersWithPerm.length}</span> 人有权限，
+              <span className="font-semibold text-gray-400">{usersWithoutPerm.length}</span> 人无权限
+              {query && (
+                <span>，筛选后 <span className="font-semibold">{filteredUsersWithPerm.length + filteredUsersWithoutPerm.length}</span> 人</span>
+              )}
+            </p>
+            {filteredUsersWithPerm.length + filteredUsersWithoutPerm.length > 0 ? (
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+                {[...filteredUsersWithPerm, ...filteredUsersWithoutPerm].map((u) => {
+                  const hasPerm = (u as any)[selectedPermission] === true;
+                  return (
                     <div key={u.id} className="rounded-md border border-gray-200 p-3 flex items-center justify-between">
                       <div>
                         <div className="text-sm font-medium text-gray-800">{u.name}</div>
                         <div className="text-xs text-gray-500">{[u.username, u.departmentName].filter(Boolean).join(" · ") || "无部门"}</div>
                       </div>
                       <button
-                        onClick={() => toggleUserPerm(u.id, selectedPermission, true)}
-                        className="text-xs text-red-500 hover:text-red-700 ml-2 shrink-0"
+                        onClick={() => toggleUserPerm(u.id, selectedPermission, hasPerm)}
+                        className={`text-xs ml-2 shrink-0 ${hasPerm ? "text-red-500 hover:text-red-700" : "text-emerald-600 hover:text-emerald-700"}`}
                       >
-                        取消
+                        {hasPerm ? "取消" : "赋予"}
                       </button>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-400">{listSearchQuery.trim() ? "无匹配结果" : "暂无拥有该权限的员工"}</p>
-              )}
-            </div>
-          )}
-
-          {permTab === "not" && (
-            <div>
-              <p className="mb-2 text-sm text-gray-600">
-                共有 <span className="font-semibold">{usersWithoutPerm.length}</span> 人未拥有「
-                {allPermissions.find((p) => p.key === selectedPermission)?.label}」权限
-                {listSearchQuery.trim() && filteredUsersWithoutPerm.length !== usersWithoutPerm.length
-                  ? `，筛选后 ${filteredUsersWithoutPerm.length} 人`
-                  : ""}
-              </p>
-              {filteredUsersWithoutPerm.length > 0 ? (
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
-                  {filteredUsersWithoutPerm.map((u) => (
-                    <div key={u.id} className="rounded-md border border-gray-200 p-3 flex items-center justify-between">
-                      <div>
-                        <div className="text-sm font-medium text-gray-800">{u.name}</div>
-                        <div className="text-xs text-gray-500">{[u.username, u.departmentName].filter(Boolean).join(" · ") || "无部门"}</div>
-                      </div>
-                      <button
-                        onClick={() => toggleUserPerm(u.id, selectedPermission, false)}
-                        className="text-xs text-emerald-600 hover:text-emerald-700 ml-2 shrink-0"
-                      >
-                        赋予
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-400">{listSearchQuery.trim() ? "无匹配结果" : "所有员工均已拥有该权限"}</p>
-              )}
-            </div>
-          )}
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400">{query ? "无匹配结果" : "暂无数据"}</p>
+            )}
+          </div>
         </div>
       )}
 

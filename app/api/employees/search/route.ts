@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getInitials } from "@/lib/search";
+import { matchEmployee } from "@/lib/search";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -27,29 +27,11 @@ export async function GET(request: Request) {
     },
   });
 
-  // 匹配逻辑：姓名/别名包含 或 拼音首字母包含
+  // 统一搜索：姓名/别名/工号/拼音首字母
   const matched = allEmployees.filter((e) => {
     if (!q) return false;
-    const nameMatch = e.name.toLowerCase().includes(query);
-    const aliasMatch = (e.alias || "").toLowerCase().includes(query);
-    const initials = getInitials(e.name);
-    const pinyinMatch = initials.includes(query);
-    return nameMatch || aliasMatch || pinyinMatch;
+    return matchEmployee(e, q);
   });
-
-  // 额外：按用户名搜索匹配的用户，反查其员工记录补充
-  if (/^[a-z0-9]+$/.test(query)) {
-    const usersByUsername = await prisma.user.findMany({
-      where: { username: { contains: query } },
-      select: { employeeId: true },
-    });
-    const extraIds = usersByUsername.map((u) => u.employeeId).filter(Boolean) as string[];
-    for (const e of allEmployees) {
-      if (extraIds.includes(e.employeeId) && !matched.some((m) => m.id === e.id)) {
-        matched.push(e);
-      }
-    }
-  }
 
   // 去重 + 限制20条
   const seen = new Set<number>();
