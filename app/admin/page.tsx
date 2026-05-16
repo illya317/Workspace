@@ -297,7 +297,7 @@ export default function AdminPage() {
     const res = await fetch(`/api/report-groups/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: editName }),
+      body: JSON.stringify({ name: editName, departmentId: editDeptId }),
     });
     if (res.ok) {
       await loadData();
@@ -359,6 +359,7 @@ export default function AdminPage() {
     setEditName(group?.name || "");
     setEditDescription(group?.description || "");
     setEditSortOrder(group?.sortOrder || 0);
+    setEditDeptId(group?.departmentId ?? null);
 
     const [membersRes, adminsRes] = await Promise.all([
       fetch(`/api/report-groups/${groupId}/members`),
@@ -708,6 +709,37 @@ export default function AdminPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* 相关部门 */}
+                  {canEdit && (
+                    <div className="rounded-lg bg-white p-4 shadow-sm">
+                      <h3 className="mb-3 text-sm font-semibold text-gray-700">相关部门</h3>
+                      {isEditingGroup ? (
+                        <select
+                          value={editDeptId ?? ""}
+                          onChange={(e) => setEditDeptId(e.target.value ? parseInt(e.target.value) : null)}
+                          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none"
+                        >
+                          <option value="">不关联部门</option>
+                          {allDepts.map((d) => (
+                            <option key={d.id} value={d.id}>
+                              {d.name} ({d.company})
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {selectedGroup.department ? (
+                            <span className="inline-flex items-center rounded-full bg-blue-50 px-3 py-1 text-xs text-blue-700">
+                              {selectedGroup.department.name}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-gray-400">未关联部门</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* 负责人 */}
                   {user?.isWorkListAdmin && (

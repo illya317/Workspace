@@ -13,7 +13,7 @@ export async function PUT(
   if (error) return NextResponse.json({ error }, { status });
 
   const body = await request.json();
-  const { name, description, sortOrder } = body;
+  const { name, description, sortOrder, departmentId } = body;
 
   const group = await prisma.reportGroup.update({
     where: { id: groupId },
@@ -21,6 +21,7 @@ export async function PUT(
       name,
       description: description ?? undefined,
       sortOrder: sortOrder ?? undefined,
+      departmentId: departmentId === "" ? null : (departmentId ?? undefined),
     },
   });
 
