@@ -759,7 +759,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
       }
     } else {
       // 还有其他岗位：仅软删除，前端移除该行
-      setEmployees((prev) => prev.filter((e) => e.id !== emp.id));
+      setEmployees((prev) => prev.filter((e) => !(e.employeeId === emp.employeeId && e.dept1 === emp.dept1 && e.position === emp.position)));
       setSaveTip("已移除该岗位");
       setTimeout(() => setSaveTip(""), 1500);
     }
@@ -971,7 +971,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     const otherActive = employees.filter(
-                                      (e2) => e2.employeeId === emp.employeeId && e2.id !== emp.id && e2.status !== "离职" && !e2.deleted
+                                      (e2) => e2.employeeId === emp.employeeId && (e2.dept1 !== emp.dept1 || e2.position !== emp.position) && e2.status !== "离职" && !e2.deleted
                                     );
                                     const isLastPosition = otherActive.length === 0;
                                     setConfirmResignModal({ open: true, emp, isLastPosition });
@@ -1027,7 +1027,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     const otherActive = employees.filter(
-                                      (e2) => e2.employeeId === emp.employeeId && e2.id !== emp.id && e2.status !== "离职" && !e2.deleted
+                                      (e2) => e2.employeeId === emp.employeeId && (e2.dept1 !== emp.dept1 || e2.position !== emp.position) && e2.status !== "离职" && !e2.deleted
                                     );
                                     const isLastPosition = otherActive.length === 0;
                                     setConfirmResignModal({ open: true, emp, isLastPosition });
