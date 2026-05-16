@@ -804,6 +804,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
             onBlur={() => {
               deptBlurTimer.current = setTimeout(() => setShowDeptSuggestions(false), 200);
             }}
+            onKeyDown={(e) => { if (e.key === "Enter") loadRoster(deptQuery); }}
             placeholder="部门筛选"
             className="w-48 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
           />
@@ -835,12 +836,6 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
           placeholder="姓名筛选"
           className="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
         />
-        <button
-          onClick={() => loadRoster(deptQuery)}
-          className="rounded-md bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700"
-        >
-          搜索
-        </button>
         <button
           onClick={() => { setFilterDept(""); setDeptQuery(""); setKeyword(""); setRosterFilter("在职"); loadRoster(); }}
           className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
