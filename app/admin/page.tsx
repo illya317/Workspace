@@ -844,9 +844,8 @@ export default function AdminPage() {
                 className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none sm:w-auto"
               >
                 <option value="">所有公司</option>
-                {[...new Set(empPerms.flatMap(e => e.roles.map(r => r.company)).filter(Boolean))].map(c => (
-                  <option key={c} value={c!}>{c}</option>
-                ))}
+                <option value="丰华生物">丰华生物</option>
+                <option value="丰华制药">丰华制药</option>
               </select>
               <select
                 value={filterDept}
@@ -858,8 +857,12 @@ export default function AdminPage() {
                 {[...new Set(
                   (() => {
                     if (!filterCompany) return [];
+                    const subs = ["丰华生物", "丰华天力通", "丰华悦通", "加拿大"];
+                    const isSub = subs.includes(filterCompany);
                     return empPerms
-                      .filter(e => e.roles.some(r => r.company === filterCompany))
+                      .filter(e => e.roles.some(r =>
+                        isSub ? subs.includes(r.company || "") : r.company === filterCompany
+                      ))
                       .flatMap(e => e.roles.map(r => r.dept1))
                       .filter(Boolean);
                   })()
@@ -907,7 +910,11 @@ export default function AdminPage() {
                   <tbody>
                     {empPerms
                       .filter(e => {
-                        if (filterCompany && !e.roles.some(r => r.company === filterCompany)) return false;
+                        if (filterCompany) {
+                          const subs = ["丰华生物", "丰华天力通", "丰华悦通", "加拿大"];
+                          const isSub = subs.includes(filterCompany);
+                          if (!e.roles.some(r => isSub ? subs.includes(r.company || "") : r.company === filterCompany)) return false;
+                        }
                         if (filterDept && !e.roles.some(r => r.dept1 === filterDept)) return false;
                         if (searchKeyword) {
                           const kw = searchKeyword.toLowerCase();
