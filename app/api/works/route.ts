@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { authenticate, isAnyGroupAdmin } from "@/lib/auth";
+import { authenticate, isAnyGroupAdmin, requireGroupAccess } from "@/lib/auth";
 
 async function requireAdminUser(userId: number) {
   const user = await prisma.user.findUnique({
@@ -49,8 +49,12 @@ export async function GET(request: Request) {
     departmentId = parseInt(deptIdParam);
   }
   if (reportGroupIdParam) {
+    const rgId = parseInt(reportGroupIdParam);
+    const { error, status } = await requireGroupAccess(request, rgId);
+    if (error) return NextResponse.json({ error }, { status });
+
     const rg = await prisma.reportGroup.findUnique({
-      where: { id: parseInt(reportGroupIdParam) },
+      where: { id: rgId },
       select: { departmentId: true },
     });
     if (rg?.departmentId) {

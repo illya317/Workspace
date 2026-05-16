@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { authenticate } from "@/lib/auth";
+import { authenticate, requireGroupAccess, requireGroupSubmit } from "@/lib/auth";
 import { getCurrentWeekInfo } from "@/lib/week";
 
 export async function GET(request: Request) {
@@ -21,6 +21,12 @@ export async function GET(request: Request) {
     : payload.departmentId;
 
   const reportGroupIds = searchParams.get("reportGroupIds");
+
+  // 权限校验：按单个 reportGroupId 查询时验证权限
+  if (reportGroupId) {
+    const { error, status } = await requireGroupAccess(request, reportGroupId);
+    if (error) return NextResponse.json({ error }, { status });
+  }
 
   let where: any;
 
@@ -63,6 +69,12 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
+
+  // 权限校验：提交周报时验证是否有权限
+  if (body.reportGroupId) {
+    const { error, status } = await requireGroupSubmit(request, body.reportGroupId);
+    if (error) return NextResponse.json({ error }, { status });
+  }
   const {
     taskName,
     notes,

@@ -29,17 +29,34 @@ export async function PUT(
   const departmentId = payload.departmentId;
 
   async function canEdit(report: NonNullable<typeof existing>) {
-    // 如果有 reportGroupId，检查用户是否是填报成员
+    // 管理员直接放行
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { isWorkListAdmin: true },
+    });
+    if (user?.isWorkListAdmin) return true;
+
+    // 如果有 reportGroupId，检查用户是否是填报成员或负责人
     if (report.reportGroupId) {
-      const member = await prisma.reportGroupMember.findUnique({
-        where: {
-          reportGroupId_userId: {
-            reportGroupId: report.reportGroupId,
-            userId,
+      const [member, admin] = await Promise.all([
+        prisma.reportGroupMember.findUnique({
+          where: {
+            reportGroupId_userId: {
+              reportGroupId: report.reportGroupId,
+              userId,
+            },
           },
-        },
-      });
-      return !!member;
+        }),
+        prisma.reportGroupAdmin.findUnique({
+          where: {
+            reportGroupId_userId: {
+              reportGroupId: report.reportGroupId,
+              userId,
+            },
+          },
+        }),
+      ]);
+      return !!member || !!admin;
     }
     // 旧数据回退逻辑
     if (report.scopeType === "department") {
@@ -51,7 +68,8 @@ export async function PUT(
     return report.userId === userId;
   }
 
-  if (!canEdit(existing)) {
+  const editable = await canEdit(existing);
+  if (!editable) {
     return NextResponse.json(
       { error: "无权修改此周报" },
       { status: 403 }

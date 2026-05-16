@@ -99,6 +99,59 @@ export async function requireGroupAdmin(request: Request, groupId: number) {
   return { error: null, status: 200, payload };
 }
 
+// 验证用户是否有权限访问该周报部门（成员/负责人/viewer/管理员）
+export async function requireGroupAccess(request: Request, groupId: number) {
+  const payload = await authenticate(request);
+  if (!payload) {
+    return { error: "未登录", status: 401, payload: null };
+  }
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { isWorkListAdmin: true },
+  });
+  if (user?.isWorkListAdmin) {
+    return { error: null, status: 200, payload };
+  }
+  const [isAdmin, isMember, isViewer] = await Promise.all([
+    isGroupAdmin(payload.userId, groupId),
+    prisma.reportGroupMember.findUnique({
+      where: { reportGroupId_userId: { reportGroupId: groupId, userId: payload.userId } },
+    }).then(Boolean),
+    prisma.reportGroupViewer.findUnique({
+      where: { reportGroupId_userId: { reportGroupId: groupId, userId: payload.userId } },
+    }).then(Boolean),
+  ]);
+  if (!isAdmin && !isMember && !isViewer) {
+    return { error: "无权限访问该部门", status: 403, payload: null };
+  }
+  return { error: null, status: 200, payload };
+}
+
+// 验证用户是否有权限提交该周报（成员/负责人/管理员，viewer 不行）
+export async function requireGroupSubmit(request: Request, groupId: number) {
+  const payload = await authenticate(request);
+  if (!payload) {
+    return { error: "未登录", status: 401, payload: null };
+  }
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { isWorkListAdmin: true },
+  });
+  if (user?.isWorkListAdmin) {
+    return { error: null, status: 200, payload };
+  }
+  const [isAdmin, isMember] = await Promise.all([
+    isGroupAdmin(payload.userId, groupId),
+    prisma.reportGroupMember.findUnique({
+      where: { reportGroupId_userId: { reportGroupId: groupId, userId: payload.userId } },
+    }).then(Boolean),
+  ]);
+  if (!isAdmin && !isMember) {
+    return { error: "无权限提交该部门周报", status: 403, payload: null };
+  }
+  return { error: null, status: 200, payload };
+}
+
 export async function authenticate(
   request: Request
 ): Promise<AuthPayload | null> {
