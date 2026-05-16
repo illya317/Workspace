@@ -602,7 +602,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
   const deptBlurTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [confirmResignModal, setConfirmResignModal] = useState<{ open: boolean; emp: Employee | null; isLastPosition: boolean }>({ open: false, emp: null, isLastPosition: false });
-  const [rosterFilter, setRosterFilter] = useState<"在职" | "全部">("在职");
+  const [rosterFilter, setRosterFilter] = useState<"在职" | "离职">("在职");
 
   async function loadRoster(deptOverride?: string) {
     setLoading(true);
@@ -780,10 +780,10 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
             在职
           </button>
           <button
-            onClick={() => { setRosterFilter("全部"); }}
-            className={`px-3 py-1.5 text-sm ${rosterFilter === "全部" ? "bg-emerald-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
+            onClick={() => { setRosterFilter("离职"); }}
+            className={`px-3 py-1.5 text-sm ${rosterFilter === "离职" ? "bg-emerald-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
           >
-            全部
+            离职
           </button>
         </div>
         <div className="relative">
@@ -804,8 +804,8 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
             onBlur={() => {
               deptBlurTimer.current = setTimeout(() => setShowDeptSuggestions(false), 200);
             }}
-            placeholder="输入部门筛选"
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
+            placeholder="部门筛选"
+            className="w-48 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
           />
           {showDeptSuggestions && deptSuggestions.length > 0 && (
             <ul className="absolute z-10 mt-1 max-h-48 w-full overflow-auto rounded-md border border-gray-200 bg-white py-1 text-sm shadow-lg">
@@ -832,8 +832,8 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") loadRoster(); }}
-          placeholder="搜索姓名或ID"
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
+          placeholder="姓名筛选"
+          className="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
         />
         <button
           onClick={() => loadRoster(deptQuery)}
