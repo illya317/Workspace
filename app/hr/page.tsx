@@ -677,15 +677,27 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
   async function saveEdit() {
     if (!editingCell) return;
     const { id, field } = editingCell;
+    const emp = employees.find((e) => e.id === id);
+    if (!emp) return;
+
+    const sameEmpRows = employees.filter((e) => e.employeeId === emp.employeeId);
+    const isMergeable = sameEmpRows.length > 1 && sameEmpRows.every((e) => (e as any)[field] === (emp as any)[field]);
+
     const res = await fetch(`/api/employees/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ field, value: editValue || null }),
     });
     if (res.ok) {
-      setEmployees((prev) =>
-        prev.map((e) => (e.id === id ? { ...e, [field]: editValue || null } : e))
-      );
+      if (isMergeable) {
+        setEmployees((prev) =>
+          prev.map((e) => (e.employeeId === emp.employeeId ? { ...e, [field]: editValue || null } : e))
+        );
+      } else {
+        setEmployees((prev) =>
+          prev.map((e) => (e.id === id ? { ...e, [field]: editValue || null } : e))
+        );
+      }
       setSaveTip("保存成功");
       setTimeout(() => setSaveTip(""), 1500);
     } else {
@@ -771,8 +783,38 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
     const bVal = (b as any)[sortField] || "";
     if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
     if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
-    return 0;
+    return a.employeeId.localeCompare(b.employeeId);
   });
+
+  // 计算合并信息：同 employeeId 且字段值相同的单元格合并
+  const mergeInfo = (() => {
+    const info = new Map<number, Record<string, { rowspan: number; skip: boolean }>>();
+    let i = 0;
+    while (i < sortedEmployees.length) {
+      const emp = sortedEmployees[i];
+      let j = i + 1;
+      while (j < sortedEmployees.length && sortedEmployees[j].employeeId === emp.employeeId) {
+        j++;
+      }
+      const group = sortedEmployees.slice(i, j);
+      if (group.length > 1) {
+        for (const field of displayFields) {
+          const key = field.key;
+          const values = group.map((e) => (e as any)[key]);
+          const allSame = values.every((v) => v === values[0]);
+          if (allSame) {
+            group.forEach((e, idx) => {
+              const map = info.get(e.id) || {};
+              map[key] = { rowspan: group.length, skip: idx !== 0 };
+              info.set(e.id, map);
+            });
+          }
+        }
+      }
+      i = j;
+    }
+    return info;
+  })();
 
   function toggleSort(field: string) {
     if (sortField === field) {
@@ -911,65 +953,97 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
               </tr>
             </thead>
             <tbody>
-              {sortedEmployees.map((emp) => (
-                <tr key={emp.id} className={`border-b last:border-0 hover:bg-gray-50 ${emp.status === "离职" ? "bg-gray-100" : ""}`}>
-                  {displayFields.map((f) => {
-                    const isEditing = editingCell?.id === emp.id && editingCell?.field === f.key;
-                    const val = (emp as any)[f.key] || "";
-                    return (
-                      <Fragment key={f.key}>
-                        <td
-                          onClick={() => startEdit(emp, f.key)}
-                          className={`whitespace-nowrap px-3 py-2 text-gray-700 ${
-                            user.isWorkListAdmin && editMode ? "cursor-pointer hover:bg-emerald-50" : ""
-                          }`}
-                        >
-                          {isEditing ? (
-                            <div className="flex items-center gap-1">
-                              <input
-                                ref={inputRef}
-                                value={editValue}
-                                onChange={(e) => setEditValue(e.target.value)}
-                                onBlur={() => setEditingCell(null)}
-                                onKeyDown={handleKeyDown}
-                                className="w-full rounded border border-emerald-400 px-1 py-0.5 text-xs focus:outline-none"
-                              />
-                              <button
-                                onMouseDown={(e) => { e.preventDefault(); saveEdit(); }}
-                                className="shrink-0 rounded bg-emerald-500 px-1.5 py-0.5 text-[10px] text-white hover:bg-emerald-600"
-                              >
-                                保存
-                              </button>
-                            </div>
-                          ) : (
-                            val || "-"
-                          )}
-                        </td>
-                        {f.key === "employeeId" && editMode && user?.isWorkListAdmin && (
-                          <td className="w-8 whitespace-nowrap px-1 py-2 text-center">
-                            {emp.status !== "离职" && !emp.deleted && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const otherActive = employees.filter(
-                                    (e2) => e2.employeeId === emp.employeeId && e2.id !== emp.id && e2.status !== "离职" && !e2.deleted
-                                  );
-                                  const isLastPosition = otherActive.length === 0;
-                                  setConfirmResignModal({ open: true, emp, isLastPosition });
-                                }}
-                                className="text-red-400 hover:text-red-600"
-                                title="标记离职"
-                              >
-                                ×
-                              </button>
+              {sortedEmployees.map((emp) => {
+                const empMerge = mergeInfo.get(emp.id) || {};
+                return (
+                  <tr key={emp.id} className={`border-b last:border-0 hover:bg-gray-50 ${emp.status === "离职" ? "bg-gray-100" : ""}`}>
+                    {displayFields.map((f) => {
+                      const merge = empMerge[f.key];
+                      if (merge?.skip) {
+                        // employeeId 合并时，× 按钮仍每行保留
+                        if (f.key === "employeeId" && editMode && user?.isWorkListAdmin) {
+                          return (
+                            <td key={`${f.key}-action`} className="w-8 whitespace-nowrap px-1 py-2 text-center">
+                              {emp.status !== "离职" && !emp.deleted && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const otherActive = employees.filter(
+                                      (e2) => e2.employeeId === emp.employeeId && e2.id !== emp.id && e2.status !== "离职" && !e2.deleted
+                                    );
+                                    const isLastPosition = otherActive.length === 0;
+                                    setConfirmResignModal({ open: true, emp, isLastPosition });
+                                  }}
+                                  className="text-red-400 hover:text-red-600"
+                                  title="标记离职"
+                                >
+                                  ×
+                                </button>
+                              )}
+                            </td>
+                          );
+                        }
+                        return null;
+                      }
+                      const isEditing = editingCell?.id === emp.id && editingCell?.field === f.key;
+                      const val = (emp as any)[f.key] || "";
+                      const rowSpan = merge?.rowspan && merge.rowspan > 1 ? merge.rowspan : undefined;
+                      return (
+                        <Fragment key={f.key}>
+                          <td
+                            rowSpan={rowSpan}
+                            onClick={() => startEdit(emp, f.key)}
+                            className={`whitespace-nowrap px-3 py-2 text-gray-700 ${
+                              user.isWorkListAdmin && editMode ? "cursor-pointer hover:bg-emerald-50" : ""
+                            }`}
+                          >
+                            {isEditing ? (
+                              <div className="flex items-center gap-1">
+                                <input
+                                  ref={inputRef}
+                                  value={editValue}
+                                  onChange={(e) => setEditValue(e.target.value)}
+                                  onBlur={() => setEditingCell(null)}
+                                  onKeyDown={handleKeyDown}
+                                  className="w-full rounded border border-emerald-400 px-1 py-0.5 text-xs focus:outline-none"
+                                />
+                                <button
+                                  onMouseDown={(e) => { e.preventDefault(); saveEdit(); }}
+                                  className="shrink-0 rounded bg-emerald-500 px-1.5 py-0.5 text-[10px] text-white hover:bg-emerald-600"
+                                >
+                                  保存
+                                </button>
+                              </div>
+                            ) : (
+                              val || "-"
                             )}
                           </td>
-                        )}
-                      </Fragment>
-                    );
-                  })}
-                </tr>
-              ))}
+                          {f.key === "employeeId" && editMode && user?.isWorkListAdmin && (
+                            <td className="w-8 whitespace-nowrap px-1 py-2 text-center">
+                              {emp.status !== "离职" && !emp.deleted && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const otherActive = employees.filter(
+                                      (e2) => e2.employeeId === emp.employeeId && e2.id !== emp.id && e2.status !== "离职" && !e2.deleted
+                                    );
+                                    const isLastPosition = otherActive.length === 0;
+                                    setConfirmResignModal({ open: true, emp, isLastPosition });
+                                  }}
+                                  className="text-red-400 hover:text-red-600"
+                                  title="标记离职"
+                                >
+                                  ×
+                                </button>
+                              )}
+                            </td>
+                          )}
+                        </Fragment>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}
