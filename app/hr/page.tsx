@@ -748,8 +748,7 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
     window.open(`/api/employees?${params.toString()}`, "_blank");
   }
 
-  // 花名册表格不显示公司字段（由顶部公司选择器控制）
-  const displayFields = fields.filter((f) => visibleFields.includes(f.key) && f.key !== "company");
+  const displayFields = fields.filter((f) => visibleFields.includes(f.key));
 
   const sortedEmployees = [...employees].sort((a, b) => {
     const aVal = (a as any)[sortField] || "";
