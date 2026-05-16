@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import NavLink from "@/app/components/NavLink";
 import UserMenu from "@/app/components/UserMenu";
+import { getInitials } from "@/lib/search";
 
 interface User {
   id: number;
@@ -1334,7 +1335,8 @@ function PermissionTablePanel({
       (u) =>
         u.name.toLowerCase().includes(q) ||
         (u.username?.toLowerCase() || "").includes(q) ||
-        (u.employeeId?.toLowerCase() || "").includes(q)
+        (u.employeeId?.toLowerCase() || "").includes(q) ||
+        getInitials(u.name).includes(q)
     );
     setPermSearchResults(results.slice(0, 10));
   }
