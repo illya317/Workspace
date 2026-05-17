@@ -222,7 +222,7 @@ function CodeTab({
   }
 
   function startEditRow(item: CodeItem) {
-    if (!user.isWorkListAdmin) return;
+    if (!user.canAccessHR) return;
     setEditRow(item.code);
     setEditCodeValue(item.code.length === 5 ? item.code.slice(2) : item.code);
     setEditNameValue(item.name);
@@ -338,7 +338,7 @@ function CodeTab({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
-        {user.isWorkListAdmin && (
+        {user.canAccessHR && (
           <div className="flex gap-2">
             {editMode && (
               <button
@@ -420,7 +420,7 @@ function CodeTab({
                       ) : (
                         <span>
                           {item.code}
-                          {editMode && user.isWorkListAdmin && (
+                          {editMode && user.canAccessHR && (
                             <button
                               onClick={() => setConfirmModal({ open: true, code: item.code })}
                               className="ml-1 text-red-500 hover:text-red-700"
@@ -443,7 +443,7 @@ function CodeTab({
                         <span
                           className="cursor-pointer hover:text-emerald-600"
                           onClick={() =>
-                            editMode && user.isWorkListAdmin
+                            editMode && user.canAccessHR
                               ? startEditRow(item)
                               : setDetailModal({ open: true, code: item.code, name: item.name })
                           }
@@ -463,7 +463,7 @@ function CodeTab({
                   </tr>
                 );
               })}
-              {editMode && user.isWorkListAdmin && (
+              {editMode && user.canAccessHR && (
                 <tr className="border-b last:border-0 bg-gray-50">
                   <td className="whitespace-nowrap px-2 py-1.5">
                     <input

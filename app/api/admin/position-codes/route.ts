@@ -58,8 +58,15 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const { error, status } = await requireAdmin(request);
-  if (error) return NextResponse.json({ error }, { status });
+  const payload = await authenticate(request);
+  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { isWorkListAdmin: true, canAccessHR: true },
+  });
+  if (!user?.canAccessHR && !user?.isWorkListAdmin) {
+    return NextResponse.json({ error: "无权限" }, { status: 403 });
+  }
 
   const body = await request.json();
   const { code, name, companyCode, originalCode } = body;
@@ -88,8 +95,15 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const { error, status } = await requireAdmin(request);
-  if (error) return NextResponse.json({ error }, { status });
+  const payload = await authenticate(request);
+  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { isWorkListAdmin: true, canAccessHR: true },
+  });
+  if (!user?.canAccessHR && !user?.isWorkListAdmin) {
+    return NextResponse.json({ error: "无权限" }, { status: 403 });
+  }
 
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
