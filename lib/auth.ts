@@ -228,8 +228,25 @@ function parsePermKey(permKey: string): { resourceKey: string; roleKey: string }
 
 // Check if a user has a specific resource+role grant (e.g. "system.admin", "module.hr.access")
 // Supports direct user grants AND position-inherited grants
+// RULE: system.admin bypasses all checks — super admin has every permission
 export async function checkPermission(userId: number, permKey: string): Promise<boolean> {
   const parsed = parsePermKey(permKey);
+
+  // Shortcut: system.admin is all-powerful (skip if already checking system.admin itself)
+  if (permKey !== "system.admin") {
+    const directAdmin = await prisma.userResourceRole.findFirst({
+      where: { userId, resource: { key: "system" }, role: { key: "admin" }, scopeId: null, positionId: null },
+    });
+    if (directAdmin) return true;
+    // Also check position-inherited system.admin
+    const posIds = await getUserPositionIds(userId);
+    if (posIds.length > 0) {
+      const inheritedAdmin = await prisma.userResourceRole.findFirst({
+        where: { resource: { key: "system" }, role: { key: "admin" }, scopeId: null, positionId: { in: posIds } },
+      });
+      if (inheritedAdmin) return true;
+    }
+  }
 
   // 1. Direct grant: userId matches AND positionId is null (direct user grant)
   const direct = await prisma.userResourceRole.findFirst({
