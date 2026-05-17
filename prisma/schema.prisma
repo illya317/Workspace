@@ -27,11 +27,12 @@ model User {
   canLogin           Boolean           @default(true)
   apiKey             String?           @unique
   createdAt          DateTime          @default(now())
-  managedDepartments DepartmentAdmin[]
-  fieldPermissions   FieldPermission[]
-  positions          UserPosition[]
-  reports            WeeklyReport[]
-  employees          Employee[]
+  fieldPermissions        FieldPermission[]
+  permissions             UserPermission[]
+  departmentAdmins        DepartmentAdmin[]
+  reportGroupMemberships  ReportGroupMembership[]
+  reports                 WeeklyReport[]
+  employees               Employee[]
 }
 
 model ReportGroup {
@@ -45,6 +46,7 @@ model ReportGroup {
   admins       ReportGroupAdmin[]
   members      ReportGroupMember[]
   viewers      ReportGroupViewer[]
+  memberships  ReportGroupMembership[]
   reports      WeeklyReport[]
 }
 
@@ -197,6 +199,7 @@ model Department {
   managerId         String?
   positions         DepartmentPosition[]
   employeePositions EmployeePosition[]
+  admins            DepartmentAdmin[]
   reportGroups      ReportGroup[]
   createdAt         DateTime           @default(now())
 }
@@ -242,22 +245,22 @@ model DepartmentPosition {
 model FieldPermission {
   id      Int     @id @default(autoincrement())
   field   String
-  userId  Int?
+  userId  Int
   canRead Boolean @default(true)
   canEdit Boolean @default(false)
-  user    User?   @relation(fields: [userId], references: [id])
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([field, userId])
 }
 
 model DepartmentAdmin {
-  id      Int    @id @default(autoincrement())
-  dept1   String
-  company String
-  userId  Int
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           Int        @id @default(autoincrement())
+  userId       Int
+  departmentId Int
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
 
-  @@unique([dept1, company, userId])
+  @@unique([userId, departmentId])
 }
 
 model CompanyCode {
@@ -265,15 +268,51 @@ model CompanyCode {
   name String @unique
 }
 
-model UserPosition {
-  id               String  @id
-  userId           Int
-  companyCode      String
-  deptCode         String
-  positionCode     String
-  isPrimary        Boolean @default(false)
-  canSelectAnyWeek Boolean @default(false)
-  canAccessWorks   Boolean @default(true)
-  canAccessHR      Boolean @default(false)
-  user             User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+model PermissionCategory {
+  id          Int          @id @default(autoincrement())
+  key         String       @unique
+  name        String
+  sortOrder   Int          @default(0)
+  permissions Permission[]
 }
+
+model Permission {
+  id          Int                @id @default(autoincrement())
+  key         String             @unique
+  categoryId  Int
+  category    PermissionCategory @relation(fields: [categoryId], references: [id])
+  name        String
+  description String?
+  sortOrder   Int                @default(0)
+  userGrants  UserPermission[]
+}
+
+model UserPermission {
+  id           Int        @id @default(autoincrement())
+  userId       Int
+  permissionId Int
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permissionId])
+}
+
+model GlobalFieldPermission {
+  field   String
+  canRead Boolean @default(true)
+  canEdit Boolean @default(false)
+
+  @@id([field])
+}
+
+model ReportGroupMembership {
+  id            Int         @id @default(autoincrement())
+  userId        Int
+  reportGroupId Int
+  role          String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reportGroup   ReportGroup @relation(fields: [reportGroupId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reportGroupId])
+}
+

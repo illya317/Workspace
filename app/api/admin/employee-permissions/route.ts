@@ -2,6 +2,15 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+// Map old User boolean fields to new Permission keys
+const FIELD_TO_PERM_KEY: Record<string, string> = {
+  isWorkListAdmin: "system.admin",
+  canSelectAnyWeek: "system.any_week",
+  canAccessHR: "module.hr",
+  canAccessWorks: "module.works",
+  canLogin: "system.login",
+};
+
 export async function GET(request: Request) {
   const { error, status } = await requireAdmin(request);
   if (error) return NextResponse.json({ error }, { status });
@@ -65,6 +74,14 @@ export async function GET(request: Request) {
       isWorkListAdmin: true,
       canAccessHR: true,
       apiKey: true,
+      // Include new UserPermission data
+      permissions: {
+        select: {
+          permission: {
+            select: { key: true, name: true },
+          },
+        },
+      },
     },
   });
 
@@ -88,6 +105,8 @@ export async function GET(request: Request) {
       hasApiKey: !!linkedUser?.apiKey,
       userId: linkedUser?.id ?? null,
       username: linkedUser?.username ?? null,
+      // New: granted permission keys
+      permissions: linkedUser?.permissions?.map((p) => p.permission.key) ?? [],
     };
   });
 
@@ -143,6 +162,7 @@ export async function PUT(request: Request) {
     );
   }
 
+  // 1. Update old User booleans for backward compat
   const data: Record<string, boolean> = {};
   if (typeof canSelectAnyWeek === "boolean") data.canSelectAnyWeek = canSelectAnyWeek;
   if (typeof canAccessWorks === "boolean") data.canAccessWorks = canAccessWorks;
@@ -154,6 +174,47 @@ export async function PUT(request: Request) {
     where: { id: user.id },
     data,
   });
+
+  // 2. Sync new UserPermission records
+  const fieldValues: Record<string, boolean | undefined> = {
+    isWorkListAdmin,
+    canSelectAnyWeek,
+    canAccessWorks,
+    canLogin,
+    canAccessHR,
+  };
+
+  for (const [field, value] of Object.entries(fieldValues)) {
+    if (typeof value !== "boolean") continue;
+
+    const permKey = FIELD_TO_PERM_KEY[field];
+    if (!permKey) continue;
+
+    const perm = await prisma.permission.findUnique({
+      where: { key: permKey },
+    });
+
+    if (!perm) continue; // Permission table not seeded yet — skip
+
+    if (value) {
+      // Grant: upsert UserPermission
+      await prisma.userPermission.upsert({
+        where: {
+          userId_permissionId: { userId: user.id, permissionId: perm.id },
+        },
+        create: {
+          userId: user.id,
+          permissionId: perm.id,
+        },
+        update: {},
+      });
+    } else {
+      // Revoke: delete UserPermission if exists
+      await prisma.userPermission.deleteMany({
+        where: { userId: user.id, permissionId: perm.id },
+      });
+    }
+  }
 
   return NextResponse.json({ success: true });
 }

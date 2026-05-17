@@ -21,13 +21,13 @@ export async function PUT(request: Request) {
   const body = await request.json();
   const { field, userId, canRead, canEdit } = body as {
     field: string;
-    userId: number | null;
+    userId: number;
     canRead: boolean;
     canEdit: boolean;
   };
 
   const existing = await prisma.fieldPermission.findFirst({
-    where: { field, userId: userId ?? null },
+    where: { field, userId },
   });
 
   if (existing) {
@@ -37,7 +37,7 @@ export async function PUT(request: Request) {
     });
   } else {
     await prisma.fieldPermission.create({
-      data: { field, userId: userId ?? null, canRead, canEdit },
+      data: { field, userId, canRead, canEdit },
     });
   }
 

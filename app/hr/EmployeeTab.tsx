@@ -202,7 +202,6 @@ export default function EmployeeTab({ user, selectedCompany }: { user: User; sel
                     {f.label}
                   </th>
                 ))}
-                {editMode && user.canAccessHR && <th className="whitespace-nowrap px-3 py-2"></th>}
               </tr>
             </thead>
             <tbody>
@@ -227,23 +226,23 @@ export default function EmployeeTab({ user, selectedCompany }: { user: User; sel
                             className="rounded border border-emerald-400 px-2 py-1 text-xs focus:outline-none"
                             style={{ minWidth: val ? `${String(val).length + 4}ch` : "8ch" }}
                           />
+                        ) : f.key === "employeeId" && editMode && user.canAccessHR ? (
+                          <span className="inline-flex items-center gap-1">
+                            {val || "-"}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setConfirmModal({ open: true, emp }); }}
+                              className="ml-1 text-red-500 hover:text-red-700 font-bold"
+                              title="标记离职"
+                            >
+                              ×
+                            </button>
+                          </span>
                         ) : (
                           val || "-"
                         )}
                       </td>
                     );
                   })}
-                  {editMode && user.canAccessHR && (
-                    <td className="whitespace-nowrap px-3 py-2">
-                      <button
-                        onClick={() => setConfirmModal({ open: true, emp })}
-                        className="text-red-500 hover:text-red-700"
-                        title="标记离职"
-                      >
-                        ×
-                      </button>
-                    </td>
-                  )}
                 </tr>
               ))}
             </tbody>

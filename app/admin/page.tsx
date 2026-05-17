@@ -15,6 +15,7 @@ interface User {
   departmentName: string | null;
   departmentId: number;
   isWorkListAdmin: boolean;
+  canLogin: boolean;
   canAccessHR: boolean;
   employeeId: string | null;
 }
@@ -79,7 +80,7 @@ export default function AdminPage() {
     }>
   >([]);
   const [empPermLoading, setEmpPermLoading] = useState(false);
-  const [selectedPerm, setSelectedPerm] = useState("isWorkListAdmin");
+  const [selectedPerm, setSelectedPerm] = useState("");
   const [resetResult, setResetResult] = useState<{ name: string; password: string } | null>(null);
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; title: string; message: string; onConfirm: () => void }>({ open: false, title: "", message: "", onConfirm: () => {} });
   const [toast, setToast] = useState<{ show: boolean; message: string; type: "error" | "success" }>({ show: false, message: "", type: "error" });
@@ -126,15 +127,49 @@ export default function AdminPage() {
   const [permView, setPermView] = useState<"by-user" | "by-permission">("by-permission");
   const [permSearchQuery, setPermSearchQuery] = useState("");
   const [permSearchResults, setPermSearchResults] = useState<User[]>([]);
-  const [selectedPermission, setSelectedPermission] = useState("");
   const [selectedUserPerm, setSelectedUserPerm] = useState<User | null>(null);
   const [permListSearchQuery, setPermListSearchQuery] = useState("");
 
-  const allPermissions = [
-    { key: "isWorkListAdmin", label: "超级管理员", desc: "管理后台全部权限" },
-    { key: "canLogin", label: "可登录", desc: "能否登录系统" },
-    { key: "canAccessHR", label: "人事行政", desc: "访问人事行政管理" },
-  ];
+  // Dynamic permission categories from API
+  const [permissionCategories, setPermissionCategories] = useState<Array<{
+    id: number; key: string; name: string; sortOrder: number;
+    permissions: Array<{ id: number; key: string; name: string; description: string | null; sortOrder: number; userCount: number }>;
+  }>>([]);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [selectedPermKey, setSelectedPermKey] = useState<string | null>(null);
+  const [expandedUserCat, setExpandedUserCat] = useState<string | null>(null);
+
+  // Mapping from new permission keys to old User object fields (for backward compat)
+  const NEW_PERM_TO_OLD_FIELD: Record<string, string> = {
+    "system.admin": "isWorkListAdmin",
+    "system.login": "canLogin",
+    "module.hr": "canAccessHR",
+  };
+
+  function userHasPermission(u: User, permKey: string): boolean {
+    const oldField = NEW_PERM_TO_OLD_FIELD[permKey];
+    if (oldField) return (u as any)[oldField] === true;
+    return (u as any)[permKey] === true;
+  }
+
+  async function loadPermissionCategories() {
+    const res = await fetch("/api/admin/permissions");
+    if (res.ok) {
+      const data = await res.json();
+      const cats = data.categories || [];
+      setPermissionCategories(cats);
+      // If selectedPerm is empty or an old key, default to first available permission
+      const allPerms = cats.flatMap((c: any) => c.permissions);
+      if (allPerms.length > 0) {
+        setSelectedPerm((prev) => {
+          if (!prev || !allPerms.find((p: any) => p.key === prev)) {
+            return allPerms[0].key;
+          }
+          return prev;
+        });
+      }
+    }
+  }
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -147,6 +182,7 @@ export default function AdminPage() {
         }
         setUser(u);
         loadData();
+        loadPermissionCategories();
       })
       .catch(() => router.push("/login"));
   }, [router]);
@@ -213,23 +249,43 @@ export default function AdminPage() {
       isWorkListAdmin: boolean;
       canAccessHR: boolean;
     },
-    field: "canLogin" | "isWorkListAdmin" | "canAccessHR"
+    permKey: string
   ) {
+    const oldField = NEW_PERM_TO_OLD_FIELD[permKey];
+    if (!oldField) {
+      showToast("不支持的权限类型");
+      return;
+    }
+    const currentValue = (emp as any)[oldField] === true;
     const res = await fetch("/api/admin/employee-permissions", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         employeeId: emp.employeeId,
         name: emp.name,
-        [field]: !emp[field],
+        [oldField]: !currentValue,
       }),
     });
     if (res.ok) {
       setEmpPerms((prev) =>
         prev.map((e) =>
-          e.employeeId === emp.employeeId ? { ...e, [field]: !e[field] } : e
+          e.employeeId === emp.employeeId ? { ...e, [oldField]: !currentValue } : e
         )
       );
+      // Also sync to the new user-permissions API if user exists
+      if (emp.userId) {
+        await fetch("/api/admin/user-permissions", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: emp.userId, permissionKey: permKey, value: !currentValue }),
+        });
+        const usersRes = await fetch("/api/admin/users");
+        if (usersRes.ok) {
+          const data = await usersRes.json();
+          setUsers(data.users || []);
+        }
+        loadPermissionCategories();
+      }
     } else {
       showToast("更新失败");
     }
@@ -240,19 +296,30 @@ export default function AdminPage() {
     setTimeout(() => setToast((prev) => ({ ...prev, show: false })), 3000);
   }
 
-  async function toggleUserPerm(userId: number, field: string, currentValue: boolean) {
+  async function toggleUserPerm(userId: number, permKey: string, currentValue: boolean) {
     const res = await fetch("/api/admin/user-permissions", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, field, value: !currentValue }),
+      body: JSON.stringify({ userId, permissionKey: permKey, value: !currentValue }),
     });
     if (res.ok) {
       setUsers((prev) =>
-        prev.map((u) => (u.id === userId ? { ...u, [field]: !currentValue } : u))
+        prev.map((u) => {
+          if (u.id !== userId) return u;
+          const oldField = NEW_PERM_TO_OLD_FIELD[permKey];
+          if (oldField) return { ...u, [oldField]: !currentValue };
+          return { ...u, [permKey]: !currentValue };
+        })
       );
       if (selectedUserPerm?.id === userId) {
-        setSelectedUserPerm((prev) => (prev ? { ...prev, [field]: !currentValue } : null));
+        setSelectedUserPerm((prev) => {
+          if (!prev) return null;
+          const oldField = NEW_PERM_TO_OLD_FIELD[permKey];
+          if (oldField) return { ...prev, [oldField]: !currentValue };
+          return { ...prev, [permKey]: !currentValue };
+        });
       }
+      loadPermissionCategories();
     } else {
       showToast("更新失败");
     }
@@ -928,7 +995,8 @@ export default function AdminPage() {
                 <button
                   onClick={() => {
                     setPermView("by-user");
-                    setSelectedPermission("");
+                    setSelectedPermKey(null);
+                    setExpandedCategory(null);
                     setSelectedUserPerm(null);
                   }}
                   className={`rounded-md px-4 py-2 text-sm ${
@@ -943,6 +1011,7 @@ export default function AdminPage() {
                   onClick={() => {
                     setPermView("by-permission");
                     setSelectedUserPerm(null);
+                    setExpandedUserCat(null);
                     setPermSearchQuery("");
                     setPermSearchResults([]);
                   }}
@@ -1000,6 +1069,9 @@ export default function AdminPage() {
                         <div>
                           <span className="text-base font-semibold text-gray-800">{selectedUserPerm.name}</span>
                           <span className="ml-2 text-sm text-gray-500">({selectedUserPerm.username})</span>
+                          {selectedUserPerm.departmentName && (
+                            <span className="ml-2 text-sm text-gray-400">· {selectedUserPerm.departmentName}</span>
+                          )}
                         </div>
                         <button
                           onClick={() => setSelectedUserPerm(null)}
@@ -1008,21 +1080,40 @@ export default function AdminPage() {
                           清除
                         </button>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                        {allPermissions.map((p) => {
-                          const hasPerm = (selectedUserPerm as any)[p.key] === true;
+                      <div className="space-y-2">
+                        {permissionCategories.map((cat) => {
+                          const isExpanded = expandedUserCat === cat.key;
                           return (
-                            <div
-                              key={p.key}
-                              onClick={() => toggleUserPerm(selectedUserPerm.id, p.key, hasPerm)}
-                              className={`cursor-pointer rounded-md px-3 py-2 text-sm ${
-                                hasPerm
-                                  ? "bg-emerald-50 text-emerald-700"
-                                  : "bg-gray-50 text-gray-400"
-                              }`}
-                            >
-                              <div className="font-medium">{p.label}</div>
-                              <div className="text-xs">{hasPerm ? "已开启" : "未开启"}</div>
+                            <div key={cat.key} className="rounded-md border border-gray-150">
+                              <div
+                                onClick={() => setExpandedUserCat(isExpanded ? null : cat.key)}
+                                className="flex cursor-pointer items-center justify-between rounded-md p-2 hover:bg-gray-50"
+                              >
+                                <span className="text-sm font-medium text-gray-700">
+                                  {isExpanded ? "▼" : "▶"} {cat.name}
+                                </span>
+                                <span className="text-xs text-gray-400">{cat.permissions.length} 个权限</span>
+                              </div>
+                              {isExpanded && (
+                                <div className="flex flex-wrap gap-2 px-3 pb-3">
+                                  {cat.permissions.map((p) => {
+                                    const hasPerm = userHasPermission(selectedUserPerm, p.key);
+                                    return (
+                                      <div
+                                        key={p.key}
+                                        onClick={() => toggleUserPerm(selectedUserPerm.id, p.key, hasPerm)}
+                                        className={`cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium ${
+                                          hasPerm
+                                            ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                                            : "bg-gray-50 text-gray-400 ring-1 ring-gray-100"
+                                        }`}
+                                      >
+                                        {p.name} {hasPerm ? "✓" : "✗"}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
                             </div>
                           );
                         })}
@@ -1095,12 +1186,12 @@ export default function AdminPage() {
                       onChange={(e) => setSelectedPerm(e.target.value)}
                       className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none sm:w-auto"
                     >
-                      {allPermissions.map(p => (
-                        <option key={p.key} value={p.key}>{p.label}</option>
+                      {permissionCategories.flatMap(cat => cat.permissions).map(p => (
+                        <option key={p.key} value={p.key}>{p.name}</option>
                       ))}
                     </select>
                     <button
-                      onClick={() => { setFilterCompany(""); setFilterDept(""); setSearchKeyword(""); setSelectedPerm("canLogin"); }}
+                      onClick={() => { setFilterCompany(""); setFilterDept(""); setSearchKeyword(""); setSelectedPerm(""); }}
                       className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 sm:w-auto"
                     >
                       重置
@@ -1116,7 +1207,7 @@ export default function AdminPage() {
                           <tr>
                             <th className="px-4 py-3 text-left font-medium text-gray-600">姓名/账号</th>
                             <th className="px-4 py-3 text-left font-medium text-gray-600">公司/部门/职务</th>
-                            <th className="px-4 py-3 text-center font-medium text-gray-600">{allPermissions.find(p => p.key === selectedPerm)?.label}</th>
+                            <th className="px-4 py-3 text-center font-medium text-gray-600">{permissionCategories.flatMap(cat => cat.permissions).find(p => p.key === selectedPerm)?.name || selectedPerm}</th>
                             <th className="px-4 py-3 text-right font-medium text-gray-600">操作</th>
                           </tr>
                         </thead>
@@ -1141,7 +1232,8 @@ export default function AdminPage() {
                             })
                             .sort((a, b) => (a.employeeId || "").localeCompare(b.employeeId || ""))
                             .map((e) => {
-                              const permValue = (e as any)[selectedPerm] === true;
+                              const oldField = NEW_PERM_TO_OLD_FIELD[selectedPerm];
+                              const permValue = oldField ? (e as any)[oldField] === true : (e as any)[selectedPerm] === true;
                               return (
                                 <tr key={e.employeeId} className="border-b last:border-0">
                                   <td className="px-4 py-3">
@@ -1159,7 +1251,7 @@ export default function AdminPage() {
                                   </td>
                                   <td className="px-4 py-3 text-center">
                                     <button
-                                      onClick={() => toggleEmpPerm(e, selectedPerm as any)}
+                                      onClick={() => toggleEmpPerm(e, selectedPerm)}
                                       disabled={!e.userId}
                                       className={`rounded-full px-2 py-0.5 text-xs ${permValue ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-500"} ${!e.userId ? "opacity-50 cursor-not-allowed" : ""}`}
                                     >
@@ -1229,96 +1321,126 @@ export default function AdminPage() {
             {/* 按权限视图 */}
             {permView === "by-permission" && (
               <div className="space-y-4">
-                {/* 权限卡片 */}
+                {/* Level 1: 权限类别卡片 */}
                 <div className="rounded-lg bg-white p-4 shadow-sm">
+                  <h3 className="mb-3 text-sm font-semibold text-gray-700">权限类别</h3>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
-                    {allPermissions.map((p) => (
+                    {permissionCategories.map((cat) => (
                       <div
-                        key={p.key}
+                        key={cat.key}
                         onClick={() => {
-                          setSelectedPermission(selectedPermission === p.key ? "" : p.key);
+                          setExpandedCategory(expandedCategory === cat.key ? null : cat.key);
+                          setSelectedPermKey(null);
                           setPermListSearchQuery("");
                         }}
-                        className={`cursor-pointer rounded-md border p-3 ${
-                          selectedPermission === p.key
+                        className={`cursor-pointer rounded-md border p-3 transition-colors ${
+                          expandedCategory === cat.key
                             ? "border-emerald-500 bg-emerald-50"
                             : "border-gray-200 hover:bg-gray-50"
                         }`}
                       >
-                        <div className="text-sm font-medium text-gray-800">{p.label}</div>
-                        <div className="text-xs text-gray-500">{p.desc}</div>
+                        <div className="text-sm font-medium text-gray-800">{cat.name}</div>
+                        <div className="text-xs text-gray-500">{cat.permissions.length} 个权限</div>
                       </div>
                     ))}
                   </div>
                 </div>
 
-                {/* 选中权限后的用户列表 */}
-                {selectedPermission && (
-                  <div className="rounded-lg bg-white p-4 shadow-sm">
-                    <div className="mb-4">
-                      <input
-                        type="text"
-                        value={permListSearchQuery}
-                        onChange={(e) => setPermListSearchQuery(e.target.value)}
-                        placeholder="搜索姓名、用户名或部门..."
-                        className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none"
-                      />
-                    </div>
-
-                    {(() => {
-                      const usersWithPerm = selectedPermission
-                        ? users.filter((u) => (u as any)[selectedPermission] === true)
-                        : [];
-                      const usersWithoutPerm = selectedPermission
-                        ? users.filter((u) => (u as any)[selectedPermission] !== true)
-                        : [];
-
-                      const query = permListSearchQuery.trim();
-                      const filteredUsersWithPerm = query
-                        ? usersWithPerm.filter((u) => matchEmployee(u, query))
-                        : usersWithPerm;
-                      const filteredUsersWithoutPerm = query
-                        ? usersWithoutPerm.filter((u) => matchEmployee(u, query))
-                        : usersWithoutPerm;
-
-                      return (
-                        <div>
-                          <p className="mb-2 text-sm text-gray-600">
-                            共 <span className="font-semibold">{users.length}</span> 人，
-                            <span className="font-semibold text-emerald-600">{usersWithPerm.length}</span> 人有权限，
-                            <span className="font-semibold text-gray-400">{usersWithoutPerm.length}</span> 人无权限
-                            {query && (
-                              <span>，筛选后 <span className="font-semibold">{filteredUsersWithPerm.length + filteredUsersWithoutPerm.length}</span> 人</span>
+                {/* Level 2: 展开类别下的权限子卡片 */}
+                {expandedCategory && (() => {
+                  const cat = permissionCategories.find((c) => c.key === expandedCategory);
+                  if (!cat) return null;
+                  return (
+                    <div className="rounded-lg bg-white p-4 shadow-sm">
+                      <h3 className="mb-3 text-sm font-semibold text-gray-700">{cat.name} · 权限列表</h3>
+                      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+                        {cat.permissions.map((p) => (
+                          <div
+                            key={p.key}
+                            onClick={() => {
+                              setSelectedPermKey(selectedPermKey === p.key ? null : p.key);
+                              setPermListSearchQuery("");
+                            }}
+                            className={`cursor-pointer rounded-md border p-3 transition-colors ${
+                              selectedPermKey === p.key
+                                ? "border-emerald-500 bg-emerald-50"
+                                : "border-gray-200 hover:bg-gray-50"
+                            }`}
+                          >
+                            <div className="text-sm font-medium text-gray-800">{p.name}</div>
+                            {p.description && (
+                              <div className="text-xs text-gray-500">{p.description}</div>
                             )}
-                          </p>
-                          {filteredUsersWithPerm.length + filteredUsersWithoutPerm.length > 0 ? (
-                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
-                              {[...filteredUsersWithPerm, ...filteredUsersWithoutPerm].map((u) => {
-                                const hasPerm = (u as any)[selectedPermission] === true;
-                                return (
-                                  <div key={u.id} className="rounded-md border border-gray-200 p-3 flex items-center justify-between">
-                                    <div>
-                                      <div className="text-sm font-medium text-gray-800">{u.name}</div>
-                                      <div className="text-xs text-gray-500">{[u.username, u.departmentName].filter(Boolean).join(" · ") || "无部门"}</div>
-                                    </div>
-                                    <button
-                                      onClick={() => toggleUserPerm(u.id, selectedPermission, hasPerm)}
-                                      className={`text-xs ml-2 shrink-0 ${hasPerm ? "text-red-500 hover:text-red-700" : "text-emerald-600 hover:text-emerald-700"}`}
-                                    >
-                                      {hasPerm ? "取消" : "赋予"}
-                                    </button>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            <p className="text-sm text-gray-400">{query ? "无匹配结果" : "暂无数据"}</p>
-                          )}
+                            <div className="mt-1 text-xs text-gray-400">{p.userCount} 人</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Level 3: 选中权限后的用户列表 */}
+                {selectedPermKey && (() => {
+                  const perm = permissionCategories.flatMap((c) => c.permissions).find((p) => p.key === selectedPermKey);
+                  if (!perm) return null;
+
+                  const usersWithPerm = users.filter((u) => userHasPermission(u, selectedPermKey));
+                  const usersWithoutPerm = users.filter((u) => !userHasPermission(u, selectedPermKey));
+
+                  const query = permListSearchQuery.trim();
+                  const filteredUsersWithPerm = query
+                    ? usersWithPerm.filter((u) => matchEmployee(u, query))
+                    : usersWithPerm;
+                  const filteredUsersWithoutPerm = query
+                    ? usersWithoutPerm.filter((u) => matchEmployee(u, query))
+                    : usersWithoutPerm;
+
+                  return (
+                    <div className="rounded-lg bg-white p-4 shadow-sm">
+                      <h3 className="mb-3 text-sm font-semibold text-gray-700">
+                        {perm.name} · 用户列表
+                      </h3>
+                      <div className="mb-4">
+                        <input
+                          type="text"
+                          value={permListSearchQuery}
+                          onChange={(e) => setPermListSearchQuery(e.target.value)}
+                          placeholder="搜索姓名、用户名或部门..."
+                          className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none"
+                        />
+                      </div>
+                      <p className="mb-3 text-sm text-gray-600">
+                        共 <span className="font-semibold text-emerald-600">{usersWithPerm.length}</span> 人有此权限
+                        {query && (
+                          <span>，筛选后 <span className="font-semibold">{filteredUsersWithPerm.length + filteredUsersWithoutPerm.length}</span> 人</span>
+                        )}
+                      </p>
+                      {filteredUsersWithPerm.length + filteredUsersWithoutPerm.length > 0 ? (
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+                          {[...filteredUsersWithPerm, ...filteredUsersWithoutPerm].map((u) => {
+                            const hasPerm = userHasPermission(u, selectedPermKey);
+                            return (
+                              <div key={u.id} className="rounded-md border border-gray-200 p-3 flex items-center justify-between">
+                                <div>
+                                  <div className="text-sm font-medium text-gray-800">{u.name}</div>
+                                  <div className="text-xs text-gray-500">{[u.username, u.departmentName].filter(Boolean).join(" · ") || "无部门"}</div>
+                                </div>
+                                <button
+                                  onClick={() => toggleUserPerm(u.id, selectedPermKey, hasPerm)}
+                                  className={`text-xs ml-2 shrink-0 ${hasPerm ? "text-red-500 hover:text-red-700" : "text-emerald-600 hover:text-emerald-700"}`}
+                                >
+                                  {hasPerm ? "取消" : "赋予"}
+                                </button>
+                              </div>
+                            );
+                          })}
                         </div>
-                      );
-                    })()}
-                  </div>
-                )}
+                      ) : (
+                        <p className="text-sm text-gray-400">{query ? "无匹配结果" : "暂无数据"}</p>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {/* 部门管理员板块 */}
                 <div className="rounded-lg bg-white p-4 shadow-sm">

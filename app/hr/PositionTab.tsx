@@ -176,7 +176,6 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
                     {f.label}
                   </th>
                 ))}
-                {editMode && user.canAccessHR && <th className="whitespace-nowrap px-3 py-2" />}
               </tr>
             </thead>
             <tbody>
@@ -241,21 +240,21 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
                         onClick={() => startEdit(row, f.key)}
                         className={`whitespace-nowrap px-3 py-2 text-gray-700 ${editMode && f.editable && user.canAccessHR ? "cursor-pointer hover:bg-emerald-50" : ""}`}
                       >
-                        {f.key === "isPrimary" ? (val ? "是" : "否") : (val || "-")}
+                        {f.key === "employeeId" && editMode && user.canAccessHR ? (
+                          <span className="inline-flex items-center gap-1">
+                            {val || "-"}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setConfirmModal({ open: true, row }); }}
+                              className="ml-1 text-red-500 hover:text-red-700 font-bold"
+                              title="移除此人岗位"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        ) : f.key === "isPrimary" ? (val ? "是" : "否") : (val || "-")}
                       </td>
                     );
                   })}
-                  {editMode && user.canAccessHR && (
-                    <td className="whitespace-nowrap px-3 py-2">
-                      <button
-                        onClick={() => setConfirmModal({ open: true, row })}
-                        className="text-red-500 hover:text-red-700"
-                        title="删除"
-                      >
-                        ×
-                      </button>
-                    </td>
-                  )}
                 </tr>
               ))}
             </tbody>
@@ -267,9 +266,9 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
       {confirmModal.open && confirmModal.row && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-gray-800">删除确认</h3>
+            <h3 className="mb-2 text-lg font-semibold text-gray-800">移除岗位确认</h3>
             <p className="mb-6 text-sm text-gray-600">
-              确定删除 {confirmModal.row.name}（{confirmModal.row.employeeId}）的该岗位信息？
+              确定移除 {confirmModal.row.name}（{confirmModal.row.employeeId}）的该岗位信息？
             </p>
             <div className="flex justify-end gap-3">
               <button
@@ -294,7 +293,7 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
                 }}
                 className="rounded-md bg-red-500 px-4 py-2 text-sm text-white hover:bg-red-600"
               >
-                确认删除
+                确认移除
               </button>
             </div>
           </div>

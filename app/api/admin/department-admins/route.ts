@@ -28,16 +28,16 @@ export async function PUT(request: Request) {
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 
   const body = await request.json();
-  const { dept1, company, userId } = body;
-  if (!dept1 || !userId) return NextResponse.json({ error: "缺少参数" }, { status: 400 });
+  const { departmentId, userId } = body;
+  if (!departmentId || !userId) return NextResponse.json({ error: "缺少参数" }, { status: 400 });
 
   const existing = await prisma.departmentAdmin.findUnique({
-    where: { dept1_company_userId: { dept1, company: company || "", userId: parseInt(userId) } },
+    where: { userId_departmentId: { userId: parseInt(userId), departmentId: parseInt(departmentId) } },
   });
   if (existing) return NextResponse.json({ error: "该用户已是此部门管理员" }, { status: 409 });
 
   await prisma.departmentAdmin.create({
-    data: { dept1, company: company || "", userId: parseInt(userId) },
+    data: { departmentId: parseInt(departmentId), userId: parseInt(userId) },
   });
   return NextResponse.json({ success: true });
 }
