@@ -10,7 +10,7 @@ interface ProjectItem {
   name: string;
   type: string;
   description: string | null;
-  department: { name: string } | null;
+  departments: Array<{ department: { id: number; name: string } }>;
   _count: { employees: number };
 }
 
@@ -35,7 +35,7 @@ export default function ProjectTab({ user }: { user: User }) {
   const [editId, setEditId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editType, setEditType] = useState("project");
-  const [editDeptId, setEditDeptId] = useState<number>(0);
+  const [editDeptIds, setEditDeptIds] = useState<number[]>([]);
   const [editDesc, setEditDesc] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const { toast, showToast, closeToast } = useToast();
@@ -58,7 +58,7 @@ export default function ProjectTab({ user }: { user: User }) {
     setEditId(null);
     setEditName("");
     setEditType("project");
-    setEditDeptId(0);
+    setEditDeptIds([]);
     setEditDesc("");
     setEditing(true);
   }
@@ -67,7 +67,7 @@ export default function ProjectTab({ user }: { user: User }) {
     setEditId(p.id);
     setEditName(p.name);
     setEditType(p.type);
-    setEditDeptId(0);
+    setEditDeptIds(p.departments?.map((d) => d.department.id) || []);
     setEditDesc(p.description || "");
     setEditing(true);
   }
@@ -77,7 +77,7 @@ export default function ProjectTab({ user }: { user: User }) {
     const body: Record<string, unknown> = {
       name: editName.trim(),
       type: editType,
-      departmentId: editDeptId || null,
+      departmentIds: editDeptIds,
       description: editDesc.trim() || null,
     };
     const url = editId ? `/api/projects/${editId}` : "/api/projects";
@@ -123,10 +123,22 @@ export default function ProjectTab({ user }: { user: User }) {
               <option value="project">项目</option>
               <option value="department">部门</option>
             </select>
-            <select value={editDeptId} onChange={(e) => setEditDeptId(parseInt(e.target.value) || 0)} className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none">
-              <option value="0">关联部门（可选）</option>
-              {departments.map((d) => <option key={d.id} value={d.id}>{d.company} - {d.name}</option>)}
-            </select>
+            <div className="flex flex-wrap gap-1 items-center rounded-md border border-gray-300 px-2 py-1 min-h-[38px]">
+              {departments.filter(d => editDeptIds.includes(d.id)).map(d => (
+                <span key={d.id} className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">
+                  {d.name}
+                  <button onClick={() => setEditDeptIds(editDeptIds.filter(id => id !== d.id))} className="text-gray-400 hover:text-red-500">×</button>
+                </span>
+              ))}
+              <select
+                value=""
+                onChange={(e) => { const id = parseInt(e.target.value); if (id && !editDeptIds.includes(id)) setEditDeptIds([...editDeptIds, id]); }}
+                className="flex-1 border-none bg-transparent px-1 py-1 text-sm focus:outline-none min-w-[120px]"
+              >
+                <option value="">+ 关联部门</option>
+                {departments.filter(d => !editDeptIds.includes(d.id)).map((d) => <option key={d.id} value={d.id}>{d.company} - {d.name}</option>)}
+              </select>
+            </div>
             <input value={editDesc} onChange={(e) => setEditDesc(e.target.value)} placeholder="说明（可选）" className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none" />
           </div>
           <div className="mt-3 flex gap-2">
@@ -152,7 +164,7 @@ export default function ProjectTab({ user }: { user: User }) {
               <tr key={p.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
                 <td className="px-4 py-3 text-gray-600">{p.type === "department" ? "部门" : "项目"}</td>
-                <td className="px-4 py-3 text-gray-600">{p.department?.name || "-"}</td>
+                <td className="px-4 py-3 text-gray-600">{p.departments?.map(d => d.department.name).join("、") || "-"}</td>
                 <td className="px-4 py-3 text-gray-600">{p._count.employees}</td>
                 <td className="px-4 py-3">
                   <button onClick={() => startEdit(p)} className="mr-2 text-emerald-600 hover:text-emerald-800">编辑</button>

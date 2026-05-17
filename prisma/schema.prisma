@@ -259,7 +259,7 @@ model Department {
   positions         DepartmentPosition[]
   employeePositions EmployeePosition[]
   resourceRoles     DepartmentResourceRole[]
-  projects          Project[]
+  projectDepartments ProjectDepartment[]
   company           String?            // 公司编码（如 01/02/03）
   createdAt         DateTime           @default(now()) // 创建时间
   updatedAt         DateTime? // 更新时间
@@ -328,8 +328,6 @@ model Project {
   id           Int              @id @default(autoincrement()) // 主键
   name         String // 项目名称
   type         String           @default("project") // "department" | "project"
-  departmentId Int? // type=department 时关联部门
-  department   Department?      @relation(fields: [departmentId], references: [id])
   description  String? // 说明
   createdAt    DateTime         @default(now()) // 创建时间
   updatedAt    DateTime? // 更新时间
@@ -338,6 +336,16 @@ model Project {
   editedAt     DateTime? // 编辑时间
   version      Int              @default(1) // 版本号
   employees    EmployeeProject[]
+  departments  ProjectDepartment[]
+}
+
+model ProjectDepartment {
+  projectId    Int
+  departmentId Int
+  project      Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, departmentId])
 }
 
 model EmployeeProject {

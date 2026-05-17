@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   const projects = await prisma.project.findMany({
     orderBy: { createdAt: "desc" },
     include: {
-      department: { select: { name: true } },
+      departments: { include: { department: { select: { id: true, name: true } } } },
       _count: { select: { employees: true } },
     },
   });
@@ -24,16 +24,18 @@ export async function POST(request: Request) {
   if (!(await checkHRAccess(payload.userId)))
     return NextResponse.json({ error: "无权限" }, { status: 403 });
 
-  const { name, type, departmentId, description } = await request.json();
+  const { name, type, departmentIds, description } = await request.json();
   if (!name) return NextResponse.json({ error: "名称不能为空" }, { status: 400 });
 
   const project = await prisma.project.create({
     data: {
       name,
       type: type || "project",
-      departmentId: departmentId || null,
       description: description || null,
       editedBy: payload.userId,
+      departments: departmentIds?.length ? {
+        create: departmentIds.map((deptId: number) => ({ departmentId: deptId })),
+      } : undefined,
     },
   });
   return NextResponse.json({ project });

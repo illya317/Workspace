@@ -85,13 +85,12 @@ export default function ReportPage() {
     } catch { router.push("/login"); }
   }
 
-  async function loadReport(u: { id: number; name: string; departmentId: number }, year: number, periodIndex: number) {
+  async function loadReport(u: { id: number; name: string; departmentId: number }, year: number, periodIndex: number, overrideTarget?: { targetType: string; targetId: number }) {
     const range = getPeriodRange(periodType, year, periodIndex);
     setPeriodInfo({ label: range.label, dateRange: range.dateRange });
 
-    // Use current targetType/targetId (from state, set by TargetSwitcher)
-    const tt = targetType || "department";
-    const ti = targetId;
+    const tt = overrideTarget?.targetType || targetType || "department";
+    const ti = overrideTarget?.targetId ?? targetId;
     const targetParam = tt && ti ? `&targetType=${tt}&targetIds=${ti}` : "";
 
     const date = range.date;
@@ -277,7 +276,8 @@ export default function ReportPage() {
                   setTargetName("");
                   setTaskName("");
                 }
-                if (user) loadReport(user, selectedYear, selectedPeriodIndex);
+                if (user) loadReport(user, selectedYear, selectedPeriodIndex,
+                  target ? { targetType: target.targetType, targetId: target.targetId } : undefined);
               }}
             />
           </div>

@@ -12,18 +12,23 @@ export async function PUT(
     return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { id } = await params;
-  const { name, type, departmentId, description } = await request.json();
+  const { name, type, departmentIds, description } = await request.json();
 
   const project = await prisma.project.update({
     where: { id: parseInt(id) },
     data: {
       ...(name !== undefined && { name }),
       ...(type !== undefined && { type }),
-      ...(departmentId !== undefined && { departmentId: departmentId || null }),
       ...(description !== undefined && { description }),
       editedBy: payload.userId,
       editedAt: new Date(),
       version: { increment: 1 },
+      ...(departmentIds !== undefined ? {
+        departments: {
+          deleteMany: {},
+          create: departmentIds.map((deptId: number) => ({ departmentId: deptId })),
+        },
+      } : {}),
     },
   });
   return NextResponse.json({ project });
