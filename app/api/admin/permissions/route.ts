@@ -46,18 +46,17 @@ export async function GET(request: Request) {
     },
   });
 
-  // Compute user counts for each resource
+  // Count distinct users per resource (deduplicate userIds)
   const resourceIds = allResources.map((r) => r.id);
-  const counts = await prisma.userResourceRole.groupBy({
-    by: ["resourceId"],
-    where: {
-      resourceId: { in: resourceIds },
-      role: { key: "access" },
-      scopeId: null,
-    },
-    _count: true,
-  });
-  const countMap = new Map(counts.map((c) => [c.resourceId, c._count]));
+  const countMap = new Map<number, number>();
+  for (const rid of resourceIds) {
+    const rows = await prisma.userResourceRole.findMany({
+      where: { resourceId: rid, role: { key: "access" }, scopeId: null },
+      select: { userId: true },
+      distinct: ["userId"],
+    });
+    countMap.set(rid, rows.length);
+  }
 
   // Build tree with user counts, only top-level returned
   const resources = allResources

@@ -34,7 +34,6 @@ export default function ProjectTab({ user }: { user: User }) {
   const [editing, setEditing] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
-  const [editType, setEditType] = useState("project");
   const [editDeptIds, setEditDeptIds] = useState<number[]>([]);
   const [editDesc, setEditDesc] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
@@ -55,28 +54,19 @@ export default function ProjectTab({ user }: { user: User }) {
   useEffect(() => { load(); }, []);
 
   function startCreate() {
-    setEditId(null);
-    setEditName("");
-    setEditType("project");
-    setEditDeptIds([]);
-    setEditDesc("");
-    setEditing(true);
+    setEditId(null); setEditName(""); setEditDeptIds([]); setEditDesc(""); setEditing(true);
   }
 
   function startEdit(p: ProjectItem) {
-    setEditId(p.id);
-    setEditName(p.name);
-    setEditType(p.type);
+    setEditId(p.id); setEditName(p.name);
     setEditDeptIds(p.departments?.map((d) => d.department.id) || []);
-    setEditDesc(p.description || "");
-    setEditing(true);
+    setEditDesc(p.description || ""); setEditing(true);
   }
 
   async function save() {
     if (!editName.trim()) { showToast("名称不能为空", "error"); return; }
     const body: Record<string, unknown> = {
       name: editName.trim(),
-      type: editType,
       departmentIds: editDeptIds,
       description: editDesc.trim() || null,
     };
@@ -117,12 +107,8 @@ export default function ProjectTab({ user }: { user: User }) {
 
       {editing && (
         <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             <input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="项目名称" className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none" />
-            <select value={editType} onChange={(e) => setEditType(e.target.value)} className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none">
-              <option value="project">项目</option>
-              <option value="department">部门</option>
-            </select>
             <div className="flex flex-wrap gap-1 items-center rounded-md border border-gray-300 px-2 py-1 min-h-[38px]">
               {departments.filter(d => editDeptIds.includes(d.id)).map(d => (
                 <span key={d.id} className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">
@@ -153,7 +139,6 @@ export default function ProjectTab({ user }: { user: User }) {
           <thead className="bg-gray-50 text-gray-500">
             <tr>
               <th className="px-4 py-3 text-left font-medium">名称</th>
-              <th className="px-4 py-3 text-left font-medium">类型</th>
               <th className="px-4 py-3 text-left font-medium">关联部门</th>
               <th className="px-4 py-3 text-left font-medium">人数</th>
               <th className="px-4 py-3 text-left font-medium">操作</th>
@@ -163,7 +148,6 @@ export default function ProjectTab({ user }: { user: User }) {
             {projects.map((p) => (
               <tr key={p.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium text-gray-900">{p.name}</td>
-                <td className="px-4 py-3 text-gray-600">{p.type === "department" ? "部门" : "项目"}</td>
                 <td className="px-4 py-3 text-gray-600">{p.departments?.map(d => d.department.name).join("、") || "-"}</td>
                 <td className="px-4 py-3 text-gray-600">{p._count.employees}</td>
                 <td className="px-4 py-3">
@@ -173,7 +157,7 @@ export default function ProjectTab({ user }: { user: User }) {
               </tr>
             ))}
             {projects.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">暂无项目</td></tr>
+              <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">暂无项目</td></tr>
             )}
           </tbody>
         </table>
