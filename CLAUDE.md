@@ -123,6 +123,7 @@ pm2 restart weekly
 
 - 复杂任务、多文件修改优先拆 Sub Agent 并行执行
 - 主 Agent 负责任务拆分和结果验收
+- **分配子 Agent 时必须在 prompt 中告知 `@CLAUDE.md` 或 `@AGENTS.md`**，确保子 Agent 了解项目规范、共享模块和避坑指南
 
 ---
 
@@ -164,3 +165,36 @@ import { authenticate, requireAdmin, isAdmin, checkPermission, isGroupAdmin } fr
 ```
 
 API 路由统一使用这些 helpers，禁止在路由中定义本地 `requireAdmin`。
+
+## 周期计算 (`lib/period.ts`)
+
+```typescript
+import { getCurrentPeriod, getPeriodRange, getPreviousPeriod, getPeriodOptions, getYearOptions, getPeriodTypeName } from "@/lib/period";
+import type { PeriodType, PeriodInfo } from "@/lib/period";
+```
+
+支持 `daily` | `weekly` | `monthly` | `quarterly` | `yearly` 五种周期，用于报告页面的日期选择器和标题自适应。
+
+## RBAC 常量 (`lib/permissions.ts`)
+
+```typescript
+import { RES, ROLE, perm } from "@/lib/permissions";
+```
+
+`RES` = Resource key 树（system/people/docs/work/finance 及其子资源），`ROLE` = 5 种角色 key（access/read/write/delete/admin），`perm` = 向后兼容的扁平权限字符串。
+
+## Prisma 客户端 (`lib/prisma.ts`)
+
+```typescript
+import { prisma } from "@/lib/prisma";
+```
+
+全局单例 PrismaClient，禁止在页面/API中重复创建。
+
+## 周计算 (`lib/week.ts`)
+
+```typescript
+import { getCurrentWeekInfo, getWeekRange } from "@/lib/week";
+```
+
+仅用于 `week-info` API 端点，周报页面已迁移到 `lib/period.ts`。
