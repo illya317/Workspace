@@ -28,6 +28,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | 管理后台 | `/admin` | `system.admin` 或 `people.access` |
 | API接入 | `/api-guide` | 登录 |
 | 设置 | `/settings` | 登录 |
+| 文档中心 | `/docs` | 登录 |
+| 财务数据 | `/finance` | 登录 |
 
 ## 认证方式
 
