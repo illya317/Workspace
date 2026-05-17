@@ -275,7 +275,7 @@ function CompanyCodeTab({ user }: { user: User }) {
           <table className="text-xs">
             <thead className="border-b bg-gray-50">
               <tr>
-                <th className="whitespace-nowrap px-2 py-1.5 text-left font-medium text-gray-600">编号</th>
+                <th className="w-14 whitespace-nowrap px-2 py-1.5 text-left font-medium text-gray-600">编号</th>
                 <th className="whitespace-nowrap px-2 py-1.5 text-left font-medium text-gray-600">名称</th>
                 <th className="whitespace-nowrap px-2 py-1.5 text-right font-medium text-gray-600">人数</th>
               </tr>
@@ -466,7 +466,7 @@ function CodeTab({
   async function load() {
     setLoading(true);
     const codesParam = selectedCompany ? resolveCompanyFilter(selectedCompany).map((n) => NAME_TO_CODE[n] || "").filter(Boolean).join(",") : "";
-    const url = codesParam ? `${apiPath}?companyCodes=${codesParam}` : apiPath;
+    const url = codesParam ? `${apiPath}?companys=${codesParam}` : apiPath;
     const [codesRes, empRes] = await Promise.all([
       fetch(url),
       fetch(`/api/employees?company=${encodeURIComponent(selectedCompany || "")}`),
@@ -484,7 +484,7 @@ function CodeTab({
 
   useEffect(() => {
     load();
-  }, [apiPath, companyCode]);
+  }, [apiPath, companyCode, selectedCompany]);
 
   // 编码前缀对应的公司名（01/02/03/05 岗位编码共享）
   const PREFIX_TO_COMPANIES: Record<string, string[]> = {
