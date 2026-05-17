@@ -213,7 +213,7 @@ export default function EmployeeTab({ user, selectedCompany }: { user: User; sel
             editMode={editMode}
             onStartEdit={() => setEditMode(true)}
             onSave={handleSave}
-            onCancel={() => { setEditingCell(null); }}
+            onCancel={() => { setEditingCell(null); setEditMode(false); }}
             canEdit={user.canAccessHR}
             versions={versions}
             currentVersion={currentVersion}

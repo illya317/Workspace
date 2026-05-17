@@ -29,6 +29,18 @@ export async function GET(request: Request) {
   const companysParam = searchParams.get("companys");
   const company = searchParams.get("company");
   const departmentCode = searchParams.get("departmentCode");
+  const positionCode = searchParams.get("positionCode");
+
+  // 查询某个岗位关联的部门列表
+  if (positionCode) {
+    const pos = await prisma.position.findUnique({ where: { code: positionCode } });
+    if (!pos) return NextResponse.json({ departments: [] });
+    const links = await prisma.departmentPosition.findMany({
+      where: { positionId: pos.id },
+      include: { department: { select: { name: true } } },
+    });
+    return NextResponse.json({ departments: links.map((l) => l.department.name) });
+  }
 
   const codes = companysParam
     ? companysParam.split(",")
@@ -73,63 +85,88 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { code, name, company, originalCode } = body;
+  const { code, name, company, originalCode, departmentCode } = body;
   if (!code || !name) return NextResponse.json({ error: "缺少参数" }, { status: 400 });
 
   const finalCode = buildFullCode(code, company || "");
 
-  if (originalCode && originalCode !== finalCode) {
-    const existing = await prisma.position.findUnique({ where: { code: finalCode } });
-    if (existing) {
-      return NextResponse.json({ error: "编号已存在" }, { status: 400 });
+  const result = await prisma.$transaction(async (tx) => {
+    if (originalCode && originalCode !== finalCode) {
+      const existing = await tx.position.findUnique({ where: { code: finalCode } });
+      if (existing) {
+        throw new Error("编号已存在");
+      }
+      const oldPos = await tx.position.findUnique({ where: { code: originalCode } });
+      if (oldPos) {
+        const maxVer = await tx.editHistory.findFirst({
+          where: { entityType: "code_position", entityId: originalCode },
+          orderBy: { version: "desc" },
+          select: { version: true },
+        });
+        await tx.editHistory.create({
+          data: {
+            entityType: "code_position",
+            entityId: originalCode,
+            version: (maxVer?.version || 0) + 1,
+            dataJson: JSON.stringify(oldPos),
+            editedBy: payload.userId,
+          },
+        });
+      }
+      await tx.position.update({
+        where: { code: originalCode },
+        data: { code: finalCode, name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+      });
+    } else {
+      const oldPos = await tx.position.findUnique({ where: { code: finalCode } });
+      if (oldPos) {
+        const maxVer = await tx.editHistory.findFirst({
+          where: { entityType: "code_position", entityId: finalCode },
+          orderBy: { version: "desc" },
+          select: { version: true },
+        });
+        await tx.editHistory.create({
+          data: {
+            entityType: "code_position",
+            entityId: finalCode,
+            version: (maxVer?.version || 0) + 1,
+            dataJson: JSON.stringify(oldPos),
+            editedBy: payload.userId,
+          },
+        });
+      }
+      await tx.position.upsert({
+        where: { code: finalCode },
+        update: { name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+        create: { code: finalCode, name, company: getCompanyFromCode(finalCode) },
+      });
     }
-    const oldPos = await prisma.position.findUnique({ where: { code: originalCode } });
-    if (oldPos) {
-      const maxVer = await prisma.editHistory.findFirst({
-        where: { entityType: "code_position", entityId: originalCode },
-        orderBy: { version: "desc" },
-        select: { version: true },
-      });
-      await prisma.editHistory.create({
-        data: {
-          entityType: "code_position",
-          entityId: originalCode,
-          version: (maxVer?.version || 0) + 1,
-          dataJson: JSON.stringify(oldPos),
-          editedBy: payload.userId,
-        },
-      });
-    }
-    await prisma.position.update({
-      where: { code: originalCode },
-      data: { code: finalCode, name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
-    });
-  } else {
-    const oldPos = await prisma.position.findUnique({ where: { code: finalCode } });
-    if (oldPos) {
-      const maxVer = await prisma.editHistory.findFirst({
-        where: { entityType: "code_position", entityId: finalCode },
-        orderBy: { version: "desc" },
-        select: { version: true },
-      });
-      await prisma.editHistory.create({
-        data: {
-          entityType: "code_position",
-          entityId: finalCode,
-          version: (maxVer?.version || 0) + 1,
-          dataJson: JSON.stringify(oldPos),
-          editedBy: payload.userId,
-        },
-      });
-    }
-    await prisma.position.upsert({
-      where: { code: finalCode },
-      update: { name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
-      create: { code: finalCode, name, company: getCompanyFromCode(finalCode) },
-    });
-  }
 
-  return NextResponse.json({ success: true });
+    // 如果指定了部门编码，自动建立关联
+    if (departmentCode) {
+      const dept = await tx.department.findUnique({ where: { code: departmentCode } });
+      const pos = await tx.position.findUnique({ where: { code: finalCode } });
+      if (dept && pos) {
+        await tx.departmentPosition.upsert({
+          where: {
+            departmentId_positionId: {
+              departmentId: dept.id,
+              positionId: pos.id,
+            },
+          },
+          update: {},
+          create: {
+            departmentId: dept.id,
+            positionId: pos.id,
+          },
+        });
+      }
+    }
+
+    return { success: true };
+  });
+
+  return NextResponse.json(result);
 }
 
 export async function DELETE(request: Request) {
