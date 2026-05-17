@@ -254,11 +254,11 @@ model FieldPermission {
 }
 
 model DepartmentAdmin {
-  id           Int        @id @default(autoincrement())
+  id           Int         @id @default(autoincrement())
   userId       Int
-  departmentId Int
-  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  departmentId Int?
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department   Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
 
   @@unique([userId, departmentId])
 }
