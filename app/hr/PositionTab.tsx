@@ -43,6 +43,7 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
   const [editBool, setEditBool] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [saveTip, setSaveTip] = useState("");
+  const [editMode, setEditMode] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -82,7 +83,7 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
   }, [editingCell]);
 
   function startEdit(row: PositionRow, field: string) {
-    if (!user.isWorkListAdmin) return;
+    if (!user.isWorkListAdmin || !editMode) return;
     const f = FIELDS.find((x) => x.key === field);
     if (!f?.editable) return;
     setEditingCell({ id: row.id, field });
@@ -140,6 +141,14 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
         >
           重置
         </button>
+        {user.isWorkListAdmin && (
+          <button
+            onClick={() => { setEditMode((v) => !v); setEditingCell(null); }}
+            className={`rounded-md px-3 py-2 text-sm ${editMode ? "bg-amber-100 text-amber-700 border border-amber-300" : "border border-gray-300 text-gray-600 hover:bg-gray-50"}`}
+          >
+            {editMode ? "退出编辑" : "编辑"}
+          </button>
+        )}
       </div>
 
       {saveTip && (
@@ -224,7 +233,7 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
                       <td
                         key={f.key}
                         onClick={() => startEdit(row, f.key)}
-                        className={`whitespace-nowrap px-3 py-2 text-gray-700 ${f.editable && user.isWorkListAdmin ? "cursor-pointer hover:bg-emerald-50" : ""}`}
+                        className={`whitespace-nowrap px-3 py-2 text-gray-700 ${editMode && f.editable && user.isWorkListAdmin ? "cursor-pointer hover:bg-emerald-50" : ""}`}
                       >
                         {f.key === "isPrimary" ? (val ? "是" : "否") : (val || "-")}
                       </td>

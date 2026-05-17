@@ -70,6 +70,7 @@ export default function EmployeeTab({ user, selectedCompany }: { user: User; sel
   const inputRef = useRef<HTMLInputElement>(null);
   const [saveTip, setSaveTip] = useState("");
   const [rosterFilter, setRosterFilter] = useState<"在职" | "离职">("在职");
+  const [editMode, setEditMode] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -103,7 +104,7 @@ export default function EmployeeTab({ user, selectedCompany }: { user: User; sel
   }, [editingCell]);
 
   function startEdit(emp: Employee, field: string) {
-    if (!user.isWorkListAdmin) return;
+    if (!user.isWorkListAdmin || !editMode) return;
     setEditingCell({ id: emp.id, field });
     setEditValue((emp as any)[field] || "");
   }
@@ -166,6 +167,14 @@ export default function EmployeeTab({ user, selectedCompany }: { user: User; sel
         >
           重置
         </button>
+        {user.isWorkListAdmin && (
+          <button
+            onClick={() => { setEditMode((v) => !v); setEditingCell(null); }}
+            className={`rounded-md px-3 py-2 text-sm ${editMode ? "bg-amber-100 text-amber-700 border border-amber-300" : "border border-gray-300 text-gray-600 hover:bg-gray-50"}`}
+          >
+            {editMode ? "退出编辑" : "编辑"}
+          </button>
+        )}
       </div>
 
       {saveTip && (
@@ -200,7 +209,7 @@ export default function EmployeeTab({ user, selectedCompany }: { user: User; sel
                       <td
                         key={f.key}
                         onClick={() => startEdit(emp, f.key)}
-                        className={`whitespace-nowrap px-3 py-2 text-gray-700 ${user.isWorkListAdmin ? "cursor-pointer hover:bg-emerald-50" : ""}`}
+                        className={`whitespace-nowrap px-3 py-2 text-gray-700 ${editMode && user.isWorkListAdmin ? "cursor-pointer hover:bg-emerald-50" : ""}`}
                       >
                         {isEditing ? (
                           <input

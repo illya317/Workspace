@@ -128,6 +128,7 @@ function CodeTab({
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; code: string }>({ open: false, code: "" });
   const [sortField, setSortField] = useState<"code" | "name" | "count">("code");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [editMode, setEditMode] = useState(false);
   const [editRow, setEditRow] = useState<string | null>(null);
   const [editCodeValue, setEditCodeValue] = useState("");
   const [editNameValue, setEditNameValue] = useState("");
@@ -335,7 +336,21 @@ function CodeTab({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
+        {user.isWorkListAdmin && (
+          <button
+            onClick={() => { setEditMode((v) => !v); setEditRow(null); }}
+            className={`rounded-md px-3 py-1 text-xs ${
+              editMode
+                ? "bg-amber-100 text-amber-700 border border-amber-300"
+                : "border border-gray-300 text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            {editMode ? "退出编辑" : "编辑"}
+          </button>
+        )}
+      </div>
 
       {saveTip && (
         <div
@@ -387,7 +402,7 @@ function CodeTab({
                     )}
                   </span>
                 </th>
-                {user.isWorkListAdmin && (
+                {editMode && user.isWorkListAdmin && (
                   <th className="whitespace-nowrap px-2 py-1.5 text-left font-medium text-gray-600">操作</th>
                 )}
               </tr>
@@ -433,7 +448,7 @@ function CodeTab({
                         {count}
                       </span>
                     </td>
-                    {user.isWorkListAdmin && (
+                    {editMode && user.isWorkListAdmin && (
                       <td className="whitespace-nowrap px-2 py-1.5 text-gray-700">
                         {isEditing ? (
                           <div className="flex gap-1">
@@ -472,7 +487,7 @@ function CodeTab({
                   </tr>
                 );
               })}
-              {user.isWorkListAdmin && (
+              {editMode && user.isWorkListAdmin && (
                 <tr className="border-b last:border-0 bg-gray-50">
                   <td className="whitespace-nowrap px-2 py-1.5">
                     <input
@@ -823,12 +838,19 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
               </tr>
             </thead>
             <tbody>
-              {sortedEmployees.map((emp, rowIndex) => {
-                const empMerge = mergeInfo.get(rowIndex) || {};
-                return (
-                  <tr key={`${emp.employeeId}-${rowIndex}`} className={`border-b last:border-0 hover:bg-gray-50 ${emp.status === "离职" ? "bg-gray-100" : ""}`}>
-                    <td className="whitespace-nowrap px-3 py-2 text-gray-500">{rowIndex + 1}</td>
-                    {displayFields.map((f) => {
+              {(() => {
+                let seq = 0;
+                let lastEmpId = "";
+                return sortedEmployees.map((emp, rowIndex) => {
+                  if (emp.employeeId !== lastEmpId) {
+                    seq++;
+                    lastEmpId = emp.employeeId;
+                  }
+                  const empMerge = mergeInfo.get(rowIndex) || {};
+                  return (
+                    <tr key={`${emp.employeeId}-${rowIndex}`} className={`border-b last:border-0 hover:bg-gray-50 ${emp.status === "离职" ? "bg-gray-100" : ""}`}>
+                      <td className="whitespace-nowrap px-3 py-2 text-gray-500">{seq}</td>
+                      {displayFields.map((f) => {
                       const merge = empMerge[f.key];
                       if (merge?.skip) return null;
                       const val = (emp as any)[f.key] || "";
@@ -845,7 +867,8 @@ function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: str
                     })}
                   </tr>
                 );
-              })}
+              });
+            })()}
             </tbody>
           </table>
         )}
