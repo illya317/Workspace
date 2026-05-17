@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { flattenTree } from "./lib";
 import type { ResourceItem } from "./types";
 
 interface Position {
@@ -139,7 +138,7 @@ export function useByPositionTab(
     return true;
   });
 
-  const allResources = flattenTree(resources).sort((a, b) =>
+  const allResources = [...resources].sort((a, b) =>
     a.key.localeCompare(b.key)
   );
 
