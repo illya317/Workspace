@@ -128,7 +128,7 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
     try {
       await saveEdit();
       setEditingCell(null);
-      loadVersions(cellId);
+      setEditMode(false);
     } finally {
       setSaving(false);
     }

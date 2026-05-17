@@ -129,7 +129,7 @@ export default function EmployeeTab({ user, selectedCompany }: { user: User; sel
     try {
       await saveEdit();
       setEditingCell(null);
-      loadVersions(cellId);
+      setEditMode(false);
     } finally {
       setSaving(false);
     }
@@ -194,7 +194,7 @@ export default function EmployeeTab({ user, selectedCompany }: { user: User; sel
         {user.canAccessHR && (
           <EditToolbar
             editMode={editMode}
-            onStartEdit={() => setEditMode(true)}
+            onStartEdit={() => { setEditMode(true); if (employees.length > 0) loadVersions(employees[0].id); }}
             onSave={handleSave}
             onCancel={() => { setEditingCell(null); setEditMode(false); }}
             canEdit={user.canAccessHR}

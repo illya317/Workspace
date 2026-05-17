@@ -22,9 +22,8 @@ export async function PUT(
   // 校验字段名合法性（仅限 Employee 基础信息表字段）
   const allowedFields = [
     "employeeId", "name", "alias", "gender", "ethnicity", "hometown", "politics",
-    "education", "title", "school", "major", "majorRelevant",
-    "phone", "office1", "office2", "office3",
-    "attendance1", "attendance2", "joinDate", "nature",
+    "education", "title", "school", "major",
+    "phone", "joinDate", "nature",
     "status", "leaveDate", "deleted", "deletedTime", "deletedBy",
   ];
   if (!allowedFields.includes(field)) {
