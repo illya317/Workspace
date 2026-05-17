@@ -1074,50 +1074,63 @@ export default function AdminPage() {
                           )}
                         </div>
                         <button
-                          onClick={() => setSelectedUserPerm(null)}
+                          onClick={() => { setSelectedUserPerm(null); setExpandedUserCat(null); }}
                           className="text-xs text-gray-400 hover:text-gray-600"
                         >
                           清除
                         </button>
                       </div>
-                      <div className="space-y-2">
-                        {permissionCategories.map((cat) => {
-                          const isExpanded = expandedUserCat === cat.key;
-                          return (
-                            <div key={cat.key} className="rounded-md border border-gray-150">
-                              <div
-                                onClick={() => setExpandedUserCat(isExpanded ? null : cat.key)}
-                                className="flex cursor-pointer items-center justify-between rounded-md p-2 hover:bg-gray-50"
-                              >
-                                <span className="text-sm font-medium text-gray-700">
-                                  {isExpanded ? "▼" : "▶"} {cat.name}
-                                </span>
-                                <span className="text-xs text-gray-400">{cat.permissions.length} 个权限</span>
-                              </div>
-                              {isExpanded && (
-                                <div className="flex flex-wrap gap-2 px-3 pb-3">
-                                  {cat.permissions.map((p) => {
-                                    const hasPerm = userHasPermission(selectedUserPerm, p.key);
-                                    return (
-                                      <div
-                                        key={p.key}
-                                        onClick={() => toggleUserPerm(selectedUserPerm.id, p.key, hasPerm)}
-                                        className={`cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium ${
-                                          hasPerm
-                                            ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-                                            : "bg-gray-50 text-gray-400 ring-1 ring-gray-100"
-                                        }`}
-                                      >
-                                        {p.name} {hasPerm ? "✓" : "✗"}
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
+
+                      {/* 一级：权限类别卡片 */}
+                      {!expandedUserCat && (
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
+                          {permissionCategories.map((cat) => (
+                            <div
+                              key={cat.key}
+                              onClick={() => setExpandedUserCat(cat.key)}
+                              className="cursor-pointer rounded-md border border-gray-200 p-3 hover:bg-gray-50 transition-colors"
+                            >
+                              <div className="text-sm font-medium text-gray-800">{cat.name}</div>
+                              <div className="text-xs text-gray-500">{cat.permissions.length} 个权限</div>
                             </div>
-                          );
-                        })}
-                      </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* 二级：选中类别下的具体权限 */}
+                      {expandedUserCat && (() => {
+                        const cat = permissionCategories.find((c) => c.key === expandedUserCat);
+                        if (!cat) return null;
+                        return (
+                          <div>
+                            <button
+                              onClick={() => setExpandedUserCat(null)}
+                              className="mb-3 text-xs text-emerald-600 hover:text-emerald-800"
+                            >
+                              ← 返回类别列表
+                            </button>
+                            <h4 className="mb-2 text-sm font-medium text-gray-700">{cat.name}</h4>
+                            <div className="flex flex-wrap gap-2">
+                              {cat.permissions.map((p) => {
+                                const hasPerm = userHasPermission(selectedUserPerm, p.key);
+                                return (
+                                  <div
+                                    key={p.key}
+                                    onClick={() => toggleUserPerm(selectedUserPerm.id, p.key, hasPerm)}
+                                    className={`cursor-pointer rounded-md px-3 py-1.5 text-xs font-medium ${
+                                      hasPerm
+                                        ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+                                        : "bg-gray-50 text-gray-400 ring-1 ring-gray-100"
+                                    }`}
+                                  >
+                                    {p.name} {hasPerm ? "✓" : "✗"}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
