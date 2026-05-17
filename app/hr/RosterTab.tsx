@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import FilterBar from "@/app/components/FilterBar";
+import HRToolbar from "@/app/components/HRToolbar";
 import SearchBox from "@/app/components/SearchBox";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
@@ -112,53 +112,23 @@ export default function RosterTab({ user, selectedCompany }: { user: User; selec
 
   return (
     <div className="space-y-4">
-      <FilterBar>
-        <div className="flex rounded-md border border-gray-200 overflow-hidden">
-          <button
-            onClick={() => { setRosterFilter("在职"); }}
-            className={`px-3 py-1.5 text-sm ${rosterFilter === "在职" ? "bg-emerald-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
-          >
-            在职
-          </button>
-          <button
-            onClick={() => { setRosterFilter("离职"); }}
-            className={`px-3 py-1.5 text-sm ${rosterFilter === "离职" ? "bg-emerald-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
-          >
-            离职
-          </button>
-        </div>
+      <HRToolbar
+        rosterFilter={rosterFilter} onRosterChange={setRosterFilter}
+        keyword={keyword} onKeywordChange={setKeyword}
+        onKeywordEnter={loadRoster}
+        onReset={() => { setFilterDept(""); setKeyword(""); setRosterFilter("在职"); setResetKey((k) => k + 1); loadRoster(); }}
+      >
         <div className="w-48">
-          <SearchBox
-            key={resetKey}
-            config={{ target: "department" }}
+          <SearchBox key={resetKey} config={{ target: "department" }}
             placeholder="部门筛选"
-            onSelect={(item: { name: string }) => {
-              setFilterDept(item.name);
-            }}
-            renderItem={(item: { name: string }) => <span>{item.name}</span>}
-          />
+            onSelect={(item: { name: string }) => setFilterDept(item.name)}
+            renderItem={(item: { name: string }) => <span>{item.name}</span>} />
         </div>
-        <input
-          type="text"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") loadRoster(); }}
-          placeholder="姓名筛选"
-          className="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
-        />
-        <button
-          onClick={() => { setFilterDept(""); setKeyword(""); setRosterFilter("在职"); setResetKey((k) => k + 1); loadRoster(); }}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
-        >
-          重置
-        </button>
-        <button
-          onClick={downloadExcel}
-          className="rounded-md border border-emerald-300 px-3 py-2 text-sm text-emerald-600 hover:bg-emerald-50"
-        >
+        <button onClick={downloadExcel}
+          className="rounded-md border border-emerald-300 px-3 py-2 text-sm text-emerald-600 hover:bg-emerald-50">
           下载Excel
         </button>
-      </FilterBar>
+      </HRToolbar>
 
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         {loading ? (

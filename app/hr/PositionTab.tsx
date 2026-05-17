@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import EditToolbar from "@/app/components/EditToolbar";
-import FilterBar from "@/app/components/FilterBar";
+import HRToolbar from "@/app/components/HRToolbar";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
@@ -165,35 +164,18 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
 
   return (
     <div className="space-y-4">
-      <FilterBar>
-        <input
-          type="text"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") load(); }}
-          placeholder="姓名筛选"
-          className="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
-        />
-        <button
-          onClick={() => { setKeyword(""); load(); }}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
-        >
-          重置
-        </button>
-        {user.canAccessHR && (
-          <EditToolbar
-            editMode={editMode}
-            onStartEdit={() => setEditMode(true)}
-            onSave={handleSave}
-            onCancel={() => { setEditingCell(null); setEditMode(false); }}
-            canEdit={user.canAccessHR}
-            versions={versions}
-            currentVersion={currentVersion}
-            onSelectVersion={handleSelectVersion}
-            saving={saving}
-          />
-        )}
-      </FilterBar>
+      <HRToolbar
+        keyword={keyword} onKeywordChange={setKeyword}
+        onKeywordEnter={load}
+        onReset={() => { setKeyword(""); load(); }}
+        showEdit={user.canAccessHR}
+        editProps={{
+          editMode, onStartEdit: () => setEditMode(true),
+          onSave: handleSave, onCancel: () => { setEditingCell(null); setEditMode(false); },
+          canEdit: user.canAccessHR, versions, currentVersion,
+          onSelectVersion: handleSelectVersion, saving,
+        }}
+      />
 
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         {loading ? (

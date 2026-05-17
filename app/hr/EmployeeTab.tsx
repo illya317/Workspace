@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import EditToolbar from "@/app/components/EditToolbar";
-import FilterBar from "@/app/components/FilterBar";
+import HRToolbar from "@/app/components/HRToolbar";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
@@ -160,49 +159,21 @@ export default function EmployeeTab({ user, selectedCompany }: { user: User; sel
 
   return (
     <div className="space-y-4">
-      <FilterBar>
-        <div className="flex rounded-md border border-gray-200 overflow-hidden">
-          <button
-            onClick={() => setRosterFilter("在职")}
-            className={`px-3 py-1.5 text-sm ${rosterFilter === "在职" ? "bg-emerald-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
-          >
-            在职
-          </button>
-          <button
-            onClick={() => setRosterFilter("离职")}
-            className={`px-3 py-1.5 text-sm ${rosterFilter === "离职" ? "bg-emerald-600 text-white" : "bg-white text-gray-600 hover:bg-gray-50"}`}
-          >
-            离职
-          </button>
-        </div>
-        <input
-          type="text"
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") load(); }}
-          placeholder="姓名筛选"
-          className="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
-        />
-        <button
-          onClick={() => { setKeyword(""); setRosterFilter("在职"); load(); }}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
-        >
-          重置
-        </button>
-        {user.canAccessHR && (
-          <EditToolbar
-            editMode={editMode}
-            onStartEdit={() => { setEditMode(true); if (employees.length > 0) loadVersions(employees[0].id); }}
-            onSave={handleSave}
-            onCancel={() => { setEditingCell(null); setEditMode(false); }}
-            canEdit={user.canAccessHR}
-            versions={versions}
-            currentVersion={currentVersion}
-            onSelectVersion={handleSelectVersion}
-            saving={saving}
-          />
-        )}
-      </FilterBar>
+      <HRToolbar
+        rosterFilter={rosterFilter}
+        onRosterChange={setRosterFilter}
+        keyword={keyword}
+        onKeywordChange={setKeyword}
+        onKeywordEnter={load}
+        onReset={() => { setKeyword(""); setRosterFilter("在职"); load(); }}
+        showEdit={user.canAccessHR}
+        editProps={{
+          editMode, onStartEdit: () => { setEditMode(true); if (employees.length > 0) loadVersions(employees[0].id); },
+          onSave: handleSave, onCancel: () => { setEditingCell(null); setEditMode(false); },
+          canEdit: user.canAccessHR, versions, currentVersion,
+          onSelectVersion: handleSelectVersion, saving,
+        }}
+      />
 
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         {loading ? (
