@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/auth";
+import { authenticate, requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const SHARED_GROUP = ["01", "02", "03", "05"];
@@ -25,8 +25,17 @@ function buildFullCode(code: string, companyCode: string): string {
 }
 
 export async function GET(request: Request) {
-  const { error, status } = await requireAdmin(request);
-  if (error) return NextResponse.json({ error }, { status });
+  const payload = await authenticate(request);
+  if (!payload) {
+    return NextResponse.json({ error: "未登录" }, { status: 401 });
+  }
+  const user = await prisma.user.findUnique({
+    where: { id: payload.userId },
+    select: { isWorkListAdmin: true, canAccessHR: true },
+  });
+  if (!user?.canAccessHR && !user?.isWorkListAdmin) {
+    return NextResponse.json({ error: "无权限" }, { status: 403 });
+  }
 
   const { searchParams } = new URL(request.url);
   const companyCodesParam = searchParams.get("companyCodes");
