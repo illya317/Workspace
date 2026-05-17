@@ -10,39 +10,6 @@ interface Props {
   showToast: (msg: string, type?: "success" | "error") => void;
 }
 
-function OverviewSection({ resources, onSelect, selectedKey }: {
-  resources: ResourceItem[];
-  onSelect: (key: string | null) => void;
-  selectedKey: string | null;
-}) {
-  return (
-    <section>
-      <h2 className="mb-3 text-lg font-semibold text-gray-800">全局权限概览</h2>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {resources.map((r) => (
-          <button
-            key={r.id}
-            onClick={() => onSelect(selectedKey === r.key ? null : r.key)}
-            className={`rounded-lg border p-4 text-left shadow-sm transition-colors ${
-              selectedKey === r.key
-                ? "border-emerald-400 bg-emerald-50 ring-1 ring-emerald-400"
-                : "border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/50"
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-800">{r.name}</h3>
-              <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
-                {r.userCount ?? 0} 人
-              </span>
-            </div>
-            {r.description && <p className="mt-1 text-xs text-gray-500">{r.description}</p>}
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-}
-
 function SystemAdminsSection({
   sysLoading,
   systemAdmins,
@@ -153,25 +120,40 @@ export default function ByPermissionTab({ user, resources, showToast }: Props) {
     addSystemAdmin,
   } = useByPermissionTab({ user, resources, showToast });
 
-  const [selectedParentKey, setSelectedParentKey] = useState<string | null>(null);
-  const subResources = resources.filter(
-    (r) => selectedParentKey && r.key.startsWith(selectedParentKey + ".") && r.key.split(".").length === selectedParentKey.split(".").length + 1
-  );
+  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
-  return (
-    <div className="space-y-6">
-      <OverviewSection resources={topResources} selectedKey={selectedParentKey} onSelect={setSelectedParentKey} />
+  function toggleExpand(key: string) {
+    setExpandedKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key); else next.add(key);
+      return next;
+    });
+  }
 
-      {/* Sub-resources drill-down */}
-      {selectedParentKey && subResources.length > 0 && (
-        <section>
-          <div className="mb-3 flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-gray-800">子权限</h2>
-            <span className="text-sm text-gray-400">({selectedParentKey})</span>
-          </div>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {subResources.map((r) => (
-              <div key={r.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+  function getDirectChildren(parentKey: string): ResourceItem[] {
+    return resources.filter(
+      (r) => r.key.startsWith(parentKey + ".") && r.key.split(".").length === parentKey.split(".").length + 1
+    );
+  }
+
+  function ResourceTree({ parentKey }: { parentKey: string }) {
+    const children = getDirectChildren(parentKey);
+    if (children.length === 0) return null;
+    return (
+      <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        {children.map((r) => {
+          const isExpanded = expandedKeys.has(r.key);
+          const grandchildren = getDirectChildren(r.key);
+          return (
+            <div key={r.id}>
+              <button
+                onClick={() => grandchildren.length > 0 && toggleExpand(r.key)}
+                className={`w-full rounded-lg border p-3 text-left shadow-sm transition-colors ${
+                  grandchildren.length > 0
+                    ? (isExpanded ? "border-emerald-400 bg-emerald-50" : "border-gray-200 bg-white hover:border-emerald-300 cursor-pointer")
+                    : "border-gray-200 bg-white cursor-default"
+                }`}
+              >
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-sm font-semibold text-gray-700">{r.name}</h3>
@@ -181,11 +163,47 @@ export default function ByPermissionTab({ user, resources, showToast }: Props) {
                     {r.userCount ?? 0} 人
                   </span>
                 </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+              </button>
+              {isExpanded && <ResourceTree parentKey={r.key} />}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <section>
+        <h2 className="mb-3 text-lg font-semibold text-gray-800">权限资源树</h2>
+        {topResources.map((r) => {
+          const isExpanded = expandedKeys.has(r.key);
+          const hasChildren = getDirectChildren(r.key).length > 0;
+          return (
+            <div key={r.id} className="mb-3">
+              <button
+                onClick={() => hasChildren && toggleExpand(r.key)}
+                className={`w-full rounded-lg border p-4 text-left shadow-sm transition-colors ${
+                  hasChildren
+                    ? (isExpanded ? "border-emerald-400 bg-emerald-50 ring-1 ring-emerald-400" : "border-gray-200 bg-white hover:border-emerald-300 hover:bg-emerald-50/50 cursor-pointer")
+                    : "border-gray-200 bg-white cursor-default"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-800">{r.name}</h3>
+                    {r.description && <p className="mt-1 text-xs text-gray-500">{r.description}</p>}
+                  </div>
+                  <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+                    {r.userCount ?? 0} 人
+                  </span>
+                </div>
+              </button>
+              {isExpanded && <ResourceTree parentKey={r.key} />}
+            </div>
+          );
+        })}
+      </section>
 
       {user.isWorkListAdmin && (
         <SystemAdminsSection

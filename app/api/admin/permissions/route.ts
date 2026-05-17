@@ -27,33 +27,43 @@ export async function GET(request: Request) {
     },
   });
 
-  // Build tree: return only top-level resources (parentId === null)
-  const resources = allResources
-    .filter((r) => r.parentId === null)
-    .map((r) => {
-      // Count users with global "access" role (self + descendants)
-      return {
-        ...r,
-        userCount: 0, // Will be computed below
-      };
-    });
+  // Compute user counts for each resource
+  const resourceIds = allResources.map((r) => r.id);
+  const counts = await prisma.userResourceRole.groupBy({
+    by: ["resourceId"],
+    where: {
+      resourceId: { in: resourceIds },
+      role: { key: "access" },
+      scopeId: null,
+    },
+    _count: true,
+  });
+  const countMap = new Map(counts.map((c) => [c.resourceId, c._count]));
+
+  // Return ALL resources (flat) with userCount, let frontend build tree
+  const resources = allResources.map((r) => ({
+    id: r.id,
+    key: r.key,
+    name: r.name,
+    description: r.description,
+    parentId: r.parentId,
+    sortOrder: r.sortOrder,
+    userCount: countMap.get(r.id) || 0,
+    children: (r as any).children?.map((c: any) => ({
+      id: c.id, key: c.key, name: c.name, description: c.description,
+      parentId: c.parentId, sortOrder: c.sortOrder,
+      userCount: countMap.get(c.id) || 0,
+      children: (c.children || []).map((gc: any) => ({
+        id: gc.id, key: gc.key, name: gc.name, description: gc.description,
+        parentId: gc.parentId, sortOrder: gc.sortOrder,
+        userCount: countMap.get(gc.id) || 0,
+      })),
+    })),
+  }));
 
   const roles = await prisma.role.findMany({
     orderBy: { sortOrder: "asc" },
   });
-
-  // For each resource (flat), count users with global "access" role
-  for (const r of allResources) {
-    const count = await prisma.userResourceRole.count({
-      where: {
-        resourceId: r.id,
-        role: { key: "access" },
-        scopeId: null,
-      },
-    });
-    // Attach userCount to the resource in the flat list
-    (r as any).userCount = count;
-  }
 
   return NextResponse.json({ resources, roles });
 }

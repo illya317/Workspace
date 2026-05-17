@@ -63,8 +63,7 @@ export default function AdminPage() {
           setConflictStrategy(cfgData.conflictStrategy || "union");
         }
       } catch { /* config endpoint optional */ }
-    } catch (e) {
-      console.error("loadInitial failed:", e);
+    } catch {
       showToast("加载后台数据失败，请刷新重试", "error");
     } finally {
       setLoading(false);
