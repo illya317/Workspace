@@ -59,6 +59,7 @@ export async function GET(request: Request) {
       center: ep.center || "",
       dept1: ep.department?.name || "",
       position: ep.position?.name || "",
+      positionId: ep.positionId || null,
       isPrimary: ep.isPrimary,
       sortOrder: ep.sortOrder,
       status: emp?.status || "",

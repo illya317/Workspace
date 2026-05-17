@@ -155,7 +155,9 @@ export default function AdminPage() {
   }
   const [positions, setPositions] = useState<Array<{ id: number; code: string; name: string; company: string | null; departmentName: string | null }>>([]);
   const [positionGrants, setPositionGrants] = useState<PosPermGrant[]>([]);
-  const [posPermCompany, setPosPermCompany] = useState("");
+  const [posCompany, setPosCompany] = useState("");
+  const [posDept, setPosDept] = useState("");
+  const [posSearch, setPosSearch] = useState("");
 
   function userHasPermission(u: User, resourceKey: string): boolean {
     return (u.resourceRoles || []).some(
@@ -263,16 +265,30 @@ export default function AdminPage() {
   }
 
   async function loadPositionPerms() {
-    const [posRes, grantsRes] = await Promise.all([
+    const [posRes, grantsRes, epRes] = await Promise.all([
       fetch("/api/positions"),
       fetch("/api/admin/position-permissions"),
+      fetch("/api/employee-positions"),
     ]);
+
+    // Build position -> department name map from employee-position associations
+    const deptByPos = new Map<number, string>();
+    if (epRes.ok) {
+      const epData = await epRes.json();
+      for (const ep of (epData.positions || [])) {
+        if (ep.positionId && ep.dept1 && !deptByPos.has(ep.positionId)) {
+          deptByPos.set(ep.positionId, ep.dept1);
+        }
+      }
+    }
+
     if (posRes.ok) {
       const data = await posRes.json();
       // Map company code to name (e.g., "01" -> "丰华生物")
       setPositions((data.positions || []).map((p: any) => ({
         ...p,
         company: CODE_TO_NAME[p.company] || p.company,
+        departmentName: deptByPos.get(p.id) || null,
       })));
     }
     if (grantsRes.ok) {
@@ -1054,6 +1070,7 @@ export default function AdminPage() {
             {user?.isWorkListAdmin && (
               <div className="flex gap-2">
                 <button
+                  type="button"
                   onClick={() => {
                     setPermView("by-user");
                     setSelectedUserPerm(null);
@@ -1067,6 +1084,7 @@ export default function AdminPage() {
                   按员工
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     setPermView("by-permission");
                     setSelectedUserPerm(null);
@@ -1082,6 +1100,7 @@ export default function AdminPage() {
                   按权限
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     setPermView("by-position");
                     setSelectedUserPerm(null);
@@ -1590,40 +1609,72 @@ export default function AdminPage() {
             {/* 按岗位视图 */}
             {permView === "by-position" && (
               <div className="space-y-4">
-                {/* 公司筛选 */}
-                <div className="flex gap-2 border-b border-gray-200 pb-2">
-                  <button
-                    onClick={() => setPosPermCompany("")}
-                    className={`pb-2 text-sm font-medium ${posPermCompany === "" ? "border-b-2 border-emerald-500 text-emerald-600" : "text-gray-500 hover:text-gray-700"}`}
-                  >
-                    全部
-                  </button>
-                  {Array.from(new Set(positions.map((p) => p.company).filter(Boolean) as string[])).sort().map((company) => (
-                    <button
-                      key={company}
-                      onClick={() => setPosPermCompany(company)}
-                      className={`pb-2 text-sm font-medium ${posPermCompany === company ? "border-b-2 border-emerald-500 text-emerald-600" : "text-gray-500 hover:text-gray-700"}`}
-                    >
-                      {company}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Toggle perm description */}
                 <div className="text-xs text-gray-400">
-                  点击下方权限标签可切换岗位的默认权限。这些权限将应用于该岗位的所有成员。
+                  点击下方权限标签可切换岗位的默认权限。拥有 system.admin 的岗位成员自动获得所有权限。
                 </div>
 
-                {/* Position list grouped by department */}
-                <div className="rounded-lg bg-white p-4 shadow-sm">
+                {/* Filters — same pattern as employee tab */}
+                <FilterBar>
+                  <select
+                    value={posCompany}
+                    onChange={(e) => { setPosCompany(e.target.value); setPosDept(""); }}
+                    className="rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                  >
+                    <option value="">全部公司</option>
+                    {Array.from(new Set(positions.map(p => p.company).filter(Boolean) as string[])).sort().map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={posDept}
+                    onChange={(e) => setPosDept(e.target.value)}
+                    disabled={!posCompany}
+                    className="rounded-lg border border-gray-200 px-3 py-2 text-sm disabled:opacity-50"
+                  >
+                    <option value="">{posCompany ? "所有部门" : "请先选公司"}</option>
+                    {Array.from(new Set(
+                      positions
+                        .filter(p => p.company === posCompany && p.departmentName)
+                        .map(p => p.departmentName!)
+                    )).sort().map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                  <div className="flex-1" />
+                  <input
+                    type="text"
+                    placeholder="搜索岗位名称/编码..."
+                    value={posSearch}
+                    onChange={(e) => setPosSearch(e.target.value)}
+                    className="rounded-lg border border-gray-200 px-3 py-2 text-sm w-64"
+                  />
+                </FilterBar>
+
+                {/* Position list */}
+                <div className="rounded-lg bg-white shadow-sm">
                   {positions
-                    .filter((p) => !posPermCompany || p.company === posPermCompany)
-                    .length === 0 && (
-                      <p className="text-center text-sm text-gray-400 py-8">暂无岗位数据</p>
+                    .filter(p => {
+                      if (posCompany && p.company !== posCompany) return false;
+                      if (posDept && p.departmentName !== posDept) return false;
+                      if (posSearch) {
+                        const kw = posSearch.toLowerCase();
+                        return p.name.toLowerCase().includes(kw) || p.code.toLowerCase().includes(kw);
+                      }
+                      return true;
+                    }).length === 0 && (
+                      <p className="text-center text-sm text-gray-400 py-8">暂无匹配岗位</p>
                   )}
-                  <div className="space-y-2">
+                  <div className="divide-y divide-gray-100">
                     {positions
-                      .filter((p) => !posPermCompany || p.company === posPermCompany)
+                      .filter(p => {
+                        if (posCompany && p.company !== posCompany) return false;
+                        if (posDept && p.departmentName !== posDept) return false;
+                        if (posSearch) {
+                          const kw = posSearch.toLowerCase();
+                          return p.name.toLowerCase().includes(kw) || p.code.toLowerCase().includes(kw);
+                        }
+                        return true;
+                      })
                       .map((pos) => {
                         const posPerms = [
                           { resourceKey: "system", roleKey: "admin", label: "系统管理员" },
@@ -1632,22 +1683,23 @@ export default function AdminPage() {
                           { resourceKey: "report", roleKey: "write_any_week", label: "补填任意周报" },
                         ];
                         return (
-                          <div key={pos.id} className="flex items-center gap-3 rounded-md border border-gray-200 p-3">
-                            <div className="min-w-[150px]">
+                          <div key={pos.id} className="flex items-center gap-3 px-4 py-3">
+                            <div className="min-w-[180px]">
                               <div className="text-sm font-medium text-gray-800">{pos.name}</div>
                               <div className="text-xs text-gray-400">
                                 {pos.code} · {pos.company || "-"}
                                 {pos.departmentName ? ` · ${pos.departmentName}` : ""}
                               </div>
                             </div>
-                            <div className="flex flex-1 flex-wrap gap-1.5">
+                            <div className="flex flex-1 flex-wrap gap-1.5 justify-end">
                               {posPerms.map((pp) => {
                                 const has = positionHasPerm(pos.id, pp.resourceKey, pp.roleKey);
                                 return (
                                   <button
                                     key={`${pp.resourceKey}.${pp.roleKey}`}
+                                    type="button"
                                     onClick={() => togglePositionPerm(pos.id, pp.resourceKey, pp.roleKey, has)}
-                                    className={`rounded-full px-2.5 py-1 text-xs transition-colors ${
+                                    className={`rounded-full px-2.5 py-1 text-xs transition-colors cursor-pointer ${
                                       has
                                         ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
                                         : "bg-gray-100 text-gray-500 hover:bg-gray-200"
