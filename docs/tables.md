@@ -1,6 +1,6 @@
 # 数据库表说明
 
-共 24 张表，按业务模块分组。
+共 18 张表，按业务模块分组。
 
 ---
 
@@ -174,60 +174,65 @@
 
 ---
 
-## 5. 权限系统
+## 5. 权限系统（RBAC0）
 
-### PermissionCategory
-权限分类定义（种子数据，新增权限类别时插入一行）。
+详见 `docs/rbac.md`。3 张表替代旧 7 张。
+
+### Resource
+资源注册表。定义有什么（系统功能、模块入口、部门、周报分组、字段）。
+
+| 字段 | 说明 |
+|------|------|
+| key | 资源标识（如 system / module.hr / department / field） |
+| name / description | 名称 / 说明 |
+
+种子数据：
 
 | key | name |
 |-----|------|
-| system | 系统权限 |
-| module | 模块权限 |
-| report | 周报权限 |
-| dept | 部门权限 |
-| field | 字段权限 |
+| system | 系统功能 |
+| module.hr | 人事行政 |
+| module.works | 工作清单 |
+| department | 部门 |
+| report_group | 周报分组 |
+| field | 字段 |
 
-### Permission
-权限定义注册表。**新增权限只需 INSERT 一行，Admin 页面自动发现。**
+### Role
+角色定义表。定义能干什么。
 
-| 字段 | 说明 |
-|------|------|
-| key | 权限标识（如 system.admin） |
-| categoryId | 所属分类 |
-| name / description | 名称 / 说明 |
+| key | name | 说明 |
+|-----|------|------|
+| access | 可进入 | 系统/模块级别开关 |
+| admin | 管理 | 可分配资源权限给他人 |
+| write | 编辑 | 可修改数据 |
+| read | 只读 | 可查看数据 |
+| member | 参与 | 可提交周报 |
+| viewer | 查看 | 可查看周报 |
 
-### UserPermission
-用户权限授予表。替代原来 User 表上的 boolean 字段。
-
-| 字段 | 说明 |
-|------|------|
-| userId | 用户 |
-| permissionId | 权限 |
-
-### DepartmentAdmin
-部门管理员。谁管理哪个部门。
+### UserResourceRole
+权限分配表。谁（userId）在哪个范围（scopeId）干什么（role）。
 
 | 字段 | 说明 |
 |------|------|
 | userId | 用户 |
-| departmentId | 部门 |
+| resourceId | 资源 |
+| roleId | 角色 |
+| scopeId | 范围（null=全局开关，有值=资源实例如 departmentId / fieldName） |
 
-### FieldPermission
-字段级权限例外规则（个人级别）。
+**层级区分**：
+- scopeId=null → 第 2 层权限（toggle 开关）
+- scopeId 有值 → 第 3 层权限（范围分配）
 
-| 字段 | 说明 |
+**旧表迁移**：
+| 旧表 | → 新 |
 |------|------|
-| field | 字段名 |
-| userId | 用户 |
-| canRead / canEdit | 是否可读 / 可编辑 |
-
-### GlobalFieldPermission
-字段级权限全局默认值。
-
-| 字段 | 说明 |
-|------|------|
-| field | 字段名 |
-| canRead / canEdit | 全局默认可读 / 可编辑 |
+| Permission | → Resource |
+| — | → Role |
+| UserPermission | → UserResourceRole (scopeId=null) |
+| DepartmentAdmin | → UserResourceRole (resource=department, role=admin, scopeId=departmentId) |
+| ReportGroupMembership | → UserResourceRole (resource=report_group, scopeId=reportGroupId) |
+| FieldPermission | → UserResourceRole (resource=field, role=read/write, scopeId=fieldName) |
+| GlobalFieldPermission | → UserResourceRole (userId=0) |
 
 ---
 
@@ -251,10 +256,8 @@
 ```
 User
 ├── 1:N WeeklyReport
-├── 1:N UserPermission → Permission → PermissionCategory
+├── 1:N UserResourceRole → Resource + Role
 ├── 1:N ReportGroupMembership → ReportGroup
-├── 1:N DepartmentAdmin → Department
-├── 1:N FieldPermission
 ├── 1:1 Employee（通过 Employee.userId）
 │   └── 1:N EmployeePosition
 │       ├── N:1 Department
