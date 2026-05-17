@@ -10,6 +10,7 @@ import ProjectTab from "./ProjectTab";
 import ProjectInfoTab from "./ProjectInfoTab";
 import RosterTab from "./RosterTab";
 import { CodesTab } from "./CodeTab";
+import PlaceholderTab from "./PlaceholderTab";
 
 interface User {
   id: number;
@@ -27,9 +28,9 @@ const tabs: { key: HRTab; label: string; desc: string }[] = [
   { key: "roster", label: "花名册", desc: "员工花名册（只读）" },
   { key: "employees", label: "员工信息", desc: "员工基础信息编辑" },
   { key: "positions", label: "岗位信息", desc: "员工岗位关联编辑" },
-  { key: "projects", label: "项目管理", desc: "项目/部门分组管理" },
   { key: "project-info", label: "项目信息", desc: "项目人员分配查看" },
-  { key: "codes", label: "部门岗位", desc: "部门与岗位编码管理" },
+  { key: "codes", label: "岗位管理", desc: "部门与岗位编码管理" },
+  { key: "projects", label: "项目管理", desc: "项目/部门分组管理" },
   { key: "attendance", label: "考勤", desc: "考勤记录与统计" },
   { key: "works", label: "工作查看", desc: "查看全员工作清单" },
   { key: "performance", label: "绩效", desc: "绩效考核管理" },
@@ -138,21 +139,9 @@ export default function HRPage() {
         {activeTab === "projects" && user && <ProjectTab user={user} />}
         {activeTab === "project-info" && user && <ProjectInfoTab user={user} />}
         {activeTab === "codes" && user && <CodesTab user={user} selectedCompany={selectedCompany} />}
-        {activeTab !== "roster" && activeTab !== "employees" && activeTab !== "positions" && activeTab !== "codes" && (
-          <div className="rounded-lg bg-white p-12 text-center shadow-sm">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-gray-400">
-              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-800">
-              {tabs.find((t) => t.key === activeTab)?.label}
-            </h3>
-            <p className="mt-2 text-sm text-gray-500">
-              {tabs.find((t) => t.key === activeTab)?.desc} — 功能建设中，敬请期待
-            </p>
-          </div>
-        )}
+        {activeTab === "attendance" && <PlaceholderTab label="考勤" desc="考勤记录与统计" />}
+        {activeTab === "works" && <PlaceholderTab label="工作查看" desc="查看全员工作清单" />}
+        {activeTab === "performance" && <PlaceholderTab label="绩效" desc="绩效考核管理" />}
       </main>
     </div>
   );

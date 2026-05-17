@@ -57,6 +57,10 @@ export async function PUT(request: Request) {
       });
     }
   } else {
+    // 禁止取消自己的系统管理员权限
+    if (resourceKey === "system" && roleKey === "admin" && userId === payload.userId) {
+      return NextResponse.json({ error: "不能取消自己的系统管理员权限" }, { status: 403 });
+    }
     // Revoke: delete UserResourceRole if exists
     await prisma.userResourceRole.deleteMany({
       where: {
