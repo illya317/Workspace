@@ -100,7 +100,7 @@ export async function GET(request: Request) {
       canAccessHR: rrs.some((rr) => rr.resource.key === "people" && rr.role.key === "access"),
       // New: resource+role pairs as resourceRoles for UX compatibility
       resourceRoles: rrs,
-      // Granted resource+role keys (e.g., "system.admin", "module.hr.access")
+      // Granted resource+role keys (e.g., "system.admin", "people.access")
       permissions: rrs.map((rr) => `${rr.resource.key}.${rr.role.key}`),
     };
   });

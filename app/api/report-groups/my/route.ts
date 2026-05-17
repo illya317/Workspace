@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   const roles = await prisma.userResourceRole.findMany({
     where: {
       userId: payload.userId,
-      resource: { key: "report_group" },
+      resource: { key: "work.report" },
     },
     select: { scopeId: true, role: { select: { key: true } } },
   });

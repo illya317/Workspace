@@ -1248,7 +1248,7 @@ export default function AdminPage() {
                                 );
                               })}
                             {(selectedUserPerm.resourceRoles || [])
-                              .filter(rr => rr.scopeId && rr.resource?.key === "report_group")
+                              .filter(rr => rr.scopeId && rr.resource?.key === "work.report")
                               .map((rr, idx) => {
                                 const group = reportGroups.find(g => String(g.id) === rr.scopeId);
                                 const roleLabel = rr.role?.key === "member" ? "成员" : (rr.role?.key || "-");

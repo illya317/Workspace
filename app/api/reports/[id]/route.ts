@@ -39,7 +39,7 @@ export async function PUT(
         prisma.userResourceRole.findFirst({
           where: {
             userId,
-            resource: { key: "report_group" },
+            resource: { key: "work.report" },
             role: { key: "member" },
             scopeId: gid,
           },
@@ -47,7 +47,7 @@ export async function PUT(
         prisma.userResourceRole.findFirst({
           where: {
             userId,
-            resource: { key: "report_group" },
+            resource: { key: "work.report" },
             role: { key: "admin" },
             scopeId: gid,
           },

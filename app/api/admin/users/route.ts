@@ -35,10 +35,10 @@ export async function GET(request: Request) {
       (rr) => rr.resource.key === "system" && rr.role.key === "admin"
     ),
     canAccessHR: u.resourceRoles.some(
-      (rr) => rr.resource.key === "module.hr" && rr.role.key === "access"
+      (rr) => rr.resource.key === "people" && rr.role.key === "access"
     ),
     canAccessWorks: u.resourceRoles.some(
-      (rr) => rr.resource.key === "module.works" && rr.role.key === "access"
+      (rr) => rr.resource.key === "work" && rr.role.key === "access"
     ),
   }));
 

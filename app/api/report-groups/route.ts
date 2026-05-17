@@ -22,7 +22,7 @@ export async function GET(request: Request) {
     const adminGrants = await prisma.userResourceRole.findMany({
       where: {
         userId: payload.userId,
-        resource: { key: "report_group" },
+        resource: { key: "work.report" },
         role: { key: "admin" },
       },
       select: { scopeId: true },
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
   if (groupIdStrs.length > 0) {
     const roleGrants = await prisma.userResourceRole.findMany({
       where: {
-        resource: { key: "report_group" },
+        resource: { key: "work.report" },
         scopeId: { in: groupIdStrs },
       },
       select: { scopeId: true, role: { select: { key: true } } },

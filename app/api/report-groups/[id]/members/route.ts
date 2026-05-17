@@ -14,7 +14,7 @@ export async function GET(
 
   const members = await prisma.userResourceRole.findMany({
     where: {
-      resource: { key: "report_group" },
+      resource: { key: "work.report" },
       role: { key: "member" },
       scopeId: String(groupId),
     },
@@ -92,14 +92,14 @@ export async function PUT(
 
   await prisma.userResourceRole.deleteMany({
     where: {
-      resource: { key: "report_group" },
+      resource: { key: "work.report" },
       role: { key: "member" },
       scopeId: String(groupId),
     },
   });
 
   if (userIds?.length > 0) {
-    const rgRes = await prisma.resource.findUnique({ where: { key: "report_group" } });
+    const rgRes = await prisma.resource.findUnique({ where: { key: "work.report" } });
     const memberRole = await prisma.role.findUnique({ where: { key: "member" } });
     await prisma.userResourceRole.createMany({
       data: userIds.map((userId) => ({

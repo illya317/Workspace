@@ -29,6 +29,7 @@ model User {
   editedDepartments       Department[]      @relation("DepartmentEditor")
   editedPositions         Position[]        @relation("PositionEditor")
   editedEmployeePositions EmployeePosition[] @relation("EmpPositionEditor")
+  editedDepartmentPositions DepartmentPosition[] @relation("DeptPosEditor")
   editHistories           EditHistory[]     @relation("EditHistoryEditor")
 }
 
@@ -309,6 +310,12 @@ model DepartmentPosition {
   positionId   Int // 岗位ID
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   position     Position   @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now()) // 创建时间
+  updatedAt    DateTime? // 更新时间
+  editedBy     Int? // 编辑人用户ID
+  editor       User?      @relation("DeptPosEditor", fields: [editedBy], references: [id])
+  editedAt     DateTime? // 编辑时间
+  version      Int        @default(1) // 版本号
 
   @@unique([departmentId, positionId])
 }
