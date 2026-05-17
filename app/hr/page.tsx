@@ -82,7 +82,7 @@ const tabs: { key: HRTab; label: string; desc: string }[] = [
   { key: "roster", label: "花名册", desc: "员工花名册（只读）" },
   { key: "employees", label: "员工信息", desc: "员工基础信息编辑" },
   { key: "positions", label: "岗位信息", desc: "员工岗位关联编辑" },
-  { key: "codes", label: "编码", desc: "部门与岗位编码管理" },
+  { key: "codes", label: "部门岗位", desc: "部门与岗位编码管理" },
   { key: "attendance", label: "考勤", desc: "考勤记录与统计" },
   { key: "works", label: "工作查看", desc: "查看全员工作清单" },
   { key: "performance", label: "绩效", desc: "绩效考核管理" },
