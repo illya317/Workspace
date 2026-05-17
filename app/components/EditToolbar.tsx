@@ -58,7 +58,7 @@ export default function EditToolbar({
       ) : (
         <>
           <button
-            onClick={onSave}
+            onClick={async () => { await onSave(); onCancel(); }}
             disabled={saving}
             className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700 disabled:opacity-60"
           >
