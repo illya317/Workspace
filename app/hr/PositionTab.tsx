@@ -143,20 +143,24 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
           重置
         </button>
         {user.isWorkListAdmin && (
-          <button
-            onClick={() => { setEditMode((v) => !v); setEditingCell(null); }}
-            className={`rounded-md px-3 py-2 text-sm ${editMode ? "bg-amber-100 text-amber-700 border border-amber-300" : "border border-gray-300 text-gray-600 hover:bg-gray-50"}`}
-          >
-            {editMode ? "退出编辑" : "编辑"}
-          </button>
+          <div className="flex gap-2">
+            {editMode && (
+              <button
+                onClick={() => { if (editingCell) saveEdit(); }}
+                className="rounded-md bg-green-500 px-3 py-2 text-sm text-white hover:bg-green-600"
+              >
+                保存
+              </button>
+            )}
+            <button
+              onClick={() => { setEditMode((v) => !v); setEditingCell(null); }}
+              className={`rounded-md px-3 py-2 text-sm ${editMode ? "bg-amber-100 text-amber-700 border border-amber-300" : "border border-gray-300 text-gray-600 hover:bg-gray-50"}`}
+            >
+              {editMode ? "退出编辑" : "编辑"}
+            </button>
+          </div>
         )}
       </div>
-
-      {saveTip && (
-        <div className={`rounded-md px-4 py-2 text-sm text-center ${saveTip === "保存成功" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
-          {saveTip}
-        </div>
-      )}
 
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         {loading ? (

@@ -339,28 +339,28 @@ function CodeTab({
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
         {user.isWorkListAdmin && (
-          <button
-            onClick={() => { setEditMode((v) => !v); setEditRow(null); }}
-            className={`rounded-md px-3 py-1 text-xs ${
-              editMode
-                ? "bg-amber-100 text-amber-700 border border-amber-300"
-                : "border border-gray-300 text-gray-600 hover:bg-gray-50"
-            }`}
-          >
-            {editMode ? "退出编辑" : "编辑"}
-          </button>
+          <div className="flex gap-2">
+            {editMode && (
+              <button
+                onClick={() => { if (editRow) saveEditRow(editRow); }}
+                className="rounded-md bg-green-500 px-3 py-1 text-xs text-white hover:bg-green-600"
+              >
+                保存
+              </button>
+            )}
+            <button
+              onClick={() => { setEditMode((v) => !v); setEditRow(null); }}
+              className={`rounded-md px-3 py-1 text-xs ${
+                editMode
+                  ? "bg-amber-100 text-amber-700 border border-amber-300"
+                  : "border border-gray-300 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              {editMode ? "退出编辑" : "编辑"}
+            </button>
+          </div>
         )}
       </div>
-
-      {saveTip && (
-        <div
-          className={`rounded-md px-4 py-2 text-sm text-center ${
-            saveTip.includes("成功") ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
-          }`}
-        >
-          {saveTip}
-        </div>
-      )}
 
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         {loading ? (
