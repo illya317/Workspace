@@ -30,7 +30,7 @@ export const ALL_COMPANIES = [...FENGHUA_BIO_GROUP, "丰华制药"];
 
 // 公司名筛选器：丰华生物集团的公司统一查询整个集团数据
 export function resolveCompanyFilter(companyName: string): string[] {
-  if (companyName === "丰华集团") {
+  if (companyName === "全部") {
     return ALL_COMPANIES;
   }
   if (FENGHUA_BIO_GROUP.includes(companyName)) {

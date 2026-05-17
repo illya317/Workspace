@@ -82,13 +82,10 @@ export async function GET(request: Request) {
     epWhere.department = { name: { contains: dept } };
   }
 
-  // 公司隔离：非管理员只能看自己公司数据
+  // 公司隔离：通过 EmployeePosition.company（二级公司名）筛选
   const targetCompany = company || "";
   if (targetCompany) {
-    epWhere.department = {
-      ...(epWhere.department || {}),
-      company: { in: resolveCompanyFilter(targetCompany) },
-    };
+    epWhere.company = { in: resolveCompanyFilter(targetCompany) };
   }
 
   const eps = await prisma.employeePosition.findMany({
@@ -155,6 +152,28 @@ export async function GET(request: Request) {
 
   // 保持 employeeId 排序，同员工多岗位保持连续
   rows.sort((a, b) => a.employeeId.localeCompare(b.employeeId));
+
+  // 同员工多岗位空值填充：组内某字段部分为空时，用非空值填充
+  const FILL_FIELDS = ["company", "center", "dept1", "dept2", "position"];
+  let i = 0;
+  while (i < rows.length) {
+    const empId = rows[i].employeeId;
+    let j = i + 1;
+    while (j < rows.length && rows[j].employeeId === empId) j++;
+    const group = rows.slice(i, j);
+    if (group.length > 1) {
+      for (const key of FILL_FIELDS) {
+        const nonEmpty = group.find((r) => r[key])?.[key];
+        if (nonEmpty) {
+          for (const row of group) {
+            if (!row[key]) row[key] = nonEmpty;
+          }
+        }
+      }
+    }
+    i = j;
+  }
+
   console.log("[employees API] rows count:", rows.length, "baseEmployees:", baseEmployees.length, "eps:", eps.length);
 
   const visibleFields = await getVisibleFields(payload.userId, isAdmin);

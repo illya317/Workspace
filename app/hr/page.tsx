@@ -20,7 +20,7 @@ interface User {
   company?: string | null;
 }
 
-const HR_COMPANIES = ["丰华集团", "丰华生物", "丰华制药"];
+const HR_COMPANIES = ["全部", "丰华生物", "丰华制药"];
 
 type HRTab = "roster" | "employees" | "positions" | "projects" | "project-info" | "codes" | "attendance" | "works" | "performance";
 
