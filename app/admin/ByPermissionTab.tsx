@@ -78,7 +78,10 @@ function SystemAdminsSection({
                       {a.name} <span className="text-xs text-gray-400">({a.username})</span>
                       <button
                         type="button"
-                        onClick={() => onRemove(a.id)}
+                        onClick={() => {
+                          console.log("[ByPermissionTab] remove click adminId=", a.id, "confirming=", confirming);
+                          onRemove(a.id);
+                        }}
                         className={`ml-1 inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-bold ${
                           confirming
                             ? "bg-red-100 text-red-600"
@@ -106,7 +109,10 @@ function SystemAdminsSection({
                     {sysResults.map((emp) => (
                       <div
                         key={`${emp.rowId}-${emp.employeeId}`}
-                        onClick={() => onAdd(emp.userId!, emp.name)}
+                        onClick={() => {
+                          console.log("[ByPermissionTab] add click userId=", emp.userId, "name=", emp.name);
+                          onAdd(emp.userId!, emp.name);
+                        }}
                         className="flex cursor-pointer items-center justify-between px-3 py-2 text-sm hover:bg-emerald-50"
                       >
                         <span className="font-medium text-gray-800">{emp.name}</span>

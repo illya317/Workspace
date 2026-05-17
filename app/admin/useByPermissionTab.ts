@@ -83,32 +83,38 @@ export function useByPermissionTab({ user, resources, showToast }: Props) {
   }
 
   async function addSystemAdmin(userId: number, name: string) {
+    console.log("[addSystemAdmin] start userId=", userId, "name=", name);
     const res = await fetch("/api/admin/user-permissions", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, resourceKey: "system", roleKey: "admin", value: true }),
     });
+    console.log("[addSystemAdmin] res.ok=", res.ok, "status=", res.status);
     if (res.ok) {
       showToast(`已添加：${name}`, "success");
       setSysSearchQ("");
       loadSystemAdmins();
     } else {
       const e = await res.json().catch(() => ({ error: "失败" }));
+      console.log("[addSystemAdmin] error=", e.error);
       showToast(e.error, "error");
     }
   }
 
   async function removeSystemAdmin(userId: number) {
+    console.log("[removeSystemAdmin] start userId=", userId);
     const res = await fetch("/api/admin/user-permissions", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId, resourceKey: "system", roleKey: "admin", value: false }),
     });
+    console.log("[removeSystemAdmin] res.ok=", res.ok, "status=", res.status);
     if (res.ok) {
       showToast("已移除", "success");
       loadSystemAdmins();
     } else {
       const e = await res.json().catch(() => ({ error: "失败" }));
+      console.log("[removeSystemAdmin] error=", e.error);
       showToast(e.error, "error");
     }
   }
