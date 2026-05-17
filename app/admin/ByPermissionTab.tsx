@@ -20,75 +20,32 @@ interface EmployeePerm {
   resourceRoles: Array<{ resource: { key: string; name: string } | null; role: { key: string; name: string } | null }>;
 }
 
-// ─── Overview ─────────────────────────────────────────────
+// ─── Card Grid ─────────────────────────────────────────────
 
-function OverviewSection({ resources, selectedKey, onSelect, onDrillDown }: {
+function CardGrid({ resources, selectedKey, onCardClick }: {
   resources: ResourceItem[];
   selectedKey: string | null;
-  onSelect: (key: string | null) => void;
-  onDrillDown: (key: string) => void;
+  onCardClick: (key: string) => void;
 }) {
   return (
-    <section>
-      <h2 className="mb-3 text-lg font-semibold text-gray-800">全局权限概览</h2>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {resources.map((r) => (
-          <div key={r.id}
-            className={`rounded-lg border p-4 shadow-sm transition-colors ${
-              selectedKey === r.key
-                ? "border-emerald-400 bg-emerald-50 ring-1 ring-emerald-400"
-                : "border-gray-200 bg-white"
-            }`}>
-            <div className="flex items-center justify-between">
-              <button onClick={() => onSelect(selectedKey === r.key ? null : r.key)}
-                className="text-left">
-                <h3 className="text-sm font-semibold text-gray-800 hover:text-emerald-600">{r.name}</h3>
-              </button>
-              <button onClick={() => onDrillDown(r.key)}
-                className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700 hover:bg-emerald-200">
-                {r.userCount ?? 0} 人
-              </button>
-            </div>
-            {r.description && <p className="mt-1 text-xs text-gray-500">{r.description}</p>}
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {resources.map((r) => (
+        <button key={r.id}
+          onClick={() => onCardClick(r.key)}
+          className={`rounded-lg border p-4 text-left shadow-sm transition-colors hover:border-emerald-300 hover:bg-emerald-50 ${
+            selectedKey === r.key ? "border-emerald-400 bg-emerald-50 ring-1 ring-emerald-400" : "border-gray-200 bg-white"
+          }`}>
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-gray-800">{r.name}</h3>
+            <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+              {r.userCount ?? 0} 人
+            </span>
           </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-// ─── Sub-resources ────────────────────────────────────────
-
-function SubResourcesSection({ parentKey, resources, onDrillDown }: {
-  parentKey: string; resources: ResourceItem[]; onDrillDown: (key: string) => void;
-}) {
-  const children = resources.filter(
-    (r) => r.key.startsWith(parentKey + ".") && r.key.split(".").length === parentKey.split(".").length + 1
-  );
-  if (children.length === 0) return null;
-  return (
-    <section>
-      <div className="mb-3 flex items-center gap-2">
-        <h2 className="text-lg font-semibold text-gray-800">子权限</h2>
-        <span className="text-sm text-gray-400">({parentKey})</span>
-      </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {children.map((r) => (
-          <div key={r.id} className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700">{r.name}</h3>
-                <p className="mt-0.5 text-xs text-gray-400">{r.key}</p>
-              </div>
-              <button onClick={() => onDrillDown(r.key)}
-                className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700 hover:bg-emerald-200">
-                {r.userCount ?? 0} 人
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
+          {r.description && <p className="mt-1 text-xs text-gray-500">{r.description}</p>}
+          <p className="mt-0.5 text-xs text-gray-400">{r.key}</p>
+        </button>
+      ))}
+    </div>
   );
 }
 
@@ -154,32 +111,87 @@ function SystemAdminsSection({
   );
 }
 
-// ─── Main Component ───────────────────────────────────────
+// ─── Employee Panel ───────────────────────────────────────
+
+function EmployeePanel({ drillKey, empPerms, empLoading, fCompany, fDept, fKeyword,
+  setFCompany, setFDept, setFKeyword, allCompanies, allDepts, onToggle, onClose, empHasAccess,
+}: {
+  drillKey: string;
+  empPerms: EmployeePerm[]; empLoading: boolean;
+  fCompany: string; fDept: string; fKeyword: string;
+  setFCompany: (v: string) => void; setFDept: (v: string) => void; setFKeyword: (v: string) => void;
+  allCompanies: string[]; allDepts: string[];
+  onToggle: (emp: EmployeePerm) => void;
+  onClose: () => void;
+  empHasAccess: (emp: EmployeePerm, key: string) => boolean;
+}) {
+  const filtered = useMemo(() => empPerms.filter(emp => {
+    if (fCompany !== "全部" && !emp.roles.some(r => resolveCompanyFilter(fCompany).includes(r.company || ""))) return false;
+    if (fDept !== "全部" && !emp.roles.some(r => r.dept1 === fDept)) return false;
+    if (fKeyword && !matchEmployee(emp, fKeyword)) return false;
+    return true;
+  }).sort((a, b) => {
+    const aHas = empHasAccess(a, drillKey) ? 0 : 1;
+    const bHas = empHasAccess(b, drillKey) ? 0 : 1;
+    return aHas - bHas;
+  }), [empPerms, fCompany, fDept, fKeyword, drillKey]);
+
+  return (
+    <section>
+      <div className="mb-3 flex items-center gap-2">
+        <h2 className="text-lg font-semibold text-gray-800">人员 · {drillKey}</h2>
+        <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">关闭</button>
+      </div>
+      <FilterBar>
+        <select value={fCompany} onChange={e => { setFCompany(e.target.value); setFDept("全部"); }}
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none">
+          {allCompanies.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select value={fDept} onChange={e => setFDept(e.target.value)}
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none">
+          {allDepts.map(d => <option key={d} value={d}>{d}</option>)}
+        </select>
+        <input type="text" value={fKeyword} onChange={e => setFKeyword(e.target.value)}
+          placeholder="搜索姓名/工号..." className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none" />
+      </FilterBar>
+      {empLoading ? <p className="py-4 text-center text-sm text-gray-500">加载中...</p> : (
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {filtered.map(emp => {
+            const has = empHasAccess(emp, drillKey);
+            return (
+              <button key={emp.employeeId} onClick={() => onToggle(emp)}
+                className={`rounded-lg border p-3 text-left text-xs transition-colors ${
+                  has ? "border-emerald-200 bg-emerald-50 hover:bg-emerald-100" : "border-gray-200 bg-white hover:bg-gray-50"
+                }`}>
+                <div className="font-medium text-gray-800">{emp.name}</div>
+                <div className="text-gray-400">{emp.employeeId}</div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </section>
+  );
+}
+
+// ─── Main ──────────────────────────────────────────────────
 
 export default function ByPermissionTab({ user, resources, showToast }: Props) {
   const {
     topResources,
     systemAdmins,
-    sysLoading,
-    sysSearchQ,
-    setSysSearchQ,
-    sysResults,
-    sysConfirm,
-    handleRemoveSystemAdmin,
-    addSystemAdmin,
+    sysLoading, sysSearchQ, setSysSearchQ, sysResults, sysConfirm,
+    handleRemoveSystemAdmin, addSystemAdmin,
   } = useByPermissionTab({ user, resources, showToast });
 
-  const [selectedParentKey, setSelectedParentKey] = useState<string | null>(null);
   const [drillKey, setDrillKey] = useState<string | null>(null);
   const [empPerms, setEmpPerms] = useState<EmployeePerm[]>([]);
   const [empLoading, setEmpLoading] = useState(false);
 
-  // Filters
   const [fCompany, setFCompany] = useState("全部");
   const [fDept, setFDept] = useState("全部");
   const [fKeyword, setFKeyword] = useState("");
 
-  // Load employee permissions once
   useEffect(() => {
     if (drillKey && empPerms.length === 0) {
       setEmpLoading(true);
@@ -201,24 +213,8 @@ export default function ByPermissionTab({ user, resources, showToast }: Props) {
     ["全部", ...Array.from(new Set(empPerms.flatMap(e => e.roles.map(r => r.company).filter((c): c is string => !!c))))].sort(),
   [empPerms]);
   const allDepts = useMemo(() =>
-    ["全部", ...Array.from(new Set(
-      empPerms.flatMap(e => e.roles.map(r => r.dept1).filter((d): d is string => !!d))
-    ))].sort(),
+    ["全部", ...Array.from(new Set(empPerms.flatMap(e => e.roles.map(r => r.dept1).filter((d): d is string => !!d))))].sort(),
   [empPerms]);
-
-  const drilledEmps = useMemo(() => {
-    if (!drillKey) return [];
-    return empPerms.filter(emp => {
-      if (fCompany !== "全部" && !emp.roles.some(r => resolveCompanyFilter(fCompany).includes(r.company || ""))) return false;
-      if (fDept !== "全部" && !emp.roles.some(r => r.dept1 === fDept)) return false;
-      if (fKeyword && !matchEmployee(emp, fKeyword)) return false;
-      return true;
-    }).sort((a, b) => {
-      const aHas = empHasAccess(a, drillKey) ? 0 : 1;
-      const bHas = empHasAccess(b, drillKey) ? 0 : 1;
-      return aHas - bHas;
-    });
-  }, [drillKey, empPerms, fCompany, fDept, fKeyword]);
 
   async function togglePerm(emp: EmployeePerm) {
     if (!emp.userId) { showToast("该员工未关联账号", "error"); return; }
@@ -229,7 +225,6 @@ export default function ByPermissionTab({ user, resources, showToast }: Props) {
     });
     if (res.ok) {
       showToast(has ? "已取消授权" : "已授权", "success");
-      // Reload
       const r = await fetch("/api/admin/employee-permissions");
       setEmpPerms(((await r.json()).employees || []));
     } else {
@@ -238,50 +233,44 @@ export default function ByPermissionTab({ user, resources, showToast }: Props) {
     }
   }
 
+  function getDirectChildren(parentKey: string): ResourceItem[] {
+    return resources.filter(
+      (r) => r.key.startsWith(parentKey + ".") && r.key.split(".").length === parentKey.split(".").length + 1
+    );
+  }
+
+  const selectedChildren = drillKey && resources.some(r => r.key === drillKey && !r.key.includes("."))
+    ? getDirectChildren(drillKey) : [];
+
   return (
     <div className="space-y-6">
-      <OverviewSection resources={topResources} selectedKey={selectedParentKey} onSelect={setSelectedParentKey} onDrillDown={setDrillKey} />
+      <section>
+        <h2 className="mb-3 text-lg font-semibold text-gray-800">全局权限概览</h2>
+        <CardGrid resources={topResources} selectedKey={drillKey} onCardClick={setDrillKey} />
+      </section>
 
-      {selectedParentKey && (
-        <SubResourcesSection parentKey={selectedParentKey} resources={resources} onDrillDown={setDrillKey} />
-      )}
-
-      {/* Employee Cards for selected resource */}
-      {drillKey && (
+      {/* Sub-permissions (only for top-level cards that have children) */}
+      {selectedChildren.length > 0 && (
         <section>
           <div className="mb-3 flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-gray-800">人员 · {drillKey}</h2>
-            <button onClick={() => setDrillKey(null)} className="text-xs text-gray-400 hover:text-gray-600">关闭</button>
+            <h2 className="text-lg font-semibold text-gray-800">子权限</h2>
+            <span className="text-sm text-gray-400">({drillKey})</span>
           </div>
-          <FilterBar>
-            <select value={fCompany} onChange={e => { setFCompany(e.target.value); setFDept("全部"); }}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none">
-              {allCompanies.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-            <select value={fDept} onChange={e => setFDept(e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none">
-              {allDepts.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
-            <input type="text" value={fKeyword} onChange={e => setFKeyword(e.target.value)}
-              placeholder="搜索姓名/工号..." className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none" />
-          </FilterBar>
-          {empLoading ? <p className="py-4 text-center text-sm text-gray-500">加载中...</p> : (
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-              {drilledEmps.map(emp => {
-                const has = empHasAccess(emp, drillKey);
-                return (
-                  <button key={emp.employeeId} onClick={() => togglePerm(emp)}
-                    className={`rounded-lg border p-3 text-left text-xs transition-colors ${
-                      has ? "border-emerald-200 bg-emerald-50 hover:bg-emerald-100" : "border-gray-200 bg-white hover:bg-gray-50"
-                    }`}>
-                    <div className="font-medium text-gray-800">{emp.name}</div>
-                    <div className="text-gray-400">{emp.employeeId}</div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
+          <CardGrid resources={selectedChildren} selectedKey={drillKey} onCardClick={setDrillKey} />
         </section>
+      )}
+
+      {/* Employee cards */}
+      {drillKey && (
+        <EmployeePanel
+          drillKey={drillKey}
+          empPerms={empPerms} empLoading={empLoading}
+          fCompany={fCompany} fDept={fDept} fKeyword={fKeyword}
+          setFCompany={setFCompany} setFDept={setFDept} setFKeyword={setFKeyword}
+          allCompanies={allCompanies} allDepts={allDepts}
+          onToggle={togglePerm} onClose={() => setDrillKey(null)}
+          empHasAccess={empHasAccess}
+        />
       )}
 
       {user.isWorkListAdmin && (
