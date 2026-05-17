@@ -18,19 +18,21 @@ export async function GET(request: Request) {
     groups = await prisma.reportGroup.findMany({
       orderBy: { sortOrder: "asc" },
       include: {
-        department: { select: { id: true, name: true, company: true } },
-        _count: {
-          select: { members: true, viewers: true, reports: true },
-        },
+        department: { select: { id: true, name: true, companyCode: true } },
+        _count: { select: { reports: true } },
       },
     });
   } else {
     // 周报管理员：只返回自己管理的
-    const adminGroups = await prisma.reportGroupAdmin.findMany({
-      where: { userId: payload.userId },
-      select: { reportGroupId: true },
+    const adminGrants = await prisma.userResourceRole.findMany({
+      where: {
+        userId: payload.userId,
+        resource: { key: "report_group" },
+        role: { key: "admin" },
+      },
+      select: { scopeId: true },
     });
-    const groupIds = adminGroups.map((a) => a.reportGroupId);
+    const groupIds = adminGrants.map((a) => parseInt(a.scopeId!)).filter((n) => !isNaN(n) && n > 0);
     if (groupIds.length === 0) {
       return NextResponse.json({ error: "无权限" }, { status: 403 });
     }
@@ -38,13 +40,51 @@ export async function GET(request: Request) {
       where: { id: { in: groupIds } },
       orderBy: { sortOrder: "asc" },
       include: {
-        department: { select: { id: true, name: true, company: true } },
-        _count: {
-          select: { members: true, viewers: true, reports: true },
-        },
+        department: { select: { id: true, name: true, companyCode: true } },
+        _count: { select: { reports: true } },
       },
     });
   }
+
+  // Compute member/viewer counts from UserResourceRole (old _count fields)
+  const groupIdStrs = groups.map((g: { id: number }) => String(g.id));
+  if (groupIdStrs.length > 0) {
+    const roleGrants = await prisma.userResourceRole.findMany({
+      where: {
+        resource: { key: "report_group" },
+        scopeId: { in: groupIdStrs },
+      },
+      select: { scopeId: true, role: { select: { key: true } } },
+    });
+
+    const memberCounts = new Map<string, number>();
+    const viewerCounts = new Map<string, number>();
+    for (const g of roleGrants) {
+      if (g.role.key === "member") {
+        memberCounts.set(g.scopeId!, (memberCounts.get(g.scopeId!) || 0) + 1);
+      }
+      if (g.role.key === "viewer") {
+        viewerCounts.set(g.scopeId!, (viewerCounts.get(g.scopeId!) || 0) + 1);
+      }
+    }
+
+    groups = groups.map((g: any) => ({
+      ...g,
+      _count: {
+        ...(g._count || {}),
+        members: memberCounts.get(String(g.id)) || 0,
+        viewers: viewerCounts.get(String(g.id)) || 0,
+      },
+    }));
+  }
+
+  // Normalize department.companyCode -> company for backward compat
+  groups = groups.map((g: any) => ({
+    ...g,
+    department: g.department
+      ? { ...g.department, company: g.department.companyCode || "" }
+      : null,
+  }));
 
   return NextResponse.json({ groups });
 }

@@ -12,7 +12,7 @@ Resource（资源）── Role（角色）── User（用户）
 ```prisma
 model Resource {
   id          Int     @id @default(autoincrement())
-  key         String  @unique   // "system" | "module.hr" | "department" | "report_group" | "field"
+  key         String  @unique   // "system" | "module.hr" | "module.works" | "department" | "report_group"
   name        String            // "系统功能" | "人事行政" | "部门" | "周报分组" | "字段"
   description String?
   sortOrder   Int     @default(0)
@@ -31,7 +31,7 @@ model UserResourceRole {
   userId       Int
   resourceId   Int
   roleId       Int
-  scopeId      String?   // null=全局，非null=资源实例（如departmentId、fieldName）
+  scopeId      String?   // null=全局，非null=资源实例（如 departmentId、reportGroupId）
   user         User      @relation(fields: [userId], references: [id])
   resource     Resource  @relation(fields: [resourceId], references: [id])
   role         Role      @relation(fields: [roleId], references: [id])
@@ -50,8 +50,6 @@ userId | resourceKey    | roleKey | scopeId
 7      | department     | admin   | 12         ← 原液车间管理员
 26     | department     | admin   | 1          ← 总裁办管理员
 7      | report_group   | member  | 5          ← 研发周报成员
-7      | field          | write   | phone      ← 可编辑电话字段
-7      | field          | read    | salary     ← 可看薪资字段
 ```
 
 ### 权限层级

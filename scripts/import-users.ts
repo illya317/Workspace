@@ -104,7 +104,6 @@ async function importUsers() {
         data: {
           name: row.name,
           password: row.password,
-          company: normalizedCompany,
           departmentId,
           departmentName: row.department,
           wxUserId,
@@ -120,7 +119,6 @@ async function importUsers() {
           username,
           password: row.password,
           name: row.name,
-          company: normalizedCompany,
           departmentId,
           departmentName: row.department,
           isWorkListAdmin: row.isAdmin,
@@ -142,7 +140,6 @@ async function importUsers() {
       data: {
         name: CONFIG.admin.name,
         password: CONFIG.admin.password,
-        company: CONFIG.admin.company,
         departmentId: adminDeptId,
         departmentName: CONFIG.admin.departmentName,
         isWorkListAdmin: true,
@@ -156,7 +153,6 @@ async function importUsers() {
         username: CONFIG.admin.username,
         password: CONFIG.admin.password,
         name: CONFIG.admin.name,
-        company: CONFIG.admin.company,
         departmentId: adminDeptId,
         departmentName: CONFIG.admin.departmentName,
         isWorkListAdmin: true,
@@ -169,12 +165,12 @@ async function importUsers() {
   console.log(`导入完成：新建 ${created} 人，更新 ${updated} 人`);
 
   const depts = await prisma.user.groupBy({
-    by: ["company", "departmentName", "departmentId"],
+    by: ["departmentName", "departmentId"],
     _count: { id: true },
   });
   console.log("\n部门分布：");
   for (const d of depts.sort((a, b) => (a.departmentId ?? 0) - (b.departmentId ?? 0))) {
-    console.log(`  ${d.company} - ${d.departmentName} (id=${d.departmentId}): ${d._count.id}人`);
+    console.log(`  ${d.departmentName} (id=${d.departmentId}): ${d._count.id}人`);
   }
 }
 

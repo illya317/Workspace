@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const company = searchParams.get("company") || "";
 
   const where: any = {};
-  if (company) where.company = company;
+  if (company) where.companyCode = company;
 
   const depts = await prisma.department.findMany({
     where,
@@ -29,11 +29,11 @@ export async function GET(request: Request) {
       id: d.id,
       code: d.code,
       name: d.name,
-      company: d.company,
+      company: d.companyCode,
       level: d.level,
       parentId: d.parentId,
       parentName: d.parent?.name || null,
-      managerId: d.managerId,
+      managerUserId: d.managerUserId,
       headcount: d._count.employeePositions,
       children: d.children.map((c) => ({ id: c.id, name: c.name })),
     })),
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { code, name, company, level, parentId, managerId } = body;
+  const { code, name, company, level, parentId, managerUserId } = body;
 
   if (!code || !name || !company) {
     return NextResponse.json({ error: "缺少必填字段" }, { status: 400 });
@@ -61,10 +61,10 @@ export async function POST(request: Request) {
       data: {
         code,
         name,
-        company,
+        companyCode: company,
         level: level || 1,
         parentId: parentId || null,
-        managerId: managerId || null,
+        managerUserId: managerUserId || null,
       },
     });
     return NextResponse.json({ success: true, department: created });
@@ -86,7 +86,7 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { id, code, name, company, level, parentId, managerId } = body;
+  const { id, code, name, company, level, parentId, managerUserId } = body;
 
   if (!id) {
     return NextResponse.json({ error: "缺少id" }, { status: 400 });
@@ -95,10 +95,10 @@ export async function PUT(request: Request) {
   const data: any = {};
   if (code !== undefined) data.code = code;
   if (name !== undefined) data.name = name;
-  if (company !== undefined) data.company = company;
+  if (company !== undefined) data.companyCode = company;
   if (level !== undefined) data.level = level;
   if (parentId !== undefined) data.parentId = parentId || null;
-  if (managerId !== undefined) data.managerId = managerId || null;
+  if (managerUserId !== undefined) data.managerUserId = managerUserId || null;
 
   try {
     const updated = await prisma.department.update({

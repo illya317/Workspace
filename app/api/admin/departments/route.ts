@@ -22,15 +22,15 @@ export async function GET(request: Request) {
   }
 
   const depts = await prisma.department.findMany({
-    where: { level: 1, company: { not: "加拿大" } },
-    orderBy: [{ company: "asc" }, { name: "asc" }],
+    where: { level: 1, companyCode: { not: "加拿大" } },
+    orderBy: [{ companyCode: "asc" }, { name: "asc" }],
   });
 
   return NextResponse.json({
     departments: depts.map((d) => ({
       id: d.id,
       name: d.name,
-      company: d.company || "",
+      company: d.companyCode || "",
       count: 0,
     })),
   });
@@ -55,14 +55,14 @@ export async function DELETE(request: Request) {
 
   const usersInDept = await prisma.user.findMany({
     where: { departmentId },
-    select: { id: true, company: true },
+    select: { id: true },
   });
 
   if (usersInDept.length === 0) {
     return NextResponse.json({ error: "部门不存在" }, { status: 404 });
   }
 
-  const company = usersInDept[0].company || "";
+  const company = ""; // User.company removed from schema
   const newDeptName = "其他";
   const newDeptId = hashString(`${company}-${newDeptName}`);
 

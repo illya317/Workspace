@@ -139,7 +139,7 @@ export async function POST(request: Request) {
   const hasRoutine = items.some((i) => i.category === "routine");
   if (!hasRoutine) {
     const works = await prisma.workItem.findMany({
-      where: { departmentId: reportScopeId, category: "routine" },
+      where: { scopeType: "department", scopeId: reportScopeId, category: "routine" },
       orderBy: { sortOrder: "asc" },
     });
     if (works.length > 0) {

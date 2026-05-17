@@ -29,19 +29,9 @@ const FIELDS = [
   { key: "nature", label: "性质" },
 ];
 
-async function getVisibleFields(userId: number, isAdmin: boolean): Promise<string[]> {
-  if (isAdmin) return FIELDS.map((f) => f.key);
-
-  // 查询该用户的字段权限例外规则
-  const perms = await prisma.fieldPermission.findMany({
-    where: { userId },
-  });
-
-  const denyFields = new Set(
-    perms.filter((p) => !p.canRead).map((p) => p.field)
-  );
-
-  return FIELDS.map((f) => f.key).filter((f) => !denyFields.has(f));
+// 字段权限暂未启用，所有 canAccessHR 用户均可查看全部字段
+async function getVisibleFields(_userId: number, isAdmin: boolean): Promise<string[]> {
+  return FIELDS.map((f) => f.key);
 }
 
 export async function GET(request: Request) {
@@ -52,7 +42,7 @@ export async function GET(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
-    select: { isWorkListAdmin: true, canAccessHR: true, company: true },
+    select: { isWorkListAdmin: true, canAccessHR: true },
   });
 
   if (!user?.canAccessHR && !user?.isWorkListAdmin) {
@@ -64,7 +54,7 @@ export async function GET(request: Request) {
   const dept = searchParams.get("dept") || "";
   const keyword = searchParams.get("keyword") || "";
   const exportExcel = searchParams.get("export") === "1";
-  console.log("[employees API] params:", { company, dept, keyword, exportExcel, userCompany: user?.company, isAdmin: user?.isWorkListAdmin });
+  console.log("[employees API] params:", { company, dept, keyword, exportExcel, isAdmin: user?.isWorkListAdmin });
 
   // 在职/离职筛选（默认只看在职）
   const statusFilter = searchParams.get("status") || "在职";
@@ -97,13 +87,11 @@ export async function GET(request: Request) {
   }
 
   // 公司隔离：非管理员只能看自己公司数据
-  const targetCompany = !user?.isWorkListAdmin && user?.company
-    ? user.company
-    : company || "";
+  const targetCompany = company || "";
   if (targetCompany) {
     epWhere.department = {
       ...(epWhere.department || {}),
-      company: { in: resolveCompanyFilter(targetCompany) },
+      companyCode: { in: resolveCompanyFilter(targetCompany) },
     };
   }
 
@@ -120,7 +108,7 @@ export async function GET(request: Request) {
       employeeId: emp.employeeId,
       name: emp.name,
       alias: emp.alias,
-      company: ep?.company ?? "",
+      company: ep?.companyCode ?? "",
       center: ep?.center ?? "",
       dept1: ep?.department?.name ?? "",
       dept2: "",
@@ -201,10 +189,7 @@ export async function GET(request: Request) {
 
   // 所有公司和部门（不随筛选变化，用于下拉框）
   const deptWhere: any = {};
-  if (!user?.isWorkListAdmin && user?.company) {
-    deptWhere.company = { in: resolveCompanyFilter(user.company) };
-  }
-  const allCompanies = [...new Set((await prisma.department.findMany({ where: deptWhere, select: { company: true } })).map((d: any) => d.company).filter(Boolean))];
+  const allCompanies = [...new Set((await prisma.department.findMany({ where: deptWhere, select: { companyCode: true } })).map((d: any) => d.companyCode).filter(Boolean))];
   const allDepts = [...new Set((await prisma.department.findMany({ where: deptWhere, select: { name: true } })).map((d: any) => d.name).filter(Boolean))];
 
   return NextResponse.json({ employees: rows, fields: FIELDS, visibleFields, allCompanies, allDepts });

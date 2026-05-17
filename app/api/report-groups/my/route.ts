@@ -13,15 +13,35 @@ export async function GET(request: Request) {
     select: { isWorkListAdmin: true },
   });
 
-  // 可填报的：用户是被设为填报成员的
-  const memberGroups = await prisma.reportGroup.findMany({
+  // 获取用户在该资源上的所有角色（UserResourceRole, resource=report_group）
+  const roles = await prisma.userResourceRole.findMany({
     where: {
-      members: {
-        some: { userId: payload.userId },
-      },
+      userId: payload.userId,
+      resource: { key: "report_group" },
     },
-    orderBy: { sortOrder: "asc" },
+    select: { scopeId: true, role: { select: { key: true } } },
   });
+
+  const memberGroupIds = roles
+    .filter((r) => r.role.key === "member")
+    .map((r) => parseInt(r.scopeId!))
+    .filter((n) => !isNaN(n) && n > 0);
+  const adminGroupIds = roles
+    .filter((r) => r.role.key === "admin")
+    .map((r) => parseInt(r.scopeId!))
+    .filter((n) => !isNaN(n) && n > 0);
+  const viewerGroupIds = roles
+    .filter((r) => r.role.key === "viewer")
+    .map((r) => parseInt(r.scopeId!))
+    .filter((n) => !isNaN(n) && n > 0);
+
+  // 可填报的：用户被设为填报成员
+  const memberGroups = memberGroupIds.length > 0
+    ? await prisma.reportGroup.findMany({
+        where: { id: { in: memberGroupIds } },
+        orderBy: { sortOrder: "asc" },
+      })
+    : [];
 
   // 可查看的
   let viewerGroups;
@@ -29,34 +49,22 @@ export async function GET(request: Request) {
     viewerGroups = await prisma.reportGroup.findMany({
       orderBy: { sortOrder: "asc" },
     });
+  } else if (adminGroupIds.length > 0) {
+    // 周报管理员：自己管理的部门 + 被设为 viewer 的部门
+    const viewIds = [...new Set([...adminGroupIds, ...viewerGroupIds])];
+    viewerGroups = viewIds.length > 0
+      ? await prisma.reportGroup.findMany({
+          where: { id: { in: viewIds } },
+          orderBy: { sortOrder: "asc" },
+        })
+      : [];
   } else {
-    const anyAdmin = await isAnyGroupAdmin(payload.userId);
-    if (anyAdmin) {
-      // 周报管理员：自己管理的部门 + 被设为 viewer 的部门
-      const adminGroupIds = await prisma.reportGroupAdmin.findMany({
-        where: { userId: payload.userId },
-        select: { reportGroupId: true },
-      });
-      const ids = adminGroupIds.map((a) => a.reportGroupId);
-      viewerGroups = await prisma.reportGroup.findMany({
-        where: {
-          OR: [
-            { id: { in: ids } },
-            { viewers: { some: { userId: payload.userId } } },
-          ],
-        },
-        orderBy: { sortOrder: "asc" },
-      });
-    } else {
-      viewerGroups = await prisma.reportGroup.findMany({
-        where: {
-          viewers: {
-            some: { userId: payload.userId },
-          },
-        },
-        orderBy: { sortOrder: "asc" },
-      });
-    }
+    viewerGroups = viewerGroupIds.length > 0
+      ? await prisma.reportGroup.findMany({
+          where: { id: { in: viewerGroupIds } },
+          orderBy: { sortOrder: "asc" },
+        })
+      : [];
   }
 
   return NextResponse.json({

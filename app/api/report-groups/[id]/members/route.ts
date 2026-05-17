@@ -12,8 +12,12 @@ export async function GET(
   const { error, status } = await requireGroupAdmin(request, groupId);
   if (error) return NextResponse.json({ error }, { status });
 
-  const members = await prisma.reportGroupMember.findMany({
-    where: { reportGroupId: groupId },
+  const members = await prisma.userResourceRole.findMany({
+    where: {
+      resource: { key: "report_group" },
+      role: { key: "member" },
+      scopeId: String(groupId),
+    },
     select: { userId: true },
   });
 
@@ -75,15 +79,23 @@ export async function PUT(
   const body = await request.json();
   const { userIds } = body as { userIds: number[] };
 
-  await prisma.reportGroupMember.deleteMany({
-    where: { reportGroupId: groupId },
+  await prisma.userResourceRole.deleteMany({
+    where: {
+      resource: { key: "report_group" },
+      role: { key: "member" },
+      scopeId: String(groupId),
+    },
   });
 
   if (userIds?.length > 0) {
-    await prisma.reportGroupMember.createMany({
+    const rgRes = await prisma.resource.findUnique({ where: { key: "report_group" } });
+    const memberRole = await prisma.role.findUnique({ where: { key: "member" } });
+    await prisma.userResourceRole.createMany({
       data: userIds.map((userId) => ({
-        reportGroupId: groupId,
         userId,
+        resourceId: rgRes!.id,
+        roleId: memberRole!.id,
+        scopeId: String(groupId),
       })),
     });
   }

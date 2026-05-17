@@ -12,7 +12,7 @@ export async function GET(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
-    select: { isWorkListAdmin: true, canAccessHR: true, company: true },
+    select: { isWorkListAdmin: true, canAccessHR: true },
   });
 
   if (!user?.canAccessHR && !user?.isWorkListAdmin) {
@@ -24,9 +24,7 @@ export async function GET(request: Request) {
   const keyword = searchParams.get("keyword") || "";
   const statusFilter = searchParams.get("status") || "在职";
 
-  const targetCompany = !user?.isWorkListAdmin && user?.company
-    ? user.company
-    : company || "";
+  const targetCompany = company || "";
 
   const employeeWhere: any = {};
   if (statusFilter === "在职") {
@@ -47,7 +45,7 @@ export async function GET(request: Request) {
 
   const epWhere: any = { employeeId: { in: employeeIds } };
   if (targetCompany) {
-    epWhere.company = { in: resolveCompanyFilter(targetCompany) };
+    epWhere.companyCode = { in: resolveCompanyFilter(targetCompany) };
   }
 
   const eps = await prisma.employeePosition.findMany({
@@ -62,7 +60,7 @@ export async function GET(request: Request) {
       id: ep.id,
       employeeId: emp?.employeeId || "",
       name: emp?.name || "",
-      company: ep.company || "",
+      company: ep.companyCode || "",
       center: ep.center || "",
       dept1: ep.department?.name || "",
       position: ep.position?.name || "",

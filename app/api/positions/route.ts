@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   const company = searchParams.get("company") || "";
 
   const where: any = {};
-  if (company) where.company = company;
+  if (company) where.companyCode = company;
 
   const positions = await prisma.position.findMany({
     where,
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       id: p.id,
       code: p.code,
       name: p.name,
-      company: p.company,
+      company: p.companyCode,
       headcount: p._count.employeePositions,
     })),
   });
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 
   try {
     const created = await prisma.position.create({
-      data: { code, name, company },
+      data: { code, name, companyCode: company },
     });
     return NextResponse.json({ success: true, position: created });
   } catch (e: any) {
@@ -81,7 +81,7 @@ export async function PUT(request: Request) {
   const data: any = {};
   if (code !== undefined) data.code = code;
   if (name !== undefined) data.name = name;
-  if (company !== undefined) data.company = company;
+  if (company !== undefined) data.companyCode = company;
 
   try {
     const updated = await prisma.position.update({

@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { authenticate, isAnyGroupAdmin, requireGroupAccess, isAdmin } from "@/lib/auth";
+import { authenticate, isAnyGroupAdmin, requireGroupAccess, isAdmin, checkPermission } from "@/lib/auth";
 
-// requireAdmin checks both isWorkListAdmin + same department, OR groupAdmin + same department
+// requireAdmin checks both isWorkListAdmin AND UserResourceRole (system.access) + same department,
+// OR groupAdmin + same department
 async function requireAdmin(userId: number, departmentId: number) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { isWorkListAdmin: true, departmentId: true },
   });
   if (user?.isWorkListAdmin === true && user?.departmentId === departmentId) return true;
+  // Also check UserResourceRole system.access
+  const hasSystemAccess = await checkPermission(userId, "system.access");
+  if (hasSystemAccess && user?.departmentId === departmentId) return true;
   const groupAdmin = await isAnyGroupAdmin(userId);
   return groupAdmin && user?.departmentId === departmentId;
 }
@@ -55,8 +59,9 @@ export async function GET(request: Request) {
     }
   }
 
-  const where: { departmentId: number; category?: string; isArchived?: boolean } = {
-    departmentId,
+  const where: { scopeType: string; scopeId: number; category?: string; isArchived?: boolean } = {
+    scopeType: "department",
+    scopeId: departmentId,
   };
   if (category) where.category = category;
   if (!includeArchived) where.isArchived = false;
@@ -120,7 +125,8 @@ export async function POST(request: Request) {
 
   const work = await prisma.workItem.create({
     data: {
-      departmentId: targetDeptId,
+      scopeType: "department",
+      scopeId: targetDeptId,
       category,
       content,
       importance: importance ?? 3,

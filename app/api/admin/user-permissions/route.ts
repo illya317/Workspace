@@ -2,22 +2,20 @@ import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// Map old User boolean fields to new Permission keys
-const FIELD_TO_PERM_KEY: Record<string, string> = {
-  isWorkListAdmin: "system.admin",
-  canSelectAnyWeek: "system.any_week",
-  canAccessHR: "module.hr",
-  canAccessWorks: "module.works",
-  canLogin: "system.login",
+// Map old User boolean fields to new Resource+Role pairs
+const FIELD_TO_RESOURCE_ROLE: Record<string, { resource: string; role: string }> = {
+  isWorkListAdmin: { resource: "system", role: "access" },
+  canSelectAnyWeek: { resource: "system", role: "access" },
+  canAccessHR: { resource: "module.hr", role: "access" },
+  canAccessWorks: { resource: "module.works", role: "access" },
+  canLogin: { resource: "system", role: "access" },
 };
 
-// Reverse map for looking up permission key from old field name
-const PERM_KEY_TO_FIELD: Record<string, string> = {
-  "system.admin": "isWorkListAdmin",
-  "system.any_week": "canSelectAnyWeek",
-  "module.hr": "canAccessHR",
-  "module.works": "canAccessWorks",
-  "system.login": "canLogin",
+// Reverse map for new-style permissionKey -> old field name
+const RESOURCE_ROLE_TO_FIELD: Record<string, string> = {
+  "system.access": "isWorkListAdmin",
+  "module.hr.access": "canAccessHR",
+  "module.works.access": "canAccessWorks",
 };
 
 const allowedFields = [
@@ -34,7 +32,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  // Check super admin: old isWorkListAdmin OR new UserPermission system.admin
+  // Check super admin: old isWorkListAdmin OR new system.admin
   const admin = await prisma.user.findUnique({
     where: { id: payload.userId },
     select: { isWorkListAdmin: true },
@@ -44,20 +42,47 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { userId, field, permissionKey, value } = body;
+  const { userId, field, permissionKey, value, resourceKey, roleKey } = body;
 
   if (!userId || typeof value !== "boolean") {
     return NextResponse.json({ error: "参数错误" }, { status: 400 });
   }
 
-  // Determine the old field name and new permission key
+  // Determine the old field name and new resource+role
   let oldField: string | null = null;
-  let newPermKey: string | null = null;
+  let newResourceKey: string | null = null;
+  let newRoleKey: string | null = null;
 
-  // Support new-style: { userId, permissionKey: "system.admin", value: true }
-  if (permissionKey && typeof permissionKey === "string") {
-    newPermKey = permissionKey;
-    oldField = PERM_KEY_TO_FIELD[permissionKey] || null;
+  // Support new-style: { userId, resourceKey: "system", roleKey: "access", value: true }
+  if (resourceKey && roleKey && typeof resourceKey === "string" && typeof roleKey === "string") {
+    newResourceKey = resourceKey;
+    newRoleKey = roleKey;
+    oldField = RESOURCE_ROLE_TO_FIELD[`${resourceKey}.${roleKey}`] || null;
+  }
+
+  // Support new-style: { userId, permissionKey: "system.admin", value: true } (old compat)
+  if (!newResourceKey && permissionKey && typeof permissionKey === "string") {
+    const mapping = FIELD_TO_RESOURCE_ROLE[permissionKey];
+    if (mapping) {
+      // permissionKey is actually a field name like "isWorkListAdmin"
+      newResourceKey = mapping.resource;
+      newRoleKey = mapping.role;
+      oldField = permissionKey;
+    } else {
+      // Try parsing as "resourceKey.roleKey"
+      const parts = permissionKey.split(".");
+      if (parts.length >= 2) {
+        // Could be "system.access" or "module.hr.access"
+        const knownRoles = ["access", "admin", "write", "read", "member", "viewer"];
+        for (const role of knownRoles) {
+          if (permissionKey.endsWith(`.${role}`)) {
+            newResourceKey = permissionKey.slice(0, -(role.length + 1));
+            newRoleKey = role;
+            break;
+          }
+        }
+      }
+    }
   }
 
   // Support old-style: { userId, field: "isWorkListAdmin", value: true }
@@ -66,12 +91,18 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "无效的权限字段" }, { status: 400 });
     }
     oldField = field;
-    newPermKey = newPermKey || FIELD_TO_PERM_KEY[field] || null;
+    if (!newResourceKey) {
+      const mapping = FIELD_TO_RESOURCE_ROLE[field];
+      if (mapping) {
+        newResourceKey = mapping.resource;
+        newRoleKey = mapping.role;
+      }
+    }
   }
 
-  if (!oldField && !newPermKey) {
+  if (!oldField && !newResourceKey) {
     return NextResponse.json(
-      { error: "缺少 field 或 permissionKey 参数" },
+      { error: "缺少 field、resourceKey 或 permissionKey 参数" },
       { status: 400 }
     );
   }
@@ -84,33 +115,48 @@ export async function PUT(request: Request) {
     });
   }
 
-  // 2. Create or delete UserPermission record
-  if (newPermKey) {
-    const perm = await prisma.permission.findUnique({
-      where: { key: newPermKey },
+  // 2. Create or delete UserResourceRole record
+  if (newResourceKey && newRoleKey) {
+    const resource = await prisma.resource.findUnique({
+      where: { key: newResourceKey },
+    });
+    const role = await prisma.role.findUnique({
+      where: { key: newRoleKey },
     });
 
-    if (perm) {
+    if (resource && role) {
       if (value) {
-        // Grant: upsert UserPermission
-        await prisma.userPermission.upsert({
+        // Grant: create UserResourceRole with scopeId=null (global toggle) if not exists
+        const existing = await prisma.userResourceRole.findFirst({
           where: {
-            userId_permissionId: { userId, permissionId: perm.id },
-          },
-          create: {
             userId,
-            permissionId: perm.id,
+            resourceId: resource.id,
+            roleId: role.id,
+            scopeId: null,
           },
-          update: {},
         });
+        if (!existing) {
+          await prisma.userResourceRole.create({
+            data: {
+              userId,
+              resourceId: resource.id,
+              roleId: role.id,
+              scopeId: null,
+            },
+          });
+        }
       } else {
-        // Revoke: delete UserPermission if exists
-        await prisma.userPermission.deleteMany({
-          where: { userId, permissionId: perm.id },
+        // Revoke: delete UserResourceRole if exists
+        await prisma.userResourceRole.deleteMany({
+          where: {
+            userId,
+            resourceId: resource.id,
+            roleId: role.id,
+            scopeId: null,
+          },
         });
       }
     }
-    // If perm not found, the Permission table might not be seeded yet — skip silently
   }
 
   return NextResponse.json({ success: true });

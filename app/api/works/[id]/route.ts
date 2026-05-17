@@ -1,14 +1,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { authenticate, isAnyGroupAdmin, isAdmin } from "@/lib/auth";
+import { authenticate, isAnyGroupAdmin, isAdmin, checkPermission } from "@/lib/auth";
 
-// requireAdmin checks both isWorkListAdmin + same department, OR groupAdmin + same department
+// requireAdmin checks both isWorkListAdmin AND UserResourceRole (system.access) + same department,
+// OR groupAdmin + same department
 async function requireAdmin(userId: number, departmentId: number) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { isWorkListAdmin: true, departmentId: true },
   });
   if (user?.isWorkListAdmin === true && user?.departmentId === departmentId) return true;
+  // Also check UserResourceRole system.access
+  const hasSystemAccess = await checkPermission(userId, "system.access");
+  if (hasSystemAccess && user?.departmentId === departmentId) return true;
   const groupAdmin = await isAnyGroupAdmin(userId);
   return groupAdmin && user?.departmentId === departmentId;
 }
@@ -41,12 +45,13 @@ export async function PUT(
     return NextResponse.json({ error: "工作项不存在" }, { status: 404 });
   }
 
-  if (existing.departmentId !== payload.departmentId) {
+  // Check department-level scope access (scopeType=department + scopeId must match user's department)
+  if (existing.scopeType !== "department" || existing.scopeId !== payload.departmentId) {
     return NextResponse.json({ error: "无权操作" }, { status: 403 });
   }
 
-  const isAdmin = await requireAdmin(payload.userId, payload.departmentId);
-  if (!isAdmin) {
+  const isWorkAdmin = await requireAdmin(payload.userId, payload.departmentId);
+  if (!isWorkAdmin) {
     return NextResponse.json({ error: "无权限编辑工作清单" }, { status: 403 });
   }
 
@@ -115,12 +120,13 @@ export async function DELETE(
     return NextResponse.json({ error: "工作项不存在" }, { status: 404 });
   }
 
-  if (existing.departmentId !== payload.departmentId) {
+  // Check department-level scope access
+  if (existing.scopeType !== "department" || existing.scopeId !== payload.departmentId) {
     return NextResponse.json({ error: "无权操作" }, { status: 403 });
   }
 
-  const isAdmin = await requireAdmin(payload.userId, payload.departmentId);
-  if (!isAdmin) {
+  const isWorkAdmin = await requireAdmin(payload.userId, payload.departmentId);
+  if (!isWorkAdmin) {
     return NextResponse.json({ error: "无权限编辑工作清单" }, { status: 403 });
   }
 

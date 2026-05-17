@@ -13,7 +13,6 @@ async function main() {
     { key: "module.works", name: "工作清单", description: "访问工作清单 /works" },
     { key: "department", name: "部门", description: "部门管理权限" },
     { key: "report_group", name: "周报分组", description: "周报分组管理权限" },
-    { key: "field", name: "字段", description: "字段级读写权限" },
   ];
   const resourceMap = new Map<string, number>();
   for (const r of resources) {

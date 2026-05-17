@@ -2,13 +2,13 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// Map old User boolean fields to new Permission keys
-const FIELD_TO_PERM_KEY: Record<string, string> = {
-  isWorkListAdmin: "system.admin",
-  canSelectAnyWeek: "system.any_week",
-  canAccessHR: "module.hr",
-  canAccessWorks: "module.works",
-  canLogin: "system.login",
+// Map old User boolean fields to new Resource+Role pairs
+const FIELD_TO_RESOURCE_ROLE: Record<string, { resource: string; role: string }> = {
+  isWorkListAdmin: { resource: "system", role: "access" },
+  canSelectAnyWeek: { resource: "system", role: "access" },
+  canAccessHR: { resource: "module.hr", role: "access" },
+  canAccessWorks: { resource: "module.works", role: "access" },
+  canLogin: { resource: "system", role: "access" },
 };
 
 export async function GET(request: Request) {
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     include: {
       positions: {
         include: {
-          department: { select: { name: true, company: true } },
+          department: { select: { name: true, companyCode: true } },
           position: { select: { name: true } },
         },
       },
@@ -53,7 +53,7 @@ export async function GET(request: Request) {
     } else {
       for (const pos of emp.positions) {
         item.roles.push({
-          company: pos.department?.company || null,
+          company: pos.department?.companyCode || null,
           dept1: pos.department?.name || null,
           position: pos.position?.name || null,
         });
@@ -61,7 +61,7 @@ export async function GET(request: Request) {
     }
   }
 
-  // 获取所有用户权限数据
+  // 获取所有用户及其 UserResourceRole 权限数据
   const users = await prisma.user.findMany({
     select: {
       id: true,
@@ -74,12 +74,11 @@ export async function GET(request: Request) {
       isWorkListAdmin: true,
       canAccessHR: true,
       apiKey: true,
-      // Include new UserPermission data
-      permissions: {
-        select: {
-          permission: {
-            select: { key: true, name: true },
-          },
+      // Include new UserResourceRole grants
+      resourceRoles: {
+        include: {
+          resource: { select: { key: true, name: true } },
+          role: { select: { key: true, name: true } },
         },
       },
     },
@@ -105,8 +104,10 @@ export async function GET(request: Request) {
       hasApiKey: !!linkedUser?.apiKey,
       userId: linkedUser?.id ?? null,
       username: linkedUser?.username ?? null,
-      // New: granted permission keys
-      permissions: linkedUser?.permissions?.map((p) => p.permission.key) ?? [],
+      // New: granted resource+role keys (e.g., "system.access", "module.hr.access")
+      permissions: linkedUser?.resourceRoles?.map(
+        (rr) => `${rr.resource.key}.${rr.role.key}`
+      ) ?? [],
     };
   });
 
@@ -175,7 +176,7 @@ export async function PUT(request: Request) {
     data,
   });
 
-  // 2. Sync new UserPermission records
+  // 2. Sync new UserResourceRole records
   const fieldValues: Record<string, boolean | undefined> = {
     isWorkListAdmin,
     canSelectAnyWeek,
@@ -187,31 +188,47 @@ export async function PUT(request: Request) {
   for (const [field, value] of Object.entries(fieldValues)) {
     if (typeof value !== "boolean") continue;
 
-    const permKey = FIELD_TO_PERM_KEY[field];
-    if (!permKey) continue;
+    const mapping = FIELD_TO_RESOURCE_ROLE[field];
+    if (!mapping) continue;
 
-    const perm = await prisma.permission.findUnique({
-      where: { key: permKey },
+    const resource = await prisma.resource.findUnique({
+      where: { key: mapping.resource },
+    });
+    const role = await prisma.role.findUnique({
+      where: { key: mapping.role },
     });
 
-    if (!perm) continue; // Permission table not seeded yet — skip
+    if (!resource || !role) continue;
 
     if (value) {
-      // Grant: upsert UserPermission
-      await prisma.userPermission.upsert({
+      // Grant: create UserResourceRole with scopeId=null (global toggle) if not exists
+      const existing = await prisma.userResourceRole.findFirst({
         where: {
-          userId_permissionId: { userId: user.id, permissionId: perm.id },
-        },
-        create: {
           userId: user.id,
-          permissionId: perm.id,
+          resourceId: resource.id,
+          roleId: role.id,
+          scopeId: null,
         },
-        update: {},
       });
+      if (!existing) {
+        await prisma.userResourceRole.create({
+          data: {
+            userId: user.id,
+            resourceId: resource.id,
+            roleId: role.id,
+            scopeId: null,
+          },
+        });
+      }
     } else {
-      // Revoke: delete UserPermission if exists
-      await prisma.userPermission.deleteMany({
-        where: { userId: user.id, permissionId: perm.id },
+      // Revoke: delete UserResourceRole if exists
+      await prisma.userResourceRole.deleteMany({
+        where: {
+          userId: user.id,
+          resourceId: resource.id,
+          roleId: role.id,
+          scopeId: null,
+        },
       });
     }
   }

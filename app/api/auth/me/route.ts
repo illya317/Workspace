@@ -11,7 +11,7 @@ export async function GET(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
-    select: { isWorkListAdmin: true, canSelectAnyWeek: true, canAccessHR: true, canAccessWorks: true, company: true },
+    select: { isWorkListAdmin: true, canSelectAnyWeek: true, canAccessHR: true, canAccessWorks: true },
   });
 
   const groupAdmin = await isAnyGroupAdmin(payload.userId);
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
       canSelectAnyWeek: user?.canSelectAnyWeek ?? false,
       canAccessHR: user?.canAccessHR ?? false,
       canAccessWorks: user?.canAccessWorks ?? true,
-      company: user?.company ?? null,
+      company: null,
     },
   });
 }

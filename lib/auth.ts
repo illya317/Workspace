@@ -72,29 +72,26 @@ export async function requireAdmin(request: Request) {
 }
 
 export async function isGroupAdmin(userId: number, groupId: number) {
-  // Check old ReportGroupAdmin table
-  const oldAdmin = await prisma.reportGroupAdmin.findUnique({
-    where: { reportGroupId_userId: { reportGroupId: groupId, userId } },
+  const grant = await prisma.userResourceRole.findFirst({
+    where: {
+      userId,
+      resource: { key: "report_group" },
+      role: { key: "admin" },
+      scopeId: String(groupId),
+    },
   });
-  if (oldAdmin) return true;
-  // Check new ReportGroupMembership with role="admin"
-  const membership = await prisma.reportGroupMembership.findUnique({
-    where: { userId_reportGroupId: { userId, reportGroupId: groupId } },
-  });
-  return membership?.role === "admin";
+  return !!grant;
 }
 
 export async function isAnyGroupAdmin(userId: number) {
-  // Check old ReportGroupAdmin
-  const oldCount = await prisma.reportGroupAdmin.count({
-    where: { userId },
+  const count = await prisma.userResourceRole.count({
+    where: {
+      userId,
+      resource: { key: "report_group" },
+      role: { key: "admin" },
+    },
   });
-  if (oldCount > 0) return true;
-  // Check new ReportGroupMembership with role="admin"
-  const newCount = await prisma.reportGroupMembership.count({
-    where: { userId, role: "admin" },
-  });
-  return newCount > 0;
+  return count > 0;
 }
 
 export async function requireGroupAdmin(request: Request, groupId: number) {
@@ -107,6 +104,18 @@ export async function requireGroupAdmin(request: Request, groupId: number) {
     select: { isWorkListAdmin: true },
   });
   if (user?.isWorkListAdmin) {
+    return { error: null, status: 200, payload };
+  }
+  // New: system admin bypass
+  const superAdmin = await prisma.userResourceRole.findFirst({
+    where: {
+      userId: payload.userId,
+      resource: { key: "system" },
+      role: { key: "access" },
+      scopeId: null,
+    },
+  });
+  if (superAdmin) {
     return { error: null, status: 200, payload };
   }
   const isAdmin = await isGroupAdmin(payload.userId, groupId);
@@ -134,26 +143,15 @@ export async function requireGroupAccess(request: Request, groupId: number) {
   if (isSuperAdmin) {
     return { error: null, status: 200, payload };
   }
-  // Check old tables
-  const [isAdmin, isMember, isViewer] = await Promise.all([
-    isGroupAdmin(payload.userId, groupId),
-    prisma.reportGroupMember.findUnique({
-      where: { reportGroupId_userId: { reportGroupId: groupId, userId: payload.userId } },
-    }).then(Boolean),
-    prisma.reportGroupViewer.findUnique({
-      where: { reportGroupId_userId: { reportGroupId: groupId, userId: payload.userId } },
-    }).then(Boolean),
-  ]);
-  if (isAdmin || isMember || isViewer) {
-    return { error: null, status: 200, payload };
-  }
-  // Check new ReportGroupMembership (any role = access)
+  // Check UserResourceRole(report_group, scopeId=groupId) — any role grants access
   const hasAccess = await canAccessReportGroup(payload.userId, groupId);
   if (hasAccess) {
     return { error: null, status: 200, payload };
   }
   return { error: "无权限访问该部门", status: 403, payload: null };
 }
+
+
 
 // 验证用户是否有权限提交该周报（成员/负责人/管理员，viewer 不行）
 export async function requireGroupSubmit(request: Request, groupId: number) {
@@ -173,17 +171,7 @@ export async function requireGroupSubmit(request: Request, groupId: number) {
   if (isSuperAdmin) {
     return { error: null, status: 200, payload };
   }
-  // Check old tables
-  const [isAdmin, isMember] = await Promise.all([
-    isGroupAdmin(payload.userId, groupId),
-    prisma.reportGroupMember.findUnique({
-      where: { reportGroupId_userId: { reportGroupId: groupId, userId: payload.userId } },
-    }).then(Boolean),
-  ]);
-  if (isAdmin || isMember) {
-    return { error: null, status: 200, payload };
-  }
-  // Check new ReportGroupMembership (admin or member role)
+  // Check UserResourceRole(report_group, admin|member, scopeId=groupId)
   const canSubmit = await canSubmitToReportGroup(payload.userId, groupId);
   if (canSubmit) {
     return { error: null, status: 200, payload };
@@ -233,65 +221,88 @@ export async function authenticate(
 }
 
 // ============================================================
-// New permission system helpers (coexist with old booleans)
+// New RBAC0 permission system helpers
 // ============================================================
 
-// Helper: get permission ID by key
-async function getPermissionId(key: string): Promise<number | null> {
-  const perm = await prisma.permission.findUnique({ where: { key } });
-  return perm?.id ?? null;
+// Known role keys — used to parse "resourceKey.roleKey" strings
+const KNOWN_ROLES = ["access", "admin", "write", "read", "member", "viewer"];
+
+function parsePermKey(permKey: string): { resourceKey: string; roleKey: string } {
+  // Try to split on a known role suffix: "system.admin" → resource="system", role="admin"
+  for (const role of KNOWN_ROLES) {
+    if (permKey.endsWith(`.${role}`)) {
+      const resourceKey = permKey.slice(0, -(role.length + 1));
+      return { resourceKey, roleKey: role };
+    }
+  }
+  // No known role suffix: treat whole key as resource, default role="access"
+  // e.g. "module.hr" → resource="module.hr", role="access"
+  return { resourceKey: permKey, roleKey: "access" };
 }
 
-// Check if a user has a specific permission (system/module level)
+// Check if a user has a specific resource+role grant (e.g. "system.admin", "module.hr")
 export async function checkPermission(userId: number, permKey: string): Promise<boolean> {
-  const permId = await getPermissionId(permKey);
-  if (!permId) return false;
-  const perm = await prisma.userPermission.findUnique({
-    where: { userId_permissionId: { userId, permissionId: permId } },
+  const parsed = parsePermKey(permKey);
+  const grant = await prisma.userResourceRole.findFirst({
+    where: {
+      userId,
+      resource: { key: parsed.resourceKey },
+      role: { key: parsed.roleKey },
+      scopeId: null, // global toggle only; scoped assignments don't count here
+    },
   });
-  return !!perm;
+  return !!grant;
 }
 
-// Get all permissions for a user, organized by category
+// Get all UserResourceRole grants for a user
 export async function getUserPermissions(userId: number) {
-  const grants = await prisma.userPermission.findMany({
+  return prisma.userResourceRole.findMany({
     where: { userId },
     include: {
-      permission: {
-        include: { category: true },
-      },
+      resource: true,
+      role: true,
     },
-    orderBy: { permission: { category: { sortOrder: "asc" } } },
+    orderBy: { resource: { sortOrder: "asc" } },
   });
-  return grants;
 }
 
-// Get user's report group memberships
+// Get user's report group memberships (via UserResourceRole, resource="report_group")
 export async function getUserReportGroupMemberships(userId: number) {
-  return prisma.reportGroupMembership.findMany({
-    where: { userId },
-    include: { reportGroup: { select: { id: true, name: true } } },
+  return prisma.userResourceRole.findMany({
+    where: {
+      userId,
+      resource: { key: "report_group" },
+      role: { key: { in: ["admin", "member", "viewer"] } },
+    },
+    select: {
+      id: true,
+      scopeId: true,
+      role: { select: { key: true } },
+    },
   });
 }
 
-// Get user's department admin assignments
+// Get user's department admin assignments (via UserResourceRole, resource="department", role="admin")
 export async function getUserDepartmentAdmins(userId: number) {
-  return prisma.departmentAdmin.findMany({
-    where: { userId },
-    include: { department: { select: { id: true, name: true, company: true } } },
+  return prisma.userResourceRole.findMany({
+    where: {
+      userId,
+      resource: { key: "department" },
+      role: { key: "admin" },
+    },
+    include: {
+      resource: true,
+      role: true,
+    },
   });
 }
 
-// Check if the request is from a system admin (isWorkListAdmin)
-// Convenience wrapper that handles authenticate + isWorkListAdmin check
+// Check if the request is from a system admin (isWorkListAdmin or UserResourceRole system.access)
+// Convenience wrapper that handles authenticate + admin check
 export async function isAdmin(request: Request): Promise<boolean> {
   const payload = await authenticate(request);
   if (!payload) return false;
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    select: { isWorkListAdmin: true },
-  });
-  return user?.isWorkListAdmin === true;
+  return isSuperAdmin(payload.userId);
 }
 
 // Backward compat: check if user is super admin
@@ -307,16 +318,25 @@ export async function isSuperAdmin(userId: number): Promise<boolean> {
 
 // Check if user has any access to a report group (admin, member, OR viewer)
 export async function canAccessReportGroup(userId: number, groupId: number): Promise<boolean> {
-  const membership = await prisma.reportGroupMembership.findUnique({
-    where: { userId_reportGroupId: { userId, reportGroupId: groupId } },
+  const grant = await prisma.userResourceRole.findFirst({
+    where: {
+      userId,
+      resource: { key: "report_group" },
+      scopeId: String(groupId),
+    },
   });
-  return !!membership;
+  return !!grant;
 }
 
 // Check if user can submit to a report group (admin or member, NOT viewer)
 export async function canSubmitToReportGroup(userId: number, groupId: number): Promise<boolean> {
-  const membership = await prisma.reportGroupMembership.findUnique({
-    where: { userId_reportGroupId: { userId, reportGroupId: groupId } },
+  const grant = await prisma.userResourceRole.findFirst({
+    where: {
+      userId,
+      resource: { key: "report_group" },
+      role: { key: { in: ["admin", "member"] } },
+      scopeId: String(groupId),
+    },
   });
-  return membership?.role === "admin" || membership?.role === "member";
+  return !!grant;
 }

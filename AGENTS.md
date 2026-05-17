@@ -16,23 +16,22 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **部署**: 本地 `npm run build` → standalone → rsync 到服务器 → PM2 (`weekly`)
 - **Excel**: `xlsx` 库读写
 
-## 数据库模型（18 张表，详见 `docs/tables.md`，权限模型详见 `docs/rbac.md`）
+## 数据库模型（17 张表，详见 `docs/tables.md`，权限模型详见 `docs/rbac.md`）
 
 | 模块 | 模型 | 说明 |
 |------|------|------|
-| 用户 | `User` | 系统登录用户（boolean 权限字段待清理） |
+| 用户 | `User` | 纯认证实体，无业务字段 |
 | 周报 | `ReportGroup`, `WeeklyReport`, `ReportItem`, `ReportHistory` | 周报填报、版本快照 |
-| 周报成员 | `ReportGroupMembership` | 分组权限（已替代旧 Admin/Member/Viewer 三表） |
-| 工作 | `WorkItem`, `WorkParticipant` | 部门工作清单 |
-| 员工 | `Employee` | 花名册，editedBy/editedAt/version 追踪 |
+| 工作 | `WorkItem`, `WorkParticipant` | 独立模块，scopeType/scopeId 泛化归属 |
+| 员工 | `Employee` | 花名册 |
 | 组织 | `Department`, `Position`, `EmployeePosition`, `DepartmentPosition` | 部门岗位体系 |
-| RBAC | `Resource`, `Role`, `UserResourceRole` | 替代旧 7 张权限表（详见 docs/rbac.md） |
+| RBAC | `Resource`, `Role`, `UserResourceRole` | 3 表替代旧 7 张权限表 |
 | 字典 | `CompanyCode` | 公司编码 |
 | 历史 | `EditHistory` | 通用编辑快照 |
 
-**待清理**（迁移后删除）：`PermissionCategory`, `Permission`, `UserPermission`, `DepartmentAdmin`, `FieldPermission`, `GlobalFieldPermission`, `ReportGroupAdmin`, `ReportGroupMember`, `ReportGroupViewer`, `ReportGroupMembership`
+**已删除**：`PermissionCategory`, `Permission`, `UserPermission`, `DepartmentAdmin`, `FieldPermission`, `GlobalFieldPermission`, `ReportGroupAdmin`, `ReportGroupMember`, `ReportGroupViewer`, `ReportGroupMembership`
 
-**关联**: `Employee.userId` → `User.id`（单向，通过姓名初始化匹配）
+**关联**: `Employee.userId` → `User.id`（可选，单向）
 
 ## 核心模块维度对比
 
@@ -45,8 +44,6 @@ This version has breaking changes — APIs, conventions, and file structure may 
 | **时间维度** | 强（`startDate`/`endDate`/`joinDate`/`leaveDate`） | 弱（`year`+`weekNumber`） |
 | **版本追踪** | `EditHistory`（字段级快照） | `ReportHistory`（整份周报快照） |
 | **多人协作** | 无（独占编辑） | 有（同组共享周报） |
-| **查询模式** | 按人/部门/岗位筛选 | 按周+分组筛选 |
-| **数据量** | ~200人 × 多岗 | 每周 × 分组数 × 条目数 |
 
 ### User 与 Employee 边界
 
@@ -55,20 +52,18 @@ User（纯认证实体）               Employee（纯业务实体）
 ─────────────────                ──────────────────
 wxUserId                         employeeId（权威业务编号）
 username（用户自取，非业务标识）    name（档案名，权威来源）
-password                         company/department（通过 EmployeePosition）
+password                         公司/部门（通过 EmployeePosition）
 name（登录显示名）                 position/status
 apiKey                           joinDate/leaveDate
 canLogin（离职=停用，不删号）       startDate/endDate
-departmentId（注册时匹配线索）      → 多岗通过 EmployeePosition
 
           Employee.userId → User.id（可选，0或1对1）
 ```
 
 **规则**：
-- `User` 不存 `company`、`departmentName`、`employeeId` — 这些从 `Employee` 侧查
+- `User` 不存任何业务字段，权限走 `UserResourceRole`
 - 查"某用户在哪个部门" → `Employee.userId → EmployeePosition`
 - 周报成员用 `User.id`（需登录），HR 操作对象是 `Employee.id`
-- `User.name` 不强制同步 `Employee.name`；`username` 用户自由设定
 
 ## 关键路由
 
@@ -79,22 +74,22 @@ departmentId（注册时匹配线索）      → 多岗通过 EmployeePosition
 | 填写周报 | `/dashboard` | 登录 |
 | 历史记录 | `/history` | 登录 |
 | 工作清单 | `/works` | 登录 |
-| 人事行政 | `/hr` | `canAccessHR` |
-| 管理后台 | `/admin` | `isWorkListAdmin` 或 `system.admin` 权限 |
+| 人事行政 | `/hr` | `module.hr.access` |
+| 管理后台 | `/admin` | `system.access` |
 | API接入 | `/api-guide` | 登录 |
 | 设置 | `/settings` | 登录 |
 
 | API | 路径 | 说明 |
 |-----|------|------|
-| 花名册 | `GET /api/employees` | 列表+导出，按权限过滤字段 |
+| 花名册 | `GET /api/employees` | 列表+导出 |
 | 花名册更新 | `PUT /api/employees/[id]` | 单字段更新，自动 EditHistory 快照 |
 | 联想 | `GET /api/employees/autocomplete` | 部门/人员联想 |
 | 员工岗位 | `GET/PUT/DELETE /api/employee-positions` | 岗位关联管理 |
 | 员工权限 | `GET/PUT /api/admin/employee-permissions` | 花名册+权限合并管理 |
 | 用户权限 | `PUT /api/admin/user-permissions` | 单个用户权限授予/撤销 |
-| 权限定义 | `GET /api/admin/permissions` | 动态权限注册表 |
+| 权限定义 | `GET /api/admin/permissions` | 返回 resources + roles |
 | 编辑历史 | `GET /api/admin/edit-history` | 浏览/恢复数据版本 |
-| 字段权限 | `GET/PUT/DELETE /api/field-permissions` | 字段级例外规则 |
+| 部门管理员 | `GET/PUT/DELETE /api/admin/department-admins` | 部门管理员（UserResourceRole） |
 | 个人API | `GET/POST /api/my-api-key` | 申请/查看个人API Key |
 | 编码管理 | `GET/PUT/DELETE /api/admin/department-codes` | 部门编码 |
 | 编码管理 | `GET/PUT/DELETE /api/admin/position-codes` | 岗位编码 |
@@ -103,7 +98,7 @@ departmentId（注册时匹配线索）      → 多岗通过 EmployeePosition
 
 1. **网页版**: Cookie JWT (`token`)
 2. **API接入**: `X-API-Key`(个人) + `X-Username` + `X-Password`
-3. **权限校验**: `lib/auth.ts` — `authenticate()`, `requireAdmin()`, `isAdmin()`, `checkPermission()`, `isGroupAdmin()` 等
+3. **权限校验**: `lib/auth.ts` — `authenticate()`, `isAdmin()`, `checkPermission()`, `isGroupAdmin()` 等，全部基于 `UserResourceRole`
 
 ## 共享模块
 
@@ -112,16 +107,17 @@ departmentId（注册时匹配线索）      → 多岗通过 EmployeePosition
 | `EditToolbar` | `app/components/EditToolbar.tsx` | 编辑→保存+取消+版本 工具栏 |
 | `ConfirmModal` | `app/components/ConfirmModal.tsx` | 统一确认弹框 |
 | `Toast` | `app/components/Toast.tsx` | 统一通知提示 |
-| `useToast` | `app/hooks/useToast.ts` | Toast hook（showToast/closeToast） |
+| `useToast` | `app/hooks/useToast.ts` | Toast hook |
 | `FilterBar` | `app/components/FilterBar.tsx` | 筛选工具栏容器 |
 | `company` | `lib/company.ts` | 公司常量和辅助函数 |
-| `search` | `lib/search.ts` | 拼音搜索（matchEmployee/getInitials） |
+| `search` | `lib/search.ts` | 拼音搜索 |
 
 **规范**：
-- 确认弹框统一用 `<ConfirmModal>`，禁止 `window.confirm`
-- 通知统一用 `useToast()`，禁止裸 `setTimeout` 管理提示
-- 公司名/编码统一从 `lib/company` 导入，禁止硬编码
-- API 鉴权统一用 `lib/auth.ts` 的 `authenticate` / `isAdmin`，禁止本地定义 `requireAdmin`
+- 确认弹框 → `<ConfirmModal>`，禁止 `window.confirm`
+- 通知 → `useToast()`，禁止裸 `setTimeout`
+- 公司名/编码 → `lib/company` 导入，禁止硬编码
+- API 鉴权 → `lib/auth.ts`，禁止本地定义 `requireAdmin`
+- 表格编辑 → `<EditToolbar>`，统一 保存/取消/版本 交互
 
 ## 部署流程
 
@@ -130,11 +126,8 @@ departmentId（注册时匹配线索）      → 多岗通过 EmployeePosition
 ./deploy.sh --push-db    # schema 变更时使用（拉服务器DB→本地push→推回）
 ```
 
-部署时自动：构建 → 复制 static/public → rsync 到服务器 → 修复 .env → pm2 restart
-
 ## 花名册数据
 
 - Excel: `/Users/koito/Desktop/Project/HR/data/合并花名册.xlsx`
-- 公司名清洗: `制药` → `丰华制药`, `江苏制药` → `丰华制药`, 其他保持原名
+- 公司名清洗: `制药` → `丰华制药`, `江苏制药` → `丰华制药`
 - 丰华生物组: 丰华生物 + 丰华天力通 + 丰华悦通 + 加拿大（共享数据）
-- `import-users.ts` 脚本只处理 User 表，Employee/EmployeePosition 需另行同步

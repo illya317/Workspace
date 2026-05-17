@@ -115,7 +115,7 @@ export async function PUT(request: Request) {
     await prisma.department.upsert({
       where: { code: finalCode },
       update: { name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
-      create: { code: finalCode, name, company: getCompanyFromCode(finalCode), level: 1 },
+      create: { code: finalCode, name, companyCode: getCompanyFromCode(finalCode), level: 1 },
     });
   }
 

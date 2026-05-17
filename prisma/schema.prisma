@@ -11,20 +11,26 @@ datasource db {
 // ─── 用户与认证 ───────────────────────────────────────────
 
 model User {
-  id             Int               @id @default(autoincrement())
-  wxUserId       String            @unique
-  username       String?           @unique
-  password       String?
-  name           String
-  departmentId   Int               // 注册时初始关联线索，非权威来源
-  avatar         String?
-  routineItems   String?
-  canLogin       Boolean           @default(true)  // 离职=停用，不删号
-  apiKey         String?           @unique
-  createdAt      DateTime          @default(now())
-  resourceRoles  UserResourceRole[]
-  reports        WeeklyReport[]
-  employees      Employee[]
+  id               Int               @id @default(autoincrement())
+  wxUserId         String            @unique
+  username         String?           @unique
+  password         String?
+  name             String
+  employeeId       String?
+  departmentId     Int               // 注册时初始关联线索，非权威来源
+  departmentName   String?
+  avatar           String?
+  routineItems     String?
+  isWorkListAdmin  Boolean           @default(false)
+  canSelectAnyWeek Boolean           @default(false)
+  canAccessHR      Boolean           @default(false)
+  canAccessWorks   Boolean           @default(true)
+  canLogin         Boolean           @default(true)  // 离职=停用，不删号
+  apiKey           String?           @unique
+  createdAt        DateTime          @default(now())
+  resourceRoles    UserResourceRole[]
+  reports          WeeklyReport[]
+  employees        Employee[]
 }
 
 // ─── RBAC 权限 ────────────────────────────────────────────
@@ -200,8 +206,7 @@ model Department {
   parentId          Int?
   parent            Department?        @relation("DeptHierarchy", fields: [parentId], references: [id])
   children          Department[]       @relation("DeptHierarchy")
-  managerId         String?            // 负责人 employeeId（兼容无User账号）
-  managerUserId     Int?               // 负责人 User.id（有账号时关联）
+  managerUserId     Int?               // 负责人 → User.id（有账号时关联）
   positions         DepartmentPosition[]
   employeePositions EmployeePosition[]
   reportGroups      ReportGroup[]

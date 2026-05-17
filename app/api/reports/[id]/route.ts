@@ -38,21 +38,22 @@ export async function PUT(
 
     // 如果有 reportGroupId，检查用户是否是填报成员或负责人
     if (report.reportGroupId) {
+      const gid = String(report.reportGroupId);
       const [member, admin] = await Promise.all([
-        prisma.reportGroupMember.findUnique({
+        prisma.userResourceRole.findFirst({
           where: {
-            reportGroupId_userId: {
-              reportGroupId: report.reportGroupId,
-              userId,
-            },
+            userId,
+            resource: { key: "report_group" },
+            role: { key: "member" },
+            scopeId: gid,
           },
         }),
-        prisma.reportGroupAdmin.findUnique({
+        prisma.userResourceRole.findFirst({
           where: {
-            reportGroupId_userId: {
-              reportGroupId: report.reportGroupId,
-              userId,
-            },
+            userId,
+            resource: { key: "report_group" },
+            role: { key: "admin" },
+            scopeId: gid,
           },
         }),
       ]);
