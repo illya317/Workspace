@@ -103,57 +103,64 @@ pm2 restart weekly
 
 # 前端交互规范
 
-## 禁止使用浏览器原生 confirm / alert
+## 共享组件（必须使用，禁止重复造轮子）
 
-- **不要用** `window.confirm("确定删除？")` —— 会显示域名 + "says"，丑且无法定制样式
-- **要用** 自定义确认框组件（如 admin/page.tsx 中的 `confirmModal` 模式）
-- 项目中如有新加删除/危险操作确认，统一用自定义弹框
+| 组件 | 用途 | 导入 |
+|------|------|------|
+| `ConfirmModal` | 确认弹框，替代 `window.confirm` | `@/app/components/ConfirmModal` |
+| `EditToolbar` | 编辑工具栏（编辑→保存+取消+版本） | `@/app/components/EditToolbar` |
+| `Toast` + `useToast` | 通知提示，替代裸 `setTimeout` | `@/app/components/Toast` + `@/app/hooks/useToast` |
+| `FilterBar` | 筛选栏容器 | `@/app/components/FilterBar` |
+| `DataTable` | 数据表格（可选用） | `@/app/components/DataTable` |
 
-## 表格编辑统一在顶部工具栏
-
-- **不要**在表格每行/每个单元格里放"保存"按钮
-- **要**在表格顶部工具栏统一放"编辑"、"保存"、"退出编辑"按钮
-- 编辑模式下点击单元格/行进入编辑状态，改完后点顶部"保存"
-- 所有可编辑表格（花名册、员工信息、岗位信息、编码管理）统一此交互
+**规范**：
+- 确认弹框统一用 `<ConfirmModal>`，禁止 `window.confirm` / `window.alert`
+- 通知统一用 `useToast()`，禁止 `setTimeout(() => setSaveTip(""), 1500)`
+- 表格编辑统一用 `<EditToolbar>` —— 编辑模式点"保存"后自动退出，点"取消"清除当前单元格编辑
+- 公司名/编码统一从 `lib/company` 导入，禁止硬编码字符串
 
 ## 尽量用子 Agent 执行
 
 - 复杂任务、多文件修改优先拆 Sub Agent 并行执行
-- 节省主对话上下文，避免过长导致截断
 - 主 Agent 负责任务拆分和结果验收
 
 ---
 
 # 业务规则
 
-## 公司分组
+## 公司分组（统一从 `lib/company.ts` 导入）
 
-- **丰华生物组**：包含丰华生物、丰华天力通、丰华悦通、加拿大（非制药的全部公司）
-- **丰华制药**：独立分组
+- **丰华生物组**：`FENGHUA_BIO_GROUP` = 丰华生物、丰华天力通、丰华悦通、加拿大（共享数据）
+- **丰华制药**：独立
+- **编码前缀**：01 丰华生物, 02 丰华天力通, 03 丰华悦通, 04 丰华制药, 05 加拿大
+- `SHARED_GROUP_CODES` = ["01","02","03"]（共享存储）
 
-> 非强调："丰华生物"在数据隔离/共享语境下应理解为包含天力通、悦通、加拿大的整体。
+## 公司名清洗
+
+- `制药` → `丰华制药`, `江苏制药` → `丰华制药`, 其他保持原名
 
 ---
 
-# 通用工具模块
+# 共享工具模块
 
 ## 拼音搜索 (`lib/search.ts`)
 
-所有涉及员工姓名搜索的地方统一使用 `lib/search.ts`，**不要重复写拼音逻辑**。
-
 ```typescript
 import { getInitials, matchEmployee } from "@/lib/search";
-
-// 获取拼音首字母
-const initials = getInitials("张三"); // "zs"
-
-// 统一匹配：姓名/别名/ID 包含 或 拼音首字母包含
-const matched = employees.filter((e) => matchEmployee(e, keyword));
 ```
 
-- `getInitials(name)` — 基于 `pinyin-pro`，返回全小写首字母串
-- `matchEmployee(employee, keyword)` — 匹配姓名、别名、employeeId、拼音首字母
+## 公司常量 (`lib/company.ts`)
 
-**已接入的位置**：
-- `/api/employees` — 花名册 keyword 搜索
-- `/api/employees/search` — 人员搜索接口
+```typescript
+import { CODE_TO_NAME, NAME_TO_CODE, FENGHUA_BIO_GROUP, SHARED_GROUP_CODES, resolveCompanyFilter, getCompanyFromCode } from "@/lib/company";
+```
+
+禁止在页面/API中硬编码公司名、公司编码、分组逻辑。
+
+## 认证与权限 (`lib/auth.ts`)
+
+```typescript
+import { authenticate, requireAdmin, isAdmin, checkPermission, isGroupAdmin } from "@/lib/auth";
+```
+
+API 路由统一使用这些 helpers，禁止在路由中定义本地 `requireAdmin`。
