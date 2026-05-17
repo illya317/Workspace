@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { authenticate } from "@/lib/auth";
+import { authenticate, checkPermission } from "@/lib/auth";
 
 export async function PUT(
   request: Request,
@@ -30,11 +30,7 @@ export async function PUT(
 
   async function canEdit(report: NonNullable<typeof existing>) {
     // 管理员直接放行
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { isWorkListAdmin: true },
-    });
-    if (user?.isWorkListAdmin) return true;
+    if (await checkPermission(userId, "system.admin")) return true;
 
     // 如果有 reportGroupId，检查用户是否是填报成员或负责人
     if (report.reportGroupId) {

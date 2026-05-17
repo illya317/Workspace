@@ -105,8 +105,7 @@ async function importUsers() {
           name: row.name,
           password: row.password,
           wxUserId,
-          isWorkListAdmin: row.isAdmin,
-          canSelectAnyWeek: row.canTest,
+          // isWorkListAdmin/canSelectAnyWeek use RBAC: see admin user-permissions API
         },
       });
       updated++;
@@ -117,8 +116,7 @@ async function importUsers() {
           username,
           password: row.password,
           name: row.name,
-          isWorkListAdmin: row.isAdmin,
-          canSelectAnyWeek: row.canTest,
+          // isWorkListAdmin/canSelectAnyWeek use RBAC: see admin user-permissions API
         },
       });
       created++;
@@ -136,9 +134,7 @@ async function importUsers() {
       data: {
         name: CONFIG.admin.name,
         password: CONFIG.admin.password,
-        // departmentId removed from User model
-        isWorkListAdmin: true,
-        canSelectAnyWeek: true,
+        // isWorkListAdmin/canSelectAnyWeek use RBAC: seed-rbac.ts or admin UI
       },
     });
   } else {
@@ -148,9 +144,7 @@ async function importUsers() {
         username: CONFIG.admin.username,
         password: CONFIG.admin.password,
         name: CONFIG.admin.name,
-        // departmentId removed from User model
-        isWorkListAdmin: true,
-        canSelectAnyWeek: true,
+        // isWorkListAdmin/canSelectAnyWeek use RBAC: seed-rbac.ts or admin UI
       },
     });
   }

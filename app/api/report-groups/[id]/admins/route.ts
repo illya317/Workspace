@@ -20,7 +20,7 @@ export async function GET(
     },
   });
 
-  const userIds = admins.map((a) => a.userId);
+  const userIds = admins.map((a) => a.userId).filter((id): id is number => id !== null);
 
   if (userIds.length === 0) {
     return NextResponse.json({ admins: [] });

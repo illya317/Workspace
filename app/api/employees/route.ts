@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate } from "@/lib/auth";
+import { authenticate, checkHRAccess, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import * as XLSX from "xlsx";
 import { matchEmployee } from "@/lib/search";
@@ -40,12 +40,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    select: { isWorkListAdmin: true, canAccessHR: true },
-  });
-
-  if (!user?.canAccessHR && !user?.isWorkListAdmin) {
+  if (!(await checkHRAccess(payload.userId))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
@@ -54,7 +49,8 @@ export async function GET(request: Request) {
   const dept = searchParams.get("dept") || "";
   const keyword = searchParams.get("keyword") || "";
   const exportExcel = searchParams.get("export") === "1";
-  console.log("[employees API] params:", { company, dept, keyword, exportExcel, isAdmin: user?.isWorkListAdmin });
+  const isAdmin = await checkPermission(payload.userId, "system.admin");
+  console.log("[employees API] params:", { company, dept, keyword, exportExcel, isAdmin });
 
   // 在职/离职筛选（默认只看在职）
   const statusFilter = searchParams.get("status") || "在职";
@@ -161,7 +157,7 @@ export async function GET(request: Request) {
   rows.sort((a, b) => a.employeeId.localeCompare(b.employeeId));
   console.log("[employees API] rows count:", rows.length, "baseEmployees:", baseEmployees.length, "eps:", eps.length);
 
-  const visibleFields = await getVisibleFields(payload.userId, !!user?.isWorkListAdmin);
+  const visibleFields = await getVisibleFields(payload.userId, isAdmin);
 
   if (exportExcel) {
     const exportData = rows.map((emp) => {

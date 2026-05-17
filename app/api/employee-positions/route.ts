@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate } from "@/lib/auth";
+import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { matchEmployee } from "@/lib/search";
 import { FENGHUA_BIO_GROUP, resolveCompanyFilter } from "@/lib/company";
@@ -10,12 +10,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    select: { isWorkListAdmin: true, canAccessHR: true },
-  });
-
-  if (!user?.canAccessHR && !user?.isWorkListAdmin) {
+  if (!(await checkHRAccess(payload.userId))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 

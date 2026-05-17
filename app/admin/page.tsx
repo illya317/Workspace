@@ -10,6 +10,7 @@ import FilterBar from "@/app/components/FilterBar";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
+import { CODE_TO_NAME } from "@/lib/company";
 
 interface User {
   id: number;
@@ -18,11 +19,9 @@ interface User {
   company: string | null;
   departmentName: string | null;
   departmentId: number;
-  isWorkListAdmin: boolean;
   canLogin: boolean;
-  canAccessHR: boolean;
   employeeId: string | null;
-  resourceRoles?: Array<{ resource?: { key: string }; role?: { key: string }; scopeId?: string | null }>;
+  resourceRoles?: Array<{ resource?: { key: string }; role?: { key: string }; scopeId?: string | null; positionId?: number | null }>;
 }
 
 interface Dept {
@@ -87,11 +86,10 @@ export default function AdminPage() {
       name: string;
       roles: { company: string | null; dept1: string | null; dept2: string | null; position: string | null }[];
       canLogin: boolean;
-      isWorkListAdmin: boolean;
-      canAccessHR: boolean;
       hasApiKey: boolean;
       userId: number | null;
       username: string | null;
+      permissions?: string[];
     }>
   >([]);
   const [empPermLoading, setEmpPermLoading] = useState(false);
@@ -139,13 +137,25 @@ export default function AdminPage() {
   const [addingDeptAdmin, setAddingDeptAdmin] = useState<number | null>(null);
 
   // 权限面板视图
-  const [permView, setPermView] = useState<"by-user" | "by-permission">("by-permission");
+  const [permView, setPermView] = useState<"by-user" | "by-permission" | "by-position">("by-permission");
   const [permSearchQuery, setPermSearchQuery] = useState("");
   const [permSearchResults, setPermSearchResults] = useState<User[]>([]);
   const [selectedUserPerm, setSelectedUserPerm] = useState<User | null>(null);
   // RBAC resources and roles from API
   const [resources, setResources] = useState<ResourceItem[]>([]);
   const [roles, setRoles] = useState<Array<{ id: number; key: string; name: string; description: string | null }>>([]);
+
+  // 按岗位 — position-based permissions
+  interface PosPermGrant {
+    id: number;
+    positionId: number;
+    resource: { id: number; key: string; name: string };
+    role: { id: number; key: string; name: string };
+    position: { id: number; code: string; name: string; companyCode: string | null };
+  }
+  const [positions, setPositions] = useState<Array<{ id: number; code: string; name: string; company: string | null; departmentName: string | null }>>([]);
+  const [positionGrants, setPositionGrants] = useState<PosPermGrant[]>([]);
+  const [posPermCompany, setPosPermCompany] = useState("");
 
   function userHasPermission(u: User, resourceKey: string): boolean {
     return (u.resourceRoles || []).some(
@@ -195,6 +205,12 @@ export default function AdminPage() {
   }, [activeTab]);
 
   useEffect(() => {
+    if (permView === "by-position") {
+      loadPositionPerms();
+    }
+  }, [permView]);
+
+  useEffect(() => {
     if (user?.isWorkListAdmin) {
       setPermView("by-user");
     }
@@ -229,7 +245,9 @@ export default function AdminPage() {
     const usersRes = await fetch("/api/admin/users");
     if (usersRes.ok) {
       const data = await usersRes.json();
-      setSysAdmins((data.users || []).filter((u: User) => u.isWorkListAdmin));
+      setSysAdmins((data.users || []).filter((u: User) =>
+        (u.resourceRoles || []).some(rr => rr.resource?.key === "system" && rr.role?.key === "admin")
+      ));
       setUsers(data.users || []);
     }
   }
@@ -244,14 +262,50 @@ export default function AdminPage() {
     setEmpPermLoading(false);
   }
 
+  async function loadPositionPerms() {
+    const [posRes, grantsRes] = await Promise.all([
+      fetch("/api/positions"),
+      fetch("/api/admin/position-permissions"),
+    ]);
+    if (posRes.ok) {
+      const data = await posRes.json();
+      // Map company code to name (e.g., "01" -> "丰华生物")
+      setPositions((data.positions || []).map((p: any) => ({
+        ...p,
+        company: CODE_TO_NAME[p.company] || p.company,
+      })));
+    }
+    if (grantsRes.ok) {
+      const data = await grantsRes.json();
+      setPositionGrants(data.grants || []);
+    }
+  }
+
+  function positionHasPerm(positionId: number, resourceKey: string, roleKey: string): boolean {
+    return positionGrants.some(
+      (g) => g.positionId === positionId && g.resource?.key === resourceKey && g.role?.key === roleKey
+    );
+  }
+
+  async function togglePositionPerm(positionId: number, resourceKey: string, roleKey: string, currentValue: boolean) {
+    const res = await fetch("/api/admin/position-permissions", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ positionId, resourceKey, roleKey, value: !currentValue }),
+    });
+    if (res.ok) {
+      await loadPositionPerms();
+    } else {
+      showToast("更新失败", "error");
+    }
+  }
+
   async function toggleEmpPerm(
     emp: {
       employeeId: string;
       name: string;
       userId: number | null;
-      canLogin: boolean;
-      isWorkListAdmin: boolean;
-      canAccessHR: boolean;
+      permissions?: string[];
     },
     resourceKey: string
   ) {
@@ -259,12 +313,7 @@ export default function AdminPage() {
       showToast("该员工尚未关联系统账号", "error");
       return;
     }
-    const hasPerm = (emp as any).resourceRoles?.some(
-      (rr: any) => rr.resource?.key === resourceKey && rr.role?.key === "access"
-    ) ?? (resourceKey === "system.login" ? emp.canLogin
-       : resourceKey === "system.admin" ? emp.isWorkListAdmin
-       : resourceKey === "module.hr" ? emp.canAccessHR
-       : false);
+    const hasPerm = (emp.permissions || []).includes(`${resourceKey}.access`);
 
     const res = await fetch("/api/admin/user-permissions", {
       method: "PUT",
@@ -523,14 +572,19 @@ export default function AdminPage() {
   }
 
   async function removeSysAdmin(userId: number) {
-    const res = await fetch(`/api/admin/users/${userId}`, {
+    const res = await fetch("/api/admin/user-permissions", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isWorkListAdmin: false }),
+      body: JSON.stringify({ userId, resourceKey: "system", roleKey: "admin", value: false }),
     });
     if (res.ok) {
       setSysAdmins(sysAdmins.filter((u) => u.id !== userId));
-      setUsers(users.map((u) => (u.id === userId ? { ...u, isWorkListAdmin: false } : u)));
+      setUsers(users.map((u) => (u.id === userId ? {
+        ...u,
+        resourceRoles: (u.resourceRoles || []).filter(
+          (rr) => !(rr.resource?.key === "system" && rr.role?.key === "admin")
+        )
+      } : u)));
       showToast("已移除系统管理员", "success");
     } else {
       showToast("移除失败", "error");
@@ -538,10 +592,10 @@ export default function AdminPage() {
   }
 
   async function addSysAdmin(userId: number) {
-    const res = await fetch(`/api/admin/users/${userId}`, {
+    const res = await fetch("/api/admin/user-permissions", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ isWorkListAdmin: true }),
+      body: JSON.stringify({ userId, resourceKey: "system", roleKey: "admin", value: true }),
     });
     if (res.ok) {
       await loadAdminData();
@@ -1027,6 +1081,20 @@ export default function AdminPage() {
                 >
                   按权限
                 </button>
+                <button
+                  onClick={() => {
+                    setPermView("by-position");
+                    setSelectedUserPerm(null);
+                    loadPositionPerms();
+                  }}
+                  className={`rounded-md px-4 py-2 text-sm ${
+                    permView === "by-position"
+                      ? "bg-emerald-600 text-white"
+                      : "border border-gray-300 bg-white text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  按岗位
+                </button>
               </div>
             )}
 
@@ -1271,29 +1339,14 @@ export default function AdminPage() {
                             })
                             .sort((a, b) => {
                               if (!selectedResource) return (a.employeeId || "").localeCompare(b.employeeId || "");
-                              const aHas = (a as any).resourceRoles?.some(
-                                (rr: any) => rr.resource?.key === selectedResource && rr.role?.key === "access"
-                              ) ?? (selectedResource === "system.login" ? a.canLogin
-                                 : selectedResource === "module.hr" ? a.canAccessHR
-                                 : selectedResource === "system.admin" ? a.isWorkListAdmin
-                                 : false);
-                              const bHas = (b as any).resourceRoles?.some(
-                                (rr: any) => rr.resource?.key === selectedResource && rr.role?.key === "access"
-                              ) ?? (selectedResource === "system.login" ? b.canLogin
-                                 : selectedResource === "module.hr" ? b.canAccessHR
-                                 : selectedResource === "system.admin" ? b.isWorkListAdmin
-                                 : false);
+                              const aHas = (a.permissions || []).includes(`${selectedResource}.access`);
+                              const bHas = (b.permissions || []).includes(`${selectedResource}.access`);
                               if (aHas !== bHas) return aHas ? -1 : 1;
                               return (a.employeeId || "").localeCompare(b.employeeId || "");
                             })
                             .map((e) => {
                               const permValue = selectedResource
-                                ? ((e as any).resourceRoles?.some(
-                                    (rr: any) => rr.resource?.key === selectedResource && rr.role?.key === "access"
-                                  ) ?? (selectedResource === "system.login" ? e.canLogin
-                                     : selectedResource === "module.hr" ? e.canAccessHR
-                                     : selectedResource === "system.admin" ? e.isWorkListAdmin
-                                     : false))
+                                ? (e.permissions || []).includes(`${selectedResource}.access`)
                                 : false;
                               return (
                                 <tr key={e.employeeId} className="border-b last:border-0">
@@ -1529,6 +1582,85 @@ export default function AdminPage() {
                           );
                         })}
                     </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 按岗位视图 */}
+            {permView === "by-position" && (
+              <div className="space-y-4">
+                {/* 公司筛选 */}
+                <div className="flex gap-2 border-b border-gray-200 pb-2">
+                  <button
+                    onClick={() => setPosPermCompany("")}
+                    className={`pb-2 text-sm font-medium ${posPermCompany === "" ? "border-b-2 border-emerald-500 text-emerald-600" : "text-gray-500 hover:text-gray-700"}`}
+                  >
+                    全部
+                  </button>
+                  {Array.from(new Set(positions.map((p) => p.company).filter(Boolean) as string[])).sort().map((company) => (
+                    <button
+                      key={company}
+                      onClick={() => setPosPermCompany(company)}
+                      className={`pb-2 text-sm font-medium ${posPermCompany === company ? "border-b-2 border-emerald-500 text-emerald-600" : "text-gray-500 hover:text-gray-700"}`}
+                    >
+                      {company}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Toggle perm description */}
+                <div className="text-xs text-gray-400">
+                  点击下方权限标签可切换岗位的默认权限。这些权限将应用于该岗位的所有成员。
+                </div>
+
+                {/* Position list grouped by department */}
+                <div className="rounded-lg bg-white p-4 shadow-sm">
+                  {positions
+                    .filter((p) => !posPermCompany || p.company === posPermCompany)
+                    .length === 0 && (
+                      <p className="text-center text-sm text-gray-400 py-8">暂无岗位数据</p>
+                  )}
+                  <div className="space-y-2">
+                    {positions
+                      .filter((p) => !posPermCompany || p.company === posPermCompany)
+                      .map((pos) => {
+                        const posPerms = [
+                          { resourceKey: "system", roleKey: "admin", label: "系统管理员" },
+                          { resourceKey: "module.hr", roleKey: "access", label: "HR访问" },
+                          { resourceKey: "module.works", roleKey: "access", label: "工作清单" },
+                          { resourceKey: "report", roleKey: "write_any_week", label: "补填任意周报" },
+                        ];
+                        return (
+                          <div key={pos.id} className="flex items-center gap-3 rounded-md border border-gray-200 p-3">
+                            <div className="min-w-[150px]">
+                              <div className="text-sm font-medium text-gray-800">{pos.name}</div>
+                              <div className="text-xs text-gray-400">
+                                {pos.code} · {pos.company || "-"}
+                                {pos.departmentName ? ` · ${pos.departmentName}` : ""}
+                              </div>
+                            </div>
+                            <div className="flex flex-1 flex-wrap gap-1.5">
+                              {posPerms.map((pp) => {
+                                const has = positionHasPerm(pos.id, pp.resourceKey, pp.roleKey);
+                                return (
+                                  <button
+                                    key={`${pp.resourceKey}.${pp.roleKey}`}
+                                    onClick={() => togglePositionPerm(pos.id, pp.resourceKey, pp.roleKey, has)}
+                                    className={`rounded-full px-2.5 py-1 text-xs transition-colors ${
+                                      has
+                                        ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"
+                                        : "bg-gray-100 text-gray-500 hover:bg-gray-200"
+                                    }`}
+                                  >
+                                    {pp.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })}
                   </div>
                 </div>
               </div>

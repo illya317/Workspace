@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createToken } from "@/lib/auth";
+import { createToken, checkPermission, isAnyGroupAdmin } from "@/lib/auth";
 
 export async function POST(request: Request) {
   const { username, password } = await request.json();
@@ -14,6 +14,7 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { username },
+    select: { id: true, name: true, username: true, wxUserId: true, password: true, apiKey: true, canLogin: true },
   });
 
   if (!user || user.password !== password) {
@@ -30,15 +31,26 @@ export async function POST(request: Request) {
     departmentId: 0,
   });
 
+  const [isAdmin, canAnyWeek, hasHR, hasWorks, groupAdmin] = await Promise.all([
+    checkPermission(user.id, "system.admin"),
+    checkPermission(user.id, "report.write_any_week"),
+    checkPermission(user.id, "module.hr.access"),
+    checkPermission(user.id, "module.works.access"),
+    isAnyGroupAdmin(user.id),
+  ]);
+
   const response = NextResponse.json({
     success: true,
     user: {
       id: user.id,
       name: user.name,
       departmentId: 0,
-      isWorkListAdmin: user.isWorkListAdmin,
-      canSelectAnyWeek: user.canSelectAnyWeek,
-      canAccessHR: user.canAccessHR,
+      isWorkListAdmin: isAdmin,
+      isSuperAdmin: isAdmin,
+      canSelectAnyWeek: canAnyWeek,
+      canAccessHR: hasHR,
+      canAccessWorks: hasWorks,
+      isAnyGroupAdmin: groupAdmin,
     },
   });
 

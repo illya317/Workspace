@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate, isAnyGroupAdmin } from "@/lib/auth";
+import { authenticate, checkPermission, isAnyGroupAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
@@ -9,25 +9,34 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
+  const userWithPerms = await prisma.user.findUnique({
     where: { id: payload.userId },
-    select: { isWorkListAdmin: true, canSelectAnyWeek: true, canAccessHR: true, canAccessWorks: true },
+    select: { id: true, name: true, username: true, wxUserId: true, apiKey: true, canLogin: true },
   });
 
-  const groupAdmin = await isAnyGroupAdmin(payload.userId);
+  if (!userWithPerms) {
+    return NextResponse.json({ error: "用户不存在" }, { status: 404 });
+  }
+
+  const [isAdmin, canAnyWeek, hasHR, hasWorks, groupAdmin] = await Promise.all([
+    checkPermission(payload.userId, "system.admin"),
+    checkPermission(payload.userId, "report.write_any_week"),
+    checkPermission(payload.userId, "module.hr.access"),
+    checkPermission(payload.userId, "module.works.access"),
+    isAnyGroupAdmin(payload.userId),
+  ]);
 
   return NextResponse.json({
     user: {
-      id: payload.userId,
-      name: payload.name,
-      departmentId: payload.departmentId,
-      departmentName: payload.departmentName,
-      isWorkListAdmin: user?.isWorkListAdmin ?? false,
+      ...userWithPerms,
+      isWorkListAdmin: isAdmin,      // keep old key
+      isSuperAdmin: isAdmin,         // new key
+      canSelectAnyWeek: canAnyWeek,
+      canAccessHR: hasHR,
+      canAccessWorks: hasWorks,
       isAnyGroupAdmin: groupAdmin,
-      canSelectAnyWeek: user?.canSelectAnyWeek ?? false,
-      canAccessHR: user?.canAccessHR ?? false,
-      canAccessWorks: user?.canAccessWorks ?? true,
       company: null,
+      employeeId: null,
     },
   });
 }

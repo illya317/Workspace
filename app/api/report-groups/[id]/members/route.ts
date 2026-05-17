@@ -21,7 +21,7 @@ export async function GET(
     select: { userId: true },
   });
 
-  const userIds = members.map((m) => m.userId);
+  const userIds = members.map((m) => m.userId).filter((id): id is number => id !== null);
 
   if (userIds.length === 0) {
     return NextResponse.json({ members: [] });

@@ -8,13 +8,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  // Check super admin access (both old isWorkListAdmin AND new system.admin)
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    select: { isWorkListAdmin: true },
-  });
-  const isSuperAdmin = user?.isWorkListAdmin || (await checkPermission(payload.userId, "system.admin"));
-  if (!isSuperAdmin) {
+  // Check system admin access
+  if (!(await checkPermission(payload.userId, "system.admin"))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 

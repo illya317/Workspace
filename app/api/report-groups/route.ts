@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate, requireAdmin } from "@/lib/auth";
+import { authenticate, requireAdmin, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
@@ -8,13 +8,8 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    select: { isWorkListAdmin: true },
-  });
-
   let groups;
-  if (user?.isWorkListAdmin) {
+  if (await checkPermission(payload.userId, "system.admin")) {
     groups = await prisma.reportGroup.findMany({
       orderBy: { sortOrder: "asc" },
       include: {

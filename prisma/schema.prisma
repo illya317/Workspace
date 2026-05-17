@@ -18,11 +18,7 @@ model User {
   name             String // 名称
   avatar           String? // 头像URL
   routineItems     String? // 日常工作模板JSON
-  isWorkListAdmin  Boolean           @default(false) // 是否超级管理员
-  canSelectAnyWeek Boolean           @default(false) // 是否可补填任意周报
-  canAccessHR      Boolean           @default(false) // 是否可访问人事行政
-  canAccessWorks   Boolean           @default(true) // 是否可访问工作清单
-  canLogin         Boolean           @default(true)  // 离职=停用，不删号
+  canLogin         Boolean           @default(true)  // 离职=停用，不删号（账号状态，非权限）
   apiKey           String?           @unique // API密钥
   createdAt        DateTime          @default(now()) // 创建时间
   resourceRoles           UserResourceRole[]
@@ -41,7 +37,7 @@ model User {
 
 model Resource {
   id          Int                @id @default(autoincrement()) // 主键
-  key         String             @unique   // "system" | "module.hr" | "module.works" | "department" | "report_group" | "field"
+  key         String             @unique   // "system" | "module.hr" | "module.works" | "department" | "report" | "report_group" | "field"
   name        String // 名称
   description String? // 说明
   sortOrder   Int                @default(0) // 排序序号
@@ -50,7 +46,7 @@ model Resource {
 
 model Role {
   id          Int                @id @default(autoincrement()) // 主键
-  key         String             @unique   // "access" | "admin" | "write" | "read" | "member" | "viewer"
+  key         String             @unique   // "access" | "admin" | "write" | "read" | "member" | "viewer" | "write_any_week"
   name        String // 名称
   description String? // 说明
   sortOrder   Int                @default(0) // 排序序号
@@ -59,15 +55,17 @@ model Role {
 
 model UserResourceRole {
   id         Int       @id @default(autoincrement()) // 主键
-  userId     Int // 用户ID
+  userId     Int? // 用户ID（positionId有值时可为NULL）
   resourceId Int // 资源ID → Resource
   roleId     Int // 角色ID → Role
   scopeId    String?   // null=全局开关(第2层), 有值=范围分配(第3层)
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  positionId Int?      // NULL=直接用户授权, 非NULL=岗位级授权 → Position
+  user       User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
   resource   Resource  @relation(fields: [resourceId], references: [id], onDelete: Cascade)
   role       Role      @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  position   Position? @relation(fields: [positionId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, resourceId, roleId, scopeId])
+  @@unique([userId, resourceId, roleId, scopeId, positionId])
 }
 
 // ─── 周报模块 ─────────────────────────────────────────────
@@ -234,6 +232,7 @@ model Position {
   company           CompanyCode?       @relation(fields: [companyCode], references: [code])
   departments       DepartmentPosition[]
   employeePositions EmployeePosition[]
+  resourceRoles     UserResourceRole[]
   createdAt         DateTime           @default(now()) // 创建时间
   updatedAt         DateTime? // 更新时间
   editedBy          Int? // 编辑人用户ID

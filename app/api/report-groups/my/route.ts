@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate, isAnyGroupAdmin } from "@/lib/auth";
+import { authenticate, isAnyGroupAdmin, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
@@ -8,10 +8,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    select: { isWorkListAdmin: true },
-  });
+  const isSysAdmin = await checkPermission(payload.userId, "system.admin");
 
   // 获取用户在该资源上的所有角色（UserResourceRole, resource=report_group）
   const roles = await prisma.userResourceRole.findMany({
@@ -45,7 +42,7 @@ export async function GET(request: Request) {
 
   // 可查看的
   let viewerGroups;
-  if (user?.isWorkListAdmin) {
+  if (isSysAdmin) {
     viewerGroups = await prisma.reportGroup.findMany({
       orderBy: { sortOrder: "asc" },
     });
@@ -68,7 +65,7 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({
-    isAdmin: user?.isWorkListAdmin === true,
+    isAdmin: isSysAdmin,
     submitGroups: memberGroups,
     viewGroups: viewerGroups,
   });

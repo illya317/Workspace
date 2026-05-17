@@ -12,6 +12,7 @@ async function main() {
     { key: "module.hr", name: "人事行政", description: "访问人事行政管理 /hr" },
     { key: "module.works", name: "工作清单", description: "访问工作清单 /works" },
     { key: "department", name: "部门", description: "部门管理权限" },
+    { key: "report", name: "周报", description: "周报填写、补填与查看权限" },
     { key: "report_group", name: "周报分组", description: "周报分组管理权限" },
   ];
   const resourceMap = new Map<string, number>();
@@ -34,6 +35,7 @@ async function main() {
     { key: "read", name: "只读", description: "可查看数据" },
     { key: "member", name: "参与", description: "可提交周报" },
     { key: "viewer", name: "查看", description: "可查看周报" },
+    { key: "write_any_week", name: "补填任意周报", description: "可填写/补填任意周的周报" },
   ];
   const roleMap = new Map<string, number>();
   for (const r of roles) {
@@ -121,7 +123,7 @@ async function main() {
   const fieldMap: Record<string, string> = {
     isWorkListAdmin: "system",
     canLogin: "system",
-    canSelectAnyWeek: "system",
+    canSelectAnyWeek: "report",
     canAccessHR: "module.hr",
     canAccessWorks: "module.works",
   };
@@ -162,6 +164,14 @@ async function main() {
     backupPermKeyToRole.set(old, role);
   }
 
+  const boolToRole: Record<string, string> = {
+    isWorkListAdmin: "admin",
+    canLogin: "access",
+    canSelectAnyWeek: "write_any_week",
+    canAccessHR: "access",
+    canAccessWorks: "access",
+  };
+
   let urrCount = 0;
 
   // Migrate from User booleans
@@ -169,7 +179,7 @@ async function main() {
     for (const [boolField, resourceKey] of Object.entries(fieldMap)) {
       if ((user as any)[boolField] === true) {
         const resId = resourceMap.get(resourceKey);
-        const roleId = roleMap.get(boolField === "isWorkListAdmin" ? "access" : "access");
+        const roleId = roleMap.get(boolToRole[boolField] || "access");
         if (!resId || !roleId) continue;
         try {
           await prisma.userResourceRole.create({
@@ -177,19 +187,6 @@ async function main() {
           });
           urrCount++;
         } catch { /* skip duplicates */ }
-        // For isWorkListAdmin, also grant admin role on department
-        if (boolField === "isWorkListAdmin") {
-          const deptResId = resourceMap.get("department");
-          const adminRoleId = roleMap.get("admin");
-          if (deptResId && adminRoleId) {
-            try {
-              await prisma.userResourceRole.create({
-                data: { userId: user.id, resourceId: deptResId, roleId: adminRoleId, scopeId: null },
-              });
-              urrCount++;
-            } catch { /* skip */ }
-          }
-        }
       }
     }
   }

@@ -2,15 +2,6 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// Map old User boolean fields to new Resource+Role pairs
-const FIELD_TO_RESOURCE_ROLE: Record<string, { resource: string; role: string }> = {
-  isWorkListAdmin: { resource: "system", role: "access" },
-  canSelectAnyWeek: { resource: "system", role: "access" },
-  canAccessHR: { resource: "module.hr", role: "access" },
-  canAccessWorks: { resource: "module.works", role: "access" },
-  canLogin: { resource: "system", role: "access" },
-};
-
 export async function GET(request: Request) {
   const { error, status } = await requireAdmin(request);
   if (error) return NextResponse.json({ error }, { status });
@@ -67,13 +58,8 @@ export async function GET(request: Request) {
       id: true,
       name: true,
       username: true,
-      canSelectAnyWeek: true,
-      canAccessWorks: true,
       canLogin: true,
-      isWorkListAdmin: true,
-      canAccessHR: true,
       apiKey: true,
-      // Include new UserResourceRole grants
       resourceRoles: {
         include: {
           resource: { select: { key: true, name: true } },
@@ -100,22 +86,22 @@ export async function GET(request: Request) {
   const result = Array.from(mergedMap.values()).map((item) => {
     const linkedUser =
       userByEmployeeId.get(item.employeeId) || userByName.get(item.name);
+    const rrs = linkedUser?.resourceRoles ?? [];
     return {
       employeeId: item.employeeId,
       name: item.name,
       roles: item.roles,
-      canSelectAnyWeek: linkedUser?.canSelectAnyWeek ?? false,
-      canAccessWorks: linkedUser?.canAccessWorks ?? true,
       canLogin: linkedUser?.canLogin ?? true,
-      isWorkListAdmin: linkedUser?.isWorkListAdmin ?? false,
-      canAccessHR: linkedUser?.canAccessHR ?? false,
       hasApiKey: !!linkedUser?.apiKey,
       userId: linkedUser?.id ?? null,
       username: linkedUser?.username ?? null,
-      // New: granted resource+role keys (e.g., "system.access", "module.hr.access")
-      permissions: linkedUser?.resourceRoles?.map(
-        (rr) => `${rr.resource.key}.${rr.role.key}`
-      ) ?? [],
+      // Backward-compat boolean fields
+      isWorkListAdmin: rrs.some((rr) => rr.resource.key === "system" && rr.role.key === "admin"),
+      canAccessHR: rrs.some((rr) => rr.resource.key === "module.hr" && rr.role.key === "access"),
+      // New: resource+role pairs as resourceRoles for UX compatibility
+      resourceRoles: rrs,
+      // Granted resource+role keys (e.g., "system.admin", "module.hr.access")
+      permissions: rrs.map((rr) => `${rr.resource.key}.${rr.role.key}`),
     };
   });
 
@@ -127,22 +113,10 @@ export async function PUT(request: Request) {
   if (error) return NextResponse.json({ error }, { status });
 
   const body = await request.json();
-  const {
-    employeeId,
-    name,
-    canSelectAnyWeek,
-    canAccessWorks,
-    canLogin,
-    isWorkListAdmin,
-    canAccessHR,
-  } = body as {
+  const { employeeId, name, grants } = body as {
     employeeId: string;
     name: string;
-    canSelectAnyWeek?: boolean;
-    canAccessWorks?: boolean;
-    canLogin?: boolean;
-    isWorkListAdmin?: boolean;
-    canAccessHR?: boolean;
+    grants?: { resourceKey: string; roleKey: string; value: boolean }[];
   };
 
   // 查找关联用户：通过 Employee 表的 userId 关联
@@ -175,73 +149,55 @@ export async function PUT(request: Request) {
     );
   }
 
-  // 1. Update old User booleans for backward compat
-  const data: Record<string, boolean> = {};
-  if (typeof canSelectAnyWeek === "boolean") data.canSelectAnyWeek = canSelectAnyWeek;
-  if (typeof canAccessWorks === "boolean") data.canAccessWorks = canAccessWorks;
-  if (typeof canLogin === "boolean") data.canLogin = canLogin;
-  if (typeof isWorkListAdmin === "boolean") data.isWorkListAdmin = isWorkListAdmin;
-  if (typeof canAccessHR === "boolean") data.canAccessHR = canAccessHR;
+  // Sync UserResourceRole records from grants array
+  if (grants && Array.isArray(grants)) {
+    for (const grant of grants) {
+      const { resourceKey, roleKey, value } = grant;
+      if (!resourceKey || !roleKey || typeof value !== "boolean") continue;
 
-  await prisma.user.update({
-    where: { id: user.id },
-    data,
-  });
-
-  // 2. Sync new UserResourceRole records
-  const fieldValues: Record<string, boolean | undefined> = {
-    isWorkListAdmin,
-    canSelectAnyWeek,
-    canAccessWorks,
-    canLogin,
-    canAccessHR,
-  };
-
-  for (const [field, value] of Object.entries(fieldValues)) {
-    if (typeof value !== "boolean") continue;
-
-    const mapping = FIELD_TO_RESOURCE_ROLE[field];
-    if (!mapping) continue;
-
-    const resource = await prisma.resource.findUnique({
-      where: { key: mapping.resource },
-    });
-    const role = await prisma.role.findUnique({
-      where: { key: mapping.role },
-    });
-
-    if (!resource || !role) continue;
-
-    if (value) {
-      // Grant: create UserResourceRole with scopeId=null (global toggle) if not exists
-      const existing = await prisma.userResourceRole.findFirst({
-        where: {
-          userId: user.id,
-          resourceId: resource.id,
-          roleId: role.id,
-          scopeId: null,
-        },
+      const resource = await prisma.resource.findUnique({
+        where: { key: resourceKey },
       });
-      if (!existing) {
-        await prisma.userResourceRole.create({
-          data: {
+      const role = await prisma.role.findUnique({
+        where: { key: roleKey },
+      });
+
+      if (!resource || !role) continue;
+
+      if (value) {
+        // Grant: create UserResourceRole with scopeId=null (global toggle) if not exists
+        const existing = await prisma.userResourceRole.findFirst({
+          where: {
             userId: user.id,
             resourceId: resource.id,
             roleId: role.id,
             scopeId: null,
+            positionId: null,
+          },
+        });
+        if (!existing) {
+          await prisma.userResourceRole.create({
+            data: {
+              userId: user.id,
+              resourceId: resource.id,
+              roleId: role.id,
+              scopeId: null,
+              positionId: null,
+            },
+          });
+        }
+      } else {
+        // Revoke: delete UserResourceRole if exists
+        await prisma.userResourceRole.deleteMany({
+          where: {
+            userId: user.id,
+            resourceId: resource.id,
+            roleId: role.id,
+            scopeId: null,
+            positionId: null,
           },
         });
       }
-    } else {
-      // Revoke: delete UserResourceRole if exists
-      await prisma.userResourceRole.deleteMany({
-        where: {
-          userId: user.id,
-          resourceId: resource.id,
-          roleId: role.id,
-          scopeId: null,
-        },
-      });
     }
   }
 

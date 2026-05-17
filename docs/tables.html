@@ -136,12 +136,6 @@
           <td class="field-comment">名称</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
-<tr class="" data-model="User" data-field="departmentId">
-          <td><span class="field-name">departmentId</span> <span class="field-required">*</span></td>
-          <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-          <td class="field-comment">临时保留，待迁移到EmployeePosition</td>
-          <td class="notes-cell" contenteditable="true"></td>
-        </tr>
 <tr class="" data-model="User" data-field="avatar">
           <td><span class="field-name">avatar</span></td>
           <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
@@ -154,34 +148,10 @@
           <td class="field-comment">日常工作模板JSON</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
-<tr class="" data-model="User" data-field="isWorkListAdmin">
-          <td><span class="field-name">isWorkListAdmin</span> <span class="field-required">*</span></td>
-          <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
-          <td class="field-comment">是否超级管理员</td>
-          <td class="notes-cell" contenteditable="true"></td>
-        </tr>
-<tr class="" data-model="User" data-field="canSelectAnyWeek">
-          <td><span class="field-name">canSelectAnyWeek</span> <span class="field-required">*</span></td>
-          <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
-          <td class="field-comment">是否可补填任意周报</td>
-          <td class="notes-cell" contenteditable="true"></td>
-        </tr>
-<tr class="" data-model="User" data-field="canAccessHR">
-          <td><span class="field-name">canAccessHR</span> <span class="field-required">*</span></td>
-          <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
-          <td class="field-comment">是否可访问人事行政</td>
-          <td class="notes-cell" contenteditable="true"></td>
-        </tr>
-<tr class="" data-model="User" data-field="canAccessWorks">
-          <td><span class="field-name">canAccessWorks</span> <span class="field-required">*</span></td>
-          <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
-          <td class="field-comment">是否可访问工作清单</td>
-          <td class="notes-cell" contenteditable="true"></td>
-        </tr>
 <tr class="" data-model="User" data-field="canLogin">
           <td><span class="field-name">canLogin</span> <span class="field-required">*</span></td>
           <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
-          <td class="field-comment">离职=停用，不删号</td>
+          <td class="field-comment">离职=停用，不删号（账号状态，非权限）</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="" data-model="User" data-field="apiKey">
@@ -205,6 +175,12 @@
 <a href="#UserResourceRole" class="dep-link">2-3 UserResourceRole</a>
 <a href="#WeeklyReport" class="dep-link">3-2 WeeklyReport</a>
 <a href="#Employee" class="dep-link">5-1 Employee</a>
+<a href="#Employee" class="dep-link">5-1 Employee</a>
+<a href="#Department" class="dep-link">5-2 Department</a>
+<a href="#Department" class="dep-link">5-2 Department</a>
+<a href="#Position" class="dep-link">5-3 Position</a>
+<a href="#EmployeePosition" class="dep-link">5-4 EmployeePosition</a>
+<a href="#EditHistory" class="dep-link">7-1 EditHistory</a>
 </div>
 </div>
 </div>
@@ -222,7 +198,7 @@
 <tr class="" data-model="Resource" data-field="key">
           <td><span class="field-name">key</span> <span class="field-required">*</span></td>
           <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-          <td class="field-comment">"system" | "module.hr" | "module.works" | "department" | "report_group" | "field"</td>
+          <td class="field-comment">"system" | "module.hr" | "module.works" | "department" | "report" | "report_group" | "field"</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="" data-model="Resource" data-field="name">
@@ -265,7 +241,7 @@
 <tr class="" data-model="Role" data-field="key">
           <td><span class="field-name">key</span> <span class="field-required">*</span></td>
           <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-          <td class="field-comment">"access" | "admin" | "write" | "read" | "member" | "viewer"</td>
+          <td class="field-comment">"access" | "admin" | "write" | "read" | "member" | "viewer" | "write_any_week"</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="" data-model="Role" data-field="name">
@@ -306,9 +282,9 @@
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="fk-out" data-model="UserResourceRole" data-field="userId">
-          <td><span class="field-name">userId</span> <span class="field-required">*</span></td>
+          <td><span class="field-name">userId</span></td>
           <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-          <td class="field-comment">用户ID <span class="fk-link">→ <a href="#User" class="dep-link">User</a></span></td>
+          <td class="field-comment">用户ID（positionId有值时可为NULL） <span class="fk-link">→ <a href="#User" class="dep-link">User</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="fk-out" data-model="UserResourceRole" data-field="resourceId">
@@ -329,12 +305,19 @@
           <td class="field-comment">null=全局开关(第2层), 有值=范围分配(第3层)</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
+<tr class="fk-out" data-model="UserResourceRole" data-field="positionId">
+          <td><span class="field-name">positionId</span></td>
+          <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+          <td class="field-comment">NULL=直接用户授权, 非NULL=岗位级授权 → Position <span class="fk-link">→ <a href="#Position" class="dep-link">Position</a></span></td>
+          <td class="notes-cell" contenteditable="true"></td>
+        </tr>
 </tbody></table>
 <div class="table-footer">
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <a href="#User" class="dep-link">1-1 User</a>
 <a href="#Resource" class="dep-link">2-1 Resource</a>
 <a href="#Role" class="dep-link">2-2 Role</a>
+<a href="#Position" class="dep-link">5-3 Position</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -530,15 +513,16 @@
           <td class="field-comment">排序序号</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
-<tr class="" data-model="ReportItem" data-field="workItemId">
+<tr class="fk-out" data-model="ReportItem" data-field="workItemId">
           <td><span class="field-name">workItemId</span></td>
           <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-          <td class="field-comment">关联工作清单条目ID</td>
+          <td class="field-comment">关联工作清单条目ID <span class="fk-link">→ <a href="#WorkItem" class="dep-link">WorkItem</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 </tbody></table>
 <div class="table-footer">
 <div class="dep-out"><span class="dep-label">Depends on:</span>
+<a href="#WorkItem" class="dep-link">4-1 WorkItem</a>
 <a href="#WeeklyReport" class="dep-link">3-2 WeeklyReport</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
@@ -684,6 +668,7 @@
 <span class="dep-none">无</span>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
+<a href="#ReportItem" class="dep-link">3-3 ReportItem</a>
 <a href="#WorkParticipant" class="dep-link">4-2 WorkParticipant</a>
 </div>
 </div>
@@ -910,10 +895,10 @@
           <td class="field-comment">用户ID <span class="fk-link">→ <a href="#User" class="dep-link">User</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
-<tr class="" data-model="Employee" data-field="editedBy">
+<tr class="fk-out" data-model="Employee" data-field="editedBy">
           <td><span class="field-name">editedBy</span></td>
           <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-          <td class="field-comment">编辑人用户ID</td>
+          <td class="field-comment">编辑人用户ID <span class="fk-link">→ <a href="#User" class="dep-link">User</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="" data-model="Employee" data-field="editedAt">
@@ -931,6 +916,7 @@
 </tbody></table>
 <div class="table-footer">
 <div class="dep-out"><span class="dep-label">Depends on:</span>
+<a href="#User" class="dep-link">1-1 User</a>
 <a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
@@ -959,12 +945,6 @@
           <td class="field-comment">名称</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
-<tr class="" data-model="Department" data-field="companyCode">
-          <td><span class="field-name">companyCode</span></td>
-          <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-          <td class="field-comment">→ CompanyCode (migration: copy from company)</td>
-          <td class="notes-cell" contenteditable="true"></td>
-        </tr>
 <tr class="" data-model="Department" data-field="level">
           <td><span class="field-name">level</span> <span class="field-required">*</span></td>
           <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
@@ -977,10 +957,16 @@
           <td class="field-comment">上级ID <span class="fk-link">→ <a href="#Department" class="dep-link">Department</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
-<tr class="" data-model="Department" data-field="managerUserId">
+<tr class="fk-out" data-model="Department" data-field="managerUserId">
           <td><span class="field-name">managerUserId</span></td>
           <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-          <td class="field-comment">负责人 → User.id（有账号时关联）</td>
+          <td class="field-comment">负责人 → User.id <span class="fk-link">→ <a href="#User" class="dep-link">User</a></span></td>
+          <td class="notes-cell" contenteditable="true"></td>
+        </tr>
+<tr class="fk-out" data-model="Department" data-field="companyCode">
+          <td><span class="field-name">companyCode</span></td>
+          <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+          <td class="field-comment">→ CompanyCode <span class="fk-link">→ <a href="#CompanyCode" class="dep-link">CompanyCode</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="" data-model="Department" data-field="createdAt">
@@ -995,10 +981,10 @@
           <td class="field-comment">更新时间</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
-<tr class="" data-model="Department" data-field="editedBy">
+<tr class="fk-out" data-model="Department" data-field="editedBy">
           <td><span class="field-name">editedBy</span></td>
           <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-          <td class="field-comment">编辑人用户ID</td>
+          <td class="field-comment">编辑人用户ID <span class="fk-link">→ <a href="#User" class="dep-link">User</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="" data-model="Department" data-field="editedAt">
@@ -1017,6 +1003,9 @@
 <div class="table-footer">
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <a href="#Department" class="dep-link">5-2 Department</a>
+<a href="#User" class="dep-link">1-1 User</a>
+<a href="#CompanyCode" class="dep-link">6-1 CompanyCode</a>
+<a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <a href="#ReportGroup" class="dep-link">3-1 ReportGroup</a>
@@ -1046,10 +1035,10 @@
           <td class="field-comment">名称</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
-<tr class="" data-model="Position" data-field="companyCode">
+<tr class="fk-out" data-model="Position" data-field="companyCode">
           <td><span class="field-name">companyCode</span></td>
           <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-          <td class="field-comment">→ CompanyCode (migration: copy from company)</td>
+          <td class="field-comment">→ CompanyCode <span class="fk-link">→ <a href="#CompanyCode" class="dep-link">CompanyCode</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="" data-model="Position" data-field="createdAt">
@@ -1064,10 +1053,10 @@
           <td class="field-comment">更新时间</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
-<tr class="" data-model="Position" data-field="editedBy">
+<tr class="fk-out" data-model="Position" data-field="editedBy">
           <td><span class="field-name">editedBy</span></td>
           <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-          <td class="field-comment">编辑人用户ID</td>
+          <td class="field-comment">编辑人用户ID <span class="fk-link">→ <a href="#User" class="dep-link">User</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="" data-model="Position" data-field="editedAt">
@@ -1085,9 +1074,11 @@
 </tbody></table>
 <div class="table-footer">
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<span class="dep-none">无</span>
+<a href="#CompanyCode" class="dep-link">6-1 CompanyCode</a>
+<a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
+<a href="#UserResourceRole" class="dep-link">2-3 UserResourceRole</a>
 <a href="#EmployeePosition" class="dep-link">5-4 EmployeePosition</a>
 <a href="#DepartmentPosition" class="dep-link">5-5 DepartmentPosition</a>
 </div>
@@ -1120,10 +1111,10 @@
           <td class="field-comment">岗位ID <span class="fk-link">→ <a href="#Position" class="dep-link">Position</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
-<tr class="" data-model="EmployeePosition" data-field="companyCode">
+<tr class="fk-out" data-model="EmployeePosition" data-field="companyCode">
           <td><span class="field-name">companyCode</span></td>
           <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-          <td class="field-comment">该岗位上的业务公司编码 → CompanyCode</td>
+          <td class="field-comment">→ CompanyCode <span class="fk-link">→ <a href="#CompanyCode" class="dep-link">CompanyCode</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="" data-model="EmployeePosition" data-field="center">
@@ -1168,10 +1159,10 @@
           <td class="field-comment">更新时间</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
-<tr class="" data-model="EmployeePosition" data-field="editedBy">
+<tr class="fk-out" data-model="EmployeePosition" data-field="editedBy">
           <td><span class="field-name">editedBy</span></td>
           <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-          <td class="field-comment">编辑人用户ID</td>
+          <td class="field-comment">编辑人用户ID <span class="fk-link">→ <a href="#User" class="dep-link">User</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="" data-model="EmployeePosition" data-field="editedAt">
@@ -1192,6 +1183,8 @@
 <a href="#Employee" class="dep-link">5-1 Employee</a>
 <a href="#Department" class="dep-link">5-2 Department</a>
 <a href="#Position" class="dep-link">5-3 Position</a>
+<a href="#CompanyCode" class="dep-link">6-1 CompanyCode</a>
+<a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -1235,7 +1228,7 @@
 <div class="table-block" id="CompanyCode">
 <div class="table-header"><h3><span class="table-num">6-1</span> CompanyCode</h3></div>
 <table class="field-table"><thead><tr><th style="width:160px">Field</th><th style="width:60px">Type</th><th>Description</th><th style="width:100px">Notes</th></tr></thead><tbody>
-<tr class="" data-model="CompanyCode" data-field="code">
+<tr class="fk-in" data-model="CompanyCode" data-field="code">
           <td><span class="field-name">code</span> <span class="field-required">*</span></td>
           <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
           <td class="field-comment">编码</td>
@@ -1253,7 +1246,9 @@
 <span class="dep-none">无</span>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
-<span class="dep-none">无</span>
+<a href="#Department" class="dep-link">5-2 Department</a>
+<a href="#Position" class="dep-link">5-3 Position</a>
+<a href="#EmployeePosition" class="dep-link">5-4 EmployeePosition</a>
 </div>
 </div>
 </div>
@@ -1292,10 +1287,10 @@
           <td class="field-comment">编辑前快照</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
-<tr class="" data-model="EditHistory" data-field="editedBy">
+<tr class="fk-out" data-model="EditHistory" data-field="editedBy">
           <td><span class="field-name">editedBy</span> <span class="field-required">*</span></td>
           <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-          <td class="field-comment">编辑人用户ID</td>
+          <td class="field-comment">编辑人用户ID <span class="fk-link">→ <a href="#User" class="dep-link">User</a></span></td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 <tr class="" data-model="EditHistory" data-field="createdAt">
@@ -1307,7 +1302,7 @@
 </tbody></table>
 <div class="table-footer">
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<span class="dep-none">无</span>
+<a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>

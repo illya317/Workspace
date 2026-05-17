@@ -17,18 +17,23 @@ export async function PUT(
 
   const { id } = await params;
   const body = await request.json();
-  const { canSelectAnyWeek, canAccessHR, canAccessWorks, isWorkListAdmin } = body;
+  const { resourceKey, roleKey, value } = body;
 
-  const updateData: Record<string, any> = {};
-  if (canSelectAnyWeek !== undefined) updateData.canSelectAnyWeek = canSelectAnyWeek;
-  if (canAccessHR !== undefined) updateData.canAccessHR = canAccessHR;
-  if (canAccessWorks !== undefined) updateData.canAccessWorks = canAccessWorks;
-  if (isWorkListAdmin !== undefined) updateData.isWorkListAdmin = isWorkListAdmin;
-
-  await prisma.user.update({
-    where: { id: parseInt(id) },
-    data: updateData,
-  });
+  if (resourceKey && roleKey && typeof value === "boolean") {
+    const resource = await prisma.resource.findUnique({ where: { key: resourceKey } });
+    const role = await prisma.role.findUnique({ where: { key: roleKey } });
+    if (resource && role) {
+      if (value) {
+        await prisma.userResourceRole.create({
+          data: { userId: parseInt(id), resourceId: resource.id, roleId: role.id, scopeId: null },
+        });
+      } else {
+        await prisma.userResourceRole.deleteMany({
+          where: { userId: parseInt(id), resourceId: resource.id, roleId: role.id, scopeId: null },
+        });
+      }
+    }
+  }
 
   return NextResponse.json({ success: true });
 }
