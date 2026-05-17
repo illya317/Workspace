@@ -60,32 +60,33 @@
 <body>
 <nav>
 <h1>HR Database Schema</h1>
-<p style="font-size:12px;color:#94a3b8;margin-bottom:20px">19 tables</p>
+<p style="font-size:12px;color:#94a3b8;margin-bottom:20px">20 tables</p>
 
 <div class="group"><div class="group-title">1. Authentication</div>
 <a href="#User">1-1 User</a>
+<a href="#SystemConfig">1-2 SystemConfig</a>
 </div>
-<div class="group"><div class="group-title">2. RBAC — User + Position + Department</div>
+<div class="group"><div class="group-title">2. RBAC</div>
 <a href="#Resource">2-1 Resource</a>
 <a href="#Role">2-2 Role</a>
 <a href="#UserResourceRole">2-3 UserResourceRole</a>
 <a href="#PositionResourceRole">2-4 PositionResourceRole</a>
 <a href="#DepartmentResourceRole">2-5 DepartmentResourceRole</a>
 </div>
-<div class="group"><div class="group-title">3. System Config</div>
-<a href="#SystemConfig">3-1 SystemConfig</a>
+<div class="group"><div class="group-title">6. Dictionary</div>
+<a href="#CompanyCode">3-1 CompanyCode</a>
 </div>
-<div class="group"><div class="group-title">4. Weekly Reports</div>
+<div class="group"><div class="group-title">3. Weekly Reports</div>
 <a href="#ReportGroup">4-1 ReportGroup</a>
 <a href="#WeeklyReport">4-2 WeeklyReport</a>
 <a href="#ReportItem">4-3 ReportItem</a>
 <a href="#ReportHistory">4-4 ReportHistory</a>
 </div>
-<div class="group"><div class="group-title">5. Work Items</div>
+<div class="group"><div class="group-title">4. Work Items</div>
 <a href="#WorkItem">5-1 WorkItem</a>
 <a href="#WorkParticipant">5-2 WorkParticipant</a>
 </div>
-<div class="group"><div class="group-title">6. Roster & Org</div>
+<div class="group"><div class="group-title">5. Roster & Org</div>
 <a href="#Employee">6-1 Employee</a>
 <a href="#Department">6-2 Department</a>
 <a href="#Position">6-3 Position</a>
@@ -188,8 +189,33 @@
 </div>
 </div>
 </div>
+<div class="table-block" id="SystemConfig">
+<div class="table-header"><h3><span class="table-num">1-2</span> SystemConfig</h3></div>
+<table class="field-table"><thead><tr><th style="width:160px">Field</th><th style="width:60px">Type</th><th>Description</th><th style="width:100px">Notes</th></tr></thead><tbody>
+<tr class="" data-model="SystemConfig" data-field="key">
+          <td><span class="field-name">key</span> <span class="field-required">*</span></td>
+          <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+          <td class="field-comment"></td>
+          <td class="notes-cell" contenteditable="true"></td>
+        </tr>
+<tr class="" data-model="SystemConfig" data-field="value">
+          <td><span class="field-name">value</span> <span class="field-required">*</span></td>
+          <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+          <td class="field-comment"></td>
+          <td class="notes-cell" contenteditable="true"></td>
+        </tr>
+</tbody></table>
+<div class="table-footer">
+<div class="dep-out"><span class="dep-label">Depends on:</span>
+<span class="dep-none">无</span>
 </div>
-<div class="section"><div class="section-title">2. RBAC — User + Position + Department</div>
+<div class="dep-in"><span class="dep-label">Referenced by:</span>
+<span class="dep-none">无</span>
+</div>
+</div>
+</div>
+</div>
+<div class="section"><div class="section-title">2. RBAC</div>
 <div class="table-block" id="Resource">
 <div class="table-header"><h3><span class="table-num">2-1</span> Resource</h3></div>
 <table class="field-table"><thead><tr><th style="width:160px">Field</th><th style="width:60px">Type</th><th>Description</th><th style="width:100px">Notes</th></tr></thead><tbody>
@@ -422,20 +448,14 @@
 </div>
 </div>
 </div>
-<div class="section"><div class="section-title">3. System Config</div>
-<div class="table-block" id="SystemConfig">
-<div class="table-header"><h3><span class="table-num">3-1</span> SystemConfig</h3></div>
+<div class="section"><div class="section-title">6. Dictionary</div>
+<div class="table-block" id="CompanyCode">
+<div class="table-header"><h3><span class="table-num">3-1</span> CompanyCode</h3></div>
 <table class="field-table"><thead><tr><th style="width:160px">Field</th><th style="width:60px">Type</th><th>Description</th><th style="width:100px">Notes</th></tr></thead><tbody>
-<tr class="" data-model="SystemConfig" data-field="key">
-          <td><span class="field-name">key</span> <span class="field-required">*</span></td>
+<tr class="" data-model="CompanyCode" data-field="name">
+          <td><span class="field-name">name</span> <span class="field-required">*</span></td>
           <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-          <td class="field-comment"></td>
-          <td class="notes-cell" contenteditable="true"></td>
-        </tr>
-<tr class="" data-model="SystemConfig" data-field="value">
-          <td><span class="field-name">value</span> <span class="field-required">*</span></td>
-          <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
-          <td class="field-comment"></td>
+          <td class="field-comment">公司名称（丰华生物/丰华制药等）</td>
           <td class="notes-cell" contenteditable="true"></td>
         </tr>
 </tbody></table>
@@ -449,7 +469,7 @@
 </div>
 </div>
 </div>
-<div class="section"><div class="section-title">4. Weekly Reports</div>
+<div class="section"><div class="section-title">3. Weekly Reports</div>
 <div class="table-block" id="ReportGroup">
 <div class="table-header"><h3><span class="table-num">4-1</span> ReportGroup</h3></div>
 <table class="field-table"><thead><tr><th style="width:160px">Field</th><th style="width:60px">Type</th><th>Description</th><th style="width:100px">Notes</th></tr></thead><tbody>
@@ -710,7 +730,7 @@
 </div>
 </div>
 </div>
-<div class="section"><div class="section-title">5. Work Items</div>
+<div class="section"><div class="section-title">4. Work Items</div>
 <div class="table-block" id="WorkItem">
 <div class="table-header"><h3><span class="table-num">5-1</span> WorkItem</h3></div>
 <table class="field-table"><thead><tr><th style="width:160px">Field</th><th style="width:60px">Type</th><th>Description</th><th style="width:100px">Notes</th></tr></thead><tbody>
@@ -841,7 +861,7 @@
 </div>
 </div>
 </div>
-<div class="section"><div class="section-title">6. Roster & Org</div>
+<div class="section"><div class="section-title">5. Roster & Org</div>
 <div class="table-block" id="Employee">
 <div class="table-header"><h3><span class="table-num">6-1</span> Employee</h3></div>
 <table class="field-table"><thead><tr><th style="width:160px">Field</th><th style="width:60px">Type</th><th>Description</th><th style="width:100px">Notes</th></tr></thead><tbody>

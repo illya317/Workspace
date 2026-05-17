@@ -148,11 +148,11 @@ function typeColor(type: string): string {
 
 const GROUP_EN: Record<string, string> = {
   "用户与认证": "1. Authentication",
-  "RBAC 权限": "2. RBAC — User + Position + Department",
-  "系统配置": "3. System Config",
-  "周报模块": "4. Weekly Reports",
-  "工作清单模块（独立）": "5. Work Items",
-  "花名册与组织架构": "6. Roster & Org",
+  "RBAC 权限": "2. RBAC",
+  "周报模块": "3. Weekly Reports",
+  "工作清单模块（独立）": "4. Work Items",
+  "花名册与组织架构": "5. Roster & Org",
+  "字典": "6. Dictionary",
   "编辑历史": "7. Edit History",
 };
 

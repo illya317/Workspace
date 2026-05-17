@@ -33,6 +33,11 @@ model User {
   editHistories           EditHistory[]     @relation("EditHistoryEditor")
 }
 
+model SystemConfig {
+  key   String @id
+  value String
+}
+
 // ─── RBAC 权限 ────────────────────────────────────────────
 // 详见 docs/rbac.md
 
@@ -100,11 +105,10 @@ model DepartmentResourceRole {
   @@unique([departmentId, resourceId, roleId, scopeId])
 }
 
-// ─── 系统配置 ─────────────────────────────────────────────
+// ─── 字典 ─────────────────────────────────────────────────
 
-model SystemConfig {
-  key   String @id
-  value String
+model CompanyCode {
+  name String @id // 公司名称（丰华生物/丰华制药等）
 }
 
 // ─── 周报模块 ─────────────────────────────────────────────
