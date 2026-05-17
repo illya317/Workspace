@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import EditToolbar from "@/app/components/EditToolbar";
 import ConfirmModal from "@/app/components/ConfirmModal";
+import DetailModal from "@/app/components/DetailModal";
 import Toast from "@/app/components/Toast";
-import { useToast } from "@/app/hooks/useToast";
 import { NAME_TO_CODE, BIO_GROUP_CODES, PHARMA_CODE, SHARED_GROUP_CODES, resolveCompanyFilter } from "@/lib/company";
 import { useCodeTab } from "@/app/hr/useCodeTab";
 
@@ -477,97 +477,45 @@ export default function CodeTab({
         onClose={closeToast}
       />
 
-      {detailModal?.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-lg max-h-[80vh] overflow-auto rounded-lg bg-white p-6 shadow-xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-800">
-                {detailModal.name} — 人员名单
-              </h3>
-              <button
-                onClick={() => setDetailModal(null)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-            {(() => {
-              const list = getDetailList({
-                code: detailModal.code,
-                name: detailModal.name,
-              });
-              if (list.length === 0) {
-                return <p className="text-sm text-gray-500">暂无人员</p>;
-              }
-              return (
-                <table className="w-full text-xs">
-                  <thead className="border-b bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-2 text-left font-medium text-gray-600">
-                        姓名
-                      </th>
-                      <th className="px-3 py-2 text-left font-medium text-gray-600">
-                        部门
-                      </th>
-                      <th className="px-3 py-2 text-left font-medium text-gray-600">
-                        岗位
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {list.map((emp) => (
-                      <tr
-                        key={emp.id}
-                        className="border-b last:border-0 hover:bg-gray-50"
-                      >
-                        <td className="px-3 py-2 text-gray-700">{emp.name}</td>
-                        <td className="px-3 py-2 text-gray-700">
-                          {emp.dept1 || "-"}
-                        </td>
-                        <td className="px-3 py-2 text-gray-700">
-                          {emp.position || "-"}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              );
-            })()}
-          </div>
-        </div>
-      )}
-
-      {positionDeptModal?.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-800">
-                {positionDeptModal.name} — 所属部门
-              </h3>
-              <button
-                onClick={() => setPositionDeptModal(null)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                ✕
-              </button>
-            </div>
-            {positionDeptModal.departments.length === 0 ? (
-              <p className="text-sm text-gray-500">暂无关联部门</p>
-            ) : (
-              <ul className="space-y-2">
-                {positionDeptModal.departments.map((dept) => (
-                  <li
-                    key={dept}
-                    className="rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-700"
-                  >
-                    {dept}
-                  </li>
+      <DetailModal open={!!detailModal?.open} title={`${detailModal?.name || ""} — 人员名单`} onClose={() => setDetailModal(null)}>
+        {(() => {
+          if (!detailModal) return null;
+          const list = getDetailList({ code: detailModal.code, name: detailModal.name });
+          if (list.length === 0) return <p className="text-sm text-gray-500">暂无人员</p>;
+          return (
+            <table className="w-full text-xs">
+              <thead className="border-b bg-gray-50">
+                <tr>
+                  <th className="px-3 py-2 text-left font-medium text-gray-600">姓名</th>
+                  <th className="px-3 py-2 text-left font-medium text-gray-600">部门</th>
+                  <th className="px-3 py-2 text-left font-medium text-gray-600">岗位</th>
+                </tr>
+              </thead>
+              <tbody>
+                {list.map((emp) => (
+                  <tr key={emp.id} className="border-b last:border-0 hover:bg-gray-50">
+                    <td className="px-3 py-2 text-gray-700">{emp.name}</td>
+                    <td className="px-3 py-2 text-gray-700">{emp.dept1 || "-"}</td>
+                    <td className="px-3 py-2 text-gray-700">{emp.position || "-"}</td>
+                  </tr>
                 ))}
-              </ul>
-            )}
-          </div>
-        </div>
-      )}
+              </tbody>
+            </table>
+          );
+        })()}
+      </DetailModal>
+
+      <DetailModal open={!!positionDeptModal?.open} title={`${positionDeptModal?.name || ""} — 所属部门`} onClose={() => setPositionDeptModal(null)} maxWidth="max-w-md">
+        {positionDeptModal && positionDeptModal.departments.length === 0 ? (
+          <p className="text-sm text-gray-500">暂无关联部门</p>
+        ) : (
+          <ul className="space-y-2">
+            {positionDeptModal?.departments.map((dept) => (
+              <li key={dept} className="rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-700">{dept}</li>
+            ))}
+          </ul>
+        )}
+      </DetailModal>
     </div>
   );
 }
