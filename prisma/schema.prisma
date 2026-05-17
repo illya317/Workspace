@@ -12,7 +12,7 @@ datasource db {
 
 model User {
   id               Int               @id @default(autoincrement()) // 主键
-  wxUserId         String            @unique // 微信用户ID
+  wxUserId         String?           @unique // 微信用户ID（无微信则留空）
   username         String?           @unique // 登录用户名（自取）
   password         String? // 登录密码
   name             String // 名称

@@ -224,7 +224,7 @@ function generateHTML(models: Model[], groups: string[]): string {
   .field-name { font-family: "SF Mono", "Menlo", monospace; font-size: 13px; color: #0f172a; }
   .field-type { display: inline-block; font-size: 11px; padding: 1px 6px; border-radius: 3px; font-weight: 600; }
   .field-comment { color: #64748b; font-size: 13px; }
-  .field-required { color: #ef4444; font-size: 11px; font-weight: 600; }
+  .field-required { color: #ef4444; font-size: 10px; font-weight: 700; margin-left: 2px; }
 
   .table-footer { padding: 12px 20px; background: #fafbfc; border-top: 1px solid #f1f5f9; display: flex; gap: 24px; font-size: 13px; }
   .dep-out, .dep-in { display: flex; align-items: flex-start; gap: 6px; }
@@ -232,6 +232,13 @@ function generateHTML(models: Model[], groups: string[]): string {
   .dep-link { display: inline-block; background: #f1f5f9; padding: 1px 8px; border-radius: 3px; font-family: "SF Mono", "Menlo", monospace; font-size: 12px; color: #475569; text-decoration: none; }
   .dep-link:hover { background: #e2e8f0; }
   .dep-none { color: #cbd5e1; }
+  td[contenteditable] { outline: 2px solid transparent; border-radius: 3px; cursor: text; transition: outline 0.15s; }
+  td[contenteditable]:hover { outline-color: #e2e8f0; }
+  td[contenteditable]:focus { outline-color: #3b82f6; background: #eff6ff; }
+  .export-bar { margin-top: 20px; padding-top: 16px; border-top: 1px solid #e2e8f0; }
+  .export-btn { display: block; width: 100%; padding: 8px 12px; background: #0f172a; color: #fff; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; }
+  .export-btn:hover { background: #1e293b; }
+  .export-output { margin-top: 8px; padding: 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; font-family: monospace; font-size: 11px; white-space: pre-wrap; max-height: 200px; overflow-y: auto; display: none; }
   .fk-out td { background: #fef9e7; }    /* amber tint — FK pointing out */
   .fk-out td:first-child { border-left: 3px solid #f59e0b; }
   .fk-in td { background: #ecfdf5; }     /* emerald tint — referenced by others */
@@ -265,8 +272,13 @@ function generateHTML(models: Model[], groups: string[]): string {
   }
 
   rows.push(`<div class="legend">
-    <span><span class="legend-swatch" style="background:#fef9e7;border:2px solid #f59e0b"></span> FK out</span>
+    <span><span style="color:#ef4444;font-weight:700">*</span> = Required</span>
+    <span><span class="legend-swatch" style="background:#fef9e7;border:2px solid #f59e0b"></span> FK</span>
     <span><span class="legend-swatch" style="background:#ecfdf5;border:2px solid #10b981"></span> Referenced</span>
+  </div>`);
+  rows.push(`<div class="export-bar">
+    <button class="export-btn" onclick="exportChanges()">Export Changes</button>
+    <pre class="export-output" id="export-output"></pre>
   </div>`);
   rows.push(`</nav><main>`);
 
@@ -309,10 +321,11 @@ function generateHTML(models: Model[], groups: string[]): string {
         const rel = m.relations.find(r => r.fields.includes(f.name));
         const comment = f.comment || (rel ? `→ ${rel.targetModel}.${rel.references[0]}` : "");
         const rowClass = fkOutFields.has(f.name) ? 'fk-out' : fkInFields.has(f.name) ? 'fk-in' : '';
-        rows.push(`<tr class="${rowClass}">
+        const origComment = comment + (isFK && rel ? ` → ${rel.targetModel}` : '');
+        rows.push(`<tr class="${rowClass}" data-model="${m.name}" data-field="${f.name}">
           <td><span class="field-name">${f.name}</span>${f.required ? ' <span class="field-required">*</span>' : ''}</td>
           <td><span class="field-type" style="background:${typeColor(f.type)}15;color:${typeColor(f.type)}">${typeBadge(f.type)}</span></td>
-          <td class="field-comment">${comment}${isFK && rel ? ` <span style="color:#94a3b8">→ <a href="#${rel.targetModel}" class="dep-link">${rel.targetModel}</a></span>` : ''}</td>
+          <td class="field-comment" contenteditable="true" data-original="${origComment.replace(/"/g, '&quot;')}">${comment}${isFK && rel ? ` <span style="color:#94a3b8">→ <a href="#${rel.targetModel}" class="dep-link">${rel.targetModel}</a></span>` : ''}</td>
         </tr>`);
       }
       rows.push(`</tbody></table>`);
@@ -348,7 +361,40 @@ function generateHTML(models: Model[], groups: string[]): string {
     rows.push(`</div>`);
   }
 
-  rows.push(`</main></body></html>`);
+  rows.push(`</main>
+<script>
+function exportChanges() {
+  const cells = document.querySelectorAll('td[contenteditable]');
+  const changes = [];
+  for (const cell of cells) {
+    const current = cell.textContent.trim();
+    const original = cell.getAttribute('data-original') || '';
+    if (current !== original) {
+      const row = cell.parentElement;
+      changes.push({
+        model: row.getAttribute('data-model'),
+        field: row.getAttribute('data-field'),
+        original,
+        current
+      });
+    }
+  }
+  const out = document.getElementById('export-output');
+  if (changes.length === 0) {
+    out.style.display = 'block';
+    out.textContent = 'No changes detected.';
+    return;
+  }
+  // Format as table
+  let text = 'Model\\tField\\tOriginal\\tChanged\\n';
+  for (const c of changes) {
+    text += c.model + '\\t' + c.field + '\\t' + c.original + '\\t' + c.current + '\\n';
+  }
+  out.style.display = 'block';
+  out.textContent = changes.length + ' changes found:\\n\\n' + text + '\\n(Copy this to send feedback)';
+}
+</script>
+</body></html>`);
   return rows.join("\n");
 }
 
