@@ -392,7 +392,7 @@ async function exportChanges() {
 // ─── Main ─────────────────────────────────────────────────
 
 const schemaPath = path.resolve(__dirname, "../prisma/schema.prisma");
-const outputPath = path.resolve(__dirname, "../docs/table.html");
+const outputPath = path.resolve(__dirname, "../docs/tables.html");
 
 const { models, groups } = parseSchema(schemaPath);
 const html = generateHTML(models, groups);
