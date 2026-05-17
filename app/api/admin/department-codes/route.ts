@@ -3,13 +3,13 @@ import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { SHARED_GROUP_CODES, getCompanyFromCode } from "@/lib/company";
 
-function normalizeCompanyCode(company: string): string {
+function normalizeCompany(company: string): string {
   if (SHARED_GROUP_CODES.includes(company)) return "01";
   return company;
 }
 
 function buildFullCode(code: string, company: string): string {
-  const normalized = normalizeCompanyCode(company);
+  const normalized = normalizeCompany(company);
   if (code.length <= 3) {
     return normalized + code.padStart(3, "0");
   }

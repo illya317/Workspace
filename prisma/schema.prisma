@@ -30,6 +30,7 @@ model User {
   editedPositions         Position[]        @relation("PositionEditor")
   editedEmployeePositions EmployeePosition[] @relation("EmpPositionEditor")
   editedDepartmentPositions DepartmentPosition[] @relation("DeptPosEditor")
+  editedCompanies         Company[]         @relation("CompanyEditor")
   editHistories           EditHistory[]     @relation("EditHistoryEditor")
 }
 
@@ -107,8 +108,14 @@ model DepartmentResourceRole {
 
 // ─── 字典 ─────────────────────────────────────────────────
 
-model CompanyCode {
-  name String @id // 公司名称（丰华生物/丰华制药等）
+model Company {
+  name      String    @id // 公司名称（丰华生物/丰华制药等）
+  createdAt DateTime  @default(now()) // 创建时间
+  updatedAt DateTime? // 更新时间
+  editedBy  Int? // 编辑人用户ID
+  editor    User?     @relation("CompanyEditor", fields: [editedBy], references: [id])
+  editedAt  DateTime? // 编辑时间
+  version   Int       @default(1) // 版本号
 }
 
 // ─── 周报模块 ─────────────────────────────────────────────
