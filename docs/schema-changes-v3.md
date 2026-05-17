@@ -107,7 +107,7 @@ FK: `employeeId → Employee.id (Cascade)`, `projectId → Project.id (Cascade)`
 |------|------|
 | `lib/auth.ts` | — |
 | API 路由 | Report CRUD 改 field 名, 唯一键变更 |
-| 前端页面 | `/dashboard` 周报页 → 适配 date 字段 |
+| 前端页面 | `/reports` 周报页 → 适配 date 字段 |
 | 前端页面 | `/hr` 可能增加 Project/EmployeeProject 管理 |
 | 前端页面 | `/works` 工作清单 → 适配 targetType/targetId |
 | seed | seed-rbac.ts |

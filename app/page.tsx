@@ -10,7 +10,7 @@ export default function Home() {
     fetch("/api/auth/me")
       .then((res) => {
         if (res.ok) {
-          router.push("/dashboard");
+          router.push("/reports");
         } else {
           router.push("/login");
         }

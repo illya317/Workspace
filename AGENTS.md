@@ -72,7 +72,7 @@ canLogin（离职=停用，不删号）       startDate/endDate
 |------|------|------|
 | 登录 | `/login` | 公开 |
 | 入口 | `/portal` | 登录 |
-| 填写周报 | `/dashboard` | 登录 |
+| 填写周报 | `/reports` | 登录 |
 | 历史记录 | `/history` | 登录 |
 | 工作清单 | `/works` | 登录 |
 | 人事行政 | `/hr` | `module.hr.access` |

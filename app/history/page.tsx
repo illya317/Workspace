@@ -155,7 +155,7 @@ export default function HistoryPage() {
             >
               返回入口
             </button>
-            <NavLink href="/dashboard">填写周报</NavLink>
+            <NavLink href="/reports">填写周报</NavLink>
             <NavLink href="/works">工作清单</NavLink>
             <NavLink href="/history">历史记录</NavLink>
             <UserMenu user={user} />
@@ -168,7 +168,7 @@ export default function HistoryPage() {
         {reports.length === 0 ? (
           <div className="rounded-lg bg-white p-8 text-center shadow-sm">
             <p className="text-gray-500">暂无周报记录</p>
-            <Link href="/dashboard" className="mt-2 inline-block text-sm text-emerald-500 hover:underline">
+            <Link href="/reports" className="mt-2 inline-block text-sm text-emerald-500 hover:underline">
               去填写第一份周报
             </Link>
           </div>

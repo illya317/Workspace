@@ -256,7 +256,7 @@ export default function ApiGuidePage() {
             >
               返回入口
             </button>
-            <NavLink href="/dashboard">填写周报</NavLink>
+            <NavLink href="/reports">填写周报</NavLink>
             <NavLink href="/works">工作清单</NavLink>
             <NavLink href="/history">历史记录</NavLink>
             <UserMenu user={user} />
