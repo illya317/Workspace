@@ -50,7 +50,6 @@ export async function GET(request: Request) {
   const keyword = searchParams.get("keyword") || "";
   const exportExcel = searchParams.get("export") === "1";
   const isAdmin = await checkPermission(payload.userId, "system", "admin");
-  console.log("[employees API] params:", { company, dept, keyword, exportExcel, isAdmin });
 
   // 在职/离职筛选（默认只看在职）
   const statusFilter = searchParams.get("status") || "在职";
@@ -174,7 +173,6 @@ export async function GET(request: Request) {
     i = j;
   }
 
-  console.log("[employees API] rows count:", rows.length, "baseEmployees:", baseEmployees.length, "eps:", eps.length);
 
   const visibleFields = await getVisibleFields(payload.userId, isAdmin);
 

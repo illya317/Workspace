@@ -98,7 +98,6 @@ export default function RosterTab({ user, selectedCompany }: { user: User; selec
     params.set("status", rosterFilter);
     params.set("export", "1");
     const url = `/api/employees?${params.toString()}`;
-    console.log("[downloadExcel] URL:", url, { selectedCompany, filterDept, keyword, rosterFilter });
     window.open(url, "_blank");
   }
 
