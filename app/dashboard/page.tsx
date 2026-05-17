@@ -129,6 +129,17 @@ export default function DashboardPage() {
       }
       const data = await res.json();
       setUser(data.user);
+
+      // 检查是否有填写周报权限
+      const groupsRes = await fetch("/api/report-groups/my");
+      if (groupsRes.ok) {
+        const groupsData = await groupsRes.json();
+        if (!groupsData.isAdmin && groupsData.submitGroups.length === 0) {
+          router.push("/portal");
+          return;
+        }
+      }
+
       const info = getCurrentWeekInfo();
       setSelectedYear(info.year);
       setSelectedWeek(info.weekNumber);
