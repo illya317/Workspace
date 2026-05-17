@@ -60,7 +60,7 @@ model Resource {
 
 model Role {
   id              Int    @id @default(autoincrement())
-  key             String @unique   // "access" | "read" | "write" | "delete" | "admin" | "member" | "viewer"
+  key             String @unique   // "access" | "read" | "write" | "delete" | "admin"
   name            String
   description     String?
   sortOrder       Int    @default(0)
@@ -240,8 +240,12 @@ model Employee {
 }
 
 model Company {
-  code      String    @id // 公司编码（01/02/03/04/05）
-  name      String    @unique // 公司名称（丰华生物/丰华制药等）
+  id        Int       @id @default(autoincrement()) // 主键
+  code      String    // 本级编码（一级: 0,1; 二级: 0,1,2,3...）
+  name      String // 公司名称（父级内唯一）
+  parentId  Int? // 上级公司ID（null=一级公司）
+  parent    Company?  @relation("CompanyHierarchy", fields: [parentId], references: [id])
+  children  Company[] @relation("CompanyHierarchy")
   sortOrder Int       @default(0) // 排序
   createdAt DateTime  @default(now()) // 创建时间
   updatedAt DateTime? // 更新时间
@@ -249,6 +253,9 @@ model Company {
   editor    User?     @relation("CompanyEditor", fields: [editedBy], references: [id])
   editedAt  DateTime? // 编辑时间
   version   Int       @default(1) // 版本号
+
+  @@unique([parentId, code])
+  @@unique([parentId, name])
 }
 
 model Department {

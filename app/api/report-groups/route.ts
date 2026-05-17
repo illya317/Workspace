@@ -53,10 +53,10 @@ export async function GET(request: Request) {
     const memberCounts = new Map<string, number>();
     const viewerCounts = new Map<string, number>();
     for (const g of roleGrants) {
-      if (g.role.key === "member") {
+      if (g.role.key === "write") {
         memberCounts.set(g.scopeId!, (memberCounts.get(g.scopeId!) || 0) + 1);
       }
-      if (g.role.key === "viewer") {
+      if (g.role.key === "read") {
         viewerCounts.set(g.scopeId!, (viewerCounts.get(g.scopeId!) || 0) + 1);
       }
     }

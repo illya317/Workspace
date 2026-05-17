@@ -15,7 +15,7 @@ export async function GET(
   const members = await prisma.userResourceRole.findMany({
     where: {
       resource: { key: "work.report" },
-      role: { key: "member" },
+      role: { key: "write" },
       scopeId: String(groupId),
     },
     select: { userId: true },
@@ -93,14 +93,14 @@ export async function PUT(
   await prisma.userResourceRole.deleteMany({
     where: {
       resource: { key: "work.report" },
-      role: { key: "member" },
+      role: { key: "write" },
       scopeId: String(groupId),
     },
   });
 
   if (userIds?.length > 0) {
     const rgRes = await prisma.resource.findUnique({ where: { key: "work.report" } });
-    const memberRole = await prisma.role.findUnique({ where: { key: "member" } });
+    const memberRole = await prisma.role.findUnique({ where: { key: "write" } });
     await prisma.userResourceRole.createMany({
       data: userIds.map((userId) => ({
         userId,

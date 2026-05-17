@@ -18,8 +18,7 @@ interface ReportItemData {
 
 interface Report {
   id: number;
-  year: number;
-  weekNumber: number;
+  date: string;
   taskName: string;
   notes: string | null;
   version: number;
@@ -86,16 +85,6 @@ export default function HistoryPage() {
         }
       }
 
-      // 查旧数据（兼容：无 reportGroupId，按 scopeId）
-      if (currentUser?.departmentId) {
-        const oldRes = await fetch(`/api/reports?scopeId=${currentUser.departmentId}`);
-        if (oldRes.ok) {
-          const oldData = await oldRes.json();
-          const oldReports = (oldData.reports || []).filter((r: Report) => !r.reportGroupId);
-          allReports = [...allReports, ...oldReports];
-        }
-      }
-
       // 去重（按 id）
       const seen = new Set<number>();
       allReports = allReports.filter((r) => {
@@ -105,10 +94,7 @@ export default function HistoryPage() {
       });
 
       // 排序
-      allReports.sort((a, b) => {
-        if (a.year !== b.year) return b.year - a.year;
-        return b.weekNumber - a.weekNumber;
-      });
+      allReports.sort((a, b) => b.date.localeCompare(a.date));
 
       setReports(allReports);
     } catch {
@@ -196,7 +182,7 @@ export default function HistoryPage() {
                 >
                   <div>
                     <h3 className="font-medium text-gray-800">
-                      {report.year} 年第 {report.weekNumber} 周
+                      {report.date}
                     </h3>
                     <p className="text-sm text-gray-500">
                       {report.taskName}

@@ -33,8 +33,7 @@ interface ReportItemData {
 
 interface Report {
   id: number;
-  year: number;
-  weekNumber: number;
+  date: string;
   taskName: string;
   notes: string | null;
   version: number;
@@ -162,13 +161,15 @@ export default function DashboardPage() {
     if (savedRgName) setReportGroupName(savedRgName);
     const rgParam = rgId ? `&reportGroupId=${rgId}` : "";
 
+    const date = getWeekRange(year, weekNumber).weekStart.toISOString().slice(0, 10);
     const [reportsRes, prevRes, worksRes] = await Promise.all([
-      fetch(`/api/reports?year=${year}&week=${weekNumber}${rgParam}`),
+      fetch(`/api/reports?date=${date}${rgParam}`),
       (() => {
         const prevWeek = weekNumber - 1;
         const prevYear = prevWeek < 1 ? year - 1 : year;
         const actualPrevWeek = prevWeek < 1 ? 52 : prevWeek;
-        return fetch(`/api/reports?year=${prevYear}&week=${actualPrevWeek}${rgParam}`);
+        const prevDate = getWeekRange(prevYear, actualPrevWeek).weekStart.toISOString().slice(0, 10);
+        return fetch(`/api/reports?date=${prevDate}${rgParam}`);
       })(),
       fetch(rgId ? `/api/works?reportGroupId=${rgId}` : `/api/works?deptId=${user.departmentId}`),
     ]);
@@ -492,7 +493,7 @@ export default function DashboardPage() {
 
     const body = report
       ? { taskName: autoTaskName, notes, items }
-      : { taskName: autoTaskName, notes, items, year: selectedYear, weekNumber: selectedWeek, reportGroupId };
+      : { taskName: autoTaskName, notes, items, date: getWeekRange(selectedYear, selectedWeek).weekStart.toISOString().slice(0, 10), reportGroupId };
 
     let res;
     if (report) {

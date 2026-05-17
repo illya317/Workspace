@@ -229,12 +229,12 @@ export async function isAnyGroupAdmin(userId: number) {
 
 export async function canAccessReportGroup(userId: number, groupId: number) {
   if (await checkPermission(userId, "system", "admin")) return true;
-  return await hasGroupRole(userId, groupId, ["admin", "member", "viewer"]);
+  return await hasGroupRole(userId, groupId, ["admin", "write", "read"]);
 }
 
 export async function canSubmitToReportGroup(userId: number, groupId: number) {
   if (await checkPermission(userId, "system", "admin")) return true;
-  return await hasGroupRole(userId, groupId, ["admin", "member"]);
+  return await hasGroupRole(userId, groupId, ["admin", "write"]);
 }
 
 async function hasGroupRole(userId: number, groupId: number, roleKeys: string[]) {
@@ -382,7 +382,7 @@ export async function getUserReportGroupMemberships(userId: number) {
       where: {
         userId,
         resource: { key: "work.report" },
-        role: { key: { in: ["admin", "member", "viewer"] } },
+        role: { key: { in: ["admin", "write", "read"] } },
       },
       select: { scopeId: true, role: { select: { key: true } } },
     }),
@@ -398,7 +398,7 @@ export async function getUserReportGroupMemberships(userId: number) {
       where: {
         positionId: { in: posIds },
         resource: { key: "work.report" },
-        role: { key: { in: ["admin", "member", "viewer"] } },
+        role: { key: { in: ["admin", "write", "read"] } },
       },
       select: { scopeId: true, role: { select: { key: true } } },
     });
@@ -409,7 +409,7 @@ export async function getUserReportGroupMemberships(userId: number) {
       where: {
         departmentId: { in: deptIds },
         resource: { key: "work.report" },
-        role: { key: { in: ["admin", "member", "viewer"] } },
+        role: { key: { in: ["admin", "write", "read"] } },
       },
       select: { scopeId: true, role: { select: { key: true } } },
     });

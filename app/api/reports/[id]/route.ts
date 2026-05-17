@@ -39,7 +39,7 @@ export async function PUT(
           where: {
             userId,
             resource: { key: "work.report" },
-            role: { key: "member" },
+            role: { key: "write" },
             scopeId: gid,
           },
         }),

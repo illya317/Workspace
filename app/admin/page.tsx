@@ -36,8 +36,8 @@ interface ReportGroup {
   name: string;
   description: string | null;
   sortOrder: number;
-  departmentId: number | null;
-  department: { id: number; name: string; company: string } | null;
+  targetType: string;
+  targetId: number;
   _count: { members: number; viewers: number; reports: number };
 }
 
@@ -104,8 +104,8 @@ export default function AdminPage() {
 
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
-  const [editDeptId, setEditDeptId] = useState<number | null>(null);
-  const [editCompany, setEditCompany] = useState("");
+  const [editTargetType, setEditTargetType] = useState("department");
+  const [editTargetId, setEditTargetId] = useState<number>(0);
   const [editDescription, setEditDescription] = useState("");
   const [editSortOrder, setEditSortOrder] = useState(0);
   const [groupMembers, setGroupMembers] = useState<Array<{ userId: number; name: string; dept1: string; position: string }>>([]);
@@ -248,18 +248,23 @@ export default function AdminPage() {
   }, [user?.isWorkListAdmin]);
 
   async function loadData() {
-    const [usersRes, groupsRes, deptsRes] = await Promise.all([
-      fetch("/api/admin/users"),
-      fetch("/api/report-groups"),
-      fetch("/api/admin/departments"),
-    ]);
-    const usersData = await usersRes.json();
-    const groupsData = await groupsRes.json();
-    const deptsData = await deptsRes.json();
-    setUsers(usersData.users || []);
-    setReportGroups(groupsData.groups || []);
-    setAllDepts(deptsData.departments || []);
-    setLoading(false);
+    try {
+      const [usersRes, groupsRes, deptsRes] = await Promise.all([
+        fetch("/api/admin/users"),
+        fetch("/api/report-groups"),
+        fetch("/api/admin/departments"),
+      ]);
+      const usersData = await usersRes.json();
+      const groupsData = await groupsRes.json();
+      const deptsData = await deptsRes.json();
+      setUsers(usersData.users || []);
+      setReportGroups(groupsData.groups || []);
+      setAllDepts(deptsData.departments || []);
+    } catch (e) {
+      console.error("loadData failed:", e);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function loadAdminData() {
@@ -460,7 +465,7 @@ export default function AdminPage() {
     const res = await fetch(`/api/report-groups/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: editName, departmentId: editDeptId }),
+      body: JSON.stringify({ name: editName, targetType: editTargetType, targetId: editTargetId }),
     });
     if (res.ok) {
       await loadData();
@@ -522,8 +527,8 @@ export default function AdminPage() {
     setEditName(group?.name || "");
     setEditDescription(group?.description || "");
     setEditSortOrder(group?.sortOrder || 0);
-    setEditDeptId(group?.departmentId ?? null);
-    setEditCompany(group?.department?.company || "");
+    setEditTargetType(group?.targetType || "department");
+    setEditTargetId(group?.targetId ?? 0);
 
     const [membersRes, adminsRes] = await Promise.all([
       fetch(`/api/report-groups/${groupId}/members`),
@@ -878,45 +883,33 @@ export default function AdminPage() {
                       {isEditingGroup ? (
                         <div className="space-y-2">
                           <select
-                            value={editCompany}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setEditCompany(val);
-                              setEditDeptId(null);
-                            }}
+                            value={editTargetType}
+                            onChange={(e) => { setEditTargetType(e.target.value); setEditTargetId(0); }}
                             className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none"
                           >
-                            <option value="">选择公司</option>
-                            {Array.from(new Set(allDepts.map((d) => d.company).filter(Boolean))).map((c) => (
-                              <option key={c} value={c}>
-                                {c}
-                              </option>
-                            ))}
+                            <option value="department">部门</option>
+                            <option value="project">项目</option>
+                            <option value="position">岗位</option>
                           </select>
                           <select
-                            value={editDeptId ?? ""}
-                            onChange={(e) => setEditDeptId(e.target.value ? parseInt(e.target.value) : null)}
-                            disabled={!editCompany}
-                            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none disabled:bg-gray-100 disabled:text-gray-400"
+                            value={editTargetId}
+                            onChange={(e) => setEditTargetId(parseInt(e.target.value) || 0)}
+                            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none"
                           >
-                            <option value="">{editCompany ? "选择部门" : "请先选择公司"}</option>
-                            {allDepts
-                              .filter((d) => d.company === editCompany)
-                              .map((d) => (
-                                <option key={d.id} value={d.id}>
-                                  {d.name}
-                                </option>
-                              ))}
+                            <option value="0">选择目标</option>
+                            {editTargetType === "department" && allDepts.map((d) => (
+                              <option key={d.id} value={d.id}>{d.company} - {d.name}</option>
+                            ))}
                           </select>
                         </div>
                       ) : (
                         <div className="flex flex-wrap gap-2">
-                          {selectedGroup.department ? (
+                          {selectedGroup.targetType && selectedGroup.targetId ? (
                             <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs text-emerald-700">
-                              {selectedGroup.department.company}-{selectedGroup.department.name}
+                              {selectedGroup.targetType}-{selectedGroup.targetId}
                             </span>
                           ) : (
-                            <span className="text-xs text-gray-400">未关联部门</span>
+                            <span className="text-xs text-gray-400">未关联</span>
                           )}
                         </div>
                       )}
@@ -1253,7 +1246,7 @@ export default function AdminPage() {
                               .filter(rr => rr.scopeId && rr.resource?.key === "work.report")
                               .map((rr, idx) => {
                                 const group = reportGroups.find(g => String(g.id) === rr.scopeId);
-                                const roleLabel = rr.role?.key === "member" ? "成员" : (rr.role?.key || "-");
+                                const roleLabel = rr.role?.key === "write" ? "编辑" : (rr.role?.key || "-");
                                 return (
                                   <div key={`rg-${idx}`} className="flex items-center gap-2 text-sm text-gray-600">
                                     <span>周报: {group?.name || rr.scopeId}</span>

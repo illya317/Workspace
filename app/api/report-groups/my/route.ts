@@ -20,7 +20,7 @@ export async function GET(request: Request) {
   });
 
   const memberGroupIds = roles
-    .filter((r) => r.role.key === "member")
+    .filter((r) => r.role.key === "write")
     .map((r) => parseInt(r.scopeId!))
     .filter((n) => !isNaN(n) && n > 0);
   const adminGroupIds = roles
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     .map((r) => parseInt(r.scopeId!))
     .filter((n) => !isNaN(n) && n > 0);
   const viewerGroupIds = roles
-    .filter((r) => r.role.key === "viewer")
+    .filter((r) => r.role.key === "read")
     .map((r) => parseInt(r.scopeId!))
     .filter((n) => !isNaN(n) && n > 0);
 

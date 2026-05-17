@@ -36,8 +36,6 @@ export const ROLE = {
   write: "write",
   delete: "delete",
   admin: "admin",
-  member: "member",
-  viewer: "viewer",
 } as const;
 
 // ─── Backward compat aliases ──────────────────────────────

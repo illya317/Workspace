@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   }
 
   const codes = await prisma.company.findMany({ orderBy: { sortOrder: "asc" } });
-  return NextResponse.json({ codes: codes.map((r) => ({ code: r.code, name: r.name })) });
+  return NextResponse.json({ codes: codes.map((r) => ({ id: r.id, code: r.code, name: r.name, parentId: r.parentId })) });
 }
 
 export async function PUT(request: Request) {
@@ -23,25 +23,26 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { code, name, originalCode } = body;
+  const { code, name, parentId, id } = body;
   if (!code || !name) return NextResponse.json({ error: "缺少参数" }, { status: 400 });
 
-  if (originalCode && originalCode !== code) {
-    const existing = await prisma.company.findUnique({ where: { code } });
-    if (existing) {
-      return NextResponse.json({ error: "编号已存在" }, { status: 400 });
+  if (id) {
+    // Update existing
+    const existing = await prisma.company.findFirst({ where: { code, parentId: parentId ?? null } });
+    if (existing && existing.id !== id) {
+      return NextResponse.json({ error: "同级别下编码已存在" }, { status: 400 });
     }
-    const old = await prisma.company.findUnique({ where: { code: originalCode } });
+    const old = await prisma.company.findUnique({ where: { id } });
     if (old) {
       const maxVer = await prisma.editHistory.findFirst({
-        where: { entityType: "code_company", entityId: originalCode },
+        where: { entityType: "code_company", entityId: String(id) },
         orderBy: { version: "desc" },
         select: { version: true },
       });
       await prisma.editHistory.create({
         data: {
           entityType: "code_company",
-          entityId: originalCode,
+          entityId: String(id),
           version: (maxVer?.version || 0) + 1,
           dataJson: JSON.stringify(old),
           editedBy: payload.userId,
@@ -49,31 +50,17 @@ export async function PUT(request: Request) {
       });
     }
     await prisma.company.update({
-      where: { code: originalCode },
-      data: { code, name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+      where: { id },
+      data: { code, name, parentId: parentId ?? null, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
     });
   } else {
-    const old = await prisma.company.findUnique({ where: { code } });
-    if (old) {
-      const maxVer = await prisma.editHistory.findFirst({
-        where: { entityType: "code_company", entityId: code },
-        orderBy: { version: "desc" },
-        select: { version: true },
-      });
-      await prisma.editHistory.create({
-        data: {
-          entityType: "code_company",
-          entityId: code,
-          version: (maxVer?.version || 0) + 1,
-          dataJson: JSON.stringify(old),
-          editedBy: payload.userId,
-        },
-      });
+    // Create new
+    const existing = await prisma.company.findFirst({ where: { code, parentId: parentId ?? null } });
+    if (existing) {
+      return NextResponse.json({ error: "同级别下编码已存在" }, { status: 400 });
     }
-    await prisma.company.upsert({
-      where: { code },
-      update: { name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
-      create: { code, name, sortOrder: 0 },
+    await prisma.company.create({
+      data: { code, name, parentId: parentId ?? null, sortOrder: 0 },
     });
   }
 
@@ -88,12 +75,13 @@ export async function DELETE(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const code = searchParams.get("code");
-  if (!code) return NextResponse.json({ error: "缺少code" }, { status: 400 });
+  const idParam = searchParams.get("id");
+  if (!idParam) return NextResponse.json({ error: "缺少id" }, { status: 400 });
+  const id = parseInt(idParam);
 
-  const company = await prisma.company.findUnique({ where: { code } });
+  const company = await prisma.company.findUnique({ where: { id } });
   if (!company) return NextResponse.json({ error: "公司不存在" }, { status: 404 });
 
-  await prisma.company.delete({ where: { code } });
+  await prisma.company.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

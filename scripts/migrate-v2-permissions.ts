@@ -60,8 +60,7 @@ async function main() {
     { key: "write", name: "编辑", sortOrder: 2 },
     { key: "delete", name: "删除", sortOrder: 3 },
     { key: "admin", name: "管理", sortOrder: 4 },
-    { key: "member", name: "参与", sortOrder: 5 },
-    { key: "viewer", name: "浏览", sortOrder: 6 },
+    { key: "read", name: "只读", sortOrder: 5 },
   ];
   const roleMap = new Map<string, number>();
   for (const r of roleDefs) {

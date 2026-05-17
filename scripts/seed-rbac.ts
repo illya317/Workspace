@@ -33,8 +33,6 @@ async function main() {
     { key: "admin", name: "管理", description: "编辑数据 + 分配该资源权限给他人" },
     { key: "write", name: "编辑", description: "可修改数据" },
     { key: "read", name: "只读", description: "可查看数据" },
-    { key: "member", name: "参与", description: "可提交周报" },
-    { key: "viewer", name: "查看", description: "可查看周报" },
     { key: "write_any_week", name: "补填任意周报", description: "可填写/补填任意周的周报" },
   ];
   const roleMap = new Map<string, number>();
@@ -112,8 +110,8 @@ async function main() {
     "module.hr": "access",
     "module.works": "access",
     "report.admin": "admin",
-    "report.member": "member",
-    "report.viewer": "viewer",
+    "report.write": "write",
+    "report.read": "read",
     "dept.admin": "admin",
     "field.read": "read",
     "field.edit": "write",
@@ -203,7 +201,7 @@ async function main() {
 
   if (backup.reportGroupMemberships) {
     for (const rm of backup.reportGroupMemberships) {
-      const roleKey = rm.role || "member";
+      const roleKey = rm.role || "write";
       const roleId = roleMap.get(roleKey);
       if (!roleId) continue;
       try {
