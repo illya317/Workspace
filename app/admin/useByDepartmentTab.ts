@@ -62,11 +62,13 @@ export function useByDepartmentTab(
         setGrants(grantData.grants || []);
         showToast(value ? "已授权" : "已撤销", "success");
       } else {
-        const data = await res.json();
-        showToast(data.error || "操作失败", "error");
+        const text = await res.text();
+        let msg = `操作失败 (${res.status})`;
+        try { msg = JSON.parse(text).error || msg; } catch { /* ignore */ }
+        showToast(msg, "error");
       }
-    } catch {
-      showToast("网络错误", "error");
+    } catch (e: any) {
+      showToast(e?.message || "网络错误", "error");
     }
   }
 

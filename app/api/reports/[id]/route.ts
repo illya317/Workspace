@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { authenticate, checkPermission } from "@/lib/auth";
+import { canSubmitToTarget } from "@/lib/access";
 
 export async function PUT(
   request: Request,
@@ -31,30 +32,12 @@ export async function PUT(
     // 管理员直接放行
     if (await checkPermission(userId, "system", "admin")) return true;
 
-    // 如果有 reportGroupId，检查用户是否是填报成员或负责人
-    if (report.reportGroupId) {
-      const gid = String(report.reportGroupId);
-      const [member, admin] = await Promise.all([
-        prisma.userResourceRole.findFirst({
-          where: {
-            userId,
-            resource: { key: "work.report" },
-            role: { key: "write" },
-            scopeId: gid,
-          },
-        }),
-        prisma.userResourceRole.findFirst({
-          where: {
-            userId,
-            resource: { key: "work.report" },
-            role: { key: "admin" },
-            scopeId: gid,
-          },
-        }),
-      ]);
-      return !!member || !!admin;
+    // 如果有 targetType + targetId，检查用户是否有提交（编辑）权限
+    if (report.targetType && report.targetId != null) {
+      return canSubmitToTarget(userId, report.targetType, report.targetId);
     }
-    // 无 reportGroupId 则只有所有者能编辑
+
+    // 无 targetType/targetId 则只有所有者能编辑
     return report.userId === userId;
   }
 

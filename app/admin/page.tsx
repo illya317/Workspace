@@ -11,6 +11,7 @@ import ByUserTab from "./ByUserTab";
 import ByPositionTab from "./ByPositionTab";
 import ByDepartmentTab from "./ByDepartmentTab";
 import ByPermissionTab from "./ByPermissionTab";
+import DeptAdminsTab from "./DeptAdminsTab";
 import type { ResourceItem, DeptItem } from "./types";
 import { flattenTree } from "./lib";
 
@@ -18,7 +19,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [user, setUser] = useState<{ id: number; name: string; isWorkListAdmin: boolean; isAnyGroupAdmin: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"by-user" | "by-position" | "by-department" | "by-permission">("by-permission");
+  const [activeTab, setActiveTab] = useState<"by-user" | "by-position" | "by-department" | "by-permission" | "dept-admins">("by-permission");
 
   const [resources, setResources] = useState<ResourceItem[]>([]);
   const [roles, setRoles] = useState<Array<{ id: number; key: string; name: string; description: string | null }>>([]);
@@ -97,6 +98,7 @@ export default function AdminPage() {
     { key: "by-position" as const, label: "按岗位" },
     { key: "by-department" as const, label: "按部门" },
     { key: "by-permission" as const, label: "按权限" },
+    { key: "dept-admins" as const, label: "部门管理员" },
   ];
 
   return (
@@ -134,6 +136,7 @@ export default function AdminPage() {
           {activeTab === "by-position" && <ByPositionTab user={user!} resources={resources} showToast={showToast} />}
           {activeTab === "by-department" && <ByDepartmentTab user={user!} resources={resources} allDepts={allDepts} showToast={showToast} />}
           {activeTab === "by-permission" && <ByPermissionTab user={user!} resources={resources} showToast={showToast} />}
+          {activeTab === "dept-admins" && <DeptAdminsTab showToast={showToast} />}
         </div>
 
         {/* System Config */}

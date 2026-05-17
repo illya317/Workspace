@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createToken, checkPermission, isAnyGroupAdmin } from "@/lib/auth";
+import { createToken, checkPermission } from "@/lib/auth";
 
 export async function POST(request: Request) {
   const { username, password } = await request.json();
@@ -31,12 +31,11 @@ export async function POST(request: Request) {
     departmentId: 0,
   });
 
-  const [isAdmin, canAnyWeek, hasHR, hasWorks, groupAdmin] = await Promise.all([
+  const [isAdmin, canAnyWeek, hasHR, hasWorks] = await Promise.all([
     checkPermission(user.id, "system", "admin"),
     checkPermission(user.id, "work.report", "write"),
     checkPermission(user.id, "people", "access"),
     checkPermission(user.id, "work", "access"),
-    isAnyGroupAdmin(user.id),
   ]);
 
   const response = NextResponse.json({
@@ -50,7 +49,6 @@ export async function POST(request: Request) {
       canSelectAnyWeek: canAnyWeek,
       canAccessHR: hasHR,
       canAccessWorks: hasWorks,
-      isAnyGroupAdmin: groupAdmin,
     },
   });
 

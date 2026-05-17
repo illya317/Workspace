@@ -108,24 +108,13 @@ model DepartmentResourceRole {
   @@unique([departmentId, resourceId, roleId, scopeId])
 }
 
-// ─── 周报模块 ─────────────────────────────────────────────
-
-model ReportGroup {
-  id          Int      @id @default(autoincrement()) // 主键
-  name        String // 名称
-  description String? // 说明
-  sortOrder   Int      @default(0) // 排序序号
-  periodType  String   @default("weekly") // "daily" | "weekly" | "monthly" | "quarterly" | "yearly"
-  targetType  String   @default("department") // "project" | "department" | "position"
-  targetId    Int      @default(0) // 多态 FK
-  createdAt   DateTime @default(now()) // 创建时间
-  reports     Report[]
-}
+// ─── 报告模块 ─────────────────────────────────────────────
 
 model Report {
   id            Int          @id @default(autoincrement()) // 主键
   userId        Int? // 用户ID
-  reportGroupId Int? // 报告分组ID
+  targetType    String       @default("department") // "department" | "project" | "position"
+  targetId      Int          @default(0) // 多态 FK → Department.id | Project.id | Position.id
   date          String // 日期（yyyy-MM-dd，日报=当天，周报=周一，月报=月初）
   taskName      String // 任务名称
   notes         String? // 备注
@@ -134,10 +123,9 @@ model Report {
   updatedAt     DateTime     @updatedAt // 更新时间
   history       ReportHistory[]
   items         ReportItem[]
-  reportGroup   ReportGroup? @relation(fields: [reportGroupId], references: [id])
   user          User?        @relation(fields: [userId], references: [id])
 
-  @@unique([reportGroupId, date])
+  @@unique([userId, targetType, targetId, date])
 }
 
 model ReportItem {

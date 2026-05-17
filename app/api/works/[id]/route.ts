@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { authenticate, isAnyGroupAdmin, isAdmin, checkPermission } from "@/lib/auth";
-
-// Check if user has admin rights for a department's works
-async function requireAdmin(userId: number, _departmentId: number) {
-  if (await checkPermission(userId, "system", "admin")) return true;
-  return isAnyGroupAdmin(userId);
-}
+import { authenticate, checkPermission } from "@/lib/auth";
 
 function parseParticipants(input?: string): string[] {
   if (!input) return [];
@@ -41,7 +35,7 @@ export async function PUT(
     return NextResponse.json({ error: "无权操作" }, { status: 403 });
   }
 
-  const isWorkAdmin = await requireAdmin(payload.userId, payload.departmentId);
+  const isWorkAdmin = await checkPermission(payload.userId, "system", "admin");
   if (!isWorkAdmin) {
     return NextResponse.json({ error: "无权限编辑工作清单" }, { status: 403 });
   }
@@ -116,7 +110,7 @@ export async function DELETE(
     return NextResponse.json({ error: "无权操作" }, { status: 403 });
   }
 
-  const isWorkAdmin = await requireAdmin(payload.userId, payload.departmentId);
+  const isWorkAdmin = await checkPermission(payload.userId, "system", "admin");
   if (!isWorkAdmin) {
     return NextResponse.json({ error: "无权限编辑工作清单" }, { status: 403 });
   }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkPermission, isAnyGroupAdmin } from "@/lib/auth";
+import { authenticate, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
@@ -18,12 +18,11 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "用户不存在" }, { status: 404 });
   }
 
-  const [isAdmin, canAnyWeek, hasHR, hasWorks, groupAdmin] = await Promise.all([
+  const [isAdmin, canAnyWeek, hasHR, hasWorks] = await Promise.all([
     checkPermission(payload.userId, "system", "admin"),
     checkPermission(payload.userId, "work.report", "write"),
     checkPermission(payload.userId, "people", "access"),
     checkPermission(payload.userId, "work", "access"),
-    isAnyGroupAdmin(payload.userId),
   ]);
 
   return NextResponse.json({
@@ -34,7 +33,6 @@ export async function GET(request: Request) {
       canSelectAnyWeek: canAnyWeek,
       canAccessHR: hasHR,
       canAccessWorks: hasWorks,
-      isAnyGroupAdmin: groupAdmin,
       company: null,
       employeeId: null,
     },

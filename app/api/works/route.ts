@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { authenticate, isAnyGroupAdmin, requireGroupAccess, isAdmin, checkPermission } from "@/lib/auth";
+import { authenticate, isAdmin, checkPermission } from "@/lib/auth";
+import { canAccessTarget } from "@/lib/access";
 
 // Check if user has admin rights for a department's works
 async function requireAdmin(userId: number, _departmentId: number) {
-  if (await checkPermission(userId, "system", "admin")) return true;
-  return isAnyGroupAdmin(userId);
+  return checkPermission(userId, "system", "admin");
 }
 
 function parseParticipants(input?: string): string[] {
@@ -26,9 +26,12 @@ export async function GET(request: Request) {
   const category = searchParams.get("category");
   const includeArchived = searchParams.get("includeArchived") === "true";
   const deptIdParam = searchParams.get("deptId");
-  const reportGroupIdParam = searchParams.get("reportGroupId");
+  const targetType = searchParams.get("targetType");
+  const targetIdParam = searchParams.get("targetId");
 
   let departmentId = payload.departmentId;
+
+  // deptId override (admin only)
   if (deptIdParam) {
     const isUserAdmin = await isAdmin(request);
     if (!isUserAdmin) {
@@ -36,23 +39,24 @@ export async function GET(request: Request) {
     }
     departmentId = parseInt(deptIdParam);
   }
-  if (reportGroupIdParam) {
-    const rgId = parseInt(reportGroupIdParam);
-    const { error, status } = await requireGroupAccess(request, rgId);
-    if (error) return NextResponse.json({ error }, { status });
 
-    const rg = await prisma.reportGroup.findUnique({
-      where: { id: rgId },
-      select: { targetType: true, targetId: true },
-    });
-    if (rg?.targetType === "department" && rg?.targetId) {
-      departmentId = rg.targetId;
+  // targetType + targetId override (with access check)
+  let finalTargetType = "department";
+  let finalTargetId = departmentId;
+
+  if (targetType && targetIdParam != null) {
+    const targetId = parseInt(targetIdParam);
+    const allowed = await canAccessTarget(payload.userId, targetType, targetId);
+    if (!allowed) {
+      return NextResponse.json({ error: "无权限访问该目标" }, { status: 403 });
     }
+    finalTargetType = targetType;
+    finalTargetId = targetId;
   }
 
   const where: { targetType: string; targetId: number; category?: string; isArchived?: boolean } = {
-    targetType: "department",
-    targetId: departmentId,
+    targetType: finalTargetType,
+    targetId: finalTargetId,
   };
   if (category) where.category = category;
   if (!includeArchived) where.isArchived = false;

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { authenticate, requireGroupAccess, requireGroupSubmit } from "@/lib/auth";
+import { authenticate } from "@/lib/auth";
+import { canAccessTarget, canSubmitToTarget } from "@/lib/access";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -10,25 +11,25 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const date = searchParams.get("date");
-  const reportGroupId = searchParams.get("reportGroupId")
-    ? parseInt(searchParams.get("reportGroupId")!)
-    : null;
-  const reportGroupIds = searchParams.get("reportGroupIds");
+  const targetType = searchParams.get("targetType");
+  const targetIds = searchParams.get("targetIds");
 
-  // 权限校验：按单个 reportGroupId 查询时验证权限
-  if (reportGroupId) {
-    const { error, status } = await requireGroupAccess(request, reportGroupId);
-    if (error) return NextResponse.json({ error }, { status });
+  // 权限校验：按单个 target 查询时验证权限
+  if (targetType && targetIds) {
+    const ids = targetIds.split(",").map(Number);
+    if (ids.length === 1) {
+      const allowed = await canAccessTarget(payload.userId, targetType, ids[0]);
+      if (!allowed) {
+        return NextResponse.json({ error: "无权限访问该目标" }, { status: 403 });
+      }
+    }
   }
 
   let where: any = {};
 
-  if (reportGroupIds) {
-    // 按多个 reportGroupId 查询（History 用）
-    where.reportGroupId = { in: reportGroupIds.split(",").map(Number) };
-  } else if (reportGroupId) {
-    // 按单个 reportGroupId 查询（Dashboard 用）
-    where.reportGroupId = reportGroupId;
+  if (targetType && targetIds) {
+    where.targetType = targetType;
+    where.targetId = { in: targetIds.split(",").map(Number) };
   }
 
   if (date) where.date = date;
@@ -58,16 +59,20 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   // 权限校验：提交报告时验证是否有权限
-  if (body.reportGroupId) {
-    const { error, status } = await requireGroupSubmit(request, body.reportGroupId);
-    if (error) return NextResponse.json({ error }, { status });
+  if (body.targetType && body.targetId != null) {
+    const allowed = await canSubmitToTarget(payload.userId, body.targetType, body.targetId);
+    if (!allowed) {
+      return NextResponse.json({ error: "无权限提交该目标周报" }, { status: 403 });
+    }
   }
+
   const {
     taskName,
     notes,
     items,
     date,
-    reportGroupId,
+    targetType,
+    targetId,
   } = body as {
     taskName: string;
     notes?: string;
@@ -80,7 +85,8 @@ export async function POST(request: Request) {
       workId?: number;
     }>;
     date?: string;
-    reportGroupId?: number;
+    targetType?: string;
+    targetId?: number;
   };
 
   if (!items || items.length === 0) {
@@ -92,17 +98,7 @@ export async function POST(request: Request) {
 
   const reportDate = date ?? new Date().toISOString().slice(0, 10);
 
-  // 如果有 reportGroupId，查出名称作为 taskName
-  let finalTaskName = taskName;
-  let finalReportGroupId = reportGroupId ?? null;
-  if (finalReportGroupId && !finalTaskName) {
-    const group = await prisma.reportGroup.findUnique({
-      where: { id: finalReportGroupId },
-    });
-    if (group) finalTaskName = group.name;
-  }
-
-  if (!finalTaskName) {
+  if (!taskName) {
     return NextResponse.json(
       { error: "请填写任务名称" },
       { status: 400 }
@@ -113,8 +109,10 @@ export async function POST(request: Request) {
 
   const hasRoutine = items.some((i) => i.category === "routine");
   if (!hasRoutine) {
+    const finalTargetType = targetType ?? "department";
+    const finalTargetId = targetId ?? payload.departmentId;
     const works = await prisma.workItem.findMany({
-      where: { targetType: "department", targetId: payload.departmentId, category: "routine" },
+      where: { targetType: finalTargetType, targetId: finalTargetId, category: "routine" },
       orderBy: { sortOrder: "asc" },
     });
     if (works.length > 0) {
@@ -135,8 +133,9 @@ export async function POST(request: Request) {
       data: {
         userId: payload.userId,
         date: reportDate,
-        reportGroupId: finalReportGroupId,
-        taskName: finalTaskName,
+        targetType: targetType,
+        targetId: targetId,
+        taskName: taskName,
         notes: notes || null,
         version: 1,
         items: {
@@ -169,7 +168,7 @@ export async function POST(request: Request) {
       error.code === "P2002"
     ) {
       return NextResponse.json(
-        { error: "该时段已提交过报告，请使用更新功能" },
+        { error: "该目标该时段已提交过报告，请使用更新功能" },
         { status: 409 }
       );
     }

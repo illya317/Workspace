@@ -22,11 +22,13 @@ export function userHasAccess(emp: EmployeePerm, resourceKey: string): boolean {
   );
 }
 
+const HIDDEN_RESOURCE_KEYS = new Set(["field", "finance"]);
+
 export function groupByParent(
   resources: ResourceItem[]
 ): Array<{ parent: ResourceItem; children: ResourceItem[] }> {
   const all = [...resources].sort((a, b) => a.key.localeCompare(b.key));
-  const parents = all.filter((r) => !r.key.includes("."));
+  const parents = all.filter((r) => !r.key.includes(".") && !HIDDEN_RESOURCE_KEYS.has(r.key));
   return parents.map((parent) => ({
     parent,
     children: all.filter((r) => r.key.startsWith(parent.key + ".")),
