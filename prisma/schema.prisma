@@ -184,6 +184,9 @@ model Employee {
   userId        Int?
   user          User?    @relation(fields: [userId], references: [id])
   positions     EmployeePosition[]
+  editedBy      Int?
+  editedAt      DateTime?
+  version       Int      @default(1)
 }
 
 // 新增部门表
@@ -202,6 +205,10 @@ model Department {
   admins            DepartmentAdmin[]
   reportGroups      ReportGroup[]
   createdAt         DateTime           @default(now())
+  updatedAt         DateTime?
+  editedBy          Int?
+  editedAt          DateTime?
+  version           Int                @default(1)
 }
 
 // 新增岗位表
@@ -213,6 +220,10 @@ model Position {
   departments       DepartmentPosition[]
   employeePositions EmployeePosition[]
   createdAt         DateTime           @default(now())
+  updatedAt         DateTime?
+  editedBy          Int?
+  editedAt          DateTime?
+  version           Int                @default(1)
 }
 
 // 员工岗位关联表（1对多）
@@ -229,6 +240,10 @@ model EmployeePosition {
   isPrimary    Boolean    @default(false)
   sortOrder    Int        @default(0)
   createdAt    DateTime   @default(now())
+  updatedAt    DateTime?
+  editedBy     Int?
+  editedAt     DateTime?
+  version      Int        @default(1)
 }
 
 // 新增部门-岗位配置表
@@ -316,3 +331,14 @@ model ReportGroupMembership {
   @@unique([userId, reportGroupId])
 }
 
+model EditHistory {
+  id         Int      @id @default(autoincrement())
+  entityType String   // "employee" | "employee_position" | "code_department" | "code_position"
+  entityId   String   // 被编辑记录的主键（可能是Int，统一用String）
+  version    Int
+  dataJson   String   // 编辑前的完整数据快照（JSON）
+  editedBy   Int
+  createdAt  DateTime @default(now())
+
+  @@unique([entityType, entityId, version])
+}

@@ -7,6 +7,7 @@ import UserMenu from "@/app/components/UserMenu";
 import { matchEmployee } from "@/lib/search";
 import EmployeeTab from "./EmployeeTab";
 import PositionTab from "./PositionTab";
+import EditToolbar from "@/app/components/EditToolbar";
 
 interface User {
   id: number;
@@ -133,6 +134,11 @@ function CodeTab({
   const [editCodeValue, setEditCodeValue] = useState("");
   const [editNameValue, setEditNameValue] = useState("");
   const [detailModal, setDetailModal] = useState<{ open: boolean; code: string; name: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [versions, setVersions] = useState<Array<{ version: number; createdAt: string }>>([]);
+  const [currentVersion, setCurrentVersion] = useState<number | undefined>(undefined);
+
+  const entityType = type === "department" ? "code_department" : "code_position";
 
   async function load() {
     setLoading(true);
@@ -226,6 +232,7 @@ function CodeTab({
     setEditRow(item.code);
     setEditCodeValue(item.code.length === 5 ? item.code.slice(2) : item.code);
     setEditNameValue(item.name);
+    loadVersions(item.code);
   }
 
   function cancelEditRow() {
@@ -334,31 +341,54 @@ function CodeTab({
     return employees.filter((e) => e.position && e.position.includes(codeItem.name));
   }
 
+  async function loadVersions(entityId: string) {
+    const res = await fetch(`/api/admin/edit-history?entityType=${entityType}&entityId=${entityId}`);
+    if (res.ok) {
+      const data = await res.json();
+      setVersions(data.versions || []);
+    }
+  }
+
+  async function handleSelectVersion(version: number) {
+    if (!editRow) return;
+    const res = await fetch(`/api/admin/edit-history?entityType=${entityType}&entityId=${editRow}&version=${version}`);
+    if (res.ok) {
+      const data = await res.json();
+      const snapshot = JSON.parse(data.version.dataJson);
+      setEditCodeValue(snapshot.code || "");
+      setEditNameValue(snapshot.name || "");
+      setCurrentVersion(version);
+    }
+  }
+
+  async function handleSave() {
+    if (!editRow) return;
+    setSaving(true);
+    try {
+      await saveEditRow(editRow);
+      setEditMode(false);
+      // editRow is cleared by saveEditRow, but we can skip reloadVersions here
+    } finally {
+      setSaving(false);
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
         {user.canAccessHR && (
-          <div className="flex gap-2">
-            {editMode && (
-              <button
-                onClick={() => { if (editRow) saveEditRow(editRow); }}
-                className="rounded-md bg-green-500 px-3 py-1 text-xs text-white hover:bg-green-600"
-              >
-                保存
-              </button>
-            )}
-            <button
-              onClick={() => { setEditMode((v) => !v); setEditRow(null); }}
-              className={`rounded-md px-3 py-1 text-xs ${
-                editMode
-                  ? "bg-amber-100 text-amber-700 border border-amber-300"
-                  : "border border-gray-300 text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              {editMode ? "退出编辑" : "编辑"}
-            </button>
-          </div>
+          <EditToolbar
+            editMode={editMode}
+            onStartEdit={() => setEditMode(true)}
+            onSave={handleSave}
+            onCancel={() => { setEditMode(false); setEditRow(null); }}
+            canEdit={user.canAccessHR}
+            versions={versions}
+            currentVersion={currentVersion}
+            onSelectVersion={handleSelectVersion}
+            saving={saving}
+          />
         )}
       </div>
 

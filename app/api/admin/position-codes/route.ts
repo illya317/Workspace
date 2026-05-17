@@ -79,14 +79,48 @@ export async function PUT(request: Request) {
     if (existing) {
       return NextResponse.json({ error: "编号已存在" }, { status: 400 });
     }
+    const oldPos = await prisma.position.findUnique({ where: { code: originalCode } });
+    if (oldPos) {
+      const maxVer = await prisma.editHistory.findFirst({
+        where: { entityType: "code_position", entityId: originalCode },
+        orderBy: { version: "desc" },
+        select: { version: true },
+      });
+      await prisma.editHistory.create({
+        data: {
+          entityType: "code_position",
+          entityId: originalCode,
+          version: (maxVer?.version || 0) + 1,
+          dataJson: JSON.stringify(oldPos),
+          editedBy: payload.userId,
+        },
+      });
+    }
     await prisma.position.update({
       where: { code: originalCode },
-      data: { code: finalCode, name },
+      data: { code: finalCode, name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
     });
   } else {
+    const oldPos = await prisma.position.findUnique({ where: { code: finalCode } });
+    if (oldPos) {
+      const maxVer = await prisma.editHistory.findFirst({
+        where: { entityType: "code_position", entityId: finalCode },
+        orderBy: { version: "desc" },
+        select: { version: true },
+      });
+      await prisma.editHistory.create({
+        data: {
+          entityType: "code_position",
+          entityId: finalCode,
+          version: (maxVer?.version || 0) + 1,
+          dataJson: JSON.stringify(oldPos),
+          editedBy: payload.userId,
+        },
+      });
+    }
     await prisma.position.upsert({
       where: { code: finalCode },
-      update: { name },
+      update: { name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
       create: { code: finalCode, name, company: getCompanyFromCode(finalCode) },
     });
   }

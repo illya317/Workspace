@@ -79,14 +79,50 @@ export async function PUT(request: Request) {
     if (existing) {
       return NextResponse.json({ error: "编号已存在" }, { status: 400 });
     }
+    // 快照旧数据
+    const oldDept = await prisma.department.findUnique({ where: { code: originalCode } });
+    if (oldDept) {
+      const entityId = originalCode;
+      const maxVer = await prisma.editHistory.findFirst({
+        where: { entityType: "code_department", entityId },
+        orderBy: { version: "desc" },
+        select: { version: true },
+      });
+      await prisma.editHistory.create({
+        data: {
+          entityType: "code_department",
+          entityId,
+          version: (maxVer?.version || 0) + 1,
+          dataJson: JSON.stringify(oldDept),
+          editedBy: payload.userId,
+        },
+      });
+    }
     await prisma.department.update({
       where: { code: originalCode },
-      data: { code: finalCode, name },
+      data: { code: finalCode, name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
     });
   } else {
+    const oldDept = await prisma.department.findUnique({ where: { code: finalCode } });
+    if (oldDept) {
+      const maxVer = await prisma.editHistory.findFirst({
+        where: { entityType: "code_department", entityId: finalCode },
+        orderBy: { version: "desc" },
+        select: { version: true },
+      });
+      await prisma.editHistory.create({
+        data: {
+          entityType: "code_department",
+          entityId: finalCode,
+          version: (maxVer?.version || 0) + 1,
+          dataJson: JSON.stringify(oldDept),
+          editedBy: payload.userId,
+        },
+      });
+    }
     await prisma.department.upsert({
       where: { code: finalCode },
-      update: { name },
+      update: { name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
       create: { code: finalCode, name, company: getCompanyFromCode(finalCode), level: 1 },
     });
   }

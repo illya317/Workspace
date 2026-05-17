@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import EditToolbar from "@/app/components/EditToolbar";
 
 interface User {
   id: number;
@@ -45,6 +46,9 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
   const [saveTip, setSaveTip] = useState("");
   const [editMode, setEditMode] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{ open: boolean; row: PositionRow | null }>({ open: false, row: null });
+  const [saving, setSaving] = useState(false);
+  const [versions, setVersions] = useState<Array<{ version: number; createdAt: string }>>([]);
+  const [currentVersion, setCurrentVersion] = useState<number | undefined>(undefined);
 
   async function load() {
     setLoading(true);
@@ -92,6 +96,43 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
       setEditBool((row as any)[field] === true);
     } else {
       setEditValue((row as any)[field] || "");
+    }
+    loadVersions(row.id);
+  }
+
+  async function loadVersions(entityId: number) {
+    const res = await fetch(`/api/admin/edit-history?entityType=employee_position&entityId=${entityId}`);
+    if (res.ok) {
+      const data = await res.json();
+      setVersions(data.versions || []);
+    }
+  }
+
+  async function handleSelectVersion(version: number) {
+    if (!editingCell) return;
+    const res = await fetch(`/api/admin/edit-history?entityType=employee_position&entityId=${editingCell.id}&version=${version}`);
+    if (res.ok) {
+      const data = await res.json();
+      const snapshot = JSON.parse(data.version.dataJson);
+      if (editingCell.field === "isPrimary") {
+        setEditBool(Boolean(snapshot[editingCell.field]));
+      } else {
+        setEditValue(snapshot[editingCell.field] || "");
+      }
+      setCurrentVersion(version);
+    }
+  }
+
+  async function handleSave() {
+    if (!editingCell) return;
+    setSaving(true);
+    const cellId = editingCell.id;
+    try {
+      await saveEdit();
+      setEditMode(false);
+      loadVersions(cellId);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -143,22 +184,17 @@ export default function PositionTab({ user, selectedCompany }: { user: User; sel
           重置
         </button>
         {user.canAccessHR && (
-          <div className="flex gap-2">
-            {editMode && (
-              <button
-                onClick={() => { if (editingCell) saveEdit(); }}
-                className="rounded-md bg-green-500 px-3 py-2 text-sm text-white hover:bg-green-600"
-              >
-                保存
-              </button>
-            )}
-            <button
-              onClick={() => { setEditMode((v) => !v); setEditingCell(null); }}
-              className={`rounded-md px-3 py-2 text-sm ${editMode ? "bg-amber-100 text-amber-700 border border-amber-300" : "border border-gray-300 text-gray-600 hover:bg-gray-50"}`}
-            >
-              {editMode ? "退出编辑" : "编辑"}
-            </button>
-          </div>
+          <EditToolbar
+            editMode={editMode}
+            onStartEdit={() => setEditMode(true)}
+            onSave={handleSave}
+            onCancel={() => { setEditMode(false); setEditingCell(null); }}
+            canEdit={user.canAccessHR}
+            versions={versions}
+            currentVersion={currentVersion}
+            onSelectVersion={handleSelectVersion}
+            saving={saving}
+          />
         )}
       </div>
 

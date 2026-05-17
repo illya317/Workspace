@@ -46,9 +46,32 @@ export async function PUT(
     oldEmployeeId = emp?.employeeId ?? null;
   }
 
+  // 快照旧数据到 EditHistory
+  const oldData = await prisma.employee.findUnique({
+    where: { id: parseInt(id) },
+  });
+  if (oldData) {
+    const entityId = oldData.employeeId;
+    const maxVer = await prisma.editHistory.findFirst({
+      where: { entityType: "employee", entityId },
+      orderBy: { version: "desc" },
+      select: { version: true },
+    });
+    const nextVersion = (maxVer?.version || 0) + 1;
+    await prisma.editHistory.create({
+      data: {
+        entityType: "employee",
+        entityId,
+        version: nextVersion,
+        dataJson: JSON.stringify(oldData),
+        editedBy: payload.userId,
+      },
+    });
+  }
+
   await prisma.employee.update({
     where: { id: parseInt(id) },
-    data: { [field]: value },
+    data: { [field]: value, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
   });
 
   // 同步更新 User 表的 employeeId（改一处，处处改）

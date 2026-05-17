@@ -31,6 +31,29 @@ export async function PUT(
 
   const epId = parseInt(id);
 
+  // 快照旧数据
+  const oldData = await prisma.employeePosition.findUnique({
+    where: { id: epId },
+  });
+  if (oldData) {
+    const entityId = String(epId);
+    const maxVer = await prisma.editHistory.findFirst({
+      where: { entityType: "employee_position", entityId },
+      orderBy: { version: "desc" },
+      select: { version: true },
+    });
+    const nextVersion = (maxVer?.version || 0) + 1;
+    await prisma.editHistory.create({
+      data: {
+        entityType: "employee_position",
+        entityId,
+        version: nextVersion,
+        dataJson: JSON.stringify(oldData),
+        editedBy: payload.userId,
+      },
+    });
+  }
+
   if (field === "dept1") {
     const deptName = String(value || "");
     if (!deptName) {
@@ -45,7 +68,7 @@ export async function PUT(
     }
     await prisma.employeePosition.update({
       where: { id: epId },
-      data: { departmentId: dept.id },
+      data: { departmentId: dept.id, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
     });
   } else if (field === "position") {
     const posName = String(value || "");
@@ -61,12 +84,12 @@ export async function PUT(
     }
     await prisma.employeePosition.update({
       where: { id: epId },
-      data: { positionId: pos.id },
+      data: { positionId: pos.id, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
     });
   } else {
     await prisma.employeePosition.update({
       where: { id: epId },
-      data: { [field]: value },
+      data: { [field]: value, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
     });
   }
 
