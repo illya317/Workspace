@@ -7,41 +7,40 @@
 ## 1. 用户与认证
 
 ### User
-系统登录用户。微信扫码或账号密码登录。
+系统登录用户。纯认证实体，业务归属走 Employee → EmployeePosition。
 
 | 字段 | 说明 |
 |------|------|
 | wxUserId | 微信用户ID，唯一 |
-| username / password | 账号密码登录（可选） |
-| name | 用户姓名 |
-| company | 所属公司 |
-| departmentId / departmentName | 所属部门 |
-| isWorkListAdmin | 超级管理员（过渡期保留，逐步迁移到 UserPermission） |
-| canSelectAnyWeek | 可补填任意周报 |
-| canAccessHR | 人事行政权限 |
-| canAccessWorks | 工作清单权限 |
-| canLogin | 是否允许登录 |
-| employeeId | 关联员工编号 |
+| username / password | 账号密码登录（用户自取，非业务标识） |
+| name | 登录显示名 |
+| departmentId | 注册时初始关联线索（非权威来源） |
 | apiKey | 个人 API Key |
+| canLogin | 是否允许登录（离职=false，不删号） |
+| ~~company~~ | 🗑️ 待删除，从 Employee 侧查 |
+| ~~departmentName~~ | 🗑️ 待删除，走 EmployeePosition |
+| ~~employeeId~~ | 🗑️ 待删除，反向走 Employee.userId |
+| ~~isWorkListAdmin~~ | 🔄 待迁移到 UserResourceRole |
+| ~~canSelectAnyWeek~~ | 🔄 待迁移到 UserResourceRole |
+| ~~canAccessHR~~ | 🔄 待迁移到 UserResourceRole |
+| ~~canAccessWorks~~ | 🔄 待迁移到 UserResourceRole |
 
 ---
 
 ## 2. 周报模块
 
 ### ReportGroup
-周报分组（按部门/项目组织）。关联可选的 Department。
+周报分组。departmentId=null 时为非部门项目组。
 
-### ReportGroupAdmin
-分组管理员（谁管理这个分组）。**过渡期保留，新代码用 ReportGroupMembership(role=admin)。**
-
-### ReportGroupMember
-分组填写人员。**过渡期保留，新代码用 ReportGroupMembership(role=member)。**
-
-### ReportGroupViewer
-分组查看者（只看不写）。**过渡期保留，新代码用 ReportGroupMembership(role=viewer)。**
+| 字段 | 说明 |
+|------|------|
+| name | 分组名称 |
+| description | 说明 |
+| departmentId | 关联部门（null=独立项目组，非null=部门周报组） |
+| sortOrder | 排序 |
 
 ### ReportGroupMembership
-统一的分组成员关系表（替代上述三表）。
+分组成员关系表。待 RBAC 迁移后变更为 `UserResourceRole`（resource=report_group）。
 
 | 字段 | 说明 |
 |------|------|
@@ -49,17 +48,19 @@
 | reportGroupId | 分组 |
 | role | admin / member / viewer |
 
+> 🗑️ `ReportGroupAdmin`、`ReportGroupMember`、`ReportGroupViewer` 三表待删除，数据已迁入 Membership。
+
 ### WeeklyReport
 周报主表。每人每周每组一篇。
 
 | 字段 | 说明 |
 |------|------|
 | userId | 填写人 |
-| reportGroupId | 所属分组 |
+| reportGroupId | 所属分组（权威归属维度） |
 | weekNumber / year | 周数（1-52）+ 年份 |
-| scopeType / scopeId | 作用域（部门/项目） |
 | taskName | 任务名称 |
 | version | 当前版本号，每次保存递增 |
+| ~~scopeType / scopeId~~ | 🗑️ 待废弃，统一走 reportGroupId |
 
 ### ReportItem
 周报条目明细。每篇周报包含多条 item。
@@ -85,14 +86,35 @@
 ## 3. 工作清单模块
 
 ### WorkItem
-部门工作清单条目。
+工作清单条目。独立模块，通过 `scopeType/scopeId` 泛化归属，不直接依赖 Department 或 ReportGroup。
 
 | 字段 | 说明 |
 |------|------|
-| departmentId | 所属部门 |
+| scopeType | 归属维度：`report_group` / `department` / `personal` |
+| scopeId | 对应 ReportGroup.id / Department.id / User.id |
 | category / content | 分类 / 内容 |
 | importance / urgency | 重要度 / 紧急度（1-5） |
 | isArchived | 是否归档 |
+| isPrivate | 仅当前可见范围（默认 scopeType=personal 时为 true） |
+
+**归属维度**：
+
+| scopeType | scopeId | 示例 | 可见性 |
+|-----------|---------|------|--------|
+| `report_group` | ReportGroup.id | 数字化转型组的工作 | 该组成员 |
+| `department` | Department.id | 财务部的工作 | 部门成员 |
+| `personal` | User.id | 个人的待办 | 默认仅自己 |
+
+**周报导入逻辑**（在 `/api/reports` 创建/编辑时）：
+
+```
+1. 默认导入: scopeType="report_group" AND scopeId = 当前 ReportGroup.id
+2. 可选导入: scopeType="department" AND scopeId = ReportGroup.departmentId（关联部门）
+3. 可选导入: scopeType="department" AND scopeId ∈ 用户的其他部门
+4. 可选导入: scopeType="personal" AND scopeId = 用户自己
+```
+
+> 🔄 `departmentId` → `scopeType/scopeId`：WorkItem 独立于 HR 和周报模块，两者通过各自维度引用。
 
 ### WorkParticipant
 工作参与人。
@@ -275,8 +297,11 @@ ReportGroup
 Department
 ├── 1:N EmployeePosition
 ├── 1:N DepartmentPosition → Position
-├── 1:N Department（parentId 自关联）
-├── 1:N WorkItem → WorkParticipant
+└── 1:N Department（parentId 自关联）
+
+WorkItem（独立模块，scopeType/scopeId 泛化归属）
+├── 1:N WorkParticipant
+└── 被 WeeklyReport 通过 scopeType/scopeId 引用
 
 EditHistory（独立快照表，不关联实体）
 ```
