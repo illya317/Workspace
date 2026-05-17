@@ -8,7 +8,7 @@ async function main() {
   // ─── Step 1: Resource ───────────────────────────────────
   console.log("1. Seeding Resource...");
   const resources = [
-    { key: "system", name: "系统功能", description: "登录、补填周报等系统级功能" },
+    { key: "system", name: "系统功能", description: "登录、用户权限等系统级功能" },
     { key: "module.hr", name: "人事行政", description: "访问人事行政管理 /hr" },
     { key: "module.works", name: "工作清单", description: "访问工作清单 /works" },
     { key: "department", name: "部门", description: "部门管理权限" },
