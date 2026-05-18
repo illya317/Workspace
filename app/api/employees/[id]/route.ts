@@ -22,8 +22,9 @@ export async function PUT(
   // 校验字段名合法性（仅限 Employee 基础信息表字段）
   const allowedFields = [
     "employeeId", "name", "alias", "gender", "ethnicity", "hometown", "politics",
-    "education", "title", "school", "major",
-    "phone", "joinDate", "nature",
+    "education", "title", "school", "major", "majorRelevant",
+    "phone", "office1", "office2", "office3",
+    "attendance1", "attendance2", "joinDate", "nature",
     "status", "leaveDate", "deleted", "deletedTime", "deletedBy",
   ];
   if (!allowedFields.includes(field)) {
@@ -36,12 +37,8 @@ export async function PUT(
   });
   if (oldData) {
     const entityId = String(oldData.id);
-    // Beijing time (UTC+8) day boundary
-    const now = new Date();
-    const bj = new Date(now.getTime() + 8 * 3600000).toISOString().slice(0, 10); // Beijing date
-    const beijingMidnight = new Date(`${bj}T00:00:00+08:00`);
     const maxVer = await prisma.editHistory.findFirst({
-      where: { entityType: "employee", entityId, createdAt: { gte: beijingMidnight } },
+      where: { entityType: "employee", entityId },
       orderBy: { version: "desc" },
       select: { version: true },
     });

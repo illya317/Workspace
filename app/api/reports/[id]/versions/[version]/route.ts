@@ -1,14 +1,19 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { authenticate } from "@/lib/auth";
+import { getTokenFromCookie, verifyToken } from "@/lib/auth";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string; version: string }> }
 ) {
-  const payload = await authenticate(request);
-  if (!payload) {
+  const token = getTokenFromCookie(request);
+  if (!token) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
+  }
+
+  const payload = await verifyToken(token);
+  if (!payload) {
+    return NextResponse.json({ error: "登录已过期" }, { status: 401 });
   }
 
   const { id, version } = await params;
@@ -17,10 +22,14 @@ export async function GET(
 
   const report = await prisma.report.findUnique({
     where: { id: reportId },
-    select: { userId: true },
+    select: { userId: true, targetType: true, targetId: true },
   });
 
-  const canAccess = report && report.userId === payload.userId;
+  const canAccess =
+    report &&
+    (report.targetType === "department"
+      ? report.targetId === payload.departmentId
+      : report.userId === payload.userId);
 
   if (!canAccess) {
     return NextResponse.json({ error: "无权访问" }, { status: 403 });

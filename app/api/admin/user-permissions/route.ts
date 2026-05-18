@@ -36,10 +36,17 @@ export async function PUT(request: Request) {
     );
   }
 
+  // 检查资源是否有子资源（父权限只用来一键操作子权限，不给自己加记录）
+  const hasChildren = await prisma.resource.findFirst({
+    where: { parentId: resource.id },
+  });
+
   if (value) {
-    // Grant: create UserResourceRole for this resource + all descendants
-    const descendantIds = await getResourceDescendants(resource.id);
-    for (const rid of descendantIds) {
+    // Grant: 父权限只给子权限加；叶子权限给自己加
+    const targetIds = hasChildren
+      ? (await getResourceDescendants(resource.id)).filter((id) => id !== resource.id)
+      : [resource.id];
+    for (const rid of targetIds) {
       const existing = await prisma.userResourceRole.findFirst({
         where: {
           userId,
@@ -64,12 +71,14 @@ export async function PUT(request: Request) {
     if (resourceKey === "system" && roleKey === "admin" && userId === payload.userId) {
       return NextResponse.json({ error: "不能取消自己的系统管理员权限" }, { status: 403 });
     }
-    // Revoke: delete this resource + all descendants
-    const descendantIds = await getResourceDescendants(resource.id);
+    // Revoke: 父权限删除所有子权限；叶子权限删除自己
+    const targetIds = hasChildren
+      ? (await getResourceDescendants(resource.id)).filter((id) => id !== resource.id)
+      : [resource.id];
     await prisma.userResourceRole.deleteMany({
       where: {
         userId,
-        resourceId: { in: descendantIds },
+        resourceId: { in: targetIds },
         roleId: role.id,
         scopeId: null,
       },

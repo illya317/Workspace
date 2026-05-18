@@ -32,11 +32,13 @@ const markdownContent = `# ${APP_NAME} API 接入指南
 ## 1. 查看工作清单
 
 \`\`\`bash
-curl ${API_BASE}/api/works \\
+curl "${API_BASE}/api/works?targetType=department&targetId=1" \\
   -H "X-API-Key: \<your-api-key\>" \\
   -H "X-Username: your-username" \\
   -H "X-Password: your-password"
 \`\`\`
+
+可选参数：\`category\`、\`includeArchived=true\`
 
 ## 2. 创建工作项（需管理员权限）
 
@@ -51,8 +53,9 @@ curl -X POST ${API_BASE}/api/works \\
 
 ## 3. 查看周报
 
+按日期查询：
 \`\`\`bash
-curl "${API_BASE}/api/reports?year=2026\&week=20" \\
+curl "${API_BASE}/api/reports?date=2026-05-18&targetType=department&targetIds=1" \\
   -H "X-API-Key: \<your-api-key\>" \\
   -H "X-Username: your-username" \\
   -H "X-Password: your-password"
@@ -66,7 +69,7 @@ curl -X POST ${API_BASE}/api/reports \\
   -H "X-API-Key: \<your-api-key\>" \\
   -H "X-Username: your-username" \\
   -H "X-Password: your-password" \\
-  -d '{"taskName":"行政人事部","items":[{"category":"routine","plan":"考勤统计","completion":"已完成","nextGoal":"继续跟进","sortOrder":0}],"year":2026,"weekNumber":20}'
+  -d '{"taskName":"行政人事部","date":"2026-05-18","targetType":"department","targetId":1,"items":[{"category":"routine","plan":"考勤统计","completion":"已完成","nextGoal":"继续跟进","sortOrder":0}]}'
 \`\`\`
 
 ## 5. 更新周报
@@ -77,7 +80,16 @@ curl -X PUT ${API_BASE}/api/reports/1 \\
   -H "X-API-Key: \<your-api-key\>" \\
   -H "X-Username: your-username" \\
   -H "X-Password: your-password" \\
-  -d '{"taskName":"行政人事部","items":[]}'
+  -d '{"taskName":"行政人事部","notes":"","items":[]}'
+\`\`\`
+
+## 6. 查看员工列表（HR权限）
+
+\`\`\`bash
+curl "${API_BASE}/api/employees?status=在职&company=丰华生物" \\
+  -H "X-API-Key: \<your-api-key\>" \\
+  -H "X-Username: your-username" \\
+  -H "X-Password: your-password"
 \`\`\`
 `;
 
@@ -310,8 +322,9 @@ export default function ApiGuidePage() {
 
           <div className="rounded-lg bg-white p-6 shadow-sm">
             <h2 className="mb-3 text-lg font-semibold text-gray-800">1. 查看工作清单</h2>
+            <p className="mb-2 text-xs text-gray-500">参数：targetType + targetId（可选 category、includeArchived）</p>
             <pre className="overflow-x-auto rounded-md bg-gray-900 p-4 font-mono text-xs text-gray-100">
-{`curl ${API_BASE}/api/works \\
+{`curl "${API_BASE}/api/works?targetType=department&targetId=1" \\
   -H "X-API-Key: <your-api-key>" \\
   -H "X-Username: your-username" \\
   -H "X-Password: your-password"`}
@@ -332,8 +345,9 @@ export default function ApiGuidePage() {
 
           <div className="rounded-lg bg-white p-6 shadow-sm">
             <h2 className="mb-3 text-lg font-semibold text-gray-800">3. 查看周报</h2>
+            <p className="mb-2 text-xs text-gray-500">参数：date + targetType + targetIds</p>
             <pre className="overflow-x-auto rounded-md bg-gray-900 p-4 font-mono text-xs text-gray-100">
-{`curl "${API_BASE}/api/reports?year=2026&week=20" \\
+{`curl "${API_BASE}/api/reports?date=2026-05-18&targetType=department&targetIds=1" \\
   -H "X-API-Key: <your-api-key>" \\
   -H "X-Username: your-username" \\
   -H "X-Password: your-password"`}
@@ -348,7 +362,7 @@ export default function ApiGuidePage() {
   -H "X-API-Key: <your-api-key>" \\
   -H "X-Username: your-username" \\
   -H "X-Password: your-password" \\
-  -d '{"taskName":"行政人事部","items":[{"category":"routine","plan":"考勤统计","completion":"已完成","nextGoal":"继续跟进","sortOrder":0}],"year":2026,"weekNumber":20}'`}
+  -d '{"taskName":"行政人事部","date":"2026-05-18","targetType":"department","targetId":1,"items":[{"category":"routine","plan":"考勤统计","completion":"已完成","nextGoal":"继续跟进","sortOrder":0}]}'`}
             </pre>
           </div>
 
@@ -360,7 +374,17 @@ export default function ApiGuidePage() {
   -H "X-API-Key: <your-api-key>" \\
   -H "X-Username: your-username" \\
   -H "X-Password: your-password" \\
-  -d '{"taskName":"行政人事部","items":[]}'`}
+  -d '{"taskName":"行政人事部","notes":"","items":[]}'`}
+            </pre>
+          </div>
+
+          <div className="rounded-lg bg-white p-6 shadow-sm">
+            <h2 className="mb-3 text-lg font-semibold text-gray-800">6. 查看员工列表（需HR权限）</h2>
+            <pre className="overflow-x-auto rounded-md bg-gray-900 p-4 font-mono text-xs text-gray-100">
+{`curl "${API_BASE}/api/employees?status=在职&company=丰华生物" \\
+  -H "X-API-Key: <your-api-key>" \\
+  -H "X-Username: your-username" \\
+  -H "X-Password: your-password"`}
             </pre>
           </div>
         </div>

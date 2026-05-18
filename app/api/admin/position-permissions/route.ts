@@ -56,10 +56,16 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "无效的resourceKey或roleKey" }, { status: 400 });
   }
 
+  // 父权限只用来一键操作子权限，不给自己加记录
+  const hasChildren = await prisma.resource.findFirst({
+    where: { parentId: resource.id },
+  });
+  const targetIds = hasChildren
+    ? (await getResourceDescendants(resource.id)).filter((id) => id !== resource.id)
+    : [resource.id];
+
   if (value) {
-    // Grant: create for this resource + all descendants
-    const descendantIds = await getResourceDescendants(resource.id);
-    for (const rid of descendantIds) {
+    for (const rid of targetIds) {
       const existing = await prisma.positionResourceRole.findFirst({
         where: {
           positionId,
@@ -78,12 +84,10 @@ export async function PUT(request: Request) {
       }
     }
   } else {
-    // Revoke: delete this resource + all descendants
-    const descendantIds = await getResourceDescendants(resource.id);
     await prisma.positionResourceRole.deleteMany({
       where: {
         positionId,
-        resourceId: { in: descendantIds },
+        resourceId: { in: targetIds },
         roleId: role.id,
       },
     });

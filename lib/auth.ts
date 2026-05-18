@@ -91,6 +91,7 @@ export async function getResourceDescendants(resourceId: number): Promise<number
 
 // RULE: system.admin bypasses everything.
 // Union strategy: any of UserRole | PositionRole | DepartmentRole = allowed.
+// Descendant inference: having a child resource permission implies parent access.
 export async function checkPermission(
   userId: number,
   resourceKey: string,
@@ -102,43 +103,43 @@ export async function checkPermission(
     if (isSysAdmin) return true;
   }
 
-  // 1. Resolve resource (exact match only)
+  // 1. Resolve resource
   const resource = await prisma.resource.findUnique({
     where: { key: resourceKey },
     select: { id: true },
   });
   if (!resource) return false;
 
-  // 2. UserResourceRole (direct grant, exact match)
+  // 2. Check this resource AND all its descendants (子权限推断父权限)
+  const resourceIds = await getResourceDescendants(resource.id);
+
   const userGrant = await prisma.userResourceRole.findFirst({
     where: {
       userId,
-      resourceId: resource.id,
+      resourceId: { in: resourceIds },
       role: { key: roleKey },
     },
   });
   if (userGrant) return true;
 
-  // 3. PositionResourceRole (exact match)
   const posIds = await getUserPositionIds(userId);
   if (posIds.length > 0) {
     const positionGrant = await prisma.positionResourceRole.findFirst({
       where: {
         positionId: { in: posIds },
-        resourceId: resource.id,
+        resourceId: { in: resourceIds },
         role: { key: roleKey },
       },
     });
     if (positionGrant) return true;
   }
 
-  // 4. DepartmentResourceRole (exact match)
   const deptIds = await getUserDepartmentIds(userId);
   if (deptIds.length > 0) {
     const deptGrant = await prisma.departmentResourceRole.findFirst({
       where: {
         departmentId: { in: deptIds },
-        resourceId: resource.id,
+        resourceId: { in: resourceIds },
         role: { key: roleKey },
       },
     });
