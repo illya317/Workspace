@@ -11,13 +11,12 @@ import ProjectInfoTab from "./ProjectInfoTab";
 import RosterTab from "./RosterTab";
 import CompanyTab from "./CompanyTab";
 import { CodesTab } from "./CodeTab";
-import PlaceholderTab from "./PlaceholderTab";
 
 import type { HRUser as User } from "./types";
 
 const HR_COMPANIES = ["全部", "丰华生物", "丰华制药"];
 
-type HRTab = "roster" | "employees" | "positions" | "projects" | "project-info" | "codes" | "attendance" | "works" | "performance" | "company";
+type HRTab = "roster" | "employees" | "positions" | "projects" | "project-info" | "codes" | "company";
 
 const tabs: { key: HRTab; label: string; desc: string }[] = [
   { key: "roster", label: "花名册", desc: "员工花名册（只读）" },
@@ -26,9 +25,6 @@ const tabs: { key: HRTab; label: string; desc: string }[] = [
   { key: "project-info", label: "项目信息", desc: "项目人员分配查看" },
   { key: "codes", label: "岗位管理", desc: "部门与岗位编码管理" },
   { key: "projects", label: "项目管理", desc: "项目/部门分组管理" },
-  { key: "attendance", label: "考勤", desc: "考勤记录与统计" },
-  { key: "works", label: "工作查看", desc: "查看全员工作清单" },
-  { key: "performance", label: "绩效", desc: "绩效考核管理" },
   { key: "company", label: "公司信息", desc: "公司档案与股权结构" },
 ];
 
@@ -78,9 +74,15 @@ export default function HRPage() {
               className="h-auto w-auto max-w-[100px] object-contain"
             />
             <span className="text-sm text-gray-400">|</span>
-            <span className="text-sm font-medium text-gray-700">人事行政管理</span>
+            <span className="text-sm font-medium text-gray-700">组织人事</span>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.push("/hr/performance")}
+              className="text-sm text-gray-500 hover:text-emerald-600"
+            >
+              考勤绩效
+            </button>
             <button
               onClick={() => router.push("/portal")}
               className="text-sm text-gray-500 hover:text-emerald-600"
@@ -129,9 +131,6 @@ export default function HRPage() {
         {activeTab === "projects" && user && <ProjectTab user={user} />}
         {activeTab === "project-info" && user && <ProjectInfoTab user={user} />}
         {activeTab === "codes" && user && <CodesTab user={user} selectedCompany={selectedCompany} />}
-        {activeTab === "attendance" && <PlaceholderTab label="考勤" desc="考勤记录与统计" />}
-        {activeTab === "works" && <PlaceholderTab label="工作查看" desc="查看全员工作清单" />}
-        {activeTab === "performance" && <PlaceholderTab label="绩效" desc="绩效考核管理" />}
         {activeTab === "company" && <CompanyTab />}
       </main>
     </div>
