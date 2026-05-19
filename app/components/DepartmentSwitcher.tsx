@@ -5,12 +5,12 @@ import { useEffect, useState } from "react";
 interface Dept {
   id: number;
   name: string;
-  company: string;
+  managementGroup: string;
 }
 
 interface UserInfo {
   name: string;
-  company: string | null;
+  managementGroup: string | null;
   departmentName: string | null;
   departmentId: number;
   isWorkListAdmin: boolean;

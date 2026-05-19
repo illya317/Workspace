@@ -156,14 +156,14 @@ export function useByUserTab(
     } catch { showToast("网络错误", "error"); }
   }
 
-  const companies = ["全部", ...Array.from(new Set(allDepts.map((d) => d.company).filter(Boolean)))];
+  const companies = ["全部", ...Array.from(new Set(allDepts.map((d) => d.managementGroup).filter(Boolean)))];
   const deptOptions = ["全部", ...Array.from(new Set(
-    (companyFilter === "全部" ? allDepts : allDepts.filter((d) => d.company === companyFilter))
+    (companyFilter === "全部" ? allDepts : allDepts.filter((d) => d.managementGroup === companyFilter))
       .map((d) => d.name)
   ))];
 
   const filtered = empPerms.filter((emp) => {
-    if (companyFilter !== "全部" && !emp.roles.some((r) => r.company === companyFilter)) return false;
+    if (companyFilter !== "全部" && !emp.roles.some((r) => r.managementGroup === companyFilter)) return false;
     if (deptFilter !== "全部" && !emp.roles.some((r) => r.dept1 === deptFilter)) return false;
     if (keywordFilter) {
       if (!matchEmployee(emp, keywordFilter)) return false;

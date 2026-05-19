@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     include: {
       positions: {
         include: {
-          department: { select: { name: true, company: true } },
+          department: { select: { name: true, managementGroup: true } },
           position: { select: { name: true } },
         },
       },
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     {
       employeeId: string;
       name: string;
-      roles: { company: string | null; dept1: string | null; position: string | null }[];
+      roles: { managementGroup: string | null; dept1: string | null; position: string | null }[];
     }
   >();
 
@@ -40,11 +40,11 @@ export async function GET(request: Request) {
     }
     const item = mergedMap.get(key)!;
     if (emp.positions.length === 0) {
-      item.roles.push({ company: null, dept1: null, position: null });
+      item.roles.push({ managementGroup: null, dept1: null, position: null });
     } else {
       for (const pos of emp.positions) {
         item.roles.push({
-          company: pos.department?.company || null,
+          managementGroup: pos.department?.company || null,
           dept1: pos.department?.name || null,
           position: pos.position?.name || null,
         });
@@ -75,16 +75,16 @@ export async function GET(request: Request) {
     select: { employeeId: true, userId: true },
   });
   const employeeIdByUserId = new Map(
-    employeesForLink.filter((e) => e.userId).map((e) => [e.userId!, e.employeeId])
+    employeesForLink.filter((e: any) => e.userId).map((e: any) => [e.userId!, e.employeeId])
   );
 
   const userByEmployeeId = new Map(
-    users.filter((u) => employeeIdByUserId.has(u.id)).map((u) => [employeeIdByUserId.get(u.id)!, u])
+    users.filter((u: any) => employeeIdByUserId.has(u.id)).map((u: any) => [employeeIdByUserId.get(u.id)!, u])
   );
-  const userByName = new Map(users.map((u) => [u.name, u]));
+  const userByName = new Map(users.map((u: any) => [u.name, u]));
 
   const result = Array.from(mergedMap.values()).map((item) => {
-    const linkedUser =
+    const linkedUser: any =
       userByEmployeeId.get(item.employeeId) || userByName.get(item.name);
     const rrs = linkedUser?.resourceRoles ?? [];
     return {
@@ -96,8 +96,8 @@ export async function GET(request: Request) {
       userId: linkedUser?.id ?? null,
       username: linkedUser?.username ?? null,
       // Backward-compat boolean fields
-      isWorkListAdmin: rrs.some((rr) => rr.resource.key === "system" && rr.role.key === "admin"),
-      canAccessHR: rrs.some((rr) => rr.resource.key === "people" && rr.role.key === "access"),
+      isWorkListAdmin: rrs.some((rr: any) => rr.resource.key === "system" && rr.role.key === "admin"),
+      canAccessHR: rrs.some((rr: any) => rr.resource.key === "people" && rr.role.key === "access"),
       // New: resource+role pairs as resourceRoles for UX compatibility
       resourceRoles: rrs,
       // Granted resource+role keys (e.g., "system.admin", "people.access")

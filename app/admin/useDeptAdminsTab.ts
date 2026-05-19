@@ -26,7 +26,7 @@ interface DeptAdminEntry {
 interface DeptItem {
   id: number;
   name: string;
-  company: string;
+  managementGroup: string;
   admins: DeptAdminEntry[];
 }
 
@@ -57,8 +57,8 @@ export function useDeptAdminsTab(
             admins: admins.filter((a: any) => a.scopeId === String(d.id)),
           }))
           .sort((a: any, b: any) => {
-            const ga = a.company || "丰华生物体系";
-            const gb = b.company || "丰华生物体系";
+            const ga = a.managementGroup || "丰华生物体系";
+            const gb = b.managementGroup || "丰华生物体系";
             return ga.localeCompare(gb) || a.name.localeCompare(b.name);
           })
       );
@@ -141,8 +141,8 @@ export function useDeptAdminsTab(
     companyTab === "全部"
       ? deptData
       : companyTab === "丰华制药"
-        ? deptData.filter((d) => d.company === "丰华制药")
-        : deptData.filter((d) => d.company === "丰华生物体系");
+        ? deptData.filter((d) => d.managementGroup === "丰华制药")
+        : deptData.filter((d) => d.managementGroup === "丰华生物体系");
 
   return {
     deptLoading,

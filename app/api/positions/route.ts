@@ -23,11 +23,11 @@ export async function GET(request: Request) {
   });
 
   return NextResponse.json({
-    positions: positions.map((p) => ({
+    positions: positions.map((p: any) => ({
       id: p.id,
       code: p.code,
       name: p.name,
-      company: p.company,
+      managementGroup: p.managementGroup,
       headcount: p._count.employeePositions,
     })),
   });
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 
   try {
     const created = await prisma.position.create({
-      data: { code, name, company: company },
+      data: { code, name, managementGroup: company },
     });
     return NextResponse.json({ success: true, position: created });
   } catch (e: any) {

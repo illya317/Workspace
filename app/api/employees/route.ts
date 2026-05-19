@@ -99,7 +99,7 @@ export async function GET(request: Request) {
       employeeId: emp.employeeId,
       name: emp.name,
       alias: emp.alias,
-      company: ep?.department?.company ?? ep?.company ?? "",
+      managementGroup: ep?.department?.company ?? ep?.company ?? "",
       center: ep?.center ?? "",
       dept1: ep?.department?.name ?? "",
       dept2: "",
@@ -195,7 +195,7 @@ export async function GET(request: Request) {
 
   // 所有公司和部门（不随筛选变化，用于下拉框）
   const deptWhere: any = {};
-  const allCompanies = [...new Set((await prisma.department.findMany({ where: deptWhere, select: { company: true } })).map((d: any) => d.company).filter(Boolean))];
+  const allCompanies = [...new Set((await prisma.department.findMany({ where: deptWhere, select: { managementGroup: true } })).map((d: any) => d.company).filter(Boolean))];
   const allDepts = [...new Set((await prisma.department.findMany({ where: deptWhere, select: { name: true } })).map((d: any) => d.name).filter(Boolean))];
 
   return NextResponse.json({ employees: rows, fields: FIELDS, visibleFields, allCompanies, allDepts });

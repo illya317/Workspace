@@ -73,8 +73,8 @@ export async function GET(request: Request) {
   }
 
   const result = await prisma.position.findMany({ where, orderBy: { code: "asc" } });
-  const filtered = result.filter((r) => /^\d{5}$/.test(r.code));
-  return NextResponse.json({ codes: filtered.map((r) => ({ code: r.code, name: r.name })) });
+  const filtered = result.filter((r: any) => /^\d{5}$/.test(r.code));
+  return NextResponse.json({ codes: filtered.map((r: any) => ({ code: r.code, name: r.name })) });
 }
 
 export async function PUT(request: Request) {
@@ -138,7 +138,7 @@ export async function PUT(request: Request) {
       await tx.position.upsert({
         where: { code: finalCode },
         update: { name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
-        create: { code: finalCode, name, company: getCompanyFromCode(finalCode) },
+        create: { code: finalCode, name, managementGroup: getCompanyFromCode(finalCode) },
       });
     }
 

@@ -6,7 +6,7 @@ import { useByDepartmentTab } from "./useByDepartmentTab";
 interface Props {
   user: { id: number; name: string; isWorkListAdmin: boolean; isAnyGroupAdmin: boolean };
   resources: Array<{ id: number; key: string; name: string; description: string | null }>;
-  allDepts: Array<{ id: number; name: string; company: string; count: number }>;
+  allDepts: Array<{ id: number; name: string; managementGroup: string; count: number }>;
   showToast: (msg: string, type?: "success" | "error") => void;
 }
 
@@ -62,7 +62,7 @@ export default function ByDepartmentTab({ user, resources, allDepts, showToast }
           <div className="mb-3 flex items-center justify-between">
             <div>
               <span className="font-medium text-gray-800">{dept.name}</span>
-              <span className="ml-2 text-xs text-gray-400">{dept.company}</span>
+              <span className="ml-2 text-xs text-gray-400">{dept.managementGroup}</span>
             </div>
             <span className="text-xs text-gray-400">{dept.count}人</span>
           </div>

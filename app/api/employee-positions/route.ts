@@ -55,7 +55,7 @@ export async function GET(request: Request) {
       id: ep.id,
       employeeId: emp?.employeeId || "",
       name: emp?.name || "",
-      company: ep.company || "",
+      managementGroup: ep.company || "",
       center: ep.center || "",
       dept1: ep.department?.name || "",
       position: ep.position?.name || "",

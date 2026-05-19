@@ -51,7 +51,7 @@ export default function DeptAdminsTab({ showToast }: Props) {
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-sm font-medium text-gray-800">{dept.name}</span>
-                  <span className="ml-2 text-xs text-gray-400">{dept.company}</span>
+                  <span className="ml-2 text-xs text-gray-400">{dept.managementGroup}</span>
                 </div>
                 <button
                   type="button"

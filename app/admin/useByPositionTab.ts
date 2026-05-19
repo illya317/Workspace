@@ -8,7 +8,7 @@ interface Position {
   id: number;
   code: string;
   name: string;
-  company: string;
+  managementGroup: string;
   headcount: number;
 }
 
@@ -116,7 +116,7 @@ export function useByPositionTab(
   }
 
   const companies = Array.from(
-    new Set(positions.map((p) => p.company).filter(Boolean))
+    new Set(positions.map((p) => p.managementGroup).filter(Boolean))
   ).sort();
 
   const allDeptNames = Array.from(
@@ -124,7 +124,7 @@ export function useByPositionTab(
   ).sort();
 
   const filteredPositions = positions.filter((p) => {
-    if (filterCompany && p.company !== filterCompany) return false;
+    if (filterCompany && p.managementGroup !== filterCompany) return false;
     if (filterDept) {
       const depts = positionDeptMap.get(p.id) || [];
       if (!depts.includes(filterDept)) return false;

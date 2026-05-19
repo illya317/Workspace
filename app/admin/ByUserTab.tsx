@@ -241,7 +241,7 @@ function RosterRow({ emp, s }: { emp: EmployeePerm; s: ReturnType<typeof useByUs
 
   // Deduplicate roles by company+dept+position
   const uniqueRoles = emp.roles.filter((r, i) =>
-    i === emp.roles.findIndex(t => t.company === r.company && t.dept1 === r.dept1 && t.position === r.position)
+    i === emp.roles.findIndex(t => t.managementGroup === r.managementGroup && t.dept1 === r.dept1 && t.position === r.position)
   );
 
   async function handleToggle() {
@@ -282,7 +282,7 @@ function RosterRow({ emp, s }: { emp: EmployeePerm; s: ReturnType<typeof useByUs
         )}
       </td>
       <td className="py-2 pr-3 text-gray-600 text-xs leading-relaxed">
-        {uniqueRoles.map((r, i) => <div key={i}>{r.company || "-"}</div>)}
+        {uniqueRoles.map((r, i) => <div key={i}>{r.managementGroup || "-"}</div>)}
       </td>
       <td className="py-2 pr-3 text-gray-600 text-xs leading-relaxed">
         {uniqueRoles.map((r, i) => <div key={i}>{r.dept1 || "-"}</div>)}

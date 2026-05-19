@@ -5,14 +5,14 @@ export interface HRUser {
   name: string;
   canAccessHR: boolean;
   isWorkListAdmin: boolean;
-  company?: string | null;
+  managementGroup?: string | null;
 }
 
 export interface RosterEmployee {
   id: number;
   employeeId: string;
   name: string;
-  company: string | null;
+  managementGroup: string | null;
   center: string | null;
   dept1: string | null;
   dept2: string | null;

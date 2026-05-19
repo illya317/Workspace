@@ -10,8 +10,8 @@ export async function GET(request: Request) {
   // 从 Department 表获取一级部门
   const departments = await prisma.department.findMany({
     where: { level: 1 },
-    select: { id: true, name: true, company: true },
-    orderBy: [{ company: "asc" }, { name: "asc" }],
+    select: { id: true, name: true, managementGroup: true },
+    orderBy: [{ managementGroup: "asc" }, { name: "asc" }],
   });
 
   // 从 UserResourceRole 获取部门管理员 (resource=people.org, role=admin)

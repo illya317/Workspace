@@ -273,7 +273,7 @@ model Department {
   employeePositions EmployeePosition[]
   resourceRoles     DepartmentResourceRole[]
   projectDepartments ProjectDepartment[]
-  company           String             // 管理体系（丰华生物体系/丰华制药）
+  managementGroup    String             @map("company") // 管理体系（丰华生物体系/丰华制药）
   createdAt         DateTime           @default(now()) // 创建时间
   updatedAt         DateTime? // 更新时间
   editedBy          Int? // 编辑人用户ID
@@ -286,7 +286,7 @@ model Position {
   id                Int                @id @default(autoincrement()) // 主键
   code              String             @unique // 编码
   name              String // 名称
-  company           String             // 管理体系（丰华生物体系/丰华制药）
+  managementGroup    String             @map("company") // 管理体系（丰华生物体系/丰华制药）
   departments       DepartmentPosition[]
   employeePositions EmployeePosition[]
   resourceRoles     PositionResourceRole[]
@@ -306,7 +306,7 @@ model EmployeePosition {
   department   Department @relation(fields: [departmentId], references: [id])
   positionId   Int // 岗位ID
   position     Position   @relation(fields: [positionId], references: [id])
-  company      String?     // 公司编码（如 01/02/03）
+  managementGroup    String?     @map("company") // 管理体系（丰华生物体系/丰华制药）
   center       String? // 中心
   isPrimary    Boolean    @default(false) // 是否主岗
   sortOrder    Int        @default(0) // 排序序号
@@ -324,7 +324,7 @@ model DepartmentPosition {
   id           Int          @id @default(autoincrement()) // 主键
   departmentId Int // 部门ID
   positionId   Int // 岗位ID
-  company      String?      // 公司编码（如 01/02/03）
+  managementGroup    String?      @map("company") // 管理体系
   department   Department   @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   position     Position     @relation(fields: [positionId], references: [id], onDelete: Cascade)
   createdAt    DateTime     @default(now()) // 创建时间

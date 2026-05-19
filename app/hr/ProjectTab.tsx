@@ -17,7 +17,7 @@ interface ProjectItem {
 interface Department {
   id: number;
   name: string;
-  company: string;
+  managementGroup: string;
 }
 
 import type { HRUser as User } from "./types";

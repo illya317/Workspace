@@ -7,7 +7,7 @@ export async function GET() {
       department: { select: { name: true } },
       position: { select: { name: true, code: true } },
     },
-    orderBy: [{ company: "asc" }, { department: { name: "asc" } }, { position: { code: "asc" } }],
+    orderBy: [{ managementGroup: "asc" }, { department: { name: "asc" } }, { position: { code: "asc" } }],
   });
   return NextResponse.json({ positions });
 }

@@ -19,10 +19,10 @@ export async function GET(request: Request) {
     include: {
       resource: { select: { id: true, key: true, name: true } },
       role: { select: { id: true, key: true, name: true } },
-      position: { select: { id: true, code: true, name: true, company: true } },
+      position: { select: { id: true, code: true, name: true, managementGroup: true } },
     },
     orderBy: [
-      { position: { company: "asc" } },
+      { position: { managementGroup: "asc" } },
       { position: { code: "asc" } },
     ],
   });

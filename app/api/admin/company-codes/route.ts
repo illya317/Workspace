@@ -13,7 +13,7 @@ export async function GET(request: Request) {
 
   const companies = await prisma.company.findMany({ orderBy: { sortOrder: "asc" } });
   return NextResponse.json({
-    companies: companies.map((r) => ({
+    companies: companies.map((r: any) => ({
       id: r.id,
       code: r.code,
       name: r.name,

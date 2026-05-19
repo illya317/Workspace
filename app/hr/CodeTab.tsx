@@ -14,7 +14,7 @@ interface Employee {
   id: number;
   employeeId: string;
   name: string;
-  company: string | null;
+  managementGroup: string | null;
   center: string | null;
   dept1: string | null;
   dept2: string | null;

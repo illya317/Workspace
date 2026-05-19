@@ -25,11 +25,11 @@ export async function GET(request: Request) {
   });
 
   return NextResponse.json({
-    departments: depts.map((d) => ({
+    departments: depts.map((d: any) => ({
       id: d.id,
       code: d.code,
       name: d.name,
-      company: d.company,
+      managementGroup: d.managementGroup,
       level: d.level,
       parentId: d.parentId,
       parentName: d.parent?.name || null,

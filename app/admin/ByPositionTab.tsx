@@ -83,7 +83,7 @@ export default function ByPositionTab({ user: _user, resources, showToast }: Pro
               <div>
                 <span className="mr-2 text-xs text-gray-400">{pos.code}</span>
                 <span className="font-medium text-gray-800">{pos.name}</span>
-                <span className="ml-2 text-xs text-gray-400">{pos.company}</span>
+                <span className="ml-2 text-xs text-gray-400">{pos.managementGroup}</span>
                 {depts.length > 0 && (
                   <span className="ml-2 text-xs text-gray-400">
                     ({depts.join(", ")})

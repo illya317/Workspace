@@ -73,11 +73,11 @@ export function useByDepartmentTab(
   }
 
   const companies = Array.from(
-    new Set(allDepts.map((d) => d.company).filter(Boolean))
+    new Set(allDepts.map((d) => d.managementGroup).filter(Boolean))
   ).sort();
 
   const filteredDepts = allDepts.filter((d) => {
-    if (filterCompany && d.company !== filterCompany) return false;
+    if (filterCompany && d.managementGroup !== filterCompany) return false;
     if (searchText) {
       const q = searchText.toLowerCase();
       return d.name.toLowerCase().includes(q);

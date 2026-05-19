@@ -12,7 +12,7 @@ interface PositionRow {
   id: number;
   employeeId: string;
   name: string;
-  company: string;
+  managementGroup: string;
   center: string;
   dept1: string;
   position: string;

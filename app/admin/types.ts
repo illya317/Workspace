@@ -10,7 +10,7 @@ export interface ResourceItem {
 export interface DeptItem {
   id: number;
   name: string;
-  company: string;
+  managementGroup: string;
   count: number;
 }
 
@@ -32,7 +32,7 @@ export interface EmployeePerm {
   userId: number | null;
   username: string | null;
   permissions: string[];
-  roles: { company: string | null; dept1: string | null; position: string | null }[];
+  roles: { managementGroup: string | null; dept1: string | null; position: string | null }[];
   resourceRoles: Array<{
     resource: { key: string; name: string } | null;
     role: { key: string; name: string } | null;
