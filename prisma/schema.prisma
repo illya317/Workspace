@@ -273,7 +273,7 @@ model Department {
   employeePositions EmployeePosition[]
   resourceRoles     DepartmentResourceRole[]
   projectDepartments ProjectDepartment[]
-  company           String?            // 公司编码（如 01/02/03）
+  company           String             // 管理体系（丰华生物体系/丰华制药）
   createdAt         DateTime           @default(now()) // 创建时间
   updatedAt         DateTime? // 更新时间
   editedBy          Int? // 编辑人用户ID
@@ -286,7 +286,7 @@ model Position {
   id                Int                @id @default(autoincrement()) // 主键
   code              String             @unique // 编码
   name              String // 名称
-  company           String?            // 公司编码（如 01/02/03）
+  company           String             // 管理体系（丰华生物体系/丰华制药）
   departments       DepartmentPosition[]
   employeePositions EmployeePosition[]
   resourceRoles     PositionResourceRole[]

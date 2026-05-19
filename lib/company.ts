@@ -22,13 +22,11 @@ export const SHARED_GROUP_CODES = ["01", "02", "03"];
 
 export const ALL_COMPANIES = [...FENGHUA_BIO_GROUP, "丰华制药"];
 
-// 管理体系筛选：丰华生物体系 → 返回4家公司，丰华制药 → 返回自身
+// 管理体系筛选：返回管理体系名用于 DB 查询
 export function resolveCompanyFilter(group: string): string[] {
-  if (group === "全部") return ALL_COMPANIES;
-  if (group === "丰华生物体系") return FENGHUA_BIO_GROUP;
+  if (group === "全部") return ["丰华生物体系", "丰华制药"];
+  if (group === "丰华生物体系") return ["丰华生物体系"];
   if (group === "丰华制药") return ["丰华制药"];
-  // 兼容旧调用（传公司名）
-  if (FENGHUA_BIO_GROUP.includes(group)) return FENGHUA_BIO_GROUP;
   return [group];
 }
 

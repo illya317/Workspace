@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { FENGHUA_BIO_GROUP } from "@/lib/company";
 
 interface EmployeeResult {
   rowId: number;
@@ -58,8 +57,8 @@ export function useDeptAdminsTab(
             admins: admins.filter((a: any) => a.scopeId === String(d.id)),
           }))
           .sort((a: any, b: any) => {
-            const ga = FENGHUA_BIO_GROUP.includes(a.company) ? "丰华生物" : a.company;
-            const gb = FENGHUA_BIO_GROUP.includes(b.company) ? "丰华生物" : b.company;
+            const ga = a.company || "丰华生物体系";
+            const gb = b.company || "丰华生物体系";
             return ga.localeCompare(gb) || a.name.localeCompare(b.name);
           })
       );
@@ -143,7 +142,7 @@ export function useDeptAdminsTab(
       ? deptData
       : companyTab === "丰华制药"
         ? deptData.filter((d) => d.company === "丰华制药")
-        : deptData.filter((d) => FENGHUA_BIO_GROUP.includes(d.company));
+        : deptData.filter((d) => d.company === "丰华生物体系");
 
   return {
     deptLoading,
