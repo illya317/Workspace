@@ -65,8 +65,8 @@ export async function getUserTargets(userId: number): Promise<{
   // Deduplicate
   const deptMap = new Map<number, TargetInfo>();
   for (const ep of eps) {
-    if (!deptMap.has(ep.department.id)) {
-      deptMap.set(ep.department.id, ep.department);
+    if (!deptMap.has(ep.department?.id)) {
+      deptMap.set(ep.department?.id, ep.department);
     }
   }
 
