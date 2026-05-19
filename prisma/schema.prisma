@@ -236,7 +236,7 @@ model Company {
   registeredAddress  String?            // 办公地址
   registeredDate     String?            // 注册时间
   legalPerson        String?            // 法定代表人
-  queryGroup         Int?               // 查询分组（1=常规体系, 2=GMP）
+  queryGroup         Int?               // 1=丰华生物体系, 2=丰华制药
   sortOrder          Int                @default(0) // 排序
   createdAt          DateTime           @default(now()) // 创建时间
   updatedAt          DateTime?          // 更新时间
