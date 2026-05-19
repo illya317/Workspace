@@ -260,7 +260,7 @@ model CompanyRelation {
 
 model Department {
   id                Int                @id @default(autoincrement()) // 主键
-  code              String             @unique // 编码
+  code              String             // 编码
   name              String // 名称
   level             Int // 层级
   parentId          Int? // 上级ID
@@ -278,11 +278,13 @@ model Department {
   editor            User?              @relation("DepartmentEditor", fields: [editedBy], references: [id])
   editedAt          DateTime? // 编辑时间
   version           Int                @default(1) // 版本号
+
+  @@unique([managementGroup, code])
 }
 
 model Position {
   id                Int                @id @default(autoincrement()) // 主键
-  code              String             @unique // 编码
+  code              String             // 编码
   name              String // 名称
   managementGroup    String             @map("company") // 管理体系（丰华生物体系/丰华制药）
   departmentId      Int?               // 所属部门
@@ -295,6 +297,8 @@ model Position {
   editor            User?              @relation("PositionEditor", fields: [editedBy], references: [id])
   editedAt          DateTime? // 编辑时间
   version           Int                @default(1) // 版本号
+
+  @@unique([managementGroup, code])
 }
 
 model EmployeeDepartmentPosition {
