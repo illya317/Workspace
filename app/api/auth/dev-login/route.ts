@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createToken, checkPermission } from "@/lib/auth";
+import { checkBruteForce, recordAttempt } from "@/lib/security";
 
 export async function POST(request: Request) {
-  // 非浏览器拦截：必须有 Origin/Referer 或 x-csrf-token
+  // 非浏览器拦截
   const origin = request.headers.get("origin") || request.headers.get("referer");
   const csrf = request.headers.get("x-csrf-token");
   if (!origin && !csrf) {
@@ -11,6 +12,16 @@ export async function POST(request: Request) {
   }
 
   const { username, password } = await request.json();
+  const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
+
+  // 暴力破解检测
+  const brute = await checkBruteForce(username, ip);
+  if (brute.blocked) {
+    return NextResponse.json(
+      { error: `尝试次数过多，请${brute.retryAfter}分钟后再试` },
+      { status: 429 }
+    );
+  }
 
   if (!username || !password) {
     return NextResponse.json(
@@ -25,11 +36,16 @@ export async function POST(request: Request) {
   });
 
   if (!user || user.password !== password) {
+    await recordAttempt(username, ip, false);
+    const { remaining } = await checkBruteForce(username, ip);
+    const hint = remaining && remaining > 0 ? `（剩余${remaining}次尝试）` : "";
     return NextResponse.json(
-      { error: "账号或密码错误" },
+      { error: `账号或密码错误${hint}` },
       { status: 401 }
     );
   }
+
+  await recordAttempt(username, ip, true);
 
   const token = await createToken({
     userId: user.id,

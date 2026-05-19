@@ -412,3 +412,12 @@ model EditHistory {
 
   @@unique([entityType, entityId, version])
 }
+
+// ─── 登录安全 ───────────────────────────────────────────────
+model LoginAttempt {
+  id        Int      @id @default(autoincrement())
+  username  String   // 尝试登录的用户名
+  ip        String   // 客户端IP
+  success   Boolean  // 是否成功
+  createdAt DateTime @default(now())
+}
