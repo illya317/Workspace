@@ -317,6 +317,8 @@ model EmployeePosition {
   editor       User?         @relation("EmpPositionEditor", fields: [editedBy], references: [id])
   editedAt     DateTime? // 编辑时间
   version      Int        @default(1) // 版本号
+
+  @@unique([employeeId, departmentId, positionId])
 }
 
 model Project {

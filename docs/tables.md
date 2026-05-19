@@ -295,9 +295,9 @@
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
 | `id` | Int | * |  | 主键 |
-| `employeeId` | Int | * | FK | 员工编号 |
-| `departmentId` | Int | * | FK | 部门ID |
-| `positionId` | Int | * | FK | 岗位ID |
+| `employeeId` | Int | * | PK | 员工编号 |
+| `departmentId` | Int | * | PK | 部门ID |
+| `positionId` | Int | * | PK | 岗位ID |
 | `managementGroup` | String |  |  | 管理体系（丰华生物体系/丰华制药） |
 | `center` | String |  |  | 中心 |
 | `isPrimary` | Boolean | * |  | 是否主岗 |
