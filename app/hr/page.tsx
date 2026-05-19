@@ -9,6 +9,7 @@ import PositionTab from "./PositionTab";
 import ProjectTab from "./ProjectTab";
 import ProjectInfoTab from "./ProjectInfoTab";
 import RosterTab from "./RosterTab";
+import CompanyTab from "./CompanyTab";
 import { CodesTab } from "./CodeTab";
 import PlaceholderTab from "./PlaceholderTab";
 
@@ -16,7 +17,7 @@ import type { HRUser as User } from "./types";
 
 const HR_COMPANIES = ["全部", "丰华生物", "丰华制药"];
 
-type HRTab = "roster" | "employees" | "positions" | "projects" | "project-info" | "codes" | "attendance" | "works" | "performance";
+type HRTab = "roster" | "employees" | "positions" | "projects" | "project-info" | "codes" | "attendance" | "works" | "performance" | "company";
 
 const tabs: { key: HRTab; label: string; desc: string }[] = [
   { key: "roster", label: "花名册", desc: "员工花名册（只读）" },
@@ -28,6 +29,7 @@ const tabs: { key: HRTab; label: string; desc: string }[] = [
   { key: "attendance", label: "考勤", desc: "考勤记录与统计" },
   { key: "works", label: "工作查看", desc: "查看全员工作清单" },
   { key: "performance", label: "绩效", desc: "绩效考核管理" },
+  { key: "company", label: "公司信息", desc: "公司档案与股权结构" },
 ];
 
 export default function HRPage() {
@@ -130,6 +132,7 @@ export default function HRPage() {
         {activeTab === "attendance" && <PlaceholderTab label="考勤" desc="考勤记录与统计" />}
         {activeTab === "works" && <PlaceholderTab label="工作查看" desc="查看全员工作清单" />}
         {activeTab === "performance" && <PlaceholderTab label="绩效" desc="绩效考核管理" />}
+        {activeTab === "company" && <CompanyTab />}
       </main>
     </div>
   );

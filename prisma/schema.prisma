@@ -230,9 +230,9 @@ model Company {
   registeredCapital  String?            // 注册资本
   unifiedCode        String?            // 统一社会信用代码
   bankName           String?            // 开户行
-  registeredAddress  String?            // 注册地址
+  registeredAddress  String?            // 办公地址
   registeredDate     String?            // 注册时间
-  legalPerson        String?            // 法人
+  legalPerson        String?            // 法定代表人
   sortOrder          Int                @default(0) // 排序
   createdAt          DateTime           @default(now()) // 创建时间
   updatedAt          DateTime?          // 更新时间
