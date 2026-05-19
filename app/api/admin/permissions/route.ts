@@ -60,7 +60,7 @@ export async function GET(request: Request) {
 
   // Build tree with user counts, only top-level returned
   const resources = allResources
-    .filter((r) => r.parentId === null)
+    .filter((r) => r.level === 1)
     .map((r) => buildTree(r, countMap));
 
   const roles = await prisma.role.findMany({

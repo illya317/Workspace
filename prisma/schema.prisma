@@ -50,8 +50,9 @@ model Resource {
   key             String                   @unique
   name            String
   description     String?
+  level           Int                      @default(1) // 1=父权限(无parentId), 2+=子权限
   sortOrder       Int                      @default(0)
-  parentId        Int?                     // 上级资源（资源树）
+  parentId        Int?                     // 上级资源（level≥2时必填）
   parent          Resource?                @relation("ResHierarchy", fields: [parentId], references: [id])
   children        Resource[]               @relation("ResHierarchy")
   userRoles       UserResourceRole[]
@@ -233,6 +234,7 @@ model Company {
   registeredAddress  String?            // 办公地址
   registeredDate     String?            // 注册时间
   legalPerson        String?            // 法定代表人
+  managementGroup    String?            // 管理体系（丰华生物体系/丰华制药）
   sortOrder          Int                @default(0) // 排序
   createdAt          DateTime           @default(now()) // 创建时间
   updatedAt          DateTime?          // 更新时间
