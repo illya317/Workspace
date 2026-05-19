@@ -31,7 +31,8 @@ export async function GET(request: Request) {
     departments: depts.map((d: any) => ({
       id: d.id,
       name: d.name,
-      company: d.managementGroup?.name || null || "",
+      managementGroup: d.managementGroup?.name || "",
+      company: d.managementGroup?.name === "GMP" ? "丰华制药" : d.managementGroup?.name === "常规体系" ? "丰华生物" : d.managementGroup?.name || "",
       count: 0,
     })),
   });

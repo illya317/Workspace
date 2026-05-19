@@ -27,6 +27,7 @@ interface DeptItem {
   id: number;
   name: string;
   company: string;
+  managementGroup: string;
   admins: DeptAdminEntry[];
 }
 
@@ -141,8 +142,8 @@ export function useDeptAdminsTab(
     companyTab === "全部"
       ? deptData
       : companyTab === "GMP"
-        ? deptData.filter((d) => d.company === 'GMP')
-        : deptData.filter((d) => d.company === '常规体系');
+        ? deptData.filter((d) => d.managementGroup === 'GMP')
+        : deptData.filter((d) => d.managementGroup === '常规体系');
 
   return {
     deptLoading,

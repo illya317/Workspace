@@ -19,7 +19,7 @@ interface PositionDescDetail {
   headcount: number | null;
   version: string | null;
   effectiveDate: string | null;
-  managementGroup: string | null;
+  company: string | null;
   details: Record<string, any> | null;
 }
 
