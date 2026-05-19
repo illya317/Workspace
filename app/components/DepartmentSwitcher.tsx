@@ -38,7 +38,7 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
               const list = (d.departments || []) as Dept[];
               setDepts(list);
               const comps = [
-                ...new Set(list.map((d) => d.company).filter((c) => c === "丰华生物" || c === "丰华制药")),
+                ...new Set(list.map((d) => d.company).filter((c) => c === "常规体系" || c === "GMP")),
               ];
               setCompanies(comps);
               if (saved) {

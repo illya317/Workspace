@@ -7,7 +7,7 @@ export async function getCompanies() {
 
 export async function getBioGroupNames(): Promise<string[]> {
   const companies = await prisma.company.findMany({
-    where: { name: { not: "丰华制药" } },
+    where: { name: { not: "GMP" } },
     select: { name: true },
   });
   return companies.map((c) => c.name);

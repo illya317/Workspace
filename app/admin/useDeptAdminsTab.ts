@@ -35,7 +35,7 @@ export function useDeptAdminsTab(
 ) {
   const [deptData, setDeptData] = useState<DeptItem[]>([]);
   const [deptLoading, setDeptLoading] = useState(true);
-  const [companyTab, setCompanyTab] = useState<"全部" | "丰华制药" | "丰华生物">("全部");
+  const [companyTab, setCompanyTab] = useState<"全部" | "GMP" | "常规体系">("全部");
 
   const [deptAddOpen, setDeptAddOpen] = useState<number | null>(null);
   const [deptSearchQ, setDeptSearchQ] = useState("");
@@ -57,8 +57,8 @@ export function useDeptAdminsTab(
             admins: admins.filter((a: any) => a.scopeId === String(d.id)),
           }))
           .sort((a: any, b: any) => {
-            const ga = a.managementGroup || "丰华生物体系";
-            const gb = b.managementGroup || "丰华生物体系";
+            const ga = a.managementGroup || "常规体系";
+            const gb = b.managementGroup || "常规体系";
             return ga.localeCompare(gb) || a.name.localeCompare(b.name);
           })
       );
@@ -140,9 +140,9 @@ export function useDeptAdminsTab(
   const filteredDepts =
     companyTab === "全部"
       ? deptData
-      : companyTab === "丰华制药"
-        ? deptData.filter((d) => d.managementGroup === "丰华制药")
-        : deptData.filter((d) => d.managementGroup === "丰华生物体系");
+      : companyTab === "GMP"
+        ? deptData.filter((d) => d.managementGroup === "GMP")
+        : deptData.filter((d) => d.managementGroup === "常规体系");
 
   return {
     deptLoading,

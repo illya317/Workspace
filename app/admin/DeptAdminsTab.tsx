@@ -25,7 +25,7 @@ export default function DeptAdminsTab({ showToast }: Props) {
   return (
     <div className="space-y-4">
       <div className="mb-3 flex gap-2">
-        {(["全部", "丰华制药", "丰华生物"] as const).map((tab) => (
+        {(["全部", "GMP", "常规体系"] as const).map((tab) => (
           <button
             key={tab}
             type="button"

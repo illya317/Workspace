@@ -342,7 +342,7 @@ export default function CodeTab({
                             colSpan={3}
                             className="px-2 py-1 font-medium text-gray-600"
                           >
-                            丰华生物体系
+                            常规体系
                           </td>
                         </tr>
                         {bioCodes.map(renderRow)}
@@ -366,7 +366,7 @@ export default function CodeTab({
                             colSpan={3}
                             className="px-2 py-1 font-medium text-gray-600"
                           >
-                            丰华制药
+                            GMP
                           </td>
                         </tr>
                         {pharmaCodes.map(renderRow)}
