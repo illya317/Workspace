@@ -14,7 +14,9 @@ import { CodesTab } from "./CodeTab";
 
 import type { HRUser as User } from "./types";
 
-import { MANAGEMENT_GROUP_NAMES } from "@/lib/company";
+import { QUERY_GROUP_LABELS } from "@/lib/company";
+
+const LABEL_TO_MGMT: Record<string, string> = { "丰华生物": "常规体系", "丰华制药": "GMP" };
 
 type HRTab = "roster" | "employees" | "positions" | "projects" | "project-info" | "codes" | "company";
 
@@ -44,9 +46,9 @@ export default function HRPage() {
           return;
         }
         setUser(data.user);
-        const defaultCompany = MANAGEMENT_GROUP_NAMES.includes(data.user.company || "")
+        const defaultCompany = QUERY_GROUP_LABELS.includes(data.user.company || "")
           ? data.user.company
-          : MANAGEMENT_GROUP_NAMES[0];
+          : QUERY_GROUP_LABELS[0];
         setSelectedCompany(defaultCompany || "");
         setLoading(false);
       })
@@ -103,7 +105,7 @@ export default function HRPage() {
             onChange={(e) => setSelectedCompany(e.target.value)}
             className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
           >
-            {MANAGEMENT_GROUP_NAMES.map((c) => (
+            {QUERY_GROUP_LABELS.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
@@ -125,12 +127,12 @@ export default function HRPage() {
           ))}
         </div>
 
-        {activeTab === "roster" && user && <RosterTab user={user} selectedCompany={selectedCompany} />}
-        {activeTab === "employees" && user && <EmployeeTab user={user} selectedCompany={selectedCompany} />}
-        {activeTab === "positions" && user && <PositionTab user={user} selectedCompany={selectedCompany} />}
+        {activeTab === "roster" && user && <RosterTab user={user} selectedCompany={LABEL_TO_MGMT[selectedCompany] || selectedCompany} />}
+        {activeTab === "employees" && user && <EmployeeTab user={user} selectedCompany={LABEL_TO_MGMT[selectedCompany] || selectedCompany} />}
+        {activeTab === "positions" && user && <PositionTab user={user} selectedCompany={LABEL_TO_MGMT[selectedCompany] || selectedCompany} />}
         {activeTab === "projects" && user && <ProjectTab user={user} />}
         {activeTab === "project-info" && user && <ProjectInfoTab user={user} />}
-        {activeTab === "codes" && user && <CodesTab user={user} selectedCompany={selectedCompany} />}
+        {activeTab === "codes" && user && <CodesTab user={user} selectedCompany={LABEL_TO_MGMT[selectedCompany] || selectedCompany} />}
         {activeTab === "company" && <CompanyTab />}
       </main>
     </div>

@@ -13,9 +13,6 @@ export const NAME_TO_CODE: Record<string, string> = Object.fromEntries(
 
 // 查询分组标签（UI筛选用）
 export const QUERY_GROUP_LABELS = ["全部", "丰华生物", "丰华制药"];
-// 管理体系名（DB用）
-export const MANAGEMENT_GROUP_NAMES = ["常规体系", "GMP"];
-
 // 标签 → 管理体系名
 const LABEL_TO_MGMT: Record<string, string> = {
   "丰华生物": "常规体系",
