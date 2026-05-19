@@ -14,7 +14,7 @@ import { CodesTab } from "./CodeTab";
 
 import type { HRUser as User } from "./types";
 
-import { MANAGEMENT_GROUPS } from "@/lib/company";
+import { MANAGEMENT_GROUP_NAMES } from "@/lib/company";
 
 type HRTab = "roster" | "employees" | "positions" | "projects" | "project-info" | "codes" | "company";
 
@@ -44,9 +44,9 @@ export default function HRPage() {
           return;
         }
         setUser(data.user);
-        const defaultCompany = MANAGEMENT_GROUPS.includes(data.user.company || "")
+        const defaultCompany = MANAGEMENT_GROUP_NAMES.includes(data.user.company || "")
           ? data.user.company
-          : MANAGEMENT_GROUPS[0];
+          : MANAGEMENT_GROUP_NAMES[0];
         setSelectedCompany(defaultCompany || "");
         setLoading(false);
       })
@@ -103,7 +103,7 @@ export default function HRPage() {
             onChange={(e) => setSelectedCompany(e.target.value)}
             className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
           >
-            {MANAGEMENT_GROUPS.map((c) => (
+            {MANAGEMENT_GROUP_NAMES.map((c) => (
               <option key={c} value={c}>{c}</option>
             ))}
           </select>
