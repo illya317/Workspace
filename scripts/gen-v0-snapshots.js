@@ -15,27 +15,33 @@ function clientKey(name) {
 }
 
 async function main() {
-  const date = process.argv[2] || new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+  const args = process.argv.slice(2).filter(a => !a.startsWith("--"));
+  const force = process.argv.includes("--force");
+  const date = args[0] || new Date().toISOString().slice(0, 10);
   const tag = `V0:${date}`;
 
   const todayStart = new Date(`${date}T00:00:00+08:00`);
   const todayEnd = new Date(`${date}T23:59:59+08:00`);
 
+  // 找一个有效用户作为系统操作的 editedBy
+  const sysUser = await prisma.user.findFirst({ where: { canLogin: true }, select: { id: true } });
+  const sysUserId = sysUser?.id || 1;
+
   let totalCreated = 0;
 
   for (const model of AUDITED_MODELS) {
-    // 查今天该模型是否有编辑记录
-    const hasEdits = await prisma.editHistory.findFirst({
-      where: {
-        entityType: model,
-        createdAt: { gte: todayStart, lte: todayEnd },
-        tag: null, // 排除已有 V0
-      },
-    });
-
-    if (!hasEdits) {
-      console.log(`${model}: 今天无编辑，跳过`);
-      continue;
+    if (!force) {
+      const hasEdits = await prisma.editHistory.findFirst({
+        where: {
+          entityType: model,
+          createdAt: { gte: todayStart, lte: todayEnd },
+          tag: null,
+        },
+      });
+      if (!hasEdits) {
+        console.log(`${model}: 今天无编辑，跳过`);
+        continue;
+      }
     }
 
     // 查该模型所有记录
@@ -64,7 +70,7 @@ async function main() {
           version: 0,
           tag,
           dataJson: JSON.stringify(record),
-          editedBy: 0, // 系统自动
+          editedBy: sysUserId, // 系统自动
         },
       });
       modelCount++;

@@ -79,7 +79,8 @@ export async function GET(request: Request) {
   }
 
   const where: any = { entityType };
-  if (tag) where.tag = tag;
+  if (tag) { where.tag = tag; }
+  else { where.tag = null; } // 默认隐藏 V0 基线，仅在按日期筛选时展示
 
   const total = await prisma.editHistory.count({ where });
 
