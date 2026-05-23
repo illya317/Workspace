@@ -126,7 +126,14 @@ export async function GET(request: Request) {
 
   const AUDIT_FIELDS = new Set(["editedBy", "editedAt", "version", "editor", "createdAt", "updatedAt", "id"]);
 
-  const entries = pageVersions.map((v) => {
+  // 编辑过的记录的 ID 集合
+  const editedIds = new Set(pageVersions.map((v) => `${v.entityType}:${v.entityId}`));
+  // 这些记录对应的 V0 基线（用于展示和还原）
+  const displayV0s = allVersions.filter((v) => v.tag && editedIds.has(`${v.entityType}:${v.entityId}`));
+
+  const entries = [...pageVersions, ...displayV0s]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .map((v) => {
     const prev = prevMap.get(v.id) || null;
     const changes: Array<{ field: string; from?: string; to: string }> = [];
     try {
