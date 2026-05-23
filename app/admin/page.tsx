@@ -7,6 +7,7 @@ import NavLink from "@/app/components/NavLink";
 import UserMenu from "@/app/components/UserMenu";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
+import AdminUsersTab from "./AdminUsersTab";
 import ByUserTab from "./ByUserTab";
 import ByPositionTab from "./ByPositionTab";
 import ByDepartmentTab from "./ByDepartmentTab";
@@ -19,7 +20,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [user, setUser] = useState<{ id: number; name: string; isWorkListAdmin: boolean; isAnyGroupAdmin: boolean } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"by-user" | "by-position" | "by-department" | "by-permission" | "dept-admins">("by-permission");
+  const [activeTab, setActiveTab] = useState<"users" | "by-user" | "by-position" | "by-department" | "by-permission" | "dept-admins">("users");
 
   const [resources, setResources] = useState<ResourceItem[]>([]);
   const [roles, setRoles] = useState<Array<{ id: number; key: string; name: string; description: string | null }>>([]);
@@ -93,6 +94,7 @@ export default function AdminPage() {
   }
 
   const tabs = [
+    { key: "users" as const, label: "用户账号" },
     { key: "by-user" as const, label: "按员工" },
     { key: "by-position" as const, label: "按岗位" },
     { key: "by-department" as const, label: "按部门" },
@@ -131,6 +133,7 @@ export default function AdminPage() {
         </div>
 
         <div className="space-y-4">
+          {activeTab === "users" && <AdminUsersTab showToast={showToast} />}
           {activeTab === "by-user" && <ByUserTab user={user!} resources={resources} roles={roles} allDepts={allDepts} showToast={showToast} />}
           {activeTab === "by-position" && <ByPositionTab user={user!} resources={resources} showToast={showToast} />}
           {activeTab === "by-department" && <ByDepartmentTab user={user!} resources={resources} allDepts={allDepts} showToast={showToast} />}
