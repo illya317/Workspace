@@ -20,15 +20,10 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
   const [keyword, setKeyword] = useState("");
   const [searchMode, setSearchMode] = useState<"name" | "all">("name");
 
-  // Create form
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [newUsername, setNewUsername] = useState("");
   const nameRef = useRef<HTMLInputElement>(null);
-
-  // Inline edit
-  const [editCell, setEditCell] = useState<{ id: number; field: string } | null>(null);
-  const [editValue, setEditValue] = useState("");
 
   async function load() {
     setLoading(true);
@@ -56,30 +51,7 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
         setNewName(""); setNewUsername(""); setCreating(false);
         load();
       } else {
-        const d = await res.json().catch(() => ({}));
-        showToast(d.error || "创建失败", "error");
-      }
-    } catch { showToast("网络错误", "error"); }
-  }
-
-  function startEdit(id: number, field: string, value: string) {
-    setEditCell({ id, field });
-    setEditValue(value || "");
-  }
-
-  async function saveEdit() {
-    if (!editCell) return;
-    try {
-      const res = await fetch("/api/admin/users/" + editCell.id, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ field: editCell.field, value: editValue }),
-      });
-      if (res.ok) {
-        setUsers((prev) => prev.map((u) => u.id === editCell.id ? { ...u, [editCell.field]: editValue } : u));
-        setEditCell(null);
-      } else {
-        showToast("保存失败", "error");
+        showToast((await res.json().catch(() => ({}))).error || "创建失败", "error");
       }
     } catch { showToast("网络错误", "error"); }
   }
@@ -129,30 +101,32 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
     <div className="space-y-4">
       <div className="flex items-center gap-4">
         <div className="flex rounded-md border border-gray-300 overflow-hidden">
-          <input
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+          <input value={keyword} onChange={(e) => setKeyword(e.target.value)}
             placeholder={searchMode === "name" ? "搜索姓名..." : "搜索全部..."}
             className="px-3 py-2 text-sm w-48 focus:outline-none"
           />
-          <button
-            onClick={() => setSearchMode((m) => (m === "name" ? "all" : "name"))}
+          <button onClick={() => setSearchMode((m) => (m === "name" ? "all" : "name"))}
             className={`px-2 text-xs ${searchMode === "name" ? "bg-gray-50 text-gray-500" : "bg-emerald-50 text-emerald-600"}`}
-            title="切换搜索模式"
           >
             {searchMode === "name" ? "姓名" : "全部"}
           </button>
         </div>
         <span className="text-sm text-gray-400">{users.length} 个用户</span>
-        <button onClick={() => { setCreating(true); setTimeout(() => nameRef.current?.focus(), 50); }} className="rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700">新建</button>
+        <button onClick={() => { setCreating(true); setTimeout(() => nameRef.current?.focus(), 50); }}
+          className="rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700">新建</button>
       </div>
 
       {creating && (
         <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3">
-          <input ref={nameRef} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="姓名 *" className="rounded border border-gray-300 px-2 py-1 text-sm w-32 focus:border-emerald-400 focus:outline-none" onKeyDown={(e) => e.key === "Enter" && handleCreate()} />
-          <input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} placeholder="用户名（可选，用于登录）" className="rounded border border-gray-300 px-2 py-1 text-sm w-44 focus:border-emerald-400 focus:outline-none" onKeyDown={(e) => e.key === "Enter" && handleCreate()} />
+          <input ref={nameRef} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="姓名 *"
+            className="rounded border border-gray-300 px-2 py-1 text-sm w-32 focus:border-emerald-400 focus:outline-none"
+            onKeyDown={(e) => e.key === "Enter" && handleCreate()} />
+          <input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} placeholder="用户名（可选）"
+            className="rounded border border-gray-300 px-2 py-1 text-sm w-44 focus:border-emerald-400 focus:outline-none"
+            onKeyDown={(e) => e.key === "Enter" && handleCreate()} />
           <button onClick={handleCreate} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700">保存</button>
-          <button onClick={() => { setCreating(false); setNewName(""); setNewUsername(""); }} className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50">取消</button>
+          <button onClick={() => { setCreating(false); setNewName(""); setNewUsername(""); }}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50">取消</button>
         </div>
       )}
 
@@ -176,27 +150,9 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
               {filtered.map((u) => (
                 <tr key={u.id} className="border-b hover:bg-gray-50">
                   <td className="px-3 py-2 text-gray-500 font-mono">{u.id}</td>
-                  {(["name", "username", "employeeId"] as const).map((field) => (
-                    <td key={field} className="px-3 py-2">
-                      {editCell?.id === u.id && editCell?.field === field ? (
-                        <input
-                          autoFocus
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onBlur={saveEdit}
-                          onKeyDown={(e) => { if (e.key === "Enter") saveEdit(); if (e.key === "Escape") setEditCell(null); }}
-                          className="rounded border border-emerald-400 px-1 py-0.5 text-xs w-full focus:outline-none"
-                        />
-                      ) : (
-                        <span
-                          onClick={() => startEdit(u.id, field, String((u as any)[field] || ""))}
-                          className={`cursor-pointer hover:bg-emerald-50 rounded px-1 -mx-1 ${field === "name" ? "font-medium text-gray-800" : "text-gray-500 font-mono"}`}
-                        >
-                          {(u as any)[field] || "-"}
-                        </span>
-                      )}
-                    </td>
-                  ))}
+                  <td className="px-3 py-2 font-medium text-gray-800">{u.name}</td>
+                  <td className="px-3 py-2 text-gray-500 font-mono">{u.username || "-"}</td>
+                  <td className="px-3 py-2 text-gray-500 font-mono">{u.employeeId || "-"}</td>
                   <td className="px-3 py-2">
                     <span className={`inline-block rounded px-1.5 py-0.5 text-[11px] ${u.canLogin ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
                       {u.canLogin ? "启用" : "停用"}
