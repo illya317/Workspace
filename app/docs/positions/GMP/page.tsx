@@ -24,7 +24,12 @@ export default function GmpPositionsPage() {
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [positions, setPositions] = useState<PositionDesc[]>([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => {
+    if (typeof window !== "undefined") {
+      return new URLSearchParams(window.location.search).get("search") || "";
+    }
+    return "";
+  });
 
   useEffect(() => {
     fetch("/api/auth/me")

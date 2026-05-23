@@ -89,7 +89,19 @@ export default function GmpPositionDetailPage() {
           <Pair label="岗位名称" value={pos.name} />
           <Pair label="所属部门" value={pos.departmentName} />
           <Pair label="直接上级" value={pos.reportTo} />
-          <Pair label="直接下级" value={Array.isArray(d.subordinates) ? d.subordinates.join("、") : s(d.subordinates)} />
+          {Array.isArray(d.subordinates) && d.subordinates.length > 0 ? (
+            <div className="mb-1.5 text-sm">
+              <strong className="text-gray-700">直接下级：</strong>
+              {d.subordinates.map((name: string, i: number) => (
+                <span key={i}>
+                  {i > 0 && "、"}
+                  <a href={`/docs/positions/GMP?search=${encodeURIComponent(name)}`} className="text-emerald-600 hover:underline">{name}</a>
+                </span>
+              ))}
+            </div>
+          ) : (
+            <Pair label="直接下级" value={s(d.subordinates)} />
+          )}
           <Pair label="编制人数" value={pos.headcount} />
         </Section>
 
