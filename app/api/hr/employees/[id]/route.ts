@@ -31,7 +31,7 @@ export async function PUT(
   const allowedFields = [
     "employeeId", "name", "alias", "gender", "birthDate", "ethnicity", "hometown", "politics",
     "education", "title", "school", "major",
-    "phone", "workStartDate", "idNumber", "otherId",
+    "phone", "workStartDate", "idNumber", "otherId", "userId",
   ];
   if (!allowedFields.includes(field)) {
     return NextResponse.json({ error: "非法字段" }, { status: 400 });

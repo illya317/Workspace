@@ -39,6 +39,7 @@ export const employeeConfig: TabConfig = {
   apiPath: "/api/hr/employees",
   entityType: "Employee",
   fields: employeeFields,
+  fkFields: { userId: fk("user", "userName") },
   canCreate: true,
   canDelete: true,
   listGetter: (d) => d.employees,
