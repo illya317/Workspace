@@ -24,18 +24,8 @@ model User {
   resourceRoles           UserResourceRole[]
   reports                 Report[]
   employees               Employee[]        @relation("EmployeeUser")
-  editedEmployees         Employee[]        @relation("EmployeeEditor")
   managedDepartments      Department[]      @relation("DepartmentManager")
-  editedDepartments       Department[]      @relation("DepartmentEditor")
-  editedPositions         Position[]        @relation("PositionEditor")
-  editedEDPs EDP[] @relation("EmpDeptPositionEditor")
-  editedCompanies         Company[]         @relation("CompanyEditor")
   editHistories           EditHistory[]     @relation("EditHistoryEditor")
-  editedProjects          Project[]         @relation("ProjectEditor")
-  editedEmployeeProjects  EmployeeProject[] @relation("EmpProjectEditor")
-  editedEmployments       Employment[]      @relation("EmploymentEditor")
-  editedPositionDescriptions PositionDescription[] @relation("PositionDescriptionEditor")
-  editedReports           Report[]          @relation("ReportEditor")
 }
 
 model SystemConfig {
@@ -125,7 +115,6 @@ model Report {
   items         ReportItem[]
   user          User?        @relation(fields: [userId], references: [id])
   editedBy      Int?                              // 编辑人用户ID
-  editor        User?          @relation("ReportEditor", fields: [editedBy], references: [id])
   editedAt      DateTime?                         // 编辑时间
   version       Int          @default(1) // 版本号
 
@@ -215,7 +204,6 @@ model Employee {
   positions     EDP[]
   projects      EmployeeProject[]
   editedBy      Int? // 编辑人用户ID
-  editor        User?              @relation("EmployeeEditor", fields: [editedBy], references: [id])
   editedAt      DateTime? // 编辑时间
   version       Int                @default(1) // 版本号
 }
@@ -233,7 +221,6 @@ model Employment {
   attendanceType String?                           // 考勤类型
   contracts      String?                           // 合同记录列表 JSON
   editedBy       Int?                              // 编辑人用户ID
-  editor         User?              @relation("EmploymentEditor", fields: [editedBy], references: [id])
   editedAt       DateTime?                         // 编辑时间
   version        Int                @default(1)   // 版本号
 }
@@ -254,7 +241,6 @@ model Company {
   parentOfRelations  CompanyRelation[]  @relation("ParentCompany")
   childOfRelations   CompanyRelation[]  @relation("ChildCompany")
   editedBy           Int?               // 编辑人用户ID
-  editor             User?              @relation("CompanyEditor", fields: [editedBy], references: [id])
   editedAt           DateTime?          // 编辑时间
   version            Int                @default(1) // 版本号
 }
@@ -287,7 +273,6 @@ model Department {
   resourceRoles     DepartmentResourceRole[]
   endDate           DateTime?          // 截止时间（null=至今）
   editedBy          Int? // 编辑人用户ID
-  editor            User?              @relation("DepartmentEditor", fields: [editedBy], references: [id])
   editedAt          DateTime? // 编辑时间
   version           Int                @default(1) // 版本号
 }
@@ -305,7 +290,6 @@ model Position {
   resourceRoles         PositionResourceRole[]
   endDate               DateTime?               // 截止时间（null=至今）
   editedBy              Int?                    // 编辑人用户ID
-  editor                User?                   @relation("PositionEditor", fields: [editedBy], references: [id])
   editedAt              DateTime?               // 编辑时间
   version               Int                     @default(1) // 版本号
 }
@@ -329,7 +313,6 @@ model EDP {
   workPercent  String?    // 工作占比
   isResearch   Boolean?   // 是否研发
   editedBy     Int? // 编辑人用户ID
-  editor       User?         @relation("EmpDeptPositionEditor", fields: [editedBy], references: [id])
   editedAt     DateTime? // 编辑时间
   version      Int        @default(1) // 版本号
 
@@ -344,7 +327,6 @@ model Project {
   endDate      DateTime?        // 截止时间（null=至今）
   employees    EmployeeProject[]
   editedBy     Int? // 编辑人用户ID
-  editor       User?            @relation("ProjectEditor", fields: [editedBy], references: [id])
   editedAt     DateTime? // 编辑时间
   version      Int              @default(1) // 版本号
 }
@@ -359,7 +341,6 @@ model EmployeeProject {
   startDate  String? // 开始日期
   endDate    String? // 结束日期
   editedBy   Int? // 编辑人用户ID
-  editor     User?     @relation("EmpProjectEditor", fields: [editedBy], references: [id])
   editedAt   DateTime? // 编辑时间
   version    Int       @default(1) // 版本号
 
@@ -383,7 +364,6 @@ model PositionDescription {
   details           String?          // 岗位详细信息 JSON
   positions         Position[]       // 关联岗位
   editedBy          Int?                              // 编辑人用户ID
-  editor            User?              @relation("PositionDescriptionEditor", fields: [editedBy], references: [id])
   editedAt          DateTime?                         // 编辑时间
 }
 

@@ -177,14 +177,7 @@
 <a href="#UserResourceRole" class="dep-link">2-3 UserResourceRole</a>
 <a href="#Report" class="dep-link">3-1 Report</a>
 <a href="#Employee" class="dep-link">5-1 Employee</a>
-<a href="#Employment" class="dep-link">5-2 Employment</a>
-<a href="#Company" class="dep-link">5-3 Company</a>
 <a href="#Department" class="dep-link">5-5 Department</a>
-<a href="#Position" class="dep-link">5-6 Position</a>
-<a href="#EDP" class="dep-link">5-7 EDP</a>
-<a href="#Project" class="dep-link">5-8 Project</a>
-<a href="#EmployeeProject" class="dep-link">5-9 EmployeeProject</a>
-<a href="#PositionDescription" class="dep-link">6-1 PositionDescription</a>
 <a href="#EditHistory" class="dep-link">7-1 EditHistory</a>
 </div>
 </div>
@@ -512,10 +505,10 @@
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment">备注</td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">editedBy</span><span class="kb fk">F</span></td>
+  <tr>
+    <td><span class="field-name">editedBy</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">编辑人用户ID <span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
+    <td class="field-comment">编辑人用户ID</td>
   </tr>
   <tr>
     <td><span class="field-name">editedAt</span></td>
@@ -529,7 +522,7 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (userId, targetType, targetId, date)</span><span class="constraint-tag">FK: userId → User, editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (userId, targetType, targetId, date)</span><span class="constraint-tag">FK: userId → User</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <a href="#User" class="dep-link">1-1 User</a>
 </div>
@@ -851,10 +844,10 @@
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment">用户ID <span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">editedBy</span><span class="kb fk">F</span></td>
+  <tr>
+    <td><span class="field-name">editedBy</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">编辑人用户ID <span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
+    <td class="field-comment">编辑人用户ID</td>
   </tr>
   <tr>
     <td><span class="field-name">editedAt</span></td>
@@ -868,7 +861,7 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">UK: employeeId, idNumber</span><span class="constraint-tag">FK: userId → User, editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">UK: employeeId, idNumber</span><span class="constraint-tag">FK: userId → User</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <a href="#User" class="dep-link">1-1 User</a>
 </div>
@@ -932,10 +925,10 @@
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment">合同记录列表 JSON</td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">editedBy</span><span class="kb fk">F</span></td>
+  <tr>
+    <td><span class="field-name">editedBy</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">编辑人用户ID <span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
+    <td class="field-comment">编辑人用户ID</td>
   </tr>
   <tr>
     <td><span class="field-name">editedAt</span></td>
@@ -949,10 +942,9 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: employeeId → Employee, editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: employeeId → Employee</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <a href="#Employee" class="dep-link">5-1 Employee</a>
-<a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -1022,10 +1014,10 @@
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment">排序</td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">editedBy</span><span class="kb fk">F</span></td>
+  <tr>
+    <td><span class="field-name">editedBy</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">编辑人用户ID <span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
+    <td class="field-comment">编辑人用户ID</td>
   </tr>
   <tr>
     <td><span class="field-name">editedAt</span></td>
@@ -1039,9 +1031,9 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">UK: code, name</span><span class="constraint-tag">FK: editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">UK: code, name</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#User" class="dep-link">1-1 User</a>
+<span class="dep-none">无</span>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <a href="#CompanyRelation" class="dep-link">5-4 CompanyRelation</a>
@@ -1130,10 +1122,10 @@
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
     <td class="field-comment">截止时间（null=至今）</td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">editedBy</span><span class="kb fk">F</span></td>
+  <tr>
+    <td><span class="field-name">editedBy</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">编辑人用户ID <span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
+    <td class="field-comment">编辑人用户ID</td>
   </tr>
   <tr>
     <td><span class="field-name">editedAt</span></td>
@@ -1147,7 +1139,7 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: parentId → Department, managerUserId → User, editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: parentId → Department, managerUserId → User</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <a href="#Department" class="dep-link">5-5 Department</a>
 <a href="#User" class="dep-link">1-1 User</a>
@@ -1198,10 +1190,10 @@
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
     <td class="field-comment">截止时间（null=至今）</td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">editedBy</span><span class="kb fk">F</span></td>
+  <tr>
+    <td><span class="field-name">editedBy</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">编辑人用户ID <span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
+    <td class="field-comment">编辑人用户ID</td>
   </tr>
   <tr>
     <td><span class="field-name">editedAt</span></td>
@@ -1215,11 +1207,10 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: departmentId → Department, positionDescriptionId → PositionDescription, editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: departmentId → Department, positionDescriptionId → PositionDescription</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <a href="#Department" class="dep-link">5-5 Department</a>
 <a href="#PositionDescription" class="dep-link">6-1 PositionDescription</a>
-<a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <a href="#PositionResourceRole" class="dep-link">2-4 PositionResourceRole</a>
@@ -1300,10 +1291,10 @@
     <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
     <td class="field-comment">是否研发</td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">editedBy</span><span class="kb fk">F</span></td>
+  <tr>
+    <td><span class="field-name">editedBy</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">编辑人用户ID <span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
+    <td class="field-comment">编辑人用户ID</td>
   </tr>
   <tr>
     <td><span class="field-name">editedAt</span></td>
@@ -1317,12 +1308,11 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: employeeId → Employee, departmentId → Department, positionId → Position, editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: employeeId → Employee, departmentId → Department, positionId → Position</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <a href="#Employee" class="dep-link">5-1 Employee</a>
 <a href="#Department" class="dep-link">5-5 Department</a>
 <a href="#Position" class="dep-link">5-6 Position</a>
-<a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -1357,10 +1347,10 @@
     <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
     <td class="field-comment">截止时间（null=至今）</td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">editedBy</span><span class="kb fk">F</span></td>
+  <tr>
+    <td><span class="field-name">editedBy</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">编辑人用户ID <span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
+    <td class="field-comment">编辑人用户ID</td>
   </tr>
   <tr>
     <td><span class="field-name">editedAt</span></td>
@@ -1374,9 +1364,9 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#User" class="dep-link">1-1 User</a>
+<span class="dep-none">无</span>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <a href="#EmployeeProject" class="dep-link">5-9 EmployeeProject</a>
@@ -1416,10 +1406,10 @@
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment">结束日期</td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">editedBy</span><span class="kb fk">F</span></td>
+  <tr>
+    <td><span class="field-name">editedBy</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">编辑人用户ID <span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
+    <td class="field-comment">编辑人用户ID</td>
   </tr>
   <tr>
     <td><span class="field-name">editedAt</span></td>
@@ -1433,11 +1423,10 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (employeeId, projectId)</span><span class="constraint-tag">FK: employeeId → Employee, projectId → Project, editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (employeeId, projectId)</span><span class="constraint-tag">FK: employeeId → Employee, projectId → Project</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <a href="#Employee" class="dep-link">5-1 Employee</a>
 <a href="#Project" class="dep-link">5-8 Project</a>
-<a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>
@@ -1510,10 +1499,10 @@
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment">岗位详细信息 JSON</td>
   </tr>
-  <tr class="fk-underline">
-    <td><span class="field-name">editedBy</span><span class="kb fk">F</span></td>
+  <tr>
+    <td><span class="field-name">editedBy</span></td>
     <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment">编辑人用户ID <span style="font-size:11px;color:#d97706">→ <a href="#User" class="dep-link">1-1 User</a></span></td>
+    <td class="field-comment">编辑人用户ID</td>
   </tr>
   <tr>
     <td><span class="field-name">editedAt</span></td>
@@ -1522,9 +1511,9 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">UK: code</span><span class="constraint-tag">FK: editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">UK: code</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
-<a href="#User" class="dep-link">1-1 User</a>
+<span class="dep-none">无</span>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <a href="#Position" class="dep-link">5-6 Position</a>
