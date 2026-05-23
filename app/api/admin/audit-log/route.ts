@@ -121,6 +121,51 @@ export async function GET(request: Request) {
 
   const AUDIT_FIELDS = new Set(["editedBy", "editedAt", "version", "editor", "createdAt", "updatedAt", "id"]);
 
+  // FK value → display name mapping
+  const FK_MAP: Record<string, { model: string; field: string }> = {
+    departmentId: { model: "department", field: "name" },
+    positionId: { model: "position", field: "name" },
+    employeeId: { model: "employee", field: "name" },
+    projectId: { model: "project", field: "name" },
+    managerUserId: { model: "user", field: "name" },
+    userId: { model: "user", field: "name" },
+    positionDescriptionId: { model: "positionDescription", field: "name" },
+  };
+
+  // Batch resolve FK values for the current page
+  const fkMap: Record<string, string> = {};
+  for (const v of pageVersions) {
+    try {
+      const d = JSON.parse(v.dataJson);
+      for (const [key, cfg] of Object.entries(FK_MAP)) {
+        if (d[key] != null) fkMap[`${cfg.model}:${d[key]}`] = ""; // mark for resolution
+      }
+    } catch {}
+  }
+  for (const [key, cfg] of Object.entries(FK_MAP)) {
+    const ids = [...new Set(
+      pageVersions.flatMap((v) => { try { const d = JSON.parse(v.dataJson); return d[key] != null ? [Number(d[key])] : []; } catch { return []; } })
+    )];
+    if (ids.length > 0) {
+      try {
+        const records = await (prisma as any)[cfg.model].findMany({
+          where: { id: { in: ids } },
+          select: { id: true, [cfg.field]: true },
+        });
+        for (const r of records) fkMap[`${cfg.model}:${r.id}`] = String(r[cfg.field] || r.id);
+      } catch {}
+    }
+  }
+
+  function resolveVal(field: string, raw: string): string {
+    const cfg = FK_MAP[field];
+    if (cfg && /^\d+$/.test(raw)) {
+      const resolved = fkMap[`${cfg.model}:${raw}`];
+      if (resolved) return resolved;
+    }
+    return raw;
+  }
+
   const editedIds = new Set(pageVersions.map((v) => `${v.entityType}:${v.entityId}`));
   const displayV0s = allVersions.filter((v) => v.tag && editedIds.has(`${v.entityType}:${v.entityId}`));
 
@@ -138,10 +183,12 @@ export async function GET(request: Request) {
           const curr = currData[key];
           const old = prevData?.[key];
           if (JSON.stringify(old) !== JSON.stringify(curr)) {
+            const fromRaw = old != null ? (typeof old === "object" ? JSON.stringify(old) : String(old)) : "";
+            const toRaw = curr != null ? (typeof curr === "object" ? JSON.stringify(curr) : String(curr)) : "";
             changes.push({
               field: key,
-              from: old != null ? (typeof old === "object" ? JSON.stringify(old) : String(old)) : "(空)",
-              to: curr != null ? (typeof curr === "object" ? JSON.stringify(curr) : String(curr)) : "(空)",
+              from: fromRaw ? resolveVal(key, fromRaw) : "(空)",
+              to: toRaw ? resolveVal(key, toRaw) : "(空)",
             });
           }
         }
