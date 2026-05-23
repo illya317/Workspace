@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { snapshotHistory } from "@/lib/history";
 
 const RESOLVERS: Record<string, string> = {
   Employee: "employee", Employment: "employment", Company: "company",
@@ -27,19 +26,14 @@ export async function POST(request: Request) {
   let data: Record<string, unknown>;
   try { data = JSON.parse(snapshot.dataJson); } catch { return NextResponse.json({ error: "数据格式错误" }, { status: 500 }); }
 
-  // 清理审计字段，避免覆盖
-  delete data.id;
-  delete data.editedBy;
-  delete data.editedAt;
-  delete data.version;
+  delete data.id; // 不能改主键
+  // 保留快照里的 editedBy/editedAt/version，不做新版本也不覆盖审计信息
 
   const entityId = parseInt(snapshot.entityId);
   await (prisma as any)[modelKey].update({
     where: { id: entityId },
-    data: { ...data, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+    data,
   });
-
-  await snapshotHistory(snapshot.entityType, entityId, payload.userId);
 
   return NextResponse.json({ success: true });
 }
