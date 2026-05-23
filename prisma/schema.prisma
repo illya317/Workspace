@@ -411,10 +411,10 @@ model PositionDescription {
 // ─── 编辑历史实体登记 ─────────────────────────────────────
 // 任何有审计字段的表如需 EditHistory 支持，必须在此登记 entityType
 model HistoryEntity {
-  entityType   String         @id // "employee" | "employment" | "code_company" | ...
+  id           Int            @id @default(autoincrement()) // 主键
+  entityType   String         @unique // "employee" | "employment" | "code_company" | ...
   modelName    String         // Prisma 模型名: "Employee" | "Employment" | ...
   description  String         // 中文说明
-  sortOrder    Int            @default(0)
   histories    EditHistory[]
 }
 

@@ -1643,8 +1643,13 @@
 <div class="table-block" id="HistoryEntity">
 <div class="table-header"><h3><span class="table-num">7-1</span> HistoryEntity</h3></div>
 <table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
-  <tr class="pk-border ref-underline">
-    <td><span class="field-name">entityType</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
+  <tr class="pk-border">
+    <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment">主键</td>
+  </tr>
+  <tr class="uk-border uk-bg ref-underline">
+    <td><span class="field-name">entityType</span> <span class="field-required">*</span><span class="kb uk">U</span><span class="kb ref">R</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment">"employee" | "employment" | "code_company" | ...</td>
   </tr>
@@ -1658,14 +1663,9 @@
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment">中文说明</td>
   </tr>
-  <tr>
-    <td><span class="field-name">sortOrder</span> <span class="field-required">*</span></td>
-    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
-    <td class="field-comment"></td>
-  </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: entityType</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">UK: entityType</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <span class="dep-none">无</span>
 </div>
