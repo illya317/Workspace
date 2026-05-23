@@ -3,6 +3,16 @@
 import { useState, useEffect, useRef } from "react";
 import { getInitials } from "@/lib/search";
 
+function copyFallback(text: string) {
+  const el = document.createElement("textarea");
+  el.value = text;
+  el.style.position = "fixed"; el.style.opacity = "0";
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand("copy");
+  document.body.removeChild(el);
+}
+
 interface UserItem {
   id: number;
   name: string;
@@ -61,8 +71,14 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
       const res = await fetch("/api/admin/users/" + id, { method: "POST" });
       if (res.ok) {
         const data = await res.json();
-        try { await navigator.clipboard.writeText(data.password); } catch {}
-        showToast("新密码: " + data.password, "success");
+        const pw = data.password;
+        // 兼容 HTTP 的剪贴板复制
+        if (navigator.clipboard?.writeText) {
+          try { await navigator.clipboard.writeText(pw); } catch { copyFallback(pw); }
+        } else {
+          copyFallback(pw);
+        }
+        showToast("新密码 " + pw + " 已复制到剪贴板", "success");
       } else {
         showToast("重置失败", "error");
       }
