@@ -91,16 +91,19 @@ export default function GmpPositionsPage() {
         </button>
         {isOpen && filteredPositions.length > 0 && (
           <div className="ml-8 divide-y divide-gray-50 border-l-2 border-gray-100 pl-4">
-            {filteredPositions.sort().map(code => (
-              <button key={code}
-                onClick={() => router.push(`/docs/positions/GMP/${code}`)}
-                className="w-full flex items-center gap-3 py-1.5 text-left hover:bg-emerald-50 transition-colors"
-              >
-                <span className="text-xs text-gray-400 font-mono w-20 shrink-0">{code}</span>
-                <span className="text-sm text-gray-700 flex-1">{code}</span>
-                <span className="text-gray-300 text-xs">→</span>
-              </button>
-            ))}
+            {filteredPositions.sort().map(entry => {
+              const [code, name] = entry.split("|");
+              return (
+                <button key={code}
+                  onClick={() => router.push(`/docs/positions/GMP/${code}`)}
+                  className="w-full flex items-center gap-3 py-1.5 text-left hover:bg-emerald-50 transition-colors"
+                >
+                  <span className="text-xs text-gray-400 font-mono w-20 shrink-0">{code}</span>
+                  <span className="text-sm text-gray-700 flex-1">{name || code}</span>
+                  <span className="text-gray-300 text-xs">→</span>
+                </button>
+              );
+            })}
           </div>
         )}
         {isOpen && hasChildren && node.children!.map(c => renderNode(c, depth + 1))}

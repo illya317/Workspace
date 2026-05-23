@@ -25,14 +25,14 @@ export async function GET(request: Request) {
       const parent = departments.find(p => p.id === d.parentId);
       deptMap[d.code] = { code: d.code, name: d.name, level: d.level, parentCode: parent?.code || null, positions: [] as string[] };
     }
-    const pds = await prisma.positionDescription.findMany({ select: { code: true }, orderBy: { code: "asc" } });
+    const pds = await prisma.positionDescription.findMany({ select: { code: true, name: true }, orderBy: { code: "asc" } });
     for (const d of pds) {
       const dc = (d.code.split("-")[1] || "");
       let match: string | null = null;
       for (const key of Object.keys(deptMap).sort((a, b) => b.length - a.length)) {
         if (dc.startsWith(key)) { match = key; break; }
       }
-      if (match && deptMap[match]) deptMap[match].positions.push(d.code);
+      if (match && deptMap[match]) deptMap[match].positions.push(d.code + "|" + d.name);
     }
     return NextResponse.json({ tree: Object.values(deptMap) });
   }
