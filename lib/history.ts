@@ -55,7 +55,7 @@ export async function snapshotHistory(
     await prisma.editHistory.create({
       data: {
         entityType, entityId: entityIdStr, version: 0, tag: v0Tag,
-        dataJson: JSON.stringify(record), editedBy: 0,
+        dataJson: JSON.stringify(record), editedBy: userId,
       },
     });
   }
