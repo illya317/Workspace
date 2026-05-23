@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import EditToolbar from "@/app/components/EditToolbar";
 import ConfirmModal from "@/app/components/ConfirmModal";
+import AuditLogModal from "@/app/components/AuditLogModal";
 import DetailModal from "@/app/components/DetailModal";
 import Toast from "@/app/components/Toast";
 import { NAME_TO_CODE, isBio, isPharma, SHARED_GROUP_CODES, resolveCompanyFilter } from "@/lib/company";
@@ -130,8 +131,9 @@ export default function CodeTab({
     positionDeptModal,
     setPositionDeptModal,
     saving,
-    versions,
-    currentVersion,
+    showHistory,
+    setShowHistory,
+    entityType,
     sortedCodes,
     toggleSort,
     startEditRow,
@@ -140,8 +142,6 @@ export default function CodeTab({
     handleAdd,
     getDetailList,
     loadPositionDepts,
-    loadVersions,
-    handleSelectVersion,
     handleSave,
   } = useCodeTab({
     user,
@@ -166,9 +166,7 @@ export default function CodeTab({
               setEditMode(false);
             }}
             canEdit={user.canAccessHR}
-            versions={versions}
-            currentVersion={currentVersion}
-            onSelectVersion={handleSelectVersion}
+            onShowHistory={() => setShowHistory(true)}
             saving={saving}
           />
         )}
@@ -497,6 +495,7 @@ export default function CodeTab({
           </ul>
         )}
       </DetailModal>
+      <AuditLogModal open={showHistory} onClose={() => setShowHistory(false)} entityType={entityType} />
     </div>
   );
 }

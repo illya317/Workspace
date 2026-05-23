@@ -89,12 +89,7 @@ export function useCodeTab({
     departments: string[];
   } | null>(null);
   const [saving, setSaving] = useState(false);
-  const [versions, setVersions] = useState<
-    Array<{ version: number; createdAt: string; editor?: { name: string } }>
-  >([]);
-  const [currentVersion, setCurrentVersion] = useState<number | undefined>(
-    undefined
-  );
+  const [showHistory, setShowHistory] = useState(false);
 
   const entityType =
     type === "department" ? "Department" : "Position";
@@ -191,22 +186,11 @@ export function useCodeTab({
     return 0;
   });
 
-  async function loadVersions(entityId: string) {
-    const res = await fetch(
-      `/api/admin/edit-history?entityType=${entityType}&entityId=${entityId}`
-    );
-    if (res.ok) {
-      const data = await res.json();
-      setVersions(data.versions || []);
-    }
-  }
-
   function startEditRow(item: CodeItem) {
     if (!user.canAccessHR) return;
     setEditRow(item.code);
     setEditCodeValue(item.code.length === 5 ? item.code.slice(2) : item.code);
     setEditNameValue(item.name);
-    loadVersions(item.code);
   }
 
   async function saveEditRow(originalCode: string) {
@@ -332,20 +316,6 @@ export function useCodeTab({
     }
   }
 
-  async function handleSelectVersion(version: number) {
-    if (!editRow) return;
-    const res = await fetch(
-      `/api/admin/edit-history?entityType=${entityType}&entityId=${editRow}&version=${version}`
-    );
-    if (res.ok) {
-      const data = await res.json();
-      const snapshot = JSON.parse(data.version.dataJson);
-      setEditCodeValue(snapshot.code || "");
-      setEditNameValue(snapshot.name || "");
-      setCurrentVersion(version);
-    }
-  }
-
   async function handleSave() {
     if (!editRow) return;
     setSaving(true);
@@ -387,8 +357,9 @@ export function useCodeTab({
     positionDeptModal,
     setPositionDeptModal,
     saving,
-    versions,
-    currentVersion,
+    showHistory,
+    setShowHistory,
+    entityType,
     // computed
     sortedCodes,
     // actions
@@ -399,8 +370,6 @@ export function useCodeTab({
     handleAdd,
     getDetailList,
     loadPositionDepts,
-    loadVersions,
-    handleSelectVersion,
     handleSave,
   };
 }

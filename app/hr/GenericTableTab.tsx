@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import HRToolbar from "@/app/components/HRToolbar";
 import ConfirmModal from "@/app/components/ConfirmModal";
+import AuditLogModal from "@/app/components/AuditLogModal";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import FKInput from "./FKInput";
@@ -35,7 +36,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
     items, loading, error, keyword, setKeyword, editMode, setEditMode,
     editingCell, editValue, setEditValue, startEdit, cancelEdit, saveCell,
     creating, setCreating, createForm, setCreateForm, submitCreate, deleteItem,
-    versions, currentVersion, selectVersion, saving, load,
+    saving, load, showHistory, setShowHistory,
   } = useGenericTab(config);
 
   const { toast, showToast, closeToast } = useToast();
@@ -145,8 +146,8 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
         editProps={{
           editMode, onStartEdit: () => setEditMode(true),
           onSave: handleSave, onCancel: () => { cancelEdit(); setEditMode(false); },
-          canEdit: user.canAccessHR, versions, currentVersion,
-          onSelectVersion: selectVersion, saving,
+          canEdit: user.canAccessHR, saving,
+          onShowHistory: () => setShowHistory(true),
         }}
       >
         {config.canCreate && user.canAccessHR && (
@@ -270,6 +271,8 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
           </div>
         </div>
       )}
+
+      <AuditLogModal open={showHistory} onClose={() => setShowHistory(false)} entityType={config.entityType} />
 
       <ConfirmModal
         open={!!confirmDelete}

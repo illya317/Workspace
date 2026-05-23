@@ -23,12 +23,10 @@ export interface GenericTabState {
   setCreateForm: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
   submitCreate: () => Promise<boolean>;
   deleteItem: (id: number) => Promise<boolean>;
-  versions: Array<{ version: number; createdAt: string; editor?: { name: string } }>;
-  currentVersion: number | undefined;
-  loadVersions: (entityId: number) => Promise<void>;
-  selectVersion: (version: number) => Promise<void>;
   saving: boolean;
   load: () => Promise<void>;
+  showHistory: boolean;
+  setShowHistory: (v: boolean) => void;
 }
 
 export function useGenericTab(config: TabConfig): GenericTabState {
@@ -42,8 +40,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
   const [createForm, setCreateForm] = useState<Record<string, unknown>>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [versions, setVersions] = useState<Array<{ version: number; createdAt: string; editor?: { name: string } }>>([]);
-  const [currentVersion, setCurrentVersion] = useState<number | undefined>(undefined);
+  const [showHistory, setShowHistory] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -76,14 +73,11 @@ export function useGenericTab(config: TabConfig): GenericTabState {
   const startEdit = useCallback((id: number, field: string, initialValue: any) => {
     setEditingCell({ id, field });
     setEditValue(initialValue ?? "");
-    setCurrentVersion(undefined);
-    loadVersions(id);
   }, []);
 
   const cancelEdit = useCallback(() => {
     setEditingCell(null);
     setEditValue("");
-    setCurrentVersion(undefined);
   }, []);
 
   const saveCell = useCallback(async () => {
@@ -98,7 +92,6 @@ export function useGenericTab(config: TabConfig): GenericTabState {
       });
       if (res.ok) {
         let newValue = editValue ?? null;
-        // 性别：前端编辑用字符串，后端存 boolean
         if (field === "gender") {
           newValue = editValue === "男" ? true : editValue === "女" ? false : null;
         }
@@ -145,38 +138,6 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     return false;
   }, [config.apiPath]);
 
-  const loadVersions = useCallback(async (entityId: number) => {
-    const res = await fetch(`/api/admin/edit-history?entityType=${config.entityType}&entityId=${entityId}`);
-    if (res.ok) {
-      const data = await res.json();
-      setVersions(data.versions || []);
-    }
-  }, [config.entityType]);
-
-  const selectVersion = useCallback(async (version: number) => {
-    if (version === 0) {
-      setCurrentVersion(undefined);
-      if (editingCell) {
-        const item = items.find((i) => i.id === editingCell.id);
-        if (item) setEditValue(item[editingCell.field] ?? "");
-      }
-      return;
-    }
-    if (!editingCell) {
-      setCurrentVersion(version);
-      return;
-    }
-    const res = await fetch(
-      `/api/admin/edit-history?entityType=${config.entityType}&entityId=${editingCell.id}&version=${version}`
-    );
-    if (res.ok) {
-      const data = await res.json();
-      const snapshot = JSON.parse(data.version.dataJson);
-      setEditValue(snapshot[editingCell.field] ?? "");
-      setCurrentVersion(version);
-    }
-  }, [config.entityType, editingCell, items]);
-
   return {
     items, loading, error, keyword, setKeyword,
     editMode, setEditMode,
@@ -184,7 +145,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     startEdit, cancelEdit, saveCell,
     creating, setCreating, createForm, setCreateForm,
     submitCreate, deleteItem,
-    versions, currentVersion, loadVersions, selectVersion,
     saving, load,
+    showHistory, setShowHistory,
   };
 }
