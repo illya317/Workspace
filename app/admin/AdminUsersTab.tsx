@@ -99,7 +99,8 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
       const res = await fetch("/api/admin/users/" + id, { method: "POST" });
       if (res.ok) {
         const data = await res.json();
-        showToast("新密码: " + data.password, "success");
+        await navigator.clipboard.writeText(data.password);
+        showToast("新密码 " + data.password + " 已复制到剪贴板", "success");
       } else {
         showToast("重置失败", "error");
       }
