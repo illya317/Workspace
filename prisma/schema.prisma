@@ -128,7 +128,6 @@ model Report {
   editor        User?          @relation("ReportEditor", fields: [editedBy], references: [id])
   editedAt      DateTime?                         // 编辑时间
   version       Int          @default(1) // 版本号
-  createdAt     DateTime     @default(now()) // 创建时间
 
   @@unique([userId, targetType, targetId, date])
 }
@@ -219,7 +218,6 @@ model Employee {
   editor        User?              @relation("EmployeeEditor", fields: [editedBy], references: [id])
   editedAt      DateTime? // 编辑时间
   version       Int                @default(1) // 版本号
-  createdAt     DateTime           @default(now()) // 创建时间
 }
 
 model Employment {
@@ -238,7 +236,6 @@ model Employment {
   editor         User?              @relation("EmploymentEditor", fields: [editedBy], references: [id])
   editedAt       DateTime?                         // 编辑时间
   version        Int                @default(1)   // 版本号
-  createdAt      DateTime @default(now())          // 创建时间
 }
 
 model Company {
@@ -260,7 +257,6 @@ model Company {
   editor             User?              @relation("CompanyEditor", fields: [editedBy], references: [id])
   editedAt           DateTime?          // 编辑时间
   version            Int                @default(1) // 版本号
-  createdAt          DateTime           @default(now()) // 创建时间
 }
 
 model CompanyRelation {
@@ -294,7 +290,6 @@ model Department {
   editor            User?              @relation("DepartmentEditor", fields: [editedBy], references: [id])
   editedAt          DateTime? // 编辑时间
   version           Int                @default(1) // 版本号
-  createdAt         DateTime           @default(now()) // 创建时间
 }
 
 model Position {
@@ -313,7 +308,6 @@ model Position {
   editor                User?                   @relation("PositionEditor", fields: [editedBy], references: [id])
   editedAt              DateTime?               // 编辑时间
   version               Int                     @default(1) // 版本号
-  createdAt             DateTime                @default(now()) // 创建时间
 }
 
 model EDP {
@@ -338,7 +332,6 @@ model EDP {
   editor       User?         @relation("EmpDeptPositionEditor", fields: [editedBy], references: [id])
   editedAt     DateTime? // 编辑时间
   version      Int        @default(1) // 版本号
-  createdAt    DateTime   @default(now()) // 创建时间
 
   @@map("EmployeePosition")
 }
@@ -354,7 +347,6 @@ model Project {
   editor       User?            @relation("ProjectEditor", fields: [editedBy], references: [id])
   editedAt     DateTime? // 编辑时间
   version      Int              @default(1) // 版本号
-  createdAt    DateTime         @default(now()) // 创建时间
 }
 
 model EmployeeProject {
@@ -370,7 +362,6 @@ model EmployeeProject {
   editor     User?     @relation("EmpProjectEditor", fields: [editedBy], references: [id])
   editedAt   DateTime? // 编辑时间
   version    Int       @default(1) // 版本号
-  createdAt  DateTime  @default(now()) // 创建时间
 
   @@unique([employeeId, projectId])
 }
@@ -394,7 +385,6 @@ model PositionDescription {
   editedBy          Int?                              // 编辑人用户ID
   editor            User?              @relation("PositionDescriptionEditor", fields: [editedBy], references: [id])
   editedAt          DateTime?                         // 编辑时间
-  createdAt         DateTime         @default(now()) // 创建时间
 }
 
 // ─── 编辑历史 ─────────────────────────────────────────────

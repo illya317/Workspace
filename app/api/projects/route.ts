@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const projects = await prisma.project.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: { id: "desc" },
     include: {
       _count: { select: { employees: true } },
     },
