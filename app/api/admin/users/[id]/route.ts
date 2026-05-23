@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { authenticate, isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -78,7 +79,7 @@ export async function POST(
 
   await prisma.user.update({
     where: { id: parseInt(id) },
-    data: { password: newPassword },
+    data: { password: bcrypt.hashSync(newPassword, 10) },
   });
 
   return NextResponse.json({ success: true, password: newPassword });

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 import { authenticate } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
     where: { id: user.userId },
   });
 
-  if (!dbUser || dbUser.password !== oldPassword) {
+  if (!dbUser || !dbUser.password || !bcrypt.compareSync(oldPassword, dbUser.password)) {
     return NextResponse.json(
       { error: "旧密码错误" },
       { status: 401 }
@@ -37,7 +38,7 @@ export async function POST(request: Request) {
 
   await prisma.user.update({
     where: { id: user.userId },
-    data: { password: newPassword },
+    data: { password: bcrypt.hashSync(newPassword, 10) },
   });
 
   return NextResponse.json({ success: true });

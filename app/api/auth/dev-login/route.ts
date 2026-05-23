@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 import { createToken, checkPermission } from "@/lib/auth";
 import { checkBruteForce, recordAttempt } from "@/lib/security";
 
@@ -35,7 +36,7 @@ export async function POST(request: Request) {
     select: { id: true, name: true, username: true, wxUserId: true, password: true, apiKey: true, canLogin: true },
   });
 
-  if (!user || user.password !== password) {
+  if (!user || !user.password || !bcrypt.compareSync(password, user.password)) {
     await recordAttempt(username, ip, false);
     const { remaining } = await checkBruteForce(username, ip);
     const hint = remaining && remaining > 0 ? `（剩余${remaining}次尝试）` : "";

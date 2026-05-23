@@ -1,3 +1,4 @@
+import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
 import { prisma } from "./prisma";
 
@@ -174,7 +175,7 @@ export async function authenticate(
 
   if (apiKey && username && password) {
     const user = await prisma.user.findUnique({ where: { username } });
-    if (user && user.password === password && user.apiKey === apiKey) {
+    if (user && user.password && bcrypt.compareSync(password, user.password) && user.apiKey === apiKey) {
       const canLogin = await checkPermission(user.id, "system", "access");
       if (!canLogin) return null;
       return {
