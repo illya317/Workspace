@@ -31,8 +31,10 @@ export async function GET(request: Request) {
       id: d.id,
       code: d.code,
       name: d.name,
+      alias: d.alias || null,
       company: isPharma(d.code) ? '丰华制药' : '丰华生物',
       level: d.level,
+      levelLabel: d.level === 1 ? '事业部' : d.level === 2 ? '部门' : '子部门',
       parentId: d.parentId,
       parentName: d.parent?.name || null,
       managerUserId: d.managerUserId,
@@ -53,7 +55,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { code, name, alias, level, levelLabel, parentId, managerUserId } = body;
+  const { code, name, alias, level, parentId, managerUserId } = body;
 
   if (!code || !name) {
     return NextResponse.json({ error: "缺少必填字段" }, { status: 400 });
@@ -66,7 +68,6 @@ export async function POST(request: Request) {
         name,
         alias: alias || null,
         level: level || 1,
-        levelLabel: levelLabel || "部门",
         parentId: parentId || null,
         managerUserId: managerUserId || null,
       },
@@ -90,7 +91,7 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { id, code, name, company, level, parentId, managerUserId } = body;
+  const { id, code, name, alias, company, level, parentId, managerUserId } = body;
 
   if (!id) {
     return NextResponse.json({ error: "缺少id" }, { status: 400 });
@@ -99,6 +100,7 @@ export async function PUT(request: Request) {
   const data: any = {};
   if (code !== undefined) data.code = code;
   if (name !== undefined) data.name = name;
+  if (alias !== undefined) data.alias = alias || null;
   if (company !== undefined) data.company = company;
   if (level !== undefined) data.level = level;
   if (parentId !== undefined) data.parentId = parentId || null;

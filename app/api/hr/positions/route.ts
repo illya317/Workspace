@@ -20,23 +20,34 @@ export async function GET(request: Request) {
     include: {
       _count: { select: { edps: true } },
       department: { select: { id: true, name: true } },
-      positionDescription: { select: { id: true, name: true } },
+      positionDescription: { select: { id: true, name: true, details: true } },
     },
     orderBy: { code: "asc" },
   });
 
   return NextResponse.json({
-    positions: positions.map((p: any) => ({
-      id: p.id,
-      code: p.code,
-      name: p.name,
-      company: isPharma(p.code) ? '丰华制药' : '丰华生物',
-      departmentId: p.departmentId,
-      departmentName: p.department?.name || null,
-      positionDescriptionId: p.positionDescriptionId,
-      positionDescriptionName: p.positionDescription?.name || null,
-      headcount: p._count.edps,
-    })),
+    positions: positions.map((p: any) => {
+      let codeRaw: string | null = null;
+      if (p.positionDescription?.details) {
+        try {
+          const details = JSON.parse(p.positionDescription.details);
+          codeRaw = details.code_raw || null;
+        } catch {}
+      }
+      return {
+        id: p.id,
+        code: p.code,
+        codeRaw,
+        name: p.name,
+        alias: p.alias || null,
+        company: isPharma(p.code) ? '丰华制药' : '丰华生物',
+        departmentId: p.departmentId,
+        departmentName: p.department?.name || null,
+        positionDescriptionId: p.positionDescriptionId,
+        positionDescriptionName: p.positionDescription?.name || null,
+        headcount: p._count.edps,
+      };
+    }),
   });
 }
 
@@ -85,7 +96,7 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { id, code, name, company } = body;
+  const { id, code, name, alias, company } = body;
 
   if (!id) {
     return NextResponse.json({ error: "缺少id" }, { status: 400 });
@@ -94,6 +105,7 @@ export async function PUT(request: Request) {
   const data: any = {};
   if (code !== undefined) data.code = code;
   if (name !== undefined) data.name = name;
+  if (alias !== undefined) data.alias = alias || null;
   if (company !== undefined) data.company = company;
 
   try {

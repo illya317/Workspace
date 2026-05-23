@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { AutoSizeInput } from "./AutoSizeInput";
 import type { FKOption } from "./types";
 
 interface FKInputProps {
@@ -83,9 +84,9 @@ export default function FKInput({
   const display = value ? selectedName : keyword;
 
   return (
-    <div ref={containerRef} className="relative inline-block w-full">
+    <div ref={containerRef} className="relative inline-block">
       <div className="flex items-center gap-1">
-        <input
+        <AutoSizeInput
           ref={inputRef}
           type="text"
           value={display}
@@ -105,7 +106,7 @@ export default function FKInput({
           }}
           disabled={disabled}
           placeholder={value ? undefined : placeholder}
-          className="w-full rounded border border-emerald-400 px-2 py-1 text-xs focus:outline-none disabled:bg-gray-100"
+          className="disabled:bg-gray-100"
         />
         {value && (
           <button
@@ -118,7 +119,7 @@ export default function FKInput({
         )}
       </div>
       {showDropdown && !value && (
-        <div className="absolute z-50 mt-1 max-h-48 w-full overflow-auto rounded border border-gray-200 bg-white shadow-lg">
+        <div className="absolute z-50 mt-1 max-h-48 min-w-[160px] overflow-auto rounded border border-gray-200 bg-white shadow-lg">
           {loading ? (
             <div className="px-3 py-2 text-xs text-gray-400">搜索中...</div>
           ) : options.length === 0 ? (

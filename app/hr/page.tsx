@@ -14,7 +14,8 @@ import PositionTab from "./PositionTab";
 import EDPTab from "./EDPTab";
 import ProjectTab from "./ProjectTab";
 import EmployeeProjectTab from "./EmployeeProjectTab";
-import AnalyticsTab from "./AnalyticsTab";
+import ContractTab from "./ContractTab";
+
 
 // 花名册代码保留但不展示
 // import RosterTab from "./RosterTab";
@@ -24,26 +25,24 @@ import type { HRUser as User } from "./types";
 type HRTab =
   | "employee"
   | "employment"
+  | "contract"
   | "company"
   | "company-relation"
   | "department"
   | "position"
   | "edp"
   | "project"
-  | "employee-project"
-  | "analytics";
+  | "employee-project";
 
 const tabs: { key: HRTab; label: string }[] = [
-  { key: "employee", label: "5-1 员工信息" },
-  { key: "employment", label: "5-2 雇佣关系" },
-  { key: "company", label: "5-3 公司信息" },
-  { key: "company-relation", label: "5-4 公司关系" },
-  { key: "department", label: "5-5 部门" },
-  { key: "position", label: "5-6 岗位" },
-  { key: "edp", label: "5-7 EDP" },
-  { key: "project", label: "5-8 项目" },
-  { key: "employee-project", label: "5-9 项目员工" },
-  { key: "analytics", label: "人力分析" },
+  { key: "employee", label: "员工信息" },
+  { key: "employment", label: "雇佣关系" },
+  { key: "contract", label: "合同" },
+  { key: "department", label: "部门" },
+  { key: "position", label: "岗位" },
+  { key: "edp", label: "EDP" },
+  { key: "project", label: "项目" },
+  { key: "employee-project", label: "项目员工" },
 ];
 
 export default function HRPage() {
@@ -97,6 +96,12 @@ export default function HRPage() {
               考勤绩效
             </button>
             <button
+              onClick={() => router.push("/hr/analytics")}
+              className="text-sm text-gray-500 hover:text-emerald-600"
+            >
+              人力分析
+            </button>
+            <button
               onClick={() => router.push("/portal")}
               className="text-sm text-gray-500 hover:text-emerald-600"
             >
@@ -134,8 +139,8 @@ export default function HRPage() {
             {activeTab === "position" && <PositionTab user={user} />}
             {activeTab === "edp" && <EDPTab user={user} />}
             {activeTab === "project" && <ProjectTab user={user} />}
+            {activeTab === "contract" && <ContractTab user={user} />}
             {activeTab === "employee-project" && <EmployeeProjectTab user={user} />}
-            {activeTab === "analytics" && <AnalyticsTab />}
           </>
         )}
       </main>

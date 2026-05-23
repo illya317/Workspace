@@ -39,6 +39,26 @@ async function main() {
   }
   console.log(`  Company: ${companies.length}`);
 
+  // Import CompanyRelation
+  console.log('\n  Importing CompanyRelation...');
+  try {
+    const relations = loadJSON('company-relations.json');
+    await prisma.companyRelation.deleteMany({});
+    for (const r of relations) {
+      await prisma.companyRelation.create({
+        data: {
+          parentId: r.parentId,
+          childId: r.childId,
+          shareRatio: r.shareRatio || null,
+          isConsolidated: r.isConsolidated ?? false,
+        },
+      });
+    }
+    console.log(`  CompanyRelation: ${relations.length}`);
+  } catch {
+    console.log('  CompanyRelation: skipped (no seed file)');
+  }
+
   console.log('\n=== Step 1: Clear roster data ===');
   // Delete in reverse dependency order
   await prisma.eDP.deleteMany({});
@@ -74,7 +94,6 @@ async function main() {
   allDepts.sort((a, b) => a.level - b.level);
 
   for (const d of allDepts) {
-    const levelLabel = d.level === 1 ? '事业部' : d.level === 2 ? '部门' : '子部门';
     const parentId = d.parentJsonId ? deptCodeToId[deptJsonIdToCode[d.parentJsonId]] : null;
 
     const created = await prisma.department.create({
@@ -83,7 +102,6 @@ async function main() {
         name: d.name,
         alias: Array.isArray(d.alias) ? d.alias.join('、') : (d.alias || null),
         level: d.level,
-        levelLabel,
         parentId,
       }
     });
@@ -183,7 +201,7 @@ async function main() {
         otherId: e.otherId || null,
         name: e.name,
         alias: e.alias,
-        gender: e.gender,
+        gender: e.gender === "男" ? true : (e.gender === "女" ? false : null),
         birthDate: e.birthDate,
         ethnicity: e.ethnicity,
         hometown: e.hometown,
@@ -216,7 +234,7 @@ async function main() {
     await prisma.employment.create({
       data: {
         employeeId: empDbId,
-        status: e.status || '在职',
+        isActive: e.status !== '离职',
         currentCompany: e.currentCompany || null,
         joinDate: e.joinDate || null,
         leaveDate: e.leaveDate || null,
@@ -264,7 +282,7 @@ async function main() {
         reportTo: e.reportTo || null,
         reportTo2: e.reportTo2 || null,
         workPercent: e.workPercent || null,
-        isResearch: e.isResearch || null,
+        isResearch: e.isResearch === true || e.isResearch === '是' ? true : (e.isResearch === false || e.isResearch === '否' ? false : null),
       }
     });
     edpCount++;

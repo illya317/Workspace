@@ -1,8 +1,7 @@
 import { prisma } from "./prisma";
 
-// 有审计字段（editedBy + version）的表，必须在此注册 entityType。
-// entityType = Prisma 模型名。
-// 新增审计表时在此数组加一条即可。
+// 有审计字段（editedBy + version）的模型，按 Prisma 模型名注册。
+// 新增审计表时在此数组加一行。
 const AUDITED_MODELS = [
   "Employee",
   "Employment",
@@ -25,19 +24,27 @@ function assertEntityType(type: string): asserts type is EntityType {
   }
 }
 
+/** Prisma 模型名 → client 方法名（Employee→employee, EDP→eDP） */
+function clientKey(entityType: EntityType): string {
+  return entityType.charAt(0).toLowerCase() + entityType.slice(1);
+}
+
 /**
- * 记录编辑历史快照
+ * 编辑后调用，快照当前记录写入 EditHistory。
  */
 export async function snapshotHistory(
   entityType: string,
-  entityId: string,
-  oldData: Record<string, unknown> | null,
+  entityId: number,
   userId: number
 ) {
-  if (!oldData) return;
   assertEntityType(entityType);
+  const record = await (prisma as any)[clientKey(entityType)].findUnique({
+    where: { id: entityId },
+  });
+  if (!record) return;
+
   const maxVer = await prisma.editHistory.findFirst({
-    where: { entityType, entityId },
+    where: { entityType, entityId: String(entityId) },
     orderBy: { version: "desc" },
     select: { version: true },
   });
@@ -45,9 +52,9 @@ export async function snapshotHistory(
   await prisma.editHistory.create({
     data: {
       entityType,
-      entityId,
+      entityId: String(entityId),
       version: nextVersion,
-      dataJson: JSON.stringify(oldData),
+      dataJson: JSON.stringify(record),
       editedBy: userId,
     },
   });

@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     id: item.id,
     employeeId: item.employeeId,
     employeeName: item.employee?.name || "",
-    status: item.status,
+    isActive: item.isActive,
     currentCompany: item.currentCompany,
     joinDate: item.joinDate,
     leaveDate: item.leaveDate,
@@ -42,14 +42,14 @@ export async function POST(request: Request) {
   if (!(await checkHRAccess(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const body = await request.json();
-  const { employeeId, status, currentCompany, joinDate, leaveDate, leaveReason, officeLocation, attendanceType, contracts } = body;
+  const { employeeId, isActive, currentCompany, joinDate, leaveDate, leaveReason, officeLocation, attendanceType, contracts } = body;
 
   if (!employeeId) return NextResponse.json({ error: "缺少员工ID" }, { status: 400 });
 
   const item = await prisma.employment.create({
     data: {
       employeeId: Number(employeeId),
-      status: status || "在职",
+      isActive: isActive !== false && isActive !== "离职",
       currentCompany: currentCompany || null,
       joinDate: joinDate || null,
       leaveDate: leaveDate || null,

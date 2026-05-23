@@ -246,7 +246,7 @@
     "education": "本科",
     "school": "扬州大学",
     "major": "药学",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15061186985",
     "workStartDate": "2019-08-01"
@@ -336,7 +336,7 @@
     "education": "本科",
     "school": "江苏师范大学",
     "major": "计算机科学与技术",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "18932267150",
     "workStartDate": "2016-08-01"
@@ -354,7 +354,7 @@
     "education": "高中",
     "school": "建湖中学",
     "major": null,
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "13851004529",
     "workStartDate": "1985-08-01"
@@ -444,7 +444,7 @@
     "education": "高中",
     "school": null,
     "major": null,
-    "title": null,
+    "title": "中级（司级）",
     "alias": null,
     "phone": "15061604217",
     "workStartDate": "1994-05-01"
@@ -462,7 +462,7 @@
     "education": "硕士",
     "school": "临沂大学",
     "major": "化学",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "18862015873",
     "workStartDate": null
@@ -498,7 +498,7 @@
     "education": "大专",
     "school": "华中师范大学",
     "major": "计算机科学与技术",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "18705116006",
     "workStartDate": "1999-01-01"
@@ -534,7 +534,7 @@
     "education": "大专",
     "school": "云南开放大学",
     "major": "行政管理",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15195536010",
     "workStartDate": "2003-09-01"
@@ -588,7 +588,7 @@
     "education": "大专",
     "school": "江苏广播电视大学",
     "major": "机电一体化",
-    "title": null,
+    "title": "中级（司级）",
     "alias": null,
     "phone": "13814307952",
     "workStartDate": "2008-09-01"
@@ -606,7 +606,7 @@
     "education": "大专",
     "school": "南京大学自考中心",
     "major": "法律",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "13770282479",
     "workStartDate": "1996-01-01"
@@ -624,7 +624,7 @@
     "education": "大专",
     "school": "江苏广播电视大学",
     "major": "计算机信息管理及应用",
-    "title": null,
+    "title": "中级（司级）",
     "alias": null,
     "phone": "15862075657",
     "workStartDate": "2008-09-01"
@@ -642,7 +642,7 @@
     "education": "大专",
     "school": "南京市金陵科技学院",
     "major": "楼宇智能/物业管理",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15995178302",
     "workStartDate": "2007-03-01"
@@ -660,7 +660,7 @@
     "education": "大专",
     "school": "北京师范大学",
     "major": "应用电子技术",
-    "title": null,
+    "title": "高级（司级）",
     "alias": "于心会",
     "phone": "18662041729",
     "workStartDate": "1997-01-01"
@@ -678,7 +678,7 @@
     "education": "本科",
     "school": "扬州大学农学院",
     "major": "畜牧兽医",
-    "title": "初级",
+    "title": "中级（司级）",
     "alias": null,
     "phone": "17626656676",
     "workStartDate": "2015-05-01"
@@ -696,7 +696,7 @@
     "education": "本科",
     "school": "江苏师范大学",
     "major": "教育学",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "13961957202",
     "workStartDate": "2010-01-01"
@@ -732,7 +732,7 @@
     "education": "大专",
     "school": "江苏农牧科技职业学院",
     "major": "兽医检验技术",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15005102785",
     "workStartDate": "2015-06-01"
@@ -804,7 +804,7 @@
     "education": "本科",
     "school": "中国药科大学",
     "major": "药学",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15962073237",
     "workStartDate": "2008-06-01"
@@ -822,7 +822,7 @@
     "education": "中专",
     "school": "盐城化工",
     "major": "化学分析",
-    "title": "初级",
+    "title": "中级（司级）",
     "alias": null,
     "phone": "15305114020",
     "workStartDate": "1993-07-01"
@@ -840,7 +840,7 @@
     "education": "大专",
     "school": "中国药科大学",
     "major": "药学",
-    "title": "初级",
+    "title": "中级（司级）",
     "alias": null,
     "phone": "15195167739",
     "workStartDate": "2003-03-01"
@@ -876,7 +876,7 @@
     "education": "大专",
     "school": "中央广播电视大学",
     "major": "会计学（财会方向）",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "13961959205",
     "workStartDate": "2009-07-01"
@@ -894,7 +894,7 @@
     "education": "本科",
     "school": "中国药科大学",
     "major": "药学",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "13961957102",
     "workStartDate": "2009-11-01"
@@ -930,7 +930,7 @@
     "education": "大专",
     "school": "徐州工业职业技术学院",
     "major": "商务英语",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "18914679280",
     "workStartDate": "2011-01-01"
@@ -948,7 +948,7 @@
     "education": "本科",
     "school": "中国药科大学",
     "major": "药学",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15151080133",
     "workStartDate": "2009-07-01"
@@ -966,7 +966,7 @@
     "education": "本科",
     "school": "盐城工学院",
     "major": "生物工程",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15705105117",
     "workStartDate": "2016-07-01"
@@ -1002,7 +1002,7 @@
     "education": "本科",
     "school": "中国药科大学",
     "major": "药事管理",
-    "title": "中级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "18851106800",
     "workStartDate": null
@@ -1254,7 +1254,7 @@
     "education": "本科",
     "school": "南京中医药大学",
     "major": "国际经济贸易",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "13776695625",
     "workStartDate": "2013-06-01"
@@ -1272,7 +1272,7 @@
     "education": "本科",
     "school": "盐城工学院",
     "major": "电气工程及其自动化",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "18796539253",
     "workStartDate": "2003-08-01"
@@ -1884,7 +1884,7 @@
     "education": "研究生",
     "school": "北京化工大学",
     "major": "自动化专业经济管理",
-    "title": "高级经济师",
+    "title": "高经工程师",
     "alias": null,
     "phone": "13701152358",
     "workStartDate": null
@@ -2046,7 +2046,7 @@
     "education": "本科",
     "school": "盐城师范学院",
     "major": "生物工程",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "13770235846",
     "workStartDate": null
@@ -2928,7 +2928,7 @@
     "education": "本科",
     "school": "常州大学怀德学院",
     "major": "电气工程及其自动化",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "13914673983",
     "workStartDate": "2023-10-01"
@@ -3450,7 +3450,7 @@
     "education": "本科",
     "school": "盐城市师范学院",
     "major": "法学",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "13921672748",
     "workStartDate": "2009-01-01"
@@ -3648,7 +3648,7 @@
     "education": "大专",
     "school": "江苏工程职业技术学院",
     "major": "生物制药技术",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "18551525530",
     "workStartDate": "2017-06-01"
@@ -3972,7 +3972,7 @@
     "education": "本科",
     "school": "辽宁中医药大学",
     "major": "食品质量与安全针灸推拿学",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15962076231",
     "workStartDate": null
@@ -4044,7 +4044,7 @@
     "education": "大专",
     "school": "江苏食品药品职业技术学院",
     "major": "药学",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15251087798",
     "workStartDate": "2019-01-01"
@@ -4080,7 +4080,7 @@
     "education": "本科",
     "school": "中国药科大学",
     "major": "药学",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15995690401",
     "workStartDate": null
@@ -4188,7 +4188,7 @@
     "education": "本科",
     "school": "河北科技大学理工学院",
     "major": "生物技术",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15358248778",
     "workStartDate": null
@@ -4242,7 +4242,7 @@
     "education": "本科",
     "school": "南京中医药大学翰林学院",
     "major": "中药资源与开发",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "13291257924",
     "workStartDate": null
@@ -4278,7 +4278,7 @@
     "education": "本科",
     "school": "北京城市学院",
     "major": "中药学",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "18361616346",
     "workStartDate": "2015-01-01"
@@ -4350,7 +4350,7 @@
     "education": "大专",
     "school": "常州轻工职业技术学院",
     "major": "会计",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15895168441",
     "workStartDate": "2016-02-01"
@@ -4368,7 +4368,7 @@
     "education": "大专",
     "school": "江苏农林职业技术学院",
     "major": "畜牧兽医",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "17826675253",
     "workStartDate": null
@@ -4620,7 +4620,7 @@
     "education": "硕士",
     "school": "吉林大学",
     "major": "畜牧",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15694302348",
     "workStartDate": null
@@ -4656,7 +4656,7 @@
     "education": "大专",
     "school": "南京铁道职业技术学院",
     "major": "交通运输管理",
-    "title": "助理工程师",
+    "title": "助工",
     "alias": null,
     "phone": "15050708988",
     "workStartDate": null
@@ -4746,7 +4746,7 @@
     "education": "本科",
     "school": "江苏科技大学苏州理工学院",
     "major": "计算机科学与技术",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15895169270",
     "workStartDate": "2014-06-01"
@@ -4836,7 +4836,7 @@
     "education": "大专",
     "school": "昆山登云科技职业学院",
     "major": "数控技术",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "18452561840",
     "workStartDate": "2014-01-01"
@@ -4998,7 +4998,7 @@
     "education": "本科",
     "school": "南京师范大学泰州学院",
     "major": "制药工程",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "13515149530",
     "workStartDate": null
@@ -5196,7 +5196,7 @@
     "education": "本科",
     "school": "盐城工学院",
     "major": "制药工程",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15905106890",
     "workStartDate": "2017-04-01"
@@ -5250,7 +5250,7 @@
     "education": "大专",
     "school": "镇江市高等专科学校",
     "major": "药品生产技术",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15151055183",
     "workStartDate": "2020-01-01"
@@ -5268,7 +5268,7 @@
     "education": "本科",
     "school": "南京工业大学",
     "major": "会计学",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15189359628",
     "workStartDate": "2013-04-01"
@@ -5358,7 +5358,7 @@
     "education": "大专",
     "school": "江苏城乡建设职业学院",
     "major": "建筑工程技术",
-    "title": null,
+    "title": "中级（司级）",
     "alias": null,
     "phone": "15195537398",
     "workStartDate": "1994-12-01"
@@ -5430,7 +5430,7 @@
     "education": "大专",
     "school": "江苏农林职业技术学院",
     "major": "汽车技术服务与营销",
-    "title": null,
+    "title": "初级（司级）",
     "alias": null,
     "phone": "15051096052",
     "workStartDate": "2015-10-01"
@@ -5448,7 +5448,7 @@
     "education": "本科",
     "school": "南京财经大学红山学院",
     "major": "金融学",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "19952899987",
     "workStartDate": null
@@ -5502,7 +5502,7 @@
     "education": "大专",
     "school": "江苏工程职业技术学院",
     "major": "生物制药",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "18051266150",
     "workStartDate": "2016-06-01"
@@ -5736,7 +5736,7 @@
     "education": "本科",
     "school": "南通大学",
     "major": "药学",
-    "title": "初级",
+    "title": "中级（司级）",
     "alias": null,
     "phone": "15189312442",
     "workStartDate": "2011-03-01"
@@ -5754,7 +5754,7 @@
     "education": "本科",
     "school": "南京中医药大学翰林学院",
     "major": "药学",
-    "title": "初级",
+    "title": "初级（司级）",
     "alias": null,
     "phone": "13626229371",
     "workStartDate": null

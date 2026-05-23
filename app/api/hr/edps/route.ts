@@ -91,7 +91,7 @@ export async function POST(request: Request) {
       reportTo: reportTo || null,
       reportTo2: reportTo2 || null,
       workPercent: workPercent || null,
-      isResearch: isResearch || null,
+      isResearch: isResearch === true || isResearch === "是" ? true : (isResearch === false || isResearch === "否" ? false : null),
       editedBy: payload.userId,
     },
   });

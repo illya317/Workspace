@@ -53,7 +53,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { code, name, alias, level, levelLabel, parentId, managerUserId } = body;
+  const { code, name, alias, level, parentId, managerUserId } = body;
 
   if (!code || !name) {
     return NextResponse.json({ error: "缺少必填字段" }, { status: 400 });
@@ -66,7 +66,6 @@ export async function POST(request: Request) {
         name,
         alias: alias || null,
         level: level || 1,
-        levelLabel: levelLabel || "部门",
         parentId: parentId || null,
         managerUserId: managerUserId || null,
       },

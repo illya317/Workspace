@@ -1,0 +1,5 @@
+[
+  { "parentId": 8, "childId": 9, "shareRatio": null, "isConsolidated": true },
+  { "parentId": 8, "childId": 10, "shareRatio": null, "isConsolidated": true },
+  { "parentId": 8, "childId": 12, "shareRatio": null, "isConsolidated": true }
+]

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getInitials } from "@/lib/search";
 
 const SEARCH_CONFIG: Record<string, {
   model: keyof typeof prisma;
@@ -13,10 +14,10 @@ const SEARCH_CONFIG: Record<string, {
   employee: {
     model: "employee",
     searchFields: ["name", "employeeId"],
-    select: { id: true, name: true, employeeId: true },
+    select: { id: true, name: true, employeeId: true, alias: true },
     labelField: "name",
     subtitleField: "employeeId",
-    take: 20,
+    take: 100,
   },
   department: {
     model: "department",
@@ -24,7 +25,7 @@ const SEARCH_CONFIG: Record<string, {
     select: { id: true, name: true, code: true },
     labelField: "name",
     subtitleField: "code",
-    take: 20,
+    take: 100,
   },
   position: {
     model: "position",
@@ -32,14 +33,14 @@ const SEARCH_CONFIG: Record<string, {
     select: { id: true, name: true, code: true },
     labelField: "name",
     subtitleField: "code",
-    take: 20,
+    take: 100,
   },
   project: {
     model: "project",
     searchFields: ["name"],
     select: { id: true, name: true },
     labelField: "name",
-    take: 20,
+    take: 100,
   },
   company: {
     model: "company",
@@ -47,7 +48,7 @@ const SEARCH_CONFIG: Record<string, {
     select: { id: true, name: true, code: true },
     labelField: "name",
     subtitleField: "code",
-    take: 20,
+    take: 100,
   },
   user: {
     model: "user",
@@ -55,7 +56,7 @@ const SEARCH_CONFIG: Record<string, {
     select: { id: true, name: true, username: true },
     labelField: "name",
     subtitleField: "username",
-    take: 20,
+    take: 100,
   },
   positionDescription: {
     model: "positionDescription",
@@ -63,9 +64,25 @@ const SEARCH_CONFIG: Record<string, {
     select: { id: true, name: true, code: true },
     labelField: "name",
     subtitleField: "code",
-    take: 20,
+    take: 100,
   },
 };
+
+function matchRecord(record: any, keyword: string, searchFields: string[]): boolean {
+  const q = keyword.toLowerCase();
+  // 字段包含匹配
+  for (const field of searchFields) {
+    const val = String(record[field] || "").toLowerCase();
+    if (val.includes(q)) return true;
+  }
+  // 拼音首字母匹配（对 name 字段）
+  const name = record.name || "";
+  if (name) {
+    const initials = getInitials(name);
+    if (initials.includes(q)) return true;
+  }
+  return false;
+}
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -86,26 +103,25 @@ export async function GET(request: Request) {
   }
 
   const model = prisma[config.model] as any;
-  const where: any = {};
-
-  if (keyword) {
-    where.OR = config.searchFields.map((field) => ({
-      [field]: { contains: keyword },
-    }));
-  }
 
   const items = await model.findMany({
-    where,
     select: config.select,
     take: config.take,
     orderBy: { id: "asc" },
   });
 
-  return NextResponse.json({
-    items: items.map((item: any) => ({
-      id: item.id,
-      name: item[config.labelField],
-      subtitle: config.subtitleField ? item[config.subtitleField] : undefined,
-    })),
-  });
+  const mapped = items.map((item: any) => ({
+    id: item.id,
+    name: item[config.labelField],
+    subtitle: config.subtitleField ? item[config.subtitleField] : undefined,
+  }));
+
+  if (keyword) {
+    const filtered = mapped.filter((item: any) =>
+      matchRecord(item, keyword, config.searchFields)
+    );
+    return NextResponse.json({ items: filtered });
+  }
+
+  return NextResponse.json({ items: mapped });
 }

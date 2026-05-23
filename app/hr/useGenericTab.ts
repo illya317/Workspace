@@ -6,6 +6,7 @@ import type { TabConfig } from "./types";
 export interface GenericTabState {
   items: any[];
   loading: boolean;
+  error: string | null;
   keyword: string;
   setKeyword: (v: string) => void;
   editMode: boolean;
@@ -40,11 +41,13 @@ export function useGenericTab(config: TabConfig): GenericTabState {
   const [creating, setCreating] = useState(false);
   const [createForm, setCreateForm] = useState<Record<string, unknown>>({});
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [versions, setVersions] = useState<Array<{ version: number; createdAt: string; editor?: { name: string } }>>([]);
   const [currentVersion, setCurrentVersion] = useState<number | undefined>(undefined);
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const params = new URLSearchParams();
       if (keyword) params.set("keyword", keyword);
@@ -53,7 +56,14 @@ export function useGenericTab(config: TabConfig): GenericTabState {
         const data = await res.json();
         const list = config.listGetter ? config.listGetter(data) : data.items || data;
         setItems(Array.isArray(list) ? list : []);
+      } else {
+        const data = await res.json().catch(() => ({ error: `请求失败 (${res.status})` }));
+        setError(data.error || `请求失败 (${res.status})`);
+        setItems([]);
       }
+    } catch (e: any) {
+      setError(e.message || "网络错误");
+      setItems([]);
     } finally {
       setLoading(false);
     }
@@ -87,8 +97,13 @@ export function useGenericTab(config: TabConfig): GenericTabState {
         body: JSON.stringify({ field, value: editValue ?? null }),
       });
       if (res.ok) {
+        let newValue = editValue ?? null;
+        // 性别：前端编辑用字符串，后端存 boolean
+        if (field === "gender") {
+          newValue = editValue === "男" ? true : editValue === "女" ? false : null;
+        }
         setItems((prev) =>
-          prev.map((item) => (item.id === id ? { ...item, [field]: editValue ?? null } : item))
+          prev.map((item) => (item.id === id ? { ...item, [field]: newValue } : item))
         );
         setEditingCell(null);
         setEditMode(false);
@@ -163,7 +178,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
   }, [config.entityType, editingCell, items]);
 
   return {
-    items, loading, keyword, setKeyword,
+    items, loading, error, keyword, setKeyword,
     editMode, setEditMode,
     editingCell, editValue, setEditValue,
     startEdit, cancelEdit, saveCell,

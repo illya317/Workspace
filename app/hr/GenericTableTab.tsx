@@ -6,6 +6,7 @@ import ConfirmModal from "@/app/components/ConfirmModal";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import FKInput from "./FKInput";
+import { AutoSizeInput } from "./AutoSizeInput";
 import { useGenericTab } from "./useGenericTab";
 import type { TabConfig, FieldConfig, HRUser } from "./types";
 
@@ -14,16 +15,24 @@ function getVal(obj: any, path: string): any {
 }
 
 function renderCell(item: any, field: FieldConfig, config: TabConfig) {
+  if (field.key === "gender") return item.gender === true ? "男" : item.gender === false ? "女" : "-";
+  if (field.key === "isActive") return item.isActive === true ? "在职" : item.isActive === false ? "离职" : "-";
+  if (field.key === "level") {
+    const map: Record<number, string> = { 1: "事业部", 2: "部门", 3: "子部门" };
+    return map[item.level] ?? item.level;
+  }
   if (field.type === "boolean") return item[field.key] ? "是" : "否";
   if (field.type === "fk" && config.fkFields?.[field.key]) {
-    return getVal(item, field.key + "Name") ?? getVal(item, config.fkFields[field.key].displayField) ?? "-";
+    const v = getVal(item, field.key + "Name") ?? getVal(item, config.fkFields[field.key].displayField) ?? "";
+    return v || "-";
   }
-  return item[field.key] ?? "-";
+  const v = field.displayField ? getVal(item, field.displayField) : item[field.key];
+  return (v === null || v === undefined || v === "") ? "-" : v;
 }
 
 export default function GenericTableTab({ config, user }: { config: TabConfig; user: HRUser }) {
   const {
-    items, loading, keyword, setKeyword, editMode, setEditMode,
+    items, loading, error, keyword, setKeyword, editMode, setEditMode,
     editingCell, editValue, setEditValue, startEdit, cancelEdit, saveCell,
     creating, setCreating, createForm, setCreateForm, submitCreate, deleteItem,
     versions, currentVersion, selectVersion, saving, load,
@@ -44,9 +53,15 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
 
   function handleStartEdit(item: any, field: FieldConfig) {
     if (!user.canAccessHR || !editMode || !field.editable) return;
-    const initVal = field.type === "fk"
-      ? (getVal(item, field.key + "Name") ?? getVal(item, config.fkFields?.[field.key]?.displayField ?? field.key) ?? "")
-      : (item[field.key] ?? "");
+    if (editingCell?.id === item.id && editingCell?.field === field.key) return;
+    let initVal: any;
+    if (field.key === "gender") {
+      initVal = item.gender === true ? "男" : item.gender === false ? "女" : "";
+    } else if (field.type === "fk") {
+      initVal = getVal(item, field.key + "Name") ?? getVal(item, config.fkFields?.[field.key]?.displayField ?? field.key) ?? "";
+    } else {
+      initVal = item[field.key] ?? "";
+    }
     startEdit(item.id, field.key, initVal);
   }
 
@@ -76,13 +91,30 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
   function renderEditInput(fieldKey: string) {
     const field = config.fields.find((f) => f.key === fieldKey);
     if (!field) return null;
+    if (field.key === "gender") {
+      return (
+        <select
+          value={editValue === true || editValue === "男" ? "男" : editValue === false || editValue === "女" ? "女" : "男"}
+          onChange={(e) => setEditValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className="rounded border border-emerald-400 px-2 py-1.5 text-sm focus:outline-none"
+        >
+          <option value="男">男</option>
+          <option value="女">女</option>
+        </select>
+      );
+    }
     if (field.type === "boolean") {
       return (
-        <input
-          type="checkbox" checked={!!editValue}
-          onChange={(e) => setEditValue(e.target.checked)}
-          className="h-4 w-4 rounded border-emerald-400 text-emerald-600"
-        />
+        <button
+          type="button"
+          onClick={() => setEditValue(!editValue)}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 ${editValue ? 'bg-emerald-500' : 'bg-gray-300'}`}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${editValue ? 'translate-x-6' : 'translate-x-1'}`}
+          />
+        </button>
       );
     }
     if (field.type === "fk" && config.fkFields?.[fieldKey]) {
@@ -94,11 +126,11 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
       );
     }
     return (
-      <input
-        ref={inputRef} value={editValue ?? ""}
+      <AutoSizeInput
+        ref={inputRef}
+        value={editValue ?? ""}
         onChange={(e) => setEditValue(e.target.value)}
         onKeyDown={handleKeyDown}
-        className="w-full rounded border border-emerald-400 px-2 py-1 text-xs focus:outline-none"
       />
     );
   }
@@ -130,6 +162,8 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         {loading ? (
           <p className="p-8 text-center text-gray-500">加载中...</p>
+        ) : error ? (
+          <p className="p-8 text-center text-red-500">加载失败：{error}</p>
         ) : items.length === 0 ? (
           <p className="p-8 text-center text-gray-500">暂无数据</p>
         ) : (
@@ -191,6 +225,15 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
                       entity={config.fkFields[f.key].entity}
                       onChange={(opt) => setCreateForm((prev) => ({ ...prev, [f.key]: opt }))}
                     />
+                  ) : f.key === "gender" ? (
+                    <select
+                      value={(createForm[f.key] as string) ?? "男"}
+                      onChange={(e) => setCreateForm((prev) => ({ ...prev, [f.key]: e.target.value }))}
+                      className="w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+                    >
+                      <option value="男">男</option>
+                      <option value="女">女</option>
+                    </select>
                   ) : f.type === "boolean" ? (
                     <input
                       type="checkbox"
@@ -206,11 +249,11 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
                       rows={3}
                     />
                   ) : (
-                    <input
+                    <AutoSizeInput
                       type={f.type === "number" ? "number" : f.type === "date" ? "date" : "text"}
                       value={(createForm[f.key] as string) ?? ""}
                       onChange={(e) => setCreateForm((prev) => ({ ...prev, [f.key]: e.target.value }))}
-                      className="w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+                      className="border-gray-300 focus:border-emerald-400"
                     />
                   )}
                 </div>
