@@ -112,9 +112,6 @@ export default function AuditLogModal({ open, onClose, entityType }: AuditLogMod
                       <span className="inline-block bg-gray-100 rounded px-1.5 py-0.5 text-xs font-mono font-medium">
                         V{e.version}
                       </span>
-                      {e.isFirst && (
-                        <span className="text-[10px] bg-emerald-50 text-emerald-600 rounded px-1 py-0.5">创建</span>
-                      )}
                     </span>
                     <span className="text-xs text-gray-500 w-36 shrink-0">
                       {new Date(e.createdAt).toLocaleString("zh-CN")}
@@ -127,11 +124,7 @@ export default function AuditLogModal({ open, onClose, entityType }: AuditLogMod
                     <div className="flex flex-wrap gap-1 ml-auto">
                       {e.changes.slice(0, 4).map((c) => (
                         <span key={c.field} className="inline-block bg-amber-50 text-amber-700 rounded px-1.5 py-0.5 text-[11px]">
-                          {label(c.field)}
-                          {!e.isFirst && c.from !== undefined && (
-                            <span className="text-gray-400"> {formatVal(c.from)}→</span>
-                          )}
-                          <span className="font-medium"> {formatVal(c.to)}</span>
+                          {label(c.field)}: <span className="font-medium">{formatVal(c.to)}</span>
                         </span>
                       ))}
                       {e.changes.length > 4 && (
@@ -147,37 +140,26 @@ export default function AuditLogModal({ open, onClose, entityType }: AuditLogMod
                   {/* Expanded detail */}
                   {expandedId === e.id && (
                     <div className="border-t bg-gray-50 rounded-b-lg px-4 py-3">
-                      {e.isFirst ? (
-                        <div>
-                          <p className="text-xs text-gray-500 mb-2">初始值：</p>
-                          <div className="grid grid-cols-3 gap-1.5">
-                            {e.changes.map((c) => (
-                              <div key={c.field} className="text-xs">
-                                <span className="text-gray-400">{label(c.field)}: </span>
-                                <span className="text-gray-700 font-medium">{formatVal(c.to)}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <div>
-                          <p className="text-xs text-gray-500 mb-2">变更详情：</p>
-                          <div className="space-y-1.5">
-                            {e.changes.map((c) => (
-                              <div key={c.field} className="flex items-center gap-2 text-xs">
-                                <span className="text-gray-500 w-24 shrink-0">{label(c.field)}</span>
+                      <div className="space-y-1.5">
+                        {e.changes.map((c) => (
+                          <div key={c.field} className="flex items-center gap-2 text-xs">
+                            <span className="text-gray-500 w-24 shrink-0">{label(c.field)}</span>
+                            {c.from !== undefined ? (
+                              <>
                                 <span className="text-red-500 bg-red-50 rounded px-1.5 py-0.5 line-through font-mono">
-                                  {formatVal(c.from || "")}
+                                  {formatVal(c.from)}
                                 </span>
                                 <span className="text-gray-300">→</span>
-                                <span className="text-emerald-600 bg-emerald-50 rounded px-1.5 py-0.5 font-mono">
-                                  {formatVal(c.to)}
-                                </span>
-                              </div>
-                            ))}
+                              </>
+                            ) : (
+                              <span className="text-gray-300 italic text-[11px]">(无)</span>
+                            )}
+                            <span className="text-emerald-600 bg-emerald-50 rounded px-1.5 py-0.5 font-mono">
+                              {formatVal(c.to)}
+                            </span>
                           </div>
-                        </div>
-                      )}
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
