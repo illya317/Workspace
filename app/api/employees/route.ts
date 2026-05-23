@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import * as XLSX from "xlsx";
-import { matchEmployee, matchAnyField } from "@/lib/search";
+import { matchEmployee } from "@/lib/search";
+import { matchAnyField } from "@/lib/search-schema";
 import { FENGHUA_BIO_GROUP, resolveCompanyFilter, isPharma } from "@/lib/company";
 
 // 字段列表（顺序）

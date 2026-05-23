@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { matchAnyField } from "@/lib/search";
+import { matchAnyField } from "@/lib/search-schema";
 import { snapshotHistory } from "@/lib/history";
 import { isPharma } from "@/lib/company";
 

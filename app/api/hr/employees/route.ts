@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { matchEmployee, matchAnyField } from "@/lib/search";
+import { matchEmployee } from "@/lib/search";
+import { matchAnyField } from "@/lib/search-schema";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
