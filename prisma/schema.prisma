@@ -373,7 +373,7 @@ model EditHistory {
   entityType String   // Prisma 模型名（如 Employee, Employment, Department...）
   entityId   String   // 实体主键
   version    Int      // 版本号
-  dataJson   String   // 编辑前快照
+  dataJson   String   // 编辑后快照
   editedBy   Int      // 编辑人用户ID
   editor     User     @relation("EditHistoryEditor", fields: [editedBy], references: [id])
   createdAt  DateTime @default(now()) // 创建时间
