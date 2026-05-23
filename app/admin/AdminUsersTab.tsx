@@ -14,8 +14,6 @@ interface UserItem {
   canAccessWorks: boolean;
 }
 
-interface EmpOption { id: number; name: string; subtitle?: string }
-
 export default function AdminUsersTab({ showToast }: { showToast: (msg: string, type?: "success" | "error") => void }) {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,25 +22,13 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
 
   // Create form
   const [creating, setCreating] = useState(false);
-  const [empQuery, setEmpQuery] = useState("");
-  const [empResults, setEmpResults] = useState<EmpOption[]>([]);
-  const [selectedEmp, setSelectedEmp] = useState<EmpOption | null>(null);
-  const [showEmpDropdown, setShowEmpDropdown] = useState(false);
+  const [newName, setNewName] = useState("");
   const [newUsername, setNewUsername] = useState("");
-  const empRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
+
   // Inline edit
   const [editCell, setEditCell] = useState<{ id: number; field: string } | null>(null);
   const [editValue, setEditValue] = useState("");
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setShowEmpDropdown(false);
-      }
-    }
-    if (showEmpDropdown) { document.addEventListener("mousedown", handleClickOutside); return () => document.removeEventListener("mousedown", handleClickOutside); }
-  }, [showEmpDropdown]);
 
   async function load() {
     setLoading(true);
@@ -57,6 +43,30 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
 
   useEffect(() => { load(); }, []);
 
+  async function handleCreate() {
+    if (!newName.trim()) { showToast("请输入姓名", "error"); return; }
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newName.trim(), username: newUsername.trim() || null }),
+      });
+      if (res.ok) {
+        showToast("已创建", "success");
+        setNewName(""); setNewUsername(""); setCreating(false);
+        load();
+      } else {
+        const d = await res.json().catch(() => ({}));
+        showToast(d.error || "创建失败", "error");
+      }
+    } catch { showToast("网络错误", "error"); }
+  }
+
+  function startEdit(id: number, field: string, value: string) {
+    setEditCell({ id, field });
+    setEditValue(value || "");
+  }
+
   async function saveEdit() {
     if (!editCell) return;
     try {
@@ -70,53 +80,6 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
         setEditCell(null);
       } else {
         showToast("保存失败", "error");
-      }
-    } catch { showToast("网络错误", "error"); }
-  }
-
-  function startEdit(id: number, field: string, value: string) {
-    setEditCell({ id, field });
-    setEditValue(value || "");
-  }
-
-  async function searchEmployee(q: string) {
-    setEmpQuery(q); setSelectedEmp(null);
-    if (!q.trim()) { setEmpResults([]); setShowEmpDropdown(false); return; }
-    try {
-      const res = await fetch(`/api/hr/autocomplete?entity=employee&keyword=${encodeURIComponent(q)}`);
-      if (res.ok) {
-        const data = await res.json();
-        setEmpResults((data.items || []).slice(0, 50));
-        setShowEmpDropdown(true);
-      }
-    } catch {}
-  }
-
-  function selectEmployee(emp: EmpOption) {
-    setSelectedEmp(emp);
-    setEmpQuery(`${emp.name} / ${emp.subtitle || emp.id}`);
-    setShowEmpDropdown(false);
-  }
-
-  async function handleCreate() {
-    if (!selectedEmp) { showToast("请选择员工", "error"); return; }
-    try {
-      const res = await fetch("/api/admin/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: selectedEmp.name,
-          username: newUsername.trim() || null,
-          employeeId: selectedEmp.subtitle || String(selectedEmp.id),
-        }),
-      });
-      if (res.ok) {
-        showToast("已创建", "success");
-        setSelectedEmp(null); setEmpQuery(""); setNewUsername(""); setCreating(false);
-        load();
-      } else {
-        const d = await res.json().catch(() => ({}));
-        showToast(d.error || "创建失败", "error");
       }
     } catch { showToast("网络错误", "error"); }
   }
@@ -181,33 +144,15 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
           </button>
         </div>
         <span className="text-sm text-gray-400">{users.length} 个用户</span>
-        <button onClick={() => { setCreating(true); setTimeout(() => empRef.current?.focus(), 50); }} className="rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700">新建</button>
+        <button onClick={() => { setCreating(true); setTimeout(() => nameRef.current?.focus(), 50); }} className="rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700">新建</button>
       </div>
 
       {creating && (
         <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3">
-          <div className="relative" ref={dropdownRef}>
-            <input
-              ref={empRef}
-              value={empQuery}
-              onChange={(e) => searchEmployee(e.target.value)}
-              placeholder="搜索员工（姓名/工号）*"
-              className="rounded border border-gray-300 px-2 py-1 text-sm w-56 focus:border-emerald-400 focus:outline-none"
-              onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-            />
-            {showEmpDropdown && empResults.length > 0 && (
-              <div className="absolute left-0 top-full z-20 mt-1 w-full rounded-md border bg-white shadow-lg max-h-80 overflow-y-auto">
-                {empResults.map((e) => (
-                  <button key={e.id} onClick={() => selectEmployee(e)} className="w-full px-3 py-1.5 text-left text-sm hover:bg-gray-50">
-                    {e.name} <span className="text-gray-400 text-xs">/ {e.subtitle}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          <input ref={nameRef} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="姓名 *" className="rounded border border-gray-300 px-2 py-1 text-sm w-32 focus:border-emerald-400 focus:outline-none" onKeyDown={(e) => e.key === "Enter" && handleCreate()} />
           <input value={newUsername} onChange={(e) => setNewUsername(e.target.value)} placeholder="用户名（可选，用于登录）" className="rounded border border-gray-300 px-2 py-1 text-sm w-44 focus:border-emerald-400 focus:outline-none" onKeyDown={(e) => e.key === "Enter" && handleCreate()} />
           <button onClick={handleCreate} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700">保存</button>
-          <button onClick={() => { setCreating(false); setSelectedEmp(null); setEmpQuery(""); setNewUsername(""); }} className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50">取消</button>
+          <button onClick={() => { setCreating(false); setNewName(""); setNewUsername(""); }} className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50">取消</button>
         </div>
       )}
 
