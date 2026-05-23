@@ -84,6 +84,21 @@ export default function ApiGuidePage() {
   }, [router]);
 
   const BASE = "http://49.235.213.225:3000";
+  const [copyAllCopied, setCopyAllCopied] = useState(false);
+
+  function copyForAgent() {
+    const headers = `X-API-Key: ${apiKey || "<your-key>"}
+X-Username: ${user?.username || user?.name || "<your-username>"}
+Base: ${BASE}`;
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(headers).catch(() => fallbackCopy(headers));
+    } else { fallbackCopy(headers); }
+    setCopyAllCopied(true); setTimeout(() => setCopyAllCopied(false), 2000);
+  }
+
+  function fallbackCopy(text: string) {
+    const el = document.createElement("textarea"); el.value = text; el.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(el); el.select(); document.execCommand("copy"); document.body.removeChild(el);
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -108,7 +123,10 @@ export default function ApiGuidePage() {
         <MyApiKeyPanel apiKey={apiKey} onApiKeyChange={setApiKey} />
 
         <div className="rounded-lg bg-white p-6 shadow-sm mb-6">
-          <h2 className="mb-3 text-lg font-semibold text-gray-800">认证方式</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-gray-800">认证方式</h2>
+            <button onClick={copyForAgent} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700">{copyAllCopied ? "已复制" : "一键复制（给 Agent）"}</button>
+          </div>
           <p className="mb-3 text-sm text-gray-600">所有请求携带以下两个 Header：</p>
           <div className="rounded-md bg-emerald-50 p-4 font-mono text-sm text-emerald-800 space-y-1">
             <div>X-API-Key: {apiKey || "（先申请）"}</div>
