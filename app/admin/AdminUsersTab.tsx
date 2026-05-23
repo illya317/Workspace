@@ -20,6 +20,7 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
+  const [searchMode, setSearchMode] = useState<"name" | "all">("name");
 
   // Create form
   const [creating, setCreating] = useState(false);
@@ -150,6 +151,9 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
   const filtered = keyword
     ? users.filter((u) => {
         const q = keyword.toLowerCase();
+        if (searchMode === "name") {
+          return u.name.toLowerCase().includes(q) || getInitials(u.name).includes(q);
+        }
         if (u.name.toLowerCase().includes(q)) return true;
         if ((u.username || "").toLowerCase().includes(q)) return true;
         if ((u.employeeId || "").toLowerCase().includes(q)) return true;
@@ -161,12 +165,21 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <input
-          value={keyword}
-          onChange={(e) => setKeyword(e.target.value)}
-          placeholder="搜索姓名/用户名/员工编号..."
-          className="rounded border border-gray-300 px-3 py-2 text-sm w-64 focus:border-emerald-400 focus:outline-none"
-        />
+        <div className="flex rounded-md border border-gray-300 overflow-hidden">
+          <input
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            placeholder={searchMode === "name" ? "搜索姓名..." : "搜索全部..."}
+            className="px-3 py-2 text-sm w-48 focus:outline-none"
+          />
+          <button
+            onClick={() => setSearchMode((m) => (m === "name" ? "all" : "name"))}
+            className={`px-2 text-xs ${searchMode === "name" ? "bg-gray-50 text-gray-500" : "bg-emerald-50 text-emerald-600"}`}
+            title="切换搜索模式"
+          >
+            {searchMode === "name" ? "姓名" : "全部"}
+          </button>
+        </div>
         <span className="text-sm text-gray-400">{users.length} 个用户</span>
         <button onClick={() => { setCreating(true); setTimeout(() => empRef.current?.focus(), 50); }} className="rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700">新建</button>
       </div>
