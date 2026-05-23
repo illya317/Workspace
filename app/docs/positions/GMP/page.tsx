@@ -72,6 +72,7 @@ export default function GmpPositionsPage() {
     const isOpen = expanded.has(node.code);
     const hasChildren = node.children && node.children.length > 0;
     const totalPositions = node.positions.length;
+    const ownPositions: string[] = node.ownPositions || [];
     const showPositions = isOpen && totalPositions > 0;
 
     const indent = { 0: "ml-0", 1: "ml-6", 2: "ml-12", 3: "ml-16" }[depth] || "ml-16";
