@@ -1,0 +1,72 @@
+{
+  "name": "资深资本证券专员",
+  "departmentName": "董秘办及资本证券部",
+  "reportTo": "资本证券高级总监",
+  "positionPurpose": "",
+  "summary": "",
+  "headcount": "1",
+  "version": "",
+  "effectiveDate": "",
+  "purpose": "",
+  "scope": "",
+  "documentSource": "",
+  "subordinates": [],
+  "duties": [
+    {
+      "title": "证券处理工作",
+      "items": [
+        "收集、整理、保存有关证券方面的政策法规等信息",
+        "公司信息披露有关资料的收集、准备及具体实施、保管归档工作",
+        "办理公司股权的等级以及过户、转让、变更等工作",
+        "参与公司证券投资的分析与实施，参与公司股权交易、资本运营、对外投资等工作的策划与实施"
+      ]
+    },
+    {
+      "title": "协助配合工作",
+      "items": [
+        "协助信息法务部经理组织召开公司股东会、董事会、监事会",
+        "协助信息法务部经理编制公司年度报告、中期报告等定期报告",
+        "协助信息法务部经理处理证券管理机构、中介机构、投资者的关系，保护股东的合法权益",
+        "配合接受有关证券监管部门的巡检和审计工作",
+        "完成领导交付的其他工作"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "本及以上学历；",
+  "major": "金融、经济法、证券相关专业；",
+  "experience": "具有3年以上相关工作经验；",
+  "training": "",
+  "skills": [
+    "1.熟悉证券投资、资本运营等方面的法律法规及政策",
+    "2.对上市公司规范运作有较深的了解和经验积累",
+    "3.熟练使用常用办公软件"
+  ],
+  "cert": "英语四级以上、证券从业资格证书等；",
+  "other": "",
+  "otherRequirements": [
+    "无。"
+  ],
+  "competencies": [
+    "有较强的执行力、学习能力、沟通协作能力。"
+  ],
+  "workingConditions": "",
+  "workSchedule": "",
+  "equipment": [],
+  "externalCollaboration": "",
+  "distributionDeptNames": [],
+  "trainingPositionNames": [],
+  "attachments": [],
+  "changeHistory": [],
+  "drafter": "",
+  "reviewer1": "",
+  "reviewer2": "",
+  "approver": "",
+  "salaryType": "固定薪资",
+  "officeLocation": "",
+  "code_raw": "FH-GW0027",
+  "code": "GW-EXC100-03",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "EXC100"
+}

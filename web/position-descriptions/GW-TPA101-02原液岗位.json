@@ -1,0 +1,93 @@
+{
+  "name": "原液岗位",
+  "departmentName": "原液车间",
+  "reportTo": "原液车间主任",
+  "positionPurpose": "对纯化组工序的管理、协调，保障生产顺利进行。",
+  "summary": "对原液合批。",
+  "headcount": 2,
+  "version": "00",
+  "effectiveDate": "15/07/2016",
+  "purpose": "明确原液岗位职责。",
+  "scope": "适用于原液车间原液岗位。",
+  "documentSource": "PPA-GW0504原液岗位说明书.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "本组相关文件的起草、修订和审核",
+      "items": [
+        "起草本岗位内的相关文件",
+        "定期对本岗位文件和记录进行修订和审核"
+      ]
+    },
+    {
+      "title": "日常工作",
+      "items": [
+        "检查本组卫生清洁",
+        "各种物料计划的提出和领用",
+        "设备日常维护、保养及报修",
+        "协调、配合质量管理部人员进行该工序的质量控制",
+        "进行原液合批生产操作"
+      ]
+    },
+    {
+      "title": "：生产数据的归纳与总结",
+      "items": [
+        "生产记录的保管、整理、登记、检查和交接"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "专科以上学历。",
+  "major": "生物制药相关专业。",
+  "experience": "",
+  "training": "GMP法规培训、质量管理类培训、生产管理类培训、岗位基础知识培训、岗位技能培训、卫生知识培训、产品专业知识培训、微生物培训、生物安全防护、安全知识培训、设备、设施类培训。",
+  "skills": [
+    "有较全面的生物制药专业知识",
+    "经历GMP认证",
+    "有一定的组织管理能力，较好的沟通、协调能力"
+  ],
+  "cert": "",
+  "other": "1良好的职业道德；",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "无毒区（臭氧残留挥发气体、酸碱烫伤、噪声、玻璃拉伤）。",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "层流罩",
+    "蠕动泵",
+    "滤器",
+    "层析柜。"
+  ],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "生产管理部",
+    "原液车间",
+    "行政人事部",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "原液车间原液岗位"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《原液岗位说明书》（PPA-GW0504）",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "原液车间",
+  "reviewer1": "tPA生产事业部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0504",
+  "code": "GW-TPA101-02",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "TPA101"
+}

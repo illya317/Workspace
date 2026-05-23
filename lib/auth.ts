@@ -56,19 +56,19 @@ export type AuthPayload = {
 // ============================================================
 
 async function getUserPositionIds(userId: number): Promise<number[]> {
-  const eps = await prisma.employeeDepartmentPosition.findMany({
+  const eps = await prisma.eDP.findMany({
     where: { employee: { userId } },
     select: { positionId: true },
   });
-  return eps.map((e) => e.positionId).filter((id): id is number => id !== null);
+  return eps.map((e: any) => e.positionId).filter((id: any): id is number => id !== null);
 }
 
 async function getUserDepartmentIds(userId: number): Promise<number[]> {
-  const eps = await prisma.employeeDepartmentPosition.findMany({
+  const eps = await prisma.eDP.findMany({
     where: { employee: { userId } },
     select: { departmentId: true },
   });
-  return [...new Set(eps.map((e) => e.departmentId).filter((id): id is number => id !== null))];
+  return [...new Set(eps.map((e: any) => e.departmentId).filter((id: any): id is number => id !== null))];
 }
 
 // Get all descendant resource IDs (for batch granting)

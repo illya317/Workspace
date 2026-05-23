@@ -1,0 +1,69 @@
+{
+  "name": "资深人力资源专员",
+  "departmentName": "人力资源部",
+  "reportTo": "资深人力资源经理",
+  "positionPurpose": "",
+  "summary": "",
+  "headcount": "1",
+  "version": "",
+  "effectiveDate": "",
+  "purpose": "",
+  "scope": "",
+  "documentSource": "",
+  "subordinates": [],
+  "duties": [
+    {
+      "title": "",
+      "items": [
+        "辅助上级进行岗位职级体系落地工作",
+        "辅助上级进行公司绩效考核方案落地工作",
+        "负责企业文化及员工发展相关工作",
+        "负责员工积分工作",
+        "负责上海办公区招聘档案管理",
+        "负责试用期员工的跟踪、考核，组织转正考核评定",
+        "协助办理新聘员工入职手续",
+        "协助开展新聘员工培训工作",
+        "协助公司员工职业生涯规划工作",
+        "协助公司人力资源其它板块工作的平稳运行"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "本科及以上学历",
+  "major": "人力资源类相关专业",
+  "experience": "1年以上本岗位或相关岗位工作经验",
+  "training": "",
+  "skills": [
+    "谙熟国家法律规范，法规、政策，具备优秀的职业判断能力和丰富的分析处理经验",
+    "了解人力资源基础知识",
+    "出色的组织、沟通、分析、判断和执行力，良好的抗压能力、进取心；出色的人际沟通能力",
+    "熟练使用本岗位相关软件"
+  ],
+  "cert": "",
+  "other": "",
+  "otherRequirements": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "competencies": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "workingConditions": "",
+  "workSchedule": "",
+  "equipment": [],
+  "externalCollaboration": "",
+  "distributionDeptNames": [],
+  "trainingPositionNames": [],
+  "attachments": [],
+  "changeHistory": [],
+  "drafter": "",
+  "reviewer1": "",
+  "reviewer2": "",
+  "approver": "",
+  "salaryType": "固定薪资",
+  "officeLocation": "上海办公区",
+  "code_raw": "FH-GW0024",
+  "code": "GW-FUN102-04",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "FUN102"
+}

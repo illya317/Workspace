@@ -1,0 +1,67 @@
+{
+  "name": "医学中心总监",
+  "departmentName": "市场部",
+  "reportTo": "市场部高级总监",
+  "positionPurpose": "",
+  "summary": "",
+  "headcount": "1",
+  "version": "",
+  "effectiveDate": "",
+  "purpose": "",
+  "scope": "",
+  "documentSource": "",
+  "subordinates": [],
+  "duties": [
+    {
+      "title": "",
+      "items": [
+        "根据公司发展战略，负责医学写作",
+        "制定临床推广项目计划，进行临床推广项目实施",
+        "制定医学培训计划，赋能医学培训",
+        "赋能AH会员体系医学支持",
+        "负责临床项目方案设计沟通对接"
+      ]
+    }
+  ],
+  "managementDuties": [
+    "根据公司及部门工作规划，完成所负责工作制度、流程、目标及年度预算编制的制定及监督执行",
+    "公司领导分配的其他管理职责"
+  ],
+  "education": "博士及以上学历",
+  "major": "药学或者医学相关",
+  "experience": "五年及以上生物医药类临床工作经验；",
+  "training": "",
+  "skills": [
+    "丰富的专业知识",
+    "谙熟国家法律规范，法规、政策，具备优秀的职业判断能力和丰富的分析处理经验",
+    "出色的组织、沟通、分析、判断和执行力，良好的抗压能力、进取心；出色的人际沟通能力",
+    "熟练使用本岗位相关软件"
+  ],
+  "cert": "具备国家认可的相关资格证书/职称",
+  "other": "",
+  "otherRequirements": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "competencies": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "workingConditions": "",
+  "workSchedule": "",
+  "equipment": [],
+  "externalCollaboration": "",
+  "distributionDeptNames": [],
+  "trainingPositionNames": [],
+  "attachments": [],
+  "changeHistory": [],
+  "drafter": "",
+  "reviewer1": "",
+  "reviewer2": "",
+  "approver": "",
+  "salaryType": "固定月薪+浮动绩效",
+  "officeLocation": "上海办公区",
+  "code_raw": "FH-GW0007",
+  "code": "GW-HLT100-01",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "HLT100"
+}

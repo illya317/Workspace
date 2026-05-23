@@ -1,0 +1,90 @@
+{
+  "name": "包衣岗",
+  "departmentName": "固体制剂车间",
+  "reportTo": "车间主任",
+  "positionPurpose": "完成包衣任务。",
+  "summary": "包衣过程中严格执行岗位SOP，确保包衣操作符合GMP要求。",
+  "headcount": "",
+  "version": "00",
+  "effectiveDate": "10/01/2016",
+  "purpose": "建立固体制剂车间包衣岗位职责，使操作工按工艺要求做好包衣工作，保证固体制剂车间包衣工作顺利进行。",
+  "scope": "适用于固体制剂车间包衣人员的执行，生产GMP管理员的监督。",
+  "documentSource": "PPA-GW1304 包衣岗位说明书.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "按照标准操作规程完成包衣操作",
+      "items": [
+        "按SOP要求穿戴好工作衣、帽、鞋进入工作岗位，并做好个人卫生",
+        "每天上班生产前首先检查是否有上批清场合格证和本批在生产指令",
+        "复核检查工作场所、设备、容器具是否清洁",
+        "根据生产指令核对领用包衣片芯的品名、批号、重量，对包衣材料进行验收",
+        "根据工艺要求确定包衣程序",
+        "包好的糖衣片放入糖衣片干燥间干燥",
+        "工段长要协调并管理好上述工作，服从车间主任的领导",
+        "工段要按GMP要求组织生产",
+        "工段长经常检查督促并保证各项记录及时、真实",
+        "工段长要加强“质量第一、安全第一”教育",
+        "工段长负责对新员工进行岗位安全技术操作教育和培训，指定师傅带徒，新员工在学习期间不准分配独立工作",
+        "工段长应根据生产任务需要，提前提出需要添置的容器、零部件等物品"
+      ]
+    },
+    {
+      "title": "设备管理及其他工作",
+      "items": [
+        "定期完成设备的维护保养",
+        "完成车间其它临时性工作",
+        "提出工作中的合理性建议",
+        "参加车间和公司组织的相关培训"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "初中以上学历；",
+  "major": "不限专业；",
+  "experience": "1年以上工作经历；",
+  "training": "GMP法规培训、质量管理类培训、生产管理类培训、岗位基础知识培训、岗位技能培训、卫生知识培训、产品专业知识培训、微生物培训、安全知识培训。",
+  "skills": [
+    "熟悉包衣流程",
+    "经历过GMP认证"
+  ],
+  "cert": "",
+  "other": "无。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "D级洁净区；",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "生产管理部",
+    "质量保证部",
+    "固体制剂车间"
+  ],
+  "trainingPositionNames": [
+    "固体制剂车间包衣岗位所有人员"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《包衣岗位说明书》PPA-GW1304",
+      "effectiveDate": "00",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "固体制剂车间",
+  "reviewer1": "化药事业部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW1304",
+  "code": "GW-CHM200-06",
+  "isResearch": "",
+  "rank": "T4",
+  "departmentCode": "CHM200"
+}

@@ -31,12 +31,46 @@ export interface RosterEmployee {
   status?: string | null;
   leaveDate?: string | null;
   alias?: string | null;
-  deleted?: boolean | null;
-  deletedTime?: string | null;
-  deletedBy?: string | null;
 }
 
 export interface CodeItem {
   code: string;
   name: string;
+}
+
+// ─── Generic Tab Types ──────────────────────────────────────
+
+export type FieldType = "text" | "number" | "boolean" | "date" | "fk" | "textarea";
+
+export interface FieldConfig {
+  key: string;
+  label: string;
+  editable?: boolean;
+  type?: FieldType;
+  width?: string;
+  createOnly?: boolean;
+  hidden?: boolean; // 不展示在表格中，但新建时可用
+}
+
+export interface FKFieldConfig {
+  entity: string; // 用于 /api/hr-autocomplete?entity=xxx
+  displayField: string; // 在 item 中显示名字的字段路径，如 "employee.name"
+}
+
+export interface TabConfig {
+  title: string;
+  apiPath: string;
+  entityType: string; // for edit history
+  fields: FieldConfig[];
+  fkFields?: Record<string, FKFieldConfig>;
+  canCreate?: boolean;
+  canDelete?: boolean;
+  listGetter?: (res: any) => any[];
+  buildCreateBody?: (form: Record<string, unknown>) => Record<string, unknown>;
+}
+
+export interface FKOption {
+  id: number;
+  name: string;
+  subtitle?: string;
 }

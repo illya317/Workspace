@@ -130,7 +130,7 @@ export async function PUT(request: Request) {
         });
       }
       const data: any = { name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } };
-      const create: any = { code: finalCode, name, managementGroupId: 1 };
+      const create: any = { code: finalCode, name };
       if (departmentCode) {
         const dept = await tx.department.findFirst({ where: { code: departmentCode } });
         if (dept) { data.departmentId = dept.id; create.departmentId = dept.id; }
@@ -157,7 +157,7 @@ export async function DELETE(request: Request) {
   if (!code) return NextResponse.json({ error: "缺少code" }, { status: 400 });
   const pos = await prisma.position.findFirst({ where: { code } });
   if (!pos) return NextResponse.json({ error: "岗位不存在" }, { status: 404 });
-  const epCount = await prisma.employeeDepartmentPosition.count({ where: { positionId: pos.id } });
+  const epCount = await prisma.eDP.count({ where: { positionId: pos.id } });
   if (epCount > 0) {
     return NextResponse.json({ error: `该岗位下有 ${epCount} 名员工，无法删除` }, { status: 400 });
   }

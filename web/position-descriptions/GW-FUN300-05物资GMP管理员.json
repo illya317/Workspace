@@ -1,0 +1,89 @@
+{
+  "name": "物资GMP管理员",
+  "departmentName": "仓储部",
+  "reportTo": "仓储部经理",
+  "positionPurpose": "完成公司生产目标，以符合各项标准提供生产所需物料。",
+  "summary": "具有物资管理相关经验，熟悉GMP认证物资管理要求，接受过与物资管理的相关培训。",
+  "headcount": "",
+  "version": "01",
+  "effectiveDate": "",
+  "purpose": "完成公司生产目标，以符合各项标准提供生产所需物料。",
+  "scope": "适用于仓储部物资GMP管理员。",
+  "documentSource": "PPA-GW1007物资GMP管理员岗位说明书01.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "物资GMP管理员的日常工作要点",
+      "items": [
+        "依照GMP实施要求，规范管理物料。对车间原辅料、包装材料、危险品、消耗材料、成品等物料的进出管理负责",
+        "对质量不合格、数量不符、证件不齐的物资，做好记录临时保管，上报给负责人并及时通知经手人",
+        "负责物料的妥善保管和合理放置，并及时标注各物料的状态、数目、各种标识是否符合规定",
+        "负责各项物资的及时清点并逐项核对，做到账物一致，如有差错应立即上报，不得擅自处理，并查明原因，落实责任",
+        "妥善保管物资领料单、验收单、物资材料证明、合格证及备品、图纸等资料，并标册注明"
+      ]
+    },
+    {
+      "title": "物资GMP管理员的职责要点",
+      "items": [
+        "遵守各项规定制度和劳动规程，积极配合领导安排的各项工作"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "专科学历；",
+  "major": "财务、仓储、物流相关专业；",
+  "experience": "4职责描述",
+  "training": "",
+  "skills": [
+    "财务、仓储、物流基础知识",
+    "GMP相关知识",
+    "熟练应用办公软件、财务软件"
+  ],
+  "cert": "",
+  "other": "无。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "一般区；",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "电脑"
+  ],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "质量保证部",
+    "仓储部"
+  ],
+  "trainingPositionNames": [
+    "仓储部经理",
+    "物资GMP管理员。"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《物资GMP管理员岗位说明书》（PPA-GW1007）",
+      "effectiveDate": "2016.10.01",
+      "approver": "陈太标"
+    },
+    {
+      "version": "01",
+      "documentName": "《物资GMP管理员岗位说明书》（PPA-GW1007）批准人“质量副总”修订为“质量负责人”、 “生产副总”修订为“生产负责人”。",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "仓储部",
+  "reviewer1": "tPA生产事业部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW1007",
+  "code": "GW-FUN300-05",
+  "isResearch": "",
+  "rank": "P4",
+  "departmentCode": "FUN300"
+}

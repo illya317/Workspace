@@ -1,0 +1,73 @@
+{
+  "name": "法务及合规部部长",
+  "departmentName": "法务及合规部",
+  "reportTo": "执行总裁",
+  "positionPurpose": "",
+  "summary": "",
+  "headcount": "1",
+  "version": "",
+  "effectiveDate": "",
+  "purpose": "",
+  "scope": "",
+  "documentSource": "",
+  "subordinates": [
+    "项目管理总监"
+  ],
+  "duties": [
+    {
+      "title": "",
+      "items": [
+        "IPO相关工作，包括尽调、访谈、Pre-IPO融资辅助性工作",
+        "公司合规工作及日常合同的审核、审查",
+        "建立公司反洗钱、反舞弊、反腐败反贿赂制度，设立投诉、举报途径，处理办法",
+        "协同人事部门、行政部，共同研究、落实公司规章制度，处理劳动争议",
+        "代表公司对外处理法律纠纷，处理存量案件",
+        "公司交办的其他法律事务"
+      ]
+    }
+  ],
+  "managementDuties": [
+    "制订部门年度工作计划、年度预算编制",
+    "完成团队搭建、员工管理、部门招聘计划等工作",
+    "负责部门工作制度、流程的制定及监督执行",
+    "改善团队氛围、提升团队凝聚力",
+    "公司领导分配的其他管理职责"
+  ],
+  "education": "本科",
+  "major": "法学优先/其他",
+  "experience": "15年及以上的企业管理工作经历。",
+  "training": "",
+  "skills": [
+    "丰富的民商事法律知识",
+    "具备优秀的职业判断能力和丰富的分析处理经验",
+    "良好的抗压能力、进取心；出色的人际沟通能力",
+    "熟练使用本岗位相关软件"
+  ],
+  "cert": "执业资格证书或高级职称",
+  "other": "",
+  "otherRequirements": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "competencies": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "workingConditions": "",
+  "workSchedule": "",
+  "equipment": [],
+  "externalCollaboration": "",
+  "distributionDeptNames": [],
+  "trainingPositionNames": [],
+  "attachments": [],
+  "changeHistory": [],
+  "drafter": "",
+  "reviewer1": "",
+  "reviewer2": "",
+  "approver": "",
+  "salaryType": "固定薪资",
+  "officeLocation": "盐城办公区/上海办公区",
+  "code_raw": "FH-GW0013",
+  "code": "GW-FUN400-01",
+  "isResearch": "",
+  "rank": "M12",
+  "departmentCode": "FUN400"
+}

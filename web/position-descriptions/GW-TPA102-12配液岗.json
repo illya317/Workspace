@@ -1,0 +1,107 @@
+{
+  "name": "配液岗",
+  "departmentName": "制剂车间",
+  "reportTo": "车间主任",
+  "positionPurpose": "制备合格半成品。",
+  "summary": "完成日常工作、卫生清洁、记录的填写，根据生产计划，制备合格的半成品。",
+  "headcount": 2,
+  "version": "01",
+  "effectiveDate": "12/12/2023",
+  "purpose": "明确制剂车间配液岗位工作职责",
+  "scope": "适用于制剂车间配液岗位人员",
+  "documentSource": "PPA-GW0602制剂配液岗位说明书01.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "进行半成品制备",
+      "items": [
+        "完成生产计划",
+        "进行半成品制备"
+      ]
+    },
+    {
+      "title": "日常工作的执行",
+      "items": [
+        "完成日常工作",
+        "进行岗位的卫生清洁",
+        "设备日常维护、保养及报修",
+        "配合质量管理部人员进行质量控制",
+        "完成配液岗位SOP文件起草和修订"
+      ]
+    },
+    {
+      "title": "生产数据的归纳",
+      "items": [
+        "生产记录的书写、整理和上交"
+      ]
+    },
+    {
+      "title": "专业技能培训",
+      "items": [
+        "参加各种培训以提高自身的专业技能"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "高中以上学历。",
+  "major": "",
+  "experience": "1年以上工作经验。",
+  "training": "GMP法规培训、质量管理类培训、生产管理类培训、岗位基础知识培训、岗位技能培训、卫生知识培训、产品专业知识培训、微生物培训、安全知识培训。",
+  "skills": [
+    "了解掌握生物制药相关知识，掌握无菌操作流程",
+    "熟悉GMP基础知识"
+  ],
+  "cert": "",
+  "other": "无。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "C级区（整洁安静、灯管辐射）。",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "层流罩",
+    "蠕动泵",
+    "pH计",
+    "医用冷藏冷藏箱",
+    "磁力搅拌机",
+    "负压称量罩",
+    "电子称重仪表",
+    "移液器。"
+  ],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "制剂车间",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "制剂车间配液岗位人员"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《制剂配液岗位说明书》（PPA-GW0602）",
+      "effectiveDate": "2016.07.15",
+      "approver": "陈太标"
+    },
+    {
+      "version": "01",
+      "documentName": "《制剂配液岗位说明书》（PPA-GW0602）更改使用设备",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "制剂车间",
+  "reviewer1": "tPA生产事业部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0602",
+  "code": "GW-TPA102-12",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "TPA102"
+}

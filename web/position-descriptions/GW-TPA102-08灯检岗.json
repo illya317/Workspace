@@ -1,0 +1,92 @@
+{
+  "name": "灯检岗",
+  "departmentName": "制剂车间",
+  "reportTo": "车间主任",
+  "positionPurpose": "完成制品外观检查，剔除不合格品。",
+  "summary": "制品的外观检查。",
+  "headcount": 4,
+  "version": "01",
+  "effectiveDate": "12/12/2023",
+  "purpose": "明确制剂车间灯检岗位工作职责",
+  "scope": "适用于制剂车间灯检岗位人员",
+  "documentSource": "PPA-GW0607灯检岗位说明书01.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "按照标准操作规程完成制品外观检查操作",
+      "items": [
+        "根据批包装指令，领取待灯检制品，核对制品品名、规格、批号、数量",
+        "使用灯检仪完成制品的外观检查，记录合格总数和不合格总数",
+        "核对制品合格数、不合格数、破损数是否与转入数相符",
+        "销毁灯检不合格制品，灯检合格品转入冷藏库或转入下一工序",
+        "完成外观检查后灯检仪的清洁和灯检间的清场",
+        "完成各项工作记录的填写"
+      ]
+    },
+    {
+      "title": "设备管理及其他工作",
+      "items": [
+        "定期完成设备的维护保养",
+        "完成车间其它临时性工作",
+        "提出工作中的合理性建议",
+        "参加车间和公司组织的相关培训",
+        "完成灯检岗位SOP文件起草和修订"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "高中以上学历。",
+  "major": "",
+  "experience": "1年以上工作经验。",
+  "training": "GMP法规培训、质量管理类培训、生产管理类培训、岗位基础知识培训、岗位技能培训、卫生知识培训、产品专业知识培训、微生物培训、安全知识培训。",
+  "skills": [
+    "熟悉灯检流程",
+    "熟悉GMP基础知识"
+  ],
+  "cert": "",
+  "other": "无。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "一般区（整洁安静、灯管辐射）。",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "澄明度检测仪。"
+  ],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "制剂车间",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "制剂车间灯检岗位人员"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《灯检岗位说明书》(PPA-GW0607)",
+      "effectiveDate": "2016.07.15",
+      "approver": "陈太标"
+    },
+    {
+      "version": "01",
+      "documentName": "《灯检岗位说明书》(PPA-GW0607)更改使用设备的名称",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "制剂车间",
+  "reviewer1": "tPA生产事业部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0607",
+  "code": "GW-TPA102-08",
+  "isResearch": "",
+  "rank": "P5",
+  "departmentCode": "TPA102"
+}

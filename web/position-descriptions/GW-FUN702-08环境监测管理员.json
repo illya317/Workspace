@@ -1,0 +1,98 @@
+{
+  "name": "环境监测管理员",
+  "departmentName": "质量保证部",
+  "reportTo": "质量保证部经理",
+  "positionPurpose": "加强洁净区环境监测的管理，保证洁净区环境符合GMP和产品生产需求。",
+  "summary": "1 负责洁净区空调系统部分项目的环境监测工作；\n2 协助质量控制部完成洁净区空调系统验证的微生物监测取样工作；\n3 协助质量控制部完成生产区各工艺用水使用点取样工作；\n4 负责环境监测设备的管理，编制和修订操作文件。",
+  "headcount": "",
+  "version": "00",
+  "effectiveDate": "01/10/2016",
+  "purpose": "阐述环境监测管理员工作职责，保证药品生产质量管理规范全面贯彻实施。",
+  "scope": "适用于本公司环境监测管理员。",
+  "documentSource": "PPA-GW0804环境监测管理员岗位说明书.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "洁净区空调系统的环境监测",
+      "items": [
+        "负责洁净区悬浮粒子、换气次数等的监测，填写取样记录和监测记录，出具监测报告"
+      ]
+    },
+    {
+      "title": "协助质量控制部完成洁净区空调系统验证的微生物监测取样",
+      "items": [
+        "协助质量控制部完成洁净区空调系统验证的微生物监测取样工作，填写取样记录"
+      ]
+    },
+    {
+      "title": "协助取样员完成生产区各工艺用水使用点取样工作",
+      "items": [
+        "协助取样员完成生产区各工艺用水使用点取样、送样工作"
+      ]
+    },
+    {
+      "title": "负责环境监测设备的管理",
+      "items": [
+        "负责环境监测设备的管理，包括设备的校验，操作，保存和维护保养，编制和修订设备的操作规程，填写使用记录和维护保养记录"
+      ]
+    },
+    {
+      "title": "完成其他上级领导临时安排的工作",
+      "items": [
+        "按时完成临时安排的工作"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "专科及以上学历；",
+  "major": "医药、生物相关专业；",
+  "experience": "具有环境监测工作经验；",
+  "training": "GMP法规培训、质量管理类培训、岗位基础知识培训、岗位技能培训、卫生知识培训、产品专业知识培训、微生物培训、生物安全防护、安全知识培训、设备、设施类培训、办公软件学习。",
+  "skills": [
+    "熟悉GMP政策法规",
+    "熟悉GMP认证",
+    "熟悉QA各岗位工作流程",
+    "熟练操作环境监测的设备"
+  ],
+  "cert": "",
+  "other": "身体健康。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "一般区（整洁、安静），洁净区，有毒区（臭氧残留挥发气体、毒种感染），无毒区（臭氧残留挥发气体）；",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "电脑"
+  ],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "质量副总",
+    "质量保证部经理",
+    "环境监测管理员"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《环境监测管理员岗位说明书》（PPA-GW0804）",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "质量保证部",
+  "reviewer1": "质量部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0804",
+  "code": "GW-FUN702-08",
+  "isResearch": "",
+  "rank": "P5",
+  "departmentCode": "FUN702"
+}

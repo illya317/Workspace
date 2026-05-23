@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isPharma } from "@/lib/company";
 
 export async function GET(request: Request) {
   const { error, status } = await requireAdmin(request);
@@ -12,7 +13,7 @@ export async function GET(request: Request) {
     include: {
       positions: {
         include: {
-          department: { select: { name: true, managementGroup: { select: { name: true } } } },
+          department: { select: { name: true, code: true } },
           position: { select: { name: true } },
         },
       },
@@ -43,8 +44,7 @@ export async function GET(request: Request) {
       item.roles.push({ company: null, dept1: null, position: null });
     } else {
       for (const pos of emp.positions) {
-        const mgmt = pos.department?.managementGroup?.name;
-        const company: string | null = mgmt === "GMP" ? "丰华制药" : mgmt === "常规体系" ? "丰华生物" : (mgmt ?? null);
+        const company: string | null = isPharma(pos.department?.code || "") ? "丰华制药" : "丰华生物";
         item.roles.push({
           company,
           dept1: pos.department?.name || null,

@@ -1,0 +1,73 @@
+{
+  "name": "人力资源经理",
+  "departmentName": "人力资源部",
+  "reportTo": "资深人力资源经理",
+  "positionPurpose": "",
+  "summary": "",
+  "headcount": "1",
+  "version": "",
+  "effectiveDate": "",
+  "purpose": "",
+  "scope": "",
+  "documentSource": "",
+  "subordinates": [],
+  "duties": [
+    {
+      "title": "",
+      "items": [
+        "公司个税申报、工资核算",
+        "制药公司销售人员业务费核算",
+        "公司员工保险公积金缴纳、停缴、调整",
+        "公司员工录用、转正、转岗、离职",
+        "跟踪员工劳动合同",
+        "公司员工招聘工作",
+        "公司员工福利",
+        "制药公司员工体检",
+        "公司人力资源电子、纸质档案存档",
+        "领导交办的其他工作"
+      ]
+    }
+  ],
+  "managementDuties": [
+    "负责建立部门员工内部培训体系，培养和提升部门团队成员的工作能力",
+    "负责梳理并搭建部门工作制度、流程、目标及年度预算编制的制定及监督执行",
+    "部门领导分配的其他管理职责"
+  ],
+  "education": "本科及以上学历",
+  "major": "人力资源、行政管理类相关专业优先",
+  "experience": "8年以上本岗位或相关岗位工作经验，3年以上管理岗位经验；",
+  "training": "",
+  "skills": [
+    "丰富的人力资源管理和行政管理实践",
+    "谙熟国家法律规范，法规、政策，具备优秀的职业判断能力和丰富的分析处理经验",
+    "出色的组织、沟通、分析、判断和执行力，良好的抗压能力、进取心；出色的人际沟通能力",
+    "熟练使用本岗位相关软件"
+  ],
+  "cert": "具备国家认可的相关资格证书/职称",
+  "other": "",
+  "otherRequirements": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "competencies": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "workingConditions": "",
+  "workSchedule": "",
+  "equipment": [],
+  "externalCollaboration": "",
+  "distributionDeptNames": [],
+  "trainingPositionNames": [],
+  "attachments": [],
+  "changeHistory": [],
+  "drafter": "",
+  "reviewer1": "",
+  "reviewer2": "",
+  "approver": "",
+  "salaryType": "固定薪资",
+  "officeLocation": "盐城办公区",
+  "code_raw": "FH-GW0005",
+  "code": "GW-FUN102-02",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "FUN102"
+}

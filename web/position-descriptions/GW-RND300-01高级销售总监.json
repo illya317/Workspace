@@ -1,0 +1,74 @@
+{
+  "name": "高级销售总监",
+  "departmentName": "BA治疗销售部",
+  "reportTo": "大健康事业部部长",
+  "positionPurpose": "",
+  "summary": "",
+  "headcount": "1",
+  "version": "",
+  "effectiveDate": "",
+  "purpose": "",
+  "scope": "",
+  "documentSource": "",
+  "subordinates": [
+    "大区销售经理"
+  ],
+  "duties": [
+    {
+      "title": "",
+      "items": [
+        "完成公司设定的年度销售指标任务",
+        "负责销售团队建立和培养",
+        "收集并分析行业信息，制定适合企业的营销方案策略",
+        "根据年度销售目标制定预算方案，做好费用管控",
+        "销售渠道搭建和完善",
+        "与市场部协作打造公司品牌形象",
+        "参与全国各省的挂网工作，并维护价格体系",
+        "公司安排的其他工作"
+      ]
+    }
+  ],
+  "managementDuties": [
+    "根据公司及部门工作规划和业务发展，完成所负责工作制度、流程、目标及年度预算编制的制定及监督执行",
+    "制定销售管理制度以及流程，规范销售团队行为",
+    "制定销售团队培养目标及人才库，打造专业化销售团队及各级人才队伍",
+    "公司领导分配的其他管理职责"
+  ],
+  "education": "本科及以上学历",
+  "major": "药学、临床医学或市场营销等相关",
+  "experience": "五年及以上心脑血管类产品销售工作经验；",
+  "training": "",
+  "skills": [
+    "丰富的专业知识",
+    "谙熟国家法律规范，法规、政策，具备优秀的职业判断能力和丰富的分析处理经验",
+    "出色的组织、沟通、分析、判断和执行力，良好的抗压能力、进取心；出色的人际沟通能力",
+    "熟练使用本岗位相关软件"
+  ],
+  "cert": "具备国家认可的相关资格证书/职称",
+  "other": "",
+  "otherRequirements": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "competencies": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "workingConditions": "",
+  "workSchedule": "",
+  "equipment": [],
+  "externalCollaboration": "",
+  "distributionDeptNames": [],
+  "trainingPositionNames": [],
+  "attachments": [],
+  "changeHistory": [],
+  "drafter": "",
+  "reviewer1": "",
+  "reviewer2": "",
+  "approver": "",
+  "salaryType": "固定月薪+浮动绩效",
+  "officeLocation": "上海办公区",
+  "code_raw": "FH-GW0036",
+  "code": "GW-RND300-01",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "RND300"
+}

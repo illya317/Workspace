@@ -33,9 +33,6 @@ interface Employee {
   status?: string | null;
   leaveDate?: string | null;
   alias?: string | null;
-  deleted?: boolean | null;
-  deletedTime?: string | null;
-  deletedBy?: string | null;
 }
 
 interface CodeItem {

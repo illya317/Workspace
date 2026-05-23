@@ -107,7 +107,7 @@ export async function PUT(request: Request) {
       });
     } else {
       await prisma.department.create({
-        data: { code: finalCode, name, managementGroupId: 1, level: 1 },
+        data: { code: finalCode, name, level: 1 },
       });
     }
   }
@@ -129,7 +129,7 @@ export async function DELETE(request: Request) {
   const dept = await prisma.department.findFirst({ where: { code } });
   if (!dept) return NextResponse.json({ error: "部门不存在" }, { status: 404 });
 
-  const epCount = await prisma.employeeDepartmentPosition.count({ where: { departmentId: dept.id } });
+  const epCount = await prisma.eDP.count({ where: { departmentId: dept.id } });
   if (epCount > 0) {
     return NextResponse.json({ error: `该部门下有 ${epCount} 名员工，无法删除` }, { status: 400 });
   }

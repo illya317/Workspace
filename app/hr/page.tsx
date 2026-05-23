@@ -4,38 +4,53 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import UserMenu from "@/app/components/UserMenu";
+
 import EmployeeTab from "./EmployeeTab";
-import PositionTab from "./PositionTab";
-import ProjectTab from "./ProjectTab";
-import ProjectInfoTab from "./ProjectInfoTab";
-import RosterTab from "./RosterTab";
+import EmploymentTab from "./EmploymentTab";
 import CompanyTab from "./CompanyTab";
-import { CodesTab } from "./CodeTab";
+import CompanyRelationTab from "./CompanyRelationTab";
+import DepartmentTab from "./DepartmentTab";
+import PositionTab from "./PositionTab";
+import EDPTab from "./EDPTab";
+import ProjectTab from "./ProjectTab";
+import EmployeeProjectTab from "./EmployeeProjectTab";
+import AnalyticsTab from "./AnalyticsTab";
+
+// 花名册代码保留但不展示
+// import RosterTab from "./RosterTab";
 
 import type { HRUser as User } from "./types";
 
-import { QUERY_GROUP_LABELS } from "@/lib/company";
+type HRTab =
+  | "employee"
+  | "employment"
+  | "company"
+  | "company-relation"
+  | "department"
+  | "position"
+  | "edp"
+  | "project"
+  | "employee-project"
+  | "analytics";
 
-const LABEL_TO_MGMT: Record<string, string> = { "丰华生物": "常规体系", "丰华制药": "GMP" };
-
-type HRTab = "roster" | "employees" | "positions" | "projects" | "project-info" | "codes" | "company";
-
-const tabs: { key: HRTab; label: string; desc: string }[] = [
-  { key: "roster", label: "花名册", desc: "员工花名册（只读）" },
-  { key: "employees", label: "员工信息", desc: "员工基础信息编辑" },
-  { key: "positions", label: "岗位信息", desc: "员工岗位关联编辑" },
-  { key: "project-info", label: "项目信息", desc: "项目人员分配查看" },
-  { key: "codes", label: "岗位管理", desc: "部门与岗位编码管理" },
-  { key: "projects", label: "项目管理", desc: "项目/部门分组管理" },
-  { key: "company", label: "公司信息", desc: "公司档案与股权结构" },
+const tabs: { key: HRTab; label: string }[] = [
+  { key: "employee", label: "5-1 员工信息" },
+  { key: "employment", label: "5-2 雇佣关系" },
+  { key: "company", label: "5-3 公司信息" },
+  { key: "company-relation", label: "5-4 公司关系" },
+  { key: "department", label: "5-5 部门" },
+  { key: "position", label: "5-6 岗位" },
+  { key: "edp", label: "5-7 EDP" },
+  { key: "project", label: "5-8 项目" },
+  { key: "employee-project", label: "5-9 项目员工" },
+  { key: "analytics", label: "人力分析" },
 ];
 
 export default function HRPage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<HRTab>("roster");
-  const [selectedCompany, setSelectedCompany] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<HRTab>("employee");
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -46,10 +61,6 @@ export default function HRPage() {
           return;
         }
         setUser(data.user);
-        const defaultCompany = QUERY_GROUP_LABELS.includes(data.user.company || "")
-          ? data.user.company
-          : QUERY_GROUP_LABELS[0];
-        setSelectedCompany(defaultCompany || "");
         setLoading(false);
       })
       .catch(() => router.push("/portal"));
@@ -97,20 +108,6 @@ export default function HRPage() {
       </nav>
 
       <main className="mx-auto max-w-5xl px-4 py-6">
-        {/* 公司选择器 */}
-        <div className="mb-4 flex items-center gap-3">
-          <span className="text-sm font-medium text-gray-600">当前公司：</span>
-          <select
-            value={selectedCompany}
-            onChange={(e) => setSelectedCompany(e.target.value)}
-            className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
-          >
-            {QUERY_GROUP_LABELS.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-        </div>
-
         <div className="mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 pb-1">
           {tabs.map((t) => (
             <button
@@ -127,13 +124,20 @@ export default function HRPage() {
           ))}
         </div>
 
-        {activeTab === "roster" && user && <RosterTab user={user} selectedCompany={LABEL_TO_MGMT[selectedCompany] || selectedCompany} />}
-        {activeTab === "employees" && user && <EmployeeTab user={user} selectedCompany={LABEL_TO_MGMT[selectedCompany] || selectedCompany} />}
-        {activeTab === "positions" && user && <PositionTab user={user} selectedCompany={LABEL_TO_MGMT[selectedCompany] || selectedCompany} />}
-        {activeTab === "projects" && user && <ProjectTab user={user} />}
-        {activeTab === "project-info" && user && <ProjectInfoTab user={user} />}
-        {activeTab === "codes" && user && <CodesTab user={user} selectedCompany={LABEL_TO_MGMT[selectedCompany] || selectedCompany} />}
-        {activeTab === "company" && <CompanyTab />}
+        {user && (
+          <>
+            {activeTab === "employee" && <EmployeeTab user={user} />}
+            {activeTab === "employment" && <EmploymentTab user={user} />}
+            {activeTab === "company" && <CompanyTab user={user} />}
+            {activeTab === "company-relation" && <CompanyRelationTab user={user} />}
+            {activeTab === "department" && <DepartmentTab user={user} />}
+            {activeTab === "position" && <PositionTab user={user} />}
+            {activeTab === "edp" && <EDPTab user={user} />}
+            {activeTab === "project" && <ProjectTab user={user} />}
+            {activeTab === "employee-project" && <EmployeeProjectTab user={user} />}
+            {activeTab === "analytics" && <AnalyticsTab />}
+          </>
+        )}
       </main>
     </div>
   );

@@ -14,7 +14,6 @@ export async function GET(request: Request) {
 
   // 获取所有在职员工，包含岗位信息
   const allEmployees = await prisma.employee.findMany({
-    where: { status: "在职", deleted: false },
     select: {
       id: true,
       employeeId: true,

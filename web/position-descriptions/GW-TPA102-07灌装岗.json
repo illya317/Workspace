@@ -1,0 +1,98 @@
+{
+  "name": "灌装岗",
+  "departmentName": "制剂车间",
+  "reportTo": "车间主任",
+  "positionPurpose": "完成半成品分装任务，达到工艺的装量、无菌要求。",
+  "summary": "领入、核对半成品的信息，使用灌装加塞机进行分装操作。",
+  "headcount": 3,
+  "version": "01",
+  "effectiveDate": "12/12/2023",
+  "purpose": "明确制剂车间灌装岗位工作职责",
+  "scope": "适用于制剂车间灌装岗位人员",
+  "documentSource": "PPA-GW0604灌装岗位说明书01.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "按照操作规程完成分装",
+      "items": [
+        "按生产计划准备分装用胶塞，转入灭菌岗位",
+        "核对已灭菌的分装用具及胶塞",
+        "按规定要求无菌组装分装用具并接收半成品的检验报告单",
+        "使用灌装加塞机完成分装操作，转交制品至冻干机内",
+        "完成分装机的清洁及分装区域的清场",
+        "定置保管分装用具",
+        "完成各项生产记录的填写"
+      ]
+    },
+    {
+      "title": "设备管理及其他工作",
+      "items": [
+        "检查维护保养生产设施、设备",
+        "配合验证小组完成相关验证工作",
+        "完成车间其他临时性工作",
+        "提出工作中的合理性建议",
+        "完成灌装（加塞）岗位SOP文件起草和修订",
+        "参加车间和公司组织的相关培训",
+        "负责各批产品的灌装数据的输出，完成与管理员对数据的交接工作"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "高中以上学历。",
+  "major": "无。",
+  "experience": "1年以上工作经验。",
+  "training": "GMP法规培训、质量管理类培训、生产管理类培训、岗位基础知识培训、岗位技能培训、卫生知识培训、产品专业知识培训、微生物培训、生物安全防护、安全知识培训、设备、设施类培训。",
+  "skills": [
+    "熟悉分装工作流程",
+    "熟悉GMP基础知识"
+  ],
+  "cert": "",
+  "other": "无。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "B+A区（噪声、玻璃拉伤）。",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "灌装机",
+    "升降输送平台",
+    "层流罩",
+    "电子天平。"
+  ],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "制剂车间",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "制剂车间灌装岗位所有人员"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《灌装岗位说明书》（PPA-GW0604）",
+      "effectiveDate": "2016.07.15",
+      "approver": "陈太标"
+    },
+    {
+      "version": "01",
+      "documentName": "《灌装岗位说明书》（PPA-GW0604）更改工作环境、设备使用名称",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "制剂车间",
+  "reviewer1": "tPA生产事业部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0604",
+  "code": "GW-TPA102-07",
+  "isResearch": "",
+  "rank": "P5",
+  "departmentCode": "TPA102"
+}

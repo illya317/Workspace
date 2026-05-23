@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isPharma } from "@/lib/company";
 
 function hashString(str: string): number {
   let hash = 0;
@@ -23,16 +24,15 @@ export async function GET(request: Request) {
 
   const depts = await prisma.department.findMany({
     where: { level: 2 },
-
-    orderBy: [{ managementGroup: { name: "asc" } }, { name: "asc" }],
+    orderBy: [{ code: "asc" }, { name: "asc" }],
   });
 
   return NextResponse.json({
     departments: depts.map((d: any) => ({
       id: d.id,
       name: d.name,
-      managementGroup: d.managementGroup?.name || "",
-      company: d.managementGroup?.name === "GMP" ? "丰华制药" : d.managementGroup?.name === "常规体系" ? "丰华生物" : d.managementGroup?.name || "",
+      managementGroup: isPharma(d.code) ? "GMP" : "常规体系",
+      company: isPharma(d.code) ? "丰华制药" : "丰华生物",
       count: 0,
     })),
   });

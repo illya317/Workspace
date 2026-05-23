@@ -1,0 +1,64 @@
+{
+  "name": "高级项目经理",
+  "departmentName": "",
+  "reportTo": "临床部部长",
+  "positionPurpose": "",
+  "summary": "",
+  "headcount": "1",
+  "version": "",
+  "effectiveDate": "",
+  "purpose": "",
+  "scope": "",
+  "documentSource": "",
+  "subordinates": [],
+  "duties": [
+    {
+      "title": "",
+      "items": [
+        "临床开展相关工作；督促协调CRO公司资料报送立项、伦理审批；协助企业与各研究中心协议的签署；协议相关费用的审核；档案管理",
+        "研究中心的筛选；确保试验中心具备资质、并符合试验方案、及企业要求；中心调研",
+        "产品推广医学衔接管理；协助对销售人员进行培训；协助产品上市前的推广与布局；对国内外相关相关数据查阅、整理",
+        "临床药品管理；协调药物发放、统计；协助中心药品管理、及后续回收；配合核查、提供所需文件资料",
+        "试验相关资料稽查 ；定期对研究中心、CRO、SMO公司资料和人员工作情况稽查"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "本科及以上学历；",
+  "major": "临床、护理学、药学、生物技术等相关专业；",
+  "experience": "3-5年以上相关行业工作经验；",
+  "training": "",
+  "skills": [
+    "1、掌握国家、省市相关地方政策",
+    "2、了解GCP最新法规",
+    "3、熟练使用常用办公软件",
+    "4、有一定的文字功底"
+  ],
+  "cert": "技术类职称，具备国家认可的专业执业资格；如GCP证书等。",
+  "other": "",
+  "otherRequirements": [
+    "无"
+  ],
+  "competencies": [
+    "应变能力、观察和分析判断力。"
+  ],
+  "workingConditions": "",
+  "workSchedule": "",
+  "equipment": [],
+  "externalCollaboration": "",
+  "distributionDeptNames": [],
+  "trainingPositionNames": [],
+  "attachments": [],
+  "changeHistory": [],
+  "drafter": "",
+  "reviewer1": "",
+  "reviewer2": "",
+  "approver": "",
+  "salaryType": "固定月薪+浮动绩效",
+  "officeLocation": "北京办公区",
+  "code_raw": "FH-GW0030",
+  "code": "GW-HLT400-02",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "HLT400"
+}

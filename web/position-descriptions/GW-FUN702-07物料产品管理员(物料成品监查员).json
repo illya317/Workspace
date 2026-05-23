@@ -1,0 +1,111 @@
+{
+  "name": "物料产品管理员(物料成品监查员)",
+  "departmentName": "质量保证部",
+  "reportTo": "质量保证部经理",
+  "positionPurpose": "加强物料、物料供应商、成品和仓库现场的质量监查，确保产品质量。",
+  "summary": "1 负责不合格物料的监查；\n2 负责参与物料供应商质量评估各程序的初审工作，建立、更新供应商档案；\n3 负责成品放行和出厂的确认工作；\n4 负责参与物料变更、偏差、物料检验结果超标的评估工作；\n5 负责仓储现场的质量监查和参与GMP自检和外部检查的现场审计工作。",
+  "headcount": "",
+  "version": "00",
+  "effectiveDate": "01/10/2016",
+  "purpose": "阐述物料产品管理员工作职责，保证药品生产质量管理规范全面贯彻实施。",
+  "scope": "适用于本公司物料产品管理员。",
+  "documentSource": "PPA-GW0806物料产品管理员岗位说明书.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "物料监查",
+      "items": [
+        "负责不合格物料的监查、物料检测报告的确认"
+      ]
+    },
+    {
+      "title": "物料供应商初审及建档",
+      "items": [
+        "按物料供应商质量评估SOP对新物料、定点供应商进行资质、材料、小试样品记录及数据等各评估项初审，建立、更新物料供应商档案"
+      ]
+    },
+    {
+      "title": "成品放行和出厂确认",
+      "items": [
+        "对成品放行和出厂进行质量确认"
+      ]
+    },
+    {
+      "title": "参与物料变更、偏差、物料检验结果超标的评估工作",
+      "items": [
+        "参与涉及物料的变更、偏差、物料检验结果超标的评估工作"
+      ]
+    },
+    {
+      "title": "参与送样工作",
+      "items": [
+        "负责省药检所、中检所检品送样的准备、送样、报销工作"
+      ]
+    },
+    {
+      "title": "负责仓储现场的质量监查和参与GMP自检和外部检查的现场审计工作",
+      "items": [
+        "负责仓储现场和运输车辆的质量监查",
+        "监督生产车间完成GMP自检和外部检查的缺陷整改"
+      ]
+    },
+    {
+      "title": "完成其他上级领导临时安排的工作",
+      "items": [
+        "按时完成临时安排的工作"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "专科及以上学历；",
+  "major": "医药、生物相关专业；",
+  "experience": "具有物料成品监查工作经验；",
+  "training": "GMP法规培训、质量管理类培训、岗位基础知识培训、岗位技能培训、卫生知识培训、产品专业知识培训、微生物培训、生物安全防护、安全知识培训、设备、设施类培训、办公软件学习。",
+  "skills": [
+    "熟悉GMP、药典的政策法规",
+    "熟悉GMP认证",
+    "熟悉QA各岗位工作流程",
+    "有较强的沟通协调能力"
+  ],
+  "cert": "",
+  "other": "身体健康。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "一般区（整洁、安静）；",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "电脑"
+  ],
+  "externalCollaboration": "4职责描述",
+  "distributionDeptNames": [
+    "行政人事部",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "质量副总",
+    "质量保证部经理",
+    "物料产品管理员"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《物料产品管理员岗位说明书》（PPA-GW0806）",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "质量保证部",
+  "reviewer1": "质量部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0806",
+  "code": "GW-FUN702-07",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "FUN702"
+}

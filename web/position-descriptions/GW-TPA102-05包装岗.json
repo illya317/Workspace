@@ -1,0 +1,93 @@
+{
+  "name": "包装岗",
+  "departmentName": "制剂车间",
+  "reportTo": "车间主任",
+  "positionPurpose": "完成制品包装，每盒制品符合出厂要求。",
+  "summary": "核对包材印刷信息，完成制品包装。",
+  "headcount": 7,
+  "version": "01",
+  "effectiveDate": "12/12/2023",
+  "purpose": "明确制剂车间包装岗位工作职责",
+  "scope": "适用于制剂车间包装岗位人员",
+  "documentSource": "PPA-GW0608 包装岗位说明书01.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "按照标准操作规程完成包装操作",
+      "items": [
+        "凭《制剂车间制品批包装指令》，领取包材，使用喷码机完成打码操作",
+        "领取已贴标制品及喷码结束的外包材",
+        "核对外包材上的打印信息和数量",
+        "检查贴标合格的待包装品，核对品名、规格、批号、数量",
+        "完成包装操作，转入冷藏库",
+        "完成包装后工作区域的清场，定置保管包装用具，检查用电安全",
+        "完成岗位各项工作记录的填写"
+      ]
+    },
+    {
+      "title": "完成其它工作",
+      "items": [
+        "提出工作中的合理性建议",
+        "完成车间其他临时性工作",
+        "完成岗位SOP文件的起草和修订",
+        "定期完成设备的维护保养",
+        "参加车间和公司组织的相关培训"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "高中以上学历。",
+  "major": "无。",
+  "experience": "1年以上工作经验。",
+  "training": "GMP法规培训、质量管理类培训、生产管理类培训、岗位基础知识培训、岗位技能培训、卫生知识培训、产品专业知识培训、微生物培训、安全知识培训、设备、设施类培训。",
+  "skills": [
+    "熟悉包装流程",
+    "熟悉GMP基础知识"
+  ],
+  "cert": "",
+  "other": "无。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "一般区（整洁、安静）。",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "激光喷码机。"
+  ],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "制剂车间",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "制剂车间包装岗位所有人员"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《包装岗位说明书》（PPA-GW0608）",
+      "effectiveDate": "2016.07.15",
+      "approver": "陈太标"
+    },
+    {
+      "version": "01",
+      "documentName": "《包装岗位说明书》（PPA-GW0608）更改目的及范围",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "制剂车间",
+  "reviewer1": "tPA生产事业部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0608",
+  "code": "GW-TPA102-05",
+  "isResearch": "",
+  "rank": "P5",
+  "departmentCode": "TPA102"
+}

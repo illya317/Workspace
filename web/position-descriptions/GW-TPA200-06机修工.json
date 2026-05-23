@@ -1,0 +1,112 @@
+{
+  "name": "机修工",
+  "departmentName": "设备工程部",
+  "reportTo": "设备工程部经理",
+  "positionPurpose": "对公司生产设备进行检修、维护、保养，保证生产设备的正常运行。",
+  "summary": "1.负责设备的运行维护；2.协助设备管理员编制设备维修保养计划并实施。",
+  "headcount": "",
+  "version": "01",
+  "effectiveDate": "06/05/2021",
+  "purpose": "明确机修工工作职责",
+  "scope": "适用于机修工岗位人员",
+  "documentSource": "PPA-GW0301机修工岗位说明书01版.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "负责设备的运行维护",
+      "items": [
+        "负责公司所有设备的运行与维护，确保设备运行正常",
+        "负责机械设备零部件的维修和更换，根据配件的安全使用周期，损坏程度更换配件，控制成本"
+      ]
+    },
+    {
+      "title": "协助设备管理员编制设备维修保养计划并实施",
+      "items": [
+        "协助设备管理员编制生产及公用系统设备维修保养计划",
+        "执行设备年度PM计划，定期对设备进行保养",
+        "做好设备维修后的记录"
+      ]
+    },
+    {
+      "title": "负责设备的润滑管理",
+      "items": [
+        "依据设备的润滑管规程理对设备进行润滑管理",
+        "根据设备的不同型号，选择与设备及净化级别相匹配的润滑油",
+        "定期对设备更换润滑油"
+      ]
+    },
+    {
+      "title": "设备维修和保养注重对产品的污染控制",
+      "items": [
+        "进入洁净区域工器具执行洁净区域物品进入流程",
+        "维修过程不得对制品造成污染",
+        "维修结束清点工具，不得对设备及净化房间造成污染"
+      ]
+    },
+    {
+      "title": "完成上级交办的其它工作",
+      "items": [
+        "参与小型技改工程负责设备拆卸、搬运和安装工作",
+        "负责对净化厂房进行维护",
+        "完成上级交办的其它工作"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "高中及以上学历。",
+  "major": "机械或电气相关专业。",
+  "experience": "2年以上的相关工作经验。",
+  "training": "GMP法规培训、岗位基础知识培训、岗位技能培训、卫生知识培训、产品专业知识培训、微生物培训、生物安全防护、安全知识培训、设备、设施类培训。",
+  "skills": [
+    "熟悉设备的原理，熟练设备的安装、使用与维护",
+    "熟悉其它工种的维修知识"
+  ],
+  "cert": "",
+  "other": "责任心强、仔细认真，有再学习能力，任劳任怨，良好的团队合作精神。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "一般区、有毒区、无毒区（高温、噪声、震动、毒种感染、高危险、触电）。",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "维修工具。"
+  ],
+  "externalCollaboration": "设备厂家售后维修人员。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "设备工程部",
+    "生产管理部",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "部门管理人员",
+    "机修工"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《机修工岗位说明书》（PPA-GW0301）",
+      "effectiveDate": "2016.07.15",
+      "approver": "陈太标"
+    },
+    {
+      "version": "01",
+      "documentName": "《机修工岗位说明书》（PPA-GW0301）修订基本信息及岗位职责",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "设备工程部",
+  "reviewer1": "tPA生产事业部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0301",
+  "code": "GW-TPA200-06",
+  "isResearch": "",
+  "rank": "P6",
+  "departmentCode": "TPA200"
+}

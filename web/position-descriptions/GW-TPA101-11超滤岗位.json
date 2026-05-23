@@ -1,0 +1,101 @@
+{
+  "name": "超滤岗位",
+  "departmentName": "原液车间",
+  "reportTo": "原液车间主任",
+  "positionPurpose": "对纯化液进行超滤，保证完成生产任务。",
+  "summary": "完成日常工作、卫生清洁、记录的填写，根据生产计划，制备合格的超滤浓缩液。",
+  "headcount": 2,
+  "version": "00",
+  "effectiveDate": "15/07/2016",
+  "purpose": "明确超滤岗位职责。",
+  "scope": "适用于原液车间超滤岗位。",
+  "documentSource": "PPA-GW0503超滤岗位说明书.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "进行原液浓缩液制备",
+      "items": [
+        "配合完成生产计划",
+        "遵守岗位标准操作规程进行原液浓缩液制备"
+      ]
+    },
+    {
+      "title": "日常工作的执行",
+      "items": [
+        "配合完成日常工作",
+        "进行本组的卫生清洁",
+        "设备日常维护、保养及报修",
+        "配合质量管理部人员进行本小组工序的质量控制"
+      ]
+    },
+    {
+      "title": "生产数据的归纳",
+      "items": [
+        "生产记录的书写、整理和上交"
+      ]
+    },
+    {
+      "title": "专业技能培训",
+      "items": [
+        "参加各种培训以提高自身的专业技能"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "专科以上学历。",
+  "major": "生物制药相关专业。",
+  "experience": "需经过岗位操作技能培训。",
+  "training": "GMP法规培训、质量管理类培训、生产管理类培训、岗位基础知识培训、岗位技能培训、卫生知识培训、产品专业知识培训、微生物培训、生物安全防护、安全知识培训、设备、设施类培训。",
+  "skills": [
+    "了解掌握生物制药相关知识，掌握无菌操作流程",
+    "经历GMP认证"
+  ],
+  "cert": "",
+  "other": "1工作仔细认真、责任心强；",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "无毒区（臭氧残留挥发气体、酸碱烫伤、噪声、玻璃拉伤、火焰烫伤）。",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "层流罩",
+    "蠕动泵",
+    "超滤器",
+    "滤器",
+    "2-8°C 冰柜",
+    "医用低温冰箱",
+    "层析柜",
+    "恒温磁力搅拌器。"
+  ],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "生产管理部",
+    "原液车间",
+    "行政人事部",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "原液车间超滤岗位"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《超滤岗位说明书》（PPA-GW0503）",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "原液车间",
+  "reviewer1": "tPA生产事业部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0503",
+  "code": "GW-TPA101-11",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "TPA101"
+}

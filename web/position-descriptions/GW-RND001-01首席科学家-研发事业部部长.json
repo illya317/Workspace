@@ -1,0 +1,75 @@
+{
+  "name": "首席科学家-研发事业部部长",
+  "departmentName": "研发事业部",
+  "reportTo": "执行总裁",
+  "positionPurpose": "",
+  "summary": "",
+  "headcount": "1",
+  "version": "",
+  "effectiveDate": "",
+  "purpose": "",
+  "scope": "",
+  "documentSource": "",
+  "subordinates": [
+    "经理",
+    "研究员"
+  ],
+  "duties": [
+    {
+      "title": "",
+      "items": [
+        "根据公司总体战略规划，确立研发目标与计划",
+        "开展新产品的调研、方案与技术制定",
+        "组织和实施新产品的研发",
+        "现有产品的技术保障",
+        "国际上生物医药新趋势、新技术的追踪",
+        "配合其他部门的工作",
+        "完成上级部门交办的其它工作任务"
+      ]
+    }
+  ],
+  "managementDuties": [
+    "根据公司及部门工作规划，完成团队搭建、员工管理、部门招聘计划等工作",
+    "建立部门员工内部培训体系，培养和提升部门成员工作能力",
+    "负责部门工作制度、流程、目标及年度预算编制的制定及监督执行",
+    "分析和管控部门员工离职率，改善团队氛围、提升团队凝聚力",
+    "公司领导分配的其他管理职责"
+  ],
+  "education": "博士",
+  "major": "生物技术与生物医药",
+  "experience": "30年生物技术与生物医药研发经验",
+  "training": "",
+  "skills": [
+    "具有项目规划、设计、组织实施能力；掌握生物技术及生物医药的基础和前沿知识及应用技术",
+    "谙熟国家法律规范，法规、政策，具备优秀的职业判断能力和丰富的分析处理经验",
+    "出色的组织、沟通、分析、判断和执行力，良好的抗压能力、进取心；出色的人际沟通能力",
+    "熟练使用本岗位相关软件"
+  ],
+  "cert": "具备国家认可的相关资格证书/职称",
+  "other": "",
+  "otherRequirements": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "competencies": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "workingConditions": "",
+  "workSchedule": "",
+  "equipment": [],
+  "externalCollaboration": "",
+  "distributionDeptNames": [],
+  "trainingPositionNames": [],
+  "attachments": [],
+  "changeHistory": [],
+  "drafter": "",
+  "reviewer1": "",
+  "reviewer2": "",
+  "approver": "",
+  "salaryType": "固定薪资+浮动绩效",
+  "officeLocation": "温哥华",
+  "code_raw": "FH-GW0031",
+  "code": "GW-RND001-01",
+  "isResearch": "",
+  "rank": "M13",
+  "departmentCode": "RND001"
+}

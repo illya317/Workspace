@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { isPharma } from "@/lib/company";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -17,7 +18,6 @@ export async function GET(request: Request) {
   if (code) {
     const desc = await prisma.positionDescription.findUnique({
       where: { code },
-      include: { managementGroup: true },
     });
 
     if (!desc) {
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
         version: desc.version,
         effectiveDate: desc.effectiveDate,
         sourceFile: desc.sourceFile,
-        managementGroup: desc.managementGroup?.name || null,
+        managementGroup: isPharma(desc.code) ? "GMP" : "常规体系",
         details,
       },
     });
@@ -56,12 +56,7 @@ export async function GET(request: Request) {
   const where: any = {};
 
   if (group) {
-    const mg = await prisma.managementGroup.findFirst({
-      where: { name: group },
-    });
-    if (mg) {
-      where.managementGroupId = mg.id;
-    }
+    // group-based filtering removed with ManagementGroup table; no-op for now
   }
 
   if (search) {

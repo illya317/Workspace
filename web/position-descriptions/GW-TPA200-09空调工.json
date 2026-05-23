@@ -1,0 +1,106 @@
+{
+  "name": "空调工",
+  "departmentName": "设备工程部",
+  "reportTo": "设备工程部经理",
+  "positionPurpose": "维护空调系统正常运行，对净化车间臭氧消毒，确保车间净化环境符合GMP要求。",
+  "summary": "1.对空调机组、冷水机组、臭氧发生器等设备进行操作和日常维护保养。",
+  "headcount": "",
+  "version": "01",
+  "effectiveDate": "06/05/2021",
+  "purpose": "明确空调工工作职责",
+  "scope": "适用于空调工岗位人员",
+  "documentSource": "PPA-GW0303空调工岗位说明书01版.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "设备使用与维护",
+      "items": [
+        "冷水机组、空调机组、臭氧发生器等设备的安全使用和日常维护保养",
+        "负责空调系统的调试工作。净化房间的换气次数、压差、尘埃粒子符合GMP要求；协助QA做好各功能间压差、温湿度监控与调控",
+        "参与空调系统验证的实施过程"
+      ]
+    },
+    {
+      "title": "对生产车间净化房间进行环境臭氧消毒和甲醛消毒",
+      "items": [
+        "对生产车间净化房间进行环境臭氧消毒，协助生产车间进行甲醛熏蒸",
+        "保证净化房间臭氧消毒浓度不低于10ppm的标准值"
+      ]
+    },
+    {
+      "title": "岗位记录填写与整理，责任区房间及设备的卫生清洁",
+      "items": [
+        "岗位当班填写冷水机组运行记录、空调机组运行记录，清洁记录、臭氧发生器运行记录等，月底整理记录及时上交设备管理员存档",
+        "负责工作区域设备清洁，房间卫生清洁"
+      ]
+    },
+    {
+      "title": "完成上级交办的其它工作",
+      "items": [
+        "在规定的时间内完成上级交办的临时性、突发性任务",
+        "参与小型技改工程，设备搬运及安装"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "高中及以上学历。",
+  "major": "制冷相关专业。",
+  "experience": "2年以上的相关工作经验。",
+  "training": "GMP法规培训、岗位基础知识培训、岗位技能培训、卫生知识培训、产品专业知识培训、微生物培训、生物安全防护、安全知识培训、设备、设施类培训。",
+  "skills": [
+    "熟悉GMP对净化空调方面的相关要求，掌握操作技能",
+    "能够处理好简单的设备故障"
+  ],
+  "cert": "",
+  "other": "责任心强，以GMP规范自己的行为，任劳任怨，良好的团队合作精神。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "一般区（噪音、高温、震动）。",
+  "workSchedule": "综合计算工时制。",
+  "equipment": [
+    "冷水机组",
+    "空调机组",
+    "臭氧发生器",
+    "水泵",
+    "真空泵。"
+  ],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "设备工程部",
+    "生产管理部",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "部门管理人员",
+    "空调工"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《空调工岗位说明书》（PPA-GW0303）",
+      "effectiveDate": "2016.07.15",
+      "approver": "陈太标"
+    },
+    {
+      "version": "01",
+      "documentName": "《空调工岗位说明书》（PPA-GW0303）修订基本信息及岗位职责",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "设备工程部",
+  "reviewer1": "tPA生产事业部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0303",
+  "code": "GW-TPA200-09",
+  "isResearch": "",
+  "rank": "P6",
+  "departmentCode": "TPA200"
+}

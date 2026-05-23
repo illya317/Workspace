@@ -24,13 +24,13 @@ export async function getUserTargets(userId: number): Promise<{
   if (await checkPermission(userId, "system", "admin")) {
     const [departments, projects, positions] = await Promise.all([
       prisma.department.findMany({
-        select: { id: true, name: true, managementGroup: { select: { name: true } } },
+        select: { id: true, name: true, code: true },
       }),
       prisma.project.findMany({
         select: { id: true, name: true, type: true },
       }),
       prisma.position.findMany({
-        select: { id: true, code: true, name: true, managementGroup: { select: { name: true } } },
+        select: { id: true, code: true, name: true },
       }),
     ]);
     return { departments, projects, positions };
@@ -47,12 +47,12 @@ export async function getUserTargets(userId: number): Promise<{
     return { departments: [], projects: [], positions: [] };
   }
 
-  // Departments and positions from EmployeePosition
-  const eps = await prisma.employeeDepartmentPosition.findMany({
+  // Departments and positions from EDP
+  const eps = await prisma.eDP.findMany({
     where: { employeeId: { in: employeeIds } },
     select: {
-      department: { select: { id: true, name: true, managementGroup: { select: { name: true } } } },
-      position: { select: { id: true, code: true, name: true, managementGroup: { select: { name: true } } } },
+      department: { select: { id: true, name: true, code: true } },
+      position: { select: { id: true, code: true, name: true } },
     },
   });
 

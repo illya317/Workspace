@@ -3,7 +3,7 @@ import { authenticate, checkHRAccess, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import * as XLSX from "xlsx";
 import { matchEmployee } from "@/lib/search";
-import { FENGHUA_BIO_GROUP, resolveCompanyFilter } from "@/lib/company";
+import { FENGHUA_BIO_GROUP, resolveCompanyFilter, isPharma } from "@/lib/company";
 
 // 字段列表（顺序）
 const FIELDS = [
@@ -46,25 +46,22 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
+  const raw = searchParams.get("raw") === "1";
+  if (raw) {
+    const keyword = searchParams.get("keyword") || "";
+    let employees = await prisma.employee.findMany({ orderBy: { employeeId: "asc" } });
+    if (keyword) employees = employees.filter((e) => matchEmployee(e, keyword));
+    return NextResponse.json({ employees });
+  }
+
   const company = searchParams.get("company") || "";
   const dept = searchParams.get("dept") || "";
   const keyword = searchParams.get("keyword") || "";
   const exportExcel = searchParams.get("export") === "1";
   const isAdmin = await checkPermission(payload.userId, "system", "admin");
 
-  // 在职/离职筛选（默认只看在职）
-  const statusFilter = searchParams.get("status") || "在职";
-  const employeeWhere: any = {};
-  if (statusFilter === "在职") {
-    employeeWhere.status = "在职";
-    employeeWhere.deleted = false;
-  } else if (statusFilter === "离职") {
-    employeeWhere.status = "离职";
-  }
-
   // 1. 获取基础员工列表
   let baseEmployees = await prisma.employee.findMany({
-    where: employeeWhere,
     orderBy: [{ employeeId: "asc" }],
   });
 
@@ -76,24 +73,23 @@ export async function GET(request: Request) {
   const employeeIds = baseEmployees.map((e) => e.id);
   const empMap = new Map(baseEmployees.map((e) => [e.id, e]));
 
-  // 2. 查询 EmployeeDepartmentPosition（带部门和岗位筛选）
+  // 2. 查询 EDP（带部门和岗位筛选）
   const epWhere: any = { employeeId: { in: employeeIds } };
   if (dept) {
     epWhere.department = { name: { contains: dept } };
   }
 
-  // 公司筛选：通过 Department.managementGroup
+  // 公司筛选：通过 code prefix
   const targetCompany = company || "";
   if (targetCompany) {
     const mgmtNames = resolveCompanyFilter(targetCompany);
-    if (!epWhere.department) epWhere.department = {};
-    epWhere.department.managementGroup = { name: { in: mgmtNames } };
+    // no longer filtering via relation; client-side filter after fetch
   }
 
-  const eps = await prisma.employeeDepartmentPosition.findMany({
+  const eps = await prisma.eDP.findMany({
     where: epWhere,
-    include: { department: { include: { managementGroup: true } }, position: true },
-    orderBy: [{ employeeId: "asc" }, { sortOrder: "asc" }],
+    include: { department: true, position: true },
+    orderBy: [{ employeeId: "asc" }],
   });
 
   // 3. 常规体系 + GMP 合并为一行
@@ -106,13 +102,13 @@ export async function GET(request: Request) {
   const rows: any[] = [];
   for (const emp of baseEmployees) {
     const epsForEmp = epByEmp.get(emp.id) || [];
-    const defEP = epsForEmp.find((e: any) => e.system !== "GMP") || epsForEmp[0];
-    const gmpEP = epsForEmp.find((e: any) => e.system === "GMP");
-    const mgmt = defEP?.department?.managementGroup?.name;
+    const defEP = epsForEmp.find((e: any) => !isPharma(e.department?.code || "")) || epsForEmp[0];
+    const gmpEP = epsForEmp.find((e: any) => isPharma(e.department?.code || ""));
+    const companyName = isPharma(defEP?.department?.code || "") ? "丰华制药" : "丰华生物";
     rows.push({
       id: emp.id, employeeId: emp.employeeId, name: emp.name, alias: emp.alias,
-      company: mgmt === "GMP" ? "丰华制药" : mgmt === "常规体系" ? "丰华生物" : "",
-      center: defEP?.center ?? "",
+      company: companyName,
+      center: "",
       dept1: defEP?.department?.name ?? "",
       dept2: "",
       position: defEP?.position?.name ?? "",
@@ -121,10 +117,9 @@ export async function GET(request: Request) {
       gender: emp.gender, ethnicity: emp.ethnicity, hometown: emp.hometown,
       politics: emp.politics, education: emp.education, title: emp.title,
       school: emp.school, major: emp.major, phone: emp.phone,
-      joinDate: emp.joinDate, nature: emp.nature, status: emp.status,
-      leaveDate: emp.leaveDate, deleted: emp.deleted, deletedTime: emp.deletedTime,
-      deletedBy: emp.deletedBy, userId: emp.userId,
-      employeeDepartmentPositionId: defEP?.id ?? null,
+      joinDate: "", nature: "", status: "",
+      leaveDate: "", userId: emp.userId,
+      eDPId: defEP?.id ?? null,
     });
   }
 
@@ -157,10 +152,8 @@ export async function GET(request: Request) {
   }
 
   // 所有公司和部门（不随筛选变化，用于下拉框）
-  const deptWhere: any = {};
-  const allCompaniesRaw = await prisma.department.findMany({ where: deptWhere, select: { managementGroup: { select: { name: true } } }, distinct: ["managementGroupId"] });
-  const allCompanies = allCompaniesRaw.map((d: any) => d.managementGroup?.name === "GMP" ? "丰华制药" : "丰华生物").filter(Boolean);
-  const allDepts = [...new Set((await prisma.department.findMany({ where: deptWhere, select: { name: true } })).map((d: any) => d.name).filter(Boolean))];
+  const allCompanies = ["丰华制药", "丰华生物"];
+  const allDepts = [...new Set((await prisma.department.findMany({ select: { name: true } })).map((d: any) => d.name).filter(Boolean))];
 
   return NextResponse.json({ employees: rows, fields: FIELDS, visibleFields, allCompanies, allDepts });
 }

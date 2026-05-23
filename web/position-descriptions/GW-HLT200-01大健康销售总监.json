@@ -1,0 +1,71 @@
+{
+  "name": "大健康销售总监",
+  "departmentName": "大健康销售部",
+  "reportTo": "大健康事业部部长",
+  "positionPurpose": "",
+  "summary": "",
+  "headcount": "1",
+  "version": "",
+  "effectiveDate": "",
+  "purpose": "",
+  "scope": "",
+  "documentSource": "",
+  "subordinates": [],
+  "duties": [
+    {
+      "title": "",
+      "items": [
+        "按照全程工作法制定全年工作目标，维护客户关系，建立完善的客户关系管理",
+        "产品政策及预算方案",
+        "根据公司要求，完成年度销售计划和财务预算",
+        "定期组织市场调研，分析行业趋势与竞争格局，优化产品结构与营销策略",
+        "协同供应链、品牌及运营团队，推动新品引进与现有品种的迭代升级",
+        "监督销售数据的采集与分析，及时调整销售策略，提升市场占有率与客户满意度",
+        "严格执行公司合规要求，确保业务流程合法、透明、高效",
+        "领导交办的其他工作"
+      ]
+    }
+  ],
+  "managementDuties": [
+    "指导部门完善制度及流程，部门人员管理",
+    "负责部门人员的业务培训、计划落实、业绩考核和职业发展等工作，提升人员的整体素质和能力",
+    "组织落实公司下发的各项规章文件，编制和完善部门营销管理具体实施细则、规范操作，并负责监督贯彻执行"
+  ],
+  "education": "大专及以上学历",
+  "major": "市场营销等相关专业",
+  "experience": "五年及以上，从事药品、保健品等销售工作经验；",
+  "training": "",
+  "skills": [
+    "丰富的专业知识",
+    "熟悉行业相关知识，规范，法规及政策，具备优秀的职业判断能力和丰富的分析处理经验",
+    "出色的组织、沟通、分析、判断和执行力，良好的抗压能力、进取心；出色的人际沟通能力",
+    "熟练使用本岗位相关软件"
+  ],
+  "cert": "无",
+  "other": "",
+  "otherRequirements": [
+    "动手能力、应变能力、观察和分析判断力"
+  ],
+  "competencies": [
+    "动手能力、应变能力、观察和分析判断力"
+  ],
+  "workingConditions": "",
+  "workSchedule": "",
+  "equipment": [],
+  "externalCollaboration": "",
+  "distributionDeptNames": [],
+  "trainingPositionNames": [],
+  "attachments": [],
+  "changeHistory": [],
+  "drafter": "",
+  "reviewer1": "",
+  "reviewer2": "",
+  "approver": "",
+  "salaryType": "固定月薪+浮动绩效",
+  "officeLocation": "盐城办公区",
+  "code_raw": "FH-GW0009",
+  "code": "GW-HLT200-01",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "HLT200"
+}

@@ -1,0 +1,121 @@
+{
+  "name": "食堂服务员",
+  "departmentName": "行政部",
+  "reportTo": "行政人事部经理",
+  "positionPurpose": "负责提供公司全体员工及客户每日的三餐，保证食堂正常有序运转。",
+  "summary": "负责食堂服务、后勤、保洁工作。",
+  "headcount": "",
+  "version": "03",
+  "effectiveDate": "",
+  "purpose": "明确食堂服务员工作职责",
+  "scope": "适用于食堂服务员岗位人员",
+  "documentSource": "PPA-GW0210食堂服务员岗位说明书03版.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "服务员工作",
+      "items": [
+        "负责洗菜、择菜、切菜、卫生及杂务",
+        "协助厨师做好早、中、晚餐主副食加工",
+        "配合完成开饭工作",
+        "餐后厨具回收与清洗消毒及卫生清洁",
+        "主厨安排的其它工作"
+      ]
+    },
+    {
+      "title": "行为要求",
+      "items": [
+        "主动热情，礼貌待人，态度和蔼，文明服务",
+        "规定时间开餐",
+        "规范流程就餐，不得无签字、未刷卡就餐",
+        "工作期间不得大声喧哗，争吵斗殴，不做与工作无关的事",
+        "不得将食堂物品向外出售或私自带出",
+        "节约水、电、燃料、调料等，随手关门、关水、关电"
+      ]
+    },
+    {
+      "title": "卫生要求",
+      "items": [
+        "穿戴工作衣帽口罩,勤洗手、剪指甲，勤换、勤洗工作服",
+        "餐具、厨具洁净，地面无垃圾、无油迹，门、窗、设备无浮尘，保洁用具定位存放",
+        "所有食品及盛器不得落地存放，生熟食物分开存放"
+      ]
+    },
+    {
+      "title": "安全要求",
+      "items": [
+        "严格遵守炊事灶具操作规程，防止事故发生，各种设备要轻拿轻放、定位存放、保持清洁、电源关闭",
+        "严禁一人当班，严禁无关人员进入厨房、保管室等工作区域，严禁携带有毒、易燃易爆物品进入食堂工作区域",
+        "下班前关好门窗，做好防火、防盗、防毒安全"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "高中及以上学历。",
+  "major": "无限制。",
+  "experience": "从事餐饮行业工作2年以上。",
+  "training": "受过良好的餐饮管理、厨房内部管理、成本控制管理等方面培训。",
+  "skills": [
+    "服务意识强",
+    "吃苦耐劳、责任心强、爱岗敬业",
+    "工作效率高，能够全面控制食堂内的各项工作"
+  ],
+  "cert": "",
+  "other": "持江苏省从业人员预防性健康检查合格证明。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "一般区。",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "食堂厨具。"
+  ],
+  "externalCollaboration": "各级消防局、消防器材公司、治安派出所、卫生监督部门。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "行政人事部经理",
+    "食堂服务员"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《食堂服务员岗位说明书》（PPA-GW0210）",
+      "effectiveDate": "2019.11.01",
+      "approver": "陈太标"
+    },
+    {
+      "version": "01",
+      "documentName": "《食堂服务员岗位说明书》（PPA-GW0210）修订基本信息及岗位职责",
+      "effectiveDate": "2021.05.10",
+      "approver": "张文学"
+    },
+    {
+      "version": "02",
+      "documentName": "《食堂服务员岗位说明书》（PPA-GW0210）增加其他要求：持江苏省从业人员预防性健康检查合格证明；使用设备由电脑修改为食堂厨具。",
+      "effectiveDate": "2023.07.20",
+      "approver": "陈太标"
+    },
+    {
+      "version": "03",
+      "documentName": "《食堂服务员岗位说明书》（PPA-GW0210）删除职责二行为要求2中的（早上7:20，中午11:30，晚上17:30）",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "行政人事部",
+  "reviewer1": "行政人事部",
+  "reviewer2": "",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0210",
+  "code": "GW-FUN101-07",
+  "isResearch": "",
+  "rank": "T3",
+  "departmentCode": "FUN101"
+}

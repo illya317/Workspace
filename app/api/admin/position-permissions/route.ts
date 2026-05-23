@@ -19,10 +19,9 @@ export async function GET(request: Request) {
     include: {
       resource: { select: { id: true, key: true, name: true } },
       role: { select: { id: true, key: true, name: true } },
-      position: { select: { id: true, code: true, name: true, managementGroup: { select: { name: true } } } },
+      position: { select: { id: true, code: true, name: true } },
     },
     orderBy: [
-      { position: { managementGroup: { name: "asc" } } },
       { position: { code: "asc" } },
     ],
   });

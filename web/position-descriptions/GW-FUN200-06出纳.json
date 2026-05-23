@@ -1,0 +1,66 @@
+{
+  "name": "出纳",
+  "departmentName": "财务部",
+  "reportTo": "财务经理",
+  "positionPurpose": "",
+  "summary": "",
+  "headcount": "1",
+  "version": "",
+  "effectiveDate": "",
+  "purpose": "",
+  "scope": "",
+  "documentSource": "",
+  "subordinates": [],
+  "duties": [
+    {
+      "title": "",
+      "items": [
+        "管理公司各银行账户，负责银行账户开立、注销以及银行回单的管理",
+        "负责银行结算业务，确保资金收付的准确性及安全性",
+        "及时编制和核对现金及银行日记帐，确保账实相符",
+        "按规定购买、保管和存放支票、现金、票据，及时盘点登记，保证账实、账证相符",
+        "及时掌握公司资金状况，根据业务需要合理调配资金",
+        "编制银行余额调节表，及时清理未达账项",
+        "及时完成现金流预测",
+        "领导安排的其他事务"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "本科及以上学历",
+  "major": "财务、会计类相关专业",
+  "experience": "熟悉出纳工作，从事出纳工作1年以上",
+  "training": "",
+  "skills": [
+    "熟悉会计基础知识、资金管理知识",
+    "熟练操作财务软件，银行系统",
+    "熟练使用自动化办公软件，具备基本的网络知识"
+  ],
+  "cert": "从业资格证/中级会计师",
+  "other": "",
+  "otherRequirements": [
+    "具有良好的职业操守和沟通能力，很强的责任心，工作细致认真负责，能够承受一定的工作压力。"
+  ],
+  "competencies": [
+    "具有良好的职业操守和沟通能力，很强的责任心，工作细致认真负责，能够承受一定的工作压力。"
+  ],
+  "workingConditions": "",
+  "workSchedule": "",
+  "equipment": [],
+  "externalCollaboration": "",
+  "distributionDeptNames": [],
+  "trainingPositionNames": [],
+  "attachments": [],
+  "changeHistory": [],
+  "drafter": "",
+  "reviewer1": "",
+  "reviewer2": "",
+  "approver": "",
+  "salaryType": "固定薪资",
+  "officeLocation": "上海办公区",
+  "code_raw": "FH-GW0006",
+  "code": "GW-FUN200-06",
+  "isResearch": "",
+  "rank": "P3",
+  "departmentCode": "FUN200"
+}

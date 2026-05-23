@@ -15,6 +15,36 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **认证**: JWT Cookie + API Key (个人)
 - **部署**: `npm run build` → `./deploy.sh` (普通) / `./deploy.sh --push-db` (schema变更)
 
+## 数据库模型
+
+核心业务表（seed JSON 与表字段一一对应，除审计字段外）：
+
+| 表 | JSON 来源 | 说明 |
+|---|---|---|
+| `Employee` | `employees.json` | 员工基础信息（16 字段） |
+| `Employment` | `employments.json` | 雇佣信息（status/company/joinDate/leaveDate/contracts 等） |
+| `EDP` | `employee_positions.json` | 员工-部门-岗位关联（`@@map("EmployeePosition")`） |
+| `Department` | `department.json` | 部门树（扁平存储，parentId 推导自 children） |
+| `Position` | `position.json` | 岗位 |
+| `PositionDescription` | `position-descriptions/*.json` | 岗位说明书（details 为 JSON  blob） |
+| `Company` | `companies.json` | 公司 |
+
+**已删除的表/字段**：ManagementGroup（整张表）、Employee.deleted/deletedTime/deletedBy、EDP.system/center/sortOrder、Department.sortOrder 等。
+
+**审计字段**（统一顺序：`editedBy → editor → editedAt → version → createdAt → updatedAt`）：Employee、Employment、Company、Department、Position、EDP、Project、EmployeeProject、PositionDescription、Report 均具备。
+
+Schema 可视化文档：`docs/tables.html`（自动生成，运行 `node scripts/gen-tables-html.js`）。
+
+## 数据导入
+
+源数据在 `prisma/seed/*.json` 和 `web/position-descriptions/*.json`，通过 `scripts/import-seed.js` 导入：
+
+```
+Company → Department → PositionDescription → Position → Employee → Employment → EDP
+```
+
+重置数据：`rm prisma/dev.db && npx prisma db push && node scripts/import-seed.js`
+
 ## 关键路由
 
 | 页面 | 路径 | 权限 |
@@ -43,8 +73,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## 公司分组
 
-- 筛选按一级（丰华生物体系/丰华制药），显示按二级公司名
-- 所有常量从 `lib/company.ts` 导入
+- **体系判断**：通过 code 前缀，`isPharma(code)`（startsWith "PPA" / "04"）→ GMP/丰华制药，其余 → 常规体系/丰华生物。所有判断从 `lib/company.ts` 导入，禁止硬编码。
+- **常量**：`CODE_TO_NAME`, `FENGHUA_BIO_GROUP`, `SHARED_GROUP_CODES`, `isPharma`, `isBio`
+
+## 编码规则
+
+- 部门：L1=`前缀001`，L2=`前缀100/200`，L3=`前缀101`
+- 岗位：`GW-{dept}-{seq}`，GMP 岗位带 `PPA-` 前缀
 
 ---
 
@@ -81,7 +116,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 | 模块 | 用途 | 关键导出 |
 |------|------|----------|
-| `lib/company.ts` | 公司常量/分组 | `CODE_TO_NAME`, `FENGHUA_BIO_GROUP`, `SHARED_GROUP_CODES`, `resolveCompanyFilter` |
+| `lib/company.ts` | 公司常量/分组/体系判断 | `CODE_TO_NAME`, `FENGHUA_BIO_GROUP`, `SHARED_GROUP_CODES`, `resolveCompanyFilter`, `isPharma`, `isBio` |
 | `lib/types.ts` | 共享类型 | `SessionUser`（当前用户，全站统一，禁止各处重复定义） |
 | `lib/security.ts` | 登录安全 | `checkBruteForce`, `recordAttempt` |
 | `lib/search.ts` | 拼音搜索 | `getInitials`, `matchEmployee` |

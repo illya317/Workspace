@@ -1,0 +1,65 @@
+{
+  "name": "中级研究员",
+  "departmentName": "上海研发中心",
+  "reportTo": "首席科学家/研发事业部部长",
+  "positionPurpose": "",
+  "summary": "",
+  "headcount": "1",
+  "version": "",
+  "effectiveDate": "",
+  "purpose": "",
+  "scope": "",
+  "documentSource": "",
+  "subordinates": [],
+  "duties": [
+    {
+      "title": "",
+      "items": [
+        "参与研发项目的调研、立项报告的资料收集、整理与撰写",
+        "参与项目实施方案的流程与技术设计",
+        "能够独立或与团队合作，完成项目的实施",
+        "对所承担的研究工作负责，能够及时发现问题并解决",
+        "完成项目的总结，撰写总结报告、论文或专利文稿",
+        "能够完成上级交代的任务"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "本科及以上学历",
+  "major": "生物、医药类相关专业",
+  "experience": "生物、医药从业经历，生物医药类行业优先",
+  "training": "",
+  "skills": [
+    "热爱科研工作，具有强烈的事业心，勇于创新，作风扎实",
+    "具有扎实的生物学、分子生物学、微生物学及生物化学理论知识；能够熟练阅读本专业学术文献",
+    "动手/研究能力强，有较高的文字撰写和口头表达能力",
+    "具有团队合作、协助精神"
+  ],
+  "cert": "具备国家认可的相关资格证书/职称",
+  "other": "",
+  "otherRequirements": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "competencies": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "workingConditions": "",
+  "workSchedule": "",
+  "equipment": [],
+  "externalCollaboration": "",
+  "distributionDeptNames": [],
+  "trainingPositionNames": [],
+  "attachments": [],
+  "changeHistory": [],
+  "drafter": "",
+  "reviewer1": "",
+  "reviewer2": "",
+  "approver": "",
+  "salaryType": "固定月薪+浮动绩效",
+  "officeLocation": "上海办公区",
+  "code_raw": "FH-GW0003",
+  "code": "GW-RND100-02",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "RND100"
+}

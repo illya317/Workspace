@@ -1,0 +1,133 @@
+{
+  "name": "门卫",
+  "departmentName": "行政部",
+  "reportTo": "行政人事部经理",
+  "positionPurpose": "安全保卫，防火防盗。",
+  "summary": "厂区安全保卫、防火防盗、院内绿化及卫生清洁管理工作。",
+  "headcount": "",
+  "version": "04",
+  "effectiveDate": "20/07/2023",
+  "purpose": "明确门卫工作职责",
+  "scope": "适用于门卫岗位人员",
+  "documentSource": "PPA-GW0206门卫岗位说明书04版.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "行为要求",
+      "items": [
+        "举止端正，文明执勤，不做与工作无关的事",
+        "严禁脱岗、漏岗、酒后上岗、会客、私事、睡岗、进休息室（当日21:30至次日7:00除外）"
+      ]
+    },
+    {
+      "title": "人员（车辆）出入管理",
+      "items": [
+        "员工上班时间外出凭《员工上班时间外出》、《请假申请》审批单方可进出",
+        "外来办事人员（车辆）凭《外来人员（车辆）进出》审批单，并在《来客登记表》上登记后方可出入",
+        "严禁衣冠不整，穿拖鞋、背心、短裤者及无关人员进入公司",
+        "及时登记《不良情况统计表》"
+      ]
+    },
+    {
+      "title": "物资出入管理",
+      "items": [
+        "禁止员工带公物出厂，如有此现象必须制止并上报",
+        "物资出厂凭《出入证》并登记《物资出入登记表》后方可放行"
+      ]
+    },
+    {
+      "title": "日常巡视管理",
+      "items": [
+        "上下班前后三十分钟必须在门口巡视，疏导进出员工和车辆",
+        "门卫交接班时对厂区进行一次巡视，检查危化品库、水、电、汽、门窗，如有情况及时处理并登记上报，同时填写《巡视检查表》"
+      ]
+    },
+    {
+      "title": "其它工作",
+      "items": [
+        "做好门相关记录的登记填写及归档",
+        "报刊和邮件的签收分发",
+        "值班室内外及大门口卫生清洁",
+        "公司旗帜升降（早晚6点30分）",
+        "公司路灯（厂牌灯）开关控制",
+        "除上午7:30-8:00，中午11:30-12:00 12:30-13:00，下午17:30-18:00，其它时间厂门保持关闭状态",
+        "浏览监控画面，发现问题及时登记并上报"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "高中及以上学历。",
+  "major": "安保。",
+  "experience": "3年以上安全保卫工作经验。",
+  "training": "岗位技能培训、安全知识培训。",
+  "skills": [
+    "实际工作经验",
+    "掌握安保知识技能",
+    "持保安员证"
+  ],
+  "cert": "",
+  "other": "身体健康强壮，灵巧敏捷。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "一般区。",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "警用器材",
+    "监控系统。"
+  ],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "行政人事部经理",
+    "门卫"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《保安员岗位说明书》（PPA-GW0206）",
+      "effectiveDate": "2016.07.15",
+      "approver": "陈太标"
+    },
+    {
+      "version": "01",
+      "documentName": "《门卫岗位说明书》（PPA-GW0206）修订岗位职责",
+      "effectiveDate": "2019.11.01",
+      "approver": "陈太标"
+    },
+    {
+      "version": "02",
+      "documentName": "《门卫岗位说明书》（PPA-GW0206）修订基本信息及岗位职责",
+      "effectiveDate": "2021.05.10",
+      "approver": "陈太标"
+    },
+    {
+      "version": "03",
+      "documentName": "《门卫岗位说明书》（PPA-GW0206）增加对危险品库的巡视",
+      "effectiveDate": "2023.04.26",
+      "approver": "陈太标"
+    },
+    {
+      "version": "04",
+      "documentName": "《门卫岗位说明书》（PPA-GW0206）增加技能：保安员证",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "行政人事部",
+  "reviewer1": "行政人事部",
+  "reviewer2": "",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0206",
+  "code": "GW-FUN101-10",
+  "isResearch": "",
+  "rank": "T3",
+  "departmentCode": "FUN101"
+}

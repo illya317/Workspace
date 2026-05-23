@@ -1,0 +1,75 @@
+{
+  "name": "大区销售经理",
+  "departmentName": "BA治疗销售部",
+  "reportTo": "高级销售总监",
+  "positionPurpose": "",
+  "summary": "",
+  "headcount": "8",
+  "version": "",
+  "effectiveDate": "",
+  "purpose": "",
+  "scope": "",
+  "documentSource": "",
+  "subordinates": [
+    "销售经理"
+  ],
+  "duties": [
+    {
+      "title": "",
+      "items": [
+        "完成所辖区域的年度销售指标任务",
+        "负责所辖区域销售团队搭建和培养",
+        "收集和分析市场及竞品信息，制定适合区域的销售推广策略",
+        "根据区域内年度销售目标制定预算，整合利用资源",
+        "区域内重点医院开发及KOL客户关系维护",
+        "区域内商业渠道搭建及管理",
+        "区域内学术平台搭建，市场推广活动策划、执行及跟进",
+        "区域内各省的挂网工作，价格体系维护",
+        "上级安排的其他工作"
+      ]
+    }
+  ],
+  "managementDuties": [
+    "根据市场营销部工作规划和业务发展，完成所负责区域销售目标及年度预算编制的制定、执行及跟踪检查",
+    "制定区域销售策略，定期回顾并分析调整",
+    "制定区域内销售团队培养目标，打造专业化销售团队",
+    "公司领导分配的其他管理职责"
+  ],
+  "education": "大专及以上学历",
+  "major": "药学、临床医学、护理学或市场营销等相关专业",
+  "experience": "五年及以上，从事药品销售工作经验；",
+  "training": "",
+  "skills": [
+    "丰富的专业知识",
+    "熟悉行业相关知识，规范，法规及政策，具备优秀的职业判断能力和丰富的分析处理经验",
+    "出色的组织、沟通、分析、判断和执行力，良好的抗压能力、进取心；出色的人际沟通能力",
+    "熟练使用本岗位相关软件"
+  ],
+  "cert": "无",
+  "other": "",
+  "otherRequirements": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "competencies": [
+    "良好的敬业精神和职业道德，较强的感召力和凝聚力"
+  ],
+  "workingConditions": "",
+  "workSchedule": "",
+  "equipment": [],
+  "externalCollaboration": "",
+  "distributionDeptNames": [],
+  "trainingPositionNames": [],
+  "attachments": [],
+  "changeHistory": [],
+  "drafter": "",
+  "reviewer1": "",
+  "reviewer2": "",
+  "approver": "",
+  "salaryType": "固定月薪+浮动绩效",
+  "officeLocation": "盐城办公区/北京办公区/上海办公区",
+  "code_raw": "FH-GW0010",
+  "code": "GW-HLT400-01",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "HLT400"
+}

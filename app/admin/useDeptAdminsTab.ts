@@ -31,6 +31,11 @@ interface DeptItem {
   admins: DeptAdminEntry[];
 }
 
+function mgmtFromCode(code?: string): string {
+  if (!code) return "常规体系";
+  return code.slice(0, 2) === "04" ? "GMP" : "常规体系";
+}
+
 export function useDeptAdminsTab(
   showToast: (msg: string, type?: "success" | "error") => void
 ) {
@@ -55,6 +60,7 @@ export function useDeptAdminsTab(
         depts
           .map((d: any) => ({
             ...d,
+            managementGroup: mgmtFromCode(d.code),
             admins: admins.filter((a: any) => a.scopeId === String(d.id)),
           }))
           .sort((a: any, b: any) => {

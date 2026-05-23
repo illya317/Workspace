@@ -1,0 +1,121 @@
+{
+  "name": "保洁员",
+  "departmentName": "行政部",
+  "reportTo": "行政人事部经理",
+  "positionPurpose": "办公区保洁，为员工提供整洁舒适的工作环境。",
+  "summary": "确保公司环境的整洁、卫生、美观和安全，提升公司形象。",
+  "headcount": "",
+  "version": "03",
+  "effectiveDate": "20/07/2023",
+  "purpose": "明确保洁员工作职责",
+  "scope": "适用于保洁员岗位人员",
+  "documentSource": "PPA-GW0207保洁员岗位说明书03版.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "厂区路面保洁",
+      "items": [
+        "每天早、中、晚检查打扫路面卫生，保持清洁"
+      ]
+    },
+    {
+      "title": "领导办公室保洁",
+      "items": [
+        "每天检查领导办公室卫生，保持清洁，关闭好门窗",
+        "桌椅、电脑、电话等设备表面无灰尘，且摆放整齐",
+        "地面、门窗无浮尘，墙角旮旯无蜘蛛网",
+        "垃圾每天清理"
+      ]
+    },
+    {
+      "title": "会议室保洁",
+      "items": [
+        "每天检查打扫会议室卫生，随时保持清洁",
+        "会议室不使用时关闭好门窗"
+      ]
+    },
+    {
+      "title": "办公楼、宿舍、卫生间公共区域保洁",
+      "items": [
+        "每天早、中、晚检查办公楼走廊、所有厕所卫生，保持清洁",
+        "栏杆、地面、门窗无浮尘，墙角旮旯无蜘蛛网",
+        "洗手池台盆面清洁无垢",
+        "厕盆、便池无黄垢、无异味，便纸摆放",
+        "垃圾每天清理"
+      ]
+    },
+    {
+      "title": "花木养护",
+      "items": [
+        "定期给会议室及走廊花木浇水、维护"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "高中及以上学历。",
+  "major": "无。",
+  "experience": "1年保洁员工作经验。",
+  "training": "岗位技能培训。",
+  "skills": [
+    "GMP认证、检查实践经验",
+    "懂清洁程序和标准"
+  ],
+  "cert": "",
+  "other": "勤劳，肯吃苦，任劳任怨。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "3岗位职责概要",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "清扫工具。"
+  ],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "行政人事部经理",
+    "保洁员"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《保洁员岗位说明书》（PPA-GW0207）",
+      "effectiveDate": "2016.07.15",
+      "approver": "陈太标"
+    },
+    {
+      "version": "01",
+      "documentName": "《保洁员岗位说明书》（PPA-GW0207）修订岗位职责",
+      "effectiveDate": "2019.11.01",
+      "approver": "陈太标"
+    },
+    {
+      "version": "02",
+      "documentName": "《保洁员岗位说明书》（PPA-GW0207）修订基本信息及岗位职责",
+      "effectiveDate": "2021.05.10",
+      "approver": "张慧君"
+    },
+    {
+      "version": "03",
+      "documentName": "《保洁员岗位说明书》（PPA-GW0207）修改职责概要为：确保公司环境的整洁、卫生、美观和安全，提升公司形象。",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "行政人事部",
+  "reviewer1": "行政人事部",
+  "reviewer2": "",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0207",
+  "code": "GW-FUN101-05",
+  "isResearch": "",
+  "rank": "",
+  "departmentCode": "FUN101"
+}

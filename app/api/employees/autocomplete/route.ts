@@ -41,7 +41,7 @@ export async function GET(request: Request) {
 
   if (type === "name") {
     const employees = await prisma.employee.findMany({
-      where: q ? { name: { contains: q }, deleted: { not: true } } : { deleted: { not: true } },
+      where: q ? { name: { contains: q } } : {},
       select: { name: true, alias: true },
       distinct: ["name"],
       take: 20,

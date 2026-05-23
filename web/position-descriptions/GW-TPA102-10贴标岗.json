@@ -1,0 +1,92 @@
+{
+  "name": "贴标岗",
+  "departmentName": "制剂车间",
+  "reportTo": "车间主任",
+  "positionPurpose": "完成贴标，标签上印上准确的制品信息。",
+  "summary": "核对制品信息，使用贴标机完成贴标任务。",
+  "headcount": 3,
+  "version": "01",
+  "effectiveDate": "12/12/2023",
+  "purpose": "明确制剂车间贴标岗位工作职责",
+  "scope": "适用于制剂车间贴标岗位人员",
+  "documentSource": "PPA-GW0615贴标岗位说明书01.doc",
+  "subordinates": [
+    "无"
+  ],
+  "duties": [
+    {
+      "title": "按照标准操作规程完成贴标任务",
+      "items": [
+        "领取待贴标制品，按照《制剂车间制品包装指令》完成制品贴标工作",
+        "核对制品的批号、生产日期、有效期至内容，检查贴标质量",
+        "核对标签数及制品数，将贴标好的制品转入冷藏库",
+        "贴标结束后清场，检查电、气安全",
+        "定置保管贴标使用工具",
+        "完成各项工作记录的填写"
+      ]
+    },
+    {
+      "title": "设备管理及其它工作",
+      "items": [
+        "完成设备的维护保养",
+        "完成车间其它临时性工作",
+        "提出工作中的合理性建议",
+        "完成贴标岗位SOP文件的起草和修订",
+        "参加车间和公司组织的相关培训"
+      ]
+    }
+  ],
+  "managementDuties": [],
+  "education": "高中以上学历。",
+  "major": "无。",
+  "experience": "1年以上工作经验。",
+  "training": "GMP法规培训、质量管理类培训、生产管理类培训、岗位基础知识培训、岗位技能培训、卫生知识培训、产品专业知识培训、微生物培训、安全知识培训、设备、设施类培训。",
+  "skills": [
+    "熟悉贴标工作流程",
+    "熟悉GMP基础知识"
+  ],
+  "cert": "",
+  "other": "无。",
+  "otherRequirements": [],
+  "competencies": [],
+  "workingConditions": "一般区（整洁、安静）。",
+  "workSchedule": "标准工时工作制。",
+  "equipment": [
+    "贴标机。"
+  ],
+  "externalCollaboration": "无。",
+  "distributionDeptNames": [
+    "行政人事部",
+    "制剂车间",
+    "质量保证部"
+  ],
+  "trainingPositionNames": [
+    "制剂车间贴标岗位所有人员"
+  ],
+  "attachments": [],
+  "changeHistory": [
+    {
+      "version": "00",
+      "documentName": "《贴标岗位说明书》（PPA-GW0615）",
+      "effectiveDate": "2016.07.15",
+      "approver": "陈太标"
+    },
+    {
+      "version": "01",
+      "documentName": "《贴标岗位说明书》（PPA-GW0615）更改目的及范围",
+      "effectiveDate": "见首页",
+      "approver": "见首页"
+    }
+  ],
+  "drafter": "制剂车间",
+  "reviewer1": "tPA生产事业部",
+  "reviewer2": "行政人事部",
+  "approver": "执行总裁",
+  "salaryType": "",
+  "officeLocation": "",
+  "code_raw": "PPA-GW0615",
+  "code": "GW-TPA102-10",
+  "isResearch": "",
+  "rank": "T3",
+  "departmentCode": "TPA102"
+}
