@@ -99,7 +99,6 @@ export function useGenericTab(config: TabConfig): GenericTabState {
           prev.map((item) => (item.id === id ? { ...item, [field]: newValue } : item))
         );
         setEditingCell(null);
-        setEditMode(false);
         return true;
       }
     } finally {
