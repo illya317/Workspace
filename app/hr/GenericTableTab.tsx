@@ -231,7 +231,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
                     <select
                       value={(createForm[f.key] as string) ?? "男"}
                       onChange={(e) => setCreateForm((prev) => ({ ...prev, [f.key]: e.target.value }))}
-                      className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+                      className="w-20 rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
                     >
                       <option value="男">男</option>
                       <option value="女">女</option>
