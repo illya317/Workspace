@@ -21,7 +21,7 @@ export async function PUT(
   // Single field update (e.g. canLogin, name, username)
   if (body.field && body.value !== undefined) {
     const { field, value } = body;
-    const ALLOWED = ["canLogin", "name", "username"];
+    const ALLOWED = ["canLogin", "name", "username", "employeeId"];
     if (!ALLOWED.includes(field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
     await prisma.user.update({
       where: { id: parseInt(id) },

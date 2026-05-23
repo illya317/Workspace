@@ -20,6 +20,7 @@ model User {
   routineItems     String? // 日常工作模板JSON
   canLogin         Boolean           @default(true)  // 离职=停用，不删号（账号状态，非权限）
   apiKey           String?           @unique // API密钥
+  employeeId       String?           // 关联员工编号
   createdAt        DateTime          @default(now()) // 创建时间
   resourceRoles           UserResourceRole[]
   reports                 Report[]

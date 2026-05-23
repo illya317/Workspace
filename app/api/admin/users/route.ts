@@ -18,6 +18,7 @@ export async function GET(request: Request) {
       id: true,
       username: true,
       name: true,
+      employeeId: true,
       canLogin: true,
       resourceRoles: {
         include: {
@@ -51,11 +52,11 @@ export async function POST(request: Request) {
   if (!(await checkPermission(payload.userId, "system", "admin"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const body = await request.json();
-  const { name, username } = body;
+  const { name, username, employeeId } = body;
   if (!name) return NextResponse.json({ error: "姓名为必填" }, { status: 400 });
 
   const user = await prisma.user.create({
-    data: { name, username: username || null, canLogin: true },
+    data: { name, username: username || null, employeeId: employeeId || null, canLogin: true },
   });
   return NextResponse.json({ user });
 }
