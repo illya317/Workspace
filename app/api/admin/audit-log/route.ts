@@ -79,21 +79,25 @@ export async function GET(request: Request) {
   }
 
   const where: any = { entityType };
-  if (tag) { where.tag = tag; }
-  else { where.tag = null; } // 默认隐藏 V0 基线，仅在按日期筛选时展示
+  if (tag) where.tag = tag;
 
-  const total = await prisma.editHistory.count({ where });
-
-  const versions = await prisma.editHistory.findMany({
-    where,
+  // 拉当前页 + 同记录 V0（用于 diff）
+  const pageVersions = await prisma.editHistory.findMany({
+    where: tag ? where : { entityType, tag: null },
     orderBy: { createdAt: "desc" },
     take: pageSize,
     skip: (page - 1) * pageSize,
     include: { editor: { select: { name: true } } },
   });
+  const total = await prisma.editHistory.count({ where: tag ? where : { entityType, tag: null } });
 
-  // Resolve record names in batch
-  const recordIds = [...new Set(versions.map((v) => parseInt(v.entityId)))];
+  // 补上当前页记录的 V0 用于 diff
+  const recordIds = [...new Set(pageVersions.map((v) => parseInt(v.entityId)))];
+  const v0s = tag ? [] : await prisma.editHistory.findMany({
+    where: { entityType, entityId: { in: recordIds.map(String) }, tag: { not: null } },
+    include: { editor: { select: { name: true } } },
+  });
+  const versions = [...pageVersions, ...v0s];
   const recordMap: Record<string, string> = {};
 
   if (resolver) {
@@ -171,5 +175,7 @@ export async function GET(request: Request) {
     };
   });
 
-  return NextResponse.json({ entries, total, page, pageSize });
+  // 默认隐藏 V0 基线条目，仅展示编辑版本
+  const visible = tag ? entries : entries.filter((e) => !e.tag);
+  return NextResponse.json({ entries: visible, total, page, pageSize });
 }
