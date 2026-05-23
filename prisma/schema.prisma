@@ -413,7 +413,6 @@ model PositionDescription {
 model HistoryEntity {
   id           Int            @id @default(autoincrement()) // 主键
   entityType   String         @unique // "employee" | "employment" | "code_company" | ...
-  modelName    String         // Prisma 模型名: "Employee" | "Employment" | ...
   description  String         // 中文说明
   histories    EditHistory[]
 }
