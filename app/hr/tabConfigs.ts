@@ -176,7 +176,7 @@ const edpFields: FieldConfig[] = [
   { key: "endDate", label: "结束日期", editable: true, type: "date" },
   { key: "personnelType", label: "人员类型", editable: true },
   { key: "rank", label: "职级", editable: true },
-  { key: "title", label: "职称", editable: true },
+  { key: "title", label: "职务", editable: true },
   { key: "reportTo", label: "直接上级", editable: true },
   { key: "reportTo2", label: "第二汇报线", editable: true },
   { key: "workPercent", label: "工作占比", editable: true },
