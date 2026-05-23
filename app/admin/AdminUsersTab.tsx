@@ -66,19 +66,18 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
     } catch { showToast("网络错误", "error"); }
   }
 
-  async function resetPassword(id: number) {
+  async function resetPassword(user: UserItem) {
     try {
-      const res = await fetch("/api/admin/users/" + id, { method: "POST" });
+      const res = await fetch("/api/admin/users/" + user.id, { method: "POST" });
       if (res.ok) {
         const data = await res.json();
-        const pw = data.password;
-        // 兼容 HTTP 的剪贴板复制
+        const msg = `${user.name}您好，您的用户是${user.username || "(未设置)"}，密码是${data.password}`;
         if (navigator.clipboard?.writeText) {
-          try { await navigator.clipboard.writeText(pw); } catch { copyFallback(pw); }
+          try { await navigator.clipboard.writeText(msg); } catch { copyFallback(msg); }
         } else {
-          copyFallback(pw);
+          copyFallback(msg);
         }
-        showToast("新密码 " + pw + " 已复制到剪贴板", "success");
+        showToast("已复制到剪贴板", "success");
       } else {
         showToast("重置失败", "error");
       }
@@ -185,7 +184,7 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
                     </div>
                   </td>
                   <td className="px-3 py-2">
-                    <button onClick={() => resetPassword(u.id)} className="text-xs text-blue-500 hover:text-blue-700">重置密码</button>
+                    <button onClick={() => resetPassword(u)} className="text-xs text-blue-500 hover:text-blue-700">重置密码</button>
                   </td>
                 </tr>
               ))}
