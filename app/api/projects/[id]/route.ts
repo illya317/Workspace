@@ -59,6 +59,7 @@ export async function DELETE(
   if (!(await checkHRAccess(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { id } = await params;
+  await snapshotHistory("Project", parseInt(id), payload.userId);
   await prisma.project.delete({ where: { id: parseInt(id) } });
   return NextResponse.json({ success: true });
 }

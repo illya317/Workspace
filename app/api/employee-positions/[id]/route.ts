@@ -96,6 +96,7 @@ export async function DELETE(
   }
 
   const { id } = await params;
+  await snapshotHistory("EDP", parseInt(id), payload.userId);
   await prisma.eDP.delete({ where: { id: parseInt(id) } });
   return NextResponse.json({ success: true });
 }
