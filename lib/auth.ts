@@ -168,16 +168,14 @@ export async function authenticate(
     }
   }
 
-  // 2. API Key + Username + Password (bot)
+  // 2. API Key + Username (bot/API接入)
   const apiKey = request.headers.get("X-API-Key");
   const username = request.headers.get("X-Username");
-  const password = request.headers.get("X-Password");
 
-  if (apiKey && username && password) {
+  if (apiKey && username) {
     const user = await prisma.user.findUnique({ where: { username } });
-    if (user && user.password && bcrypt.compareSync(password, user.password) && user.apiKey === apiKey) {
-      const canLogin = await checkPermission(user.id, "system", "access");
-      if (!canLogin) return null;
+    if (user && user.apiKey === apiKey) {
+      if (!user.canLogin) return null;
       return {
         userId: user.id,
         wxUserId: user.wxUserId ?? "",
