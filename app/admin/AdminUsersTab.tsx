@@ -140,7 +140,6 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
                 <th className="px-3 py-2 text-left font-medium text-gray-600 w-16">ID</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600">姓名</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600">用户名</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600">关联员工</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600 w-16">状态</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600">权限</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600 w-32">操作</th>
@@ -155,7 +154,6 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
                     {u.employeeId && <span className="text-gray-400 ml-1 text-[11px] font-normal">/ {u.employeeId}</span>}
                   </td>
                   <td className="px-3 py-2 text-gray-500 font-mono">{u.username || "-"}</td>
-                  <td className="px-3 py-2 text-gray-500 font-mono">{u.employeeId || "-"}</td>
                   <td className="px-3 py-2">
                     <span className={`inline-block rounded px-1.5 py-0.5 text-[11px] ${u.canLogin ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-600"}`}>
                       {u.canLogin ? "启用" : "停用"}
