@@ -63,15 +63,16 @@ export default function ContractAnalytics({ contracts }: { contracts: Contract[]
       .map((c) => {
         const isPermanent = hasPermanentContract(c);
         if (isPermanent) {
-          const end = nearestEndDate(c);
-          const days = end ? daysUntil(end) : null;
-          // 无固定期限：如果所有固定合同都已到期（days<0或无效），算有效；否则按最近到期日判断
-          const effectiveDays = (days !== null && !isNaN(days)) ? days : null;
-          let status: "expired" | "expiring30" | "expiring90" | "active" | "permanent" = "permanent";
-          if (effectiveDays !== null && effectiveDays >= 0) {
-            status = effectiveDays <= 30 ? "expiring30" : effectiveDays <= 90 ? "expiring90" : "permanent";
-          }
-          return { ...c, nearestEnd: end, daysLeft: effectiveDays, status };
+          // 无固定期限：只看未来到期日，忽略历史合同日期
+          const futureEnd = nearestEndDate(c);
+          const futureDays = futureEnd ? daysUntil(futureEnd) : null;
+          const hasUpcoming = futureDays !== null && !isNaN(futureDays) && futureDays >= 0;
+          return {
+            ...c,
+            nearestEnd: hasUpcoming ? futureEnd : null,
+            daysLeft: hasUpcoming ? futureDays : null,
+            status: hasUpcoming ? (futureDays! <= 30 ? "expiring30" : futureDays! <= 90 ? "expiring90" : "permanent") : "permanent",
+          };
         }
         const end = nearestEndDate(c);
         const days = end ? daysUntil(end) : null;
