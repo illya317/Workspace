@@ -30,10 +30,14 @@ export async function POST(request: Request) {
   // 保留快照里的 editedBy/editedAt/version，不做新版本也不覆盖审计信息
 
   const entityId = parseInt(snapshot.entityId);
-  await (prisma as any)[modelKey].update({
-    where: { id: entityId },
-    data,
-  });
+  // 如果记录已被删除，用 create 恢复
+  const model = (prisma as any)[modelKey];
+  const exists = await model.findUnique({ where: { id: entityId } });
+  if (exists) {
+    await model.update({ where: { id: entityId }, data });
+  } else {
+    await model.create({ data: { ...data, id: entityId } });
+  }
 
   return NextResponse.json({ success: true });
 }
