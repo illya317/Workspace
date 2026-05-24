@@ -22,7 +22,7 @@ export interface GenericTabState {
   createForm: Record<string, unknown>;
   setCreateForm: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
   submitCreate: () => Promise<boolean>;
-  deleteItem: (id: number) => Promise<boolean>;
+
   saving: boolean;
   load: () => Promise<void>;
   showHistory: boolean;
@@ -128,14 +128,6 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     return false;
   }, [config, createForm, load]);
 
-  const deleteItem = useCallback(async (id: number) => {
-    const res = await fetch(`${config.apiPath}/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      setItems((prev) => prev.filter((item) => item.id !== id));
-      return true;
-    }
-    return false;
-  }, [config.apiPath]);
 
   return {
     items, loading, error, keyword, setKeyword,
@@ -143,7 +135,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     editingCell, editValue, setEditValue,
     startEdit, cancelEdit, saveCell,
     creating, setCreating, createForm, setCreateForm,
-    submitCreate, deleteItem,
+    submitCreate,
     saving, load,
     showHistory, setShowHistory,
   };

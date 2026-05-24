@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import ConfirmModal from "@/app/components/ConfirmModal";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 
@@ -32,7 +31,6 @@ export default function ProjectInfoTab({ user }: { user: User }) {
   const [editRole, setEditRole] = useState("");
   const [editStart, setEditStart] = useState("");
   const [editEnd, setEditEnd] = useState("");
-  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const { toast, showToast, closeToast } = useToast();
 
   useEffect(() => {
@@ -100,15 +98,6 @@ export default function ProjectInfoTab({ user }: { user: User }) {
     }
   }
 
-  async function deleteEntry(id: number) {
-    const res = await fetch(`/api/employee-projects/${id}`, { method: "DELETE" });
-    if (res.ok) {
-      setConfirmDelete(null);
-      loadEntries();
-    } else {
-      showToast("删除失败", "error");
-    }
-  }
 
   return (
     <div className="space-y-4">
@@ -174,8 +163,7 @@ export default function ProjectInfoTab({ user }: { user: User }) {
                   <td className="px-4 py-3 text-gray-600">{e.startDate || "-"}</td>
                   <td className="px-4 py-3 text-gray-600">{e.endDate || "-"}</td>
                   <td className="px-4 py-3">
-                    <button onClick={() => startEdit(e)} className="mr-2 text-emerald-600 hover:text-emerald-800">编辑</button>
-                    <button onClick={() => setConfirmDelete(e.id)} className="text-red-500 hover:text-red-700">删除</button>
+                    <button onClick={() => startEdit(e)} className="text-emerald-600 hover:text-emerald-800">编辑</button>
                   </td>
                 </tr>
               ))}
@@ -187,13 +175,7 @@ export default function ProjectInfoTab({ user }: { user: User }) {
         </div>
       )}
 
-      <ConfirmModal
-        open={!!confirmDelete}
-        title="确认删除"
-        message="确定要移除该人员吗？"
-        onConfirm={async () => { deleteEntry(confirmDelete!); }}
-        onCancel={() => setConfirmDelete(null)}
-      />
+
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
   );

@@ -70,7 +70,6 @@ export function useCodeTab({
   const { toast, showToast, closeToast } = useToast();
   const [newCode, setNewCode] = useState("");
   const [newName, setNewName] = useState("");
-  const [deleteCode, setDeleteCode] = useState<string | null>(null);
   const [sortField, setSortField] = useState<"code" | "name" | "count">("code");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [editMode, setEditMode] = useState(false);
@@ -234,19 +233,6 @@ export function useCodeTab({
     setEditRow(null);
   }
 
-  async function doDelete(code: string) {
-    const res = await fetch(`${apiPath}?code=${encodeURIComponent(code)}`, {
-      method: "DELETE",
-    });
-    if (res.ok) {
-      setCodes((prev) => prev.filter((c) => c.code !== code));
-      showToast("删除成功");
-    } else {
-      const err = await res.json().catch(() => ({ error: "删除失败" }));
-      showToast(err.error || "删除失败", "error");
-    }
-  }
-
   async function handleAdd() {
     if (!/^\d{3}$/.test(newCode)) {
       showToast("编号必须为3位数字", "error");
@@ -340,8 +326,6 @@ export function useCodeTab({
     setNewCode,
     newName,
     setNewName,
-    deleteCode,
-    setDeleteCode,
     sortField,
     sortDirection,
     editMode,
@@ -366,7 +350,6 @@ export function useCodeTab({
     toggleSort,
     startEditRow,
     saveEditRow,
-    doDelete,
     handleAdd,
     getDetailList,
     loadPositionDepts,

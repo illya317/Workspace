@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import HRToolbar from "@/app/components/HRToolbar";
-import ConfirmModal from "@/app/components/ConfirmModal";
 import AuditLogModal from "@/app/components/AuditLogModal";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
@@ -35,12 +34,11 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
   const {
     items, loading, error, keyword, setKeyword, editMode, setEditMode,
     editingCell, editValue, setEditValue, startEdit, cancelEdit, saveCell,
-    creating, setCreating, createForm, setCreateForm, submitCreate, deleteItem,
+    creating, setCreating, createForm, setCreateForm, submitCreate,
     saving, load, showHistory, setShowHistory,
   } = useGenericTab(config);
 
   const { toast, showToast, closeToast } = useToast();
-  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -77,12 +75,6 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
     const ok = await submitCreate();
     if (ok) showToast("新建成功");
     else showToast("新建失败", "error");
-  }
-
-  async function handleDelete(id: number) {
-    const ok = await deleteItem(id);
-    if (ok) { showToast("删除成功"); setConfirmDelete(null); }
-    else showToast("删除失败", "error");
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -177,7 +169,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
                     {f.label}
                   </th>
                 ))}
-                {config.canDelete && user.canAccessHR && <th className="px-3 py-2 text-left font-medium text-gray-600">操作</th>}
+
               </tr>
             </thead>
             <tbody>
@@ -195,16 +187,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
                       </td>
                     );
                   })}
-                  {config.canDelete && user.canAccessHR && (
-                    <td className="px-3 py-2">
-                      <button
-                        onClick={() => setConfirmDelete(item.id)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        删除
-                      </button>
-                    </td>
-                  )}
+
                 </tr>
               ))}
             </tbody>
@@ -275,13 +258,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
 
       <AuditLogModal open={showHistory} onClose={() => setShowHistory(false)} entityType={config.entityType} onRestored={load} />
 
-      <ConfirmModal
-        open={!!confirmDelete}
-        title="确认删除"
-        message="确定要删除该记录吗？"
-        onConfirm={() => confirmDelete && handleDelete(confirmDelete)}
-        onCancel={() => setConfirmDelete(null)}
-      />
+
       <Toast message={toast?.message || ""} type={toast?.type as any} show={!!toast} onClose={closeToast} />
     </div>
   );

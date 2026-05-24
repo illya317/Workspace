@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import EditToolbar from "@/app/components/EditToolbar";
-import ConfirmModal from "@/app/components/ConfirmModal";
 import AuditLogModal from "@/app/components/AuditLogModal";
 import DetailModal from "@/app/components/DetailModal";
 import Toast from "@/app/components/Toast";
@@ -114,8 +113,6 @@ export default function CodeTab({
     setNewCode,
     newName,
     setNewName,
-    deleteCode,
-    setDeleteCode,
     sortField,
     sortDirection,
     editMode,
@@ -138,7 +135,6 @@ export default function CodeTab({
     toggleSort,
     startEditRow,
     saveEditRow,
-    doDelete,
     handleAdd,
     getDetailList,
     loadPositionDepts,
@@ -266,18 +262,6 @@ export default function CodeTab({
                             }}
                           >
                             {item.code}
-                            {editMode && user.canAccessHR && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeleteCode(item.code);
-                                }}
-                                className="ml-0.5 text-red-500 hover:text-red-700"
-                                title="删除"
-                              >
-                                ×
-                              </button>
-                            )}
                           </span>
                         )}
                       </td>
@@ -436,19 +420,7 @@ export default function CodeTab({
         )}
       </div>
 
-      <ConfirmModal
-        open={!!deleteCode}
-        title="删除确认"
-        message="确定删除该编码？"
-        confirmLabel="确定"
-        onConfirm={() => {
-          if (deleteCode) {
-            doDelete(deleteCode);
-            setDeleteCode(null);
-          }
-        }}
-        onCancel={() => setDeleteCode(null)}
-      />
+
       <Toast
         message={toast?.message || ""}
         type={toast?.type as any}
