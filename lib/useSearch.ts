@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { getInitials } from "@/lib/search";
 
 // ─── Types ────────────────────────────────────────────────
 
@@ -83,8 +84,16 @@ export function useSearch<T = any>(config: SearchConfig<T>): SearchState<T> {
       return;
     }
     const fn = matchFn || ((item: T, qq: string) => {
-      const s = JSON.stringify(Object.values(item as any)).toLowerCase();
-      return s.includes(qq);
+      const vals = Object.entries(item as any);
+      for (const [k, v] of vals) {
+        const sv = String(v ?? "").toLowerCase();
+        if (sv.includes(qq)) return true;
+        // name/alias 等字段自动走拼音首字母匹配（lib/search 统一实现）
+        if ((k === "name" || k === "alias" || k === "employeeName" || k === "departmentName") && sv.length > 0) {
+          if (getInitials(sv).includes(qq)) return true;
+        }
+      }
+      return false;
     });
     setResults(clientData.filter((item) => fn(item, q)));
   }, [query, mode, clientData, matchFn, minChars]);

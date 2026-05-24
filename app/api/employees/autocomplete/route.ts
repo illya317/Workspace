@@ -1,7 +1,15 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getInitials } from "@/lib/search";
 
+// 通用拼音过滤：文本包含 + 拼音首字母
+function matchPinyin(text: string, q: string): boolean {
+  const lower = text.toLowerCase();
+  if (lower.includes(q)) return true;
+  if (getInitials(text).includes(q)) return true;
+  return false;
+}
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -15,38 +23,43 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type") || "dept";
-  const q = searchParams.get("q") || "";
+  const q = (searchParams.get("q") || "").toLowerCase();
 
   if (type === "dept") {
-    const where: any = q ? { name: { contains: q } } : {};
     const depts = await prisma.department.findMany({
-      where,
       select: { name: true },
       distinct: ["name"],
     });
-    const list = depts.map((d) => d.name).filter(Boolean) as string[];
-    return NextResponse.json({ items: list });
+    const list = depts
+      .map((d) => d.name).filter(Boolean) as string[];
+    const filtered = q
+      ? list.filter((name) => matchPinyin(name, q))
+      : list;
+    return NextResponse.json({ items: filtered });
   }
 
   if (type === "position") {
-    const where: any = q ? { name: { contains: q } } : {};
     const positions = await prisma.position.findMany({
-      where,
       select: { name: true },
       distinct: ["name"],
     });
-    const list = positions.map((p) => p.name).filter(Boolean) as string[];
-    return NextResponse.json({ items: list });
+    const list = positions
+      .map((p) => p.name).filter(Boolean) as string[];
+    const filtered = q
+      ? list.filter((name) => matchPinyin(name, q))
+      : list;
+    return NextResponse.json({ items: filtered });
   }
 
   if (type === "name") {
     const employees = await prisma.employee.findMany({
-      where: q ? { name: { contains: q } } : {},
       select: { name: true, alias: true },
       distinct: ["name"],
-      take: 20,
     });
-    return NextResponse.json({ items: employees });
+    const filtered = q
+      ? employees.filter((e) => matchPinyin(e.name, q) || (e.alias ? matchPinyin(e.alias, q) : false))
+      : employees;
+    return NextResponse.json({ items: filtered.slice(0, 20) });
   }
 
   return NextResponse.json({ items: [] });

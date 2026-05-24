@@ -9,9 +9,8 @@ import DepartmentSwitcher from "@/app/components/DepartmentSwitcher";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import WorkCard from "./WorkCard";
-import WorkForm from "./WorkForm";
-import SectionHeader from "./SectionHeader";
+import WorkFormSection, { type WorkFormData } from "./WorkFormSection";
+import WorksList from "./WorksList";
 import type { WorkItem } from "./types";
 import { SessionUser } from '@/lib/types';
 
@@ -190,6 +189,10 @@ export default function WorksPage() {
     fetchWorks();
   }
 
+  // Wrappers to match component prop signatures
+  const onFormSave = async (data: WorkFormData) => { await handleCreate(data); };
+  const onEditSave = async (data: WorkFormData) => { await handleUpdate(data); };
+
   const isAdmin = user?.isWorkListAdmin ?? false;
 
   const routineWorks = works
@@ -233,153 +236,35 @@ export default function WorksPage() {
         </div>
       </nav>
       <main className="mx-auto max-w-5xl px-4 py-8">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-gray-800">部门工作清单</h2>
-          {isAdmin && !showForm && !editingWork && (
-            <button
-              type="button"
-              onClick={() => setShowForm(true)}
-              className="rounded-md bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700"
-            >
-              + 添加工作项
-            </button>
-          )}
-        </div>
+        <WorkFormSection
+          isAdmin={isAdmin}
+          showForm={showForm}
+          editingWork={editingWork}
+          onAddClick={() => setShowForm(true)}
+          onCancelForm={() => setShowForm(false)}
+          onSave={onFormSave}
+        />
 
-        {!isAdmin && (
-          <div className="mb-4 rounded-md bg-gray-100 px-4 py-2 text-sm text-gray-500">
-            仅部门管理员可编辑工作清单
-          </div>
-        )}
-
-        {showForm && (
-          <div className="mb-6">
-            <WorkForm
-              onSave={handleCreate}
-              onCancel={() => setShowForm(false)}
-            />
-          </div>
-        )}
-
-        {/* 日常工作 */}
-        <div className="mb-8">
-          <SectionHeader
-            title="日常工作"
-            count={routineWorks.length}
-            expanded={routineExpanded}
-            onToggle={() => setRoutineExpanded(!routineExpanded)}
-          />
-          {routineExpanded && (
-            <div className="space-y-3">
-              {routineWorks.map((work, index) =>
-                editingWork?.id === work.id ? (
-                  <WorkForm
-                    key={work.id}
-                    initial={work}
-                    onSave={handleUpdate}
-                    onCancel={() => setEditingWork(null)}
-                  />
-                ) : (
-                  <WorkCard
-                    key={work.id}
-                    work={work}
-                    isAdmin={isAdmin}
-                    onEdit={setEditingWork}
-                    onDelete={handleDelete}
-                    onMove={handleMove}
-                    onArchive={handleArchive}
-                    isFirst={index === 0}
-                    isLast={index === routineWorks.length - 1}
-                  />
-                )
-              )}
-              {routineWorks.length === 0 && (
-                <div className="rounded-lg border border-dashed border-gray-300 bg-white p-6 text-center text-sm text-gray-500">
-                  暂无日常工作项
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* 其他工作 */}
-        <div className="mb-8">
-          <SectionHeader
-            title="其他工作"
-            count={nonRoutineWorks.length}
-            expanded={nonRoutineExpanded}
-            onToggle={() => setNonRoutineExpanded(!nonRoutineExpanded)}
-          />
-          {nonRoutineExpanded && (
-            <div className="space-y-3">
-              {nonRoutineWorks.map((work, index) =>
-                editingWork?.id === work.id ? (
-                  <WorkForm
-                    key={work.id}
-                    initial={work}
-                    onSave={handleUpdate}
-                    onCancel={() => setEditingWork(null)}
-                  />
-                ) : (
-                  <WorkCard
-                    key={work.id}
-                    work={work}
-                    isAdmin={isAdmin}
-                    onEdit={setEditingWork}
-                    onDelete={handleDelete}
-                    onMove={handleMove}
-                    onArchive={handleArchive}
-                    isFirst={index === 0}
-                    isLast={index === nonRoutineWorks.length - 1}
-                  />
-                )
-              )}
-              {nonRoutineWorks.length === 0 && (
-                <div className="rounded-lg border border-dashed border-gray-300 bg-white p-6 text-center text-sm text-gray-500">
-                  暂无其他工作项
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* 已归档 */}
-        {archivedWorks.length > 0 && (
-          <div>
-            <SectionHeader
-              title="已归档"
-              count={archivedWorks.length}
-              expanded={archivedExpanded}
-              onToggle={() => setArchivedExpanded(!archivedExpanded)}
-            />
-            {archivedExpanded && (
-              <div className="space-y-3">
-                {archivedWorks.map((work) =>
-                  editingWork?.id === work.id ? (
-                    <WorkForm
-                      key={work.id}
-                      initial={work}
-                      onSave={handleUpdate}
-                      onCancel={() => setEditingWork(null)}
-                    />
-                  ) : (
-                    <WorkCard
-                      key={work.id}
-                      work={work}
-                      isAdmin={isAdmin}
-                      onEdit={setEditingWork}
-                      onDelete={handleDelete}
-                      onMove={handleMove}
-                      onRestore={handleRestore}
-                      isFirst={false}
-                      isLast={false}
-                    />
-                  )
-                )}
-              </div>
-            )}
-          </div>
-        )}
+        <WorksList
+          routineWorks={routineWorks}
+          nonRoutineWorks={nonRoutineWorks}
+          archivedWorks={archivedWorks}
+          routineExpanded={routineExpanded}
+          nonRoutineExpanded={nonRoutineExpanded}
+          archivedExpanded={archivedExpanded}
+          onToggleRoutine={() => setRoutineExpanded(!routineExpanded)}
+          onToggleNonRoutine={() => setNonRoutineExpanded(!nonRoutineExpanded)}
+          onToggleArchived={() => setArchivedExpanded(!archivedExpanded)}
+          editingWork={editingWork}
+          isAdmin={isAdmin}
+          onEdit={setEditingWork}
+          onCancelEdit={() => setEditingWork(null)}
+          onSaveEdit={onEditSave}
+          onDelete={handleDelete}
+          onMove={handleMove}
+          onArchive={handleArchive}
+          onRestore={handleRestore}
+        />
       </main>
 
       <Toast

@@ -109,14 +109,14 @@ export async function GET(request: Request) {
 
   if (keyword) {
     const where = isShort ? {} : { OR: config.searchFields.map((f) => ({ [f]: { contains: keyword } })) };
-    const take = isShort ? 200 : MAX_RESULTS;
+    const take = isShort ? 1000 : MAX_RESULTS;
     const items = await model.findMany({ where, select: config.select, take, orderBy: { id: "asc" } });
     const mapped = items.map((item: any) => ({
       id: item.id,
       name: item[config.labelField],
       subtitle: config.subtitleField ? item[config.subtitleField] : undefined,
     }));
-    const filtered = mapped.filter((item: any) => matchRecord(item, keyword, config.searchFields)).slice(0, MAX_RESULTS);
+    const filtered = mapped.filter((item: any) => matchRecord(item, keyword, config.searchFields));
     return NextResponse.json({ items: filtered });
   }
 

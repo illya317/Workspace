@@ -234,8 +234,8 @@ const employeeProjectFields: FieldConfig[] = [
 // ─── 5-10 合同 ─────────────────────────────────────────────
 const contractFields: FieldConfig[] = [
   { key: "employeeId", label: "员工编号", type: "fk", editable: false, required: true, displayField: "employeeId" },
-  { key: "employeeName", label: "姓名", editable: false },
-  { key: "company", label: "公司", editable: true },
+  { key: "employeeName", label: "姓名", editable: false, filterEntity: "employee" },
+  { key: "company", label: "公司", editable: true, filterEntity: "company" },
   { key: "isPrimary", label: "主合同", type: "boolean", editable: true },
   { key: "isInsuredHere", label: "参保", type: "boolean", editable: true },
   { key: "legalRelation", label: "法律关系", editable: true },

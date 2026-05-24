@@ -2,7 +2,8 @@
 
 import { useState, useMemo } from "react";
 import LocalAutocompleteInput from "./LocalAutocompleteInput";
-import type { FieldConfig } from "./types";
+import FilterSearchInput from "./FilterSearchInput";
+import type { FieldConfig, FKFieldConfig } from "./types";
 
 interface FilterCondition {
   field: string;
@@ -12,13 +13,14 @@ interface FilterCondition {
 interface Props {
   open: boolean;
   fields: FieldConfig[];
+  fkFields?: Record<string, FKFieldConfig>;
   items: any[];
   onClose: () => void;
   onApply: (conditions: Record<string, string>) => void;
   onReset: () => void;
 }
 
-export default function FilterModal({ open, fields, items, onClose, onApply, onReset }: Props) {
+export default function FilterModal({ open, fields, fkFields, items, onClose, onApply, onReset }: Props) {
   const [conditions, setConditions] = useState<FilterCondition[]>([{ field: "", value: "" }]);
 
   const usableFields = fields.filter((f) => !f.hidden && f.type !== "textarea");
@@ -26,9 +28,11 @@ export default function FilterModal({ open, fields, items, onClose, onApply, onR
   const fieldOptions = useMemo(() => {
     const map: Record<string, string[]> = {};
     for (const f of usableFields) {
+      // 有 filterEntity 或 fkFields 的字段不走本地选项
+      if (f.filterEntity || (f.type === "fk" && fkFields?.[f.key])) continue;
       const vals = new Set<string>();
       for (const item of items) {
-        const v = item[f.key];
+        let v = item[f.key];
         if (v !== null && v !== undefined && v !== "") {
           vals.add(String(v));
         }
@@ -36,7 +40,7 @@ export default function FilterModal({ open, fields, items, onClose, onApply, onR
       map[f.key] = Array.from(vals).sort();
     }
     return map;
-  }, [usableFields, items]);
+  }, [usableFields, fkFields, items]);
 
   if (!open) return null;
 
@@ -80,6 +84,20 @@ export default function FilterModal({ open, fields, items, onClose, onApply, onR
     return "text";
   }
 
+  function getFieldEntity(fieldKey: string): { entity: string; returnField: "id" | "name" } | null {
+    const f = usableFields.find((x) => x.key === fieldKey);
+    if (!f) return null;
+    // FK 字段：从 fkFields 取 entity，返回 id
+    if (f.type === "fk" && fkFields?.[fieldKey]) {
+      return { entity: fkFields[fieldKey].entity, returnField: "id" };
+    }
+    // 非 FK 字段但配置了 filterEntity：返回 name
+    if (f.filterEntity) {
+      return { entity: f.filterEntity, returnField: "name" };
+    }
+    return null;
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
@@ -88,9 +106,10 @@ export default function FilterModal({ open, fields, items, onClose, onApply, onR
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
         </div>
 
-        <div className="space-y-3 max-h-[50vh] overflow-auto pr-1">
+        <div className="space-y-3 pr-1">
           {conditions.map((c, i) => {
             const inputType = getInputType(c.field);
+            const entityInfo = c.field ? getFieldEntity(c.field) : null;
             const options = c.field ? fieldOptions[c.field] || [] : [];
             return (
               <div key={i} className="flex items-center gap-2">
@@ -121,6 +140,14 @@ export default function FilterModal({ open, fields, items, onClose, onApply, onR
                     value={c.value}
                     onChange={(e) => updateCondition(i, { value: e.target.value })}
                     className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                ) : entityInfo ? (
+                  <FilterSearchInput
+                    value={c.value}
+                    onChange={(v) => updateCondition(i, { value: v })}
+                    entity={entityInfo.entity}
+                    returnField={entityInfo.returnField}
+                    placeholder="输入搜索..."
                   />
                 ) : options.length > 0 ? (
                   <LocalAutocompleteInput

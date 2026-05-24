@@ -52,6 +52,7 @@ export interface FieldConfig {
   required?: boolean; // 新建时必填，显示*号
   hidden?: boolean; // 不展示在表格中，但新建时可用
   displayField?: string; // 表格显示用的字段路径（如 "codeRaw"）
+  filterEntity?: string; // 高级筛选时调用 autocomplete 的实体（如 "employee"）
 }
 
 export interface FKFieldConfig {

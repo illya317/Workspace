@@ -34,6 +34,7 @@ export interface GenericTabState {
 }
 
 export function useGenericTab(config: TabConfig): GenericTabState {
+  const [rawItems, setRawItems] = useState<any[]>([]);
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
@@ -55,36 +56,48 @@ export function useGenericTab(config: TabConfig): GenericTabState {
   const [error, setError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
 
+  // 加载原始数据（只传 keyword，不传筛选条件）
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const params = new URLSearchParams();
       if (keyword) params.set("keyword", keyword);
-      for (const [k, v] of Object.entries(filters)) {
-        if (v !== "" && v !== undefined && v !== null) params.set(k, v);
-      }
       const res = await fetch(`${config.apiPath}?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
         const list = config.listGetter ? config.listGetter(data) : data.items || data;
-        setItems(Array.isArray(list) ? list : []);
+        setRawItems(Array.isArray(list) ? list : []);
       } else {
         const data = await res.json().catch(() => ({ error: `请求失败 (${res.status})` }));
         setError(data.error || `请求失败 (${res.status})`);
-        setItems([]);
+        setRawItems([]);
       }
     } catch (e: any) {
       setError(e.message || "网络错误");
-      setItems([]);
+      setRawItems([]);
     } finally {
       setLoading(false);
     }
-  }, [config.apiPath, config.listGetter, keyword, filters]);
+  }, [config.apiPath, config.listGetter, keyword]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  // 前端筛选：rawItems + filters -> items
+  useEffect(() => {
+    let list = [...rawItems];
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== "" && value !== undefined && value !== null) {
+        list = list.filter((item: any) => {
+          const v = item[key];
+          return String(v) === value;
+        });
+      }
+    }
+    setItems(list);
+  }, [rawItems, filters]);
 
   const setFilter = useCallback((key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));

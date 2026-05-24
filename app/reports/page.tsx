@@ -10,17 +10,8 @@ import { getCurrentPeriod, getPeriodRange, getPreviousPeriod, getPeriodOptions, 
 import type { PeriodType } from "@/lib/period";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import WorkSection, { type ItemRow } from "./WorkSection";
-
-interface Report {
-  id: number;
-  date: string;
-  taskName: string;
-  notes: string | null;
-  version: number;
-  items: Array<{ id?: number; workItemId?: number | null; category: string; plan: string; completion: string; nextGoal: string; sortOrder: number }>;
-  user?: { name: string; departmentName: string | null };
-}
+import ReportEditor, { type Report } from "./ReportEditor";
+import type { ItemRow } from "./WorkSection";
 
 export default function ReportPage() {
   const router = useRouter();
@@ -216,6 +207,27 @@ export default function ReportPage() {
     setSaving(false);
   }
 
+  // Period change handlers (keep business logic in page)
+  function handlePeriodTypeChange(pt: PeriodType) {
+    setPeriodType(pt);
+    localStorage.setItem("selectedPeriodType", pt);
+    const info = getCurrentPeriod(pt);
+    setSelectedYear(info.year);
+    setSelectedPeriodIndex(info.periodIndex);
+    if (user) loadReport(user, info.year, info.periodIndex, undefined, pt);
+  }
+
+  function handleYearChange(year: number) {
+    setSelectedYear(year);
+    const pi = periodType === "yearly" ? 1 : selectedPeriodIndex;
+    if (user) loadReport(user, year, pi, undefined, periodType);
+  }
+
+  function handlePeriodIndexChange(index: number) {
+    setSelectedPeriodIndex(index);
+    if (user) loadReport(user, selectedYear, index, undefined, periodType);
+  }
+
   // Item manipulation helpers
   const itemOps = {
     update(items: ItemRow[], setItems: (v: ItemRow[]) => void) {
@@ -293,104 +305,43 @@ export default function ReportPage() {
       </nav>
 
       <main className="mx-auto max-w-5xl px-4 py-8">
-        {/* Header */}
-        <div className="mb-6 rounded-lg bg-gradient-to-r from-emerald-500 to-emerald-700 p-4 text-center text-white">
-          {/* Period type switcher */}
-          <div className="mb-3 flex items-center justify-center gap-1">
-            {(["daily", "weekly", "monthly", "quarterly", "yearly"] as const).map((pt) => (
-              <button key={pt} type="button" onClick={() => {
-                if (pt === periodType) return;
-                setPeriodType(pt);
-                localStorage.setItem("selectedPeriodType", pt);
-                const info = getCurrentPeriod(pt);
-                setSelectedYear(info.year);
-                setSelectedPeriodIndex(info.periodIndex);
-                if (user) loadReport(user, info.year, info.periodIndex, undefined, pt);
-              }}
-                className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${periodType === pt ? "bg-white text-emerald-700" : "text-white/70 hover:bg-white/10 hover:text-white"}`}
-              >{getPeriodTypeName(pt)}</button>
-            ))}
-          </div>
-          <div className="mb-2 flex items-center justify-center gap-3">
-            {periodType === "yearly" ? (
-              <select value={selectedYear} onChange={(e) => { setSelectedYear(parseInt(e.target.value)); if (user) loadReport(user, parseInt(e.target.value), 1, undefined, periodType); }}
-                className="rounded-md border-0 bg-white/20 px-3 py-1.5 text-sm text-white backdrop-blur-sm focus:ring-2 focus:ring-white/50">
-                {yearOptions.map((y) => <option key={y} value={y} className="text-gray-800">{y} 年</option>)}
-              </select>
-            ) : (
-              <>
-                <select value={selectedYear} onChange={(e) => { setSelectedYear(parseInt(e.target.value)); if (user) loadReport(user, parseInt(e.target.value), selectedPeriodIndex, undefined, periodType); }}
-                  className="rounded-md border-0 bg-white/20 px-3 py-1.5 text-sm text-white backdrop-blur-sm focus:ring-2 focus:ring-white/50">
-                  {yearOptions.map((y) => <option key={y} value={y} className="text-gray-800">{y} 年</option>)}
-                </select>
-                <select value={selectedPeriodIndex} onChange={(e) => { setSelectedPeriodIndex(parseInt(e.target.value)); if (user) loadReport(user, selectedYear, parseInt(e.target.value), undefined, periodType); }}
-                  className="rounded-md border-0 bg-white/20 px-3 py-1.5 text-sm text-white backdrop-blur-sm focus:ring-2 focus:ring-white/50">
-                  {periodOptions.map((p) => <option key={p.value} value={p.value} className="text-gray-800">{p.label}</option>)}
-                </select>
-              </>
-            )}
-          </div>
-          <h2 className="mb-1 text-lg font-bold">
-            {targetName ? `${targetName}${periodInfo?.label || ""}${periodTypeName}` : "工作汇报"}
-          </h2>
-          <p className="text-sm opacity-90">{periodInfo?.dateRange}</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Version info bar */}
-          {report && (
-            <div className="rounded-lg bg-white p-6 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3 text-sm text-gray-700">
-                  <span>填写人：{report.user?.name || user?.name}</span>
-                  {report.version > 1 && <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700">V{report.version}</span>}
-                </div>
-                {versions.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-500">历史版本：</span>
-                    <select value={viewingVersion} onChange={(e) => loadVersion(parseInt(e.target.value))}
-                      className="rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-900 focus:border-emerald-400 focus:outline-none">
-                      <option value={0}>最新版 (V{report.version})</option>
-                      {versions.map((v) => <option key={v.version} value={v.version}>V{v.version} ({new Date(v.createdAt).toLocaleDateString("zh-CN")})</option>)}
-                    </select>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Work sections */}
-          <WorkSection title="日常工作" subtitle="固定工作，自动从工作清单带入" items={routineItems} disabled={viewingVersion !== 0}
-            workList={workList} category="routine" showImport={showRoutineSelect} onShowImport={setShowRoutineSelect}
-            onImportWork={itemOps.import(routineItems, setRoutineItems, setShowRoutineSelect)}
-            onUpdate={itemOps.update(routineItems, setRoutineItems)} onRemove={itemOps.remove(routineItems, setRoutineItems)}
-            onMove={itemOps.move(routineItems, setRoutineItems)} />
-
-          <WorkSection title="其他工作" subtitle="" items={nonRoutineItems} disabled={viewingVersion !== 0}
-            workList={workList} category="non-routine" showImport={showNonRoutineSelect} onShowImport={setShowNonRoutineSelect}
-            onImportWork={itemOps.import(nonRoutineItems, setNonRoutineItems, setShowNonRoutineSelect)}
-            onUpdate={itemOps.update(nonRoutineItems, setNonRoutineItems)} onRemove={itemOps.remove(nonRoutineItems, setNonRoutineItems)}
-            onMove={itemOps.move(nonRoutineItems, setNonRoutineItems)} />
-
-          {/* Notes */}
-          <div className="rounded-lg bg-white p-6 shadow-sm">
-            <label className="mb-1 block text-sm font-medium text-gray-700">备注</label>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} disabled={viewingVersion !== 0}
-              className={`w-full rounded-md border px-3 py-2 text-gray-900 placeholder:text-gray-500 focus:border-emerald-400 focus:outline-none ${viewingVersion !== 0 ? "border-gray-200 bg-gray-100 text-gray-500" : "border-gray-300"}`}
-              placeholder="其他补充说明..." />
-          </div>
-
-          {viewingVersion !== 0 && (
-            <div className="rounded-md bg-amber-50 p-3 text-center text-sm text-amber-700">当前查看历史版本 V{viewingVersion}，不可编辑</div>
-          )}
-
-          {viewingVersion === 0 && (
-            <button type="submit" disabled={saving}
-              className="w-full rounded-md bg-gradient-to-r from-emerald-500 to-emerald-700 py-3 text-white transition-opacity hover:opacity-90 disabled:opacity-50">
-              {saving ? "保存中..." : report ? "更新报告" : "提交报告"}
-            </button>
-          )}
-        </form>
+        <ReportEditor
+          periodType={periodType}
+          onPeriodTypeChange={handlePeriodTypeChange}
+          periodTypeName={periodTypeName}
+          selectedYear={selectedYear}
+          onYearChange={handleYearChange}
+          selectedPeriodIndex={selectedPeriodIndex}
+          onPeriodIndexChange={handlePeriodIndexChange}
+          yearOptions={yearOptions}
+          periodOptions={periodOptions}
+          targetName={targetName}
+          periodInfo={periodInfo}
+          report={report}
+          viewingVersion={viewingVersion}
+          versions={versions}
+          onLoadVersion={loadVersion}
+          user={user}
+          routineItems={routineItems}
+          nonRoutineItems={nonRoutineItems}
+          workList={workList}
+          showRoutineSelect={showRoutineSelect}
+          onShowRoutineSelect={setShowRoutineSelect}
+          showNonRoutineSelect={showNonRoutineSelect}
+          onShowNonRoutineSelect={setShowNonRoutineSelect}
+          onUpdateRoutine={itemOps.update(routineItems, setRoutineItems)}
+          onRemoveRoutine={itemOps.remove(routineItems, setRoutineItems)}
+          onMoveRoutine={itemOps.move(routineItems, setRoutineItems)}
+          onImportRoutine={itemOps.import(routineItems, setRoutineItems, setShowRoutineSelect)}
+          onUpdateNonRoutine={itemOps.update(nonRoutineItems, setNonRoutineItems)}
+          onRemoveNonRoutine={itemOps.remove(nonRoutineItems, setNonRoutineItems)}
+          onMoveNonRoutine={itemOps.move(nonRoutineItems, setNonRoutineItems)}
+          onImportNonRoutine={itemOps.import(nonRoutineItems, setNonRoutineItems, setShowNonRoutineSelect)}
+          notes={notes}
+          onNotesChange={setNotes}
+          saving={saving}
+          onSubmit={handleSubmit}
+        />
       </main>
 
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />

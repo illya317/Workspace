@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import NavLink from "@/app/components/NavLink";
 import UserMenu from "@/app/components/UserMenu";
-import DetailModal from "@/app/components/DetailModal";
 import { SessionUser } from '@/lib/types';
+import UsernameModal from "./UsernameModal";
+import PasswordModal from "./PasswordModal";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -17,18 +18,6 @@ export default function SettingsPage() {
   // modal 开关
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-
-  // 修改密码
-  const [oldPwd, setOldPwd] = useState("");
-  const [newPwd, setNewPwd] = useState("");
-  const [confirmPwd, setConfirmPwd] = useState("");
-  const [pwdError, setPwdError] = useState("");
-  const [pwdSuccess, setPwdSuccess] = useState("");
-
-  // 修改账号
-  const [newUsername, setNewUsername] = useState("");
-  const [unameError, setUnameError] = useState("");
-  const [unameSuccess, setUnameSuccess] = useState("");
 
   useEffect(() => {
     fetch("/api/auth/me")
@@ -43,61 +32,12 @@ export default function SettingsPage() {
       .catch(() => router.push("/login"));
   }, [router]);
 
-  async function handleChangePassword(e: React.FormEvent) {
-    e.preventDefault();
-    setPwdError("");
-    setPwdSuccess("");
-
-    if (newPwd !== confirmPwd) {
-      setPwdError("两次输入的新密码不一致");
-      return;
-    }
-
-    const res = await fetch("/api/auth/change-password", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ oldPassword: oldPwd, newPassword: newPwd }),
-    });
-
-    const data = await res.json();
-    if (!res.ok) {
-      setPwdError(data.error || "修改失败");
-      return;
-    }
-
-    setPwdSuccess("密码修改成功，请重新登录");
-    setOldPwd("");
-    setNewPwd("");
-    setConfirmPwd("");
-    setTimeout(() => {
-      setShowPasswordModal(false);
-      router.push("/login");
-    }, 1500);
-  }
-
-  async function handleChangeUsername(e: React.FormEvent) {
-    e.preventDefault();
-    setUnameError("");
-    setUnameSuccess("");
-    if (!newUsername.trim()) { setUnameError("用户名不能为空"); return; }
-    if (!user) return;
-    const res = await fetch("/api/admin/users/" + user.id, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ field: "username", value: newUsername.trim() }),
-    });
-    const data = await res.json();
-    if (!res.ok) { setUnameError(data.error || "修改失败"); return; }
-    setUnameSuccess("用户名已修改");
-    setNewUsername("");
-    setTimeout(() => {
-      setShowUsernameModal(false);
-      fetch("/api/auth/me")
-        .then((r) => r.json())
-        .then((d) => setUser(d.user))
-        .catch(() => {});
-    }, 800);
-  }
+  const handleUsernameSuccess = useCallback(() => {
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then((d) => setUser(d.user))
+      .catch(() => {});
+  }, []);
 
   if (loading) {
     return (
@@ -143,12 +83,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               <button
-                onClick={() => {
-                  setNewUsername("");
-                  setUnameError("");
-                  setUnameSuccess("");
-                  setShowUsernameModal(true);
-                }}
+                onClick={() => setShowUsernameModal(true)}
                 className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
               >
                 修改
@@ -164,14 +99,7 @@ export default function SettingsPage() {
                 <p className="mt-1 text-sm text-gray-500">定期更换密码可提高账号安全性</p>
               </div>
               <button
-                onClick={() => {
-                  setOldPwd("");
-                  setNewPwd("");
-                  setConfirmPwd("");
-                  setPwdError("");
-                  setPwdSuccess("");
-                  setShowPasswordModal(true);
-                }}
+                onClick={() => setShowPasswordModal(true)}
                 className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
               >
                 修改
@@ -217,109 +145,17 @@ export default function SettingsPage() {
         </div>
       </main>
 
-      {/* 修改账号弹框 */}
-      <DetailModal
+      <UsernameModal
         open={showUsernameModal}
-        title="修改账号"
         onClose={() => setShowUsernameModal(false)}
-        maxWidth="max-w-sm"
-      >
-        <form onSubmit={handleChangeUsername} className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-sm text-gray-500">当前用户名</label>
-            <p className="text-base text-gray-700">{user?.username || "(未设置)"}</p>
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm text-gray-500">新用户名</label>
-            <input
-              type="text"
-              value={newUsername}
-              onChange={(e) => setNewUsername(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              required
-              autoFocus
-            />
-          </div>
-          {unameError && <p className="text-sm text-red-500">{unameError}</p>}
-          {unameSuccess && <p className="text-sm text-emerald-600">{unameSuccess}</p>}
-          <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={() => setShowUsernameModal(false)}
-              className="rounded-lg border border-gray-300 px-5 py-2 text-sm text-gray-600 hover:bg-gray-50"
-            >
-              取消
-            </button>
-            <button
-              type="submit"
-              className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-            >
-              确认
-            </button>
-          </div>
-        </form>
-      </DetailModal>
+        user={user!}
+        onSuccess={handleUsernameSuccess}
+      />
 
-      {/* 修改密码弹框 */}
-      <DetailModal
+      <PasswordModal
         open={showPasswordModal}
-        title="修改密码"
         onClose={() => setShowPasswordModal(false)}
-        maxWidth="max-w-sm"
-      >
-        <form onSubmit={handleChangePassword} className="space-y-4">
-          <div>
-            <label className="mb-1.5 block text-sm text-gray-500">旧密码</label>
-            <input
-              type="password"
-              value={oldPwd}
-              onChange={(e) => setOldPwd(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              required
-              autoFocus
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm text-gray-500">新密码</label>
-            <input
-              type="password"
-              value={newPwd}
-              onChange={(e) => setNewPwd(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              required
-              minLength={4}
-            />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm text-gray-500">确认新密码</label>
-            <input
-              type="password"
-              value={confirmPwd}
-              onChange={(e) => setConfirmPwd(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-              required
-              minLength={4}
-            />
-          </div>
-          {pwdError && <p className="text-sm text-red-500">{pwdError}</p>}
-          {pwdSuccess && <p className="text-sm text-emerald-600">{pwdSuccess}</p>}
-          <div className="flex justify-end gap-3 pt-2">
-            <button
-              type="button"
-              onClick={() => setShowPasswordModal(false)}
-              className="rounded-lg border border-gray-300 px-5 py-2 text-sm text-gray-600 hover:bg-gray-50"
-            >
-              取消
-            </button>
-            <button
-              type="submit"
-              className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-            >
-              确认
-            </button>
-          </div>
-        </form>
-      </DetailModal>
+      />
     </div>
   );
 }

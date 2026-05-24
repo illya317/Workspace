@@ -9,29 +9,8 @@ import FKInput from "./FKInput";
 import { AutoSizeInput } from "./AutoSizeInput";
 import FilterModal from "./FilterModal";
 import { useGenericTab } from "./useGenericTab";
+import EditableTable, { getVal } from "./EditableTable";
 import type { TabConfig, FieldConfig, HRUser } from "./types";
-
-function getVal(obj: any, path: string): any {
-  return path.split(".").reduce((o, k) => o?.[k], obj);
-}
-
-function renderCell(item: any, field: FieldConfig, config: TabConfig) {
-  if (field.key === "gender") return item.gender === true ? "男" : item.gender === false ? "女" : "-";
-  if (field.key === "isActive") return item.isActive === true ? "在职" : item.isActive === false ? "离职" : "-";
-  if (field.key === "level") {
-    const map: Record<number, string> = { 1: "事业部", 2: "部门", 3: "子部门" };
-    return map[item.level] ?? item.level;
-  }
-  if (field.type === "boolean") return item[field.key] ? "是" : "否";
-  if (field.type === "fk" && config.fkFields?.[field.key]) {
-    const v = field.displayField
-      ? getVal(item, field.displayField)
-      : getVal(item, field.key + "Name") ?? getVal(item, config.fkFields[field.key].displayField) ?? "";
-    return v || "-";
-  }
-  const v = field.displayField ? getVal(item, field.displayField) : item[field.key];
-  return (v === null || v === undefined || v === "") ? "-" : v;
-}
 
 export default function GenericTableTab({ config, user }: { config: TabConfig; user: HRUser }) {
   const {
@@ -211,37 +190,16 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
         ) : items.length === 0 ? (
           <p className="p-8 text-center text-gray-500">暂无数据</p>
         ) : (
-          <table className="w-full text-xs">
-            <thead className="border-b bg-gray-50">
-              <tr>
-                {visibleFields.map((f) => (
-                  <th key={f.key} className="whitespace-nowrap px-3 py-2 text-left font-medium text-gray-600" style={{ width: f.width }}>
-                    {f.label}
-                  </th>
-                ))}
-
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id} className="border-b last:border-0 hover:bg-gray-50">
-                  {visibleFields.map((f) => {
-                    const isEditing = editingCell?.id === item.id && editingCell?.field === f.key;
-                    return (
-                      <td
-                        key={f.key}
-                        onClick={() => handleStartEdit(item, f)}
-                        className={`whitespace-nowrap px-3 py-2 text-gray-700 ${editMode && f.editable && user.canAccessHR ? "cursor-pointer hover:bg-emerald-50" : ""}`}
-                      >
-                        {isEditing ? renderEditInput(f.key) : renderCell(item, f, config)}
-                      </td>
-                    );
-                  })}
-
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <EditableTable
+            items={items}
+            visibleFields={visibleFields}
+            config={config}
+            editingCell={editingCell}
+            editMode={editMode}
+            canEdit={user.canAccessHR}
+            renderEditInput={renderEditInput}
+            onStartEdit={handleStartEdit}
+          />
         )}
       </div>
 
@@ -311,6 +269,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
       <FilterModal
         open={showFilterModal}
         fields={config.fields}
+        fkFields={config.fkFields}
         items={items}
         onClose={() => setShowFilterModal(false)}
         onApply={applyFilters}
