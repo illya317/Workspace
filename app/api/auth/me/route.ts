@@ -18,11 +18,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "用户不存在" }, { status: 404 });
   }
 
-  const [isAdmin, canAnyWeek, hasHR, hasWorks] = await Promise.all([
+  const [isAdmin, canAnyWeek, hasHR, hasWorks, hasFinance] = await Promise.all([
     checkPermission(payload.userId, "system", "admin"),
     checkPermission(payload.userId, "work.report", "write"),
     checkPermission(payload.userId, "people", "access"),
     checkPermission(payload.userId, "work", "access"),
+    checkPermission(payload.userId, "finance", "access"),
   ]);
 
   return NextResponse.json({
@@ -33,6 +34,7 @@ export async function GET(request: Request) {
       canSelectAnyWeek: canAnyWeek,
       canAccessHR: hasHR,
       canAccessWorks: hasWorks,
+      canAccessFinance: hasFinance,
       employeeId: null,
     },
   });

@@ -292,3 +292,8 @@ export async function checkWorksAccess(userId: number): Promise<boolean> {
   return (await checkPermission(userId, "system", "admin"))
       || (await checkPermission(userId, "work", "access"));
 }
+
+export async function checkFinanceAccess(userId: number): Promise<boolean> {
+  return (await checkPermission(userId, "system", "admin"))
+      || (await checkPermission(userId, "finance", "access"));
+}

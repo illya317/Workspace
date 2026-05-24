@@ -19,6 +19,10 @@ export default function FinancePage() {
         return r.json();
       })
       .then((data) => {
+        if (!data.user?.canAccessFinance) {
+          router.push("/portal");
+          return;
+        }
         setUser(data.user);
         setLoading(false);
       })

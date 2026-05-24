@@ -10,6 +10,7 @@ export interface SessionUser {
   canSelectAnyWeek?: boolean;
   canAccessHR?: boolean;
   canAccessWorks?: boolean;
+  canAccessFinance?: boolean;
   company?: string | null;
   managementGroup?: string | null;
   departmentId?: number;
