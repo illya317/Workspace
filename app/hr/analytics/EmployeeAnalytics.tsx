@@ -216,14 +216,34 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
     };
   }, [employees, employments, enriched]);
 
+  // 各维度固定排序
+  const DIM_ORDER: Record<string, Record<string, number>> = {
+    gender: { "男": 0, "女": 1, "未知": 2 },
+    age: { "25岁以下": 0, "25-29岁": 1, "30-34岁": 2, "35-39岁": 3, "40-44岁": 4, "45-49岁": 5, "50岁及以上": 6, "未知": 7 },
+    tenure: { "<1年": 0, "1-3年": 1, "3-5年": 2, "5-10年": 3, "≥10年": 4, "未知": 5 },
+  };
+
   // 交叉分析
   const crossMatrix = useMemo(() => {
     const rowKeys = [...new Set(enriched.rows.map((r) => r[crossRow] || "未知"))];
     const colKeys = [...new Set(enriched.rows.map((r) => r[crossCol] || "未知"))];
 
-    // natural sort for keys
-    rowKeys.sort();
-    colKeys.sort();
+    function sortKeys(keys: string[], dim: DimKey): string[] {
+      const order = DIM_ORDER[dim];
+      if (order) {
+        return keys.sort((a, b) => (order[a] ?? 99) - (order[b] ?? 99));
+      }
+      // 无固定顺序时按频率降序（多→少）
+      const freq = new Map<string, number>();
+      for (const r of enriched.rows) {
+        const v = r[dim] || "未知";
+        freq.set(v, (freq.get(v) || 0) + 1);
+      }
+      return keys.sort((a, b) => (freq.get(b) || 0) - (freq.get(a) || 0));
+    }
+
+    sortKeys(rowKeys, crossRow);
+    sortKeys(colKeys, crossCol);
 
     const matrix: Record<string, Record<string, number>> = {};
     for (const rk of rowKeys) {
