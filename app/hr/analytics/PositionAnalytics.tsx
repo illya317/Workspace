@@ -115,24 +115,62 @@ export default function PositionAnalytics({ positions, edps, departments }: { po
     const underStaffed = enriched.filter((p) => p.headcount > 0 && p.actual < p.headcount).length;
     const hasHeadcount = enriched.filter((p) => p.headcount > 0).length;
 
-    // 按部门ID聚合（含层级），用于 L1/L2/L3 分组对比
-    const deptMap = new Map<number, { name: string; level: number; actual: number; headcount: number; positions: number }>();
+    // 按部门ID聚合本部门直属岗位数据
+    const deptDirect = new Map<number, { name: string; level: number; parentId: number | null; actual: number; headcount: number; positions: number }>();
     enriched.forEach((p) => {
       const deptId = p.departmentId || 0;
       const dept = departments.find((d) => d.id === deptId);
-      const curr = deptMap.get(deptId) || {
-        name: dept?.name || "未分配",
-        level: dept?.level || 0,
-        actual: 0, headcount: 0, positions: 0,
-      };
+      if (!deptDirect.has(deptId)) {
+        deptDirect.set(deptId, {
+          name: dept?.name || "未分配",
+          level: dept?.level || 0,
+          parentId: dept?.parentId ?? null,
+          actual: 0, headcount: 0, positions: 0,
+        });
+      }
+      const curr = deptDirect.get(deptId)!;
       curr.actual += p.actual;
       curr.headcount += p.headcount || 0;
       curr.positions++;
-      deptMap.set(deptId, curr);
     });
 
-    const deptEntries = [...deptMap.values()]
-      .map((d) => ({ ...d, diff: d.actual - d.headcount }))
+    // 构建 children 索引用于子树汇总
+    const childrenMap = new Map<number, number[]>();
+    for (const [id] of deptDirect) {
+      childrenMap.set(id, []);
+    }
+    for (const [id, d] of deptDirect) {
+      if (d.parentId !== null && deptDirect.has(d.parentId)) {
+        childrenMap.get(d.parentId)!.push(id);
+      }
+    }
+
+    // 递归汇总：每个部门的子树合计
+    function aggregate(deptId: number): { actual: number; headcount: number; positions: number } {
+      const direct = deptDirect.get(deptId);
+      if (!direct) return { actual: 0, headcount: 0, positions: 0 };
+      let total = { actual: direct.actual, headcount: direct.headcount, positions: direct.positions };
+      for (const childId of (childrenMap.get(deptId) || [])) {
+        const childAgg = aggregate(childId);
+        total.actual += childAgg.actual;
+        total.headcount += childAgg.headcount;
+        total.positions += childAgg.positions;
+      }
+      return total;
+    }
+
+    const deptEntries = [...deptDirect.entries()]
+      .map(([id, d]) => {
+        const subtree = aggregate(id);
+        return {
+          name: d.name,
+          level: d.level,
+          actual: subtree.actual,
+          headcount: subtree.headcount,
+          positions: subtree.positions,
+          diff: subtree.actual - subtree.headcount,
+        };
+      })
       .sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
 
     const deptByLevel = {
@@ -141,7 +179,7 @@ export default function PositionAnalytics({ positions, edps, departments }: { po
       l3: deptEntries.filter((d) => d.level === 3),
     };
 
-    return { total, occupied, vacant, overStaffed, underStaffed, hasHeadcount, deptByLevel, allDeptEntries: deptEntries };
+    return { total, occupied, vacant, overStaffed, underStaffed, hasHeadcount, deptByLevel, deptEntries };
   }, [enriched, departments]);
 
   const filtered = useMemo(() => {
@@ -182,7 +220,7 @@ export default function PositionAnalytics({ positions, edps, departments }: { po
     return sortDesc ? "↓" : "↑";
   };
 
-  const globalMax = Math.max(...stats.allDeptEntries.map(d => Math.max(d.headcount, d.actual)), 1);
+  const globalMax = Math.max(...stats.deptEntries.map(d => Math.max(d.headcount, d.actual)), 1);
 
   return (
     <div className="space-y-6">
@@ -208,7 +246,7 @@ export default function PositionAnalytics({ positions, edps, departments }: { po
         <LevelSection level={2} entries={stats.deptByLevel.l2} globalMax={globalMax} />
         <LevelSection level={3} entries={stats.deptByLevel.l3} globalMax={globalMax} />
 
-        {stats.allDeptEntries.length === 0 && (
+        {stats.deptEntries.length === 0 && (
           <p className="text-sm text-gray-400 text-center py-8">暂无数据</p>
         )}
 
