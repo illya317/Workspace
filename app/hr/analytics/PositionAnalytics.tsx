@@ -130,40 +130,63 @@ export default function PositionAnalytics({ positions, edps, departments }: { po
 
       {/* 部门编制对比 */}
       <div className="bg-white rounded-lg shadow-sm p-5">
-        <h3 className="text-sm font-semibold text-gray-700 mb-4">各部门编制 vs 实际</h3>
-        <div className="space-y-3">
-          {stats.deptEntries.slice(0, 12).map((d) => {
-            const maxBar = Math.max(d.headcount, d.actual, 1);
-            const hcPct = Math.round((d.headcount / maxBar) * 100);
-            const acPct = Math.round((d.actual / maxBar) * 100);
-            return (
-              <div key={d.name} className="flex items-center gap-3">
-                <span className="w-28 shrink-0 text-xs text-gray-600 truncate" title={d.name}>{d.name}</span>
-                <div className="flex-1 space-y-0.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-gray-400 w-8">编制</span>
-                    <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden">
-                      <div className="h-full bg-sky-300 rounded" style={{ width: `${hcPct}%` }} />
+        <h3 className="text-sm font-semibold text-gray-700 mb-4">
+          各部门编制 vs 实际
+          <span className="ml-2 text-xs font-normal text-gray-400">
+            条形宽度与数值成正比，可跨部门对比
+          </span>
+        </h3>
+        <div className="max-h-[500px] overflow-y-auto space-y-2">
+          {(() => {
+            const globalMax = Math.max(...stats.deptEntries.map(d => Math.max(d.headcount, d.actual)), 1);
+            return stats.deptEntries.map((d) => {
+              const hcPct = Math.round((d.headcount / globalMax) * 100);
+              const acPct = Math.round((d.actual / globalMax) * 100);
+              const barColor = d.diff > 0 ? "bg-rose-400" : d.diff < 0 ? "bg-amber-400" : "bg-emerald-400";
+              const textColor = d.diff > 0 ? "text-rose-600" : d.diff < 0 ? "text-amber-600" : "text-emerald-600";
+              return (
+                <div key={d.name} className="group">
+                  <div className="flex items-center gap-3">
+                    <span className="w-36 shrink-0 text-xs text-gray-700 truncate" title={d.name}>{d.name}</span>
+                    <div className="flex-1 flex items-center gap-3">
+                      {/* 编制条（灰色底） */}
+                      <div className="flex-1 h-5 bg-gray-100 rounded relative overflow-hidden">
+                        {d.headcount > 0 && (
+                          <div
+                            className="absolute inset-y-0 left-0 border-r-2 border-dashed border-gray-300 bg-gray-200 rounded-l"
+                            style={{ width: `${hcPct}%` }}
+                          />
+                        )}
+                        {/* 实际人数条（彩色叠加） */}
+                        <div
+                          className={`absolute inset-y-0 left-0 ${barColor} rounded opacity-90`}
+                          style={{ width: `${acPct}%` }}
+                        />
+                      </div>
+                      <span className="w-16 text-right text-xs text-gray-500">
+                        <span className="font-medium text-gray-700">{d.actual}</span>
+                        {d.headcount > 0 && <span className="text-gray-400"> / {d.headcount}</span>}
+                      </span>
+                      <span className={`w-12 text-right text-xs font-medium ${textColor}`}>
+                        {d.headcount > 0 ? (
+                          d.diff > 0 ? `+${d.diff}` : d.diff === 0 ? "满" : d.diff
+                        ) : "—"}
+                      </span>
                     </div>
-                    <span className="text-[10px] text-gray-600 w-6 text-right">{d.headcount}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-gray-400 w-8">实际</span>
-                    <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden">
-                      <div className={`h-full rounded ${d.diff > 0 ? "bg-rose-400" : d.diff < 0 ? "bg-amber-400" : "bg-emerald-400"}`} style={{ width: `${acPct}%` }} />
-                    </div>
-                    <span className="text-[10px] text-gray-600 w-6 text-right">{d.actual}</span>
                   </div>
                 </div>
-                <span className={`text-[10px] w-12 text-right font-medium ${d.diff > 0 ? "text-rose-600" : d.diff < 0 ? "text-amber-600" : "text-emerald-600"}`}>
-                  {d.diff > 0 ? `+${d.diff}` : d.diff === 0 ? "平衡" : d.diff}
-                </span>
-              </div>
-            );
-          })}
+              );
+            });
+          })()}
           {stats.deptEntries.length === 0 && (
-            <p className="text-xs text-gray-400 text-center py-4">暂无数据</p>
+            <p className="text-xs text-gray-400 text-center py-8">暂无数据</p>
           )}
+        </div>
+        <div className="mt-3 flex items-center gap-4 text-[10px] text-gray-400 border-t pt-3">
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-400 inline-block" /> 满编/平衡</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-400 inline-block" /> 缺编</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-rose-400 inline-block" /> 超编</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block border-r-2 border-dashed border-gray-300" /> 编制参考线</span>
         </div>
       </div>
 
