@@ -41,7 +41,7 @@ export const employeeConfig: TabConfig = {
   fields: employeeFields,
   fkFields: { userId: fk("user", "userName") },
   canCreate: true,
-  canDelete: true,
+  canDelete: false,
   listGetter: (d) => d.employees,
 };
 
@@ -230,7 +230,7 @@ const employeeProjectFields: FieldConfig[] = [
 
 // ─── 5-10 合同 ─────────────────────────────────────────────
 const contractFields: FieldConfig[] = [
-  { key: "employeeId", label: "员工编号", type: "fk", editable: false, required: true },
+  { key: "employeeId", label: "员工编号", type: "fk", editable: false, required: true, displayField: "employeeId" },
   { key: "employeeName", label: "姓名", editable: false },
   { key: "company", label: "公司", editable: true },
   { key: "isPrimary", label: "主合同", type: "boolean", editable: true },

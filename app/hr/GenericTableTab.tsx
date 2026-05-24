@@ -23,7 +23,9 @@ function renderCell(item: any, field: FieldConfig, config: TabConfig) {
   }
   if (field.type === "boolean") return item[field.key] ? "是" : "否";
   if (field.type === "fk" && config.fkFields?.[field.key]) {
-    const v = getVal(item, field.key + "Name") ?? getVal(item, config.fkFields[field.key].displayField) ?? "";
+    const v = field.displayField
+      ? getVal(item, field.displayField)
+      : getVal(item, field.key + "Name") ?? getVal(item, config.fkFields[field.key].displayField) ?? "";
     return v || "-";
   }
   const v = field.displayField ? getVal(item, field.displayField) : item[field.key];
