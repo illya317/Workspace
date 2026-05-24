@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { getInitials } from "@/lib/search";
+import { matchText } from "@/lib/search";
 
 interface Props {
   value: string;
@@ -34,15 +34,7 @@ export default function LocalAutocompleteInput({ value, onChange, options, place
   }, [keyword, value, options]);
 
   const filtered = keyword
-    ? options
-        .filter((opt) => {
-          if (!opt) return false;
-          const q = keyword.toLowerCase();
-          if (opt.toLowerCase().includes(q)) return true;
-          if (getInitials(opt).includes(q)) return true;
-          return false;
-        })
-        .slice(0, 20)
+    ? options.filter((opt) => opt && matchText(opt, keyword)).slice(0, 20)
     : [];
 
   function handleSelect(opt: string) {

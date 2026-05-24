@@ -7,6 +7,15 @@ export function getInitials(name: string): string {
   return result.map((r) => r.first).join("").toLowerCase();
 }
 
+/** 通用文本匹配：直接包含 + 拼音首字母 */
+export function matchText(text: string, query: string): boolean {
+  const q = query.toLowerCase();
+  const s = text.toLowerCase();
+  if (s.includes(q)) return true;
+  if (getInitials(text).includes(q)) return true;
+  return false;
+}
+
 // ─── Search ─────────────────────────────────────────────────
 
 export function matchEmployee(

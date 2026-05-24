@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { getInitials } from "@/lib/search";
+import { matchText } from "@/lib/search";
 
 // ─── Types ────────────────────────────────────────────────
 
@@ -86,11 +86,12 @@ export function useSearch<T = any>(config: SearchConfig<T>): SearchState<T> {
     const fn = matchFn || ((item: T, qq: string) => {
       const vals = Object.entries(item as any);
       for (const [k, v] of vals) {
-        const sv = String(v ?? "").toLowerCase();
-        if (sv.includes(qq)) return true;
-        // name/alias 等字段自动走拼音首字母匹配（lib/search 统一实现）
-        if ((k === "name" || k === "alias" || k === "employeeName" || k === "departmentName") && sv.length > 0) {
-          if (getInitials(sv).includes(qq)) return true;
+        const sv = String(v ?? "");
+        // name/alias 等字段走 lib/search 统一拼音匹配
+        if (k === "name" || k === "alias" || k === "employeeName" || k === "departmentName") {
+          if (matchText(sv, qq)) return true;
+        } else if (sv.toLowerCase().includes(qq)) {
+          return true;
         }
       }
       return false;
