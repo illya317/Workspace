@@ -21,17 +21,35 @@ function StatCard({ label, value, sub, color = "emerald" }: { label: string; val
 }
 
 // 找出最主要的到期日（最近的合同结束日期）
+function isValidDate(s: string): boolean {
+  const d = new Date(s);
+  return !isNaN(d.getTime());
+}
+
 function nearestEndDate(c: Contract): string | null {
-  const dates = [
+  // 取所有有效日期（排除非日期文本如"无限期"）
+  const allDates = [
     c.endDate, c.firstContractEndDate, c.secondContractEndDate,
     c.thirdContractEndDate, c.permanentContractDate,
-  ].filter(Boolean) as string[];
-  if (dates.length === 0) return null;
-  // 无固定期限合同（permanent）算作"长期"
-  return dates.sort()[0];
+  ].filter((v): v is string => !!v && isValidDate(v));
+  if (allDates.length === 0) return null;
+  // 找未来最近的到期日（不是历史最早的）
+  const now = Date.now();
+  const upcoming = allDates.filter(d => new Date(d).getTime() >= now).sort();
+  if (upcoming.length > 0) return upcoming[0];
+  // 全部已过期，返回最近过期的
+  return allDates.sort().reverse()[0];
+}
+
+function hasPermanentContract(c: Contract): boolean {
+  // 有 permanentContractDate 或任何日期字段值为非数字文本（如"无限期"）
+  if (c.permanentContractDate) return true;
+  const dateFields = [c.endDate, c.firstContractEndDate, c.secondContractEndDate, c.thirdContractEndDate];
+  return dateFields.some((v) => v && !isValidDate(v) && /无|长期|永久|无限/.test(v));
 }
 
 function daysUntil(dateStr: string): number {
+  if (!isValidDate(dateStr)) return NaN;
   return Math.ceil((new Date(dateStr).getTime() - Date.now()) / 86400000);
 }
 
@@ -40,15 +58,24 @@ export default function ContractAnalytics({ contracts }: { contracts: Contract[]
   const [search, setSearch] = useState("");
 
   const enriched = useMemo(() => {
-    const now = Date.now();
     return contracts
-      .filter((c) => c.isPrimary) // 只看主合同
+      .filter((c) => c.isPrimary)
       .map((c) => {
+        const isPermanent = hasPermanentContract(c);
+        if (isPermanent) {
+          const end = nearestEndDate(c);
+          const days = end ? daysUntil(end) : null;
+          // 无固定期限：如果所有固定合同都已到期（days<0或无效），算有效；否则按最近到期日判断
+          const effectiveDays = (days !== null && !isNaN(days)) ? days : null;
+          let status: "expired" | "expiring30" | "expiring90" | "active" | "permanent" = "permanent";
+          if (effectiveDays !== null && effectiveDays >= 0) {
+            status = effectiveDays <= 30 ? "expiring30" : effectiveDays <= 90 ? "expiring90" : "permanent";
+          }
+          return { ...c, nearestEnd: end, daysLeft: effectiveDays, status };
+        }
         const end = nearestEndDate(c);
         const days = end ? daysUntil(end) : null;
-        let status: "expired" | "expiring30" | "expiring90" | "active" | "permanent" = "active";
-        if (c.permanentContractDate) status = "permanent";
-        else if (days !== null) {
+        if (days !== null) {
           if (days < 0) status = "expired";
           else if (days <= 30) status = "expiring30";
           else if (days <= 90) status = "expiring90";
@@ -232,10 +259,10 @@ export default function ContractAnalytics({ contracts }: { contracts: Contract[]
                   <td className="py-2 px-2 text-gray-500">{c.contractType || "—"}</td>
                   <td className="py-2 px-2 text-gray-700">{c.nearestEnd || "—"}</td>
                   <td className="py-2 px-2">
-                    {c.daysLeft === null ? (
+                    {c.daysLeft === null || (typeof c.daysLeft === 'number' && isNaN(c.daysLeft)) ? (
                       <span className="text-gray-400">—</span>
                     ) : c.daysLeft < 0 ? (
-                      <span className="text-red-600 font-medium">超{c.daysLeft}天</span>
+                      <span className="text-red-600 font-medium">超{Math.abs(c.daysLeft)}天</span>
                     ) : (
                       <span className={`font-medium ${c.daysLeft <= 30 ? "text-rose-600" : c.daysLeft <= 90 ? "text-amber-600" : "text-gray-600"}`}>
                         {c.daysLeft}天
