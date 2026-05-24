@@ -21,7 +21,7 @@ export async function GET(request: Request) {
       employee: { select: { id: true, employeeId: true, name: true } },
       project: { select: { id: true, name: true } },
     },
-    orderBy: { id: "desc" },
+    orderBy: { id: "asc" },
   });
   return NextResponse.json({
     entries: entries.map((e: any) => ({

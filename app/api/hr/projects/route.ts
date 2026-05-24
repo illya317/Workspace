@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const keyword = searchParams.get("keyword") || "";
 
   let projects = await prisma.project.findMany({
-    orderBy: { id: "desc" },
+    orderBy: { id: "asc" },
     include: {
       _count: { select: { employees: true } },
     },

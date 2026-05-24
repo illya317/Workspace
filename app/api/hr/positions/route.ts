@@ -28,7 +28,7 @@ export async function GET(request: Request) {
       department: { select: { id: true, name: true } },
       positionDescription: { select: { id: true, name: true, details: true } },
     },
-    orderBy: { code: "asc" },
+    orderBy: { id: "asc" },
   });
 
   let result = positions.map((p: any) => {

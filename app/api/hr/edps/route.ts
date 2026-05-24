@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 
   const employees = await prisma.employee.findMany({
     select: { id: true, employeeId: true, name: true },
-    orderBy: { employeeId: "asc" },
+    orderBy: { id: "asc" },
   });
   const employeeIds = employees.map((e) => e.id);
   const empMap = new Map(employees.map((e) => [e.id, e]));
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
   const eps = await prisma.eDP.findMany({
     where: { employeeId: { in: employeeIds } },
     include: { department: true, position: true },
-    orderBy: [{ employeeId: "asc" }],
+    orderBy: [{ id: "asc" }],
   });
 
   const rows = eps.map((ep) => {
