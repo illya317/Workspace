@@ -76,6 +76,7 @@ export default function ContractAnalytics({ contracts }: { contracts: Contract[]
         }
         const end = nearestEndDate(c);
         const days = end ? daysUntil(end) : null;
+        let status: "expired" | "expiring30" | "expiring90" | "active" | "permanent" = "active";
         if (days !== null) {
           if (days < 0) status = "expired";
           else if (days <= 30) status = "expiring30";
