@@ -121,7 +121,7 @@ export default function AnalyticsPage() {
         {!data.loading && !data.error && (
           <>
             {activeTab === "employee" && (
-              <EmployeeAnalytics employees={data.employees} employments={data.employments} />
+              <EmployeeAnalytics employees={data.employees} employments={data.employments} edps={data.edps} />
             )}
             {activeTab === "department" && (
               <DepartmentAnalytics departments={data.departments} edps={data.edps} />

@@ -7,6 +7,7 @@ import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import FKInput from "./FKInput";
 import { AutoSizeInput } from "./AutoSizeInput";
+import FilterModal from "./FilterModal";
 import { useGenericTab } from "./useGenericTab";
 import type { TabConfig, FieldConfig, HRUser } from "./types";
 
@@ -34,7 +35,8 @@ function renderCell(item: any, field: FieldConfig, config: TabConfig) {
 
 export default function GenericTableTab({ config, user }: { config: TabConfig; user: HRUser }) {
   const {
-    items, loading, error, keyword, setKeyword, editMode, setEditMode,
+    items, loading, error, keyword, setKeyword, filters, setFilter, applyFilters, resetFilters,
+    editMode, setEditMode,
     editingCell, editValue, setEditValue, startEdit, cancelEdit, saveCell,
     creating, setCreating, createForm, setCreateForm, submitCreate,
     saving, load, showHistory, setShowHistory,
@@ -42,6 +44,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
 
   const { toast, showToast, closeToast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [showFilterModal, setShowFilterModal] = useState(false);
 
   useEffect(() => {
     if (editingCell && inputRef.current && !config.fkFields?.[editingCell.field]) {
@@ -136,7 +139,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
       <HRToolbar
         keyword={keyword} onKeywordChange={setKeyword}
         onKeywordEnter={load}
-        onReset={() => { setKeyword(""); load(); }}
+        onReset={() => { setKeyword(""); resetFilters(); load(); }}
         showEdit={user.canAccessHR}
         editProps={{
           editMode, onStartEdit: () => setEditMode(true),
@@ -145,6 +148,51 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
           onShowHistory: () => setShowHistory(true),
         }}
       >
+        {/* 简单筛选 */}
+        {config.filters?.map((f) => (
+          f.type === "boolean" ? (
+            <select
+              key={f.key}
+              value={filters[f.key] ?? ""}
+              onChange={(e) => { setFilter(f.key, e.target.value); }}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
+            >
+              <option value="">{f.label}</option>
+              <option value="true">是</option>
+              <option value="false">否</option>
+            </select>
+          ) : f.type === "select" && f.options ? (
+            <select
+              key={f.key}
+              value={filters[f.key] ?? ""}
+              onChange={(e) => { setFilter(f.key, e.target.value); }}
+              className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
+            >
+              <option value="">{f.label}</option>
+              {f.options.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          ) : (
+            <input
+              key={f.key}
+              type="text"
+              value={filters[f.key] ?? ""}
+              onChange={(e) => { setFilter(f.key, e.target.value); }}
+              placeholder={f.label}
+              className="w-28 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-emerald-400 focus:outline-none"
+            />
+          )
+        ))}
+
+        {/* 高级筛选 */}
+        <button
+          onClick={() => setShowFilterModal(true)}
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+        >
+          筛选
+        </button>
+
         {config.canCreate && user.canAccessHR && (
           <button
             onClick={() => setCreating(true)}
@@ -260,6 +308,14 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
 
       <AuditLogModal open={showHistory} onClose={() => setShowHistory(false)} entityType={config.entityType} onRestored={load} />
 
+      <FilterModal
+        open={showFilterModal}
+        fields={config.fields}
+        items={items}
+        onClose={() => setShowFilterModal(false)}
+        onApply={applyFilters}
+        onReset={resetFilters}
+      />
 
       <Toast message={toast?.message || ""} type={toast?.type as any} show={!!toast} onClose={closeToast} />
     </div>

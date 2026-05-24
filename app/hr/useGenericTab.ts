@@ -9,6 +9,10 @@ export interface GenericTabState {
   error: string | null;
   keyword: string;
   setKeyword: (v: string) => void;
+  filters: Record<string, string>;
+  setFilter: (key: string, value: string) => void;
+  applyFilters: (next: Record<string, string>) => void;
+  resetFilters: () => void;
   editMode: boolean;
   setEditMode: (v: boolean) => void;
   editingCell: { id: number; field: string } | null;
@@ -33,6 +37,15 @@ export function useGenericTab(config: TabConfig): GenericTabState {
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
+  const [filters, setFilters] = useState<Record<string, string>>(() => {
+    const init: Record<string, string> = {};
+    if (config.filters) {
+      for (const f of config.filters) {
+        if (f.defaultValue !== undefined) init[f.key] = f.defaultValue;
+      }
+    }
+    return init;
+  });
   const [editMode, setEditMode] = useState(false);
   const [editingCell, setEditingCell] = useState<{ id: number; field: string } | null>(null);
   const [editValue, setEditValue] = useState<any>("");
@@ -48,6 +61,9 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     try {
       const params = new URLSearchParams();
       if (keyword) params.set("keyword", keyword);
+      for (const [k, v] of Object.entries(filters)) {
+        if (v !== "" && v !== undefined && v !== null) params.set(k, v);
+      }
       const res = await fetch(`${config.apiPath}?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
@@ -64,11 +80,29 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     } finally {
       setLoading(false);
     }
-  }, [config.apiPath, config.listGetter, keyword]);
+  }, [config.apiPath, config.listGetter, keyword, filters]);
 
   useEffect(() => {
     load();
   }, [load]);
+
+  const setFilter = useCallback((key: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+  }, []);
+
+  const applyFilters = useCallback((next: Record<string, string>) => {
+    setFilters(next);
+  }, []);
+
+  const resetFilters = useCallback(() => {
+    const init: Record<string, string> = {};
+    if (config.filters) {
+      for (const f of config.filters) {
+        if (f.defaultValue !== undefined) init[f.key] = f.defaultValue;
+      }
+    }
+    setFilters(init);
+  }, [config.filters]);
 
   const startEdit = useCallback((id: number, field: string, initialValue: any) => {
     setEditingCell({ id, field });
@@ -131,6 +165,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
 
   return {
     items, loading, error, keyword, setKeyword,
+    filters, setFilter, applyFilters, resetFilters,
     editMode, setEditMode,
     editingCell, editValue, setEditValue,
     startEdit, cancelEdit, saveCell,

@@ -5,7 +5,7 @@ import type { Department, EDP } from "./useAnalyticsData";
 
 function DeptNode({ dept, allDepts, edps, level = 0 }: { dept: Department; allDepts: Department[]; edps: EDP[]; level?: number }) {
   const [collapsed, setCollapsed] = useState(false);
-  const children = allDepts.filter((d) => d.parentId === dept.id);
+  const children = allDepts.filter((d) => d.parentId === dept.id).sort((a, b) => a.code.localeCompare(b.code));
   const hasChildren = children.length > 0;
 
   const deptEdps = edps.filter((e) => e.departmentId === dept.id);
@@ -93,7 +93,7 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
   }, [departments, activeEdps]);
 
   const rootDepts = useMemo(() => {
-    let roots = departments.filter((d) => !d.parentId);
+    let roots = departments.filter((d) => !d.parentId).sort((a, b) => a.code.localeCompare(b.code));
     if (search.trim()) {
       const q = search.toLowerCase();
       const matched = new Set<number>();

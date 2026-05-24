@@ -14,8 +14,15 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
+  const isActive = searchParams.get("isActive");
+
+  const where: any = {};
+  if (isActive !== null && isActive !== "") {
+    where.isActive = isActive === "true" ? true : isActive === "false" ? false : undefined;
+  }
 
   const items = await prisma.employment.findMany({
+    where,
     include: { employee: { select: { id: true, employeeId: true, name: true } } },
     orderBy: { id: "asc" },
   });

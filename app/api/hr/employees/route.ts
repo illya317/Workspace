@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { matchEmployee } from "@/lib/search";
 import { matchAnyField } from "@/lib/search-schema";
 import { snapshotHistory } from "@/lib/history";
+import { resolveFkValues, fkDisplay } from "@/lib/resolve-fk";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -15,6 +16,13 @@ export async function GET(request: Request) {
 
   let employees = await prisma.employee.findMany({ orderBy: { employeeId: "asc" } });
   if (keyword) employees = employees.filter((e) => matchAnyField(e, keyword, "Employee"));
+
+  // FK 显示名填充（关联账号等）
+  const fkMap = await resolveFkValues(employees as any);
+  for (const emp of employees as any) {
+    emp.userIdName = fkDisplay("userId", String(emp.userId ?? ""), fkMap);
+  }
+
   return NextResponse.json({ employees });
 }
 

@@ -69,6 +69,9 @@ export const employmentConfig: TabConfig = {
   canCreate: true,
   canDelete: true,
   buildCreateBody: (form) => extractFK(form, ["employeeId"]),
+  filters: [
+    { key: "isActive", label: "在职状态", type: "boolean", defaultValue: "true" },
+  ],
 };
 
 // ─── 5-3 公司信息 ──────────────────────────────────────────

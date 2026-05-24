@@ -59,6 +59,14 @@ export interface FKFieldConfig {
   displayField: string; // 在 item 中显示名字的字段路径，如 "employee.name"
 }
 
+export interface FilterConfig {
+  key: string;
+  label: string;
+  type?: "select" | "boolean" | "text";
+  options?: Array<{ label: string; value: string }>;
+  defaultValue?: string;
+}
+
 export interface TabConfig {
   title: string;
   apiPath: string;
@@ -69,6 +77,7 @@ export interface TabConfig {
   canDelete?: boolean;
   listGetter?: (res: any) => any[];
   buildCreateBody?: (form: Record<string, unknown>) => Record<string, unknown>;
+  filters?: FilterConfig[];
 }
 
 export interface FKOption {

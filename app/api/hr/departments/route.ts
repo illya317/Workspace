@@ -29,7 +29,7 @@ export async function GET(request: Request) {
       children: { select: { id: true, name: true } },
       manager: { select: { id: true, name: true } },
     },
-    orderBy: { code: "asc" },
+    orderBy: { id: "asc" },
   });
 
   let departments = depts.map((d: any) => ({

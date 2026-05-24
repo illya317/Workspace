@@ -9,6 +9,7 @@ function StatCard({ label, value, sub, color = "emerald" }: { label: string; val
     blue: "bg-blue-50 text-blue-700",
     amber: "bg-amber-50 text-amber-700",
     rose: "bg-rose-50 text-rose-700",
+    purple: "bg-purple-50 text-purple-700",
   };
   return (
     <div className={`rounded-lg p-4 ${colorMap[color] || colorMap.emerald}`}>
@@ -21,53 +22,65 @@ function StatCard({ label, value, sub, color = "emerald" }: { label: string; val
 
 export default function PositionAnalytics({ positions, edps, departments }: { positions: Position[]; edps: EDP[]; departments: Department[] }) {
   const [search, setSearch] = useState("");
-  const [sortKey, setSortKey] = useState<"code" | "name" | "headcount" | "dept">("headcount");
+  const [sortKey, setSortKey] = useState<"code" | "name" | "actual" | "headcount" | "diff" | "dept">("actual");
   const [sortDesc, setSortDesc] = useState(true);
 
   const activeEdps = useMemo(() => edps.filter((e) => !e.endDate), [edps]);
 
-  const activeHeadcounts = useMemo(() => {
-    const map = new Map<number, Set<number>>();
+  const enriched = useMemo(() => {
+    // 每个岗位的实际人数（仅在职、主岗）
+    const actualMap = new Map<number, number>();
+    const posPeople = new Map<number, Set<number>>();
     activeEdps.forEach((e) => {
-      if (e.positionId) {
-        const set = map.get(e.positionId) || new Set();
+      if (e.positionId && e.isPrimary) {
+        const set = posPeople.get(e.positionId) || new Set();
         set.add(e.employeeId);
-        map.set(e.positionId, set);
+        posPeople.set(e.positionId, set);
       }
     });
-    return new Map([...map.entries()].map(([k, v]) => [k, v.size]));
-  }, [activeEdps]);
+    for (const [pid, s] of posPeople) actualMap.set(pid, s.size);
 
-  const positionsWithActive = useMemo(() => {
-    return positions.map((p) => ({ ...p, activeHeadcount: activeHeadcounts.get(p.id) || 0 })) as (Position & { activeHeadcount: number })[];
-  }, [positions, activeHeadcounts]);
+    return positions.map((p) => {
+      const actual = actualMap.get(p.id) || 0;
+      const hc = p.headcount || 0;
+      const diff = actual - hc;
+      return {
+        ...p,
+        actual,
+        diff,
+        status: hc > 0 ? (diff > 0 ? "超编" : diff < 0 ? "缺编" : "满编") : (actual > 0 ? "有任职" : "空岗"),
+      };
+    }) as (Position & { actual: number; diff: number; status: string })[];
+  }, [positions, activeEdps]);
 
   const stats = useMemo(() => {
-    const total = positionsWithActive.length;
-    const occupied = positionsWithActive.filter((p) => p.activeHeadcount > 0).length;
-    const vacant = total - occupied;
-    const pharma = positionsWithActive.filter((p) => p.company === "丰华制药").length;
-    const bio = positionsWithActive.filter((p) => p.company === "丰华生物").length;
+    const total = enriched.length;
+    const occupied = enriched.filter((p) => p.actual > 0).length;
+    const vacant = enriched.filter((p) => p.actual === 0).length;
+    const overStaffed = enriched.filter((p) => p.headcount > 0 && p.actual > p.headcount).length;
+    const underStaffed = enriched.filter((p) => p.headcount > 0 && p.actual < p.headcount).length;
+    const hasHeadcount = enriched.filter((p) => p.headcount > 0).length;
 
-    // dept distribution
-    const deptMap = new Map<string, { count: number; positions: number }>();
-    positionsWithActive.forEach((p) => {
+    // 部门维度：每个部门的实际人数 vs 编制
+    const deptMap = new Map<string, { actual: number; headcount: number; positions: number }>();
+    enriched.forEach((p) => {
       const dn = p.departmentName || "未分配";
-      const curr = deptMap.get(dn) || { count: 0, positions: 0 };
+      const curr = deptMap.get(dn) || { actual: 0, headcount: 0, positions: 0 };
+      curr.actual += p.actual;
+      curr.headcount += p.headcount || 0;
       curr.positions++;
-      curr.count += p.activeHeadcount;
       deptMap.set(dn, curr);
     });
 
-    return { total, occupied, vacant, pharma, bio, deptDistribution: sortEntries([...deptMap.entries()]) };
-  }, [positionsWithActive]);
+    const deptEntries = [...deptMap.entries()]
+      .map(([name, d]) => ({ name, ...d, diff: d.actual - d.headcount }))
+      .sort((a, b) => b.positions - a.positions);
 
-  function sortEntries(entries: [string, { count: number; positions: number }][]) {
-    return entries.sort((a, b) => b[1].count - a[1].count);
-  }
+    return { total, occupied, vacant, overStaffed, underStaffed, hasHeadcount, deptEntries };
+  }, [enriched]);
 
   const filtered = useMemo(() => {
-    let list: (Position & { activeHeadcount: number })[] = [...positionsWithActive];
+    let list = [...enriched];
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter(
@@ -83,14 +96,16 @@ export default function PositionAnalytics({ positions, edps, departments }: { po
       switch (sortKey) {
         case "code": av = a.code; bv = b.code; break;
         case "name": av = a.name; bv = b.name; break;
-        case "headcount": av = a.activeHeadcount; bv = b.activeHeadcount; break;
+        case "actual": av = a.actual; bv = b.actual; break;
+        case "headcount": av = a.headcount; bv = b.headcount; break;
+        case "diff": av = a.diff; bv = b.diff; break;
         case "dept": av = a.departmentName || ""; bv = b.departmentName || ""; break;
-        default: av = a.activeHeadcount; bv = b.activeHeadcount;
+        default: av = a.actual; bv = b.actual;
       }
       if (typeof av === "string") return sortDesc ? bv.localeCompare(av) : av.localeCompare(bv);
       return sortDesc ? bv - av : av - bv;
     });
-  }, [positionsWithActive, search, sortKey, sortDesc]);
+  }, [enriched, search, sortKey, sortDesc]);
 
   const handleSort = (key: typeof sortKey) => {
     if (sortKey === key) setSortDesc(!sortDesc);
@@ -106,30 +121,49 @@ export default function PositionAnalytics({ positions, edps, departments }: { po
     <div className="space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <StatCard label="岗位总数" value={stats.total} color="emerald" />
-        <StatCard label="有任职" value={stats.occupied} sub={`占比 ${stats.total > 0 ? Math.round((stats.occupied / stats.total) * 100) : 0}%`} color="blue" />
+        <StatCard label="岗位总数" value={stats.total} color="emerald" sub={`${stats.hasHeadcount} 个有编制`} />
+        <StatCard label="有任职" value={stats.occupied} color="blue" sub={`占比 ${stats.total > 0 ? Math.round((stats.occupied / stats.total) * 100) : 0}%`} />
         <StatCard label="空岗" value={stats.vacant} color="amber" />
-        <StatCard label="制药岗位" value={stats.pharma} color="rose" />
-        <StatCard label="生物岗位" value={stats.bio} color="purple" />
+        <StatCard label="超编" value={stats.overStaffed} color="rose" sub="实际 > 编制" />
+        <StatCard label="缺编" value={stats.underStaffed} color="purple" sub="实际 < 编制" />
       </div>
 
-      {/* Dept distribution */}
+      {/* 部门编制对比 */}
       <div className="bg-white rounded-lg shadow-sm p-5">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">部门岗位分布</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6">
-          {stats.deptDistribution.map(([name, data]) => {
-            const pct = stats.total > 0 ? Math.round((data.positions / stats.total) * 100) : 0;
+        <h3 className="text-sm font-semibold text-gray-700 mb-4">各部门编制 vs 实际</h3>
+        <div className="space-y-3">
+          {stats.deptEntries.slice(0, 12).map((d) => {
+            const maxBar = Math.max(d.headcount, d.actual, 1);
+            const hcPct = Math.round((d.headcount / maxBar) * 100);
+            const acPct = Math.round((d.actual / maxBar) * 100);
             return (
-              <div key={name} className="flex items-center gap-3 py-1.5">
-                <span className="w-32 shrink-0 text-xs text-gray-600 truncate">{name}</span>
-                <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden">
-                  <div className="h-full bg-sky-400 rounded transition-all" style={{ width: `${pct}%` }} />
+              <div key={d.name} className="flex items-center gap-3">
+                <span className="w-28 shrink-0 text-xs text-gray-600 truncate" title={d.name}>{d.name}</span>
+                <div className="flex-1 space-y-0.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-gray-400 w-8">编制</span>
+                    <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden">
+                      <div className="h-full bg-sky-300 rounded" style={{ width: `${hcPct}%` }} />
+                    </div>
+                    <span className="text-[10px] text-gray-600 w-6 text-right">{d.headcount}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-gray-400 w-8">实际</span>
+                    <div className="flex-1 h-4 bg-gray-100 rounded overflow-hidden">
+                      <div className={`h-full rounded ${d.diff > 0 ? "bg-rose-400" : d.diff < 0 ? "bg-amber-400" : "bg-emerald-400"}`} style={{ width: `${acPct}%` }} />
+                    </div>
+                    <span className="text-[10px] text-gray-600 w-6 text-right">{d.actual}</span>
+                  </div>
                 </div>
-                <span className="w-8 text-right text-xs text-gray-700">{data.positions}</span>
-                <span className="w-8 text-right text-xs text-gray-400">{data.count}人</span>
+                <span className={`text-[10px] w-12 text-right font-medium ${d.diff > 0 ? "text-rose-600" : d.diff < 0 ? "text-amber-600" : "text-emerald-600"}`}>
+                  {d.diff > 0 ? `+${d.diff}` : d.diff === 0 ? "平衡" : d.diff}
+                </span>
               </div>
             );
           })}
+          {stats.deptEntries.length === 0 && (
+            <p className="text-xs text-gray-400 text-center py-4">暂无数据</p>
+          )}
         </div>
       </div>
 
@@ -157,38 +191,51 @@ export default function PositionAnalytics({ positions, edps, departments }: { po
                 <th className="text-left py-2 px-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort("name")}>
                   岗位名 {sortIcon("name")}
                 </th>
-                <th className="text-left py-2 px-2">别名</th>
                 <th className="text-left py-2 px-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort("dept")}>
                   部门 {sortIcon("dept")}
                 </th>
-                <th className="text-left py-2 px-2">公司</th>
                 <th className="text-right py-2 px-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort("headcount")}>
-                  任职人数 {sortIcon("headcount")}
+                  编制 {sortIcon("headcount")}
+                </th>
+                <th className="text-right py-2 px-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort("actual")}>
+                  实际 {sortIcon("actual")}
+                </th>
+                <th className="text-right py-2 px-2 cursor-pointer hover:bg-gray-50" onClick={() => handleSort("diff")}>
+                  差异 {sortIcon("diff")}
                 </th>
                 <th className="text-left py-2 px-2">状态</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((p) => {
-                const isVacant = p.activeHeadcount === 0;
-                return (
-                  <tr key={p.id} className={`border-b border-gray-50 hover:bg-gray-50 ${isVacant ? "bg-amber-50/30" : ""}`}>
-                    <td className="py-2 px-2 font-mono text-gray-500">{p.code}</td>
-                    <td className="py-2 px-2 font-medium">{p.name}</td>
-                    <td className="py-2 px-2 text-gray-400">{p.alias || "—"}</td>
-                    <td className="py-2 px-2 text-gray-500">{p.departmentName || "—"}</td>
-                    <td className="py-2 px-2 text-gray-500">{p.company}</td>
-                    <td className="py-2 px-2 text-right font-medium">{p.activeHeadcount}</td>
-                    <td className="py-2 px-2">
-                      {isVacant ? (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">空岗</span>
-                      ) : (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700">在岗</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
+              {filtered.map((p) => (
+                <tr key={p.id} className={`border-b border-gray-50 hover:bg-gray-50 ${
+                  p.status === "空岗" ? "bg-amber-50/30" : p.status === "超编" ? "bg-rose-50/30" : p.status === "缺编" ? "bg-purple-50/20" : ""
+                }`}>
+                  <td className="py-2 px-2 font-mono text-gray-500">{p.code}</td>
+                  <td className="py-2 px-2 font-medium">{p.name}</td>
+                  <td className="py-2 px-2 text-gray-500">{p.departmentName || "—"}</td>
+                  <td className="py-2 px-2 text-right text-gray-500">{p.headcount || "—"}</td>
+                  <td className="py-2 px-2 text-right font-medium">{p.actual || "—"}</td>
+                  <td className="py-2 px-2 text-right">
+                    {p.headcount > 0 ? (
+                      <span className={`font-medium ${p.diff > 0 ? "text-rose-600" : p.diff < 0 ? "text-amber-600" : "text-emerald-600"}`}>
+                        {p.diff > 0 ? `+${p.diff}` : p.diff === 0 ? "0" : p.diff}
+                      </span>
+                    ) : (
+                      <span className="text-gray-400">—</span>
+                    )}
+                  </td>
+                  <td className="py-2 px-2">
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                      p.status === "超编" ? "bg-rose-100 text-rose-700" :
+                      p.status === "缺编" ? "bg-purple-100 text-purple-700" :
+                      p.status === "满编" ? "bg-emerald-100 text-emerald-700" :
+                      p.status === "有任职" ? "bg-blue-100 text-blue-700" :
+                      "bg-amber-100 text-amber-700"
+                    }`}>{p.status}</span>
+                  </td>
+                </tr>
+              ))}
               {filtered.length === 0 && (
                 <tr><td colSpan={7} className="py-4 text-center text-gray-400">暂无匹配数据</td></tr>
               )}
