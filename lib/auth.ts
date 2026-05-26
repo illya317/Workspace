@@ -72,18 +72,30 @@ async function getUserDepartmentIds(userId: number): Promise<number[]> {
   return [...new Set(eps.map((e: any) => e.departmentId).filter((id: any): id is number => id !== null))];
 }
 
+let resourceCache: { id: number; parentId: number | null }[] | null = null;
+
 // Get all descendant resource IDs (for batch granting)
 export async function getResourceDescendants(resourceId: number): Promise<number[]> {
-  const ids: number[] = [resourceId];
-  const children = await prisma.resource.findMany({
-    where: { parentId: resourceId },
-    select: { id: true },
-  });
-  for (const child of children) {
-    const childDescendants = await getResourceDescendants(child.id);
-    ids.push(...childDescendants);
+  if (!resourceCache) {
+    resourceCache = await prisma.resource.findMany({
+      select: { id: true, parentId: true },
+    });
   }
-  return ids;
+
+  const byParent = new Map<number, number[]>();
+  for (const r of resourceCache) {
+    if (r.parentId != null) {
+      byParent.set(r.parentId, [...(byParent.get(r.parentId) || []), r.id]);
+    }
+  }
+
+  const result: number[] = [];
+  function dfs(id: number) {
+    result.push(id);
+    for (const child of byParent.get(id) || []) dfs(child);
+  }
+  dfs(resourceId);
+  return result;
 }
 
 // ============================================================

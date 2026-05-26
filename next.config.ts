@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  serverExternalPackages: ["@prisma/client", "pinyin-pro"],
+  serverExternalPackages: ["pinyin-pro"],
 };
 
 export default nextConfig;

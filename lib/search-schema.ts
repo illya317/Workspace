@@ -1,9 +1,5 @@
-import { readFileSync } from "fs";
-import { resolve } from "path";
+import { Prisma } from "@prisma/client";
 import { getInitials } from "./search";
-
-const SCHEMA_PATH = resolve(process.cwd(), "prisma/schema.prisma");
-const schemaText = readFileSync(SCHEMA_PATH, "utf8");
 
 const EXCLUDE_FIELDS = new Set([
   "id", "editedBy", "version", "sortOrder", "queryGroup",
@@ -19,28 +15,21 @@ const EXCLUDE_FIELDS = new Set([
 
 const modelStringFields: Record<string, string[]> = (() => {
   const map: Record<string, string[]> = {};
-  const models = schemaText.match(/model\s+(\w+)\s*\{/g) || [];
-  for (const m of models) {
-    const name = m.replace("model ", "").replace(" {", "").trim();
-    const block = schemaText.match(
-      new RegExp(`model\\s+${name}\\s*\\{([^}]+)\\}`)
-    );
-    if (!block) continue;
-    const fields = block[1]
-      .split("\n")
-      .map((l) => l.trim())
-      .filter((l) => l && !l.startsWith("//") && !l.startsWith("@@"));
-    const stringFields: string[] = [];
-    for (const f of fields) {
-      const parts = f.split(/\s+/);
-      if (parts.length < 3) continue;
-      const fieldName = parts[0];
-      const fieldType = parts[1].replace("?", "").replace("[]", "");
-      if (fieldType === "String" && !EXCLUDE_FIELDS.has(fieldName)) {
-        stringFields.push(fieldName);
-      }
+  const dmmf = (Prisma as any).dmmf;
+  if (!dmmf?.datamodel?.models) return map;
+
+  for (const model of dmmf.datamodel.models) {
+    const stringFields = model.fields
+      .filter(
+        (f: any) =>
+          f.kind === "scalar" &&
+          f.type === "String" &&
+          !EXCLUDE_FIELDS.has(f.name)
+      )
+      .map((f: any) => f.name);
+    if (stringFields.length) {
+      map[model.name] = stringFields;
     }
-    if (stringFields.length) map[name] = stringFields;
   }
   return map;
 })();

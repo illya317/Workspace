@@ -17,17 +17,19 @@ const FK_CONFIG: Record<string, { model: string; field: string }> = {
 export async function resolveFkValues(rows: Record<string, unknown>[]): Promise<Record<string, string>> {
   const map: Record<string, string> = {};
 
-  for (const [key, cfg] of Object.entries(FK_CONFIG)) {
-    const ids = Array.from(new Set(rows.map((r) => r[key]).filter((v): v is number => v != null && typeof v !== "object").map(Number))).filter((n) => !isNaN(n));
-    if (ids.length === 0) continue;
-    try {
-      const records = await (prisma as any)[cfg.model].findMany({
-        where: { id: { in: ids } },
-        select: { id: true, [cfg.field]: true },
-      });
-      for (const r of records) map[`${cfg.model}:${r.id}`] = String(r[cfg.field] ?? r.id);
-    } catch {}
-  }
+  await Promise.all(
+    Object.entries(FK_CONFIG).map(async ([key, cfg]) => {
+      const ids = Array.from(new Set(rows.map((r) => r[key]).filter((v): v is number => v != null && typeof v !== "object").map(Number))).filter((n) => !isNaN(n));
+      if (ids.length === 0) return;
+      try {
+        const records = await (prisma as any)[cfg.model].findMany({
+          where: { id: { in: ids } },
+          select: { id: true, [cfg.field]: true },
+        });
+        for (const r of records) map[`${cfg.model}:${r.id}`] = String(r[cfg.field] ?? r.id);
+      } catch {}
+    })
+  );
 
   return map;
 }

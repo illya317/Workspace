@@ -1,28 +1,17 @@
-"use client";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { verifyToken } from "@/lib/auth";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+export default async function Home() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
 
-export default function Home() {
-  const router = useRouter();
+  if (token) {
+    const payload = await verifyToken(token);
+    if (payload) {
+      redirect("/reports");
+    }
+  }
 
-  useEffect(() => {
-    fetch("/api/auth/me")
-      .then((res) => {
-        if (res.ok) {
-          router.push("/reports");
-        } else {
-          router.push("/login");
-        }
-      })
-      .catch(() => {
-        router.push("/login");
-      });
-  }, [router]);
-
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <p className="text-gray-500">正在跳转...</p>
-    </div>
-  );
+  redirect("/login");
 }

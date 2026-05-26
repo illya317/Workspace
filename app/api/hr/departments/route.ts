@@ -2,18 +2,13 @@ import { handleCreate } from "@/lib/crud";
 import { NextResponse } from "next/server";
 
 const CONFIG = { entityType: "Department", modelKey: "department" as const };
-import { authenticate, checkHRAccess } from "@/lib/auth";
+import { withHRAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { matchAnyField } from "@/lib/search-schema";
 import { snapshotHistory } from "@/lib/history";
 import { isPharma } from "@/lib/company";
 
-export async function GET(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
-
+export const GET = withHRAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
   const company = searchParams.get("company") || "";
@@ -49,7 +44,7 @@ export async function GET(request: Request) {
   }));
   if (keyword) departments = departments.filter((d) => matchAnyField(d, keyword, "Department"));
   return NextResponse.json({ departments });
-}
+});
 
 export async function POST(request: Request) {
   return handleCreate(request, CONFIG, (body) => {
@@ -59,15 +54,7 @@ export async function POST(request: Request) {
   });
 }
 
-export async function PUT(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
-  if (!(await checkHRAccess(payload.userId))) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
-  }
-
+export const PUT = withHRAccess(async (request: Request, user) => {
   const body = await request.json();
   const { id, code, name, alias, company, level, parentId, managerUserId } = body;
 
@@ -83,7 +70,7 @@ export async function PUT(request: Request) {
   if (level !== undefined) data.level = level;
   if (parentId !== undefined) data.parentId = parentId || null;
   if (managerUserId !== undefined) data.managerUserId = managerUserId || null;
-  data.editedBy = payload.userId;
+  data.editedBy = user.userId;
   data.editedAt = new Date();
   data.version = { increment: 1 };
 
@@ -92,7 +79,7 @@ export async function PUT(request: Request) {
       where: { id },
       data,
     });
-    await snapshotHistory("Department", id, payload.userId);
+    await snapshotHistory("Department", id, user.userId);
     return NextResponse.json({ success: true, department: updated });
   } catch (e: any) {
     if (e.code === "P2002") {
@@ -103,17 +90,9 @@ export async function PUT(request: Request) {
     }
     throw e;
   }
-}
+});
 
-export async function DELETE(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
-  if (!(await checkHRAccess(payload.userId))) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
-  }
-
+export const DELETE = withHRAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   if (!id) {
@@ -132,4 +111,4 @@ export async function DELETE(request: Request) {
     }
     throw e;
   }
-}
+});
