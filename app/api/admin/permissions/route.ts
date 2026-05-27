@@ -1,13 +1,29 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
-function buildTree(r: any, countMap: Map<number, number>): any {
-  const children = (r.children || []).map((c: any) => ({
+type ResourceWithChildren = Prisma.ResourceGetPayload<{
+  include: { children: { include: { children: true } } };
+}>;
+
+interface TreeNode {
+  id: number;
+  key: string;
+  name: string;
+  description: string | null;
+  parentId: number | null;
+  sortOrder: number | null;
+  userCount: number;
+  children?: TreeNode[];
+}
+
+function buildTree(r: ResourceWithChildren, countMap: Map<number, number>): TreeNode {
+  const children = (r.children || []).map((c) => ({
     id: c.id, key: c.key, name: c.name, description: c.description,
     parentId: c.parentId, sortOrder: c.sortOrder,
     userCount: countMap.get(c.id) || 0,
-    children: (c.children || []).map((gc: any) => ({
+    children: (c.children || []).map((gc) => ({
       id: gc.id, key: gc.key, name: gc.name, description: gc.description,
       parentId: gc.parentId, sortOrder: gc.sortOrder,
       userCount: countMap.get(gc.id) || 0,

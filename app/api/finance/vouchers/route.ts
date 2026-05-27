@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { withFinanceAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export const GET = withFinanceAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const periodId = searchParams.get("periodId");
   const status = searchParams.get("status");
-  const where: any = {};
+  const where: Prisma.FinanceVoucherWhereInput = {};
   if (periodId) where.periodId = parseInt(periodId);
   if (status) where.status = status;
 
@@ -21,9 +22,21 @@ export const GET = withFinanceAccess(async (request: Request) => {
   return NextResponse.json({ vouchers });
 });
 
+interface VoucherItemInput {
+  accountId: unknown;
+  debit: unknown;
+  credit: unknown;
+  description?: unknown;
+}
+
 export const POST = withFinanceAccess(async (request: Request, user) => {
-  const body = await request.json();
-  const { voucherNo, date, description, companyCode, items, status } = body;
+  const body = (await request.json()) as Record<string, unknown>;
+  const voucherNo = body.voucherNo as string;
+  const date = body.date as string;
+  const description = body.description as string | undefined;
+  const companyCode = body.companyCode as string | undefined;
+  const items = body.items as VoucherItemInput[] | undefined;
+  const status = body.status as string | undefined;
   if (!voucherNo || !date || !items?.length) {
     return NextResponse.json(
       { error: "凭证号、日期、分录为必填" },
@@ -32,11 +45,11 @@ export const POST = withFinanceAccess(async (request: Request, user) => {
   }
 
   const totalDebit = items.reduce(
-    (s: number, i: any) => s + (parseFloat(i.debit) || 0),
+    (s: number, i) => s + (parseFloat(String(i.debit)) || 0),
     0,
   );
   const totalCredit = items.reduce(
-    (s: number, i: any) => s + (parseFloat(i.credit) || 0),
+    (s: number, i) => s + (parseFloat(String(i.credit)) || 0),
     0,
   );
   if (Math.abs(totalDebit - totalCredit) > 0.001) {
@@ -78,11 +91,11 @@ export const POST = withFinanceAccess(async (request: Request, user) => {
       companyCode: companyCode || null,
       editedBy: user.userId,
       items: {
-        create: items.map((item: any, idx: number) => ({
-          accountId: parseInt(item.accountId),
-          debit: parseFloat(item.debit) || 0,
-          credit: parseFloat(item.credit) || 0,
-          description: item.description || "",
+        create: items.map((item, idx) => ({
+          accountId: parseInt(String(item.accountId)),
+          debit: parseFloat(String(item.debit)) || 0,
+          credit: parseFloat(String(item.credit)) || 0,
+          description: String(item.description || ""),
           sortOrder: idx,
         })),
       },

@@ -19,7 +19,7 @@ export async function PUT(
     const { code, name, category, balanceDirection, isActive, sortOrder } =
       body;
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       editedBy: user.userId,
       editedAt: new Date(),
       version: { increment: 1 },

@@ -28,7 +28,7 @@ export async function PUT(
   const emp = await prisma.employment.findUnique({ where: { id: employmentId } });
   if (!emp || !emp.contracts) return NextResponse.json({ error: "合同不存在" }, { status: 404 });
 
-  let contracts: any[];
+  let contracts: Record<string, unknown>[];
   try { contracts = JSON.parse(emp.contracts); } catch { return NextResponse.json({ error: "合同数据异常" }, { status: 500 }); }
   if (!Array.isArray(contracts) || index >= contracts.length) return NextResponse.json({ error: "合同不存在" }, { status: 404 });
 
@@ -63,7 +63,7 @@ export async function DELETE(
   const emp = await prisma.employment.findUnique({ where: { id: employmentId } });
   if (!emp || !emp.contracts) return NextResponse.json({ error: "合同不存在" }, { status: 404 });
 
-  let contracts: any[];
+  let contracts: Record<string, unknown>[];
   try { contracts = JSON.parse(emp.contracts); } catch { return NextResponse.json({ error: "合同数据异常" }, { status: 500 }); }
   if (!Array.isArray(contracts) || index >= contracts.length) return NextResponse.json({ error: "合同不存在" }, { status: 404 });
 

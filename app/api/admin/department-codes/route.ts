@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { SHARED_GROUP_CODES } from "@/lib/company";
 
 function normalizeCompany(company: string): string {
@@ -35,14 +36,14 @@ export async function GET(request: Request) {
       ? [company]
       : [];
 
-  const where: any = {};
+  const where: Prisma.DepartmentWhereInput = {};
   if (codes.length > 0) {
     where.OR = codes.map((cc: string) => ({ code: { startsWith: cc } }));
   }
 
   const result = await prisma.department.findMany({ where, orderBy: { code: "asc" } });
-  const filtered = result.filter((r: any) => /^\d{5}$/.test(r.code));
-  return NextResponse.json({ codes: filtered.map((r: any) => ({ code: r.code, name: r.name })) });
+  const filtered = result.filter((r) => /^\d{5}$/.test(r.code));
+  return NextResponse.json({ codes: filtered.map((r) => ({ code: r.code, name: r.name })) });
 }
 
 export async function PUT(request: Request) {

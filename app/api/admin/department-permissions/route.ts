@@ -96,10 +96,10 @@ export async function PUT(request: Request) {
     }
 
     return NextResponse.json({ success: true });
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error("department-permissions PUT error:", e);
     return NextResponse.json(
-      { error: e?.message || "服务器内部错误" },
+      { error: e instanceof Error ? e.message : "服务器内部错误" },
       { status: 500 }
     );
   }

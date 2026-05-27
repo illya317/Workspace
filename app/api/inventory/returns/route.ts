@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { withInventoryAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export const GET = withInventoryAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const finishedGoodsId = searchParams.get("finishedGoodsId");
-  const where: any = {};
+  const where: Prisma.StockReturnWhereInput = {};
   if (finishedGoodsId) where.finishedGoodsId = parseInt(finishedGoodsId);
 
   const returns = await prisma.stockReturn.findMany({ where, orderBy: { createdAt: "desc" } });

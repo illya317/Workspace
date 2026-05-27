@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 const CONFIG = { entityType: "Department", modelKey: "department" as const };
 import { withHRAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { matchAnyField } from "@/lib/search-schema";
 import { snapshotHistory } from "@/lib/history";
 import { isPharma } from "@/lib/company";
@@ -11,12 +12,10 @@ import { isPharma } from "@/lib/company";
 export const GET = withHRAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
-  const company = searchParams.get("company") || "";
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
 
-  const where: any = {};
-  if (company) where.company = company;
+  const where: Prisma.DepartmentWhereInput = {};
 
   const depts = await prisma.department.findMany({
     where,
@@ -29,7 +28,7 @@ export const GET = withHRAccess(async (request: Request) => {
     orderBy: { id: "asc" },
   });
 
-  let departments = depts.map((d: any) => ({
+  let departments = depts.map((d) => ({
     id: d.id,
     code: d.code,
     name: d.name,
@@ -42,7 +41,7 @@ export const GET = withHRAccess(async (request: Request) => {
     managerUserId: d.managerUserId,
     managerName: d.manager?.name || null,
     headcount: d._count.edps,
-    children: (d.children as any[]).map((c: any) => ({ id: c, name: c })),
+    children: d.children.map((c) => ({ id: c.id, name: c.name })),
   }));
   if (keyword) departments = departments.filter((d) => matchAnyField(d, keyword, "Department"));
 
@@ -62,17 +61,16 @@ export async function POST(request: Request) {
 
 export const PUT = withHRAccess(async (request: Request, user) => {
   const body = await request.json();
-  const { id, code, name, alias, company, level, parentId, managerUserId } = body;
+  const { id, code, name, alias, level, parentId, managerUserId } = body;
 
   if (!id) {
     return NextResponse.json({ error: "缺少id" }, { status: 400 });
   }
 
-  const data: any = {};
+  const data: Prisma.DepartmentUncheckedUpdateInput = {};
   if (code !== undefined) data.code = code;
   if (name !== undefined) data.name = name;
   if (alias !== undefined) data.alias = alias || null;
-  if (company !== undefined) data.company = company;
   if (level !== undefined) data.level = level;
   if (parentId !== undefined) data.parentId = parentId || null;
   if (managerUserId !== undefined) data.managerUserId = managerUserId || null;
@@ -87,11 +85,11 @@ export const PUT = withHRAccess(async (request: Request, user) => {
     });
     await snapshotHistory("Department", id, user.userId);
     return NextResponse.json({ success: true, department: updated });
-  } catch (e: any) {
-    if (e.code === "P2002") {
+  } catch (e: unknown) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
       return NextResponse.json({ error: "编码已存在" }, { status: 409 });
     }
-    if (e.code === "P2025") {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
       return NextResponse.json({ error: "部门不存在" }, { status: 404 });
     }
     throw e;
@@ -108,11 +106,11 @@ export const DELETE = withHRAccess(async (request: Request) => {
   try {
     await prisma.department.delete({ where: { id: parseInt(id) } });
     return NextResponse.json({ success: true });
-  } catch (e: any) {
-    if (e.code === "P2025") {
+  } catch (e: unknown) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
       return NextResponse.json({ error: "部门不存在" }, { status: 404 });
     }
-    if (e.code === "P2003") {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003") {
       return NextResponse.json({ error: "该部门下有关联岗位，无法删除" }, { status: 409 });
     }
     throw e;

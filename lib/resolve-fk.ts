@@ -22,7 +22,8 @@ export async function resolveFkValues(rows: Record<string, unknown>[]): Promise<
       const ids = Array.from(new Set(rows.map((r) => r[key]).filter((v): v is number => v != null && typeof v !== "object").map(Number))).filter((n) => !isNaN(n));
       if (ids.length === 0) return;
       try {
-        const records = await (prisma as any)[cfg.model].findMany({
+        const model = (prisma as unknown as Record<string, { findMany: (args: { where: { id: { in: number[] } }; select: Record<string, boolean> }) => Promise<Array<Record<string, unknown>>> }>)[cfg.model];
+        const records = await model.findMany({
           where: { id: { in: ids } },
           select: { id: true, [cfg.field]: true },
         });

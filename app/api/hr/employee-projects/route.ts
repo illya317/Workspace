@@ -24,7 +24,7 @@ export async function GET(request: Request) {
     orderBy: { id: "asc" },
   });
   return NextResponse.json({
-    entries: entries.map((e: any) => ({
+    entries: entries.map((e) => ({
       id: e.id,
       employeeId: e.employeeId,
       employeeName: e.employee?.name || "",
@@ -41,8 +41,8 @@ export async function POST(request: Request) {
   return handleCreate(request, CONFIG, async (body) => {
     const { employeeId, projectId, role, startDate, endDate } = body;
     if (!employeeId || !projectId) return null;
-    const employee = await prisma.employee.findUnique({ where: { employeeId }, select: { id: true } });
+    const employee = await prisma.employee.findUnique({ where: { employeeId: String(employeeId) }, select: { id: true } });
     if (!employee) return null;
-    return { employeeId: employee.id, projectId, role: role || null, startDate: startDate || null, endDate: endDate || null };
+    return { employeeId: employee.id, projectId: Number(projectId), role: role ? String(role) : null, startDate: startDate ? String(startDate) : null, endDate: endDate ? String(endDate) : null };
   });
 }

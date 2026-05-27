@@ -35,10 +35,11 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
 
   const visibleFields = config.fields.filter((f) => !f.hidden);
 
-  function handleStartEdit(item: any, field: FieldConfig) {
+  function handleStartEdit(item: Record<string, unknown>, field: FieldConfig) {
     if (!user.canAccessHR || !editMode || !field.editable) return;
-    if (editingCell?.id === item.id && editingCell?.field === field.key) return;
-    let initVal: any;
+    const itemId = item.id as number;
+    if (editingCell?.id === itemId && editingCell?.field === field.key) return;
+    let initVal: string | boolean | number | unknown;
     if (field.key === "gender") {
       initVal = item.gender === true ? "男" : item.gender === false ? "女" : "";
     } else if (field.type === "fk") {
@@ -46,7 +47,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
     } else {
       initVal = item[field.key] ?? "";
     }
-    startEdit(item.id, field.key, initVal);
+    startEdit(itemId, field.key, initVal);
   }
 
   async function handleSave() {
@@ -99,7 +100,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
     if (field.type === "fk" && config.fkFields?.[fieldKey]) {
       return (
         <FKInput
-          value={null} displayValue={editValue ?? ""} entity={config.fkFields[fieldKey].entity}
+          value={null} displayValue={String(editValue ?? "")} entity={config.fkFields[fieldKey].entity}
           onChange={(opt) => setEditValue(opt?.name ?? "")}
         />
       );
@@ -107,7 +108,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
     return (
       <AutoSizeInput
         ref={inputRef}
-        value={editValue ?? ""}
+        value={String(editValue ?? "")}
         onChange={(e) => setEditValue(e.target.value)}
         onKeyDown={handleKeyDown}
       />
@@ -214,8 +215,8 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
                   <label className="mb-1 block text-xs text-gray-600">{f.label}{f.required && <span className="text-red-400 ml-0.5">*</span>}</label>
                   {f.type === "fk" && config.fkFields?.[f.key] ? (
                     <FKInput
-                      value={(createForm[f.key] as any)?.id ?? null}
-                      displayValue={(createForm[f.key] as any)?.name ?? ""}
+                      value={(createForm[f.key] as { id?: number } | undefined)?.id ?? null}
+                      displayValue={(createForm[f.key] as { name?: string } | undefined)?.name ?? ""}
                       entity={config.fkFields[f.key].entity}
                       onChange={(opt) => setCreateForm((prev) => ({ ...prev, [f.key]: opt }))}
                     />
@@ -301,7 +302,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
         </div>
       )}
 
-      <Toast message={toast?.message || ""} type={toast?.type as any} show={!!toast} onClose={closeToast} />
+      <Toast message={toast?.message || ""} type={toast?.type as "success" | "error" | undefined} show={!!toast} onClose={closeToast} />
     </div>
   );
 }

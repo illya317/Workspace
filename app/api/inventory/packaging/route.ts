@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { withInventoryAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { handleCreate } from "@/lib/crud-inventory";
+import { Prisma } from "@prisma/client";
 
 export const GET = withInventoryAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
   const status = searchParams.get("status") || "";
 
-  const where: any = {};
+  const where: Prisma.StockPackagingWhereInput = {};
   if (status) where.status = status;
 
   let items = await prisma.stockPackaging.findMany({ where, orderBy: { code: "asc" } });

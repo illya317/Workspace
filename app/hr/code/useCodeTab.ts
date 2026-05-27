@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useToast } from "@/app/hooks/useToast";
 import {
   NAME_TO_CODE,
@@ -70,7 +70,32 @@ export function useCodeTab({
 }) {
   const [codes, setCodes] = useState<CodeItem[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [stats, setStats] = useState<Record<string, number>>({});
+  const stats = useMemo(() => {
+    const map: Record<string, number> = {};
+    for (const c of codes) {
+      const prefix = c.code.slice(0, 2);
+      const allowedCompanies = PREFIX_TO_COMPANIES[prefix] || [];
+      const companyEmps = employees.filter((e) =>
+        allowedCompanies.includes(e.company || "")
+      );
+      if (type === "department") {
+        map[c.code] = new Set(
+          companyEmps.filter((e) => e.dept1 === c.name).map((e) => e.employeeId)
+        ).size;
+      } else {
+        map[c.code] = new Set(
+          companyEmps
+            .filter((e) => {
+              if (!e.position) return false;
+              const positions = e.position.split("、").map((p) => p.trim());
+              return positions.includes(c.name);
+            })
+            .map((e) => e.employeeId)
+        ).size;
+      }
+    }
+    return map;
+  }, [codes, employees, type]);
   const [loading, setLoading] = useState(true);
   const { toast, showToast, closeToast } = useToast();
   const [newCode, setNewCode] = useState("");
@@ -130,33 +155,6 @@ export function useCodeTab({
   useEffect(() => {
     load();
   }, [load]);
-
-  useEffect(() => {
-    const map: Record<string, number> = {};
-    for (const c of codes) {
-      const prefix = c.code.slice(0, 2);
-      const allowedCompanies = PREFIX_TO_COMPANIES[prefix] || [];
-      const companyEmps = employees.filter((e) =>
-        allowedCompanies.includes((e as any).details || "")
-      );
-      if (type === "department") {
-        map[c.code] = new Set(
-          companyEmps.filter((e) => e.dept1 === c.name).map((e) => e.employeeId)
-        ).size;
-      } else {
-        map[c.code] = new Set(
-          companyEmps
-            .filter((e) => {
-              if (!e.position) return false;
-              const positions = e.position.split("、").map((p) => p.trim());
-              return positions.includes(c.name);
-            })
-            .map((e) => e.employeeId)
-        ).size;
-      }
-    }
-    setStats(map);
-  }, [codes, employees, type]);
 
   function toggleSortHandler(field: "code" | "name" | "count") {
     const next = getNextSortState(sortField, sortDirection, field);

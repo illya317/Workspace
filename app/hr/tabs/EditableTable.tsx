@@ -2,37 +2,43 @@
 
 import type { TabConfig, FieldConfig } from "../types";
 
-export function getVal(obj: any, path: string): any {
-  return path.split(".").reduce((o, k) => o?.[k], obj);
+export function getVal(obj: unknown, path: string): unknown {
+  return path.split(".").reduce<unknown>((o, k) => {
+    if (o !== null && typeof o === "object") {
+      return (o as Record<string, unknown>)[k];
+    }
+    return undefined;
+  }, obj);
 }
 
-function renderCell(item: any, field: FieldConfig, config: TabConfig) {
+function renderCell(item: Record<string, unknown>, field: FieldConfig, config: TabConfig): string {
   if (field.key === "gender") return item.gender === true ? "男" : item.gender === false ? "女" : "-";
   if (field.key === "isActive") return item.isActive === true ? "在职" : item.isActive === false ? "离职" : "-";
   if (field.key === "level") {
     const map: Record<number, string> = { 1: "事业部", 2: "部门", 3: "子部门" };
-    return map[item.level] ?? item.level;
+    const level = item.level as number;
+    return map[level] ?? String(level);
   }
   if (field.type === "boolean") return item[field.key] ? "是" : "否";
   if (field.type === "fk" && config.fkFields?.[field.key]) {
     const v = field.displayField
       ? getVal(item, field.displayField)
       : getVal(item, field.key + "Name") ?? getVal(item, config.fkFields[field.key].displayField) ?? "";
-    return v || "-";
+    return String(v || "-");
   }
   const v = field.displayField ? getVal(item, field.displayField) : item[field.key];
-  return (v === null || v === undefined || v === "") ? "-" : v;
+  return (v === null || v === undefined || v === "") ? "-" : String(v);
 }
 
 interface EditableTableProps {
-  items: any[];
+  items: Record<string, unknown>[];
   visibleFields: FieldConfig[];
   config: TabConfig;
   editingCell: { id: number; field: string } | null;
   editMode: boolean;
   canEdit: boolean;
   renderEditInput: (fieldKey: string) => React.ReactNode;
-  onStartEdit: (item: any, field: FieldConfig) => void;
+  onStartEdit: (item: Record<string, unknown>, field: FieldConfig) => void;
 }
 
 export default function EditableTable({
@@ -59,7 +65,7 @@ export default function EditableTable({
       </thead>
       <tbody>
         {items.map((item) => (
-          <tr key={item.id} className="border-b last:border-0 hover:bg-gray-50">
+          <tr key={item.id as React.Key} className="border-b last:border-0 hover:bg-gray-50">
             {visibleFields.map((f) => {
               const isEditing = editingCell?.id === item.id && editingCell?.field === f.key;
               return (

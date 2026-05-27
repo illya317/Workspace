@@ -73,7 +73,7 @@ export function usePositionData(
         diff,
         status: hc > 0 ? (diff > 0 ? "超编" : diff < 0 ? "缺编" : "满编") : (actual > 0 ? "有任职" : "空岗"),
       };
-    }) as EnrichedPosition[];
+    });
   }, [positions, activeEdps]);
 
   const stats = useMemo(() => {
@@ -219,7 +219,7 @@ export function usePositionData(
       );
     }
     return [...list].sort((a, b) => {
-      let av: any, bv: any;
+      let av: string | number, bv: string | number;
       switch (sortKey) {
         case "code": av = a.code; bv = b.code; break;
         case "name": av = a.name; bv = b.name; break;
@@ -229,8 +229,9 @@ export function usePositionData(
         case "dept": av = a.departmentName || ""; bv = b.departmentName || ""; break;
         default: av = a.actual; bv = b.actual;
       }
-      if (typeof av === "string") return sortDesc ? bv.localeCompare(av) : av.localeCompare(bv);
-      return sortDesc ? bv - av : av - bv;
+      if (typeof av === "string" && typeof bv === "string") return sortDesc ? bv.localeCompare(av) : av.localeCompare(bv);
+      if (typeof av === "number" && typeof bv === "number") return sortDesc ? bv - av : av - bv;
+      return 0;
     });
   }, [enriched, search, sortKey, sortDesc]);
 

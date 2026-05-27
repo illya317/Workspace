@@ -12,10 +12,10 @@ interface PositionDescDetail {
   departmentName: string | null; reportTo: string | null;
   positionPurpose: string | null; summary: string | null;
   headcount: number | null; version: string | null; effectiveDate: string | null;
-  details: Record<string, any> | null;
+  details: Record<string, unknown> | null;
 }
 
-function s(val: any, fb = "—"): string {
+function s(val: unknown, fb = "—"): string {
   if (val === null || val === undefined || val === "") return fb;
   return String(val);
 }
@@ -24,7 +24,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return <div className="mb-6"><h2 className="mb-3 border-l-4 border-emerald-600 bg-gray-50 px-3 py-2 text-sm font-bold text-gray-800">{title}</h2>{children}</div>;
 }
 
-function Pair({ label, value }: { label: string; value: any }) {
+function Pair({ label, value }: { label: string; value: unknown }) {
   if (value === null || value === undefined || value === "") return null;
   return <div className="mb-1.5 text-sm"><strong className="text-gray-700">{label}：</strong><span className="text-gray-600">{String(value)}</span></div>;
 }
@@ -114,7 +114,7 @@ export default function GmpPositionDetailPage() {
 
         {Array.isArray(d.duties) && d.duties.length > 0 && (
           <Section title="岗位职责">
-            {d.duties.map((duty: any, i: number) => (
+            {d.duties.map((duty: Record<string, unknown>, i: number) => (
               <div key={i} className="mb-4">
                 <div className="mb-1 text-sm font-semibold text-gray-700">{i + 1}. {s(duty.title)}</div>
                 {Array.isArray(duty.items) && duty.items.length > 0 && (
@@ -127,7 +127,7 @@ export default function GmpPositionDetailPage() {
           </Section>
         )}
 
-        {(d.education || d.major || d.experience || d.training) && (
+        {!!(d.education || d.major || d.experience || d.training) && (
           <Section title="任职资格">
             <Pair label="教育水平" value={d.education} />
             <Pair label="专业要求" value={d.major} />
@@ -136,7 +136,7 @@ export default function GmpPositionDetailPage() {
           </Section>
         )}
 
-        {(d.workingConditions || d.workSchedule) && (
+        {!!(d.workingConditions || d.workSchedule) && (
           <Section title="工作条件">
             <Pair label="工作环境" value={d.workingConditions} />
             <Pair label="工作时间" value={d.workSchedule} />
@@ -152,11 +152,11 @@ export default function GmpPositionDetailPage() {
                 <th className="border border-gray-200 px-3 py-2 text-left font-semibold text-gray-600">生效日期</th>
               </tr></thead>
               <tbody>
-                {d.changeHistory.map((h: any, i: number) => (
+                {d.changeHistory.map((h: Record<string, unknown>, i: number) => (
                   <tr key={i}>
-                    <td className="border border-gray-200 px-3 py-2 text-gray-700">{h.version}</td>
-                    <td className="border border-gray-200 px-3 py-2 text-gray-700">{h.documentName}</td>
-                    <td className="border border-gray-200 px-3 py-2 text-gray-700">{h.effectiveDate}</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-700">{String(h.version ?? "")}</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-700">{String(h.documentName ?? "")}</td>
+                    <td className="border border-gray-200 px-3 py-2 text-gray-700">{String(h.effectiveDate ?? "")}</td>
                   </tr>
                 ))}
               </tbody>

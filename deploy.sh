@@ -18,6 +18,19 @@ fi
 touch "$LOCKFILE"
 trap 'rm -f "$LOCKFILE"' EXIT
 
+# 分支检查：必须在 main 分支部署
+if [ "$(git branch --show-current)" != "main" ]; then
+  echo "[错误] 必须在 main 分支部署，当前分支：$(git branch --show-current)"
+  exit 1
+fi
+
+# 未提交修改检查
+if [ -n "$(git status --porcelain)" ]; then
+  echo "[错误] 存在未提交的修改，请先 commit"
+  git status --short
+  exit 1
+fi
+
 # 解析参数
 for arg in "$@"; do
   case $arg in
@@ -37,6 +50,12 @@ if [ "$PUSH_DB" = true ]; then
   rm -f "$TMP_DB"
   echo "==> Schema 同步完成"
 fi
+
+echo "==> 运行 lint (max-warnings=0)..."
+npm run lint -- --max-warnings=0
+
+echo "==> 运行类型检查..."
+npx tsc --noEmit
 
 echo "==> 本地构建..."
 npm run build

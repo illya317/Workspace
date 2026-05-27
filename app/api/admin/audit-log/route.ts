@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { resolveFkValues, fkDisplay } from "@/lib/resolve-fk";
 
 const RESOLVERS: Record<string, { model: string; field: string; fallback: string }> = {
@@ -66,7 +67,7 @@ export async function GET(request: Request) {
   }
 
   // 按日期筛选
-  const pageWhere: any = { entityType, tag: null };
+  const pageWhere: Prisma.EditHistoryWhereInput = { entityType, tag: null };
   if (date) {
     pageWhere.createdAt = {
       gte: new Date(date + "T00:00:00+08:00"),
@@ -93,8 +94,9 @@ export async function GET(request: Request) {
     include: { editor: { select: { name: true } } },
   });
 
-  const prevMap = new Map<number, any>();
-  const groupMap = new Map<string, any[]>();
+  type VersionWithEditor = Prisma.EditHistoryGetPayload<{ include: { editor: { select: { name: true } } } }>;
+  const prevMap = new Map<number, VersionWithEditor>();
+  const groupMap = new Map<string, VersionWithEditor[]>();
   for (const v of allVersions) {
     const k = `${v.entityType}:${v.entityId}`;
     if (!groupMap.has(k)) groupMap.set(k, []);
@@ -110,7 +112,8 @@ export async function GET(request: Request) {
   if (resolver) {
     const unresolved = recordIds.filter((id) => !recordMap[String(id)]);
     if (unresolved.length > 0) {
-      const records = await (prisma as any)[resolver.model].findMany({
+      type ModelDelegate = { findMany: (args: { where: { id: { in: number[] } }; select: Record<string, boolean> }) => Promise<Array<{ id: unknown; [key: string]: unknown }>> };
+      const records = await ((prisma as unknown as Record<string, ModelDelegate>)[resolver.model]).findMany({
         where: { id: { in: unresolved } },
         select: { id: true, [resolver.field]: true },
       });

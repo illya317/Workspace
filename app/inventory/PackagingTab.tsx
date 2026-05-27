@@ -81,7 +81,7 @@ export default function PackagingTab() {
   function startEdit(item: Packaging, field: string) {
     if (!editMode) return;
     setEditingCell({ id: item.id, field });
-    setEditValue((item as any)[field] ?? "");
+    setEditValue(String((item as unknown as Record<string, unknown>)[field] ?? ""));
   }
 
   async function saveEdit() {
@@ -232,7 +232,7 @@ export default function PackagingTab() {
                     const val =
                       f.key === "currentStock"
                         ? currentStock(item)
-                        : (item as any)[f.key];
+                        : (item as unknown as Record<string, string | number | null>)[f.key];
                     if (isEditing) {
                       return (
                         <td key={f.key} className="whitespace-nowrap px-3 py-2">
@@ -451,7 +451,7 @@ export default function PackagingTab() {
 
       <Toast
         message={toast?.message || ""}
-        type={toast?.type as any}
+        type={toast?.type as "success" | "error" | undefined}
         show={!!toast}
         onClose={closeToast}
       />

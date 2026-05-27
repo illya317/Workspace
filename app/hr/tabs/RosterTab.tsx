@@ -64,8 +64,8 @@ export default function RosterTab({ user: _user, selectedCompany }: { user: User
   const displayFields = fields.filter((f) => visibleFields.includes(f.key));
 
   const sortedEmployees = [...employees].sort((a, b) => {
-    const aVal = (a as any)[sortField] || "";
-    const bVal = (b as any)[sortField] || "";
+    const aVal = String((a as unknown as Record<string, unknown>)[sortField] ?? "");
+    const bVal = String((b as unknown as Record<string, unknown>)[sortField] ?? "");
     if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
     if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
     return a.employeeId.localeCompare(b.employeeId);
@@ -84,7 +84,7 @@ export default function RosterTab({ user: _user, selectedCompany }: { user: User
       if (group.length > 1) {
         for (const field of displayFields) {
           const key = field.key;
-          const values = group.map((e) => (e as any)[key]);
+          const values = group.map((e) => (e as unknown as Record<string, unknown>)[key]);
           const allSame = values.every((v) => v === values[0]);
           if (allSame) {
             group.forEach((_, idx) => {
@@ -172,7 +172,7 @@ export default function RosterTab({ user: _user, selectedCompany }: { user: User
                       {displayFields.map((f) => {
                       const merge = empMerge[f.key];
                       if (merge?.skip) return null;
-                      const val = (emp as any)[f.key] || "";
+                      const val = String((emp as unknown as Record<string, unknown>)[f.key] ?? "");
                       const rowSpan = merge?.rowspan && merge.rowspan > 1 ? merge.rowspan : undefined;
                       return (
                         <td
@@ -192,7 +192,7 @@ export default function RosterTab({ user: _user, selectedCompany }: { user: User
           </table>
         )}
       </div>
-      <Toast message={toast?.message || ""} type={toast?.type as any} show={!!toast} onClose={closeToast} />
+      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
   );
 }

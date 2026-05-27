@@ -39,7 +39,7 @@ export async function snapshotHistory(
 ) {
   assertEntityType(entityType);
    
-  const record = await (prisma as any)[clientKey(entityType)].findUnique({
+  const record = await (prisma as unknown as Record<string, { findUnique: (args: { where: { id: number } }) => Promise<Record<string, unknown> | null> }>)[clientKey(entityType)].findUnique({
     where: { id: entityId },
   });
   if (!record) return;

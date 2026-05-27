@@ -12,7 +12,7 @@ export interface SearchFilters {
   position?: string;
 }
 
-export interface SearchConfig<T = any> {
+export interface SearchConfig<T = unknown> {
   /** What entity to search */
   target: "employee" | "department" | "position" | "project";
   /** "api" = debounced fetch, "client" = filter local array */
@@ -41,7 +41,7 @@ export interface SearchConfig<T = any> {
   };
 }
 
-export interface SearchState<T = any> {
+export interface SearchState<T = unknown> {
   query: string;
   setQuery: (q: string) => void;
   results: T[];
@@ -56,7 +56,7 @@ export interface SearchState<T = any> {
 
 // ─── Hook ─────────────────────────────────────────────────
 
-export function useSearch<T = any>(config: SearchConfig<T>): SearchState<T> {
+export function useSearch<T = unknown>(config: SearchConfig<T>): SearchState<T> {
   const {
     target,
     mode = "api",
@@ -84,7 +84,7 @@ export function useSearch<T = any>(config: SearchConfig<T>): SearchState<T> {
       return;
     }
     const fn = matchFn || ((item: T, qq: string) => {
-      const vals = Object.entries(item as any);
+      const vals = Object.entries(item as unknown as Record<string, unknown>);
       for (const [k, v] of vals) {
         const sv = String(v ?? "");
         // name/alias 等字段走 lib/search 统一拼音匹配
@@ -125,7 +125,7 @@ export function useSearch<T = any>(config: SearchConfig<T>): SearchState<T> {
         if (target === "employee") {
           setResults((data.items || []) as T[]);
         } else {
-          setResults(((data.items || []) as any[]).map((v: any) =>
+          setResults(((data.items || []) as unknown[]).map((v) =>
             typeof v === "string" ? { name: v } : v
           ) as T[]);
         }

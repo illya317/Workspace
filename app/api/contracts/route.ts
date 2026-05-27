@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { withContractAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { ContractCreateSchema, parseJson } from "@/lib/schemas";
 
 export const GET = withContractAccess(async (request) => {
@@ -12,7 +13,7 @@ export const GET = withContractAccess(async (request) => {
   const page = parseInt(searchParams.get("page") || "1");
   const pageSize = parseInt(searchParams.get("pageSize") || "50");
 
-  const where: any = {};
+  const where: Prisma.ContractWhereInput = {};
   if (q) {
     where.OR = [
       { name: { contains: q } },

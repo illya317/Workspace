@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { withFinanceAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
 export const GET = withFinanceAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const year = searchParams.get("year");
-  const where: any = {};
+  const where: Prisma.FinancePeriodWhereInput = {};
   if (year) where.year = parseInt(year);
 
   const periods = await prisma.financePeriod.findMany({

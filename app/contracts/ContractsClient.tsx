@@ -34,7 +34,7 @@ const pageSize = 50;
 
 export default function ContractsClient({ user }: { user: SessionUser }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [loading] = useState(false);
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -50,10 +50,6 @@ export default function ContractsClient({ user }: { user: SessionUser }) {
   const [allCategories, setAllCategories] = useState<string[]>([]);
   const [allStatuses, setAllStatuses] = useState<string[]>([]);
   const { toast, showToast, closeToast } = useToast();
-
-  useEffect(() => {
-    setLoading(false);
-  }, []);
 
   const fetchContracts = async (p = page) => {
     const params = new URLSearchParams();
@@ -128,8 +124,8 @@ export default function ContractsClient({ user }: { user: SessionUser }) {
       }
       closeModal();
       fetchContracts(page);
-    } catch (e: any) {
-      showToast(e.message || "操作失败", "error");
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : "操作失败", "error");
     } finally {
       setSaving(false);
     }
@@ -144,8 +140,8 @@ export default function ContractsClient({ user }: { user: SessionUser }) {
       if (!res.ok) throw new Error("删除失败");
       showToast("删除成功", "success");
       fetchContracts(page);
-    } catch (e: any) {
-      showToast(e.message || "删除失败", "error");
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : "删除失败", "error");
     } finally {
       setDeleteId(null);
     }
@@ -390,7 +386,7 @@ export default function ContractsClient({ user }: { user: SessionUser }) {
                   </label>
                   <input
                     type={f.type || "text"}
-                    value={(editing as any)[f.key] ?? ""}
+                    value={editing[f.key as keyof Contract] ?? ""}
                     onChange={(e) =>
                       updateField(
                         f.key as keyof Contract,

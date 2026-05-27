@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { authenticate } from "@/lib/auth";
 import { canAccessTarget, canSubmitToTarget } from "@/lib/access";
+import { Prisma } from "@prisma/client";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -25,7 +26,7 @@ export async function GET(request: Request) {
     }
   }
 
-  const where: any = {};
+  const where: Prisma.ReportWhereInput = {};
 
   if (targetType && targetIds) {
     where.targetType = targetType;

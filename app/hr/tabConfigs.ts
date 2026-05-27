@@ -5,7 +5,7 @@ function extractFK(form: Record<string, unknown>, keys: string[]) {
   for (const k of keys) {
     const v = form[k];
     if (v && typeof v === "object" && v !== null && "id" in v) {
-      out[k] = (v as any).id;
+      out[k] = (v as Record<string, unknown>).id;
     }
   }
   return out;
@@ -42,7 +42,7 @@ export const employeeConfig: TabConfig = {
   fkFields: { userId: fk("user", "userName") },
   canCreate: true,
   canDelete: false,
-  listGetter: (d) => d.employees,
+  listGetter: (d: unknown) => (d as Record<string, unknown>).employees as unknown[],
 };
 
 // ─── 5-2 雇佣关系 ──────────────────────────────────────────
@@ -96,7 +96,7 @@ export const companyConfig: TabConfig = {
   fields: companyFields,
   canCreate: true,
   canDelete: true,
-  listGetter: (d) => d.companies,
+  listGetter: (d: unknown) => (d as Record<string, unknown>).companies as unknown[],
 };
 
 // ─── 5-4 公司关系 ──────────────────────────────────────────
@@ -118,7 +118,7 @@ export const companyRelationConfig: TabConfig = {
   },
   canCreate: true,
   canDelete: true,
-  listGetter: (d) => d.relations,
+  listGetter: (d: unknown) => (d as Record<string, unknown>).relations as unknown[],
   buildCreateBody: (form) => extractFK(form, ["parentId", "childId"]),
 };
 
@@ -143,7 +143,7 @@ export const departmentConfig: TabConfig = {
   },
   canCreate: true,
   canDelete: true,
-  listGetter: (d) => d.departments,
+  listGetter: (d: unknown) => (d as Record<string, unknown>).departments as unknown[],
   buildCreateBody: (form) => extractFK(form, ["parentId", "managerUserId"]),
 };
 
@@ -167,7 +167,7 @@ export const positionConfig: TabConfig = {
   },
   canCreate: true,
   canDelete: true,
-  listGetter: (d) => d.positions,
+  listGetter: (d: unknown) => (d as Record<string, unknown>).positions as unknown[],
   buildCreateBody: (form) => extractFK(form, ["departmentId", "positionDescriptionId"]),
 };
 
@@ -200,7 +200,7 @@ export const edpConfig: TabConfig = {
   },
   canCreate: true,
   canDelete: true,
-  listGetter: (d) => d.positions,
+  listGetter: (d: unknown) => (d as Record<string, unknown>).positions as unknown[],
   buildCreateBody: (form) => extractFK(form, ["employeeId", "departmentId", "positionId"]),
 };
 
@@ -219,7 +219,7 @@ export const projectConfig: TabConfig = {
   fields: projectFields,
   canCreate: true,
   canDelete: true,
-  listGetter: (d) => d.projects,
+  listGetter: (d: unknown) => (d as Record<string, unknown>).projects as unknown[],
 };
 
 // ─── 5-9 项目员工 ──────────────────────────────────────────
@@ -262,7 +262,7 @@ export const contractConfig: TabConfig = {
   canDelete: true,
   fkFields: { employeeId: fk("employee", "employeeName") },
   buildCreateBody: (form) => extractFK(form, ["employeeId"]),
-  listGetter: (d) => d.contracts,
+  listGetter: (d: unknown) => (d as Record<string, unknown>).contracts as unknown[],
 };
 
 // ─── 5-9 项目员工 ──────────────────────────────────────────
@@ -277,11 +277,11 @@ export const employeeProjectConfig: TabConfig = {
   },
   canCreate: true,
   canDelete: true,
-  listGetter: (d) => d.entries,
+  listGetter: (d: unknown) => (d as Record<string, unknown>).entries as unknown[],
   buildCreateBody: (form) => {
     // EmployeeProject API POST 期望 employeeId 为字符串 employeeId（工号），projectId 为数字
     const out = extractFK(form, ["projectId"]);
-    const emp = form.employeeId as any;
+    const emp = form.employeeId as Record<string, unknown>;
     if (emp && typeof emp === "object" && "subtitle" in emp) {
       out.employeeId = emp.subtitle; // subtitle 是 employeeId（工号）
     } else if (emp && typeof emp === "object" && "name" in emp) {

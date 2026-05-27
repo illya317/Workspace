@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { matchAnyField } from "@/lib/search-schema";
 import { snapshotHistory } from "@/lib/history";
 import { isPharma } from "@/lib/company";
@@ -13,10 +14,8 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
-  const company = searchParams.get("company") || "";
 
-  const where: any = {};
-  if (company) where.company = company;
+  const where: Prisma.PositionWhereInput = {};
 
   const positions = await prisma.position.findMany({
     where,
@@ -28,7 +27,7 @@ export async function GET(request: Request) {
     orderBy: { code: "asc" },
   });
 
-  let result = positions.map((p: any) => ({
+  let result = positions.map((p) => ({
     id: p.id,
     code: p.code,
     name: p.name,
@@ -70,8 +69,8 @@ export async function POST(request: Request) {
       },
     });
     return NextResponse.json({ success: true, position: created });
-  } catch (e: any) {
-    if (e.code === "P2002") {
+  } catch (e: unknown) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
       return NextResponse.json({ error: "编码已存在" }, { status: 409 });
     }
     throw e;
@@ -88,16 +87,15 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { id, code, name, company } = body;
+  const { id, code, name } = body;
 
   if (!id) {
     return NextResponse.json({ error: "缺少id" }, { status: 400 });
   }
 
-  const data: any = {};
+  const data: Prisma.PositionUncheckedUpdateInput = {};
   if (code !== undefined) data.code = code;
   if (name !== undefined) data.name = name;
-  if (company !== undefined) data.company = company;
   data.editedBy = payload.userId;
   data.editedAt = new Date();
   data.version = { increment: 1 };
@@ -109,11 +107,11 @@ export async function PUT(request: Request) {
     });
     await snapshotHistory("Position", id, payload.userId);
     return NextResponse.json({ success: true, position: updated });
-  } catch (e: any) {
-    if (e.code === "P2002") {
+  } catch (e: unknown) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
       return NextResponse.json({ error: "编码已存在" }, { status: 409 });
     }
-    if (e.code === "P2025") {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
       return NextResponse.json({ error: "岗位不存在" }, { status: 404 });
     }
     throw e;
@@ -138,11 +136,11 @@ export async function DELETE(request: Request) {
   try {
     await prisma.position.delete({ where: { id: parseInt(id) } });
     return NextResponse.json({ success: true });
-  } catch (e: any) {
-    if (e.code === "P2025") {
+  } catch (e: unknown) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
       return NextResponse.json({ error: "岗位不存在" }, { status: 404 });
     }
-    if (e.code === "P2003") {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003") {
       return NextResponse.json({ error: "该岗位下有关联员工，无法删除" }, { status: 409 });
     }
     throw e;

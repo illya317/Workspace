@@ -58,7 +58,7 @@ export async function GET(request: Request) {
 
   if (keyword) {
     const q = keyword.toLowerCase();
-    rows = rows.filter((r: any) =>
+    rows = rows.filter((r) =>
       (r.employeeName || "").toLowerCase().includes(q) ||
       String(r.employeeId || "").toLowerCase().includes(q) ||
       (r.departmentName || "").toLowerCase().includes(q) ||

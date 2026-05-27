@@ -63,7 +63,7 @@ export function useByPositionTab(
         setGrants(grantData.grants || []);
 
         const map = new Map<number, Set<string>>();
-        (epData.positions || []).forEach((ep: any) => {
+        (epData.positions || []).forEach((ep: { positionId?: number; dept1?: string }) => {
           if (ep.positionId && ep.dept1) {
             if (!map.has(ep.positionId)) {
               map.set(ep.positionId, new Set());

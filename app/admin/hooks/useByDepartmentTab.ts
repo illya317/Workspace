@@ -18,12 +18,18 @@ function deptHasPerm(
   );
 }
 
+interface Grant {
+  departmentId: number;
+  resource: { key: string } | null;
+  role: { key: string } | null;
+}
+
 export function useByDepartmentTab(
   resources: ResourceItem[],
   allDepts: DeptItem[],
   showToast: (msg: string, type?: "success" | "error") => void
 ) {
-  const [grants, setGrants] = useState<any[]>([]);
+  const [grants, setGrants] = useState<Grant[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [filterCompany, setFilterCompany] = useState("");
@@ -67,8 +73,8 @@ export function useByDepartmentTab(
         try { msg = JSON.parse(text).error || msg; } catch { /* ignore */ }
         showToast(msg, "error");
       }
-    } catch (e: any) {
-      showToast(e?.message || "网络错误", "error");
+    } catch (e: unknown) {
+      showToast(e instanceof Error ? e.message : "网络错误", "error");
     }
   }
 

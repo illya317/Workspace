@@ -23,6 +23,20 @@ interface DeptAdminEntry {
   user: DeptAdminUser;
 }
 
+interface RawDept {
+  id: number;
+  name: string;
+  company: string;
+  code?: string;
+}
+
+interface RawAdmin {
+  id: number;
+  userId: number;
+  scopeId: string | number;
+  user: { id: number; name: string };
+}
+
 interface DeptItem {
   id: number;
   name: string;
@@ -53,17 +67,19 @@ export function useDeptAdminsTab(
     try {
       const res = await fetch("/api/admin/department-admins");
       if (!res.ok) return;
-      const data = await res.json();
+      const data = (await res.json()) as { departments?: RawDept[]; admins?: RawAdmin[] };
       const depts = data.departments || [];
       const admins = data.admins || [];
       setDeptData(
         depts
-          .map((d: any) => ({
-            ...d,
+          .map((d) => ({
+            id: d.id,
+            name: d.name,
+            company: d.company,
             managementGroup: mgmtFromCode(d.code),
-            admins: admins.filter((a: any) => a.scopeId === String(d.id)),
+            admins: admins.filter((a) => String(a.scopeId) === String(d.id)) as unknown as DeptAdminEntry[],
           }))
-          .sort((a: any, b: any) => {
+          .sort((a, b) => {
             const ga = a.managementGroup || "常规体系";
             const gb = b.managementGroup || "常规体系";
             return ga.localeCompare(gb) || a.name.localeCompare(b.name);

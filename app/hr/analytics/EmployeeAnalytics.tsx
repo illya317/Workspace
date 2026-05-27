@@ -34,7 +34,7 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
   const { stats, crossMatrix } = useEmployeeData(employees, employments, edps, crossRow, crossCol);
 
   function currentDist(): [string, number][] {
-    if (feature in stats.distributions) return (stats.distributions as any)[feature] || [];
+    if (feature in stats.distributions) return (stats.distributions as Record<DimKey, [string, number][]>)[feature] || [];
     return [];
   }
 

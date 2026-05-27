@@ -83,7 +83,7 @@ export interface Employment {
   leaveReason: string | null;
   officeLocation: string | null;
   attendanceType: string | null;
-  contracts: any;
+  contracts: Contract[];
 }
 
 export interface Contract {

@@ -1,7 +1,50 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { matchEmployee, getInitials } from "@/lib/search";
+
+interface RawContract {
+  company?: unknown;
+  isPrimary?: unknown;
+  isInsuredHere?: unknown;
+  legalRelation?: unknown;
+  contractType?: unknown;
+  employmentForm?: unknown;
+  firstContractStartDate?: unknown;
+  firstContractEndDate?: unknown;
+  secondContractStartDate?: unknown;
+  secondContractEndDate?: unknown;
+  thirdContractStartDate?: unknown;
+  thirdContractEndDate?: unknown;
+  permanentContractDate?: unknown;
+  confidentialityDate?: unknown;
+  nonCompeteDate?: unknown;
+  endDate?: unknown;
+}
+
+interface ContractRow {
+  id: number;
+  employmentId: number;
+  employeeId: string;
+  employeeName: string;
+  company: string;
+  isPrimary: boolean;
+  isInsuredHere: boolean;
+  legalRelation: string;
+  contractType: string;
+  employmentForm: string;
+  firstContractStartDate: string | null;
+  firstContractEndDate: string | null;
+  secondContractStartDate: string | null;
+  secondContractEndDate: string | null;
+  thirdContractStartDate: string | null;
+  thirdContractEndDate: string | null;
+  permanentContractDate: string | null;
+  confidentialityDate: string | null;
+  nonCompeteDate: string | null;
+  endDate: string | null;
+}
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -12,7 +55,7 @@ export async function GET(request: Request) {
   const company = searchParams.get("company") || "";
   const keyword = searchParams.get("keyword") || "";
 
-  const where: any = { isActive: true };
+  const where: Prisma.EmploymentWhereInput = { isActive: true };
   if (company) where.currentCompany = company;
 
   const employments = await prisma.employment.findMany({
@@ -23,39 +66,43 @@ export async function GET(request: Request) {
     orderBy: { id: "asc" },
   });
 
-  const contracts: any[] = [];
+  const contracts: ContractRow[] = [];
   for (const emp of employments) {
     if (!emp.contracts) continue;
-    let list: any[] = [];
+    let list: Record<string, unknown>[] = [];
     try {
-      list = JSON.parse(emp.contracts);
-      if (!Array.isArray(list)) list = [list];
+      const parsed = JSON.parse(emp.contracts) as unknown;
+      if (Array.isArray(parsed)) {
+        list = parsed as Record<string, unknown>[];
+      } else {
+        list = [parsed as Record<string, unknown>];
+      }
     } catch {
       continue;
     }
     for (let i = 0; i < list.length; i++) {
-      const c = list[i];
+      const c = list[i] as RawContract;
       contracts.push({
         id: emp.id * 1000 + i,
         employmentId: emp.id,
         employeeId: emp.employee?.employeeId || "",
         employeeName: emp.employee?.name || "",
-        company: c.company || "",
-        isPrimary: c.isPrimary ?? false,
-        isInsuredHere: c.isInsuredHere ?? false,
-        legalRelation: c.legalRelation || "",
-        contractType: c.contractType || "",
-        employmentForm: c.employmentForm || "",
-        firstContractStartDate: c.firstContractStartDate || null,
-        firstContractEndDate: c.firstContractEndDate || null,
-        secondContractStartDate: c.secondContractStartDate || null,
-        secondContractEndDate: c.secondContractEndDate || null,
-        thirdContractStartDate: c.thirdContractStartDate || null,
-        thirdContractEndDate: c.thirdContractEndDate || null,
-        permanentContractDate: c.permanentContractDate || null,
-        confidentialityDate: c.confidentialityDate || null,
-        nonCompeteDate: c.nonCompeteDate || null,
-        endDate: c.endDate || null,
+        company: String(c.company || ""),
+        isPrimary: Boolean(c.isPrimary ?? false),
+        isInsuredHere: Boolean(c.isInsuredHere ?? false),
+        legalRelation: String(c.legalRelation || ""),
+        contractType: String(c.contractType || ""),
+        employmentForm: String(c.employmentForm || ""),
+        firstContractStartDate: c.firstContractStartDate == null ? null : String(c.firstContractStartDate),
+        firstContractEndDate: c.firstContractEndDate == null ? null : String(c.firstContractEndDate),
+        secondContractStartDate: c.secondContractStartDate == null ? null : String(c.secondContractStartDate),
+        secondContractEndDate: c.secondContractEndDate == null ? null : String(c.secondContractEndDate),
+        thirdContractStartDate: c.thirdContractStartDate == null ? null : String(c.thirdContractStartDate),
+        thirdContractEndDate: c.thirdContractEndDate == null ? null : String(c.thirdContractEndDate),
+        permanentContractDate: c.permanentContractDate == null ? null : String(c.permanentContractDate),
+        confidentialityDate: c.confidentialityDate == null ? null : String(c.confidentialityDate),
+        nonCompeteDate: c.nonCompeteDate == null ? null : String(c.nonCompeteDate),
+        endDate: c.endDate == null ? null : String(c.endDate),
       });
     }
   }
@@ -65,14 +112,14 @@ export async function GET(request: Request) {
     const searchFields = [
       "company", "legalRelation", "contractType", "employmentForm",
     ];
-    const filtered = contracts.filter((c: any) => {
+    const filtered = contracts.filter((c) => {
       // employee info matching (name, pinyin initials, employeeId)
       if (matchEmployee({ name: c.employeeName, employeeId: c.employeeId }, keyword)) return true;
       // contract fields: includes + pinyin initials
       for (const f of searchFields) {
-        const val = String(c[f] || "").toLowerCase();
+        const val = String((c as unknown as Record<string, unknown>)[f] || "").toLowerCase();
         if (val.includes(query)) return true;
-        if (getInitials(c[f] || "").includes(query)) return true;
+        if (getInitials(String((c as unknown as Record<string, unknown>)[f] || "")).includes(query)) return true;
       }
       // date fields: simple includes
       const dateFields = [
@@ -83,7 +130,7 @@ export async function GET(request: Request) {
         "nonCompeteDate", "endDate",
       ];
       for (const f of dateFields) {
-        if ((c[f] || "").toLowerCase().includes(query)) return true;
+        if ((String((c as unknown as Record<string, unknown>)[f] || "")).toLowerCase().includes(query)) return true;
       }
       return false;
     });
@@ -98,7 +145,7 @@ export async function POST(request: Request) {
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
   if (!(await checkHRAccess(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
-  const body = await request.json();
+  const body = (await request.json()) as Record<string, unknown>;
   const { employeeId, ...contractData } = body;
 
   const emp = await prisma.employment.findFirst({
@@ -107,17 +154,17 @@ export async function POST(request: Request) {
   });
   if (!emp) return NextResponse.json({ error: "该员工无雇佣记录" }, { status: 404 });
 
-  let contracts: any[] = [];
+  let rawContracts: Record<string, unknown>[] = [];
   if (emp.contracts) {
-    try { contracts = JSON.parse(emp.contracts); } catch { contracts = []; }
-    if (!Array.isArray(contracts)) contracts = [contracts];
+    try { rawContracts = JSON.parse(emp.contracts) as Record<string, unknown>[]; } catch { rawContracts = []; }
+    if (!Array.isArray(rawContracts)) rawContracts = [rawContracts];
   }
 
-  contracts.push(contractData);
+  rawContracts.push(contractData);
 
   await prisma.employment.update({
     where: { id: emp.id },
-    data: { contracts: JSON.stringify(contracts), editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+    data: { contracts: JSON.stringify(rawContracts), editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
   });
 
   return NextResponse.json({ success: true });

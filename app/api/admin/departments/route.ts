@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   });
 
   return NextResponse.json({
-    departments: depts.map((d: any) => ({
+    departments: depts.map((d) => ({
       id: d.id,
       name: d.name,
       managementGroup: isPharma(d.code) ? "GMP" : "常规体系",

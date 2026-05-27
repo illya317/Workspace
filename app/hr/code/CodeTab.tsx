@@ -172,7 +172,7 @@ export default function CodeTab({
 
       <Toast
         message={toast?.message || ""}
-        type={toast?.type as any}
+        type={toast?.type}
         show={!!toast}
         onClose={closeToast}
       />

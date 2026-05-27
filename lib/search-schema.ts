@@ -15,18 +15,18 @@ const EXCLUDE_FIELDS = new Set([
 
 const modelStringFields: Record<string, string[]> = (() => {
   const map: Record<string, string[]> = {};
-  const dmmf = (Prisma as any).dmmf;
+  const dmmf = (Prisma as unknown as { dmmf: { datamodel: { models: { name: string; fields: { kind: string; type: string; name: string }[] }[] } } }).dmmf;
   if (!dmmf?.datamodel?.models) return map;
 
   for (const model of dmmf.datamodel.models) {
     const stringFields = model.fields
       .filter(
-        (f: any) =>
+        (f: { kind: string; type: string; name: string }) =>
           f.kind === "scalar" &&
           f.type === "String" &&
           !EXCLUDE_FIELDS.has(f.name)
       )
-      .map((f: any) => f.name);
+      .map((f) => f.name);
     if (stringFields.length) {
       map[model.name] = stringFields;
     }

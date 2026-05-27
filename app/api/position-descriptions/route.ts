@@ -21,7 +21,7 @@ export async function GET(request: Request) {
       select: { id: true, code: true, name: true, level: true, parentId: true },
       orderBy: { code: "asc" },
     });
-    const deptMap: Record<string, any> = {};
+    const deptMap: Record<string, { code: string; name: string; level: number; parentCode: string | null; positions: string[]; ownPositions?: string[] }> = {};
     for (const d of departments) {
       const parent = departments.find(p => p.id === d.parentId);
       deptMap[d.code] = { code: d.code, name: d.name, level: d.level, parentCode: parent?.code || null, positions: [] as string[] };
@@ -38,12 +38,12 @@ export async function GET(request: Request) {
     // Aggregate: each node keeps own positions + subtree total
     function subtreePositions(deptCode: string): string[] {
       const all = [...deptMap[deptCode].positions];
-      for (const d of Object.values(deptMap) as any[]) {
+      for (const d of Object.values(deptMap)) {
         if (d.parentCode === deptCode) all.push(...subtreePositions(d.code));
       }
       return [...new Set(all)].sort();
     }
-    for (const d of Object.values(deptMap) as any[]) {
+    for (const d of Object.values(deptMap)) {
       d.ownPositions = d.positions;  // direct positions only
       d.positions = subtreePositions(d.code); // subtree total
     }

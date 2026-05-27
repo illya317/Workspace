@@ -62,7 +62,7 @@ export default function ReportTab() {
           <option value="">选择期间</option>
           {periods.map((p) => <option key={p.id} value={p.id}>{p.year}年{p.month}月</option>)}
         </select>
-        <select value={reportType} onChange={(e) => setReportType(e.target.value as any)} className="rounded-md border border-gray-300 px-3 py-1.5 text-sm">
+        <select value={reportType} onChange={(e) => setReportType(e.target.value as "balance" | "income" | "cashflow")} className="rounded-md border border-gray-300 px-3 py-1.5 text-sm">
           <option value="balance">资产负债表</option>
           <option value="income">利润表</option>
           <option value="cashflow">现金流量表</option>
@@ -137,7 +137,7 @@ export default function ReportTab() {
               <th className="px-3 py-2 text-right font-medium text-gray-600">期末余额</th>
             </tr></thead>
             <tbody>
-              {(data.cashAccounts as any)?.map((a: any) => (
+              {data.cashAccounts?.map((a: ReportLine & { opening?: number; closing?: number }) => (
                 <tr key={a.code} className="border-b">
                   <td className="px-3 py-2 text-gray-600">{a.code} {a.name}</td>
                   <td className="px-3 py-2 text-right text-gray-700">{a.opening?.toFixed(2)}</td>

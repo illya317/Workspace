@@ -17,7 +17,7 @@ export async function GET(request: Request) {
 
   const companies = await prisma.company.findMany({ orderBy: { id: "asc" } });
   return NextResponse.json({
-    companies: companies.map((r: any) => ({
+    companies: companies.map((r) => ({
       id: r.id,
       code: r.code,
       name: r.name,

@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 const CONFIG = { entityType: "Employment", modelKey: "employment" as const };
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { matchEmployee } from "@/lib/search";
 
 export async function GET(request: Request) {
@@ -15,7 +16,7 @@ export async function GET(request: Request) {
   const keyword = searchParams.get("keyword") || "";
   const isActive = searchParams.get("isActive");
 
-  const where: any = {};
+  const where: Prisma.EmploymentWhereInput = {};
   if (isActive !== null && isActive !== "") {
     where.isActive = isActive === "true" ? true : isActive === "false" ? false : undefined;
   }
@@ -26,9 +27,9 @@ export async function GET(request: Request) {
     orderBy: { id: "asc" },
   });
 
-  const mapped = items.map((item: any) => ({
+  const mapped = items.map((item) => ({
     id: item.id,
-    employeeId: item.employeeId,
+    employeeId: String(item.employeeId),
     employeeName: item.employee?.name || "",
     isActive: item.isActive,
     currentCompany: item.currentCompany,
@@ -41,7 +42,7 @@ export async function GET(request: Request) {
   }));
 
   if (keyword) {
-    return NextResponse.json({ items: mapped.filter((e: any) => matchEmployee(e, keyword) || e.employeeName?.includes(keyword)) });
+    return NextResponse.json({ items: mapped.filter((e) => matchEmployee(e, keyword) || e.employeeName?.includes(keyword)) });
   }
   return NextResponse.json({ items: mapped });
 }

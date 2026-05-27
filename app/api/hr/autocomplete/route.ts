@@ -68,7 +68,7 @@ const SEARCH_CONFIG: Record<string, {
   },
 };
 
-function matchRecord(record: any, keyword: string, searchFields: string[]): boolean {
+function matchRecord(record: Record<string, unknown>, keyword: string, searchFields: string[]): boolean {
   const q = keyword.toLowerCase();
   // 字段包含匹配
   for (const field of searchFields) {
@@ -76,7 +76,7 @@ function matchRecord(record: any, keyword: string, searchFields: string[]): bool
     if (val.includes(q)) return true;
   }
   // 拼音首字母匹配（对 name 字段）
-  const name = record.name || "";
+  const name = String(record.name || "");
   if (name) {
     const initials = getInitials(name);
     if (initials.includes(q)) return true;
@@ -102,7 +102,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "不支持的实体类型" }, { status: 400 });
   }
 
-  const model = prisma[config.model] as any;
+  const model = prisma[config.model] as unknown as { findMany: (args: unknown) => Promise<Record<string, unknown>[]> };
   const MAX_RESULTS = 50;
   // 短关键字（1-3 chars）可能是拼音首字母，跳过 DB contains 直接用拼音匹配
   const isShort = keyword.length <= 3;
@@ -111,12 +111,12 @@ export async function GET(request: Request) {
     const where = isShort ? {} : { OR: config.searchFields.map((f) => ({ [f]: { contains: keyword } })) };
     const take = isShort ? 1000 : MAX_RESULTS;
     const items = await model.findMany({ where, select: config.select, take, orderBy: { id: "asc" } });
-    const mapped = items.map((item: any) => ({
+    const mapped = items.map((item) => ({
       id: item.id,
       name: item[config.labelField],
       subtitle: config.subtitleField ? item[config.subtitleField] : undefined,
     }));
-    const filtered = mapped.filter((item: any) => matchRecord(item, keyword, config.searchFields));
+    const filtered = mapped.filter((item) => matchRecord(item, keyword, config.searchFields));
     return NextResponse.json({ items: filtered });
   }
 
@@ -125,7 +125,7 @@ export async function GET(request: Request) {
     take: MAX_RESULTS,
     orderBy: { id: "asc" },
   });
-  const mapped = items.map((item: any) => ({
+  const mapped = items.map((item) => ({
     id: item.id,
     name: item[config.labelField],
     subtitle: config.subtitleField ? item[config.subtitleField] : undefined,

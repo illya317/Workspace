@@ -14,7 +14,7 @@ interface Props {
   open: boolean;
   fields: FieldConfig[];
   fkFields?: Record<string, FKFieldConfig>;
-  items: any[];
+  items: Record<string, unknown>[];
   onClose: () => void;
   onApply: (conditions: Record<string, string>) => void;
   onReset: () => void;

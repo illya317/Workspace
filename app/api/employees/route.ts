@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import * as XLSX from "xlsx";
 import { matchAnyField } from "@/lib/search-schema";
 import { isPharma } from "@/lib/company";
@@ -73,7 +74,7 @@ export async function GET(request: Request) {
   const employeeIds = baseEmployees.map((e) => e.id);
 
   // 2. 查询 EDP（带部门和岗位筛选）
-  const epWhere: any = { employeeId: { in: employeeIds } };
+  const epWhere: Prisma.EDPWhereInput = { employeeId: { in: employeeIds } };
   if (dept) {
     epWhere.department = { name: { contains: dept } };
   }
@@ -91,17 +92,17 @@ export async function GET(request: Request) {
   });
 
   // 3. 常规体系 + GMP 合并为一行
-  const epByEmp = new Map<number, any[]>();
+  const epByEmp = new Map<number, typeof eps>();
   for (const ep of eps) {
     if (!epByEmp.has(ep.employeeId)) epByEmp.set(ep.employeeId, []);
     epByEmp.get(ep.employeeId)!.push(ep);
   }
 
-  const rows: any[] = [];
+  const rows: Record<string, unknown>[] = [];
   for (const emp of baseEmployees) {
     const epsForEmp = epByEmp.get(emp.id) || [];
-    const defEP = epsForEmp.find((e: any) => !isPharma(e.department?.code || "")) || epsForEmp[0];
-    const gmpEP = epsForEmp.find((e: any) => isPharma(e.department?.code || ""));
+    const defEP = epsForEmp.find((e) => !isPharma(e.department?.code || "")) || epsForEmp[0];
+    const gmpEP = epsForEmp.find((e) => isPharma(e.department?.code || ""));
     const companyName = isPharma(defEP?.department?.code || "") ? "丰华制药" : "丰华生物";
     rows.push({
       id: emp.id, employeeId: emp.employeeId, name: emp.name, alias: emp.alias,
@@ -121,16 +122,16 @@ export async function GET(request: Request) {
     });
   }
 
-  rows.sort((a, b) => a.employeeId.localeCompare(b.employeeId));
+  rows.sort((a, b) => String(a.employeeId).localeCompare(String(b.employeeId)));
 
   const visibleFields = await getVisibleFields(payload.userId, isAdmin);
 
   if (exportExcel) {
     const exportData = rows.map((emp) => {
-      const row: Record<string, any> = {};
+      const row: Record<string, unknown> = {};
       for (const f of FIELDS) {
         if (visibleFields.includes(f.key)) {
-          row[f.label] = (emp as any)[f.key] || "";
+          row[f.label] = (emp as Record<string, unknown>)[f.key] || "";
         }
       }
       return row;
@@ -151,7 +152,7 @@ export async function GET(request: Request) {
 
   // 所有公司和部门（不随筛选变化，用于下拉框）
   const allCompanies = ["丰华制药", "丰华生物"];
-  const allDepts = [...new Set((await prisma.department.findMany({ select: { name: true } })).map((d: any) => d.name).filter(Boolean))];
+  const allDepts = [...new Set((await prisma.department.findMany({ select: { name: true } })).map((d) => d.name).filter(Boolean))];
 
   return NextResponse.json({ employees: rows, fields: FIELDS, visibleFields, allCompanies, allDepts });
 }

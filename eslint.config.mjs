@@ -16,8 +16,8 @@ const eslintConfig = defineConfig([
   // Core quality gates: 0 warnings target for CI (--max-warnings=0)
   {
     rules: {
-      // any 存量 200+，需类型重构分批治理；先关闭避免阻塞 CI
-      "@typescript-eslint/no-explicit-any": "off",
+      // any 存量需逐步清零；新增 any 直接阻断提交
+      "@typescript-eslint/no-explicit-any": "error",
       // 实验性规则，与 React 常见初始化模式冲突；待官方稳定后评估
       "react-hooks/set-state-in-effect": "off",
       // 允许 _ 前缀的故意未使用参数/变量

@@ -65,8 +65,8 @@ async function getUserPositionIds(userId: number): Promise<number[]> {
     select: { positionId: true },
   });
   return eps
-    .map((e: any) => e.positionId)
-    .filter((id: any): id is number => id !== null);
+    .map((e) => e.positionId)
+    .filter((id): id is number => id !== null);
 }
 
 async function getUserDepartmentIds(userId: number): Promise<number[]> {
@@ -77,8 +77,8 @@ async function getUserDepartmentIds(userId: number): Promise<number[]> {
   return [
     ...new Set(
       eps
-        .map((e: any) => e.departmentId)
-        .filter((id: any): id is number => id !== null),
+        .map((e) => e.departmentId)
+        .filter((id): id is number => id !== null),
     ),
   ];
 }

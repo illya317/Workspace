@@ -41,5 +41,5 @@ export const getFinanceAccounts = unstable_cache(
 export function invalidateDict(tag: string) {
   // Next.js 16 revalidateTag requires a profile argument in this typing;
    
-  (revalidateTag as any)(tag);
+  (revalidateTag as unknown as (tag: string) => void)(tag);
 }

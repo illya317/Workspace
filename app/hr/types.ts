@@ -76,7 +76,7 @@ export interface TabConfig {
   fkFields?: Record<string, FKFieldConfig>;
   canCreate?: boolean;
   canDelete?: boolean;
-  listGetter?: (res: any) => any[];
+  listGetter?: (res: unknown) => unknown[];
   buildCreateBody?: (form: Record<string, unknown>) => Record<string, unknown>;
   filters?: FilterConfig[];
 }

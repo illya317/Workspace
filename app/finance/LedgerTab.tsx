@@ -114,7 +114,7 @@ export default function LedgerTab() {
           </table>
         )}
       </div>
-      <Toast message={toast?.message || ""} type={toast?.type as any} show={!!toast} onClose={closeToast} />
+      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
   );
 }

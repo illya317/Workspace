@@ -84,18 +84,18 @@ export async function GET(request: Request) {
     select: { employeeId: true, userId: true },
   });
   const employeeIdByUserId = new Map(
-    employeesForLink.filter((e: any) => e.userId).map((e: any) => [e.userId!, e.employeeId])
+    employeesForLink.filter((e) => e.userId).map((e) => [e.userId!, e.employeeId])
   );
 
   const userByEmployeeId = new Map(
-    users.filter((u: any) => employeeIdByUserId.has(u.id)).map((u: any) => [employeeIdByUserId.get(u.id)!, u])
+    users.filter((u) => employeeIdByUserId.has(u.id)).map((u) => [employeeIdByUserId.get(u.id)!, u])
   );
-  const userByName = new Map(users.map((u: any) => [u.name, u]));
+  const userByName = new Map(users.map((u) => [u.name, u]));
 
   const result = Array.from(mergedMap.values()).map((item) => {
-    const linkedUser: any =
+    const linkedUser =
       userByEmployeeId.get(item.employeeId) || userByName.get(item.name);
-    const rrs: any[] = linkedUser?.resourceRoles ?? [];
+    const rrs = linkedUser?.resourceRoles ?? [];
     return {
       employeeId: item.employeeId,
       name: item.name,

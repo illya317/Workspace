@@ -16,7 +16,7 @@ export async function GET(request: Request) {
   });
 
   return NextResponse.json({
-    relations: relations.map((r: any) => ({
+    relations: relations.map((r) => ({
       id: r.id,
       parentId: r.parentId,
       parentName: r.parent?.name || "",

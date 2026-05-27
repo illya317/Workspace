@@ -36,7 +36,7 @@ export function createCrudHandlers(config: CrudFactoryConfig) {
       if (!allowed.includes(field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
 
        
-      const model = prisma[config.modelKey] as any;
+      const model = prisma[config.modelKey] as unknown as { update: (args: { where: { id: number }; data: Record<string, unknown> }) => Promise<unknown> };
       await model.update({
         where: { id: parseInt(id) },
         data: { [field]: value ?? null, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
@@ -55,7 +55,7 @@ export function createCrudHandlers(config: CrudFactoryConfig) {
       await snapshotHistory(config.entityType, parseInt(id), payload.userId);
 
        
-      const model = prisma[config.modelKey] as any;
+      const model = prisma[config.modelKey] as unknown as { delete: (args: { where: { id: number } }) => Promise<unknown> };
       await model.delete({ where: { id: parseInt(id) } });
 
       return NextResponse.json({ success: true });
@@ -64,7 +64,7 @@ export function createCrudHandlers(config: CrudFactoryConfig) {
     async handleCreate(
       request: Request,
        
-      buildData?: (body: any) => Promise<Record<string, unknown> | null> | Record<string, unknown> | null
+      buildData?: (body: Record<string, unknown>) => Promise<Record<string, unknown> | null> | Record<string, unknown> | null
     ) {
       const payload = await authenticate(request);
       if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
@@ -75,7 +75,7 @@ export function createCrudHandlers(config: CrudFactoryConfig) {
       if (!data) return NextResponse.json({ error: "数据校验失败" }, { status: 400 });
 
        
-      const model = prisma[config.modelKey] as any;
+      const model = prisma[config.modelKey] as unknown as { create: (args: { data: Record<string, unknown> }) => Promise<{ id: number }> };
       const record = await model.create({ data: { ...data, editedBy: payload.userId } });
       await snapshotHistory(config.entityType, record.id, payload.userId);
 

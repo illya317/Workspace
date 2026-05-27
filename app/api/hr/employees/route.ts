@@ -20,9 +20,9 @@ export const GET = withHRAccess(async (request: Request, _user) => {
   const paged = employees.slice(start, start + pageSize);
 
   // FK 显示名填充（关联账号等）
-  const fkMap = await resolveFkValues(paged as any);
-  for (const emp of paged as any) {
-    emp.userIdName = fkDisplay("userId", String(emp.userId ?? ""), fkMap);
+  const fkMap = await resolveFkValues(paged as unknown as Record<string, unknown>[]);
+  for (const emp of paged) {
+    (emp as Record<string, unknown>).userIdName = fkDisplay("userId", String(emp.userId ?? ""), fkMap);
   }
 
   return NextResponse.json({ employees: paged, total });

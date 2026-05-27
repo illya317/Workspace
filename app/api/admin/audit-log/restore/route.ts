@@ -31,7 +31,12 @@ export async function POST(request: Request) {
 
   const entityId = parseInt(snapshot.entityId);
   // 如果记录已被删除，用 create 恢复
-  const model = (prisma as any)[modelKey];
+  type ModelDelegate = {
+    findUnique: (args: { where: { id: number } }) => Promise<unknown>;
+    update: (args: { where: { id: number }; data: unknown }) => Promise<unknown>;
+    create: (args: { data: unknown }) => Promise<unknown>;
+  };
+  const model = (prisma as unknown as Record<string, ModelDelegate>)[modelKey];
   const exists = await model.findUnique({ where: { id: entityId } });
   if (exists) {
     await model.update({ where: { id: entityId }, data });

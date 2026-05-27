@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     orderBy: { id: "desc" },
   });
   return NextResponse.json({
-    entries: entries.map((e: any) => ({
+    entries: entries.map((e) => ({
       id: e.id,
       employeeId: e.employeeId,
       employeeName: e.employee?.name || "",

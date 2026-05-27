@@ -3,8 +3,13 @@
 import { useState, useCallback, useEffect } from "react";
 import type { TabConfig } from "../types";
 
+export interface TabItem {
+  id: number | string;
+  [key: string]: unknown;
+}
+
 export interface GenericTabState {
-  items: any[];
+  items: TabItem[];
   loading: boolean;
   error: string | null;
   keyword: string;
@@ -16,9 +21,9 @@ export interface GenericTabState {
   editMode: boolean;
   setEditMode: (v: boolean) => void;
   editingCell: { id: number; field: string } | null;
-  editValue: any;
-  setEditValue: (v: any) => void;
-  startEdit: (id: number, field: string, initialValue: any) => void;
+  editValue: unknown;
+  setEditValue: (v: unknown) => void;
+  startEdit: (id: number, field: string, initialValue: unknown) => void;
   cancelEdit: () => void;
   saveCell: () => Promise<boolean>;
   creating: boolean;
@@ -40,8 +45,7 @@ export interface GenericTabState {
 }
 
 export function useGenericTab(config: TabConfig): GenericTabState {
-  const [rawItems, setRawItems] = useState<any[]>([]);
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<TabItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
   const [filters, setFilters] = useState<Record<string, string>>(() => {
@@ -55,7 +59,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
   });
   const [editMode, setEditMode] = useState(false);
   const [editingCell, setEditingCell] = useState<{ id: number; field: string } | null>(null);
-  const [editValue, setEditValue] = useState<any>("");
+  const [editValue, setEditValue] = useState<unknown>("");
   const [creating, setCreating] = useState(false);
   const [createForm, setCreateForm] = useState<Record<string, unknown>>({});
   const [saving, setSaving] = useState(false);
@@ -83,17 +87,17 @@ export function useGenericTab(config: TabConfig): GenericTabState {
       if (res.ok) {
         const data = await res.json();
         const list = config.listGetter ? config.listGetter(data) : data.items || data;
-        setRawItems(Array.isArray(list) ? list : []);
+        setItems(Array.isArray(list) ? (list as TabItem[]) : []);
         setTotal(typeof data.total === "number" ? data.total : 0);
       } else {
         const data = await res.json().catch(() => ({ error: `请求失败 (${res.status})` }));
         setError(data.error || `请求失败 (${res.status})`);
-        setRawItems([]);
+        setItems([]);
         setTotal(0);
       }
-    } catch (e: any) {
-      setError(e.message || "网络错误");
-      setRawItems([]);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "网络错误");
+      setItems([]);
       setTotal(0);
     } finally {
       setLoading(false);
@@ -104,10 +108,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     load();
   }, [load]);
 
-  // 前端不再筛选（已移至服务端），rawItems 即当前页 items
-  useEffect(() => {
-    setItems(rawItems);
-  }, [rawItems]);
+  // 前端不再筛选（已移至服务端），items 即当前页数据
 
   const setFilter = useCallback((key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
@@ -127,7 +128,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     setFilters(init);
   }, [config.filters]);
 
-  const startEdit = useCallback((id: number, field: string, initialValue: any) => {
+  const startEdit = useCallback((id: number, field: string, initialValue: unknown) => {
     setEditingCell({ id, field });
     setEditValue(initialValue ?? "");
   }, []);

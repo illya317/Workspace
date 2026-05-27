@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { SHARED_GROUP_CODES } from "@/lib/company";
 
 function normalizeCompany(company: string): string {
@@ -63,7 +64,7 @@ export async function GET(request: Request) {
     }
   }
 
-  const where: any = {};
+  const where: Prisma.PositionWhereInput = {};
   if (codes.length > 0) {
     where.OR = codes.map((cc: string) => ({ code: { startsWith: cc } }));
   }
@@ -71,8 +72,8 @@ export async function GET(request: Request) {
     where.id = { in: positionIds };
   }
   const result = await prisma.position.findMany({ where, orderBy: { code: "asc" } });
-  const filtered = result.filter((r: any) => /^\d{5}$/.test(r.code));
-  return NextResponse.json({ codes: filtered.map((r: any) => ({ code: r.code, name: r.name })) });
+  const filtered = result.filter((r) => /^\d{5}$/.test(r.code));
+  return NextResponse.json({ codes: filtered.map((r) => ({ code: r.code, name: r.name })) });
 }
 
 export async function PUT(request: Request) {
@@ -88,9 +89,9 @@ export async function PUT(request: Request) {
 
   const result = await prisma.$transaction(async (tx) => {
     if (originalCode && originalCode !== finalCode) {
-      const existing = await tx.position.findFirst({ where: { code: finalCode } as any });
+      const existing = await tx.position.findFirst({ where: { code: finalCode } });
       if (existing) throw new Error("编号已存在");
-      const oldPos = await tx.position.findFirst({ where: { code: originalCode } as any });
+      const oldPos = await tx.position.findFirst({ where: { code: originalCode } });
       if (oldPos) {
         const maxVer = await tx.editHistory.findFirst({
           where: { entityType: "Position", entityId: originalCode },
@@ -108,11 +109,11 @@ export async function PUT(request: Request) {
         });
       }
       await tx.position.update({
-        where: { code: originalCode } as any,
+        where: { code: originalCode } as unknown as Prisma.PositionWhereUniqueInput,
         data: { code: finalCode, name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
       });
     } else {
-      const oldPos = await tx.position.findFirst({ where: { code: finalCode } as any });
+      const oldPos = await tx.position.findFirst({ where: { code: finalCode } });
       if (oldPos) {
         const maxVer = await tx.editHistory.findFirst({
           where: { entityType: "Position", entityId: finalCode },
@@ -129,14 +130,14 @@ export async function PUT(request: Request) {
           },
         });
       }
-      const data: any = { name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } };
-      const create: any = { code: finalCode, name };
+      const data: Prisma.PositionUpdateInput = { name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } };
+      const create: Prisma.PositionCreateInput = { code: finalCode, name };
       if (departmentCode) {
         const dept = await tx.department.findFirst({ where: { code: departmentCode } });
-        if (dept) { data.departmentId = dept.id; create.departmentId = dept.id; }
+        if (dept) { data.department = { connect: { id: dept.id } }; create.department = { connect: { id: dept.id } }; }
       }
       await tx.position.upsert({
-        where: { code: finalCode } as any,
+        where: { code: finalCode } as unknown as Prisma.PositionWhereUniqueInput,
         update: data,
         create,
       });

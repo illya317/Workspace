@@ -24,7 +24,7 @@ export const PATCH = withContractAccess(async (request) => {
     "location",
     "remark",
   ];
-  const updateData: any = {};
+  const updateData: Record<string, unknown> = {};
 
   for (const key of allowed) {
     if (key in body) {

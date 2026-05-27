@@ -79,7 +79,7 @@ export default function FinishedGoodsTab() {
   function startEdit(item: FinishedGoods, field: string) {
     if (!editMode) return;
     setEditingCell({ id: item.id, field });
-    setEditValue((item as any)[field] ?? "");
+    setEditValue(String((item as unknown as Record<string, unknown>)[field] ?? ""));
   }
 
   async function saveEdit() {
@@ -230,7 +230,7 @@ export default function FinishedGoodsTab() {
                     const val =
                       f.key === "currentStock"
                         ? currentStock(item)
-                        : (item as any)[f.key];
+                        : (item as unknown as Record<string, string | number | null>)[f.key];
                     if (isEditing) {
                       return (
                         <td key={f.key} className="whitespace-nowrap px-3 py-2">
@@ -436,7 +436,7 @@ export default function FinishedGoodsTab() {
 
       <Toast
         message={toast?.message || ""}
-        type={toast?.type as any}
+        type={toast?.type as "success" | "error" | undefined}
         show={!!toast}
         onClose={closeToast}
       />

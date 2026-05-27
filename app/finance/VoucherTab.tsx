@@ -53,8 +53,8 @@ export default function VoucherTab() {
 
   useEffect(() => { load(); }, []);
 
-  const totalDebit = items.reduce((s, i) => s + (parseFloat(i.debit as any) || 0), 0);
-  const totalCredit = items.reduce((s, i) => s + (parseFloat(i.credit as any) || 0), 0);
+  const totalDebit = items.reduce((s, i) => s + (Number(i.debit) || 0), 0);
+  const totalCredit = items.reduce((s, i) => s + (Number(i.credit) || 0), 0);
   const isBalanced = Math.abs(totalDebit - totalCredit) < 0.01;
 
   function startCreate() {
@@ -77,7 +77,7 @@ export default function VoucherTab() {
     setItems(items.filter((_, i) => i !== idx));
   }
 
-  function updateItem(idx: number, field: keyof VoucherItem, value: any) {
+  function updateItem(idx: number, field: keyof VoucherItem, value: unknown) {
     const next = [...items];
     next[idx] = { ...next[idx], [field]: value };
     setItems(next);
@@ -205,7 +205,7 @@ export default function VoucherTab() {
           </table>
         )}
       </div>
-      <Toast message={toast?.message || ""} type={toast?.type as any} show={!!toast} onClose={closeToast} />
+      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
   );
 }

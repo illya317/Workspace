@@ -5,7 +5,7 @@ import type { SearchConfig } from "@/app/hooks/useSearch";
 
 // ─── Props ────────────────────────────────────────────────
 
-interface Props<T = any> {
+interface Props<T = unknown> {
   /** Search configuration, passed directly to useSearch */
   config: SearchConfig<T>;
   /** Placeholder text for the input */
@@ -28,7 +28,7 @@ interface Props<T = any> {
 
 // ─── Component ────────────────────────────────────────────
 
-export default function SearchBox<T = any>({
+export default function SearchBox<T = unknown>({
   config,
   placeholder = "搜索...",
   onSelect,
@@ -126,15 +126,18 @@ export default function SearchBox<T = any>({
               {results.length === 0 ? (
                 <p className="px-3 py-4 text-center text-sm text-gray-400">{emptyText}</p>
               ) : (
-                results.map((item, idx) => (
-                  <div
-                    key={(item as any).rowId ?? (item as any).id ?? (item as any).name ?? idx}
-                    onMouseDown={() => { onSelect(item); setShowDropdown(false); }}
-                    className="flex cursor-pointer items-center justify-between px-3 py-2 text-sm hover:bg-emerald-50"
-                  >
-                    {renderItem(item)}
-                  </div>
-                ))
+                results.map((item, idx) => {
+                  const rec = item as unknown as Record<string, string | number | undefined>;
+                  return (
+                    <div
+                      key={rec.rowId ?? rec.id ?? rec.name ?? idx}
+                      onMouseDown={() => { onSelect(item); setShowDropdown(false); }}
+                      className="flex cursor-pointer items-center justify-between px-3 py-2 text-sm hover:bg-emerald-50"
+                    >
+                      {renderItem(item)}
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>

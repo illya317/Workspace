@@ -66,14 +66,14 @@ export async function getUserTargets(userId: number): Promise<{
   const deptMap = new Map<number, TargetInfo>();
   for (const ep of eps) {
     if (ep.department?.id && !deptMap.has(ep.department.id)) {
-      deptMap.set(ep.department.id, ep.department as any);
+      deptMap.set(ep.department.id, ep.department as TargetInfo);
     }
   }
 
   const posMap = new Map<number, TargetInfo>();
   for (const ep of eps) {
     if (ep.position?.id && !posMap.has(ep.position.id)) {
-      posMap.set(ep.position.id, ep.position as any);
+      posMap.set(ep.position.id, ep.position as TargetInfo);
     }
   }
 
