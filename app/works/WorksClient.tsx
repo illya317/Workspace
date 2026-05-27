@@ -44,7 +44,7 @@ export default function WorksClient({ user }: { user: SessionUser }) {
 
   useEffect(() => {
     fetchWorks();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   async function fetchWorks() {

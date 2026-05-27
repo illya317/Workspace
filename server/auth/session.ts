@@ -27,6 +27,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     },
   });
   if (!userWithPerms) return null;
+  if (!userWithPerms.canLogin) return null;
 
   const employee = await prisma.employee.findFirst({
     where: { userId: payload.userId },

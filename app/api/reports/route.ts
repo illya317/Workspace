@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     }
   }
 
-  let where: any = {};
+  const where: any = {};
 
   if (targetType && targetIds) {
     where.targetType = targetType;

@@ -32,7 +32,7 @@ export default function FilterModal({ open, fields, fkFields, items, onClose, on
       if (f.filterEntity || (f.type === "fk" && fkFields?.[f.key])) continue;
       const vals = new Set<string>();
       for (const item of items) {
-        let v = item[f.key];
+        const v = item[f.key];
         if (v !== null && v !== undefined && v !== "") {
           vals.add(String(v));
         }

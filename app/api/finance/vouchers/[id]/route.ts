@@ -24,7 +24,7 @@ export async function PUT(
       );
     }
 
-    let updateData: any = {
+    const updateData: any = {
       editedBy: user.userId,
       editedAt: new Date(),
       version: { increment: 1 },

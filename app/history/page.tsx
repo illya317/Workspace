@@ -38,25 +38,6 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetchUserAndReports();
-  }, []);
-
-  async function fetchUserAndReports() {
-    try {
-      const userRes = await fetch("/api/auth/me");
-      if (!userRes.ok) {
-        router.push("/login");
-        return;
-      }
-      const userData = await userRes.json();
-      setUser(userData.user);
-      await fetchReports(userData.user);
-    } catch {
-      router.push("/login");
-    }
-  }
-
   async function fetchReports(currentUser: SessionUser) {
     try {
       // 获取所有报告（无过滤 = 用户自己的报告）
@@ -67,7 +48,7 @@ export default function HistoryPage() {
         return;
       }
       const data = await res.json();
-      let allReports: Report[] = data.reports || [];
+      const allReports: Report[] = data.reports || [];
 
       // 排序
       allReports.sort((a, b) => b.date.localeCompare(a.date));
@@ -78,6 +59,26 @@ export default function HistoryPage() {
     }
     setLoading(false);
   }
+
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchUserAndReports() {
+      try {
+        const userRes = await fetch("/api/auth/me");
+        if (!userRes.ok) {
+          router.push("/login");
+          return;
+        }
+        const userData = await userRes.json();
+        if (!cancelled) setUser(userData.user);
+        await fetchReports(userData.user);
+      } catch {
+        router.push("/login");
+      }
+    }
+    fetchUserAndReports();
+    return () => { cancelled = true; };
+  }, [router]);
 
   function renderItems(items: ReportItemData[], category: string) {
     const filtered = items

@@ -104,7 +104,7 @@ export async function GET(request: Request) {
     for (let i = 1; i < group.length; i++) prevMap.set(group[i].id, group[i - 1]);
   }
 
-  let recordMap = await resolveRecordNames(entityType, recordIds);
+  const recordMap = await resolveRecordNames(entityType, recordIds);
   // Fallback to generic resolver for unmatched IDs
   const resolver = RESOLVERS[entityType];
   if (resolver) {

@@ -13,6 +13,16 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  // Global: downgrade high-noise rules that require systematic migration
+  {
+    rules: {
+      // 200+ legacy any usages; migrate incrementally (TODO: remove after cleanup)
+      "@typescript-eslint/no-explicit-any": "warn",
+      // Experimental rule that flags common initialization patterns;
+      // revisit after React 19 stable guidance
+      "react-hooks/set-state-in-effect": "warn",
+    },
+  },
   // Scripts: allow CommonJS and relax type rules for tooling
   {
     files: ["scripts/**/*", "prisma/**/*"],

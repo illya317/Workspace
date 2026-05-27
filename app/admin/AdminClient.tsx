@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import NavLink from "@/app/components/NavLink";
@@ -30,36 +30,38 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   const { toast, showToast, closeToast } = useToast();
 
   useEffect(() => {
-    loadInitial();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  async function loadInitial() {
-    try {
-      const [resRes, deptRes] = await Promise.all([
-        fetch("/api/admin/permissions"),
-        fetch("/api/admin/departments"),
-      ]);
-      if (!resRes.ok) showToast("加载权限资源失败: " + resRes.status, "error");
-      if (!deptRes.ok) showToast("加载部门列表失败: " + deptRes.status, "error");
-      const resData = await resRes.json();
-      const deptData = await deptRes.json();
-      setResources(flattenTree(resData.resources || []));
-      setRoles(resData.roles || []);
-      setAllDepts(deptData.departments || []);
+    let cancelled = false;
+    async function loadInitial() {
       try {
-        const cfgRes = await fetch("/api/admin/system-config");
-        if (cfgRes.ok) {
-          const cfgData = await cfgRes.json();
-          setConflictStrategy(cfgData.conflictStrategy || "union");
+        const [resRes, deptRes] = await Promise.all([
+          fetch("/api/admin/permissions"),
+          fetch("/api/admin/departments"),
+        ]);
+        if (!cancelled) {
+          if (!resRes.ok) showToast("加载权限资源失败: " + resRes.status, "error");
+          if (!deptRes.ok) showToast("加载部门列表失败: " + deptRes.status, "error");
+          const resData = await resRes.json();
+          const deptData = await deptRes.json();
+          setResources(flattenTree(resData.resources || []));
+          setRoles(resData.roles || []);
+          setAllDepts(deptData.departments || []);
+          try {
+            const cfgRes = await fetch("/api/admin/system-config");
+            if (cfgRes.ok) {
+              const cfgData = await cfgRes.json();
+              setConflictStrategy(cfgData.conflictStrategy || "union");
+            }
+          } catch { /* config endpoint optional */ }
         }
-      } catch { /* config endpoint optional */ }
-    } catch {
-      showToast("加载后台数据失败，请刷新重试", "error");
-    } finally {
-      setLoading(false);
+      } catch {
+        if (!cancelled) showToast("加载后台数据失败，请刷新重试", "error");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-  }
+    loadInitial();
+    return () => { cancelled = true; };
+  }, [showToast]);
 
   async function saveConflictStrategy(strategy: string) {
     const res = await fetch("/api/admin/system-config", {

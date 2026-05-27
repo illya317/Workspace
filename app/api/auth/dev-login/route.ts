@@ -51,6 +51,14 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!user.canLogin) {
+    await recordAttempt(username, ip, false);
+    return NextResponse.json(
+      { error: "账号已被停用，请联系管理员" },
+      { status: 403 }
+    );
+  }
+
   await recordAttempt(username, ip, true);
 
   const token = await createToken({

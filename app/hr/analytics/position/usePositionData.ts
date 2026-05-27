@@ -132,7 +132,7 @@ export function usePositionData(
     function aggregate(deptId: number): { actual: number; headcount: number; positions: number } {
       const direct = deptDirect.get(deptId);
       if (!direct) return { actual: 0, headcount: 0, positions: 0 };
-      let total = { actual: direct.actual, headcount: direct.headcount, positions: direct.positions };
+      const total = { actual: direct.actual, headcount: direct.headcount, positions: direct.positions };
       for (const childId of (childrenMap.get(deptId) || [])) {
         const childAgg = aggregate(childId);
         total.actual += childAgg.actual;
