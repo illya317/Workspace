@@ -136,12 +136,12 @@ export function useAnalyticsData() {
     async function load() {
       try {
         const [empRes, deptRes, posRes, edpRes, emtRes, conRes] = await Promise.all([
-          fetch("/api/hr/employees").then((r) => r.json()),
-          fetch("/api/hr/departments").then((r) => r.json()),
-          fetch("/api/hr/positions").then((r) => r.json()),
-          fetch("/api/hr/edps").then((r) => r.json()),
-          fetch("/api/hr/employments").then((r) => r.json()),
-          fetch("/api/hr/contracts").then((r) => r.json()),
+          fetch("/api/hr/employees?pageSize=500").then((r) => r.json()),
+          fetch("/api/hr/departments?pageSize=500").then((r) => r.json()),
+          fetch("/api/hr/positions?pageSize=500").then((r) => r.json()),
+          fetch("/api/hr/edps?pageSize=500").then((r) => r.json()),
+          fetch("/api/hr/employments?pageSize=500").then((r) => r.json()),
+          fetch("/api/hr/contracts?pageSize=500").then((r) => r.json()),
         ]);
 
         setData({
