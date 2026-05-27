@@ -79,6 +79,6 @@ echo "==> 修复服务器 .env 数据库路径..."
 ssh -i "$KEY" "$SERVER" "sed -i 's|file:/Users/koito/Desktop/Project/[^/]*/prisma/dev.db|file:/home/ubuntu/weekly/prisma/dev.db|' $REMOTE_DIR/.next/standalone/.env 2>/dev/null || true"
 
 echo "==> 重启服务..."
-ssh -i "$KEY" "$SERVER" "cd $REMOTE_DIR/.next/standalone && pm2 restart $PM2_NAME || pm2 start server.js --name $PM2_NAME --cwd $REMOTE_DIR/.next/standalone"
+ssh -i "$KEY" "$SERVER" "cd $REMOTE_DIR/.next/standalone && export DATABASE_URL='file:/home/ubuntu/weekly/prisma/dev.db' && (pm2 restart $PM2_NAME --update-env 2>/dev/null || pm2 start server.js --name $PM2_NAME --cwd $REMOTE_DIR/.next/standalone --env production)"
 
 echo "==> 完成"
