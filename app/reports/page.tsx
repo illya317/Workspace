@@ -20,7 +20,6 @@ export default function ReportPage() {
     saving,
     viewingVersion,
     report,
-    taskName,
     notes,
     setNotes,
     targetType,

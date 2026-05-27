@@ -77,10 +77,6 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
 
   // 管理员：两个下拉框
   const deptsInCompany = depts.filter((d) => d.company === selectedCompany);
-  const savedLabel = selectedDeptId
-    ? depts.find((d) => d.id === selectedDeptId)?.name
-    : null;
-
   return (
     <div className="flex items-center gap-2">
       <select

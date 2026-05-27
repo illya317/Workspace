@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 
@@ -36,7 +36,7 @@ export default function LedgerTab() {
     });
   }, []);
 
-  async function loadBalances() {
+  const loadBalances = useCallback(async () => {
     if (!selectedPeriod) return;
     setLoading(true);
     const res = await fetch(`/api/finance/balances?periodId=${selectedPeriod}`);
@@ -45,7 +45,7 @@ export default function LedgerTab() {
       setBalances(data.balances || []);
     }
     setLoading(false);
-  }
+  }, [selectedPeriod]);
 
   async function recalc() {
     if (!selectedPeriod) return;
@@ -64,7 +64,7 @@ export default function LedgerTab() {
     }
   }
 
-  useEffect(() => { loadBalances(); }, [selectedPeriod]);
+  useEffect(() => { loadBalances(); }, [loadBalances]);
 
   const CATEGORIES: Record<string, string> = { asset: "资产", liability: "负债", equity: "权益", cost: "成本", revenue: "损益" };
 

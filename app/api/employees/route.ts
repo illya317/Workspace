@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import * as XLSX from "xlsx";
-import { matchEmployee } from "@/lib/search";
 import { matchAnyField } from "@/lib/search-schema";
-import { FENGHUA_BIO_GROUP, resolveCompanyFilter, isPharma } from "@/lib/company";
+import { isPharma } from "@/lib/company";
 
 // 字段列表（顺序）
 const FIELDS = [
@@ -32,7 +31,7 @@ const FIELDS = [
 ];
 
 // 字段权限暂未启用，所有 canAccessHR 用户均可查看全部字段
-async function getVisibleFields(_userId: number, isAdmin: boolean): Promise<string[]> {
+async function getVisibleFields(_userId: number, _isAdmin: boolean): Promise<string[]> {
   return FIELDS.map((f) => f.key);
 }
 
@@ -72,7 +71,6 @@ export async function GET(request: Request) {
   }
 
   const employeeIds = baseEmployees.map((e) => e.id);
-  const empMap = new Map(baseEmployees.map((e) => [e.id, e]));
 
   // 2. 查询 EDP（带部门和岗位筛选）
   const epWhere: any = { employeeId: { in: employeeIds } };
@@ -83,7 +81,6 @@ export async function GET(request: Request) {
   // 公司筛选：通过 code prefix
   const targetCompany = company || "";
   if (targetCompany) {
-    const mgmtNames = resolveCompanyFilter(targetCompany);
     // no longer filtering via relation; client-side filter after fetch
   }
 

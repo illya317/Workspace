@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 const CONFIG = { entityType: "Project", modelKey: "project" as const };
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { snapshotHistory } from "@/lib/history";
 import { matchAnyField } from "@/lib/search-schema";
 import { ProjectCreateSchema, parseJson } from "@/lib/schemas";
 

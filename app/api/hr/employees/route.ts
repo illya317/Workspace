@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import { withHRAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { matchEmployee } from "@/lib/search";
 import { matchAnyField } from "@/lib/search-schema";
 import { snapshotHistory } from "@/lib/history";
 import { resolveFkValues, fkDisplay } from "@/lib/resolve-fk";
 import { EmployeeCreateSchema, parseJson } from "@/lib/schemas";
 
-export const GET = withHRAccess(async (request: Request, user) => {
+export const GET = withHRAccess(async (request: Request, _user) => {
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));

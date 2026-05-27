@@ -30,7 +30,7 @@ export function handleDelete(
 export function handleCreate(
   request: Request,
   config: FinanceCrudConfig,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   buildData?: (body: any) => Promise<Record<string, unknown> | null> | Record<string, unknown> | null
 ) {
   return wrap(config).handleCreate(request, buildData);

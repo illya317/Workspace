@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 
@@ -20,7 +20,7 @@ interface ProjectItem {
 
 import type { HRUser as User } from "../types";
 
-export default function ProjectInfoTab({ user }: { user: User }) {
+export default function ProjectInfoTab({ user: _user }: { user: User }) {
   const [entries, setEntries] = useState<EntryItem[]>([]);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [selectedProject, setSelectedProject] = useState<number | null>(null);
@@ -37,18 +37,18 @@ export default function ProjectInfoTab({ user }: { user: User }) {
     fetch("/api/projects").then((r) => r.json()).then((d) => setProjects(d.projects || []));
   }, []);
 
-  useEffect(() => {
-    if (selectedProject) loadEntries();
-  }, [selectedProject]);
-
-  async function loadEntries() {
+  const loadEntries = useCallback(async () => {
     if (!selectedProject) return;
     setLoading(true);
     const res = await fetch(`/api/employee-projects?projectId=${selectedProject}`);
     const data = await res.json();
     setEntries(data.entries || []);
     setLoading(false);
-  }
+  }, [selectedProject]);
+
+  useEffect(() => {
+    if (selectedProject) loadEntries();
+  }, [selectedProject, loadEntries]);
 
   function startCreate() {
     setEditId(null);

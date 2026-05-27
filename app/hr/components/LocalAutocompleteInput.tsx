@@ -17,7 +17,7 @@ export default function LocalAutocompleteInput({ value, onChange, options, place
 
   useEffect(() => {
     setKeyword(value);
-  }, [value]);
+  }, [value, onChange]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

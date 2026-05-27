@@ -154,7 +154,7 @@ export function useAnalyticsData() {
           loading: false,
           error: null,
         });
-      } catch (err) {
+      } catch (_err) {
         setData((prev) => ({ ...prev, loading: false, error: "数据加载失败" }));
       }
     }

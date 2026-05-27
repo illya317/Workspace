@@ -7,7 +7,6 @@ import { prisma } from "@/lib/prisma";
 import { matchAnyField } from "@/lib/search-schema";
 import { snapshotHistory } from "@/lib/history";
 import { isPharma } from "@/lib/company";
-import { DepartmentCreateSchema, parseJson } from "@/lib/schemas";
 
 export const GET = withHRAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);

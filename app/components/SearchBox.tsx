@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearch } from "@/app/hooks/useSearch";
-import type { SearchConfig, SearchFilters } from "@/app/hooks/useSearch";
+import type { SearchConfig } from "@/app/hooks/useSearch";
 
 // ─── Props ────────────────────────────────────────────────
 
@@ -43,7 +43,7 @@ export default function SearchBox<T = any>({
     query, setQuery,
     results, loading,
     showDropdown, setShowDropdown,
-    filterValues, setFilter, clearFilters,
+    filterValues, setFilter,
   } = useSearch<T>(config);
 
   const hasFilters = config.filters && Object.values(config.filters).some(Boolean);

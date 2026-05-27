@@ -6,8 +6,8 @@ export default function PositionTable({
   filtered,
   search,
   setSearch,
-  sortKey,
-  sortDesc,
+  sortKey: _sortKey,
+  sortDesc: _sortDesc,
   handleSort,
   sortIcon,
 }: {

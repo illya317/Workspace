@@ -3,15 +3,6 @@ import { authenticate, isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isPharma } from "@/lib/company";
 
-function hashString(str: string): number {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash) || 1;
-}
-
 export async function GET(request: Request) {
   const payload = await authenticate(request);
   if (!payload) {

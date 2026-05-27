@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useToast } from "@/app/hooks/useToast";
 import {
   NAME_TO_CODE,
@@ -98,7 +98,7 @@ export function useCodeTab({
   const entityType =
     type === "department" ? "Department" : "Position";
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     const codesParam = selectedCompany
       ? resolveCompanyFilter(selectedCompany)
@@ -125,11 +125,11 @@ export function useCodeTab({
       setEmployees(data.employees || []);
     }
     setLoading(false);
-  }
+  }, [apiPath, selectedCompany, departmentCode]);
 
   useEffect(() => {
     load();
-  }, [apiPath, companyCode, selectedCompany, departmentCode]);
+  }, [load]);
 
   useEffect(() => {
     const map: Record<string, number> = {};

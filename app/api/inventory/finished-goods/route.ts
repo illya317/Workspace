@@ -19,7 +19,7 @@ export const GET = withInventoryAccess(async (request: Request) => {
   return NextResponse.json({ items });
 });
 
-export const POST = withInventoryAccess(async (request: Request, user) => {
+export const POST = withInventoryAccess(async (request: Request, _user) => {
   const body = await request.json();
   const { code, name, packagingSpec, unit, stockType } = body;
   if (!code || !name) return NextResponse.json({ error: "成品编码和名称为必填" }, { status: 400 });

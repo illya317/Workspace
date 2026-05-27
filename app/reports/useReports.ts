@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { getCurrentPeriod, getPeriodRange, getPreviousPeriod, getPeriodOptions, getYearOptions, getPeriodTypeName } from "@/lib/period";
 import type { PeriodType } from "@/lib/period";
@@ -12,7 +12,7 @@ export function useReports(showToast: (message: string, type?: "success" | "erro
 
   const [user, setUser] = useState<{ id: number; name: string; departmentId: number } | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [viewingVersion, setViewingVersion] = useState(0);
 
@@ -39,37 +39,7 @@ export function useReports(showToast: (message: string, type?: "success" | "erro
   const yearOptions = getYearOptions(periodType, ci.year);
   const periodOptions = getPeriodOptions(periodType, selectedYear);
 
-  useEffect(() => { fetchUser(); }, []);
-
-  async function fetchUser() {
-    try {
-      const res = await fetch("/api/auth/me");
-      if (!res.ok) { router.push("/login"); return; }
-      const data = await res.json();
-      setUser(data.user);
-
-      // Load user period preference
-      const savedPeriodType = typeof window !== "undefined" ? localStorage.getItem("selectedPeriodType") as PeriodType | null : null;
-      if (savedPeriodType) setPeriodType(savedPeriodType);
-
-      // Load saved target from localStorage
-      const savedTT = typeof window !== "undefined" ? localStorage.getItem("selectedTargetType") : null;
-      const savedTI = typeof window !== "undefined" ? localStorage.getItem("selectedTargetId") : null;
-      const savedTN = typeof window !== "undefined" ? localStorage.getItem("selectedTargetName") : null;
-      if (savedTT && savedTI) {
-        setTargetType(savedTT);
-        setTargetId(parseInt(savedTI));
-        setTargetName(savedTN || "");
-      }
-
-      const info = getCurrentPeriod(periodType);
-      setSelectedYear(info.year);
-      setSelectedPeriodIndex(info.periodIndex);
-      await loadReport(data.user, info.year, info.periodIndex, undefined, periodType);
-    } catch { router.push("/login"); }
-  }
-
-  async function loadReport(u: { id: number; name: string; departmentId: number }, year: number, periodIndex: number, overrideTarget?: { targetType: string; targetId: number }, overridePeriodType?: PeriodType) {
+  const loadReport = useCallback(async (u: { id: number; name: string; departmentId: number }, year: number, periodIndex: number, overrideTarget?: { targetType: string; targetId: number }, overridePeriodType?: PeriodType) => {
     const pt = overridePeriodType || periodType;
     const range = getPeriodRange(pt, year, periodIndex);
     setPeriodInfo({ label: range.label, dateRange: range.dateRange });
@@ -140,7 +110,37 @@ export function useReports(showToast: (message: string, type?: "success" | "erro
       setNonRoutineItems(buildItems("non-routine"));
     }
     setInitialLoading(false);
-  }
+  }, [periodType, targetType, targetId]);
+
+  const fetchUser = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/me");
+      if (!res.ok) { router.push("/login"); return; }
+      const data = await res.json();
+      setUser(data.user);
+
+      // Load user period preference
+      const savedPeriodType = typeof window !== "undefined" ? localStorage.getItem("selectedPeriodType") as PeriodType | null : null;
+      if (savedPeriodType) setPeriodType(savedPeriodType);
+
+      // Load saved target from localStorage
+      const savedTT = typeof window !== "undefined" ? localStorage.getItem("selectedTargetType") : null;
+      const savedTI = typeof window !== "undefined" ? localStorage.getItem("selectedTargetId") : null;
+      const savedTN = typeof window !== "undefined" ? localStorage.getItem("selectedTargetName") : null;
+      if (savedTT && savedTI) {
+        setTargetType(savedTT);
+        setTargetId(parseInt(savedTI));
+        setTargetName(savedTN || "");
+      }
+
+      const info = getCurrentPeriod(periodType);
+      setSelectedYear(info.year);
+      setSelectedPeriodIndex(info.periodIndex);
+      await loadReport(data.user, info.year, info.periodIndex, undefined, periodType);
+    } catch { router.push("/login"); }
+  }, [router, periodType, loadReport, setSelectedYear, setSelectedPeriodIndex]);
+
+  useEffect(() => { fetchUser(); }, [fetchUser]);
 
   async function loadVersion(version: number) {
     if (!report) return;

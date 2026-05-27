@@ -50,7 +50,7 @@ export default function TargetSwitcher({ value, onChange }: Props) {
         }
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [value, onChange]);
 
   if (loading) return <span className="text-xs text-gray-400">加载中...</span>;
 

@@ -40,6 +40,6 @@ export const getFinanceAccounts = unstable_cache(
 
 export function invalidateDict(tag: string) {
   // Next.js 16 revalidateTag requires a profile argument in this typing;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   (revalidateTag as any)(tag);
 }

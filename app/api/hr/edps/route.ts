@@ -4,10 +4,6 @@ import { NextResponse } from "next/server";
 const CONFIG = { entityType: "EDP", modelKey: "eDP" as const };
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { snapshotHistory } from "@/lib/history";
-import { matchEmployee } from "@/lib/search";
-import { matchAnyField } from "@/lib/search-schema";
-import { FENGHUA_BIO_GROUP, resolveCompanyFilter } from "@/lib/company";
 import { EDPCreateSchema, parseJson } from "@/lib/schemas";
 
 export async function GET(request: Request) {
@@ -20,7 +16,6 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const company = searchParams.get("company") || "";
   const keyword = searchParams.get("keyword") || "";
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));

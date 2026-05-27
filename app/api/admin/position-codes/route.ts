@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { SHARED_GROUP_CODES, getCompanyFromCode } from "@/lib/company";
+import { SHARED_GROUP_CODES } from "@/lib/company";
 
 function normalizeCompany(company: string): string {
   if (SHARED_GROUP_CODES.includes(company)) return "01";

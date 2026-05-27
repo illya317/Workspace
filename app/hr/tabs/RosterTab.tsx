@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import HRToolbar from "@/app/components/HRToolbar";
 import SearchBox from "@/app/components/SearchBox";
 import Toast from "@/app/components/Toast";
@@ -13,21 +13,21 @@ interface FieldDef {
   label: string;
 }
 
-export default function RosterTab({ user, selectedCompany }: { user: User; selectedCompany: string }) {
+export default function RosterTab({ user: _user, selectedCompany }: { user: User; selectedCompany: string }) {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [fields, setFields] = useState<FieldDef[]>([]);
   const [visibleFields, setVisibleFields] = useState<string[]>([]);
-  const [allDepts, setAllDepts] = useState<string[]>([]);
+  const [, setAllDepts] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterDept, setFilterDept] = useState("");
   const [keyword, setKeyword] = useState("");
   const [sortField, setSortField] = useState<string>("employeeId");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const { toast, showToast, closeToast } = useToast();
+  const { toast, closeToast } = useToast();
   const [rosterFilter, setRosterFilter] = useState<"在职" | "离职">("在职");
   const [resetKey, setResetKey] = useState(0);
 
-  async function loadRoster(deptOverride?: string) {
+  const loadRoster = useCallback(async (deptOverride?: string) => {
     setLoading(true);
     const params = new URLSearchParams();
     if (selectedCompany) params.set("company", selectedCompany);
@@ -44,11 +44,11 @@ export default function RosterTab({ user, selectedCompany }: { user: User; selec
       setAllDepts(data.allDepts || []);
     }
     setLoading(false);
-  }
+  }, [selectedCompany, filterDept, rosterFilter, keyword]);
 
   useEffect(() => {
     loadRoster();
-  }, [selectedCompany, filterDept, rosterFilter, keyword]);
+  }, [loadRoster]);
 
   function downloadExcel() {
     const params = new URLSearchParams();

@@ -130,7 +130,7 @@ export default function ByPermissionTab({ user, resources, showToast }: Props) {
         .catch(() => showToast("加载员工列表失败", "error"))
         .finally(() => setEmpLoading(false));
     }
-  }, [drillKey]);
+  }, [drillKey, empPerms.length, showToast]);
 
   function empHasAccess(emp: EmployeePerm, resourceKey: string): boolean {
     // 子权限只检查精确匹配；顶层权限检查自身及父级（兼容现有权限继承）

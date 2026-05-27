@@ -57,10 +57,6 @@ export default function AccountTab() {
     const isCreate = editingId === -1;
     const url = isCreate ? "/api/finance/accounts" : `/api/finance/accounts/${editingId}`;
     const method = isCreate ? "POST" : "PUT";
-    const body = isCreate
-      ? editRow
-      : { field: "name", value: editRow.name }; // 简化：PUT只更新名称，如需完整编辑走POST重建
-
     // 对于PUT单字段编辑模式，简化处理：直接用POST逻辑创建新记录或删除重建
     // 这里为了用户体验，使用完整保存
     const saveBody = isCreate ? editRow : { ...editRow, field: undefined };

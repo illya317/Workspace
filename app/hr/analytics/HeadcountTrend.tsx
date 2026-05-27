@@ -92,7 +92,7 @@ export default function HeadcountTrend({ employments }: { employments: Employmen
               </tr>
             </thead>
             <tbody>
-              {[...stats.months].reverse().map((m, i) => (
+              {[...stats.months].reverse().map((m, _i) => (
                 <tr key={m.label} className="border-b border-gray-50 hover:bg-gray-50">
                   <td className="py-2 px-2 font-medium text-gray-700">{m.label}</td>
                   <td className="py-2 px-2 text-right text-gray-500">{m.active - m.net}</td>

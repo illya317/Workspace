@@ -104,7 +104,7 @@ export function usePositionData(
     });
 
     // 补全祖先部门（可能有子部门岗位但本身无直接岗位，如 L1 事业部）
-    for (const [id, d] of [...deptDirect.entries()]) {
+    for (const [_id, d] of [...deptDirect.entries()]) {
       let parentId = d.parentId;
       while (parentId !== null && !deptDirect.has(parentId)) {
         const pd = departments.find((dd) => dd.id === parentId);
@@ -173,9 +173,6 @@ export function usePositionData(
     const subtreeOf = new Map<number, Set<number>>();
     for (const l1 of l1Depts) {
       const subtree = new Set<number>();
-      function collect(ids: number[]) {
-        for (const id of ids) subtree.add(id);
-      }
       // 从 deptEntries 中找所有在该 L1 子树下的部门（父链追溯）
       for (const d of stats.deptEntries) {
         // 查找该部门是否在 L1 子树下

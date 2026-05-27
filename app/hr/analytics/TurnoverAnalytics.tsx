@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { Employee, Employment } from "./useAnalyticsData";
 import StatCard from "./shared/StatCard";
 
-export default function TurnoverAnalytics({ employees, employments }: { employees: Employee[]; employments: Employment[] }) {
+export default function TurnoverAnalytics({ employees: _employees, employments }: { employees: Employee[]; employments: Employment[] }) {
   const [reasonSearch, setReasonSearch] = useState("");
 
   const stats = useMemo(() => {

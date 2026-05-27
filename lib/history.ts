@@ -38,7 +38,7 @@ export async function snapshotHistory(
   userId: number
 ) {
   assertEntityType(entityType);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   const record = await (prisma as any)[clientKey(entityType)].findUnique({
     where: { id: entityId },
   });

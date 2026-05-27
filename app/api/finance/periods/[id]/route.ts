@@ -3,7 +3,7 @@ import { withFinanceAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return withFinanceAccess(async (req, user) => {
+  return withFinanceAccess(async (req, _user) => {
     const { id } = await params;
     const body = await req.json();
     const { isClosed } = body;
@@ -18,7 +18,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return withFinanceAccess(async (req) => {
+  return withFinanceAccess(async (_req) => {
     const { id } = await params;
     await prisma.financePeriod.delete({ where: { id: parseInt(id) } });
     return NextResponse.json({ success: true });

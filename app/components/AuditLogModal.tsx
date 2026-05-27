@@ -101,7 +101,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
         onRestored?.();
       }
     } finally { setRestoring(null); }
-  }, [load, loadDates, selectedDate]);
+  }, [load, loadDates, selectedDate, onRestored]);
 
   useEffect(() => {
     if (open) { setPage(1); setSelectedDate(""); load(1, ""); loadDates(); }

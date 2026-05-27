@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import EditToolbar from "@/app/components/EditToolbar";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
@@ -55,7 +55,7 @@ export default function FinishedGoodsTab() {
   const [creating, setCreating] = useState(false);
   const [createForm, setCreateForm] = useState<Partial<FinishedGoods>>({});
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
     if (keyword) params.set("keyword", keyword);
@@ -64,11 +64,11 @@ export default function FinishedGoodsTab() {
     );
     if (res.ok) setItems((await res.json()).items || []);
     setLoading(false);
-  }
+  }, [keyword]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
   useEffect(() => {
     if (editingCell && inputRef.current) {
       inputRef.current.focus();

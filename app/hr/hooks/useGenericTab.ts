@@ -98,7 +98,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     } finally {
       setLoading(false);
     }
-  }, [config.apiPath, config.listGetter, keyword, page, pageSize, filters]);
+  }, [config, keyword, page, pageSize, filters]);
 
   useEffect(() => {
     load();

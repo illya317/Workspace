@@ -35,7 +35,7 @@ export default function PermissionDrilldown({ drillKey, empPerms, empLoading, fC
     const aHas = empHasAccess(a, drillKey) ? 0 : 1;
     const bHas = empHasAccess(b, drillKey) ? 0 : 1;
     return aHas - bHas;
-  }), [empPerms, fCompany, fDept, fKeyword, drillKey]);
+  }), [empPerms, fCompany, fDept, fKeyword, drillKey, empHasAccess]);
 
   return (
     <section>

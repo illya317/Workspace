@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import NavLink from "@/app/components/NavLink";
@@ -127,7 +127,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
           {activeTab === "users" && <AdminUsersTab showToast={showToast} />}
           {activeTab === "by-user" && <ByUserTab user={user!} resources={resources} roles={roles} allDepts={allDepts} showToast={showToast} />}
           {activeTab === "by-position" && <ByPositionTab user={user!} resources={resources} showToast={showToast} />}
-          {activeTab === "by-department" && <ByDepartmentTab user={user!} resources={resources} allDepts={allDepts} showToast={showToast} />}
+          {activeTab === "by-department" && <ByDepartmentTab resources={resources} allDepts={allDepts} showToast={showToast} />}
           {activeTab === "by-permission" && <ByPermissionTab user={user!} resources={resources} showToast={showToast} />}
 
         </div>

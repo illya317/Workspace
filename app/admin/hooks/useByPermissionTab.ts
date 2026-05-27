@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useSearch } from "@/app/hooks/useSearch";
 import { HIDDEN_RESOURCE_KEYS } from "../lib";
 import type { ResourceItem } from "../types";
@@ -33,12 +33,12 @@ export function useByPermissionTab({ user, resources, showToast }: Props) {
   const [systemAdmins, setSystemAdmins] = useState<SystemAdmin[]>([]);
   const [sysLoading, setSysLoading] = useState(true);
 
-  const { query: sysSearchQ, setQuery: setSysSearchQ, results: sysRawResults, loading: sysSearchLoading } = useSearch<EmployeeResult>({ target: "employee" });
+  const { query: sysSearchQ, setQuery: setSysSearchQ, results: sysRawResults } = useSearch<EmployeeResult>({ target: "employee" });
   const sysResults = sysRawResults.filter((item) => item.userId != null);
   const [sysConfirm, setSysConfirm] = useState<number | null>(null);
   const sysTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  async function loadSystemAdmins() {
+  const loadSystemAdmins = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/users");
       if (res.ok) {
@@ -54,7 +54,7 @@ export function useByPermissionTab({ user, resources, showToast }: Props) {
     } catch (e) {
       console.error(e);
     }
-  }
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -66,7 +66,7 @@ export function useByPermissionTab({ user, resources, showToast }: Props) {
         setSysLoading(false);
       }
     })();
-  }, []);
+  }, [user.isWorkListAdmin, loadSystemAdmins]);
 
   function handleRemoveSystemAdmin(adminId: number) {
     if (sysConfirm === adminId) {

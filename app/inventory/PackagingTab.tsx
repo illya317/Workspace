@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import EditToolbar from "@/app/components/EditToolbar";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
@@ -59,18 +59,18 @@ export default function PackagingTab() {
   const [creating, setCreating] = useState(false);
   const [createForm, setCreateForm] = useState<Partial<Packaging>>({});
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     const params = new URLSearchParams();
     if (keyword) params.set("keyword", keyword);
     const res = await fetch(`/api/inventory/packaging?${params.toString()}`);
     if (res.ok) setItems((await res.json()).items || []);
     setLoading(false);
-  }
+  }, [keyword]);
 
   useEffect(() => {
     load();
-  }, []);
+  }, [load]);
   useEffect(() => {
     if (editingCell && inputRef.current) {
       inputRef.current.focus();

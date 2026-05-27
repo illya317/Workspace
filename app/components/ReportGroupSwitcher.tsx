@@ -51,8 +51,6 @@ export default function ReportGroupSwitcher({ value, onChange }: Props) {
     return null;
   }
 
-  const selected = groups.find((g) => g.id === value) || null;
-
   return (
     <select
       value={value ?? ""}

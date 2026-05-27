@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server";
-
 // ⚠️ 已迁移到 /api/hr/edps，本文件保留兼容期
 export async function GET(request: Request) {
   const url = new URL(request.url);

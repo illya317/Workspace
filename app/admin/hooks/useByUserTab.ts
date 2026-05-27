@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { isTopLevelResource, userHasAccess } from "../lib";
 import { matchEmployee } from "@/lib/search";
 import { useSearch } from "@/app/hooks/useSearch";
@@ -97,9 +97,7 @@ export function useByUserTab(
   }>({ open: false, userId: null, employeeId: "", name: "" });
   const [resetResult, setResetResult] = useState<string | null>(null);
 
-  useEffect(() => { loadEmpPerms(); }, []);
-
-  async function loadEmpPerms() {
+  const loadEmpPerms = useCallback(async () => {
     setEmpPermLoading(true);
     try {
       const res = await fetch("/api/admin/employee-permissions");
@@ -113,7 +111,9 @@ export function useByUserTab(
     } finally {
       setEmpPermLoading(false);
     }
-  }
+  }, [showToast]);
+
+  useEffect(() => { loadEmpPerms(); }, [loadEmpPerms]);
 
   function handleSearchChange(value: string) { setSearchQuery(value); }
 

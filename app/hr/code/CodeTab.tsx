@@ -72,12 +72,9 @@ export default function CodeTab({
   departmentCode?: string;
 }) {
   const {
-    codes,
-    employees,
     stats,
     loading,
     toast,
-    showToast,
     closeToast,
     newCode,
     setNewCode,
@@ -104,7 +101,6 @@ export default function CodeTab({
     sortedCodes,
     toggleSort,
     startEditRow,
-    saveEditRow,
     handleAdd,
     getDetailList,
     loadPositionDepts,

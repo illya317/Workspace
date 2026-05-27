@@ -4,13 +4,12 @@ import FilterBar from "@/app/components/FilterBar";
 import { useByDepartmentTab } from "../hooks/useByDepartmentTab";
 
 interface Props {
-  user: { id: number; name: string; isWorkListAdmin?: boolean; isAnyGroupAdmin?: boolean };
   resources: Array<{ id: number; key: string; name: string; description: string | null }>;
   allDepts: Array<{ id: number; name: string; company: string; count: number }>;
   showToast: (msg: string, type?: "success" | "error") => void;
 }
 
-export default function ByDepartmentTab({ user, resources, allDepts, showToast }: Props) {
+export default function ByDepartmentTab({ resources, allDepts, showToast }: Props) {
   const {
     grants,
     loading,

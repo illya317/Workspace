@@ -35,7 +35,7 @@ export function createCrudHandlers(config: CrudFactoryConfig) {
       const allowed = config.allowedFields || [];
       if (!allowed.includes(field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const model = prisma[config.modelKey] as any;
       await model.update({
         where: { id: parseInt(id) },
@@ -54,7 +54,7 @@ export function createCrudHandlers(config: CrudFactoryConfig) {
       const { id } = await params;
       await snapshotHistory(config.entityType, parseInt(id), payload.userId);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const model = prisma[config.modelKey] as any;
       await model.delete({ where: { id: parseInt(id) } });
 
@@ -63,7 +63,7 @@ export function createCrudHandlers(config: CrudFactoryConfig) {
 
     async handleCreate(
       request: Request,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       buildData?: (body: any) => Promise<Record<string, unknown> | null> | Record<string, unknown> | null
     ) {
       const payload = await authenticate(request);
@@ -74,7 +74,7 @@ export function createCrudHandlers(config: CrudFactoryConfig) {
       const data = buildData ? await buildData(body) : body;
       if (!data) return NextResponse.json({ error: "数据校验失败" }, { status: 400 });
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+       
       const model = prisma[config.modelKey] as any;
       const record = await model.create({ data: { ...data, editedBy: payload.userId } });
       await snapshotHistory(config.entityType, record.id, payload.userId);
