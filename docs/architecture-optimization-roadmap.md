@@ -149,8 +149,7 @@ npm run build
   - `/api/projects` → `/api/hr/projects`
   - `/api/employee-projects` → `/api/hr/employee-projects`
 - 前端已全部迁移到 `/api/hr/*`：
-  - `useSearch.ts`、`useDeptAdminsTab.ts` → `/api/hr/employees/search`、`/api/hr/autocomplete`
-  - `useByPositionTab.ts` → `/api/hr/positions`、`/api/hr/edps`
+  - `useSearch.ts` → `/api/hr/employees/search`、`/api/hr/autocomplete`
   - `RosterTab.tsx` → `/api/hr/roster`
   - `useCodeData.ts` → `/api/hr/roster`
 - `docs/api.md` 已更新：旧 API 单独列为"兼容层（已废弃）"。
