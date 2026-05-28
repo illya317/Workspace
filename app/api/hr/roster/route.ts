@@ -1,39 +1,13 @@
-// TODO: 本路由超过 120 行硬约束，需后续拆分为 server/services/hr/roster.ts
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess, checkPermission } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
-import * as XLSX from "xlsx";
-import { matchAnyField } from "@/lib/search-schema";
-import { isPharma } from "@/lib/company";
-
-const FIELDS = [
-  { key: "employeeId", label: "ID" },
-  { key: "name", label: "姓名" },
-  { key: "alias", label: "别名" },
-  { key: "company", label: "公司" },
-  { key: "center", label: "中心" },
-  { key: "dept1", label: "一级部门" },
-  { key: "dept2", label: "二级部门" },
-  { key: "position", label: "行政职务" },
-  { key: "gmpDept", label: "GMP部门" },
-  { key: "gmpPosition", label: "GMP岗位" },
-  { key: "gender", label: "性别" },
-  { key: "ethnicity", label: "民族" },
-  { key: "hometown", label: "籍贯" },
-  { key: "politics", label: "政治面貌" },
-  { key: "education", label: "学历" },
-  { key: "title", label: "职称" },
-  { key: "school", label: "毕业院校" },
-  { key: "major", label: "专业" },
-  { key: "phone", label: "电话" },
-  { key: "joinDate", label: "进司时间" },
-  { key: "nature", label: "性质" },
-];
-
-async function getVisibleFields(_userId: number, _isAdmin: boolean): Promise<string[]> {
-  return FIELDS.map((f) => f.key);
-}
+import {
+  ROSTER_FIELDS,
+  getVisibleFields,
+  queryRawEmployees,
+  buildRosterRows,
+  buildRosterExcel,
+  getAllDepartmentNames,
+} from "@/server/services/hr/roster";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -42,90 +16,22 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const raw = searchParams.get("raw") === "1";
-  if (raw) {
-    const keyword = searchParams.get("keyword") || "";
-    let employees = await prisma.employee.findMany({ orderBy: { employeeId: "asc" } });
-    if (keyword) employees = employees.filter((e) => matchAnyField(e, keyword, "Employee"));
-    return NextResponse.json({ employees });
-  }
-
   const dept = searchParams.get("dept") || "";
   const keyword = searchParams.get("keyword") || "";
   const exportExcel = searchParams.get("export") === "1";
   const isAdmin = await checkPermission(payload.userId, "system", "admin");
 
-  let baseEmployees = await prisma.employee.findMany({
-    orderBy: [{ employeeId: "asc" }],
-  });
-
-  if (keyword) {
-    baseEmployees = baseEmployees.filter((e) => matchAnyField(e, keyword, "Employee"));
+  if (raw) {
+    const employees = await queryRawEmployees(keyword);
+    return NextResponse.json({ employees });
   }
 
-  const employeeIds = baseEmployees.map((e) => e.id);
-
-  const epWhere: Prisma.EDPWhereInput = { employeeId: { in: employeeIds } };
-  if (dept) {
-    epWhere.department = { name: { contains: dept } };
-  }
-
-  const eps = await prisma.eDP.findMany({
-    where: epWhere,
-    include: { department: true, position: true },
-    orderBy: [{ employeeId: "asc" }],
-  });
-
-  const epByEmp = new Map<number, typeof eps>();
-  for (const ep of eps) {
-    if (!epByEmp.has(ep.employeeId)) epByEmp.set(ep.employeeId, []);
-    epByEmp.get(ep.employeeId)!.push(ep);
-  }
-
-  const rows: Record<string, unknown>[] = [];
-  for (const emp of baseEmployees) {
-    const epsForEmp = epByEmp.get(emp.id) || [];
-    const defEP = epsForEmp.find((e) => !isPharma(e.department?.code || "")) || epsForEmp[0];
-    const gmpEP = epsForEmp.find((e) => isPharma(e.department?.code || ""));
-    const companyName = isPharma(defEP?.department?.code || "") ? "丰华制药" : "丰华生物";
-    rows.push({
-      id: emp.id, employeeId: emp.employeeId, name: emp.name, alias: emp.alias,
-      company: companyName,
-      center: "",
-      dept1: defEP?.department?.name ?? "",
-      dept2: "",
-      position: defEP?.position?.name ?? "",
-      gmpDept: gmpEP?.department?.name ?? "",
-      gmpPosition: gmpEP?.position?.name ?? "",
-      gender: emp.gender, ethnicity: emp.ethnicity, hometown: emp.hometown,
-      politics: emp.politics, education: emp.education, title: emp.title,
-      school: emp.school, major: emp.major, phone: emp.phone,
-      joinDate: "", nature: "", status: "",
-      leaveDate: "", userId: emp.userId,
-      eDPId: defEP?.id ?? null,
-    });
-  }
-
-  rows.sort((a, b) => String(a.employeeId).localeCompare(String(b.employeeId)));
-
+  const rows = await buildRosterRows(dept, keyword);
   const visibleFields = await getVisibleFields(payload.userId, isAdmin);
 
   if (exportExcel) {
-    const exportData = rows.map((emp) => {
-      const row: Record<string, unknown> = {};
-      for (const f of FIELDS) {
-        if (visibleFields.includes(f.key)) {
-          row[f.label] = (emp as Record<string, unknown>)[f.key] || "";
-        }
-      }
-      return row;
-    });
-
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "花名册");
-    const buf = XLSX.write(wb, { type: "buffer", bookType: "xlsx" });
-
-    return new NextResponse(buf, {
+    const buf = buildRosterExcel(rows, visibleFields);
+    return new NextResponse(buf as unknown as BodyInit, {
       headers: {
         "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         "Content-Disposition": `attachment; filename="roster_${new Date().toISOString().slice(0, 10)}.xlsx"`,
@@ -134,7 +40,7 @@ export async function GET(request: Request) {
   }
 
   const allCompanies = ["丰华制药", "丰华生物"];
-  const allDepts = [...new Set((await prisma.department.findMany({ select: { name: true } })).map((d) => d.name).filter(Boolean))];
+  const allDepts = await getAllDepartmentNames();
 
-  return NextResponse.json({ employees: rows, fields: FIELDS, visibleFields, allCompanies, allDepts });
+  return NextResponse.json({ employees: rows, fields: ROSTER_FIELDS, visibleFields, allCompanies, allDepts });
 }
