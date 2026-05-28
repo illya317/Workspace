@@ -221,11 +221,11 @@ npm run db:docs
 |---|---|
 | `AGENTS.md` / `CLAUDE.md` | agent 工作规则和项目边界 |
 | `docs/architecture-governance.md` | 新模块、目录、schema、API、文档治理规则 |
-| `docs/architecture-optimization-roadmap.md` | 现状架构优化路线图 |
-| `docs/rbac.md` | 权限模型 |
+| `docs/planning/architecture-optimization-roadmap.md` | 现状架构优化路线图 |
+| `docs/security/rbac.md` | 权限模型 |
 | `docs/database.md` | 数据库说明 |
-| `docs/environment.md` | 环境变量 |
-| `docs/deploy.md` | 部署流程 |
+| `docs/ops/environment.md` | 环境变量 |
+| `docs/ops/deploy.md` | 部署流程 |
 | `app/hr/ARCHITECTURE.md` | HR 模块架构 |
 
 如果 README 和代码不一致，先更新 README 或对应 `ARCHITECTURE.md`，再让 agent 继续写代码。项目还小的时候把地图画清楚，以后扩模块才不会每次都重新摸路。

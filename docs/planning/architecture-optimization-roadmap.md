@@ -65,7 +65,7 @@ npm run build
 
 - `README.md` 只放项目总地图。
 - `docs/architecture-governance.md` 放长期规则。
-- `docs/architecture-optimization-roadmap.md` 放现状优化路线图。
+- `docs/planning/architecture-optimization-roadmap.md` 放现状优化路线图。
 - 每个业务模块必须有自己的 `ARCHITECTURE.md`：
   - `app/hr/ARCHITECTURE.md`
   - `app/finance/cost/ARCHITECTURE.md`
@@ -152,7 +152,7 @@ npm run build
   - `useSearch.ts` → `/api/hr/employees/search`、`/api/hr/autocomplete`
   - `RosterTab.tsx` → `/api/hr/roster`
   - `useCodeData.ts` → `/api/hr/roster`
-- `docs/api.md` 已更新：旧 API 单独列为"兼容层（已废弃）"。
+- `docs/generated/api.md` 已更新：旧 API 单独列为"兼容层（已废弃）"。
 
 遗留注意：
 

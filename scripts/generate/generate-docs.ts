@@ -790,19 +790,19 @@ function generateApiMD(endpoints: ApiEndpoint[]): string {
 const schemaPath = path.resolve(__dirname, "../../prisma/schema.prisma");
 const { models } = parseSchema(schemaPath);
 
-fs.writeFileSync(path.resolve(__dirname, "../../docs/tables.html"), generateTablesHTML(models), "utf-8");
-fs.writeFileSync(path.resolve(__dirname, "../../docs/tables.md"), generateTablesMD(models), "utf-8");
-console.log(`✓ docs/tables.html  (${models.length} models)`);
-console.log(`✓ docs/tables.md`);
+fs.writeFileSync(path.resolve(__dirname, "../../docs/generated/tables.html"), generateTablesHTML(models), "utf-8");
+fs.writeFileSync(path.resolve(__dirname, "../../docs/generated/tables.md"), generateTablesMD(models), "utf-8");
+console.log(`✓ docs/generated/tables.html  (${models.length} models)`);
+console.log(`✓ docs/generated/tables.md`);
 
 const apiEndpoints = parseApiRoutes();
-fs.writeFileSync(path.resolve(__dirname, "../../docs/api.html"), generateApiHTML(apiEndpoints), "utf-8");
-console.log(`✓ docs/api.html  (${apiEndpoints.length} endpoints)`);
+fs.writeFileSync(path.resolve(__dirname, "../../docs/generated/api.html"), generateApiHTML(apiEndpoints), "utf-8");
+console.log(`✓ docs/generated/api.html  (${apiEndpoints.length} endpoints)`);
 
-const apiMdPath = path.resolve(__dirname, "../../docs/api.md");
+const apiMdPath = path.resolve(__dirname, "../../docs/generated/api.md");
 if (!fs.existsSync(apiMdPath)) {
   fs.writeFileSync(apiMdPath, generateApiMD(apiEndpoints), "utf-8");
-  console.log(`✓ docs/api.md`);
+  console.log(`✓ docs/generated/api.md`);
 } else {
-  console.log(`✓ docs/api.md (skipped — handwritten, delete to regenerate)`);
+  console.log(`✓ docs/generated/api.md (skipped — handwritten, delete to regenerate)`);
 }
