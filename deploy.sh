@@ -79,6 +79,10 @@ echo "==> 同步构建产物到服务器（rsync 只传差异，node_modules 在
 rsync -avz --delete --exclude='.env' --exclude='node_modules' -e "ssh -i $KEY" \
   .next/standalone/ "$SERVER:$REMOTE_DIR/.next/standalone/"
 
+echo "==> 同步 Prisma 生成文件到服务器..."
+rsync -avz --delete -e "ssh -i $KEY" \
+  .next/standalone/node_modules/.prisma/client/ "$SERVER:$REMOTE_DIR/.next/standalone/node_modules/.prisma/client/"
+
 echo "==> 服务器端安装生产依赖..."
 ssh -i "$KEY" "$SERVER" "cd $REMOTE_DIR/.next/standalone && npm install --production"
 
