@@ -48,6 +48,7 @@ next-env.d.ts
 # SQLite database and runtime data
 /data/*.db
 /data/*.db-journal
+/data/*.db.backup-*
 /data/.env.backup-*
 
 # Company-specific assets (logo, favicon, etc.)
@@ -55,6 +56,12 @@ next-env.d.ts
 
 # Deployment lock file
 .deploying
+
+# Playwright test results
+/test-results/
+
+# Generated artifacts
+/generated/
 
 # Planning files (local working memory)
 /task_plan.md

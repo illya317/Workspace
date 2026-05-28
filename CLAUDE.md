@@ -11,7 +11,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 ## 技术栈
 
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
-- **数据库**: Prisma ORM + SQLite (`prisma/dev.db`)
+- **数据库**: Prisma ORM + SQLite (`data/dev.db`)
 - **认证**: JWT Cookie + API Key (个人)
 - **部署**: `npm run build` → `./deploy.sh` (普通) / `./deploy.sh --push-db` (schema变更)
 
@@ -104,13 +104,13 @@ Schema 可视化文档：`docs/tables.html`（自动生成，运行 `node script
 
 ## 数据导入
 
-源数据在 `prisma/seed/*.json` 和 `web/position-descriptions/*.json`，通过 `scripts/import-seed.js` 导入：
+源数据在 `prisma/seed/*.json`、`prisma/seed/position-descriptions/*.json` 和 `prisma/seed/department-descriptions/*.json`：
 
 ```
 Company → Department → PositionDescription → Position → Employee → Employment → EDP
 ```
 
-重置数据：`rm prisma/dev.db && npx prisma db push && node scripts/import-seed.js`
+重置数据：`rm data/dev.db && npx prisma db push`
 
 ## 关键路由
 

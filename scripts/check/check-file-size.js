@@ -14,7 +14,7 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "../..");
-const ALLOWLIST_PATH = path.join(ROOT, ".sizecheck-allowlist.json");
+const ALLOWLIST_PATH = path.join(ROOT, "scripts/check/.sizecheck-allowlist.json");
 
 const LIMITS = {
   api: { pattern: /^app\/api\/.*\/route\.ts$/, max: 120 },
