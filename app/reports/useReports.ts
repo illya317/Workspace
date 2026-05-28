@@ -1,196 +1,141 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { getCurrentPeriod, getPeriodRange, getPreviousPeriod, getPeriodOptions, getYearOptions, getPeriodTypeName } from "@/lib/period";
+import { useState, useEffect, useCallback } from "react";
+import { getPeriodRange, getPeriodTypeName } from "@/lib/period";
 import type { PeriodType } from "@/lib/period";
-import type { Report } from "./ReportEditor";
+import type { SavedTarget } from "./hooks/useReportAuth";
+import { useReportAuth, loadSavedTarget, saveTarget } from "./hooks/useReportAuth";
+import { useReportPeriod } from "./hooks/useReportPeriod";
+import { useReportLoader } from "./hooks/useReportLoader";
 import type { ItemRow } from "./WorkSection";
 
 export function useReports(showToast: (message: string, type?: "success" | "error") => void) {
-  const router = useRouter();
+  const auth = useReportAuth();
+  const period = useReportPeriod();
+  const loader = useReportLoader();
+  const { fetchUser, setInitialLoading } = auth;
 
-  const [user, setUser] = useState<{ id: number; name: string; departmentId: number } | null>(null);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [loading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [viewingVersion, setViewingVersion] = useState(0);
-
-  const [report, setReport] = useState<Report | null>(null);
-  const [taskName, setTaskName] = useState("");
-  const [notes, setNotes] = useState("");
   const [targetType, setTargetType] = useState("department");
   const [targetId, setTargetId] = useState(0);
   const [targetName, setTargetName] = useState("");
-  const [periodType, setPeriodType] = useState<PeriodType>("weekly");
-
-  const [routineItems, setRoutineItems] = useState<ItemRow[]>([]);
-  const [nonRoutineItems, setNonRoutineItems] = useState<ItemRow[]>([]);
+  const [saving, setSaving] = useState(false);
   const [showRoutineSelect, setShowRoutineSelect] = useState(false);
   const [showNonRoutineSelect, setShowNonRoutineSelect] = useState(false);
-  const [workList, setWorkList] = useState<Array<{ id: number; category: string; content: string }>>([]);
 
-  const [periodInfo, setPeriodInfo] = useState<{ label: string; dateRange: string } | null>(null);
-  const [versions, setVersions] = useState<Array<{ version: number; createdAt: string }>>([]);
-  const ci = getCurrentPeriod(periodType);
-  const [selectedYear, setSelectedYear] = useState(ci.year);
-  const [selectedPeriodIndex, setSelectedPeriodIndex] = useState(ci.periodIndex);
+  // Initialize user, period, target, and load initial report
+  const init = useCallback(async () => {
+    const user = await fetchUser();
+    if (!user) return;
 
-  const yearOptions = getYearOptions(periodType, ci.year);
-  const periodOptions = getPeriodOptions(periodType, selectedYear);
-
-  const loadReport = useCallback(async (u: { id: number; name: string; departmentId: number }, year: number, periodIndex: number, overrideTarget?: { targetType: string; targetId: number }, overridePeriodType?: PeriodType) => {
-    const pt = overridePeriodType || periodType;
-    const range = getPeriodRange(pt, year, periodIndex);
-    setPeriodInfo({ label: range.label, dateRange: range.dateRange });
-
-    const tt = overrideTarget?.targetType || targetType || "department";
-    const ti = overrideTarget?.targetId ?? targetId;
-    const targetParam = tt && ti ? `&targetType=${tt}&targetIds=${ti}` : "";
-
-    const date = range.date;
-    const prev = getPreviousPeriod(pt, year, periodIndex);
-    const prevDate = prev.date;
-
-    const [reportsRes, prevRes, worksRes] = await Promise.all([
-      fetch(`/api/reports?date=${date}${targetParam}`),
-      fetch(`/api/reports?date=${prevDate}${targetParam}`),
-      fetch(tt && ti ? `/api/works?targetType=${tt}&targetId=${ti}` : `/api/works?deptId=${u.departmentId}`),
-    ]);
-
-    const reportsData = await reportsRes.json();
-    const prevData = await prevRes.json();
-    const worksData = await worksRes.json();
-    const works: Array<{ id: number; category: string; content: string }> = worksData.works || [];
-    setWorkList(works);
-
-    if (reportsData.reports?.length > 0) {
-      const r = reportsData.reports[0];
-      setReport(r);
-      setTaskName(r.taskName);
-      setNotes(r.notes || "");
-      setViewingVersion(0);
-
-      const vRes = await fetch(`/api/reports/${r.id}/versions`);
-      const vData = await vRes.json();
-      setVersions(vData.history || []);
-
-      const mapItems = (cat: string) => r.items
-        .filter((i: { category: string }) => i.category === cat)
-        .sort((a: { sortOrder: number }, b: { sortOrder: number }) => a.sortOrder - b.sortOrder)
-        .map((i: { plan: string; completion: string; nextGoal: string; workItemId?: number | null }) => ({
-          plan: i.plan, completion: i.completion || "", nextGoal: i.nextGoal || "",
-          workId: i.workItemId ?? undefined, isImported: true,
-        }));
-
-      setRoutineItems(mapItems("routine"));
-      setNonRoutineItems(mapItems("non-routine"));
-    } else {
-      setReport(null); setTaskName(""); setNotes(""); setVersions([]); setViewingVersion(0);
-      const prevReport = prevData.reports?.[0];
-      const prevItems: Array<{ category: string; plan: string; completion: string; nextGoal: string; workItemId?: number | null; sortOrder: number }> = prevReport?.items || [];
-
-      const goalMap = new Map<number, string>();
-      for (const item of prevItems) {
-        if (item.workItemId && item.nextGoal) goalMap.set(item.workItemId, item.nextGoal);
-      }
-
-      function buildItems(cat: string) {
-        const deptWorks = works.filter(w => w.category === cat);
-        const prevCat = prevItems.filter(i => i.category === cat);
-        if (deptWorks.length > 0) {
-          return deptWorks.map(w => ({ plan: w.content, completion: "", nextGoal: "", workId: w.id, lastWeekGoal: goalMap.get(w.id) || "", isImported: true }));
-        } else if (prevCat.length > 0) {
-          return prevCat.map(i => ({ plan: i.nextGoal || i.plan, completion: "", nextGoal: "", workId: i.workItemId ?? undefined, lastWeekGoal: i.workItemId ? goalMap.get(i.workItemId) || "" : "", isImported: true }));
-        }
-        return [];
-      }
-
-      setRoutineItems(buildItems("routine"));
-      setNonRoutineItems(buildItems("non-routine"));
+    const savedTarget = loadSavedTarget();
+    if (savedTarget) {
+      setTargetType(savedTarget.targetType);
+      setTargetId(savedTarget.targetId);
+      setTargetName(savedTarget.targetName);
     }
+
+    await loader.loadReport(user, period.periodType, period.selectedYear, period.selectedPeriodIndex, savedTarget?.targetType || "department", savedTarget?.targetId || 0);
     setInitialLoading(false);
-  }, [periodType, targetType, targetId]);
+  }, [fetchUser, setInitialLoading, loader, period.periodType, period.selectedYear, period.selectedPeriodIndex]);
 
-  const fetchUser = useCallback(async () => {
-    try {
-      const res = await fetch("/api/auth/me");
-      if (!res.ok) { router.push("/login"); return; }
-      const data = await res.json();
-      setUser(data.user);
+  useEffect(() => {
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-      // Load user period preference
-      const savedPeriodType = typeof window !== "undefined" ? localStorage.getItem("selectedPeriodType") as PeriodType | null : null;
-      if (savedPeriodType) setPeriodType(savedPeriodType);
+  // Reload when period or target changes
+  useEffect(() => {
+    if (!auth.user) return;
+    loader.loadReport(auth.user, period.periodType, period.selectedYear, period.selectedPeriodIndex, targetType, targetId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth.user, period.periodType, period.selectedYear, period.selectedPeriodIndex, targetType, targetId]);
 
-      // Load saved target from localStorage
-      const savedTT = typeof window !== "undefined" ? localStorage.getItem("selectedTargetType") : null;
-      const savedTI = typeof window !== "undefined" ? localStorage.getItem("selectedTargetId") : null;
-      const savedTN = typeof window !== "undefined" ? localStorage.getItem("selectedTargetName") : null;
-      if (savedTT && savedTI) {
-        setTargetType(savedTT);
-        setTargetId(parseInt(savedTI));
-        setTargetName(savedTN || "");
-      }
-
-      const info = getCurrentPeriod(periodType);
-      setSelectedYear(info.year);
-      setSelectedPeriodIndex(info.periodIndex);
-      await loadReport(data.user, info.year, info.periodIndex, undefined, periodType);
-    } catch { router.push("/login"); }
-  }, [router, periodType, loadReport, setSelectedYear, setSelectedPeriodIndex]);
-
-  useEffect(() => { fetchUser(); }, [fetchUser]);
-
-  async function loadVersion(version: number) {
-    if (!report) return;
-    setViewingVersion(version);
-    if (version === 0) { await loadReport(user!, selectedYear, selectedPeriodIndex, undefined, periodType); return; }
-    const res = await fetch(`/api/reports/${report.id}/versions/${version}`);
-    const data = await res.json();
-    if (data.report) {
-      const r = data.report;
-      setTaskName(r.taskName);
-      setNotes(r.notes || "");
-      const map = (cat: string) => (r.items || []).filter((i: { category: string }) => i.category === cat).map((i: { plan: string; completion: string; nextGoal: string; workItemId?: number | null }) => ({
-        plan: i.plan, completion: i.completion || "", nextGoal: i.nextGoal || "", workId: i.workItemId ?? undefined, isImported: true,
-      }));
-      setRoutineItems(map("routine"));
-      setNonRoutineItems(map("non-routine"));
+  const handlePeriodTypeChange = useCallback((pt: PeriodType) => {
+    const { year, periodIndex } = period.handlePeriodTypeChange(pt);
+    if (auth.user) {
+      loader.loadReport(auth.user, pt, year, periodIndex, targetType, targetId);
     }
+  }, [auth.user, period, targetType, targetId, loader]);
+
+  const handleYearChange = useCallback((year: number) => {
+    const { periodIndex } = period.handleYearChange(year);
+    if (auth.user) {
+      loader.loadReport(auth.user, period.periodType, year, periodIndex, targetType, targetId);
+    }
+  }, [auth.user, period, targetType, targetId, loader]);
+
+  const handlePeriodIndexChange = useCallback((index: number) => {
+    const { year } = period.handlePeriodIndexChange(index);
+    if (auth.user) {
+      loader.loadReport(auth.user, period.periodType, year, index, targetType, targetId);
+    }
+  }, [auth.user, period, targetType, targetId, loader]);
+
+  const handleTargetChange = useCallback((target: SavedTarget | null) => {
+    saveTarget(target);
+    if (target) {
+      setTargetType(target.targetType);
+      setTargetId(target.targetId);
+      setTargetName(target.targetName);
+      loader.setTaskName(target.targetName);
+    } else {
+      setTargetType("department");
+      setTargetId(0);
+      setTargetName("");
+      loader.setTaskName("");
+    }
+    if (auth.user) {
+      loader.loadReport(auth.user, period.periodType, period.selectedYear, period.selectedPeriodIndex, target?.targetType || "department", target?.targetId || 0);
+    }
+  }, [auth.user, period, loader]);
+
+  async function handleLoadVersion(version: number) {
+    if (!loader.report) return;
+    loader.setViewingVersion(version);
+    if (version === 0) {
+      if (auth.user) {
+        await loader.loadReport(auth.user, period.periodType, period.selectedYear, period.selectedPeriodIndex, targetType, targetId);
+      }
+      return;
+    }
+    await loader.loadVersion(loader.report.id, version);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    if (!targetId && !report) { showToast("请先选择汇报对象", "error"); setSaving(false); return; }
+    if (!targetId && !loader.report) {
+      showToast("请先选择汇报对象", "error");
+      setSaving(false);
+      return;
+    }
 
     const items = [
-      ...routineItems.map((it, i) => ({ category: "routine" as const, plan: it.completion || it.plan, completion: it.completion, nextGoal: it.nextGoal, sortOrder: i, workId: it.workId })),
-      ...nonRoutineItems.map((it, i) => ({ category: "non-routine" as const, plan: it.completion || it.plan, completion: it.completion, nextGoal: it.nextGoal, sortOrder: i, workId: it.workId })),
+      ...loader.routineItems.map((it, i) => ({ category: "routine" as const, plan: it.completion || it.plan, completion: it.completion, nextGoal: it.nextGoal, sortOrder: i, workId: it.workId })),
+      ...loader.nonRoutineItems.map((it, i) => ({ category: "non-routine" as const, plan: it.completion || it.plan, completion: it.completion, nextGoal: it.nextGoal, sortOrder: i, workId: it.workId })),
     ];
 
-    const pInfo = getPeriodRange(periodType, selectedYear, selectedPeriodIndex);
-    const autoTaskName = targetName ? `${targetName}${pInfo.label}${getPeriodTypeName(periodType)}` : taskName;
-    const body = report
-      ? { taskName: autoTaskName, notes, items }
-      : { taskName: autoTaskName, notes, items, date: pInfo.date, targetType, targetId };
+    const pInfo = getPeriodRange(period.periodType, period.selectedYear, period.selectedPeriodIndex);
+    const autoTaskName = targetName ? `${targetName}${pInfo.label}${getPeriodTypeName(period.periodType)}` : loader.taskName;
+    const body = loader.report
+      ? { taskName: autoTaskName, notes: loader.notes, items }
+      : { taskName: autoTaskName, notes: loader.notes, items, date: pInfo.date, targetType, targetId };
 
-    const res = await fetch(report ? `/api/reports/${report.id}` : "/api/reports", {
-      method: report ? "PUT" : "POST",
+    const res = await fetch(loader.report ? `/api/reports/${loader.report.id}` : "/api/reports", {
+      method: loader.report ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
 
     if (res.ok) {
-      showToast(report ? "更新成功" : "提交成功", "success");
+      showToast(loader.report ? "更新成功" : "提交成功", "success");
       const d = await res.json();
       if (d.report) {
-        setReport(d.report);
-        if (report) {
-          const vRes = await fetch(`/api/reports/${report.id}/versions`);
+        loader.setReport(d.report);
+        if (loader.report) {
+          const vRes = await fetch(`/api/reports/${loader.report.id}/versions`);
           const vData = await vRes.json();
-          setVersions(vData.history || []);
+          loader.setVersions(vData.history || []);
         }
       }
     } else {
@@ -198,47 +143,6 @@ export function useReports(showToast: (message: string, type?: "success" | "erro
       showToast(err.error || "操作失败", "error");
     }
     setSaving(false);
-  }
-
-  // Period change handlers
-  function handlePeriodTypeChange(pt: PeriodType) {
-    setPeriodType(pt);
-    localStorage.setItem("selectedPeriodType", pt);
-    const info = getCurrentPeriod(pt);
-    setSelectedYear(info.year);
-    setSelectedPeriodIndex(info.periodIndex);
-    if (user) loadReport(user, info.year, info.periodIndex, undefined, pt);
-  }
-
-  function handleYearChange(year: number) {
-    setSelectedYear(year);
-    const pi = periodType === "yearly" ? 1 : selectedPeriodIndex;
-    if (user) loadReport(user, year, pi, undefined, periodType);
-  }
-
-  function handlePeriodIndexChange(index: number) {
-    setSelectedPeriodIndex(index);
-    if (user) loadReport(user, selectedYear, index, undefined, periodType);
-  }
-
-  function handleTargetChange(target: { targetType: string; targetId: number; targetName: string } | null) {
-    if (target) {
-      localStorage.setItem("selectedTargetType", target.targetType);
-      localStorage.setItem("selectedTargetId", String(target.targetId));
-      localStorage.setItem("selectedTargetName", target.targetName);
-      setTargetType(target.targetType);
-      setTargetId(target.targetId);
-      setTargetName(target.targetName);
-      setTaskName(target.targetName);
-    } else {
-      localStorage.removeItem("selectedTargetType");
-      localStorage.removeItem("selectedTargetId");
-      localStorage.removeItem("selectedTargetName");
-      setTargetName("");
-      setTaskName("");
-    }
-    if (user) loadReport(user, selectedYear, selectedPeriodIndex,
-      target ? { targetType: target.targetType, targetId: target.targetId } : undefined, periodType);
   }
 
   // Item manipulation helpers
@@ -265,63 +169,54 @@ export function useReports(showToast: (message: string, type?: "success" | "erro
     import(items: ItemRow[], setItems: (v: ItemRow[]) => void, setShow: (v: boolean) => void) {
       return (content: string) => {
         if (!content) return;
-        const w = workList.find(x => x.content === content);
+        const w = loader.workList.find((x) => x.content === content);
         setItems([...items, { plan: content, completion: "", nextGoal: "", workId: w?.id, isNew: true }]);
         setShow(false);
       };
     },
   };
 
-  const periodTypeName = getPeriodTypeName(periodType);
-
   return {
-    // State
-    user,
-    initialLoading,
-    loading,
+    user: auth.user,
+    initialLoading: auth.initialLoading,
+    loading: false,
     saving,
-    viewingVersion,
-    report,
-    taskName,
-    notes,
-    setNotes,
+    viewingVersion: loader.viewingVersion,
+    report: loader.report,
+    taskName: loader.taskName,
+    notes: loader.notes,
+    setNotes: loader.setNotes,
     targetType,
     targetId,
     targetName,
-    periodType,
-    routineItems,
-    nonRoutineItems,
+    periodType: period.periodType,
+    routineItems: loader.routineItems,
+    nonRoutineItems: loader.nonRoutineItems,
     showRoutineSelect,
     setShowRoutineSelect,
     showNonRoutineSelect,
     setShowNonRoutineSelect,
-    workList,
-    periodInfo,
-    versions,
-    selectedYear,
-    selectedPeriodIndex,
-
-    // Computed
-    yearOptions,
-    periodOptions,
-    periodTypeName,
-
-    // Handlers
+    workList: loader.workList,
+    periodInfo: loader.periodInfo,
+    versions: loader.versions,
+    selectedYear: period.selectedYear,
+    selectedPeriodIndex: period.selectedPeriodIndex,
+    yearOptions: period.yearOptions,
+    periodOptions: period.periodOptions,
+    periodTypeName: period.periodTypeName,
     handlePeriodTypeChange,
     handleYearChange,
     handlePeriodIndexChange,
     handleTargetChange,
     handleSubmit,
-    loadVersion,
-
-    // Item ops
-    onUpdateRoutine: itemOps.update(routineItems, setRoutineItems),
-    onRemoveRoutine: itemOps.remove(routineItems, setRoutineItems),
-    onMoveRoutine: itemOps.move(routineItems, setRoutineItems),
-    onImportRoutine: itemOps.import(routineItems, setRoutineItems, setShowRoutineSelect),
-    onUpdateNonRoutine: itemOps.update(nonRoutineItems, setNonRoutineItems),
-    onRemoveNonRoutine: itemOps.remove(nonRoutineItems, setNonRoutineItems),
-    onMoveNonRoutine: itemOps.move(nonRoutineItems, setNonRoutineItems),
-    onImportNonRoutine: itemOps.import(nonRoutineItems, setNonRoutineItems, setShowNonRoutineSelect),
+    loadVersion: handleLoadVersion,
+    onUpdateRoutine: itemOps.update(loader.routineItems, loader.setRoutineItems),
+    onRemoveRoutine: itemOps.remove(loader.routineItems, loader.setRoutineItems),
+    onMoveRoutine: itemOps.move(loader.routineItems, loader.setRoutineItems),
+    onImportRoutine: itemOps.import(loader.routineItems, loader.setRoutineItems, setShowRoutineSelect),
+    onUpdateNonRoutine: itemOps.update(loader.nonRoutineItems, loader.setNonRoutineItems),
+    onRemoveNonRoutine: itemOps.remove(loader.nonRoutineItems, loader.setNonRoutineItems),
+    onMoveNonRoutine: itemOps.move(loader.nonRoutineItems, loader.setNonRoutineItems),
+    onImportNonRoutine: itemOps.import(loader.nonRoutineItems, loader.setNonRoutineItems, setShowNonRoutineSelect),
   };
 }
