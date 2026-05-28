@@ -91,7 +91,7 @@ export default function SettingsClient({ user: initialUser }: { user: SessionUse
             </div>
           </div>
 
-          {user.isWorkListAdmin && (
+          {user.canAccessAdmin && (
             <div className="rounded-xl bg-white px-8 py-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
