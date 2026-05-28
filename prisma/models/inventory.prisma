@@ -1,0 +1,106 @@
+/// 原料库存
+model StockRawMaterial {
+  id              Int       @id @default(autoincrement())
+  code            String    @unique
+  name            String
+  spec            String?
+  unit            String    @default("kg")
+  manufacturer    String?
+  status          String    @default("正常")
+  lastBalance     Float     @default(0)
+  currentPurchase Float     @default(0)
+  currentConsume  Float     @default(0)
+  remark          String?
+  companyCode     String?
+  editedBy        Int?
+  editor          User?     @relation("StockRawMaterialEditor", fields: [editedBy], references: [id])
+  editedAt        DateTime?
+  version         Int       @default(1)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+}
+
+/// 包装材料库存
+model StockPackaging {
+  id              Int       @id @default(autoincrement())
+  code            String    @unique
+  name            String
+  spec            String?
+  unit            String    @default("卷")
+  packagingType   String    @default("小容量")
+  status          String    @default("正常")
+  lastBalance     Float     @default(0)
+  currentInbound  Float     @default(0)
+  currentOutbound Float     @default(0)
+  batchNo         String?
+  expiryDate      String?
+  remark          String?
+  companyCode     String?
+  editedBy        Int?
+  editor          User?     @relation("StockPackagingEditor", fields: [editedBy], references: [id])
+  editedAt        DateTime?
+  version         Int       @default(1)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+}
+
+/// 成品库存
+model StockFinishedGoods {
+  id              Int       @id @default(autoincrement())
+  code            String    @unique
+  name            String
+  packagingSpec   String?
+  unit            String    @default("件")
+  stockType       String    @default("正常库存")
+  lastBalance     Float     @default(0)
+  currentInbound  Float     @default(0)
+  currentOutbound Float     @default(0)
+  availableStock  Float     @default(0)
+  remark          String?
+  companyCode     String?
+  editedBy        Int?
+  editor          User?     @relation("StockFinishedGoodsEditor", fields: [editedBy], references: [id])
+  editedAt        DateTime?
+  version         Int       @default(1)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+}
+
+/// 批次信息
+model StockBatch {
+  id         Int      @id @default(autoincrement())
+  targetType String
+  targetId   Int
+  batchNo    String
+  quantity   Float    @default(0)
+  expiryDate String?
+  status     String   @default("正常")
+  remark     String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+}
+
+/// 库存操作记录（采购/入库/出库/领用/调整/退货）
+model StockOperation {
+  id         Int      @id @default(autoincrement())
+  opType     String
+  targetType String
+  targetId   Int
+  quantity   Float    @default(0)
+  docNo      String?
+  reason     String?
+  operatorId Int?
+  editor     User?    @relation("StockOperationEditor", fields: [operatorId], references: [id])
+  createdAt  DateTime @default(now())
+}
+
+/// 成品退货记录
+model StockReturn {
+  id              Int      @id @default(autoincrement())
+  finishedGoodsId Int
+  returnDate      String
+  quantity        Float    @default(0)
+  salesman        String?
+  reason          String?
+  createdAt       DateTime @default(now())
+}

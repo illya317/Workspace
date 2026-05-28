@@ -83,24 +83,35 @@ try {
   // Not in a git repo or no staged files; ignore.
 }
 
-// ── 4. Local .env must have NEXTAUTH_SECRET ──────────────────────────
+// ── 4. CI 环境下检查环境变量，否则检查本地 .env ──────────────────────────
 
-if (!fs.existsSync(ENV_FILE)) {
-  fail(".env is missing locally. Copy .env.example to .env and fill in real values.");
-} else {
-  const envContent = fs.readFileSync(ENV_FILE, "utf-8");
-  const envVars = new Map(
-    Array.from(envContent.matchAll(/^[ \t]*([A-Z_][A-Z0-9_]*)[ \t]*=[ \t]*(.+)$/gm)).map((m) => [
-      m[1],
-      m[2].replace(/^["']|["']$/g, "").trim(),
-    ])
-  );
+const isCI = !!process.env.CI;
 
-  const secret = envVars.get("NEXTAUTH_SECRET");
+if (isCI) {
+  const secret = process.env.NEXTAUTH_SECRET;
   if (!secret || secret.includes("replace-with") || secret.length < 16) {
-    fail("NEXTAUTH_SECRET in .env is missing or looks like a placeholder. Set a real secret.");
+    fail("NEXTAUTH_SECRET environment variable is missing or looks like a placeholder.");
   } else {
-    ok("NEXTAUTH_SECRET is present in .env");
+    ok("NEXTAUTH_SECRET is present in environment");
+  }
+} else {
+  if (!fs.existsSync(ENV_FILE)) {
+    fail(".env is missing locally. Copy .env.example to .env and fill in real values.");
+  } else {
+    const envContent = fs.readFileSync(ENV_FILE, "utf-8");
+    const envVars = new Map(
+      Array.from(envContent.matchAll(/^[ \t]*([A-Z_][A-Z0-9_]*)[ \t]*=[ \t]*(.+)$/gm)).map((m) => [
+        m[1],
+        m[2].replace(/^["']|["']$/g, "").trim(),
+      ])
+    );
+
+    const secret = envVars.get("NEXTAUTH_SECRET");
+    if (!secret || secret.includes("replace-with") || secret.length < 16) {
+      fail("NEXTAUTH_SECRET in .env is missing or looks like a placeholder. Set a real secret.");
+    } else {
+      ok("NEXTAUTH_SECRET is present in .env");
+    }
   }
 }
 

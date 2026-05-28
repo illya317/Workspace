@@ -1,0 +1,28 @@
+/// 合同管理（事实：合同基本信息、金额、状态）
+model Contract {
+  id             Int       @id @default(autoincrement())
+  contractNo     String?
+  name           String
+  partyA         String?
+  partyB         String?
+  shareholder    String?
+  category       String?
+  content        String?
+  handler        String?
+  signDate       String?
+  endDate        String?
+  status         String?
+  amount         Float?
+  executedAmount Float?
+  location       String?
+  remark         String?
+  editedBy       Int?
+  editor         User?     @relation("ContractEditor", fields: [editedBy], references: [id])
+  editedAt       DateTime?
+  version        Int       @default(1)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+
+  @@index([endDate])
+  @@index([status])
+}

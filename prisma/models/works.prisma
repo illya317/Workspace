@@ -1,0 +1,30 @@
+/// 工作清单条目
+model WorkItem {
+  id           Int               @id @default(autoincrement())
+  targetType   String            @default("personal")
+  targetId     Int?
+  category     String
+  content      String
+  importance   Int               @default(3)
+  urgency      Int               @default(3)
+  isArchived   Boolean           @default(false)
+  isPrivate    Boolean           @default(false)
+  sortOrder    Int               @default(0)
+  createdAt    DateTime          @default(now())
+  participants WorkParticipant[]
+  reportItems  ReportItem[]
+
+  @@index([targetType, targetId, category])
+}
+
+/// 工作清单参与人
+model WorkParticipant {
+  id         Int      @id @default(autoincrement())
+  workItemId Int
+  name       String
+  wxUserId   String?
+  createdAt  DateTime @default(now())
+  workItem   WorkItem @relation(fields: [workItemId], references: [id], onDelete: Cascade)
+
+  @@index([workItemId])
+}

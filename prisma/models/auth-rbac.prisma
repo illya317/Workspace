@@ -1,0 +1,97 @@
+/// 用户与认证
+model User {
+  id                       Int                  @id @default(autoincrement())
+  wxUserId                 String?              @unique
+  username                 String?              @unique
+  password                 String?
+  name                     String
+  avatar                   String?
+  routineItems             String?
+  canLogin                 Boolean              @default(true)
+  apiKey                   String?              @unique
+  employeeId               String?
+  createdAt                DateTime             @default(now())
+  sessionVersion           Int                  @default(0)
+  resourceRoles            UserResourceRole[]
+  reports                  Report[]
+  employees                Employee[]           @relation("EmployeeUser")
+  managedDepartments       Department[]         @relation("DepartmentManager")
+  editHistories            EditHistory[]        @relation("EditHistoryEditor")
+  editedFinanceAccounts    FinanceAccount[]     @relation("FinanceAccountEditor")
+  editedFinanceVouchers    FinanceVoucher[]     @relation("FinanceVoucherEditor")
+  editedStockRawMaterials  StockRawMaterial[]   @relation("StockRawMaterialEditor")
+  editedStockPackagings    StockPackaging[]     @relation("StockPackagingEditor")
+  editedStockFinishedGoods StockFinishedGoods[] @relation("StockFinishedGoodsEditor")
+  stockOperations          StockOperation[]     @relation("StockOperationEditor")
+  editedContracts          Contract[]           @relation("ContractEditor")
+}
+
+/// RBAC 资源定义，详见 docs/rbac.md
+model Resource {
+  id              Int                      @id @default(autoincrement())
+  key             String                   @unique
+  name            String
+  description     String?
+  level           Int                      @default(1)
+  sortOrder       Int                      @default(0)
+  parentId        Int?
+  parent          Resource?                @relation("ResHierarchy", fields: [parentId], references: [id])
+  children        Resource[]               @relation("ResHierarchy")
+  userRoles       UserResourceRole[]
+  positionRoles   PositionResourceRole[]
+  departmentRoles DepartmentResourceRole[]
+}
+
+/// RBAC 角色定义
+model Role {
+  id                    Int                      @id @default(autoincrement())
+  key                   String                   @unique
+  name                  String
+  description           String?
+  sortOrder             Int                      @default(0)
+  userAssignments       UserResourceRole[]
+  positionAssignments   PositionResourceRole[]
+  departmentAssignments DepartmentResourceRole[]
+}
+
+/// 用户-资源-角色授权关系
+model UserResourceRole {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  resourceId Int
+  roleId     Int
+  scopeId    String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, resourceId, roleId, scopeId])
+}
+
+/// 岗位-资源-角色授权关系（用于权限继承）
+model PositionResourceRole {
+  id         Int      @id @default(autoincrement())
+  positionId Int
+  resourceId Int
+  roleId     Int
+  scopeId    String?
+  position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([positionId, resourceId, roleId, scopeId])
+}
+
+/// 部门-资源-角色授权关系（用于权限继承）
+model DepartmentResourceRole {
+  id           Int        @id @default(autoincrement())
+  departmentId Int
+  resourceId   Int
+  roleId       Int
+  scopeId      String?
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  resource     Resource   @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([departmentId, resourceId, roleId, scopeId])
+}

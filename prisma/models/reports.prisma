@@ -1,0 +1,46 @@
+/// 周报/日报主表
+model Report {
+  id         Int             @id @default(autoincrement())
+  userId     Int?
+  targetType String          @default("department")
+  targetId   Int             @default(0)
+  date       String
+  taskName   String
+  notes      String?
+  editedBy   Int?
+  editedAt   DateTime?
+  version    Int             @default(1)
+  history    ReportHistory[]
+  items      ReportItem[]
+  user       User?           @relation(fields: [userId], references: [id])
+
+  @@unique([userId, targetType, targetId, date])
+}
+
+/// 周报条目明细
+model ReportItem {
+  id         Int       @id @default(autoincrement())
+  reportId   Int
+  category   String
+  plan       String
+  completion String?
+  nextGoal   String?
+  sortOrder  Int
+  workItemId Int?
+  workItem   WorkItem? @relation(fields: [workItemId], references: [id])
+  report     Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+}
+
+/// 周报历史版本快照
+model ReportHistory {
+  id        Int      @id @default(autoincrement())
+  reportId  Int
+  version   Int
+  taskName  String
+  notes     String?
+  itemsJson String
+  createdAt DateTime @default(now())
+  report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
+
+  @@unique([reportId, version])
+}

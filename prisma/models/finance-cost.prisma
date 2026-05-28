@@ -1,0 +1,172 @@
+/// 财务成本原始数据导入批次（事实：一次导入的元数据）
+model FinanceDataImport {
+  id                 Int      @id @default(autoincrement())
+  profile            String
+  year               Int?
+  sourceFile         String
+  sourcePath         String?
+  normalizedJsonPath String?
+  checksum           String?
+  status             String   @default("imported")
+  recordCount        Int      @default(0)
+  warningCount       Int      @default(0)
+  errorCount         Int      @default(0)
+  importedBy         String?
+  importedAt         DateTime @default(now())
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  shipments         FinanceShipment[]
+  salesSalaries     FinanceSalesSalary[]
+  workshopReports   FinanceWorkshopReport[]
+  costStructureRows FinanceCostStructureRow[]
+  costAnalysisRows  FinanceCostAnalysisRow[]
+
+  @@index([profile, year])
+  @@index([sourceFile])
+}
+
+/// 发货/销售明细（事实：每笔销售的数量、单价、金额、回款）
+model FinanceShipment {
+  id       Int               @id @default(autoincrement())
+  importId Int
+  import   FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  year         Int
+  month        Int?
+  date         String?
+  customerName String?
+  salesperson  String?
+  productName  String?
+  spec         String?
+  batchNo      String?
+
+  quantity       Float?
+  unitPrice      Float?
+  amount         Float?
+  receivedAmount Float?
+
+  sourceFile  String
+  sourceSheet String?
+  sourceRow   Int?
+  rawPayload  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([year, month])
+  @@index([customerName])
+  @@index([salesperson])
+  @@index([productName])
+}
+
+/// 销售工资（事实：底薪、提成、扣款、实发）
+model FinanceSalesSalary {
+  id       Int               @id @default(autoincrement())
+  importId Int
+  import   FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  year         Int
+  month        Int?
+  salesperson  String
+  baseSalary   Float?
+  bonus        Float?
+  deduction    Float?
+  actualSalary Float?
+
+  sourceFile  String
+  sourceSheet String?
+  sourceRow   Int?
+  rawPayload  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([year, month])
+  @@index([salesperson])
+}
+
+/// 成本结构明细（事实：产品成本项金额、数量、单位）
+model FinanceCostStructureRow {
+  id       Int               @id @default(autoincrement())
+  importId Int
+  import   FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  year        Int
+  month       Int?
+  productName String?
+  category    String?
+  itemName    String?
+  amount      Float?
+  quantity    Float?
+  unit        String?
+
+  sourceFile  String
+  sourceSheet String?
+  sourceRow   Int?
+  rawPayload  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([year, month])
+  @@index([productName])
+  @@index([category])
+}
+
+/// 成本分析指标（事实：分析表行标签、指标键、数值/文本值）
+model FinanceCostAnalysisRow {
+  id       Int               @id @default(autoincrement())
+  importId Int
+  import   FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  year       Int
+  month      Int?
+  tableName  String?
+  rowLabel   String?
+  metricKey  String?
+  metricName String?
+  value      Float?
+  textValue  String?
+
+  sourceFile  String
+  sourceSheet String?
+  sourceRow   Int?
+  rawPayload  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([year, month])
+  @@index([tableName])
+  @@index([metricKey])
+}
+
+/// 车间日报（事实：人员、工序、工分、数量）
+model FinanceWorkshopReport {
+  id       Int               @id @default(autoincrement())
+  importId Int
+  import   FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  year        Int
+  month       Int
+  productName String?
+  batchNo     String?
+  personName  String?
+  workType    String?
+  workPoint   Float?
+  quantity    Float?
+
+  sourceFile  String
+  sourceSheet String?
+  sourceRow   Int?
+  rawPayload  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([year, month])
+  @@index([productName])
+  @@index([batchNo])
+  @@index([personName])
+}

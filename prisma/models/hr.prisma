@@ -1,0 +1,234 @@
+/// 员工基础信息
+model Employee {
+  id            Int               @id @default(autoincrement())
+  employeeId    String            @unique
+  idNumber      String?           @unique
+  otherId       String?
+  name          String
+  alias         String?
+  gender        Boolean?
+  birthDate     String?
+  ethnicity     String?
+  hometown      String?
+  politics      String?
+  education     String?
+  title         String?
+  school        String?
+  major         String?
+  phone         String?
+  workStartDate String?
+  userId        Int?
+  user          User?             @relation("EmployeeUser", fields: [userId], references: [id])
+  employments   Employment[]
+  positions     EDP[]
+  projects      EmployeeProject[]
+  editedBy      Int?
+  editedAt      DateTime?
+  version       Int               @default(1)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @default(now()) @updatedAt
+}
+
+/// 员工雇佣信息（在职状态、入职/离职日期等事实字段）
+model Employment {
+  id             Int       @id @default(autoincrement())
+  employeeId     Int
+  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  isActive       Boolean   @default(true)
+  currentCompany String?
+  joinDate       String?
+  leaveDate      String?
+  leaveReason    String?
+  officeLocation String?
+  attendanceType String?
+  contracts      String?
+  editedBy       Int?
+  editedAt       DateTime?
+  version        Int       @default(1)
+
+  @@index([employeeId])
+  @@index([isActive])
+}
+
+/// 公司实体
+model Company {
+  id                Int               @id @default(autoincrement())
+  code              String            @unique
+  name              String            @unique
+  fullName          String?
+  registeredCapital String?
+  unifiedCode       String?
+  bankName          String?
+  registeredAddress String?
+  registeredDate    String?
+  legalPerson       String?
+  queryGroup        Int?
+  sortOrder         Int               @default(0)
+  parentOfRelations CompanyRelation[] @relation("ParentCompany")
+  childOfRelations  CompanyRelation[] @relation("ChildCompany")
+  editedBy          Int?
+  editedAt          DateTime?
+  version           Int               @default(1)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @default(now()) @updatedAt
+}
+
+/// 公司间持股关系
+model CompanyRelation {
+  id             Int      @id @default(autoincrement())
+  parentId       Int
+  childId        Int
+  parent         Company  @relation("ParentCompany", fields: [parentId], references: [id], onDelete: Cascade)
+  child          Company  @relation("ChildCompany", fields: [childId], references: [id], onDelete: Cascade)
+  shareRatio     Float?
+  isConsolidated Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @default(now()) @updatedAt
+
+  @@unique([parentId, childId])
+}
+
+/// 部门树（含层级关系与负责人）
+model Department {
+  id            Int                      @id @default(autoincrement())
+  code          String
+  name          String
+  alias         String?
+  level         Int                      @default(1)
+  parentId      Int?
+  parent        Department?              @relation("DeptHierarchy", fields: [parentId], references: [id])
+  children      Department[]             @relation("DeptHierarchy")
+  managerUserId Int?
+  manager       User?                    @relation("DepartmentManager", fields: [managerUserId], references: [id])
+  positions     Position[]
+  edps          EDP[]
+  resourceRoles DepartmentResourceRole[]
+  endDate       DateTime?
+  editedBy      Int?
+  editedAt      DateTime?
+  version       Int                      @default(1)
+
+  @@index([code])
+  @@index([name])
+}
+
+/// 岗位定义
+model Position {
+  id                    Int                    @id @default(autoincrement())
+  code                  String
+  alias                 String?
+  name                  String
+  departmentId          Int?
+  department            Department?            @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  positionDescriptionId Int?
+  positionDescription   PositionDescription?   @relation(fields: [positionDescriptionId], references: [id], onDelete: SetNull)
+  edps                  EDP[]
+  resourceRoles         PositionResourceRole[]
+  endDate               DateTime?
+  editedBy              Int?
+  editedAt              DateTime?
+  version               Int                    @default(1)
+
+  @@index([code])
+  @@index([name])
+  @@index([departmentId])
+}
+
+/// 员工-部门-岗位关联（EmployeePosition 别名）
+model EDP {
+  id            Int         @id @default(autoincrement())
+  employeeId    Int
+  employee      Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  departmentId  Int?
+  department    Department? @relation(fields: [departmentId], references: [id])
+  positionId    Int?
+  position      Position?   @relation(fields: [positionId], references: [id])
+  isPrimary     Boolean     @default(false)
+  startDate     String?
+  endDate       String?
+  personnelType String?
+  rank          String?
+  title         String?
+  reportTo      String?
+  reportTo2     String?
+  workPercent   String?
+  isResearch    Boolean?
+  editedBy      Int?
+  editedAt      DateTime?
+  version       Int         @default(1)
+
+  @@index([employeeId])
+  @@index([departmentId])
+  @@index([positionId])
+  @@map("EmployeePosition")
+}
+
+/// 项目/虚拟团队
+model Project {
+  id          Int               @id @default(autoincrement())
+  name        String
+  type        String            @default("project")
+  description String?
+  endDate     DateTime?
+  employees   EmployeeProject[]
+  editedBy    Int?
+  editedAt    DateTime?
+  version     Int               @default(1)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @default(now()) @updatedAt
+}
+
+/// 员工-项目关联
+model EmployeeProject {
+  id         Int       @id @default(autoincrement())
+  employeeId Int
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  projectId  Int
+  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  role       String?
+  startDate  String?
+  endDate    String?
+  editedBy   Int?
+  editedAt   DateTime?
+  version    Int       @default(1)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now()) @updatedAt
+
+  @@unique([employeeId, projectId])
+}
+
+/// 岗位说明书（原始 JSON 导入，details 为 JSON blob）
+model PositionDescription {
+  id              Int        @id @default(autoincrement())
+  code            String     @unique
+  name            String
+  departmentName  String?
+  reportTo        String?
+  positionPurpose String?
+  summary         String?
+  headcount       Int?
+  version         String?
+  effectiveDate   String?
+  sourceFile      String
+  details         String?
+  positions       Position[]
+  editedBy        Int?
+  editedAt        DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @default(now()) @updatedAt
+}
+
+/// 实体编辑历史（版本快照）
+model EditHistory {
+  id         Int      @id @default(autoincrement())
+  entityType String
+  entityId   String
+  version    Int
+  dataJson   String
+  editedBy   Int
+  editor     User     @relation("EditHistoryEditor", fields: [editedBy], references: [id])
+  tag        String?
+  createdAt  DateTime @default(now())
+
+  @@unique([entityType, entityId, version, tag])
+}

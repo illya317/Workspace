@@ -7,6 +7,24 @@ npm run env:check || {
   exit 1
 }
 
+echo "→ Running architecture governance check..."
+npm run arch:check || {
+  echo "✗ Architecture governance check failed. Commit aborted."
+  exit 1
+}
+
+echo "→ Running Prisma schema validate..."
+npm run db:validate || {
+  echo "✗ Prisma schema validation failed. Commit aborted."
+  exit 1
+}
+
+echo "→ Running schema governance check..."
+npm run schema:check || {
+  echo "✗ Schema governance check failed. Commit aborted."
+  exit 1
+}
+
 echo "→ Running lint (max-warnings=0)..."
 npm run lint -- --max-warnings=0 || {
   echo "✗ Lint failed. Commit aborted."

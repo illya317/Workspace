@@ -1,0 +1,94 @@
+/// 财务科目（含层级）
+model FinanceAccount {
+  id               Int                     @id @default(autoincrement())
+  code             String                  @unique
+  name             String
+  category         String
+  parentId         Int?
+  parent           FinanceAccount?         @relation("AccountHierarchy", fields: [parentId], references: [id])
+  children         FinanceAccount[]        @relation("AccountHierarchy")
+  balanceDirection String                  @default("debit")
+  isActive         Boolean                 @default(true)
+  companyCode      String?
+  sortOrder        Int                     @default(0)
+  voucherItems     FinanceVoucherItem[]
+  balances         FinanceAccountBalance[]
+  editedBy         Int?
+  editor           User?                   @relation("FinanceAccountEditor", fields: [editedBy], references: [id])
+  editedAt         DateTime?
+  version          Int                     @default(1)
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @default(now()) @updatedAt
+}
+
+/// 会计期间
+model FinancePeriod {
+  id          Int                     @id @default(autoincrement())
+  year        Int
+  month       Int
+  startDate   String
+  endDate     String
+  isClosed    Boolean                 @default(false)
+  companyCode String?
+  vouchers    FinanceVoucher[]
+  balances    FinanceAccountBalance[]
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @default(now()) @updatedAt
+}
+
+/// 记账凭证
+model FinanceVoucher {
+  id          Int                  @id @default(autoincrement())
+  voucherNo   String               @unique
+  date        String
+  periodId    Int
+  period      FinancePeriod        @relation(fields: [periodId], references: [id])
+  description String
+  totalDebit  Float                @default(0)
+  totalCredit Float                @default(0)
+  status      String               @default("draft")
+  companyCode String?
+  items       FinanceVoucherItem[]
+  editedBy    Int?
+  editor      User?                @relation("FinanceVoucherEditor", fields: [editedBy], references: [id])
+  editedAt    DateTime?
+  version     Int                  @default(1)
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @default(now()) @updatedAt
+
+  @@index([periodId, date, companyCode])
+  @@index([status])
+}
+
+/// 凭证明细分录（事实：借/贷金额）
+model FinanceVoucherItem {
+  id          Int            @id @default(autoincrement())
+  voucherId   Int
+  voucher     FinanceVoucher @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  accountId   Int
+  account     FinanceAccount @relation(fields: [accountId], references: [id])
+  debit       Float          @default(0)
+  credit      Float          @default(0)
+  description String?
+  sortOrder   Int            @default(0)
+}
+
+/// 科目余额（事实：期初/本期/期末借贷）
+model FinanceAccountBalance {
+  id            Int            @id @default(autoincrement())
+  accountId     Int
+  account       FinanceAccount @relation(fields: [accountId], references: [id])
+  periodId      Int
+  period        FinancePeriod  @relation(fields: [periodId], references: [id])
+  openingDebit  Float          @default(0)
+  openingCredit Float          @default(0)
+  currentDebit  Float          @default(0)
+  currentCredit Float          @default(0)
+  closingDebit  Float          @default(0)
+  closingCredit Float          @default(0)
+  companyCode   String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+
+  @@unique([accountId, periodId])
+}
