@@ -2,7 +2,7 @@
 set -e
 
 SERVER="ubuntu@49.235.213.225"
-REMOTE_DIR="/home/ubuntu/weekly"
+REMOTE_DIR="/home/ubuntu/weekly-new"
 PM2_NAME="weekly"
 KEY="/Users/koito/Desktop/.System/tencent/fenghua.pem"
 PUSH_DB=false
@@ -41,69 +41,31 @@ for arg in "$@"; do
   esac
 done
 
-if [ "$PUSH_DB" = true ]; then
-  echo "==> 同步数据库 schema..."
-  TMP_DB="/tmp/server-dev-push-$RANDOM.db"
-  rsync -avz -e "ssh -i $KEY" "$SERVER:$REMOTE_DIR/prisma/dev.db" "$TMP_DB"
-  DATABASE_URL="file:$TMP_DB" npx prisma db push --accept-data-loss
-  rsync -avz -e "ssh -i $KEY" "$TMP_DB" "$SERVER:$REMOTE_DIR/prisma/dev.db"
-  rm -f "$TMP_DB"
-  echo "==> Schema 同步完成"
-fi
-
 echo "==> 运行 lint (max-warnings=0)..."
 npm run lint -- --max-warnings=0
 
 echo "==> 运行类型检查..."
 npx tsc --noEmit
 
-echo "==> 本地构建..."
-npm run build
+echo "==> 推送到 GitHub..."
+git push origin main
 
-echo "==> 复制静态资源到 standalone（Next.js standalone 需要）..."
-cp -r .next/static .next/standalone/.next/
-cp -r public .next/standalone/
+echo "==> 服务器端部署..."
 
-echo "==> 复制 Prisma 生成文件到 standalone..."
-mkdir -p .next/standalone/node_modules/.prisma
-cp -r node_modules/.prisma/client .next/standalone/node_modules/.prisma/
+# 组装服务器端部署命令
+REMOTE_CMD="cd $REMOTE_DIR"
 
-echo "==> 清理 Prisma 重复文件和本地引擎（只保留服务器需要的 debian-openssl）..."
-find .next/standalone/node_modules/.prisma/client -regextype sed -regex '.* [2-9][0-9]*\.\(js\|ts\|node\)$' -delete 2>/dev/null || true
-rm -f .next/standalone/node_modules/.prisma/client/libquery_engine-darwin-arm64* 2>/dev/null || true
+if [ "$PUSH_DB" = true ]; then
+  REMOTE_CMD="$REMOTE_CMD && echo '==> 同步数据库 schema...' && DATABASE_URL=file:$REMOTE_DIR/prisma/dev.db npx prisma db push --accept-data-loss"
+fi
 
-echo "==> 确保服务器数据库目录存在..."
-ssh -i "$KEY" "$SERVER" "mkdir -p $REMOTE_DIR/prisma"
+REMOTE_CMD="$REMOTE_CMD && echo '==> 拉取最新代码...' && git fetch origin main && git reset --hard origin/main"
+REMOTE_CMD="$REMOTE_CMD && echo '==> 安装依赖...' && npm install"
+REMOTE_CMD="$REMOTE_CMD && echo '==> 构建...' && DATABASE_URL=file:$REMOTE_DIR/prisma/dev.db npm run build"
+REMOTE_CMD="$REMOTE_CMD && echo '==> 复制静态资源到 standalone...' && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/"
+REMOTE_CMD="$REMOTE_CMD && echo '==> 重启服务...' && pm2 restart $PM2_NAME --update-env 2>/dev/null || pm2 start .next/standalone/server.js --name $PM2_NAME --cwd $REMOTE_DIR/.next/standalone --env production"
+REMOTE_CMD="$REMOTE_CMD && echo '==> 保存 PM2 配置...' && pm2 save"
 
-echo "==> 同步构建产物到服务器（rsync 只传差异，node_modules 在服务器端自行安装）..."
-rsync -avz --delete --exclude='.env' -e "ssh -i $KEY" \
-  .next/standalone/ "$SERVER:$REMOTE_DIR/.next/standalone/"
-
-echo "==> 同步 Prisma schema 到服务器..."
-rsync -avz --delete -e "ssh -i $KEY" \
-  prisma/ "$SERVER:$REMOTE_DIR/prisma/"
-
-echo "==> 确保服务器 generated 目录存在..."
-ssh -i "$KEY" "$SERVER" "mkdir -p $REMOTE_DIR/generated"
-
-echo "==> 同步 generated/prisma 到服务器..."
-rsync -avz --delete -e "ssh -i $KEY" \
-  generated/prisma/ "$SERVER:$REMOTE_DIR/generated/prisma/"
-
-echo "==> 同步 package.json 到服务器..."
-rsync -avz -e "ssh -i $KEY" \
-  package.json "$SERVER:$REMOTE_DIR/package.json"
-
-echo "==> 服务器端安装 prisma CLI..."
-ssh -i "$KEY" "$SERVER" "cd $REMOTE_DIR && npm install prisma@^7.8.0 --save-dev"
-
-echo "==> 服务器端重新生成 Prisma Client..."
-ssh -i "$KEY" "$SERVER" "cd $REMOTE_DIR && npx prisma generate"
-
-echo "==> 修复服务器 .env 数据库路径..."
-ssh -i "$KEY" "$SERVER" "sed -i 's|file:/Users/koito/Desktop/Project/[^/]*/prisma/dev.db|file:/home/ubuntu/weekly/prisma/dev.db|' $REMOTE_DIR/.next/standalone/.env 2>/dev/null || true"
-
-echo "==> 重启服务..."
-ssh -i "$KEY" "$SERVER" "cd $REMOTE_DIR/.next/standalone && export DATABASE_URL='file:/home/ubuntu/weekly/prisma/dev.db' && (pm2 restart $PM2_NAME --update-env 2>/dev/null || pm2 start server.js --name $PM2_NAME --cwd $REMOTE_DIR/.next/standalone --env production)"
+ssh -i "$KEY" "$SERVER" "$REMOTE_CMD"
 
 echo "==> 完成"
