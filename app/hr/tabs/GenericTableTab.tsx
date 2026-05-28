@@ -5,9 +5,11 @@ import HRToolbar from "@/app/components/HRToolbar";
 import AuditLogModal from "@/app/components/AuditLogModal";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import FKInput from "../components/FKInput";
-import { AutoSizeInput } from "../components/AutoSizeInput";
 import FilterModal from "../components/FilterModal";
+import GenericFieldInput from "../components/GenericFieldInput";
+import GenericToolbarFilters from "../components/GenericToolbarFilters";
+import GenericCreateModal from "../components/GenericCreateModal";
+import GenericPagination from "../components/GenericPagination";
 import { useGenericTab } from "../hooks/useGenericTab";
 import EditableTable, { getVal } from "./EditableTable";
 import type { TabConfig, FieldConfig, HRUser } from "../types";
@@ -68,52 +70,9 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
     if (e.key === "Escape") cancelEdit();
   }
 
-  function renderEditInput(fieldKey: string) {
-    const field = config.fields.find((f) => f.key === fieldKey);
-    if (!field) return null;
-    if (field.key === "gender") {
-      return (
-        <select
-          value={editValue === true || editValue === "男" ? "男" : editValue === false || editValue === "女" ? "女" : "男"}
-          onChange={(e) => setEditValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          className="rounded border border-emerald-400 px-2 py-1.5 text-sm focus:outline-none"
-        >
-          <option value="男">男</option>
-          <option value="女">女</option>
-        </select>
-      );
-    }
-    if (field.type === "boolean") {
-      return (
-        <button
-          type="button"
-          onClick={() => setEditValue(!editValue)}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 ${editValue ? 'bg-emerald-500' : 'bg-gray-300'}`}
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${editValue ? 'translate-x-6' : 'translate-x-1'}`}
-          />
-        </button>
-      );
-    }
-    if (field.type === "fk" && config.fkFields?.[fieldKey]) {
-      return (
-        <FKInput
-          value={null} displayValue={String(editValue ?? "")} entity={config.fkFields[fieldKey].entity}
-          onChange={(opt) => setEditValue(opt?.name ?? "")}
-        />
-      );
-    }
-    return (
-      <AutoSizeInput
-        ref={inputRef}
-        value={String(editValue ?? "")}
-        onChange={(e) => setEditValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-      />
-    );
-  }
+  const editingField = editingCell
+    ? config.fields.find((f) => f.key === editingCell.field)
+    : undefined;
 
   return (
     <div className="space-y-4">
@@ -129,59 +88,14 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
           onShowHistory: () => setShowHistory(true),
         }}
       >
-        {/* 简单筛选 */}
-        {config.filters?.map((f) => (
-          f.type === "boolean" ? (
-            <select
-              key={f.key}
-              value={filters[f.key] ?? ""}
-              onChange={(e) => { setFilter(f.key, e.target.value); }}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
-            >
-              <option value="">{f.label}</option>
-              <option value="true">是</option>
-              <option value="false">否</option>
-            </select>
-          ) : f.type === "select" && f.options ? (
-            <select
-              key={f.key}
-              value={filters[f.key] ?? ""}
-              onChange={(e) => { setFilter(f.key, e.target.value); }}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
-            >
-              <option value="">{f.label}</option>
-              {f.options.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-          ) : (
-            <input
-              key={f.key}
-              type="text"
-              value={filters[f.key] ?? ""}
-              onChange={(e) => { setFilter(f.key, e.target.value); }}
-              placeholder={f.label}
-              className="w-28 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 placeholder-gray-400 focus:border-emerald-400 focus:outline-none"
-            />
-          )
-        ))}
-
-        {/* 高级筛选 */}
-        <button
-          onClick={() => setShowFilterModal(true)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
-        >
-          筛选
-        </button>
-
-        {config.canCreate && user.canEditHR && (
-          <button
-            onClick={() => setCreating(true)}
-            className="rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700"
-          >
-            新建
-          </button>
-        )}
+        <GenericToolbarFilters
+          filters={config.filters || []}
+          filterValues={filters}
+          onFilterChange={(key, val) => setFilter(key, val)}
+          onShowAdvancedFilters={() => setShowFilterModal(true)}
+          canCreate={!!config.canCreate && user.canEditHR}
+          onCreate={() => setCreating(true)}
+        />
       </HRToolbar>
 
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
@@ -199,71 +113,32 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
             editingCell={editingCell}
             editMode={editMode}
             canEdit={user.canEditHR}
-            renderEditInput={renderEditInput}
+            renderEditInput={(fieldKey) =>
+              editingField ? (
+                <GenericFieldInput
+                  field={editingField}
+                  value={editValue}
+                  onChange={setEditValue}
+                  onKeyDown={handleKeyDown}
+                  inputRef={inputRef}
+                  fkConfig={config.fkFields?.[fieldKey]}
+                  mode="edit"
+                />
+              ) : null
+            }
             onStartEdit={handleStartEdit}
           />
         )}
       </div>
 
       {creating && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-          <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
-            <h3 className="mb-4 text-sm font-semibold text-gray-800">新建 {config.title}</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {config.fields.filter((f) => !f.hidden).map((f) => (
-                <div key={f.key} className={f.type === "textarea" ? "col-span-2" : ""}>
-                  <label className="mb-1 block text-xs text-gray-600">{f.label}{f.required && <span className="text-red-400 ml-0.5">*</span>}</label>
-                  {f.type === "fk" && config.fkFields?.[f.key] ? (
-                    <FKInput
-                      value={(createForm[f.key] as { id?: number } | undefined)?.id ?? null}
-                      displayValue={(createForm[f.key] as { name?: string } | undefined)?.name ?? ""}
-                      entity={config.fkFields[f.key].entity}
-                      onChange={(opt) => setCreateForm((prev) => ({ ...prev, [f.key]: opt }))}
-                    />
-                  ) : f.key === "gender" ? (
-                    <select
-                      value={(createForm[f.key] as string) ?? "男"}
-                      onChange={(e) => setCreateForm((prev) => ({ ...prev, [f.key]: e.target.value }))}
-                      className="w-20 rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-                    >
-                      <option value="男">男</option>
-                      <option value="女">女</option>
-                    </select>
-                  ) : f.type === "boolean" ? (
-                    <input
-                      type="checkbox"
-                      checked={!!createForm[f.key]}
-                      onChange={(e) => setCreateForm((prev) => ({ ...prev, [f.key]: e.target.checked }))}
-                      className="h-4 w-4 rounded border-gray-300"
-                    />
-                  ) : f.type === "textarea" ? (
-                    <textarea
-                      value={(createForm[f.key] as string) ?? ""}
-                      onChange={(e) => setCreateForm((prev) => ({ ...prev, [f.key]: e.target.value }))}
-                      className="w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-                      rows={3}
-                    />
-                  ) : (
-                    <AutoSizeInput
-                      type={f.type === "number" ? "number" : f.type === "date" ? "date" : "text"}
-                      value={(createForm[f.key] as string) ?? ""}
-                      onChange={(e) => setCreateForm((prev) => ({ ...prev, [f.key]: e.target.value }))}
-                      className="border-gray-300 focus:border-emerald-400"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 flex gap-2">
-              <button onClick={handleCreate} className="rounded-md bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700">
-                保存
-              </button>
-              <button onClick={() => { setCreating(false); setCreateForm({}); }} className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                取消
-              </button>
-            </div>
-          </div>
-        </div>
+        <GenericCreateModal
+          config={config}
+          createForm={createForm}
+          onChange={(key, val) => setCreateForm((prev) => ({ ...prev, [key]: val }))}
+          onSubmit={handleCreate}
+          onCancel={() => { setCreating(false); setCreateForm({}); }}
+        />
       )}
 
       <AuditLogModal open={showHistory} onClose={() => setShowHistory(false)} entityType={config.entityType} onRestored={load} />
@@ -278,29 +153,12 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
         onReset={resetFilters}
       />
 
-      {total > 0 && (
-        <div className="mt-4 flex items-center justify-between">
-          <p className="text-xs text-gray-500">
-            共 {total} 条，第 {page} / {Math.ceil(total / pageSize)} 页
-          </p>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPage(Math.max(1, page - 1))}
-              disabled={page <= 1}
-              className="rounded border border-gray-300 px-3 py-1 text-xs disabled:opacity-40 hover:bg-gray-50"
-            >
-              上一页
-            </button>
-            <button
-              onClick={() => setPage(page + 1)}
-              disabled={page * pageSize >= total}
-              className="rounded border border-gray-300 px-3 py-1 text-xs disabled:opacity-40 hover:bg-gray-50"
-            >
-              下一页
-            </button>
-          </div>
-        </div>
-      )}
+      <GenericPagination
+        total={total}
+        page={page}
+        pageSize={pageSize}
+        onPageChange={setPage}
+      />
 
       <Toast message={toast?.message || ""} type={toast?.type as "success" | "error" | undefined} show={!!toast} onClose={closeToast} />
     </div>
