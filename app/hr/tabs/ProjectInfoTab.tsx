@@ -6,8 +6,10 @@ import { useToast } from "@/app/hooks/useToast";
 
 interface EntryItem {
   id: number;
-  employee: { id: number; employeeId: string; name: string };
-  project: { id: number; name: string };
+  employeeId: number;
+  employeeName: string;
+  projectId: number;
+  projectName: string;
   role: string | null;
   startDate: string | null;
   endDate: string | null;
@@ -34,13 +36,15 @@ export default function ProjectInfoTab({ user: _user }: { user: User }) {
   const { toast, showToast, closeToast } = useToast();
 
   useEffect(() => {
-    fetch("/api/projects").then((r) => r.json()).then((d) => setProjects(d.projects || []));
+    fetch("/api/hr/projects")
+      .then((r) => r.json())
+      .then((d) => setProjects(d.projects || []));
   }, []);
 
   const loadEntries = useCallback(async () => {
     if (!selectedProject) return;
     setLoading(true);
-    const res = await fetch(`/api/employee-projects?projectId=${selectedProject}`);
+    const res = await fetch(`/api/hr/employee-projects?projectId=${selectedProject}`);
     const data = await res.json();
     setEntries(data.entries || []);
     setLoading(false);
@@ -61,7 +65,7 @@ export default function ProjectInfoTab({ user: _user }: { user: User }) {
 
   function startEdit(e: EntryItem) {
     setEditId(e.id);
-    setEditEmpId(e.employee.employeeId);
+    setEditEmpId(String(e.employeeId));
     setEditRole(e.role || "");
     setEditStart(e.startDate || "");
     setEditEnd(e.endDate || "");
@@ -80,7 +84,7 @@ export default function ProjectInfoTab({ user: _user }: { user: User }) {
       endDate: editEnd || null,
     };
 
-    const url = editId ? `/api/employee-projects/${editId}` : "/api/employee-projects";
+    const url = editId ? `/api/hr/employee-projects/${editId}` : "/api/hr/employee-projects";
     const method = editId ? "PUT" : "POST";
 
     // PUT doesn't need employeeId/projectId (they're immutable)
@@ -157,8 +161,8 @@ export default function ProjectInfoTab({ user: _user }: { user: User }) {
             <tbody className="divide-y divide-gray-100">
               {entries.map((e) => (
                 <tr key={e.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 font-mono text-gray-900">{e.employee.employeeId}</td>
-                  <td className="px-4 py-3 text-gray-900">{e.employee.name}</td>
+                  <td className="px-4 py-3 font-mono text-gray-900">{e.employeeId}</td>
+                  <td className="px-4 py-3 text-gray-900">{e.employeeName}</td>
                   <td className="px-4 py-3 text-gray-600">{e.role || "-"}</td>
                   <td className="px-4 py-3 text-gray-600">{e.startDate || "-"}</td>
                   <td className="px-4 py-3 text-gray-600">{e.endDate || "-"}</td>
