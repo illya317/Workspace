@@ -21,8 +21,8 @@ export default function ShipmentTable({ filters }: Props) {
   const [trace, setTrace] = useState<{
     open: boolean;
     info: SourceTraceInfo | null;
-    rawPayload: string | null;
-  }>({ open: false, info: null, rawPayload: null });
+
+  }>({ open: false, info: null });
 
   const fmt = (n: number | null | undefined) =>
     n == null ? "—" : n.toLocaleString("zh-CN", { maximumFractionDigits: 2 });
@@ -81,7 +81,6 @@ export default function ShipmentTable({ filters }: Props) {
                           sourceSheet: row.sourceSheet ? String(row.sourceSheet) : null,
                           sourceRow: row.sourceRow ? Number(row.sourceRow) : null,
                         },
-                        rawPayload: row.rawPayload ? String(row.rawPayload) : null,
                       })
                     }
                   >
@@ -121,7 +120,7 @@ export default function ShipmentTable({ filters }: Props) {
       <SourceTraceModal
         open={trace.open}
         info={trace.info}
-        rawPayload={trace.rawPayload}
+        
         onClose={() => setTrace({ ...trace, open: false })}
       />
     </div>

@@ -5,11 +5,10 @@ import type { SourceTraceInfo } from "../types";
 interface Props {
   open: boolean;
   info: SourceTraceInfo | null;
-  rawPayload?: string | null;
   onClose: () => void;
 }
 
-export default function SourceTraceModal({ open, info, rawPayload, onClose }: Props) {
+export default function SourceTraceModal({ open, info, onClose }: Props) {
   if (!open || !info) return null;
 
   return (
@@ -40,21 +39,6 @@ export default function SourceTraceModal({ open, info, rawPayload, onClose }: Pr
             <span className="font-medium text-gray-800">{info.sourceRow ?? "—"}</span>
           </div>
         </div>
-
-        {rawPayload && (
-          <div className="mt-4">
-            <h4 className="mb-2 text-xs font-semibold text-gray-500">原始数据</h4>
-            <pre className="max-h-48 overflow-auto rounded-md bg-gray-50 p-3 text-xs text-gray-700">
-              {(() => {
-                try {
-                  return JSON.stringify(JSON.parse(rawPayload), null, 2);
-                } catch {
-                  return rawPayload;
-                }
-              })()}
-            </pre>
-          </div>
-        )}
 
         <div className="mt-6 flex justify-end">
           <button

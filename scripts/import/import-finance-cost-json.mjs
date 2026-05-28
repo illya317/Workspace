@@ -99,7 +99,6 @@ function parseShipments(json, sourceFile, sourcePath) {
       sourceFile: safeString(sourceFile) ?? "",
       sourceSheet: safeString(row.source?.sheet),
       sourceRow: safeInt(row.source?.row),
-      rawPayload: JSON.stringify(row),
     });
   }
 
@@ -126,7 +125,6 @@ function parseSalesSalary(json, sourceFile, sourcePath) {
       sourceFile: safeString(sourceFile) ?? "",
       sourceSheet: safeString(row.source?.sheet),
       sourceRow: safeInt(row.source?.row),
-      rawPayload: JSON.stringify(row),
     });
   }
 
@@ -180,7 +178,6 @@ function parseCostStructure(json, sourceFile, sourcePath) {
         sourceFile: safeString(sourceFile) ?? safeString(json.sourceFile) ?? "",
         sourceSheet,
         sourceRow,
-        rawPayload: JSON.stringify(row),
       });
     }
   }
@@ -221,7 +218,6 @@ function parseCostAnalysis(json, sourceFile, sourcePath) {
           sourceFile: safeString(sourceFile) ?? safeString(json.sourceFile) ?? "",
           sourceSheet: safeString(rec.source?.sheet),
           sourceRow: safeInt(rec.source?.row),
-          rawPayload: JSON.stringify(rec),
         });
       }
     }
@@ -268,7 +264,6 @@ function parseWorkshopReports(json, sourceFile, sourcePath) {
               sourceFile: safeString(sourceFile) ?? safeString(report.source?.file) ?? "",
               sourceSheet: safeString(person.source?.sheet) ?? safeString(batch.source?.sheet),
               sourceRow: safeInt(person.source?.row) ?? safeInt(batch.source?.row),
-              rawPayload: JSON.stringify({ report: report.title, product: prod, batch, detail, person }),
             });
           }
         }
