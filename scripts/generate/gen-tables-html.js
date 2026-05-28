@@ -581,7 +581,14 @@ const html = `<!DOCTYPE html>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #1e293b; display: flex; min-height: 100vh; }
-  nav { width: 260px; background: #fff; border-right: 1px solid #e2e8f0; padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; }
+  .nav-toggle { position: fixed; top: 12px; left: 12px; z-index: 100; width: 36px; height: 36px; border: 1px solid #e2e8f0; border-radius: 6px; background: #fff; color: #475569; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: left 0.25s ease; }
+  .nav-toggle:hover { background: #f8fafc; color: #0f172a; }
+  body.nav-collapsed .nav-toggle { left: 12px; }
+  body:not(.nav-collapsed) .nav-toggle { left: 272px; }
+  nav { width: 260px; background: #fff; border-right: 1px solid #e2e8f0; padding: 24px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto; flex-shrink: 0; transition: margin-left 0.25s ease; }
+  body.nav-collapsed nav { margin-left: -260px; }
+  main { transition: margin-left 0.25s ease; }
+  body.nav-collapsed main { margin-left: 0; }
   nav h1 { font-size: 17px; font-weight: 700; margin-bottom: 20px; color: #0f172a; }
   nav .group { margin-bottom: 16px; }
   nav .group-title { font-size: 12px; font-weight: 600; text-transform: uppercase; color: #94a3b8; letter-spacing: 0.5px; margin-bottom: 4px; }
@@ -636,6 +643,9 @@ const html = `<!DOCTYPE html>
 </style>
 </head>
 <body>
+<button id="nav-toggle" class="nav-toggle" title="Toggle sidebar">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
 <nav>
 <h1>HR Database Schema</h1>
 <p style="font-size:12px;color:#94a3b8;margin-bottom:20px">${totalTables} tables</p>
@@ -651,6 +661,16 @@ ${navLinks}
 <main>
 ${mainContent}
 </main>
+<script>
+  const toggleBtn = document.getElementById('nav-toggle');
+  const body = document.body;
+  const collapsed = localStorage.getItem('schema-nav-collapsed') === 'true';
+  if (collapsed) body.classList.add('nav-collapsed');
+  toggleBtn.addEventListener('click', () => {
+    body.classList.toggle('nav-collapsed');
+    localStorage.setItem('schema-nav-collapsed', body.classList.contains('nav-collapsed'));
+  });
+</script>
 </body>
 </html>
 `;
