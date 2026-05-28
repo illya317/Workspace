@@ -3,6 +3,7 @@ import { authenticate, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getGrants } from "@/server/rbac/grants";
 import { getResourceAncestors } from "@/server/rbac/resource";
+import { getManageableResourceKeys, canManageResourceGrant } from "@/server/rbac/admin-scope";
 import type { SubjectType } from "@/server/rbac/grants";
 
 interface SubjectInfo {
@@ -154,13 +155,26 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  if (!(await checkPermission(payload.userId, "system", "admin"))) {
+  const isSysAdmin = await checkPermission(payload.userId, "system", "admin");
+  const manageableKeys = await getManageableResourceKeys(payload.userId);
+
+  if (!isSysAdmin && manageableKeys.size === 0) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
   const { searchParams } = new URL(request.url);
   const subjectType = (searchParams.get("subjectType") || "user") as SubjectType;
   const resourceKey = searchParams.get("resourceKey") || undefined;
+
+  // Non-system-admin must provide a resourceKey and it must be manageable
+  if (!isSysAdmin) {
+    if (!resourceKey) {
+      return NextResponse.json({ error: "需要指定 resourceKey" }, { status: 400 });
+    }
+    if (!manageableKeys.has(resourceKey)) {
+      return NextResponse.json({ error: "无权限管理该资源" }, { status: 403 });
+    }
+  }
 
   let subjects: SubjectInfo[] = [];
   if (subjectType === "user") {
@@ -218,10 +232,6 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  if (!(await checkPermission(payload.userId, "system", "admin"))) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
-  }
-
   const body = await request.json();
   const { subjectType, subjectId, resourceKey, roleKey, value } = body;
 
@@ -230,6 +240,11 @@ export async function PUT(request: Request) {
       { error: "参数错误: 需要 subjectType, subjectId, resourceKey, roleKey, value" },
       { status: 400 }
     );
+  }
+
+  const canManage = await canManageResourceGrant(payload.userId, resourceKey, roleKey);
+  if (!canManage) {
+    return NextResponse.json({ error: "无权限管理该资源权限" }, { status: 403 });
   }
 
   try {

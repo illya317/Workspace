@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkPermission } from "@/lib/auth";
+import { authenticate } from "@/lib/auth";
 import { setGrant } from "@/server/rbac/grants";
+import { canManageResourceGrant } from "@/server/rbac/admin-scope";
 
 export async function PUT(request: Request) {
   const payload = await authenticate(request);
   if (!payload) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
-
-  if (!(await checkPermission(payload.userId, "system", "admin"))) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
   const body = await request.json();
@@ -20,6 +17,11 @@ export async function PUT(request: Request) {
       { error: "参数错误: 需要 userId, resourceKey, roleKey, value" },
       { status: 400 }
     );
+  }
+
+  const canManage = await canManageResourceGrant(payload.userId, resourceKey, roleKey);
+  if (!canManage) {
+    return NextResponse.json({ error: "无权限管理该资源权限" }, { status: 403 });
   }
 
   try {

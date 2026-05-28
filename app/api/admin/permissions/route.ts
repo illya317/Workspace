@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
 import { Prisma } from "@prisma/client";
 
 type ResourceWithChildren = Prisma.ResourceGetPayload<{
@@ -18,17 +19,22 @@ interface TreeNode {
   children?: TreeNode[];
 }
 
-function buildTree(r: ResourceWithChildren, countMap: Map<number, number>): TreeNode {
-  const children = (r.children || []).map((c) => ({
-    id: c.id, key: c.key, name: c.name, description: c.description,
-    parentId: c.parentId, sortOrder: c.sortOrder,
-    userCount: countMap.get(c.id) || 0,
-    children: (c.children || []).map((gc) => ({
-      id: gc.id, key: gc.key, name: gc.name, description: gc.description,
-      parentId: gc.parentId, sortOrder: gc.sortOrder,
-      userCount: countMap.get(gc.id) || 0,
-    })),
-  }));
+function buildTree(r: ResourceWithChildren, countMap: Map<number, number>, allowedKeys: Set<string>): TreeNode | null {
+  const children = (r.children || [])
+    .map((c) => ({
+      id: c.id, key: c.key, name: c.name, description: c.description,
+      parentId: c.parentId, sortOrder: c.sortOrder,
+      userCount: countMap.get(c.id) || 0,
+      children: (c.children || [])
+        .map((gc) => ({
+          id: gc.id, key: gc.key, name: gc.name, description: gc.description,
+          parentId: gc.parentId, sortOrder: gc.sortOrder,
+          userCount: countMap.get(gc.id) || 0,
+        }))
+        .filter((gc) => allowedKeys.has(gc.key)),
+    }))
+    .filter((c) => allowedKeys.has(c.key));
+
   return {
     id: r.id, key: r.key, name: r.name, description: r.description,
     parentId: r.parentId, sortOrder: r.sortOrder,
@@ -43,7 +49,10 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  if (!(await checkPermission(payload.userId, "system", "admin"))) {
+  const isSysAdmin = await checkPermission(payload.userId, "system", "admin");
+  const manageableKeys = await getManageableResourceKeys(payload.userId);
+
+  if (!isSysAdmin && manageableKeys.size === 0) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
@@ -62,6 +71,10 @@ export async function GET(request: Request) {
     },
   });
 
+  const allowedKeys = isSysAdmin
+    ? new Set(allResources.map((r) => r.key))
+    : manageableKeys;
+
   // Count distinct users per resource (deduplicate userIds)
   const resourceIds = allResources.map((r) => r.id);
   const countMap = new Map<number, number>();
@@ -74,10 +87,11 @@ export async function GET(request: Request) {
     countMap.set(rid, rows.length);
   }
 
-  // Build tree with user counts, only top-level returned
+  // Build tree with user counts, only top-level returned, filtered by allowedKeys
   const resources = allResources
-    .filter((r) => r.level === 1)
-    .map((r) => buildTree(r, countMap));
+    .filter((r) => r.level === 1 && allowedKeys.has(r.key))
+    .map((r) => buildTree(r, countMap, allowedKeys))
+    .filter((r): r is TreeNode => r !== null);
 
   const roles = await prisma.role.findMany({
     orderBy: { sortOrder: "asc" },

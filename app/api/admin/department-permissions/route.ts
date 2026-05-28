@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { setGrant, getGrants } from "@/server/rbac/grants";
+import { getManageableResourceKeys, canManageResourceGrant } from "@/server/rbac/admin-scope";
 
 // GET - get all department-level permission grants
 export async function GET(request: Request) {
@@ -10,17 +11,20 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  // Allow anyone with system.admin OR people.access to view dept grants
-  const canView = await checkPermission(payload.userId, "system", "admin")
-    || await checkPermission(payload.userId, "people", "access");
-  if (!canView) {
+  const isSysAdmin = await checkPermission(payload.userId, "system", "admin");
+  const manageableKeys = await getManageableResourceKeys(payload.userId);
+
+  if (!isSysAdmin && manageableKeys.size === 0) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
   const grants = await getGrants("department");
+  const filteredGrants = isSysAdmin
+    ? grants
+    : grants.filter((g) => manageableKeys.has(g.resourceKey));
 
-  const resourceIds = [...new Set(grants.map((g) => g.resourceId))];
-  const departmentIds = [...new Set(grants.map((g) => g.subjectId))];
+  const resourceIds = [...new Set(filteredGrants.map((g) => g.resourceId))];
+  const departmentIds = [...new Set(filteredGrants.map((g) => g.subjectId))];
 
   const [resources, departments] = await Promise.all([
     prisma.resource.findMany({
@@ -36,7 +40,7 @@ export async function GET(request: Request) {
   const resMap = new Map(resources.map((r) => [r.id, r]));
   const deptMap = new Map(departments.map((d) => [d.id, d]));
 
-  const enriched = grants.map((g) => ({
+  const enriched = filteredGrants.map((g) => ({
     ...g,
     resource: resMap.get(g.resourceId),
     department: deptMap.get(g.subjectId),
@@ -54,11 +58,6 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }
 
-    const isSuperAdmin = await checkPermission(payload.userId, "system", "admin");
-    if (!isSuperAdmin) {
-      return NextResponse.json({ error: "无权限" }, { status: 403 });
-    }
-
     const body = await request.json();
     const { departmentId, resourceKey, roleKey, value } = body;
 
@@ -67,6 +66,11 @@ export async function PUT(request: Request) {
         { error: "参数错误: 需要 departmentId, resourceKey, roleKey, value" },
         { status: 400 }
       );
+    }
+
+    const canManage = await canManageResourceGrant(payload.userId, resourceKey, roleKey);
+    if (!canManage) {
+      return NextResponse.json({ error: "无权限管理该资源权限" }, { status: 403 });
     }
 
     await setGrant("department", Number(departmentId), resourceKey, roleKey, value, {

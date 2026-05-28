@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import NavLink from "@/app/components/NavLink";
@@ -17,12 +17,18 @@ import { SessionUser } from "@/lib/types";
 export default function AdminClient({ user }: { user: SessionUser }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"users" | "permissions">("users");
+  const isSuperAdmin = user.isSuperAdmin ?? false;
+  const [activeTab, setActiveTab] = useState<"users" | "permissions">(isSuperAdmin ? "users" : "permissions");
 
   const [resources, setResources] = useState<ResourceItem[]>([]);
   const [conflictStrategy, setConflictStrategy] = useState("union");
 
   const { toast, showToast, closeToast } = useToast();
+
+  const manageableKeys = useMemo(
+    () => new Set(user.manageableResourceKeys || []),
+    [user.manageableResourceKeys]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -32,7 +38,12 @@ export default function AdminClient({ user }: { user: SessionUser }) {
         if (!cancelled) {
           if (!resRes.ok) showToast("加载权限资源失败: " + resRes.status, "error");
           const resData = await resRes.json();
-          setResources(flattenTree(resData.resources || []));
+          const all = flattenTree(resData.resources || []);
+          // Filter to only manageable resources (defense in depth; API already filters)
+          const filtered = isSuperAdmin
+            ? all
+            : all.filter((r) => manageableKeys.has(r.key));
+          setResources(filtered);
           try {
             const cfgRes = await fetch("/api/admin/system-config");
             if (cfgRes.ok) {
@@ -49,7 +60,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     }
     loadInitial();
     return () => { cancelled = true; };
-  }, [showToast]);
+  }, [showToast, isSuperAdmin, manageableKeys]);
 
   async function saveConflictStrategy(strategy: string) {
     const res = await fetch("/api/admin/system-config", {
@@ -74,7 +85,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   }
 
   const tabs = [
-    { key: "users" as const, label: "用户账号" },
+    ...(isSuperAdmin ? [{ key: "users" as const, label: "用户账号" }] : []),
     { key: "permissions" as const, label: "权限管理" },
   ];
 
@@ -114,7 +125,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
         </div>
 
         {/* System Config */}
-        {user.isWorkListAdmin && (
+        {isSuperAdmin && (
           <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6">
             <h3 className="mb-3 text-sm font-semibold text-gray-700">系统配置</h3>
             <div className="flex items-center gap-4">

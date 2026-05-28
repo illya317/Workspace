@@ -1,6 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { verifyToken, checkPermission, getPermissionContext, checkPermissionWithContext } from "@/lib/auth";
+import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
 import { prisma } from "@/lib/prisma";
 import type { SessionUser } from "@/lib/types";
 
@@ -70,6 +71,9 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
 
   const hasHR = hasHRAccess || hasHRWrite || hasHRDelete;
 
+  const manageableKeys = await getManageableResourceKeys(payload.userId);
+  const canManagePermissions = manageableKeys.size > 0;
+
   return {
     ...userWithPerms,
     isWorkListAdmin: isAdmin,
@@ -82,7 +86,9 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     canAccessFinance: hasFinance,
     canAccessInventory: hasInventory,
     canAccessContract: hasContract,
-    canAccessAdmin: isAdmin || (hasHR && isActiveEmployee),
+    canAccessAdmin: isAdmin || canManagePermissions,
+    canManagePermissions,
+    manageableResourceKeys: [...manageableKeys],
     employeeId: employee?.employeeId ?? null,
     isActiveEmployee,
   };
