@@ -68,9 +68,9 @@ node scripts/import-finance-cost-json.mjs
 
 | 端点 | 权限守卫 |
 |------|---------|
-| GET /api/finance/cost/* | `withFinanceAccess` |
-| POST /api/finance/cost/imports | `withFinanceWrite` |
-| DELETE /api/finance/cost/imports/[id] | `withFinanceDelete` |
+| GET /api/finance/cost/* | `withFinanceCostAccess` |
+| POST /api/finance/cost/imports | `withFinanceCostWrite` |
+| DELETE /api/finance/cost/imports/[id] | `withFinanceCostDelete` |
 
 RBAC 资源：
 - `finance.cost` — 成本管理总权限

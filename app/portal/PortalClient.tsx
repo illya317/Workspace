@@ -63,7 +63,7 @@ export default function PortalClient({ user }: { user: SessionUser }) {
     },
     {
       title: "财务数据",
-      desc: "财务数据库与报表",
+      desc: "总账、凭证、财务报表",
       icon: (
         <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <circle cx="12" cy="12" r="10" strokeWidth="1.5" />
@@ -71,7 +71,30 @@ export default function PortalClient({ user }: { user: SessionUser }) {
         </svg>
       ),
       color: "amber",
-      onClick: () => router.push("/finance"),
+      onClick: () => {
+        if (user.canAccessFinance) {
+          router.push("/finance");
+        } else {
+          showToast("暂无权限，请联系管理员开通", "error");
+        }
+      },
+    },
+    {
+      title: "成本管理",
+      desc: "生产成本归集与成本核算",
+      icon: (
+        <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+      ),
+      color: "orange",
+      onClick: () => {
+        if (user.canAccessFinanceCost) {
+          router.push("/finance/cost");
+        } else {
+          showToast("暂无权限，请联系管理员开通", "error");
+        }
+      },
     },
     {
       title: "生产",
@@ -98,6 +121,7 @@ export default function PortalClient({ user }: { user: SessionUser }) {
     indigo: { bg: "bg-indigo-100", text: "text-indigo-600", ring: "hover:ring-indigo-400" },
     purple: { bg: "bg-purple-100", text: "text-purple-600", ring: "hover:ring-purple-400" },
     amber: { bg: "bg-amber-100", text: "text-amber-600", ring: "hover:ring-amber-400" },
+    orange: { bg: "bg-orange-100", text: "text-orange-600", ring: "hover:ring-orange-400" },
     cyan: { bg: "bg-cyan-100", text: "text-cyan-600", ring: "hover:ring-cyan-400" },
   };
 
