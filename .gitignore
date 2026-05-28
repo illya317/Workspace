@@ -45,11 +45,10 @@ next-env.d.ts
 
 /app/generated/prisma
 
-# SQLite database (contains sensitive user data)
-/prisma/dev.db
-/prisma/dev.db-journal
-/prisma/*.db
-/prisma/*.db-journal
+# SQLite database and runtime data
+/data/*.db
+/data/*.db-journal
+/data/.env.backup-*
 
 # Company-specific assets (logo, favicon, etc.)
 /public/company/

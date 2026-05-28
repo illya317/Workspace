@@ -56,13 +56,16 @@ echo "==> 服务器端部署..."
 # 组装服务器端部署命令
 REMOTE_CMD="cd $REMOTE_DIR"
 
+# 数据库路径迁移：如果旧路径有数据但新路径没有，自动移动
+REMOTE_CMD="$REMOTE_CMD && if [ -f prisma/dev.db ] && [ ! -f data/dev.db ]; then mkdir -p data && mv prisma/dev.db data/dev.db; fi"
+
 if [ "$PUSH_DB" = true ]; then
-  REMOTE_CMD="$REMOTE_CMD && echo '==> 同步数据库 schema...' && DATABASE_URL=file:$REMOTE_DIR/prisma/dev.db npx prisma db push --accept-data-loss"
+  REMOTE_CMD="$REMOTE_CMD && echo '==> 同步数据库 schema...' && DATABASE_URL=file:$REMOTE_DIR/data/dev.db npx prisma db push --accept-data-loss"
 fi
 
 REMOTE_CMD="$REMOTE_CMD && echo '==> 拉取最新代码...' && git fetch origin main && git reset --hard origin/main"
 REMOTE_CMD="$REMOTE_CMD && echo '==> 安装依赖...' && npm install"
-REMOTE_CMD="$REMOTE_CMD && echo '==> 构建...' && DATABASE_URL=file:$REMOTE_DIR/prisma/dev.db npm run build"
+REMOTE_CMD="$REMOTE_CMD && echo '==> 构建...' && DATABASE_URL=file:$REMOTE_DIR/data/dev.db npm run build"
 REMOTE_CMD="$REMOTE_CMD && echo '==> 复制静态资源到 standalone...' && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/"
 REMOTE_CMD="$REMOTE_CMD && echo '==> 重启服务...' && pm2 restart $PM2_NAME --update-env 2>/dev/null || pm2 start .next/standalone/server.js --name $PM2_NAME --cwd $REMOTE_DIR/.next/standalone --env production"
 REMOTE_CMD="$REMOTE_CMD && echo '==> 保存 PM2 配置...' && pm2 save"
