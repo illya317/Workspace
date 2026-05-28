@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceAccess } from "@/lib/with-auth";
+import { withFinanceAccess, withFinanceWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { handleCreate } from "@/lib/crud-finance";
 
@@ -10,7 +10,7 @@ export const GET = withFinanceAccess(async () => {
   return NextResponse.json({ accounts });
 });
 
-export const POST = withFinanceAccess(async (request) => {
+export const POST = withFinanceWrite(async (request) => {
   const body = await request.json();
   const { code, name, category, parentId, balanceDirection, companyCode } = body;
   if (!code || !name || !category) {

@@ -34,7 +34,7 @@ async function buildDeptPathMaps() {
   return { getDeptPath };
 }
 
-async function getUserSubjects(companyFilter?: string): Promise<SubjectInfo[]> {
+async function getUserSubjects(): Promise<SubjectInfo[]> {
   const { getDeptPath } = await buildDeptPathMaps();
 
   const activeEmpIds = new Set(
@@ -73,8 +73,6 @@ async function getUserSubjects(companyFilter?: string): Promise<SubjectInfo[]> {
       ? "丰华制药"
       : "丰华生物";
 
-    if (companyFilter && companyFilter !== "全部" && companyName !== companyFilter) continue;
-
     result.push({
       id: userId ?? 0,
       name: emp.name,
@@ -93,7 +91,7 @@ async function getUserSubjects(companyFilter?: string): Promise<SubjectInfo[]> {
   return result;
 }
 
-async function getPositionSubjects(companyFilter?: string): Promise<SubjectInfo[]> {
+async function getPositionSubjects(): Promise<SubjectInfo[]> {
   const { getDeptPath } = await buildDeptPathMaps();
 
   const positions = await prisma.position.findMany({
@@ -110,8 +108,6 @@ async function getPositionSubjects(companyFilter?: string): Promise<SubjectInfo[
       ? "丰华制药"
       : "丰华生物";
 
-    if (companyFilter && companyFilter !== "全部" && companyName !== companyFilter) continue;
-
     result.push({
       id: pos.id,
       name: pos.name,
@@ -126,7 +122,7 @@ async function getPositionSubjects(companyFilter?: string): Promise<SubjectInfo[
   return result;
 }
 
-async function getDepartmentSubjects(companyFilter?: string): Promise<SubjectInfo[]> {
+async function getDepartmentSubjects(): Promise<SubjectInfo[]> {
   const { getDeptPath } = await buildDeptPathMaps();
 
   const depts = await prisma.department.findMany({
@@ -138,8 +134,6 @@ async function getDepartmentSubjects(companyFilter?: string): Promise<SubjectInf
     const companyName = d.code?.startsWith("PPA") || d.code?.startsWith("04")
       ? "丰华制药"
       : "丰华生物";
-
-    if (companyFilter && companyFilter !== "全部" && companyName !== companyFilter) continue;
 
     result.push({
       id: d.id,
@@ -167,15 +161,14 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const subjectType = (searchParams.get("subjectType") || "user") as SubjectType;
   const resourceKey = searchParams.get("resourceKey") || undefined;
-  const companyFilter = searchParams.get("company") || undefined;
 
   let subjects: SubjectInfo[] = [];
   if (subjectType === "user") {
-    subjects = await getUserSubjects(companyFilter);
+    subjects = await getUserSubjects();
   } else if (subjectType === "position") {
-    subjects = await getPositionSubjects(companyFilter);
+    subjects = await getPositionSubjects();
   } else if (subjectType === "department") {
-    subjects = await getDepartmentSubjects(companyFilter);
+    subjects = await getDepartmentSubjects();
   }
 
   // Load direct grants for this subject type

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { matchEmployee, matchText } from "@/lib/search";
+import { getAvailableRoles } from "@/lib/permissions";
 import type { ResourceItem } from "../types";
 
 export type SubjectType = "user" | "position" | "department";
@@ -33,12 +34,12 @@ interface PermissionState {
   source: "direct" | "position" | "department" | "ancestor" | "system.admin" | null;
 }
 
-const ROLES = [
-  { key: "access", name: "访问", color: "emerald" },
-  { key: "write", name: "编辑", color: "blue" },
-  { key: "delete", name: "删除", color: "red" },
-  { key: "admin", name: "管理", color: "purple" },
-];
+const ROLE_META: Record<string, { name: string; color: string }> = {
+  access: { name: "访问", color: "emerald" },
+  write: { name: "编辑", color: "blue" },
+  delete: { name: "删除", color: "red" },
+  admin: { name: "管理", color: "purple" },
+};
 
 const ROLE_PRIORITY: Record<string, number> = {
   admin: 4,
@@ -61,7 +62,6 @@ export function usePermissionsTab(
   const [ancestorResourceKeys, setAncestorResourceKeys] = useState<string[]>([]);
   const [systemAdminIds, setSystemAdminIds] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(false);
-  const [companyFilter, setCompanyFilter] = useState("全部");
   const [l1Dept, setL1Dept] = useState("全部");
   const [l2Dept, setL2Dept] = useState("全部");
   const [l3Dept, setL3Dept] = useState("全部");
@@ -83,13 +83,17 @@ export function usePermissionsTab(
     );
   }, [resources, parentResource, selectedResource]);
 
+  const roles = useMemo(() => {
+    const keys = getAvailableRoles(selectedResource);
+    return keys.map((k) => ({ key: k, ...(ROLE_META[k] || { name: k, color: "gray" }) }));
+  }, [selectedResource]);
+
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
       params.set("subjectType", subjectType);
       if (selectedResource) params.set("resourceKey", selectedResource);
-      if (companyFilter !== "全部") params.set("company", companyFilter);
 
       const res = await fetch(`/api/admin/permission-grants?${params.toString()}`);
       if (res.ok) {
@@ -107,18 +111,18 @@ export function usePermissionsTab(
     } finally {
       setLoading(false);
     }
-  }, [subjectType, selectedResource, companyFilter, showToast]);
+  }, [subjectType, selectedResource, showToast]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  // Reset dept filters when subject type or company changes
+  // Reset dept filters when subject type changes
   useEffect(() => {
     setL1Dept("全部");
     setL2Dept("全部");
     setL3Dept("全部");
-  }, [subjectType, companyFilter]);
+  }, [subjectType]);
 
   // Load system admin IDs
   useEffect(() => {
@@ -273,11 +277,6 @@ export function usePermissionsTab(
   const subjects = useMemo(() => {
     let result = [...rawSubjects];
 
-    // Company filter
-    if (companyFilter !== "全部") {
-      result = result.filter((s) => s.extra?.company === companyFilter);
-    }
-
     // Dept cascade filter
     if (l1Dept !== "全部") {
       result = result.filter((s) => s.extra?.deptPath?.[0] === l1Dept);
@@ -309,12 +308,12 @@ export function usePermissionsTab(
     // Sort: highest permission first (admin > write > delete > access)
     result.sort((a, b) => {
       const aScore = Math.max(
-        ...ROLES.map((r) =>
+        ...roles.map((r) =>
           getPermissionState(a, r.key).has ? (ROLE_PRIORITY[r.key] || 0) : 0
         )
       );
       const bScore = Math.max(
-        ...ROLES.map((r) =>
+        ...roles.map((r) =>
           getPermissionState(b, r.key).has ? (ROLE_PRIORITY[r.key] || 0) : 0
         )
       );
@@ -322,12 +321,7 @@ export function usePermissionsTab(
     });
 
     return result;
-  }, [rawSubjects, companyFilter, l1Dept, l2Dept, l3Dept, nameSearch, subjectType, getPermissionState]);
-
-  const companies = useMemo(() => {
-    const set = new Set(rawSubjects.map((s) => s.extra?.company).filter(Boolean));
-    return ["全部", ...Array.from(set)];
-  }, [rawSubjects]);
+  }, [rawSubjects, l1Dept, l2Dept, l3Dept, nameSearch, subjectType, getPermissionState, roles]);
 
   return {
     subjectType,
@@ -338,8 +332,6 @@ export function usePermissionsTab(
     setParentResource,
     subjects,
     loading,
-    companyFilter,
-    setCompanyFilter,
     l1Dept,
     setL1Dept,
     l2Dept,
@@ -355,10 +347,9 @@ export function usePermissionsTab(
     toggleRowExpand,
     topResources,
     childResources,
-    ROLES,
+    roles,
     getPermissionState,
     toggleGrant,
-    companies,
     systemAdminIds,
   };
 }

@@ -6,6 +6,8 @@ import {
   checkHRWrite,
   checkHRDelete,
   checkFinanceAccess,
+  checkFinanceWrite,
+  checkFinanceDelete,
   checkInventoryAccess,
   checkContractAccess,
   type AuthPayload,
@@ -71,6 +73,18 @@ export function withFinanceAccess(
   handler: AuthHandler,
 ): (req: Request) => Promise<Response> {
   return withAuth(handler, checkFinanceAccess);
+}
+
+export function withFinanceWrite(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceWrite);
+}
+
+export function withFinanceDelete(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceDelete);
 }
 
 export function withInventoryAccess(

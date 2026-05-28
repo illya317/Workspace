@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceAccess } from "@/lib/with-auth";
+import { withFinanceAccess, withFinanceWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
@@ -16,7 +16,7 @@ export const GET = withFinanceAccess(async (request: Request) => {
   return NextResponse.json({ periods });
 });
 
-export const POST = withFinanceAccess(async (request: Request, _user) => {
+export const POST = withFinanceWrite(async (request: Request, _user) => {
   const body = await request.json();
   const { year, month, startDate, endDate, companyCode } = body;
   if (!year || !month) {

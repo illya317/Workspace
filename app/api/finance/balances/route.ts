@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceAccess } from "@/lib/with-auth";
+import { withFinanceAccess, withFinanceWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 
 /** GET 查询余额 */
@@ -18,7 +18,7 @@ export const GET = withFinanceAccess(async (request: Request) => {
 });
 
 /** POST 重新计算指定期间的余额 */
-export const POST = withFinanceAccess(async (request: Request) => {
+export const POST = withFinanceWrite(async (request: Request) => {
   const body = await request.json();
   const { periodId } = body;
   if (!periodId) return NextResponse.json({ error: "periodId 为必填" }, { status: 400 });

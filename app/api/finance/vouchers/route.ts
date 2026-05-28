@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceAccess } from "@/lib/with-auth";
+import { withFinanceAccess, withFinanceWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
@@ -29,7 +29,7 @@ interface VoucherItemInput {
   description?: unknown;
 }
 
-export const POST = withFinanceAccess(async (request: Request, user) => {
+export const POST = withFinanceWrite(async (request: Request, user) => {
   const body = (await request.json()) as Record<string, unknown>;
   const voucherNo = body.voucherNo as string;
   const date = body.date as string;

@@ -23,6 +23,8 @@ export {
   checkHRDelete,
   checkWorksAccess,
   checkFinanceAccess,
+  checkFinanceWrite,
+  checkFinanceDelete,
   checkInventoryAccess,
   checkContractAccess,
 } from "@/server/auth/domain";

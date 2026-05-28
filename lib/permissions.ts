@@ -66,6 +66,28 @@ export function normalizeRoleKey(roleKey: string): string {
   return roleKey === "read" ? "access" : roleKey;
 }
 
+// ─── Available roles per resource ─────────────────────────
+export const RESOURCE_AVAILABLE_ROLES: Record<string, string[]> = {
+  system: ["admin"],
+  people: ["access", "write", "delete", "admin"],
+  finance: ["access", "write", "delete", "admin"],
+  work: ["access"],
+  inventory: ["access"],
+  contract: ["access"],
+  docs: ["access"],
+};
+
+export function getAvailableRoles(resourceKey: string | null): string[] {
+  if (!resourceKey) return [];
+  const parts = resourceKey.split(".");
+  while (parts.length > 0) {
+    const key = parts.join(".");
+    if (RESOURCE_AVAILABLE_ROLES[key]) return RESOURCE_AVAILABLE_ROLES[key];
+    parts.pop();
+  }
+  return ["access"];
+}
+
 // ─── Backward compat aliases ──────────────────────────────
 // Old code using perm.system.admin strings still works at runtime,
 // but new code should use checkPermission() with separate args.

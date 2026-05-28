@@ -62,17 +62,6 @@ export default function PermissionsTab({ resources, showToast }: Props) {
 
           {/* Filters */}
           <FilterBar>
-            <select
-              value={s.companyFilter}
-              onChange={(e) => s.setCompanyFilter(e.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-emerald-400 focus:outline-none"
-            >
-              {s.companies.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
             {s.subjectType !== "department" && (
               <>
                 <select
@@ -201,7 +190,7 @@ function MatrixTable({ s }: { s: ReturnType<typeof usePermissionsTab> }) {
             <th className="whitespace-nowrap pb-2 pr-3">
               {s.subjectType === "user" ? "姓名" : s.subjectType === "position" ? "岗位" : "部门"}
             </th>
-            {s.ROLES.map((r) => (
+            {s.roles.map((r) => (
               <th key={r.key} className="whitespace-nowrap pb-2 pr-3 text-center">
                 {r.name}
               </th>
@@ -240,7 +229,7 @@ function MatrixRow({ subject, s }: { subject: { id: number; name: string; extra?
             )}
           </div>
         </td>
-        {s.ROLES.map((role) => {
+        {s.roles.map((role) => {
           const state = s.getPermissionState(subject, role.key);
           return (
             <td key={role.key} className="whitespace-nowrap py-2 pr-3 text-center">
@@ -263,7 +252,7 @@ function MatrixRow({ subject, s }: { subject: { id: number; name: string; extra?
       </tr>
       {isExpanded && (
         <tr>
-          <td colSpan={6} className="border-b border-gray-100 bg-gray-50 px-3 py-3">
+          <td colSpan={s.roles.length + 2} className="border-b border-gray-100 bg-gray-50 px-3 py-3">
             <PermissionDetails subject={subject} s={s} />
           </td>
         </tr>
@@ -346,7 +335,7 @@ function PermissionDetails({
 }) {
   const details: string[] = [];
 
-  for (const role of s.ROLES) {
+  for (const role of s.roles) {
     const state = s.getPermissionState(subject, role.key);
     if (state.has && state.source) {
       details.push(`${role.name}: ${sourceLabel(state.source)}`);
