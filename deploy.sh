@@ -79,12 +79,19 @@ echo "==> 同步构建产物到服务器（rsync 只传差异，node_modules 在
 rsync -avz --delete --exclude='.env' --exclude='node_modules' -e "ssh -i $KEY" \
   .next/standalone/ "$SERVER:$REMOTE_DIR/.next/standalone/"
 
-echo "==> 同步 Prisma 生成文件到服务器..."
+echo "==> 同步 Prisma schema 到服务器..."
 rsync -avz --delete -e "ssh -i $KEY" \
-  .next/standalone/node_modules/.prisma/client/ "$SERVER:$REMOTE_DIR/.next/standalone/node_modules/.prisma/client/"
+  prisma/ "$SERVER:$REMOTE_DIR/prisma/"
+
+echo "==> 同步 package.json 到服务器..."
+rsync -avz -e "ssh -i $KEY" \
+  package.json "$SERVER:$REMOTE_DIR/package.json"
 
 echo "==> 服务器端安装生产依赖..."
 ssh -i "$KEY" "$SERVER" "cd $REMOTE_DIR/.next/standalone && npm install --production"
+
+echo "==> 服务器端重新生成 Prisma Client..."
+ssh -i "$KEY" "$SERVER" "cd $REMOTE_DIR && npx prisma generate --schema=./prisma"
 
 echo "==> 修复服务器 .env 数据库路径..."
 ssh -i "$KEY" "$SERVER" "sed -i 's|file:/Users/koito/Desktop/Project/[^/]*/prisma/dev.db|file:/home/ubuntu/weekly/prisma/dev.db|' $REMOTE_DIR/.next/standalone/.env 2>/dev/null || true"
