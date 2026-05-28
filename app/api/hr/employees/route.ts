@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withHRAccess } from "@/lib/with-auth";
+import { withHRAccess, withHRWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { matchAnyField } from "@/lib/search-schema";
 import { snapshotHistory } from "@/lib/history";
@@ -28,7 +28,7 @@ export const GET = withHRAccess(async (request: Request, _user) => {
   return NextResponse.json({ employees: paged, total });
 });
 
-export const POST = withHRAccess(async (request: Request, user) => {
+export const POST = withHRWrite(async (request: Request, user) => {
   const parsed = await parseJson(request, EmployeeCreateSchema);
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
 

@@ -2,7 +2,7 @@ import { handleCreate } from "@/lib/crud";
 import { NextResponse } from "next/server";
 
 const CONFIG = { entityType: "Department", modelKey: "department" as const };
-import { withHRAccess } from "@/lib/with-auth";
+import { withHRAccess, withHRWrite, withHRDelete } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { matchAnyField } from "@/lib/search-schema";
@@ -59,7 +59,7 @@ export async function POST(request: Request) {
   });
 }
 
-export const PUT = withHRAccess(async (request: Request, user) => {
+export const PUT = withHRWrite(async (request: Request, user) => {
   const body = await request.json();
   const { id, code, name, alias, level, parentId, managerUserId } = body;
 
@@ -96,7 +96,7 @@ export const PUT = withHRAccess(async (request: Request, user) => {
   }
 });
 
-export const DELETE = withHRAccess(async (request: Request) => {
+export const DELETE = withHRDelete(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
   if (!id) {

@@ -2,13 +2,20 @@
 export { createCrudHandlers, type CrudFactoryConfig, type AccessChecker } from "./crud-factory";
 
 import { createCrudHandlers } from "./crud-factory";
-import { checkHRAccess } from "./auth";
+import { checkHRAccess, checkHRWrite, checkHRDelete } from "./auth";
 import type { CrudFactoryConfig } from "./crud-factory";
 
-export type CrudConfig = Omit<CrudFactoryConfig, "accessCheck">;
+export type CrudConfig = Omit<CrudFactoryConfig, "accessCheck" | "writeCheck" | "deleteCheck">;
 
 function wrap(config: CrudConfig) {
-  return createCrudHandlers({ ...config, accessCheck: checkHRAccess });
+  return createCrudHandlers(
+    {
+      ...config,
+      accessCheck: checkHRAccess,
+      writeCheck: checkHRWrite,
+      deleteCheck: checkHRDelete,
+    }
+  );
 }
 
 export function handleUpdateField(
@@ -30,7 +37,6 @@ export function handleDelete(
 export function handleCreate(
   request: Request,
   config: CrudConfig,
-   
   buildData?: (body: Record<string, unknown>) => Promise<Record<string, unknown> | null> | Record<string, unknown> | null
 ) {
   return wrap(config).handleCreate(request, buildData);

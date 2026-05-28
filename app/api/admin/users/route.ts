@@ -14,12 +14,6 @@ export async function GET(request: Request) {
       username: true,
       name: true,
       canLogin: true,
-      resourceRoles: {
-        include: {
-          resource: { select: { key: true, name: true } },
-          role: { select: { key: true, name: true } },
-        },
-      },
     },
   });
 
@@ -32,18 +26,29 @@ export async function GET(request: Request) {
   const empByUser: Record<number, { name: string; employeeId: string }> = {};
   for (const e of employees) empByUser[e.userId!] = { name: e.name, employeeId: e.employeeId };
 
-  const enrichedUsers = users.map((u) => ({
-    id: u.id,
-    username: u.username,
-    name: empByUser[u.id]?.name || u.name,
-    employeeId: empByUser[u.id]?.employeeId || null,
-    canLogin: u.canLogin,
-    isWorkListAdmin: u.resourceRoles.some((rr) => rr.resource.key === "system" && rr.role.key === "admin"),
-    canAccessHR: u.resourceRoles.some((rr) => rr.resource.key === "people" && rr.role.key === "access"),
-    canEditHR: u.resourceRoles.some((rr) => rr.resource.key === "people" && rr.role.key === "write") || u.resourceRoles.some((rr) => rr.resource.key === "system" && rr.role.key === "admin"),
-    canDeleteHR: u.resourceRoles.some((rr) => rr.resource.key === "people" && rr.role.key === "delete") || u.resourceRoles.some((rr) => rr.resource.key === "system" && rr.role.key === "admin"),
-    canAccessWorks: u.resourceRoles.some((rr) => rr.resource.key === "work" && rr.role.key === "access"),
-  }));
+  const enrichedUsers = await Promise.all(
+    users.map(async (u) => {
+      const [isAdmin, canAccessHR, canEditHR, canDeleteHR, canAccessWorks] = await Promise.all([
+        checkPermission(u.id, "system", "admin"),
+        checkPermission(u.id, "people", "access"),
+        checkPermission(u.id, "people", "write"),
+        checkPermission(u.id, "people", "delete"),
+        checkPermission(u.id, "work", "access"),
+      ]);
+      return {
+        id: u.id,
+        username: u.username,
+        name: empByUser[u.id]?.name || u.name,
+        employeeId: empByUser[u.id]?.employeeId || null,
+        canLogin: u.canLogin,
+        isWorkListAdmin: isAdmin,
+        canAccessHR: isAdmin || canAccessHR || canEditHR || canDeleteHR,
+        canEditHR: isAdmin || canEditHR,
+        canDeleteHR: isAdmin || canDeleteHR,
+        canAccessWorks,
+      };
+    })
+  );
 
   return NextResponse.json({ users: enrichedUsers });
 }

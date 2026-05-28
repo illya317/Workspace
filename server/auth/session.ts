@@ -48,17 +48,27 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
 
   const ctx = await getPermissionContext(payload.userId);
   const isAdmin = ctx.isAdmin;
-  const [canAnyWeek, hasHR, canEditHR, canDeleteHR, hasWorks, hasFinance, hasInventory, hasContract] =
-    await Promise.all([
-      checkPermissionWithContext(ctx, "work.report", "write"),
-      checkPermissionWithContext(ctx, "people", "access"),
-      checkPermissionWithContext(ctx, "people", "write"),
-      checkPermissionWithContext(ctx, "people", "delete"),
-      checkPermissionWithContext(ctx, "work", "access"),
-      checkPermissionWithContext(ctx, "finance", "access"),
-      checkPermissionWithContext(ctx, "inventory", "access"),
-      checkPermissionWithContext(ctx, "contract", "access"),
-    ]);
+  const [
+    canAnyWeek,
+    hasHRAccess,
+    hasHRWrite,
+    hasHRDelete,
+    hasWorks,
+    hasFinance,
+    hasInventory,
+    hasContract,
+  ] = await Promise.all([
+    checkPermissionWithContext(ctx, "work.report", "write"),
+    checkPermissionWithContext(ctx, "people", "access"),
+    checkPermissionWithContext(ctx, "people", "write"),
+    checkPermissionWithContext(ctx, "people", "delete"),
+    checkPermissionWithContext(ctx, "work", "access"),
+    checkPermissionWithContext(ctx, "finance", "access"),
+    checkPermissionWithContext(ctx, "inventory", "access"),
+    checkPermissionWithContext(ctx, "contract", "access"),
+  ]);
+
+  const hasHR = hasHRAccess || hasHRWrite || hasHRDelete;
 
   return {
     ...userWithPerms,
@@ -66,8 +76,8 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     isSuperAdmin: isAdmin,
     canSelectAnyWeek: canAnyWeek,
     canAccessHR: isAdmin || (hasHR && isActiveEmployee),
-    canEditHR: isAdmin || (canEditHR && isActiveEmployee),
-    canDeleteHR: isAdmin || (canDeleteHR && isActiveEmployee),
+    canEditHR: isAdmin || (hasHRWrite && isActiveEmployee),
+    canDeleteHR: isAdmin || (hasHRDelete && isActiveEmployee),
     canAccessWorks: hasWorks,
     canAccessFinance: hasFinance,
     canAccessInventory: hasInventory,

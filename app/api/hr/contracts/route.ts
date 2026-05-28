@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkHRAccess } from "@/lib/auth";
+import { authenticate, checkHRAccess, checkHRWrite } from "@/lib/auth";
 import { getContracts, addContract } from "@/server/services/contracts";
 
 export async function GET(request: Request) {
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkHRAccess(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await checkHRWrite(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const body = (await request.json()) as Record<string, unknown>;
   const { employeeId, ...contractData } = body;

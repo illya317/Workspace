@@ -2,7 +2,7 @@ import { handleCreate } from "@/lib/crud";
 import { NextResponse } from "next/server";
 
 const CONFIG = { entityType: "EDP", modelKey: "eDP" as const };
-import { authenticate, checkHRAccess } from "@/lib/auth";
+import { authenticate, checkHRAccess, checkHRWrite } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { EDPCreateSchema, parseJson } from "@/lib/schemas";
 
@@ -75,7 +75,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkHRAccess(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await checkHRWrite(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const parsed = await parseJson(request, EDPCreateSchema);
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });

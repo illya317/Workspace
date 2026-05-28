@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkHRAccess } from "@/lib/auth";
+import { authenticate, checkHRWrite, checkHRDelete } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const ALLOWED = [
@@ -18,7 +18,7 @@ export async function PUT(
 ) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkHRAccess(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await checkHRWrite(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { id } = await params;
   const contractId = parseInt(id);
@@ -53,7 +53,7 @@ export async function DELETE(
 ) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkHRAccess(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await checkHRDelete(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { id } = await params;
   const contractId = parseInt(id);

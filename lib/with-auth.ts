@@ -3,6 +3,8 @@ import {
   authenticate,
   isKicked,
   checkHRAccess,
+  checkHRWrite,
+  checkHRDelete,
   checkFinanceAccess,
   checkInventoryAccess,
   checkContractAccess,
@@ -51,6 +53,18 @@ export function withHRAccess(
   handler: AuthHandler,
 ): (req: Request) => Promise<Response> {
   return withAuth(handler, checkHRAccess);
+}
+
+export function withHRWrite(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkHRWrite);
+}
+
+export function withHRDelete(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkHRDelete);
 }
 
 export function withFinanceAccess(

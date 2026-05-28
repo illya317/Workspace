@@ -22,9 +22,9 @@ export default function PermissionsTab({ resources, showToast }: Props) {
           <ResourceTree
             resources={s.topResources}
             selectedResource={s.selectedResource}
-            onSelect={s.setSelectedResource}
+            onSelect={(key) => { s.setParentResource(key); s.setSelectedResource(key); }}
           />
-          {s.childResources.length > 0 && s.selectedResource && (
+          {s.childResources.length > 0 && s.parentResource && (
             <div className="mt-2">
               <p className="mb-1 text-xs text-gray-500">子权限</p>
               <ResourceTree

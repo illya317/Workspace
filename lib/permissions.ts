@@ -82,6 +82,6 @@ export const perm = {
     access: "work.access",
   },
   report: {
-    write_any_week: "work.report.write",
+    write: "work.report.write",
   },
 };

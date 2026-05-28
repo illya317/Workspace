@@ -75,7 +75,7 @@ export async function POST(request: Request) {
     sessionVersion: updatedUser.sessionVersion,
   });
 
-  const [isAdmin, canAnyWeek, hasHR, canEditHR, canDeleteHR, hasWorks] = await Promise.all([
+  const [isAdmin, canAnyWeek, hasHRAccess, hasHRWrite, hasHRDelete, hasWorks] = await Promise.all([
     checkPermission(user.id, "system", "admin"),
     checkPermission(user.id, "work.report", "write"),
     checkPermission(user.id, "people", "access"),
@@ -83,6 +83,8 @@ export async function POST(request: Request) {
     checkPermission(user.id, "people", "delete"),
     checkPermission(user.id, "work", "access"),
   ]);
+
+  const hasHR = hasHRAccess || hasHRWrite || hasHRDelete;
 
   const response = NextResponse.json({
     success: true,
@@ -93,9 +95,9 @@ export async function POST(request: Request) {
       isWorkListAdmin: isAdmin,
       isSuperAdmin: isAdmin,
       canSelectAnyWeek: canAnyWeek,
-      canAccessHR: hasHR,
-      canEditHR: isAdmin || canEditHR,
-      canDeleteHR: isAdmin || canDeleteHR,
+      canAccessHR: isAdmin || hasHR,
+      canEditHR: isAdmin || hasHRWrite,
+      canDeleteHR: isAdmin || hasHRDelete,
       canAccessWorks: hasWorks,
     },
   });

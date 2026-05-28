@@ -90,4 +90,23 @@ HR API 在 `app/api/hr/` 下，采用统一 CRUD 模板：
 - `PUT` — 更新（body 含 `id` + 变更字段）
 - `DELETE` — 删除（`?id=` 参数，已对大部分实体禁用）
 
-所有路由使用 `authenticate()` + `checkHRAccess(userId)` 鉴权。
+## HR 权限标准
+
+HR 页面和 API 使用同一套 RBAC 权限：
+
+- `people.access` — 控制进入页面和查看数据（GET）
+- `people.write` — 控制新增、编辑（POST / PUT / PATCH）
+- `people.delete` — 控制删除（DELETE）
+- `system.admin` — 拥有全部 HR 权限
+
+**权限继承规则**：
+- 岗位授权和部门授权也会生效（通过 `positionResourceRole` / `departmentResourceRole`）
+- 有 `people.write` 或 `people.delete` 的用户自动可以进入 HR 页面（隐含 `access`）
+- 前端只做显示控制（隐藏编辑按钮），API 必须做最终权限校验
+
+**API 权限映射**：
+- `GET` → `checkHRAccess(userId, "access")`
+- `POST` / `PUT` / `PATCH` → `checkHRAccess(userId, "write")`
+- `DELETE` → `checkHRAccess(userId, "delete")`
+
+所有路由使用 `authenticate()` + 按 HTTP 方法区分的权限检查鉴权。

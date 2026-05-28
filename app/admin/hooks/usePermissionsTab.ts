@@ -44,6 +44,7 @@ export function usePermissionsTab(
 ) {
   const [subjectType, setSubjectType] = useState<SubjectType>("user");
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
+  const [parentResource, setParentResource] = useState<string | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [directGrants, setDirectGrants] = useState<Grant[]>([]);
   const [positionGrants, setPositionGrants] = useState<Grant[]>([]);
@@ -62,13 +63,14 @@ export function usePermissionsTab(
   );
 
   const childResources = useMemo(() => {
-    if (!selectedResource) return [];
+    const parent = parentResource || selectedResource;
+    if (!parent || parent.includes(".")) return [];
     return resources.filter(
       (r) =>
-        r.key.startsWith(selectedResource + ".") &&
-        r.key.split(".").length === selectedResource.split(".").length + 1
+        r.key.startsWith(parent + ".") &&
+        r.key.split(".").length === parent.split(".").length + 1
     );
-  }, [resources, selectedResource]);
+  }, [resources, parentResource, selectedResource]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -109,14 +111,10 @@ export function usePermissionsTab(
       .then((data) => {
         const users = (data.users || []) as Array<{
           id: number;
-          resourceRoles?: Array<{ resource?: { key: string }; role?: { key: string } }>;
+          isWorkListAdmin?: boolean;
         }>;
         const ids = users
-          .filter((u) =>
-            u.resourceRoles?.some(
-              (rr) => rr.resource?.key === "system" && rr.role?.key === "admin"
-            )
-          )
+          .filter((u) => u.isWorkListAdmin)
           .map((u) => u.id);
         setSystemAdminIds(new Set(ids));
       })
@@ -244,6 +242,8 @@ export function usePermissionsTab(
     setSubjectType,
     selectedResource,
     setSelectedResource,
+    parentResource,
+    setParentResource,
     subjects,
     loading,
     companyFilter,

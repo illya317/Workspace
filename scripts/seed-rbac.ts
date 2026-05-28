@@ -33,7 +33,6 @@ async function main() {
     { key: "admin", name: "管理", description: "编辑数据 + 分配该资源权限给他人" },
     { key: "write", name: "编辑", description: "可修改数据" },
     { key: "delete", name: "删除", description: "可删除数据" },
-    { key: "write_any_week", name: "补填任意周报", description: "可填写/补填任意周的周报" },
   ];
   const roleMap = new Map<string, number>();
   for (const r of roles) {
@@ -78,7 +77,6 @@ async function main() {
   const fieldMap: Record<string, string> = {
     isWorkListAdmin: "system",
     canLogin: "system",
-    canSelectAnyWeek: "report",
     canAccessHR: "module.hr",
     canAccessWorks: "module.works",
   };
@@ -118,7 +116,6 @@ async function main() {
   const boolToRole: Record<string, string> = {
     isWorkListAdmin: "admin",
     canLogin: "access",
-    canSelectAnyWeek: "write_any_week",
     canAccessHR: "access",
     canAccessWorks: "access",
   };

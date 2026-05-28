@@ -19,6 +19,8 @@ export { requireAdmin, isAdmin, isSuperAdmin } from "@/server/auth/admin";
 // Domain access checkers
 export {
   checkHRAccess,
+  checkHRWrite,
+  checkHRDelete,
   checkWorksAccess,
   checkFinanceAccess,
   checkInventoryAccess,
