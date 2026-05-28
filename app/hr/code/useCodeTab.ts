@@ -1,57 +1,18 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useState } from "react";
 import { useToast } from "@/app/hooks/useToast";
+import { useCodeData } from "./hooks/useCodeData";
+import { useCodeTable } from "./hooks/useCodeTable";
+import { useCodeEdit } from "./hooks/useCodeEdit";
 import {
-  NAME_TO_CODE,
-  resolveCompanyFilter,
-} from "@/lib/company";
-import {
-  buildFullCode,
   getDetailList as getDetailListFromEmployees,
-  getSortedCodes as sortCodeList,
-  toggleSort as getNextSortState,
 } from "./useCodeHelpers";
 
 import type { HRUser as User } from "../types";
+import type { Employee, CodeItem } from "./types";
 
-export interface Employee {
-  id: number;
-  employeeId: string;
-  name: string;
-  company: string | null;
-  center: string | null;
-  dept1: string | null;
-  dept2: string | null;
-  position: string | null;
-  gender: string | null;
-  ethnicity: string | null;
-  hometown: string | null;
-  politics: string | null;
-  education: string | null;
-  title: string | null;
-  school: string | null;
-  major: string | null;
-  phone: string | null;
-  joinDate: string | null;
-  nature: string | null;
-  status?: string | null;
-  leaveDate?: string | null;
-  alias?: string | null;
-}
-
-export interface CodeItem {
-  code: string;
-  name: string;
-}
-
-const PREFIX_TO_COMPANIES: Record<string, string[]> = {
-  "01": ["丰华生物", "丰华天力通", "丰华悦通", "加拿大"],
-  "02": ["丰华生物", "丰华天力通", "丰华悦通", "加拿大"],
-  "03": ["丰华生物", "丰华天力通", "丰华悦通", "加拿大"],
-  "04": ["丰华制药"],
-  "05": ["丰华生物", "丰华天力通", "丰华悦通", "加拿大"],
-};
+export type { Employee, CodeItem };
 
 export function useCodeTab({
   user,
@@ -68,44 +29,29 @@ export function useCodeTab({
   selectedCompany: string;
   departmentCode?: string;
 }) {
-  const [codes, setCodes] = useState<CodeItem[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const stats = useMemo(() => {
-    const map: Record<string, number> = {};
-    for (const c of codes) {
-      const prefix = c.code.slice(0, 2);
-      const allowedCompanies = PREFIX_TO_COMPANIES[prefix] || [];
-      const companyEmps = employees.filter((e) =>
-        allowedCompanies.includes(e.company || "")
-      );
-      if (type === "department") {
-        map[c.code] = new Set(
-          companyEmps.filter((e) => e.dept1 === c.name).map((e) => e.employeeId)
-        ).size;
-      } else {
-        map[c.code] = new Set(
-          companyEmps
-            .filter((e) => {
-              if (!e.position) return false;
-              const positions = e.position.split("、").map((p) => p.trim());
-              return positions.includes(c.name);
-            })
-            .map((e) => e.employeeId)
-        ).size;
-      }
-    }
-    return map;
-  }, [codes, employees, type]);
-  const [loading, setLoading] = useState(true);
   const { toast, showToast, closeToast } = useToast();
-  const [newCode, setNewCode] = useState("");
-  const [newName, setNewName] = useState("");
-  const [sortField, setSortField] = useState<"code" | "name" | "count">("code");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [editMode, setEditMode] = useState(false);
-  const [editRow, setEditRow] = useState<string | null>(null);
-  const [editCodeValue, setEditCodeValue] = useState("");
-  const [editNameValue, setEditNameValue] = useState("");
+  const { codes, setCodes, employees, stats, loading } = useCodeData({
+    type,
+    apiPath,
+    companyCode,
+    selectedCompany,
+    departmentCode,
+  });
+  const { sortField, sortDirection, toggleSort, sortedCodes } = useCodeTable(
+    codes,
+    stats
+  );
+  const edit = useCodeEdit({
+    user,
+    type,
+    apiPath,
+    companyCode,
+    departmentCode,
+    codes,
+    setCodes,
+    showToast,
+  });
+
   const [detailModal, setDetailModal] = useState<{
     open: boolean;
     code: string;
@@ -117,141 +63,9 @@ export function useCodeTab({
     name: string;
     departments: string[];
   } | null>(null);
-  const [saving, setSaving] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
 
-  const entityType =
-    type === "department" ? "Department" : "Position";
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    const codesParam = selectedCompany
-      ? resolveCompanyFilter(selectedCompany)
-          .map((n) => NAME_TO_CODE[n] || "")
-          .filter(Boolean)
-          .join(",")
-      : "";
-    const params = new URLSearchParams();
-    if (codesParam) params.set("companys", codesParam);
-    if (departmentCode) params.set("departmentCode", departmentCode);
-    const url = params.toString() ? `${apiPath}?${params.toString()}` : apiPath;
-    const [codesRes, empRes] = await Promise.all([
-      fetch(url),
-      fetch(
-        `/api/employees?company=${encodeURIComponent(selectedCompany || "")}`
-      ),
-    ]);
-    if (codesRes.ok) {
-      const data = await codesRes.json();
-      setCodes(data.codes || []);
-    }
-    if (empRes.ok) {
-      const data = await empRes.json();
-      setEmployees(data.employees || []);
-    }
-    setLoading(false);
-  }, [apiPath, selectedCompany, departmentCode]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  function toggleSortHandler(field: "code" | "name" | "count") {
-    const next = getNextSortState(sortField, sortDirection, field);
-    setSortField(next.sortField);
-    setSortDirection(next.sortDirection);
-  }
-
-  const sortedCodes = sortCodeList(codes, stats, sortField, sortDirection);
-
-  function startEditRow(item: CodeItem) {
-    if (!user.canEditHR) return;
-    setEditRow(item.code);
-    setEditCodeValue(item.code.length === 5 ? item.code.slice(2) : item.code);
-    setEditNameValue(item.name);
-  }
-
-  async function saveEditRow(originalCode: string) {
-    if (!/^\d{3}$/.test(editCodeValue)) {
-      showToast("编号必须为3位数字", "error");
-      return;
-    }
-    const newFullCode = buildFullCode(editCodeValue, companyCode);
-
-    if (
-      newFullCode !== originalCode &&
-      codes.some((c) => c.code === newFullCode)
-    ) {
-      showToast("编号已存在", "error");
-      return;
-    }
-
-    const putRes = await fetch(apiPath, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        code: editCodeValue,
-        name: editNameValue.trim(),
-        companyCode,
-        originalCode: newFullCode !== originalCode ? originalCode : undefined,
-      }),
-    });
-    if (!putRes.ok) {
-      const err = await putRes.json().catch(() => ({ error: "保存失败" }));
-      showToast(err.error || "保存失败", "error");
-      setEditRow(null);
-      return;
-    }
-    setCodes((prev) =>
-      prev
-        .filter((c) => c.code !== originalCode)
-        .concat({ code: newFullCode, name: editNameValue.trim() })
-        .sort((a, b) => a.code.localeCompare(b.code))
-    );
-    showToast("保存成功");
-    setEditRow(null);
-  }
-
-  async function handleAdd() {
-    if (!/^\d{3}$/.test(newCode)) {
-      showToast("编号必须为3位数字", "error");
-      return;
-    }
-    if (!newName.trim()) {
-      showToast("名称不能为空", "error");
-      return;
-    }
-    const fullCode = buildFullCode(newCode, companyCode);
-    if (codes.some((c) => c.code === fullCode)) {
-      showToast("编号已存在", "error");
-      return;
-    }
-    const body: Record<string, string> = {
-      code: newCode,
-      name: newName.trim(),
-      companyCode,
-    };
-    if (departmentCode) {
-      body.departmentCode = departmentCode;
-    }
-    const res = await fetch(apiPath, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.ok) {
-      setCodes((prev) =>
-        [...prev, { code: fullCode, name: newName.trim() }].sort((a, b) =>
-          a.code.localeCompare(b.code)
-        )
-      );
-      setNewCode("");
-      setNewName("");
-      showToast("添加成功");
-    } else {
-      showToast("添加失败", "error");
-    }
-  }
+  const entityType = type === "department" ? "Department" : "Position";
 
   function getDetailListWrapper(codeItem: CodeItem): Employee[] {
     return getDetailListFromEmployees(employees, type, codeItem);
@@ -276,57 +90,24 @@ export function useCodeTab({
     }
   }
 
-  async function handleSave() {
-    if (!editRow) return;
-    setSaving(true);
-    try {
-      await saveEditRow(editRow);
-      setEditMode(false);
-    } finally {
-      setSaving(false);
-    }
-  }
-
   return {
-    // state
-    codes,
-    employees,
-    stats,
     loading,
     toast,
-    showToast,
     closeToast,
-    newCode,
-    setNewCode,
-    newName,
-    setNewName,
     sortField,
     sortDirection,
-    editMode,
-    setEditMode,
-    editRow,
-    setEditRow,
-    editCodeValue,
-    setEditCodeValue,
-    editNameValue,
-    setEditNameValue,
+    toggleSort,
+    sortedCodes,
+    stats,
+    ...edit,
     detailModal,
     setDetailModal,
     positionDeptModal,
     setPositionDeptModal,
-    saving,
     showHistory,
     setShowHistory,
     entityType,
-    // computed
-    sortedCodes,
-    // actions
-    toggleSort: toggleSortHandler,
-    startEditRow,
-    saveEditRow,
-    handleAdd,
     getDetailList: getDetailListWrapper,
     loadPositionDepts,
-    handleSave,
   };
 }

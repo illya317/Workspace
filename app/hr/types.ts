@@ -35,11 +35,6 @@ export interface RosterEmployee {
   alias?: string | null;
 }
 
-export interface CodeItem {
-  code: string;
-  name: string;
-}
-
 // ─── Generic Tab Types ──────────────────────────────────────
 
 export type FieldType = "text" | "number" | "boolean" | "date" | "fk" | "textarea";

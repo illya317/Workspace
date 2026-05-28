@@ -1,5 +1,5 @@
 import { SHARED_GROUP_CODES } from "@/lib/company";
-import type { Employee, CodeItem } from "./useCodeTab";
+import type { Employee, CodeItem } from "./types";
 
 export function buildFullCode(shortCode: string, companyCode: string): string {
   const normalized = companyCode

@@ -1,10 +1,13 @@
 "use client";
 
 import { isBio, isPharma } from "@/lib/company";
-import { EditRow, PersonListModal, PositionDeptModal } from "./CodeEditRow";
+import { EditRow } from "./CodeEditRow";
+import CodeRow from "./components/CodeRow";
+import PersonListModal from "./components/PersonListModal";
+import PositionDeptModal from "./components/PositionDeptModal";
 
 import type { HRUser as User } from "@/app/hr/types";
-import type { Employee, CodeItem } from "@/app/hr/code/useCodeTab";
+import type { Employee, CodeItem } from "@/app/hr/code/types";
 
 interface CodeTableProps {
   sortedCodes: CodeItem[];
@@ -83,10 +86,24 @@ export default function CodeTable({
   user,
   type,
 }: CodeTableProps) {
+  const bioCodes = sortedCodes.filter((c) => isBio(c.code));
+  const pharmaCodes = sortedCodes.filter((c) => isPharma(c.code));
+  const bioTotal = bioCodes.reduce(
+    (sum, c) => sum + (stats[c.code] || 0),
+    0
+  );
+  const pharmaTotal = pharmaCodes.reduce(
+    (sum, c) => sum + (stats[c.code] || 0),
+    0
+  );
+  const grandTotal = sortedCodes.reduce(
+    (sum, c) => sum + (stats[c.code] || 0),
+    0
+  );
+
   const renderRow = (item: CodeItem) => {
     const isEditing = editRow === item.code;
     const count = stats[item.code] || 0;
-    const isSelected = selectedCode === item.code;
 
     if (isEditing) {
       return (
@@ -105,76 +122,37 @@ export default function CodeTable({
     }
 
     return (
-      <tr
+      <CodeRow
         key={item.code}
-        className={`border-b last:border-0 hover:bg-gray-50 ${isSelected ? "bg-emerald-50" : ""}`}
-      >
-        <td className="whitespace-nowrap px-2 py-1.5 text-gray-700">
-          <span
-            className={
-              onSelect
-                ? "cursor-pointer hover:text-emerald-600"
-                : ""
-            }
-            onClick={() => {
-              if (onSelect) onSelect(item.code);
-            }}
-          >
-            {item.code}
-          </span>
-        </td>
-        <td className="whitespace-nowrap px-2 py-1.5 text-gray-700">
-          <span
-            className="cursor-pointer hover:text-emerald-600"
-            onClick={() =>
-              editMode && user.canEditHR
-                ? startEditRow(item)
-                : onSelect
-                  ? onSelect(item.code)
-                  : type === "position"
-                    ? loadPositionDepts(item)
-                    : setDetailModal({
-                        open: true,
-                        code: item.code,
-                        name: item.name,
-                      })
-            }
-          >
-            {item.name || "-"}
-          </span>
-        </td>
-        <td className="whitespace-nowrap px-2 py-1.5 text-right text-gray-700">
-          <span
-            className="cursor-pointer rounded-full bg-gray-100 px-2 py-0.5 text-xs hover:bg-gray-200"
-            onClick={() =>
-              setDetailModal({
-                open: true,
-                code: item.code,
-                name: item.name,
-              })
-            }
-          >
-            {count}
-          </span>
-        </td>
-      </tr>
+        item={item}
+        count={count}
+        isSelected={selectedCode === item.code}
+        onCodeClick={onSelect ? () => onSelect(item.code) : undefined}
+        onNameClick={() => {
+          if (editMode && user.canEditHR) {
+            startEditRow(item);
+          } else if (onSelect) {
+            onSelect(item.code);
+          } else if (type === "position") {
+            loadPositionDepts(item);
+          } else {
+            setDetailModal({
+              open: true,
+              code: item.code,
+              name: item.name,
+            });
+          }
+        }}
+        onCountClick={() =>
+          setDetailModal({
+            open: true,
+            code: item.code,
+            name: item.name,
+          })
+        }
+      />
     );
   };
-
-  const bioCodes = sortedCodes.filter((c) => isBio(c.code));
-  const pharmaCodes = sortedCodes.filter((c) => isPharma(c.code));
-  const bioTotal = bioCodes.reduce(
-    (sum, c) => sum + (stats[c.code] || 0),
-    0
-  );
-  const pharmaTotal = pharmaCodes.reduce(
-    (sum, c) => sum + (stats[c.code] || 0),
-    0
-  );
-  const grandTotal = sortedCodes.reduce(
-    (sum, c) => sum + (stats[c.code] || 0),
-    0
-  );
 
   return (
     <>
