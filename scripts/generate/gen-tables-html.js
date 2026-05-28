@@ -43,6 +43,12 @@ const GROUPS = [
       "FinanceVoucher",
       "FinanceVoucherItem",
       "FinanceAccountBalance",
+      "FinanceDataImport",
+      "FinanceShipment",
+      "FinanceSalesSalary",
+      "FinanceCostStructureRow",
+      "FinanceCostAnalysisRow",
+      "FinanceWorkshopReport",
     ],
   },
   {
@@ -89,17 +95,31 @@ const lines = schemaText.split("\n");
 const models = {};
 let currentModel = null;
 let modelOrder = [];
+let pendingDescription = "";
 
 for (let i = 0; i < lines.length; i++) {
   const line = lines[i];
+  const trimmed = line.trim();
+
+  // Capture model-level /// comments
+  if (trimmed.startsWith("///")) {
+    const text = trimmed.replace(/^\/+\s*/, "").trim();
+    if (text) {
+      pendingDescription = pendingDescription ? pendingDescription + " " + text : text;
+    }
+    continue;
+  }
+
   const modelMatch = line.match(/^model\s+(\w+)\s*\{/);
   if (modelMatch) {
     currentModel = {
       name: modelMatch[1],
+      description: pendingDescription,
       fields: [],
       uniqueConstraints: [], // @@unique
       indexConstraints: [], // @@index
     };
+    pendingDescription = "";
     models[currentModel.name] = currentModel;
     modelOrder.push(currentModel.name);
     continue;
@@ -477,7 +497,11 @@ GROUPS.forEach((g) => {
     const constraintItems = buildConstraints(model);
 
     mainContent += `<div class="table-block" id="${m}">\n`;
-    mainContent += `<div class="table-header"><h3><span class="table-num">${num}</span> ${m}</h3></div>\n`;
+    mainContent += `<div class="table-header"><h3><span class="table-num">${num}</span> ${m}</h3>`;
+    if (model.description) {
+      mainContent += `<p class="table-desc">${escapeHtml(model.description)}</p>`;
+    }
+    mainContent += `</div>\n`;
     mainContent += `<table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>\n`;
     model.fields.forEach((f) => {
       // Skip relation fields (fields whose type is a model name and have no scalar purpose)
@@ -566,6 +590,7 @@ const html = `<!DOCTYPE html>
   .table-block { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 24px; overflow-x: auto; }
   .table-header { padding: 16px 20px; border-bottom: 1px solid #f1f5f9; }
   .table-header h3 { font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+  .table-desc { margin: 6px 0 0 0; font-size: 13px; color: #64748b; line-height: 1.5; }
   .table-num { display: inline-block; background: #0f172a; color: #fff; font-size: 12px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
   .field-table { width: 100%; border-collapse: collapse; }
   .field-table th { text-align: left; padding: 10px 20px; font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; background: #fafbfc; border-bottom: 1px solid #f1f5f9; }

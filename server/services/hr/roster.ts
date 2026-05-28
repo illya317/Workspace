@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import * as XLSX from "xlsx";
 import { matchAnyField } from "@/lib/search-schema";
 import { isPharma } from "@/lib/company";

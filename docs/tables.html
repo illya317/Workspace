@@ -109,6 +109,12 @@
 <a href="#FinanceVoucher">8-3 FinanceVoucher</a>
 <a href="#FinanceVoucherItem">8-4 FinanceVoucherItem</a>
 <a href="#FinanceAccountBalance">8-5 FinanceAccountBalance</a>
+<a href="#FinanceDataImport">8-6 FinanceDataImport</a>
+<a href="#FinanceShipment">8-7 FinanceShipment</a>
+<a href="#FinanceSalesSalary">8-8 FinanceSalesSalary</a>
+<a href="#FinanceCostStructureRow">8-9 FinanceCostStructureRow</a>
+<a href="#FinanceCostAnalysisRow">8-10 FinanceCostAnalysisRow</a>
+<a href="#FinanceWorkshopReport">8-11 FinanceWorkshopReport</a>
 </div>
 <div class="group"><div class="group-title">9. Inventory</div>
 <a href="#StockRawMaterial">9-1 StockRawMaterial</a>
@@ -911,6 +917,9 @@
 <a href="#User" class="dep-link">1-1 User</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
+<a href="#FinanceShipment" class="dep-link">8-7 FinanceShipment</a>
+<a href="#FinanceSalesSalary" class="dep-link">8-8 FinanceSalesSalary</a>
+<a href="#FinanceWorkshopReport" class="dep-link">8-11 FinanceWorkshopReport</a>
 <a href="#Employment" class="dep-link">5-2 Employment</a>
 <a href="#EDP" class="dep-link">5-7 EDP</a>
 <a href="#EmployeeProject" class="dep-link">5-9 EmployeeProject</a>
@@ -1279,6 +1288,7 @@
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <a href="#PositionResourceRole" class="dep-link">2-4 PositionResourceRole</a>
+<a href="#FinanceWorkshopReport" class="dep-link">8-11 FinanceWorkshopReport</a>
 <a href="#EDP" class="dep-link">5-7 EDP</a>
 </div>
 </div>
@@ -2026,6 +2036,563 @@
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <a href="#FinanceAccount" class="dep-link">8-1 FinanceAccount</a>
 <a href="#FinancePeriod" class="dep-link">8-2 FinancePeriod</a>
+</div>
+<div class="dep-in"><span class="dep-label">Referenced by:</span>
+<span class="dep-none">无</span>
+</div>
+</div>
+</div>
+<div class="table-block" id="FinanceDataImport">
+<div class="table-header"><h3><span class="table-num">8-6</span> FinanceDataImport</h3></div>
+<table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
+  <tr class="pk-border ref-underline">
+    <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span><span class="kb ref">R</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">profile</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">year</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceFile</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourcePath</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">normalizedJsonPath</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">checksum</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">status</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">recordCount</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">warningCount</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">errorCount</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">importedBy</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">importedAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">updatedAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+</tbody></table>
+<div class="table-footer">
+<div class="constraints"><span class="constraint-tag">PK: id</span></div>
+<div class="dep-out"><span class="dep-label">Depends on:</span>
+<span class="dep-none">无</span>
+</div>
+<div class="dep-in"><span class="dep-label">Referenced by:</span>
+<a href="#FinanceShipment" class="dep-link">8-7 FinanceShipment</a>
+<a href="#FinanceSalesSalary" class="dep-link">8-8 FinanceSalesSalary</a>
+<a href="#FinanceCostStructureRow" class="dep-link">8-9 FinanceCostStructureRow</a>
+<a href="#FinanceCostAnalysisRow" class="dep-link">8-10 FinanceCostAnalysisRow</a>
+<a href="#FinanceWorkshopReport" class="dep-link">8-11 FinanceWorkshopReport</a>
+</div>
+</div>
+</div>
+<div class="table-block" id="FinanceShipment">
+<div class="table-header"><h3><span class="table-num">8-7</span> FinanceShipment</h3></div>
+<table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
+  <tr class="pk-border">
+    <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">importId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">8-6 FinanceDataImport</a></span></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">year</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">month</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">date</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">customerName</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">productName</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">spec</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">batchNo</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">quantity</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">unitPrice</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">amount</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">receivedAmount</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">employeeId</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">5-1 Employee</a></span></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceFile</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceSheet</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceRow</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">updatedAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+</tbody></table>
+<div class="table-footer">
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: importId → FinanceDataImport, employeeId → Employee</span></div>
+<div class="dep-out"><span class="dep-label">Depends on:</span>
+<a href="#FinanceDataImport" class="dep-link">8-6 FinanceDataImport</a>
+<a href="#Employee" class="dep-link">5-1 Employee</a>
+</div>
+<div class="dep-in"><span class="dep-label">Referenced by:</span>
+<span class="dep-none">无</span>
+</div>
+</div>
+</div>
+<div class="table-block" id="FinanceSalesSalary">
+<div class="table-header"><h3><span class="table-num">8-8</span> FinanceSalesSalary</h3></div>
+<table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
+  <tr class="pk-border">
+    <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">importId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">8-6 FinanceDataImport</a></span></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">year</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">month</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">baseSalary</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">bonus</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">deduction</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">actualSalary</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">employeeId</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">5-1 Employee</a></span></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceFile</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceSheet</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceRow</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">updatedAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+</tbody></table>
+<div class="table-footer">
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: importId → FinanceDataImport, employeeId → Employee</span></div>
+<div class="dep-out"><span class="dep-label">Depends on:</span>
+<a href="#FinanceDataImport" class="dep-link">8-6 FinanceDataImport</a>
+<a href="#Employee" class="dep-link">5-1 Employee</a>
+</div>
+<div class="dep-in"><span class="dep-label">Referenced by:</span>
+<span class="dep-none">无</span>
+</div>
+</div>
+</div>
+<div class="table-block" id="FinanceCostStructureRow">
+<div class="table-header"><h3><span class="table-num">8-9</span> FinanceCostStructureRow</h3></div>
+<table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
+  <tr class="pk-border">
+    <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">importId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">8-6 FinanceDataImport</a></span></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">year</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">month</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">productName</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">category</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">itemName</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">amount</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">quantity</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">unit</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceFile</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceSheet</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceRow</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">updatedAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+</tbody></table>
+<div class="table-footer">
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: importId → FinanceDataImport</span></div>
+<div class="dep-out"><span class="dep-label">Depends on:</span>
+<a href="#FinanceDataImport" class="dep-link">8-6 FinanceDataImport</a>
+</div>
+<div class="dep-in"><span class="dep-label">Referenced by:</span>
+<span class="dep-none">无</span>
+</div>
+</div>
+</div>
+<div class="table-block" id="FinanceCostAnalysisRow">
+<div class="table-header"><h3><span class="table-num">8-10</span> FinanceCostAnalysisRow</h3></div>
+<table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
+  <tr class="pk-border">
+    <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">importId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">8-6 FinanceDataImport</a></span></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">year</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">month</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">tableName</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">rowLabel</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">metricKey</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">metricName</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">value</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">textValue</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceFile</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceSheet</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceRow</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">updatedAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+</tbody></table>
+<div class="table-footer">
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: importId → FinanceDataImport</span></div>
+<div class="dep-out"><span class="dep-label">Depends on:</span>
+<a href="#FinanceDataImport" class="dep-link">8-6 FinanceDataImport</a>
+</div>
+<div class="dep-in"><span class="dep-label">Referenced by:</span>
+<span class="dep-none">无</span>
+</div>
+</div>
+</div>
+<div class="table-block" id="FinanceWorkshopReport">
+<div class="table-header"><h3><span class="table-num">8-11</span> FinanceWorkshopReport</h3></div>
+<table class="field-table"><thead><tr><th style="width:200px">Field</th><th style="width:60px">Type</th><th>Description</th></tr></thead><tbody>
+  <tr class="pk-border">
+    <td><span class="field-name">id</span> <span class="field-required">*</span><span class="kb pk">P</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">importId</span> <span class="field-required">*</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#FinanceDataImport" class="dep-link">8-6 FinanceDataImport</a></span></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">year</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">month</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">productName</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">batchNo</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">workPoint</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">quantity</span></td>
+    <td><span class="field-type" style="background:#6b728015;color:#6b7280">float</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">employeeId</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Employee" class="dep-link">5-1 Employee</a></span></td>
+  </tr>
+  <tr class="fk-underline">
+    <td><span class="field-name">positionId</span><span class="kb fk">F</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"><span style="font-size:11px;color:#d97706">→ <a href="#Position" class="dep-link">5-6 Position</a></span></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceFile</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceSheet</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">sourceRow</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">createdAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">updatedAt</span> <span class="field-required">*</span></td>
+    <td><span class="field-type" style="background:#d9770615;color:#d97706">time</span></td>
+    <td class="field-comment"></td>
+  </tr>
+</tbody></table>
+<div class="table-footer">
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">FK: importId → FinanceDataImport, employeeId → Employee, positionId → Position</span></div>
+<div class="dep-out"><span class="dep-label">Depends on:</span>
+<a href="#FinanceDataImport" class="dep-link">8-6 FinanceDataImport</a>
+<a href="#Employee" class="dep-link">5-1 Employee</a>
+<a href="#Position" class="dep-link">5-6 Position</a>
 </div>
 <div class="dep-in"><span class="dep-label">Referenced by:</span>
 <span class="dep-none">无</span>

@@ -83,15 +83,12 @@ export async function getWorkshopSummary(params: CostQueryParams) {
 
   const rows = await prisma.financeWorkshopReport.findMany({
     where,
-    include: {
-      employee: { select: { name: true } },
-      position: { select: { name: true } },
-    },
     select: {
       workPoint: true,
       quantity: true,
       productName: true,
       employee: { select: { name: true } },
+      position: { select: { name: true } },
     },
   });
 

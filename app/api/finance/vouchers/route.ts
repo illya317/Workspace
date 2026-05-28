@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceAccess, withFinanceWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 
 export const GET = withFinanceAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);

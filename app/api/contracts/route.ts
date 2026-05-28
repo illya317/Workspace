@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withContractAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { ContractCreateSchema, parseJson } from "@/lib/schemas";
 
 export const GET = withContractAccess(async (request) => {

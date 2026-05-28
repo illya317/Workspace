@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { SHARED_GROUP_CODES } from "@/lib/company";
 
 function normalizeCompany(company: string): string {

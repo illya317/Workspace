@@ -1,8 +1,12 @@
-const { PrismaClient } = require("@prisma/client");
-
-const prisma = new PrismaClient();
-
+const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
+async function createPrisma() {
+  const { PrismaClient } = await import('../../generated/prisma/client');
+  const dbPath = process.env.DATABASE_URL?.replace('file:', '') || '../../prisma/dev.db';
+    const adapter = new PrismaBetterSqlite3({ url: dbPath });
+  return new PrismaClient({ adapter });
+}
 async function main() {
+  const prisma = await createPrisma();
   let exitCode = 0;
 
   // 1. 检查核心表是否有数据

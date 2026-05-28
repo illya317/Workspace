@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 const CONFIG = { entityType: "Employment", modelKey: "employment" as const };
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { matchEmployee } from "@/lib/search";
 
 export async function GET(request: Request) {

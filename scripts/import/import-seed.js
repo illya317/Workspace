@@ -11,6 +11,7 @@ function loadJSON(filename) {
 }
 
 async function main() {
+  const prisma = await createPrisma();
   console.log('=== Step 0: Seed base data ===');
   const companies = loadJSON('companies.json');
   for (const c of companies) {

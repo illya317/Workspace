@@ -96,7 +96,6 @@ export async function getShipmentSummary(params: CostQueryParams) {
 
   const rows = await prisma.financeShipment.findMany({
     where,
-    include: { employee: { select: { name: true } } },
     select: {
       amount: true,
       receivedAmount: true,

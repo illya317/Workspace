@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 
 type ResourceWithChildren = Prisma.ResourceGetPayload<{
   include: { children: { include: { children: true } } };

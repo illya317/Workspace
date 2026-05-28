@@ -2,9 +2,13 @@
 // 仅对今天有编辑记录的表/记录生成，没编辑则跳过
 // 用法: node scripts/gen-v0-snapshots.js [YYYY-MM-DD]
 
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-
+const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
+async function createPrisma() {
+  const { PrismaClient } = await import('../../generated/prisma/client');
+  const dbPath = process.env.DATABASE_URL?.replace('file:', '') || '../../prisma/dev.db';
+    const adapter = new PrismaBetterSqlite3({ url: dbPath });
+  return new PrismaClient({ adapter });
+}
 const AUDITED_MODELS = [
   "Employee", "Employment", "Company", "CompanyRelation",
   "Department", "Position", "EDP", "Project", "EmployeeProject",
@@ -15,6 +19,7 @@ function clientKey(name) {
 }
 
 async function main() {
+  const prisma = await createPrisma();
   const args = process.argv.slice(2).filter(a => !a.startsWith("--"));
   const force = process.argv.includes("--force");
   const date = args[0] || new Date().toISOString().slice(0, 10);

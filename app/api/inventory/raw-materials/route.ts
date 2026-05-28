@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { withInventoryAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { handleCreate } from "@/lib/crud-inventory";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 
 export const GET = withInventoryAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);

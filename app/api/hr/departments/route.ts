@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 const CONFIG = { entityType: "Department", modelKey: "department" as const };
 import { withHRAccess, withHRWrite, withHRDelete } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { matchAnyField } from "@/lib/search-schema";
 import { snapshotHistory } from "@/lib/history";
 import { isPharma } from "@/lib/company";

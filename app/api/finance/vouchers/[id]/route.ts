@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceWrite, withFinanceDelete } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 
 export async function PUT(
   request: Request,

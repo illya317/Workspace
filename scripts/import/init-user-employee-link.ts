@@ -1,6 +1,10 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaClient } from "../../generated/prisma/client";
 
-const prisma = new PrismaClient();
+const dbPath = process.env.DATABASE_URL?.replace("file:", "") ?? "../../prisma/dev.db";
+
+const adapter = new PrismaBetterSqlite3({ url: dbPath });
+const prisma = new PrismaClient({ adapter });
 
 async function initLink() {
   const employees = await prisma.employee.findMany();

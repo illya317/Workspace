@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { getInitials } from "./search";
 
 const EXCLUDE_FIELDS = new Set([

@@ -1,8 +1,13 @@
 // @ts-nocheck
-import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import Database from "better-sqlite3";
+import { PrismaClient } from "../../generated/prisma/client";
 import * as XLSX from "xlsx";
 
-const prisma = new PrismaClient();
+const dbPath = process.env.DATABASE_URL?.replace("file:", "") // "../../prisma/dev.db";
+const db = new Database(dbPath);
+const adapter = new PrismaBetterSqlite3(db);
+const prisma = new PrismaClient({ adapter });
 
 function normalizeCompany(name: string): string {
   if (name === "江苏制药" || name === "制药") return "丰华制药";

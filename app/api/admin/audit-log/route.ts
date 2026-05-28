@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { resolveFkValues, fkDisplay } from "@/lib/resolve-fk";
 
 const RESOLVERS: Record<string, { model: string; field: string; fallback: string }> = {
