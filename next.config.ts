@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  serverExternalPackages: ["pinyin-pro"],
+  serverExternalPackages: ["pinyin-pro", "better-sqlite3", "@prisma/adapter-better-sqlite3"],
 };
 
 export default nextConfig;
