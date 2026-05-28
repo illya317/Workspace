@@ -76,7 +76,7 @@ echo "==> 确保服务器数据库目录存在..."
 ssh -i "$KEY" "$SERVER" "mkdir -p $REMOTE_DIR/prisma"
 
 echo "==> 同步构建产物到服务器（rsync 只传差异，node_modules 在服务器端自行安装）..."
-rsync -avz --delete --exclude='.env' --exclude='node_modules' -e "ssh -i $KEY" \
+rsync -avz --delete --exclude='.env' -e "ssh -i $KEY" \
   .next/standalone/ "$SERVER:$REMOTE_DIR/.next/standalone/"
 
 echo "==> 同步 Prisma schema 到服务器..."
@@ -93,9 +93,6 @@ rsync -avz --delete -e "ssh -i $KEY" \
 echo "==> 同步 package.json 到服务器..."
 rsync -avz -e "ssh -i $KEY" \
   package.json "$SERVER:$REMOTE_DIR/package.json"
-
-echo "==> 服务器端安装生产依赖..."
-ssh -i "$KEY" "$SERVER" "cd $REMOTE_DIR/.next/standalone && npm install --production"
 
 echo "==> 服务器端安装 prisma CLI..."
 ssh -i "$KEY" "$SERVER" "cd $REMOTE_DIR && npm install prisma@^7.8.0 --save-dev"
