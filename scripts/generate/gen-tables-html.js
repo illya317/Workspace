@@ -36,13 +36,18 @@ const GROUPS = [
   { title: "6. 岗位说明书", models: ["PositionDescription"] },
   { title: "7. Edit History", models: ["EditHistory"] },
   {
-    title: "8. Finance",
+    title: "8. 财务报表",
     models: [
       "FinanceAccount",
       "FinancePeriod",
       "FinanceVoucher",
       "FinanceVoucherItem",
       "FinanceAccountBalance",
+    ],
+  },
+  {
+    title: "9. 成本表",
+    models: [
       "FinanceDataImport",
       "FinanceShipment",
       "FinanceSalesSalary",
@@ -52,7 +57,7 @@ const GROUPS = [
     ],
   },
   {
-    title: "9. Inventory",
+    title: "10. Inventory",
     models: [
       "StockRawMaterial",
       "StockPackaging",
@@ -63,7 +68,7 @@ const GROUPS = [
     ],
   },
   {
-    title: "10. Contract",
+    title: "11. Contract",
     models: ["Contract"],
   },
 ];

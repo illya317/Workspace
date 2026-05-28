@@ -83,6 +83,9 @@ echo "==> 同步 Prisma schema 到服务器..."
 rsync -avz --delete -e "ssh -i $KEY" \
   prisma/ "$SERVER:$REMOTE_DIR/prisma/"
 
+echo "==> 确保服务器 generated 目录存在..."
+ssh -i "$KEY" "$SERVER" "mkdir -p $REMOTE_DIR/generated"
+
 echo "==> 同步 generated/prisma 到服务器..."
 rsync -avz --delete -e "ssh -i $KEY" \
   generated/prisma/ "$SERVER:$REMOTE_DIR/generated/prisma/"
