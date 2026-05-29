@@ -27,8 +27,14 @@ export const POST = withFinanceWrite(async (request: Request) => {
   if (!period) return NextResponse.json({ error: "期间不存在" }, { status: 404 });
   if (period.isClosed) return NextResponse.json({ error: "期间已结账，不能重新计算" }, { status: 400 });
 
-  // 1. 获取所有科目
-  const accounts = await prisma.financeAccount.findMany({ where: { isActive: true } });
+  // 1. 获取该期间对应的科目（按 companyCode + year 限定）
+  const accounts = await prisma.financeAccount.findMany({
+    where: {
+      isActive: true,
+      companyCode: period.companyCode ?? undefined,
+      year: period.year,
+    },
+  });
 
   // 2. 获取上期余额作为本期期初
   const prevPeriod = await prisma.financePeriod.findFirst({

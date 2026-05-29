@@ -156,7 +156,7 @@ export const POST = withFinanceWrite(async (request: Request) => {
     }
 
     if (type === "journal" && preview.vouchers) {
-      // 3b. 导入序时账
+      // 3b. 导入序时账（凭证号加年份前缀，与后台脚本保持一致）
       for (const v of preview.vouchers) {
         // 解析日期
         let dateStr = v.date;
@@ -164,9 +164,12 @@ export const POST = withFinanceWrite(async (request: Request) => {
           dateStr = dateStr.replace(/\./g, "-");
         }
 
+        // 凭证号加年份前缀，避免不同年度重复
+        const yearPrefixedVoucherNo = `${year}-${v.voucherNo}`;
+
         // 检查凭证是否已存在
         const existing = await prisma.financeVoucher.findUnique({
-          where: { voucherNo_companyCode: { voucherNo: v.voucherNo, companyCode } },
+          where: { voucherNo_companyCode: { voucherNo: yearPrefixedVoucherNo, companyCode } },
         });
         if (existing) {
           // 删除旧明细，更新凭证
@@ -201,7 +204,7 @@ export const POST = withFinanceWrite(async (request: Request) => {
         } else {
           const voucher = await prisma.financeVoucher.create({
             data: {
-              voucherNo: v.voucherNo,
+              voucherNo: yearPrefixedVoucherNo,
               date: dateStr,
               periodId: period.id,
               description: v.description,

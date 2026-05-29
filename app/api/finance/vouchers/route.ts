@@ -9,13 +9,18 @@ export const GET = withFinanceAccess(async (request: Request) => {
   const status = searchParams.get("status");
   const companyCode = searchParams.get("companyCode");
   const year = searchParams.get("year");
+  const month = searchParams.get("month");
   const page = parseInt(searchParams.get("page") || "1", 10);
   const pageSize = parseInt(searchParams.get("pageSize") || "50", 10);
   const where: Prisma.FinanceVoucherWhereInput = {};
   if (periodId) where.periodId = parseInt(periodId);
   if (status) where.status = status;
   if (companyCode) where.companyCode = companyCode;
-  if (year) where.period = { year: parseInt(year, 10) };
+  if (year || month) {
+    where.period = {};
+    if (year) where.period.year = parseInt(year, 10);
+    if (month) where.period.month = parseInt(month, 10);
+  }
 
   const [vouchers, total] = await Promise.all([
     prisma.financeVoucher.findMany({

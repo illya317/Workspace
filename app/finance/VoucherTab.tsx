@@ -60,6 +60,7 @@ export default function VoucherTab() {
   const [loading, setLoading] = useState(true);
   const [companyFilter, setCompanyFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState("");
   const [expandedVoucherId, setExpandedVoucherId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
@@ -71,6 +72,7 @@ export default function VoucherTab() {
     const params = new URLSearchParams();
     if (companyFilter) params.set("companyCode", companyFilter);
     if (yearFilter) params.set("year", yearFilter);
+    if (monthFilter) params.set("month", monthFilter);
     params.set("page", String(page));
     params.set("pageSize", String(pageSize));
 
@@ -93,7 +95,7 @@ export default function VoucherTab() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyFilter, yearFilter, page, pageSize]);
+  }, [companyFilter, yearFilter, monthFilter, page, pageSize]);
 
   const totalPages = Math.ceil(total / pageSize);
 
@@ -140,6 +142,22 @@ export default function VoucherTab() {
             <option value="">全部年度</option>
             {[2024, 2025, 2026].map((y) => (
               <option key={y} value={y}>{y}年</option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-gray-500">月份</label>
+          <select
+            value={monthFilter}
+            onChange={(e) => {
+              setMonthFilter(e.target.value);
+              setPage(1);
+            }}
+            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+          >
+            <option value="">全部月份</option>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+              <option key={m} value={m}>{m}月</option>
             ))}
           </select>
         </div>

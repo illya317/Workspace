@@ -47,8 +47,8 @@ function parseDate(str) {
 
 // ─── Load account mapping ────────────────────────────────
 
-function loadAccountMap(companyCode) {
-  const rows = db.prepare('SELECT id, code FROM FinanceAccount WHERE companyCode = ?').all(companyCode);
+function loadAccountMap(companyCode, year) {
+  const rows = db.prepare('SELECT id, code FROM FinanceAccount WHERE companyCode = ? AND year = ?').all(companyCode, year);
   const map = new Map();
   for (const r of rows) map.set(r.code, r.id);
   return map;
@@ -227,7 +227,8 @@ const insertItemStmt = db.prepare(`
 `);
 
 function importJournal(items, companyCode, fileName) {
-  const accountMap = loadAccountMap(companyCode);
+  const year = items.length > 0 ? items[0].year : new Date().getFullYear();
+  const accountMap = loadAccountMap(companyCode, year);
 
   // Group by voucherNo
   const voucherGroups = new Map();
