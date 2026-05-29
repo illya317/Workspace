@@ -48,7 +48,7 @@ export default function AccountTab() {
   const [companyFilter, setCompanyFilter] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
-  const [scope, setScope] = useState<"mapped" | "all" | "unmapped">("mapped");
+  const [scope, setScope] = useState<"all" | "mapped" | "unmapped" | "inactive">("all");
   const [modalOpen, setModalOpen] = useState(false);
   const { toast, showToast, closeToast } = useToast();
 
@@ -124,9 +124,10 @@ export default function AccountTab() {
             </div>
             <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
               {[
-                { key: "mapped", label: "集团科目" },
                 { key: "all", label: "全部科目" },
+                { key: "mapped", label: "集团科目" },
                 { key: "unmapped", label: "独有科目" },
+                { key: "inactive", label: "未启用" },
               ].map((s) => (
                 <button
                   key={s.key}

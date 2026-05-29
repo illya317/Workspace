@@ -15,6 +15,8 @@ export const GET = withFinanceAccess(async (request) => {
     where.groupSubjectCode = { not: null };
   } else if (scope === "unmapped") {
     where.groupSubjectCode = null;
+  } else if (scope === "inactive") {
+    where.isActive = false;
   }
   if (companyCode) {
     where.companyCode = companyCode;
