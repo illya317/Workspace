@@ -49,12 +49,25 @@ interface ReconcileResult {
   missingInExcel: { code: string; name: string }[];
 }
 
+const COMPANIES: Record<string, string> = {
+  "01": "丰华生物",
+  "02": "上海天力通",
+  "03": "上海悦通",
+  "04": "加拿大",
+  "05": "丰华悦通",
+};
+
 export default function LedgerTab() {
-  const [periods, setPeriods] = useState<Period[]>([]);
-  const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null);
+  const [_periods, setPeriods] = useState<Period[]>([]);
+  const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
   const [balances, setBalances] = useState<Balance[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast, showToast, closeToast } = useToast();
+
+  // 筛选
+  const [companyFilter, setCompanyFilter] = useState("");
+  const [yearFilter, setYearFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState("");
 
   // 余额核对状态
   const [companies, setCompanies] = useState<Company[]>([]);
@@ -65,34 +78,43 @@ export default function LedgerTab() {
 
   useEffect(() => {
     fetch("/api/finance/periods").then((r) => r.json()).then((d) => {
-      setPeriods(d.periods || []);
-      if (d.periods?.length) setSelectedPeriod(d.periods[0].id);
+      const list = d.periods || [];
+      setPeriods(list);
+      // 默认选中第一个期间
+      if (list.length && !companyFilter && !yearFilter && !monthFilter) {
+        const first = list[0];
+        if (first.companyCode) setCompanyFilter(first.companyCode);
+        setYearFilter(String(first.year));
+        setMonthFilter(String(first.month));
+      }
     });
     fetch("/api/hr/companies").then((r) => r.json()).then((d) => {
       const list = d.companies || [];
       setCompanies(list);
       if (list.length) setReconcileCompany(list[0].code);
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadBalances = useCallback(async () => {
-    if (!selectedPeriod) return;
+    if (!companyFilter || !yearFilter || !monthFilter) return;
     setLoading(true);
-    const res = await fetch(`/api/finance/balances?periodId=${selectedPeriod}`);
+    const res = await fetch(`/api/finance/balances?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}`);
     if (res.ok) {
       const data = await res.json();
       setBalances(data.balances || []);
+      setSelectedPeriodId(data.periodId || null);
     }
     setLoading(false);
-  }, [selectedPeriod]);
+  }, [companyFilter, yearFilter, monthFilter]);
 
   async function recalc() {
-    if (!selectedPeriod) return;
+    if (!selectedPeriodId) return;
     if (!confirm("确定重新计算该期间余额？")) return;
     const res = await fetch("/api/finance/balances", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ periodId: selectedPeriod }),
+      body: JSON.stringify({ periodId: selectedPeriodId }),
     });
     if (res.ok) {
       showToast("余额计算完成");
@@ -137,14 +159,49 @@ export default function LedgerTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-gray-800">科目余额表</h2>
-        <div className="flex items-center gap-2">
-          <select value={selectedPeriod || ""} onChange={(e) => setSelectedPeriod(parseInt(e.target.value) || null)} className="rounded-md border border-gray-300 px-3 py-1.5 text-sm">
-            <option value="">选择期间</option>
-            {periods.map((p) => <option key={p.id} value={p.id}>{p.year}年{p.month}月 {p.isClosed ? "(已结账)" : ""}</option>)}
-          </select>
-          <button onClick={recalc} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700">重新计算</button>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-gray-500">公司</label>
+            <select
+              value={companyFilter}
+              onChange={(e) => setCompanyFilter(e.target.value)}
+              className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+            >
+              <option value="">全部公司</option>
+              {Object.entries(COMPANIES).map(([code, name]) => (
+                <option key={code} value={code}>{name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-gray-500">年度</label>
+            <select
+              value={yearFilter}
+              onChange={(e) => setYearFilter(e.target.value)}
+              className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+            >
+              <option value="">全部年度</option>
+              {[2024, 2025, 2026].map((y) => (
+                <option key={y} value={y}>{y}年</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-gray-500">月份</label>
+            <select
+              value={monthFilter}
+              onChange={(e) => setMonthFilter(e.target.value)}
+              className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+            >
+              <option value="">全部月份</option>
+              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                <option key={m} value={m}>{m}月</option>
+              ))}
+            </select>
+          </div>
+          <button onClick={recalc} disabled={!selectedPeriodId} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-50">重新计算</button>
         </div>
       </div>
 

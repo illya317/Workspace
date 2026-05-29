@@ -8,15 +8,17 @@ import AccountTab from "./AccountTab";
 import VoucherTab from "./VoucherTab";
 import LedgerTab from "./LedgerTab";
 import ReportTab from "./ReportTab";
+import BudgetTab from "./BudgetTab";
 import { SessionUser } from "@/lib/types";
 
-type FinanceTab = "accounts" | "vouchers" | "ledger" | "reports";
+type FinanceTab = "accounts" | "vouchers" | "ledger" | "reports" | "budget";
 
 const tabs: { key: FinanceTab; label: string }[] = [
   { key: "accounts", label: "科目设置" },
   { key: "vouchers", label: "凭证录入" },
   { key: "ledger", label: "余额表" },
   { key: "reports", label: "财务报表" },
+  { key: "budget", label: "管理会计" },
 ];
 
 export default function FinanceClient({ user }: { user: SessionUser }) {
@@ -89,6 +91,7 @@ export default function FinanceClient({ user }: { user: SessionUser }) {
         {activeTab === "vouchers" && <VoucherTab />}
         {activeTab === "ledger" && <LedgerTab />}
         {activeTab === "reports" && <ReportTab />}
+        {activeTab === "budget" && <BudgetTab />}
       </main>
     </div>
   );
