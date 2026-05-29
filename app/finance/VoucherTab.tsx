@@ -3,6 +3,7 @@
 import { useEffect, useState, Fragment } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
+import FinanceFilters from "./components/FinanceFilters";
 
 const COMPANIES: Record<string, string> = {
   "01": "丰华生物",
@@ -105,78 +106,20 @@ export default function VoucherTab() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-gray-800">记账凭证</h2>
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <span className="text-xs text-gray-400">共 {total} 条</span>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg bg-white p-3 shadow-sm">
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-500">公司</label>
-          <select
-            value={companyFilter}
-            onChange={(e) => {
-              setCompanyFilter(e.target.value);
-              setPage(1);
-            }}
-            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">全部公司</option>
-            {Object.entries(COMPANIES).map(([code, name]) => (
-              <option key={code} value={code}>{name}</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-500">年度</label>
-          <select
-            value={yearFilter}
-            onChange={(e) => {
-              setYearFilter(e.target.value);
-              setPage(1);
-            }}
-            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">全部年度</option>
-            {[2024, 2025, 2026].map((y) => (
-              <option key={y} value={y}>{y}年</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-500">月份</label>
-          <select
-            value={monthFilter}
-            onChange={(e) => {
-              setMonthFilter(e.target.value);
-              setPage(1);
-            }}
-            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">全部月份</option>
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-              <option key={m} value={m}>{m}月</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-500">每页</label>
-          <select
-            value={pageSize}
-            onChange={(e) => {
-              setPageSize(Number(e.target.value));
-              setPage(1);
-            }}
-            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-          >
-            {[20, 50, 100].map((s) => (
-              <option key={s} value={s}>{s}条</option>
-            ))}
-          </select>
-        </div>
-      </div>
+      <FinanceFilters
+        companyFilter={companyFilter}
+        yearFilter={yearFilter}
+        monthFilter={monthFilter}
+        pageSize={pageSize}
+        onCompanyChange={(v) => { setCompanyFilter(v); setPage(1); }}
+        onYearChange={(v) => { setYearFilter(v); setPage(1); }}
+        onMonthChange={(v) => { setMonthFilter(v); setPage(1); }}
+        onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
+      />
 
       {/* Table */}
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">

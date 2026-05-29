@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
+import FinanceFilters from "./components/FinanceFilters";
 
 interface Period {
   id: number;
@@ -48,14 +49,6 @@ interface ReconcileResult {
   missingInSystem: { code: string; name: string }[];
   missingInExcel: { code: string; name: string }[];
 }
-
-const COMPANIES: Record<string, string> = {
-  "01": "丰华生物",
-  "02": "上海天力通",
-  "03": "上海悦通",
-  "04": "加拿大",
-  "05": "丰华悦通",
-};
 
 export default function LedgerTab() {
   const [_periods, setPeriods] = useState<Period[]>([]);
@@ -159,51 +152,20 @@ export default function LedgerTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-gray-800">科目余额表</h2>
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-500">公司</label>
-            <select
-              value={companyFilter}
-              onChange={(e) => setCompanyFilter(e.target.value)}
-              className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-            >
-              <option value="">全部公司</option>
-              {Object.entries(COMPANIES).map(([code, name]) => (
-                <option key={code} value={code}>{name}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-500">年度</label>
-            <select
-              value={yearFilter}
-              onChange={(e) => setYearFilter(e.target.value)}
-              className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-            >
-              <option value="">全部年度</option>
-              {[2024, 2025, 2026].map((y) => (
-                <option key={y} value={y}>{y}年</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-gray-500">月份</label>
-            <select
-              value={monthFilter}
-              onChange={(e) => setMonthFilter(e.target.value)}
-              className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-            >
-              <option value="">全部月份</option>
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                <option key={m} value={m}>{m}月</option>
-              ))}
-            </select>
-          </div>
+      <FinanceFilters
+        companyFilter={companyFilter}
+        yearFilter={yearFilter}
+        monthFilter={monthFilter}
+        pageSize={50}
+        onCompanyChange={setCompanyFilter}
+        onYearChange={setYearFilter}
+        onMonthChange={setMonthFilter}
+        onPageSizeChange={() => {}}
+        showPageSize={false}
+        extra={
           <button onClick={recalc} disabled={!selectedPeriodId} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-50">重新计算</button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         {loading ? <p className="p-8 text-center text-gray-500">加载中...</p> : (

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import AccountCreateModal from "./components/AccountCreateModal";
+import FinanceFilters from "./components/FinanceFilters";
 
 interface Account {
   id: number;
@@ -93,9 +94,7 @@ export default function AccountTab() {
 
   return (
     <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-gray-800">会计科目</h2>
+      <div className="flex flex-wrap items-center justify-end gap-3">
         <button
           onClick={() => setModalOpen(true)}
           className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
@@ -104,70 +103,53 @@ export default function AccountTab() {
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 rounded-lg bg-white p-3 shadow-sm">
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-500">公司</label>
-          <select
-            value={companyFilter}
-            onChange={(e) => setCompanyFilter(e.target.value)}
-            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">全部公司</option>
-            {Object.entries(COMPANIES).map(([code, name]) => (
-              <option key={code} value={code}>{name}</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-500">层级</label>
-          <select
-            value={levelFilter}
-            onChange={(e) => setLevelFilter(e.target.value)}
-            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">全部层级</option>
-            {[1, 2, 3, 4, 5].map((l) => (
-              <option key={l} value={l}>{l}级</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-gray-500">年度</label>
-          <select
-            value={yearFilter}
-            onChange={(e) => setYearFilter(e.target.value)}
-            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">全部年度</option>
-            {[2024, 2025, 2026].map((y) => (
-              <option key={y} value={y}>{y}年</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
-          {[
-            { key: "mapped", label: "集团科目" },
-            { key: "all", label: "全部科目" },
-            { key: "unmapped", label: "独有科目" },
-          ].map((s) => (
-            <button
-              key={s.key}
-              onClick={() => setScope(s.key as "mapped" | "all" | "unmapped")}
-              className={`rounded px-2.5 py-1 text-xs transition-colors ${
-                scope === s.key
-                  ? "bg-emerald-600 text-white"
-                  : "text-gray-600 hover:bg-gray-100"
-              }`}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
-        <span className="ml-auto text-xs text-gray-400">
-          共 {accounts.length} 条
-        </span>
-      </div>
+      <FinanceFilters
+        companyFilter={companyFilter}
+        yearFilter={yearFilter}
+        onCompanyChange={setCompanyFilter}
+        onYearChange={setYearFilter}
+        showMonth={false}
+        showPageSize={false}
+        extra={
+          <>
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-gray-500">层级</label>
+              <select
+                value={levelFilter}
+                onChange={(e) => setLevelFilter(e.target.value)}
+                className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+              >
+                <option value="">全部层级</option>
+                {[1, 2, 3, 4, 5].map((l) => (
+                  <option key={l} value={l}>{l}级</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
+              {[
+                { key: "mapped", label: "集团科目" },
+                { key: "all", label: "全部科目" },
+                { key: "unmapped", label: "独有科目" },
+              ].map((s) => (
+                <button
+                  key={s.key}
+                  onClick={() => setScope(s.key as "mapped" | "all" | "unmapped")}
+                  className={`rounded px-2.5 py-1 text-xs transition-colors ${
+                    scope === s.key
+                      ? "bg-emerald-600 text-white"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            <span className="ml-auto text-xs text-gray-400">
+              共 {accounts.length} 条
+            </span>
+          </>
+        }
+      />
 
       {/* Table */}
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
