@@ -90,7 +90,11 @@ export default function LedgerTab() {
   }, []);
 
   const loadBalances = useCallback(async () => {
-    if (!companyFilter || !yearFilter || !monthFilter) return;
+    if (!companyFilter || !yearFilter || !monthFilter) {
+      setBalances([]);
+      setSelectedPeriodId(null);
+      return;
+    }
     setLoading(true);
     const res = await fetch(`/api/finance/balances?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}`);
     if (res.ok) {
