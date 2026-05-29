@@ -8,9 +8,37 @@ const db = new Database('/Users/koito/Desktop/Project/HR/data/dev.db');
 
 // ─── GBK Fix ─────────────────────────────────────────────
 
+// sheetjs 读取 .xls 时会把 GBK trail byte 0x80-0x9F 错误映射为 Windows-1252 字符
+// 先还原这些字符，再做 latin1 -> GBK 解码
+const WIN1252_REV = (() => {
+  const m = {};
+  const pairs = [
+    [0x20AC, 0x80], [0x201A, 0x82], [0x0192, 0x83], [0x201E, 0x84],
+    [0x2026, 0x85], [0x2020, 0x86], [0x2021, 0x87], [0x02C6, 0x88],
+    [0x2030, 0x89], [0x0160, 0x8A], [0x2039, 0x8B], [0x0152, 0x8C],
+    [0x017D, 0x8E], [0x2018, 0x91], [0x2019, 0x92], [0x201C, 0x93],
+    [0x201D, 0x94], [0x2022, 0x95], [0x2013, 0x96], [0x2014, 0x97],
+    [0x02DC, 0x98], [0x2122, 0x99], [0x0161, 0x9A], [0x203A, 0x9B],
+    [0x0153, 0x9C], [0x017E, 0x9E], [0x0178, 0x9F],
+  ];
+  for (const [u, b] of pairs) {
+    m[String.fromCharCode(u)] = String.fromCharCode(b);
+  }
+  return m;
+})();
+
+function restoreWin1252Bytes(str) {
+  let result = '';
+  for (const c of str) {
+    result += WIN1252_REV[c] ?? c;
+  }
+  return result;
+}
+
 function fixGBK(str) {
   if (!str || typeof str !== 'string') return str;
-  const buf = Buffer.from(str, 'latin1');
+  const restored = restoreWin1252Bytes(str);
+  const buf = Buffer.from(restored, 'latin1');
   const decoded = iconv.decode(buf, 'gbk');
   const CJK_RE = /[一-鿿㐀-䶿　-〿＀-￯]/g;
 
@@ -230,13 +258,14 @@ function importJournal(items, companyCode, fileName) {
   const year = items.length > 0 ? items[0].year : new Date().getFullYear();
   const accountMap = loadAccountMap(companyCode, year);
 
-  // Group by voucherNo
+  // Group by voucherNo + month（处理按月重新编号的凭证号）
   const voucherGroups = new Map();
   for (const item of items) {
-    if (!voucherGroups.has(item.voucherNo)) {
-      voucherGroups.set(item.voucherNo, []);
+    const groupKey = `${item.voucherNo}-${item.month}`;
+    if (!voucherGroups.has(groupKey)) {
+      voucherGroups.set(groupKey, []);
     }
-    voucherGroups.get(item.voucherNo).push(item);
+    voucherGroups.get(groupKey).push(item);
   }
 
   let vouchersInserted = 0;
@@ -247,8 +276,8 @@ function importJournal(items, companyCode, fileName) {
     const first = voucherItems[0];
     const periodId = getOrCreatePeriod(first.year, first.month, companyCode);
     const description = first.description;
-    // 凭证号加年份前缀，避免不同年度重复
-    const yearPrefixedVoucherNo = `${first.year}-${voucherNo}`;
+    // 凭证号加年份+月份前缀，避免同公司同年度跨月重复
+    const yearPrefixedVoucherNo = `${first.year}-${String(first.month).padStart(2, '0')}-${voucherNo}`;
 
     let totalDebit = 0;
     let totalCredit = 0;
@@ -270,8 +299,8 @@ function importJournal(items, companyCode, fileName) {
         });
         continue;
       }
-      totalDebit += Math.abs(it.debit);
-      totalCredit += Math.abs(it.credit);
+      totalDebit += it.debit;
+      totalCredit += it.credit;
       validItems.push({ ...it, accountId, sortOrder: idx });
     }
 

@@ -100,9 +100,30 @@ function parseAmount(v: unknown): number {
   return 0;
 }
 
+// sheetjs 读取 .xls 时会把 GBK trail byte 0x80-0x9F 错误映射为 Windows-1252 字符
+// 先还原这些字符，再做 latin1 -> GBK 解码
+const WIN1252_REV: Record<string, string> = {
+  "€": "\x80", "‚": "\x82", "ƒ": "\x83", "„": "\x84",
+  "…": "\x85", "†": "\x86", "‡": "\x87", "ˆ": "\x88",
+  "‰": "\x89", "Š": "\x8A", "‹": "\x8B", "Œ": "\x8C",
+  "Ž": "\x8E", "‘": "\x91", "’": "\x92", "“": "\x93",
+  "”": "\x94", "•": "\x95", "–": "\x96", "—": "\x97",
+  "˜": "\x98", "™": "", "š": "\x9A", "›": "\x9B",
+  "œ": "\x9C", "ž": "\x9E", "Ÿ": "\x9F",
+};
+
+function restoreWin1252Bytes(str: string): string {
+  let result = "";
+  for (const c of str) {
+    result += WIN1252_REV[c] ?? c;
+  }
+  return result;
+}
+
 function fixGBK(str: string): string {
   if (!str || typeof str !== "string") return str;
-  const buf = Buffer.from(str, "latin1");
+  const restored = restoreWin1252Bytes(str);
+  const buf = Buffer.from(restored, "latin1");
   const decoded = iconv.decode(buf, "gbk");
   // CJK 汉字 + 扩展A + CJK 标点 + 全角字符（含％、＄等）
   const CJK_RE = /[一-鿿㐀-䶿　-〿＀-￯]/g;
@@ -182,8 +203,9 @@ function mapDirection(dir: string): string {
 export function parseBalanceSheet(
   buffer: Buffer,
   companyCode: string,
+  fileExt?: string,
 ): PreviewResult {
-  const wb = xlsx.read(buffer, { type: "buffer" });
+  const wb = xlsx.read(buffer, { type: "buffer", codepage: fileExt === ".xls" ? 936 : undefined });
   const sheet = wb.Sheets[wb.SheetNames[0]];
   let data = xlsx.utils.sheet_to_json(sheet, { header: 1 }) as unknown[][];
   data = data.map((row) => (Array.isArray(row) ? fixRowEncoding(row) : row));
@@ -303,8 +325,9 @@ export function parseBalanceSheet(
 export function parseJournal(
   buffer: Buffer,
   companyCode: string,
+  fileExt?: string,
 ): PreviewResult {
-  const wb = xlsx.read(buffer, { type: "buffer" });
+  const wb = xlsx.read(buffer, { type: "buffer", codepage: fileExt === ".xls" ? 936 : undefined });
   const sheet = wb.Sheets[wb.SheetNames[0]];
   let data = xlsx.utils.sheet_to_json(sheet, { header: 1 }) as unknown[][];
   data = data.map((row) => (Array.isArray(row) ? fixRowEncoding(row) : row));
@@ -442,8 +465,9 @@ export function parseJournal(
 export function parseAccountTable(
   buffer: Buffer,
   companyCode: string,
+  fileExt?: string,
 ): PreviewResult {
-  const wb = xlsx.read(buffer, { type: "buffer" });
+  const wb = xlsx.read(buffer, { type: "buffer", codepage: fileExt === ".xls" ? 936 : undefined });
   const sheet = wb.Sheets[wb.SheetNames[0]];
   let data = xlsx.utils.sheet_to_json(sheet, { header: 1 }) as unknown[][];
   data = data.map((row) => (Array.isArray(row) ? fixRowEncoding(row) : row));

@@ -22,13 +22,14 @@ export const POST = withFinanceWrite(async (request: Request) => {
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
+    const fileExt = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
     let result;
     if (type === "balance") {
-      result = parseBalanceSheet(buffer, companyCode);
+      result = parseBalanceSheet(buffer, companyCode, fileExt);
     } else if (type === "journal") {
-      result = parseJournal(buffer, companyCode);
+      result = parseJournal(buffer, companyCode, fileExt);
     } else {
-      result = parseAccountTable(buffer, companyCode);
+      result = parseAccountTable(buffer, companyCode, fileExt);
     }
 
     // Use explicitly provided year, or extract from filename, or detect from data

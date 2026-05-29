@@ -77,9 +77,10 @@ export const POST = withFinanceWrite(async (request: Request) => {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
+    const fileExt = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
 
     // 1. 解析Excel余额表
-    const preview = parseBalanceSheet(buffer, companyCode);
+    const preview = parseBalanceSheet(buffer, companyCode, fileExt);
     if (preview.errors.length > 0) {
       return NextResponse.json({ error: preview.errors[0] }, { status: 400 });
     }
