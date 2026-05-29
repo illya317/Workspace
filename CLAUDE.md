@@ -23,6 +23,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 |---|---|---|
 | 业务页面 | `app/<domain>/` | 页面、组件、hooks、types、领域 `ARCHITECTURE.md` |
 | API | `app/api/<domain>/` | 鉴权、参数校验、调用 service、返回 DTO |
+| 开发辅助 | `app/api/dev-login-bypass/` | 开发环境快速登录（仅本地） |
 | 业务服务 | `server/services/<domain>/` | 查询、导入、计算、聚合、业务规则 |
 | 认证权限 | `server/auth/`, `server/rbac/`, `lib/permissions.ts` | 登录、session、RBAC、资源树 |
 | 数据库 | `prisma/` | Prisma schema、migration、seed |

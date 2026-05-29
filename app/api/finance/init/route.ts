@@ -46,7 +46,7 @@ export const POST = withFinanceWrite(async (request: Request, user) => {
 
   const createdAccounts = [];
   for (const acc of defaultAccounts) {
-    const existing = await prisma.financeAccount.findUnique({ where: { code: acc.code } });
+    const existing = await prisma.financeAccount.findFirst({ where: { code: acc.code } });
     if (!existing) {
       const created = await prisma.financeAccount.create({
         data: { ...acc, editedBy: user.userId },

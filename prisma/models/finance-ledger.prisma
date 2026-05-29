@@ -1,7 +1,7 @@
 /// 财务科目（含层级）
 model FinanceAccount {
   id               Int                     @id @default(autoincrement())
-  code             String                  @unique
+  code             String
   name             String
   category         String
   parentId         Int?
@@ -10,7 +10,14 @@ model FinanceAccount {
   balanceDirection String                  @default("debit")
   isActive         Boolean                 @default(true)
   companyCode      String?
+  mnemonicCode     String?
+  currency         String?
+  groupSubjectCode String?
+  subjectLevel     Int?
+  year             Int?
   sortOrder        Int                     @default(0)
+
+  @@unique([code, companyCode, year])
   voucherItems     FinanceVoucherItem[]
   balances         FinanceAccountBalance[]
   editedBy         Int?
@@ -39,7 +46,7 @@ model FinancePeriod {
 /// 记账凭证
 model FinanceVoucher {
   id          Int                  @id @default(autoincrement())
-  voucherNo   String               @unique
+  voucherNo   String
   date        String
   periodId    Int
   period      FinancePeriod        @relation(fields: [periodId], references: [id])
@@ -56,6 +63,7 @@ model FinanceVoucher {
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @default(now()) @updatedAt
 
+  @@unique([voucherNo, companyCode])
   @@index([periodId, date, companyCode])
   @@index([status])
 }

@@ -29,6 +29,8 @@ export type AggregateFinanceAccount = {
 export type FinanceAccountAvgAggregateOutputType = {
   id: number | null
   parentId: number | null
+  subjectLevel: number | null
+  year: number | null
   sortOrder: number | null
   editedBy: number | null
   version: number | null
@@ -37,6 +39,8 @@ export type FinanceAccountAvgAggregateOutputType = {
 export type FinanceAccountSumAggregateOutputType = {
   id: number | null
   parentId: number | null
+  subjectLevel: number | null
+  year: number | null
   sortOrder: number | null
   editedBy: number | null
   version: number | null
@@ -51,6 +55,11 @@ export type FinanceAccountMinAggregateOutputType = {
   balanceDirection: string | null
   isActive: boolean | null
   companyCode: string | null
+  mnemonicCode: string | null
+  currency: string | null
+  groupSubjectCode: string | null
+  subjectLevel: number | null
+  year: number | null
   sortOrder: number | null
   editedBy: number | null
   editedAt: Date | null
@@ -68,6 +77,11 @@ export type FinanceAccountMaxAggregateOutputType = {
   balanceDirection: string | null
   isActive: boolean | null
   companyCode: string | null
+  mnemonicCode: string | null
+  currency: string | null
+  groupSubjectCode: string | null
+  subjectLevel: number | null
+  year: number | null
   sortOrder: number | null
   editedBy: number | null
   editedAt: Date | null
@@ -85,6 +99,11 @@ export type FinanceAccountCountAggregateOutputType = {
   balanceDirection: number
   isActive: number
   companyCode: number
+  mnemonicCode: number
+  currency: number
+  groupSubjectCode: number
+  subjectLevel: number
+  year: number
   sortOrder: number
   editedBy: number
   editedAt: number
@@ -98,6 +117,8 @@ export type FinanceAccountCountAggregateOutputType = {
 export type FinanceAccountAvgAggregateInputType = {
   id?: true
   parentId?: true
+  subjectLevel?: true
+  year?: true
   sortOrder?: true
   editedBy?: true
   version?: true
@@ -106,6 +127,8 @@ export type FinanceAccountAvgAggregateInputType = {
 export type FinanceAccountSumAggregateInputType = {
   id?: true
   parentId?: true
+  subjectLevel?: true
+  year?: true
   sortOrder?: true
   editedBy?: true
   version?: true
@@ -120,6 +143,11 @@ export type FinanceAccountMinAggregateInputType = {
   balanceDirection?: true
   isActive?: true
   companyCode?: true
+  mnemonicCode?: true
+  currency?: true
+  groupSubjectCode?: true
+  subjectLevel?: true
+  year?: true
   sortOrder?: true
   editedBy?: true
   editedAt?: true
@@ -137,6 +165,11 @@ export type FinanceAccountMaxAggregateInputType = {
   balanceDirection?: true
   isActive?: true
   companyCode?: true
+  mnemonicCode?: true
+  currency?: true
+  groupSubjectCode?: true
+  subjectLevel?: true
+  year?: true
   sortOrder?: true
   editedBy?: true
   editedAt?: true
@@ -154,6 +187,11 @@ export type FinanceAccountCountAggregateInputType = {
   balanceDirection?: true
   isActive?: true
   companyCode?: true
+  mnemonicCode?: true
+  currency?: true
+  groupSubjectCode?: true
+  subjectLevel?: true
+  year?: true
   sortOrder?: true
   editedBy?: true
   editedAt?: true
@@ -258,6 +296,11 @@ export type FinanceAccountGroupByOutputType = {
   balanceDirection: string
   isActive: boolean
   companyCode: string | null
+  mnemonicCode: string | null
+  currency: string | null
+  groupSubjectCode: string | null
+  subjectLevel: number | null
+  year: number | null
   sortOrder: number
   editedBy: number | null
   editedAt: Date | null
@@ -298,6 +341,11 @@ export type FinanceAccountWhereInput = {
   balanceDirection?: Prisma.StringFilter<"FinanceAccount"> | string
   isActive?: Prisma.BoolFilter<"FinanceAccount"> | boolean
   companyCode?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
+  mnemonicCode?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
+  currency?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
+  groupSubjectCode?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
+  subjectLevel?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
+  year?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
   sortOrder?: Prisma.IntFilter<"FinanceAccount"> | number
   editedBy?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"FinanceAccount"> | Date | string | null
@@ -320,6 +368,11 @@ export type FinanceAccountOrderByWithRelationInput = {
   balanceDirection?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   companyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  mnemonicCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  currency?: Prisma.SortOrderInput | Prisma.SortOrder
+  groupSubjectCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  subjectLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  year?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -335,16 +388,22 @@ export type FinanceAccountOrderByWithRelationInput = {
 
 export type FinanceAccountWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  code?: string
+  code_companyCode_year?: Prisma.FinanceAccountCodeCompanyCodeYearCompoundUniqueInput
   AND?: Prisma.FinanceAccountWhereInput | Prisma.FinanceAccountWhereInput[]
   OR?: Prisma.FinanceAccountWhereInput[]
   NOT?: Prisma.FinanceAccountWhereInput | Prisma.FinanceAccountWhereInput[]
+  code?: Prisma.StringFilter<"FinanceAccount"> | string
   name?: Prisma.StringFilter<"FinanceAccount"> | string
   category?: Prisma.StringFilter<"FinanceAccount"> | string
   parentId?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
   balanceDirection?: Prisma.StringFilter<"FinanceAccount"> | string
   isActive?: Prisma.BoolFilter<"FinanceAccount"> | boolean
   companyCode?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
+  mnemonicCode?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
+  currency?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
+  groupSubjectCode?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
+  subjectLevel?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
+  year?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
   sortOrder?: Prisma.IntFilter<"FinanceAccount"> | number
   editedBy?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"FinanceAccount"> | Date | string | null
@@ -356,7 +415,7 @@ export type FinanceAccountWhereUniqueInput = Prisma.AtLeast<{
   voucherItems?: Prisma.FinanceVoucherItemListRelationFilter
   balances?: Prisma.FinanceAccountBalanceListRelationFilter
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-}, "id" | "code">
+}, "id" | "code_companyCode_year">
 
 export type FinanceAccountOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -367,6 +426,11 @@ export type FinanceAccountOrderByWithAggregationInput = {
   balanceDirection?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   companyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  mnemonicCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  currency?: Prisma.SortOrderInput | Prisma.SortOrder
+  groupSubjectCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  subjectLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  year?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -392,6 +456,11 @@ export type FinanceAccountScalarWhereWithAggregatesInput = {
   balanceDirection?: Prisma.StringWithAggregatesFilter<"FinanceAccount"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"FinanceAccount"> | boolean
   companyCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceAccount"> | string | null
+  mnemonicCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceAccount"> | string | null
+  currency?: Prisma.StringNullableWithAggregatesFilter<"FinanceAccount"> | string | null
+  groupSubjectCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceAccount"> | string | null
+  subjectLevel?: Prisma.IntNullableWithAggregatesFilter<"FinanceAccount"> | number | null
+  year?: Prisma.IntNullableWithAggregatesFilter<"FinanceAccount"> | number | null
   sortOrder?: Prisma.IntWithAggregatesFilter<"FinanceAccount"> | number
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"FinanceAccount"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FinanceAccount"> | Date | string | null
@@ -407,6 +476,11 @@ export type FinanceAccountCreateInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedAt?: Date | string | null
   version?: number
@@ -428,6 +502,11 @@ export type FinanceAccountUncheckedCreateInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -446,6 +525,11 @@ export type FinanceAccountUpdateInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -467,6 +551,11 @@ export type FinanceAccountUncheckedUpdateInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -487,6 +576,11 @@ export type FinanceAccountCreateManyInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -502,6 +596,11 @@ export type FinanceAccountUpdateManyMutationInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -518,6 +617,11 @@ export type FinanceAccountUncheckedUpdateManyInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -541,6 +645,12 @@ export type FinanceAccountNullableScalarRelationFilter = {
   isNot?: Prisma.FinanceAccountWhereInput | null
 }
 
+export type FinanceAccountCodeCompanyCodeYearCompoundUniqueInput = {
+  code: string
+  companyCode: string
+  year: number
+}
+
 export type FinanceAccountCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   code?: Prisma.SortOrder
@@ -550,6 +660,11 @@ export type FinanceAccountCountOrderByAggregateInput = {
   balanceDirection?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  mnemonicCode?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  groupSubjectCode?: Prisma.SortOrder
+  subjectLevel?: Prisma.SortOrder
+  year?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -561,6 +676,8 @@ export type FinanceAccountCountOrderByAggregateInput = {
 export type FinanceAccountAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  subjectLevel?: Prisma.SortOrder
+  year?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -575,6 +692,11 @@ export type FinanceAccountMaxOrderByAggregateInput = {
   balanceDirection?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  mnemonicCode?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  groupSubjectCode?: Prisma.SortOrder
+  subjectLevel?: Prisma.SortOrder
+  year?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -592,6 +714,11 @@ export type FinanceAccountMinOrderByAggregateInput = {
   balanceDirection?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  mnemonicCode?: Prisma.SortOrder
+  currency?: Prisma.SortOrder
+  groupSubjectCode?: Prisma.SortOrder
+  subjectLevel?: Prisma.SortOrder
+  year?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -603,6 +730,8 @@ export type FinanceAccountMinOrderByAggregateInput = {
 export type FinanceAccountSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
+  subjectLevel?: Prisma.SortOrder
+  year?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -748,6 +877,11 @@ export type FinanceAccountCreateWithoutEditorInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedAt?: Date | string | null
   version?: number
@@ -768,6 +902,11 @@ export type FinanceAccountUncheckedCreateWithoutEditorInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedAt?: Date | string | null
   version?: number
@@ -815,6 +954,11 @@ export type FinanceAccountScalarWhereInput = {
   balanceDirection?: Prisma.StringFilter<"FinanceAccount"> | string
   isActive?: Prisma.BoolFilter<"FinanceAccount"> | boolean
   companyCode?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
+  mnemonicCode?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
+  currency?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
+  groupSubjectCode?: Prisma.StringNullableFilter<"FinanceAccount"> | string | null
+  subjectLevel?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
+  year?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
   sortOrder?: Prisma.IntFilter<"FinanceAccount"> | number
   editedBy?: Prisma.IntNullableFilter<"FinanceAccount"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"FinanceAccount"> | Date | string | null
@@ -830,6 +974,11 @@ export type FinanceAccountCreateWithoutChildrenInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedAt?: Date | string | null
   version?: number
@@ -850,6 +999,11 @@ export type FinanceAccountUncheckedCreateWithoutChildrenInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -872,6 +1026,11 @@ export type FinanceAccountCreateWithoutParentInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedAt?: Date | string | null
   version?: number
@@ -891,6 +1050,11 @@ export type FinanceAccountUncheckedCreateWithoutParentInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -929,6 +1093,11 @@ export type FinanceAccountUpdateWithoutChildrenInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -949,6 +1118,11 @@ export type FinanceAccountUncheckedUpdateWithoutChildrenInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -982,6 +1156,11 @@ export type FinanceAccountCreateWithoutVoucherItemsInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedAt?: Date | string | null
   version?: number
@@ -1002,6 +1181,11 @@ export type FinanceAccountUncheckedCreateWithoutVoucherItemsInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -1035,6 +1219,11 @@ export type FinanceAccountUpdateWithoutVoucherItemsInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1055,6 +1244,11 @@ export type FinanceAccountUncheckedUpdateWithoutVoucherItemsInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1072,6 +1266,11 @@ export type FinanceAccountCreateWithoutBalancesInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedAt?: Date | string | null
   version?: number
@@ -1092,6 +1291,11 @@ export type FinanceAccountUncheckedCreateWithoutBalancesInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -1125,6 +1329,11 @@ export type FinanceAccountUpdateWithoutBalancesInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1145,6 +1354,11 @@ export type FinanceAccountUncheckedUpdateWithoutBalancesInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1164,6 +1378,11 @@ export type FinanceAccountCreateManyEditorInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedAt?: Date | string | null
   version?: number
@@ -1178,6 +1397,11 @@ export type FinanceAccountUpdateWithoutEditorInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1198,6 +1422,11 @@ export type FinanceAccountUncheckedUpdateWithoutEditorInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1217,6 +1446,11 @@ export type FinanceAccountUncheckedUpdateManyWithoutEditorInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1232,6 +1466,11 @@ export type FinanceAccountCreateManyParentInput = {
   balanceDirection?: string
   isActive?: boolean
   companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -1247,6 +1486,11 @@ export type FinanceAccountUpdateWithoutParentInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1266,6 +1510,11 @@ export type FinanceAccountUncheckedUpdateWithoutParentInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1285,6 +1534,11 @@ export type FinanceAccountUncheckedUpdateManyWithoutParentInput = {
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1351,6 +1605,11 @@ export type FinanceAccountSelect<ExtArgs extends runtime.Types.Extensions.Intern
   balanceDirection?: boolean
   isActive?: boolean
   companyCode?: boolean
+  mnemonicCode?: boolean
+  currency?: boolean
+  groupSubjectCode?: boolean
+  subjectLevel?: boolean
+  year?: boolean
   sortOrder?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -1374,6 +1633,11 @@ export type FinanceAccountSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   balanceDirection?: boolean
   isActive?: boolean
   companyCode?: boolean
+  mnemonicCode?: boolean
+  currency?: boolean
+  groupSubjectCode?: boolean
+  subjectLevel?: boolean
+  year?: boolean
   sortOrder?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -1393,6 +1657,11 @@ export type FinanceAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   balanceDirection?: boolean
   isActive?: boolean
   companyCode?: boolean
+  mnemonicCode?: boolean
+  currency?: boolean
+  groupSubjectCode?: boolean
+  subjectLevel?: boolean
+  year?: boolean
   sortOrder?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -1412,6 +1681,11 @@ export type FinanceAccountSelectScalar = {
   balanceDirection?: boolean
   isActive?: boolean
   companyCode?: boolean
+  mnemonicCode?: boolean
+  currency?: boolean
+  groupSubjectCode?: boolean
+  subjectLevel?: boolean
+  year?: boolean
   sortOrder?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -1420,7 +1694,7 @@ export type FinanceAccountSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "category" | "parentId" | "balanceDirection" | "isActive" | "companyCode" | "sortOrder" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAccount"]>
+export type FinanceAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "category" | "parentId" | "balanceDirection" | "isActive" | "companyCode" | "mnemonicCode" | "currency" | "groupSubjectCode" | "subjectLevel" | "year" | "sortOrder" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAccount"]>
 export type FinanceAccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
   children?: boolean | Prisma.FinanceAccount$childrenArgs<ExtArgs>
@@ -1456,6 +1730,11 @@ export type $FinanceAccountPayload<ExtArgs extends runtime.Types.Extensions.Inte
     balanceDirection: string
     isActive: boolean
     companyCode: string | null
+    mnemonicCode: string | null
+    currency: string | null
+    groupSubjectCode: string | null
+    subjectLevel: number | null
+    year: number | null
     sortOrder: number
     editedBy: number | null
     editedAt: Date | null
@@ -1898,6 +2177,11 @@ export interface FinanceAccountFieldRefs {
   readonly balanceDirection: Prisma.FieldRef<"FinanceAccount", 'String'>
   readonly isActive: Prisma.FieldRef<"FinanceAccount", 'Boolean'>
   readonly companyCode: Prisma.FieldRef<"FinanceAccount", 'String'>
+  readonly mnemonicCode: Prisma.FieldRef<"FinanceAccount", 'String'>
+  readonly currency: Prisma.FieldRef<"FinanceAccount", 'String'>
+  readonly groupSubjectCode: Prisma.FieldRef<"FinanceAccount", 'String'>
+  readonly subjectLevel: Prisma.FieldRef<"FinanceAccount", 'Int'>
+  readonly year: Prisma.FieldRef<"FinanceAccount", 'Int'>
   readonly sortOrder: Prisma.FieldRef<"FinanceAccount", 'Int'>
   readonly editedBy: Prisma.FieldRef<"FinanceAccount", 'Int'>
   readonly editedAt: Prisma.FieldRef<"FinanceAccount", 'DateTime'>

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withFinanceWrite } from "@/lib/with-auth";
-import { parseBalanceSheet, parseJournal } from "@/server/services/finance/import";
+import { parseBalanceSheet, parseJournal, parseAccountTable } from "@/server/services/finance/import";
 
 export const POST = withFinanceWrite(async (request: Request) => {
   try {
@@ -12,8 +12,8 @@ export const POST = withFinanceWrite(async (request: Request) => {
     if (!file) {
       return NextResponse.json({ error: "请上传文件" }, { status: 400 });
     }
-    if (!type || (type !== "balance" && type !== "journal")) {
-      return NextResponse.json({ error: "请指定导入类型：balance 或 journal" }, { status: 400 });
+    if (!type || (type !== "balance" && type !== "journal" && type !== "account")) {
+      return NextResponse.json({ error: "请指定导入类型：balance、journal 或 account" }, { status: 400 });
     }
     if (!companyCode) {
       return NextResponse.json({ error: "请选择公司" }, { status: 400 });
@@ -21,10 +21,22 @@ export const POST = withFinanceWrite(async (request: Request) => {
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    const result =
-      type === "balance"
-        ? parseBalanceSheet(buffer, companyCode)
-        : parseJournal(buffer, companyCode);
+    let result;
+    if (type === "balance") {
+      result = parseBalanceSheet(buffer, companyCode);
+    } else if (type === "journal") {
+      result = parseJournal(buffer, companyCode);
+    } else {
+      result = parseAccountTable(buffer, companyCode);
+    }
+
+    // Extract year from filename if not detected from data
+    if (result.year === 0) {
+      const yearMatch = file.name.match(/(20\d{2})/);
+      if (yearMatch) {
+        result.year = parseInt(yearMatch[1], 10);
+      }
+    }
 
     return NextResponse.json({ success: true, preview: result });
   } catch (err) {

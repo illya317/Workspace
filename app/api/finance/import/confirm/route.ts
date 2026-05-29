@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import type { PreviewResult, PreviewAccount } from "@/server/services/finance/import";
+import type { PreviewResult } from "@/server/services/finance/import";
 
 export const POST = withFinanceWrite(async (request: Request) => {
   try {
@@ -16,10 +16,6 @@ export const POST = withFinanceWrite(async (request: Request) => {
 
     // 1. 创建/更新科目
     const accountCodeToId = new Map<string, number>();
-    const codeToAccount = new Map<string, PreviewAccount>();
-    for (const acc of accounts) {
-      codeToAccount.set(acc.code, acc);
-    }
 
     // 按编码长度排序，确保父级先创建
     const sortedAccounts = [...accounts].sort((a, b) => a.code.length - b.code.length);
@@ -30,36 +26,51 @@ export const POST = withFinanceWrite(async (request: Request) => {
         parentId = accountCodeToId.get(acc.parentCode) ?? null;
       }
 
-      const existing = await prisma.financeAccount.findUnique({
-        where: { code: acc.code },
+      // 使用 code + companyCode + year 查找（schema unique 约束已更新）
+      const existing = await prisma.financeAccount.findFirst({
+        where: { code: acc.code, companyCode, year },
       });
+
+      const accountData = {
+        name: acc.name,
+        category: acc.category,
+        balanceDirection: acc.balanceDirection,
+        parentId,
+        companyCode,
+        mnemonicCode: acc.mnemonicCode ?? null,
+        currency: acc.currency ?? null,
+        subjectLevel: acc.subjectLevel ?? null,
+        year,
+      };
 
       if (existing) {
         await prisma.financeAccount.update({
           where: { id: existing.id },
-          data: {
-            name: acc.name,
-            category: acc.category,
-            balanceDirection: acc.balanceDirection,
-            parentId,
-            companyCode,
-          },
+          data: accountData,
         });
         accountCodeToId.set(acc.code, existing.id);
       } else {
         const created = await prisma.financeAccount.create({
           data: {
             code: acc.code,
-            name: acc.name,
-            category: acc.category,
-            balanceDirection: acc.balanceDirection,
-            parentId,
-            companyCode,
+            ...accountData,
             sortOrder: 0,
+            isActive: true,
           },
         });
         accountCodeToId.set(acc.code, created.id);
       }
+    }
+
+    // 科目表导入：到此结束，不创建期间/余额/凭证
+    if (type === "account") {
+      return NextResponse.json({
+        success: true,
+        imported: accounts.length,
+        year,
+        companyCode,
+        type,
+      });
     }
 
     // 2. 创建期间（年度，存为 month=12）
@@ -126,7 +137,7 @@ export const POST = withFinanceWrite(async (request: Request) => {
 
         // 检查凭证是否已存在
         const existing = await prisma.financeVoucher.findUnique({
-          where: { voucherNo: v.voucherNo },
+          where: { voucherNo_companyCode: { voucherNo: v.voucherNo, companyCode } },
         });
         if (existing) {
           // 删除旧明细，更新凭证

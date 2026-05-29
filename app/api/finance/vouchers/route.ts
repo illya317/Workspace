@@ -7,19 +7,30 @@ export const GET = withFinanceAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const periodId = searchParams.get("periodId");
   const status = searchParams.get("status");
+  const companyCode = searchParams.get("companyCode");
+  const year = searchParams.get("year");
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const pageSize = parseInt(searchParams.get("pageSize") || "50", 10);
   const where: Prisma.FinanceVoucherWhereInput = {};
   if (periodId) where.periodId = parseInt(periodId);
   if (status) where.status = status;
+  if (companyCode) where.companyCode = companyCode;
+  if (year) where.period = { year: parseInt(year, 10) };
 
-  const vouchers = await prisma.financeVoucher.findMany({
-    where,
-    orderBy: { date: "desc" },
-    include: {
-      items: { include: { account: true }, orderBy: { sortOrder: "asc" } },
-      period: true,
-    },
-  });
-  return NextResponse.json({ vouchers });
+  const [vouchers, total] = await Promise.all([
+    prisma.financeVoucher.findMany({
+      where,
+      orderBy: { date: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      include: {
+        items: { include: { account: true }, orderBy: { sortOrder: "asc" } },
+        period: true,
+      },
+    }),
+    prisma.financeVoucher.count({ where }),
+  ]);
+  return NextResponse.json({ vouchers, total, page, pageSize });
 });
 
 interface VoucherItemInput {
@@ -74,7 +85,7 @@ export const POST = withFinanceWrite(async (request: Request, user) => {
   }
 
   const existing = await prisma.financeVoucher.findUnique({
-    where: { voucherNo },
+    where: { voucherNo_companyCode: { voucherNo, companyCode: companyCode || "" } },
   });
   if (existing)
     return NextResponse.json({ error: "凭证号已存在" }, { status: 400 });

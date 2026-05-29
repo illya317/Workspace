@@ -335,10 +335,11 @@ export type FinanceVoucherOrderByWithRelationInput = {
 
 export type FinanceVoucherWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  voucherNo?: string
+  voucherNo_companyCode?: Prisma.FinanceVoucherVoucherNoCompanyCodeCompoundUniqueInput
   AND?: Prisma.FinanceVoucherWhereInput | Prisma.FinanceVoucherWhereInput[]
   OR?: Prisma.FinanceVoucherWhereInput[]
   NOT?: Prisma.FinanceVoucherWhereInput | Prisma.FinanceVoucherWhereInput[]
+  voucherNo?: Prisma.StringFilter<"FinanceVoucher"> | string
   date?: Prisma.StringFilter<"FinanceVoucher"> | string
   periodId?: Prisma.IntFilter<"FinanceVoucher"> | number
   description?: Prisma.StringFilter<"FinanceVoucher"> | string
@@ -354,7 +355,7 @@ export type FinanceVoucherWhereUniqueInput = Prisma.AtLeast<{
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
   items?: Prisma.FinanceVoucherItemListRelationFilter
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-}, "id" | "voucherNo">
+}, "id" | "voucherNo_companyCode">
 
 export type FinanceVoucherOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -524,6 +525,11 @@ export type FinanceVoucherListRelationFilter = {
 
 export type FinanceVoucherOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type FinanceVoucherVoucherNoCompanyCodeCompoundUniqueInput = {
+  voucherNo: string
+  companyCode: string
 }
 
 export type FinanceVoucherCountOrderByAggregateInput = {

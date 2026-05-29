@@ -1707,7 +1707,7 @@
     <td class="field-comment"></td>
   </tr>
   <tr class="uk-border uk-bg">
-    <td><span class="field-name">code</span> <span class="field-required">*</span><span class="kb uk">U</span></td>
+    <td><span class="field-name">code</span> <span class="field-required">*</span><span class="kb uk">U₁</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
     <td class="field-comment"></td>
   </tr>
@@ -1736,9 +1736,29 @@
     <td><span class="field-type" style="background:#7c3aed15;color:#7c3aed">bool</span></td>
     <td class="field-comment"></td>
   </tr>
-  <tr>
-    <td><span class="field-name">companyCode</span></td>
+  <tr class="uk-border uk-bg">
+    <td><span class="field-name">companyCode</span><span class="kb uk">U₂</span></td>
     <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">mnemonicCode</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">currency</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">groupSubjectCode</span></td>
+    <td><span class="field-type" style="background:#05966915;color:#059669">str</span></td>
+    <td class="field-comment"></td>
+  </tr>
+  <tr>
+    <td><span class="field-name">subjectLevel</span></td>
+    <td><span class="field-type" style="background:#2563eb15;color:#2563eb">int</span></td>
     <td class="field-comment"></td>
   </tr>
   <tr>
@@ -1773,7 +1793,7 @@
   </tr>
 </tbody></table>
 <div class="table-footer">
-<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">UK: code</span><span class="constraint-tag">FK: parentId → FinanceAccount, editedBy → User</span></div>
+<div class="constraints"><span class="constraint-tag">PK: id</span><span class="constraint-tag">Unique[1]: (code, companyCode)</span><span class="constraint-tag">FK: parentId → FinanceAccount, editedBy → User</span></div>
 <div class="dep-out"><span class="dep-label">Depends on:</span>
 <a href="#FinanceAccount" class="dep-link">8-1 FinanceAccount</a>
 <a href="#User" class="dep-link">1-1 User</a>

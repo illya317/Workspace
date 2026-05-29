@@ -74,3 +74,4 @@ ops/server.env.sh
 
 # Seed data (raw Excel, intermediate JSON, normalized JSON, engine)
 /prisma/seed/data/
+prisma/dev.db

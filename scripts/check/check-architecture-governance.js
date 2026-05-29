@@ -33,6 +33,7 @@ const ALLOWED_API_ROOTS = new Set([
   "auth",
   "contracts",
   "departments",
+  "dev-login-bypass",
   "employee-positions",
   "employee-projects",
   "employees",
