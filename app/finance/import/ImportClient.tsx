@@ -49,7 +49,7 @@ interface PreviewVoucher {
 }
 
 interface PreviewResult {
-  type: "balance" | "journal";
+  type: "balance" | "journal" | "account";
   companyCode: string;
   year: number;
   rows: number;
@@ -64,7 +64,8 @@ export default function ImportClient({ user }: { user: SessionUser }) {
   const router = useRouter();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyCode, setCompanyCode] = useState("");
-  const [importType, setImportType] = useState<"balance" | "journal">("balance");
+  const [importType, setImportType] = useState<"balance" | "journal" | "account">("balance");
+  const [year, setYear] = useState("2026");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<PreviewResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -124,6 +125,7 @@ export default function ImportClient({ user }: { user: SessionUser }) {
     formData.append("file", file);
     formData.append("type", importType);
     formData.append("companyCode", companyCode);
+    formData.append("year", year);
 
     try {
       const res = await fetch("/api/finance/import/preview", {
@@ -158,7 +160,7 @@ export default function ImportClient({ user }: { user: SessionUser }) {
       if (data.success) {
         setResult({
           success: true,
-          message: `导入成功：${data.imported} 条${preview.type === "balance" ? "余额" : "凭证"}数据已写入`,
+          message: `导入成功：${data.imported} 条${preview.type === "balance" ? "余额" : preview.type === "account" ? "科目" : "凭证"}数据已写入`,
         });
         setPreview(null);
         setFile(null);
@@ -172,7 +174,9 @@ export default function ImportClient({ user }: { user: SessionUser }) {
     }
   }
 
-  const typeLabel = importType === "balance" ? "余额表" : "序时账";
+  const typeLabel =
+    importType === "balance" ? "余额表" :
+    importType === "journal" ? "序时账" : "科目表";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -231,7 +235,7 @@ export default function ImportClient({ user }: { user: SessionUser }) {
               <select
                 value={importType}
                 onChange={(e) => {
-                  setImportType(e.target.value as "balance" | "journal");
+                  setImportType(e.target.value as "balance" | "journal" | "account");
                   setPreview(null);
                   setFile(null);
                   setResult(null);
@@ -240,6 +244,21 @@ export default function ImportClient({ user }: { user: SessionUser }) {
               >
                 <option value="balance">余额表</option>
                 <option value="journal">序时账</option>
+                <option value="account">科目表</option>
+              </select>
+            </div>
+
+            {/* Year */}
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-600">年度</label>
+              <select
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              >
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
               </select>
             </div>
 

@@ -8,6 +8,7 @@ export const POST = withFinanceWrite(async (request: Request) => {
     const file = formData.get("file") as File | null;
     const type = formData.get("type") as string | null;
     const companyCode = formData.get("companyCode") as string | null;
+    const yearParam = formData.get("year") as string | null;
 
     if (!file) {
       return NextResponse.json({ error: "请上传文件" }, { status: 400 });
@@ -30,8 +31,10 @@ export const POST = withFinanceWrite(async (request: Request) => {
       result = parseAccountTable(buffer, companyCode);
     }
 
-    // Extract year from filename if not detected from data
-    if (result.year === 0) {
+    // Use explicitly provided year, or extract from filename, or detect from data
+    if (yearParam) {
+      result.year = parseInt(yearParam, 10);
+    } else if (result.year === 0) {
       const yearMatch = file.name.match(/(20\d{2})/);
       if (yearMatch) {
         result.year = parseInt(yearMatch[1], 10);
