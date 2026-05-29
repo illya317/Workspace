@@ -68,7 +68,7 @@ export default function BudgetTab() {
 
   const typeOptions = useMemo(() => {
     if (!data) return [];
-    const set = new Set(data.deptBudget.map((i) => i.expenseType));
+    const set = new Set(data.deptBudget.map((i) => i.expenseType).filter(Boolean));
     return [...set].sort();
   }, [data]);
 
@@ -206,10 +206,26 @@ export default function BudgetTab() {
                 ))}
               </select>
             </div>
-            <span className="text-xs text-gray-400">
+            {(deptFilter || typeFilter || accountFilter) && (
+              <button
+                onClick={() => { setDeptFilter(""); setTypeFilter(""); setAccountFilter(""); }}
+                className="text-xs text-emerald-600 hover:text-emerald-700"
+              >
+                重置筛选
+              </button>
+            )}
+            <span className="ml-auto text-xs text-gray-400">
               共 {filteredDept.length} 条，合计 {deptTotal.toFixed(2)} 万元
             </span>
           </div>
+          {(deptFilter || typeFilter || accountFilter) && (
+            <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+              <span>当前筛选：</span>
+              {deptFilter && <span className="rounded bg-gray-100 px-2 py-0.5">部门：{deptFilter}</span>}
+              {typeFilter && <span className="rounded bg-gray-100 px-2 py-0.5">类型：{typeFilter}</span>}
+              {accountFilter && <span className="rounded bg-gray-100 px-2 py-0.5">科目：{accountFilter}</span>}
+            </div>
+          )}
 
           {/* Dept Budget Table */}
           <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
@@ -302,10 +318,25 @@ export default function BudgetTab() {
                 ))}
               </select>
             </div>
-            <span className="text-xs text-gray-400">
+            {(projectFilter || categoryFilter) && (
+              <button
+                onClick={() => { setProjectFilter(""); setCategoryFilter(""); }}
+                className="text-xs text-emerald-600 hover:text-emerald-700"
+              >
+                重置筛选
+              </button>
+            )}
+            <span className="ml-auto text-xs text-gray-400">
               共 {filteredRd.length} 条，合计 {rdTotal.toFixed(2)} 万元
             </span>
           </div>
+          {(projectFilter || categoryFilter) && (
+            <div className="flex flex-wrap gap-2 text-xs text-gray-500">
+              <span>当前筛选：</span>
+              {projectFilter && <span className="rounded bg-gray-100 px-2 py-0.5">项目：{projectFilter}</span>}
+              {categoryFilter && <span className="rounded bg-gray-100 px-2 py-0.5">类别：{categoryFilter}</span>}
+            </div>
+          )}
 
           {/* R&D Budget Table */}
           <div className="overflow-x-auto rounded-lg bg-white shadow-sm">

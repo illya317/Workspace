@@ -49,6 +49,7 @@ function readDeptBudget(): DeptBudgetItem[] {
       months.push(Number(row[3 + m] || 0));
     }
     const expenseType = String(row[15] || "").trim();
+    if (!expenseType) continue; // skip rows without expense type
 
     items.push({ dept, account, total, months, expenseType });
   }
