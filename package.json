@@ -9,8 +9,6 @@
     "lint": "eslint",
     "ci": "npm run arch:check && npm run env:check && npm run api:check && npm run docs:check && npm run db:validate && npm run schema:check && npm run lint -- --max-warnings=0 && npx tsc --noEmit && npm run build",
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
     "arch:check": "node scripts/check/check-architecture-governance.js",
     "db:check": "node scripts/check/check-db.js",
     "db:docs": "node scripts/generate/gen-db-docs.js",
@@ -39,7 +37,6 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/better-sqlite3": "^7.6.13",
