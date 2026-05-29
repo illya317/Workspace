@@ -60,6 +60,10 @@ function fixRowEncoding(row) {
   return row.map(c => typeof c === 'string' ? fixGBK(c) : c);
 }
 
+function hasEncodingIssue(str) {
+  return typeof str === 'string' && str.includes('�');
+}
+
 // ─── Parse date string ───────────────────────────────────
 
 function parseDate(str) {
@@ -271,6 +275,7 @@ function importJournal(items, companyCode, fileName) {
   let vouchersInserted = 0;
   let itemsInserted = 0;
   const skippedDetails = [];
+  const encodingIssues = [];
 
   for (const [voucherNo, voucherItems] of voucherGroups) {
     const first = voucherItems[0];
@@ -302,6 +307,17 @@ function importJournal(items, companyCode, fileName) {
       totalDebit += it.debit;
       totalCredit += it.credit;
       validItems.push({ ...it, accountId, sortOrder: idx });
+
+      // Check encoding issues
+      if (hasEncodingIssue(it.description)) {
+        encodingIssues.push({
+          file: fileName,
+          voucherNo: yearPrefixedVoucherNo,
+          date: it.dateStr,
+          accountCode: it.accountCode,
+          description: it.description,
+        });
+      }
     }
 
     if (validItems.length === 0) continue;
@@ -325,7 +341,7 @@ function importJournal(items, companyCode, fileName) {
     vouchersInserted++;
   }
 
-  return { vouchersInserted, itemsInserted, skippedDetails };
+  return { vouchersInserted, itemsInserted, skippedDetails, encodingIssues };
 }
 
 // ─── Main ────────────────────────────────────────────────
@@ -360,6 +376,7 @@ console.log('=== Import Journals ===\n');
 let totalVouchers = 0;
 let totalItems = 0;
 const allSkipped = [];
+const allEncodingIssues = [];
 
 for (const file of files) {
   console.log(`Parsing ${file.name}...`);
@@ -368,17 +385,19 @@ for (const file of files) {
 
   console.log(`Importing ${file.name}...`);
   const result = importJournal(items, file.code, file.name);
-  console.log(`  → Vouchers: ${result.vouchersInserted}, Items: ${result.itemsInserted}, Skipped: ${result.skippedDetails.length}`);
+  console.log(`  → Vouchers: ${result.vouchersInserted}, Items: ${result.itemsInserted}, Skipped: ${result.skippedDetails.length}, EncodingIssues: ${result.encodingIssues.length}`);
 
   totalVouchers += result.vouchersInserted;
   totalItems += result.itemsInserted;
   allSkipped.push(...result.skippedDetails);
+  allEncodingIssues.push(...result.encodingIssues);
 }
 
 console.log('\n=== Import Complete ===');
 console.log(`Total Vouchers: ${totalVouchers}`);
 console.log(`Total Items: ${totalItems}`);
 console.log(`Skipped (account not found): ${allSkipped.length}`);
+console.log(`Encoding issues: ${allEncodingIssues.length}`);
 
 // ─── Skip Report ─────────────────────────────────────────
 if (allSkipped.length > 0) {
@@ -405,6 +424,19 @@ if (allSkipped.length > 0) {
   const reportPath = '/Users/koito/Desktop/Project/HR/scripts/import-skip-report.json';
   fs.writeFileSync(reportPath, JSON.stringify(allSkipped, null, 2), 'utf-8');
   console.log(`\n  Detailed report saved to: ${reportPath}`);
+}
+
+// ─── Encoding Issue Report ───────────────────────────────
+if (allEncodingIssues.length > 0) {
+  console.log('\n=== Encoding Issue Report ===');
+  for (const issue of allEncodingIssues) {
+    console.log(`  ${issue.file} | ${issue.voucherNo} | ${issue.date} | ${issue.accountCode} | ${issue.description}`);
+  }
+
+  // Save detailed report to JSON
+  const encodingReportPath = '/Users/koito/Desktop/Project/HR/scripts/import-encoding-report.json';
+  fs.writeFileSync(encodingReportPath, JSON.stringify(allEncodingIssues, null, 2), 'utf-8');
+  console.log(`\n  Detailed encoding report saved to: ${encodingReportPath}`);
 }
 
 // Final stats

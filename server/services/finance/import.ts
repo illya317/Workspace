@@ -150,6 +150,10 @@ function fixRowEncoding(row: unknown[]): unknown[] {
   return row.map((cell) => (typeof cell === "string" ? fixGBK(cell) : cell));
 }
 
+function hasEncodingIssue(str: string): boolean {
+  return typeof str === "string" && str.includes("�");
+}
+
 function isSummaryRow(code: string, name: string): boolean {
   const n = (name || "").trim();
   const c = (code || "").trim();
@@ -304,6 +308,18 @@ export function parseBalanceSheet(
     });
   }
 
+  // Report encoding issues
+  const issueSet = new Set<string>();
+  for (const bal of balances) {
+    if (hasEncodingIssue(bal.accountName)) {
+      issueSet.add(`科目 ${bal.accountCode} 名称存在乱码：${bal.accountName}`);
+    }
+  }
+  if (issueSet.size > 0) {
+    warnings.push(`检测到 ${issueSet.size} 条编码异常记录（原始文件截断或损坏）`);
+    for (const msg of issueSet) warnings.push(msg);
+  }
+
   if (year === 0) {
     errors.push("无法从文件中识别会计年度");
   }
@@ -442,6 +458,26 @@ export function parseJournal(
         `凭证 ${voucher.voucherNo} 借贷不平衡：借方 ${voucher.totalDebit.toFixed(2)} ≠ 贷方 ${voucher.totalCredit.toFixed(2)}`,
       );
     }
+  }
+
+  // Report encoding issues
+  const issueSet = new Set<string>();
+  for (const voucher of voucherMap.values()) {
+    if (hasEncodingIssue(voucher.description)) {
+      issueSet.add(`凭证 ${voucher.voucherNo} 摘要存在乱码：${voucher.description}`);
+    }
+    for (const item of voucher.items) {
+      if (hasEncodingIssue(item.description)) {
+        issueSet.add(`凭证 ${voucher.voucherNo} 分录摘要存在乱码：${item.description}`);
+      }
+      if (hasEncodingIssue(item.accountName)) {
+        issueSet.add(`凭证 ${voucher.voucherNo} 科目名称存在乱码：${item.accountName}`);
+      }
+    }
+  }
+  if (issueSet.size > 0) {
+    warnings.push(`检测到 ${issueSet.size} 条编码异常记录（原始文件截断或损坏）`);
+    for (const msg of issueSet) warnings.push(msg);
   }
 
   if (year === 0) {
@@ -597,6 +633,18 @@ export function parseAccountTable(
       currency,
       subjectLevel,
     });
+  }
+
+  // Report encoding issues
+  const issueSet = new Set<string>();
+  for (const acc of accounts) {
+    if (hasEncodingIssue(acc.name)) {
+      issueSet.add(`科目 ${acc.code} 名称存在乱码：${acc.name}`);
+    }
+  }
+  if (issueSet.size > 0) {
+    warnings.push(`检测到 ${issueSet.size} 条编码异常记录（原始文件截断或损坏）`);
+    for (const msg of issueSet) warnings.push(msg);
   }
 
   return {
