@@ -52,6 +52,12 @@ export default function FinanceClient({ user }: { user: SessionUser }) {
               成本管理
             </button>
             <button
+              onClick={() => router.push("/finance/import")}
+              className="text-sm text-gray-500 hover:text-emerald-600"
+            >
+              数据导入
+            </button>
+            <button
               onClick={() => router.push("/portal")}
               className="text-sm text-gray-500 hover:text-emerald-600"
             >
