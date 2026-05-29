@@ -105,7 +105,7 @@ function fixGBK(str: string): string {
   const buf = Buffer.from(str, "latin1");
   const decoded = iconv.decode(buf, "gbk");
   // CJK 汉字 + 扩展A + CJK 标点 + 全角字符（含％、＄等）
-  const CJK_RE = /[一-鿿㐀-䶿　-〿＀-￯]/;
+  const CJK_RE = /[一-鿿㐀-䶿　-〿＀-￯]/g;
 
   // 如果解码后没有乱码（替换字符/控制字符）且有更多中文，使用解码结果
   const decodedHasGarbage = /[\x00-\x08\x0b-\x0c\x0e-\x1f�]/.test(decoded);

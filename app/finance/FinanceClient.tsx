@@ -15,7 +15,7 @@ type FinanceTab = "accounts" | "vouchers" | "ledger" | "reports";
 const tabs: { key: FinanceTab; label: string }[] = [
   { key: "accounts", label: "科目设置" },
   { key: "vouchers", label: "凭证录入" },
-  { key: "ledger", label: "账簿查询" },
+  { key: "ledger", label: "余额表" },
   { key: "reports", label: "财务报表" },
 ];
 

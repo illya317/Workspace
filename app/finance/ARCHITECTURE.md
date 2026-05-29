@@ -18,7 +18,7 @@ FinanceClient 渲染多个 Tab：
 |-----|------|------|
 | 科目管理 | AccountTab | 会计科目 CRUD |
 | 凭证明细 | VoucherTab | 凭证录入/查询 |
-| 账簿查询 | LedgerTab | 总账/明细账查询 |
+| 余额表 | LedgerTab | 科目余额表查询 |
 | 财务报表 | ReportTab | 资产负债表/利润表 |
 
 ### 成本管理（子模块）

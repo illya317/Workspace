@@ -12,7 +12,7 @@ function fixGBK(str) {
   if (!str || typeof str !== 'string') return str;
   const buf = Buffer.from(str, 'latin1');
   const decoded = iconv.decode(buf, 'gbk');
-  const CJK_RE = /[一-鿿㐀-䶿　-〿＀-￯]/;
+  const CJK_RE = /[一-鿿㐀-䶿　-〿＀-￯]/g;
 
   const decodedHasGarbage = /[\x00-\x08\x0b-\x0c\x0e-\x1f�]/.test(decoded);
   const strHasGarbage = /[\x00-\x08\x0b-\x0c\x0e-\x1f�]/.test(str);

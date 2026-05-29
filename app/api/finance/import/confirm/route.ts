@@ -20,6 +20,23 @@ export const POST = withFinanceWrite(async (request: Request) => {
     // 按编码长度排序，确保父级先创建
     const sortedAccounts = [...accounts].sort((a, b) => a.code.length - b.code.length);
 
+    // 构建 groupSubjectCode 映射（以丰华生物 01 为基准）
+    let groupCodeMap: Map<string, string> | null = null;
+    let groupNameMap: Map<string, string> | null = null;
+    if (type === "account" && companyCode !== "01" && year) {
+      const groupAccounts = await prisma.financeAccount.findMany({
+        where: { companyCode: "01", year },
+        select: { code: true, name: true },
+      });
+      groupCodeMap = new Map(groupAccounts.map((a) => [a.code, a.code]));
+      groupNameMap = new Map();
+      for (const a of groupAccounts) {
+        if (!groupNameMap.has(a.name)) {
+          groupNameMap.set(a.name, a.code);
+        }
+      }
+    }
+
     for (const acc of sortedAccounts) {
       let parentId: number | null = null;
       if (acc.parentCode) {
@@ -31,6 +48,17 @@ export const POST = withFinanceWrite(async (request: Request) => {
         where: { code: acc.code, companyCode, year },
       });
 
+      let groupSubjectCode: string | null = null;
+      if (type === "account" && companyCode === "01") {
+        groupSubjectCode = acc.code;
+      } else if (groupCodeMap && groupNameMap) {
+        if (groupCodeMap.has(acc.code)) {
+          groupSubjectCode = acc.code;
+        } else if (groupNameMap.has(acc.name)) {
+          groupSubjectCode = groupNameMap.get(acc.name) ?? null;
+        }
+      }
+
       const accountData = {
         name: acc.name,
         category: acc.category,
@@ -39,6 +67,7 @@ export const POST = withFinanceWrite(async (request: Request) => {
         companyCode,
         mnemonicCode: acc.mnemonicCode ?? null,
         currency: acc.currency ?? null,
+        groupSubjectCode,
         subjectLevel: acc.subjectLevel ?? null,
         year,
       };
