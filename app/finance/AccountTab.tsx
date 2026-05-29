@@ -94,15 +94,6 @@ export default function AccountTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-end gap-3">
-        <button
-          onClick={() => setModalOpen(true)}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
-        >
-          新增科目
-        </button>
-      </div>
-
       <FinanceFilters
         companyFilter={companyFilter}
         yearFilter={yearFilter}
@@ -112,6 +103,12 @@ export default function AccountTab() {
         showPageSize={false}
         extra={
           <>
+            <button
+              onClick={() => setModalOpen(true)}
+              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+            >
+              新增科目
+            </button>
             <div className="flex items-center gap-2">
               <label className="text-xs text-gray-500">层级</label>
               <select

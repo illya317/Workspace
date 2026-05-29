@@ -163,7 +163,10 @@ export default function LedgerTab() {
         onPageSizeChange={() => {}}
         showPageSize={false}
         extra={
-          <button onClick={recalc} disabled={!selectedPeriodId} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-50">重新计算</button>
+          <>
+            <button onClick={recalc} disabled={!selectedPeriodId} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-50">重新计算</button>
+            <span className="ml-auto text-xs text-gray-400">共 {balances.length} 条</span>
+          </>
         }
       />
 

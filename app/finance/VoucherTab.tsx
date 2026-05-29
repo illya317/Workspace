@@ -106,10 +106,6 @@ export default function VoucherTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-end gap-3">
-        <span className="text-xs text-gray-400">共 {total} 条</span>
-      </div>
-
       <FinanceFilters
         companyFilter={companyFilter}
         yearFilter={yearFilter}
@@ -119,6 +115,9 @@ export default function VoucherTab() {
         onYearChange={(v) => { setYearFilter(v); setPage(1); }}
         onMonthChange={(v) => { setMonthFilter(v); setPage(1); }}
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
+        extra={
+          <span className="ml-auto text-xs text-gray-400">共 {total} 条</span>
+        }
       />
 
       {/* Table */}
@@ -136,7 +135,6 @@ export default function VoucherTab() {
                 <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">摘要</th>
                 <th className="px-3 py-2 text-right font-medium text-gray-600 whitespace-nowrap">借方</th>
                 <th className="px-3 py-2 text-right font-medium text-gray-600 whitespace-nowrap">贷方</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">状态</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">分录</th>
               </tr>
             </thead>
@@ -161,11 +159,6 @@ export default function VoucherTab() {
                     <td className="px-3 py-2 text-right text-gray-700 whitespace-nowrap">{v.totalDebit.toFixed(2)}</td>
                     <td className="px-3 py-2 text-right text-gray-700 whitespace-nowrap">{v.totalCredit.toFixed(2)}</td>
                     <td className="px-3 py-2 whitespace-nowrap">
-                      <span className={`text-xs px-1.5 py-0.5 rounded ${v.status === "posted" ? "bg-emerald-100 text-emerald-700" : "bg-gray-100 text-gray-600"}`}>
-                        {v.status === "posted" ? "已过账" : "草稿"}
-                      </span>
-                    </td>
-                    <td className="px-3 py-2 whitespace-nowrap">
                       <span className="text-emerald-600 text-xs">
                         {expandedVoucherId === v.id ? "收起" : `展开 (${v.items.length}条)`}
                       </span>
@@ -173,7 +166,7 @@ export default function VoucherTab() {
                   </tr>
                   {expandedVoucherId === v.id && (
                     <tr className="bg-gray-50">
-                      <td colSpan={9} className="px-3 py-2">
+                      <td colSpan={8} className="px-3 py-2">
                         <div className="rounded border border-gray-200 bg-white">
                           <table className="w-full text-xs">
                             <thead className="border-b bg-gray-100">
