@@ -6,9 +6,12 @@ import type { PermissionContext } from "./context";
 
 function resolveRoleKeys(roleKey: string): string[] {
   const normalized = normalizeRoleKey(roleKey);
+  // 权限层级：admin > delete > write > access
+  // 高级权限自动隐含低级权限
   if (normalized === "admin") return ["admin"];
-  // admin 视为包含同资源下的 access/write/delete/admin
-  return [normalized, "admin"];
+  if (normalized === "delete") return ["delete", "write", "access", "admin"];
+  if (normalized === "write") return ["write", "access", "admin"];
+  return ["access", "admin"];
 }
 
 export async function checkPermission(

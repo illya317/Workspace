@@ -26,9 +26,20 @@ export function sourceLabel(source: string): string {
       return "父资源继承";
     case "system.admin":
       return "系统管理员";
+    case "implied":
+      return "高级权限隐含";
     default:
       return source;
   }
+}
+
+/** 返回 targetRoleKey 的所有隐含权限（含自身） */
+function impliedRoleKeys(roleKey: string): string[] {
+  const normalized = roleKey === "read" ? "access" : roleKey;
+  if (normalized === "admin") return ["admin"];
+  if (normalized === "delete") return ["delete", "write", "access", "admin"];
+  if (normalized === "write") return ["write", "access", "admin"];
+  return ["access", "admin"];
 }
 
 export function computePermissionState(
@@ -46,43 +57,79 @@ export function computePermissionState(
     return { has: true, source: "system.admin" };
   }
 
-  const directMatch = directGrants.find(
+  const extra = subject.extra;
+  const impliedRoles = impliedRoleKeys(roleKey);
+
+  // 1) 精确匹配（直接授权 / 父资源继承）
+  const directExact = directGrants.find(
     (g) =>
       g.subjectId === subject.id &&
       (g.resourceKey === selectedResource ||
         ancestorResourceKeys.includes(g.resourceKey)) &&
       (g.roleKey === roleKey || g.roleKey === "admin")
   );
-  if (directMatch) {
+  if (directExact) {
     return {
       has: true,
       source:
-        directMatch.resourceKey === selectedResource ? "direct" : "ancestor",
+        directExact.resourceKey === selectedResource ? "direct" : "ancestor",
     };
   }
 
-  const extra = subject.extra;
-
+  // 2) 精确匹配（岗位 / 部门）
   if (subjectType === "user" && extra?.positionIds?.length) {
-    const posMatch = positionGrants.find(
+    const posExact = positionGrants.find(
       (g) =>
         extra.positionIds!.includes(g.subjectId) &&
         (g.resourceKey === selectedResource ||
           ancestorResourceKeys.includes(g.resourceKey)) &&
         (g.roleKey === roleKey || g.roleKey === "admin")
     );
-    if (posMatch) return { has: true, source: "position" };
+    if (posExact) return { has: true, source: "position" };
   }
 
   if (subjectType === "user" && extra?.departmentIds?.length) {
-    const deptMatch = departmentGrants.find(
+    const deptExact = departmentGrants.find(
       (g) =>
         extra.departmentIds!.includes(g.subjectId) &&
         (g.resourceKey === selectedResource ||
           ancestorResourceKeys.includes(g.resourceKey)) &&
         (g.roleKey === roleKey || g.roleKey === "admin")
     );
-    if (deptMatch) return { has: true, source: "department" };
+    if (deptExact) return { has: true, source: "department" };
+  }
+
+  // 3) 高级权限隐含（直接授权 / 父资源继承）
+  const directImplied = directGrants.find(
+    (g) =>
+      g.subjectId === subject.id &&
+      (g.resourceKey === selectedResource ||
+        ancestorResourceKeys.includes(g.resourceKey)) &&
+      impliedRoles.includes(g.roleKey)
+  );
+  if (directImplied) return { has: true, source: "implied" };
+
+  // 4) 高级权限隐含（岗位 / 部门）
+  if (subjectType === "user" && extra?.positionIds?.length) {
+    const posImplied = positionGrants.find(
+      (g) =>
+        extra.positionIds!.includes(g.subjectId) &&
+        (g.resourceKey === selectedResource ||
+          ancestorResourceKeys.includes(g.resourceKey)) &&
+        impliedRoles.includes(g.roleKey)
+    );
+    if (posImplied) return { has: true, source: "implied" };
+  }
+
+  if (subjectType === "user" && extra?.departmentIds?.length) {
+    const deptImplied = departmentGrants.find(
+      (g) =>
+        extra.departmentIds!.includes(g.subjectId) &&
+        (g.resourceKey === selectedResource ||
+          ancestorResourceKeys.includes(g.resourceKey)) &&
+        impliedRoles.includes(g.roleKey)
+    );
+    if (deptImplied) return { has: true, source: "implied" };
   }
 
   return { has: false, source: null };

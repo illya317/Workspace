@@ -24,7 +24,7 @@ export interface Grant {
 
 export interface PermissionState {
   has: boolean;
-  source: "direct" | "position" | "department" | "ancestor" | "system.admin" | null;
+  source: "direct" | "position" | "department" | "ancestor" | "system.admin" | "implied" | null;
 }
 
 export interface ResourceItem {
