@@ -18,7 +18,7 @@ const tabs: { key: FinanceTab; label: string }[] = [
   { key: "vouchers", label: "凭证录入" },
   { key: "ledger", label: "余额表" },
   { key: "reports", label: "财务报表" },
-  { key: "budget", label: "管理会计" },
+  { key: "budget", label: "预算" },
 ];
 
 export default function FinanceClient({ user }: { user: SessionUser }) {
