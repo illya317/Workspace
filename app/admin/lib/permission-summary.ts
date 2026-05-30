@@ -207,37 +207,21 @@ export function summarizeResourcePermissions(
   return summaries;
 }
 
-export function roleLabel(r: string): string {
-  return r === "admin" ? "管理" : r === "delete" ? "删除" : r === "write" ? "编辑" : "访问";
-}
+function roleLevel(r: string): number { return ROLE_LEVEL[r] ?? -1; }
 
-function roleTag(r: string): string {
-  return `${roleLabel(r)}(${ROLE_LEVEL[r] ?? "?"})`;
-}
-
-/** Build a tooltip string from a summary */
+/** Build a tooltip string — one item per line for readability */
 export function formatSummaryTooltip(s: PermissionSummary): string {
   if (s.kind === "scoped") {
-    if (s.global) return `${s.label}：父权限=${roleTag(s.roleKey)}，覆盖全部${s.scopeLabel}`;
-    const details = (s.scopes || []).map(
-      (sc) => `${sc.targetName}=${roleTag(sc.roleKey)}`
-    ).join("，");
-    return `${s.label}（${s.scopeLabel}）：${details}`;
+    if (s.global) return `父-${roleLevel(s.roleKey)}\n全部${s.scopeLabel}`;
+    return (s.scopes || []).map((sc) => `${sc.targetName}-${roleLevel(sc.roleKey)}`).join("\n");
   }
-
   if (s.source === "parent") {
-    const children = (s.childGrants || []).map(
-      (c) => `${c.label}=${roleTag(c.roleKey)}`
-    ).join("，");
-    return `${s.label}：父权限=${roleTag(s.roleKey)}，覆盖全部子权限` + (children ? `（${children}）` : "");
+    const lines = [`父-${roleLevel(s.roleKey)}`];
+    for (const c of s.childGrants || []) lines.push(`${c.label}-${roleLevel(c.roleKey)}`);
+    return lines.join("\n");
   }
-
-  // source === "children": show all with levels
-  const granted = (s.childGrants || []).map(
-    (c) => `${c.label}=${roleTag(c.roleKey)}`
-  );
-  const missing = (s.missingChildren || []).map(
-    (c) => `${c.label}=无(-)`
-  );
-  return `${s.label}：${[...granted, ...missing].join("，")}`;
+  const lines: string[] = [];
+  for (const c of s.childGrants || []) lines.push(`${c.label}-${roleLevel(c.roleKey)}`);
+  for (const c of s.missingChildren || []) lines.push(`${c.label}=无`);
+  return lines.join("\n");
 }

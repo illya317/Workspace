@@ -2,11 +2,6 @@ import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
-import { Prisma } from "@/generated/prisma/client";
-
-type ResourceWithChildren = Prisma.ResourceGetPayload<{
-  include: { children: { include: { children: true } } };
-}>;
 
 interface TreeNode {
   id: number;
@@ -23,41 +18,18 @@ interface TreeNode {
   children?: TreeNode[];
 }
 
-function buildTree(
-  r: ResourceWithChildren,
-  countMap: Map<number, number>,
-  allowedKeys: Set<string>,
-  effectiveMaxRoleMap: Map<string, string>,
-): TreeNode | null {
-  const children = (r.children || [])
-    .map((c) => ({
-      id: c.id, key: c.key, name: c.name, description: c.description,
-      parentId: c.parentId, sortOrder: c.sortOrder,
-      userCount: countMap.get(c.id) || 0,
-      maxRoleKey: c.maxRoleKey,
-      effectiveMaxRoleKey: effectiveMaxRoleMap.get(c.key) || c.maxRoleKey,
-      scopeTypes: c.scopeTypes,
-      scopeInheritanceMode: c.scopeInheritanceMode,
-      children: (c.children || [])
-        .map((gc) => ({
-          id: gc.id, key: gc.key, name: gc.name, description: gc.description,
-          parentId: gc.parentId, sortOrder: gc.sortOrder,
-          userCount: countMap.get(gc.id) || 0,
-          maxRoleKey: gc.maxRoleKey,
-          effectiveMaxRoleKey: effectiveMaxRoleMap.get(gc.key) || gc.maxRoleKey,
-          scopeTypes: gc.scopeTypes,
-          scopeInheritanceMode: gc.scopeInheritanceMode,
-        }))
-        .filter((gc) => allowedKeys.has(gc.key)),
-    }))
-    .filter((c) => allowedKeys.has(c.key));
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
+function toNode(r: any, countMap: Map<number, number>, allowedKeys: Set<string>, maxMap: Map<string, string>): TreeNode {
+  const children = ((r as any).children || [])
+    .map((c: any) => toNode(c, countMap, allowedKeys, maxMap))
+/* eslint-enable @typescript-eslint/no-explicit-any */
+    .filter((c: TreeNode) => allowedKeys.has(c.key));
   return {
     id: r.id, key: r.key, name: r.name, description: r.description,
     parentId: r.parentId, sortOrder: r.sortOrder,
     userCount: countMap.get(r.id) || 0,
     maxRoleKey: r.maxRoleKey,
-    effectiveMaxRoleKey: effectiveMaxRoleMap.get(r.key) || r.maxRoleKey,
+    effectiveMaxRoleKey: maxMap.get(r.key) || r.maxRoleKey,
     scopeTypes: r.scopeTypes,
     scopeInheritanceMode: r.scopeInheritanceMode,
     children,
@@ -96,39 +68,37 @@ export async function GET(request: Request) {
     ? new Set(allResources.map((r) => r.key))
     : manageableKeys;
 
-  // Count distinct users per resource (deduplicate userIds)
-  const resourceIds = allResources.map((r) => r.id);
+  // Count distinct users per resource
   const countMap = new Map<number, number>();
-  for (const rid of resourceIds) {
-    const rows = await prisma.userResourceRole.findMany({
-      where: { resourceId: rid, role: { key: "access" }, scopeId: null },
-      select: { userId: true },
-      distinct: ["userId"],
-    });
-    countMap.set(rid, rows.length);
-  }
-
-  // Compute effective maxRoleKey for each resource (DB parent chain walk)
-  const effectiveMaxRoleMap = new Map<string, string>();
-  const { getResourceMaxRole } = await import("@/server/rbac/maxRole");
   for (const r of allResources) {
-    if (allowedKeys.has(r.key)) {
-      effectiveMaxRoleMap.set(r.key, await getResourceMaxRole(r.key));
-    }
+    const rows = await prisma.userResourceRole.findMany({
+      where: { resourceId: r.id, role: { key: "access" }, scopeId: null },
+      select: { userId: true }, distinct: ["userId"],
+    });
+    countMap.set(r.id, rows.length);
   }
 
-  // Build tree with user counts, only top-level (parentId=null) returned, filtered by allowedKeys
+  // Effective maxRoleKey per resource
+  const { getResourceMaxRole } = await import("@/server/rbac/maxRole");
+  const effectiveMaxRoleMap = new Map<string, string>();
+  for (const r of allResources) {
+    if (allowedKeys.has(r.key)) effectiveMaxRoleMap.set(r.key, await getResourceMaxRole(r.key));
+  }
+
+  // Expand allowedKeys → include ancestors (tree doesn't break on partial grants)
+  const idToKey = new Map(allResources.map((r) => [r.id, r.key]));
+  const keyToParent = new Map(allResources.filter((r) => r.parentId).map((r) => [r.key, idToKey.get(r.parentId!)]));
+  const visibleKeys = new Set(allowedKeys);
+  for (const key of allowedKeys) {
+    for (let k = keyToParent.get(key); k; k = keyToParent.get(k)) visibleKeys.add(k);
+  }
+
   const resources = allResources
-    .filter((r) => r.parentId === null && allowedKeys.has(r.key))
-    .map((r) => buildTree(r, countMap, allowedKeys, effectiveMaxRoleMap))
+    .filter((r) => r.parentId === null && visibleKeys.has(r.key))
+    .map((r) => toNode(r, countMap, visibleKeys, effectiveMaxRoleMap))
     .filter((r): r is TreeNode => r !== null);
 
-  const roles = await prisma.role.findMany({
-    orderBy: { sortOrder: "asc" },
-  });
+  const roles = (await prisma.role.findMany({ orderBy: { sortOrder: "asc" } })).filter((r) => r.key !== "read");
 
-  // 后台不再展示 read 角色
-  const visibleRoles = roles.filter((r) => r.key !== "read");
-
-  return NextResponse.json({ resources, roles: visibleRoles });
+  return NextResponse.json({ resources, roles });
 }

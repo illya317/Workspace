@@ -25,6 +25,73 @@ async function upsertResource(
   });
 }
 
+async function migrateScopedGrants() {
+  const oldReport = await p.resource.findUnique({ where: { key: "work.report" }, select: { id: true } });
+  if (!oldReport) return;
+
+  const leafMap: Record<string, string> = {
+    department: "work.report.department",
+    project: "work.report.project",
+  };
+
+  for (const [scopeType, leafKey] of Object.entries(leafMap)) {
+    const leaf = await p.resource.findUnique({ where: { key: leafKey }, select: { id: true } });
+    if (!leaf) continue;
+
+    const prefix = `${scopeType}:`;
+    const tables = ["UserResourceRole", "PositionResourceRole", "DepartmentResourceRole"] as const;
+
+    for (const table of tables) {
+      // Find old grants with scope matching this type
+      const oldGrants = await (p as any)[
+        table === "UserResourceRole" ? "userResourceRole" :
+        table === "PositionResourceRole" ? "positionResourceRole" : "departmentResourceRole"
+      ].findMany({
+        where: { resourceId: oldReport.id, scopeId: { not: null } },
+        select: table === "UserResourceRole"
+          ? { userId: true, roleId: true, scopeId: true }
+          : table === "PositionResourceRole"
+            ? { positionId: true, roleId: true, scopeId: true }
+            : { departmentId: true, roleId: true, scopeId: true },
+      });
+
+      for (const g of oldGrants) {
+        if (!g.scopeId?.startsWith(prefix)) continue;
+        const subjectField = table === "UserResourceRole" ? "userId"
+          : table === "PositionResourceRole" ? "positionId" : "departmentId";
+        const subjectId = g[subjectField as keyof typeof g];
+
+        // Check if grant already exists on leaf
+        const existing = await (p as any)[
+          table === "UserResourceRole" ? "userResourceRole" :
+          table === "PositionResourceRole" ? "positionResourceRole" : "departmentResourceRole"
+        ].findFirst({
+          where: {
+            [subjectField]: subjectId,
+            resourceId: leaf.id,
+            roleId: g.roleId,
+            scopeId: g.scopeId,
+          },
+        });
+
+        if (!existing) {
+          await (p as any)[
+            table === "UserResourceRole" ? "userResourceRole" :
+            table === "PositionResourceRole" ? "positionResourceRole" : "departmentResourceRole"
+          ].create({
+            data: {
+              [subjectField]: subjectId,
+              resourceId: leaf.id,
+              roleId: g.roleId,
+              scopeId: g.scopeId,
+            },
+          });
+        }
+      }
+    }
+  }
+}
+
 async function main() {
   // ── 顶层根资源 ──
   await upsertResource("system", "系统管理");
@@ -145,6 +212,9 @@ async function main() {
     WHERE key IN ('production.inventory.raw', 'production.inventory.packaging', 'production.inventory.finished', 'production.inventory.report')
       AND parentId IS NULL
   `);
+
+  // Batch 5.2: migrate old work.report scoped grants → leaf resources
+  await migrateScopedGrants();
 
   console.log("✅ Resources seeded");
   const all = await p.resource.findMany({ orderBy: { key: "asc" }, select: { key: true, name: true } });

@@ -83,10 +83,8 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
       const res = await fetch("/api/admin/users/" + user.id, { method: "POST" });
       if (res.ok) {
         const data = await res.json();
-        const msg = `${user.name}您好，您的用户是${user.username || "(未设置)"}，密码是${data.password}`;
-        if (navigator.clipboard?.writeText) {
-          try { await navigator.clipboard.writeText(msg); } catch { copyFallback(msg); }
-        } else { copyFallback(msg); }
+        const msg = `${user.name}您好，用户:${user.username || "(未设置)"}，密码:${data.password}`;
+        try { await navigator.clipboard.writeText(msg); } catch { copyFallback(msg); }
         showToast("已复制到剪贴板", "success");
       } else { showToast("重置失败", "error"); }
     } catch { showToast("网络错误", "error"); }
@@ -197,9 +195,11 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
                           >
                             {s.kind === "scoped"
                               ? `${s.label} ${s.scopeLabel}`
-                              : s.source === "parent"
-                                ? ((s.totalChildren ?? 0) > 0 ? `${s.label} 全部` : s.label)
-                                : ((s.totalChildren ?? 0) > 0 ? `${s.label} ${s.coveredChildren}/${s.totalChildren}` : s.label)}
+                              : s.source === "parent" && (s.totalChildren ?? 0) > 0
+                                ? `${s.label} ${s.totalChildren}/${s.totalChildren}`
+                                : s.source === "children"
+                                  ? `${s.label} ${s.coveredChildren}/${s.totalChildren}`
+                                  : s.label}
                           </span>
                         ))}
                       </div>
