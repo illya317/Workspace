@@ -59,17 +59,18 @@ export function parseBalanceSheet(
     if (h.includes("本期发生贷方")) colIndex.currCredit = i;
     if (h.includes("期末借方")) colIndex.closeDebit = i;
     if (h.includes("期末贷方")) colIndex.closeCredit = i;
-    // Some XLSX exports use merged headers:
-    // 期初余额 | 本期发生 | 期末余额, with 借方/贷方 on the next row.
-    if (h.includes("期初余额")) {
+    // 合并表头（例如 "期初余额" 跨两列，"本期发生" 跨两列）。
+    // 只在表头不含「借方/贷方/借/贷」时才启用合并表头逻辑，
+    // 否则会与上面的精确匹配冲突（例如 "本期发生贷方" 会错误触发合并逻辑）。
+    if (h.includes("期初余额") && !h.includes("借") && !h.includes("贷")) {
       colIndex.openDebit = i;
       colIndex.openCredit = i + 1;
     }
-    if (h.includes("本期发生")) {
+    if (h.includes("本期发生") && !h.includes("借") && !h.includes("贷")) {
       colIndex.currDebit = i;
       colIndex.currCredit = i + 1;
     }
-    if (h.includes("期末余额")) {
+    if (h.includes("期末余额") && !h.includes("借") && !h.includes("贷")) {
       colIndex.closeDebit = i;
       colIndex.closeCredit = i + 1;
     }
