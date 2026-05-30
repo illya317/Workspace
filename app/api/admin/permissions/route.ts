@@ -87,9 +87,9 @@ export async function GET(request: Request) {
     countMap.set(rid, rows.length);
   }
 
-  // Build tree with user counts, only top-level returned, filtered by allowedKeys
+  // Build tree with user counts, only top-level (parentId=null) returned, filtered by allowedKeys
   const resources = allResources
-    .filter((r) => r.level === 1 && allowedKeys.has(r.key))
+    .filter((r) => r.parentId === null && allowedKeys.has(r.key))
     .map((r) => buildTree(r, countMap, allowedKeys))
     .filter((r): r is TreeNode => r !== null);
 
