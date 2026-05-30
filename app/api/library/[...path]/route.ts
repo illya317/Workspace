@@ -3,7 +3,7 @@ import { readFile, stat } from "fs/promises";
 import path from "path";
 import { getCurrentUser } from "@/server/auth/session";
 
-const LIBRARY_ROOT = "/Users/koito/Desktop/FH/资料库";
+const LIBRARY_ROOT = process.env.LIBRARY_ROOT || "/Users/koito/Desktop/FH/资料库";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ path: string[] }> }) {
   const user = await getCurrentUser();

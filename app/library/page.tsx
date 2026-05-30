@@ -5,7 +5,7 @@ import { readdir, stat } from "fs/promises";
 import path from "path";
 import LibraryClient from "./LibraryClient";
 
-const ROOT = "/Users/koito/Desktop/FH/资料库";
+const ROOT = process.env.LIBRARY_ROOT || "/Users/koito/Desktop/FH/资料库";
 
 interface TreeNode {
   name: string;
