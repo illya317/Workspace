@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { withFinanceWrite } from "@/lib/with-auth";
+import { withFinanceImportAccess } from "@/lib/with-auth";
 import { parseBalanceSheet, parseJournal, parseAccountTable } from "@/server/services/finance/import";
 
-export const POST = withFinanceWrite(async (request: Request) => {
+export const POST = withFinanceImportAccess(async (request: Request) => {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;

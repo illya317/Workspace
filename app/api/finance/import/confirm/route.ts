@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { withFinanceWrite } from "@/lib/with-auth";
+import { withFinanceImportWrite } from "@/lib/with-auth";
 import type { PreviewResult } from "@/server/services/finance/import";
 import { confirmFinanceImport } from "@/server/services/finance/import-confirm";
 
-export const POST = withFinanceWrite(async (request: Request) => {
+export const POST = withFinanceImportWrite(async (request: Request) => {
   try {
     const body = await request.json();
     const { preview }: { preview: PreviewResult } = body;

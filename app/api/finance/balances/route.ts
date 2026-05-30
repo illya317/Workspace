@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { withFinanceAccess, withFinanceWrite } from "@/lib/with-auth";
+import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { computeBalancesForPeriod } from "@/server/services/finance/balances";
 
 /** GET 查询余额 */
-export const GET = withFinanceAccess(async (request: Request) => {
+export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const periodId = searchParams.get("periodId");
 
@@ -55,7 +55,7 @@ export const GET = withFinanceAccess(async (request: Request) => {
 });
 
 /** POST 重新计算指定期间的余额 */
-export const POST = withFinanceWrite(async (request: Request) => {
+export const POST = withFinanceLedgerWrite(async (request: Request) => {
   const body = await request.json();
   const { periodId } = body;
   if (!periodId) return NextResponse.json({ error: "periodId 为必填" }, { status: 400 });

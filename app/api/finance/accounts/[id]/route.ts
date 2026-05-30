@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceWrite } from "@/lib/with-auth";
+import { withFinanceLedgerWrite, withFinanceLedgerDelete } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { handleDelete } from "@/lib/crud-finance";
 
@@ -13,7 +13,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  return withFinanceWrite(async (req, user) => {
+  return withFinanceLedgerWrite(async (req, user) => {
     const { id } = await params;
     const body = await req.json();
     const { code, name, category, balanceDirection, isActive, sortOrder } =
@@ -44,5 +44,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  return handleDelete(request, params, CONFIG);
+  return withFinanceLedgerDelete(async () => {
+    return handleDelete(request, params, CONFIG);
+  })(request);
 }

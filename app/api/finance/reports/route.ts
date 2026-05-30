@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { withFinanceAccess } from "@/lib/with-auth";
+import { withFinanceReportAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { generateReport } from "@/server/services/finance/report-generator";
 
 /** 报表生成：资产负债表 / 利润表 / 现金流量表 */
-export const GET = withFinanceAccess(async (request: Request) => {
+export const GET = withFinanceReportAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const periodId = searchParams.get("periodId");
   const companyCode = searchParams.get("companyCode");

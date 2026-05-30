@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { withFinanceAccess, withFinanceWrite } from "@/lib/with-auth";
+import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { handleCreate } from "@/lib/crud-finance";
 
-export const GET = withFinanceAccess(async (request) => {
+export const GET = withFinanceLedgerAccess(async (request) => {
   const { searchParams } = new URL(request.url);
   const companyCode = searchParams.get("companyCode") || undefined;
   const subjectLevel = searchParams.get("subjectLevel");
@@ -57,7 +57,7 @@ export const GET = withFinanceAccess(async (request) => {
   });
 });
 
-export const POST = withFinanceWrite(async (request) => {
+export const POST = withFinanceLedgerWrite(async (request) => {
   const body = await request.json();
   const { code, name, category, parentId, balanceDirection, companyCode } = body;
   if (!code || !name || !category) {

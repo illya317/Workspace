@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { withFinanceAccess, withFinanceWrite } from "@/lib/with-auth";
+import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import { createVoucher } from "@/server/services/finance/voucher-service";
 
-export const GET = withFinanceAccess(async (request: Request) => {
+export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const periodId = searchParams.get("periodId");
   const status = searchParams.get("status");
@@ -47,7 +47,7 @@ export const GET = withFinanceAccess(async (request: Request) => {
   });
 });
 
-export const POST = withFinanceWrite(async (request: Request, user) => {
+export const POST = withFinanceLedgerWrite(async (request: Request, user) => {
   const body = await request.json();
   const result = await createVoucher(body, user.userId);
   if (result.error) {

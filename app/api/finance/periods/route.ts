@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { withFinanceAccess, withFinanceWrite } from "@/lib/with-auth";
+import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 
-export const GET = withFinanceAccess(async (request: Request) => {
+export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const year = searchParams.get("year");
   const where: Prisma.FinancePeriodWhereInput = {};
@@ -16,7 +16,7 @@ export const GET = withFinanceAccess(async (request: Request) => {
   return NextResponse.json({ periods });
 });
 
-export const POST = withFinanceWrite(async (request: Request, _user) => {
+export const POST = withFinanceLedgerWrite(async (request: Request, _user) => {
   const body = await request.json();
   const { year, month, startDate, endDate, companyCode } = body;
   if (!year || !month) {

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { withFinanceWrite } from "@/lib/with-auth";
+import { withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 
 /** 初始化财务基础数据：默认期间 + 标准科目 */
-export const POST = withFinanceWrite(async (request: Request, user) => {
+export const POST = withFinanceLedgerWrite(async (request: Request, user) => {
   const body = await request.json();
   const { year = 2025, month = 1 } = body;
 

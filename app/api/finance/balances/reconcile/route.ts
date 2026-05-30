@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { withFinanceWrite } from "@/lib/with-auth";
+import { withFinanceLedgerWrite } from "@/lib/with-auth";
 import { reconcileBalanceSheet } from "@/server/services/finance/balance-reconcile";
 
 /** POST 上传会计软件年度余额表，与“年度基准 + 系统凭证滚动计算结果”核对 */
-export const POST = withFinanceWrite(async (request: Request) => {
+export const POST = withFinanceLedgerWrite(async (request: Request) => {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;

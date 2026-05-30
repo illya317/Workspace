@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceWrite, withFinanceDelete } from "@/lib/with-auth";
+import { withFinanceLedgerWrite, withFinanceLedgerDelete } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 
@@ -7,7 +7,7 @@ export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  return withFinanceWrite(async (req, user) => {
+  return withFinanceLedgerWrite(async (req, user) => {
     const { id } = await params;
     const body = (await req.json()) as Record<string, unknown>;
     const date = body.date as string | undefined;
@@ -90,7 +90,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  return withFinanceDelete(async () => {
+  return withFinanceLedgerDelete(async () => {
     const { id } = await params;
     await prisma.financeVoucher.delete({ where: { id: parseInt(id) } });
     return NextResponse.json({ success: true });
