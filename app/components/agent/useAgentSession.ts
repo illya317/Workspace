@@ -4,7 +4,12 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import type { AgentMood, AgentMessage } from "./types";
 
 let _msgId = 0;
-function nextId(): string { return `msg-${Date.now()}-${++_msgId}`; }
+function nextMsgId(): string { return `msg-${Date.now()}-${++_msgId}`; }
+function nextConvId(): string { return `conv-${Date.now()}-${++_msgId}`; }
+
+function makeMessage(role: AgentMessage["role"], content: string, data?: unknown): AgentMessage {
+  return { id: nextMsgId(), role, content, timestamp: Date.now(), data };
+}
 
 interface ProposalInfo {
   proposal: { id: number; actionKey: string; targetType: string; targetId?: string; diff: Record<string, unknown> };
@@ -14,11 +19,13 @@ interface ProposalInfo {
 export interface SavedConversation {
   id: string;
   title: string;
+  preview: string;
   messages: AgentMessage[];
   createdAt: number;
+  updatedAt: number;
 }
 
-const HISTORY_KEY = "agentHistory_v2"; // v2: 修 bug，旧数据作废
+const HISTORY_KEY = "agentHistory_v3";
 
 function loadHistory(): SavedConversation[] {
   try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); } catch { return []; }
@@ -42,28 +49,45 @@ export function useAgentSession() {
   const [loading, setLoading] = useState(false);
   const [drawerMsg, setDrawerMsg] = useState<AgentMessage | null>(null);
   const [pendingProposal, setPendingProposal] = useState<ProposalInfo | null>(null);
-  const [savedConversations, setSavedConversations] = useState<SavedConversation[]>(() => {
-    const raw = loadHistory();
-    const seen = new Set<string>();
-    const clean = raw.filter((c) => {
-      const fp = `${c.title}|${c.messages.length}`;
-      if (seen.has(fp)) return false; seen.add(fp); return true;
-    });
-    if (clean.length !== raw.length) saveHistory(clean);
-    return clean;
-  });
-  const historyRef = useRef<SavedConversation[]>(savedConversations);
-  useEffect(() => { historyRef.current = savedConversations; }, [savedConversations]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [savedConversations, setSavedConversations] = useState<SavedConversation[]>(() => loadHistory());
 
   const abortRef = useRef<AbortController | null>(null);
   const messagesRef = useRef<AgentMessage[]>([]);
   const pendingRef = useRef(pendingProposal);
+  const historyRef = useRef<SavedConversation[]>(savedConversations);
+  const activeIdRef = useRef<string | null>(null);
+
   useEffect(() => { messagesRef.current = messages; }, [messages]);
   useEffect(() => { pendingRef.current = pendingProposal; }, [pendingProposal]);
+  useEffect(() => { historyRef.current = savedConversations; }, [savedConversations]);
+  useEffect(() => { activeIdRef.current = activeConversationId; }, [activeConversationId]);
 
-  // ── helpers ──
+  // ── upsert conversation ──
+  function upsertConversation(id: string, nextMessages: AgentMessage[]) {
+    const firstUser = nextMessages.find((m) => m.role === "user");
+    const lastNonSystem = [...nextMessages].reverse().find((m) => m.role !== "system");
+    const title = firstUser?.content.slice(0, 30) || "新对话";
+    const preview = lastNonSystem?.content.slice(0, 60) || "";
+    const now = Date.now();
+    const existing = historyRef.current.find((c) => c.id === id);
+
+    const conv: SavedConversation = {
+      id, title, preview, messages: nextMessages, createdAt: existing?.createdAt ?? now, updatedAt: now,
+    };
+
+    const updated = [conv, ...historyRef.current.filter((c) => c.id !== id)]
+      .sort((a, b) => b.updatedAt - a.updatedAt)
+      .slice(0, 50);
+
+    historyRef.current = updated;
+    saveHistory(updated);
+    setSavedConversations(updated);
+  }
+
+  // ── add message ──
   const addMessage = useCallback((role: AgentMessage["role"], content: string, data?: unknown) => {
-    const msg: AgentMessage = { id: nextId(), role, content, timestamp: Date.now(), data };
+    const msg = makeMessage(role, content, data);
     setMessages((prev) => [...prev, msg]);
     return msg;
   }, []);
@@ -76,11 +100,17 @@ export function useAgentSession() {
     const controller = new AbortController();
     abortRef.current = controller;
 
-    addMessage("user", text.trim());
+    // 确保有 session id
+    const sessionId = activeIdRef.current ?? nextConvId();
+    if (!activeIdRef.current) setActiveConversationId(sessionId);
+
+    const userMsg = makeMessage("user", text.trim());
+    const beforeMessages = [...messagesRef.current, userMsg];
+    setMessages(beforeMessages);
     setMood("thinking");
     setLoading(true);
 
-    const history = messagesRef.current
+    const history = beforeMessages
       .filter((m) => m.role === "user" || m.role === "agent")
       .slice(-10)
       .map((m) => ({ role: m.role as "user" | "agent", content: m.content }));
@@ -96,39 +126,48 @@ export function useAgentSession() {
       if (!res.ok) {
         if (res.status === 401) { window.location.href = "/login"; return; }
         const err = await res.json().catch(() => ({ error: "Request failed" }));
-        addMessage("system", err.error || "请求失败");
+        const errMsg = makeMessage("system", err.error || "请求失败");
+        const errMessages = [...beforeMessages, errMsg];
+        setMessages(errMessages);
+        upsertConversation(sessionId, errMessages);
         setMood("error");
         return;
       }
 
       const data: AgentResponse = await res.json();
+      let finalMessages: AgentMessage[];
 
       if (data.type === "proposal" && data.proposal) {
-        addMessage("agent", data.message);
+        const agentMsg = makeMessage("agent", data.message);
+        finalMessages = [...beforeMessages, agentMsg];
+        setMessages(finalMessages);
         setPendingProposal({ proposal: data.proposal, summary: data.message });
         setMood("confirm");
-        return;
-      }
-      if (data.type === "clarification") {
-        addMessage("agent", data.message);
-        setMood("warning");
       } else if (data.type === "error") {
-        addMessage("system", data.message);
+        const sysMsg = makeMessage("system", data.message);
+        finalMessages = [...beforeMessages, sysMsg];
+        setMessages(finalMessages);
         setMood("error");
       } else {
-        addMessage("agent", data.message, data.data);
-        setMood("success");
+        const agentMsg = makeMessage("agent", data.message, data.data);
+        finalMessages = [...beforeMessages, agentMsg];
+        setMessages(finalMessages);
+        setMood(data.type === "clarification" ? "warning" : "success");
+        setTimeout(() => setMood("idle"), 3000);
       }
 
-      setTimeout(() => setMood("idle"), 3000);
+      upsertConversation(sessionId, finalMessages);
     } catch (err: unknown) {
       if (err instanceof Error && (err.name === "AbortError" || err.name === "TypeError")) return;
-      addMessage("system", "网络请求失败，请稍后重试");
+      const sysMsg = makeMessage("system", "网络请求失败，请稍后重试");
+      const errMessages = [...beforeMessages, sysMsg];
+      setMessages(errMessages);
+      upsertConversation(sessionId, errMessages);
       setMood("error");
     } finally {
       setLoading(false);
     }
-  }, [loading, addMessage]);
+  }, [loading]);
 
   // ── cleanup ──
   useEffect(() => () => { abortRef.current?.abort(); }, []);
@@ -158,22 +197,21 @@ export function useAgentSession() {
     setMood("idle");
   }, [addMessage]);
 
+  // ── 新对话：保存当前会话后切到空白 ──
   const clearMessages = useCallback(() => {
-    if (messages.length > 0) {
-      const title = messages.find((m) => m.role === "user")?.content.slice(0, 30) || "空对话";
-      const conv: SavedConversation = { id: nextId(), title, messages: [...messages], createdAt: Date.now() };
-      const updated = [conv, ...historyRef.current].slice(0, 50);
-      historyRef.current = updated;
-      saveHistory(updated);
-      setSavedConversations(updated);
+    if (activeIdRef.current && messagesRef.current.length > 0) {
+      upsertConversation(activeIdRef.current, messagesRef.current);
     }
+    setActiveConversationId(null);
     setMessages([]);
     setDrawerMsg(null);
     setPendingProposal(null);
     setMood("idle");
-  }, [messages]);
+  }, []);
 
+  // ── 加载历史会话 ──
   const loadConversation = useCallback((conv: SavedConversation) => {
+    setActiveConversationId(conv.id);
     setMessages(conv.messages);
     setDrawerMsg(null);
     setPendingProposal(null);

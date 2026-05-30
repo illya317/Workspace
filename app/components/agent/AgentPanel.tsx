@@ -140,8 +140,9 @@ export default function AgentPanel({
                   <button key={c.id}
                     onClick={() => { onLoadConversation?.(c); setShowHistory(false); }}
                     className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition border-b last:border-0">
-                    <div className="truncate">{c.title}</div>
-                    <div className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleString("zh-CN")}</div>
+                    <div className="truncate font-medium">{c.title}</div>
+                    <div className="truncate text-xs text-gray-400">{c.preview || c.messages.slice(-1)[0]?.content.slice(0, 40)}</div>
+                    <div className="text-xs text-gray-300">{new Date(c.updatedAt).toLocaleString("zh-CN")}</div>
                   </button>
                 ))}
               </div>
