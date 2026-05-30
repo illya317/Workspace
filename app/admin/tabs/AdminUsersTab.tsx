@@ -8,12 +8,9 @@ import type { PermissionGrantLike } from "../lib/permission-summary";
 
 function copyFallback(text: string) {
   const el = document.createElement("textarea");
-  el.value = text;
-  el.style.position = "fixed"; el.style.opacity = "0";
-  document.body.appendChild(el);
-  el.select();
-  document.execCommand("copy");
-  document.body.removeChild(el);
+  el.value = text; el.style.cssText = "position:fixed;opacity:0";
+  document.body.appendChild(el); el.select();
+  document.execCommand("copy"); document.body.removeChild(el);
 }
 
 interface UserItem {
@@ -112,14 +109,9 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
   const filtered = keyword
     ? users.filter((u) => {
         const q = keyword.toLowerCase();
-        if (searchMode === "name") {
-          return u.name.toLowerCase().includes(q) || getInitials(u.name).includes(q);
-        }
-        if (u.name.toLowerCase().includes(q)) return true;
-        if ((u.username || "").toLowerCase().includes(q)) return true;
-        if ((u.employeeId || "").toLowerCase().includes(q)) return true;
-        if (getInitials(u.name).includes(q)) return true;
-        return false;
+        if (searchMode === "name") return u.name.toLowerCase().includes(q) || getInitials(u.name).includes(q);
+        return u.name.toLowerCase().includes(q) || (u.username || "").toLowerCase().includes(q)
+          || (u.employeeId || "").toLowerCase().includes(q) || getInitials(u.name).includes(q);
       })
     : users;
 
@@ -153,8 +145,7 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
           <button onClick={handleCreate} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700">保存</button>
           <button onClick={() => { setCreating(false); setNewName(""); setNewUsername(""); }}
             className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50">取消</button>
-        </div>
-      )}
+        </div>)}
 
       {loading ? (
         <p className="text-gray-500">加载中...</p>
@@ -167,7 +158,9 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
                 <th className="px-3 py-2 text-left font-medium text-gray-600">姓名</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600">用户名</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600 w-16">状态</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600">权限</th>
+                <th className="px-3 py-2 text-left font-medium text-gray-600">
+                  权限 <span className="cursor-help text-gray-400" title="0=访问，1=编辑，2=删除，3=管理">ⓘ</span>
+                </th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600 w-32">操作</th>
               </tr>
             </thead>
@@ -181,8 +174,7 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
                   <tr key={u.id} className="border-b hover:bg-gray-50">
                     <td className="px-3 py-2 text-gray-500 font-mono">{u.id}</td>
                     <td className="px-3 py-2 font-medium text-gray-800">
-                      {u.name}
-                      {u.employeeId && <span className="text-gray-400 ml-1 text-[11px] font-normal">/ {u.employeeId}</span>}
+                      {u.name}{u.employeeId && <span className="text-gray-400 ml-1 text-[11px] font-normal">/ {u.employeeId}</span>}
                     </td>
                     <td className="px-3 py-2 text-gray-500 font-mono">{u.username || "-"}</td>
                     <td className="px-3 py-2">
@@ -197,28 +189,19 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
                         {u.isWorkListAdmin && (
                           <span className="rounded bg-purple-50 px-1 py-0.5 text-[10px] text-purple-600">管理员</span>
                         )}
-                        {summaries.map((s) => {
-                          const color = ROLE_COLORS[s.roleKey] || "gray";
-                          let label: string;
-                          if (s.kind === "scoped") {
-                            label = s.global ? `${s.label} ${s.scopeLabel}` : `${s.label} ${s.scopeLabel}`;
-                          } else if (s.source === "parent") {
-                            label = (s.totalChildren ?? 0) > 0 ? `${s.label} 全部` : s.label;
-                          } else {
-                            label = (s.totalChildren ?? 0) > 0
-                              ? `${s.label} ${s.coveredChildren}/${s.totalChildren}`
-                              : s.label;
-                          }
-                          return (
-                            <span
-                              key={`${s.kind}-${s.key}-${s.scopeType || ""}`}
-                              className={`rounded px-1 py-0.5 text-[10px] ${ROLE_BG[color] || ROLE_BG.gray}`}
-                              title={formatSummaryTooltip(s)}
-                            >
-                              {label}
-                            </span>
-                          );
-                        })}
+                        {summaries.map((s) => (
+                          <span
+                            key={`${s.kind}-${s.key}-${s.scopeType || ""}`}
+                            className={`rounded px-1 py-0.5 text-[10px] ${ROLE_BG[ROLE_COLORS[s.roleKey] || "gray"]}`}
+                            title={formatSummaryTooltip(s)}
+                          >
+                            {s.kind === "scoped"
+                              ? `${s.label} ${s.scopeLabel}`
+                              : s.source === "parent"
+                                ? ((s.totalChildren ?? 0) > 0 ? `${s.label} 全部` : s.label)
+                                : ((s.totalChildren ?? 0) > 0 ? `${s.label} ${s.coveredChildren}/${s.totalChildren}` : s.label)}
+                          </span>
+                        ))}
                       </div>
                     </td>
                     <td className="px-3 py-2">

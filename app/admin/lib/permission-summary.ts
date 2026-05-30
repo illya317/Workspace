@@ -3,7 +3,13 @@
  *
  * Normal resources: "模块 全部" (parent grant) or "模块 n/m" (child grants)
  * Scoped resources:  "部门汇报 3个部门" or "项目汇报 全部项目"
- * Role-based color: admin=purple, delete=red, write=emerald, access=gray
+ *
+ * Color rule: lowest effective role wins (conservative display).
+ *   parent grant → color by parent's role
+ *   children grants → color by minimum child role
+ *   scoped grants → color by minimum scope role
+ *
+ * Role levels: 0=access, 1=write, 2=delete, 3=admin
  */
 
 export type RoleKey = "access" | "write" | "delete" | "admin";
@@ -42,12 +48,19 @@ export interface PermissionSummary {
   scopes?: Array<{ scopeId: string; targetName: string; roleKey: RoleKey }>;
 }
 
-const ROLE_RANK: Record<string, number> = {
-  admin: 3, delete: 2, write: 1, access: 0,
+export const ROLE_LEVEL: Record<string, number> = {
+  access: 0, write: 1, delete: 2, admin: 3,
 };
 
 function maxRole(a: string, b: string): string {
-  return (ROLE_RANK[a] ?? 0) >= (ROLE_RANK[b] ?? 0) ? a : b;
+  return (ROLE_LEVEL[a] ?? 0) >= (ROLE_LEVEL[b] ?? 0) ? a : b;
+}
+
+/** Lowest role — conservative color for n/m badges */
+function minRole(roles: string[]): string {
+  return roles.reduce((min, r) =>
+    (ROLE_LEVEL[r] ?? 99) < (ROLE_LEVEL[min] ?? 99) ? r : min,
+  );
 }
 
 export const ROLE_COLORS: Record<string, string> = {
@@ -120,9 +133,7 @@ export function summarizeResourcePermissions(
           }
 
           if (scopeMap.size > 0) {
-            const bestRole = [...scopeMap.values()].reduce(
-              (best, r) => maxRole(best, r), "access",
-            );
+            const bestRole = minRole([...scopeMap.values()]);
             const scopeLabel = `${scopeMap.size}个${SCOPE_LABELS[st] || st}`;
             const scopeEntries = [...scopeMap.entries()].map(([sid, srole]) => ({
               scopeId: sid,
@@ -174,9 +185,7 @@ export function summarizeResourcePermissions(
           }
 
           if (childGrants.length > 0) {
-            const bestRole = childGrants.reduce(
-              (best, c) => maxRole(best, c.roleKey), "access",
-            );
+            const bestRole = minRole(childGrants.map((c) => c.roleKey));
             summaries.push({
               kind: "normal", key: node.key, label: node.name,
               roleKey: bestRole as RoleKey,
@@ -198,28 +207,37 @@ export function summarizeResourcePermissions(
   return summaries;
 }
 
+export function roleLabel(r: string): string {
+  return r === "admin" ? "管理" : r === "delete" ? "删除" : r === "write" ? "编辑" : "访问";
+}
+
+function roleTag(r: string): string {
+  return `${roleLabel(r)}(${ROLE_LEVEL[r] ?? "?"})`;
+}
+
 /** Build a tooltip string from a summary */
 export function formatSummaryTooltip(s: PermissionSummary): string {
   if (s.kind === "scoped") {
-    if (s.global) return `${s.label}：${s.scopeLabel}`;
+    if (s.global) return `${s.label}：父权限=${roleTag(s.roleKey)}，覆盖全部${s.scopeLabel}`;
     const details = (s.scopes || []).map(
-      (sc) => `#${sc.targetName}=${roleLabel(sc.roleKey)}`
+      (sc) => `${sc.targetName}=${roleTag(sc.roleKey)}`
     ).join("，");
     return `${s.label}（${s.scopeLabel}）：${details}`;
   }
 
-  const parts: string[] = [s.label];
   if (s.source === "parent") {
-    parts.push("：全部");
-  } else if (s.totalChildren && s.totalChildren > 0) {
-    const covered = (s.childGrants || []).map((c) => c.label).join("、");
-    const missing = (s.missingChildren || []).map((c) => c.label).join("、");
-    if (covered) parts.push(`：已授权 ${covered}`);
-    if (missing) parts.push(`；缺少 ${missing}`);
+    const children = (s.childGrants || []).map(
+      (c) => `${c.label}=${roleTag(c.roleKey)}`
+    ).join("，");
+    return `${s.label}：父权限=${roleTag(s.roleKey)}，覆盖全部子权限` + (children ? `（${children}）` : "");
   }
-  return parts.join("");
-}
 
-function roleLabel(r: string): string {
-  return r === "admin" ? "管理" : r === "delete" ? "删除" : r === "write" ? "编辑" : "访问";
+  // source === "children": show all with levels
+  const granted = (s.childGrants || []).map(
+    (c) => `${c.label}=${roleTag(c.roleKey)}`
+  );
+  const missing = (s.missingChildren || []).map(
+    (c) => `${c.label}=无(-)`
+  );
+  return `${s.label}：${[...granted, ...missing].join("，")}`;
 }
