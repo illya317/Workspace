@@ -108,7 +108,13 @@ export const MODULES: ModuleDef[] = [
       { key: "inventory", label: "库存管理", desc: "原辅料、包装材料、成品库存", href: "/inventory", requiredPerm: "canAccessInventory" },
     ],
   },
-  { key: "customers", label: "客户管理", desc: "客户信息、跟进记录", href: "/customers", icon: icons.customers, color: "orange" },
+  { key: "external", label: "外部关系", desc: "客户、投资人、供应商", href: "/external", icon: icons.customers, color: "orange",
+    children: [
+      { key: "investors", label: "投资人关系", desc: "投资人信息、沟通记录", href: "/external/investors" },
+      { key: "customers", label: "客户管理", desc: "客户信息、跟进记录", href: "/external/customers" },
+      { key: "suppliers", label: "供应商管理", desc: "供应商信息、采购记录", href: "/external/suppliers" },
+    ],
+  },
   { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple",
     children: [
       { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions/GMP" },
