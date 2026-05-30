@@ -189,17 +189,15 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
                         )}
                         {summaries.map((s) => (
                           <span
-                            key={`${s.kind}-${s.key}-${s.scopeType || ""}`}
+                            key={s.key}
                             className={`rounded px-1 py-0.5 text-[10px] ${ROLE_BG[ROLE_COLORS[s.roleKey] || "gray"]}`}
                             title={formatSummaryTooltip(s)}
                           >
-                            {s.kind === "scoped"
-                              ? `${s.label} ${s.scopeLabel}`
-                              : s.source === "parent" && (s.totalChildren ?? 0) > 0
-                                ? `${s.label} ${s.totalChildren}/${s.totalChildren}`
-                                : s.source === "children"
-                                  ? `${s.label} ${s.coveredChildren}/${s.totalChildren}`
-                                  : s.label}
+                            {s.source === "parent" && (s.totalChildren ?? 0) > 0
+                              ? `${s.label} ${s.totalChildren}/${s.totalChildren}`
+                              : s.source === "children"
+                                ? `${s.label} ${s.coveredChildren}/${s.totalChildren}`
+                                : s.label}
                           </span>
                         ))}
                       </div>

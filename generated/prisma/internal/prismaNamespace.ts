@@ -391,6 +391,8 @@ export const ModelName = {
   UserResourceRole: 'UserResourceRole',
   PositionResourceRole: 'PositionResourceRole',
   DepartmentResourceRole: 'DepartmentResourceRole',
+  DepartmentWorkAssignee: 'DepartmentWorkAssignee',
+  ProjectWorkAssignee: 'ProjectWorkAssignee',
   Contract: 'Contract',
   FinanceBudgetVersion: 'FinanceBudgetVersion',
   FinanceBudgetDept: 'FinanceBudgetDept',
@@ -448,7 +450,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeAnnualBalance" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "project" | "employeeProject" | "positionDescription" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "workItem" | "workParticipant"
+    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "departmentWorkAssignee" | "projectWorkAssignee" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeAnnualBalance" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "project" | "employeeProject" | "positionDescription" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "workItem" | "workParticipant"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -967,6 +969,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DepartmentResourceRoleCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DepartmentResourceRoleCountAggregateOutputType> | number
+        }
+      }
+    }
+    DepartmentWorkAssignee: {
+      payload: Prisma.$DepartmentWorkAssigneePayload<ExtArgs>
+      fields: Prisma.DepartmentWorkAssigneeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DepartmentWorkAssigneeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentWorkAssigneePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DepartmentWorkAssigneeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentWorkAssigneePayload>
+        }
+        findFirst: {
+          args: Prisma.DepartmentWorkAssigneeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentWorkAssigneePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DepartmentWorkAssigneeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentWorkAssigneePayload>
+        }
+        findMany: {
+          args: Prisma.DepartmentWorkAssigneeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentWorkAssigneePayload>[]
+        }
+        create: {
+          args: Prisma.DepartmentWorkAssigneeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentWorkAssigneePayload>
+        }
+        createMany: {
+          args: Prisma.DepartmentWorkAssigneeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DepartmentWorkAssigneeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentWorkAssigneePayload>[]
+        }
+        delete: {
+          args: Prisma.DepartmentWorkAssigneeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentWorkAssigneePayload>
+        }
+        update: {
+          args: Prisma.DepartmentWorkAssigneeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentWorkAssigneePayload>
+        }
+        deleteMany: {
+          args: Prisma.DepartmentWorkAssigneeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DepartmentWorkAssigneeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DepartmentWorkAssigneeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentWorkAssigneePayload>[]
+        }
+        upsert: {
+          args: Prisma.DepartmentWorkAssigneeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentWorkAssigneePayload>
+        }
+        aggregate: {
+          args: Prisma.DepartmentWorkAssigneeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDepartmentWorkAssignee>
+        }
+        groupBy: {
+          args: Prisma.DepartmentWorkAssigneeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DepartmentWorkAssigneeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DepartmentWorkAssigneeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DepartmentWorkAssigneeCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProjectWorkAssignee: {
+      payload: Prisma.$ProjectWorkAssigneePayload<ExtArgs>
+      fields: Prisma.ProjectWorkAssigneeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectWorkAssigneeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectWorkAssigneePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectWorkAssigneeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectWorkAssigneePayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectWorkAssigneeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectWorkAssigneePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectWorkAssigneeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectWorkAssigneePayload>
+        }
+        findMany: {
+          args: Prisma.ProjectWorkAssigneeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectWorkAssigneePayload>[]
+        }
+        create: {
+          args: Prisma.ProjectWorkAssigneeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectWorkAssigneePayload>
+        }
+        createMany: {
+          args: Prisma.ProjectWorkAssigneeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProjectWorkAssigneeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectWorkAssigneePayload>[]
+        }
+        delete: {
+          args: Prisma.ProjectWorkAssigneeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectWorkAssigneePayload>
+        }
+        update: {
+          args: Prisma.ProjectWorkAssigneeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectWorkAssigneePayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectWorkAssigneeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectWorkAssigneeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProjectWorkAssigneeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectWorkAssigneePayload>[]
+        }
+        upsert: {
+          args: Prisma.ProjectWorkAssigneeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectWorkAssigneePayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectWorkAssigneeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectWorkAssignee>
+        }
+        groupBy: {
+          args: Prisma.ProjectWorkAssigneeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectWorkAssigneeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectWorkAssigneeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectWorkAssigneeCountAggregateOutputType> | number
         }
       }
     }
@@ -4209,6 +4359,26 @@ export const DepartmentResourceRoleScalarFieldEnum = {
 export type DepartmentResourceRoleScalarFieldEnum = (typeof DepartmentResourceRoleScalarFieldEnum)[keyof typeof DepartmentResourceRoleScalarFieldEnum]
 
 
+export const DepartmentWorkAssigneeScalarFieldEnum = {
+  id: 'id',
+  departmentId: 'departmentId',
+  userId: 'userId',
+  kind: 'kind'
+} as const
+
+export type DepartmentWorkAssigneeScalarFieldEnum = (typeof DepartmentWorkAssigneeScalarFieldEnum)[keyof typeof DepartmentWorkAssigneeScalarFieldEnum]
+
+
+export const ProjectWorkAssigneeScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  userId: 'userId',
+  kind: 'kind'
+} as const
+
+export type ProjectWorkAssigneeScalarFieldEnum = (typeof ProjectWorkAssigneeScalarFieldEnum)[keyof typeof ProjectWorkAssigneeScalarFieldEnum]
+
+
 export const ContractScalarFieldEnum = {
   id: 'id',
   contractNo: 'contractNo',
@@ -5183,6 +5353,8 @@ export type GlobalOmitConfig = {
   userResourceRole?: Prisma.UserResourceRoleOmit
   positionResourceRole?: Prisma.PositionResourceRoleOmit
   departmentResourceRole?: Prisma.DepartmentResourceRoleOmit
+  departmentWorkAssignee?: Prisma.DepartmentWorkAssigneeOmit
+  projectWorkAssignee?: Prisma.ProjectWorkAssigneeOmit
   contract?: Prisma.ContractOmit
   financeBudgetVersion?: Prisma.FinanceBudgetVersionOmit
   financeBudgetDept?: Prisma.FinanceBudgetDeptOmit

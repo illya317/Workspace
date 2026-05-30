@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import type { ResourceItem, Subject, Grant, SubjectType } from "../types";
 import { ROLE_META, computePermissionState } from "../lib";
 import { usePermissionFilters } from "./usePermissionFilters";
-import { usePermissionScope } from "./usePermissionScope";
 import { useSystemAdminIds } from "./useSystemAdminIds";
 
 function findResourceInTree(nodes: ResourceItem[], key: string): ResourceItem | null {
@@ -37,7 +36,6 @@ export function usePermissionsTab(
   const [loading, setLoading] = useState(false);
 
   const systemAdminIds = useSystemAdminIds();
-  const scope = usePermissionScope(selectedResource, resources);
 
   const roles = useMemo(() => {
     // DB-driven: find effectiveMaxRoleKey from resource tree (not hardcoded fallback)
@@ -60,7 +58,6 @@ export function usePermissionsTab(
       const params = new URLSearchParams();
       params.set("subjectType", subjectType);
       if (selectedResource) params.set("resourceKey", selectedResource);
-      if (scope.scopeId !== undefined) params.set("scopeId", scope.scopeId ?? "");
 
       const res = await fetch(
         `/api/admin/permission-grants?${params.toString()}`
@@ -83,14 +80,11 @@ export function usePermissionsTab(
     } finally {
       setLoading(false);
     }
-  }, [subjectType, selectedResource, showToast, scope.scopeId]);
+  }, [subjectType, selectedResource, showToast]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  // Reset scope when resource changes
-  useEffect(() => { scope.resetScope(); }, [selectedResource]); // eslint-disable-line
 
   // Child resource keys for gray checkmark (no parent grant but child has)
   const childResourceKeys = useMemo(() => {
@@ -114,10 +108,6 @@ export function usePermissionsTab(
   );
 
   async function toggleGrant(subject: Subject, roleKey: string) {
-    if (!scope.isScopeValid) {
-      showToast("请先选择权限范围的具体部门或项目", "error");
-      return;
-    }
     if (subjectType === "user" && !subject.extra?.hasUser) {
       showToast("该员工未关联账号，无法授权", "error");
       return;
@@ -144,7 +134,6 @@ export function usePermissionsTab(
           resourceKey: selectedResource,
           roleKey,
           value: !state.has,
-          scopeId: scope.scopeId ?? null,
         }),
       });
       if (res.ok) {
@@ -198,6 +187,6 @@ export function usePermissionsTab(
     expandedRows: filters.expandedRows, toggleRowExpand: filters.toggleRowExpand,
     roles,
     getPermissionState, toggleGrant,
-    maxRoleKey, isSystemAdmin, updateMaxRole, systemAdminIds, scope,
+    maxRoleKey, isSystemAdmin, updateMaxRole, systemAdminIds,
   };
 }

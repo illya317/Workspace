@@ -4,7 +4,6 @@ import { usePermissionsTab } from "../hooks/usePermissionsTab";
 import FilterBar from "@/app/components/FilterBar";
 import ResourceTree from "../components/permissions/ResourceTree";
 import MatrixTable from "../components/permissions/MatrixTable";
-import ScopeSelector from "../components/permissions/ScopeSelector";
 import type { ResourceItem, SubjectType } from "../types";
 
 interface Props {
@@ -43,16 +42,6 @@ export default function PermissionsTab({ resources, showToast }: Props) {
         </div>
 
         <div className="min-w-0 flex-1">
-          {/* Scope selector (Batch 5) — only for scoped resources */}
-          {s.scope.supportsScope && (
-            <ScopeSelector
-              scope={s.scope}
-              resourceName={
-                resources.find((r) => r.key === s.selectedResource)?.name ?? "工作汇报"
-              }
-            />
-          )}
-
           <div className="mb-4 flex gap-1 rounded-lg bg-gray-100 p-1">
             {([
               { key: "user" as SubjectType, label: "员工" },

@@ -1,22 +1,56 @@
 import { prisma } from "./prisma";
 import { checkPermission } from "./auth";
-import { checkScopedPermission, toScopeId } from "@/server/rbac/scoped";
 
-// ─── Target → leaf resource mapping (Batch 5.2) ───
+// ─── Business rule helpers ──────────────────────────────
 
-/** Map targetType to the self_only leaf resource for scoped data permissions */
-function resourceKeyForTarget(targetType: string): string {
-  if (targetType === "department") return "work.report.department";
-  if (targetType === "project") return "work.report.project";
-  if (targetType === "user") return "work.report.personal";
-  if (targetType === "position") return "work.report.department"; // positions belong to departments
-  return "work.report"; // fallback
+/** User is a member of the target department/project via EDP/EmployeeProject */
+async function isMemberOfTarget(userId: number, targetType: string, targetId: number): Promise<boolean> {
+  const employees = await prisma.employee.findMany({ where: { userId }, select: { id: true } });
+  const employeeIds = employees.map((e) => e.id);
+  if (employeeIds.length === 0) return false;
+
+  if (targetType === "department") {
+    const ep = await prisma.eDP.findFirst({
+      where: { employeeId: { in: employeeIds }, departmentId: targetId },
+    });
+    return !!ep;
+  }
+  if (targetType === "project") {
+    const ep = await prisma.employeeProject.findFirst({
+      where: { employeeId: { in: employeeIds }, projectId: targetId },
+    });
+    return !!ep;
+  }
+  // position: check if user holds this position
+  if (targetType === "position") {
+    const ep = await prisma.eDP.findFirst({
+      where: { employeeId: { in: employeeIds }, positionId: targetId },
+    });
+    return !!ep;
+  }
+  // user/personal: only the user themselves
+  if (targetType === "user") return targetId === userId;
+  return false;
 }
 
-/** Leaf resources for report target picker (excludes work.task to avoid polluting report UI) */
-const REPORT_LEAF_RESOURCES = ["work.report.department", "work.report.project"];
+/** User is an assignee (writer) for the target */
+async function isAssignee(userId: number, targetType: string, targetId: number, kind: "task" | "report"): Promise<boolean> {
+  if (targetType === "department") {
+    const a = await prisma.departmentWorkAssignee.findFirst({
+      where: { departmentId: targetId, userId, kind },
+    });
+    return !!a;
+  }
+  if (targetType === "project") {
+    const a = await prisma.projectWorkAssignee.findFirst({
+      where: { projectId: targetId, userId, kind },
+    });
+    return !!a;
+  }
+  return false;
+}
 
-// ─── Target listing (UI) — returns all targets visible in pickers ───
+// ─── Target listing (UI) ─────────────────────────────────
 
 interface TargetInfo {
   id: number;
@@ -26,50 +60,51 @@ interface TargetInfo {
   code?: string;
 }
 
-/**
- * Get all departments, projects, and positions the user is a member of,
- * PLUS targets derived from scoped work.report grants (Batch 5.1).
- * Used for populating target selectors in the UI — NOT for authorization.
- * System admins get all targets.
- */
 export async function getUserTargets(userId: number): Promise<{
   departments: TargetInfo[];
   projects: TargetInfo[];
   positions: TargetInfo[];
   users: TargetInfo[];
 }> {
+  // System admin → all targets
   if (await checkPermission(userId, "system", "admin")) {
-    return await getAllTargets();
+    const [departments, projects, positions, users] = await Promise.all([
+      prisma.department.findMany({ select: { id: true, name: true, code: true } }),
+      prisma.project.findMany({ select: { id: true, name: true, type: true } }),
+      prisma.position.findMany({ select: { id: true, code: true, name: true } }),
+      prisma.user.findMany({
+        where: { employees: { some: { employments: { some: { isActive: true } } } } },
+        select: { id: true, name: true },
+      }),
+    ]);
+    return {
+      departments, projects, positions,
+      users: users.map((u) => ({ id: u.id, name: u.name || `用户#${u.id}` })),
+    };
   }
 
-  const employees = await prisma.employee.findMany({
-    where: { userId }, select: { id: true, name: true },
-  });
-  const employeeIds = employees.map((e) => e.id);
+  // Work admin → all department/project targets
+  const isWorkAdmin = await checkPermission(userId, "work", "admin");
+  const [allDepts, allProjs] = isWorkAdmin ? await Promise.all([
+    prisma.department.findMany({ select: { id: true, name: true, code: true } }),
+    prisma.project.findMany({ select: { id: true, name: true, type: true } }),
+  ]) : [[], []];
 
-  // Init maps — will merge global + membership + scoped sources
   const deptMap = new Map<number, TargetInfo>();
   const projMap = new Map<number, TargetInfo>();
   const posMap = new Map<number, TargetInfo>();
   const userMap = new Map<number, TargetInfo>();
 
-  // Source 1: global leaf resource access → all targets of that type
-  const [showAllDepts, showAllProjs] = employeeIds.length > 0 ? await Promise.all([
-    checkScopedPermission(userId, "work.report.department", "access", null),
-    checkScopedPermission(userId, "work.report.project", "access", null),
-  ]) : [false, false];
-
-  if (showAllDepts) {
-    const depts = await prisma.department.findMany({ select: { id: true, name: true, code: true } });
-    for (const d of depts) deptMap.set(d.id, d);
-  }
-  if (showAllProjs) {
-    const projs = await prisma.project.findMany({ select: { id: true, name: true, type: true } });
-    for (const p of projs) projMap.set(p.id, p);
+  if (isWorkAdmin) {
+    for (const d of allDepts) deptMap.set(d.id, d);
+    for (const p of allProjs) projMap.set(p.id, p);
   }
 
-  // Source 2: membership-based targets
+  const employees = await prisma.employee.findMany({ where: { userId }, select: { id: true, name: true } });
+  const employeeIds = employees.map((e) => e.id);
+
   if (employeeIds.length > 0) {
+    // Membership-based targets
     const [eps, empProjects] = await Promise.all([
       prisma.eDP.findMany({
         where: { employeeId: { in: employeeIds } },
@@ -89,14 +124,36 @@ export async function getUserTargets(userId: number): Promise<{
     }
     for (const ep of empProjects) projMap.set(ep.project.id, ep.project);
 
-    // Source 3: scoped grant targets (report leaf resources only)
-    await mergeScopedTargets(userId, employeeIds, deptMap, projMap, new Map());
+    // Assignee targets: departments/projects user is assigned to write for
+    const [deptAssigns, projAssigns] = await Promise.all([
+      prisma.departmentWorkAssignee.findMany({
+        where: { userId },
+        select: { departmentId: true },
+      }),
+      prisma.projectWorkAssignee.findMany({
+        where: { userId },
+        select: { projectId: true },
+      }),
+    ]);
+    if (deptAssigns.length > 0) {
+      const depts = await prisma.department.findMany({
+        where: { id: { in: deptAssigns.map((a) => a.departmentId) } },
+        select: { id: true, name: true, code: true },
+      });
+      for (const d of depts) deptMap.set(d.id, d);
+    }
+    if (projAssigns.length > 0) {
+      const projs = await prisma.project.findMany({
+        where: { id: { in: projAssigns.map((a) => a.projectId) } },
+        select: { id: true, name: true, type: true },
+      });
+      for (const p of projs) projMap.set(p.id, p);
+    }
 
-    // Source 4: implicit own personal report + user-scoped grants (backend-reserved)
+    // Own personal target
     for (const emp of employees) {
       userMap.set(userId, { id: userId, name: `${emp.name}（个人）` });
     }
-    await mergeScopedTargets(userId, employeeIds, new Map(), new Map(), userMap);
   }
 
   return {
@@ -107,163 +164,42 @@ export async function getUserTargets(userId: number): Promise<{
   };
 }
 
-/**
- * Query scoped work.report grants and merge department/project/user targets
- * into the provided maps. Handles user-level, position-level, and department-level grants.
- */
-async function mergeScopedTargets(
-  userId: number,
-  employeeIds: number[],
-  deptMap: Map<number, TargetInfo>,
-  projMap: Map<number, TargetInfo>,
-  userMap: Map<number, TargetInfo>,
-): Promise<void> {
-  // Query report leaf resources for scoped grants
-  const leafResources = await prisma.resource.findMany({
-    where: { key: { in: REPORT_LEAF_RESOURCES } },
-    select: { id: true },
-  });
-  if (leafResources.length === 0) return;
-  const leafIds = leafResources.map((r) => r.id);
+// ─── Permission checks ───────────────────────────────────
 
-  const posIds = await getUserPositionIdsForMerge(employeeIds);
-  const deptIds = await getUserDepartmentIdsForMerge(employeeIds);
-
-  const scopeIds = new Set<string>();
-
-  const [userGrants, posGrants, deptGrants] = await Promise.all([
-    prisma.userResourceRole.findMany({
-      where: { userId, resourceId: { in: leafIds }, scopeId: { not: null } },
-      select: { scopeId: true },
-    }),
-    posIds.length > 0
-      ? prisma.positionResourceRole.findMany({
-          where: { positionId: { in: posIds }, resourceId: { in: leafIds }, scopeId: { not: null } },
-          select: { scopeId: true },
-        })
-      : Promise.resolve([] as Array<{ scopeId: string | null }>),
-    deptIds.length > 0
-      ? prisma.departmentResourceRole.findMany({
-          where: { departmentId: { in: deptIds }, resourceId: { in: leafIds }, scopeId: { not: null } },
-          select: { scopeId: true },
-        })
-      : Promise.resolve([] as Array<{ scopeId: string | null }>),
-  ]);
-
-  for (const g of [...userGrants, ...posGrants, ...deptGrants]) {
-    if (g.scopeId) scopeIds.add(g.scopeId);
-  }
-
-  const scopeDeptIds: number[] = [];
-  const scopeProjIds: number[] = [];
-  const scopeUserIds: number[] = [];
-
-  for (const sid of scopeIds) {
-    const idx = sid.lastIndexOf(":");
-    if (idx <= 0) continue;
-    const id = Number(sid.slice(idx + 1));
-    if (!Number.isFinite(id)) continue;
-    const type = sid.slice(0, idx);
-    if (type === "department") scopeDeptIds.push(id);
-    else if (type === "project") scopeProjIds.push(id);
-    else if (type === "user") scopeUserIds.push(id);
-  }
-
-  if (scopeDeptIds.length > 0) {
-    const depts = await prisma.department.findMany({
-      where: { id: { in: scopeDeptIds } },
-      select: { id: true, name: true, code: true },
-    });
-    for (const d of depts) { if (!deptMap.has(d.id)) deptMap.set(d.id, d); }
-  }
-
-  if (scopeProjIds.length > 0) {
-    const projs = await prisma.project.findMany({
-      where: { id: { in: scopeProjIds } },
-      select: { id: true, name: true, type: true },
-    });
-    for (const p of projs) { if (!projMap.has(p.id)) projMap.set(p.id, p); }
-  }
-
-  if (scopeUserIds.length > 0) {
-    const users = await prisma.user.findMany({
-      where: { id: { in: scopeUserIds } },
-      include: { employees: { select: { name: true }, take: 1 } },
-    });
-    for (const u of users) {
-      if (!userMap.has(u.id)) {
-        userMap.set(u.id, { id: u.id, name: `${u.employees[0]?.name || `用户#${u.id}`}（个人）` });
-      }
-    }
-  }
-}
-
-async function getAllTargets() {
-  const [departments, projects, positions, users] = await Promise.all([
-    prisma.department.findMany({ select: { id: true, name: true, code: true } }),
-    prisma.project.findMany({ select: { id: true, name: true, type: true } }),
-    prisma.position.findMany({ select: { id: true, code: true, name: true } }),
-    prisma.user.findMany({
-      where: { employees: { some: { employments: { some: { isActive: true } } } } },
-      select: { id: true, name: true },
-    }),
-  ]);
-  return {
-    departments,
-    projects,
-    positions,
-    users: users.map((u) => ({ id: u.id, name: u.name || `用户#${u.id}` })),
-  };
-}
-
-async function getUserPositionIdsForMerge(employeeIds: number[]): Promise<number[]> {
-  const eps = await prisma.eDP.findMany({
-    where: { employeeId: { in: employeeIds } },
-    select: { positionId: true },
-  });
-  return eps.map((e) => e.positionId).filter((id): id is number => id !== null);
-}
-
-async function getUserDepartmentIdsForMerge(employeeIds: number[]): Promise<number[]> {
-  const eps = await prisma.eDP.findMany({
-    where: { employeeId: { in: employeeIds } },
-    select: { departmentId: true },
-  });
-  return [...new Set(eps.map((e) => e.departmentId).filter((id): id is number => id !== null))];
-}
-
-// ─── Scoped permission checks (Batch 5) ─────────────────────────
-
-/**
- * Check if a user can view data for a given target under a specific resource.
- *
- * Rules:
- * - system.admin with bypass ON → always allowed
- * - Personal reports (user:<id>): the user whose userId matches has implicit access
- * - Department/project/position reports: must have scoped grant
- */
+/** Check if user can VIEW reports/work-items for a target */
 export async function canAccessTarget(
-  userId: number,
-  targetType: string,
-  targetId: number,
-  resourceKey?: string,
+  userId: number, targetType: string, targetId: number,
 ): Promise<boolean> {
+  // Own personal data: always
   if (targetType === "user" && targetId === userId) return true;
-
-  const rk = resourceKey || resourceKeyForTarget(targetType);
-  const scopeId = toScopeId(targetType, targetId);
-  return checkScopedPermission(userId, rk, "access", scopeId);
+  // Admin bypass
+  if (await checkPermission(userId, "system", "admin")) return true;
+  if (await checkPermission(userId, "work", "admin")) return true;
+  // Membership → can view
+  return isMemberOfTarget(userId, targetType, targetId);
 }
 
+/** Check if user can WRITE reports for a target */
 export async function canSubmitToTarget(
-  userId: number,
-  targetType: string,
-  targetId: number,
-  resourceKey?: string,
+  userId: number, targetType: string, targetId: number,
+): Promise<boolean> {
+  // Own personal data: always
+  if (targetType === "user" && targetId === userId) return true;
+  // Admin bypass
+  if (await checkPermission(userId, "system", "admin")) return true;
+  if (await checkPermission(userId, "work", "admin")) return true;
+  // Assignee → can write
+  if (await isAssignee(userId, targetType, targetId, "report")) return true;
+  return false;
+}
+
+/** Check if user can WRITE work tasks for a target */
+export async function canEditWorkTask(
+  userId: number, targetType: string, targetId: number,
 ): Promise<boolean> {
   if (targetType === "user" && targetId === userId) return true;
-
-  const rk = resourceKey || resourceKeyForTarget(targetType);
-  const scopeId = toScopeId(targetType, targetId);
-  return checkScopedPermission(userId, rk, "write", scopeId);
+  if (await checkPermission(userId, "system", "admin")) return true;
+  if (await checkPermission(userId, "work", "admin")) return true;
+  if (await isAssignee(userId, targetType, targetId, "task")) return true;
+  return false;
 }

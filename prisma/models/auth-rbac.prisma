@@ -103,3 +103,23 @@ model DepartmentResourceRole {
 
   @@unique([departmentId, resourceId, roleId, scopeId])
 }
+
+/// 部门工作指派人（业务配置，非 RBAC 权限）
+model DepartmentWorkAssignee {
+  id           Int    @id @default(autoincrement())
+  departmentId Int
+  userId       Int
+  kind         String // "task" | "report"
+
+  @@unique([departmentId, userId, kind])
+}
+
+/// 项目工作指派人（业务配置，非 RBAC 权限）
+model ProjectWorkAssignee {
+  id        Int    @id @default(autoincrement())
+  projectId Int
+  userId    Int
+  kind      String // "task" | "report"
+
+  @@unique([projectId, userId, kind])
+}

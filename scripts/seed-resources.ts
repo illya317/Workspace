@@ -25,81 +25,6 @@ async function upsertResource(
   });
 }
 
-async function migrateScopedGrants() {
-  const oldReport = await p.resource.findUnique({ where: { key: "work.report" }, select: { id: true } });
-  if (!oldReport) return;
-
-  const leafMap: Record<string, string> = {
-    department: "work.report.department",
-    project: "work.report.project",
-  };
-
-  for (const [scopeType, leafKey] of Object.entries(leafMap)) {
-    const leaf = await p.resource.findUnique({ where: { key: leafKey }, select: { id: true } });
-    if (!leaf) continue;
-
-    const prefix = `${scopeType}:`;
-    const tables = ["UserResourceRole", "PositionResourceRole", "DepartmentResourceRole"] as const;
-
-    for (const table of tables) {
-      // Find old scoped grants and migrate
-      const oldGrants = await (p as any)[
-        table === "UserResourceRole" ? "userResourceRole" :
-        table === "PositionResourceRole" ? "positionResourceRole" : "departmentResourceRole"
-      ].findMany({
-        where: { resourceId: oldReport.id, scopeId: { not: null } },
-        select: table === "UserResourceRole"
-          ? { userId: true, roleId: true, scopeId: true }
-          : table === "PositionResourceRole"
-            ? { positionId: true, roleId: true, scopeId: true }
-            : { departmentId: true, roleId: true, scopeId: true },
-      });
-
-      for (const g of oldGrants) {
-        if (!g.scopeId?.startsWith(prefix)) continue;
-        const subjectField = table === "UserResourceRole" ? "userId"
-          : table === "PositionResourceRole" ? "positionId" : "departmentId";
-        const subjectId = g[subjectField as keyof typeof g];
-
-        // Check if grant already exists on leaf
-        const existing = await (p as any)[
-          table === "UserResourceRole" ? "userResourceRole" :
-          table === "PositionResourceRole" ? "positionResourceRole" : "departmentResourceRole"
-        ].findFirst({
-          where: {
-            [subjectField]: subjectId,
-            resourceId: leaf.id,
-            roleId: g.roleId,
-            scopeId: g.scopeId,
-          },
-        });
-
-        if (!existing) {
-          await (p as any)[
-            table === "UserResourceRole" ? "userResourceRole" :
-            table === "PositionResourceRole" ? "positionResourceRole" : "departmentResourceRole"
-          ].create({
-            data: {
-              [subjectField]: subjectId,
-              resourceId: leaf.id,
-              roleId: g.roleId,
-              scopeId: g.scopeId,
-            },
-          });
-        }
-      }
-
-      // Delete old scoped work.report grants (keep non-scoped as entry permissions)
-      await (p as any)[
-        table === "UserResourceRole" ? "userResourceRole" :
-        table === "PositionResourceRole" ? "positionResourceRole" : "departmentResourceRole"
-      ].deleteMany({
-        where: { resourceId: oldReport.id, scopeId: { not: null, startsWith: prefix } },
-      });
-    }
-  }
-}
-
 async function main() {
   // ── 顶层根资源 ──
   await upsertResource("system", "系统管理");
@@ -145,17 +70,9 @@ async function main() {
   await upsertResource("external.supplier", "供应商管理", "external");
 
   await upsertResource("work", "工作");
-  // Work — entry/grouping only, data permissions on leaf resources
+  // Work — coarse-grained RBAC entry + admin only (business rules handle data access)
   await upsertResource("work.task", "工作清单", "work");
   await upsertResource("work.report", "工作汇报", "work");
-
-  // Work leaf resources — self_only scoped data permissions
-  await upsertResource("work.task.department", "部门工作清单", "work.task", "admin", "department", "self_only");
-  await upsertResource("work.task.personal", "个人工作清单", "work.task");
-
-  await upsertResource("work.report.department", "部门工作汇报", "work.report", "admin", "department", "self_only");
-  await upsertResource("work.report.project", "项目工作汇报", "work.report", "admin", "project", "self_only");
-  await upsertResource("work.report.personal", "个人工作汇报", "work.report");
 
   await upsertResource("legal", "法务", undefined, "access");
   await upsertResource("legal.chat", "法务咨询", "legal");
@@ -220,9 +137,6 @@ async function main() {
     WHERE key IN ('production.inventory.raw', 'production.inventory.packaging', 'production.inventory.finished', 'production.inventory.report')
       AND parentId IS NULL
   `);
-
-  // Batch 5.2: migrate old work.report scoped grants → leaf resources
-  await migrateScopedGrants();
 
   console.log("✅ Resources seeded");
   const all = await p.resource.findMany({ orderBy: { key: "asc" }, select: { key: true, name: true } });

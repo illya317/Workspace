@@ -7,10 +7,9 @@ import type { PermissionsTabState } from "../../hooks/usePermissionsTab";
 interface MatrixRowProps {
   subject: { id: number; name: string; extra?: Record<string, unknown> };
   s: PermissionsTabState;
-  scopeValid: boolean;
 }
 
-export default function MatrixRow({ subject, s, scopeValid }: MatrixRowProps) {
+export default function MatrixRow({ subject, s }: MatrixRowProps) {
   const isExpanded = s.expandedRows.has(subject.id);
   const hasNoUser = s.subjectType === "user" && !subject.extra?.hasUser;
 
@@ -45,7 +44,7 @@ export default function MatrixRow({ subject, s, scopeValid }: MatrixRowProps) {
               ) : (
                 <PermissionCell
                   state={state}
-                  disabled={hasNoUser || !scopeValid}
+                  disabled={hasNoUser}
                   onClick={() => s.toggleGrant(subject, role.key)}
                 />
               )}
