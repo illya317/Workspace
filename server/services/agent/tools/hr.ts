@@ -17,7 +17,7 @@ export const searchEmployeesTool: AgentTool = {
 
   async execute(params: Record<string, unknown>, _user: SessionUser) {
     const keyword = typeof params.keyword === "string" ? params.keyword : "";
-    const limit = typeof params.limit === "number" ? params.limit : 10;
+    const limit = typeof params.limit === "number" ? params.limit : 50;
 
     const employees = await queryRawEmployees(keyword);
     const sliced = employees.slice(0, limit);
