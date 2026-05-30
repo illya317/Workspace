@@ -119,7 +119,7 @@ function roleLevel(r: string): number { return ROLE_LEVEL[r] ?? -1; }
 /** Tooltip — one item per line */
 export function formatSummaryTooltip(s: PermissionSummary): string {
   if (s.source === "parent") {
-    const lines = [`父-${roleLevel(s.roleKey)}`];
+    const lines = [`父权限-${roleLevel(s.roleKey)}`];
     for (const c of s.childGrants || []) lines.push(`${c.label}-${roleLevel(c.roleKey)}`);
     return lines.join("\n");
   }
