@@ -84,9 +84,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     checkPermissionWithContext(ctx, "docs", "access"),
   ]);
 
-  const hasDocsAccess = hasDocs;
-
-  const hasHR = hasHRAccess || hasHRWrite || hasHRDelete;
+    const hasHR = hasHRAccess || hasHRWrite || hasHRDelete;
 
   const manageableKeys = await getManageableResourceKeys(payload.userId);
   const canManagePermissions = manageableKeys.size > 0;
