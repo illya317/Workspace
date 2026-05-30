@@ -52,22 +52,9 @@ export default function MatrixRow({ subject, s }: MatrixRowProps) {
           );
         })}
         <td className="whitespace-nowrap py-2 pr-3 text-center">
-          {s.isSystemAdmin ? (
-            <select
-              value={s.maxRoleKey}
-              onChange={(e) => s.updateMaxRole(e.target.value)}
-              className="rounded border border-gray-200 px-1 py-0.5 text-xs text-gray-600"
-            >
-              <option value="access">访问</option>
-              <option value="write">编辑</option>
-              <option value="delete">删除</option>
-              <option value="admin">管理</option>
-            </select>
-          ) : (
-            <span className="text-xs text-gray-500">
-              {s.maxRoleKey === "access" ? "访问" : s.maxRoleKey === "write" ? "编辑" : s.maxRoleKey === "delete" ? "删除" : "管理"}
-            </span>
-          )}
+          <span className="text-xs text-gray-400">
+            {s.maxRoleKey === "access" ? "访问" : s.maxRoleKey === "write" ? "编辑" : s.maxRoleKey === "delete" ? "删除" : "管理"}
+          </span>
         </td>
         <td className="whitespace-nowrap py-2">
           <button
