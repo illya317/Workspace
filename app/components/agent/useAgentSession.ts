@@ -40,7 +40,19 @@ export function useAgentSession() {
   const [loading, setLoading] = useState(false);
   const [drawerMsg, setDrawerMsg] = useState<AgentMessage | null>(null);
   const [pendingProposal, setPendingProposal] = useState<ProposalInfo | null>(null);
-  const [savedConversations, setSavedConversations] = useState<SavedConversation[]>(() => loadHistory());
+  const historyRef = useRef<SavedConversation[]>([]);
+  const [savedConversations, setSavedConversations] = useState<SavedConversation[]>(() => {
+    const raw = loadHistory();
+    const seen = new Set<string>();
+    return raw.filter((c) => {
+      const fp = `${c.title}|${c.messages.length}`;
+      if (seen.has(fp)) return false; seen.add(fp); return true;
+    });
+  });
+  useEffect(() => {
+    historyRef.current = savedConversations;
+    saveHistory(savedConversations);
+  }, [savedConversations]);
 
   const abortRef = useRef<AbortController | null>(null);
   const messagesRef = useRef<AgentMessage[]>([]);
@@ -144,8 +156,6 @@ export function useAgentSession() {
     setPendingProposal(null);
     setMood("idle");
   }, [addMessage]);
-
-  const historyRef = useRef<SavedConversation[]>(loadHistory());
 
   const clearMessages = useCallback(() => {
     if (messages.length > 0) {
