@@ -18,11 +18,13 @@ export interface SavedConversation {
   createdAt: number;
 }
 
+const HISTORY_KEY = "agentHistory_v2"; // v2: 修 bug，旧数据作废
+
 function loadHistory(): SavedConversation[] {
-  try { return JSON.parse(localStorage.getItem("agentHistory") || "[]"); } catch { return []; }
+  try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"); } catch { return []; }
 }
 function saveHistory(list: SavedConversation[]) {
-  try { localStorage.setItem("agentHistory", JSON.stringify(list.slice(0, 50))); } catch { /* */ }
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 50))); } catch { /* */ }
 }
 
 interface AgentResponse {
