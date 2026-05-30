@@ -81,13 +81,21 @@ export function useAgentSession() {
       // 3 秒后回到 idle
       setTimeout(() => setMood("idle"), 3000);
     } catch (err: unknown) {
-      if (err instanceof Error && err.name === "AbortError") return;
+      // 组件卸载、HMR 刷新、用户取消 → 静默忽略
+      if (err instanceof Error && (err.name === "AbortError" || err.name === "TypeError")) return;
       addMessage("system", "网络请求失败，请稍后重试");
       setMood("error");
     } finally {
       setLoading(false);
     }
   }, [loading, addMessage]);
+
+  // 组件卸载时取消飞行中的请求（HMR 刷新等场景）
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
