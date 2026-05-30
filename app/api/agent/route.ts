@@ -27,7 +27,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "message too long (max 2000)" }, { status: 400 });
   }
 
-  const response = await processMessage(body.message.trim(), user);
-
-  return NextResponse.json(response);
+  try {
+    const response = await processMessage(body.message.trim(), user);
+    return NextResponse.json(response);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Internal error";
+    console.error("[agent] processMessage error:", message);
+    return NextResponse.json(
+      { type: "error", message: `处理请求时出错：${message}` },
+      { status: 200 }, // 200 让前端正常解析，type:error 让 UI 显示红色
+    );
+  }
 }

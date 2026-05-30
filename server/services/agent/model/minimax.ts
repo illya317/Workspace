@@ -11,7 +11,7 @@ import type { AgentModelProvider, IntentResult, SummarizeInput } from "./provide
 
 const BASE = process.env.MINIMAX_BASE_URL || "https://api.minimaxi.com/anthropic";
 const API_KEY = process.env.MINIMAX_API_KEY || "";
-const MODEL = process.env.MINIMAX_MODEL || "MiniMax-M1";
+const MODEL = process.env.MINIMAX_MODEL || "MiniMax-M2.7";
 const MAX_TOKENS = 1024;
 
 async function chat(systemPrompt: string, userMessage: string): Promise<string> {
@@ -38,8 +38,9 @@ async function chat(systemPrompt: string, userMessage: string): Promise<string> 
   }
 
   const data = await res.json();
-  // Anthropic Messages 格式：content[0].text
-  return data?.content?.[0]?.text || "";
+  // MiniMax Anthropic 兼容 API：content 数组可能包含 thinking 和 text 块
+  const textBlock = data?.content?.find((b: { type: string }) => b.type === "text");
+  return textBlock?.text || "";
 }
 
 export const minimaxProvider: AgentModelProvider = {
