@@ -75,7 +75,6 @@ export default function AgentPanel({
     return () => document.removeEventListener("mousedown", onClick);
   }, [showHistory]);
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
   useEffect(() => { if (isOpen) setTimeout(() => inputRef.current?.focus(), 100); }, [isOpen]);
 
   function handleSend() {

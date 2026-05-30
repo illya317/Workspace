@@ -90,33 +90,32 @@ async function main() {
     const newRes = await p.resource.findUnique({ where: { key: newKey }, select: { id: true } });
     if (!oldRes || !newRes) continue;
 
-    // 迁移 grants（如果目标资源上还没有同用户同角色）
+    // 迁移 grants（保留 scopeId，唯一键: userId/resourceId/roleId/scopeId）
     const oldGrants = await p.userResourceRole.findMany({ where: { resourceId: oldRes.id } });
     for (const g of oldGrants) {
       const exists = await p.userResourceRole.findFirst({
-        where: { userId: g.userId, resourceId: newRes.id, roleId: g.roleId },
+        where: { userId: g.userId, resourceId: newRes.id, roleId: g.roleId, scopeId: g.scopeId ?? null },
       });
       if (!exists) {
-        await p.userResourceRole.create({ data: { userId: g.userId, resourceId: newRes.id, roleId: g.roleId } });
+        await p.userResourceRole.create({ data: { userId: g.userId, resourceId: newRes.id, roleId: g.roleId, scopeId: g.scopeId } });
       }
     }
-    // 同理迁移 position/department grants
     const oldPosGrants = await p.positionResourceRole.findMany({ where: { resourceId: oldRes.id } });
     for (const g of oldPosGrants) {
       const exists = await p.positionResourceRole.findFirst({
-        where: { positionId: g.positionId, resourceId: newRes.id, roleId: g.roleId },
+        where: { positionId: g.positionId, resourceId: newRes.id, roleId: g.roleId, scopeId: g.scopeId ?? null },
       });
       if (!exists) {
-        await p.positionResourceRole.create({ data: { positionId: g.positionId, resourceId: newRes.id, roleId: g.roleId } });
+        await p.positionResourceRole.create({ data: { positionId: g.positionId, resourceId: newRes.id, roleId: g.roleId, scopeId: g.scopeId } });
       }
     }
     const oldDeptGrants = await p.departmentResourceRole.findMany({ where: { resourceId: oldRes.id } });
     for (const g of oldDeptGrants) {
       const exists = await p.departmentResourceRole.findFirst({
-        where: { departmentId: g.departmentId, resourceId: newRes.id, roleId: g.roleId },
+        where: { departmentId: g.departmentId, resourceId: newRes.id, roleId: g.roleId, scopeId: g.scopeId ?? null },
       });
       if (!exists) {
-        await p.departmentResourceRole.create({ data: { departmentId: g.departmentId, resourceId: newRes.id, roleId: g.roleId } });
+        await p.departmentResourceRole.create({ data: { departmentId: g.departmentId, resourceId: newRes.id, roleId: g.roleId, scopeId: g.scopeId } });
       }
     }
 
