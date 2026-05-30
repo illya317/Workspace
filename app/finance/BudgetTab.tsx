@@ -8,9 +8,6 @@ import DeptBudgetTable from "./components/DeptBudgetTable";
 import RdBudgetFilters from "./components/RdBudgetFilters";
 import RdBudgetTable from "./components/RdBudgetTable";
 
-// FIXME: accountId/accountCode/accountActive 来自 API 运行时按 name 匹配，不是数据库 FK。
-// 同名科目（如不同公司/年度的"其他"）可能匹配到错误记录。
-// 如需真 FK，应建预算事实表或映射表持久化 accountId。
 export interface DeptBudgetItem {
   dept: string;
   account: string;

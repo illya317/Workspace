@@ -33,7 +33,9 @@ export default function ImportClient({ user }: { user: SessionUser }) {
           setCompanyCode((prev) => prev || list[0].code);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        setResult({ success: false, message: "加载公司列表失败" });
+      });
   }, []);
 
   const handleFileChange = useCallback((newFile: File | null) => {

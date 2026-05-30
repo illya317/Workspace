@@ -201,7 +201,7 @@ export default function VoucherTab() {
               ))}
               {vouchers.length === 0 && (
                 <tr>
-                  <td colSpan={9} className="px-3 py-8 text-center text-gray-400">
+                  <td colSpan={8} className="px-3 py-8 text-center text-gray-400">
                     暂无凭证
                   </td>
                 </tr>
