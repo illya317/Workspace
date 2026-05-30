@@ -14,7 +14,7 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const NORMALIZED_DIR = "/Users/koito/Desktop/.财务数据库/data/normalized";
+const NORMALIZED_DIR = process.env.FINANCE_COST_DATA_DIR || path.join(process.cwd(), "prisma/seed-data/finance-cost/normalized");
 const DRY_RUN = process.argv.includes("--dry-run");
 
 // Load Prisma Client dynamically (ESM compatible)

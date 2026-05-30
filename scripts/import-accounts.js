@@ -1,6 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const xlsx = require('xlsx');
 const fs = require('fs');
+const path = require('path');
 const iconv = require('iconv-lite');
 
 const prisma = new PrismaClient();
@@ -75,9 +76,10 @@ function parseAccountTable(path) {
 }
 
 async function main() {
+  const baseDir = process.env.ACCOUNT_IMPORT_DIR || path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表');
   const files = [
-    { path: '/Users/koito/Downloads/科目表-上海天力通2026.xls', code: '02', name: '上海天力通' },
-    { path: '/Users/koito/Downloads/科目表-丰华生物2026.xls', code: '01', name: '丰华生物' },
+    { path: path.join(baseDir, '科目表-上海天力通2026.xls'), code: '02', name: '上海天力通' },
+    { path: path.join(baseDir, '科目表-丰华生物2026.xls'), code: '01', name: '丰华生物' },
   ];
 
   for (const file of files) {
