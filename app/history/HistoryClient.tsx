@@ -3,9 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import UserMenu from "@/app/components/UserMenu";
-import NavLink from "@/app/components/NavLink";
 import { SessionUser } from '@/lib/types';
 
 interface ReportItemData {
@@ -31,9 +28,9 @@ interface Report {
   };
 }
 
-export default function HistoryPage({ hideShell }: { hideShell?: boolean }) {
+export default function HistoryPage({ hideShell: _hideShell }: { hideShell?: boolean }) {
   const router = useRouter();
-  const [user, setUser] = useState<SessionUser | null>(null);
+  const [_user, setUser] = useState<SessionUser | null>(null);
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<number | null>(null);

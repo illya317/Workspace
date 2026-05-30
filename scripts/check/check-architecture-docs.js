@@ -30,6 +30,7 @@ const OPTIONAL_DIRS = [
   "docs",
   "history",
   "hooks",
+  "library",
   "login",
   "portal",
   "settings",

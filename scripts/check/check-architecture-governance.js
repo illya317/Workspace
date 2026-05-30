@@ -41,6 +41,7 @@ const ALLOWED_API_ROOTS = new Set([
   "finance",
   "hr",
   "inventory",
+  "library",
   "my-api-key",
   "my-targets",
   "position-descriptions",

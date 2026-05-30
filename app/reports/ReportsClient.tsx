@@ -1,17 +1,12 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import UserMenu from "@/app/components/UserMenu";
-import NavLink from "@/app/components/NavLink";
 import TargetSwitcher from "@/app/components/TargetSwitcher";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import ReportEditor from "./ReportEditor";
 import { useReports } from "./useReports";
 
-export default function ReportPage({ hideShell }: { hideShell?: boolean }) {
-  const router = useRouter();
+export default function ReportPage({ hideShell: _hideShell }: { hideShell?: boolean }) {
   const { toast, showToast, closeToast } = useToast();
 
   const {
