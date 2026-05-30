@@ -67,7 +67,7 @@ cursor = conn.cursor()
 # Clear existing
 cursor.execute('DELETE FROM "Contract"')
 
-base = '/Users/koito/Desktop'
+base = os.environ.get('CONTRACT_IMPORT_DIR', os.path.join(os.path.dirname(__file__), '..', '..', 'prisma', 'seed-data', '合同'))
 
 # 北京办公区
 import_csv(cursor, os.path.join(base, '丰华合同台帐-北京办公区.csv'), {
