@@ -90,7 +90,7 @@ export const MODULES: ModuleDef[] = [
   },
   { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple",
     children: [
-      { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions", requiredPerm: undefined },
+      { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions/GMP", requiredPerm: undefined },
       { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company", requiredPerm: undefined },
       { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense", requiredPerm: undefined },
       { key: "api-guide", label: "API 接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide", requiredPerm: undefined },

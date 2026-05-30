@@ -15,7 +15,7 @@ interface TreeNode {
   children?: TreeNode[];
 }
 
-export default function GmpPositionsPage() {
+export default function GmpPositionsPage({ hideShell }: { hideShell?: boolean }) {
   const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -118,6 +118,7 @@ export default function GmpPositionsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {!hideShell && (
       <nav className="bg-white shadow-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
@@ -125,12 +126,13 @@ export default function GmpPositionsPage() {
             <span className="text-sm text-gray-400">|</span><span className="text-sm font-medium text-gray-600">文档中心</span>
           </div>
           <div className="flex items-center gap-5">
-            <button onClick={() => router.push("/portal")} className="text-sm text-gray-500 hover:text-emerald-600">返回入口</button>
+            <button onClick={() => router.push("/portal")} className="text-sm text-gray-500 hover:text-emerald-600">返回</button>
             <NavLink href="/reports">工作汇报</NavLink><NavLink href="/works">工作清单</NavLink><NavLink href="/history">历史记录</NavLink>
             <UserMenu user={user} />
           </div>
         </div>
       </nav>
+      )}
 
       <main className="mx-auto max-w-5xl px-4 py-8">
         <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
