@@ -10,7 +10,7 @@ import { SessionUser } from "@/lib/types";
 import UsernameModal from "./UsernameModal";
 import PasswordModal from "./PasswordModal";
 
-export default function SettingsClient({ user: initialUser }: { user: SessionUser }) {
+export default function SettingsClient({ user: initialUser, hideShell }: { user: SessionUser; hideShell?: boolean }) {
   const router = useRouter();
   const [user, setUser] = useState<SessionUser>(initialUser);
 
@@ -26,6 +26,7 @@ export default function SettingsClient({ user: initialUser }: { user: SessionUse
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {!hideShell && (
       <nav className="bg-white shadow-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
@@ -40,6 +41,7 @@ export default function SettingsClient({ user: initialUser }: { user: SessionUse
           </div>
         </div>
       </nav>
+      )}
 
       <main className="mx-auto max-w-3xl px-4 py-10">
         <h1 className="mb-8 text-3xl font-bold text-gray-800">设置</h1>
