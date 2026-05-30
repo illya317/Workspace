@@ -4,6 +4,7 @@
  */
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/server/auth/session";
+import { checkPermission } from "@/lib/auth";
 import { processMessage } from "@/server/services/agent/orchestrator";
 import type { HistoryMessage } from "@/server/services/agent/model/provider";
 
@@ -11,6 +12,10 @@ export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (!(await checkPermission(user.id, "system.agent", "access"))) {
+    return NextResponse.json({ error: "无权限使用智能体" }, { status: 403 });
   }
 
   let body: { message?: string; history?: HistoryMessage[] };
