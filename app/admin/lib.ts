@@ -143,8 +143,11 @@ export function isTopLevelResource(key: string): boolean {
     "work",
     "docs",
     "finance",
-    "inventory",
-    "contract",
+    "production",
+    "administration",
+    "library",
+    "external",
+    "legal",
   ].includes(key);
 }
 

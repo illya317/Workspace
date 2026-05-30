@@ -60,7 +60,7 @@ export async function getUserDepartmentAdmins(userId: number): Promise<GrantResu
     prisma.userResourceRole.findMany({
       where: {
         userId,
-        resource: { key: "people.org" },
+        resource: { key: "people" },
         role: { key: "admin" },
       },
       include: { resource: true, role: true },
@@ -75,7 +75,7 @@ export async function getUserDepartmentAdmins(userId: number): Promise<GrantResu
     const posGrants = await prisma.positionResourceRole.findMany({
       where: {
         positionId: { in: posIds },
-        resource: { key: "people.org" },
+        resource: { key: "people" },
         role: { key: "admin" },
       },
       include: { resource: true, role: true },
@@ -87,7 +87,7 @@ export async function getUserDepartmentAdmins(userId: number): Promise<GrantResu
     const deptGrants = await prisma.departmentResourceRole.findMany({
       where: {
         departmentId: { in: deptIds },
-        resource: { key: "people.org" },
+        resource: { key: "people" },
         role: { key: "admin" },
       },
       include: { resource: true, role: true },

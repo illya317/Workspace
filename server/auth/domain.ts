@@ -118,16 +118,16 @@ export async function checkFinanceReportAccess(
   if (await checkPermission(userId, "system", "admin")) return true;
   if (roleKey === "access") {
     return (
-      (await checkPermission(userId, "finance.report", "access")) ||
-      (await checkPermission(userId, "finance.report", "write")) ||
-      (await checkPermission(userId, "finance.report", "delete")) ||
+      (await checkPermission(userId, "finance.statement", "access")) ||
+      (await checkPermission(userId, "finance.statement", "write")) ||
+      (await checkPermission(userId, "finance.statement", "delete")) ||
       (await checkPermission(userId, "finance", "access")) ||
       (await checkPermission(userId, "finance", "write")) ||
       (await checkPermission(userId, "finance", "delete"))
     );
   }
   return (
-    (await checkPermission(userId, "finance.report", roleKey)) ||
+    (await checkPermission(userId, "finance.statement", roleKey)) ||
     (await checkPermission(userId, "finance", roleKey))
   );
 }
@@ -237,6 +237,6 @@ export async function checkInventoryAccess(userId: number): Promise<boolean> {
 export async function checkContractAccess(userId: number): Promise<boolean> {
   return (
     (await checkPermission(userId, "system", "admin")) ||
-    (await checkPermission(userId, "contract", "access"))
+    (await checkPermission(userId, "administration.contract", "access"))
   );
 }

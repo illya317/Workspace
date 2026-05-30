@@ -73,12 +73,12 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     checkPermissionWithContext(ctx, "finance", "access"),
     checkPermissionWithContext(ctx, "finance.cost", "access"),
     checkPermissionWithContext(ctx, "finance.ledger", "access"),
-    checkPermissionWithContext(ctx, "finance.report", "access"),
+    checkPermissionWithContext(ctx, "finance.statement", "access"),
     checkPermissionWithContext(ctx, "finance.budget", "access"),
     checkPermissionWithContext(ctx, "finance.analysis", "access"),
     checkPermissionWithContext(ctx, "finance.import", "access"),
     checkPermissionWithContext(ctx, "inventory", "access"),
-    checkPermissionWithContext(ctx, "contract", "access"),
+    checkPermissionWithContext(ctx, "administration.contract", "access"),
   ]);
 
   const hasHR = hasHRAccess || hasHRWrite || hasHRDelete;

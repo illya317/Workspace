@@ -73,15 +73,58 @@ async function main() {
   await upsertResource("legal.chat", "法务咨询", "legal");
   await upsertResource("legal.document", "法律文书", "legal");
 
-  // ── 清理旧资源（先删关联 grants，再删资源） ──
-  const OLD_KEYS = ["contract", "contract.list", "contract.edit", "docs.policy", "docs.manual", "docs.form", "people.employee", "people.org"];
-  const oldIds = (await p.resource.findMany({ where: { key: { in: OLD_KEYS } }, select: { id: true } })).map((r) => r.id);
+  // ── 迁移旧 grants 到新资源 ──
+  const MIGRATIONS: Record<string, string> = {
+    "contract": "administration",
+    "contract.list": "administration.contract",
+    "contract.edit": "administration.contract",
+    "docs.policy": "docs",
+    "docs.manual": "docs",
+    "docs.form": "docs",
+    "people.employee": "people.roster",
+    "people.org": "people",
+  };
 
-  if (oldIds.length > 0) {
-    await p.userResourceRole.deleteMany({ where: { resourceId: { in: oldIds } } });
-    await p.positionResourceRole.deleteMany({ where: { resourceId: { in: oldIds } } });
-    await p.departmentResourceRole.deleteMany({ where: { resourceId: { in: oldIds } } });
-    await p.resource.deleteMany({ where: { id: { in: oldIds } } });
+  for (const [oldKey, newKey] of Object.entries(MIGRATIONS)) {
+    const oldRes = await p.resource.findUnique({ where: { key: oldKey }, select: { id: true } });
+    const newRes = await p.resource.findUnique({ where: { key: newKey }, select: { id: true } });
+    if (!oldRes || !newRes) continue;
+
+    // 迁移 grants（如果目标资源上还没有同用户同角色）
+    const oldGrants = await p.userResourceRole.findMany({ where: { resourceId: oldRes.id } });
+    for (const g of oldGrants) {
+      const exists = await p.userResourceRole.findFirst({
+        where: { userId: g.userId, resourceId: newRes.id, roleId: g.roleId },
+      });
+      if (!exists) {
+        await p.userResourceRole.create({ data: { userId: g.userId, resourceId: newRes.id, roleId: g.roleId } });
+      }
+    }
+    // 同理迁移 position/department grants
+    const oldPosGrants = await p.positionResourceRole.findMany({ where: { resourceId: oldRes.id } });
+    for (const g of oldPosGrants) {
+      const exists = await p.positionResourceRole.findFirst({
+        where: { positionId: g.positionId, resourceId: newRes.id, roleId: g.roleId },
+      });
+      if (!exists) {
+        await p.positionResourceRole.create({ data: { positionId: g.positionId, resourceId: newRes.id, roleId: g.roleId } });
+      }
+    }
+    const oldDeptGrants = await p.departmentResourceRole.findMany({ where: { resourceId: oldRes.id } });
+    for (const g of oldDeptGrants) {
+      const exists = await p.departmentResourceRole.findFirst({
+        where: { departmentId: g.departmentId, resourceId: newRes.id, roleId: g.roleId },
+      });
+      if (!exists) {
+        await p.departmentResourceRole.create({ data: { departmentId: g.departmentId, resourceId: newRes.id, roleId: g.roleId } });
+      }
+    }
+
+    // 删旧 grants + 旧资源
+    await p.userResourceRole.deleteMany({ where: { resourceId: oldRes.id } });
+    await p.positionResourceRole.deleteMany({ where: { resourceId: oldRes.id } });
+    await p.departmentResourceRole.deleteMany({ where: { resourceId: oldRes.id } });
+    await p.resource.delete({ where: { id: oldRes.id } });
   }
 
   // inventory 子资源 → production 下

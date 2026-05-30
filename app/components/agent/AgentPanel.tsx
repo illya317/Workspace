@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import type { AgentMood, AgentMessage } from "./types";
 import type { SavedConversation } from "./useAgentSession";
 import AgentAvatar from "./AgentAvatar";
+import AgentMessageList from "./AgentMessageList";
 import AgentReportDrawer from "./AgentReportDrawer";
 
 interface Props {
@@ -33,16 +34,6 @@ const moodLabels: Record<AgentMood, string> = {
   error: "出错了",
 };
 
-/** 去掉 LLM 输出的 markdown 标记 */
-function stripMarkdown(text: string): string {
-  return text
-    .replace(/\*\*(.+?)\*\*/g, "$1")
-    .replace(/__(.+?)__/g, "$1")
-    .replace(/`(.+?)`/g, "$1")
-    .replace(/^#{1,6}\s+/gm, "")
-    .replace(/^\s*[-*+]\s+/gm, "• ");
-}
-
 export default function AgentPanel({
   mood, messages, loading, drawerMsg, onOpenDrawer, onCloseDrawer,
   isOpen, onClose, onSend, onClear, savedConversations, onLoadConversation,
@@ -51,7 +42,6 @@ export default function AgentPanel({
   const [input, setInput] = useState("");
   const [showHistory, setShowHistory] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
   const historyRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ sx: number; sy: number; px: number; py: number } | null>(null);
   const [panelPos, setPanelPos] = useState<{ x: number; y: number } | null>(null);
@@ -161,72 +151,12 @@ export default function AgentPanel({
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3" style={{ minHeight: 160 }}>
-          {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <AgentAvatar mood="idle" size={40} />
-              <p className="mt-3 text-sm text-gray-400">可以帮你查询数据、生成报告</p>
-              <div className="mt-4 flex flex-wrap gap-1.5 justify-center">
-                {!hintsLoaded ? (
-                  <span className="text-xs text-gray-300">加载中...</span>
-                ) : hints && hints.length > 0 ? (
-                  hints.map((hint) => (
-                    <button key={hint} onClick={() => { setInput(hint); inputRef.current?.focus(); }}
-                      className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
-                      {hint}
-                    </button>
-                  ))
-                ) : (
-                  <span className="text-xs text-gray-400">暂无可用功能，请联系管理员</span>
-                )}
-              </div>
-            </div>
-          ) : (
-            messages.map((msg) => (
-              <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                {msg.role !== "user" && (
-                  <div className="mr-2 mt-0.5 shrink-0">
-                    <AgentAvatar mood={msg.role === "system" ? "error" : mood} size={20} />
-                  </div>
-                )}
-                <div className="max-w-[82%]">
-                  <div className={`rounded-xl px-3 py-2 text-sm whitespace-pre-wrap ${
-                    msg.role === "user"
-                      ? "bg-emerald-500 text-white"
-                      : msg.role === "system"
-                        ? "bg-amber-50 text-amber-700 border border-amber-200"
-                        : "bg-gray-100 text-gray-800"
-                  }`}>
-                    {stripMarkdown(msg.content)}
-                  </div>
-                  {/* 查看报告按钮 */}
-                  {msg.role === "agent" && !!msg.data && (
-                    <button
-                      onClick={() => onOpenDrawer(msg)}
-                      className="mt-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
-                    >
-                      查看报告 →
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))
-          )}
-
-          {loading && (
-            <div className="flex justify-start">
-              <div className="mr-2 mt-0.5 shrink-0"><AgentAvatar mood="thinking" size={20} /></div>
-              <div className="bg-gray-100 rounded-xl px-3 py-2 text-sm text-gray-500">
-                <span className="inline-flex gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }} />
-                </span>
-              </div>
-            </div>
-          )}
-          <div ref={bottomRef} />
-        </div>
+        <AgentMessageList
+          messages={messages} mood={mood} loading={loading}
+          hints={hints || []} hintsLoaded={hintsLoaded || false}
+          onHintClick={(h) => { setInput(h); inputRef.current?.focus(); }}
+          onOpenDrawer={onOpenDrawer}
+        />
 
         {/* Input */}
         <div className="border-t px-4 py-3">
