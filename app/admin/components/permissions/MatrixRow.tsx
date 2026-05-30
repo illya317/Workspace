@@ -36,11 +36,12 @@ export default function MatrixRow({ subject, s }: MatrixRowProps) {
         {s.roles.map((role) => {
           const state = s.getPermissionState(subject, role.key);
           const roleLevel = ROLE_HIERARCHY[role.key] ?? 0;
-          const exceeds = role.key !== "admin" && roleLevel > maxLevel;
+          const exceeds = (role.key !== "admin" && roleLevel > maxLevel)
+            || (role.key === "admin" && !s.isSystemAdmin);
           return (
             <td key={role.key} className="whitespace-nowrap py-2 pr-3 text-center">
               {exceeds ? (
-                <span className="text-xs text-gray-300" title={`最高仅${s.maxRoleKey === "access" ? "访问" : s.maxRoleKey === "write" ? "编辑" : s.maxRoleKey === "delete" ? "删除" : "管理"}`}>—</span>
+                <span className="text-xs text-gray-300" title={role.key === "admin" && !s.isSystemAdmin ? "仅系统管理员可分配管理权限" : `最高仅${s.maxRoleKey === "access" ? "访问" : s.maxRoleKey === "write" ? "编辑" : s.maxRoleKey === "delete" ? "删除" : "管理"}`}>—</span>
               ) : (
                 <PermissionCell
                   state={state}
