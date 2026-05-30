@@ -10,8 +10,14 @@ export function useSystemAdminIds() {
     fetch("/api/admin/users")
       .then((r) => r.json())
       .then((data) => {
-        const users = (data.users || []) as Array<{ id: number; isWorkListAdmin?: boolean }>;
-        setSystemAdminIds(new Set(users.filter((u) => u.isWorkListAdmin).map((u) => u.id)));
+        const users = (data.users || []) as Array<{
+          id: number;
+          resourceRoles?: Array<{ resourceKey: string; roleKey: string }>;
+        }>;
+        const ids = users
+          .filter((u) => u.resourceRoles?.some((r) => r.resourceKey === "system" && r.roleKey === "admin"))
+          .map((u) => u.id);
+        setSystemAdminIds(new Set(ids));
       })
       .catch(() => {});
   }, []);
