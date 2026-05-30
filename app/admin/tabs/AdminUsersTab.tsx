@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useRef } from "react";
 import { getInitials } from "@/lib/search";
+import { summarizeResourcePermissions, formatSummaryTooltip, ROLE_COLORS } from "../lib/permission-summary";
+import type { ResourceItem } from "../types";
+import type { PermissionGrantLike } from "../lib/permission-summary";
 
 function copyFallback(text: string) {
   const el = document.createElement("textarea");
@@ -20,17 +23,23 @@ interface UserItem {
   employeeId: string | null;
   canLogin: boolean;
   isWorkListAdmin: boolean;
-  canAccessHR: boolean;
-  canEditHR: boolean;
-  canDeleteHR: boolean;
-  canAccessWorks: boolean;
-  canAccessFinance: boolean;
-  canAccessInventory: boolean;
-  canAccessContract: boolean;
-  canAccessDocs: boolean;
+  resourceRoles: Array<{ resourceKey: string; roleKey: string }>;
 }
 
-export default function AdminUsersTab({ showToast }: { showToast: (msg: string, type?: "success" | "error") => void }) {
+const ROLE_BG: Record<string, string> = {
+  purple: "bg-purple-50 text-purple-700",
+  red: "bg-red-50 text-red-700",
+  emerald: "bg-emerald-50 text-emerald-700",
+  gray: "bg-gray-100 text-gray-600",
+  blue: "bg-blue-50 text-blue-600",
+};
+
+interface Props {
+  showToast: (msg: string, type?: "success" | "error") => void;
+  resources: ResourceItem[];
+}
+
+export default function AdminUsersTab({ showToast, resources }: Props) {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
@@ -80,13 +89,9 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
         const msg = `${user.name}您好，您的用户是${user.username || "(未设置)"}，密码是${data.password}`;
         if (navigator.clipboard?.writeText) {
           try { await navigator.clipboard.writeText(msg); } catch { copyFallback(msg); }
-        } else {
-          copyFallback(msg);
-        }
+        } else { copyFallback(msg); }
         showToast("已复制到剪贴板", "success");
-      } else {
-        showToast("重置失败", "error");
-      }
+      } else { showToast("重置失败", "error"); }
     } catch { showToast("网络错误", "error"); }
   }
 
@@ -167,37 +172,56 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
               </tr>
             </thead>
             <tbody>
-              {filtered.map((u) => (
-                <tr key={u.id} className="border-b hover:bg-gray-50">
-                  <td className="px-3 py-2 text-gray-500 font-mono">{u.id}</td>
-                  <td className="px-3 py-2 font-medium text-gray-800">
-                    {u.name}
-                    {u.employeeId && <span className="text-gray-400 ml-1 text-[11px] font-normal">/ {u.employeeId}</span>}
-                  </td>
-                  <td className="px-3 py-2 text-gray-500 font-mono">{u.username || "-"}</td>
-                  <td className="px-3 py-2">
-                    <button onClick={() => toggleLogin(u.id, u.canLogin)}
-                      className={`rounded px-2 py-0.5 text-[11px] font-medium cursor-pointer border ${u.canLogin ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" : "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"}`}
-                    >
-                      {u.canLogin ? "启用" : "停用"}
-                    </button>
-                  </td>
-                  <td className="px-3 py-2">
-                    <div className="flex flex-wrap gap-1">
-                      {u.isWorkListAdmin && <span className="rounded bg-purple-50 px-1 py-0.5 text-[10px] text-purple-600">管理员</span>}
-                      {u.canDeleteHR ? <span className="rounded bg-red-50 px-1 py-0.5 text-[10px] text-red-600">人事删除</span> : u.canEditHR ? <span className="rounded bg-emerald-50 px-1 py-0.5 text-[10px] text-emerald-600">人事编辑</span> : u.canAccessHR ? <span className="rounded bg-blue-50 px-1 py-0.5 text-[10px] text-blue-600">人事</span> : null}
-                      {u.canAccessWorks && <span className="rounded bg-amber-50 px-1 py-0.5 text-[10px] text-amber-600">工作</span>}
-                      {u.canAccessFinance && <span className="rounded bg-cyan-50 px-1 py-0.5 text-[10px] text-cyan-600">财务</span>}
-                      {u.canAccessInventory && <span className="rounded bg-orange-50 px-1 py-0.5 text-[10px] text-orange-600">库存</span>}
-                      {u.canAccessContract && <span className="rounded bg-indigo-50 px-1 py-0.5 text-[10px] text-indigo-600">合同</span>}
-                      {u.canAccessDocs && <span className="rounded bg-gray-100 px-1 py-0.5 text-[10px] text-gray-600">文档</span>}
-                    </div>
-                  </td>
-                  <td className="px-3 py-2">
-                    <button onClick={() => resetPassword(u)} className="text-xs text-blue-500 hover:text-blue-700">重置密码</button>
-                  </td>
-                </tr>
-              ))}
+              {filtered.map((u) => {
+                const summaries = summarizeResourcePermissions(
+                  resources,
+                  u.resourceRoles as PermissionGrantLike[],
+                );
+                return (
+                  <tr key={u.id} className="border-b hover:bg-gray-50">
+                    <td className="px-3 py-2 text-gray-500 font-mono">{u.id}</td>
+                    <td className="px-3 py-2 font-medium text-gray-800">
+                      {u.name}
+                      {u.employeeId && <span className="text-gray-400 ml-1 text-[11px] font-normal">/ {u.employeeId}</span>}
+                    </td>
+                    <td className="px-3 py-2 text-gray-500 font-mono">{u.username || "-"}</td>
+                    <td className="px-3 py-2">
+                      <button onClick={() => toggleLogin(u.id, u.canLogin)}
+                        className={`rounded px-2 py-0.5 text-[11px] font-medium cursor-pointer border ${u.canLogin ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" : "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"}`}
+                      >
+                        {u.canLogin ? "启用" : "停用"}
+                      </button>
+                    </td>
+                    <td className="px-3 py-2">
+                      <div className="flex flex-wrap gap-1">
+                        {u.isWorkListAdmin && (
+                          <span className="rounded bg-purple-50 px-1 py-0.5 text-[10px] text-purple-600">管理员</span>
+                        )}
+                        {summaries.map((s) => {
+                          const color = ROLE_COLORS[s.roleKey] || "gray";
+                          const label = s.source === "parent"
+                            ? s.label
+                            : s.totalChildren > 0
+                              ? `${s.label} ${s.coveredChildren}/${s.totalChildren}`
+                              : s.label;
+                          return (
+                            <span
+                              key={s.key}
+                              className={`rounded px-1 py-0.5 text-[10px] ${ROLE_BG[color] || ROLE_BG.gray}`}
+                              title={formatSummaryTooltip(s)}
+                            >
+                              {label}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </td>
+                    <td className="px-3 py-2">
+                      <button onClick={() => resetPassword(u)} className="text-xs text-blue-500 hover:text-blue-700">重置密码</button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

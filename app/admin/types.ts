@@ -34,6 +34,9 @@ export interface ResourceItem {
   name: string;
   description: string | null;
   userCount?: number;
+  maxRoleKey?: string;
+  effectiveMaxRoleKey?: string;
+  scopeTypes?: string | null;
   children?: ResourceItem[];
 }
 

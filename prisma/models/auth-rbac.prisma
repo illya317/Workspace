@@ -39,6 +39,8 @@ model Resource {
   parentId        Int?
   /// 该资源可授予的最高角色：access | write | delete | admin
   maxRoleKey      String                   @default("admin")
+  /// 逗号分隔的 scope 类型，如 "department,project"。null 表示不支持 scoped 授权
+  scopeTypes      String?
   departmentRoles DepartmentResourceRole[]
   positionRoles   PositionResourceRole[]
   parent          Resource?                @relation("ResHierarchy", fields: [parentId], references: [id])

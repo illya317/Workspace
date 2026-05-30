@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
+import type { ResourceItem } from "../types";
 
 export type ScopeMode = "global" | "department" | "project";
 
@@ -12,17 +13,41 @@ export interface ScopeState {
 }
 
 /**
- * Manages scope selection state for scoped resources (work.report).
- * Only active when the selected resource supports scoping.
+ * Manages scope selection state for scoped resources.
+ * scopeTypes is read from the selected resource's DB field.
+ * E.g. "department,project" → supports department and project scopes.
  */
-export function usePermissionScope(resourceKey: string | null) {
+export function usePermissionScope(
+  resourceKey: string | null,
+  resources: ResourceItem[],
+) {
   const [scopeMode, setScopeMode] = useState<ScopeMode>("global");
   const [scopeDepartmentId, setScopeDepartmentId] = useState<number | null>(null);
   const [scopeProjectId, setScopeProjectId] = useState<number | null>(null);
   const [scopeTargetName, setScopeTargetName] = useState("");
 
-  // Whether this resource supports scoping
-  const supportsScope = resourceKey === "work.report";
+  // Find the selected resource to read its scopeTypes
+  const selectedResource = useMemo(() => {
+    if (!resourceKey) return null;
+    function find(nodes: ResourceItem[]): ResourceItem | null {
+      for (const n of nodes) {
+        if (n.key === resourceKey) return n;
+        if (n.children) {
+          const f = find(n.children);
+          if (f) return f;
+        }
+      }
+      return null;
+    }
+    return find(resources);
+  }, [resourceKey, resources]);
+
+  // DB-driven: supports scope if resource.scopeTypes is non-null
+  const supportsScope = !!(selectedResource?.scopeTypes);
+  const scopeTypeList = useMemo(
+    () => (selectedResource?.scopeTypes || "").split(",").filter(Boolean),
+    [selectedResource?.scopeTypes],
+  );
 
   // Whether a concrete target has been selected for non-global modes
   const isScopeValid = useMemo(() => {
@@ -60,7 +85,7 @@ export function usePermissionScope(resourceKey: string | null) {
     scopeProjectId, setScopeProjectId,
     scopeTargetName, setScopeTargetName,
     scopeId, isScopeValid,
-    supportsScope, resetScope,
+    supportsScope, scopeTypeList, resetScope,
   };
 }
 

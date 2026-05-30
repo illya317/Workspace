@@ -52,19 +52,29 @@ export default function ScopeSelector({ scope, resourceName }: Props) {
         </span>
       </div>
 
-      {/* Mode selector */}
+      {/* Mode selector — dynamic from scopeTypeList */}
       <div className="mb-2 flex gap-1 rounded-md bg-white p-0.5 shadow-sm w-fit">
-        {(["global", "department", "project"] as const).map((mode) => (
+        <button
+          onClick={() => scope.setScopeMode("global")}
+          className={`rounded px-3 py-1 text-xs font-medium transition-colors ${
+            scope.scopeMode === "global"
+              ? "bg-emerald-500 text-white shadow-sm"
+              : "text-gray-500 hover:text-gray-700"
+          }`}
+        >
+          全部
+        </button>
+        {scope.scopeTypeList.map((t) => (
           <button
-            key={mode}
-            onClick={() => scope.setScopeMode(mode)}
+            key={t}
+            onClick={() => scope.setScopeMode(t as "department" | "project")}
             className={`rounded px-3 py-1 text-xs font-medium transition-colors ${
-              scope.scopeMode === mode
+              scope.scopeMode === t
                 ? "bg-emerald-500 text-white shadow-sm"
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            {mode === "global" ? "全部" : mode === "department" ? "按部门" : "按项目"}
+            {t === "department" ? "按部门" : t === "project" ? "按项目" : `按${t}`}
           </button>
         ))}
       </div>

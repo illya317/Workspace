@@ -1,17 +1,27 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { getAvailableRoles } from "@/lib/permissions";
 import type { ResourceItem, Subject, Grant, SubjectType } from "../types";
 import { ROLE_META, computePermissionState } from "../lib";
 import { usePermissionFilters } from "./usePermissionFilters";
 import { usePermissionScope } from "./usePermissionScope";
 import { useSystemAdminIds } from "./useSystemAdminIds";
 
+function findResourceInTree(nodes: ResourceItem[], key: string): ResourceItem | null {
+  for (const n of nodes) {
+    if (n.key === key) return n;
+    if (n.children) {
+      const f = findResourceInTree(n.children, key);
+      if (f) return f;
+    }
+  }
+  return null;
+}
+
 export type PermissionsTabState = ReturnType<typeof usePermissionsTab>;
 
 export function usePermissionsTab(
-  _resources: ResourceItem[],
+  resources: ResourceItem[],
   showToast: (msg: string, type?: "success" | "error") => void
 ) {
   const [subjectType, setSubjectType] = useState<SubjectType>("user");
@@ -27,15 +37,22 @@ export function usePermissionsTab(
   const [loading, setLoading] = useState(false);
 
   const systemAdminIds = useSystemAdminIds();
-  const scope = usePermissionScope(selectedResource);
+  const scope = usePermissionScope(selectedResource, resources);
 
   const roles = useMemo(() => {
-    const keys = getAvailableRoles(selectedResource);
-    return keys.map((k) => ({
-      key: k,
-      ...(ROLE_META[k] || { name: k, color: "gray" }),
-    }));
-  }, [selectedResource]);
+    // DB-driven: find effectiveMaxRoleKey from resource tree (not hardcoded fallback)
+    let maxRole: string = "admin";
+    if (selectedResource) {
+      const found = findResourceInTree(resources, selectedResource);
+      if (found?.effectiveMaxRoleKey) maxRole = found.effectiveMaxRoleKey;
+    }
+    const ROLE_HIERARCHY: Record<string, number> = { access: 0, write: 1, delete: 2, admin: 3 };
+    const maxLevel = ROLE_HIERARCHY[maxRole] ?? 3;
+    const allKeys = ["access", "write", "delete", "admin"] as const;
+    return allKeys
+      .filter((k) => (ROLE_HIERARCHY[k] ?? 0) <= maxLevel)
+      .map((k) => ({ key: k, ...(ROLE_META[k] || { name: k, color: "gray" }) }));
+  }, [selectedResource, resources]);
 
   const loadData = useCallback(async () => {
     setLoading(true);

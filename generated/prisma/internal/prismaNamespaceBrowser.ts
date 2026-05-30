@@ -158,7 +158,8 @@ export const ResourceScalarFieldEnum = {
   level: 'level',
   sortOrder: 'sortOrder',
   parentId: 'parentId',
-  maxRoleKey: 'maxRoleKey'
+  maxRoleKey: 'maxRoleKey',
+  scopeTypes: 'scopeTypes'
 } as const
 
 export type ResourceScalarFieldEnum = (typeof ResourceScalarFieldEnum)[keyof typeof ResourceScalarFieldEnum]

@@ -49,6 +49,7 @@ export type ResourceMinAggregateOutputType = {
   sortOrder: number | null
   parentId: number | null
   maxRoleKey: string | null
+  scopeTypes: string | null
 }
 
 export type ResourceMaxAggregateOutputType = {
@@ -60,6 +61,7 @@ export type ResourceMaxAggregateOutputType = {
   sortOrder: number | null
   parentId: number | null
   maxRoleKey: string | null
+  scopeTypes: string | null
 }
 
 export type ResourceCountAggregateOutputType = {
@@ -71,6 +73,7 @@ export type ResourceCountAggregateOutputType = {
   sortOrder: number
   parentId: number
   maxRoleKey: number
+  scopeTypes: number
   _all: number
 }
 
@@ -98,6 +101,7 @@ export type ResourceMinAggregateInputType = {
   sortOrder?: true
   parentId?: true
   maxRoleKey?: true
+  scopeTypes?: true
 }
 
 export type ResourceMaxAggregateInputType = {
@@ -109,6 +113,7 @@ export type ResourceMaxAggregateInputType = {
   sortOrder?: true
   parentId?: true
   maxRoleKey?: true
+  scopeTypes?: true
 }
 
 export type ResourceCountAggregateInputType = {
@@ -120,6 +125,7 @@ export type ResourceCountAggregateInputType = {
   sortOrder?: true
   parentId?: true
   maxRoleKey?: true
+  scopeTypes?: true
   _all?: true
 }
 
@@ -218,6 +224,7 @@ export type ResourceGroupByOutputType = {
   sortOrder: number
   parentId: number | null
   maxRoleKey: string
+  scopeTypes: string | null
   _count: ResourceCountAggregateOutputType | null
   _avg: ResourceAvgAggregateOutputType | null
   _sum: ResourceSumAggregateOutputType | null
@@ -252,6 +259,7 @@ export type ResourceWhereInput = {
   sortOrder?: Prisma.IntFilter<"Resource"> | number
   parentId?: Prisma.IntNullableFilter<"Resource"> | number | null
   maxRoleKey?: Prisma.StringFilter<"Resource"> | string
+  scopeTypes?: Prisma.StringNullableFilter<"Resource"> | string | null
   departmentRoles?: Prisma.DepartmentResourceRoleListRelationFilter
   positionRoles?: Prisma.PositionResourceRoleListRelationFilter
   parent?: Prisma.XOR<Prisma.ResourceNullableScalarRelationFilter, Prisma.ResourceWhereInput> | null
@@ -268,6 +276,7 @@ export type ResourceOrderByWithRelationInput = {
   sortOrder?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   maxRoleKey?: Prisma.SortOrder
+  scopeTypes?: Prisma.SortOrderInput | Prisma.SortOrder
   departmentRoles?: Prisma.DepartmentResourceRoleOrderByRelationAggregateInput
   positionRoles?: Prisma.PositionResourceRoleOrderByRelationAggregateInput
   parent?: Prisma.ResourceOrderByWithRelationInput
@@ -287,6 +296,7 @@ export type ResourceWhereUniqueInput = Prisma.AtLeast<{
   sortOrder?: Prisma.IntFilter<"Resource"> | number
   parentId?: Prisma.IntNullableFilter<"Resource"> | number | null
   maxRoleKey?: Prisma.StringFilter<"Resource"> | string
+  scopeTypes?: Prisma.StringNullableFilter<"Resource"> | string | null
   departmentRoles?: Prisma.DepartmentResourceRoleListRelationFilter
   positionRoles?: Prisma.PositionResourceRoleListRelationFilter
   parent?: Prisma.XOR<Prisma.ResourceNullableScalarRelationFilter, Prisma.ResourceWhereInput> | null
@@ -303,6 +313,7 @@ export type ResourceOrderByWithAggregationInput = {
   sortOrder?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   maxRoleKey?: Prisma.SortOrder
+  scopeTypes?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.ResourceCountOrderByAggregateInput
   _avg?: Prisma.ResourceAvgOrderByAggregateInput
   _max?: Prisma.ResourceMaxOrderByAggregateInput
@@ -322,6 +333,7 @@ export type ResourceScalarWhereWithAggregatesInput = {
   sortOrder?: Prisma.IntWithAggregatesFilter<"Resource"> | number
   parentId?: Prisma.IntNullableWithAggregatesFilter<"Resource"> | number | null
   maxRoleKey?: Prisma.StringWithAggregatesFilter<"Resource"> | string
+  scopeTypes?: Prisma.StringNullableWithAggregatesFilter<"Resource"> | string | null
 }
 
 export type ResourceCreateInput = {
@@ -331,6 +343,7 @@ export type ResourceCreateInput = {
   level?: number
   sortOrder?: number
   maxRoleKey?: string
+  scopeTypes?: string | null
   departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
   parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
@@ -347,6 +360,7 @@ export type ResourceUncheckedCreateInput = {
   sortOrder?: number
   parentId?: number | null
   maxRoleKey?: string
+  scopeTypes?: string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
@@ -360,6 +374,7 @@ export type ResourceUpdateInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
   parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
@@ -376,6 +391,7 @@ export type ResourceUncheckedUpdateInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
@@ -391,6 +407,7 @@ export type ResourceCreateManyInput = {
   sortOrder?: number
   parentId?: number | null
   maxRoleKey?: string
+  scopeTypes?: string | null
 }
 
 export type ResourceUpdateManyMutationInput = {
@@ -400,6 +417,7 @@ export type ResourceUpdateManyMutationInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ResourceUncheckedUpdateManyInput = {
@@ -411,6 +429,7 @@ export type ResourceUncheckedUpdateManyInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type ResourceNullableScalarRelationFilter = {
@@ -437,6 +456,7 @@ export type ResourceCountOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   maxRoleKey?: Prisma.SortOrder
+  scopeTypes?: Prisma.SortOrder
 }
 
 export type ResourceAvgOrderByAggregateInput = {
@@ -455,6 +475,7 @@ export type ResourceMaxOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   maxRoleKey?: Prisma.SortOrder
+  scopeTypes?: Prisma.SortOrder
 }
 
 export type ResourceMinOrderByAggregateInput = {
@@ -466,6 +487,7 @@ export type ResourceMinOrderByAggregateInput = {
   sortOrder?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   maxRoleKey?: Prisma.SortOrder
+  scopeTypes?: Prisma.SortOrder
 }
 
 export type ResourceSumOrderByAggregateInput = {
@@ -595,6 +617,7 @@ export type ResourceCreateWithoutChildrenInput = {
   level?: number
   sortOrder?: number
   maxRoleKey?: string
+  scopeTypes?: string | null
   departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
   parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
@@ -610,6 +633,7 @@ export type ResourceUncheckedCreateWithoutChildrenInput = {
   sortOrder?: number
   parentId?: number | null
   maxRoleKey?: string
+  scopeTypes?: string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   userRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutResourceInput
@@ -627,6 +651,7 @@ export type ResourceCreateWithoutParentInput = {
   level?: number
   sortOrder?: number
   maxRoleKey?: string
+  scopeTypes?: string | null
   departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
   children?: Prisma.ResourceCreateNestedManyWithoutParentInput
@@ -641,6 +666,7 @@ export type ResourceUncheckedCreateWithoutParentInput = {
   level?: number
   sortOrder?: number
   maxRoleKey?: string
+  scopeTypes?: string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
@@ -674,6 +700,7 @@ export type ResourceUpdateWithoutChildrenInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
   parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
@@ -689,6 +716,7 @@ export type ResourceUncheckedUpdateWithoutChildrenInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   userRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
@@ -722,6 +750,7 @@ export type ResourceScalarWhereInput = {
   sortOrder?: Prisma.IntFilter<"Resource"> | number
   parentId?: Prisma.IntNullableFilter<"Resource"> | number | null
   maxRoleKey?: Prisma.StringFilter<"Resource"> | string
+  scopeTypes?: Prisma.StringNullableFilter<"Resource"> | string | null
 }
 
 export type ResourceCreateWithoutUserRolesInput = {
@@ -731,6 +760,7 @@ export type ResourceCreateWithoutUserRolesInput = {
   level?: number
   sortOrder?: number
   maxRoleKey?: string
+  scopeTypes?: string | null
   departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
   parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
@@ -746,6 +776,7 @@ export type ResourceUncheckedCreateWithoutUserRolesInput = {
   sortOrder?: number
   parentId?: number | null
   maxRoleKey?: string
+  scopeTypes?: string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
@@ -774,6 +805,7 @@ export type ResourceUpdateWithoutUserRolesInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
   parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
@@ -789,6 +821,7 @@ export type ResourceUncheckedUpdateWithoutUserRolesInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
@@ -801,6 +834,7 @@ export type ResourceCreateWithoutPositionRolesInput = {
   level?: number
   sortOrder?: number
   maxRoleKey?: string
+  scopeTypes?: string | null
   departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
   parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
   children?: Prisma.ResourceCreateNestedManyWithoutParentInput
@@ -816,6 +850,7 @@ export type ResourceUncheckedCreateWithoutPositionRolesInput = {
   sortOrder?: number
   parentId?: number | null
   maxRoleKey?: string
+  scopeTypes?: string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
   userRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutResourceInput
@@ -844,6 +879,7 @@ export type ResourceUpdateWithoutPositionRolesInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
   parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
   children?: Prisma.ResourceUpdateManyWithoutParentNestedInput
@@ -859,6 +895,7 @@ export type ResourceUncheckedUpdateWithoutPositionRolesInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
   userRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
@@ -871,6 +908,7 @@ export type ResourceCreateWithoutDepartmentRolesInput = {
   level?: number
   sortOrder?: number
   maxRoleKey?: string
+  scopeTypes?: string | null
   positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
   parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
   children?: Prisma.ResourceCreateNestedManyWithoutParentInput
@@ -886,6 +924,7 @@ export type ResourceUncheckedCreateWithoutDepartmentRolesInput = {
   sortOrder?: number
   parentId?: number | null
   maxRoleKey?: string
+  scopeTypes?: string | null
   positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
   userRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutResourceInput
@@ -914,6 +953,7 @@ export type ResourceUpdateWithoutDepartmentRolesInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
   parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
   children?: Prisma.ResourceUpdateManyWithoutParentNestedInput
@@ -929,6 +969,7 @@ export type ResourceUncheckedUpdateWithoutDepartmentRolesInput = {
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
   userRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
@@ -942,6 +983,7 @@ export type ResourceCreateManyParentInput = {
   level?: number
   sortOrder?: number
   maxRoleKey?: string
+  scopeTypes?: string | null
 }
 
 export type ResourceUpdateWithoutParentInput = {
@@ -951,6 +993,7 @@ export type ResourceUpdateWithoutParentInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
   children?: Prisma.ResourceUpdateManyWithoutParentNestedInput
@@ -965,6 +1008,7 @@ export type ResourceUncheckedUpdateWithoutParentInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
@@ -979,6 +1023,7 @@ export type ResourceUncheckedUpdateManyWithoutParentInput = {
   level?: Prisma.IntFieldUpdateOperationsInput | number
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1048,6 +1093,7 @@ export type ResourceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   sortOrder?: boolean
   parentId?: boolean
   maxRoleKey?: boolean
+  scopeTypes?: boolean
   departmentRoles?: boolean | Prisma.Resource$departmentRolesArgs<ExtArgs>
   positionRoles?: boolean | Prisma.Resource$positionRolesArgs<ExtArgs>
   parent?: boolean | Prisma.Resource$parentArgs<ExtArgs>
@@ -1065,6 +1111,7 @@ export type ResourceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   sortOrder?: boolean
   parentId?: boolean
   maxRoleKey?: boolean
+  scopeTypes?: boolean
   parent?: boolean | Prisma.Resource$parentArgs<ExtArgs>
 }, ExtArgs["result"]["resource"]>
 
@@ -1077,6 +1124,7 @@ export type ResourceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   sortOrder?: boolean
   parentId?: boolean
   maxRoleKey?: boolean
+  scopeTypes?: boolean
   parent?: boolean | Prisma.Resource$parentArgs<ExtArgs>
 }, ExtArgs["result"]["resource"]>
 
@@ -1089,9 +1137,10 @@ export type ResourceSelectScalar = {
   sortOrder?: boolean
   parentId?: boolean
   maxRoleKey?: boolean
+  scopeTypes?: boolean
 }
 
-export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "name" | "description" | "level" | "sortOrder" | "parentId" | "maxRoleKey", ExtArgs["result"]["resource"]>
+export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "name" | "description" | "level" | "sortOrder" | "parentId" | "maxRoleKey" | "scopeTypes", ExtArgs["result"]["resource"]>
 export type ResourceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   departmentRoles?: boolean | Prisma.Resource$departmentRolesArgs<ExtArgs>
   positionRoles?: boolean | Prisma.Resource$positionRolesArgs<ExtArgs>
@@ -1128,6 +1177,10 @@ export type $ResourcePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
      * 该资源可授予的最高角色：access | write | delete | admin
      */
     maxRoleKey: string
+    /**
+     * 逗号分隔的 scope 类型，如 "department,project"。null 表示不支持 scoped 授权
+     */
+    scopeTypes: string | null
   }, ExtArgs["result"]["resource"]>
   composites: {}
 }
@@ -1564,6 +1617,7 @@ export interface ResourceFieldRefs {
   readonly sortOrder: Prisma.FieldRef<"Resource", 'Int'>
   readonly parentId: Prisma.FieldRef<"Resource", 'Int'>
   readonly maxRoleKey: Prisma.FieldRef<"Resource", 'String'>
+  readonly scopeTypes: Prisma.FieldRef<"Resource", 'String'>
 }
     
 

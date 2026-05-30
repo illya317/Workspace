@@ -130,7 +130,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
         </div>
 
         <div className="space-y-4">
-          {activeTab === "users" && <AdminUsersTab showToast={showToast} />}
+          {activeTab === "users" && <AdminUsersTab showToast={showToast} resources={resources} />}
           {activeTab === "permissions" && <PermissionsTab resources={resources} showToast={showToast} />}
         </div>
 

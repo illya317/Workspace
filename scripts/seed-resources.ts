@@ -7,15 +7,20 @@ import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
 const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: "data/dev.db" }) });
 
-async function upsertResource(key: string, name: string, parentKey?: string, maxRoleKey: string = "admin") {
+async function upsertResource(
+  key: string, name: string, parentKey?: string,
+  maxRoleKey: string = "admin", scopeTypes?: string | null,
+) {
   const parent = parentKey
     ? await p.resource.findUnique({ where: { key: parentKey }, select: { id: true } })
     : null;
 
+  const parentConnect = parent ? { parent: { connect: { id: parent.id } } } : {};
+
   await p.resource.upsert({
     where: { key },
-    update: { name, parentId: parent?.id ?? null, maxRoleKey },
-    create: { key, name, parentId: parent?.id ?? null, maxRoleKey },
+    update: { name, maxRoleKey, scopeTypes: scopeTypes ?? null, ...parentConnect },
+    create: { key, name, maxRoleKey, scopeTypes: scopeTypes ?? null, ...parentConnect },
   });
 }
 
@@ -68,7 +73,7 @@ async function main() {
 
   await upsertResource("work", "工作");
   await upsertResource("work.task", "工作清单", "work");
-  await upsertResource("work.report", "工作汇报", "work");
+  await upsertResource("work.report", "工作汇报", "work", "admin", "department,project");
 
   await upsertResource("legal", "法务", undefined, "access");
   await upsertResource("legal.chat", "法务咨询", "legal");
