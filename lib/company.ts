@@ -5,6 +5,7 @@ export const CODE_TO_NAME: Record<string, string> = {
   "03": "丰华悦通",
   "04": "GMP",
   "05": "加拿大",
+  "06": "上海悦通",
 };
 
 export const NAME_TO_CODE: Record<string, string> = Object.fromEntries(
@@ -20,7 +21,7 @@ const LABEL_TO_MGMT: Record<string, string> = {
 };
 
 // 常规体系 — 除制药外的所有实体
-export const FENGHUA_BIO_GROUP = ["丰华生物", "丰华天力通", "丰华悦通", "加拿大"];
+export const FENGHUA_BIO_GROUP = ["丰华生物", "丰华天力通", "丰华悦通", "加拿大", "上海悦通"];
 
 // 共享代码池（部门/岗位编码共用前缀）
 export const SHARED_GROUP_CODES = ["01", "02", "03"];

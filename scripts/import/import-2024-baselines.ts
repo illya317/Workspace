@@ -26,6 +26,7 @@ const COMPANY_BALANCE_SHEETS: Record<string, string> = {
   "03": "丰华悦通/丰华悦通/余额表-丰华悦通 2024.xlsx",
   // 04 丰华制药/GMP: 暂无 2024 年度余额表
   "05": "加拿大/余额表-加拿大2024.xls",
+  "06": "上海悦通/余额表-上海悦通2024.xls",
 };
 
 async function upsertAccounts(accounts: { code: string; name: string; parentCode: string | null; category: string; balanceDirection: string }[], companyCode: string, year: number) {

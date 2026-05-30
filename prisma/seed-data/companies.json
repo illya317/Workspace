@@ -93,5 +93,24 @@
     "editedAt": null,
     "version": 1,
     "legalRepresentative": null
+  },
+  {
+    "id": 13,
+    "code": "06",
+    "name": "上海悦通",
+    "fullName": "上海悦通生物医药科技有限公司",
+    "registeredCapital": null,
+    "unifiedCode": null,
+    "bankName": null,
+    "registeredAddress": null,
+    "registeredDate": null,
+    "queryGroup": 1,
+    "sortOrder": 6,
+    "createdAt": 1779122566934,
+    "updatedAt": null,
+    "editedBy": null,
+    "editedAt": null,
+    "version": 1,
+    "legalRepresentative": null
   }
 ]
