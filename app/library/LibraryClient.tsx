@@ -39,7 +39,7 @@ function findNode(urlPath: string, nodes: TreeNode[]): TreeNode | undefined {
 function SidebarNode({ node, depth, currentPath, onNav }: {
   node: TreeNode; depth: number; currentPath: string; onNav: (path: string) => void;
 }) {
-  const [open, setOpen] = useState(depth < 1);
+  const [open, setOpen] = useState(false);
   const dirChildren = node.children?.filter(c => c.isDir) || [];
   const hasChildren = dirChildren.length > 0;
   const isActive = currentPath === node.urlPath || currentPath.startsWith(node.urlPath + "/");
