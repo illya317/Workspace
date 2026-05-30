@@ -63,7 +63,7 @@ external            delete  外部关系
   external.customer delete  客户管理
   external.supplier delete  供应商管理
 
-work                admin   工作
+work                admin   工作汇报
   work.task         admin   工作清单
   work.report       admin   工作汇报
 
