@@ -7,11 +7,11 @@ import type { PermissionContext } from "./context";
 function resolveRoleKeys(roleKey: string): string[] {
   const normalized = normalizeRoleKey(roleKey);
   // 权限层级：admin > delete > write > access
-  // 高级权限自动隐含低级权限
-  if (normalized === "admin") return ["admin"];
-  if (normalized === "delete") return ["delete", "write", "access", "admin"];
-  if (normalized === "write") return ["write", "access", "admin"];
-  return ["access", "admin"];
+  // 高级权限自动隐含低级权限（admin 可以删改查, delete 可以改查, write 可以查）
+  if (normalized === "admin") return ["admin", "delete", "write", "access"];
+  if (normalized === "delete") return ["delete", "write", "access"];
+  if (normalized === "write") return ["write", "access"];
+  return ["access"];
 }
 
 export async function checkPermission(
