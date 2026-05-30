@@ -76,51 +76,25 @@ export async function POST(request: Request) {
   });
 
   const [isAdmin, canAnyWeek, hasHRAccess, hasHRWrite, hasHRDelete, hasWorks] = await Promise.all([
-    checkPermission(user.id, "system", "admin"),
-    checkPermission(user.id, "work.report", "write"),
-    checkPermission(user.id, "people", "access"),
-    checkPermission(user.id, "people", "write"),
-    checkPermission(user.id, "people", "delete"),
-    checkPermission(user.id, "work", "access"),
+    checkPermission(user.id, "system", "admin"), checkPermission(user.id, "work.report", "write"),
+    checkPermission(user.id, "people", "access"), checkPermission(user.id, "people", "write"),
+    checkPermission(user.id, "people", "delete"), checkPermission(user.id, "work", "access"),
   ]);
-
   const hasHR = hasHRAccess || hasHRWrite || hasHRDelete;
-
   const response = NextResponse.json({
     success: true,
     user: {
-      id: user.id,
-      name: user.name,
-      departmentId: 0,
-      isWorkListAdmin: isAdmin,
-      isSuperAdmin: isAdmin,
-      canSelectAnyWeek: canAnyWeek,
-      canAccessHR: isAdmin || hasHR,
-      canEditHR: isAdmin || hasHRWrite,
-      canDeleteHR: isAdmin || hasHRDelete,
-      canAccessWorks: hasWorks,
+      id: user.id, name: user.name, departmentId: 0, isWorkListAdmin: isAdmin, isSuperAdmin: isAdmin,
+      canSelectAnyWeek: canAnyWeek, canAccessHR: isAdmin || hasHR, canEditHR: isAdmin || hasHRWrite,
+      canDeleteHR: isAdmin || hasHRDelete, canAccessWorks: hasWorks,
     },
   });
-
-  response.cookies.set("token", token, {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7,
-    path: "/",
-  });
-
+  response.cookies.set("token", token, { httpOnly: true, secure: false, sameSite: "lax", maxAge: 60 * 60 * 24 * 7, path: "/" });
   return response;
 }
 
 export async function DELETE() {
   const response = NextResponse.json({ success: true });
-  response.cookies.set("token", "", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-    expires: new Date(0),
-    path: "/",
-  });
+  response.cookies.set("token", "", { httpOnly: true, secure: false, sameSite: "lax", expires: new Date(0), path: "/" });
   return response;
 }

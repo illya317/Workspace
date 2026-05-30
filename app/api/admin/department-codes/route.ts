@@ -11,10 +11,15 @@ function normalizeCompany(company: string): string {
 
 function buildFullCode(code: string, company: string): string {
   const normalized = normalizeCompany(company);
-  if (code.length <= 3) {
-    return normalized + code.padStart(3, "0");
-  }
+  if (code.length <= 3) return normalized + code.padStart(3, "0");
   return code;
+}
+
+async function snapshotDept(code: string, editorId: number) {
+  const dept = await prisma.department.findFirst({ where: { code } });
+  if (!dept) return;
+  const maxVer = await prisma.editHistory.findFirst({ where: { entityType: "Department", entityId: code }, orderBy: { version: "desc" }, select: { version: true } });
+  await prisma.editHistory.create({ data: { entityType: "Department", entityId: code, version: (maxVer?.version || 0) + 1, dataJson: JSON.stringify(dept), editedBy: editorId } });
 }
 
 export async function GET(request: Request) {
@@ -61,25 +66,10 @@ export async function PUT(request: Request) {
 
   if (originalCode && originalCode !== finalCode) {
     const existing = await prisma.department.findFirst({ where: { code: finalCode } });
-    if (existing) {
-      return NextResponse.json({ error: "编号已存在" }, { status: 400 });
-    }
+    if (existing) return NextResponse.json({ error: "编号已存在" }, { status: 400 });
     const oldDept = await prisma.department.findFirst({ where: { code: originalCode } });
     if (oldDept) {
-      const maxVer = await prisma.editHistory.findFirst({
-        where: { entityType: "Department", entityId: originalCode },
-        orderBy: { version: "desc" },
-        select: { version: true },
-      });
-      await prisma.editHistory.create({
-        data: {
-          entityType: "Department",
-          entityId: originalCode,
-          version: (maxVer?.version || 0) + 1,
-          dataJson: JSON.stringify(oldDept),
-          editedBy: payload.userId,
-        },
-      });
+      await snapshotDept(originalCode, payload.userId);
       await prisma.department.update({
         where: { id: oldDept.id },
         data: { code: finalCode, name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
@@ -88,28 +78,13 @@ export async function PUT(request: Request) {
   } else {
     const oldDept = await prisma.department.findFirst({ where: { code: finalCode } });
     if (oldDept) {
-      const maxVer = await prisma.editHistory.findFirst({
-        where: { entityType: "Department", entityId: finalCode },
-        orderBy: { version: "desc" },
-        select: { version: true },
-      });
-      await prisma.editHistory.create({
-        data: {
-          entityType: "Department",
-          entityId: finalCode,
-          version: (maxVer?.version || 0) + 1,
-          dataJson: JSON.stringify(oldDept),
-          editedBy: payload.userId,
-        },
-      });
+      await snapshotDept(finalCode, payload.userId);
       await prisma.department.update({
         where: { id: oldDept.id },
         data: { name, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
       });
     } else {
-      await prisma.department.create({
-        data: { code: finalCode, name, level: 1 },
-      });
+      await prisma.department.create({ data: { code: finalCode, name, level: 1 } });
     }
   }
 

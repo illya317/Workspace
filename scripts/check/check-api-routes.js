@@ -107,6 +107,7 @@ const KNOWN_PREFIXES = [
   "hr",
   "inventory",
   "contracts",
+  "dev-login-bypass",
   "reports",
   "user",
   "week-info",

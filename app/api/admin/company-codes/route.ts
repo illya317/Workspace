@@ -71,34 +71,15 @@ export async function PUT(request: Request) {
   const { id, code, name, fullName, registeredCapital, unifiedCode, bankName, registeredAddress, registeredDate, legalPerson, sortOrder } = body;
   if (!code || !name) return NextResponse.json({ error: "缺少 code/name" }, { status: 400 });
 
-  const dataFields = {
-    fullName: fullName ?? null,
-    registeredCapital: registeredCapital ?? null,
-    unifiedCode: unifiedCode ?? null,
-    bankName: bankName ?? null,
-    registeredAddress: registeredAddress ?? null,
-    registeredDate: registeredDate ?? null,
-    legalPerson: legalPerson ?? null,
-    sortOrder: sortOrder ?? 0,
-  };
-
+  const dataFields = { fullName: fullName ?? null, registeredCapital: registeredCapital ?? null, unifiedCode: unifiedCode ?? null, bankName: bankName ?? null, registeredAddress: registeredAddress ?? null, registeredDate: registeredDate ?? null, legalPerson: legalPerson ?? null, sortOrder: sortOrder ?? 0 };
   if (id) {
-    // Update
     const existing = await prisma.company.findFirst({ where: { code } });
-    if (existing && existing.id !== id) {
-      return NextResponse.json({ error: "编码已存在" }, { status: 400 });
-    }
-    await prisma.company.update({
-      where: { id },
-      data: { code, name, ...dataFields, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
-    });
+    if (existing && existing.id !== id) return NextResponse.json({ error: "编码已存在" }, { status: 400 });
+    await prisma.company.update({ where: { id }, data: { code, name, ...dataFields, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } } });
     await snapshotHistory("Company", id, payload.userId);
   } else {
-    // Create
     const existing = await prisma.company.findFirst({ where: { code } });
-    if (existing) {
-      return NextResponse.json({ error: "编码已存在" }, { status: 400 });
-    }
+    if (existing) return NextResponse.json({ error: "编码已存在" }, { status: 400 });
     await prisma.company.create({ data: { code, name, ...dataFields } });
   }
 

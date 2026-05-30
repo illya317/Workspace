@@ -25,6 +25,12 @@ npm run schema:check || {
   exit 1
 }
 
+echo "→ Running file size check..."
+npm run size:check || {
+  echo "✗ File size check failed. Commit aborted."
+  exit 1
+}
+
 echo "→ Running lint (max-warnings=0)..."
 npm run lint -- --max-warnings=0 || {
   echo "✗ Lint failed. Commit aborted."

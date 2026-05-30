@@ -103,7 +103,6 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
 
   return (
     <div className="space-y-6">
-      {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <StatCard label="累计离职" value={stats.totalLeft} color="rose" />
         <StatCard label="本月离职" value={stats.leftThisMonth} color="amber" />
@@ -112,9 +111,7 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
         <StatCard label="累计离职率" value={`${stats.turnoverRate}%`} color="purple" sub="离职/（在职+离职）" />
       </div>
 
-      {/* 月度趋势 + 司龄分布 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 离职月度趋势 */}
         <div className="bg-white rounded-lg shadow-sm p-5">
           <h3 className="text-sm font-semibold text-gray-700 mb-4">离职月度趋势（近12个月）</h3>
           <div className="flex items-end gap-1 h-40">
@@ -134,7 +131,6 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
           </div>
         </div>
 
-        {/* 离职司龄分布 */}
         <div className="bg-white rounded-lg shadow-sm p-5">
           <h3 className="text-sm font-semibold text-gray-700 mb-4">离职司龄分布</h3>
           <div className="space-y-2">
@@ -155,7 +151,6 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
         </div>
       </div>
 
-      {/* 离职原因 */}
       <div className="bg-white rounded-lg shadow-sm p-5">
         <div className="flex items-center gap-3 mb-4">
           <h3 className="text-sm font-semibold text-gray-700">离职原因分布</h3>
@@ -187,7 +182,6 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
         </div>
       </div>
 
-      {/* 最近离职 */}
       <div className="bg-white rounded-lg shadow-sm p-5">
         <h3 className="text-sm font-semibold text-gray-700 mb-3">最近离职（前20）</h3>
         <div className="overflow-x-auto">

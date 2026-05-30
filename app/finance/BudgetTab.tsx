@@ -3,20 +3,33 @@
 import { useEffect, useMemo, useState } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
+import DeptBudgetFilters from "./components/DeptBudgetFilters";
+import DeptBudgetTable from "./components/DeptBudgetTable";
+import RdBudgetFilters from "./components/RdBudgetFilters";
+import RdBudgetTable from "./components/RdBudgetTable";
 
-interface DeptBudgetItem {
+// FIXME: accountId/accountCode/accountActive 来自 API 运行时按 name 匹配，不是数据库 FK。
+// 同名科目（如不同公司/年度的"其他"）可能匹配到错误记录。
+// 如需真 FK，应建预算事实表或映射表持久化 accountId。
+export interface DeptBudgetItem {
   dept: string;
   account: string;
   total: number;
   months: number[];
   expenseType: string;
+  accountId: number | null;
+  accountCode: string | null;
+  accountActive: boolean | null;
 }
 
-interface RdBudgetItem {
+export interface RdBudgetItem {
   project: string;
   category: string;
   total: number;
   months: number[];
+  accountId: number | null;
+  accountCode: string | null;
+  accountActive: boolean | null;
 }
 
 interface BudgetData {
@@ -25,11 +38,6 @@ interface BudgetData {
 }
 
 type BudgetView = "dept" | "rd";
-
-const MONTH_LABELS = [
-  "1月", "2月", "3月", "4月", "5月", "6月",
-  "7月", "8月", "9月", "10月", "11月", "12月",
-];
 
 export default function BudgetTab() {
   const [data, setData] = useState<BudgetData | null>(null);
@@ -165,223 +173,36 @@ export default function BudgetTab() {
 
       {view === "dept" && (
         <>
-          {/* Dept Filters */}
-          <div className="flex flex-wrap items-center gap-3 rounded-lg bg-white p-3 shadow-sm">
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-500">部门</label>
-              <select
-                value={deptFilter}
-                onChange={(e) => setDeptFilter(e.target.value)}
-                className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-              >
-                <option value="">全部部门</option>
-                {deptOptions.map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-500">费用类型</label>
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-              >
-                <option value="">全部类型</option>
-                {typeOptions.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-500">科目</label>
-              <select
-                value={accountFilter}
-                onChange={(e) => setAccountFilter(e.target.value)}
-                className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-              >
-                <option value="">全部科目</option>
-                {accountOptions.map((a) => (
-                  <option key={a} value={a}>{a}</option>
-                ))}
-              </select>
-            </div>
-            {(deptFilter || typeFilter || accountFilter) && (
-              <button
-                onClick={() => { setDeptFilter(""); setTypeFilter(""); setAccountFilter(""); }}
-                className="text-xs text-emerald-600 hover:text-emerald-700"
-              >
-                重置筛选
-              </button>
-            )}
-            <span className="ml-auto text-xs text-gray-400">
-              共 {filteredDept.length} 条，合计 {deptTotal.toFixed(2)} 万元
-            </span>
-          </div>
-          {(deptFilter || typeFilter || accountFilter) && (
-            <div className="flex flex-wrap gap-2 text-xs text-gray-500">
-              <span>当前筛选：</span>
-              {deptFilter && <span className="rounded bg-gray-100 px-2 py-0.5">部门：{deptFilter}</span>}
-              {typeFilter && <span className="rounded bg-gray-100 px-2 py-0.5">类型：{typeFilter}</span>}
-              {accountFilter && <span className="rounded bg-gray-100 px-2 py-0.5">科目：{accountFilter}</span>}
-            </div>
-          )}
-
-          {/* Dept Budget Table */}
-          <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
-            <table className="w-full text-xs">
-              <thead className="border-b bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">部门</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">科目</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">费用类型</th>
-                  {MONTH_LABELS.map((m) => (
-                    <th key={m} className="px-2 py-2 text-right font-medium text-gray-600 whitespace-nowrap">{m}</th>
-                  ))}
-                  <th className="px-3 py-2 text-right font-medium text-gray-600 whitespace-nowrap">合计</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredDept.map((item, idx) => (
-                  <tr key={idx} className="border-b last:border-0 hover:bg-gray-50">
-                    <td className="px-3 py-2 text-gray-700 whitespace-nowrap">{item.dept}</td>
-                    <td className="px-3 py-2 text-gray-700 whitespace-nowrap">{item.account}</td>
-                    <td className="px-3 py-2 text-gray-600 whitespace-nowrap">
-                      <span className={`rounded px-1.5 py-0.5 text-xs ${
-                        item.expenseType === "管理费用"
-                          ? "bg-blue-100 text-blue-700"
-                          : item.expenseType === "销售费用"
-                          ? "bg-orange-100 text-orange-700"
-                          : item.expenseType === "研发费用"
-                          ? "bg-purple-100 text-purple-700"
-                          : "bg-gray-100 text-gray-600"
-                      }`}>
-                        {item.expenseType}
-                      </span>
-                    </td>
-                    {item.months.map((v, m) => (
-                      <td key={m} className={`px-2 py-2 text-right whitespace-nowrap ${v > 0 ? "text-gray-700" : "text-gray-300"}`}>
-                        {v > 0 ? v.toFixed(2) : ""}
-                      </td>
-                    ))}
-                    <td className="px-3 py-2 text-right font-medium text-gray-800 whitespace-nowrap">{item.total.toFixed(2)}</td>
-                  </tr>
-                ))}
-                {/* Total Row */}
-                <tr className="border-t-2 border-gray-200 bg-gray-100 font-medium">
-                  <td className="px-3 py-2 text-gray-800" colSpan={3}>合计</td>
-                  {deptMonthTotals.map((v, m) => (
-                    <td key={m} className="px-2 py-2 text-right text-gray-800">{v.toFixed(2)}</td>
-                  ))}
-                  <td className="px-3 py-2 text-right text-emerald-700">{deptTotal.toFixed(2)}</td>
-                </tr>
-                {filteredDept.length === 0 && (
-                  <tr>
-                    <td colSpan={16} className="px-3 py-8 text-center text-gray-400">
-                      暂无数据
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <DeptBudgetFilters
+            deptFilter={deptFilter}
+            setDeptFilter={setDeptFilter}
+            typeFilter={typeFilter}
+            setTypeFilter={setTypeFilter}
+            accountFilter={accountFilter}
+            setAccountFilter={setAccountFilter}
+            deptOptions={deptOptions}
+            typeOptions={typeOptions}
+            accountOptions={accountOptions}
+            count={filteredDept.length}
+            total={deptTotal}
+          />
+          <DeptBudgetTable items={filteredDept} monthTotals={deptMonthTotals} total={deptTotal} />
         </>
       )}
 
       {view === "rd" && (
         <>
-          {/* R&D Filters */}
-          <div className="flex flex-wrap items-center gap-3 rounded-lg bg-white p-3 shadow-sm">
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-500">研发项目</label>
-              <select
-                value={projectFilter}
-                onChange={(e) => setProjectFilter(e.target.value)}
-                className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-              >
-                <option value="">全部项目</option>
-                {projectOptions.map((p) => (
-                  <option key={p} value={p}>{p}</option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-500">产品类别</label>
-              <select
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-                className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-              >
-                <option value="">全部类别</option>
-                {categoryOptions.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
-            {(projectFilter || categoryFilter) && (
-              <button
-                onClick={() => { setProjectFilter(""); setCategoryFilter(""); }}
-                className="text-xs text-emerald-600 hover:text-emerald-700"
-              >
-                重置筛选
-              </button>
-            )}
-            <span className="ml-auto text-xs text-gray-400">
-              共 {filteredRd.length} 条，合计 {rdTotal.toFixed(2)} 万元
-            </span>
-          </div>
-          {(projectFilter || categoryFilter) && (
-            <div className="flex flex-wrap gap-2 text-xs text-gray-500">
-              <span>当前筛选：</span>
-              {projectFilter && <span className="rounded bg-gray-100 px-2 py-0.5">项目：{projectFilter}</span>}
-              {categoryFilter && <span className="rounded bg-gray-100 px-2 py-0.5">类别：{categoryFilter}</span>}
-            </div>
-          )}
-
-          {/* R&D Budget Table */}
-          <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
-            <table className="w-full text-xs">
-              <thead className="border-b bg-gray-50">
-                <tr>
-                  <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">研发项目</th>
-                  <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">产品类别</th>
-                  {MONTH_LABELS.map((m) => (
-                    <th key={m} className="px-2 py-2 text-right font-medium text-gray-600 whitespace-nowrap">{m}</th>
-                  ))}
-                  <th className="px-3 py-2 text-right font-medium text-gray-600 whitespace-nowrap">合计</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredRd.map((item, idx) => (
-                  <tr key={idx} className="border-b last:border-0 hover:bg-gray-50">
-                    <td className="px-3 py-2 text-gray-700 whitespace-nowrap">{item.project}</td>
-                    <td className="px-3 py-2 text-gray-700 whitespace-nowrap">{item.category}</td>
-                    {item.months.map((v, m) => (
-                      <td key={m} className={`px-2 py-2 text-right whitespace-nowrap ${v > 0 ? "text-gray-700" : "text-gray-300"}`}>
-                        {v > 0 ? v.toFixed(2) : ""}
-                      </td>
-                    ))}
-                    <td className="px-3 py-2 text-right font-medium text-gray-800 whitespace-nowrap">{item.total.toFixed(2)}</td>
-                  </tr>
-                ))}
-                {/* Total Row */}
-                <tr className="border-t-2 border-gray-200 bg-gray-100 font-medium">
-                  <td className="px-3 py-2 text-gray-800" colSpan={2}>合计</td>
-                  {rdMonthTotals.map((v, m) => (
-                    <td key={m} className="px-2 py-2 text-right text-gray-800">{v.toFixed(2)}</td>
-                  ))}
-                  <td className="px-3 py-2 text-right text-emerald-700">{rdTotal.toFixed(2)}</td>
-                </tr>
-                {filteredRd.length === 0 && (
-                  <tr>
-                    <td colSpan={15} className="px-3 py-8 text-center text-gray-400">
-                      暂无数据
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <RdBudgetFilters
+            projectFilter={projectFilter}
+            setProjectFilter={setProjectFilter}
+            categoryFilter={categoryFilter}
+            setCategoryFilter={setCategoryFilter}
+            projectOptions={projectOptions}
+            categoryOptions={categoryOptions}
+            count={filteredRd.length}
+            total={rdTotal}
+          />
+          <RdBudgetTable items={filteredRd} monthTotals={rdMonthTotals} total={rdTotal} />
         </>
       )}
 

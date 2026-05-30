@@ -7,7 +7,7 @@
     "build": "prisma generate --schema=./prisma && next build",
     "start": "next start",
     "lint": "eslint",
-    "ci": "npm run arch:check && npm run env:check && npm run api:check && npm run docs:check && npm run db:validate && npm run schema:check && npm run lint -- --max-warnings=0 && npx tsc --noEmit && npm run build",
+    "ci": "npm run arch:check && npm run env:check && npm run api:check && npm run docs:check && npm run db:validate && npm run schema:check && npm run size:check && npm run lint -- --max-warnings=0 && npx tsc --noEmit && npm run build",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
@@ -20,7 +20,8 @@
     "schema:check": "node scripts/check/check-schema-governance.js",
     "api:check": "node scripts/check/check-api-routes.js",
     "docs:check": "node scripts/check/check-architecture-docs.js",
-    "size:check": "node scripts/check/check-file-size.js"
+    "size:check": "node scripts/check/check-file-size.js",
+    "budget:sync-accounts": "node scripts/sync-budget-accounts.js"
   },
   "prisma": {
     "schema": "./prisma"

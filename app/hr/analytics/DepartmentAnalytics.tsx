@@ -57,11 +57,9 @@ function DeptNode({ dept, allDepts, edps, level = 0 }: { dept: Department; allDe
       </div>
 
       {!collapsed && hasChildren && (
-        <div>
-          {children.map((child) => (
-            <DeptNode key={child.id} dept={child} allDepts={allDepts} edps={edps} level={level + 1} />
-          ))}
-        </div>
+        <div>{children.map((child) => (
+          <DeptNode key={child.id} dept={child} allDepts={allDepts} edps={edps} level={level + 1} />
+        ))}</div>
       )}
     </div>
   );
@@ -162,9 +160,7 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
           {rootDepts.map((d) => (
             <DeptNode key={d.id} dept={d} allDepts={departments} edps={activeEdps} level={0} />
           ))}
-          {rootDepts.length === 0 && (
-            <p className="text-center text-gray-400 py-8 text-sm">无匹配部门</p>
-          )}
+          {rootDepts.length === 0 && <p className="text-center text-gray-400 py-8 text-sm">无匹配部门</p>}
         </div>
       </div>
 

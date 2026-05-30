@@ -184,32 +184,13 @@ export default function AdminUsersTab({ showToast }: { showToast: (msg: string, 
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex flex-wrap gap-1">
-                      {u.isWorkListAdmin && (
-                        <span className="rounded bg-purple-50 px-1 py-0.5 text-[10px] text-purple-600">管理员</span>
-                      )}
-                      {/* HR 权限只显示最高级别 */}
-                      {u.canDeleteHR ? (
-                        <span className="rounded bg-red-50 px-1 py-0.5 text-[10px] text-red-600">人事删除</span>
-                      ) : u.canEditHR ? (
-                        <span className="rounded bg-emerald-50 px-1 py-0.5 text-[10px] text-emerald-600">人事编辑</span>
-                      ) : u.canAccessHR ? (
-                        <span className="rounded bg-blue-50 px-1 py-0.5 text-[10px] text-blue-600">人事</span>
-                      ) : null}
-                      {u.canAccessWorks && (
-                        <span className="rounded bg-amber-50 px-1 py-0.5 text-[10px] text-amber-600">工作</span>
-                      )}
-                      {u.canAccessFinance && (
-                        <span className="rounded bg-cyan-50 px-1 py-0.5 text-[10px] text-cyan-600">财务</span>
-                      )}
-                      {u.canAccessInventory && (
-                        <span className="rounded bg-orange-50 px-1 py-0.5 text-[10px] text-orange-600">库存</span>
-                      )}
-                      {u.canAccessContract && (
-                        <span className="rounded bg-indigo-50 px-1 py-0.5 text-[10px] text-indigo-600">合同</span>
-                      )}
-                      {u.canAccessDocs && (
-                        <span className="rounded bg-gray-100 px-1 py-0.5 text-[10px] text-gray-600">文档</span>
-                      )}
+                      {u.isWorkListAdmin && <span className="rounded bg-purple-50 px-1 py-0.5 text-[10px] text-purple-600">管理员</span>}
+                      {u.canDeleteHR ? <span className="rounded bg-red-50 px-1 py-0.5 text-[10px] text-red-600">人事删除</span> : u.canEditHR ? <span className="rounded bg-emerald-50 px-1 py-0.5 text-[10px] text-emerald-600">人事编辑</span> : u.canAccessHR ? <span className="rounded bg-blue-50 px-1 py-0.5 text-[10px] text-blue-600">人事</span> : null}
+                      {u.canAccessWorks && <span className="rounded bg-amber-50 px-1 py-0.5 text-[10px] text-amber-600">工作</span>}
+                      {u.canAccessFinance && <span className="rounded bg-cyan-50 px-1 py-0.5 text-[10px] text-cyan-600">财务</span>}
+                      {u.canAccessInventory && <span className="rounded bg-orange-50 px-1 py-0.5 text-[10px] text-orange-600">库存</span>}
+                      {u.canAccessContract && <span className="rounded bg-indigo-50 px-1 py-0.5 text-[10px] text-indigo-600">合同</span>}
+                      {u.canAccessDocs && <span className="rounded bg-gray-100 px-1 py-0.5 text-[10px] text-gray-600">文档</span>}
                     </div>
                   </td>
                   <td className="px-3 py-2">

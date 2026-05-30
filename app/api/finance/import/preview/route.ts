@@ -41,6 +41,7 @@ export const POST = withFinanceWrite(async (request: Request) => {
         result.year = parseInt(yearMatch[1], 10);
       }
     }
+    result.sourceFileName = file.name;
 
     return NextResponse.json({ success: true, preview: result });
   } catch (err) {
