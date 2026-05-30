@@ -80,6 +80,13 @@ export const allFinanceModules: FinanceModuleItem[] = [
     checkAccess: (u) => !!u.canAccessFinanceAnalysis,
   },
   {
+    key: "cost",
+    label: "成本管理",
+    desc: "生产成本、发货、成本构成、车间工分",
+    href: "/finance/cost",
+    checkAccess: (u) => !!u.canAccessFinanceCost,
+  },
+  {
     key: "import",
     label: "数据导入",
     desc: "科目表、序时账、余额表导入",
