@@ -109,10 +109,9 @@ export async function reconcileBalanceSheet(buffer: Buffer, companyCode: string,
     if (!hasDiff) matchedCount++;
   }
 
-  const excelCodeSet = new Set(excelBalances.map((b) => b.accountCode));
-  const missingInExcel = systemAccounts
-    .filter((account) => !excelCodeSet.has(account.code))
-    .map((account) => ({ code: account.code, name: account.name }));
+  // 系统中有但 Excel 中缺失的科目不参与核对：系统可能包含多年度/多公司的科目，
+  // Excel 只代表单次导入的年度余额表，科目范围不同是正常的，不属于差异。
+  const missingInExcel: { code: string; name: string }[] = [];
 
   return {
     year,
