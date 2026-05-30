@@ -6,6 +6,39 @@ function stripMd(t: string): string {
   return t.replace(/\*\*(.+?)\*\*/g, "$1").replace(/`(.+?)`/g, "$1").replace(/^#{1,6}\s+/gm, "");
 }
 
+/** 字段名映射 — 与 HR 花名册一致 */
+const FIELD_LABELS: Record<string, string> = {
+  employeeId: "工号",
+  name: "姓名",
+  alias: "别名",
+  gender: "性别",
+  education: "学历",
+  title: "职称",
+  phone: "电话",
+  school: "毕业院校",
+  major: "专业",
+  hometown: "籍贯",
+  total: "合计",
+  // budget fields
+  dept: "部门",
+  account: "科目",
+  months: "月度明细",
+  expenseType: "费用类型",
+  project: "项目",
+  category: "类别",
+  version: "版本",
+  status: "状态",
+  year: "年度",
+  type: "类型",
+};
+
+function fieldLabel(key: string): string {
+  return FIELD_LABELS[key] || key;
+}
+
+/** 需要隐藏的内部字段 */
+const HIDDEN_FIELDS = new Set(["id"]);
+
 interface Props {
   message: AgentMessage | null;
   onClose: () => void;
@@ -17,6 +50,19 @@ export default function AgentReportDrawer({ message, onClose }: Props) {
   const data = message.data as Record<string, unknown>;
   const items = Array.isArray(data.items) ? data.items : [];
   const total = typeof data.total === "number" ? data.total : items.length;
+
+  // 获取可见字段（排除内部字段）
+  const visibleKeys = items.length > 0
+    ? Object.keys(items[0] as Record<string, unknown>).filter((k) => !HIDDEN_FIELDS.has(k))
+    : [];
+
+  // 格式化值
+  function fmt(val: unknown): string {
+    if (val == null) return "-";
+    if (Array.isArray(val)) return val.join(", ");
+    if (typeof val === "object") return JSON.stringify(val);
+    return String(val);
+  }
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/30" onClick={onClose}>
@@ -51,9 +97,9 @@ export default function AgentReportDrawer({ message, onClose }: Props) {
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-gray-100 text-left">
                 <tr>
-                  {Object.keys(items[0] as Record<string, unknown>).map((key) => (
+                  {visibleKeys.map((key) => (
                     <th key={key} className="px-4 py-2.5 font-medium text-gray-600 whitespace-nowrap">
-                      {key}
+                      {fieldLabel(key)}
                     </th>
                   ))}
                 </tr>
@@ -61,9 +107,9 @@ export default function AgentReportDrawer({ message, onClose }: Props) {
               <tbody className="divide-y">
                 {items.map((item, i) => (
                   <tr key={i} className="hover:bg-gray-50">
-                    {Object.values(item as Record<string, unknown>).map((val, j) => (
-                      <td key={j} className="px-4 py-2.5 text-gray-700 whitespace-nowrap max-w-[250px] truncate">
-                        {val == null ? "-" : String(val)}
+                    {visibleKeys.map((key) => (
+                      <td key={key} className="px-4 py-2.5 text-gray-700 whitespace-nowrap max-w-[250px] truncate">
+                        {fmt((item as Record<string, unknown>)[key])}
                       </td>
                     ))}
                   </tr>
