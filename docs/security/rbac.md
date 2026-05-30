@@ -175,7 +175,6 @@ model DepartmentResourceRole {
 - 筛选：部门层级 + 姓名搜索
 - 列：访问 / 编辑 / 删除 / 管理 / 最高权限
 - 超过 maxRoleKey 的列显示灰色 `—`
-- 支持 scoped 资源（如 `work.report`）的范围选择器
 
 ## 工作模块数据权限（业务规则）
 

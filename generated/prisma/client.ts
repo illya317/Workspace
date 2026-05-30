@@ -78,16 +78,6 @@ export type PositionResourceRole = Prisma.PositionResourceRoleModel
  */
 export type DepartmentResourceRole = Prisma.DepartmentResourceRoleModel
 /**
- * Model DepartmentWorkAssignee
- * 部门工作指派人（业务配置，非 RBAC 权限）
- */
-export type DepartmentWorkAssignee = Prisma.DepartmentWorkAssigneeModel
-/**
- * Model ProjectWorkAssignee
- * 项目工作指派人（业务配置，非 RBAC 权限）
- */
-export type ProjectWorkAssignee = Prisma.ProjectWorkAssigneeModel
-/**
  * Model Contract
  * 合同管理（事实：合同基本信息、金额、状态）
  */
@@ -298,3 +288,13 @@ export type WorkItem = Prisma.WorkItemModel
  * 工作清单参与人
  */
 export type WorkParticipant = Prisma.WorkParticipantModel
+/**
+ * Model DepartmentWorkAssignee
+ * 部门工作指派人（业务配置，非 RBAC 权限）
+ */
+export type DepartmentWorkAssignee = Prisma.DepartmentWorkAssigneeModel
+/**
+ * Model ProjectWorkAssignee
+ * 项目工作指派人（业务配置，非 RBAC 权限）
+ */
+export type ProjectWorkAssignee = Prisma.ProjectWorkAssigneeModel

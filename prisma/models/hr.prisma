@@ -108,6 +108,7 @@ model Department {
   parent        Department?              @relation("DeptHierarchy", fields: [parentId], references: [id])
   children      Department[]             @relation("DeptHierarchy")
   resourceRoles DepartmentResourceRole[]
+  workAssignees DepartmentWorkAssignee[]
   edps          EDP[]
   positions     Position[]
 
@@ -180,6 +181,7 @@ model Project {
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @default(now()) @updatedAt
   employees   EmployeeProject[]
+  workAssignees ProjectWorkAssignee[]
 }
 
 /// 员工-项目关联

@@ -67,7 +67,7 @@ export async function getUserTargets(userId: number): Promise<{
   users: TargetInfo[];
 }> {
   // System admin → all targets
-  if (await checkPermission(userId, "system", "admin")) {
+  if (await checkPermission(userId, "work", "admin")) {
     const [departments, projects, positions, users] = await Promise.all([
       prisma.department.findMany({ select: { id: true, name: true, code: true } }),
       prisma.project.findMany({ select: { id: true, name: true, type: true } }),

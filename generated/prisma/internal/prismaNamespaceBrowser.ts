@@ -58,8 +58,6 @@ export const ModelName = {
   UserResourceRole: 'UserResourceRole',
   PositionResourceRole: 'PositionResourceRole',
   DepartmentResourceRole: 'DepartmentResourceRole',
-  DepartmentWorkAssignee: 'DepartmentWorkAssignee',
-  ProjectWorkAssignee: 'ProjectWorkAssignee',
   Contract: 'Contract',
   FinanceBudgetVersion: 'FinanceBudgetVersion',
   FinanceBudgetDept: 'FinanceBudgetDept',
@@ -101,7 +99,9 @@ export const ModelName = {
   SystemConfig: 'SystemConfig',
   LoginAttempt: 'LoginAttempt',
   WorkItem: 'WorkItem',
-  WorkParticipant: 'WorkParticipant'
+  WorkParticipant: 'WorkParticipant',
+  DepartmentWorkAssignee: 'DepartmentWorkAssignee',
+  ProjectWorkAssignee: 'ProjectWorkAssignee'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -210,26 +210,6 @@ export const DepartmentResourceRoleScalarFieldEnum = {
 } as const
 
 export type DepartmentResourceRoleScalarFieldEnum = (typeof DepartmentResourceRoleScalarFieldEnum)[keyof typeof DepartmentResourceRoleScalarFieldEnum]
-
-
-export const DepartmentWorkAssigneeScalarFieldEnum = {
-  id: 'id',
-  departmentId: 'departmentId',
-  userId: 'userId',
-  kind: 'kind'
-} as const
-
-export type DepartmentWorkAssigneeScalarFieldEnum = (typeof DepartmentWorkAssigneeScalarFieldEnum)[keyof typeof DepartmentWorkAssigneeScalarFieldEnum]
-
-
-export const ProjectWorkAssigneeScalarFieldEnum = {
-  id: 'id',
-  projectId: 'projectId',
-  userId: 'userId',
-  kind: 'kind'
-} as const
-
-export type ProjectWorkAssigneeScalarFieldEnum = (typeof ProjectWorkAssigneeScalarFieldEnum)[keyof typeof ProjectWorkAssigneeScalarFieldEnum]
 
 
 export const ContractScalarFieldEnum = {
@@ -1031,6 +1011,26 @@ export const WorkParticipantScalarFieldEnum = {
 } as const
 
 export type WorkParticipantScalarFieldEnum = (typeof WorkParticipantScalarFieldEnum)[keyof typeof WorkParticipantScalarFieldEnum]
+
+
+export const DepartmentWorkAssigneeScalarFieldEnum = {
+  id: 'id',
+  departmentId: 'departmentId',
+  userId: 'userId',
+  kind: 'kind'
+} as const
+
+export type DepartmentWorkAssigneeScalarFieldEnum = (typeof DepartmentWorkAssigneeScalarFieldEnum)[keyof typeof DepartmentWorkAssigneeScalarFieldEnum]
+
+
+export const ProjectWorkAssigneeScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  userId: 'userId',
+  kind: 'kind'
+} as const
+
+export type ProjectWorkAssigneeScalarFieldEnum = (typeof ProjectWorkAssigneeScalarFieldEnum)[keyof typeof ProjectWorkAssigneeScalarFieldEnum]
 
 
 export const SortOrder = {

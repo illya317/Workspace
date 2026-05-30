@@ -28,3 +28,27 @@ model WorkParticipant {
 
   @@index([workItemId])
 }
+
+/// 部门工作指派人（业务配置，非 RBAC 权限）
+model DepartmentWorkAssignee {
+  id           Int        @id @default(autoincrement())
+  departmentId Int
+  userId       Int
+  kind         String     // "task" | "report"
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([departmentId, userId, kind])
+}
+
+/// 项目工作指派人（业务配置，非 RBAC 权限）
+model ProjectWorkAssignee {
+  id        Int     @id @default(autoincrement())
+  projectId Int
+  userId    Int
+  kind      String  // "task" | "report"
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId, kind])
+}
