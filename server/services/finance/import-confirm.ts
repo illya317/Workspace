@@ -29,7 +29,8 @@ async function upsertAccounts(preview: PreviewResult) {
     }
   }
 
-  // 批量预加载可能缺失的父科目（序时账只有叶子科目，父科目可能不在 accounts 列表里）
+  // 批量预加载可能缺失的父科目。部分科目表跳级（如只有6601和66010101，无660101）
+  // 先收集直接父级，再对不存在的尝试逐级缩短（每次减2位，最少4位）
   const missingParentCodes = new Set<string>();
   for (const account of sortedAccounts) {
     if (account.parentCode && !accountCodeToId.has(account.parentCode)) {
@@ -43,6 +44,32 @@ async function upsertAccounts(preview: PreviewResult) {
     });
     for (const pa of parentAccounts) {
       accountCodeToId.set(pa.code, pa.id);
+    }
+
+    // 对仍然缺失的父级code，尝试更短前缀（每次减2位，最低4位）
+    const stillMissing = Array.from(missingParentCodes).filter(c => !accountCodeToId.has(c));
+    if (stillMissing.length > 0) {
+      const fallbackCodes = new Set<string>();
+      const codeToOriginal = new Map<string, string>(); // fallback code → original missing code
+      for (const code of stillMissing) {
+        for (let len = code.length - 2; len >= 4; len -= 2) {
+          const fallback = code.slice(0, len);
+          fallbackCodes.add(fallback);
+          if (!codeToOriginal.has(fallback)) codeToOriginal.set(fallback, code);
+        }
+      }
+      const fallbackAccounts = await prisma.financeAccount.findMany({
+        where: { code: { in: Array.from(fallbackCodes) }, companyCode, year },
+        select: { id: true, code: true },
+      });
+      for (const fa of fallbackAccounts) {
+        accountCodeToId.set(fa.code, fa.id);
+        // 也把原始缺失code映射到找到的父级（这样accountCodeToId.get("660101")也能找到6601的id）
+        const orig = codeToOriginal.get(fa.code);
+        if (orig && !accountCodeToId.has(orig)) {
+          accountCodeToId.set(orig, fa.id);
+        }
+      }
     }
   }
 

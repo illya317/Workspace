@@ -6,7 +6,7 @@ import ImportClient from "./ImportClient";
 export default async function ImportPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (!user.canAccessFinance) redirect("/portal");
+  if (!user.canAccessFinanceImport) redirect("/portal");
   return (
     <FinanceShell activeNav="import" user={user}>
       <ImportClient user={user} />

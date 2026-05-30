@@ -6,7 +6,7 @@ import BudgetClient from "./BudgetClient";
 export default async function BudgetPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (!user.canAccessFinance) redirect("/portal");
+  if (!user.canAccessFinanceBudget) redirect("/portal");
   return (
     <FinanceShell activeNav="budget" user={user}>
       <BudgetClient />

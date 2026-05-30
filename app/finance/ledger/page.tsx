@@ -6,7 +6,7 @@ import LedgerClient from "./LedgerClient";
 export default async function LedgerPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (!user.canAccessFinance) redirect("/portal");
+  if (!user.canAccessFinanceLedger) redirect("/portal");
   return (
     <FinanceShell activeNav="ledger" user={user}>
       <LedgerClient />

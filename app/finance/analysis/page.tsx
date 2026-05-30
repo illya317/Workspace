@@ -6,7 +6,7 @@ import FinanceAnalysisClient from "./FinanceAnalysisClient";
 export default async function FinanceAnalysisPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (!user.canAccessFinance) redirect("/portal");
+  if (!user.canAccessFinanceAnalysis) redirect("/portal");
   return (
     <FinanceShell activeNav="analysis" user={user}>
       <FinanceAnalysisClient user={user} />
