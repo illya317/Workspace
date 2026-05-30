@@ -27,6 +27,8 @@ export interface SessionUser {
   canAccessApi?: boolean;
   canAccessAgent?: boolean;
   canAccessDocs?: boolean;
+  canAccessExternal?: boolean;
+  canAccessLibrary?: boolean;
   manageableResourceKeys?: string[];
   isActiveEmployee?: boolean;
   employeeId?: string | null;

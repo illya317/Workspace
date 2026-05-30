@@ -64,6 +64,8 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     hasApi,
     hasAgent,
     hasDocs,
+    hasExternal,
+    hasLibrary,
   ] = await Promise.all([
     checkPermissionWithContext(ctx, "work.report", "write"),
     checkPermissionWithContext(ctx, "people", "access"),
@@ -82,6 +84,8 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     checkPermissionWithContext(ctx, "system.api", "access"),
     checkPermissionWithContext(ctx, "system.agent", "access"),
     checkPermissionWithContext(ctx, "docs", "access"),
+    checkPermissionWithContext(ctx, "external", "access"),
+    checkPermissionWithContext(ctx, "library", "access"),
   ]);
 
     const hasHR = hasHRAccess || hasHRWrite || hasHRDelete;
@@ -119,6 +123,8 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     canAccessApi: hasApi,
     canAccessAgent: hasAgent,
     canAccessDocs: hasDocs,
+    canAccessExternal: hasExternal,
+    canAccessLibrary: hasLibrary,
     manageableResourceKeys: [...manageableKeys],
     employeeId: employee?.employeeId ?? null,
     isActiveEmployee,

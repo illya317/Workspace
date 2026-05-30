@@ -80,7 +80,7 @@ const icons = {
 // ─── 注册表 ───────────────────────────────────────────────
 
 export const MODULES: ModuleDef[] = [
-  { key: "reports", label: "工作汇报", desc: "填写周报、月报、季报、年报", href: "/reports", icon: icons.reports, color: "emerald" },
+  { key: "reports", label: "工作汇报", desc: "填写周报、月报、季报、年报", href: "/reports", icon: icons.reports, color: "emerald", requiredPerm: "canAccessWorks" },
   { key: "hr", label: "人事管理", desc: "花名册、考勤、绩效、人力分析", href: "/hr", icon: icons.hr, color: "blue", requiredPerm: "canAccessHR",
     children: [
       { key: "roster", label: "人事基础资料", desc: "员工、雇佣、合同、部门、岗位、EDP、项目", href: "/hr/roster", requiredPerm: "canAccessHR" },
@@ -88,7 +88,7 @@ export const MODULES: ModuleDef[] = [
       { key: "analytics", label: "人力分析", desc: "员工结构、部门架构、岗位分析、人员流动", href: "/hr/analytics", requiredPerm: "canAccessHR" },
     ],
   },
-  { key: "administration", label: "行政管理", desc: "合同台账、办公事务", href: "/administration", icon: icons.admin, color: "indigo",
+  { key: "administration", label: "行政管理", desc: "合同台账、办公事务", href: "/administration", icon: icons.admin, color: "indigo", requiredPerm: "canAccessContract",
     children: [
       { key: "contracts", label: "合同台账", desc: "合同录入、查询、到期预警", href: "/contracts", requiredPerm: "canAccessContract" },
     ],
@@ -108,14 +108,14 @@ export const MODULES: ModuleDef[] = [
       { key: "inventory", label: "库存管理", desc: "原辅料、包装材料、成品库存", href: "/inventory", requiredPerm: "canAccessInventory" },
     ],
   },
-  { key: "external", label: "外部关系", desc: "客户、投资人、供应商", href: "/external", icon: icons.customers, color: "orange",
+  { key: "external", label: "外部关系", desc: "客户、投资人、供应商", href: "/external", icon: icons.customers, color: "orange", requiredPerm: "canAccessExternal",
     children: [
       { key: "investors", label: "投资人关系", desc: "投资人信息、沟通记录", href: "/external/investors" },
       { key: "customers", label: "客户管理", desc: "客户信息、跟进记录", href: "/external/customers" },
       { key: "suppliers", label: "供应商管理", desc: "供应商信息、采购记录", href: "/external/suppliers" },
     ],
   },
-  { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple",
+  { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple", requiredPerm: "canAccessDocs",
     children: [
       { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions/GMP" },
       { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company" },
@@ -123,7 +123,7 @@ export const MODULES: ModuleDef[] = [
       { key: "api-guide", label: "接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide", requiredPerm: "canAccessApi" },
     ],
   },
-  { key: "library", label: "资料库", desc: "内部资料存档", href: "/library", icon: (
+  { key: "library", label: "资料库", desc: "内部资料存档", href: "/library", requiredPerm: "canAccessLibrary", icon: (
     <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
     </svg>
