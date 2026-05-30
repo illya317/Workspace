@@ -252,8 +252,8 @@ export type ReportItemWhereInput = {
   nextGoal?: Prisma.StringNullableFilter<"ReportItem"> | string | null
   sortOrder?: Prisma.IntFilter<"ReportItem"> | number
   workItemId?: Prisma.IntNullableFilter<"ReportItem"> | number | null
-  workItem?: Prisma.XOR<Prisma.WorkItemNullableScalarRelationFilter, Prisma.WorkItemWhereInput> | null
   report?: Prisma.XOR<Prisma.ReportScalarRelationFilter, Prisma.ReportWhereInput>
+  workItem?: Prisma.XOR<Prisma.WorkItemNullableScalarRelationFilter, Prisma.WorkItemWhereInput> | null
 }
 
 export type ReportItemOrderByWithRelationInput = {
@@ -265,8 +265,8 @@ export type ReportItemOrderByWithRelationInput = {
   nextGoal?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   workItemId?: Prisma.SortOrderInput | Prisma.SortOrder
-  workItem?: Prisma.WorkItemOrderByWithRelationInput
   report?: Prisma.ReportOrderByWithRelationInput
+  workItem?: Prisma.WorkItemOrderByWithRelationInput
 }
 
 export type ReportItemWhereUniqueInput = Prisma.AtLeast<{
@@ -281,8 +281,8 @@ export type ReportItemWhereUniqueInput = Prisma.AtLeast<{
   nextGoal?: Prisma.StringNullableFilter<"ReportItem"> | string | null
   sortOrder?: Prisma.IntFilter<"ReportItem"> | number
   workItemId?: Prisma.IntNullableFilter<"ReportItem"> | number | null
-  workItem?: Prisma.XOR<Prisma.WorkItemNullableScalarRelationFilter, Prisma.WorkItemWhereInput> | null
   report?: Prisma.XOR<Prisma.ReportScalarRelationFilter, Prisma.ReportWhereInput>
+  workItem?: Prisma.XOR<Prisma.WorkItemNullableScalarRelationFilter, Prisma.WorkItemWhereInput> | null
 }, "id">
 
 export type ReportItemOrderByWithAggregationInput = {
@@ -321,8 +321,8 @@ export type ReportItemCreateInput = {
   completion?: string | null
   nextGoal?: string | null
   sortOrder: number
-  workItem?: Prisma.WorkItemCreateNestedOneWithoutReportItemsInput
   report: Prisma.ReportCreateNestedOneWithoutItemsInput
+  workItem?: Prisma.WorkItemCreateNestedOneWithoutReportItemsInput
 }
 
 export type ReportItemUncheckedCreateInput = {
@@ -342,8 +342,8 @@ export type ReportItemUpdateInput = {
   completion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   nextGoal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  workItem?: Prisma.WorkItemUpdateOneWithoutReportItemsNestedInput
   report?: Prisma.ReportUpdateOneRequiredWithoutItemsNestedInput
+  workItem?: Prisma.WorkItemUpdateOneWithoutReportItemsNestedInput
 }
 
 export type ReportItemUncheckedUpdateInput = {
@@ -719,8 +719,8 @@ export type ReportItemSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   nextGoal?: boolean
   sortOrder?: boolean
   workItemId?: boolean
-  workItem?: boolean | Prisma.ReportItem$workItemArgs<ExtArgs>
   report?: boolean | Prisma.ReportDefaultArgs<ExtArgs>
+  workItem?: boolean | Prisma.ReportItem$workItemArgs<ExtArgs>
 }, ExtArgs["result"]["reportItem"]>
 
 export type ReportItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -732,8 +732,8 @@ export type ReportItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   nextGoal?: boolean
   sortOrder?: boolean
   workItemId?: boolean
-  workItem?: boolean | Prisma.ReportItem$workItemArgs<ExtArgs>
   report?: boolean | Prisma.ReportDefaultArgs<ExtArgs>
+  workItem?: boolean | Prisma.ReportItem$workItemArgs<ExtArgs>
 }, ExtArgs["result"]["reportItem"]>
 
 export type ReportItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -745,8 +745,8 @@ export type ReportItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   nextGoal?: boolean
   sortOrder?: boolean
   workItemId?: boolean
-  workItem?: boolean | Prisma.ReportItem$workItemArgs<ExtArgs>
   report?: boolean | Prisma.ReportDefaultArgs<ExtArgs>
+  workItem?: boolean | Prisma.ReportItem$workItemArgs<ExtArgs>
 }, ExtArgs["result"]["reportItem"]>
 
 export type ReportItemSelectScalar = {
@@ -762,23 +762,23 @@ export type ReportItemSelectScalar = {
 
 export type ReportItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "reportId" | "category" | "plan" | "completion" | "nextGoal" | "sortOrder" | "workItemId", ExtArgs["result"]["reportItem"]>
 export type ReportItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workItem?: boolean | Prisma.ReportItem$workItemArgs<ExtArgs>
   report?: boolean | Prisma.ReportDefaultArgs<ExtArgs>
+  workItem?: boolean | Prisma.ReportItem$workItemArgs<ExtArgs>
 }
 export type ReportItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workItem?: boolean | Prisma.ReportItem$workItemArgs<ExtArgs>
   report?: boolean | Prisma.ReportDefaultArgs<ExtArgs>
+  workItem?: boolean | Prisma.ReportItem$workItemArgs<ExtArgs>
 }
 export type ReportItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workItem?: boolean | Prisma.ReportItem$workItemArgs<ExtArgs>
   report?: boolean | Prisma.ReportDefaultArgs<ExtArgs>
+  workItem?: boolean | Prisma.ReportItem$workItemArgs<ExtArgs>
 }
 
 export type $ReportItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ReportItem"
   objects: {
-    workItem: Prisma.$WorkItemPayload<ExtArgs> | null
     report: Prisma.$ReportPayload<ExtArgs>
+    workItem: Prisma.$WorkItemPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1183,8 +1183,8 @@ readonly fields: ReportItemFieldRefs;
  */
 export interface Prisma__ReportItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  workItem<T extends Prisma.ReportItem$workItemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReportItem$workItemArgs<ExtArgs>>): Prisma.Prisma__WorkItemClient<runtime.Types.Result.GetResult<Prisma.$WorkItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   report<T extends Prisma.ReportDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReportDefaultArgs<ExtArgs>>): Prisma.Prisma__ReportClient<runtime.Types.Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  workItem<T extends Prisma.ReportItem$workItemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReportItem$workItemArgs<ExtArgs>>): Prisma.Prisma__WorkItemClient<runtime.Types.Result.GetResult<Prisma.$WorkItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

@@ -256,8 +256,8 @@ export type FinancePeriodWhereInput = {
   companyCode?: Prisma.StringNullableFilter<"FinancePeriod"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinancePeriod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinancePeriod"> | Date | string
-  vouchers?: Prisma.FinanceVoucherListRelationFilter
   balances?: Prisma.FinanceAccountBalanceListRelationFilter
+  vouchers?: Prisma.FinanceVoucherListRelationFilter
 }
 
 export type FinancePeriodOrderByWithRelationInput = {
@@ -270,12 +270,13 @@ export type FinancePeriodOrderByWithRelationInput = {
   companyCode?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  vouchers?: Prisma.FinanceVoucherOrderByRelationAggregateInput
   balances?: Prisma.FinanceAccountBalanceOrderByRelationAggregateInput
+  vouchers?: Prisma.FinanceVoucherOrderByRelationAggregateInput
 }
 
 export type FinancePeriodWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  companyCode_year_month?: Prisma.FinancePeriodCompanyCodeYearMonthCompoundUniqueInput
   AND?: Prisma.FinancePeriodWhereInput | Prisma.FinancePeriodWhereInput[]
   OR?: Prisma.FinancePeriodWhereInput[]
   NOT?: Prisma.FinancePeriodWhereInput | Prisma.FinancePeriodWhereInput[]
@@ -287,9 +288,9 @@ export type FinancePeriodWhereUniqueInput = Prisma.AtLeast<{
   companyCode?: Prisma.StringNullableFilter<"FinancePeriod"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinancePeriod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinancePeriod"> | Date | string
-  vouchers?: Prisma.FinanceVoucherListRelationFilter
   balances?: Prisma.FinanceAccountBalanceListRelationFilter
-}, "id">
+  vouchers?: Prisma.FinanceVoucherListRelationFilter
+}, "id" | "companyCode_year_month">
 
 export type FinancePeriodOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -332,8 +333,8 @@ export type FinancePeriodCreateInput = {
   companyCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutPeriodInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateInput = {
@@ -346,8 +347,8 @@ export type FinancePeriodUncheckedCreateInput = {
   companyCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutPeriodInput
   balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUpdateInput = {
@@ -359,8 +360,8 @@ export type FinancePeriodUpdateInput = {
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutPeriodNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateInput = {
@@ -373,8 +374,8 @@ export type FinancePeriodUncheckedUpdateInput = {
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutPeriodNestedInput
   balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodCreateManyInput = {
@@ -410,6 +411,12 @@ export type FinancePeriodUncheckedUpdateManyInput = {
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinancePeriodCompanyCodeYearMonthCompoundUniqueInput = {
+  companyCode: string
+  year: number
+  month: number
 }
 
 export type FinancePeriodCountOrderByAggregateInput = {
@@ -631,13 +638,13 @@ export type FinancePeriodUncheckedUpdateWithoutBalancesInput = {
  */
 
 export type FinancePeriodCountOutputType = {
-  vouchers: number
   balances: number
+  vouchers: number
 }
 
 export type FinancePeriodCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  vouchers?: boolean | FinancePeriodCountOutputTypeCountVouchersArgs
   balances?: boolean | FinancePeriodCountOutputTypeCountBalancesArgs
+  vouchers?: boolean | FinancePeriodCountOutputTypeCountVouchersArgs
 }
 
 /**
@@ -653,15 +660,15 @@ export type FinancePeriodCountOutputTypeDefaultArgs<ExtArgs extends runtime.Type
 /**
  * FinancePeriodCountOutputType without action
  */
-export type FinancePeriodCountOutputTypeCountVouchersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.FinanceVoucherWhereInput
+export type FinancePeriodCountOutputTypeCountBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAccountBalanceWhereInput
 }
 
 /**
  * FinancePeriodCountOutputType without action
  */
-export type FinancePeriodCountOutputTypeCountBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.FinanceAccountBalanceWhereInput
+export type FinancePeriodCountOutputTypeCountVouchersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceVoucherWhereInput
 }
 
 
@@ -675,8 +682,8 @@ export type FinancePeriodSelect<ExtArgs extends runtime.Types.Extensions.Interna
   companyCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  vouchers?: boolean | Prisma.FinancePeriod$vouchersArgs<ExtArgs>
   balances?: boolean | Prisma.FinancePeriod$balancesArgs<ExtArgs>
+  vouchers?: boolean | Prisma.FinancePeriod$vouchersArgs<ExtArgs>
   _count?: boolean | Prisma.FinancePeriodCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financePeriod"]>
 
@@ -718,8 +725,8 @@ export type FinancePeriodSelectScalar = {
 
 export type FinancePeriodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "year" | "month" | "startDate" | "endDate" | "isClosed" | "companyCode" | "createdAt" | "updatedAt", ExtArgs["result"]["financePeriod"]>
 export type FinancePeriodInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  vouchers?: boolean | Prisma.FinancePeriod$vouchersArgs<ExtArgs>
   balances?: boolean | Prisma.FinancePeriod$balancesArgs<ExtArgs>
+  vouchers?: boolean | Prisma.FinancePeriod$vouchersArgs<ExtArgs>
   _count?: boolean | Prisma.FinancePeriodCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinancePeriodIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -728,8 +735,8 @@ export type FinancePeriodIncludeUpdateManyAndReturn<ExtArgs extends runtime.Type
 export type $FinancePeriodPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinancePeriod"
   objects: {
-    vouchers: Prisma.$FinanceVoucherPayload<ExtArgs>[]
     balances: Prisma.$FinanceAccountBalancePayload<ExtArgs>[]
+    vouchers: Prisma.$FinanceVoucherPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1135,8 +1142,8 @@ readonly fields: FinancePeriodFieldRefs;
  */
 export interface Prisma__FinancePeriodClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  vouchers<T extends Prisma.FinancePeriod$vouchersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$vouchersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   balances<T extends Prisma.FinancePeriod$balancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$balancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  vouchers<T extends Prisma.FinancePeriod$vouchersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$vouchersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1566,30 +1573,6 @@ export type FinancePeriodDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
 }
 
 /**
- * FinancePeriod.vouchers
- */
-export type FinancePeriod$vouchersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the FinanceVoucher
-   */
-  select?: Prisma.FinanceVoucherSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the FinanceVoucher
-   */
-  omit?: Prisma.FinanceVoucherOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.FinanceVoucherInclude<ExtArgs> | null
-  where?: Prisma.FinanceVoucherWhereInput
-  orderBy?: Prisma.FinanceVoucherOrderByWithRelationInput | Prisma.FinanceVoucherOrderByWithRelationInput[]
-  cursor?: Prisma.FinanceVoucherWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.FinanceVoucherScalarFieldEnum | Prisma.FinanceVoucherScalarFieldEnum[]
-}
-
-/**
  * FinancePeriod.balances
  */
 export type FinancePeriod$balancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1611,6 +1594,30 @@ export type FinancePeriod$balancesArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.FinanceAccountBalanceScalarFieldEnum | Prisma.FinanceAccountBalanceScalarFieldEnum[]
+}
+
+/**
+ * FinancePeriod.vouchers
+ */
+export type FinancePeriod$vouchersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceVoucher
+   */
+  select?: Prisma.FinanceVoucherSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceVoucher
+   */
+  omit?: Prisma.FinanceVoucherOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceVoucherInclude<ExtArgs> | null
+  where?: Prisma.FinanceVoucherWhereInput
+  orderBy?: Prisma.FinanceVoucherOrderByWithRelationInput | Prisma.FinanceVoucherOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceVoucherWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceVoucherScalarFieldEnum | Prisma.FinanceVoucherScalarFieldEnum[]
 }
 
 /**

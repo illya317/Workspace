@@ -312,11 +312,11 @@ export type FinanceDataImportWhereInput = {
   importedAt?: Prisma.DateTimeFilter<"FinanceDataImport"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"FinanceDataImport"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceDataImport"> | Date | string
-  shipments?: Prisma.FinanceShipmentListRelationFilter
-  salesSalaries?: Prisma.FinanceSalesSalaryListRelationFilter
-  workshopReports?: Prisma.FinanceWorkshopReportListRelationFilter
-  costStructureRows?: Prisma.FinanceCostStructureRowListRelationFilter
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowListRelationFilter
+  costStructureRows?: Prisma.FinanceCostStructureRowListRelationFilter
+  salesSalaries?: Prisma.FinanceSalesSalaryListRelationFilter
+  shipments?: Prisma.FinanceShipmentListRelationFilter
+  workshopReports?: Prisma.FinanceWorkshopReportListRelationFilter
 }
 
 export type FinanceDataImportOrderByWithRelationInput = {
@@ -335,11 +335,11 @@ export type FinanceDataImportOrderByWithRelationInput = {
   importedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  shipments?: Prisma.FinanceShipmentOrderByRelationAggregateInput
-  salesSalaries?: Prisma.FinanceSalesSalaryOrderByRelationAggregateInput
-  workshopReports?: Prisma.FinanceWorkshopReportOrderByRelationAggregateInput
-  costStructureRows?: Prisma.FinanceCostStructureRowOrderByRelationAggregateInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowOrderByRelationAggregateInput
+  costStructureRows?: Prisma.FinanceCostStructureRowOrderByRelationAggregateInput
+  salesSalaries?: Prisma.FinanceSalesSalaryOrderByRelationAggregateInput
+  shipments?: Prisma.FinanceShipmentOrderByRelationAggregateInput
+  workshopReports?: Prisma.FinanceWorkshopReportOrderByRelationAggregateInput
 }
 
 export type FinanceDataImportWhereUniqueInput = Prisma.AtLeast<{
@@ -361,11 +361,11 @@ export type FinanceDataImportWhereUniqueInput = Prisma.AtLeast<{
   importedAt?: Prisma.DateTimeFilter<"FinanceDataImport"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"FinanceDataImport"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceDataImport"> | Date | string
-  shipments?: Prisma.FinanceShipmentListRelationFilter
-  salesSalaries?: Prisma.FinanceSalesSalaryListRelationFilter
-  workshopReports?: Prisma.FinanceWorkshopReportListRelationFilter
-  costStructureRows?: Prisma.FinanceCostStructureRowListRelationFilter
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowListRelationFilter
+  costStructureRows?: Prisma.FinanceCostStructureRowListRelationFilter
+  salesSalaries?: Prisma.FinanceSalesSalaryListRelationFilter
+  shipments?: Prisma.FinanceShipmentListRelationFilter
+  workshopReports?: Prisma.FinanceWorkshopReportListRelationFilter
 }, "id">
 
 export type FinanceDataImportOrderByWithAggregationInput = {
@@ -427,11 +427,11 @@ export type FinanceDataImportCreateInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  shipments?: Prisma.FinanceShipmentCreateNestedManyWithoutImportInput
-  salesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutImportInput
-  workshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutImportInput
-  costStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutImportInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowCreateNestedManyWithoutImportInput
+  costStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutImportInput
+  salesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutImportInput
+  shipments?: Prisma.FinanceShipmentCreateNestedManyWithoutImportInput
+  workshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutImportInput
 }
 
 export type FinanceDataImportUncheckedCreateInput = {
@@ -450,11 +450,11 @@ export type FinanceDataImportUncheckedCreateInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  shipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutImportInput
-  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutImportInput
-  workshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutImportInput
-  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedCreateNestedManyWithoutImportInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedCreateNestedManyWithoutImportInput
+  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedCreateNestedManyWithoutImportInput
+  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutImportInput
+  shipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutImportInput
+  workshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceDataImportUpdateInput = {
@@ -472,11 +472,11 @@ export type FinanceDataImportUpdateInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shipments?: Prisma.FinanceShipmentUpdateManyWithoutImportNestedInput
-  salesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutImportNestedInput
-  workshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutImportNestedInput
-  costStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutImportNestedInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowUpdateManyWithoutImportNestedInput
+  costStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutImportNestedInput
+  salesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutImportNestedInput
+  shipments?: Prisma.FinanceShipmentUpdateManyWithoutImportNestedInput
+  workshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceDataImportUncheckedUpdateInput = {
@@ -495,11 +495,11 @@ export type FinanceDataImportUncheckedUpdateInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutImportNestedInput
-  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutImportNestedInput
-  workshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutImportNestedInput
-  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedUpdateManyWithoutImportNestedInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedUpdateManyWithoutImportNestedInput
+  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedUpdateManyWithoutImportNestedInput
+  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutImportNestedInput
+  shipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutImportNestedInput
+  workshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceDataImportCreateManyInput = {
@@ -715,10 +715,10 @@ export type FinanceDataImportCreateWithoutShipmentsInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  costAnalysisRows?: Prisma.FinanceCostAnalysisRowCreateNestedManyWithoutImportInput
+  costStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutImportInput
   salesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutImportInput
   workshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutImportInput
-  costStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutImportInput
-  costAnalysisRows?: Prisma.FinanceCostAnalysisRowCreateNestedManyWithoutImportInput
 }
 
 export type FinanceDataImportUncheckedCreateWithoutShipmentsInput = {
@@ -737,10 +737,10 @@ export type FinanceDataImportUncheckedCreateWithoutShipmentsInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedCreateNestedManyWithoutImportInput
+  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedCreateNestedManyWithoutImportInput
   salesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutImportInput
   workshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutImportInput
-  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedCreateNestedManyWithoutImportInput
-  costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceDataImportCreateOrConnectWithoutShipmentsInput = {
@@ -774,10 +774,10 @@ export type FinanceDataImportUpdateWithoutShipmentsInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costAnalysisRows?: Prisma.FinanceCostAnalysisRowUpdateManyWithoutImportNestedInput
+  costStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutImportNestedInput
   salesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutImportNestedInput
   workshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutImportNestedInput
-  costStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutImportNestedInput
-  costAnalysisRows?: Prisma.FinanceCostAnalysisRowUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceDataImportUncheckedUpdateWithoutShipmentsInput = {
@@ -796,10 +796,10 @@ export type FinanceDataImportUncheckedUpdateWithoutShipmentsInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedUpdateManyWithoutImportNestedInput
+  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedUpdateManyWithoutImportNestedInput
   salesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutImportNestedInput
   workshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutImportNestedInput
-  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedUpdateManyWithoutImportNestedInput
-  costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceDataImportCreateWithoutSalesSalariesInput = {
@@ -817,10 +817,10 @@ export type FinanceDataImportCreateWithoutSalesSalariesInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  costAnalysisRows?: Prisma.FinanceCostAnalysisRowCreateNestedManyWithoutImportInput
+  costStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutImportInput
   shipments?: Prisma.FinanceShipmentCreateNestedManyWithoutImportInput
   workshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutImportInput
-  costStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutImportInput
-  costAnalysisRows?: Prisma.FinanceCostAnalysisRowCreateNestedManyWithoutImportInput
 }
 
 export type FinanceDataImportUncheckedCreateWithoutSalesSalariesInput = {
@@ -839,10 +839,10 @@ export type FinanceDataImportUncheckedCreateWithoutSalesSalariesInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedCreateNestedManyWithoutImportInput
+  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedCreateNestedManyWithoutImportInput
   shipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutImportInput
   workshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutImportInput
-  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedCreateNestedManyWithoutImportInput
-  costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceDataImportCreateOrConnectWithoutSalesSalariesInput = {
@@ -876,10 +876,10 @@ export type FinanceDataImportUpdateWithoutSalesSalariesInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costAnalysisRows?: Prisma.FinanceCostAnalysisRowUpdateManyWithoutImportNestedInput
+  costStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutImportNestedInput
   shipments?: Prisma.FinanceShipmentUpdateManyWithoutImportNestedInput
   workshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutImportNestedInput
-  costStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutImportNestedInput
-  costAnalysisRows?: Prisma.FinanceCostAnalysisRowUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceDataImportUncheckedUpdateWithoutSalesSalariesInput = {
@@ -898,10 +898,10 @@ export type FinanceDataImportUncheckedUpdateWithoutSalesSalariesInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedUpdateManyWithoutImportNestedInput
+  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedUpdateManyWithoutImportNestedInput
   shipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutImportNestedInput
   workshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutImportNestedInput
-  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedUpdateManyWithoutImportNestedInput
-  costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceDataImportCreateWithoutCostStructureRowsInput = {
@@ -919,10 +919,10 @@ export type FinanceDataImportCreateWithoutCostStructureRowsInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  shipments?: Prisma.FinanceShipmentCreateNestedManyWithoutImportInput
-  salesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutImportInput
-  workshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutImportInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowCreateNestedManyWithoutImportInput
+  salesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutImportInput
+  shipments?: Prisma.FinanceShipmentCreateNestedManyWithoutImportInput
+  workshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutImportInput
 }
 
 export type FinanceDataImportUncheckedCreateWithoutCostStructureRowsInput = {
@@ -941,10 +941,10 @@ export type FinanceDataImportUncheckedCreateWithoutCostStructureRowsInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  shipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutImportInput
-  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutImportInput
-  workshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutImportInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedCreateNestedManyWithoutImportInput
+  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutImportInput
+  shipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutImportInput
+  workshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceDataImportCreateOrConnectWithoutCostStructureRowsInput = {
@@ -978,10 +978,10 @@ export type FinanceDataImportUpdateWithoutCostStructureRowsInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shipments?: Prisma.FinanceShipmentUpdateManyWithoutImportNestedInput
-  salesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutImportNestedInput
-  workshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutImportNestedInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowUpdateManyWithoutImportNestedInput
+  salesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutImportNestedInput
+  shipments?: Prisma.FinanceShipmentUpdateManyWithoutImportNestedInput
+  workshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceDataImportUncheckedUpdateWithoutCostStructureRowsInput = {
@@ -1000,10 +1000,10 @@ export type FinanceDataImportUncheckedUpdateWithoutCostStructureRowsInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutImportNestedInput
-  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutImportNestedInput
-  workshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutImportNestedInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedUpdateManyWithoutImportNestedInput
+  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutImportNestedInput
+  shipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutImportNestedInput
+  workshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceDataImportCreateWithoutCostAnalysisRowsInput = {
@@ -1021,10 +1021,10 @@ export type FinanceDataImportCreateWithoutCostAnalysisRowsInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  shipments?: Prisma.FinanceShipmentCreateNestedManyWithoutImportInput
-  salesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutImportInput
-  workshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutImportInput
   costStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutImportInput
+  salesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutImportInput
+  shipments?: Prisma.FinanceShipmentCreateNestedManyWithoutImportInput
+  workshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutImportInput
 }
 
 export type FinanceDataImportUncheckedCreateWithoutCostAnalysisRowsInput = {
@@ -1043,10 +1043,10 @@ export type FinanceDataImportUncheckedCreateWithoutCostAnalysisRowsInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  shipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutImportInput
-  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutImportInput
-  workshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutImportInput
   costStructureRows?: Prisma.FinanceCostStructureRowUncheckedCreateNestedManyWithoutImportInput
+  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutImportInput
+  shipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutImportInput
+  workshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceDataImportCreateOrConnectWithoutCostAnalysisRowsInput = {
@@ -1080,10 +1080,10 @@ export type FinanceDataImportUpdateWithoutCostAnalysisRowsInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shipments?: Prisma.FinanceShipmentUpdateManyWithoutImportNestedInput
-  salesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutImportNestedInput
-  workshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutImportNestedInput
   costStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutImportNestedInput
+  salesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutImportNestedInput
+  shipments?: Prisma.FinanceShipmentUpdateManyWithoutImportNestedInput
+  workshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceDataImportUncheckedUpdateWithoutCostAnalysisRowsInput = {
@@ -1102,10 +1102,10 @@ export type FinanceDataImportUncheckedUpdateWithoutCostAnalysisRowsInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutImportNestedInput
-  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutImportNestedInput
-  workshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutImportNestedInput
   costStructureRows?: Prisma.FinanceCostStructureRowUncheckedUpdateManyWithoutImportNestedInput
+  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutImportNestedInput
+  shipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutImportNestedInput
+  workshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceDataImportCreateWithoutWorkshopReportsInput = {
@@ -1123,10 +1123,10 @@ export type FinanceDataImportCreateWithoutWorkshopReportsInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  shipments?: Prisma.FinanceShipmentCreateNestedManyWithoutImportInput
-  salesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutImportInput
-  costStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutImportInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowCreateNestedManyWithoutImportInput
+  costStructureRows?: Prisma.FinanceCostStructureRowCreateNestedManyWithoutImportInput
+  salesSalaries?: Prisma.FinanceSalesSalaryCreateNestedManyWithoutImportInput
+  shipments?: Prisma.FinanceShipmentCreateNestedManyWithoutImportInput
 }
 
 export type FinanceDataImportUncheckedCreateWithoutWorkshopReportsInput = {
@@ -1145,10 +1145,10 @@ export type FinanceDataImportUncheckedCreateWithoutWorkshopReportsInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  shipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutImportInput
-  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutImportInput
-  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedCreateNestedManyWithoutImportInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedCreateNestedManyWithoutImportInput
+  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedCreateNestedManyWithoutImportInput
+  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedCreateNestedManyWithoutImportInput
+  shipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceDataImportCreateOrConnectWithoutWorkshopReportsInput = {
@@ -1182,10 +1182,10 @@ export type FinanceDataImportUpdateWithoutWorkshopReportsInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shipments?: Prisma.FinanceShipmentUpdateManyWithoutImportNestedInput
-  salesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutImportNestedInput
-  costStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutImportNestedInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowUpdateManyWithoutImportNestedInput
+  costStructureRows?: Prisma.FinanceCostStructureRowUpdateManyWithoutImportNestedInput
+  salesSalaries?: Prisma.FinanceSalesSalaryUpdateManyWithoutImportNestedInput
+  shipments?: Prisma.FinanceShipmentUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceDataImportUncheckedUpdateWithoutWorkshopReportsInput = {
@@ -1204,10 +1204,10 @@ export type FinanceDataImportUncheckedUpdateWithoutWorkshopReportsInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  shipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutImportNestedInput
-  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutImportNestedInput
-  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedUpdateManyWithoutImportNestedInput
   costAnalysisRows?: Prisma.FinanceCostAnalysisRowUncheckedUpdateManyWithoutImportNestedInput
+  costStructureRows?: Prisma.FinanceCostStructureRowUncheckedUpdateManyWithoutImportNestedInput
+  salesSalaries?: Prisma.FinanceSalesSalaryUncheckedUpdateManyWithoutImportNestedInput
+  shipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutImportNestedInput
 }
 
 
@@ -1216,19 +1216,19 @@ export type FinanceDataImportUncheckedUpdateWithoutWorkshopReportsInput = {
  */
 
 export type FinanceDataImportCountOutputType = {
-  shipments: number
-  salesSalaries: number
-  workshopReports: number
-  costStructureRows: number
   costAnalysisRows: number
+  costStructureRows: number
+  salesSalaries: number
+  shipments: number
+  workshopReports: number
 }
 
 export type FinanceDataImportCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  shipments?: boolean | FinanceDataImportCountOutputTypeCountShipmentsArgs
-  salesSalaries?: boolean | FinanceDataImportCountOutputTypeCountSalesSalariesArgs
-  workshopReports?: boolean | FinanceDataImportCountOutputTypeCountWorkshopReportsArgs
-  costStructureRows?: boolean | FinanceDataImportCountOutputTypeCountCostStructureRowsArgs
   costAnalysisRows?: boolean | FinanceDataImportCountOutputTypeCountCostAnalysisRowsArgs
+  costStructureRows?: boolean | FinanceDataImportCountOutputTypeCountCostStructureRowsArgs
+  salesSalaries?: boolean | FinanceDataImportCountOutputTypeCountSalesSalariesArgs
+  shipments?: boolean | FinanceDataImportCountOutputTypeCountShipmentsArgs
+  workshopReports?: boolean | FinanceDataImportCountOutputTypeCountWorkshopReportsArgs
 }
 
 /**
@@ -1244,22 +1244,8 @@ export type FinanceDataImportCountOutputTypeDefaultArgs<ExtArgs extends runtime.
 /**
  * FinanceDataImportCountOutputType without action
  */
-export type FinanceDataImportCountOutputTypeCountShipmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.FinanceShipmentWhereInput
-}
-
-/**
- * FinanceDataImportCountOutputType without action
- */
-export type FinanceDataImportCountOutputTypeCountSalesSalariesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.FinanceSalesSalaryWhereInput
-}
-
-/**
- * FinanceDataImportCountOutputType without action
- */
-export type FinanceDataImportCountOutputTypeCountWorkshopReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.FinanceWorkshopReportWhereInput
+export type FinanceDataImportCountOutputTypeCountCostAnalysisRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceCostAnalysisRowWhereInput
 }
 
 /**
@@ -1272,8 +1258,22 @@ export type FinanceDataImportCountOutputTypeCountCostStructureRowsArgs<ExtArgs e
 /**
  * FinanceDataImportCountOutputType without action
  */
-export type FinanceDataImportCountOutputTypeCountCostAnalysisRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.FinanceCostAnalysisRowWhereInput
+export type FinanceDataImportCountOutputTypeCountSalesSalariesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceSalesSalaryWhereInput
+}
+
+/**
+ * FinanceDataImportCountOutputType without action
+ */
+export type FinanceDataImportCountOutputTypeCountShipmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceShipmentWhereInput
+}
+
+/**
+ * FinanceDataImportCountOutputType without action
+ */
+export type FinanceDataImportCountOutputTypeCountWorkshopReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceWorkshopReportWhereInput
 }
 
 
@@ -1293,11 +1293,11 @@ export type FinanceDataImportSelect<ExtArgs extends runtime.Types.Extensions.Int
   importedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  shipments?: boolean | Prisma.FinanceDataImport$shipmentsArgs<ExtArgs>
-  salesSalaries?: boolean | Prisma.FinanceDataImport$salesSalariesArgs<ExtArgs>
-  workshopReports?: boolean | Prisma.FinanceDataImport$workshopReportsArgs<ExtArgs>
-  costStructureRows?: boolean | Prisma.FinanceDataImport$costStructureRowsArgs<ExtArgs>
   costAnalysisRows?: boolean | Prisma.FinanceDataImport$costAnalysisRowsArgs<ExtArgs>
+  costStructureRows?: boolean | Prisma.FinanceDataImport$costStructureRowsArgs<ExtArgs>
+  salesSalaries?: boolean | Prisma.FinanceDataImport$salesSalariesArgs<ExtArgs>
+  shipments?: boolean | Prisma.FinanceDataImport$shipmentsArgs<ExtArgs>
+  workshopReports?: boolean | Prisma.FinanceDataImport$workshopReportsArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceDataImportCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeDataImport"]>
 
@@ -1357,11 +1357,11 @@ export type FinanceDataImportSelectScalar = {
 
 export type FinanceDataImportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "profile" | "year" | "sourceFile" | "sourcePath" | "normalizedJsonPath" | "checksum" | "status" | "recordCount" | "warningCount" | "errorCount" | "importedBy" | "importedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["financeDataImport"]>
 export type FinanceDataImportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  shipments?: boolean | Prisma.FinanceDataImport$shipmentsArgs<ExtArgs>
-  salesSalaries?: boolean | Prisma.FinanceDataImport$salesSalariesArgs<ExtArgs>
-  workshopReports?: boolean | Prisma.FinanceDataImport$workshopReportsArgs<ExtArgs>
-  costStructureRows?: boolean | Prisma.FinanceDataImport$costStructureRowsArgs<ExtArgs>
   costAnalysisRows?: boolean | Prisma.FinanceDataImport$costAnalysisRowsArgs<ExtArgs>
+  costStructureRows?: boolean | Prisma.FinanceDataImport$costStructureRowsArgs<ExtArgs>
+  salesSalaries?: boolean | Prisma.FinanceDataImport$salesSalariesArgs<ExtArgs>
+  shipments?: boolean | Prisma.FinanceDataImport$shipmentsArgs<ExtArgs>
+  workshopReports?: boolean | Prisma.FinanceDataImport$workshopReportsArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceDataImportCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceDataImportIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1370,11 +1370,11 @@ export type FinanceDataImportIncludeUpdateManyAndReturn<ExtArgs extends runtime.
 export type $FinanceDataImportPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceDataImport"
   objects: {
-    shipments: Prisma.$FinanceShipmentPayload<ExtArgs>[]
-    salesSalaries: Prisma.$FinanceSalesSalaryPayload<ExtArgs>[]
-    workshopReports: Prisma.$FinanceWorkshopReportPayload<ExtArgs>[]
-    costStructureRows: Prisma.$FinanceCostStructureRowPayload<ExtArgs>[]
     costAnalysisRows: Prisma.$FinanceCostAnalysisRowPayload<ExtArgs>[]
+    costStructureRows: Prisma.$FinanceCostStructureRowPayload<ExtArgs>[]
+    salesSalaries: Prisma.$FinanceSalesSalaryPayload<ExtArgs>[]
+    shipments: Prisma.$FinanceShipmentPayload<ExtArgs>[]
+    workshopReports: Prisma.$FinanceWorkshopReportPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1786,11 +1786,11 @@ readonly fields: FinanceDataImportFieldRefs;
  */
 export interface Prisma__FinanceDataImportClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  shipments<T extends Prisma.FinanceDataImport$shipmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImport$shipmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceShipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  salesSalaries<T extends Prisma.FinanceDataImport$salesSalariesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImport$salesSalariesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceSalesSalaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  workshopReports<T extends Prisma.FinanceDataImport$workshopReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImport$workshopReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceWorkshopReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  costStructureRows<T extends Prisma.FinanceDataImport$costStructureRowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImport$costStructureRowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceCostStructureRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   costAnalysisRows<T extends Prisma.FinanceDataImport$costAnalysisRowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImport$costAnalysisRowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceCostAnalysisRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  costStructureRows<T extends Prisma.FinanceDataImport$costStructureRowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImport$costStructureRowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceCostStructureRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  salesSalaries<T extends Prisma.FinanceDataImport$salesSalariesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImport$salesSalariesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceSalesSalaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  shipments<T extends Prisma.FinanceDataImport$shipmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImport$shipmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceShipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  workshopReports<T extends Prisma.FinanceDataImport$workshopReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImport$workshopReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceWorkshopReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2226,75 +2226,27 @@ export type FinanceDataImportDeleteManyArgs<ExtArgs extends runtime.Types.Extens
 }
 
 /**
- * FinanceDataImport.shipments
+ * FinanceDataImport.costAnalysisRows
  */
-export type FinanceDataImport$shipmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type FinanceDataImport$costAnalysisRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the FinanceShipment
+   * Select specific fields to fetch from the FinanceCostAnalysisRow
    */
-  select?: Prisma.FinanceShipmentSelect<ExtArgs> | null
+  select?: Prisma.FinanceCostAnalysisRowSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the FinanceShipment
+   * Omit specific fields from the FinanceCostAnalysisRow
    */
-  omit?: Prisma.FinanceShipmentOmit<ExtArgs> | null
+  omit?: Prisma.FinanceCostAnalysisRowOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.FinanceShipmentInclude<ExtArgs> | null
-  where?: Prisma.FinanceShipmentWhereInput
-  orderBy?: Prisma.FinanceShipmentOrderByWithRelationInput | Prisma.FinanceShipmentOrderByWithRelationInput[]
-  cursor?: Prisma.FinanceShipmentWhereUniqueInput
+  include?: Prisma.FinanceCostAnalysisRowInclude<ExtArgs> | null
+  where?: Prisma.FinanceCostAnalysisRowWhereInput
+  orderBy?: Prisma.FinanceCostAnalysisRowOrderByWithRelationInput | Prisma.FinanceCostAnalysisRowOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceCostAnalysisRowWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.FinanceShipmentScalarFieldEnum | Prisma.FinanceShipmentScalarFieldEnum[]
-}
-
-/**
- * FinanceDataImport.salesSalaries
- */
-export type FinanceDataImport$salesSalariesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the FinanceSalesSalary
-   */
-  select?: Prisma.FinanceSalesSalarySelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the FinanceSalesSalary
-   */
-  omit?: Prisma.FinanceSalesSalaryOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.FinanceSalesSalaryInclude<ExtArgs> | null
-  where?: Prisma.FinanceSalesSalaryWhereInput
-  orderBy?: Prisma.FinanceSalesSalaryOrderByWithRelationInput | Prisma.FinanceSalesSalaryOrderByWithRelationInput[]
-  cursor?: Prisma.FinanceSalesSalaryWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.FinanceSalesSalaryScalarFieldEnum | Prisma.FinanceSalesSalaryScalarFieldEnum[]
-}
-
-/**
- * FinanceDataImport.workshopReports
- */
-export type FinanceDataImport$workshopReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the FinanceWorkshopReport
-   */
-  select?: Prisma.FinanceWorkshopReportSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the FinanceWorkshopReport
-   */
-  omit?: Prisma.FinanceWorkshopReportOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.FinanceWorkshopReportInclude<ExtArgs> | null
-  where?: Prisma.FinanceWorkshopReportWhereInput
-  orderBy?: Prisma.FinanceWorkshopReportOrderByWithRelationInput | Prisma.FinanceWorkshopReportOrderByWithRelationInput[]
-  cursor?: Prisma.FinanceWorkshopReportWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.FinanceWorkshopReportScalarFieldEnum | Prisma.FinanceWorkshopReportScalarFieldEnum[]
+  distinct?: Prisma.FinanceCostAnalysisRowScalarFieldEnum | Prisma.FinanceCostAnalysisRowScalarFieldEnum[]
 }
 
 /**
@@ -2322,27 +2274,75 @@ export type FinanceDataImport$costStructureRowsArgs<ExtArgs extends runtime.Type
 }
 
 /**
- * FinanceDataImport.costAnalysisRows
+ * FinanceDataImport.salesSalaries
  */
-export type FinanceDataImport$costAnalysisRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type FinanceDataImport$salesSalariesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the FinanceCostAnalysisRow
+   * Select specific fields to fetch from the FinanceSalesSalary
    */
-  select?: Prisma.FinanceCostAnalysisRowSelect<ExtArgs> | null
+  select?: Prisma.FinanceSalesSalarySelect<ExtArgs> | null
   /**
-   * Omit specific fields from the FinanceCostAnalysisRow
+   * Omit specific fields from the FinanceSalesSalary
    */
-  omit?: Prisma.FinanceCostAnalysisRowOmit<ExtArgs> | null
+  omit?: Prisma.FinanceSalesSalaryOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.FinanceCostAnalysisRowInclude<ExtArgs> | null
-  where?: Prisma.FinanceCostAnalysisRowWhereInput
-  orderBy?: Prisma.FinanceCostAnalysisRowOrderByWithRelationInput | Prisma.FinanceCostAnalysisRowOrderByWithRelationInput[]
-  cursor?: Prisma.FinanceCostAnalysisRowWhereUniqueInput
+  include?: Prisma.FinanceSalesSalaryInclude<ExtArgs> | null
+  where?: Prisma.FinanceSalesSalaryWhereInput
+  orderBy?: Prisma.FinanceSalesSalaryOrderByWithRelationInput | Prisma.FinanceSalesSalaryOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceSalesSalaryWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.FinanceCostAnalysisRowScalarFieldEnum | Prisma.FinanceCostAnalysisRowScalarFieldEnum[]
+  distinct?: Prisma.FinanceSalesSalaryScalarFieldEnum | Prisma.FinanceSalesSalaryScalarFieldEnum[]
+}
+
+/**
+ * FinanceDataImport.shipments
+ */
+export type FinanceDataImport$shipmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceShipment
+   */
+  select?: Prisma.FinanceShipmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceShipment
+   */
+  omit?: Prisma.FinanceShipmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceShipmentInclude<ExtArgs> | null
+  where?: Prisma.FinanceShipmentWhereInput
+  orderBy?: Prisma.FinanceShipmentOrderByWithRelationInput | Prisma.FinanceShipmentOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceShipmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceShipmentScalarFieldEnum | Prisma.FinanceShipmentScalarFieldEnum[]
+}
+
+/**
+ * FinanceDataImport.workshopReports
+ */
+export type FinanceDataImport$workshopReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceWorkshopReport
+   */
+  select?: Prisma.FinanceWorkshopReportSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceWorkshopReport
+   */
+  omit?: Prisma.FinanceWorkshopReportOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceWorkshopReportInclude<ExtArgs> | null
+  where?: Prisma.FinanceWorkshopReportWhereInput
+  orderBy?: Prisma.FinanceWorkshopReportOrderByWithRelationInput | Prisma.FinanceWorkshopReportOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceWorkshopReportWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceWorkshopReportScalarFieldEnum | Prisma.FinanceWorkshopReportScalarFieldEnum[]
 }
 
 /**

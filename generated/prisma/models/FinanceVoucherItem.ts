@@ -252,8 +252,8 @@ export type FinanceVoucherItemWhereInput = {
   credit?: Prisma.FloatFilter<"FinanceVoucherItem"> | number
   description?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
   sortOrder?: Prisma.IntFilter<"FinanceVoucherItem"> | number
-  voucher?: Prisma.XOR<Prisma.FinanceVoucherScalarRelationFilter, Prisma.FinanceVoucherWhereInput>
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
+  voucher?: Prisma.XOR<Prisma.FinanceVoucherScalarRelationFilter, Prisma.FinanceVoucherWhereInput>
 }
 
 export type FinanceVoucherItemOrderByWithRelationInput = {
@@ -264,8 +264,8 @@ export type FinanceVoucherItemOrderByWithRelationInput = {
   credit?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
-  voucher?: Prisma.FinanceVoucherOrderByWithRelationInput
   account?: Prisma.FinanceAccountOrderByWithRelationInput
+  voucher?: Prisma.FinanceVoucherOrderByWithRelationInput
 }
 
 export type FinanceVoucherItemWhereUniqueInput = Prisma.AtLeast<{
@@ -279,8 +279,8 @@ export type FinanceVoucherItemWhereUniqueInput = Prisma.AtLeast<{
   credit?: Prisma.FloatFilter<"FinanceVoucherItem"> | number
   description?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
   sortOrder?: Prisma.IntFilter<"FinanceVoucherItem"> | number
-  voucher?: Prisma.XOR<Prisma.FinanceVoucherScalarRelationFilter, Prisma.FinanceVoucherWhereInput>
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
+  voucher?: Prisma.XOR<Prisma.FinanceVoucherScalarRelationFilter, Prisma.FinanceVoucherWhereInput>
 }, "id">
 
 export type FinanceVoucherItemOrderByWithAggregationInput = {
@@ -316,8 +316,8 @@ export type FinanceVoucherItemCreateInput = {
   credit?: number
   description?: string | null
   sortOrder?: number
-  voucher: Prisma.FinanceVoucherCreateNestedOneWithoutItemsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutVoucherItemsInput
+  voucher: Prisma.FinanceVoucherCreateNestedOneWithoutItemsInput
 }
 
 export type FinanceVoucherItemUncheckedCreateInput = {
@@ -335,8 +335,8 @@ export type FinanceVoucherItemUpdateInput = {
   credit?: Prisma.FloatFieldUpdateOperationsInput | number
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutItemsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutVoucherItemsNestedInput
+  voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutItemsNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateInput = {
@@ -695,8 +695,8 @@ export type FinanceVoucherItemSelect<ExtArgs extends runtime.Types.Extensions.In
   credit?: boolean
   description?: boolean
   sortOrder?: boolean
-  voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
+  voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeVoucherItem"]>
 
 export type FinanceVoucherItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -707,8 +707,8 @@ export type FinanceVoucherItemSelectCreateManyAndReturn<ExtArgs extends runtime.
   credit?: boolean
   description?: boolean
   sortOrder?: boolean
-  voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
+  voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeVoucherItem"]>
 
 export type FinanceVoucherItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -719,8 +719,8 @@ export type FinanceVoucherItemSelectUpdateManyAndReturn<ExtArgs extends runtime.
   credit?: boolean
   description?: boolean
   sortOrder?: boolean
-  voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
+  voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeVoucherItem"]>
 
 export type FinanceVoucherItemSelectScalar = {
@@ -735,23 +735,23 @@ export type FinanceVoucherItemSelectScalar = {
 
 export type FinanceVoucherItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "voucherId" | "accountId" | "debit" | "credit" | "description" | "sortOrder", ExtArgs["result"]["financeVoucherItem"]>
 export type FinanceVoucherItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
+  voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
 }
 export type FinanceVoucherItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
+  voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
 }
 export type FinanceVoucherItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
+  voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
 }
 
 export type $FinanceVoucherItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceVoucherItem"
   objects: {
-    voucher: Prisma.$FinanceVoucherPayload<ExtArgs>
     account: Prisma.$FinanceAccountPayload<ExtArgs>
+    voucher: Prisma.$FinanceVoucherPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1155,8 +1155,8 @@ readonly fields: FinanceVoucherItemFieldRefs;
  */
 export interface Prisma__FinanceVoucherItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  voucher<T extends Prisma.FinanceVoucherDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucherDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceVoucherClient<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   account<T extends Prisma.FinanceAccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  voucher<T extends Prisma.FinanceVoucherDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucherDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceVoucherClient<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

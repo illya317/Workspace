@@ -332,9 +332,9 @@ export type EDPWhereInput = {
   editedBy?: Prisma.IntNullableFilter<"EDP"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"EDP"> | Date | string | null
   version?: Prisma.IntFilter<"EDP"> | number
-  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
-  department?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
   position?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
+  department?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
+  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
 }
 
 export type EDPOrderByWithRelationInput = {
@@ -355,9 +355,9 @@ export type EDPOrderByWithRelationInput = {
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
-  employee?: Prisma.EmployeeOrderByWithRelationInput
-  department?: Prisma.DepartmentOrderByWithRelationInput
   position?: Prisma.PositionOrderByWithRelationInput
+  department?: Prisma.DepartmentOrderByWithRelationInput
+  employee?: Prisma.EmployeeOrderByWithRelationInput
 }
 
 export type EDPWhereUniqueInput = Prisma.AtLeast<{
@@ -381,9 +381,9 @@ export type EDPWhereUniqueInput = Prisma.AtLeast<{
   editedBy?: Prisma.IntNullableFilter<"EDP"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"EDP"> | Date | string | null
   version?: Prisma.IntFilter<"EDP"> | number
-  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
-  department?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
   position?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
+  department?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
+  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
 }, "id">
 
 export type EDPOrderByWithAggregationInput = {
@@ -448,9 +448,9 @@ export type EDPCreateInput = {
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
-  employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
-  department?: Prisma.DepartmentCreateNestedOneWithoutEdpsInput
   position?: Prisma.PositionCreateNestedOneWithoutEdpsInput
+  department?: Prisma.DepartmentCreateNestedOneWithoutEdpsInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
 }
 
 export type EDPUncheckedCreateInput = {
@@ -487,9 +487,9 @@ export type EDPUpdateInput = {
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
-  employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
-  department?: Prisma.DepartmentUpdateOneWithoutEdpsNestedInput
   position?: Prisma.PositionUpdateOneWithoutEdpsNestedInput
+  department?: Prisma.DepartmentUpdateOneWithoutEdpsNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
 }
 
 export type EDPUncheckedUpdateInput = {
@@ -796,8 +796,8 @@ export type EDPCreateWithoutEmployeeInput = {
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
-  department?: Prisma.DepartmentCreateNestedOneWithoutEdpsInput
   position?: Prisma.PositionCreateNestedOneWithoutEdpsInput
+  department?: Prisma.DepartmentCreateNestedOneWithoutEdpsInput
 }
 
 export type EDPUncheckedCreateWithoutEmployeeInput = {
@@ -881,8 +881,8 @@ export type EDPCreateWithoutDepartmentInput = {
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
-  employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
   position?: Prisma.PositionCreateNestedOneWithoutEdpsInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
 }
 
 export type EDPUncheckedCreateWithoutDepartmentInput = {
@@ -943,8 +943,8 @@ export type EDPCreateWithoutPositionInput = {
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
-  employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
   department?: Prisma.DepartmentCreateNestedOneWithoutEdpsInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutPositionsInput
 }
 
 export type EDPUncheckedCreateWithoutPositionInput = {
@@ -1024,8 +1024,8 @@ export type EDPUpdateWithoutEmployeeInput = {
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
-  department?: Prisma.DepartmentUpdateOneWithoutEdpsNestedInput
   position?: Prisma.PositionUpdateOneWithoutEdpsNestedInput
+  department?: Prisma.DepartmentUpdateOneWithoutEdpsNestedInput
 }
 
 export type EDPUncheckedUpdateWithoutEmployeeInput = {
@@ -1099,8 +1099,8 @@ export type EDPUpdateWithoutDepartmentInput = {
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
-  employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
   position?: Prisma.PositionUpdateOneWithoutEdpsNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
 }
 
 export type EDPUncheckedUpdateWithoutDepartmentInput = {
@@ -1174,8 +1174,8 @@ export type EDPUpdateWithoutPositionInput = {
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
-  employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
   department?: Prisma.DepartmentUpdateOneWithoutEdpsNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutPositionsNestedInput
 }
 
 export type EDPUncheckedUpdateWithoutPositionInput = {
@@ -1236,9 +1236,9 @@ export type EDPSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
-  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
   position?: boolean | Prisma.EDP$positionArgs<ExtArgs>
+  department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["eDP"]>
 
 export type EDPSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1259,9 +1259,9 @@ export type EDPSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
-  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
   position?: boolean | Prisma.EDP$positionArgs<ExtArgs>
+  department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["eDP"]>
 
 export type EDPSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1282,9 +1282,9 @@ export type EDPSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
-  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
   position?: boolean | Prisma.EDP$positionArgs<ExtArgs>
+  department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["eDP"]>
 
 export type EDPSelectScalar = {
@@ -1309,27 +1309,27 @@ export type EDPSelectScalar = {
 
 export type EDPOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "departmentId" | "positionId" | "isPrimary" | "startDate" | "endDate" | "personnelType" | "rank" | "title" | "reportTo" | "reportTo2" | "workPercent" | "isResearch" | "editedBy" | "editedAt" | "version", ExtArgs["result"]["eDP"]>
 export type EDPInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
   position?: boolean | Prisma.EDP$positionArgs<ExtArgs>
+  department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }
 export type EDPIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
   position?: boolean | Prisma.EDP$positionArgs<ExtArgs>
+  department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }
 export type EDPIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
-  department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
   position?: boolean | Prisma.EDP$positionArgs<ExtArgs>
+  department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }
 
 export type $EDPPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "EDP"
   objects: {
-    employee: Prisma.$EmployeePayload<ExtArgs>
-    department: Prisma.$DepartmentPayload<ExtArgs> | null
     position: Prisma.$PositionPayload<ExtArgs> | null
+    department: Prisma.$DepartmentPayload<ExtArgs> | null
+    employee: Prisma.$EmployeePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1743,9 +1743,9 @@ readonly fields: EDPFieldRefs;
  */
 export interface Prisma__EDPClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  department<T extends Prisma.EDP$departmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EDP$departmentArgs<ExtArgs>>): Prisma.Prisma__DepartmentClient<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   position<T extends Prisma.EDP$positionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EDP$positionArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  department<T extends Prisma.EDP$departmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EDP$departmentArgs<ExtArgs>>): Prisma.Prisma__DepartmentClient<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2191,25 +2191,6 @@ export type EDPDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 }
 
 /**
- * EDP.department
- */
-export type EDP$departmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Department
-   */
-  select?: Prisma.DepartmentSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Department
-   */
-  omit?: Prisma.DepartmentOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.DepartmentInclude<ExtArgs> | null
-  where?: Prisma.DepartmentWhereInput
-}
-
-/**
  * EDP.position
  */
 export type EDP$positionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2226,6 +2207,25 @@ export type EDP$positionArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    */
   include?: Prisma.PositionInclude<ExtArgs> | null
   where?: Prisma.PositionWhereInput
+}
+
+/**
+ * EDP.department
+ */
+export type EDP$departmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Department
+   */
+  select?: Prisma.DepartmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Department
+   */
+  omit?: Prisma.DepartmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DepartmentInclude<ExtArgs> | null
+  where?: Prisma.DepartmentWhereInput
 }
 
 /**

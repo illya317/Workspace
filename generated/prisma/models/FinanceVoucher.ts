@@ -308,9 +308,9 @@ export type FinanceVoucherWhereInput = {
   version?: Prisma.IntFilter<"FinanceVoucher"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceVoucher"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceVoucher"> | Date | string
+  editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
   items?: Prisma.FinanceVoucherItemListRelationFilter
-  editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
 
 export type FinanceVoucherOrderByWithRelationInput = {
@@ -328,9 +328,9 @@ export type FinanceVoucherOrderByWithRelationInput = {
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  editor?: Prisma.UserOrderByWithRelationInput
   period?: Prisma.FinancePeriodOrderByWithRelationInput
   items?: Prisma.FinanceVoucherItemOrderByRelationAggregateInput
-  editor?: Prisma.UserOrderByWithRelationInput
 }
 
 export type FinanceVoucherWhereUniqueInput = Prisma.AtLeast<{
@@ -352,9 +352,9 @@ export type FinanceVoucherWhereUniqueInput = Prisma.AtLeast<{
   version?: Prisma.IntFilter<"FinanceVoucher"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceVoucher"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceVoucher"> | Date | string
+  editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
   items?: Prisma.FinanceVoucherItemListRelationFilter
-  editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id" | "voucherNo_companyCode">
 
 export type FinanceVoucherOrderByWithAggregationInput = {
@@ -411,9 +411,9 @@ export type FinanceVoucherCreateInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceVouchersInput
   period: Prisma.FinancePeriodCreateNestedOneWithoutVouchersInput
   items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutVoucherInput
-  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceVouchersInput
 }
 
 export type FinanceVoucherUncheckedCreateInput = {
@@ -446,9 +446,9 @@ export type FinanceVoucherUpdateInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceVouchersNestedInput
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutVouchersNestedInput
   items?: Prisma.FinanceVoucherItemUpdateManyWithoutVoucherNestedInput
-  editor?: Prisma.UserUpdateOneWithoutEditedFinanceVouchersNestedInput
 }
 
 export type FinanceVoucherUncheckedUpdateInput = {
@@ -690,14 +690,6 @@ export type FinanceVoucherUncheckedUpdateManyWithoutPeriodNestedInput = {
   deleteMany?: Prisma.FinanceVoucherScalarWhereInput | Prisma.FinanceVoucherScalarWhereInput[]
 }
 
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type FinanceVoucherCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.FinanceVoucherCreateWithoutItemsInput, Prisma.FinanceVoucherUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.FinanceVoucherCreateOrConnectWithoutItemsInput
@@ -802,8 +794,8 @@ export type FinanceVoucherCreateWithoutPeriodInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutVoucherInput
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceVouchersInput
+  items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutVoucherInput
 }
 
 export type FinanceVoucherUncheckedCreateWithoutPeriodInput = {
@@ -860,8 +852,8 @@ export type FinanceVoucherCreateWithoutItemsInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  period: Prisma.FinancePeriodCreateNestedOneWithoutVouchersInput
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceVouchersInput
+  period: Prisma.FinancePeriodCreateNestedOneWithoutVouchersInput
 }
 
 export type FinanceVoucherUncheckedCreateWithoutItemsInput = {
@@ -909,8 +901,8 @@ export type FinanceVoucherUpdateWithoutItemsInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  period?: Prisma.FinancePeriodUpdateOneRequiredWithoutVouchersNestedInput
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceVouchersNestedInput
+  period?: Prisma.FinancePeriodUpdateOneRequiredWithoutVouchersNestedInput
 }
 
 export type FinanceVoucherUncheckedUpdateWithoutItemsInput = {
@@ -1023,8 +1015,8 @@ export type FinanceVoucherUpdateWithoutPeriodInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  items?: Prisma.FinanceVoucherItemUpdateManyWithoutVoucherNestedInput
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceVouchersNestedInput
+  items?: Prisma.FinanceVoucherItemUpdateManyWithoutVoucherNestedInput
 }
 
 export type FinanceVoucherUncheckedUpdateWithoutPeriodInput = {
@@ -1106,9 +1098,9 @@ export type FinanceVoucherSelect<ExtArgs extends runtime.Types.Extensions.Intern
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  editor?: boolean | Prisma.FinanceVoucher$editorArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   items?: boolean | Prisma.FinanceVoucher$itemsArgs<ExtArgs>
-  editor?: boolean | Prisma.FinanceVoucher$editorArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceVoucherCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeVoucher"]>
 
@@ -1127,8 +1119,8 @@ export type FinanceVoucherSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceVoucher$editorArgs<ExtArgs>
+  period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeVoucher"]>
 
 export type FinanceVoucherSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1146,8 +1138,8 @@ export type FinanceVoucherSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceVoucher$editorArgs<ExtArgs>
+  period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeVoucher"]>
 
 export type FinanceVoucherSelectScalar = {
@@ -1169,26 +1161,26 @@ export type FinanceVoucherSelectScalar = {
 
 export type FinanceVoucherOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "voucherNo" | "date" | "periodId" | "description" | "totalDebit" | "totalCredit" | "status" | "companyCode" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeVoucher"]>
 export type FinanceVoucherInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  editor?: boolean | Prisma.FinanceVoucher$editorArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   items?: boolean | Prisma.FinanceVoucher$itemsArgs<ExtArgs>
-  editor?: boolean | Prisma.FinanceVoucher$editorArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceVoucherCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceVoucherIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceVoucher$editorArgs<ExtArgs>
+  period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
 }
 export type FinanceVoucherIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceVoucher$editorArgs<ExtArgs>
+  period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
 }
 
 export type $FinanceVoucherPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceVoucher"
   objects: {
+    editor: Prisma.$UserPayload<ExtArgs> | null
     period: Prisma.$FinancePeriodPayload<ExtArgs>
     items: Prisma.$FinanceVoucherItemPayload<ExtArgs>[]
-    editor: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1599,9 +1591,9 @@ readonly fields: FinanceVoucherFieldRefs;
  */
 export interface Prisma__FinanceVoucherClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  editor<T extends Prisma.FinanceVoucher$editorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucher$editorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   period<T extends Prisma.FinancePeriodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriodDefaultArgs<ExtArgs>>): Prisma.Prisma__FinancePeriodClient<runtime.Types.Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.FinanceVoucher$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucher$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  editor<T extends Prisma.FinanceVoucher$editorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucher$editorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2044,6 +2036,25 @@ export type FinanceVoucherDeleteManyArgs<ExtArgs extends runtime.Types.Extension
 }
 
 /**
+ * FinanceVoucher.editor
+ */
+export type FinanceVoucher$editorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
  * FinanceVoucher.items
  */
 export type FinanceVoucher$itemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2065,25 +2076,6 @@ export type FinanceVoucher$itemsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.FinanceVoucherItemScalarFieldEnum | Prisma.FinanceVoucherItemScalarFieldEnum[]
-}
-
-/**
- * FinanceVoucher.editor
- */
-export type FinanceVoucher$editorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the User
-   */
-  select?: Prisma.UserSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the User
-   */
-  omit?: Prisma.UserOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
 }
 
 /**

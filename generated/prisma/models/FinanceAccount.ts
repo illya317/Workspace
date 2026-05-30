@@ -352,11 +352,15 @@ export type FinanceAccountWhereInput = {
   version?: Prisma.IntFilter<"FinanceAccount"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceAccount"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAccount"> | Date | string
+  editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   parent?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
   children?: Prisma.FinanceAccountListRelationFilter
-  voucherItems?: Prisma.FinanceVoucherItemListRelationFilter
   balances?: Prisma.FinanceAccountBalanceListRelationFilter
-  editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  annualBalances?: Prisma.FinanceAnnualBalanceListRelationFilter
+  voucherItems?: Prisma.FinanceVoucherItemListRelationFilter
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowListRelationFilter
+  deptBudgets?: Prisma.FinanceBudgetDeptListRelationFilter
+  rdBudgets?: Prisma.FinanceBudgetRdListRelationFilter
 }
 
 export type FinanceAccountOrderByWithRelationInput = {
@@ -379,11 +383,15 @@ export type FinanceAccountOrderByWithRelationInput = {
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  editor?: Prisma.UserOrderByWithRelationInput
   parent?: Prisma.FinanceAccountOrderByWithRelationInput
   children?: Prisma.FinanceAccountOrderByRelationAggregateInput
-  voucherItems?: Prisma.FinanceVoucherItemOrderByRelationAggregateInput
   balances?: Prisma.FinanceAccountBalanceOrderByRelationAggregateInput
-  editor?: Prisma.UserOrderByWithRelationInput
+  annualBalances?: Prisma.FinanceAnnualBalanceOrderByRelationAggregateInput
+  voucherItems?: Prisma.FinanceVoucherItemOrderByRelationAggregateInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowOrderByRelationAggregateInput
+  deptBudgets?: Prisma.FinanceBudgetDeptOrderByRelationAggregateInput
+  rdBudgets?: Prisma.FinanceBudgetRdOrderByRelationAggregateInput
 }
 
 export type FinanceAccountWhereUniqueInput = Prisma.AtLeast<{
@@ -410,11 +418,15 @@ export type FinanceAccountWhereUniqueInput = Prisma.AtLeast<{
   version?: Prisma.IntFilter<"FinanceAccount"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceAccount"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAccount"> | Date | string
+  editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   parent?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
   children?: Prisma.FinanceAccountListRelationFilter
-  voucherItems?: Prisma.FinanceVoucherItemListRelationFilter
   balances?: Prisma.FinanceAccountBalanceListRelationFilter
-  editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  annualBalances?: Prisma.FinanceAnnualBalanceListRelationFilter
+  voucherItems?: Prisma.FinanceVoucherItemListRelationFilter
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowListRelationFilter
+  deptBudgets?: Prisma.FinanceBudgetDeptListRelationFilter
+  rdBudgets?: Prisma.FinanceBudgetRdListRelationFilter
 }, "id" | "code_companyCode_year">
 
 export type FinanceAccountOrderByWithAggregationInput = {
@@ -486,11 +498,15 @@ export type FinanceAccountCreateInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
-  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
-  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  annualBalances?: Prisma.FinanceAnnualBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
 }
 
 export type FinanceAccountUncheckedCreateInput = {
@@ -514,8 +530,12 @@ export type FinanceAccountUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
-  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
   balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
 }
 
 export type FinanceAccountUpdateInput = {
@@ -535,11 +555,15 @@ export type FinanceAccountUpdateInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
-  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
-  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateInput = {
@@ -563,8 +587,12 @@ export type FinanceAccountUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
-  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
   balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountCreateManyInput = {
@@ -784,6 +812,38 @@ export type FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput = {
   deleteMany?: Prisma.FinanceAccountScalarWhereInput | Prisma.FinanceAccountScalarWhereInput[]
 }
 
+export type FinanceAccountCreateNestedOneWithoutDeptBudgetsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutDeptBudgetsInput, Prisma.FinanceAccountUncheckedCreateWithoutDeptBudgetsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutDeptBudgetsInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountUpdateOneWithoutDeptBudgetsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutDeptBudgetsInput, Prisma.FinanceAccountUncheckedCreateWithoutDeptBudgetsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutDeptBudgetsInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutDeptBudgetsInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutDeptBudgetsInput, Prisma.FinanceAccountUpdateWithoutDeptBudgetsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutDeptBudgetsInput>
+}
+
+export type FinanceAccountCreateNestedOneWithoutRdBudgetsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutRdBudgetsInput, Prisma.FinanceAccountUncheckedCreateWithoutRdBudgetsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutRdBudgetsInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountUpdateOneWithoutRdBudgetsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutRdBudgetsInput, Prisma.FinanceAccountUncheckedCreateWithoutRdBudgetsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutRdBudgetsInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutRdBudgetsInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutRdBudgetsInput, Prisma.FinanceAccountUpdateWithoutRdBudgetsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutRdBudgetsInput>
+}
+
 export type FinanceAccountCreateNestedOneWithoutChildrenInput = {
   create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutChildrenInput, Prisma.FinanceAccountUncheckedCreateWithoutChildrenInput>
   connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutChildrenInput
@@ -870,6 +930,34 @@ export type FinanceAccountUpdateOneRequiredWithoutBalancesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutBalancesInput, Prisma.FinanceAccountUpdateWithoutBalancesInput>, Prisma.FinanceAccountUncheckedUpdateWithoutBalancesInput>
 }
 
+export type FinanceAccountCreateNestedOneWithoutSnapshotRowsInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedCreateWithoutSnapshotRowsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutSnapshotRowsInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountUpdateOneRequiredWithoutSnapshotRowsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedCreateWithoutSnapshotRowsInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutSnapshotRowsInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutSnapshotRowsInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutSnapshotRowsInput, Prisma.FinanceAccountUpdateWithoutSnapshotRowsInput>, Prisma.FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput>
+}
+
+export type FinanceAccountCreateNestedOneWithoutAnnualBalancesInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAnnualBalancesInput, Prisma.FinanceAccountUncheckedCreateWithoutAnnualBalancesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAnnualBalancesInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountUpdateOneRequiredWithoutAnnualBalancesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAnnualBalancesInput, Prisma.FinanceAccountUncheckedCreateWithoutAnnualBalancesInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutAnnualBalancesInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutAnnualBalancesInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutAnnualBalancesInput, Prisma.FinanceAccountUpdateWithoutAnnualBalancesInput>, Prisma.FinanceAccountUncheckedUpdateWithoutAnnualBalancesInput>
+}
+
 export type FinanceAccountCreateWithoutEditorInput = {
   code: string
   name: string
@@ -889,8 +977,12 @@ export type FinanceAccountCreateWithoutEditorInput = {
   updatedAt?: Date | string
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
-  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutEditorInput = {
@@ -913,8 +1005,12 @@ export type FinanceAccountUncheckedCreateWithoutEditorInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
-  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
   balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutEditorInput = {
@@ -967,6 +1063,258 @@ export type FinanceAccountScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FinanceAccount"> | Date | string
 }
 
+export type FinanceAccountCreateWithoutDeptBudgetsInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutDeptBudgetsInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutDeptBudgetsInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutDeptBudgetsInput, Prisma.FinanceAccountUncheckedCreateWithoutDeptBudgetsInput>
+}
+
+export type FinanceAccountUpsertWithoutDeptBudgetsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutDeptBudgetsInput, Prisma.FinanceAccountUncheckedUpdateWithoutDeptBudgetsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutDeptBudgetsInput, Prisma.FinanceAccountUncheckedCreateWithoutDeptBudgetsInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutDeptBudgetsInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutDeptBudgetsInput, Prisma.FinanceAccountUncheckedUpdateWithoutDeptBudgetsInput>
+}
+
+export type FinanceAccountUpdateWithoutDeptBudgetsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutDeptBudgetsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+}
+
+export type FinanceAccountCreateWithoutRdBudgetsInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutRdBudgetsInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutRdBudgetsInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutRdBudgetsInput, Prisma.FinanceAccountUncheckedCreateWithoutRdBudgetsInput>
+}
+
+export type FinanceAccountUpsertWithoutRdBudgetsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutRdBudgetsInput, Prisma.FinanceAccountUncheckedUpdateWithoutRdBudgetsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutRdBudgetsInput, Prisma.FinanceAccountUncheckedCreateWithoutRdBudgetsInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutRdBudgetsInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutRdBudgetsInput, Prisma.FinanceAccountUncheckedUpdateWithoutRdBudgetsInput>
+}
+
+export type FinanceAccountUpdateWithoutRdBudgetsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutRdBudgetsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+}
+
 export type FinanceAccountCreateWithoutChildrenInput = {
   code: string
   name: string
@@ -984,10 +1332,14 @@ export type FinanceAccountCreateWithoutChildrenInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
-  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
-  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutChildrenInput = {
@@ -1010,8 +1362,12 @@ export type FinanceAccountUncheckedCreateWithoutChildrenInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
   balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutChildrenInput = {
@@ -1036,10 +1392,14 @@ export type FinanceAccountCreateWithoutParentInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
-  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
-  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
   editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutParentInput = {
@@ -1062,8 +1422,12 @@ export type FinanceAccountUncheckedCreateWithoutParentInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
-  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
   balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutParentInput = {
@@ -1103,10 +1467,14 @@ export type FinanceAccountUpdateWithoutChildrenInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
-  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
-  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutChildrenInput = {
@@ -1129,8 +1497,12 @@ export type FinanceAccountUncheckedUpdateWithoutChildrenInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
   balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountUpsertWithWhereUniqueWithoutParentInput = {
@@ -1166,10 +1538,14 @@ export type FinanceAccountCreateWithoutVoucherItemsInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
-  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  annualBalances?: Prisma.FinanceAnnualBalanceCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutVoucherItemsInput = {
@@ -1194,6 +1570,10 @@ export type FinanceAccountUncheckedCreateWithoutVoucherItemsInput = {
   updatedAt?: Date | string
   children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
   balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutVoucherItemsInput = {
@@ -1229,10 +1609,14 @@ export type FinanceAccountUpdateWithoutVoucherItemsInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
-  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutVoucherItemsInput = {
@@ -1257,6 +1641,10 @@ export type FinanceAccountUncheckedUpdateWithoutVoucherItemsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
   balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutBalancesInput = {
@@ -1276,10 +1664,14 @@ export type FinanceAccountCreateWithoutBalancesInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
   parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
   children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  annualBalances?: Prisma.FinanceAnnualBalanceCreateNestedManyWithoutAccountInput
   voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
-  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutBalancesInput = {
@@ -1303,7 +1695,11 @@ export type FinanceAccountUncheckedCreateWithoutBalancesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedCreateNestedManyWithoutAccountInput
   voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutBalancesInput = {
@@ -1339,10 +1735,14 @@ export type FinanceAccountUpdateWithoutBalancesInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUpdateManyWithoutAccountNestedInput
   voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
-  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutBalancesInput = {
@@ -1366,7 +1766,263 @@ export type FinanceAccountUncheckedUpdateWithoutBalancesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedUpdateManyWithoutAccountNestedInput
   voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+}
+
+export type FinanceAccountCreateWithoutSnapshotRowsInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutSnapshotRowsInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutSnapshotRowsInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedCreateWithoutSnapshotRowsInput>
+}
+
+export type FinanceAccountUpsertWithoutSnapshotRowsInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedCreateWithoutSnapshotRowsInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutSnapshotRowsInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutSnapshotRowsInput, Prisma.FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput>
+}
+
+export type FinanceAccountUpdateWithoutSnapshotRowsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutSnapshotRowsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
+}
+
+export type FinanceAccountCreateWithoutAnnualBalancesInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedFinanceAccountsInput
+  parent?: Prisma.FinanceAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceAccountCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdCreateNestedManyWithoutAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutAnnualBalancesInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  parentId?: number | null
+  balanceDirection?: string
+  isActive?: boolean
+  companyCode?: string | null
+  mnemonicCode?: string | null
+  currency?: string | null
+  groupSubjectCode?: string | null
+  subjectLevel?: number | null
+  year?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutParentInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutAccountInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutAccountInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedCreateNestedManyWithoutAccountInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedCreateNestedManyWithoutAccountInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedCreateNestedManyWithoutAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutAnnualBalancesInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAnnualBalancesInput, Prisma.FinanceAccountUncheckedCreateWithoutAnnualBalancesInput>
+}
+
+export type FinanceAccountUpsertWithoutAnnualBalancesInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAnnualBalancesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAnnualBalancesInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutAnnualBalancesInput, Prisma.FinanceAccountUncheckedCreateWithoutAnnualBalancesInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutAnnualBalancesInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutAnnualBalancesInput, Prisma.FinanceAccountUncheckedUpdateWithoutAnnualBalancesInput>
+}
+
+export type FinanceAccountUpdateWithoutAnnualBalancesInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutAnnualBalancesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  groupSubjectCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountCreateManyEditorInput = {
@@ -1409,8 +2065,12 @@ export type FinanceAccountUpdateWithoutEditorInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parent?: Prisma.FinanceAccountUpdateOneWithoutChildrenNestedInput
   children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
-  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutEditorInput = {
@@ -1433,8 +2093,12 @@ export type FinanceAccountUncheckedUpdateWithoutEditorInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
-  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
   balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateManyWithoutEditorInput = {
@@ -1496,10 +2160,14 @@ export type FinanceAccountUpdateWithoutParentInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
-  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
-  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
   editor?: Prisma.UserUpdateOneWithoutEditedFinanceAccountsNestedInput
+  children?: Prisma.FinanceAccountUpdateManyWithoutParentNestedInput
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutParentInput = {
@@ -1522,8 +2190,12 @@ export type FinanceAccountUncheckedUpdateWithoutParentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.FinanceAccountUncheckedUpdateManyWithoutParentNestedInput
-  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
   balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  annualBalances?: Prisma.FinanceAnnualBalanceUncheckedUpdateManyWithoutAccountNestedInput
+  voucherItems?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutAccountNestedInput
+  snapshotRows?: Prisma.FinanceBalanceSnapshotRowUncheckedUpdateManyWithoutAccountNestedInput
+  deptBudgets?: Prisma.FinanceBudgetDeptUncheckedUpdateManyWithoutAccountNestedInput
+  rdBudgets?: Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateManyWithoutParentInput = {
@@ -1554,14 +2226,22 @@ export type FinanceAccountUncheckedUpdateManyWithoutParentInput = {
 
 export type FinanceAccountCountOutputType = {
   children: number
-  voucherItems: number
   balances: number
+  annualBalances: number
+  voucherItems: number
+  snapshotRows: number
+  deptBudgets: number
+  rdBudgets: number
 }
 
 export type FinanceAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   children?: boolean | FinanceAccountCountOutputTypeCountChildrenArgs
-  voucherItems?: boolean | FinanceAccountCountOutputTypeCountVoucherItemsArgs
   balances?: boolean | FinanceAccountCountOutputTypeCountBalancesArgs
+  annualBalances?: boolean | FinanceAccountCountOutputTypeCountAnnualBalancesArgs
+  voucherItems?: boolean | FinanceAccountCountOutputTypeCountVoucherItemsArgs
+  snapshotRows?: boolean | FinanceAccountCountOutputTypeCountSnapshotRowsArgs
+  deptBudgets?: boolean | FinanceAccountCountOutputTypeCountDeptBudgetsArgs
+  rdBudgets?: boolean | FinanceAccountCountOutputTypeCountRdBudgetsArgs
 }
 
 /**
@@ -1584,6 +2264,20 @@ export type FinanceAccountCountOutputTypeCountChildrenArgs<ExtArgs extends runti
 /**
  * FinanceAccountCountOutputType without action
  */
+export type FinanceAccountCountOutputTypeCountBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAccountBalanceWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountAnnualBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAnnualBalanceWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
 export type FinanceAccountCountOutputTypeCountVoucherItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.FinanceVoucherItemWhereInput
 }
@@ -1591,8 +2285,22 @@ export type FinanceAccountCountOutputTypeCountVoucherItemsArgs<ExtArgs extends r
 /**
  * FinanceAccountCountOutputType without action
  */
-export type FinanceAccountCountOutputTypeCountBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.FinanceAccountBalanceWhereInput
+export type FinanceAccountCountOutputTypeCountSnapshotRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceBalanceSnapshotRowWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountDeptBudgetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceBudgetDeptWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountRdBudgetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceBudgetRdWhereInput
 }
 
 
@@ -1616,11 +2324,15 @@ export type FinanceAccountSelect<ExtArgs extends runtime.Types.Extensions.Intern
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
   children?: boolean | Prisma.FinanceAccount$childrenArgs<ExtArgs>
-  voucherItems?: boolean | Prisma.FinanceAccount$voucherItemsArgs<ExtArgs>
   balances?: boolean | Prisma.FinanceAccount$balancesArgs<ExtArgs>
-  editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
+  annualBalances?: boolean | Prisma.FinanceAccount$annualBalancesArgs<ExtArgs>
+  voucherItems?: boolean | Prisma.FinanceAccount$voucherItemsArgs<ExtArgs>
+  snapshotRows?: boolean | Prisma.FinanceAccount$snapshotRowsArgs<ExtArgs>
+  deptBudgets?: boolean | Prisma.FinanceAccount$deptBudgetsArgs<ExtArgs>
+  rdBudgets?: boolean | Prisma.FinanceAccount$rdBudgetsArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAccount"]>
 
@@ -1644,8 +2356,8 @@ export type FinanceAccountSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
+  parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
 }, ExtArgs["result"]["financeAccount"]>
 
 export type FinanceAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1668,8 +2380,8 @@ export type FinanceAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
+  parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
 }, ExtArgs["result"]["financeAccount"]>
 
 export type FinanceAccountSelectScalar = {
@@ -1696,30 +2408,38 @@ export type FinanceAccountSelectScalar = {
 
 export type FinanceAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "category" | "parentId" | "balanceDirection" | "isActive" | "companyCode" | "mnemonicCode" | "currency" | "groupSubjectCode" | "subjectLevel" | "year" | "sortOrder" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAccount"]>
 export type FinanceAccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
   parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
   children?: boolean | Prisma.FinanceAccount$childrenArgs<ExtArgs>
-  voucherItems?: boolean | Prisma.FinanceAccount$voucherItemsArgs<ExtArgs>
   balances?: boolean | Prisma.FinanceAccount$balancesArgs<ExtArgs>
-  editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
+  annualBalances?: boolean | Prisma.FinanceAccount$annualBalancesArgs<ExtArgs>
+  voucherItems?: boolean | Prisma.FinanceAccount$voucherItemsArgs<ExtArgs>
+  snapshotRows?: boolean | Prisma.FinanceAccount$snapshotRowsArgs<ExtArgs>
+  deptBudgets?: boolean | Prisma.FinanceAccount$deptBudgetsArgs<ExtArgs>
+  rdBudgets?: boolean | Prisma.FinanceAccount$rdBudgetsArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceAccountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
+  parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
 }
 export type FinanceAccountIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
   editor?: boolean | Prisma.FinanceAccount$editorArgs<ExtArgs>
+  parent?: boolean | Prisma.FinanceAccount$parentArgs<ExtArgs>
 }
 
 export type $FinanceAccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceAccount"
   objects: {
+    editor: Prisma.$UserPayload<ExtArgs> | null
     parent: Prisma.$FinanceAccountPayload<ExtArgs> | null
     children: Prisma.$FinanceAccountPayload<ExtArgs>[]
-    voucherItems: Prisma.$FinanceVoucherItemPayload<ExtArgs>[]
     balances: Prisma.$FinanceAccountBalancePayload<ExtArgs>[]
-    editor: Prisma.$UserPayload<ExtArgs> | null
+    annualBalances: Prisma.$FinanceAnnualBalancePayload<ExtArgs>[]
+    voucherItems: Prisma.$FinanceVoucherItemPayload<ExtArgs>[]
+    snapshotRows: Prisma.$FinanceBalanceSnapshotRowPayload<ExtArgs>[]
+    deptBudgets: Prisma.$FinanceBudgetDeptPayload<ExtArgs>[]
+    rdBudgets: Prisma.$FinanceBudgetRdPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2135,11 +2855,15 @@ readonly fields: FinanceAccountFieldRefs;
  */
 export interface Prisma__FinanceAccountClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  editor<T extends Prisma.FinanceAccount$editorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$editorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   parent<T extends Prisma.FinanceAccount$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$parentArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.FinanceAccount$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  voucherItems<T extends Prisma.FinanceAccount$voucherItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$voucherItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   balances<T extends Prisma.FinanceAccount$balancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$balancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  editor<T extends Prisma.FinanceAccount$editorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$editorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  annualBalances<T extends Prisma.FinanceAccount$annualBalancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$annualBalancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAnnualBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  voucherItems<T extends Prisma.FinanceAccount$voucherItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$voucherItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  snapshotRows<T extends Prisma.FinanceAccount$snapshotRowsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$snapshotRowsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBalanceSnapshotRowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  deptBudgets<T extends Prisma.FinanceAccount$deptBudgetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$deptBudgetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBudgetDeptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  rdBudgets<T extends Prisma.FinanceAccount$rdBudgetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$rdBudgetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBudgetRdPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2587,6 +3311,25 @@ export type FinanceAccountDeleteManyArgs<ExtArgs extends runtime.Types.Extension
 }
 
 /**
+ * FinanceAccount.editor
+ */
+export type FinanceAccount$editorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
  * FinanceAccount.parent
  */
 export type FinanceAccount$parentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2630,30 +3373,6 @@ export type FinanceAccount$childrenArgs<ExtArgs extends runtime.Types.Extensions
 }
 
 /**
- * FinanceAccount.voucherItems
- */
-export type FinanceAccount$voucherItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the FinanceVoucherItem
-   */
-  select?: Prisma.FinanceVoucherItemSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the FinanceVoucherItem
-   */
-  omit?: Prisma.FinanceVoucherItemOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.FinanceVoucherItemInclude<ExtArgs> | null
-  where?: Prisma.FinanceVoucherItemWhereInput
-  orderBy?: Prisma.FinanceVoucherItemOrderByWithRelationInput | Prisma.FinanceVoucherItemOrderByWithRelationInput[]
-  cursor?: Prisma.FinanceVoucherItemWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.FinanceVoucherItemScalarFieldEnum | Prisma.FinanceVoucherItemScalarFieldEnum[]
-}
-
-/**
  * FinanceAccount.balances
  */
 export type FinanceAccount$balancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2678,22 +3397,123 @@ export type FinanceAccount$balancesArgs<ExtArgs extends runtime.Types.Extensions
 }
 
 /**
- * FinanceAccount.editor
+ * FinanceAccount.annualBalances
  */
-export type FinanceAccount$editorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type FinanceAccount$annualBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the User
+   * Select specific fields to fetch from the FinanceAnnualBalance
    */
-  select?: Prisma.UserSelect<ExtArgs> | null
+  select?: Prisma.FinanceAnnualBalanceSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the User
+   * Omit specific fields from the FinanceAnnualBalance
    */
-  omit?: Prisma.UserOmit<ExtArgs> | null
+  omit?: Prisma.FinanceAnnualBalanceOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
+  include?: Prisma.FinanceAnnualBalanceInclude<ExtArgs> | null
+  where?: Prisma.FinanceAnnualBalanceWhereInput
+  orderBy?: Prisma.FinanceAnnualBalanceOrderByWithRelationInput | Prisma.FinanceAnnualBalanceOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAnnualBalanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAnnualBalanceScalarFieldEnum | Prisma.FinanceAnnualBalanceScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.voucherItems
+ */
+export type FinanceAccount$voucherItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceVoucherItem
+   */
+  select?: Prisma.FinanceVoucherItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceVoucherItem
+   */
+  omit?: Prisma.FinanceVoucherItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceVoucherItemInclude<ExtArgs> | null
+  where?: Prisma.FinanceVoucherItemWhereInput
+  orderBy?: Prisma.FinanceVoucherItemOrderByWithRelationInput | Prisma.FinanceVoucherItemOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceVoucherItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceVoucherItemScalarFieldEnum | Prisma.FinanceVoucherItemScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.snapshotRows
+ */
+export type FinanceAccount$snapshotRowsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceBalanceSnapshotRow
+   */
+  select?: Prisma.FinanceBalanceSnapshotRowSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceBalanceSnapshotRow
+   */
+  omit?: Prisma.FinanceBalanceSnapshotRowOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceSnapshotRowInclude<ExtArgs> | null
+  where?: Prisma.FinanceBalanceSnapshotRowWhereInput
+  orderBy?: Prisma.FinanceBalanceSnapshotRowOrderByWithRelationInput | Prisma.FinanceBalanceSnapshotRowOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceBalanceSnapshotRowWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceBalanceSnapshotRowScalarFieldEnum | Prisma.FinanceBalanceSnapshotRowScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.deptBudgets
+ */
+export type FinanceAccount$deptBudgetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceBudgetDept
+   */
+  select?: Prisma.FinanceBudgetDeptSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceBudgetDept
+   */
+  omit?: Prisma.FinanceBudgetDeptOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBudgetDeptInclude<ExtArgs> | null
+  where?: Prisma.FinanceBudgetDeptWhereInput
+  orderBy?: Prisma.FinanceBudgetDeptOrderByWithRelationInput | Prisma.FinanceBudgetDeptOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceBudgetDeptWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceBudgetDeptScalarFieldEnum | Prisma.FinanceBudgetDeptScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.rdBudgets
+ */
+export type FinanceAccount$rdBudgetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceBudgetRd
+   */
+  select?: Prisma.FinanceBudgetRdSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceBudgetRd
+   */
+  omit?: Prisma.FinanceBudgetRdOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBudgetRdInclude<ExtArgs> | null
+  where?: Prisma.FinanceBudgetRdWhereInput
+  orderBy?: Prisma.FinanceBudgetRdOrderByWithRelationInput | Prisma.FinanceBudgetRdOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceBudgetRdWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceBudgetRdScalarFieldEnum | Prisma.FinanceBudgetRdScalarFieldEnum[]
 }
 
 /**

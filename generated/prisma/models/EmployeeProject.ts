@@ -280,8 +280,8 @@ export type EmployeeProjectWhereInput = {
   version?: Prisma.IntFilter<"EmployeeProject"> | number
   createdAt?: Prisma.DateTimeFilter<"EmployeeProject"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"EmployeeProject"> | Date | string
-  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
+  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
 }
 
 export type EmployeeProjectOrderByWithRelationInput = {
@@ -296,8 +296,8 @@ export type EmployeeProjectOrderByWithRelationInput = {
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  employee?: Prisma.EmployeeOrderByWithRelationInput
   project?: Prisma.ProjectOrderByWithRelationInput
+  employee?: Prisma.EmployeeOrderByWithRelationInput
 }
 
 export type EmployeeProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -316,8 +316,8 @@ export type EmployeeProjectWhereUniqueInput = Prisma.AtLeast<{
   version?: Prisma.IntFilter<"EmployeeProject"> | number
   createdAt?: Prisma.DateTimeFilter<"EmployeeProject"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"EmployeeProject"> | Date | string
-  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
+  employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
 }, "id" | "employeeId_projectId">
 
 export type EmployeeProjectOrderByWithAggregationInput = {
@@ -365,8 +365,8 @@ export type EmployeeProjectCreateInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  employee: Prisma.EmployeeCreateNestedOneWithoutProjectsInput
   project: Prisma.ProjectCreateNestedOneWithoutEmployeesInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutProjectsInput
 }
 
 export type EmployeeProjectUncheckedCreateInput = {
@@ -392,8 +392,8 @@ export type EmployeeProjectUpdateInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  employee?: Prisma.EmployeeUpdateOneRequiredWithoutProjectsNestedInput
   project?: Prisma.ProjectUpdateOneRequiredWithoutEmployeesNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutProjectsNestedInput
 }
 
 export type EmployeeProjectUncheckedUpdateInput = {
@@ -839,8 +839,8 @@ export type EmployeeProjectSelect<ExtArgs extends runtime.Types.Extensions.Inter
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employeeProject"]>
 
 export type EmployeeProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -855,8 +855,8 @@ export type EmployeeProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employeeProject"]>
 
 export type EmployeeProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -871,8 +871,8 @@ export type EmployeeProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employeeProject"]>
 
 export type EmployeeProjectSelectScalar = {
@@ -891,23 +891,23 @@ export type EmployeeProjectSelectScalar = {
 
 export type EmployeeProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "projectId" | "role" | "startDate" | "endDate" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["employeeProject"]>
 export type EmployeeProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }
 export type EmployeeProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }
 export type EmployeeProjectIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
+  employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }
 
 export type $EmployeeProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "EmployeeProject"
   objects: {
-    employee: Prisma.$EmployeePayload<ExtArgs>
     project: Prisma.$ProjectPayload<ExtArgs>
+    employee: Prisma.$EmployeePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1315,8 +1315,8 @@ readonly fields: EmployeeProjectFieldRefs;
  */
 export interface Prisma__EmployeeProjectClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

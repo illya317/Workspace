@@ -328,8 +328,8 @@ export type CompanyWhereInput = {
   version?: Prisma.IntFilter<"Company"> | number
   createdAt?: Prisma.DateTimeFilter<"Company"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Company"> | Date | string
-  parentOfRelations?: Prisma.CompanyRelationListRelationFilter
   childOfRelations?: Prisma.CompanyRelationListRelationFilter
+  parentOfRelations?: Prisma.CompanyRelationListRelationFilter
 }
 
 export type CompanyOrderByWithRelationInput = {
@@ -350,8 +350,8 @@ export type CompanyOrderByWithRelationInput = {
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  parentOfRelations?: Prisma.CompanyRelationOrderByRelationAggregateInput
   childOfRelations?: Prisma.CompanyRelationOrderByRelationAggregateInput
+  parentOfRelations?: Prisma.CompanyRelationOrderByRelationAggregateInput
 }
 
 export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -375,8 +375,8 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   version?: Prisma.IntFilter<"Company"> | number
   createdAt?: Prisma.DateTimeFilter<"Company"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Company"> | Date | string
-  parentOfRelations?: Prisma.CompanyRelationListRelationFilter
   childOfRelations?: Prisma.CompanyRelationListRelationFilter
+  parentOfRelations?: Prisma.CompanyRelationListRelationFilter
 }, "id" | "code" | "name">
 
 export type CompanyOrderByWithAggregationInput = {
@@ -444,8 +444,8 @@ export type CompanyCreateInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  parentOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutParentInput
   childOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutChildInput
+  parentOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutParentInput
 }
 
 export type CompanyUncheckedCreateInput = {
@@ -466,8 +466,8 @@ export type CompanyUncheckedCreateInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  parentOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutParentInput
   childOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutChildInput
+  parentOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutParentInput
 }
 
 export type CompanyUpdateInput = {
@@ -487,8 +487,8 @@ export type CompanyUpdateInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  parentOfRelations?: Prisma.CompanyRelationUpdateManyWithoutParentNestedInput
   childOfRelations?: Prisma.CompanyRelationUpdateManyWithoutChildNestedInput
+  parentOfRelations?: Prisma.CompanyRelationUpdateManyWithoutParentNestedInput
 }
 
 export type CompanyUncheckedUpdateInput = {
@@ -509,8 +509,8 @@ export type CompanyUncheckedUpdateInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  parentOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutParentNestedInput
   childOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutChildNestedInput
+  parentOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutParentNestedInput
 }
 
 export type CompanyCreateManyInput = {
@@ -653,24 +653,16 @@ export type CompanyScalarRelationFilter = {
   isNot?: Prisma.CompanyWhereInput
 }
 
-export type CompanyCreateNestedOneWithoutParentOfRelationsInput = {
-  create?: Prisma.XOR<Prisma.CompanyCreateWithoutParentOfRelationsInput, Prisma.CompanyUncheckedCreateWithoutParentOfRelationsInput>
-  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutParentOfRelationsInput
-  connect?: Prisma.CompanyWhereUniqueInput
-}
-
 export type CompanyCreateNestedOneWithoutChildOfRelationsInput = {
   create?: Prisma.XOR<Prisma.CompanyCreateWithoutChildOfRelationsInput, Prisma.CompanyUncheckedCreateWithoutChildOfRelationsInput>
   connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutChildOfRelationsInput
   connect?: Prisma.CompanyWhereUniqueInput
 }
 
-export type CompanyUpdateOneRequiredWithoutParentOfRelationsNestedInput = {
+export type CompanyCreateNestedOneWithoutParentOfRelationsInput = {
   create?: Prisma.XOR<Prisma.CompanyCreateWithoutParentOfRelationsInput, Prisma.CompanyUncheckedCreateWithoutParentOfRelationsInput>
   connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutParentOfRelationsInput
-  upsert?: Prisma.CompanyUpsertWithoutParentOfRelationsInput
   connect?: Prisma.CompanyWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutParentOfRelationsInput, Prisma.CompanyUpdateWithoutParentOfRelationsInput>, Prisma.CompanyUncheckedUpdateWithoutParentOfRelationsInput>
 }
 
 export type CompanyUpdateOneRequiredWithoutChildOfRelationsNestedInput = {
@@ -681,50 +673,12 @@ export type CompanyUpdateOneRequiredWithoutChildOfRelationsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutChildOfRelationsInput, Prisma.CompanyUpdateWithoutChildOfRelationsInput>, Prisma.CompanyUncheckedUpdateWithoutChildOfRelationsInput>
 }
 
-export type CompanyCreateWithoutParentOfRelationsInput = {
-  code: string
-  name: string
-  fullName?: string | null
-  registeredCapital?: string | null
-  unifiedCode?: string | null
-  bankName?: string | null
-  registeredAddress?: string | null
-  registeredDate?: string | null
-  legalPerson?: string | null
-  queryGroup?: number | null
-  sortOrder?: number
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  childOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutChildInput
-}
-
-export type CompanyUncheckedCreateWithoutParentOfRelationsInput = {
-  id?: number
-  code: string
-  name: string
-  fullName?: string | null
-  registeredCapital?: string | null
-  unifiedCode?: string | null
-  bankName?: string | null
-  registeredAddress?: string | null
-  registeredDate?: string | null
-  legalPerson?: string | null
-  queryGroup?: number | null
-  sortOrder?: number
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  childOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutChildInput
-}
-
-export type CompanyCreateOrConnectWithoutParentOfRelationsInput = {
-  where: Prisma.CompanyWhereUniqueInput
-  create: Prisma.XOR<Prisma.CompanyCreateWithoutParentOfRelationsInput, Prisma.CompanyUncheckedCreateWithoutParentOfRelationsInput>
+export type CompanyUpdateOneRequiredWithoutParentOfRelationsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutParentOfRelationsInput, Prisma.CompanyUncheckedCreateWithoutParentOfRelationsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutParentOfRelationsInput
+  upsert?: Prisma.CompanyUpsertWithoutParentOfRelationsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutParentOfRelationsInput, Prisma.CompanyUpdateWithoutParentOfRelationsInput>, Prisma.CompanyUncheckedUpdateWithoutParentOfRelationsInput>
 }
 
 export type CompanyCreateWithoutChildOfRelationsInput = {
@@ -773,56 +727,50 @@ export type CompanyCreateOrConnectWithoutChildOfRelationsInput = {
   create: Prisma.XOR<Prisma.CompanyCreateWithoutChildOfRelationsInput, Prisma.CompanyUncheckedCreateWithoutChildOfRelationsInput>
 }
 
-export type CompanyUpsertWithoutParentOfRelationsInput = {
-  update: Prisma.XOR<Prisma.CompanyUpdateWithoutParentOfRelationsInput, Prisma.CompanyUncheckedUpdateWithoutParentOfRelationsInput>
+export type CompanyCreateWithoutParentOfRelationsInput = {
+  code: string
+  name: string
+  fullName?: string | null
+  registeredCapital?: string | null
+  unifiedCode?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  legalPerson?: string | null
+  queryGroup?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  childOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutChildInput
+}
+
+export type CompanyUncheckedCreateWithoutParentOfRelationsInput = {
+  id?: number
+  code: string
+  name: string
+  fullName?: string | null
+  registeredCapital?: string | null
+  unifiedCode?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  legalPerson?: string | null
+  queryGroup?: number | null
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  childOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutChildInput
+}
+
+export type CompanyCreateOrConnectWithoutParentOfRelationsInput = {
+  where: Prisma.CompanyWhereUniqueInput
   create: Prisma.XOR<Prisma.CompanyCreateWithoutParentOfRelationsInput, Prisma.CompanyUncheckedCreateWithoutParentOfRelationsInput>
-  where?: Prisma.CompanyWhereInput
-}
-
-export type CompanyUpdateToOneWithWhereWithoutParentOfRelationsInput = {
-  where?: Prisma.CompanyWhereInput
-  data: Prisma.XOR<Prisma.CompanyUpdateWithoutParentOfRelationsInput, Prisma.CompanyUncheckedUpdateWithoutParentOfRelationsInput>
-}
-
-export type CompanyUpdateWithoutParentOfRelationsInput = {
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  queryGroup?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  childOfRelations?: Prisma.CompanyRelationUpdateManyWithoutChildNestedInput
-}
-
-export type CompanyUncheckedUpdateWithoutParentOfRelationsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  unifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  queryGroup?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  childOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutChildNestedInput
 }
 
 export type CompanyUpsertWithoutChildOfRelationsInput = {
@@ -877,19 +825,71 @@ export type CompanyUncheckedUpdateWithoutChildOfRelationsInput = {
   parentOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutParentNestedInput
 }
 
+export type CompanyUpsertWithoutParentOfRelationsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutParentOfRelationsInput, Prisma.CompanyUncheckedUpdateWithoutParentOfRelationsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutParentOfRelationsInput, Prisma.CompanyUncheckedCreateWithoutParentOfRelationsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutParentOfRelationsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutParentOfRelationsInput, Prisma.CompanyUncheckedUpdateWithoutParentOfRelationsInput>
+}
+
+export type CompanyUpdateWithoutParentOfRelationsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  queryGroup?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childOfRelations?: Prisma.CompanyRelationUpdateManyWithoutChildNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutParentOfRelationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  queryGroup?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutChildNestedInput
+}
+
 
 /**
  * Count Type CompanyCountOutputType
  */
 
 export type CompanyCountOutputType = {
-  parentOfRelations: number
   childOfRelations: number
+  parentOfRelations: number
 }
 
 export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  parentOfRelations?: boolean | CompanyCountOutputTypeCountParentOfRelationsArgs
   childOfRelations?: boolean | CompanyCountOutputTypeCountChildOfRelationsArgs
+  parentOfRelations?: boolean | CompanyCountOutputTypeCountParentOfRelationsArgs
 }
 
 /**
@@ -905,14 +905,14 @@ export type CompanyCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
 /**
  * CompanyCountOutputType without action
  */
-export type CompanyCountOutputTypeCountParentOfRelationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type CompanyCountOutputTypeCountChildOfRelationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CompanyRelationWhereInput
 }
 
 /**
  * CompanyCountOutputType without action
  */
-export type CompanyCountOutputTypeCountChildOfRelationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type CompanyCountOutputTypeCountParentOfRelationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.CompanyRelationWhereInput
 }
 
@@ -935,8 +935,8 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  parentOfRelations?: boolean | Prisma.Company$parentOfRelationsArgs<ExtArgs>
   childOfRelations?: boolean | Prisma.Company$childOfRelationsArgs<ExtArgs>
+  parentOfRelations?: boolean | Prisma.Company$parentOfRelationsArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["company"]>
 
@@ -1002,8 +1002,8 @@ export type CompanySelectScalar = {
 
 export type CompanyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "fullName" | "registeredCapital" | "unifiedCode" | "bankName" | "registeredAddress" | "registeredDate" | "legalPerson" | "queryGroup" | "sortOrder" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
 export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  parentOfRelations?: boolean | Prisma.Company$parentOfRelationsArgs<ExtArgs>
   childOfRelations?: boolean | Prisma.Company$childOfRelationsArgs<ExtArgs>
+  parentOfRelations?: boolean | Prisma.Company$parentOfRelationsArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CompanyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1012,8 +1012,8 @@ export type CompanyIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Company"
   objects: {
-    parentOfRelations: Prisma.$CompanyRelationPayload<ExtArgs>[]
     childOfRelations: Prisma.$CompanyRelationPayload<ExtArgs>[]
+    parentOfRelations: Prisma.$CompanyRelationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1427,8 +1427,8 @@ readonly fields: CompanyFieldRefs;
  */
 export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  parentOfRelations<T extends Prisma.Company$parentOfRelationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$parentOfRelationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompanyRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   childOfRelations<T extends Prisma.Company$childOfRelationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$childOfRelationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompanyRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  parentOfRelations<T extends Prisma.Company$parentOfRelationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$parentOfRelationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompanyRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1866,9 +1866,9 @@ export type CompanyDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
 }
 
 /**
- * Company.parentOfRelations
+ * Company.childOfRelations
  */
-export type Company$parentOfRelationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Company$childOfRelationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the CompanyRelation
    */
@@ -1890,9 +1890,9 @@ export type Company$parentOfRelationsArgs<ExtArgs extends runtime.Types.Extensio
 }
 
 /**
- * Company.childOfRelations
+ * Company.parentOfRelations
  */
-export type Company$childOfRelationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Company$parentOfRelationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the CompanyRelation
    */

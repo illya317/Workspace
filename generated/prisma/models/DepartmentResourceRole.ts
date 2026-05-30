@@ -228,9 +228,9 @@ export type DepartmentResourceRoleWhereInput = {
   resourceId?: Prisma.IntFilter<"DepartmentResourceRole"> | number
   roleId?: Prisma.IntFilter<"DepartmentResourceRole"> | number
   scopeId?: Prisma.StringNullableFilter<"DepartmentResourceRole"> | string | null
-  department?: Prisma.XOR<Prisma.DepartmentScalarRelationFilter, Prisma.DepartmentWhereInput>
-  resource?: Prisma.XOR<Prisma.ResourceScalarRelationFilter, Prisma.ResourceWhereInput>
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
+  resource?: Prisma.XOR<Prisma.ResourceScalarRelationFilter, Prisma.ResourceWhereInput>
+  department?: Prisma.XOR<Prisma.DepartmentScalarRelationFilter, Prisma.DepartmentWhereInput>
 }
 
 export type DepartmentResourceRoleOrderByWithRelationInput = {
@@ -239,9 +239,9 @@ export type DepartmentResourceRoleOrderByWithRelationInput = {
   resourceId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   scopeId?: Prisma.SortOrderInput | Prisma.SortOrder
-  department?: Prisma.DepartmentOrderByWithRelationInput
-  resource?: Prisma.ResourceOrderByWithRelationInput
   role?: Prisma.RoleOrderByWithRelationInput
+  resource?: Prisma.ResourceOrderByWithRelationInput
+  department?: Prisma.DepartmentOrderByWithRelationInput
 }
 
 export type DepartmentResourceRoleWhereUniqueInput = Prisma.AtLeast<{
@@ -254,9 +254,9 @@ export type DepartmentResourceRoleWhereUniqueInput = Prisma.AtLeast<{
   resourceId?: Prisma.IntFilter<"DepartmentResourceRole"> | number
   roleId?: Prisma.IntFilter<"DepartmentResourceRole"> | number
   scopeId?: Prisma.StringNullableFilter<"DepartmentResourceRole"> | string | null
-  department?: Prisma.XOR<Prisma.DepartmentScalarRelationFilter, Prisma.DepartmentWhereInput>
-  resource?: Prisma.XOR<Prisma.ResourceScalarRelationFilter, Prisma.ResourceWhereInput>
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
+  resource?: Prisma.XOR<Prisma.ResourceScalarRelationFilter, Prisma.ResourceWhereInput>
+  department?: Prisma.XOR<Prisma.DepartmentScalarRelationFilter, Prisma.DepartmentWhereInput>
 }, "id" | "departmentId_resourceId_roleId_scopeId">
 
 export type DepartmentResourceRoleOrderByWithAggregationInput = {
@@ -285,9 +285,9 @@ export type DepartmentResourceRoleScalarWhereWithAggregatesInput = {
 
 export type DepartmentResourceRoleCreateInput = {
   scopeId?: string | null
-  department: Prisma.DepartmentCreateNestedOneWithoutResourceRolesInput
-  resource: Prisma.ResourceCreateNestedOneWithoutDepartmentRolesInput
   role: Prisma.RoleCreateNestedOneWithoutDepartmentAssignmentsInput
+  resource: Prisma.ResourceCreateNestedOneWithoutDepartmentRolesInput
+  department: Prisma.DepartmentCreateNestedOneWithoutResourceRolesInput
 }
 
 export type DepartmentResourceRoleUncheckedCreateInput = {
@@ -300,9 +300,9 @@ export type DepartmentResourceRoleUncheckedCreateInput = {
 
 export type DepartmentResourceRoleUpdateInput = {
   scopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  department?: Prisma.DepartmentUpdateOneRequiredWithoutResourceRolesNestedInput
-  resource?: Prisma.ResourceUpdateOneRequiredWithoutDepartmentRolesNestedInput
   role?: Prisma.RoleUpdateOneRequiredWithoutDepartmentAssignmentsNestedInput
+  resource?: Prisma.ResourceUpdateOneRequiredWithoutDepartmentRolesNestedInput
+  department?: Prisma.DepartmentUpdateOneRequiredWithoutResourceRolesNestedInput
 }
 
 export type DepartmentResourceRoleUncheckedUpdateInput = {
@@ -516,8 +516,8 @@ export type DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInpu
 
 export type DepartmentResourceRoleCreateWithoutResourceInput = {
   scopeId?: string | null
-  department: Prisma.DepartmentCreateNestedOneWithoutResourceRolesInput
   role: Prisma.RoleCreateNestedOneWithoutDepartmentAssignmentsInput
+  department: Prisma.DepartmentCreateNestedOneWithoutResourceRolesInput
 }
 
 export type DepartmentResourceRoleUncheckedCreateWithoutResourceInput = {
@@ -565,8 +565,8 @@ export type DepartmentResourceRoleScalarWhereInput = {
 
 export type DepartmentResourceRoleCreateWithoutRoleInput = {
   scopeId?: string | null
-  department: Prisma.DepartmentCreateNestedOneWithoutResourceRolesInput
   resource: Prisma.ResourceCreateNestedOneWithoutDepartmentRolesInput
+  department: Prisma.DepartmentCreateNestedOneWithoutResourceRolesInput
 }
 
 export type DepartmentResourceRoleUncheckedCreateWithoutRoleInput = {
@@ -603,8 +603,8 @@ export type DepartmentResourceRoleUpdateManyWithWhereWithoutRoleInput = {
 
 export type DepartmentResourceRoleCreateWithoutDepartmentInput = {
   scopeId?: string | null
-  resource: Prisma.ResourceCreateNestedOneWithoutDepartmentRolesInput
   role: Prisma.RoleCreateNestedOneWithoutDepartmentAssignmentsInput
+  resource: Prisma.ResourceCreateNestedOneWithoutDepartmentRolesInput
 }
 
 export type DepartmentResourceRoleUncheckedCreateWithoutDepartmentInput = {
@@ -648,8 +648,8 @@ export type DepartmentResourceRoleCreateManyResourceInput = {
 
 export type DepartmentResourceRoleUpdateWithoutResourceInput = {
   scopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  department?: Prisma.DepartmentUpdateOneRequiredWithoutResourceRolesNestedInput
   role?: Prisma.RoleUpdateOneRequiredWithoutDepartmentAssignmentsNestedInput
+  department?: Prisma.DepartmentUpdateOneRequiredWithoutResourceRolesNestedInput
 }
 
 export type DepartmentResourceRoleUncheckedUpdateWithoutResourceInput = {
@@ -675,8 +675,8 @@ export type DepartmentResourceRoleCreateManyRoleInput = {
 
 export type DepartmentResourceRoleUpdateWithoutRoleInput = {
   scopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  department?: Prisma.DepartmentUpdateOneRequiredWithoutResourceRolesNestedInput
   resource?: Prisma.ResourceUpdateOneRequiredWithoutDepartmentRolesNestedInput
+  department?: Prisma.DepartmentUpdateOneRequiredWithoutResourceRolesNestedInput
 }
 
 export type DepartmentResourceRoleUncheckedUpdateWithoutRoleInput = {
@@ -702,8 +702,8 @@ export type DepartmentResourceRoleCreateManyDepartmentInput = {
 
 export type DepartmentResourceRoleUpdateWithoutDepartmentInput = {
   scopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resource?: Prisma.ResourceUpdateOneRequiredWithoutDepartmentRolesNestedInput
   role?: Prisma.RoleUpdateOneRequiredWithoutDepartmentAssignmentsNestedInput
+  resource?: Prisma.ResourceUpdateOneRequiredWithoutDepartmentRolesNestedInput
 }
 
 export type DepartmentResourceRoleUncheckedUpdateWithoutDepartmentInput = {
@@ -728,9 +728,9 @@ export type DepartmentResourceRoleSelect<ExtArgs extends runtime.Types.Extension
   resourceId?: boolean
   roleId?: boolean
   scopeId?: boolean
-  department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
-  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["departmentResourceRole"]>
 
 export type DepartmentResourceRoleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -739,9 +739,9 @@ export type DepartmentResourceRoleSelectCreateManyAndReturn<ExtArgs extends runt
   resourceId?: boolean
   roleId?: boolean
   scopeId?: boolean
-  department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
-  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["departmentResourceRole"]>
 
 export type DepartmentResourceRoleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -750,9 +750,9 @@ export type DepartmentResourceRoleSelectUpdateManyAndReturn<ExtArgs extends runt
   resourceId?: boolean
   roleId?: boolean
   scopeId?: boolean
-  department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
-  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["departmentResourceRole"]>
 
 export type DepartmentResourceRoleSelectScalar = {
@@ -765,27 +765,27 @@ export type DepartmentResourceRoleSelectScalar = {
 
 export type DepartmentResourceRoleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "departmentId" | "resourceId" | "roleId" | "scopeId", ExtArgs["result"]["departmentResourceRole"]>
 export type DepartmentResourceRoleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
-  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
 }
 export type DepartmentResourceRoleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
-  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
 }
 export type DepartmentResourceRoleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
-  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
 }
 
 export type $DepartmentResourceRolePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "DepartmentResourceRole"
   objects: {
-    department: Prisma.$DepartmentPayload<ExtArgs>
-    resource: Prisma.$ResourcePayload<ExtArgs>
     role: Prisma.$RolePayload<ExtArgs>
+    resource: Prisma.$ResourcePayload<ExtArgs>
+    department: Prisma.$DepartmentPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1187,9 +1187,9 @@ readonly fields: DepartmentResourceRoleFieldRefs;
  */
 export interface Prisma__DepartmentResourceRoleClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  department<T extends Prisma.DepartmentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DepartmentDefaultArgs<ExtArgs>>): Prisma.Prisma__DepartmentClient<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  resource<T extends Prisma.ResourceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceDefaultArgs<ExtArgs>>): Prisma.Prisma__ResourceClient<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   role<T extends Prisma.RoleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RoleDefaultArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  resource<T extends Prisma.ResourceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceDefaultArgs<ExtArgs>>): Prisma.Prisma__ResourceClient<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  department<T extends Prisma.DepartmentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DepartmentDefaultArgs<ExtArgs>>): Prisma.Prisma__DepartmentClient<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

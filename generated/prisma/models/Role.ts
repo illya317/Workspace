@@ -220,9 +220,9 @@ export type RoleWhereInput = {
   name?: Prisma.StringFilter<"Role"> | string
   description?: Prisma.StringNullableFilter<"Role"> | string | null
   sortOrder?: Prisma.IntFilter<"Role"> | number
-  userAssignments?: Prisma.UserResourceRoleListRelationFilter
-  positionAssignments?: Prisma.PositionResourceRoleListRelationFilter
   departmentAssignments?: Prisma.DepartmentResourceRoleListRelationFilter
+  positionAssignments?: Prisma.PositionResourceRoleListRelationFilter
+  userAssignments?: Prisma.UserResourceRoleListRelationFilter
 }
 
 export type RoleOrderByWithRelationInput = {
@@ -231,9 +231,9 @@ export type RoleOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
-  userAssignments?: Prisma.UserResourceRoleOrderByRelationAggregateInput
-  positionAssignments?: Prisma.PositionResourceRoleOrderByRelationAggregateInput
   departmentAssignments?: Prisma.DepartmentResourceRoleOrderByRelationAggregateInput
+  positionAssignments?: Prisma.PositionResourceRoleOrderByRelationAggregateInput
+  userAssignments?: Prisma.UserResourceRoleOrderByRelationAggregateInput
 }
 
 export type RoleWhereUniqueInput = Prisma.AtLeast<{
@@ -245,9 +245,9 @@ export type RoleWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Role"> | string
   description?: Prisma.StringNullableFilter<"Role"> | string | null
   sortOrder?: Prisma.IntFilter<"Role"> | number
-  userAssignments?: Prisma.UserResourceRoleListRelationFilter
-  positionAssignments?: Prisma.PositionResourceRoleListRelationFilter
   departmentAssignments?: Prisma.DepartmentResourceRoleListRelationFilter
+  positionAssignments?: Prisma.PositionResourceRoleListRelationFilter
+  userAssignments?: Prisma.UserResourceRoleListRelationFilter
 }, "id" | "key">
 
 export type RoleOrderByWithAggregationInput = {
@@ -279,9 +279,9 @@ export type RoleCreateInput = {
   name: string
   description?: string | null
   sortOrder?: number
-  userAssignments?: Prisma.UserResourceRoleCreateNestedManyWithoutRoleInput
-  positionAssignments?: Prisma.PositionResourceRoleCreateNestedManyWithoutRoleInput
   departmentAssignments?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutRoleInput
+  positionAssignments?: Prisma.PositionResourceRoleCreateNestedManyWithoutRoleInput
+  userAssignments?: Prisma.UserResourceRoleCreateNestedManyWithoutRoleInput
 }
 
 export type RoleUncheckedCreateInput = {
@@ -290,9 +290,9 @@ export type RoleUncheckedCreateInput = {
   name: string
   description?: string | null
   sortOrder?: number
-  userAssignments?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutRoleInput
-  positionAssignments?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutRoleInput
   departmentAssignments?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutRoleInput
+  positionAssignments?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutRoleInput
+  userAssignments?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutRoleInput
 }
 
 export type RoleUpdateInput = {
@@ -300,9 +300,9 @@ export type RoleUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  userAssignments?: Prisma.UserResourceRoleUpdateManyWithoutRoleNestedInput
-  positionAssignments?: Prisma.PositionResourceRoleUpdateManyWithoutRoleNestedInput
   departmentAssignments?: Prisma.DepartmentResourceRoleUpdateManyWithoutRoleNestedInput
+  positionAssignments?: Prisma.PositionResourceRoleUpdateManyWithoutRoleNestedInput
+  userAssignments?: Prisma.UserResourceRoleUpdateManyWithoutRoleNestedInput
 }
 
 export type RoleUncheckedUpdateInput = {
@@ -311,9 +311,9 @@ export type RoleUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  userAssignments?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
-  positionAssignments?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
   departmentAssignments?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
+  positionAssignments?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
+  userAssignments?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
 }
 
 export type RoleCreateManyInput = {
@@ -425,8 +425,8 @@ export type RoleCreateWithoutUserAssignmentsInput = {
   name: string
   description?: string | null
   sortOrder?: number
-  positionAssignments?: Prisma.PositionResourceRoleCreateNestedManyWithoutRoleInput
   departmentAssignments?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutRoleInput
+  positionAssignments?: Prisma.PositionResourceRoleCreateNestedManyWithoutRoleInput
 }
 
 export type RoleUncheckedCreateWithoutUserAssignmentsInput = {
@@ -435,8 +435,8 @@ export type RoleUncheckedCreateWithoutUserAssignmentsInput = {
   name: string
   description?: string | null
   sortOrder?: number
-  positionAssignments?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutRoleInput
   departmentAssignments?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutRoleInput
+  positionAssignments?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutRoleInput
 }
 
 export type RoleCreateOrConnectWithoutUserAssignmentsInput = {
@@ -460,8 +460,8 @@ export type RoleUpdateWithoutUserAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  positionAssignments?: Prisma.PositionResourceRoleUpdateManyWithoutRoleNestedInput
   departmentAssignments?: Prisma.DepartmentResourceRoleUpdateManyWithoutRoleNestedInput
+  positionAssignments?: Prisma.PositionResourceRoleUpdateManyWithoutRoleNestedInput
 }
 
 export type RoleUncheckedUpdateWithoutUserAssignmentsInput = {
@@ -470,8 +470,8 @@ export type RoleUncheckedUpdateWithoutUserAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  positionAssignments?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
   departmentAssignments?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
+  positionAssignments?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
 }
 
 export type RoleCreateWithoutPositionAssignmentsInput = {
@@ -479,8 +479,8 @@ export type RoleCreateWithoutPositionAssignmentsInput = {
   name: string
   description?: string | null
   sortOrder?: number
-  userAssignments?: Prisma.UserResourceRoleCreateNestedManyWithoutRoleInput
   departmentAssignments?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutRoleInput
+  userAssignments?: Prisma.UserResourceRoleCreateNestedManyWithoutRoleInput
 }
 
 export type RoleUncheckedCreateWithoutPositionAssignmentsInput = {
@@ -489,8 +489,8 @@ export type RoleUncheckedCreateWithoutPositionAssignmentsInput = {
   name: string
   description?: string | null
   sortOrder?: number
-  userAssignments?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutRoleInput
   departmentAssignments?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutRoleInput
+  userAssignments?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutRoleInput
 }
 
 export type RoleCreateOrConnectWithoutPositionAssignmentsInput = {
@@ -514,8 +514,8 @@ export type RoleUpdateWithoutPositionAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  userAssignments?: Prisma.UserResourceRoleUpdateManyWithoutRoleNestedInput
   departmentAssignments?: Prisma.DepartmentResourceRoleUpdateManyWithoutRoleNestedInput
+  userAssignments?: Prisma.UserResourceRoleUpdateManyWithoutRoleNestedInput
 }
 
 export type RoleUncheckedUpdateWithoutPositionAssignmentsInput = {
@@ -524,8 +524,8 @@ export type RoleUncheckedUpdateWithoutPositionAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  userAssignments?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
   departmentAssignments?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
+  userAssignments?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
 }
 
 export type RoleCreateWithoutDepartmentAssignmentsInput = {
@@ -533,8 +533,8 @@ export type RoleCreateWithoutDepartmentAssignmentsInput = {
   name: string
   description?: string | null
   sortOrder?: number
-  userAssignments?: Prisma.UserResourceRoleCreateNestedManyWithoutRoleInput
   positionAssignments?: Prisma.PositionResourceRoleCreateNestedManyWithoutRoleInput
+  userAssignments?: Prisma.UserResourceRoleCreateNestedManyWithoutRoleInput
 }
 
 export type RoleUncheckedCreateWithoutDepartmentAssignmentsInput = {
@@ -543,8 +543,8 @@ export type RoleUncheckedCreateWithoutDepartmentAssignmentsInput = {
   name: string
   description?: string | null
   sortOrder?: number
-  userAssignments?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutRoleInput
   positionAssignments?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutRoleInput
+  userAssignments?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutRoleInput
 }
 
 export type RoleCreateOrConnectWithoutDepartmentAssignmentsInput = {
@@ -568,8 +568,8 @@ export type RoleUpdateWithoutDepartmentAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  userAssignments?: Prisma.UserResourceRoleUpdateManyWithoutRoleNestedInput
   positionAssignments?: Prisma.PositionResourceRoleUpdateManyWithoutRoleNestedInput
+  userAssignments?: Prisma.UserResourceRoleUpdateManyWithoutRoleNestedInput
 }
 
 export type RoleUncheckedUpdateWithoutDepartmentAssignmentsInput = {
@@ -578,8 +578,8 @@ export type RoleUncheckedUpdateWithoutDepartmentAssignmentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
-  userAssignments?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
   positionAssignments?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
+  userAssignments?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutRoleNestedInput
 }
 
 
@@ -588,15 +588,15 @@ export type RoleUncheckedUpdateWithoutDepartmentAssignmentsInput = {
  */
 
 export type RoleCountOutputType = {
-  userAssignments: number
-  positionAssignments: number
   departmentAssignments: number
+  positionAssignments: number
+  userAssignments: number
 }
 
 export type RoleCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  userAssignments?: boolean | RoleCountOutputTypeCountUserAssignmentsArgs
-  positionAssignments?: boolean | RoleCountOutputTypeCountPositionAssignmentsArgs
   departmentAssignments?: boolean | RoleCountOutputTypeCountDepartmentAssignmentsArgs
+  positionAssignments?: boolean | RoleCountOutputTypeCountPositionAssignmentsArgs
+  userAssignments?: boolean | RoleCountOutputTypeCountUserAssignmentsArgs
 }
 
 /**
@@ -612,8 +612,8 @@ export type RoleCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
 /**
  * RoleCountOutputType without action
  */
-export type RoleCountOutputTypeCountUserAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.UserResourceRoleWhereInput
+export type RoleCountOutputTypeCountDepartmentAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DepartmentResourceRoleWhereInput
 }
 
 /**
@@ -626,8 +626,8 @@ export type RoleCountOutputTypeCountPositionAssignmentsArgs<ExtArgs extends runt
 /**
  * RoleCountOutputType without action
  */
-export type RoleCountOutputTypeCountDepartmentAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.DepartmentResourceRoleWhereInput
+export type RoleCountOutputTypeCountUserAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserResourceRoleWhereInput
 }
 
 
@@ -637,9 +637,9 @@ export type RoleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   name?: boolean
   description?: boolean
   sortOrder?: boolean
-  userAssignments?: boolean | Prisma.Role$userAssignmentsArgs<ExtArgs>
-  positionAssignments?: boolean | Prisma.Role$positionAssignmentsArgs<ExtArgs>
   departmentAssignments?: boolean | Prisma.Role$departmentAssignmentsArgs<ExtArgs>
+  positionAssignments?: boolean | Prisma.Role$positionAssignmentsArgs<ExtArgs>
+  userAssignments?: boolean | Prisma.Role$userAssignmentsArgs<ExtArgs>
   _count?: boolean | Prisma.RoleCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["role"]>
 
@@ -669,9 +669,9 @@ export type RoleSelectScalar = {
 
 export type RoleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "name" | "description" | "sortOrder", ExtArgs["result"]["role"]>
 export type RoleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  userAssignments?: boolean | Prisma.Role$userAssignmentsArgs<ExtArgs>
-  positionAssignments?: boolean | Prisma.Role$positionAssignmentsArgs<ExtArgs>
   departmentAssignments?: boolean | Prisma.Role$departmentAssignmentsArgs<ExtArgs>
+  positionAssignments?: boolean | Prisma.Role$positionAssignmentsArgs<ExtArgs>
+  userAssignments?: boolean | Prisma.Role$userAssignmentsArgs<ExtArgs>
   _count?: boolean | Prisma.RoleCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type RoleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -680,9 +680,9 @@ export type RoleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $RolePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Role"
   objects: {
-    userAssignments: Prisma.$UserResourceRolePayload<ExtArgs>[]
-    positionAssignments: Prisma.$PositionResourceRolePayload<ExtArgs>[]
     departmentAssignments: Prisma.$DepartmentResourceRolePayload<ExtArgs>[]
+    positionAssignments: Prisma.$PositionResourceRolePayload<ExtArgs>[]
+    userAssignments: Prisma.$UserResourceRolePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1084,9 +1084,9 @@ readonly fields: RoleFieldRefs;
  */
 export interface Prisma__RoleClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  userAssignments<T extends Prisma.Role$userAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Role$userAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  positionAssignments<T extends Prisma.Role$positionAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Role$positionAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   departmentAssignments<T extends Prisma.Role$departmentAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Role$departmentAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  positionAssignments<T extends Prisma.Role$positionAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Role$positionAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  userAssignments<T extends Prisma.Role$userAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Role$userAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1512,27 +1512,27 @@ export type RoleDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * Role.userAssignments
+ * Role.departmentAssignments
  */
-export type Role$userAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Role$departmentAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UserResourceRole
+   * Select specific fields to fetch from the DepartmentResourceRole
    */
-  select?: Prisma.UserResourceRoleSelect<ExtArgs> | null
+  select?: Prisma.DepartmentResourceRoleSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UserResourceRole
+   * Omit specific fields from the DepartmentResourceRole
    */
-  omit?: Prisma.UserResourceRoleOmit<ExtArgs> | null
+  omit?: Prisma.DepartmentResourceRoleOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UserResourceRoleInclude<ExtArgs> | null
-  where?: Prisma.UserResourceRoleWhereInput
-  orderBy?: Prisma.UserResourceRoleOrderByWithRelationInput | Prisma.UserResourceRoleOrderByWithRelationInput[]
-  cursor?: Prisma.UserResourceRoleWhereUniqueInput
+  include?: Prisma.DepartmentResourceRoleInclude<ExtArgs> | null
+  where?: Prisma.DepartmentResourceRoleWhereInput
+  orderBy?: Prisma.DepartmentResourceRoleOrderByWithRelationInput | Prisma.DepartmentResourceRoleOrderByWithRelationInput[]
+  cursor?: Prisma.DepartmentResourceRoleWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.UserResourceRoleScalarFieldEnum | Prisma.UserResourceRoleScalarFieldEnum[]
+  distinct?: Prisma.DepartmentResourceRoleScalarFieldEnum | Prisma.DepartmentResourceRoleScalarFieldEnum[]
 }
 
 /**
@@ -1560,27 +1560,27 @@ export type Role$positionAssignmentsArgs<ExtArgs extends runtime.Types.Extension
 }
 
 /**
- * Role.departmentAssignments
+ * Role.userAssignments
  */
-export type Role$departmentAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Role$userAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the DepartmentResourceRole
+   * Select specific fields to fetch from the UserResourceRole
    */
-  select?: Prisma.DepartmentResourceRoleSelect<ExtArgs> | null
+  select?: Prisma.UserResourceRoleSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the DepartmentResourceRole
+   * Omit specific fields from the UserResourceRole
    */
-  omit?: Prisma.DepartmentResourceRoleOmit<ExtArgs> | null
+  omit?: Prisma.UserResourceRoleOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.DepartmentResourceRoleInclude<ExtArgs> | null
-  where?: Prisma.DepartmentResourceRoleWhereInput
-  orderBy?: Prisma.DepartmentResourceRoleOrderByWithRelationInput | Prisma.DepartmentResourceRoleOrderByWithRelationInput[]
-  cursor?: Prisma.DepartmentResourceRoleWhereUniqueInput
+  include?: Prisma.UserResourceRoleInclude<ExtArgs> | null
+  where?: Prisma.UserResourceRoleWhereInput
+  orderBy?: Prisma.UserResourceRoleOrderByWithRelationInput | Prisma.UserResourceRoleOrderByWithRelationInput[]
+  cursor?: Prisma.UserResourceRoleWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.DepartmentResourceRoleScalarFieldEnum | Prisma.DepartmentResourceRoleScalarFieldEnum[]
+  distinct?: Prisma.UserResourceRoleScalarFieldEnum | Prisma.UserResourceRoleScalarFieldEnum[]
 }
 
 /**

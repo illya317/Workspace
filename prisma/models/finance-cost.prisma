@@ -1,26 +1,25 @@
 /// 财务成本数据导入批次。每次从 Excel/JSON 导入时生成一条记录，作为该批次所有明细行的事实来源追溯。
 model FinanceDataImport {
-  id                 Int      @id @default(autoincrement()) // 导入批次ID
-  profile            String                                 // 数据来源分类：shipments/sales-salary/cost-structure/cost-analysis/workshop-reports，对应 normalized 子目录
-  year               Int?                                   // 数据所属年份
-  sourceFile         String                                 // 原始文件名
-  sourcePath         String?                                // 原始文件路径
-  normalizedJsonPath String?                                // 标准化后的JSON路径
-  checksum           String?                                // 文件MD5校验和
-  status             String   @default("imported")          // 导入状态：imported/processing/failed
-  recordCount        Int      @default(0)                  // 导入的记录条数
-  warningCount       Int      @default(0)                  // 警告数量
-  errorCount         Int      @default(0)                  // 错误数量
-  importedBy         String?                                // 导入操作人
-  importedAt         DateTime @default(now())               // 导入时间
-  createdAt          DateTime @default(now())               // 创建时间
-  updatedAt          DateTime @updatedAt                    // 更新时间
-
-  shipments         FinanceShipment[]
-  salesSalaries     FinanceSalesSalary[]
-  workshopReports   FinanceWorkshopReport[]
-  costStructureRows FinanceCostStructureRow[]
-  costAnalysisRows  FinanceCostAnalysisRow[]
+  id                 Int                       @id @default(autoincrement())
+  profile            String
+  year               Int?
+  sourceFile         String
+  sourcePath         String?
+  normalizedJsonPath String?
+  checksum           String?
+  status             String                    @default("imported")
+  recordCount        Int                       @default(0)
+  warningCount       Int                       @default(0)
+  errorCount         Int                       @default(0)
+  importedBy         String?
+  importedAt         DateTime                  @default(now())
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  costAnalysisRows   FinanceCostAnalysisRow[]
+  costStructureRows  FinanceCostStructureRow[]
+  salesSalaries      FinanceSalesSalary[]
+  shipments          FinanceShipment[]
+  workshopReports    FinanceWorkshopReport[]
 
   @@index([profile, year])
   @@index([sourceFile])
@@ -28,32 +27,27 @@ model FinanceDataImport {
 
 /// 发货/销售明细。记录每笔销售的日期、客户、产品、数量、单价、金额、回款情况。employeeId 关联到业务员，为空表示厂家直销（厂部）。
 model FinanceShipment {
-  id       Int               @id @default(autoincrement()) // 发货记录ID
-  importId Int                                                // 所属导入批次ID
-  import   FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
-
-  year         Int     // 发货年份
-  month        Int?    // 发货月份
-  date         String? // 发货日期（YYYY-MM-DD）
-  customerName String? // 客户名称
-  productName  String? // 产品名称
-  spec         String? // 规格
-  batchNo      String? // 批号
-
-  quantity       Float? // 发货数量
-  unitPrice      Float? // 单价
-  amount         Float? // 发货金额（含税）
-  receivedAmount Float? // 已回款金额
-
-  employeeId Int?                // 业务员员工ID，为空表示厂家直销
-  employee   Employee? @relation(fields: [employeeId], references: [id])
-
-  sourceFile  String  // 来源文件名
-  sourceSheet String? // 来源工作表
-  sourceRow   Int?    // 来源行号
-
-  createdAt DateTime @default(now()) // 创建时间
-  updatedAt DateTime @updatedAt      // 更新时间
+  id             Int               @id @default(autoincrement())
+  importId       Int
+  year           Int
+  month          Int?
+  date           String?
+  customerName   String?
+  productName    String?
+  spec           String?
+  batchNo        String?
+  quantity       Float?
+  unitPrice      Float?
+  amount         Float?
+  receivedAmount Float?
+  employeeId     Int?
+  sourceFile     String
+  sourceSheet    String?
+  sourceRow      Int?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  employee       Employee?         @relation(fields: [employeeId], references: [id])
+  import         FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
 
   @@index([year, month])
   @@index([customerName])
@@ -63,26 +57,22 @@ model FinanceShipment {
 
 /// 销售工资。记录业务员每月底薪、提成、实发工资。employeeId 关联到具体员工，为空表示厂销（厂家直销归集行）。
 model FinanceSalesSalary {
-  id       Int               @id @default(autoincrement()) // 工资记录ID
-  importId Int                                                // 所属导入批次ID
-  import   FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
-
-  year         Int     // 年份
-  month        Int?    // 月份
-  baseSalary   Float?  // 基本工资/底薪
-  bonus        Float?  // 提成/奖金
-  deduction    Float?  // 扣款
-  actualSalary Float?  // 实发工资
-
-  employeeId Int?                // 员工ID，为空表示厂销
-  employee   Employee? @relation(fields: [employeeId], references: [id])
-
-  sourceFile  String  // 来源文件名
-  sourceSheet String? // 来源工作表
-  sourceRow   Int?    // 来源行号
-
-  createdAt DateTime @default(now()) // 创建时间
-  updatedAt DateTime @updatedAt      // 更新时间
+  id           Int               @id @default(autoincrement())
+  importId     Int
+  year         Int
+  month        Int?
+  baseSalary   Float?
+  bonus        Float?
+  deduction    Float?
+  actualSalary Float?
+  employeeId   Int?
+  sourceFile   String
+  sourceSheet  String?
+  sourceRow    Int?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  employee     Employee?         @relation(fields: [employeeId], references: [id])
+  import       FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
 
   @@index([year, month])
   @@index([employeeId])
@@ -90,25 +80,22 @@ model FinanceSalesSalary {
 
 /// 成本结构明细。按产品归集原材料、包材、直接人工、辅助人工、制造费用等各项成本金额。用于计算产品单位成本。
 model FinanceCostStructureRow {
-  id       Int               @id @default(autoincrement()) // 成本结构行ID
-  importId Int                                                // 所属导入批次ID
-  import   FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
-
-  year        Int     // 年份
-  month       Int?    // 月份
-  productName String? // 产品名称
-  category    String? // 成本大类：原材料/包材/人工/辅助人工/制造费用
-  itemName    String? // 成本细项名称
-  amount      Float?  // 金额
-  quantity    Float?  // 入库数量（用于计算单位成本）
-  unit        String? // 计量单位
-
-  sourceFile  String  // 来源文件名
-  sourceSheet String? // 来源工作表
-  sourceRow   Int?    // 来源行号
-
-  createdAt DateTime @default(now()) // 创建时间
-  updatedAt DateTime @updatedAt      // 更新时间
+  id          Int               @id @default(autoincrement())
+  importId    Int
+  year        Int
+  month       Int?
+  productName String?
+  category    String?
+  itemName    String?
+  amount      Float?
+  quantity    Float?
+  unit        String?
+  sourceFile  String
+  sourceSheet String?
+  sourceRow   Int?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  import      FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
 
   @@index([year, month])
   @@index([productName])
@@ -117,25 +104,22 @@ model FinanceCostStructureRow {
 
 /// 成本分析指标。从成本分析 Excel 的多张工作表解析而来，每张表按行标签+指标键存储数值或文本。用于生成成本分析报表。
 model FinanceCostAnalysisRow {
-  id       Int               @id @default(autoincrement()) // 成本分析行ID
-  importId Int                                                // 所属导入批次ID
-  import   FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
-
-  year       Int     // 年份
-  month      Int?    // 月份
-  tableName  String? // 来源工作表名称（对应Excel中的sheet）
-  rowLabel   String? // 行标签（如产品名/规格/项目名称）
-  metricKey  String? // 指标键（列名）
-  metricName String? // 指标显示名称
-  value      Float?  // 数值（可空）
-  textValue  String? // 文本值（当value为空时存储原始文本）
-
-  sourceFile  String  // 来源文件名
-  sourceSheet String? // 来源工作表
-  sourceRow   Int?    // 来源行号
-
-  createdAt DateTime @default(now()) // 创建时间
-  updatedAt DateTime @updatedAt      // 更新时间
+  id          Int               @id @default(autoincrement())
+  importId    Int
+  year        Int
+  month       Int?
+  tableName   String?
+  rowLabel    String?
+  metricKey   String?
+  metricName  String?
+  value       Float?
+  textValue   String?
+  sourceFile  String
+  sourceSheet String?
+  sourceRow   Int?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  import      FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
 
   @@index([year, month])
   @@index([tableName])
@@ -144,32 +128,93 @@ model FinanceCostAnalysisRow {
 
 /// 车间日报。记录生产车间每日各批次产品的人员投入、工序、工分和完成数量。employeeId/positionId 关联到员工和岗位，用于人工成本归集和计件工资计算。
 model FinanceWorkshopReport {
-  id       Int               @id @default(autoincrement()) // 车间日报行ID
-  importId Int                                                // 所属导入批次ID
-  import   FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
-
-  year        Int     // 年份
-  month       Int     // 月份
-  productName String? // 产品名称
-  batchNo     String? // 生产批号
-  workPoint   Float?  // 工分
-  quantity    Float?  // 完成数量
-
-  employeeId Int?                // 员工ID
-  employee   Employee? @relation(fields: [employeeId], references: [id])
-  positionId Int?                // 岗位ID（工序对应的岗位）
-  position   Position? @relation(fields: [positionId], references: [id])
-
-  sourceFile  String  // 来源文件名
-  sourceSheet String? // 来源工作表
-  sourceRow   Int?    // 来源行号
-
-  createdAt DateTime @default(now()) // 创建时间
-  updatedAt DateTime @updatedAt      // 更新时间
+  id          Int               @id @default(autoincrement())
+  importId    Int
+  year        Int
+  month       Int
+  productName String?
+  batchNo     String?
+  workPoint   Float?
+  quantity    Float?
+  employeeId  Int?
+  positionId  Int?
+  sourceFile  String
+  sourceSheet String?
+  sourceRow   Int?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  position    Position?         @relation(fields: [positionId], references: [id])
+  employee    Employee?         @relation(fields: [employeeId], references: [id])
+  import      FinanceDataImport @relation(fields: [importId], references: [id], onDelete: Cascade)
 
   @@index([year, month])
   @@index([productName])
   @@index([batchNo])
   @@index([employeeId])
   @@index([positionId])
+}
+
+/// 部门费用预算。每年导入一次，按部门+科目存储12个月预算金额，accountId 关联到 FinanceAccount 建立真 FK。
+model FinanceBudgetDept {
+  id            Int             @id @default(autoincrement())
+  year          Int
+  companyCode   String?
+  dept          String
+  accountName   String
+  expenseType   String
+  accountId     Int?
+  account       FinanceAccount? @relation(fields: [accountId], references: [id])
+  total         Float           @default(0)
+  month1        Float           @default(0)
+  month2        Float           @default(0)
+  month3        Float           @default(0)
+  month4        Float           @default(0)
+  month5        Float           @default(0)
+  month6        Float           @default(0)
+  month7        Float           @default(0)
+  month8        Float           @default(0)
+  month9        Float           @default(0)
+  month10       Float           @default(0)
+  month11       Float           @default(0)
+  month12       Float           @default(0)
+  sourceFile    String?
+  importedAt    DateTime        @default(now())
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @default(now()) @updatedAt
+
+  @@unique([year, companyCode, dept, accountName])
+  @@index([year, companyCode])
+  @@index([accountId])
+}
+
+/// 研发费用预算。每年导入一次，按项目+科目存储12个月预算金额，accountId 关联到 FinanceAccount 建立真 FK。
+model FinanceBudgetRd {
+  id          Int             @id @default(autoincrement())
+  year        Int
+  companyCode String?
+  project     String
+  category    String
+  accountId   Int?
+  account     FinanceAccount? @relation(fields: [accountId], references: [id])
+  total       Float           @default(0)
+  month1      Float           @default(0)
+  month2      Float           @default(0)
+  month3      Float           @default(0)
+  month4      Float           @default(0)
+  month5      Float           @default(0)
+  month6      Float           @default(0)
+  month7      Float           @default(0)
+  month8      Float           @default(0)
+  month9      Float           @default(0)
+  month10     Float           @default(0)
+  month11     Float           @default(0)
+  month12     Float           @default(0)
+  sourceFile  String?
+  importedAt  DateTime        @default(now())
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @default(now()) @updatedAt
+
+  @@unique([year, companyCode, project, category])
+  @@index([year, companyCode])
+  @@index([accountId])
 }

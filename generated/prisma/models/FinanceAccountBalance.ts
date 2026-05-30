@@ -304,8 +304,8 @@ export type FinanceAccountBalanceWhereInput = {
   companyCode?: Prisma.StringNullableFilter<"FinanceAccountBalance"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceAccountBalance"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAccountBalance"> | Date | string
-  account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
+  account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
 }
 
 export type FinanceAccountBalanceOrderByWithRelationInput = {
@@ -321,8 +321,8 @@ export type FinanceAccountBalanceOrderByWithRelationInput = {
   companyCode?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  account?: Prisma.FinanceAccountOrderByWithRelationInput
   period?: Prisma.FinancePeriodOrderByWithRelationInput
+  account?: Prisma.FinanceAccountOrderByWithRelationInput
 }
 
 export type FinanceAccountBalanceWhereUniqueInput = Prisma.AtLeast<{
@@ -342,8 +342,8 @@ export type FinanceAccountBalanceWhereUniqueInput = Prisma.AtLeast<{
   companyCode?: Prisma.StringNullableFilter<"FinanceAccountBalance"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceAccountBalance"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAccountBalance"> | Date | string
-  account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
+  account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
 }, "id" | "accountId_periodId">
 
 export type FinanceAccountBalanceOrderByWithAggregationInput = {
@@ -394,8 +394,8 @@ export type FinanceAccountBalanceCreateInput = {
   companyCode?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  account: Prisma.FinanceAccountCreateNestedOneWithoutBalancesInput
   period: Prisma.FinancePeriodCreateNestedOneWithoutBalancesInput
+  account: Prisma.FinanceAccountCreateNestedOneWithoutBalancesInput
 }
 
 export type FinanceAccountBalanceUncheckedCreateInput = {
@@ -423,8 +423,8 @@ export type FinanceAccountBalanceUpdateInput = {
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  account?: Prisma.FinanceAccountUpdateOneRequiredWithoutBalancesNestedInput
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutBalancesNestedInput
+  account?: Prisma.FinanceAccountUpdateOneRequiredWithoutBalancesNestedInput
 }
 
 export type FinanceAccountBalanceUncheckedUpdateInput = {
@@ -899,8 +899,8 @@ export type FinanceAccountBalanceSelect<ExtArgs extends runtime.Types.Extensions
   companyCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
+  account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAccountBalance"]>
 
 export type FinanceAccountBalanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -916,8 +916,8 @@ export type FinanceAccountBalanceSelectCreateManyAndReturn<ExtArgs extends runti
   companyCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
+  account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAccountBalance"]>
 
 export type FinanceAccountBalanceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -933,8 +933,8 @@ export type FinanceAccountBalanceSelectUpdateManyAndReturn<ExtArgs extends runti
   companyCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
+  account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAccountBalance"]>
 
 export type FinanceAccountBalanceSelectScalar = {
@@ -954,23 +954,23 @@ export type FinanceAccountBalanceSelectScalar = {
 
 export type FinanceAccountBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountId" | "periodId" | "openingDebit" | "openingCredit" | "currentDebit" | "currentCredit" | "closingDebit" | "closingCredit" | "companyCode" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAccountBalance"]>
 export type FinanceAccountBalanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
+  account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
 }
 export type FinanceAccountBalanceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
+  account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
 }
 export type FinanceAccountBalanceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
+  account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
 }
 
 export type $FinanceAccountBalancePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceAccountBalance"
   objects: {
-    account: Prisma.$FinanceAccountPayload<ExtArgs>
     period: Prisma.$FinancePeriodPayload<ExtArgs>
+    account: Prisma.$FinanceAccountPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1379,8 +1379,8 @@ readonly fields: FinanceAccountBalanceFieldRefs;
  */
 export interface Prisma__FinanceAccountBalanceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  account<T extends Prisma.FinanceAccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   period<T extends Prisma.FinancePeriodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriodDefaultArgs<ExtArgs>>): Prisma.Prisma__FinancePeriodClient<runtime.Types.Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  account<T extends Prisma.FinanceAccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

@@ -45,8 +45,8 @@ export type EditHistoryMinAggregateOutputType = {
   version: number | null
   dataJson: string | null
   editedBy: number | null
-  tag: string | null
   createdAt: Date | null
+  tag: string | null
 }
 
 export type EditHistoryMaxAggregateOutputType = {
@@ -56,8 +56,8 @@ export type EditHistoryMaxAggregateOutputType = {
   version: number | null
   dataJson: string | null
   editedBy: number | null
-  tag: string | null
   createdAt: Date | null
+  tag: string | null
 }
 
 export type EditHistoryCountAggregateOutputType = {
@@ -67,8 +67,8 @@ export type EditHistoryCountAggregateOutputType = {
   version: number
   dataJson: number
   editedBy: number
-  tag: number
   createdAt: number
+  tag: number
   _all: number
 }
 
@@ -92,8 +92,8 @@ export type EditHistoryMinAggregateInputType = {
   version?: true
   dataJson?: true
   editedBy?: true
-  tag?: true
   createdAt?: true
+  tag?: true
 }
 
 export type EditHistoryMaxAggregateInputType = {
@@ -103,8 +103,8 @@ export type EditHistoryMaxAggregateInputType = {
   version?: true
   dataJson?: true
   editedBy?: true
-  tag?: true
   createdAt?: true
+  tag?: true
 }
 
 export type EditHistoryCountAggregateInputType = {
@@ -114,8 +114,8 @@ export type EditHistoryCountAggregateInputType = {
   version?: true
   dataJson?: true
   editedBy?: true
-  tag?: true
   createdAt?: true
+  tag?: true
   _all?: true
 }
 
@@ -212,8 +212,8 @@ export type EditHistoryGroupByOutputType = {
   version: number
   dataJson: string
   editedBy: number
-  tag: string | null
   createdAt: Date
+  tag: string | null
   _count: EditHistoryCountAggregateOutputType | null
   _avg: EditHistoryAvgAggregateOutputType | null
   _sum: EditHistorySumAggregateOutputType | null
@@ -246,8 +246,8 @@ export type EditHistoryWhereInput = {
   version?: Prisma.IntFilter<"EditHistory"> | number
   dataJson?: Prisma.StringFilter<"EditHistory"> | string
   editedBy?: Prisma.IntFilter<"EditHistory"> | number
-  tag?: Prisma.StringNullableFilter<"EditHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"EditHistory"> | Date | string
+  tag?: Prisma.StringNullableFilter<"EditHistory"> | string | null
   editor?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
@@ -258,8 +258,8 @@ export type EditHistoryOrderByWithRelationInput = {
   version?: Prisma.SortOrder
   dataJson?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
-  tag?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  tag?: Prisma.SortOrderInput | Prisma.SortOrder
   editor?: Prisma.UserOrderByWithRelationInput
 }
 
@@ -274,8 +274,8 @@ export type EditHistoryWhereUniqueInput = Prisma.AtLeast<{
   version?: Prisma.IntFilter<"EditHistory"> | number
   dataJson?: Prisma.StringFilter<"EditHistory"> | string
   editedBy?: Prisma.IntFilter<"EditHistory"> | number
-  tag?: Prisma.StringNullableFilter<"EditHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"EditHistory"> | Date | string
+  tag?: Prisma.StringNullableFilter<"EditHistory"> | string | null
   editor?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id" | "entityType_entityId_version_tag">
 
@@ -286,8 +286,8 @@ export type EditHistoryOrderByWithAggregationInput = {
   version?: Prisma.SortOrder
   dataJson?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
-  tag?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  tag?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.EditHistoryCountOrderByAggregateInput
   _avg?: Prisma.EditHistoryAvgOrderByAggregateInput
   _max?: Prisma.EditHistoryMaxOrderByAggregateInput
@@ -305,8 +305,8 @@ export type EditHistoryScalarWhereWithAggregatesInput = {
   version?: Prisma.IntWithAggregatesFilter<"EditHistory"> | number
   dataJson?: Prisma.StringWithAggregatesFilter<"EditHistory"> | string
   editedBy?: Prisma.IntWithAggregatesFilter<"EditHistory"> | number
-  tag?: Prisma.StringNullableWithAggregatesFilter<"EditHistory"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"EditHistory"> | Date | string
+  tag?: Prisma.StringNullableWithAggregatesFilter<"EditHistory"> | string | null
 }
 
 export type EditHistoryCreateInput = {
@@ -314,8 +314,8 @@ export type EditHistoryCreateInput = {
   entityId: string
   version: number
   dataJson: string
-  tag?: string | null
   createdAt?: Date | string
+  tag?: string | null
   editor: Prisma.UserCreateNestedOneWithoutEditHistoriesInput
 }
 
@@ -326,8 +326,8 @@ export type EditHistoryUncheckedCreateInput = {
   version: number
   dataJson: string
   editedBy: number
-  tag?: string | null
   createdAt?: Date | string
+  tag?: string | null
 }
 
 export type EditHistoryUpdateInput = {
@@ -335,8 +335,8 @@ export type EditHistoryUpdateInput = {
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   dataJson?: Prisma.StringFieldUpdateOperationsInput | string
-  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editor?: Prisma.UserUpdateOneRequiredWithoutEditHistoriesNestedInput
 }
 
@@ -347,8 +347,8 @@ export type EditHistoryUncheckedUpdateInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   dataJson?: Prisma.StringFieldUpdateOperationsInput | string
   editedBy?: Prisma.IntFieldUpdateOperationsInput | number
-  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EditHistoryCreateManyInput = {
@@ -358,8 +358,8 @@ export type EditHistoryCreateManyInput = {
   version: number
   dataJson: string
   editedBy: number
-  tag?: string | null
   createdAt?: Date | string
+  tag?: string | null
 }
 
 export type EditHistoryUpdateManyMutationInput = {
@@ -367,8 +367,8 @@ export type EditHistoryUpdateManyMutationInput = {
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   dataJson?: Prisma.StringFieldUpdateOperationsInput | string
-  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EditHistoryUncheckedUpdateManyInput = {
@@ -378,8 +378,8 @@ export type EditHistoryUncheckedUpdateManyInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   dataJson?: Prisma.StringFieldUpdateOperationsInput | string
   editedBy?: Prisma.IntFieldUpdateOperationsInput | number
-  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EditHistoryListRelationFilter = {
@@ -406,8 +406,8 @@ export type EditHistoryCountOrderByAggregateInput = {
   version?: Prisma.SortOrder
   dataJson?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
-  tag?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  tag?: Prisma.SortOrder
 }
 
 export type EditHistoryAvgOrderByAggregateInput = {
@@ -423,8 +423,8 @@ export type EditHistoryMaxOrderByAggregateInput = {
   version?: Prisma.SortOrder
   dataJson?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
-  tag?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  tag?: Prisma.SortOrder
 }
 
 export type EditHistoryMinOrderByAggregateInput = {
@@ -434,8 +434,8 @@ export type EditHistoryMinOrderByAggregateInput = {
   version?: Prisma.SortOrder
   dataJson?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
-  tag?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  tag?: Prisma.SortOrder
 }
 
 export type EditHistorySumOrderByAggregateInput = {
@@ -491,8 +491,8 @@ export type EditHistoryCreateWithoutEditorInput = {
   entityId: string
   version: number
   dataJson: string
-  tag?: string | null
   createdAt?: Date | string
+  tag?: string | null
 }
 
 export type EditHistoryUncheckedCreateWithoutEditorInput = {
@@ -501,8 +501,8 @@ export type EditHistoryUncheckedCreateWithoutEditorInput = {
   entityId: string
   version: number
   dataJson: string
-  tag?: string | null
   createdAt?: Date | string
+  tag?: string | null
 }
 
 export type EditHistoryCreateOrConnectWithoutEditorInput = {
@@ -540,8 +540,8 @@ export type EditHistoryScalarWhereInput = {
   version?: Prisma.IntFilter<"EditHistory"> | number
   dataJson?: Prisma.StringFilter<"EditHistory"> | string
   editedBy?: Prisma.IntFilter<"EditHistory"> | number
-  tag?: Prisma.StringNullableFilter<"EditHistory"> | string | null
   createdAt?: Prisma.DateTimeFilter<"EditHistory"> | Date | string
+  tag?: Prisma.StringNullableFilter<"EditHistory"> | string | null
 }
 
 export type EditHistoryCreateManyEditorInput = {
@@ -550,8 +550,8 @@ export type EditHistoryCreateManyEditorInput = {
   entityId: string
   version: number
   dataJson: string
-  tag?: string | null
   createdAt?: Date | string
+  tag?: string | null
 }
 
 export type EditHistoryUpdateWithoutEditorInput = {
@@ -559,8 +559,8 @@ export type EditHistoryUpdateWithoutEditorInput = {
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   dataJson?: Prisma.StringFieldUpdateOperationsInput | string
-  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EditHistoryUncheckedUpdateWithoutEditorInput = {
@@ -569,8 +569,8 @@ export type EditHistoryUncheckedUpdateWithoutEditorInput = {
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   dataJson?: Prisma.StringFieldUpdateOperationsInput | string
-  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type EditHistoryUncheckedUpdateManyWithoutEditorInput = {
@@ -579,8 +579,8 @@ export type EditHistoryUncheckedUpdateManyWithoutEditorInput = {
   entityId?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   dataJson?: Prisma.StringFieldUpdateOperationsInput | string
-  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -592,8 +592,8 @@ export type EditHistorySelect<ExtArgs extends runtime.Types.Extensions.InternalA
   version?: boolean
   dataJson?: boolean
   editedBy?: boolean
-  tag?: boolean
   createdAt?: boolean
+  tag?: boolean
   editor?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["editHistory"]>
 
@@ -604,8 +604,8 @@ export type EditHistorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   version?: boolean
   dataJson?: boolean
   editedBy?: boolean
-  tag?: boolean
   createdAt?: boolean
+  tag?: boolean
   editor?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["editHistory"]>
 
@@ -616,8 +616,8 @@ export type EditHistorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   version?: boolean
   dataJson?: boolean
   editedBy?: boolean
-  tag?: boolean
   createdAt?: boolean
+  tag?: boolean
   editor?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["editHistory"]>
 
@@ -628,11 +628,11 @@ export type EditHistorySelectScalar = {
   version?: boolean
   dataJson?: boolean
   editedBy?: boolean
-  tag?: boolean
   createdAt?: boolean
+  tag?: boolean
 }
 
-export type EditHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "entityType" | "entityId" | "version" | "dataJson" | "editedBy" | "tag" | "createdAt", ExtArgs["result"]["editHistory"]>
+export type EditHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "entityType" | "entityId" | "version" | "dataJson" | "editedBy" | "createdAt" | "tag", ExtArgs["result"]["editHistory"]>
 export type EditHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
@@ -655,8 +655,8 @@ export type $EditHistoryPayload<ExtArgs extends runtime.Types.Extensions.Interna
     version: number
     dataJson: string
     editedBy: number
-    tag: string | null
     createdAt: Date
+    tag: string | null
   }, ExtArgs["result"]["editHistory"]>
   composites: {}
 }
@@ -1087,8 +1087,8 @@ export interface EditHistoryFieldRefs {
   readonly version: Prisma.FieldRef<"EditHistory", 'Int'>
   readonly dataJson: Prisma.FieldRef<"EditHistory", 'String'>
   readonly editedBy: Prisma.FieldRef<"EditHistory", 'Int'>
-  readonly tag: Prisma.FieldRef<"EditHistory", 'String'>
   readonly createdAt: Prisma.FieldRef<"EditHistory", 'DateTime'>
+  readonly tag: Prisma.FieldRef<"EditHistory", 'String'>
 }
     
 

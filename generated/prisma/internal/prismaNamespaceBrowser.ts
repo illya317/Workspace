@@ -64,11 +64,16 @@ export const ModelName = {
   FinanceCostStructureRow: 'FinanceCostStructureRow',
   FinanceCostAnalysisRow: 'FinanceCostAnalysisRow',
   FinanceWorkshopReport: 'FinanceWorkshopReport',
+  FinanceBudgetDept: 'FinanceBudgetDept',
+  FinanceBudgetRd: 'FinanceBudgetRd',
   FinanceAccount: 'FinanceAccount',
   FinancePeriod: 'FinancePeriod',
   FinanceVoucher: 'FinanceVoucher',
   FinanceVoucherItem: 'FinanceVoucherItem',
   FinanceAccountBalance: 'FinanceAccountBalance',
+  FinanceBalanceSnapshot: 'FinanceBalanceSnapshot',
+  FinanceBalanceSnapshotRow: 'FinanceBalanceSnapshotRow',
+  FinanceAnnualBalance: 'FinanceAnnualBalance',
   Employee: 'Employee',
   Employment: 'Employment',
   Company: 'Company',
@@ -339,6 +344,65 @@ export const FinanceWorkshopReportScalarFieldEnum = {
 export type FinanceWorkshopReportScalarFieldEnum = (typeof FinanceWorkshopReportScalarFieldEnum)[keyof typeof FinanceWorkshopReportScalarFieldEnum]
 
 
+export const FinanceBudgetDeptScalarFieldEnum = {
+  id: 'id',
+  year: 'year',
+  companyCode: 'companyCode',
+  dept: 'dept',
+  accountName: 'accountName',
+  expenseType: 'expenseType',
+  accountId: 'accountId',
+  total: 'total',
+  month1: 'month1',
+  month2: 'month2',
+  month3: 'month3',
+  month4: 'month4',
+  month5: 'month5',
+  month6: 'month6',
+  month7: 'month7',
+  month8: 'month8',
+  month9: 'month9',
+  month10: 'month10',
+  month11: 'month11',
+  month12: 'month12',
+  sourceFile: 'sourceFile',
+  importedAt: 'importedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceBudgetDeptScalarFieldEnum = (typeof FinanceBudgetDeptScalarFieldEnum)[keyof typeof FinanceBudgetDeptScalarFieldEnum]
+
+
+export const FinanceBudgetRdScalarFieldEnum = {
+  id: 'id',
+  year: 'year',
+  companyCode: 'companyCode',
+  project: 'project',
+  category: 'category',
+  accountId: 'accountId',
+  total: 'total',
+  month1: 'month1',
+  month2: 'month2',
+  month3: 'month3',
+  month4: 'month4',
+  month5: 'month5',
+  month6: 'month6',
+  month7: 'month7',
+  month8: 'month8',
+  month9: 'month9',
+  month10: 'month10',
+  month11: 'month11',
+  month12: 'month12',
+  sourceFile: 'sourceFile',
+  importedAt: 'importedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceBudgetRdScalarFieldEnum = (typeof FinanceBudgetRdScalarFieldEnum)[keyof typeof FinanceBudgetRdScalarFieldEnum]
+
+
 export const FinanceAccountScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -428,6 +492,69 @@ export const FinanceAccountBalanceScalarFieldEnum = {
 } as const
 
 export type FinanceAccountBalanceScalarFieldEnum = (typeof FinanceAccountBalanceScalarFieldEnum)[keyof typeof FinanceAccountBalanceScalarFieldEnum]
+
+
+export const FinanceBalanceSnapshotScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  year: 'year',
+  snapshotType: 'snapshotType',
+  isActive: 'isActive',
+  sourceFile: 'sourceFile',
+  sourcePath: 'sourcePath',
+  checksum: 'checksum',
+  rowCount: 'rowCount',
+  importedBy: 'importedBy',
+  importedAt: 'importedAt',
+  note: 'note',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceBalanceSnapshotScalarFieldEnum = (typeof FinanceBalanceSnapshotScalarFieldEnum)[keyof typeof FinanceBalanceSnapshotScalarFieldEnum]
+
+
+export const FinanceBalanceSnapshotRowScalarFieldEnum = {
+  id: 'id',
+  snapshotId: 'snapshotId',
+  accountId: 'accountId',
+  accountCode: 'accountCode',
+  accountName: 'accountName',
+  openingDebit: 'openingDebit',
+  openingCredit: 'openingCredit',
+  currentDebit: 'currentDebit',
+  currentCredit: 'currentCredit',
+  closingDebit: 'closingDebit',
+  closingCredit: 'closingCredit',
+  sourceSheet: 'sourceSheet',
+  sourceRow: 'sourceRow'
+} as const
+
+export type FinanceBalanceSnapshotRowScalarFieldEnum = (typeof FinanceBalanceSnapshotRowScalarFieldEnum)[keyof typeof FinanceBalanceSnapshotRowScalarFieldEnum]
+
+
+export const FinanceAnnualBalanceScalarFieldEnum = {
+  id: 'id',
+  accountId: 'accountId',
+  year: 'year',
+  companyCode: 'companyCode',
+  isBaseline: 'isBaseline',
+  openingDebit: 'openingDebit',
+  openingCredit: 'openingCredit',
+  currentDebit: 'currentDebit',
+  currentCredit: 'currentCredit',
+  closingDebit: 'closingDebit',
+  closingCredit: 'closingCredit',
+  sourceFile: 'sourceFile',
+  importedAt: 'importedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceAnnualBalanceScalarFieldEnum = (typeof FinanceAnnualBalanceScalarFieldEnum)[keyof typeof FinanceAnnualBalanceScalarFieldEnum]
 
 
 export const EmployeeScalarFieldEnum = {
@@ -632,8 +759,8 @@ export const EditHistoryScalarFieldEnum = {
   version: 'version',
   dataJson: 'dataJson',
   editedBy: 'editedBy',
-  tag: 'tag',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  tag: 'tag'
 } as const
 
 export type EditHistoryScalarFieldEnum = (typeof EditHistoryScalarFieldEnum)[keyof typeof EditHistoryScalarFieldEnum]

@@ -1,54 +1,36 @@
 import { NextResponse } from "next/server";
 import { withFinanceAccess } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
-import { readDeptBudget, readRdBudget } from "@/server/services/finance/budget-data";
+import { readDeptBudget, readRdBudget, loadDeptBudgetFromDb, loadRdBudgetFromDb, importDeptBudgetToDb, importRdBudgetToDb } from "@/server/services/finance/budget-data";
 
-interface DeptBudgetItem {
-  dept: string;
-  account: string;
-  total: number;
-  months: number[];
-  expenseType: string;
-  accountId: number | null;
-  accountCode: string | null;
-  accountActive: boolean | null;
-}
+export const GET = withFinanceAccess(async (request: Request) => {
+  const { searchParams } = new URL(request.url);
+  const year = parseInt(searchParams.get("year") || "2026");
+  const companyCode = searchParams.get("companyCode") || undefined;
 
-interface RdBudgetItem {
-  project: string;
-  category: string;
-  total: number;
-  months: number[];
-  accountId: number | null;
-  accountCode: string | null;
-  accountActive: boolean | null;
-}
+  let deptBudget = await loadDeptBudgetFromDb(year, companyCode);
+  let rdBudget = await loadRdBudgetFromDb(year, companyCode);
 
-export const GET = withFinanceAccess(async () => {
-  try {
-    const deptRaw = readDeptBudget();
-    const rdRaw = readRdBudget();
-
-    // FIXME: 运行时按 name 动态匹配，不是数据库外键。
-    const accountNames = new Set([...deptRaw.map((i) => i.account), ...rdRaw.map((i) => i.category)]);
-    const accounts = await prisma.financeAccount.findMany({
-      where: { name: { in: Array.from(accountNames) } },
-      select: { id: true, name: true, code: true, isActive: true },
-    });
-    const accountMap = new Map(accounts.map((a) => [a.name, a]));
-
-    const deptBudget: DeptBudgetItem[] = deptRaw.map((i) => {
-      const acc = accountMap.get(i.account);
-      return { ...i, accountId: acc?.id ?? null, accountCode: acc?.code ?? null, accountActive: acc?.isActive ?? null };
-    });
-    const rdBudget: RdBudgetItem[] = rdRaw.map((i) => {
-      const acc = accountMap.get(i.category);
-      return { ...i, accountId: acc?.id ?? null, accountCode: acc?.code ?? null, accountActive: acc?.isActive ?? null };
-    });
-
-    return NextResponse.json({ deptBudget, rdBudget });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "读取预算数据失败";
-    return NextResponse.json({ error: message }, { status: 500 });
+  // Fallback to Excel if DB is empty
+  if (deptBudget.length === 0) {
+    const raw = readDeptBudget();
+    deptBudget = raw.map((i) => ({ ...i, accountId: null, accountCode: null, accountActive: null }));
   }
+  if (rdBudget.length === 0) {
+    const raw = readRdBudget();
+    rdBudget = raw.map((i) => ({ ...i, accountId: null, accountCode: null, accountActive: null }));
+  }
+
+  return NextResponse.json({ deptBudget, rdBudget });
+});
+
+export const POST = withFinanceAccess(async (request: Request) => {
+  const { year, companyCode } = await request.json();
+  if (!year || isNaN(parseInt(year))) {
+    return NextResponse.json({ error: "year 为必填" }, { status: 400 });
+  }
+
+  const deptCount = await importDeptBudgetToDb(parseInt(year), companyCode);
+  const rdCount = await importRdBudgetToDb(parseInt(year), companyCode);
+
+  return NextResponse.json({ success: true, deptCount, rdCount });
 });

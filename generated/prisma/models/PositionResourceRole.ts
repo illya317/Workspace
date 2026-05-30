@@ -228,9 +228,9 @@ export type PositionResourceRoleWhereInput = {
   resourceId?: Prisma.IntFilter<"PositionResourceRole"> | number
   roleId?: Prisma.IntFilter<"PositionResourceRole"> | number
   scopeId?: Prisma.StringNullableFilter<"PositionResourceRole"> | string | null
-  position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
-  resource?: Prisma.XOR<Prisma.ResourceScalarRelationFilter, Prisma.ResourceWhereInput>
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
+  resource?: Prisma.XOR<Prisma.ResourceScalarRelationFilter, Prisma.ResourceWhereInput>
+  position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
 }
 
 export type PositionResourceRoleOrderByWithRelationInput = {
@@ -239,9 +239,9 @@ export type PositionResourceRoleOrderByWithRelationInput = {
   resourceId?: Prisma.SortOrder
   roleId?: Prisma.SortOrder
   scopeId?: Prisma.SortOrderInput | Prisma.SortOrder
-  position?: Prisma.PositionOrderByWithRelationInput
-  resource?: Prisma.ResourceOrderByWithRelationInput
   role?: Prisma.RoleOrderByWithRelationInput
+  resource?: Prisma.ResourceOrderByWithRelationInput
+  position?: Prisma.PositionOrderByWithRelationInput
 }
 
 export type PositionResourceRoleWhereUniqueInput = Prisma.AtLeast<{
@@ -254,9 +254,9 @@ export type PositionResourceRoleWhereUniqueInput = Prisma.AtLeast<{
   resourceId?: Prisma.IntFilter<"PositionResourceRole"> | number
   roleId?: Prisma.IntFilter<"PositionResourceRole"> | number
   scopeId?: Prisma.StringNullableFilter<"PositionResourceRole"> | string | null
-  position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
-  resource?: Prisma.XOR<Prisma.ResourceScalarRelationFilter, Prisma.ResourceWhereInput>
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
+  resource?: Prisma.XOR<Prisma.ResourceScalarRelationFilter, Prisma.ResourceWhereInput>
+  position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
 }, "id" | "positionId_resourceId_roleId_scopeId">
 
 export type PositionResourceRoleOrderByWithAggregationInput = {
@@ -285,9 +285,9 @@ export type PositionResourceRoleScalarWhereWithAggregatesInput = {
 
 export type PositionResourceRoleCreateInput = {
   scopeId?: string | null
-  position: Prisma.PositionCreateNestedOneWithoutResourceRolesInput
-  resource: Prisma.ResourceCreateNestedOneWithoutPositionRolesInput
   role: Prisma.RoleCreateNestedOneWithoutPositionAssignmentsInput
+  resource: Prisma.ResourceCreateNestedOneWithoutPositionRolesInput
+  position: Prisma.PositionCreateNestedOneWithoutResourceRolesInput
 }
 
 export type PositionResourceRoleUncheckedCreateInput = {
@@ -300,9 +300,9 @@ export type PositionResourceRoleUncheckedCreateInput = {
 
 export type PositionResourceRoleUpdateInput = {
   scopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.PositionUpdateOneRequiredWithoutResourceRolesNestedInput
-  resource?: Prisma.ResourceUpdateOneRequiredWithoutPositionRolesNestedInput
   role?: Prisma.RoleUpdateOneRequiredWithoutPositionAssignmentsNestedInput
+  resource?: Prisma.ResourceUpdateOneRequiredWithoutPositionRolesNestedInput
+  position?: Prisma.PositionUpdateOneRequiredWithoutResourceRolesNestedInput
 }
 
 export type PositionResourceRoleUncheckedUpdateInput = {
@@ -516,8 +516,8 @@ export type PositionResourceRoleUncheckedUpdateManyWithoutPositionNestedInput = 
 
 export type PositionResourceRoleCreateWithoutResourceInput = {
   scopeId?: string | null
-  position: Prisma.PositionCreateNestedOneWithoutResourceRolesInput
   role: Prisma.RoleCreateNestedOneWithoutPositionAssignmentsInput
+  position: Prisma.PositionCreateNestedOneWithoutResourceRolesInput
 }
 
 export type PositionResourceRoleUncheckedCreateWithoutResourceInput = {
@@ -565,8 +565,8 @@ export type PositionResourceRoleScalarWhereInput = {
 
 export type PositionResourceRoleCreateWithoutRoleInput = {
   scopeId?: string | null
-  position: Prisma.PositionCreateNestedOneWithoutResourceRolesInput
   resource: Prisma.ResourceCreateNestedOneWithoutPositionRolesInput
+  position: Prisma.PositionCreateNestedOneWithoutResourceRolesInput
 }
 
 export type PositionResourceRoleUncheckedCreateWithoutRoleInput = {
@@ -603,8 +603,8 @@ export type PositionResourceRoleUpdateManyWithWhereWithoutRoleInput = {
 
 export type PositionResourceRoleCreateWithoutPositionInput = {
   scopeId?: string | null
-  resource: Prisma.ResourceCreateNestedOneWithoutPositionRolesInput
   role: Prisma.RoleCreateNestedOneWithoutPositionAssignmentsInput
+  resource: Prisma.ResourceCreateNestedOneWithoutPositionRolesInput
 }
 
 export type PositionResourceRoleUncheckedCreateWithoutPositionInput = {
@@ -648,8 +648,8 @@ export type PositionResourceRoleCreateManyResourceInput = {
 
 export type PositionResourceRoleUpdateWithoutResourceInput = {
   scopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.PositionUpdateOneRequiredWithoutResourceRolesNestedInput
   role?: Prisma.RoleUpdateOneRequiredWithoutPositionAssignmentsNestedInput
+  position?: Prisma.PositionUpdateOneRequiredWithoutResourceRolesNestedInput
 }
 
 export type PositionResourceRoleUncheckedUpdateWithoutResourceInput = {
@@ -675,8 +675,8 @@ export type PositionResourceRoleCreateManyRoleInput = {
 
 export type PositionResourceRoleUpdateWithoutRoleInput = {
   scopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  position?: Prisma.PositionUpdateOneRequiredWithoutResourceRolesNestedInput
   resource?: Prisma.ResourceUpdateOneRequiredWithoutPositionRolesNestedInput
+  position?: Prisma.PositionUpdateOneRequiredWithoutResourceRolesNestedInput
 }
 
 export type PositionResourceRoleUncheckedUpdateWithoutRoleInput = {
@@ -702,8 +702,8 @@ export type PositionResourceRoleCreateManyPositionInput = {
 
 export type PositionResourceRoleUpdateWithoutPositionInput = {
   scopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  resource?: Prisma.ResourceUpdateOneRequiredWithoutPositionRolesNestedInput
   role?: Prisma.RoleUpdateOneRequiredWithoutPositionAssignmentsNestedInput
+  resource?: Prisma.ResourceUpdateOneRequiredWithoutPositionRolesNestedInput
 }
 
 export type PositionResourceRoleUncheckedUpdateWithoutPositionInput = {
@@ -728,9 +728,9 @@ export type PositionResourceRoleSelect<ExtArgs extends runtime.Types.Extensions.
   resourceId?: boolean
   roleId?: boolean
   scopeId?: boolean
-  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
-  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["positionResourceRole"]>
 
 export type PositionResourceRoleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -739,9 +739,9 @@ export type PositionResourceRoleSelectCreateManyAndReturn<ExtArgs extends runtim
   resourceId?: boolean
   roleId?: boolean
   scopeId?: boolean
-  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
-  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["positionResourceRole"]>
 
 export type PositionResourceRoleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -750,9 +750,9 @@ export type PositionResourceRoleSelectUpdateManyAndReturn<ExtArgs extends runtim
   resourceId?: boolean
   roleId?: boolean
   scopeId?: boolean
-  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
-  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["positionResourceRole"]>
 
 export type PositionResourceRoleSelectScalar = {
@@ -765,27 +765,27 @@ export type PositionResourceRoleSelectScalar = {
 
 export type PositionResourceRoleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "positionId" | "resourceId" | "roleId" | "scopeId", ExtArgs["result"]["positionResourceRole"]>
 export type PositionResourceRoleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
-  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }
 export type PositionResourceRoleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
-  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }
 export type PositionResourceRoleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
-  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
+  resource?: boolean | Prisma.ResourceDefaultArgs<ExtArgs>
+  position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
 }
 
 export type $PositionResourceRolePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PositionResourceRole"
   objects: {
-    position: Prisma.$PositionPayload<ExtArgs>
-    resource: Prisma.$ResourcePayload<ExtArgs>
     role: Prisma.$RolePayload<ExtArgs>
+    resource: Prisma.$ResourcePayload<ExtArgs>
+    position: Prisma.$PositionPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1187,9 +1187,9 @@ readonly fields: PositionResourceRoleFieldRefs;
  */
 export interface Prisma__PositionResourceRoleClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  position<T extends Prisma.PositionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDefaultArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  resource<T extends Prisma.ResourceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceDefaultArgs<ExtArgs>>): Prisma.Prisma__ResourceClient<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   role<T extends Prisma.RoleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RoleDefaultArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  resource<T extends Prisma.ResourceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ResourceDefaultArgs<ExtArgs>>): Prisma.Prisma__ResourceClient<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  position<T extends Prisma.PositionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDefaultArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

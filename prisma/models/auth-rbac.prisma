@@ -12,18 +12,20 @@ model User {
   employeeId               String?
   createdAt                DateTime             @default(now())
   sessionVersion           Int                  @default(0)
-  resourceRoles            UserResourceRole[]
-  reports                  Report[]
-  employees                Employee[]           @relation("EmployeeUser")
+  editedContracts          Contract[]           @relation("ContractEditor")
   managedDepartments       Department[]         @relation("DepartmentManager")
   editHistories            EditHistory[]        @relation("EditHistoryEditor")
+  employees                Employee[]           @relation("EmployeeUser")
   editedFinanceAccounts    FinanceAccount[]     @relation("FinanceAccountEditor")
   editedFinanceVouchers    FinanceVoucher[]     @relation("FinanceVoucherEditor")
-  editedStockRawMaterials  StockRawMaterial[]   @relation("StockRawMaterialEditor")
-  editedStockPackagings    StockPackaging[]     @relation("StockPackagingEditor")
+  reports                  Report[]
   editedStockFinishedGoods StockFinishedGoods[] @relation("StockFinishedGoodsEditor")
   stockOperations          StockOperation[]     @relation("StockOperationEditor")
-  editedContracts          Contract[]           @relation("ContractEditor")
+  editedStockPackagings    StockPackaging[]     @relation("StockPackagingEditor")
+  editedStockRawMaterials  StockRawMaterial[]          @relation("StockRawMaterialEditor")
+  snapshotImports          FinanceBalanceSnapshot[]   @relation("SnapshotImporter")
+  snapshotEdits            FinanceBalanceSnapshot[]   @relation("SnapshotEditor")
+  resourceRoles            UserResourceRole[]
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md
@@ -35,11 +37,11 @@ model Resource {
   level           Int                      @default(1)
   sortOrder       Int                      @default(0)
   parentId        Int?
+  departmentRoles DepartmentResourceRole[]
+  positionRoles   PositionResourceRole[]
   parent          Resource?                @relation("ResHierarchy", fields: [parentId], references: [id])
   children        Resource[]               @relation("ResHierarchy")
   userRoles       UserResourceRole[]
-  positionRoles   PositionResourceRole[]
-  departmentRoles DepartmentResourceRole[]
 }
 
 /// RBAC 角色定义
@@ -49,9 +51,9 @@ model Role {
   name                  String
   description           String?
   sortOrder             Int                      @default(0)
-  userAssignments       UserResourceRole[]
-  positionAssignments   PositionResourceRole[]
   departmentAssignments DepartmentResourceRole[]
+  positionAssignments   PositionResourceRole[]
+  userAssignments       UserResourceRole[]
 }
 
 /// 用户-资源-角色授权关系
@@ -61,9 +63,9 @@ model UserResourceRole {
   resourceId Int
   roleId     Int
   scopeId    String?
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
   role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, resourceId, roleId, scopeId])
 }
@@ -75,9 +77,9 @@ model PositionResourceRole {
   resourceId Int
   roleId     Int
   scopeId    String?
-  position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
-  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
   role       Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
 
   @@unique([positionId, resourceId, roleId, scopeId])
 }
@@ -89,9 +91,9 @@ model DepartmentResourceRole {
   resourceId   Int
   roleId       Int
   scopeId      String?
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  resource     Resource   @relation(fields: [resourceId], references: [id], onDelete: Cascade)
   role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  resource     Resource   @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
 
   @@unique([departmentId, resourceId, roleId, scopeId])
 }

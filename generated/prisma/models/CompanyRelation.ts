@@ -244,8 +244,8 @@ export type CompanyRelationWhereInput = {
   isConsolidated?: Prisma.BoolFilter<"CompanyRelation"> | boolean
   createdAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
-  parent?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   child?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
+  parent?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
 }
 
 export type CompanyRelationOrderByWithRelationInput = {
@@ -256,8 +256,8 @@ export type CompanyRelationOrderByWithRelationInput = {
   isConsolidated?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  parent?: Prisma.CompanyOrderByWithRelationInput
   child?: Prisma.CompanyOrderByWithRelationInput
+  parent?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type CompanyRelationWhereUniqueInput = Prisma.AtLeast<{
@@ -272,8 +272,8 @@ export type CompanyRelationWhereUniqueInput = Prisma.AtLeast<{
   isConsolidated?: Prisma.BoolFilter<"CompanyRelation"> | boolean
   createdAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
-  parent?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   child?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
+  parent?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
 }, "id" | "parentId_childId">
 
 export type CompanyRelationOrderByWithAggregationInput = {
@@ -309,8 +309,8 @@ export type CompanyRelationCreateInput = {
   isConsolidated?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  parent: Prisma.CompanyCreateNestedOneWithoutParentOfRelationsInput
   child: Prisma.CompanyCreateNestedOneWithoutChildOfRelationsInput
+  parent: Prisma.CompanyCreateNestedOneWithoutParentOfRelationsInput
 }
 
 export type CompanyRelationUncheckedCreateInput = {
@@ -328,8 +328,8 @@ export type CompanyRelationUpdateInput = {
   isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  parent?: Prisma.CompanyUpdateOneRequiredWithoutParentOfRelationsNestedInput
   child?: Prisma.CompanyUpdateOneRequiredWithoutChildOfRelationsNestedInput
+  parent?: Prisma.CompanyUpdateOneRequiredWithoutParentOfRelationsNestedInput
 }
 
 export type CompanyRelationUncheckedUpdateInput = {
@@ -428,13 +428,6 @@ export type CompanyRelationSumOrderByAggregateInput = {
   shareRatio?: Prisma.SortOrder
 }
 
-export type CompanyRelationCreateNestedManyWithoutParentInput = {
-  create?: Prisma.XOR<Prisma.CompanyRelationCreateWithoutParentInput, Prisma.CompanyRelationUncheckedCreateWithoutParentInput> | Prisma.CompanyRelationCreateWithoutParentInput[] | Prisma.CompanyRelationUncheckedCreateWithoutParentInput[]
-  connectOrCreate?: Prisma.CompanyRelationCreateOrConnectWithoutParentInput | Prisma.CompanyRelationCreateOrConnectWithoutParentInput[]
-  createMany?: Prisma.CompanyRelationCreateManyParentInputEnvelope
-  connect?: Prisma.CompanyRelationWhereUniqueInput | Prisma.CompanyRelationWhereUniqueInput[]
-}
-
 export type CompanyRelationCreateNestedManyWithoutChildInput = {
   create?: Prisma.XOR<Prisma.CompanyRelationCreateWithoutChildInput, Prisma.CompanyRelationUncheckedCreateWithoutChildInput> | Prisma.CompanyRelationCreateWithoutChildInput[] | Prisma.CompanyRelationUncheckedCreateWithoutChildInput[]
   connectOrCreate?: Prisma.CompanyRelationCreateOrConnectWithoutChildInput | Prisma.CompanyRelationCreateOrConnectWithoutChildInput[]
@@ -442,7 +435,7 @@ export type CompanyRelationCreateNestedManyWithoutChildInput = {
   connect?: Prisma.CompanyRelationWhereUniqueInput | Prisma.CompanyRelationWhereUniqueInput[]
 }
 
-export type CompanyRelationUncheckedCreateNestedManyWithoutParentInput = {
+export type CompanyRelationCreateNestedManyWithoutParentInput = {
   create?: Prisma.XOR<Prisma.CompanyRelationCreateWithoutParentInput, Prisma.CompanyRelationUncheckedCreateWithoutParentInput> | Prisma.CompanyRelationCreateWithoutParentInput[] | Prisma.CompanyRelationUncheckedCreateWithoutParentInput[]
   connectOrCreate?: Prisma.CompanyRelationCreateOrConnectWithoutParentInput | Prisma.CompanyRelationCreateOrConnectWithoutParentInput[]
   createMany?: Prisma.CompanyRelationCreateManyParentInputEnvelope
@@ -456,18 +449,11 @@ export type CompanyRelationUncheckedCreateNestedManyWithoutChildInput = {
   connect?: Prisma.CompanyRelationWhereUniqueInput | Prisma.CompanyRelationWhereUniqueInput[]
 }
 
-export type CompanyRelationUpdateManyWithoutParentNestedInput = {
+export type CompanyRelationUncheckedCreateNestedManyWithoutParentInput = {
   create?: Prisma.XOR<Prisma.CompanyRelationCreateWithoutParentInput, Prisma.CompanyRelationUncheckedCreateWithoutParentInput> | Prisma.CompanyRelationCreateWithoutParentInput[] | Prisma.CompanyRelationUncheckedCreateWithoutParentInput[]
   connectOrCreate?: Prisma.CompanyRelationCreateOrConnectWithoutParentInput | Prisma.CompanyRelationCreateOrConnectWithoutParentInput[]
-  upsert?: Prisma.CompanyRelationUpsertWithWhereUniqueWithoutParentInput | Prisma.CompanyRelationUpsertWithWhereUniqueWithoutParentInput[]
   createMany?: Prisma.CompanyRelationCreateManyParentInputEnvelope
-  set?: Prisma.CompanyRelationWhereUniqueInput | Prisma.CompanyRelationWhereUniqueInput[]
-  disconnect?: Prisma.CompanyRelationWhereUniqueInput | Prisma.CompanyRelationWhereUniqueInput[]
-  delete?: Prisma.CompanyRelationWhereUniqueInput | Prisma.CompanyRelationWhereUniqueInput[]
   connect?: Prisma.CompanyRelationWhereUniqueInput | Prisma.CompanyRelationWhereUniqueInput[]
-  update?: Prisma.CompanyRelationUpdateWithWhereUniqueWithoutParentInput | Prisma.CompanyRelationUpdateWithWhereUniqueWithoutParentInput[]
-  updateMany?: Prisma.CompanyRelationUpdateManyWithWhereWithoutParentInput | Prisma.CompanyRelationUpdateManyWithWhereWithoutParentInput[]
-  deleteMany?: Prisma.CompanyRelationScalarWhereInput | Prisma.CompanyRelationScalarWhereInput[]
 }
 
 export type CompanyRelationUpdateManyWithoutChildNestedInput = {
@@ -484,7 +470,7 @@ export type CompanyRelationUpdateManyWithoutChildNestedInput = {
   deleteMany?: Prisma.CompanyRelationScalarWhereInput | Prisma.CompanyRelationScalarWhereInput[]
 }
 
-export type CompanyRelationUncheckedUpdateManyWithoutParentNestedInput = {
+export type CompanyRelationUpdateManyWithoutParentNestedInput = {
   create?: Prisma.XOR<Prisma.CompanyRelationCreateWithoutParentInput, Prisma.CompanyRelationUncheckedCreateWithoutParentInput> | Prisma.CompanyRelationCreateWithoutParentInput[] | Prisma.CompanyRelationUncheckedCreateWithoutParentInput[]
   connectOrCreate?: Prisma.CompanyRelationCreateOrConnectWithoutParentInput | Prisma.CompanyRelationCreateOrConnectWithoutParentInput[]
   upsert?: Prisma.CompanyRelationUpsertWithWhereUniqueWithoutParentInput | Prisma.CompanyRelationUpsertWithWhereUniqueWithoutParentInput[]
@@ -512,30 +498,18 @@ export type CompanyRelationUncheckedUpdateManyWithoutChildNestedInput = {
   deleteMany?: Prisma.CompanyRelationScalarWhereInput | Prisma.CompanyRelationScalarWhereInput[]
 }
 
-export type CompanyRelationCreateWithoutParentInput = {
-  shareRatio?: number | null
-  isConsolidated?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  child: Prisma.CompanyCreateNestedOneWithoutChildOfRelationsInput
-}
-
-export type CompanyRelationUncheckedCreateWithoutParentInput = {
-  id?: number
-  childId: number
-  shareRatio?: number | null
-  isConsolidated?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type CompanyRelationCreateOrConnectWithoutParentInput = {
-  where: Prisma.CompanyRelationWhereUniqueInput
-  create: Prisma.XOR<Prisma.CompanyRelationCreateWithoutParentInput, Prisma.CompanyRelationUncheckedCreateWithoutParentInput>
-}
-
-export type CompanyRelationCreateManyParentInputEnvelope = {
-  data: Prisma.CompanyRelationCreateManyParentInput | Prisma.CompanyRelationCreateManyParentInput[]
+export type CompanyRelationUncheckedUpdateManyWithoutParentNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyRelationCreateWithoutParentInput, Prisma.CompanyRelationUncheckedCreateWithoutParentInput> | Prisma.CompanyRelationCreateWithoutParentInput[] | Prisma.CompanyRelationUncheckedCreateWithoutParentInput[]
+  connectOrCreate?: Prisma.CompanyRelationCreateOrConnectWithoutParentInput | Prisma.CompanyRelationCreateOrConnectWithoutParentInput[]
+  upsert?: Prisma.CompanyRelationUpsertWithWhereUniqueWithoutParentInput | Prisma.CompanyRelationUpsertWithWhereUniqueWithoutParentInput[]
+  createMany?: Prisma.CompanyRelationCreateManyParentInputEnvelope
+  set?: Prisma.CompanyRelationWhereUniqueInput | Prisma.CompanyRelationWhereUniqueInput[]
+  disconnect?: Prisma.CompanyRelationWhereUniqueInput | Prisma.CompanyRelationWhereUniqueInput[]
+  delete?: Prisma.CompanyRelationWhereUniqueInput | Prisma.CompanyRelationWhereUniqueInput[]
+  connect?: Prisma.CompanyRelationWhereUniqueInput | Prisma.CompanyRelationWhereUniqueInput[]
+  update?: Prisma.CompanyRelationUpdateWithWhereUniqueWithoutParentInput | Prisma.CompanyRelationUpdateWithWhereUniqueWithoutParentInput[]
+  updateMany?: Prisma.CompanyRelationUpdateManyWithWhereWithoutParentInput | Prisma.CompanyRelationUpdateManyWithWhereWithoutParentInput[]
+  deleteMany?: Prisma.CompanyRelationScalarWhereInput | Prisma.CompanyRelationScalarWhereInput[]
 }
 
 export type CompanyRelationCreateWithoutChildInput = {
@@ -564,33 +538,30 @@ export type CompanyRelationCreateManyChildInputEnvelope = {
   data: Prisma.CompanyRelationCreateManyChildInput | Prisma.CompanyRelationCreateManyChildInput[]
 }
 
-export type CompanyRelationUpsertWithWhereUniqueWithoutParentInput = {
+export type CompanyRelationCreateWithoutParentInput = {
+  shareRatio?: number | null
+  isConsolidated?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  child: Prisma.CompanyCreateNestedOneWithoutChildOfRelationsInput
+}
+
+export type CompanyRelationUncheckedCreateWithoutParentInput = {
+  id?: number
+  childId: number
+  shareRatio?: number | null
+  isConsolidated?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CompanyRelationCreateOrConnectWithoutParentInput = {
   where: Prisma.CompanyRelationWhereUniqueInput
-  update: Prisma.XOR<Prisma.CompanyRelationUpdateWithoutParentInput, Prisma.CompanyRelationUncheckedUpdateWithoutParentInput>
   create: Prisma.XOR<Prisma.CompanyRelationCreateWithoutParentInput, Prisma.CompanyRelationUncheckedCreateWithoutParentInput>
 }
 
-export type CompanyRelationUpdateWithWhereUniqueWithoutParentInput = {
-  where: Prisma.CompanyRelationWhereUniqueInput
-  data: Prisma.XOR<Prisma.CompanyRelationUpdateWithoutParentInput, Prisma.CompanyRelationUncheckedUpdateWithoutParentInput>
-}
-
-export type CompanyRelationUpdateManyWithWhereWithoutParentInput = {
-  where: Prisma.CompanyRelationScalarWhereInput
-  data: Prisma.XOR<Prisma.CompanyRelationUpdateManyMutationInput, Prisma.CompanyRelationUncheckedUpdateManyWithoutParentInput>
-}
-
-export type CompanyRelationScalarWhereInput = {
-  AND?: Prisma.CompanyRelationScalarWhereInput | Prisma.CompanyRelationScalarWhereInput[]
-  OR?: Prisma.CompanyRelationScalarWhereInput[]
-  NOT?: Prisma.CompanyRelationScalarWhereInput | Prisma.CompanyRelationScalarWhereInput[]
-  id?: Prisma.IntFilter<"CompanyRelation"> | number
-  parentId?: Prisma.IntFilter<"CompanyRelation"> | number
-  childId?: Prisma.IntFilter<"CompanyRelation"> | number
-  shareRatio?: Prisma.FloatNullableFilter<"CompanyRelation"> | number | null
-  isConsolidated?: Prisma.BoolFilter<"CompanyRelation"> | boolean
-  createdAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
+export type CompanyRelationCreateManyParentInputEnvelope = {
+  data: Prisma.CompanyRelationCreateManyParentInput | Prisma.CompanyRelationCreateManyParentInput[]
 }
 
 export type CompanyRelationUpsertWithWhereUniqueWithoutChildInput = {
@@ -609,13 +580,33 @@ export type CompanyRelationUpdateManyWithWhereWithoutChildInput = {
   data: Prisma.XOR<Prisma.CompanyRelationUpdateManyMutationInput, Prisma.CompanyRelationUncheckedUpdateManyWithoutChildInput>
 }
 
-export type CompanyRelationCreateManyParentInput = {
-  id?: number
-  childId: number
-  shareRatio?: number | null
-  isConsolidated?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
+export type CompanyRelationScalarWhereInput = {
+  AND?: Prisma.CompanyRelationScalarWhereInput | Prisma.CompanyRelationScalarWhereInput[]
+  OR?: Prisma.CompanyRelationScalarWhereInput[]
+  NOT?: Prisma.CompanyRelationScalarWhereInput | Prisma.CompanyRelationScalarWhereInput[]
+  id?: Prisma.IntFilter<"CompanyRelation"> | number
+  parentId?: Prisma.IntFilter<"CompanyRelation"> | number
+  childId?: Prisma.IntFilter<"CompanyRelation"> | number
+  shareRatio?: Prisma.FloatNullableFilter<"CompanyRelation"> | number | null
+  isConsolidated?: Prisma.BoolFilter<"CompanyRelation"> | boolean
+  createdAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
+}
+
+export type CompanyRelationUpsertWithWhereUniqueWithoutParentInput = {
+  where: Prisma.CompanyRelationWhereUniqueInput
+  update: Prisma.XOR<Prisma.CompanyRelationUpdateWithoutParentInput, Prisma.CompanyRelationUncheckedUpdateWithoutParentInput>
+  create: Prisma.XOR<Prisma.CompanyRelationCreateWithoutParentInput, Prisma.CompanyRelationUncheckedCreateWithoutParentInput>
+}
+
+export type CompanyRelationUpdateWithWhereUniqueWithoutParentInput = {
+  where: Prisma.CompanyRelationWhereUniqueInput
+  data: Prisma.XOR<Prisma.CompanyRelationUpdateWithoutParentInput, Prisma.CompanyRelationUncheckedUpdateWithoutParentInput>
+}
+
+export type CompanyRelationUpdateManyWithWhereWithoutParentInput = {
+  where: Prisma.CompanyRelationScalarWhereInput
+  data: Prisma.XOR<Prisma.CompanyRelationUpdateManyMutationInput, Prisma.CompanyRelationUncheckedUpdateManyWithoutParentInput>
 }
 
 export type CompanyRelationCreateManyChildInput = {
@@ -627,30 +618,13 @@ export type CompanyRelationCreateManyChildInput = {
   updatedAt?: Date | string
 }
 
-export type CompanyRelationUpdateWithoutParentInput = {
-  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  child?: Prisma.CompanyUpdateOneRequiredWithoutChildOfRelationsNestedInput
-}
-
-export type CompanyRelationUncheckedUpdateWithoutParentInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  childId?: Prisma.IntFieldUpdateOperationsInput | number
-  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type CompanyRelationUncheckedUpdateManyWithoutParentInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  childId?: Prisma.IntFieldUpdateOperationsInput | number
-  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+export type CompanyRelationCreateManyParentInput = {
+  id?: number
+  childId: number
+  shareRatio?: number | null
+  isConsolidated?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type CompanyRelationUpdateWithoutChildInput = {
@@ -679,6 +653,32 @@ export type CompanyRelationUncheckedUpdateManyWithoutChildInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type CompanyRelationUpdateWithoutParentInput = {
+  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  child?: Prisma.CompanyUpdateOneRequiredWithoutChildOfRelationsNestedInput
+}
+
+export type CompanyRelationUncheckedUpdateWithoutParentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  childId?: Prisma.IntFieldUpdateOperationsInput | number
+  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CompanyRelationUncheckedUpdateManyWithoutParentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  childId?: Prisma.IntFieldUpdateOperationsInput | number
+  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type CompanyRelationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -689,8 +689,8 @@ export type CompanyRelationSelect<ExtArgs extends runtime.Types.Extensions.Inter
   isConsolidated?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   child?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["companyRelation"]>
 
 export type CompanyRelationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -701,8 +701,8 @@ export type CompanyRelationSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   isConsolidated?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   child?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["companyRelation"]>
 
 export type CompanyRelationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -713,8 +713,8 @@ export type CompanyRelationSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   isConsolidated?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   child?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["companyRelation"]>
 
 export type CompanyRelationSelectScalar = {
@@ -729,23 +729,23 @@ export type CompanyRelationSelectScalar = {
 
 export type CompanyRelationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "parentId" | "childId" | "shareRatio" | "isConsolidated" | "createdAt" | "updatedAt", ExtArgs["result"]["companyRelation"]>
 export type CompanyRelationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   child?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }
 export type CompanyRelationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   child?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }
 export type CompanyRelationIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   child?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
 }
 
 export type $CompanyRelationPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CompanyRelation"
   objects: {
-    parent: Prisma.$CompanyPayload<ExtArgs>
     child: Prisma.$CompanyPayload<ExtArgs>
+    parent: Prisma.$CompanyPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1149,8 +1149,8 @@ readonly fields: CompanyRelationFieldRefs;
  */
 export interface Prisma__CompanyRelationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  parent<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   child<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  parent<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

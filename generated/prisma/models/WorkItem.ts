@@ -280,8 +280,8 @@ export type WorkItemWhereInput = {
   isPrivate?: Prisma.BoolFilter<"WorkItem"> | boolean
   sortOrder?: Prisma.IntFilter<"WorkItem"> | number
   createdAt?: Prisma.DateTimeFilter<"WorkItem"> | Date | string
-  participants?: Prisma.WorkParticipantListRelationFilter
   reportItems?: Prisma.ReportItemListRelationFilter
+  participants?: Prisma.WorkParticipantListRelationFilter
 }
 
 export type WorkItemOrderByWithRelationInput = {
@@ -296,8 +296,8 @@ export type WorkItemOrderByWithRelationInput = {
   isPrivate?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  participants?: Prisma.WorkParticipantOrderByRelationAggregateInput
   reportItems?: Prisma.ReportItemOrderByRelationAggregateInput
+  participants?: Prisma.WorkParticipantOrderByRelationAggregateInput
 }
 
 export type WorkItemWhereUniqueInput = Prisma.AtLeast<{
@@ -315,8 +315,8 @@ export type WorkItemWhereUniqueInput = Prisma.AtLeast<{
   isPrivate?: Prisma.BoolFilter<"WorkItem"> | boolean
   sortOrder?: Prisma.IntFilter<"WorkItem"> | number
   createdAt?: Prisma.DateTimeFilter<"WorkItem"> | Date | string
-  participants?: Prisma.WorkParticipantListRelationFilter
   reportItems?: Prisma.ReportItemListRelationFilter
+  participants?: Prisma.WorkParticipantListRelationFilter
 }, "id">
 
 export type WorkItemOrderByWithAggregationInput = {
@@ -366,8 +366,8 @@ export type WorkItemCreateInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
-  participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   reportItems?: Prisma.ReportItemCreateNestedManyWithoutWorkItemInput
+  participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
 }
 
 export type WorkItemUncheckedCreateInput = {
@@ -382,8 +382,8 @@ export type WorkItemUncheckedCreateInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
-  participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   reportItems?: Prisma.ReportItemUncheckedCreateNestedManyWithoutWorkItemInput
+  participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
 }
 
 export type WorkItemUpdateInput = {
@@ -397,8 +397,8 @@ export type WorkItemUpdateInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   reportItems?: Prisma.ReportItemUpdateManyWithoutWorkItemNestedInput
+  participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
 }
 
 export type WorkItemUncheckedUpdateInput = {
@@ -413,8 +413,8 @@ export type WorkItemUncheckedUpdateInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   reportItems?: Prisma.ReportItemUncheckedUpdateManyWithoutWorkItemNestedInput
+  participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
 }
 
 export type WorkItemCreateManyInput = {
@@ -710,13 +710,13 @@ export type WorkItemUncheckedUpdateWithoutParticipantsInput = {
  */
 
 export type WorkItemCountOutputType = {
-  participants: number
   reportItems: number
+  participants: number
 }
 
 export type WorkItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  participants?: boolean | WorkItemCountOutputTypeCountParticipantsArgs
   reportItems?: boolean | WorkItemCountOutputTypeCountReportItemsArgs
+  participants?: boolean | WorkItemCountOutputTypeCountParticipantsArgs
 }
 
 /**
@@ -732,15 +732,15 @@ export type WorkItemCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ext
 /**
  * WorkItemCountOutputType without action
  */
-export type WorkItemCountOutputTypeCountParticipantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.WorkParticipantWhereInput
+export type WorkItemCountOutputTypeCountReportItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReportItemWhereInput
 }
 
 /**
  * WorkItemCountOutputType without action
  */
-export type WorkItemCountOutputTypeCountReportItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ReportItemWhereInput
+export type WorkItemCountOutputTypeCountParticipantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkParticipantWhereInput
 }
 
 
@@ -756,8 +756,8 @@ export type WorkItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   isPrivate?: boolean
   sortOrder?: boolean
   createdAt?: boolean
-  participants?: boolean | Prisma.WorkItem$participantsArgs<ExtArgs>
   reportItems?: boolean | Prisma.WorkItem$reportItemsArgs<ExtArgs>
+  participants?: boolean | Prisma.WorkItem$participantsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workItem"]>
 
@@ -805,8 +805,8 @@ export type WorkItemSelectScalar = {
 
 export type WorkItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "targetType" | "targetId" | "category" | "content" | "importance" | "urgency" | "isArchived" | "isPrivate" | "sortOrder" | "createdAt", ExtArgs["result"]["workItem"]>
 export type WorkItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  participants?: boolean | Prisma.WorkItem$participantsArgs<ExtArgs>
   reportItems?: boolean | Prisma.WorkItem$reportItemsArgs<ExtArgs>
+  participants?: boolean | Prisma.WorkItem$participantsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WorkItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -815,8 +815,8 @@ export type WorkItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type $WorkItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "WorkItem"
   objects: {
-    participants: Prisma.$WorkParticipantPayload<ExtArgs>[]
     reportItems: Prisma.$ReportItemPayload<ExtArgs>[]
+    participants: Prisma.$WorkParticipantPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1224,8 +1224,8 @@ readonly fields: WorkItemFieldRefs;
  */
 export interface Prisma__WorkItemClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  participants<T extends Prisma.WorkItem$participantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkItem$participantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reportItems<T extends Prisma.WorkItem$reportItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkItem$reportItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReportItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  participants<T extends Prisma.WorkItem$participantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkItem$participantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1657,30 +1657,6 @@ export type WorkItemDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
- * WorkItem.participants
- */
-export type WorkItem$participantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the WorkParticipant
-   */
-  select?: Prisma.WorkParticipantSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the WorkParticipant
-   */
-  omit?: Prisma.WorkParticipantOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.WorkParticipantInclude<ExtArgs> | null
-  where?: Prisma.WorkParticipantWhereInput
-  orderBy?: Prisma.WorkParticipantOrderByWithRelationInput | Prisma.WorkParticipantOrderByWithRelationInput[]
-  cursor?: Prisma.WorkParticipantWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.WorkParticipantScalarFieldEnum | Prisma.WorkParticipantScalarFieldEnum[]
-}
-
-/**
  * WorkItem.reportItems
  */
 export type WorkItem$reportItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1702,6 +1678,30 @@ export type WorkItem$reportItemsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.ReportItemScalarFieldEnum | Prisma.ReportItemScalarFieldEnum[]
+}
+
+/**
+ * WorkItem.participants
+ */
+export type WorkItem$participantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkParticipant
+   */
+  select?: Prisma.WorkParticipantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkParticipant
+   */
+  omit?: Prisma.WorkParticipantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkParticipantInclude<ExtArgs> | null
+  where?: Prisma.WorkParticipantWhereInput
+  orderBy?: Prisma.WorkParticipantOrderByWithRelationInput | Prisma.WorkParticipantOrderByWithRelationInput[]
+  cursor?: Prisma.WorkParticipantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkParticipantScalarFieldEnum | Prisma.WorkParticipantScalarFieldEnum[]
 }
 
 /**

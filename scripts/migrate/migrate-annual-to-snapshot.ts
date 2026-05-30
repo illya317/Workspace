@@ -67,9 +67,9 @@ async function main() {
     const { companyCode, year, sourceFile } = batch;
     const snapshotType = year === BASELINE_YEAR ? "baseline" : "reconcile";
 
-    // 幂等检查
-    const existing = await prisma.financeBalanceSnapshot.findUnique({
-      where: { companyCode_year_snapshotType_sourceFile: { companyCode, year, snapshotType, sourceFile } },
+    // 幂等检查：同公司同年同类型同文件名视为重复
+    const existing = await prisma.financeBalanceSnapshot.findFirst({
+      where: { companyCode, year, snapshotType, sourceFile },
     });
     if (existing) {
       console.log(`  ⏭ 跳过已存在: ${companyCode} ${year} "${sourceFile ?? ""}" (type=${snapshotType})`);
@@ -123,7 +123,29 @@ async function main() {
 
   console.log(`\n📊 迁移结果: ${totalSnapshots} 批次, ${totalRows} 明细行`);
 
-  // 4. 校验
+  // 4. 去重：同 (companyCode, year) 只能有一个 active baseline
+  if (!dryRun) {
+    const dedupKeys = new Set<string>();
+    const allActiveSnapshots = await prisma.financeBalanceSnapshot.findMany({
+      where: { isActive: true },
+      orderBy: [{ companyCode: "asc" }, { year: "asc" }, { id: "asc" }],
+    });
+
+    for (const snap of allActiveSnapshots) {
+      const key = `${snap.companyCode}::${snap.year}`;
+      if (dedupKeys.has(key)) {
+        await prisma.financeBalanceSnapshot.update({
+          where: { id: snap.id },
+          data: { isActive: false },
+        });
+        console.log(`  ⚠ 去重: ${key} snapshot#${snap.id} 取消 active（保留第一个）`);
+      } else {
+        dedupKeys.add(key);
+      }
+    }
+  }
+
+  // 5. 校验
   if (!dryRun) {
     const newRowCount = await prisma.financeBalanceSnapshotRow.count();
     console.log(`\n校验: 旧表行数=${oldRows.length}  新表明细行数=${newRowCount}`);

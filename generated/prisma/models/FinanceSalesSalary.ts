@@ -324,8 +324,8 @@ export type FinanceSalesSalaryWhereInput = {
   sourceRow?: Prisma.IntNullableFilter<"FinanceSalesSalary"> | number | null
   createdAt?: Prisma.DateTimeFilter<"FinanceSalesSalary"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceSalesSalary"> | Date | string
-  import?: Prisma.XOR<Prisma.FinanceDataImportScalarRelationFilter, Prisma.FinanceDataImportWhereInput>
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
+  import?: Prisma.XOR<Prisma.FinanceDataImportScalarRelationFilter, Prisma.FinanceDataImportWhereInput>
 }
 
 export type FinanceSalesSalaryOrderByWithRelationInput = {
@@ -343,8 +343,8 @@ export type FinanceSalesSalaryOrderByWithRelationInput = {
   sourceRow?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  import?: Prisma.FinanceDataImportOrderByWithRelationInput
   employee?: Prisma.EmployeeOrderByWithRelationInput
+  import?: Prisma.FinanceDataImportOrderByWithRelationInput
 }
 
 export type FinanceSalesSalaryWhereUniqueInput = Prisma.AtLeast<{
@@ -365,8 +365,8 @@ export type FinanceSalesSalaryWhereUniqueInput = Prisma.AtLeast<{
   sourceRow?: Prisma.IntNullableFilter<"FinanceSalesSalary"> | number | null
   createdAt?: Prisma.DateTimeFilter<"FinanceSalesSalary"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceSalesSalary"> | Date | string
-  import?: Prisma.XOR<Prisma.FinanceDataImportScalarRelationFilter, Prisma.FinanceDataImportWhereInput>
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
+  import?: Prisma.XOR<Prisma.FinanceDataImportScalarRelationFilter, Prisma.FinanceDataImportWhereInput>
 }, "id">
 
 export type FinanceSalesSalaryOrderByWithAggregationInput = {
@@ -423,8 +423,8 @@ export type FinanceSalesSalaryCreateInput = {
   sourceRow?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  import: Prisma.FinanceDataImportCreateNestedOneWithoutSalesSalariesInput
   employee?: Prisma.EmployeeCreateNestedOneWithoutFinanceSalesSalariesInput
+  import: Prisma.FinanceDataImportCreateNestedOneWithoutSalesSalariesInput
 }
 
 export type FinanceSalesSalaryUncheckedCreateInput = {
@@ -456,8 +456,8 @@ export type FinanceSalesSalaryUpdateInput = {
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  import?: Prisma.FinanceDataImportUpdateOneRequiredWithoutSalesSalariesNestedInput
   employee?: Prisma.EmployeeUpdateOneWithoutFinanceSalesSalariesNestedInput
+  import?: Prisma.FinanceDataImportUpdateOneRequiredWithoutSalesSalariesNestedInput
 }
 
 export type FinanceSalesSalaryUncheckedUpdateInput = {
@@ -971,8 +971,8 @@ export type FinanceSalesSalarySelect<ExtArgs extends runtime.Types.Extensions.In
   sourceRow?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceSalesSalary$employeeArgs<ExtArgs>
+  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeSalesSalary"]>
 
 export type FinanceSalesSalarySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -990,8 +990,8 @@ export type FinanceSalesSalarySelectCreateManyAndReturn<ExtArgs extends runtime.
   sourceRow?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceSalesSalary$employeeArgs<ExtArgs>
+  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeSalesSalary"]>
 
 export type FinanceSalesSalarySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1009,8 +1009,8 @@ export type FinanceSalesSalarySelectUpdateManyAndReturn<ExtArgs extends runtime.
   sourceRow?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceSalesSalary$employeeArgs<ExtArgs>
+  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeSalesSalary"]>
 
 export type FinanceSalesSalarySelectScalar = {
@@ -1032,23 +1032,23 @@ export type FinanceSalesSalarySelectScalar = {
 
 export type FinanceSalesSalaryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importId" | "year" | "month" | "baseSalary" | "bonus" | "deduction" | "actualSalary" | "employeeId" | "sourceFile" | "sourceSheet" | "sourceRow" | "createdAt" | "updatedAt", ExtArgs["result"]["financeSalesSalary"]>
 export type FinanceSalesSalaryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceSalesSalary$employeeArgs<ExtArgs>
+  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }
 export type FinanceSalesSalaryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceSalesSalary$employeeArgs<ExtArgs>
+  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }
 export type FinanceSalesSalaryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceSalesSalary$employeeArgs<ExtArgs>
+  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }
 
 export type $FinanceSalesSalaryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceSalesSalary"
   objects: {
-    import: Prisma.$FinanceDataImportPayload<ExtArgs>
     employee: Prisma.$EmployeePayload<ExtArgs> | null
+    import: Prisma.$FinanceDataImportPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1459,8 +1459,8 @@ readonly fields: FinanceSalesSalaryFieldRefs;
  */
 export interface Prisma__FinanceSalesSalaryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  import<T extends Prisma.FinanceDataImportDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImportDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceDataImportClient<runtime.Types.Result.GetResult<Prisma.$FinanceDataImportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   employee<T extends Prisma.FinanceSalesSalary$employeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceSalesSalary$employeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  import<T extends Prisma.FinanceDataImportDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImportDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceDataImportClient<runtime.Types.Result.GetResult<Prisma.$FinanceDataImportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

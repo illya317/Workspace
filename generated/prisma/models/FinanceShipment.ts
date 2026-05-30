@@ -364,8 +364,8 @@ export type FinanceShipmentWhereInput = {
   sourceRow?: Prisma.IntNullableFilter<"FinanceShipment"> | number | null
   createdAt?: Prisma.DateTimeFilter<"FinanceShipment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceShipment"> | Date | string
-  import?: Prisma.XOR<Prisma.FinanceDataImportScalarRelationFilter, Prisma.FinanceDataImportWhereInput>
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
+  import?: Prisma.XOR<Prisma.FinanceDataImportScalarRelationFilter, Prisma.FinanceDataImportWhereInput>
 }
 
 export type FinanceShipmentOrderByWithRelationInput = {
@@ -388,8 +388,8 @@ export type FinanceShipmentOrderByWithRelationInput = {
   sourceRow?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  import?: Prisma.FinanceDataImportOrderByWithRelationInput
   employee?: Prisma.EmployeeOrderByWithRelationInput
+  import?: Prisma.FinanceDataImportOrderByWithRelationInput
 }
 
 export type FinanceShipmentWhereUniqueInput = Prisma.AtLeast<{
@@ -415,8 +415,8 @@ export type FinanceShipmentWhereUniqueInput = Prisma.AtLeast<{
   sourceRow?: Prisma.IntNullableFilter<"FinanceShipment"> | number | null
   createdAt?: Prisma.DateTimeFilter<"FinanceShipment"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceShipment"> | Date | string
-  import?: Prisma.XOR<Prisma.FinanceDataImportScalarRelationFilter, Prisma.FinanceDataImportWhereInput>
   employee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
+  import?: Prisma.XOR<Prisma.FinanceDataImportScalarRelationFilter, Prisma.FinanceDataImportWhereInput>
 }, "id">
 
 export type FinanceShipmentOrderByWithAggregationInput = {
@@ -488,8 +488,8 @@ export type FinanceShipmentCreateInput = {
   sourceRow?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  import: Prisma.FinanceDataImportCreateNestedOneWithoutShipmentsInput
   employee?: Prisma.EmployeeCreateNestedOneWithoutFinanceShipmentsInput
+  import: Prisma.FinanceDataImportCreateNestedOneWithoutShipmentsInput
 }
 
 export type FinanceShipmentUncheckedCreateInput = {
@@ -531,8 +531,8 @@ export type FinanceShipmentUpdateInput = {
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  import?: Prisma.FinanceDataImportUpdateOneRequiredWithoutShipmentsNestedInput
   employee?: Prisma.EmployeeUpdateOneWithoutFinanceShipmentsNestedInput
+  import?: Prisma.FinanceDataImportUpdateOneRequiredWithoutShipmentsNestedInput
 }
 
 export type FinanceShipmentUncheckedUpdateInput = {
@@ -1151,8 +1151,8 @@ export type FinanceShipmentSelect<ExtArgs extends runtime.Types.Extensions.Inter
   sourceRow?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceShipment$employeeArgs<ExtArgs>
+  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeShipment"]>
 
 export type FinanceShipmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1175,8 +1175,8 @@ export type FinanceShipmentSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   sourceRow?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceShipment$employeeArgs<ExtArgs>
+  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeShipment"]>
 
 export type FinanceShipmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1199,8 +1199,8 @@ export type FinanceShipmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   sourceRow?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceShipment$employeeArgs<ExtArgs>
+  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeShipment"]>
 
 export type FinanceShipmentSelectScalar = {
@@ -1227,23 +1227,23 @@ export type FinanceShipmentSelectScalar = {
 
 export type FinanceShipmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importId" | "year" | "month" | "date" | "customerName" | "productName" | "spec" | "batchNo" | "quantity" | "unitPrice" | "amount" | "receivedAmount" | "employeeId" | "sourceFile" | "sourceSheet" | "sourceRow" | "createdAt" | "updatedAt", ExtArgs["result"]["financeShipment"]>
 export type FinanceShipmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceShipment$employeeArgs<ExtArgs>
+  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }
 export type FinanceShipmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceShipment$employeeArgs<ExtArgs>
+  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }
 export type FinanceShipmentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.FinanceShipment$employeeArgs<ExtArgs>
+  import?: boolean | Prisma.FinanceDataImportDefaultArgs<ExtArgs>
 }
 
 export type $FinanceShipmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceShipment"
   objects: {
-    import: Prisma.$FinanceDataImportPayload<ExtArgs>
     employee: Prisma.$EmployeePayload<ExtArgs> | null
+    import: Prisma.$FinanceDataImportPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1659,8 +1659,8 @@ readonly fields: FinanceShipmentFieldRefs;
  */
 export interface Prisma__FinanceShipmentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  import<T extends Prisma.FinanceDataImportDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImportDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceDataImportClient<runtime.Types.Result.GetResult<Prisma.$FinanceDataImportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   employee<T extends Prisma.FinanceShipment$employeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceShipment$employeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  import<T extends Prisma.FinanceDataImportDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceDataImportDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceDataImportClient<runtime.Types.Result.GetResult<Prisma.$FinanceDataImportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

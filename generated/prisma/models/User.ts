@@ -276,18 +276,20 @@ export type UserWhereInput = {
   employeeId?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   sessionVersion?: Prisma.IntFilter<"User"> | number
-  resourceRoles?: Prisma.UserResourceRoleListRelationFilter
-  reports?: Prisma.ReportListRelationFilter
-  employees?: Prisma.EmployeeListRelationFilter
+  editedContracts?: Prisma.ContractListRelationFilter
   managedDepartments?: Prisma.DepartmentListRelationFilter
   editHistories?: Prisma.EditHistoryListRelationFilter
+  employees?: Prisma.EmployeeListRelationFilter
   editedFinanceAccounts?: Prisma.FinanceAccountListRelationFilter
   editedFinanceVouchers?: Prisma.FinanceVoucherListRelationFilter
-  editedStockRawMaterials?: Prisma.StockRawMaterialListRelationFilter
-  editedStockPackagings?: Prisma.StockPackagingListRelationFilter
+  reports?: Prisma.ReportListRelationFilter
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsListRelationFilter
   stockOperations?: Prisma.StockOperationListRelationFilter
-  editedContracts?: Prisma.ContractListRelationFilter
+  editedStockPackagings?: Prisma.StockPackagingListRelationFilter
+  editedStockRawMaterials?: Prisma.StockRawMaterialListRelationFilter
+  snapshotImports?: Prisma.FinanceBalanceSnapshotListRelationFilter
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotListRelationFilter
+  resourceRoles?: Prisma.UserResourceRoleListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -303,18 +305,20 @@ export type UserOrderByWithRelationInput = {
   employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sessionVersion?: Prisma.SortOrder
-  resourceRoles?: Prisma.UserResourceRoleOrderByRelationAggregateInput
-  reports?: Prisma.ReportOrderByRelationAggregateInput
-  employees?: Prisma.EmployeeOrderByRelationAggregateInput
+  editedContracts?: Prisma.ContractOrderByRelationAggregateInput
   managedDepartments?: Prisma.DepartmentOrderByRelationAggregateInput
   editHistories?: Prisma.EditHistoryOrderByRelationAggregateInput
+  employees?: Prisma.EmployeeOrderByRelationAggregateInput
   editedFinanceAccounts?: Prisma.FinanceAccountOrderByRelationAggregateInput
   editedFinanceVouchers?: Prisma.FinanceVoucherOrderByRelationAggregateInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialOrderByRelationAggregateInput
-  editedStockPackagings?: Prisma.StockPackagingOrderByRelationAggregateInput
+  reports?: Prisma.ReportOrderByRelationAggregateInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsOrderByRelationAggregateInput
   stockOperations?: Prisma.StockOperationOrderByRelationAggregateInput
-  editedContracts?: Prisma.ContractOrderByRelationAggregateInput
+  editedStockPackagings?: Prisma.StockPackagingOrderByRelationAggregateInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialOrderByRelationAggregateInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotOrderByRelationAggregateInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotOrderByRelationAggregateInput
+  resourceRoles?: Prisma.UserResourceRoleOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -333,18 +337,20 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   employeeId?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   sessionVersion?: Prisma.IntFilter<"User"> | number
-  resourceRoles?: Prisma.UserResourceRoleListRelationFilter
-  reports?: Prisma.ReportListRelationFilter
-  employees?: Prisma.EmployeeListRelationFilter
+  editedContracts?: Prisma.ContractListRelationFilter
   managedDepartments?: Prisma.DepartmentListRelationFilter
   editHistories?: Prisma.EditHistoryListRelationFilter
+  employees?: Prisma.EmployeeListRelationFilter
   editedFinanceAccounts?: Prisma.FinanceAccountListRelationFilter
   editedFinanceVouchers?: Prisma.FinanceVoucherListRelationFilter
-  editedStockRawMaterials?: Prisma.StockRawMaterialListRelationFilter
-  editedStockPackagings?: Prisma.StockPackagingListRelationFilter
+  reports?: Prisma.ReportListRelationFilter
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsListRelationFilter
   stockOperations?: Prisma.StockOperationListRelationFilter
-  editedContracts?: Prisma.ContractListRelationFilter
+  editedStockPackagings?: Prisma.StockPackagingListRelationFilter
+  editedStockRawMaterials?: Prisma.StockRawMaterialListRelationFilter
+  snapshotImports?: Prisma.FinanceBalanceSnapshotListRelationFilter
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotListRelationFilter
+  resourceRoles?: Prisma.UserResourceRoleListRelationFilter
 }, "id" | "wxUserId" | "username" | "apiKey">
 
 export type UserOrderByWithAggregationInput = {
@@ -397,18 +403,20 @@ export type UserCreateInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -424,18 +432,20 @@ export type UserUncheckedCreateInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -450,18 +460,20 @@ export type UserUpdateInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -477,18 +489,20 @@ export type UserUncheckedUpdateInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -686,6 +700,38 @@ export type UserUpdateOneWithoutEditedFinanceVouchersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEditedFinanceVouchersInput, Prisma.UserUpdateWithoutEditedFinanceVouchersInput>, Prisma.UserUncheckedUpdateWithoutEditedFinanceVouchersInput>
 }
 
+export type UserCreateNestedOneWithoutSnapshotImportsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSnapshotImportsInput, Prisma.UserUncheckedCreateWithoutSnapshotImportsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSnapshotImportsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserCreateNestedOneWithoutSnapshotEditsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSnapshotEditsInput, Prisma.UserUncheckedCreateWithoutSnapshotEditsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSnapshotEditsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutSnapshotImportsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSnapshotImportsInput, Prisma.UserUncheckedCreateWithoutSnapshotImportsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSnapshotImportsInput
+  upsert?: Prisma.UserUpsertWithoutSnapshotImportsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSnapshotImportsInput, Prisma.UserUpdateWithoutSnapshotImportsInput>, Prisma.UserUncheckedUpdateWithoutSnapshotImportsInput>
+}
+
+export type UserUpdateOneWithoutSnapshotEditsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSnapshotEditsInput, Prisma.UserUncheckedCreateWithoutSnapshotEditsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSnapshotEditsInput
+  upsert?: Prisma.UserUpsertWithoutSnapshotEditsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSnapshotEditsInput, Prisma.UserUpdateWithoutSnapshotEditsInput>, Prisma.UserUncheckedUpdateWithoutSnapshotEditsInput>
+}
+
 export type UserCreateNestedOneWithoutEmployeesInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutEmployeesInput, Prisma.UserUncheckedCreateWithoutEmployeesInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmployeesInput
@@ -824,17 +870,19 @@ export type UserCreateWithoutResourceRolesInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
 }
 
 export type UserUncheckedCreateWithoutResourceRolesInput = {
@@ -850,17 +898,19 @@ export type UserUncheckedCreateWithoutResourceRolesInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
 }
 
 export type UserCreateOrConnectWithoutResourceRolesInput = {
@@ -891,17 +941,19 @@ export type UserUpdateWithoutResourceRolesInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourceRolesInput = {
@@ -917,17 +969,19 @@ export type UserUncheckedUpdateWithoutResourceRolesInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
 }
 
 export type UserCreateWithoutEditedContractsInput = {
@@ -942,17 +996,19 @@ export type UserCreateWithoutEditedContractsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedContractsInput = {
@@ -968,17 +1024,19 @@ export type UserUncheckedCreateWithoutEditedContractsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedContractsInput = {
@@ -1009,17 +1067,19 @@ export type UserUpdateWithoutEditedContractsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedContractsInput = {
@@ -1035,17 +1095,19 @@ export type UserUncheckedUpdateWithoutEditedContractsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEditedFinanceAccountsInput = {
@@ -1060,17 +1122,19 @@ export type UserCreateWithoutEditedFinanceAccountsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
@@ -1086,17 +1150,19 @@ export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedFinanceAccountsInput = {
@@ -1127,17 +1193,19 @@ export type UserUpdateWithoutEditedFinanceAccountsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
@@ -1153,17 +1221,19 @@ export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEditedFinanceVouchersInput = {
@@ -1178,17 +1248,19 @@ export type UserCreateWithoutEditedFinanceVouchersInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
@@ -1204,17 +1276,19 @@ export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedFinanceVouchersInput = {
@@ -1245,17 +1319,19 @@ export type UserUpdateWithoutEditedFinanceVouchersInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
@@ -1271,17 +1347,271 @@ export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutSnapshotImportsInput = {
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  name: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSnapshotImportsInput = {
+  id?: number
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  name: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSnapshotImportsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSnapshotImportsInput, Prisma.UserUncheckedCreateWithoutSnapshotImportsInput>
+}
+
+export type UserCreateWithoutSnapshotEditsInput = {
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  name: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSnapshotEditsInput = {
+  id?: number
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  name: string
+  avatar?: string | null
+  routineItems?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSnapshotEditsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSnapshotEditsInput, Prisma.UserUncheckedCreateWithoutSnapshotEditsInput>
+}
+
+export type UserUpsertWithoutSnapshotImportsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSnapshotImportsInput, Prisma.UserUncheckedUpdateWithoutSnapshotImportsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSnapshotImportsInput, Prisma.UserUncheckedCreateWithoutSnapshotImportsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSnapshotImportsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSnapshotImportsInput, Prisma.UserUncheckedUpdateWithoutSnapshotImportsInput>
+}
+
+export type UserUpdateWithoutSnapshotImportsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserUpsertWithoutSnapshotEditsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSnapshotEditsInput, Prisma.UserUncheckedUpdateWithoutSnapshotEditsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSnapshotEditsInput, Prisma.UserUncheckedCreateWithoutSnapshotEditsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSnapshotEditsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSnapshotEditsInput, Prisma.UserUncheckedUpdateWithoutSnapshotEditsInput>
+}
+
+export type UserUpdateWithoutSnapshotEditsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEmployeesInput = {
@@ -1296,17 +1626,19 @@ export type UserCreateWithoutEmployeesInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEmployeesInput = {
@@ -1322,17 +1654,19 @@ export type UserUncheckedCreateWithoutEmployeesInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEmployeesInput = {
@@ -1363,17 +1697,19 @@ export type UserUpdateWithoutEmployeesInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEmployeesInput = {
@@ -1389,17 +1725,19 @@ export type UserUncheckedUpdateWithoutEmployeesInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutManagedDepartmentsInput = {
@@ -1414,17 +1752,19 @@ export type UserCreateWithoutManagedDepartmentsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutManagedDepartmentsInput = {
@@ -1440,17 +1780,19 @@ export type UserUncheckedCreateWithoutManagedDepartmentsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutManagedDepartmentsInput = {
@@ -1481,17 +1823,19 @@ export type UserUpdateWithoutManagedDepartmentsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutManagedDepartmentsInput = {
@@ -1507,17 +1851,19 @@ export type UserUncheckedUpdateWithoutManagedDepartmentsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEditHistoriesInput = {
@@ -1532,17 +1878,19 @@ export type UserCreateWithoutEditHistoriesInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEditHistoriesInput = {
@@ -1558,17 +1906,19 @@ export type UserUncheckedCreateWithoutEditHistoriesInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEditHistoriesInput = {
@@ -1599,17 +1949,19 @@ export type UserUpdateWithoutEditHistoriesInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditHistoriesInput = {
@@ -1625,17 +1977,19 @@ export type UserUncheckedUpdateWithoutEditHistoriesInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEditedStockRawMaterialsInput = {
@@ -1650,17 +2004,19 @@ export type UserCreateWithoutEditedStockRawMaterialsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
@@ -1676,17 +2032,19 @@ export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockRawMaterialsInput = {
@@ -1717,17 +2075,19 @@ export type UserUpdateWithoutEditedStockRawMaterialsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
@@ -1743,17 +2103,19 @@ export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEditedStockPackagingsInput = {
@@ -1768,17 +2130,19 @@ export type UserCreateWithoutEditedStockPackagingsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
@@ -1794,17 +2158,19 @@ export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockPackagingsInput = {
@@ -1835,17 +2201,19 @@ export type UserUpdateWithoutEditedStockPackagingsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
@@ -1861,17 +2229,19 @@ export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEditedStockFinishedGoodsInput = {
@@ -1886,17 +2256,19 @@ export type UserCreateWithoutEditedStockFinishedGoodsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
   stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
@@ -1912,17 +2284,19 @@ export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
   stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockFinishedGoodsInput = {
@@ -1953,17 +2327,19 @@ export type UserUpdateWithoutEditedStockFinishedGoodsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
   stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
@@ -1979,17 +2355,19 @@ export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
   stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutStockOperationsInput = {
@@ -2004,17 +2382,19 @@ export type UserCreateWithoutStockOperationsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutStockOperationsInput = {
@@ -2030,17 +2410,19 @@ export type UserUncheckedCreateWithoutStockOperationsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
-  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  reports?: Prisma.ReportUncheckedCreateNestedManyWithoutUserInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutStockOperationsInput = {
@@ -2071,17 +2453,19 @@ export type UserUpdateWithoutStockOperationsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStockOperationsInput = {
@@ -2097,17 +2481,19 @@ export type UserUncheckedUpdateWithoutStockOperationsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
-  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  reports?: Prisma.ReportUncheckedUpdateManyWithoutUserNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutReportsInput = {
@@ -2122,17 +2508,19 @@ export type UserCreateWithoutReportsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutReportsInput = {
@@ -2148,17 +2536,19 @@ export type UserUncheckedCreateWithoutReportsInput = {
   employeeId?: string | null
   createdAt?: Date | string
   sessionVersion?: number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
   editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
   stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutReportsInput = {
@@ -2189,17 +2579,19 @@ export type UserUpdateWithoutReportsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReportsInput = {
@@ -2215,17 +2607,19 @@ export type UserUncheckedUpdateWithoutReportsInput = {
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
   editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
   editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
   editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
   editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
   stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -2234,33 +2628,37 @@ export type UserUncheckedUpdateWithoutReportsInput = {
  */
 
 export type UserCountOutputType = {
-  resourceRoles: number
-  reports: number
-  employees: number
+  editedContracts: number
   managedDepartments: number
   editHistories: number
+  employees: number
   editedFinanceAccounts: number
   editedFinanceVouchers: number
-  editedStockRawMaterials: number
-  editedStockPackagings: number
+  reports: number
   editedStockFinishedGoods: number
   stockOperations: number
-  editedContracts: number
+  editedStockPackagings: number
+  editedStockRawMaterials: number
+  snapshotImports: number
+  snapshotEdits: number
+  resourceRoles: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  resourceRoles?: boolean | UserCountOutputTypeCountResourceRolesArgs
-  reports?: boolean | UserCountOutputTypeCountReportsArgs
-  employees?: boolean | UserCountOutputTypeCountEmployeesArgs
+  editedContracts?: boolean | UserCountOutputTypeCountEditedContractsArgs
   managedDepartments?: boolean | UserCountOutputTypeCountManagedDepartmentsArgs
   editHistories?: boolean | UserCountOutputTypeCountEditHistoriesArgs
+  employees?: boolean | UserCountOutputTypeCountEmployeesArgs
   editedFinanceAccounts?: boolean | UserCountOutputTypeCountEditedFinanceAccountsArgs
   editedFinanceVouchers?: boolean | UserCountOutputTypeCountEditedFinanceVouchersArgs
-  editedStockRawMaterials?: boolean | UserCountOutputTypeCountEditedStockRawMaterialsArgs
-  editedStockPackagings?: boolean | UserCountOutputTypeCountEditedStockPackagingsArgs
+  reports?: boolean | UserCountOutputTypeCountReportsArgs
   editedStockFinishedGoods?: boolean | UserCountOutputTypeCountEditedStockFinishedGoodsArgs
   stockOperations?: boolean | UserCountOutputTypeCountStockOperationsArgs
-  editedContracts?: boolean | UserCountOutputTypeCountEditedContractsArgs
+  editedStockPackagings?: boolean | UserCountOutputTypeCountEditedStockPackagingsArgs
+  editedStockRawMaterials?: boolean | UserCountOutputTypeCountEditedStockRawMaterialsArgs
+  snapshotImports?: boolean | UserCountOutputTypeCountSnapshotImportsArgs
+  snapshotEdits?: boolean | UserCountOutputTypeCountSnapshotEditsArgs
+  resourceRoles?: boolean | UserCountOutputTypeCountResourceRolesArgs
 }
 
 /**
@@ -2276,22 +2674,8 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountResourceRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.UserResourceRoleWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ReportWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountEmployeesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.EmployeeWhereInput
+export type UserCountOutputTypeCountEditedContractsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContractWhereInput
 }
 
 /**
@@ -2311,6 +2695,13 @@ export type UserCountOutputTypeCountEditHistoriesArgs<ExtArgs extends runtime.Ty
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountEmployeesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmployeeWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountEditedFinanceAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.FinanceAccountWhereInput
 }
@@ -2325,15 +2716,8 @@ export type UserCountOutputTypeCountEditedFinanceVouchersArgs<ExtArgs extends ru
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountEditedStockRawMaterialsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.StockRawMaterialWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountEditedStockPackagingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.StockPackagingWhereInput
+export type UserCountOutputTypeCountReportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ReportWhereInput
 }
 
 /**
@@ -2353,8 +2737,36 @@ export type UserCountOutputTypeCountStockOperationsArgs<ExtArgs extends runtime.
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountEditedContractsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ContractWhereInput
+export type UserCountOutputTypeCountEditedStockPackagingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StockPackagingWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountEditedStockRawMaterialsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.StockRawMaterialWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSnapshotImportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceBalanceSnapshotWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSnapshotEditsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceBalanceSnapshotWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountResourceRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserResourceRoleWhereInput
 }
 
 
@@ -2371,18 +2783,20 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   employeeId?: boolean
   createdAt?: boolean
   sessionVersion?: boolean
-  resourceRoles?: boolean | Prisma.User$resourceRolesArgs<ExtArgs>
-  reports?: boolean | Prisma.User$reportsArgs<ExtArgs>
-  employees?: boolean | Prisma.User$employeesArgs<ExtArgs>
+  editedContracts?: boolean | Prisma.User$editedContractsArgs<ExtArgs>
   managedDepartments?: boolean | Prisma.User$managedDepartmentsArgs<ExtArgs>
   editHistories?: boolean | Prisma.User$editHistoriesArgs<ExtArgs>
+  employees?: boolean | Prisma.User$employeesArgs<ExtArgs>
   editedFinanceAccounts?: boolean | Prisma.User$editedFinanceAccountsArgs<ExtArgs>
   editedFinanceVouchers?: boolean | Prisma.User$editedFinanceVouchersArgs<ExtArgs>
-  editedStockRawMaterials?: boolean | Prisma.User$editedStockRawMaterialsArgs<ExtArgs>
-  editedStockPackagings?: boolean | Prisma.User$editedStockPackagingsArgs<ExtArgs>
+  reports?: boolean | Prisma.User$reportsArgs<ExtArgs>
   editedStockFinishedGoods?: boolean | Prisma.User$editedStockFinishedGoodsArgs<ExtArgs>
   stockOperations?: boolean | Prisma.User$stockOperationsArgs<ExtArgs>
-  editedContracts?: boolean | Prisma.User$editedContractsArgs<ExtArgs>
+  editedStockPackagings?: boolean | Prisma.User$editedStockPackagingsArgs<ExtArgs>
+  editedStockRawMaterials?: boolean | Prisma.User$editedStockRawMaterialsArgs<ExtArgs>
+  snapshotImports?: boolean | Prisma.User$snapshotImportsArgs<ExtArgs>
+  snapshotEdits?: boolean | Prisma.User$snapshotEditsArgs<ExtArgs>
+  resourceRoles?: boolean | Prisma.User$resourceRolesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2433,18 +2847,20 @@ export type UserSelectScalar = {
 
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "wxUserId" | "username" | "password" | "name" | "avatar" | "routineItems" | "canLogin" | "apiKey" | "employeeId" | "createdAt" | "sessionVersion", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  resourceRoles?: boolean | Prisma.User$resourceRolesArgs<ExtArgs>
-  reports?: boolean | Prisma.User$reportsArgs<ExtArgs>
-  employees?: boolean | Prisma.User$employeesArgs<ExtArgs>
+  editedContracts?: boolean | Prisma.User$editedContractsArgs<ExtArgs>
   managedDepartments?: boolean | Prisma.User$managedDepartmentsArgs<ExtArgs>
   editHistories?: boolean | Prisma.User$editHistoriesArgs<ExtArgs>
+  employees?: boolean | Prisma.User$employeesArgs<ExtArgs>
   editedFinanceAccounts?: boolean | Prisma.User$editedFinanceAccountsArgs<ExtArgs>
   editedFinanceVouchers?: boolean | Prisma.User$editedFinanceVouchersArgs<ExtArgs>
-  editedStockRawMaterials?: boolean | Prisma.User$editedStockRawMaterialsArgs<ExtArgs>
-  editedStockPackagings?: boolean | Prisma.User$editedStockPackagingsArgs<ExtArgs>
+  reports?: boolean | Prisma.User$reportsArgs<ExtArgs>
   editedStockFinishedGoods?: boolean | Prisma.User$editedStockFinishedGoodsArgs<ExtArgs>
   stockOperations?: boolean | Prisma.User$stockOperationsArgs<ExtArgs>
-  editedContracts?: boolean | Prisma.User$editedContractsArgs<ExtArgs>
+  editedStockPackagings?: boolean | Prisma.User$editedStockPackagingsArgs<ExtArgs>
+  editedStockRawMaterials?: boolean | Prisma.User$editedStockRawMaterialsArgs<ExtArgs>
+  snapshotImports?: boolean | Prisma.User$snapshotImportsArgs<ExtArgs>
+  snapshotEdits?: boolean | Prisma.User$snapshotEditsArgs<ExtArgs>
+  resourceRoles?: boolean | Prisma.User$resourceRolesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2453,18 +2869,20 @@ export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
-    resourceRoles: Prisma.$UserResourceRolePayload<ExtArgs>[]
-    reports: Prisma.$ReportPayload<ExtArgs>[]
-    employees: Prisma.$EmployeePayload<ExtArgs>[]
+    editedContracts: Prisma.$ContractPayload<ExtArgs>[]
     managedDepartments: Prisma.$DepartmentPayload<ExtArgs>[]
     editHistories: Prisma.$EditHistoryPayload<ExtArgs>[]
+    employees: Prisma.$EmployeePayload<ExtArgs>[]
     editedFinanceAccounts: Prisma.$FinanceAccountPayload<ExtArgs>[]
     editedFinanceVouchers: Prisma.$FinanceVoucherPayload<ExtArgs>[]
-    editedStockRawMaterials: Prisma.$StockRawMaterialPayload<ExtArgs>[]
-    editedStockPackagings: Prisma.$StockPackagingPayload<ExtArgs>[]
+    reports: Prisma.$ReportPayload<ExtArgs>[]
     editedStockFinishedGoods: Prisma.$StockFinishedGoodsPayload<ExtArgs>[]
     stockOperations: Prisma.$StockOperationPayload<ExtArgs>[]
-    editedContracts: Prisma.$ContractPayload<ExtArgs>[]
+    editedStockPackagings: Prisma.$StockPackagingPayload<ExtArgs>[]
+    editedStockRawMaterials: Prisma.$StockRawMaterialPayload<ExtArgs>[]
+    snapshotImports: Prisma.$FinanceBalanceSnapshotPayload<ExtArgs>[]
+    snapshotEdits: Prisma.$FinanceBalanceSnapshotPayload<ExtArgs>[]
+    resourceRoles: Prisma.$UserResourceRolePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2873,18 +3291,20 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  resourceRoles<T extends Prisma.User$resourceRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resourceRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  reports<T extends Prisma.User$reportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  employees<T extends Prisma.User$employeesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$employeesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  editedContracts<T extends Prisma.User$editedContractsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedContractsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   managedDepartments<T extends Prisma.User$managedDepartmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$managedDepartmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   editHistories<T extends Prisma.User$editHistoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editHistoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EditHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  employees<T extends Prisma.User$employeesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$employeesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   editedFinanceAccounts<T extends Prisma.User$editedFinanceAccountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedFinanceAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   editedFinanceVouchers<T extends Prisma.User$editedFinanceVouchersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedFinanceVouchersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  editedStockRawMaterials<T extends Prisma.User$editedStockRawMaterialsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedStockRawMaterialsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockRawMaterialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  editedStockPackagings<T extends Prisma.User$editedStockPackagingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedStockPackagingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockPackagingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reports<T extends Prisma.User$reportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   editedStockFinishedGoods<T extends Prisma.User$editedStockFinishedGoodsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedStockFinishedGoodsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockFinishedGoodsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   stockOperations<T extends Prisma.User$stockOperationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$stockOperationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockOperationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  editedContracts<T extends Prisma.User$editedContractsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedContractsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  editedStockPackagings<T extends Prisma.User$editedStockPackagingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedStockPackagingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockPackagingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  editedStockRawMaterials<T extends Prisma.User$editedStockRawMaterialsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedStockRawMaterialsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$StockRawMaterialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  snapshotImports<T extends Prisma.User$snapshotImportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$snapshotImportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBalanceSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  snapshotEdits<T extends Prisma.User$snapshotEditsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$snapshotEditsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBalanceSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  resourceRoles<T extends Prisma.User$resourceRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resourceRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3317,75 +3737,27 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
- * User.resourceRoles
+ * User.editedContracts
  */
-export type User$resourceRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$editedContractsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the UserResourceRole
+   * Select specific fields to fetch from the Contract
    */
-  select?: Prisma.UserResourceRoleSelect<ExtArgs> | null
+  select?: Prisma.ContractSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the UserResourceRole
+   * Omit specific fields from the Contract
    */
-  omit?: Prisma.UserResourceRoleOmit<ExtArgs> | null
+  omit?: Prisma.ContractOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UserResourceRoleInclude<ExtArgs> | null
-  where?: Prisma.UserResourceRoleWhereInput
-  orderBy?: Prisma.UserResourceRoleOrderByWithRelationInput | Prisma.UserResourceRoleOrderByWithRelationInput[]
-  cursor?: Prisma.UserResourceRoleWhereUniqueInput
+  include?: Prisma.ContractInclude<ExtArgs> | null
+  where?: Prisma.ContractWhereInput
+  orderBy?: Prisma.ContractOrderByWithRelationInput | Prisma.ContractOrderByWithRelationInput[]
+  cursor?: Prisma.ContractWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.UserResourceRoleScalarFieldEnum | Prisma.UserResourceRoleScalarFieldEnum[]
-}
-
-/**
- * User.reports
- */
-export type User$reportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Report
-   */
-  select?: Prisma.ReportSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Report
-   */
-  omit?: Prisma.ReportOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ReportInclude<ExtArgs> | null
-  where?: Prisma.ReportWhereInput
-  orderBy?: Prisma.ReportOrderByWithRelationInput | Prisma.ReportOrderByWithRelationInput[]
-  cursor?: Prisma.ReportWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ReportScalarFieldEnum | Prisma.ReportScalarFieldEnum[]
-}
-
-/**
- * User.employees
- */
-export type User$employeesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Employee
-   */
-  select?: Prisma.EmployeeSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Employee
-   */
-  omit?: Prisma.EmployeeOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.EmployeeInclude<ExtArgs> | null
-  where?: Prisma.EmployeeWhereInput
-  orderBy?: Prisma.EmployeeOrderByWithRelationInput | Prisma.EmployeeOrderByWithRelationInput[]
-  cursor?: Prisma.EmployeeWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.EmployeeScalarFieldEnum | Prisma.EmployeeScalarFieldEnum[]
+  distinct?: Prisma.ContractScalarFieldEnum | Prisma.ContractScalarFieldEnum[]
 }
 
 /**
@@ -3437,6 +3809,30 @@ export type User$editHistoriesArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * User.employees
+ */
+export type User$employeesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Employee
+   */
+  select?: Prisma.EmployeeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Employee
+   */
+  omit?: Prisma.EmployeeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeInclude<ExtArgs> | null
+  where?: Prisma.EmployeeWhereInput
+  orderBy?: Prisma.EmployeeOrderByWithRelationInput | Prisma.EmployeeOrderByWithRelationInput[]
+  cursor?: Prisma.EmployeeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmployeeScalarFieldEnum | Prisma.EmployeeScalarFieldEnum[]
+}
+
+/**
  * User.editedFinanceAccounts
  */
 export type User$editedFinanceAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3485,51 +3881,27 @@ export type User$editedFinanceVouchersArgs<ExtArgs extends runtime.Types.Extensi
 }
 
 /**
- * User.editedStockRawMaterials
+ * User.reports
  */
-export type User$editedStockRawMaterialsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$reportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the StockRawMaterial
+   * Select specific fields to fetch from the Report
    */
-  select?: Prisma.StockRawMaterialSelect<ExtArgs> | null
+  select?: Prisma.ReportSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the StockRawMaterial
+   * Omit specific fields from the Report
    */
-  omit?: Prisma.StockRawMaterialOmit<ExtArgs> | null
+  omit?: Prisma.ReportOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.StockRawMaterialInclude<ExtArgs> | null
-  where?: Prisma.StockRawMaterialWhereInput
-  orderBy?: Prisma.StockRawMaterialOrderByWithRelationInput | Prisma.StockRawMaterialOrderByWithRelationInput[]
-  cursor?: Prisma.StockRawMaterialWhereUniqueInput
+  include?: Prisma.ReportInclude<ExtArgs> | null
+  where?: Prisma.ReportWhereInput
+  orderBy?: Prisma.ReportOrderByWithRelationInput | Prisma.ReportOrderByWithRelationInput[]
+  cursor?: Prisma.ReportWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.StockRawMaterialScalarFieldEnum | Prisma.StockRawMaterialScalarFieldEnum[]
-}
-
-/**
- * User.editedStockPackagings
- */
-export type User$editedStockPackagingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the StockPackaging
-   */
-  select?: Prisma.StockPackagingSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the StockPackaging
-   */
-  omit?: Prisma.StockPackagingOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.StockPackagingInclude<ExtArgs> | null
-  where?: Prisma.StockPackagingWhereInput
-  orderBy?: Prisma.StockPackagingOrderByWithRelationInput | Prisma.StockPackagingOrderByWithRelationInput[]
-  cursor?: Prisma.StockPackagingWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.StockPackagingScalarFieldEnum | Prisma.StockPackagingScalarFieldEnum[]
+  distinct?: Prisma.ReportScalarFieldEnum | Prisma.ReportScalarFieldEnum[]
 }
 
 /**
@@ -3581,27 +3953,123 @@ export type User$stockOperationsArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 /**
- * User.editedContracts
+ * User.editedStockPackagings
  */
-export type User$editedContractsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type User$editedStockPackagingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Contract
+   * Select specific fields to fetch from the StockPackaging
    */
-  select?: Prisma.ContractSelect<ExtArgs> | null
+  select?: Prisma.StockPackagingSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Contract
+   * Omit specific fields from the StockPackaging
    */
-  omit?: Prisma.ContractOmit<ExtArgs> | null
+  omit?: Prisma.StockPackagingOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ContractInclude<ExtArgs> | null
-  where?: Prisma.ContractWhereInput
-  orderBy?: Prisma.ContractOrderByWithRelationInput | Prisma.ContractOrderByWithRelationInput[]
-  cursor?: Prisma.ContractWhereUniqueInput
+  include?: Prisma.StockPackagingInclude<ExtArgs> | null
+  where?: Prisma.StockPackagingWhereInput
+  orderBy?: Prisma.StockPackagingOrderByWithRelationInput | Prisma.StockPackagingOrderByWithRelationInput[]
+  cursor?: Prisma.StockPackagingWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ContractScalarFieldEnum | Prisma.ContractScalarFieldEnum[]
+  distinct?: Prisma.StockPackagingScalarFieldEnum | Prisma.StockPackagingScalarFieldEnum[]
+}
+
+/**
+ * User.editedStockRawMaterials
+ */
+export type User$editedStockRawMaterialsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the StockRawMaterial
+   */
+  select?: Prisma.StockRawMaterialSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the StockRawMaterial
+   */
+  omit?: Prisma.StockRawMaterialOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.StockRawMaterialInclude<ExtArgs> | null
+  where?: Prisma.StockRawMaterialWhereInput
+  orderBy?: Prisma.StockRawMaterialOrderByWithRelationInput | Prisma.StockRawMaterialOrderByWithRelationInput[]
+  cursor?: Prisma.StockRawMaterialWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.StockRawMaterialScalarFieldEnum | Prisma.StockRawMaterialScalarFieldEnum[]
+}
+
+/**
+ * User.snapshotImports
+ */
+export type User$snapshotImportsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceBalanceSnapshot
+   */
+  select?: Prisma.FinanceBalanceSnapshotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceBalanceSnapshot
+   */
+  omit?: Prisma.FinanceBalanceSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceSnapshotInclude<ExtArgs> | null
+  where?: Prisma.FinanceBalanceSnapshotWhereInput
+  orderBy?: Prisma.FinanceBalanceSnapshotOrderByWithRelationInput | Prisma.FinanceBalanceSnapshotOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceBalanceSnapshotWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceBalanceSnapshotScalarFieldEnum | Prisma.FinanceBalanceSnapshotScalarFieldEnum[]
+}
+
+/**
+ * User.snapshotEdits
+ */
+export type User$snapshotEditsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceBalanceSnapshot
+   */
+  select?: Prisma.FinanceBalanceSnapshotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceBalanceSnapshot
+   */
+  omit?: Prisma.FinanceBalanceSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBalanceSnapshotInclude<ExtArgs> | null
+  where?: Prisma.FinanceBalanceSnapshotWhereInput
+  orderBy?: Prisma.FinanceBalanceSnapshotOrderByWithRelationInput | Prisma.FinanceBalanceSnapshotOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceBalanceSnapshotWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceBalanceSnapshotScalarFieldEnum | Prisma.FinanceBalanceSnapshotScalarFieldEnum[]
+}
+
+/**
+ * User.resourceRoles
+ */
+export type User$resourceRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserResourceRole
+   */
+  select?: Prisma.UserResourceRoleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserResourceRole
+   */
+  omit?: Prisma.UserResourceRoleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserResourceRoleInclude<ExtArgs> | null
+  where?: Prisma.UserResourceRoleWhereInput
+  orderBy?: Prisma.UserResourceRoleOrderByWithRelationInput | Prisma.UserResourceRoleOrderByWithRelationInput[]
+  cursor?: Prisma.UserResourceRoleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserResourceRoleScalarFieldEnum | Prisma.UserResourceRoleScalarFieldEnum[]
 }
 
 /**

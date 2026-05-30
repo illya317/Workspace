@@ -107,6 +107,16 @@ export type FinanceCostAnalysisRow = Prisma.FinanceCostAnalysisRowModel
  */
 export type FinanceWorkshopReport = Prisma.FinanceWorkshopReportModel
 /**
+ * Model FinanceBudgetDept
+ * 部门费用预算。每年导入一次，按部门+科目存储12个月预算金额，accountId 关联到 FinanceAccount 建立真 FK。
+ */
+export type FinanceBudgetDept = Prisma.FinanceBudgetDeptModel
+/**
+ * Model FinanceBudgetRd
+ * 研发费用预算。每年导入一次，按项目+科目存储12个月预算金额，accountId 关联到 FinanceAccount 建立真 FK。
+ */
+export type FinanceBudgetRd = Prisma.FinanceBudgetRdModel
+/**
  * Model FinanceAccount
  * 财务科目（含层级）
  */
@@ -131,6 +141,22 @@ export type FinanceVoucherItem = Prisma.FinanceVoucherItemModel
  * 科目余额（事实：期初/本期/期末借贷）
  */
 export type FinanceAccountBalance = Prisma.FinanceAccountBalanceModel
+/**
+ * Model FinanceBalanceSnapshot
+ * 年度余额快照批次（一次外部会计软件余额表导入 = 一行）
+ */
+export type FinanceBalanceSnapshot = Prisma.FinanceBalanceSnapshotModel
+/**
+ * Model FinanceBalanceSnapshotRow
+ * 年度余额快照明细（每个科目一行，保存导入时的编码/名称快照）
+ */
+export type FinanceBalanceSnapshotRow = Prisma.FinanceBalanceSnapshotRowModel
+/**
+ * Model FinanceAnnualBalance
+ * 年度余额快照（旧模型，外部会计软件余额表）
+ * @deprecated 已迁移到 FinanceBalanceSnapshot + FinanceBalanceSnapshotRow，待确认后删除
+ */
+export type FinanceAnnualBalance = Prisma.FinanceAnnualBalanceModel
 /**
  * Model Employee
  * 员工基础信息
