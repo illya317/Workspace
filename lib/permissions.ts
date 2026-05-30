@@ -39,7 +39,7 @@ export const RES = {
   },
   production: {
     root: "production",
-    inventory: "inventory",
+    inventory: "production.inventory",
   },
   administration: {
     root: "administration",

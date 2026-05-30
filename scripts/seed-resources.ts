@@ -129,9 +129,9 @@ async function main() {
 
   // inventory 子资源 → production 下
   const prodRes = await p.resource.findUnique({ where: { key: "production" } });
-  const invRes = await p.resource.findUnique({ where: { key: "inventory" } });
+  const invRes = await p.resource.findUnique({ where: { key: "production.inventory" } });
   if (prodRes && invRes) {
-    await p.resource.update({ where: { key: "inventory" }, data: { parentId: prodRes.id } });
+    await p.resource.update({ where: { key: "production.inventory" }, data: { parentId: prodRes.id } });
     await p.resource.updateMany({ where: { key: { in: ["inventory.raw", "inventory.packaging", "inventory.finished", "inventory.report"] } }, data: { parentId: invRes.id } });
   }
 

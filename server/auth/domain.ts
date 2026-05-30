@@ -230,7 +230,7 @@ export async function checkFinanceImportDelete(userId: number): Promise<boolean>
 export async function checkInventoryAccess(userId: number): Promise<boolean> {
   return (
     (await checkPermission(userId, "system", "admin")) ||
-    (await checkPermission(userId, "inventory", "access"))
+    (await checkPermission(userId, "production.inventory", "access"))
   );
 }
 

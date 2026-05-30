@@ -77,7 +77,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     checkPermissionWithContext(ctx, "finance.budget", "access"),
     checkPermissionWithContext(ctx, "finance.analysis", "access"),
     checkPermissionWithContext(ctx, "finance.import", "access"),
-    checkPermissionWithContext(ctx, "inventory", "access"),
+    checkPermissionWithContext(ctx, "production.inventory", "access"),
     checkPermissionWithContext(ctx, "administration.contract", "access"),
   ]);
 

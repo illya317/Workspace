@@ -35,7 +35,7 @@ export async function GET(request: Request) {
         checkPermission(u.id, "people", "delete"),
         checkPermission(u.id, "work", "access"),
         checkPermission(u.id, "finance", "access"),
-        checkPermission(u.id, "inventory", "access"),
+        checkPermission(u.id, "production.inventory", "access"),
         checkPermission(u.id, "administration.contract", "access"),
         checkPermission(u.id, "docs", "access"),
       ]);
