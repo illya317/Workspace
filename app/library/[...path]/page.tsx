@@ -39,7 +39,8 @@ export default async function LibrarySubPage({ params }: { params: Promise<{ pat
   const user = await getCurrentUser();
   if (!user) redirect("/login");
 
-  const { path: segments } = await params;
+  const { path: raw } = await params;
+  const segments = raw.map(s => { try { return decodeURIComponent(s) } catch { return s } });
   const dirPath = path.join(ROOT, ...segments);
   const entries = await scanDir(dirPath);
   const currentName = segments[segments.length - 1] || "资料库";
@@ -48,7 +49,8 @@ export default async function LibrarySubPage({ params }: { params: Promise<{ pat
   const crumbs: { label: string; href: string }[] = [{ label: "资料库", href: "/library" }];
   let acc = "";
   for (let i = 0; i < segments.length; i++) {
-    acc += "/" + segments[i];
+    const enc = encodeURIComponent(segments[i]);
+    acc += "/" + enc;
     crumbs.push({ label: segments[i], href: `/library${acc}` });
   }
 
@@ -77,8 +79,8 @@ export default async function LibrarySubPage({ params }: { params: Promise<{ pat
               {entries.map(e => (
                 <Link key={e.name}
                   href={e.isDir
-                    ? `/library/${segments.join("/")}/${e.name}`
-                    : `/api/library/${segments.join("/")}/${e.name}`}
+                    ? `/library/${segments.map(s => encodeURIComponent(s)).join("/")}/${encodeURIComponent(e.name)}`
+                    : `/api/library/${segments.map(s => encodeURIComponent(s)).join("/")}/${encodeURIComponent(e.name)}`}
                   className="flex items-center gap-2 rounded px-3 py-2.5 text-sm text-gray-800 transition hover:bg-gray-50"
                 >
                   <span className="text-xs text-gray-400">{e.isDir ? "▸" : ""}</span>

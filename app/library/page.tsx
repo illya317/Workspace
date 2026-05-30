@@ -32,7 +32,7 @@ export default async function LibraryPage() {
           <div className="rounded-lg bg-white p-4 shadow-sm">
             <div className="space-y-0.5">
               {dirs.map(d => (
-                <Link key={d} href={`/library/${d}`}
+                <Link key={d} href={`/library/${encodeURIComponent(d)}`}
                   className="flex items-center gap-2 rounded px-3 py-2.5 text-sm text-gray-800 transition hover:bg-gray-50"
                 >
                   <span className="text-xs text-gray-400">▸</span>
