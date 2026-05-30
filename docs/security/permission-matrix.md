@@ -9,7 +9,7 @@
 | `people` | `canAccessHR / canEditHR / canDeleteHR` | access, write, delete, admin |
 | `finance` | `canAccessFinance` | access, write, delete, admin |
 | `finance.ledger` | `canAccessFinanceLedger` | access, write, delete |
-| `finance.report` | `canAccessFinanceReport` | access |
+| `finance.statement` | `canAccessFinanceReport` | access |
 | `finance.budget` | `canAccessFinanceBudget` | access, write |
 | `finance.analysis` | `canAccessFinanceAnalysis` | access |
 | `finance.cost` | `canAccessFinanceCost` | access, write, delete |
@@ -59,7 +59,7 @@
 | `/api/finance/balances/reconcile` | POST | `finance.ledger.write` (upload + compare) |
 | `/api/finance/periods*` | GET/PUT | `finance.ledger.access/write` |
 | `/api/finance/init` | POST | `finance.ledger.write` |
-| `/api/finance/reports` | GET | `finance.report.access` |
+| `/api/finance/reports` | GET | `finance.statement.access` |
 | `/api/finance/budget` | GET/POST | `finance.budget.access/write` |
 | `/api/finance/import/preview` | POST | `finance.import.access` |
 | `/api/finance/import/confirm` | POST | `finance.import.write` |

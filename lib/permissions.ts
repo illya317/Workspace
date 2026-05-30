@@ -80,7 +80,7 @@ export function normalizeRoleKey(roleKey: string): string {
   return roleKey === "read" ? "access" : roleKey;
 }
 
-// ─── Available roles per resource (maxRoleKey per resource) ──
+// ─── Fallback 常量：DB 未就绪时使用 ──
 export const RESOURCE_MAX_ROLE: Record<string, string> = {
   system: "admin",
   library: "access",
@@ -98,28 +98,28 @@ const ROLE_HIERARCHY: Record<string, number> = {
   access: 0, write: 1, delete: 2, admin: 3,
 };
 
-/** 返回某资源可用的所有角色（按层级从低到高） */
-export function getAvailableRoles(resourceKey: string | null): string[] {
-  if (!resourceKey) return [];
+function resolveMaxRole(resourceKey: string, map: Record<string, string>): string {
   const parts = resourceKey.split(".");
   while (parts.length > 0) {
     const key = parts.join(".");
-    const max = RESOURCE_MAX_ROLE[key];
-    if (max) {
-      const maxLevel = ROLE_HIERARCHY[max] ?? 0;
-      return ["access", "write", "delete", "admin"].filter(
-        (r) => (ROLE_HIERARCHY[r] ?? 0) <= maxLevel,
-      );
-    }
+    if (map[key]) return map[key];
     parts.pop();
   }
-  return ["access"];
+  return "admin";
 }
 
-/** 检查角色是否在资源允许范围内 */
+/** 同步版本（含 fallback） — 用于前端/非 async 上下文 */
+export function getAvailableRoles(resourceKey: string | null): string[] {
+  if (!resourceKey) return [];
+  const max = resolveMaxRole(resourceKey, RESOURCE_MAX_ROLE);
+  const maxLevel = ROLE_HIERARCHY[max] ?? 0;
+  return (["access", "write", "delete", "admin"] as const).filter(
+    (r) => (ROLE_HIERARCHY[r] ?? 0) <= maxLevel,
+  );
+}
+
 export function isRoleAllowed(resourceKey: string, roleKey: string): boolean {
-  const available = getAvailableRoles(resourceKey);
-  return available.includes(roleKey);
+  return getAvailableRoles(resourceKey).includes(roleKey);
 }
 
 // ─── Backward compat ──────────────────────────────────────

@@ -155,7 +155,7 @@ npm run budget:sync-accounts
 |------|-----|------|
 | 财务根 | `finance` | 旧统一入口，现退化为"任一财务子权限"的汇总标识 |
 | 总账基础 | `finance.ledger` | 科目、凭证、余额、期间、初始化 |
-| 财务报表 | `finance.report` | 资产负债表、利润表、现金流量表 |
+| 财务报表 | `finance.statement` | 资产负债表、利润表、现金流量表 |
 | 预算管理 | `finance.budget` | 部门费用预算、研发费用预算 |
 | 财务分析 | `finance.analysis` | 预算执行分析、差异分析、趋势看板 |
 | 数据导入 | `finance.import` | 科目表、序时账、余额表导入 |

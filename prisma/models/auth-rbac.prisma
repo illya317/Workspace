@@ -37,6 +37,8 @@ model Resource {
   level           Int                      @default(1)
   sortOrder       Int                      @default(0)
   parentId        Int?
+  /// 该资源可授予的最高角色：access | write | delete | admin
+  maxRoleKey      String                   @default("admin")
   departmentRoles DepartmentResourceRole[]
   positionRoles   PositionResourceRole[]
   parent          Resource?                @relation("ResHierarchy", fields: [parentId], references: [id])

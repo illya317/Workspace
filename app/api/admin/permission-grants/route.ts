@@ -68,6 +68,20 @@ export async function PUT(request: Request) {
     );
   }
 
+  // 检查 role 是否超过资源允许的最高角色
+  if (value) {
+    const { isRoleAllowedForResource } = await import("@/server/rbac/maxRole");
+    const allowed = await isRoleAllowedForResource(resourceKey, roleKey);
+    if (!allowed) {
+      const { getResourceMaxRole } = await import("@/server/rbac/maxRole");
+      const max = await getResourceMaxRole(resourceKey);
+      return NextResponse.json(
+        { error: `该资源最高仅支持 ${max === "access" ? "访问" : max === "write" ? "编辑" : max === "delete" ? "删除" : "管理"}` },
+        { status: 400 }
+      );
+    }
+  }
+
   try {
     const { setGrant } = await import("@/server/rbac/grants");
     await setGrant(

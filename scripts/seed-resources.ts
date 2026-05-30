@@ -7,15 +7,15 @@ import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
 const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: "data/dev.db" }) });
 
-async function upsertResource(key: string, name: string, parentKey?: string) {
+async function upsertResource(key: string, name: string, parentKey?: string, maxRoleKey: string = "admin") {
   const parent = parentKey
     ? await p.resource.findUnique({ where: { key: parentKey }, select: { id: true } })
     : null;
 
   await p.resource.upsert({
     where: { key },
-    update: { name, parentId: parent?.id ?? null },
-    create: { key, name, parentId: parent?.id ?? null },
+    update: { name, parentId: parent?.id ?? null, maxRoleKey },
+    create: { key, name, parentId: parent?.id ?? null, maxRoleKey },
   });
 }
 
@@ -52,15 +52,16 @@ async function main() {
 
   await upsertResource("production", "生产管理");
 
-  await upsertResource("docs", "文档中心");
+
+  await upsertResource("docs", "文档中心", undefined, "access");
   await upsertResource("docs.positions", "岗位说明书", "docs");
   await upsertResource("docs.company", "公司管理", "docs");
   await upsertResource("docs.expense", "报销规范", "docs");
   await upsertResource("docs.api", "API 接入指南", "docs");
 
-  await upsertResource("library", "资料库");
+  await upsertResource("library", "资料库", undefined, "access");
 
-  await upsertResource("external", "外部关系");
+  await upsertResource("external", "外部关系", undefined, "delete");
   await upsertResource("external.investor", "投资人关系", "external");
   await upsertResource("external.customer", "客户管理", "external");
   await upsertResource("external.supplier", "供应商管理", "external");
@@ -69,7 +70,7 @@ async function main() {
   await upsertResource("work.task", "工作清单", "work");
   await upsertResource("work.report", "工作汇报", "work");
 
-  await upsertResource("legal", "法务");
+  await upsertResource("legal", "法务", undefined, "access");
   await upsertResource("legal.chat", "法务咨询", "legal");
   await upsertResource("legal.document", "法律文书", "legal");
 
