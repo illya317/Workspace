@@ -11,8 +11,9 @@ export async function GET(request: Request) {
   const category = searchParams.get("category") || undefined;
   const includeArchived = searchParams.get("includeArchived") === "true";
   const targetType = searchParams.get("targetType") || "department";
-  // deptId is legacy compat; prefer targetId if both present
-  const targetIdParam = searchParams.get("targetId") || searchParams.get("deptId");
+  // deptId is legacy compat; only used for department targets
+  const targetIdParam = searchParams.get("targetId")
+    || (targetType === "department" ? searchParams.get("deptId") : null);
 
   let finalTargetId = payload.departmentId;
   if (targetIdParam != null) {
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
   }
 
   const finalTargetType = targetType || "department";
-  const finalTargetId = targetId ?? deptId ?? payload.departmentId;
+  const finalTargetId = targetId ?? (finalTargetType === "department" ? deptId : null) ?? payload.departmentId;
 
   const allowed = await canEditWorkTask(payload.userId, finalTargetType, finalTargetId);
   if (!allowed) return NextResponse.json({ error: "无权限编辑工作清单" }, { status: 403 });
