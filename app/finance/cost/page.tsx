@@ -6,7 +6,7 @@ import FinanceCostClient from "./FinanceCostClient";
 export default async function FinanceCostPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (!user.canAccessFinance) redirect("/portal");
+  if (!user.canAccessFinanceCost) redirect("/portal");
   return (
     <FinanceShell activeNav="cost" user={user}>
       <FinanceCostClient user={user} />
