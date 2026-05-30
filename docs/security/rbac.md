@@ -187,7 +187,7 @@ model DepartmentResourceRole {
 | 本人个人汇报/清单 | 本人 | 本人 |
 | 部门汇报/清单 | 本部门成员 | 部门指派人（DepartmentWorkAssignee） |
 | 项目汇报/清单 | 本项目成员 | 项目指派人（ProjectWorkAssignee） |
-| 全局 | `work.admin` / `system.admin` | `work.admin` / `system.admin` |
+| 全局 | `work.admin` | `work.admin` |
 
 ### 指派表
 

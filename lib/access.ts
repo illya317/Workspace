@@ -173,7 +173,6 @@ export async function canAccessTarget(
   // Own personal data: always
   if (targetType === "user" && targetId === userId) return true;
   // Admin bypass
-  if (await checkPermission(userId, "system", "admin")) return true;
   if (await checkPermission(userId, "work", "admin")) return true;
   // Membership → can view
   return isMemberOfTarget(userId, targetType, targetId);
@@ -186,7 +185,6 @@ export async function canSubmitToTarget(
   // Own personal data: always
   if (targetType === "user" && targetId === userId) return true;
   // Admin bypass
-  if (await checkPermission(userId, "system", "admin")) return true;
   if (await checkPermission(userId, "work", "admin")) return true;
   // Assignee → can write
   if (await isAssignee(userId, targetType, targetId, "report")) return true;
@@ -198,7 +196,6 @@ export async function canEditWorkTask(
   userId: number, targetType: string, targetId: number,
 ): Promise<boolean> {
   if (targetType === "user" && targetId === userId) return true;
-  if (await checkPermission(userId, "system", "admin")) return true;
   if (await checkPermission(userId, "work", "admin")) return true;
   if (await isAssignee(userId, targetType, targetId, "task")) return true;
   return false;
