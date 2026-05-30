@@ -182,7 +182,7 @@ Company → Department → PositionDescription → Position → Employee → Emp
 - 搜索 → `useSearch` hook 或 `<SearchBox>` 组件
 - 当前用户类型 → `import { SessionUser } from "@/lib/types"`，禁止页面内重复定义 `interface User`
 - 业务页面 facade 负责组合，不承载大段业务逻辑；超过 150 行应拆 components/hooks。
-- 组件超过 220 行、hook 超过 220 行、API route 超过 120 行、service 超过 260 行时，先拆分再继续新增。
+- 文件大小是硬约束：组件/hook 不超过 220 行，API route 不超过 120 行，service 不超过 260 行；超限时必须先拆分到红线内，不能用历史白名单放行。
 - 新业务模块必须有 `types.ts`、必要 hooks/components，以及 `ARCHITECTURE.md`。
 - 禁止在页面里直接堆 fetch、权限判断、复杂映射和计算；这些应分别下沉到 hook、API/service、权限 helper。
 
@@ -210,6 +210,7 @@ Company → Department → PositionDescription → Position → Employee → Emp
 
 ```
 npm run arch:check
+npm run size:check
 npm run lint -- --max-warnings=0
 npx tsc --noEmit
 npm run build
