@@ -19,8 +19,8 @@ export default function ResourceTree({
     <div>
       {resources.map((r) => {
         const isSelected = selectedResource === r.key;
-        const isAncestor = selectedResource?.startsWith(r.key + ".");
-        const hasChildren = r.children && r.children.length > 0;
+        const isAncestor = !!selectedResource && selectedResource.startsWith(r.key + ".");
+        const hasChildren = !!(r.children && r.children.length > 0);
         const expanded = (isSelected || isAncestor) && hasChildren;
 
         return (
@@ -34,6 +34,7 @@ export default function ResourceTree({
               }`}
               style={{ paddingLeft: `${12 + depth * 16}px` }}
             >
+              {depth > 0 && <span className="mr-1 text-gray-300">└</span>}
               {r.name}
             </button>
             {expanded && (
