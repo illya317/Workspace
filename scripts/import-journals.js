@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const iconv = require('iconv-lite');
 
-const db = new Database('/Users/koito/Desktop/Project/HR/data/dev.db');
+const db = new Database(process.env.DATABASE_URL?.replace('file:', '') || './data/dev.db');
 
 // ─── GBK Fix ─────────────────────────────────────────────
 
@@ -346,7 +346,7 @@ function importJournal(items, companyCode, fileName) {
 
 // ─── Main ────────────────────────────────────────────────
 
-const baseDir = '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据';
+const baseDir = path.join(process.cwd(), 'prisma/seed-data/财务数据');
 
 const files = [
   // 丰华生物 (01) - format A
@@ -421,7 +421,7 @@ if (allSkipped.length > 0) {
   }
 
   // Save detailed report to JSON
-  const reportPath = '/Users/koito/Desktop/Project/HR/scripts/import-skip-report.json';
+  const reportPath = path.join(process.cwd(), 'scripts/import-skip-report.json');
   fs.writeFileSync(reportPath, JSON.stringify(allSkipped, null, 2), 'utf-8');
   console.log(`\n  Detailed report saved to: ${reportPath}`);
 }
@@ -434,7 +434,7 @@ if (allEncodingIssues.length > 0) {
   }
 
   // Save detailed report to JSON
-  const encodingReportPath = '/Users/koito/Desktop/Project/HR/scripts/import-encoding-report.json';
+  const encodingReportPath = path.join(process.cwd(), 'scripts/import-encoding-report.json');
   fs.writeFileSync(encodingReportPath, JSON.stringify(allEncodingIssues, null, 2), 'utf-8');
   console.log(`\n  Detailed encoding report saved to: ${encodingReportPath}`);
 }

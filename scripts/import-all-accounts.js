@@ -4,7 +4,7 @@ const fs = require('fs');
 const iconv = require('iconv-lite');
 const path = require('path');
 
-const db = new Database('/Users/koito/Desktop/Project/HR/data/dev.db');
+const db = new Database(process.env.DATABASE_URL?.replace('file:', '') || './data/dev.db');
 
 function fixGBK(str) {
   if (!str || typeof str !== 'string') return str;
@@ -105,11 +105,11 @@ function parseAccountTable(filePath, companyCode) {
 const YEAR = 2026;
 
 const files = [
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-丰华生物2026.xls', code: '01', name: '丰华生物' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-上海天力通2026.xls', code: '02', name: '上海天力通' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-上海悦通2026.xls', code: '03', name: '上海悦通' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-加拿大2026.xls', code: '04', name: '加拿大' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-丰华悦通2026.xlsx', code: '05', name: '丰华悦通' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-丰华生物2026.xls'), code: '01', name: '丰华生物' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-上海天力通2026.xls'), code: '02', name: '上海天力通' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-上海悦通2026.xls'), code: '03', name: '上海悦通' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-加拿大2026.xls'), code: '04', name: '加拿大' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-丰华悦通2026.xlsx'), code: '05', name: '丰华悦通' },
 ];
 
 console.log('=== Step 1: Parse all files ===\n');

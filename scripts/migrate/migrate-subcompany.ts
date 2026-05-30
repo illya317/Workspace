@@ -2,6 +2,7 @@
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import Database from "better-sqlite3";
 import { PrismaClient } from "../../generated/prisma/client";
+import * as path from "path";
 import * as XLSX from "xlsx";
 
 const dbPath = process.env.DATABASE_URL?.replace("file:", "") // "../../prisma/dev.db";
@@ -15,7 +16,7 @@ function normalizeCompany(name: string): string {
 }
 
 async function main() {
-  const wb = XLSX.readFile("/Users/koito/Desktop/Project/HR/data/合并花名册.xlsx");
+  const wb = XLSX.readFile(path.join(process.cwd(), "data/合并花名册.xlsx"));
   const ws = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws) as any[];
 

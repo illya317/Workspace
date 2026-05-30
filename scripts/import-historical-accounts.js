@@ -4,7 +4,7 @@ const fs = require('fs');
 const iconv = require('iconv-lite');
 const path = require('path');
 
-const db = new Database('/Users/koito/Desktop/Project/HR/data/dev.db');
+const db = new Database(process.env.DATABASE_URL?.replace('file:', '') || './data/dev.db');
 
 // ─── GBK Fix ─────────────────────────────────────────────
 
@@ -154,16 +154,16 @@ function loadStandardMappingFromDB() {
 // ─── Main ────────────────────────────────────────────────
 
 const files = [
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-丰华生物2024.xls', baseCode: '01', year: '2024', name: '丰华生物2024' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-丰华生物2025.xls', baseCode: '01', year: '2025', name: '丰华生物2025' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-上海天力通2024.xls', baseCode: '02', year: '2024', name: '上海天力通2024' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-上海天力通2025.xls', baseCode: '02', year: '2025', name: '上海天力通2025' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-上海悦通2024.xls', baseCode: '03', year: '2024', name: '上海悦通2024' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-上海悦通2025.xls', baseCode: '03', year: '2025', name: '上海悦通2025' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-丰华悦通2024.xlsx', baseCode: '05', year: '2024', name: '丰华悦通2024' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-丰华悦通2025.xlsx', baseCode: '05', year: '2025', name: '丰华悦通2025' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-加拿大2024.xls', baseCode: '04', year: '2024', name: '加拿大2024' },
-  { path: '/Users/koito/Desktop/Project/HR/prisma/seed-data/财务数据/科目表/科目表-加拿大2025.xls', baseCode: '04', year: '2025', name: '加拿大2025' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-丰华生物2024.xls'), baseCode: '01', year: '2024', name: '丰华生物2024' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-丰华生物2025.xls'), baseCode: '01', year: '2025', name: '丰华生物2025' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-上海天力通2024.xls'), baseCode: '02', year: '2024', name: '上海天力通2024' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-上海天力通2025.xls'), baseCode: '02', year: '2025', name: '上海天力通2025' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-上海悦通2024.xls'), baseCode: '03', year: '2024', name: '上海悦通2024' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-上海悦通2025.xls'), baseCode: '03', year: '2025', name: '上海悦通2025' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-丰华悦通2024.xlsx'), baseCode: '05', year: '2024', name: '丰华悦通2024' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-丰华悦通2025.xlsx'), baseCode: '05', year: '2025', name: '丰华悦通2025' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-加拿大2024.xls'), baseCode: '04', year: '2024', name: '加拿大2024' },
+  { path: path.join(process.cwd(), 'prisma/seed-data/财务数据/科目表/科目表-加拿大2025.xls'), baseCode: '04', year: '2025', name: '加拿大2025' },
 ];
 
 // Load standard mapping from existing 丰华生物 data
