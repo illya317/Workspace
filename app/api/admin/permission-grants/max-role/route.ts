@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@/lib/auth";
 
 const ROLE_HIERARCHY: Record<string, number> = { access: 0, write: 1, delete: 2, admin: 3 };
+const LABELS: Record<string, string> = { access: "访问", write: "编辑", delete: "删除", admin: "管理" };
 
 export async function PATCH(request: Request) {
   const payload = await authenticate(request);
@@ -18,24 +19,26 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: "无效角色" }, { status: 400 });
   }
 
-  // 禁止降级 system 最高权限
   if (resourceKey === "system" && maxRoleKey !== "admin") {
     return NextResponse.json({ error: "系统资源最高权限不可低于管理" }, { status: 400 });
   }
 
-  // 检查父级上限
   const { prisma } = await import("@/lib/prisma");
   const res = await prisma.resource.findUnique({
     where: { key: resourceKey },
-    select: { parent: { select: { key: true, maxRoleKey: true } } },
+    select: { id: true, parent: { select: { key: true } } },
   });
-  if (res?.parent) {
-    const parentLevel = ROLE_HIERARCHY[res.parent.maxRoleKey] ?? 3;
+  if (!res) return NextResponse.json({ error: "资源不存在" }, { status: 404 });
+
+  // 父级有效上限（走 DB parent 链，含祖父级）
+  if (res.parent) {
+    const { getResourceMaxRole } = await import("@/server/rbac/maxRole");
+    const parentMax = await getResourceMaxRole(res.parent.key);
+    const parentLevel = ROLE_HIERARCHY[parentMax] ?? 3;
     const newLevel = ROLE_HIERARCHY[maxRoleKey] ?? 3;
     if (newLevel > parentLevel) {
-      const labels: Record<string, string> = { access: "访问", write: "编辑", delete: "删除", admin: "管理" };
       return NextResponse.json({
-        error: `父资源"${res.parent.key}"最高仅${labels[res.parent.maxRoleKey]}，子资源不可超过`,
+        error: `父资源"${res.parent.key}"有效上限为${LABELS[parentMax]}，子资源不可超过`,
       }, { status: 400 });
     }
   }

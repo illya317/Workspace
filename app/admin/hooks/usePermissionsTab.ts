@@ -36,12 +36,19 @@ export function usePermissionsTab(
 
   const childResources = useMemo(() => {
     const parent = parentResource || selectedResource;
-    if (!parent || parent.includes(".")) return [];
-    return resources.filter(
-      (r) =>
-        r.key.startsWith(parent + ".") &&
-        r.key.split(".").length === parent.split(".").length + 1
-    );
+    if (!parent) return [];
+    // 从树结构中找选中节点的直接子节点
+    function findChildren(nodes: ResourceItem[], targetKey: string): ResourceItem[] {
+      for (const n of nodes) {
+        if (n.key === targetKey) return n.children || [];
+        if (n.children) {
+          const found = findChildren(n.children, targetKey);
+          if (found.length) return found;
+        }
+      }
+      return [];
+    }
+    return findChildren(resources, parent);
   }, [resources, parentResource, selectedResource]);
 
   const roles = useMemo(() => {
