@@ -1,49 +1,33 @@
-import { Prisma } from "@/generated/prisma/client";
 import { getInitials } from "./search";
 
-const EXCLUDE_FIELDS = new Set([
-  "id", "editedBy", "version", "sortOrder", "queryGroup",
-  "userId", "password", "apiKey", "wxUserId",
-  "dataJson", "itemsJson", "details", "contracts",
-  "parentId", "childId", "employeeId", "departmentId", "positionId",
-  "projectId", "workItemId", "reportId", "resourceId", "roleId",
-  "scopeId", "targetId", "managerUserId",
-  "headcount", "level", "isActive", "isPrimary", "isArchived",
-  "isPrivate", "isConsolidated", "isResearch", "canLogin",
-  "success", "gender", "shareRatio",
-]);
+/**
+ * 各模型的搜索字段（Prisma v7 无 dmmf，硬编码）。
+ * 只包含用户可能搜索的业务字段，排除 ID、外键、审计字段。
+ */
+const SEARCH_FIELDS: Record<string, string[]> = {
+  Employee: [
+    "employeeId", "name", "alias", "idNumber", "otherId",
+    "phone", "ethnicity", "hometown", "politics",
+    "education", "title", "school", "major",
+  ],
+  Department: ["code", "name", "alias"],
+  Company: ["code", "name", "fullName"],
+  Project: ["name", "type", "description"],
+  Position: ["code", "name", "alias"],
+};
 
-const modelStringFields: Record<string, string[]> = (() => {
-  const map: Record<string, string[]> = {};
-  const dmmf = (Prisma as unknown as { dmmf: { datamodel: { models: { name: string; fields: { kind: string; type: string; name: string }[] }[] } } }).dmmf;
-  if (!dmmf?.datamodel?.models) return map;
-
-  for (const model of dmmf.datamodel.models) {
-    const stringFields = model.fields
-      .filter(
-        (f: { kind: string; type: string; name: string }) =>
-          f.kind === "scalar" &&
-          f.type === "String" &&
-          !EXCLUDE_FIELDS.has(f.name)
-      )
-      .map((f) => f.name);
-    if (stringFields.length) {
-      map[model.name] = stringFields;
-    }
-  }
-  return map;
-})();
-
-const PINYIN_FIELDS = new Set(["name", "alias", "departmentName"]);
+/** 建议走拼音首字母搜索的字段 */
+const PINYIN_FIELDS = new Set(["name", "alias"]);
 
 export function matchAnyField(
   record: Record<string, unknown>,
   keyword: string,
-  modelName: string
+  modelName: string,
 ): boolean {
-  const query = keyword.toLowerCase();
-  const fields = modelStringFields[modelName];
+  const fields = SEARCH_FIELDS[modelName];
   if (!fields) return false;
+
+  const query = keyword.toLowerCase();
 
   for (const f of fields) {
     const val = String(record[f] ?? "").toLowerCase();
@@ -56,5 +40,5 @@ export function matchAnyField(
 }
 
 export function getSearchFields(modelName: string): string[] {
-  return modelStringFields[modelName] || [];
+  return SEARCH_FIELDS[modelName] || [];
 }
