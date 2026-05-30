@@ -21,8 +21,8 @@ export function useAgentSession() {
   const [loading, setLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
-  const addMessage = useCallback((role: AgentMessage["role"], content: string) => {
-    const msg: AgentMessage = { id: nextId(), role, content, timestamp: Date.now() };
+  const addMessage = useCallback((role: AgentMessage["role"], content: string, data?: unknown) => {
+    const msg: AgentMessage = { id: nextId(), role, content, timestamp: Date.now(), data };
     setMessages((prev) => [...prev, msg]);
     return msg;
   }, []);
@@ -73,9 +73,7 @@ export function useAgentSession() {
         addMessage("system", data.message);
         setMood("error");
       } else {
-        // answer — always include data for report expansion
-        const content = data.message;
-        addMessage("agent", content);
+        addMessage("agent", data.message, data.data);
         setMood("success");
       }
 
@@ -98,10 +96,13 @@ export function useAgentSession() {
     };
   }, []);
 
+  const [drawerMsg, setDrawerMsg] = useState<AgentMessage | null>(null);
+
   const clearMessages = useCallback(() => {
     setMessages([]);
+    setDrawerMsg(null);
     setMood("idle");
   }, []);
 
-  return { messages, mood, loading, sendMessage, clearMessages };
+  return { messages, mood, loading, drawerMsg, setDrawerMsg, sendMessage, clearMessages };
 }

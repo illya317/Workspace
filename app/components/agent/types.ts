@@ -19,4 +19,6 @@ export interface AgentMessage {
   role: "user" | "agent" | "system";
   content: string;
   timestamp: number;
+  /** 工具返回的原始数据，用于报告抽屉 */
+  data?: unknown;
 }

@@ -5,7 +5,8 @@
 import type { SessionUser } from "@/lib/types";
 import { buildCapabilities, findTool } from "./capabilities";
 import { minimaxProvider } from "./model/minimax";
-import type { AgentModelProvider, HistoryMessage } from "./model/provider";
+import { noopProvider } from "./model/noop";
+import type { AgentModelProvider, HistoryMessage, IntentResult } from "./model/provider";
 
 export interface AgentResponse {
   type: "answer" | "error" | "clarification";
@@ -29,12 +30,16 @@ export async function processMessage(
     };
   }
 
-  // 1. 意图分类（带对话历史）
-  const intent = await provider.classifyIntent(
-    userMessage,
-    capabilities.map((c) => ({ key: c.key, label: c.label, description: c.description })),
-    history,
-  );
+  const capList = capabilities.map((c) => ({ key: c.key, label: c.label, description: c.description }));
+
+  // 1. 意图分类（优先 LLM，失败回退规则匹配）
+  let intent: IntentResult;
+  try {
+    intent = await provider.classifyIntent(userMessage, capList, history);
+  } catch {
+    console.warn("[agent] LLM classifyIntent failed, falling back to noop provider");
+    intent = await noopProvider.classifyIntent(userMessage, capList, history);
+  }
 
   // 上下文中已有答案，直接返回
   if (intent.directAnswer) {
@@ -61,7 +66,7 @@ export async function processMessage(
   // 3. 执行工具（内部有二次权限校验）
   const result = await tool.execute(intent.params, user);
 
-  // 4. 用 LLM 总结为对话语言
+  // 4. 用 LLM 总结为对话语言（失败则用规则总结）
   let summary: string;
   try {
     summary = await provider.summarizeResult({
@@ -71,7 +76,11 @@ export async function processMessage(
       history,
     });
   } catch {
-    summary = result.message;
+    summary = await noopProvider.summarizeResult({
+      toolLabel: tool.label,
+      query: userMessage,
+      result: result,
+    });
   }
 
   return {
