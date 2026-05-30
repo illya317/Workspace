@@ -15,7 +15,7 @@ import ContractPagination from "./components/ContractPagination";
 import ContractModal from "./components/ContractModal";
 import type { Contract, ModalMode } from "./types";
 
-export default function ContractsClient({ user }: { user: SessionUser }) {
+export default function ContractsClient({ user, hideShell }: { user: SessionUser; hideShell?: boolean }) {
   const router = useRouter();
   const {
     contracts, total, page, setPage, totalPages,
@@ -98,6 +98,7 @@ export default function ContractsClient({ user }: { user: SessionUser }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {!hideShell && (
       <nav className="bg-white shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
@@ -111,6 +112,7 @@ export default function ContractsClient({ user }: { user: SessionUser }) {
           </div>
         </div>
       </nav>
+      )}
 
       <main className="mx-auto max-w-7xl px-4 py-6">
         <ContractFilters

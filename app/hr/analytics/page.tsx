@@ -1,7 +1,12 @@
 import { requireHRAccess } from "@/server/auth/session";
+import AppShell from "@/app/components/AppShell";
 import HRAnalyticsClient from "./HRAnalyticsClient";
 
 export default async function HRAnalyticsPage() {
   const user = await requireHRAccess();
-  return <HRAnalyticsClient user={user} />;
+  return (
+    <AppShell title="人力分析" backHref="/hr" user={user}>
+      <HRAnalyticsClient user={user} hideShell />
+    </AppShell>
+  );
 }

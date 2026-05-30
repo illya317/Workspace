@@ -19,36 +19,27 @@ const tabs: { key: InvTab; label: string }[] = [
   { key: "reports", label: "库存报表中心" },
 ];
 
-export default function InventoryClient({ user }: { user: SessionUser }) {
+export default function InventoryClient({ user, hideShell }: { user: SessionUser; hideShell?: boolean }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<InvTab>("raw");
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {!hideShell && (
       <nav className="bg-white shadow-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <Image
-              src="/company/logo.png"
-              alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"}
-              width={100}
-              height={30}
-              className="h-auto w-auto max-w-[100px] object-contain"
-            />
+            <Image src="/company/logo.png" alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"} width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
             <span className="text-sm text-gray-400">|</span>
             <span className="text-sm font-medium text-gray-700">库存管理</span>
           </div>
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push("/production")}
-              className="text-sm text-gray-500 hover:text-emerald-600"
-            >
-              ← 返回上级
-            </button>
+            <button onClick={() => router.push("/production")} className="text-sm text-gray-500 hover:text-emerald-600">← 返回上级</button>
             <UserMenu user={user} />
           </div>
         </div>
       </nav>
+      )}
 
       <main className="mx-auto max-w-5xl px-4 py-6">
         <div className="mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 pb-1">
