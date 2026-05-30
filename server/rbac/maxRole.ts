@@ -30,15 +30,20 @@ function lookupParent(key: string): string | null {
   return lastDot > 0 ? key.slice(0, lastDot) : null;
 }
 
-/** 获取资源的最高角色（从 DB，沿祖先链回退） */
+/** 取祖先链上最严格的上限（父资源 access 时子资源不能突破为 admin） */
 export async function getResourceMaxRole(resourceKey: string): Promise<string> {
   const map = await loadCache();
   let key: string | null = resourceKey;
+  let best = "admin"; // 默认最宽松，沿链收紧
   while (key) {
-    if (map[key]) return map[key];
+    if (map[key]) {
+      const cur = ROLE_HIERARCHY[map[key]] ?? 3;
+      const prev = ROLE_HIERARCHY[best] ?? 3;
+      if (cur < prev) best = map[key];
+    }
     key = lookupParent(key);
   }
-  return "admin";
+  return best;
 }
 
 /** 返回资源可用的所有角色 */

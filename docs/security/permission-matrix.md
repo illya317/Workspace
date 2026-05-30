@@ -15,7 +15,7 @@
 | `finance.cost` | `canAccessFinanceCost` | access, write, delete |
 | `finance.import` | `canAccessFinanceImport` | access (preview), write (confirm) |
 | `inventory` | `canAccessInventory` | access, write, delete |
-| `contract` | `canAccessContract` | access, write, delete |
+| `administration.contract` | `canAccessContract` | access, write, delete |
 | `work` | `canAccessWorks` | access, write |
 | `system` | `canAccessAdmin / canManagePermissions` | admin |
 
@@ -68,9 +68,9 @@
 | `/api/finance/cost/*` | DELETE | `finance.cost.delete` |
 | `/api/inventory/*` | GET | `inventory.access` |
 | `/api/inventory/*` | POST/PUT | `inventory.write` |
-| `/api/contracts*` | GET | `contract.access` |
-| `/api/contracts*` | POST/PUT | `contract.write` |
-| `/api/contracts*` | DELETE | `contract.delete` |
+| `/api/contracts*` | GET | `administration.contract.access` |
+| `/api/contracts*` | POST/PUT | `administration.contract.write` |
+| `/api/contracts*` | DELETE | `administration.contract.delete` |
 
 ## 继承规则
 
