@@ -46,49 +46,37 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
 
   const ctx = await getPermissionContext(payload.userId);
   const isAdmin = ctx.isAdmin;
-  const [
-    canAnyWeek,
-    hasHRAccess,
-    hasHRWrite,
-    hasHRDelete,
-    hasWorks,
-    hasFinance,
-    hasFinanceCost,
-    hasFinanceLedger,
-    hasFinanceReport,
-    hasFinanceBudget,
-    hasFinanceAnalysis,
-    hasFinanceImport,
-    hasInventory,
-    hasContract,
-    hasApi,
-    hasAgent,
-    hasDocs,
-    hasExternal,
-    hasLibrary,
+  const [canAnyWeek, hasHRA, hasHRW, hasHRD,
+    wAccess, wReport, wTask,
+    fAccess, fCost, fLedger, fReport, fBudget, fAnalysis, fImport,
+    invAccess, pAccess,
+    contractAccess, adminAccess,
+    hasApi, hasAgent,
+    dAccess, dPositions, dCompany, dExpense,
+    eAccess, eInvestor, eCustomer, eSupplier,
+    libAccess,
   ] = await Promise.all([
     checkPermissionWithContext(ctx, "work.report", "write"),
-    checkPermissionWithContext(ctx, "people", "access"),
-    checkPermissionWithContext(ctx, "people", "write"),
-    checkPermissionWithContext(ctx, "people", "delete"),
-    checkPermissionWithContext(ctx, "work", "access"),
-    checkPermissionWithContext(ctx, "finance", "access"),
-    checkPermissionWithContext(ctx, "finance.cost", "access"),
-    checkPermissionWithContext(ctx, "finance.ledger", "access"),
-    checkPermissionWithContext(ctx, "finance.statement", "access"),
-    checkPermissionWithContext(ctx, "finance.budget", "access"),
-    checkPermissionWithContext(ctx, "finance.analysis", "access"),
-    checkPermissionWithContext(ctx, "finance.import", "access"),
-    checkPermissionWithContext(ctx, "production.inventory", "access"),
-    checkPermissionWithContext(ctx, "administration.contract", "access"),
-    checkPermissionWithContext(ctx, "system.api", "access"),
-    checkPermissionWithContext(ctx, "system.agent", "access"),
-    checkPermissionWithContext(ctx, "docs", "access"),
-    checkPermissionWithContext(ctx, "external", "access"),
+    checkPermissionWithContext(ctx, "people", "access"), checkPermissionWithContext(ctx, "people", "write"), checkPermissionWithContext(ctx, "people", "delete"),
+    checkPermissionWithContext(ctx, "work", "access"), checkPermissionWithContext(ctx, "work.report", "access"), checkPermissionWithContext(ctx, "work.task", "access"),
+    checkPermissionWithContext(ctx, "finance", "access"), checkPermissionWithContext(ctx, "finance.cost", "access"), checkPermissionWithContext(ctx, "finance.ledger", "access"), checkPermissionWithContext(ctx, "finance.statement", "access"), checkPermissionWithContext(ctx, "finance.budget", "access"), checkPermissionWithContext(ctx, "finance.analysis", "access"), checkPermissionWithContext(ctx, "finance.import", "access"),
+    checkPermissionWithContext(ctx, "production.inventory", "access"), checkPermissionWithContext(ctx, "production", "access"),
+    checkPermissionWithContext(ctx, "administration.contract", "access"), checkPermissionWithContext(ctx, "administration", "access"),
+    checkPermissionWithContext(ctx, "system.api", "access"), checkPermissionWithContext(ctx, "system.agent", "access"),
+    checkPermissionWithContext(ctx, "docs", "access"), checkPermissionWithContext(ctx, "docs.positions", "access"), checkPermissionWithContext(ctx, "docs.company", "access"), checkPermissionWithContext(ctx, "docs.expense", "access"),
+    checkPermissionWithContext(ctx, "external", "access"), checkPermissionWithContext(ctx, "external.investor", "access"), checkPermissionWithContext(ctx, "external.customer", "access"), checkPermissionWithContext(ctx, "external.supplier", "access"),
     checkPermissionWithContext(ctx, "library", "access"),
   ]);
 
-    const hasHR = hasHRAccess || hasHRWrite || hasHRDelete;
+  const hasWorks = wAccess || wReport || wTask;
+  const hasFinance = fAccess || fCost || fLedger || fReport || fBudget || fAnalysis || fImport;
+  const hasInventory = invAccess || pAccess;
+  const hasContract = contractAccess || adminAccess;
+  const hasDocs = dAccess || dPositions || dCompany || dExpense;
+  const hasExternal = eAccess || eInvestor || eCustomer || eSupplier;
+  const hasLibrary = libAccess;
+
+    const hasHR = hasHRA || hasHRW || hasHRD;
 
   const manageableKeys = await getManageableResourceKeys(payload.userId);
   const canManagePermissions = manageableKeys.size > 0;
@@ -99,23 +87,23 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     isSuperAdmin: isAdmin,
     canSelectAnyWeek: canAnyWeek,
     canAccessHR: isAdmin || (hasHR && isActiveEmployee),
-    canEditHR: isAdmin || (hasHRWrite && isActiveEmployee),
-    canDeleteHR: isAdmin || (hasHRDelete && isActiveEmployee),
+    canEditHR: isAdmin || (hasHRW && isActiveEmployee),
+    canDeleteHR: isAdmin || (hasHRD && isActiveEmployee),
     canAccessWorks: hasWorks,
     canAccessFinance:
       hasFinance ||
-      hasFinanceLedger ||
-      hasFinanceReport ||
-      hasFinanceBudget ||
-      hasFinanceAnalysis ||
-      hasFinanceImport ||
-      hasFinanceCost,
-    canAccessFinanceCost: hasFinanceCost,
-    canAccessFinanceLedger: hasFinanceLedger,
-    canAccessFinanceReport: hasFinanceReport,
-    canAccessFinanceBudget: hasFinanceBudget,
-    canAccessFinanceAnalysis: hasFinanceAnalysis,
-    canAccessFinanceImport: hasFinanceImport,
+      fLedger ||
+      fReport ||
+      fBudget ||
+      fAnalysis ||
+      fImport ||
+      fCost,
+    canAccessFinanceCost: fCost,
+    canAccessFinanceLedger: fLedger,
+    canAccessFinanceReport: fReport,
+    canAccessFinanceBudget: fBudget,
+    canAccessFinanceAnalysis: fAnalysis,
+    canAccessFinanceImport: fImport,
     canAccessInventory: hasInventory,
     canAccessContract: hasContract,
     canAccessAdmin: isAdmin || canManagePermissions,
