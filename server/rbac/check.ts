@@ -3,6 +3,7 @@ import { normalizeRoleKey } from "@/lib/permissions";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
 import { getResourceAncestors } from "./resource";
 import { isRoleAllowedForResource } from "./maxRole";
+import { isSystemAdminBypassEnabled } from "./bypass";
 import type { PermissionContext } from "./context";
 
 function resolveRoleKeys(roleKey: string): string[] {
@@ -20,10 +21,16 @@ export async function checkPermission(
   resourceKey: string,
   roleKey: string,
 ): Promise<boolean> {
-  // 0. system.admin bypass (skip if already checking system.admin itself)
-  if (!(resourceKey === "system" && normalizeRoleKey(roleKey) === "admin")) {
+  // 0. system.admin bypass（受开关控制）
+  const isSelfCheck = resourceKey === "system" && normalizeRoleKey(roleKey) === "admin";
+  if (!isSelfCheck) {
     const isSysAdmin = await checkPermission(userId, "system", "admin");
-    if (isSysAdmin) return true;
+    if (isSysAdmin) {
+      // system.* 资源始终 bypass（保证后台管理不受影响）
+      if (resourceKey === "system" || resourceKey.startsWith("system.")) return true;
+      // 业务资源：开关 ON 时 bypass，OFF 时走正常 grant 检查
+      if (await isSystemAdminBypassEnabled()) return true;
+    }
   }
 
   // 1. Resolve resource
@@ -82,7 +89,10 @@ export async function checkPermissionWithContext(
   resourceKey: string,
   roleKey: string,
 ): Promise<boolean> {
-  if (ctx.isAdmin && !(resourceKey === "system" && normalizeRoleKey(roleKey) === "admin")) return true;
+  if (ctx.isAdmin && !(resourceKey === "system" && normalizeRoleKey(roleKey) === "admin")) {
+    if (resourceKey === "system" || resourceKey.startsWith("system.")) return true;
+    if (await isSystemAdminBypassEnabled()) return true;
+  }
 
   const resource = await prisma.resource.findUnique({
     where: { key: resourceKey },
