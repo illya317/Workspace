@@ -5,6 +5,8 @@ import { getAvailableRoles } from "@/lib/permissions";
 import type { ResourceItem, Subject, Grant, SubjectType } from "../types";
 import { ROLE_META, computePermissionState } from "../lib";
 import { usePermissionFilters } from "./usePermissionFilters";
+import { usePermissionScope } from "./usePermissionScope";
+import { useSystemAdminIds } from "./useSystemAdminIds";
 
 export type PermissionsTabState = ReturnType<typeof usePermissionsTab>;
 
@@ -13,21 +15,19 @@ export function usePermissionsTab(
   showToast: (msg: string, type?: "success" | "error") => void
 ) {
   const [subjectType, setSubjectType] = useState<SubjectType>("user");
-  const [selectedResource, setSelectedResource] = useState<string | null>(
-    null
-  );
+  const [selectedResource, setSelectedResource] = useState<string | null>(null);
   const [parentResource, setParentResource] = useState<string | null>(null);
   const [rawSubjects, setRawSubjects] = useState<Subject[]>([]);
   const [directGrants, setDirectGrants] = useState<Grant[]>([]);
   const [positionGrants, setPositionGrants] = useState<Grant[]>([]);
   const [departmentGrants, setDepartmentGrants] = useState<Grant[]>([]);
-  const [ancestorResourceKeys, setAncestorResourceKeys] = useState<string[]>(
-    []
-  );
-  const [systemAdminIds, setSystemAdminIds] = useState<Set<number>>(new Set());
+  const [ancestorResourceKeys, setAncestorResourceKeys] = useState<string[]>([]);
   const [maxRoleKey, setMaxRoleKey] = useState("admin");
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const systemAdminIds = useSystemAdminIds();
+  const scope = usePermissionScope(selectedResource);
 
   const topResources = useMemo(
     () => resources.filter((r) => !r.key.includes(".")),
@@ -41,9 +41,9 @@ export function usePermissionsTab(
     function findChildren(nodes: ResourceItem[], targetKey: string): ResourceItem[] {
       for (const n of nodes) {
         if (n.key === targetKey) return n.children || [];
-        if (n.children) {
-          const found = findChildren(n.children, targetKey);
-          if (found.length) return found;
+        if (n.children?.length) {
+          const f = findChildren(n.children, targetKey);
+          if (f.length) return f;
         }
       }
       return [];
@@ -65,6 +65,7 @@ export function usePermissionsTab(
       const params = new URLSearchParams();
       params.set("subjectType", subjectType);
       if (selectedResource) params.set("resourceKey", selectedResource);
+      if (scope.scopeId !== undefined) params.set("scopeId", scope.scopeId ?? "");
 
       const res = await fetch(
         `/api/admin/permission-grants?${params.toString()}`
@@ -86,27 +87,14 @@ export function usePermissionsTab(
     } finally {
       setLoading(false);
     }
-  }, [subjectType, selectedResource, showToast]);
+  }, [subjectType, selectedResource, showToast, scope.scopeId]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
-  useEffect(() => {
-    fetch("/api/admin/users")
-      .then((r) => r.json())
-      .then((data) => {
-        const users = (data.users || []) as Array<{
-          id: number;
-          isWorkListAdmin?: boolean;
-        }>;
-        const ids = users
-          .filter((u) => u.isWorkListAdmin)
-          .map((u) => u.id);
-        setSystemAdminIds(new Set(ids));
-      })
-      .catch(() => {});
-  }, []);
+  // Reset scope when resource changes
+  useEffect(() => { scope.resetScope(); }, [selectedResource]); // eslint-disable-line
 
   const getPermissionState = useCallback(
     (subject: Subject, roleKey: string) =>
@@ -122,13 +110,8 @@ export function usePermissionsTab(
         subjectType
       ),
     [
-      selectedResource,
-      ancestorResourceKeys,
-      systemAdminIds,
-      directGrants,
-      positionGrants,
-      departmentGrants,
-      subjectType,
+      selectedResource, ancestorResourceKeys, systemAdminIds,
+      directGrants, positionGrants, departmentGrants, subjectType,
     ]
   );
 
@@ -159,6 +142,7 @@ export function usePermissionsTab(
           resourceKey: selectedResource,
           roleKey,
           value: !state.has,
+          scopeId: scope.scopeId ?? null,
         }),
       });
       if (res.ok) {
@@ -202,35 +186,17 @@ export function usePermissionsTab(
   );
 
   return {
-    subjectType,
-    setSubjectType,
-    selectedResource,
-    setSelectedResource,
-    parentResource,
-    setParentResource,
-    subjects: filters.subjects,
-    loading,
-    l1Dept: filters.l1Dept,
-    setL1Dept: filters.setL1Dept,
-    l2Dept: filters.l2Dept,
-    setL2Dept: filters.setL2Dept,
-    l3Dept: filters.l3Dept,
-    setL3Dept: filters.setL3Dept,
-    l1Options: filters.l1Options,
-    l2Options: filters.l2Options,
-    l3Options: filters.l3Options,
-    nameSearch: filters.nameSearch,
-    setNameSearch: filters.setNameSearch,
-    expandedRows: filters.expandedRows,
-    toggleRowExpand: filters.toggleRowExpand,
-    topResources,
-    childResources,
-    roles,
-    getPermissionState,
-    toggleGrant,
-    maxRoleKey,
-    isSystemAdmin,
-    updateMaxRole,
-    systemAdminIds,
+    subjectType, setSubjectType, selectedResource, setSelectedResource,
+    parentResource, setParentResource,
+    subjects: filters.subjects, loading,
+    l1Dept: filters.l1Dept, setL1Dept: filters.setL1Dept,
+    l2Dept: filters.l2Dept, setL2Dept: filters.setL2Dept,
+    l3Dept: filters.l3Dept, setL3Dept: filters.setL3Dept,
+    l1Options: filters.l1Options, l2Options: filters.l2Options, l3Options: filters.l3Options,
+    nameSearch: filters.nameSearch, setNameSearch: filters.setNameSearch,
+    expandedRows: filters.expandedRows, toggleRowExpand: filters.toggleRowExpand,
+    topResources, childResources, roles,
+    getPermissionState, toggleGrant,
+    maxRoleKey, isSystemAdmin, updateMaxRole, systemAdminIds, scope,
   };
 }

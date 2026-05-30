@@ -23,12 +23,13 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const subjectType = (searchParams.get("subjectType") || "user") as SubjectType;
   const resourceKey = searchParams.get("resourceKey") || undefined;
+  const scopeId = searchParams.get("scopeId") || undefined;
 
   if (!isSysAdmin && resourceKey && !manageableKeys.has(resourceKey)) {
     return NextResponse.json({ error: "无权限管理该资源" }, { status: 403 });
   }
 
-  const data = await getPermissionGrantData(subjectType, resourceKey);
+  const data = await getPermissionGrantData(subjectType, resourceKey, scopeId ?? null);
 
   // 附上当前资源及祖先的 maxRoleKey
   let maxRoleKey = "admin";
@@ -47,7 +48,7 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { subjectType, subjectId, resourceKey, roleKey, value } = body;
+  const { subjectType, subjectId, resourceKey, roleKey, value, scopeId } = body;
 
   if (
     !subjectType ||
@@ -100,6 +101,7 @@ export async function PUT(request: Request) {
       value,
       {
         actorUserId: payload.userId,
+        scopeId: scopeId ?? null,
       }
     );
     return NextResponse.json({ success: true });

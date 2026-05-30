@@ -20,6 +20,7 @@ export interface Grant {
   subjectId: number;
   resourceKey: string;
   roleKey: string;
+  scopeId: string | null;
 }
 
 export interface PermissionState {

@@ -20,7 +20,8 @@ export interface PermissionGrantData {
 
 export async function getPermissionGrantData(
   subjectType: SubjectType,
-  resourceKey: string | undefined
+  resourceKey: string | undefined,
+  scopeId?: string | null,
 ): Promise<PermissionGrantData> {
   let subjects: SubjectInfo[] = [];
   if (subjectType === "user") {
@@ -31,14 +32,14 @@ export async function getPermissionGrantData(
     subjects = await getDepartmentSubjects();
   }
 
-  const directGrants = await getGrants(subjectType);
+  const directGrants = await getGrants(subjectType, undefined, scopeId);
 
   let positionGrants: Awaited<ReturnType<typeof getGrants>> = [];
   let departmentGrants: Awaited<ReturnType<typeof getGrants>> = [];
 
   if (subjectType === "user") {
-    positionGrants = await getGrants("position");
-    departmentGrants = await getGrants("department");
+    positionGrants = await getGrants("position", undefined, scopeId);
+    departmentGrants = await getGrants("department", undefined, scopeId);
   }
 
   let ancestorResourceIds: number[] = [];

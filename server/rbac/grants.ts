@@ -9,6 +9,7 @@ interface GrantItem {
   roleKey: string;
   resourceId: number;
   roleId: number;
+  scopeId: string | null;
 }
 
 export async function setGrant(
@@ -91,38 +92,59 @@ export async function setGrant(
 
 export async function getGrants(
   subjectType: SubjectType,
-  subjectId?: number
+  subjectId?: number,
+  scopeId?: string | null,
 ): Promise<GrantItem[]> {
-  let rows: Array<{
+  type GrantRow = {
     userId?: number;
     positionId?: number;
     departmentId?: number;
     resourceId: number;
     roleId: number;
+    scopeId: string | null;
     resource: { key: string };
     role: { key: string };
-  }> = [];
+  };
 
-  const include = { resource: { select: { key: true } }, role: { select: { key: true } } };
+  let rows: GrantRow[] = [];
+
+  const include = {
+    resource: { select: { key: true } },
+    role: { select: { key: true } },
+  };
+
+  function buildWhere(base: Record<string, unknown>) {
+    const where: Record<string, unknown> = { ...base };
+    if (subjectId !== undefined) {
+      where[subjectType === "user" ? "userId" : subjectType === "position" ? "positionId" : "departmentId"] = subjectId;
+    }
+    if (scopeId !== undefined) {
+      // null → only global grants; a value → global + exact match
+      where.OR = scopeId === null
+        ? [{ scopeId: null }]
+        : [{ scopeId: null }, { scopeId }];
+    }
+    return where;
+  }
 
   if (subjectType === "user") {
     rows = await prisma.userResourceRole.findMany({
-      where: subjectId !== undefined ? { userId: subjectId } : {},
+      where: buildWhere(subjectId !== undefined ? { userId: subjectId } : {}),
       include,
     });
   } else if (subjectType === "position") {
     rows = await prisma.positionResourceRole.findMany({
-      where: subjectId !== undefined ? { positionId: subjectId } : {},
+      where: buildWhere(subjectId !== undefined ? { positionId: subjectId } : {}),
       include,
     });
   } else if (subjectType === "department") {
     rows = await prisma.departmentResourceRole.findMany({
-      where: subjectId !== undefined ? { departmentId: subjectId } : {},
+      where: buildWhere(subjectId !== undefined ? { departmentId: subjectId } : {}),
       include,
     });
   }
 
-  const getSubjectId = (r: typeof rows[number]): number => {
+  const getSubjectId = (r: GrantRow): number => {
     if (subjectType === "user") return r.userId!;
     if (subjectType === "position") return r.positionId!;
     return r.departmentId!;
@@ -134,5 +156,6 @@ export async function getGrants(
     roleKey: r.role.key,
     resourceId: r.resourceId,
     roleId: r.roleId,
+    scopeId: r.scopeId,
   }));
 }
