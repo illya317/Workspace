@@ -6,7 +6,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ---
 
-# HR 项目架构
+# Workspace 项目架构
 
 ## 技术栈
 

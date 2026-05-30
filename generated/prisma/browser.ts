@@ -18,6 +18,12 @@ export { Prisma }
 export * as $Enums from './enums'
 export * from './enums';
 /**
+ * Model AgentProposal
+ * Agent 待确认变更记录（审计用）
+ * Agent 不能直接写库，所有写入先创建 proposal，用户确认后才执行。
+ */
+export type AgentProposal = Prisma.AgentProposalModel
+/**
  * Model User
  * 用户与认证
  */

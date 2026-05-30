@@ -384,6 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  AgentProposal: 'AgentProposal',
   User: 'User',
   Resource: 'Resource',
   Role: 'Role',
@@ -447,10 +448,84 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeAnnualBalance" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "project" | "employeeProject" | "positionDescription" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "workItem" | "workParticipant"
+    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeAnnualBalance" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "project" | "employeeProject" | "positionDescription" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "workItem" | "workParticipant"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    AgentProposal: {
+      payload: Prisma.$AgentProposalPayload<ExtArgs>
+      fields: Prisma.AgentProposalFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AgentProposalFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProposalPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AgentProposalFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProposalPayload>
+        }
+        findFirst: {
+          args: Prisma.AgentProposalFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProposalPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AgentProposalFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProposalPayload>
+        }
+        findMany: {
+          args: Prisma.AgentProposalFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProposalPayload>[]
+        }
+        create: {
+          args: Prisma.AgentProposalCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProposalPayload>
+        }
+        createMany: {
+          args: Prisma.AgentProposalCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AgentProposalCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProposalPayload>[]
+        }
+        delete: {
+          args: Prisma.AgentProposalDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProposalPayload>
+        }
+        update: {
+          args: Prisma.AgentProposalUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProposalPayload>
+        }
+        deleteMany: {
+          args: Prisma.AgentProposalDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AgentProposalUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AgentProposalUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProposalPayload>[]
+        }
+        upsert: {
+          args: Prisma.AgentProposalUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProposalPayload>
+        }
+        aggregate: {
+          args: Prisma.AgentProposalAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAgentProposal>
+        }
+        groupBy: {
+          args: Prisma.AgentProposalGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentProposalGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AgentProposalCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentProposalCountAggregateOutputType> | number
+        }
+      }
+    }
     User: {
       payload: Prisma.$UserPayload<ExtArgs>
       fields: Prisma.UserFieldRefs
@@ -4039,6 +4114,23 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const AgentProposalScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  actionKey: 'actionKey',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  payloadJson: 'payloadJson',
+  diffJson: 'diffJson',
+  resultJson: 'resultJson',
+  createdAt: 'createdAt',
+  confirmedAt: 'confirmedAt'
+} as const
+
+export type AgentProposalScalarFieldEnum = (typeof AgentProposalScalarFieldEnum)[keyof typeof AgentProposalScalarFieldEnum]
+
+
 export const UserScalarFieldEnum = {
   id: 'id',
   wxUserId: 'wxUserId',
@@ -4952,16 +5044,16 @@ export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 
 
 
 /**
- * Reference to a field of type 'Boolean'
+ * Reference to a field of type 'DateTime'
  */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
     
 
 
 /**
- * Reference to a field of type 'DateTime'
+ * Reference to a field of type 'Boolean'
  */
-export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -5081,6 +5173,7 @@ export type PrismaClientOptions = ({
   queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
+  agentProposal?: Prisma.AgentProposalOmit
   user?: Prisma.UserOmit
   resource?: Prisma.ResourceOmit
   role?: Prisma.RoleOmit

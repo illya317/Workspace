@@ -8,6 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/AgentProposal'
 export type * from './models/User'
 export type * from './models/Resource'
 export type * from './models/Role'

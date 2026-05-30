@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  AgentProposal: 'AgentProposal',
   User: 'User',
   Resource: 'Resource',
   Role: 'Role',
@@ -112,6 +113,23 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const AgentProposalScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  status: 'status',
+  actionKey: 'actionKey',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  payloadJson: 'payloadJson',
+  diffJson: 'diffJson',
+  resultJson: 'resultJson',
+  createdAt: 'createdAt',
+  confirmedAt: 'confirmedAt'
+} as const
+
+export type AgentProposalScalarFieldEnum = (typeof AgentProposalScalarFieldEnum)[keyof typeof AgentProposalScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
