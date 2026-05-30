@@ -145,14 +145,16 @@ export function useAgentSession() {
     setMood("idle");
   }, [addMessage]);
 
+  const historyRef = useRef<SavedConversation[]>(loadHistory());
+
   const clearMessages = useCallback(() => {
-    // 保存当前对话到历史
     if (messages.length > 0) {
       const title = messages.find((m) => m.role === "user")?.content.slice(0, 30) || "空对话";
       const conv: SavedConversation = { id: nextId(), title, messages: [...messages], createdAt: Date.now() };
-      const list = [conv, ...loadHistory()];
-      saveHistory(list);
-      setSavedConversations(list);
+      const updated = [conv, ...historyRef.current].slice(0, 50);
+      historyRef.current = updated;
+      saveHistory(updated);
+      setSavedConversations(updated);
     }
     setMessages([]);
     setDrawerMsg(null);
