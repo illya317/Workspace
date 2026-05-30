@@ -1,42 +1,41 @@
 /// 员工基础信息
 model Employee {
-  id            Int               @id @default(autoincrement())
-  employeeId    String            @unique
-  idNumber      String?           @unique
-  otherId       String?
-  name          String
-  alias         String?
-  gender        Boolean?
-  birthDate     String?
-  ethnicity     String?
-  hometown      String?
-  politics      String?
-  education     String?
-  title         String?
-  school        String?
-  major         String?
-  phone         String?
-  workStartDate String?
-  userId        Int?
-  user          User?             @relation("EmployeeUser", fields: [userId], references: [id])
-  employments          Employment[]
-  positions            EDP[]
-  projects             EmployeeProject[]
-  financeShipments     FinanceShipment[]
-  financeSalesSalaries FinanceSalesSalary[]
+  id                     Int                     @id @default(autoincrement())
+  employeeId             String                  @unique
+  idNumber               String?                 @unique
+  otherId                String?
+  name                   String
+  alias                  String?
+  gender                 Boolean?
+  birthDate              String?
+  ethnicity              String?
+  hometown               String?
+  politics               String?
+  education              String?
+  title                  String?
+  school                 String?
+  major                  String?
+  phone                  String?
+  workStartDate          String?
+  userId                 Int?
+  editedBy               Int?
+  editedAt               DateTime?
+  version                Int                     @default(1)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @default(now()) @updatedAt
+  user                   User?                   @relation("EmployeeUser", fields: [userId], references: [id])
+  positions              EDP[]
+  projects               EmployeeProject[]
+  employments            Employment[]
+  financeSalesSalaries   FinanceSalesSalary[]
+  financeShipments       FinanceShipment[]
   financeWorkshopReports FinanceWorkshopReport[]
-  editedBy             Int?
-  editedAt      DateTime?
-  version       Int               @default(1)
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @default(now()) @updatedAt
 }
 
 /// 员工雇佣信息（在职状态、入职/离职日期等事实字段）
 model Employment {
   id             Int       @id @default(autoincrement())
   employeeId     Int
-  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   isActive       Boolean   @default(true)
   currentCompany String?
   joinDate       String?
@@ -48,6 +47,7 @@ model Employment {
   editedBy       Int?
   editedAt       DateTime?
   version        Int       @default(1)
+  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@index([employeeId])
   @@index([isActive])
@@ -67,13 +67,13 @@ model Company {
   legalPerson       String?
   queryGroup        Int?
   sortOrder         Int               @default(0)
-  parentOfRelations CompanyRelation[] @relation("ParentCompany")
-  childOfRelations  CompanyRelation[] @relation("ChildCompany")
   editedBy          Int?
   editedAt          DateTime?
   version           Int               @default(1)
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @default(now()) @updatedAt
+  childOfRelations  CompanyRelation[] @relation("ChildCompany")
+  parentOfRelations CompanyRelation[] @relation("ParentCompany")
 }
 
 /// 公司间持股关系
@@ -81,12 +81,12 @@ model CompanyRelation {
   id             Int      @id @default(autoincrement())
   parentId       Int
   childId        Int
-  parent         Company  @relation("ParentCompany", fields: [parentId], references: [id], onDelete: Cascade)
-  child          Company  @relation("ChildCompany", fields: [childId], references: [id], onDelete: Cascade)
   shareRatio     Float?
   isConsolidated Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
+  child          Company  @relation("ChildCompany", fields: [childId], references: [id], onDelete: Cascade)
+  parent         Company  @relation("ParentCompany", fields: [parentId], references: [id], onDelete: Cascade)
 
   @@unique([parentId, childId])
 }
@@ -99,17 +99,17 @@ model Department {
   alias         String?
   level         Int                      @default(1)
   parentId      Int?
-  parent        Department?              @relation("DeptHierarchy", fields: [parentId], references: [id])
-  children      Department[]             @relation("DeptHierarchy")
   managerUserId Int?
-  manager       User?                    @relation("DepartmentManager", fields: [managerUserId], references: [id])
-  positions     Position[]
-  edps          EDP[]
-  resourceRoles DepartmentResourceRole[]
   endDate       DateTime?
   editedBy      Int?
   editedAt      DateTime?
   version       Int                      @default(1)
+  manager       User?                    @relation("DepartmentManager", fields: [managerUserId], references: [id])
+  parent        Department?              @relation("DeptHierarchy", fields: [parentId], references: [id])
+  children      Department[]             @relation("DeptHierarchy")
+  resourceRoles DepartmentResourceRole[]
+  edps          EDP[]
+  positions     Position[]
 
   @@index([code])
   @@index([name])
@@ -117,21 +117,21 @@ model Department {
 
 /// 岗位定义
 model Position {
-  id                    Int                    @id @default(autoincrement())
-  code                  String
-  alias                 String?
-  name                  String
-  departmentId          Int?
-  department            Department?            @relation(fields: [departmentId], references: [id], onDelete: SetNull)
-  positionDescriptionId Int?
-  positionDescription   PositionDescription?   @relation(fields: [positionDescriptionId], references: [id], onDelete: SetNull)
-  edps                   EDP[]
-  resourceRoles          PositionResourceRole[]
-  financeWorkshopReports FinanceWorkshopReport[]
+  id                     Int                     @id @default(autoincrement())
+  code                   String
+  alias                  String?
+  name                   String
+  departmentId           Int?
+  positionDescriptionId  Int?
   endDate                DateTime?
-  editedBy              Int?
-  editedAt              DateTime?
-  version               Int                    @default(1)
+  editedBy               Int?
+  editedAt               DateTime?
+  version                Int                     @default(1)
+  edps                   EDP[]
+  financeWorkshopReports FinanceWorkshopReport[]
+  positionDescription    PositionDescription?    @relation(fields: [positionDescriptionId], references: [id])
+  department             Department?             @relation(fields: [departmentId], references: [id])
+  resourceRoles          PositionResourceRole[]
 
   @@index([code])
   @@index([name])
@@ -142,11 +142,8 @@ model Position {
 model EDP {
   id            Int         @id @default(autoincrement())
   employeeId    Int
-  employee      Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   departmentId  Int?
-  department    Department? @relation(fields: [departmentId], references: [id])
   positionId    Int?
-  position      Position?   @relation(fields: [positionId], references: [id])
   isPrimary     Boolean     @default(false)
   startDate     String?
   endDate       String?
@@ -160,6 +157,9 @@ model EDP {
   editedBy      Int?
   editedAt      DateTime?
   version       Int         @default(1)
+  position      Position?   @relation(fields: [positionId], references: [id])
+  department    Department? @relation(fields: [departmentId], references: [id])
+  employee      Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@index([employeeId])
   @@index([departmentId])
@@ -174,21 +174,19 @@ model Project {
   type        String            @default("project")
   description String?
   endDate     DateTime?
-  employees   EmployeeProject[]
   editedBy    Int?
   editedAt    DateTime?
   version     Int               @default(1)
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @default(now()) @updatedAt
+  employees   EmployeeProject[]
 }
 
 /// 员工-项目关联
 model EmployeeProject {
   id         Int       @id @default(autoincrement())
   employeeId Int
-  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   projectId  Int
-  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
   role       String?
   startDate  String?
   endDate    String?
@@ -197,6 +195,8 @@ model EmployeeProject {
   version    Int       @default(1)
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @default(now()) @updatedAt
+  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@unique([employeeId, projectId])
 }
@@ -215,11 +215,11 @@ model PositionDescription {
   effectiveDate   String?
   sourceFile      String
   details         String?
-  positions       Position[]
   editedBy        Int?
   editedAt        DateTime?
   createdAt       DateTime   @default(now())
   updatedAt       DateTime   @default(now()) @updatedAt
+  positions       Position[]
 }
 
 /// 实体编辑历史（版本快照）
@@ -230,9 +230,9 @@ model EditHistory {
   version    Int
   dataJson   String
   editedBy   Int
-  editor     User     @relation("EditHistoryEditor", fields: [editedBy], references: [id])
-  tag        String?
   createdAt  DateTime @default(now())
+  tag        String?
+  editor     User     @relation("EditHistoryEditor", fields: [editedBy], references: [id])
 
   @@unique([entityType, entityId, version, tag])
 }

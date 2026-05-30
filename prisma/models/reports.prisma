@@ -10,9 +10,9 @@ model Report {
   editedBy   Int?
   editedAt   DateTime?
   version    Int             @default(1)
+  user       User?           @relation(fields: [userId], references: [id])
   history    ReportHistory[]
   items      ReportItem[]
-  user       User?           @relation(fields: [userId], references: [id])
 
   @@unique([userId, targetType, targetId, date])
 }
@@ -27,8 +27,8 @@ model ReportItem {
   nextGoal   String?
   sortOrder  Int
   workItemId Int?
-  workItem   WorkItem? @relation(fields: [workItemId], references: [id])
   report     Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  workItem   WorkItem? @relation(fields: [workItemId], references: [id])
 }
 
 /// 周报历史版本快照

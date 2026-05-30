@@ -11,8 +11,8 @@ model WorkItem {
   isPrivate    Boolean           @default(false)
   sortOrder    Int               @default(0)
   createdAt    DateTime          @default(now())
-  participants WorkParticipant[]
   reportItems  ReportItem[]
+  participants WorkParticipant[]
 
   @@index([targetType, targetId, category])
 }

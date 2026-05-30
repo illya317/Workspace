@@ -13,11 +13,11 @@ model StockRawMaterial {
   remark          String?
   companyCode     String?
   editedBy        Int?
-  editor          User?     @relation("StockRawMaterialEditor", fields: [editedBy], references: [id])
   editedAt        DateTime?
   version         Int       @default(1)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @default(now()) @updatedAt
+  editor          User?     @relation("StockRawMaterialEditor", fields: [editedBy], references: [id])
 }
 
 /// 包装材料库存
@@ -37,11 +37,11 @@ model StockPackaging {
   remark          String?
   companyCode     String?
   editedBy        Int?
-  editor          User?     @relation("StockPackagingEditor", fields: [editedBy], references: [id])
   editedAt        DateTime?
   version         Int       @default(1)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @default(now()) @updatedAt
+  editor          User?     @relation("StockPackagingEditor", fields: [editedBy], references: [id])
 }
 
 /// 成品库存
@@ -59,11 +59,11 @@ model StockFinishedGoods {
   remark          String?
   companyCode     String?
   editedBy        Int?
-  editor          User?     @relation("StockFinishedGoodsEditor", fields: [editedBy], references: [id])
   editedAt        DateTime?
   version         Int       @default(1)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @default(now()) @updatedAt
+  editor          User?     @relation("StockFinishedGoodsEditor", fields: [editedBy], references: [id])
 }
 
 /// 批次信息
@@ -90,8 +90,8 @@ model StockOperation {
   docNo      String?
   reason     String?
   operatorId Int?
-  editor     User?    @relation("StockOperationEditor", fields: [operatorId], references: [id])
   createdAt  DateTime @default(now())
+  editor     User?    @relation("StockOperationEditor", fields: [operatorId], references: [id])
 }
 
 /// 成品退货记录

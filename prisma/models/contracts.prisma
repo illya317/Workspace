@@ -17,11 +17,11 @@ model Contract {
   location       String?
   remark         String?
   editedBy       Int?
-  editor         User?     @relation("ContractEditor", fields: [editedBy], references: [id])
   editedAt       DateTime?
   version        Int       @default(1)
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @default(now()) @updatedAt
+  editor         User?     @relation("ContractEditor", fields: [editedBy], references: [id])
 
   @@index([endDate])
   @@index([status])
