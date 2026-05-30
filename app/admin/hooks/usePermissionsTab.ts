@@ -38,6 +38,10 @@ export function usePermissionsTab(
   const systemAdminIds = useSystemAdminIds();
 
   const roles = useMemo(() => {
+    // work.task / work.report: only admin is meaningful (data access via business rules)
+    if (selectedResource === "work.task" || selectedResource === "work.report") {
+      return [{ key: "admin", ...(ROLE_META.admin || { name: "管理", color: "purple" }) }];
+    }
     // DB-driven: find effectiveMaxRoleKey from resource tree (not hardcoded fallback)
     let maxRole: string = "admin";
     if (selectedResource) {

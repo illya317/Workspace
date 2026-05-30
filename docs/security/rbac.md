@@ -201,11 +201,13 @@ ProjectWorkAssignee(projectId, userId, kind: "task"|"report")
 ### RBAC 仅保留粗粒度
 
 ```
-work.access      → 进入工作模块
-work.task.admin  → 管理所有工作清单
+work.access       → 进入工作模块
+work.task.admin   → 管理所有工作清单
 work.report.admin → 管理所有工作汇报
 ```
 
+权限矩阵中 work.task 和 work.report **只开放 management 列**，不显示 access/write/delete。
+数据访问（谁能看/写某个部门或项目）由业务规则决定：成员关系 + 指派人表。
 不再对每个部门/项目做 scope 授权。
 
 ## 版本历史
