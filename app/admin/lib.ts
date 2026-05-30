@@ -67,7 +67,7 @@ export function computePermissionState(
       g.subjectId === subject.id &&
       (g.resourceKey === selectedResource ||
         ancestorResourceKeys.includes(g.resourceKey)) &&
-      (g.roleKey === roleKey || g.roleKey === "admin")
+      g.roleKey === roleKey
   );
   if (directExact) {
     return {
@@ -84,7 +84,7 @@ export function computePermissionState(
         extra.positionIds!.includes(g.subjectId) &&
         (g.resourceKey === selectedResource ||
           ancestorResourceKeys.includes(g.resourceKey)) &&
-        (g.roleKey === roleKey || g.roleKey === "admin")
+        g.roleKey === roleKey
     );
     if (posExact) return { has: true, source: "position" };
   }
@@ -95,7 +95,7 @@ export function computePermissionState(
         extra.departmentIds!.includes(g.subjectId) &&
         (g.resourceKey === selectedResource ||
           ancestorResourceKeys.includes(g.resourceKey)) &&
-        (g.roleKey === roleKey || g.roleKey === "admin")
+        g.roleKey === roleKey
     );
     if (deptExact) return { has: true, source: "department" };
   }
