@@ -77,9 +77,9 @@ export default function AgentPanel({
             <div className="text-sm font-semibold text-gray-800">小助手</div>
             <div className="text-xs text-gray-500">{moodLabels[mood]}</div>
           </div>
-          <button onClick={onClear} className="rounded-lg p-1.5 text-gray-300 hover:text-gray-500 transition" title="清空对话">
+          <button onClick={onClear} className="rounded-lg p-1.5 text-gray-300 hover:text-gray-500 transition" title="新对话">
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
           </button>
           <button onClick={onClose} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition">
