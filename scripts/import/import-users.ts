@@ -1,6 +1,7 @@
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../../generated/prisma/client";
 import * as XLSX from "xlsx";
+import * as path from "path";
 
 const dbPath = process.env.DATABASE_URL?.replace("file:", "") ?? "../../prisma/dev.db";
 
@@ -12,7 +13,7 @@ const prisma = new PrismaClient({ adapter });
 // ==========================================
 const CONFIG = {
   // Excel 文件路径（也可通过命令行参数覆盖：npx tsx scripts/import-users.ts /path/to/file.xlsx）
-  excelPath: process.argv[2] || "/Users/koito/Desktop/合并花名册.xlsx",
+  excelPath: process.argv[2] || process.env.USER_IMPORT_EXCEL || path.join(process.cwd(), "prisma/seed-data/合并花名册.xlsx"),
 
   // 公司名统一规则：
   // specialCompanies 列表中的公司保持原名，其他统一为 defaultCompany

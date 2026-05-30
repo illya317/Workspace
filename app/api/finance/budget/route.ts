@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceAccess } from "@/lib/with-auth";
+import { withFinanceAccess, withFinanceWrite } from "@/lib/with-auth";
 import { readDeptBudget, readRdBudget, loadDeptBudgetFromDb, loadRdBudgetFromDb, importDeptBudgetToDb, importRdBudgetToDb } from "@/server/services/finance/budget-data";
 
 export const GET = withFinanceAccess(async (request: Request) => {
@@ -23,7 +23,7 @@ export const GET = withFinanceAccess(async (request: Request) => {
   return NextResponse.json({ deptBudget, rdBudget });
 });
 
-export const POST = withFinanceAccess(async (request: Request) => {
+export const POST = withFinanceWrite(async (request: Request) => {
   const { year, companyCode } = await request.json();
   if (!year || isNaN(parseInt(year))) {
     return NextResponse.json({ error: "year 为必填" }, { status: 400 });
