@@ -28,10 +28,7 @@ async function upsertResource(
 async function main() {
   // ── 顶层根资源 ──
   await upsertResource("system", "系统管理");
-  await upsertResource("system.user", "用户管理", "system");
-  await upsertResource("system.permission", "权限管理", "system");
   await upsertResource("system.audit", "审计日志", "system");
-  await upsertResource("system.config", "系统配置", "system");
 
   await upsertResource("people", "人事管理");
   await upsertResource("people.roster", "人事基础资料", "people");

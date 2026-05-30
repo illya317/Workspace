@@ -29,10 +29,7 @@
 
 ```
 system              admin   系统管理
-  system.user       admin   用户管理
-  system.permission admin   权限管理
   system.audit      admin   审计日志
-  system.config     admin   系统配置
 
 people              admin   人事管理
   people.roster     admin   人事基础资料
