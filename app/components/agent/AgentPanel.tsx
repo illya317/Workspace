@@ -53,6 +53,25 @@ export default function AgentPanel({
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const historyRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef<{ sx: number; sy: number; px: number; py: number } | null>(null);
+  const [panelPos, setPanelPos] = useState<{ x: number; y: number } | null>(null);
+
+  // 拖动 header 移动面板
+  function onHeaderDown(e: React.PointerEvent) {
+    const rect = (e.currentTarget as HTMLElement).closest("[data-panel]")?.getBoundingClientRect();
+    if (!rect) return;
+    dragRef.current = { sx: e.clientX, sy: e.clientY, px: rect.left, py: rect.top };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }
+  function onHeaderMove(e: React.PointerEvent) {
+    if (!dragRef.current) return;
+    const dx = e.clientX - dragRef.current.sx;
+    const dy = e.clientY - dragRef.current.sy;
+    const x = Math.max(0, Math.min(window.innerWidth - 380, dragRef.current.px + dx));
+    const y = Math.max(0, Math.min(window.innerHeight - 100, dragRef.current.py + dy));
+    setPanelPos({ x, y });
+  }
+  function onHeaderUp() { dragRef.current = null; }
 
   // 点击外部关闭历史下拉
   useEffect(() => {
@@ -85,11 +104,20 @@ export default function AgentPanel({
   return (
     <>
       <div
+        data-panel
         className="fixed z-50 flex flex-col bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
-        style={{ right: 24, bottom: 96, width: 380, maxHeight: "70vh" }}
+        style={panelPos
+          ? { left: panelPos.x, top: panelPos.y, width: 380, maxHeight: "70vh" }
+          : { right: 24, bottom: 96, width: 380, maxHeight: "70vh" }
+        }
       >
-        {/* Header */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b bg-gradient-to-r from-emerald-50 to-white">
+        {/* Header — 可拖动 */}
+        <div
+          className="flex items-center gap-3 px-4 py-3 border-b bg-gradient-to-r from-emerald-50 to-white cursor-grab active:cursor-grabbing select-none"
+          onPointerDown={onHeaderDown}
+          onPointerMove={onHeaderMove}
+          onPointerUp={onHeaderUp}
+        >
           <AgentAvatar mood={mood} size={32} />
           <div className="flex-1">
             <div className="text-sm font-semibold text-gray-800">小助手</div>
