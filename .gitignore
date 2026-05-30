@@ -66,6 +66,9 @@ ops/server.env.sh
 # Generated artifacts
 /generated/
 
+# Agent worktrees
+/.claude/
+
 # Planning files (local working memory)
 /task_plan.md
 /findings.md
