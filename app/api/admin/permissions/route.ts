@@ -68,11 +68,11 @@ export async function GET(request: Request) {
     ? new Set(allResources.map((r) => r.key))
     : manageableKeys;
 
-  // Count distinct users per resource
+  // Count distinct users with any grant per resource (not just access)
   const countMap = new Map<number, number>();
   for (const r of allResources) {
     const rows = await prisma.userResourceRole.findMany({
-      where: { resourceId: r.id, role: { key: "access" }, scopeId: null },
+      where: { resourceId: r.id, scopeId: null },
       select: { userId: true }, distinct: ["userId"],
     });
     countMap.set(r.id, rows.length);
