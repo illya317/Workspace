@@ -88,7 +88,14 @@ export const MODULES: ModuleDef[] = [
       { key: "contracts", label: "合同台账", desc: "合同录入、查询、到期预警", href: "/contracts", requiredPerm: "canAccessContract" },
     ],
   },
-  { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple" },
+  { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple",
+    children: [
+      { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions", requiredPerm: undefined },
+      { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company", requiredPerm: undefined },
+      { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense", requiredPerm: undefined },
+      { key: "api-guide", label: "API 接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide", requiredPerm: undefined },
+    ],
+  },
   { key: "finance", label: "财务管理", desc: "总账、凭证、财务报表、预算、分析", href: "/finance", icon: icons.finance, color: "amber", requiredPerm: "canAccessFinance",
     children: [
       { key: "ledger", label: "总账基础", desc: "科目设置、凭证明细、余额表、期间管理", href: "/finance/ledger", requiredPerm: "canAccessFinanceLedger" },
