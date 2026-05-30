@@ -12,17 +12,22 @@ export async function GET(request: Request) {
   const targetType = searchParams.get("targetType") || undefined;
   const targetIds = searchParams.get("targetIds") || undefined;
 
-  // Batch 5: scoped access — resolve accessible targets, default to own reports
+  // Batch 5.1: scoped access with explicit denied target IDs
   let qType: string;
   let qIds: string;
+  let denied: number[] = [];
   if (targetType && targetIds) {
     const ids = targetIds.split(",").map(Number);
     const checks = await Promise.all(ids.map(async (id) => ({
       id, allowed: await canAccessTarget(payload.userId, targetType, id),
     })));
     const accessible = checks.filter((r) => r.allowed).map((r) => r.id);
+    denied = checks.filter((r) => !r.allowed).map((r) => r.id);
     if (accessible.length === 0) {
-      return NextResponse.json({ error: "无权限访问该目标" }, { status: 403 });
+      return NextResponse.json(
+        { error: "无权限访问该目标", deniedTargetIds: denied },
+        { status: 403 },
+      );
     }
     qType = targetType;
     qIds = accessible.join(",");
@@ -32,8 +37,8 @@ export async function GET(request: Request) {
   }
 
   const reports = await listReports({ date, targetType: qType, targetIds: qIds });
-
-  return NextResponse.json({ reports });
+  const meta = denied.length > 0 ? { deniedTargetIds: denied } : {};
+  return NextResponse.json({ reports, ...meta });
 }
 
 export async function POST(request: Request) {
@@ -43,22 +48,13 @@ export async function POST(request: Request) {
   const body = await request.json();
 
   const {
-    taskName,
-    notes,
-    items,
-    date,
-    targetType,
-    targetId,
+    taskName, notes, items, date, targetType, targetId,
   } = body as {
     taskName: string;
     notes?: string;
     items: Array<{
-      category: string;
-      plan: string;
-      completion?: string;
-      nextGoal?: string;
-      sortOrder?: number;
-      workId?: number;
+      category: string; plan: string; completion?: string;
+      nextGoal?: string; sortOrder?: number; workId?: number;
     }>;
     date?: string;
     targetType?: string;
@@ -68,7 +64,6 @@ export async function POST(request: Request) {
   if (!items || items.length === 0) {
     return NextResponse.json({ error: "请填写至少一条工作项" }, { status: 400 });
   }
-
   if (!taskName) {
     return NextResponse.json({ error: "请填写任务名称" }, { status: 400 });
   }
@@ -83,29 +78,20 @@ export async function POST(request: Request) {
   }
 
   const reportDate = date ?? new Date().toISOString().slice(0, 10);
-
-  const allItems = await enrichWithRoutineItems(
-    [...items],
-    finalTargetType,
-    finalTargetId
-  );
+  const allItems = await enrichWithRoutineItems([...items], finalTargetType, finalTargetId);
 
   try {
-    // Batch 5: create with final (resolved) target, not original
     const report = await createReport({
-      userId: payload.userId,
-      taskName,
-      notes: notes || null,
-      date: reportDate,
-      targetType: finalTargetType,
-      targetId: finalTargetId,
-      items: allItems,
+      userId: payload.userId, taskName, notes: notes || null,
+      date: reportDate, targetType: finalTargetType, targetId: finalTargetId, items: allItems,
     });
-
     return NextResponse.json({ report });
   } catch (error: unknown) {
     if (isDuplicateReportError(error)) {
-      return NextResponse.json({ error: "该目标该时段已提交过报告，请使用更新功能" }, { status: 409 });
+      return NextResponse.json(
+        { error: "该目标该时段已提交过报告，请使用更新功能" },
+        { status: 409 },
+      );
     }
     throw error;
   }

@@ -49,13 +49,22 @@ export function computePermissionState(
   selectedResource: string | null,
   ancestorResourceKeys: string[],
   systemAdminIds: Set<number>,
+  bypassEnabled: boolean,
   directGrants: Grant[],
   positionGrants: Grant[],
   departmentGrants: Grant[],
   subjectType: SubjectType
 ): PermissionState {
+  // Batch 5.1: system.admin only bypasses business resources when toggle is ON
+  // system.* resources always show full access for system admins
   if (systemAdminIds.has(subject.id)) {
-    return { has: true, source: "system.admin" };
+    if (!selectedResource || selectedResource.startsWith("system.") || selectedResource === "system") {
+      return { has: true, source: "system.admin" };
+    }
+    if (bypassEnabled) {
+      return { has: true, source: "system.admin" };
+    }
+    // bypass OFF: fall through to normal grant checks for business resources
   }
 
   const extra = subject.extra;

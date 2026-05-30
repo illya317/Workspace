@@ -24,6 +24,7 @@ export function usePermissionsTab(
   const [ancestorResourceKeys, setAncestorResourceKeys] = useState<string[]>([]);
   const [maxRoleKey, setMaxRoleKey] = useState("admin");
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
+  const [bypassEnabled, setBypassEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const systemAdminIds = useSystemAdminIds();
@@ -79,6 +80,7 @@ export function usePermissionsTab(
         setAncestorResourceKeys(data.ancestorResourceKeys || []);
         setMaxRoleKey(data.maxRoleKey || "admin");
         setIsSystemAdmin(data.isSystemAdmin || false);
+        setBypassEnabled(data.systemAdminBusinessBypass !== false);
       } else {
         showToast("加载权限数据失败", "error");
       }
@@ -99,23 +101,21 @@ export function usePermissionsTab(
   const getPermissionState = useCallback(
     (subject: Subject, roleKey: string) =>
       computePermissionState(
-        subject,
-        roleKey,
-        selectedResource,
-        ancestorResourceKeys,
-        systemAdminIds,
-        directGrants,
-        positionGrants,
-        departmentGrants,
-        subjectType
+        subject, roleKey, selectedResource, ancestorResourceKeys,
+        systemAdminIds, bypassEnabled,
+        directGrants, positionGrants, departmentGrants, subjectType,
       ),
     [
-      selectedResource, ancestorResourceKeys, systemAdminIds,
+      selectedResource, ancestorResourceKeys, systemAdminIds, bypassEnabled,
       directGrants, positionGrants, departmentGrants, subjectType,
     ]
   );
 
   async function toggleGrant(subject: Subject, roleKey: string) {
+    if (!scope.isScopeValid) {
+      showToast("请先选择权限范围的具体部门或员工", "error");
+      return;
+    }
     if (subjectType === "user" && !subject.extra?.hasUser) {
       showToast("该员工未关联账号，无法授权", "error");
       return;

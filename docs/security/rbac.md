@@ -177,17 +177,18 @@ model DepartmentResourceRole {
 - 超过 maxRoleKey 的列显示灰色 `—`
 - 支持 scoped 资源（如 `work.report`）的范围选择器
 
-## Scoped 权限（Batch 5）
+## Scoped 权限（Batch 5 / 5.1）
 
 部分资源（当前仅 `work.report`）需要将权限限定到具体数据范围，而不仅仅是资源级。例如"编辑销售部的工作汇报"而非"编辑所有工作汇报"。
 
 ### scopeId 格式
 
-| scopeId | 含义 |
-|---------|------|
-| `null` | 全局（适用于该资源的所有数据） |
-| `department:<id>` | 限定到某个部门的汇报 |
-| `user:<id>` | 限定到某个用户的个人汇报 |
+| scopeId | 含义 | UI 暴露 |
+|---------|------|---------|
+| `null` | 全局（适用于该资源的所有数据） | ✓ 全部 |
+| `department:<id>` | 限定到某个部门的汇报 | ✓ 按部门 |
+| `project:<id>` | 限定到某个项目的汇报 | ✓ 按项目 |
+| `user:<id>` | 限定到某个用户的个人汇报 | 后端预留 |
 
 ### 判断逻辑
 
@@ -201,35 +202,54 @@ model DepartmentResourceRole {
 ### 隐式规则
 
 - 个人汇报（`user:<id>`）：当 `userId === id` 时，用户对本人的个人汇报有隐式 access/write 权限，无需额外授权。
-- 部门/项目/岗位汇报：必须通过 scoped grant 显式授权。
+- 部门/项目汇报：必须通过 scoped grant 显式授权。
+
+### 目标选择器
+
+`getUserTargets()` 合并两类目标：
+1. 成员制目标：用户所在部门、项目、岗位
+2. Scoped 授权目标：从 `work.report` grant 的 `scopeId` 解析出的 `department:<id>` 和 `project:<id>`
+3. 隐式目标：`user:<userId>`（本人的个人汇报）
+
+TargetSwitcher 显示 `按部门 / 按项目 / 按岗位 / 按个人`，根据可用数据动态展示。
 
 ### 后台 UI
 
 进入 `work.report` 时，矩阵上方显示范围选择器：
 
 ```
-权限范围：○ 全部  ○ 按部门  ○ 按个人
+权限范围：○ 全部  ○ 按部门  ○ 按项目
 ```
 
 - **全部**：管理全局授权（scopeId=null）
 - **按部门**：选择目标部门，管理该部门的 scoped 授权
-- **按个人**：搜索目标员工，管理该员工的 scoped 授权
+- **按项目**：选择目标项目，管理该项目的 scoped 授权
+- 未选择具体部门/项目时矩阵禁用，防止误授全局权限
 
 授权对象（员工/岗位/部门）不变，范围控制的是"被访问的汇报数据"，行控制的是"谁被授权"。
 
+### system.admin 矩阵显示
+
+`computePermissionState` 受 `systemAdminBusinessBypass` 开关影响：
+- ON：system.admin 在业务资源矩阵中显示全有
+- OFF：system.admin 仅在 `system.*` 资源显示全有，业务资源走正常 grant 检查
+
+### 权限边界
+
+- **work.report** vs **work.task**：工作汇报和工作清单是独立资源。`canAccessTarget` 接受 `resourceKey` 参数，汇报 API 用 `work.report`，工作清单 API 用 `work.task`。
+- workItem 导入：无 `work.task.access` 权限时，导入列表为空；历史 report item 只显示快照文本。
+
 ### API 影响
 
-- `GET/POST/PUT /api/reports`：使用 scoped 权限校验每个 target
+- `GET /api/reports`：逐个校验 targetIds，响应含 `deniedTargetIds`（部分拒绝时）
+- `POST /api/reports`：使用 resolved `finalTargetType/finalTargetId` 做校验和创建
 - `GET /api/admin/permission-grants?scopeId=department:12`：按 scope 筛选 grant
 - `PUT /api/admin/permission-grants`：body 新增 `scopeId` 字段
-
-### 边界
-
-- workItem 导入：无工作清单访问权限时，导入列表为空；历史 report item 只显示快照文本。
-- 仅 `work.report` 支持 scope；其他资源保持不变。
+- `GET /api/admin/permission-grants`：响应新增 `systemAdminBusinessBypass`
 
 ## 版本历史
 
-- v2026-05 Batch 5: Scoped 权限。`checkScopedPermission`、scopeId 过滤、后台范围选择器、API scoped 校验。
+- v2026-05 Batch 5.1: getUserTargets 合并 scoped 目标、项目 scope、矩阵 bypass 显示、scope 未选防误授、work.task 边界、deniedTargetIds。
+- v2026-05 Batch 5: Scoped 权限。checkScopedPermission、scopeId 过滤、后台范围选择器、API scoped 校验。
 - v2026-05 Batch 1-4: Resource.maxRoleKey、DB parent 链、运行时上限、systemAdminBusinessBypass 开关、员工/岗位/部门统一授权。
 - v2025-05: RBAC 基础模型上线。Resource/Role/UserResourceRole 三表。

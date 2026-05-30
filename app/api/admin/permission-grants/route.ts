@@ -38,7 +38,14 @@ export async function GET(request: Request) {
     maxRoleKey = await getResourceMaxRole(resourceKey);
   }
 
-  return NextResponse.json({ ...data, maxRoleKey, isSystemAdmin: isSysAdmin });
+  // Batch 5.1: bypass toggle for frontend matrix display
+  const { isSystemAdminBypassEnabled } = await import("@/server/rbac/bypass");
+  const bypassEnabled = await isSystemAdminBypassEnabled();
+
+  return NextResponse.json({
+    ...data, maxRoleKey, isSystemAdmin: isSysAdmin,
+    systemAdminBusinessBypass: bypassEnabled,
+  });
 }
 
 export async function PUT(request: Request) {

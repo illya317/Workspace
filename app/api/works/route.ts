@@ -26,7 +26,7 @@ export async function GET(request: Request) {
 
   if (targetType && targetIdParam != null) {
     const targetId = parseInt(targetIdParam);
-    const allowed = await canAccessTarget(payload.userId, targetType, targetId);
+    const allowed = await canAccessTarget(payload.userId, targetType, targetId, "work.task");
     if (!allowed) return NextResponse.json({ error: "无权限访问该目标" }, { status: 403 });
     finalTargetType = targetType;
     finalTargetId = targetId;

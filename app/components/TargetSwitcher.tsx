@@ -12,6 +12,7 @@ interface Targets {
   departments: Target[];
   projects: Target[];
   positions: Target[];
+  users?: Target[];
 }
 
 interface Props {
@@ -23,6 +24,7 @@ const TYPE_LABELS: Record<string, string> = {
   department: "按部门",
   project: "按项目",
   position: "按岗位",
+  user: "按个人",
 };
 
 export default function TargetSwitcher({ value, onChange }: Props) {
@@ -39,8 +41,8 @@ export default function TargetSwitcher({ value, onChange }: Props) {
 
         // 有数据且未选中时自动选第一个有数据的类型
         if (!value) {
-          for (const t of ["department", "project", "position"]) {
-            const items = t === "department" ? d.departments : t === "project" ? d.projects : d.positions;
+          for (const t of ["department", "project", "position", "user"]) {
+            const items = resolveItems(d, t);
             if (items.length > 0) {
               setTargetType(t);
               onChange({ targetType: t, targetId: items[0].id, targetName: items[0].name });
@@ -54,15 +56,17 @@ export default function TargetSwitcher({ value, onChange }: Props) {
 
   if (loading) return <span className="text-xs text-gray-400">加载中...</span>;
 
-  const items = targetType === "department" ? data.departments
-    : targetType === "project" ? data.projects
-    : data.positions;
+  function resolveItems(d: Targets, t: string): Target[] {
+    if (t === "department") return d.departments;
+    if (t === "project") return d.projects;
+    if (t === "user") return d.users || [];
+    return d.positions;
+  }
+
+  const items = resolveItems(data, targetType);
 
   // Filter types that have items
-  const availableTypes = Object.entries(TYPE_LABELS).filter(([t]) => {
-    const list = t === "department" ? data.departments : t === "project" ? data.projects : data.positions;
-    return list.length > 0;
-  });
+  const availableTypes = Object.entries(TYPE_LABELS).filter(([t]) => resolveItems(data, t).length > 0);
 
   if (availableTypes.length === 0) return null;
 
@@ -75,7 +79,7 @@ export default function TargetSwitcher({ value, onChange }: Props) {
           onChange={(e) => {
             const t = e.target.value;
             setTargetType(t);
-            const list = t === "department" ? data.departments : t === "project" ? data.projects : data.positions;
+            const list = resolveItems(data, t);
             if (list.length > 0) {
               onChange({ targetType: t, targetId: list[0].id, targetName: list[0].name });
             }

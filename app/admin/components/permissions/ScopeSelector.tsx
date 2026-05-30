@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import type { PermissionScopeState } from "../../hooks/usePermissionScope";
 
 interface Props {
@@ -8,54 +8,40 @@ interface Props {
   resourceName: string;
 }
 
-interface DeptOption {
-  id: number;
-  name: string;
-  path: string;
-}
+interface DeptOption { id: number; name: string; path: string; }
+interface ProjectOption { id: number; name: string; type?: string; }
 
 export default function ScopeSelector({ scope, resourceName }: Props) {
   const [departments, setDepartments] = useState<DeptOption[]>([]);
-  const [userQuery, setUserQuery] = useState("");
-  const [userResults, setUserResults] = useState<Array<{ id: number; name: string; dept: string }>>([]);
-  const [searching, setSearching] = useState(false);
+  const [projects, setProjects] = useState<ProjectOption[]>([]);
 
-  // Load departments on mount
+  // Load departments and projects on mount
   useEffect(() => {
     fetch("/api/admin/departments")
       .then((r) => r.json())
       .then((data) => {
-        const depts = (data.departments || []).map((d: { id: number; name: string; path?: string[] }) => ({
-          id: d.id,
-          name: d.name,
-          path: d.path?.join(" > ") || d.name,
-        }));
-        setDepartments(depts);
+        setDepartments((data.departments || []).map((d: { id: number; name: string; path?: string[] }) => ({
+          id: d.id, name: d.name, path: d.path?.join(" > ") || d.name,
+        })));
       })
       .catch(() => {});
   }, []);
 
-  // Search users
-  const searchUsers = useCallback(async (q: string) => {
-    if (q.length < 1) { setUserResults([]); return; }
-    setSearching(true);
-    try {
-      const res = await fetch(`/api/admin/users?q=${encodeURIComponent(q)}`);
-      const data = await res.json();
-      setUserResults((data.users || []).slice(0, 10));
-    } catch { setUserResults([]); }
-    finally { setSearching(false); }
-  }, []);
-
   useEffect(() => {
-    const timer = setTimeout(() => searchUsers(userQuery), 300);
-    return () => clearTimeout(timer);
-  }, [userQuery, searchUsers]);
+    fetch("/api/admin/projects")
+      .then((r) => r.json())
+      .then((data) => {
+        setProjects((data.projects || []).map((p: { id: number; name: string; type?: string }) => ({
+          id: p.id, name: p.name, type: p.type,
+        })));
+      })
+      .catch(() => {});
+  }, []);
 
   const modeLabel =
     scope.scopeMode === "global" ? "全部" :
     scope.scopeMode === "department" ? `部门：${scope.scopeTargetName || "—"}` :
-    `个人：${scope.scopeTargetName || "—"}`;
+    `项目：${scope.scopeTargetName || "—"}`;
 
   return (
     <div className="mb-3 rounded-lg border border-gray-200 bg-gray-50/50 p-3">
@@ -68,7 +54,7 @@ export default function ScopeSelector({ scope, resourceName }: Props) {
 
       {/* Mode selector */}
       <div className="mb-2 flex gap-1 rounded-md bg-white p-0.5 shadow-sm w-fit">
-        {(["global", "department", "user"] as const).map((mode) => (
+        {(["global", "department", "project"] as const).map((mode) => (
           <button
             key={mode}
             onClick={() => scope.setScopeMode(mode)}
@@ -78,7 +64,7 @@ export default function ScopeSelector({ scope, resourceName }: Props) {
                 : "text-gray-500 hover:text-gray-700"
             }`}
           >
-            {mode === "global" ? "全部" : mode === "department" ? "按部门" : "按个人"}
+            {mode === "global" ? "全部" : mode === "department" ? "按部门" : "按项目"}
           </button>
         ))}
       </div>
@@ -90,8 +76,7 @@ export default function ScopeSelector({ scope, resourceName }: Props) {
           onChange={(e) => {
             const id = e.target.value ? Number(e.target.value) : null;
             scope.setScopeDepartmentId(id);
-            const dept = departments.find((d) => d.id === id);
-            scope.setScopeTargetName(dept?.name || "");
+            scope.setScopeTargetName(id ? departments.find((d) => d.id === id)?.name || "" : "");
           }}
           className="w-full max-w-xs rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-emerald-400 focus:outline-none"
         >
@@ -102,48 +87,33 @@ export default function ScopeSelector({ scope, resourceName }: Props) {
         </select>
       )}
 
-      {/* User picker */}
-      {scope.scopeMode === "user" && (
-        <div className="relative w-full max-w-xs">
-          <input
-            type="text"
-            placeholder="搜索员工姓名…"
-            value={scope.scopeUserId && scope.scopeTargetName ? scope.scopeTargetName : userQuery}
-            onChange={(e) => {
-              setUserQuery(e.target.value);
-              if (scope.scopeUserId) {
-                scope.setScopeUserId(null);
-                scope.setScopeTargetName("");
-              }
-            }}
-            className="w-full rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-emerald-400 focus:outline-none"
-          />
-          {searching && <span className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-400">…</span>}
-          {userResults.length > 0 && !scope.scopeUserId && (
-            <div className="absolute z-10 mt-1 w-full rounded-md border border-gray-200 bg-white shadow-lg max-h-48 overflow-y-auto">
-              {userResults.map((u) => (
-                <button
-                  key={u.id}
-                  onClick={() => {
-                    scope.setScopeUserId(u.id);
-                    scope.setScopeTargetName(u.name);
-                    setUserQuery("");
-                    setUserResults([]);
-                  }}
-                  className="w-full px-3 py-2 text-left text-sm hover:bg-emerald-50"
-                >
-                  <span className="font-medium">{u.name}</span>
-                  {u.dept && <span className="ml-2 text-xs text-gray-400">{u.dept}</span>}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+      {/* Project picker */}
+      {scope.scopeMode === "project" && (
+        <select
+          value={scope.scopeProjectId ?? ""}
+          onChange={(e) => {
+            const id = e.target.value ? Number(e.target.value) : null;
+            scope.setScopeProjectId(id);
+            scope.setScopeTargetName(id ? projects.find((p) => p.id === id)?.name || "" : "");
+          }}
+          className="w-full max-w-xs rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-emerald-400 focus:outline-none"
+        >
+          <option value="">选择项目…</option>
+          {projects.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}{p.type ? ` (${p.type})` : ""}
+            </option>
+          ))}
+        </select>
       )}
 
-      {/* Current scope summary */}
+      {/* Status line */}
       <p className="mt-2 text-xs text-gray-500">
-        正在授权：{resourceName}{scope.scopeMode !== "global" ? ` / ${modeLabel}` : "（全部）"}
+        正在授权：{resourceName}
+        {scope.scopeMode !== "global" ? ` / ${modeLabel}` : "（全部）"}
+        {!scope.isScopeValid && (
+          <span className="ml-2 text-amber-600 font-medium">← 请先选择具体{scope.scopeMode === "department" ? "部门" : "项目"}</span>
+        )}
       </p>
     </div>
   );
