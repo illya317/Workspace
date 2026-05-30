@@ -1,17 +1,13 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import UserMenu from "@/app/components/UserMenu";
 import { SessionUser } from "@/lib/types";
 import ImportUploadForm from "./components/ImportUploadForm";
 import ImportPreview from "./components/ImportPreview";
 import ImportResult from "./components/ImportResult";
 import { Company, PreviewResult } from "./components/types";
 
-export default function ImportClient({ user }: { user: SessionUser }) {
-  const router = useRouter();
+export default function ImportClient({ user: _user }: { user: SessionUser }) {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyCode, setCompanyCode] = useState("");
   const [importType, setImportType] = useState<"balance" | "journal" | "account">("balance");
@@ -121,63 +117,35 @@ export default function ImportClient({ user }: { user: SessionUser }) {
     importType === "journal" ? "序时账" : "科目表";
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <nav className="bg-white shadow-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Image
-              src="/company/logo.png"
-              alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"}
-              width={100}
-              height={30}
-              className="h-auto w-auto max-w-[100px] object-contain"
-            />
-            <span className="text-sm text-gray-400">|</span>
-            <span className="text-sm font-medium text-gray-700">财务数据导入</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => router.push("/finance")}
-              className="text-sm text-gray-500 hover:text-emerald-600"
-            >
-              返回财务
-            </button>
-            <UserMenu user={user} />
-          </div>
-        </div>
-      </nav>
+    <div className="mx-auto max-w-5xl px-4 py-6">
+      <ImportUploadForm
+        companies={companies}
+        companyCode={companyCode}
+        importType={importType}
+        year={year}
+        file={file}
+        dragActive={dragActive}
+        loading={loading}
+        onCompanyChange={setCompanyCode}
+        onTypeChange={handleTypeChange}
+        onYearChange={setYear}
+        onFileChange={handleFileChange}
+        onDragStateChange={setDragActive}
+        onPreview={handlePreview}
+      />
 
-      <div className="mx-auto max-w-5xl px-4 py-6">
-        <ImportUploadForm
-          companies={companies}
-          companyCode={companyCode}
-          importType={importType}
-          year={year}
-          file={file}
-          dragActive={dragActive}
-          loading={loading}
-          onCompanyChange={setCompanyCode}
-          onTypeChange={handleTypeChange}
-          onYearChange={setYear}
-          onFileChange={handleFileChange}
-          onDragStateChange={setDragActive}
-          onPreview={handlePreview}
+      {result && (
+        <ImportResult success={result.success} message={result.message} />
+      )}
+
+      {preview && (
+        <ImportPreview
+          preview={preview}
+          importing={importing}
+          typeLabel={typeLabel}
+          onConfirm={handleConfirm}
         />
-
-        {result && (
-          <ImportResult success={result.success} message={result.message} />
-        )}
-
-        {preview && (
-          <ImportPreview
-            preview={preview}
-            importing={importing}
-            typeLabel={typeLabel}
-            onConfirm={handleConfirm}
-          />
-        )}
-      </div>
+      )}
     </div>
   );
 }
