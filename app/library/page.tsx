@@ -1,49 +1,53 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/server/auth/session";
 import AppShell from "@/app/components/AppShell";
-import { readdir } from "fs/promises";
+import { readdir, stat } from "fs/promises";
 import path from "path";
-import Link from "next/link";
+import LibraryClient from "./LibraryClient";
 
 const ROOT = "/Users/koito/Desktop/FH/资料库";
 
-async function getDirs(): Promise<string[]> {
+interface TreeNode {
+  name: string;
+  path: string;
+  isDir: boolean;
+  size?: number;
+  children?: TreeNode[];
+}
+
+async function buildTree(dirPath: string, urlPath: string): Promise<TreeNode[]> {
+  const nodes: TreeNode[] = [];
   try {
-    const items = await readdir(ROOT, { withFileTypes: true });
-    return items
-      .filter(i => i.isDirectory() && !i.name.startsWith("."))
-      .map(i => i.name)
-      .sort((a, b) => a.localeCompare(b, "zh"));
-  } catch { return []; }
+    const items = await readdir(dirPath, { withFileTypes: true });
+    for (const item of items) {
+      if (item.name.startsWith(".")) continue;
+      const full = path.join(dirPath, item.name);
+      const url = `${urlPath}/${encodeURIComponent(item.name)}`;
+      if (item.isDirectory()) {
+        nodes.push({
+          name: item.name, path: url, isDir: true,
+          children: await buildTree(full, url),
+        });
+      } else {
+        const s = await stat(full);
+        nodes.push({ name: item.name, path: url, isDir: false, size: s.size });
+      }
+    }
+  } catch {}
+  return nodes.sort((a, b) => {
+    if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
+    return a.name.localeCompare(b.name, "zh");
+  });
 }
 
 export default async function LibraryPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  const dirs = await getDirs();
+  const tree = await buildTree(ROOT, "/library");
 
   return (
     <AppShell title="资料库" backHref="/portal" user={user}>
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="mb-6 text-2xl font-bold text-gray-800">资料库</h1>
-        {dirs.length === 0 ? (
-          <div className="rounded-lg bg-white py-16 text-center shadow-sm"><p className="text-gray-500">暂无数据</p></div>
-        ) : (
-          <div className="rounded-lg bg-white p-4 shadow-sm">
-            <div className="space-y-0.5">
-              {dirs.map(d => (
-                <Link key={d} href={`/library/${encodeURIComponent(d)}`}
-                  className="flex items-center gap-2 rounded px-3 py-2.5 text-sm text-gray-800 transition hover:bg-gray-50"
-                >
-                  <span className="text-xs text-gray-400">▸</span>
-                  <span className="flex-1">{d}</span>
-                  <span className="text-xs text-gray-400">→</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-      </main>
+      <LibraryClient tree={tree} />
     </AppShell>
   );
 }
