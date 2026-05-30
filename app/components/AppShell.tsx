@@ -6,24 +6,19 @@ import UserMenu from "@/app/components/UserMenu";
 import { SessionUser } from "@/lib/types";
 import type { ReactNode } from "react";
 
+interface NavLinkDef { label: string; href: string; }
+
 interface Props {
-  /** 当前页面标题 */
   title: string;
-  /** 返回目标路径 */
   backHref: string;
-  /** 返回按钮文字，默认"返回" */
   backLabel?: string;
+  /** 顶部栏的跨页导航链接（如工作汇报/工作清单/历史记录） */
+  navLinks?: NavLinkDef[];
   user: SessionUser;
   children: ReactNode;
 }
 
-/**
- * 全站统一的 L2 子页面顶部栏。
- * 替代各模块手写的 <nav className="bg-white shadow-sm"> 模式。
- *
- * 固定布局: [Logo] | 当前标题 | spacer | [返回上一级] | [UserMenu]
- */
-export default function AppShell({ title, backHref, backLabel, user, children }: Props) {
+export default function AppShell({ title, backHref, backLabel, navLinks, user, children }: Props) {
   const router = useRouter();
   const backText = backLabel || "返回";
 
@@ -51,6 +46,14 @@ export default function AppShell({ title, backHref, backLabel, user, children }:
 
           {/* Spacer */}
           <div className="flex-1" />
+
+          {/* Cross-page nav links */}
+          {navLinks?.map((l) => (
+            <button key={l.href} onClick={() => router.push(l.href)}
+              className="rounded-md px-3 py-1.5 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-gray-700">
+              {l.label}
+            </button>
+          ))}
 
           {/* Back */}
           <button

@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import WorkFormSection, { type WorkFormData } from "./WorkFormSection";
 import WorksList from "./WorksList";
 import WorksHeader from "./WorksHeader";
+import DepartmentSwitcher from "@/app/components/DepartmentSwitcher";
 import { useWorks } from "./useWorks";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import Toast from "@/app/components/Toast";
 import type { SessionUser } from "@/lib/types";
 
-export default function WorksClient({ user }: { user: SessionUser }) {
+export default function WorksClient({ user, hideShell }: { user: SessionUser; hideShell?: boolean }) {
   const {
     works, loading, showForm, setShowForm, editingWork, setEditingWork,
     toast, closeToast, fetchWorks, handleCreate, handleUpdate,
@@ -63,8 +64,9 @@ export default function WorksClient({ user }: { user: SessionUser }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <WorksHeader user={user} onDeptChange={fetchWorks} />
+      <WorksHeader user={user} onDeptChange={fetchWorks} hideShell={hideShell} />
       <main className="mx-auto max-w-5xl px-4 py-8">
+        {hideShell && <div className="mb-4"><DepartmentSwitcher onChange={fetchWorks} /></div>}
         <WorkFormSection
           isAdmin={isAdmin}
           showForm={showForm}
