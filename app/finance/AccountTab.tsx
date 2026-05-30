@@ -5,6 +5,7 @@ import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import AccountCreateModal from "./components/AccountCreateModal";
 import FinanceFilters from "./components/FinanceFilters";
+import Pagination from "./components/Pagination";
 
 interface Account {
   id: number;
@@ -50,6 +51,10 @@ export default function AccountTab() {
   const [yearFilter, setYearFilter] = useState("");
   const [scope, setScope] = useState<"all" | "mapped" | "unmapped" | "inactive">("all");
   const [modalOpen, setModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const { toast, showToast, closeToast } = useToast();
 
   async function load() {
@@ -59,11 +64,19 @@ export default function AccountTab() {
     if (levelFilter) params.set("subjectLevel", levelFilter);
     if (yearFilter) params.set("year", yearFilter);
     params.set("scope", scope);
+    params.set("page", String(page));
+    params.set("pageSize", String(pageSize));
 
-    const res = await fetch(`/api/finance/accounts?${params.toString()}`);
-    if (res.ok) {
-      const data = await res.json();
-      setAccounts(data.accounts || []);
+    try {
+      const res = await fetch(`/api/finance/accounts?${params.toString()}`);
+      if (res.ok) {
+        const data = await res.json();
+        setAccounts(data.data || data.accounts || []);
+        setTotal(data.total || 0);
+        setTotalPages(data.totalPages || 1);
+      }
+    } catch {
+      showToast("网络错误", "error");
     }
     setLoading(false);
   }
@@ -71,7 +84,7 @@ export default function AccountTab() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyFilter, levelFilter, yearFilter, scope]);
+  }, [companyFilter, levelFilter, yearFilter, scope, page, pageSize]);
 
   async function handleCreate(data: Record<string, unknown>) {
     const res = await fetch("/api/finance/accounts", {
@@ -97,10 +110,11 @@ export default function AccountTab() {
       <FinanceFilters
         companyFilter={companyFilter}
         yearFilter={yearFilter}
-        onCompanyChange={setCompanyFilter}
-        onYearChange={setYearFilter}
+        pageSize={pageSize}
+        onCompanyChange={(v) => { setCompanyFilter(v); setPage(1); }}
+        onYearChange={(v) => { setYearFilter(v); setPage(1); }}
+        onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
         showMonth={false}
-        showPageSize={false}
         extra={
           <>
             <button
@@ -113,7 +127,7 @@ export default function AccountTab() {
               <label className="text-xs text-gray-500">层级</label>
               <select
                 value={levelFilter}
-                onChange={(e) => setLevelFilter(e.target.value)}
+                onChange={(e) => { setLevelFilter(e.target.value); setPage(1); }}
                 className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
               >
                 <option value="">全部层级</option>
@@ -131,7 +145,7 @@ export default function AccountTab() {
               ].map((s) => (
                 <button
                   key={s.key}
-                  onClick={() => setScope(s.key as "mapped" | "all" | "unmapped")}
+                  onClick={() => { setScope(s.key as "mapped" | "all" | "unmapped" | "inactive"); setPage(1); }}
                   className={`rounded px-2.5 py-1 text-xs transition-colors ${
                     scope === s.key
                       ? "bg-emerald-600 text-white"
@@ -143,7 +157,7 @@ export default function AccountTab() {
               ))}
             </div>
             <span className="ml-auto text-xs text-gray-400">
-              共 {accounts.length} 条
+              共 {total} 条
             </span>
           </>
         }
@@ -207,6 +221,8 @@ export default function AccountTab() {
           </table>
         )}
       </div>
+
+      <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
 
       <AccountCreateModal
         open={modalOpen}

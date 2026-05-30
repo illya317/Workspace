@@ -4,6 +4,7 @@ import { useEffect, useState, Fragment } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import FinanceFilters from "./components/FinanceFilters";
+import Pagination from "./components/Pagination";
 
 const COMPANIES: Record<string, string> = {
   "01": "丰华生物",
@@ -210,45 +211,7 @@ export default function VoucherTab() {
         )}
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between rounded-lg bg-white p-3 shadow-sm">
-          <span className="text-xs text-gray-500">
-            第 {page} / {totalPages} 页，共 {total} 条
-          </span>
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setPage(1)}
-              disabled={page <= 1}
-              className="rounded border border-gray-300 px-2 py-1 text-xs hover:bg-gray-50 disabled:opacity-40"
-            >
-              首页
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="rounded border border-gray-300 px-2 py-1 text-xs hover:bg-gray-50 disabled:opacity-40"
-            >
-              上一页
-            </button>
-            <span className="px-2 text-xs text-gray-600">{page}</span>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-              className="rounded border border-gray-300 px-2 py-1 text-xs hover:bg-gray-50 disabled:opacity-40"
-            >
-              下一页
-            </button>
-            <button
-              onClick={() => setPage(totalPages)}
-              disabled={page >= totalPages}
-              className="rounded border border-gray-300 px-2 py-1 text-xs hover:bg-gray-50 disabled:opacity-40"
-            >
-              末页
-            </button>
-          </div>
-        </div>
-      )}
+      <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
 
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>

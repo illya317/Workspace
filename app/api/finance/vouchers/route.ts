@@ -35,7 +35,15 @@ export const GET = withFinanceAccess(async (request: Request) => {
     }),
     prisma.financeVoucher.count({ where }),
   ]);
-  return NextResponse.json({ vouchers, total, page, pageSize });
+  const totalPages = Math.ceil(total / pageSize);
+  return NextResponse.json({
+    data: vouchers,
+    total,
+    page,
+    pageSize,
+    totalPages,
+    vouchers,
+  });
 });
 
 interface VoucherItemInput {

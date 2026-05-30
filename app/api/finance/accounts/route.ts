@@ -28,15 +28,33 @@ export const GET = withFinanceAccess(async (request) => {
     where.year = parseInt(year, 10);
   }
 
-  const accounts = await prisma.financeAccount.findMany({
-    where,
-    orderBy: [{ code: "asc" }],
-    include: {
-      parent: { select: { code: true, name: true } },
-    },
-  });
+  const page = parseInt(searchParams.get("page") || "1", 10);
+  const pageSize = parseInt(searchParams.get("pageSize") || "50", 10);
+  const skip = (page - 1) * pageSize;
 
-  return NextResponse.json({ accounts });
+  const [accounts, total] = await Promise.all([
+    prisma.financeAccount.findMany({
+      where,
+      orderBy: [{ code: "asc" }],
+      skip,
+      take: pageSize,
+      include: {
+        parent: { select: { code: true, name: true } },
+      },
+    }),
+    prisma.financeAccount.count({ where }),
+  ]);
+
+  const totalPages = Math.ceil(total / pageSize);
+
+  return NextResponse.json({
+    data: accounts,
+    total,
+    page,
+    pageSize,
+    totalPages,
+    accounts,
+  });
 });
 
 export const POST = withFinanceWrite(async (request) => {
