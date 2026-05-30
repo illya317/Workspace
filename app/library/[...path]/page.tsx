@@ -41,26 +41,22 @@ export default async function LibrarySubPage({ params }: { params: Promise<{ pat
   if (!user) redirect("/login");
 
   const { path: segments } = await params;
-  const displayPath = segments.join("/");
+  const displayName = segments[segments.length - 1] || "资料库";
   const dirPath = path.join(LIBRARY_ROOT, ...segments);
   const entries = await scanDir(dirPath);
 
-  // Build breadcrumb
-  const breadcrumbs: { label: string; href: string }[] = [
-    { label: "资料库", href: "/library" },
-  ];
+  const breadcrumbs: { label: string; href: string }[] = [{ label: "资料库", href: "/library" }];
   let acc = "";
   for (const seg of segments) {
     acc += "/" + encodeURIComponent(seg);
     breadcrumbs.push({ label: seg, href: `/library${acc}` });
   }
-
-  // File download path prefix
+  const backHref = breadcrumbs.length > 1 ? breadcrumbs[breadcrumbs.length - 2].href : "/library";
   const filePrefix = `/api/library/${segments.map(encodeURIComponent).join("/")}/`;
 
   return (
-    <AppShell title={segments[segments.length - 1] || "资料库"} backHref={breadcrumbs.length > 1 ? breadcrumbs[breadcrumbs.length - 2].href : "/library"} user={user}>
-      <main className="mx-auto max-w-4xl px-4 py-8">
+    <AppShell title={displayName} backHref={backHref} user={user}>
+      <main className="mx-auto max-w-5xl px-4 py-8">
         {/* Breadcrumb */}
         <div className="mb-4 flex items-center gap-1 text-sm text-gray-500">
           {breadcrumbs.map((b, i) => (
@@ -75,27 +71,30 @@ export default async function LibrarySubPage({ params }: { params: Promise<{ pat
           ))}
         </div>
 
-        <div className="rounded-lg bg-white shadow-sm">
-          {entries.length === 0 ? (
-            <div className="py-16 text-center text-gray-400">此目录为空</div>
-          ) : (
+        <h1 className="mb-6 text-2xl font-bold text-gray-800">{displayName}</h1>
+
+        {entries.length === 0 ? (
+          <div className="rounded-lg bg-white py-16 text-center shadow-sm"><p className="text-gray-500">此目录为空</p></div>
+        ) : (
+          <div className="rounded-lg bg-white p-4 shadow-sm">
             <div className="divide-y">
               {entries.map((entry) => (
                 <Link
                   key={entry.name}
                   href={entry.isDir ? `/library/${segments.map(encodeURIComponent).join("/")}/${encodeURIComponent(entry.name)}` : `${filePrefix}${encodeURIComponent(entry.name)}`}
-                  className="flex items-center gap-3 px-4 py-3 transition hover:bg-gray-50"
+                  className="flex items-center gap-3 px-3 py-2.5 transition hover:bg-gray-50 rounded"
                 >
-                  <span className="text-lg">{entry.isDir ? "📁" : "📄"}</span>
-                  <span className="flex-1 text-sm font-medium text-gray-800">{entry.name}</span>
+                  <span className="shrink-0 text-base">{entry.isDir ? "📁" : "📄"}</span>
+                  <span className="flex-1 truncate text-sm text-gray-800">{entry.name}</span>
                   {!entry.isDir && entry.size !== undefined && (
-                    <span className="text-xs text-gray-400">{formatSize(entry.size)}</span>
+                    <span className="shrink-0 text-xs text-gray-400">{formatSize(entry.size)}</span>
                   )}
+                  {entry.isDir && <span className="shrink-0 text-xs text-gray-400">→</span>}
                 </Link>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </main>
     </AppShell>
   );

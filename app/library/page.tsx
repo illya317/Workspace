@@ -7,7 +7,7 @@ import Link from "next/link";
 
 const LIBRARY_ROOT = "/Users/koito/Desktop/FH/资料库";
 
-interface Entry { name: string; isDir: boolean; size?: number; mtime?: Date }
+interface Entry { name: string; isDir: boolean; size?: number }
 
 async function scanDir(dirPath: string): Promise<Entry[]> {
   const entries: Entry[] = [];
@@ -20,11 +20,10 @@ async function scanDir(dirPath: string): Promise<Entry[]> {
         entries.push({ name: item.name, isDir: true });
       } else {
         const s = await stat(full);
-        entries.push({ name: item.name, isDir: false, size: s.size, mtime: s.mtime });
+        entries.push({ name: item.name, isDir: false, size: s.size });
       }
     }
   } catch {}
-  // Sort: directories first, then by name
   return entries.sort((a, b) => {
     if (a.isDir !== b.isDir) return a.isDir ? -1 : 1;
     return a.name.localeCompare(b.name, "zh");
@@ -45,30 +44,31 @@ export default async function LibraryPage() {
 
   return (
     <AppShell title="资料库" backHref="/portal" user={user}>
-      <main className="mx-auto max-w-4xl px-4 py-8">
-        <h2 className="mb-6 text-xl font-bold text-gray-800">资料库</h2>
+      <main className="mx-auto max-w-5xl px-4 py-8">
+        <h1 className="mb-6 text-2xl font-bold text-gray-800">资料库</h1>
 
-        <div className="rounded-lg bg-white shadow-sm">
-          {entries.length === 0 ? (
-            <div className="py-16 text-center text-gray-400">暂无资料</div>
-          ) : (
+        {entries.length === 0 ? (
+          <div className="rounded-lg bg-white py-16 text-center shadow-sm"><p className="text-gray-500">暂无数据</p></div>
+        ) : (
+          <div className="rounded-lg bg-white p-4 shadow-sm">
             <div className="divide-y">
               {entries.map((entry) => (
                 <Link
                   key={entry.name}
                   href={entry.isDir ? `/library/${encodeURIComponent(entry.name)}` : `/api/library/${encodeURIComponent(entry.name)}`}
-                  className="flex items-center gap-3 px-4 py-3 transition hover:bg-gray-50"
+                  className="flex items-center gap-3 px-3 py-2.5 transition hover:bg-gray-50 rounded"
                 >
-                  <span className="text-lg">{entry.isDir ? "📁" : "📄"}</span>
-                  <span className="flex-1 text-sm font-medium text-gray-800">{entry.name}</span>
+                  <span className="shrink-0 text-base">{entry.isDir ? "📁" : "📄"}</span>
+                  <span className="flex-1 truncate text-sm text-gray-800">{entry.name}</span>
                   {!entry.isDir && entry.size !== undefined && (
-                    <span className="text-xs text-gray-400">{formatSize(entry.size)}</span>
+                    <span className="shrink-0 text-xs text-gray-400">{formatSize(entry.size)}</span>
                   )}
+                  {entry.isDir && <span className="shrink-0 text-xs text-gray-400">→</span>}
                 </Link>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </main>
     </AppShell>
   );
