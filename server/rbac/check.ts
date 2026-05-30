@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { normalizeRoleKey } from "@/lib/permissions";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
 import { getResourceAncestors } from "./resource";
+import { isRoleAllowedForResource } from "./maxRole";
 import type { PermissionContext } from "./context";
 
 function resolveRoleKeys(roleKey: string): string[] {
@@ -37,9 +38,7 @@ export async function checkPermission(
   const roleKeys = resolveRoleKeys(roleKey);
 
   // 2a. 运行时上限：即使有 grant，超过 maxRoleKey 也拒绝
-  const { isRoleAllowedForResource } = await import("./maxRole");
-  const withinMax = await isRoleAllowedForResource(resourceKey, roleKey);
-  if (!withinMax) return false;
+  if (!(await isRoleAllowedForResource(resourceKey, roleKey))) return false;
 
   const userGrant = await prisma.userResourceRole.findFirst({
     where: {
@@ -93,8 +92,7 @@ export async function checkPermissionWithContext(
   const resourceIds = await getResourceAncestors(resource.id);
   const roleKeys = resolveRoleKeys(roleKey);
 
-  const { isRoleAllowedForResource: isWithinMaxCtx } = await import("./maxRole");
-  if (!(await isWithinMaxCtx(resourceKey, roleKey))) return false;
+  if (!(await isRoleAllowedForResource(resourceKey, roleKey))) return false;
 
   const userGrant = await prisma.userResourceRole.findFirst({
     where: {
