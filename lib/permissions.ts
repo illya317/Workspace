@@ -6,19 +6,22 @@ export const RES = {
   system: {
     root: "system",
     user: "system.user",
+    permission: "system.permission",
     audit: "system.audit",
     config: "system.config",
   },
   people: {
     root: "people",
-    employee: "people.employee",
-    org: "people.org",
+    roster: "people.roster",
+    performance: "people.performance",
+    analytics: "people.analytics",
   },
   docs: {
     root: "docs",
-    policy: "docs.policy",
-    manual: "docs.manual",
-    form: "docs.form",
+    positions: "docs.positions",
+    company: "docs.company",
+    expense: "docs.expense",
+    api: "docs.api",
   },
   work: {
     root: "work",
@@ -27,32 +30,34 @@ export const RES = {
   },
   finance: {
     root: "finance",
-    account: "finance.account",
-    voucher: "finance.voucher",
-    report: "finance.report",
-    cost: "finance.cost",
-    costShipments: "finance.cost.shipments",
-    costAnalysis: "finance.cost.analysis",
-    costStructure: "finance.cost.structure",
-    costWorkshop: "finance.cost.workshop",
-    costSalary: "finance.cost.salary",
-    costImports: "finance.cost.imports",
     ledger: "finance.ledger",
+    statement: "finance.statement",
     budget: "finance.budget",
     analysis: "finance.analysis",
+    cost: "finance.cost",
     import: "finance.import",
   },
-  inventory: {
-    root: "inventory",
-    raw: "inventory.raw",
-    packaging: "inventory.packaging",
-    finished: "inventory.finished",
-    report: "inventory.report",
+  production: {
+    root: "production",
+    inventory: "inventory",
   },
-  contract: {
-    root: "contract",
-    list: "contract.list",
-    edit: "contract.edit",
+  administration: {
+    root: "administration",
+    contract: "administration.contract",
+  },
+  library: {
+    root: "library",
+  },
+  external: {
+    root: "external",
+    investor: "external.investor",
+    customer: "external.customer",
+    supplier: "external.supplier",
+  },
+  legal: {
+    root: "legal",
+    chat: "legal.chat",
+    document: "legal.document",
   },
 } as const;
 
@@ -64,7 +69,6 @@ export const ROLE = {
   admin: "admin",
 } as const;
 
-// 统一动作常量（后台不再使用 read）
 export const ACTION = {
   access: "access",
   write: "write",
@@ -72,37 +76,53 @@ export const ACTION = {
   admin: "admin",
 } as const;
 
-// 入参兼容：所有 read 统一转成 access
 export function normalizeRoleKey(roleKey: string): string {
   return roleKey === "read" ? "access" : roleKey;
 }
 
-// ─── Available roles per resource ─────────────────────────
-export const RESOURCE_AVAILABLE_ROLES: Record<string, string[]> = {
-  system: ["admin"],
-  people: ["access", "write", "delete", "admin"],
-  finance: ["access", "write", "delete", "admin"],
-  work: ["access"],
-  inventory: ["access"],
-  contract: ["access"],
-  docs: ["access"],
+// ─── Available roles per resource (maxRoleKey per resource) ──
+export const RESOURCE_MAX_ROLE: Record<string, string> = {
+  system: "admin",
+  library: "access",
+  docs: "access",
+  external: "delete",
+  production: "admin",
+  finance: "admin",
+  administration: "admin",
+  people: "admin",
+  work: "admin",
+  legal: "access",
 };
 
+const ROLE_HIERARCHY: Record<string, number> = {
+  access: 0, write: 1, delete: 2, admin: 3,
+};
+
+/** 返回某资源可用的所有角色（按层级从低到高） */
 export function getAvailableRoles(resourceKey: string | null): string[] {
   if (!resourceKey) return [];
   const parts = resourceKey.split(".");
   while (parts.length > 0) {
     const key = parts.join(".");
-    if (RESOURCE_AVAILABLE_ROLES[key]) return RESOURCE_AVAILABLE_ROLES[key];
+    const max = RESOURCE_MAX_ROLE[key];
+    if (max) {
+      const maxLevel = ROLE_HIERARCHY[max] ?? 0;
+      return ["access", "write", "delete", "admin"].filter(
+        (r) => (ROLE_HIERARCHY[r] ?? 0) <= maxLevel,
+      );
+    }
     parts.pop();
   }
   return ["access"];
 }
 
-// ─── Backward compat aliases ──────────────────────────────
-// Old code using perm.system.admin strings still works at runtime,
-// but new code should use checkPermission() with separate args.
+/** 检查角色是否在资源允许范围内 */
+export function isRoleAllowed(resourceKey: string, roleKey: string): boolean {
+  const available = getAvailableRoles(resourceKey);
+  return available.includes(roleKey);
+}
 
+// ─── Backward compat ──────────────────────────────────────
 export const perm = {
   system: {
     access: "system.access",
