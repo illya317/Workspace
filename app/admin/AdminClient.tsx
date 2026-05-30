@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import NavLink from "@/app/components/NavLink";
@@ -13,17 +13,6 @@ import PermissionsTab from "./tabs/PermissionsTab";
 import type { ResourceItem } from "./types";
 import { SessionUser } from "@/lib/types";
 
-function filterTree(nodes: ResourceItem[], allowed: Set<string>): ResourceItem[] {
-  const result: ResourceItem[] = [];
-  for (const n of nodes) {
-    const children = n.children ? filterTree(n.children, allowed) : [];
-    if (allowed.has(n.key) || children.length > 0) {
-      result.push({ ...n, children: children.length > 0 ? children : n.children });
-    }
-  }
-  return result;
-}
-
 export default function AdminClient({ user }: { user: SessionUser }) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -35,11 +24,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
 
   const { toast, showToast, closeToast } = useToast();
 
-  const manageableKeys = useMemo(
-    () => new Set(user.manageableResourceKeys || []),
-    [user.manageableResourceKeys]
-  );
-
   useEffect(() => {
     let cancelled = false;
     async function loadInitial() {
@@ -48,12 +32,8 @@ export default function AdminClient({ user }: { user: SessionUser }) {
         if (!cancelled) {
           if (!resRes.ok) showToast("加载权限资源失败: " + resRes.status, "error");
           const resData = await resRes.json();
-          const tree = resData.resources || [];
-          // Filter to only manageable resources (defense in depth; API already filters)
-          const filtered = isSuperAdmin
-            ? tree
-            : filterTree(tree, manageableKeys);
-          setResources(filtered as ResourceItem[]);
+          // API already filters by manageableKeys — no client-side second filter needed
+          setResources((resData.resources || []) as ResourceItem[]);
           try {
             const cfgRes = await fetch("/api/admin/system-config");
             if (cfgRes.ok) {
@@ -70,7 +50,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     }
     loadInitial();
     return () => { cancelled = true; };
-  }, [showToast, isSuperAdmin, manageableKeys]);
+  }, [showToast, isSuperAdmin]);
 
   async function saveConflictStrategy(strategy: string) {
     const res = await fetch("/api/admin/system-config", {
