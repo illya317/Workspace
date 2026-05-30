@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { authenticate, isAdmin, checkPermission } from "@/lib/auth";
-import { canAccessTarget } from "@/lib/access";
 import { parseParticipants, getWorkItems, createWorkItem } from "@/server/services/works";
 
 export async function GET(request: Request) {
@@ -26,8 +25,13 @@ export async function GET(request: Request) {
 
   if (targetType && targetIdParam != null) {
     const targetId = parseInt(targetIdParam);
-    const allowed = await canAccessTarget(payload.userId, targetType, targetId, "work.task");
-    if (!allowed) return NextResponse.json({ error: "无权限访问该目标" }, { status: 403 });
+    // Batch 5.1: work.task keeps membership-based access until scoped UI is built
+    // Allow access to own department, or if user has work.task.access
+    const hasAccess = await checkPermission(payload.userId, "work.task", "access");
+    const isOwnDept = targetType === "department" && targetId === payload.departmentId;
+    if (!hasAccess && !isOwnDept) {
+      return NextResponse.json({ error: "无权限访问该目标" }, { status: 403 });
+    }
     finalTargetType = targetType;
     finalTargetId = targetId;
   }

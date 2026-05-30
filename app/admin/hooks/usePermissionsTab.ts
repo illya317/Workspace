@@ -113,7 +113,7 @@ export function usePermissionsTab(
 
   async function toggleGrant(subject: Subject, roleKey: string) {
     if (!scope.isScopeValid) {
-      showToast("请先选择权限范围的具体部门或员工", "error");
+      showToast("请先选择权限范围的具体部门或项目", "error");
       return;
     }
     if (subjectType === "user" && !subject.extra?.hasUser) {

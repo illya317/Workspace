@@ -20,11 +20,11 @@ interface Props {
   onChange: (target: { targetType: string; targetId: number; targetName: string } | null) => void;
 }
 
+// user:<id> is backend-reserved; 按个人 not exposed in UI until personal reports are a formal entry point
 const TYPE_LABELS: Record<string, string> = {
   department: "按部门",
   project: "按项目",
   position: "按岗位",
-  user: "按个人",
 };
 
 export default function TargetSwitcher({ value, onChange }: Props) {
@@ -41,7 +41,7 @@ export default function TargetSwitcher({ value, onChange }: Props) {
 
         // 有数据且未选中时自动选第一个有数据的类型
         if (!value) {
-          for (const t of ["department", "project", "position", "user"]) {
+          for (const t of ["department", "project", "position"]) {
             const items = resolveItems(d, t);
             if (items.length > 0) {
               setTargetType(t);

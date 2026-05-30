@@ -27,21 +27,12 @@ export async function getUserTargets(userId: number): Promise<{
   const empty = { departments: [], projects: [], positions: [], users: [] };
 
   if (await checkPermission(userId, "system", "admin")) {
-    const [departments, projects, positions, users] = await Promise.all([
-      prisma.department.findMany({ select: { id: true, name: true, code: true } }),
-      prisma.project.findMany({ select: { id: true, name: true, type: true } }),
-      prisma.position.findMany({ select: { id: true, code: true, name: true } }),
-      prisma.user.findMany({
-        where: { employees: { some: { employments: { some: { isActive: true } } } } },
-        select: { id: true, name: true },
-      }),
-    ]);
-    return {
-      departments,
-      projects,
-      positions,
-      users: users.map((u) => ({ id: u.id, name: u.name || `用户#${u.id}` })),
-    };
+    return await getAllTargets();
+  }
+
+  // Batch 5.1: global work.report.access → show all dept/project targets
+  if (await checkScopedPermission(userId, "work.report", "access", null)) {
+    return await getAllTargets();
   }
 
   const employees = await prisma.employee.findMany({
@@ -186,6 +177,24 @@ async function mergeScopedTargets(
       }
     }
   }
+}
+
+async function getAllTargets() {
+  const [departments, projects, positions, users] = await Promise.all([
+    prisma.department.findMany({ select: { id: true, name: true, code: true } }),
+    prisma.project.findMany({ select: { id: true, name: true, type: true } }),
+    prisma.position.findMany({ select: { id: true, code: true, name: true } }),
+    prisma.user.findMany({
+      where: { employees: { some: { employments: { some: { isActive: true } } } } },
+      select: { id: true, name: true },
+    }),
+  ]);
+  return {
+    departments,
+    projects,
+    positions,
+    users: users.map((u) => ({ id: u.id, name: u.name || `用户#${u.id}` })),
+  };
 }
 
 async function getUserPositionIdsForMerge(employeeIds: number[]): Promise<number[]> {

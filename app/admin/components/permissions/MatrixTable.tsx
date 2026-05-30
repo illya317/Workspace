@@ -47,7 +47,7 @@ export default function MatrixTable({ s }: MatrixTableProps) {
         </thead>
         <tbody>
           {s.subjects.map((subject) => (
-            <MatrixRow key={subject.id} subject={subject} s={s} />
+            <MatrixRow key={subject.id} subject={subject} s={s} scopeValid={s.scope.isScopeValid} />
           ))}
         </tbody>
       </table>
