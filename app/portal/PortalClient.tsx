@@ -62,8 +62,8 @@ export default function PortalClient({ user }: { user: SessionUser }) {
       onClick: () => router.push("/docs"),
     },
     {
-      title: "财务数据",
-      desc: "总账、凭证、财务报表",
+      title: "财务管理",
+      desc: "总账、凭证、财务报表、预算、分析",
       icon: (
         <svg className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <circle cx="12" cy="12" r="10" strokeWidth="1.5" />
