@@ -52,6 +52,11 @@ export const ROLE_COLORS: Record<string, string> = {
 };
 
 const SKIP_KEYS = new Set(["system"]);
+const LABEL_OVERRIDES: Record<string, string> = { work: "工作汇报" };
+const MODULE_ORDER: Record<string, number> = {
+  work: 0, people: 1, administration: 2, finance: 3, production: 4,
+  external: 5, docs: 6, library: 7, legal: 8,
+};
 
 export function summarizeResourcePermissions(
   resourceTree: ResourceNodeLike[],
@@ -70,6 +75,7 @@ export function summarizeResourcePermissions(
       if (SKIP_KEYS.has(node.key)) continue;
 
       if (isTopLevel) {
+        const nodeLabel = LABEL_OVERRIDES[node.key] || node.name;
         const children = node.children || [];
         const nodeRole = grantMap.get(node.key);
         const childGrants: Array<{ key: string; label: string; roleKey: RoleKey }> = [];
@@ -83,7 +89,7 @@ export function summarizeResourcePermissions(
 
         if (nodeRole) {
           summaries.push({
-            key: node.key, label: node.name,
+            key: node.key, label: nodeLabel,
             roleKey: nodeRole as RoleKey,
             source: "parent",
             coveredChildren: children.length > 0 ? children.length : -1,
@@ -96,7 +102,7 @@ export function summarizeResourcePermissions(
           });
         } else if (childGrants.length > 0) {
           summaries.push({
-            key: node.key, label: node.name,
+            key: node.key, label: nodeLabel,
             roleKey: minRole(childGrants.map((c) => c.roleKey)) as RoleKey,
             source: "children",
             coveredChildren: childGrants.length,
@@ -111,6 +117,7 @@ export function summarizeResourcePermissions(
   }
 
   walk(resourceTree, true);
+  summaries.sort((a, b) => (MODULE_ORDER[a.key] ?? 99) - (MODULE_ORDER[b.key] ?? 99));
   return summaries;
 }
 
