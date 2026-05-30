@@ -100,7 +100,7 @@ async function main() {
       update: {},
       create: { userId: u.id, resourceId: sysAdminResId, roleId: adminRoleId, scopeId: null },
     });
-    // system.access (can login)
+    // system.access (deprecated — login now uses User.canLogin)
     await prisma.userResourceRole.upsert({
       where: { id: 0 },
       update: {},

@@ -91,6 +91,12 @@ legal               access  法务
 - 只有 `system.admin` 可修改 `maxRoleKey`。
 - 后台 UI 下拉改名为"最高业务权限"，仅含 访问/编辑/删除。
 
+## 登录 vs 权限
+
+登录只看 `User.canLogin`（账号启停用） + `sessionVersion`。**不看 `system.access`**。
+
+`system.access` 已废弃，不作为登录/后台入口/授权管理的判断条件。需要进后台管理权限时，授予对应资源的 `admin` 角色（如 `people.admin`），系统自动识别 `canAccessAdmin = true`。
+
 ## system.admin 与业务权限
 
 ### systemAdminBusinessBypass 开关
