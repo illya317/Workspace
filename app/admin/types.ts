@@ -37,6 +37,7 @@ export interface ResourceItem {
   maxRoleKey?: string;
   effectiveMaxRoleKey?: string;
   scopeTypes?: string | null;
+  scopeInheritanceMode?: string;
   children?: ResourceItem[];
 }
 

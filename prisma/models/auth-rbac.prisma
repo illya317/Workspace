@@ -41,6 +41,8 @@ model Resource {
   maxRoleKey      String                   @default("admin")
   /// 逗号分隔的 scope 类型，如 "department,project"。null 表示不支持 scoped 授权
   scopeTypes      String?
+  /// 权限继承模式：inherit=查祖先, self_only=数据权限只查自身（父资源仅做入口）
+  scopeInheritanceMode String  @default("inherit")
   departmentRoles DepartmentResourceRole[]
   positionRoles   PositionResourceRole[]
   parent          Resource?                @relation("ResHierarchy", fields: [parentId], references: [id])

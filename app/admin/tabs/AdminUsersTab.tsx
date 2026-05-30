@@ -23,7 +23,7 @@ interface UserItem {
   employeeId: string | null;
   canLogin: boolean;
   isWorkListAdmin: boolean;
-  resourceRoles: Array<{ resourceKey: string; roleKey: string }>;
+  resourceRoles: Array<{ resourceKey: string; roleKey: string; scopeId?: string | null }>;
 }
 
 const ROLE_BG: Record<string, string> = {
@@ -199,14 +199,19 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
                         )}
                         {summaries.map((s) => {
                           const color = ROLE_COLORS[s.roleKey] || "gray";
-                          const label = s.source === "parent"
-                            ? s.label
-                            : s.totalChildren > 0
+                          let label: string;
+                          if (s.kind === "scoped") {
+                            label = s.global ? `${s.label} ${s.scopeLabel}` : `${s.label} ${s.scopeLabel}`;
+                          } else if (s.source === "parent") {
+                            label = (s.totalChildren ?? 0) > 0 ? `${s.label} 全部` : s.label;
+                          } else {
+                            label = (s.totalChildren ?? 0) > 0
                               ? `${s.label} ${s.coveredChildren}/${s.totalChildren}`
                               : s.label;
+                          }
                           return (
                             <span
-                              key={s.key}
+                              key={`${s.kind}-${s.key}-${s.scopeType || ""}`}
                               className={`rounded px-1 py-0.5 text-[10px] ${ROLE_BG[color] || ROLE_BG.gray}`}
                               title={formatSummaryTooltip(s)}
                             >

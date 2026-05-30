@@ -30,11 +30,11 @@ export async function GET(request: Request) {
     include: { resource: { select: { key: true } }, role: { select: { key: true } } },
   });
 
-  // Group grants by userId (ignore scopeId for summary display)
-  const grantsByUser: Record<number, Array<{ resourceKey: string; roleKey: string }>> = {};
+  // Group grants by userId (include scopeId for scoped resource summaries)
+  const grantsByUser: Record<number, Array<{ resourceKey: string; roleKey: string; scopeId?: string | null }>> = {};
   for (const g of allGrants) {
     if (!grantsByUser[g.userId]) grantsByUser[g.userId] = [];
-    grantsByUser[g.userId].push({ resourceKey: g.resource.key, roleKey: g.role.key });
+    grantsByUser[g.userId].push({ resourceKey: g.resource.key, roleKey: g.role.key, scopeId: g.scopeId });
   }
 
   // system.admin check (for "管理员" badge)

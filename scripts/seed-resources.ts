@@ -10,6 +10,7 @@ const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: "data/dev.d
 async function upsertResource(
   key: string, name: string, parentKey?: string,
   maxRoleKey: string = "admin", scopeTypes?: string | null,
+  scopeInheritanceMode: string = "inherit",
 ) {
   const parent = parentKey
     ? await p.resource.findUnique({ where: { key: parentKey }, select: { id: true } })
@@ -19,19 +20,12 @@ async function upsertResource(
 
   await p.resource.upsert({
     where: { key },
-    update: { name, maxRoleKey, scopeTypes: scopeTypes ?? null, ...parentConnect },
-    create: { key, name, maxRoleKey, scopeTypes: scopeTypes ?? null, ...parentConnect },
+    update: { name, maxRoleKey, scopeTypes: scopeTypes ?? null, scopeInheritanceMode, ...parentConnect },
+    create: { key, name, maxRoleKey, scopeTypes: scopeTypes ?? null, scopeInheritanceMode, ...parentConnect },
   });
 }
 
 async function main() {
-  // ── 清理前：删掉第一次跑出来的重复资源 ──
-  const dupProdInv = await p.resource.findUnique({ where: { key: "production.inventory" } });
-  if (dupProdInv) {
-    await p.userResourceRole.deleteMany({ where: { resourceId: dupProdInv.id } });
-    await p.resource.delete({ where: { id: dupProdInv.id } });
-  }
-
   // ── 顶层根资源 ──
   await upsertResource("system", "系统管理");
   await upsertResource("system.user", "用户管理", "system");
@@ -56,7 +50,11 @@ async function main() {
   await upsertResource("administration.contract", "合同台账", "administration");
 
   await upsertResource("production", "生产管理");
-
+  await upsertResource("production.inventory", "库存管理", "production");
+  await upsertResource("production.inventory.raw", "原辅料", "production.inventory");
+  await upsertResource("production.inventory.packaging", "包装材料", "production.inventory");
+  await upsertResource("production.inventory.finished", "成品", "production.inventory");
+  await upsertResource("production.inventory.report", "库存报表", "production.inventory");
 
   await upsertResource("docs", "文档中心", undefined, "access");
   await upsertResource("docs.positions", "岗位说明书", "docs");
@@ -72,8 +70,17 @@ async function main() {
   await upsertResource("external.supplier", "供应商管理", "external");
 
   await upsertResource("work", "工作");
+  // Work — entry/grouping only, data permissions on leaf resources
   await upsertResource("work.task", "工作清单", "work");
-  await upsertResource("work.report", "工作汇报", "work", "admin", "department,project");
+  await upsertResource("work.report", "工作汇报", "work");
+
+  // Work leaf resources — self_only scoped data permissions
+  await upsertResource("work.task.department", "部门工作清单", "work.task", "admin", "department", "self_only");
+  await upsertResource("work.task.personal", "个人工作清单", "work.task");
+
+  await upsertResource("work.report.department", "部门工作汇报", "work.report", "admin", "department", "self_only");
+  await upsertResource("work.report.project", "项目工作汇报", "work.report", "admin", "project", "self_only");
+  await upsertResource("work.report.personal", "个人工作汇报", "work.report");
 
   await upsertResource("legal", "法务", undefined, "access");
   await upsertResource("legal.chat", "法务咨询", "legal");
@@ -132,13 +139,12 @@ async function main() {
     await p.resource.delete({ where: { id: oldRes.id } });
   }
 
-  // inventory 子资源 → production 下
-  const prodRes = await p.resource.findUnique({ where: { key: "production" } });
-  const invRes = await p.resource.findUnique({ where: { key: "production.inventory" } });
-  if (prodRes && invRes) {
-    await p.resource.update({ where: { key: "production.inventory" }, data: { parentId: prodRes.id } });
-    await p.resource.updateMany({ where: { key: { in: ["inventory.raw", "inventory.packaging", "inventory.finished", "inventory.report"] } }, data: { parentId: invRes.id } });
-  }
+  // Repair orphaned production.inventory children (from old buggy seed)
+  await p.$executeRawUnsafe(`
+    UPDATE Resource SET parentId = (SELECT id FROM Resource WHERE key = 'production.inventory')
+    WHERE key IN ('production.inventory.raw', 'production.inventory.packaging', 'production.inventory.finished', 'production.inventory.report')
+      AND parentId IS NULL
+  `);
 
   console.log("✅ Resources seeded");
   const all = await p.resource.findMany({ orderBy: { key: "asc" }, select: { key: true, name: true } });

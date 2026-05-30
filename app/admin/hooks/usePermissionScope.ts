@@ -42,8 +42,9 @@ export function usePermissionScope(
     return find(resources);
   }, [resourceKey, resources]);
 
-  // DB-driven: supports scope if resource.scopeTypes is non-null
-  const supportsScope = !!(selectedResource?.scopeTypes);
+  // DB-driven: scope selector only for self_only scoped data resources
+  const isSelfOnly = selectedResource?.scopeInheritanceMode === "self_only";
+  const supportsScope = isSelfOnly && !!(selectedResource?.scopeTypes);
   const scopeTypeList = useMemo(
     () => (selectedResource?.scopeTypes || "").split(",").filter(Boolean),
     [selectedResource?.scopeTypes],

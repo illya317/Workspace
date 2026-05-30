@@ -19,6 +19,7 @@ interface TreeNode {
   maxRoleKey: string;
   effectiveMaxRoleKey: string;
   scopeTypes: string | null;
+  scopeInheritanceMode: string | null;
   children?: TreeNode[];
 }
 
@@ -36,6 +37,7 @@ function buildTree(
       maxRoleKey: c.maxRoleKey,
       effectiveMaxRoleKey: effectiveMaxRoleMap.get(c.key) || c.maxRoleKey,
       scopeTypes: c.scopeTypes,
+      scopeInheritanceMode: c.scopeInheritanceMode,
       children: (c.children || [])
         .map((gc) => ({
           id: gc.id, key: gc.key, name: gc.name, description: gc.description,
@@ -44,6 +46,7 @@ function buildTree(
           maxRoleKey: gc.maxRoleKey,
           effectiveMaxRoleKey: effectiveMaxRoleMap.get(gc.key) || gc.maxRoleKey,
           scopeTypes: gc.scopeTypes,
+          scopeInheritanceMode: gc.scopeInheritanceMode,
         }))
         .filter((gc) => allowedKeys.has(gc.key)),
     }))
@@ -56,6 +59,7 @@ function buildTree(
     maxRoleKey: r.maxRoleKey,
     effectiveMaxRoleKey: effectiveMaxRoleMap.get(r.key) || r.maxRoleKey,
     scopeTypes: r.scopeTypes,
+    scopeInheritanceMode: r.scopeInheritanceMode,
     children,
   };
 }

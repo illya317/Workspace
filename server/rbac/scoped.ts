@@ -52,7 +52,7 @@ export async function checkScopedPermission(
   // 1. Resolve resource
   const resource = await prisma.resource.findUnique({
     where: { key: resourceKey },
-    select: { id: true },
+    select: { id: true, scopeInheritanceMode: true },
   });
   if (!resource) return false;
 
@@ -60,8 +60,11 @@ export async function checkScopedPermission(
   const normalized = normalizeRoleKey(roleKey);
   if (!(await isRoleAllowedForResource(resourceKey, normalized))) return false;
 
-  // 3. Resource + ancestors
-  const resourceIds = await getResourceAncestors(resource.id);
+  // 3. Resource IDs to check: self_only → only this resource; inherit → + ancestors
+  const isSelfOnly = resource.scopeInheritanceMode === "self_only";
+  const resourceIds = isSelfOnly
+    ? [resource.id]
+    : await getResourceAncestors(resource.id);
   const roleKeys = resolveRoleKeys(roleKey);
 
   // 4. Build scope filter: null=global-only, value=match global OR exact
