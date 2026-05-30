@@ -6,6 +6,7 @@ import ApiGuidePage from "@/app/api-guide/ApiGuideClient";
 export default async function DocsApiGuidePage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  if (!user.canAccessApi) redirect("/docs");
   return (
     <AppShell title="接入指南" backHref="/docs" user={user}>
       <ApiGuidePage hideShell />

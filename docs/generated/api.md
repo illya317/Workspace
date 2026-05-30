@@ -12,8 +12,8 @@ GET: 31 | POST: 10 | PUT: 19 | DELETE: 12
 | **DELETE** | `/api/auth/dev-login` | 公开 | 退出登录 |
 | **POST** | `/api/auth/dev-login` | 公开 | 开发环境登录 |
 | **GET** | `/api/auth/me` | 登录 | 获取当前登录用户信息 |
-| **GET** | `/api/my-api-key` | 登录 | 获取我的API Key |
-| **POST** | `/api/my-api-key` | 登录 | 申请/重新申请API Key |
+| **GET** | `/api/my-api-key` | `system.api.access` | 获取我的API Key |
+| **POST** | `/api/my-api-key` | `system.api.access` | 申请/重新申请API Key |
 | **GET** | `/api/user/routine` | 登录 | 获取用户日常模板 |
 | **PUT** | `/api/user/routine` | 登录 | 更新用户日常模板 |
 

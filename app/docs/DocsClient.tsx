@@ -15,7 +15,7 @@ const DOC_CATEGORIES: Record<string, Array<{ title: string; href: string }>> = {
   "常用工具": [
     { title: "系统使用手册", href: "/docs/system-guide" },
     { title: "工作汇报填写说明", href: "/docs/report-guide" },
-    { title: "API 接入文档", href: "/api-guide" },
+    ...(user.canAccessApi ? [{ title: "接入指南", href: "/api-guide" }] : []),
   ],
   "规章制度": [
     { title: "考勤管理制度", href: "/docs/attendance" },

@@ -125,7 +125,7 @@ Company → Department → PositionDescription → Position → Employee → Emp
 | 工作清单 | `/works` | 登录 |
 | 人事行政 | `/hr` | `people.access` |
 | 管理后台 | `/admin` | `system.admin` 或 `people.access` |
-| API接入 | `/api-guide` | 登录 |
+| 接入指南 | `/api-guide` | `system.api.access` |
 | 设置 | `/settings` | 登录 |
 | 智能助手 | `/api/agent` | 登录（权限随用户） |
 | 外部关系 | `/external` | 登录 |

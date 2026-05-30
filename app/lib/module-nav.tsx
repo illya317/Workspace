@@ -120,7 +120,7 @@ export const MODULES: ModuleDef[] = [
       { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions/GMP" },
       { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company" },
       { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense" },
-      { key: "api-guide", label: "接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide" },
+      { key: "api-guide", label: "接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide", requiredPerm: "canAccessApi" },
     ],
   },
   { key: "library", label: "资料库", desc: "内部资料存档", href: "/library", icon: (
