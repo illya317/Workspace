@@ -30,6 +30,7 @@ export const RES = {
     account: "finance.account",
     voucher: "finance.voucher",
     report: "finance.report",
+    report: "finance.report",
     cost: "finance.cost",
     costShipments: "finance.cost.shipments",
     costAnalysis: "finance.cost.analysis",
@@ -37,6 +38,10 @@ export const RES = {
     costWorkshop: "finance.cost.workshop",
     costSalary: "finance.cost.salary",
     costImports: "finance.cost.imports",
+    ledger: "finance.ledger",
+    budget: "finance.budget",
+    analysis: "finance.analysis",
+    import: "finance.import",
   },
   inventory: {
     root: "inventory",

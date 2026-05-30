@@ -15,6 +15,11 @@ export interface SessionUser {
   canAccessWorks?: boolean;
   canAccessFinance?: boolean;
   canAccessFinanceCost?: boolean;
+  canAccessFinanceLedger?: boolean;
+  canAccessFinanceReport?: boolean;
+  canAccessFinanceBudget?: boolean;
+  canAccessFinanceAnalysis?: boolean;
+  canAccessFinanceImport?: boolean;
   canAccessInventory?: boolean;
   canAccessContract?: boolean;
   canAccessAdmin?: boolean;

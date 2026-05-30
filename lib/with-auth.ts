@@ -11,6 +11,21 @@ import {
   checkFinanceCostAccess,
   checkFinanceCostWrite,
   checkFinanceCostDelete,
+  checkFinanceLedgerAccess,
+  checkFinanceLedgerWrite,
+  checkFinanceLedgerDelete,
+  checkFinanceReportAccess,
+  checkFinanceReportWrite,
+  checkFinanceReportDelete,
+  checkFinanceBudgetAccess,
+  checkFinanceBudgetWrite,
+  checkFinanceBudgetDelete,
+  checkFinanceAnalysisAccess,
+  checkFinanceAnalysisWrite,
+  checkFinanceAnalysisDelete,
+  checkFinanceImportAccess,
+  checkFinanceImportWrite,
+  checkFinanceImportDelete,
   checkInventoryAccess,
   checkContractAccess,
   type AuthPayload,
@@ -106,6 +121,96 @@ export function withFinanceCostDelete(
   handler: AuthHandler,
 ): (req: Request) => Promise<Response> {
   return withAuth(handler, checkFinanceCostDelete);
+}
+
+export function withFinanceLedgerAccess(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceLedgerAccess);
+}
+
+export function withFinanceLedgerWrite(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceLedgerWrite);
+}
+
+export function withFinanceLedgerDelete(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceLedgerDelete);
+}
+
+export function withFinanceReportAccess(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceReportAccess);
+}
+
+export function withFinanceReportWrite(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceReportWrite);
+}
+
+export function withFinanceReportDelete(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceReportDelete);
+}
+
+export function withFinanceBudgetAccess(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceBudgetAccess);
+}
+
+export function withFinanceBudgetWrite(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceBudgetWrite);
+}
+
+export function withFinanceBudgetDelete(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceBudgetDelete);
+}
+
+export function withFinanceAnalysisAccess(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceAnalysisAccess);
+}
+
+export function withFinanceAnalysisWrite(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceAnalysisWrite);
+}
+
+export function withFinanceAnalysisDelete(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceAnalysisDelete);
+}
+
+export function withFinanceImportAccess(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceImportAccess);
+}
+
+export function withFinanceImportWrite(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceImportWrite);
+}
+
+export function withFinanceImportDelete(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceImportDelete);
 }
 
 export function withInventoryAccess(
