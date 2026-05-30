@@ -141,12 +141,13 @@ export const MODULES: ModuleDef[] = [
 /** Portal 用：过滤用户有权限的一级模块。有子模块的 L1，至少要有一个可见子模块才显示。 */
 export function getAccessibleModules(user: SessionUser): ModuleDef[] {
   return MODULES.filter((m) => {
-    if (!canAccess(user, m.requiredPerm)) return false;
-    // 有 children 且无 requiredPerm：至少一个子模块可见
-    if (!m.requiredPerm && m.children) {
+    // Parent perm passes → module visible
+    if (canAccess(user, m.requiredPerm)) return true;
+    // Parent perm fails but has children → show if any child is accessible
+    if (m.children?.length) {
       return m.children.some((c) => canAccess(user, c.requiredPerm));
     }
-    return true;
+    return false;
   });
 }
 
