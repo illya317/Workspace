@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
-import { createVoucher } from "@/server/services/finance/voucher-service";
+import { createVoucher } from "@/server/services/finance/ledger/voucher-service";
 
 export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withFinanceBudgetAccess, withFinanceBudgetWrite } from "@/lib/with-auth";
-import { readDeptBudget, readRdBudget, loadDeptBudgetFromDb, loadRdBudgetFromDb, importDeptBudgetToDb, importRdBudgetToDb } from "@/server/services/finance/budget-data";
+import { readDeptBudget, readRdBudget, loadDeptBudgetFromDb, loadRdBudgetFromDb, importDeptBudgetToDb, importRdBudgetToDb } from "@/server/services/finance/budget/budget-data";
 
 export const GET = withFinanceBudgetAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);

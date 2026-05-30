@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { computeBalancesForPeriod } from "@/server/services/finance/balances";
+import { computeBalancesForPeriod } from "@/server/services/finance/ledger/balances";
 
 /** GET 查询余额 */
 export const GET = withFinanceLedgerAccess(async (request: Request) => {

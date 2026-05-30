@@ -6,8 +6,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../../generated/prisma/client";
-import { parseJournal } from "../../server/services/finance/parsers/voucher-parser";
-import { confirmFinanceImport } from "../../server/services/finance/import-confirm";
+import { parseJournal } from "../../server/services/finance/import/parsers/voucher-parser";
+import { confirmFinanceImport } from "../../server/services/finance/import/import-confirm";
 import { CODE_TO_NAME } from "../../lib/company";
 
 const ROOT = path.resolve(__dirname, "../..");

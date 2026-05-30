@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withFinanceLedgerWrite } from "@/lib/with-auth";
-import { reconcileBalanceSheet } from "@/server/services/finance/balance-reconcile";
+import { reconcileBalanceSheet } from "@/server/services/finance/ledger/balance-reconcile";
 
 /** POST 上传会计软件年度余额表，与“年度基准 + 系统凭证滚动计算结果”核对 */
 export const POST = withFinanceLedgerWrite(async (request: Request) => {

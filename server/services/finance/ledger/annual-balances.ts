@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { CODE_TO_NAME } from "@/lib/company";
-import type { PreviewResult } from "./import";
+import type { PreviewResult } from "../import/import";
 import type { SideBalance } from "./balance-utils";
 
 /**

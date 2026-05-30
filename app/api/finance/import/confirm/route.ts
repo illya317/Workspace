@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceImportWrite } from "@/lib/with-auth";
-import type { PreviewResult } from "@/server/services/finance/import";
-import { confirmFinanceImport } from "@/server/services/finance/import-confirm";
+import type { PreviewResult } from "@/server/services/finance/import/import";
+import { confirmFinanceImport } from "@/server/services/finance/import/import-confirm";
 
 export const POST = withFinanceImportWrite(async (request: Request) => {
   try {

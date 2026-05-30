@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { parseBalanceSheet } from "./import";
+import { parseBalanceSheet } from "../import/import";
 import { computeAnnualComparisonBase } from "./balances";
 import * as xlsx from "xlsx";
 

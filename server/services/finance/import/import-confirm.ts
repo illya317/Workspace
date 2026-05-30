@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { PreviewResult } from "./import";
-import { createSnapshotFromPreview } from "./annual-balances";
+import { createSnapshotFromPreview } from "../ledger/annual-balances";
 
 export type FinanceImportConfirmResult = {
   imported: number;
