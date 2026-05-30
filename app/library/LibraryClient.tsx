@@ -13,29 +13,28 @@ function fmtSize(b: number) {
   return `${(b / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function SidebarNode({ node, depth, currentPath }: { node: TreeNode; depth: number; currentPath: string }) {
+function SidebarNode({ node, depth, currentPath, onNav }: {
+  node: TreeNode; depth: number; currentPath: string; onNav: (path: string) => void;
+}) {
   const [open, setOpen] = useState(depth < 2);
-  const hasChildren = node.children && node.children.length > 0;
+  const hasChildren = node.children && node.children.some(c => c.isDir);
   const isActive = currentPath === node.path || currentPath.startsWith(node.path + "/");
 
   return (
     <div>
-      <Link href={node.isDir ? node.path : `/api${node.path.slice(8)}`}
-        className={`flex items-center gap-1.5 rounded px-2 py-1.5 text-sm transition hover:bg-gray-100 ${
+      <button
+        onClick={() => { onNav(node.path); if (hasChildren) setOpen(!open); }}
+        className={`w-full text-left flex items-center gap-1.5 rounded px-2 py-1.5 text-sm transition hover:bg-gray-100 ${
           isActive ? "bg-emerald-50 text-emerald-700 font-medium" : "text-gray-700"
         }`}
         style={{ paddingLeft: `${12 + depth * 16}px` }}
-        onClick={(e) => {
-          if (hasChildren) { e.preventDefault(); setOpen(!open); }
-        }}
       >
         {hasChildren && <span className="shrink-0 text-xs text-gray-400 w-3">{open ? "▼" : "▶"}</span>}
-        {!hasChildren && node.isDir && <span className="shrink-0 w-3" />}
-        {!node.isDir && <span className="shrink-0 w-3" />}
+        {!hasChildren && <span className="shrink-0 w-3" />}
         <span className="truncate">{node.name}</span>
-      </Link>
+      </button>
       {open && hasChildren && node.children!.filter(c => c.isDir).map(c => (
-        <SidebarNode key={c.path} node={c} depth={depth + 1} currentPath={currentPath} />
+        <SidebarNode key={c.path} node={c} depth={depth + 1} currentPath={currentPath} onNav={onNav} />
       ))}
     </div>
   );
@@ -45,17 +44,19 @@ export default function LibraryClient({ tree }: { tree: TreeNode[] }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [currentPath, setCurrentPath] = useState("/library");
 
-  // Find current directory's contents
   function findNode(path: string, nodes: TreeNode[]): TreeNode | undefined {
     for (const n of nodes) {
       if (n.path === path) return n;
-      if (n.children) {
-        const found = findNode(path, n.children);
-        if (found) return found;
-      }
+      if (n.children) { const f = findNode(path, n.children); if (f) return f; }
     }
   }
-  const currentDir = useMemo(() => findNode(currentPath, tree), [currentPath, tree]);
+
+  const rootNode: TreeNode = { name: "资料库", path: "/library", isDir: true, children: tree };
+  const currentDir = useMemo(
+    () => currentPath === "/library" ? rootNode : findNode(currentPath, tree),
+    [currentPath, tree]
+  );
+
   const breadcrumbs = useMemo(() => {
     const parts: { label: string; path: string }[] = [{ label: "资料库", path: "/library" }];
     if (currentPath === "/library") return parts;
@@ -79,29 +80,29 @@ export default function LibraryClient({ tree }: { tree: TreeNode[] }) {
           </button>
         </div>
         <div className="overflow-y-auto py-2" style={{ height: "calc(100% - 40px)" }}>
-          {tree.map(n => <SidebarNode key={n.path} node={n} depth={0} currentPath={currentPath} />)}
+          {tree.filter(n => n.isDir).map(n => (
+            <SidebarNode key={n.path} node={n} depth={0} currentPath={currentPath} onNav={setCurrentPath} />
+          ))}
         </div>
       </div>
 
       {/* Content */}
       <div className="relative flex-1 overflow-y-auto">
-        {/* Sidebar toggle when collapsed */}
         {!sidebarOpen && (
           <button onClick={() => setSidebarOpen(true)}
-            className="fixed left-0 top-1/2 z-20 rounded-r bg-white px-2 py-4 shadow-md text-gray-500 hover:text-gray-700"
+            className="fixed left-0 top-1/2 z-40 -translate-y-1/2 rounded-r bg-white px-2 py-4 shadow-md text-gray-500 hover:text-gray-700"
           >
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           </button>
         )}
 
         <main className="mx-auto max-w-4xl px-6 py-8">
-          {/* Breadcrumb */}
           <div className="mb-2 flex items-center gap-1 text-sm text-gray-500">
             {breadcrumbs.map((c, i) => (
               <span key={i}>
                 {i > 0 && <span className="mx-1">/</span>}
                 {i < breadcrumbs.length - 1
-                  ? <Link href={c.path} className="hover:text-emerald-600">{c.label}</Link>
+                  ? <Link href={c.path} onClick={() => setCurrentPath(c.path)} className="hover:text-emerald-600">{c.label}</Link>
                   : <span className="text-gray-700 font-medium">{c.label}</span>}
               </span>
             ))}
