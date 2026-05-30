@@ -57,6 +57,7 @@ export function useAgentSession() {
       });
 
       if (!res.ok) {
+        if (res.status === 401) { window.location.href = "/login"; return; }
         const err = await res.json().catch(() => ({ error: "Request failed" }));
         addMessage("system", err.error || "请求失败");
         setMood("error");
