@@ -6,7 +6,8 @@ import NavLink from "@/app/components/NavLink";
 import UserMenu from "@/app/components/UserMenu";
 import { SessionUser } from "@/lib/types";
 
-const DOC_CATEGORIES: Record<string, Array<{ title: string; href: string }>> = {
+function getDocCategories(user: SessionUser): Record<string, Array<{ title: string; href: string }>> {
+  return {
   "入职指南": [
     { title: "入职流程说明", href: "/docs/onboarding" },
     { title: "公司制度介绍", href: "/docs/policies" },
@@ -25,7 +26,8 @@ const DOC_CATEGORIES: Record<string, Array<{ title: string; href: string }>> = {
   "岗位管理": [
     { title: "GMP 岗位说明书", href: "/docs/positions/GMP" },
   ],
-};
+  };
+}
 
 export default function DocsClient({ user, hideShell }: { user: SessionUser; hideShell?: boolean }) {
   const router = useRouter();
@@ -58,7 +60,7 @@ export default function DocsClient({ user, hideShell }: { user: SessionUser; hid
         </p>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {Object.entries(DOC_CATEGORIES).map(([category, docs]) => (
+          {Object.entries(getDocCategories(user)).map(([category, docs]) => (
             <div key={category} className="rounded-lg bg-white p-6 shadow-sm">
               <h2 className="mb-4 text-lg font-semibold text-gray-800">
                 {category}
