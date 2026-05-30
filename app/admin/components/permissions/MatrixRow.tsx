@@ -36,7 +36,7 @@ export default function MatrixRow({ subject, s }: MatrixRowProps) {
         {s.roles.map((role) => {
           const state = s.getPermissionState(subject, role.key);
           const roleLevel = ROLE_HIERARCHY[role.key] ?? 0;
-          const exceeds = roleLevel > maxLevel;
+          const exceeds = role.key !== "admin" && roleLevel > maxLevel;
           return (
             <td key={role.key} className="whitespace-nowrap py-2 pr-3 text-center">
               {exceeds ? (

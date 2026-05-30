@@ -23,7 +23,7 @@ export default function PermissionsTab({ resources, showToast }: Props) {
             <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
               最高业务权限：
               <select
-                value={s.maxRoleKey === "admin" ? "admin" : s.maxRoleKey}
+                value={s.maxRoleKey === "admin" ? "delete" : s.maxRoleKey}
                 onChange={(e) => s.updateMaxRole(e.target.value)}
                 className="rounded border border-gray-200 px-1 py-0.5 text-xs text-gray-600"
               >

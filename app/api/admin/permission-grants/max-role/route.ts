@@ -15,10 +15,9 @@ export async function PATCH(request: Request) {
   const body = await request.json();
   const { resourceKey, maxRoleKey } = body;
   if (!resourceKey || !maxRoleKey) return NextResponse.json({ error: "缺少参数" }, { status: 400 });
-  if (!["access", "write", "delete", "admin"].includes(maxRoleKey)) {
-    return NextResponse.json({ error: "无效角色" }, { status: 400 });
+  if (resourceKey !== "system" && !["access", "write", "delete"].includes(maxRoleKey)) {
+    return NextResponse.json({ error: "最高业务权限仅支持访问/编辑/删除" }, { status: 400 });
   }
-
   if (resourceKey === "system" && maxRoleKey !== "admin") {
     return NextResponse.json({ error: "系统资源最高权限不可低于管理" }, { status: 400 });
   }
