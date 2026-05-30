@@ -40,19 +40,18 @@ export function useAgentSession() {
   const [loading, setLoading] = useState(false);
   const [drawerMsg, setDrawerMsg] = useState<AgentMessage | null>(null);
   const [pendingProposal, setPendingProposal] = useState<ProposalInfo | null>(null);
-  const historyRef = useRef<SavedConversation[]>([]);
   const [savedConversations, setSavedConversations] = useState<SavedConversation[]>(() => {
     const raw = loadHistory();
     const seen = new Set<string>();
-    return raw.filter((c) => {
+    const clean = raw.filter((c) => {
       const fp = `${c.title}|${c.messages.length}`;
       if (seen.has(fp)) return false; seen.add(fp); return true;
     });
+    if (clean.length !== raw.length) saveHistory(clean);
+    return clean;
   });
-  useEffect(() => {
-    historyRef.current = savedConversations;
-    saveHistory(savedConversations);
-  }, [savedConversations]);
+  const historyRef = useRef<SavedConversation[]>(savedConversations);
+  useEffect(() => { historyRef.current = savedConversations; }, [savedConversations]);
 
   const abortRef = useRef<AbortController | null>(null);
   const messagesRef = useRef<AgentMessage[]>([]);
