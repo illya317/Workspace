@@ -80,13 +80,16 @@ async function resolveAccountIds(names: string[]) {
   return new Map(accounts.map((a) => [a.name, a.id]));
 }
 
-export async function importDeptBudgetToDb(year: number, companyCode?: string) {
+export async function importDeptBudgetToDb(
+  year: number,
+  companyCode: string | undefined,
+  versionId: number,
+) {
   const raw = readDeptBudget();
   const accountMap = await resolveAccountIds(raw.map((i) => i.account));
 
-  await prisma.financeBudgetDept.deleteMany({ where: { year, companyCode: companyCode ?? null } });
-
   const data = raw.map((item) => ({
+    versionId,
     year,
     companyCode: companyCode ?? null,
     dept: item.dept,
@@ -113,13 +116,16 @@ export async function importDeptBudgetToDb(year: number, companyCode?: string) {
   return data.length;
 }
 
-export async function importRdBudgetToDb(year: number, companyCode?: string) {
+export async function importRdBudgetToDb(
+  year: number,
+  companyCode: string | undefined,
+  versionId: number,
+) {
   const raw = readRdBudget();
   const accountMap = await resolveAccountIds(raw.map((i) => i.category));
 
-  await prisma.financeBudgetRd.deleteMany({ where: { year, companyCode: companyCode ?? null } });
-
   const data = raw.map((item) => ({
+    versionId,
     year,
     companyCode: companyCode ?? null,
     project: item.project,
@@ -147,9 +153,9 @@ export async function importRdBudgetToDb(year: number, companyCode?: string) {
 
 // ---- DB read ----
 
-export async function loadDeptBudgetFromDb(year: number, companyCode?: string | null) {
+export async function loadDeptBudgetFromDb(versionId: number) {
   const rows = await prisma.financeBudgetDept.findMany({
-    where: { year, companyCode: companyCode ?? null },
+    where: { versionId },
     include: { account: { select: { id: true, code: true, isActive: true } } },
   });
   return rows.map((r) => ({
@@ -164,9 +170,9 @@ export async function loadDeptBudgetFromDb(year: number, companyCode?: string | 
   }));
 }
 
-export async function loadRdBudgetFromDb(year: number, companyCode?: string | null) {
+export async function loadRdBudgetFromDb(versionId: number) {
   const rows = await prisma.financeBudgetRd.findMany({
-    where: { year, companyCode: companyCode ?? null },
+    where: { versionId },
     include: { account: { select: { id: true, code: true, isActive: true } } },
   });
   return rows.map((r) => ({

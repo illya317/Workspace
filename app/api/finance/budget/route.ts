@@ -1,26 +1,52 @@
 import { NextResponse } from "next/server";
 import { withFinanceBudgetAccess, withFinanceBudgetWrite } from "@/lib/with-auth";
-import { readDeptBudget, readRdBudget, loadDeptBudgetFromDb, loadRdBudgetFromDb, importDeptBudgetToDb, importRdBudgetToDb } from "@/server/services/finance/budget/budget-data";
+import {
+  readDeptBudget,
+  readRdBudget,
+  loadDeptBudgetFromDb,
+  loadRdBudgetFromDb,
+  importDeptBudgetToDb,
+  importRdBudgetToDb,
+} from "@/server/services/finance/budget/budget-data";
+import {
+  createBudgetVersion,
+  getActiveVersion,
+} from "@/server/services/finance/budget/budget-version";
 
 export const GET = withFinanceBudgetAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const year = parseInt(searchParams.get("year") || "2026");
   const companyCode = searchParams.get("companyCode") || undefined;
+  const versionIdParam = searchParams.get("versionId");
 
-  let deptBudget = await loadDeptBudgetFromDb(year, companyCode);
-  let rdBudget = await loadRdBudgetFromDb(year, companyCode);
+  let versionId: number | null = null;
 
-  // Fallback to Excel if DB is empty
-  if (deptBudget.length === 0) {
-    const raw = readDeptBudget();
-    deptBudget = raw.map((i) => ({ ...i, accountId: null, accountCode: null, accountActive: null }));
+  if (versionIdParam) {
+    // 用户明确指定了版本，严格按版本查询
+    versionId = parseInt(versionIdParam);
+  } else {
+    // 未指定版本，查找 active version
+    const active = await getActiveVersion(year, companyCode);
+    versionId = active?.id ?? null;
   }
-  if (rdBudget.length === 0) {
-    const raw = readRdBudget();
-    rdBudget = raw.map((i) => ({ ...i, accountId: null, accountCode: null, accountActive: null }));
+
+  let deptBudget: unknown[] = [];
+  let rdBudget: unknown[] = [];
+
+  if (versionId) {
+    deptBudget = await loadDeptBudgetFromDb(versionId);
+    rdBudget = await loadRdBudgetFromDb(versionId);
   }
 
-  return NextResponse.json({ deptBudget, rdBudget });
+  // Fallback 到 Excel：仅当没有任何 active version 时（兼容旧数据）
+  if (!versionId) {
+    const rawDept = readDeptBudget();
+    deptBudget = rawDept.map((i) => ({ ...i, accountId: null, accountCode: null, accountActive: null }));
+    const rawRd = readRdBudget();
+    rdBudget = rawRd.map((i) => ({ ...i, accountId: null, accountCode: null, accountActive: null }));
+  }
+
+  return NextResponse.json({ deptBudget, rdBudget, versionId });
 });
 
 export const POST = withFinanceBudgetWrite(async (request: Request) => {
@@ -29,8 +55,15 @@ export const POST = withFinanceBudgetWrite(async (request: Request) => {
     return NextResponse.json({ error: "year 为必填" }, { status: 400 });
   }
 
-  const deptCount = await importDeptBudgetToDb(parseInt(year), companyCode);
-  const rdCount = await importRdBudgetToDb(parseInt(year), companyCode);
+  const version = await createBudgetVersion({
+    year: parseInt(year),
+    companyCode,
+    name: `导入于 ${new Date().toLocaleDateString("zh-CN")}`,
+    type: "all",
+  });
 
-  return NextResponse.json({ success: true, deptCount, rdCount });
+  const deptCount = await importDeptBudgetToDb(parseInt(year), companyCode, version.id);
+  const rdCount = await importRdBudgetToDb(parseInt(year), companyCode, version.id);
+
+  return NextResponse.json({ success: true, version, deptCount, rdCount });
 });
