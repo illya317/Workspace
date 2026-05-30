@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import UserMenu from "@/app/components/UserMenu";
 import { SessionUser } from "@/lib/types";
+import { getFinanceNavItems } from "@/app/finance/lib/nav-utils";
 
 interface Props {
   activeNav: string;
@@ -11,17 +12,9 @@ interface Props {
   user: SessionUser;
 }
 
-const navItems = [
-  { key: "ledger", label: "总账基础", href: "/finance/ledger" },
-  { key: "statements", label: "财务报表", href: "/finance/statements" },
-  { key: "budget", label: "预算管理", href: "/finance/budget" },
-  { key: "analysis", label: "财务分析", href: "/finance/analysis" },
-  { key: "cost", label: "成本管理", href: "/finance/cost" },
-  { key: "import", label: "数据导入", href: "/finance/import" },
-];
-
 export default function FinanceShell({ activeNav, children, user }: Props) {
   const router = useRouter();
+  const navItems = getFinanceNavItems(user);
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm">

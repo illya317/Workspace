@@ -2,20 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { SessionUser } from "@/lib/types";
-
-const modules = [
-  { key: "ledger", title: "总账基础", desc: "科目设置、凭证明细、余额表、期间管理", href: "/finance/ledger" },
-  { key: "statements", title: "财务报表", desc: "资产负债表、利润表、现金流量表", href: "/finance/statements" },
-  { key: "budget", title: "预算管理", desc: "部门费用预算、研发费用预算", href: "/finance/budget" },
-  { key: "analysis", title: "财务分析", desc: "预算执行分析、差异分析、趋势看板", href: "/finance/analysis" },
-];
+import { getFinanceModules } from "@/app/finance/lib/nav-utils";
 
 interface Props {
   user: SessionUser;
 }
 
-export default function FinanceHomeClient({ user: _user }: Props) {
+export default function FinanceHomeClient({ user }: Props) {
   const router = useRouter();
+  const modules = getFinanceModules(user);
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-6">
@@ -29,7 +24,7 @@ export default function FinanceHomeClient({ user: _user }: Props) {
             onClick={() => router.push(m.href)}
             className="cursor-pointer rounded-lg bg-white p-5 shadow-sm transition hover:shadow-md"
           >
-            <h3 className="text-base font-semibold text-gray-800">{m.title}</h3>
+            <h3 className="text-base font-semibold text-gray-800">{m.label}</h3>
             <p className="mt-1 text-sm text-gray-500">{m.desc}</p>
             <span className="mt-3 inline-block text-sm text-emerald-600">进入 →</span>
           </div>

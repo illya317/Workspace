@@ -95,7 +95,14 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     canEditHR: isAdmin || (hasHRWrite && isActiveEmployee),
     canDeleteHR: isAdmin || (hasHRDelete && isActiveEmployee),
     canAccessWorks: hasWorks,
-    canAccessFinance: hasFinance,
+    canAccessFinance:
+      hasFinance ||
+      hasFinanceLedger ||
+      hasFinanceReport ||
+      hasFinanceBudget ||
+      hasFinanceAnalysis ||
+      hasFinanceImport ||
+      hasFinanceCost,
     canAccessFinanceCost: hasFinanceCost,
     canAccessFinanceLedger: hasFinanceLedger,
     canAccessFinanceReport: hasFinanceReport,

@@ -147,11 +147,49 @@ npm run budget:sync-accounts
 
 ## 权限标准
 
-- `finance.access` — 查看财务数据
-- `finance.write` — 录入/编辑凭证、科目
-- `finance.delete` — 删除凭证/科目
-- `finance.cost.access` — 成本管理查看
-- `finance.cost.write` — 成本数据导入/编辑
-- `finance.cost.delete` — 成本数据删除
+### 资源键
 
-父资源权限自动覆盖子资源（如 `finance.access` 覆盖 `finance.cost.access`）。
+| 资源 | 键 | 说明 |
+|------|-----|------|
+| 财务根 | `finance` | 旧统一入口，现退化为"任一财务子权限"的汇总标识 |
+| 总账基础 | `finance.ledger` | 科目、凭证、余额、期间、初始化 |
+| 财务报表 | `finance.report` | 资产负债表、利润表、现金流量表 |
+| 预算管理 | `finance.budget` | 部门费用预算、研发费用预算 |
+| 财务分析 | `finance.analysis` | 预算执行分析、差异分析、趋势看板 |
+| 数据导入 | `finance.import` | 科目表、序时账、余额表导入 |
+| 成本管理 | `finance.cost` | 生产成本、发货、成本构成、车间工分 |
+
+每个资源支持 `access` / `write` / `delete` 三个动作（成本子资源另有 `shipments` / `analysis` / `structure` / `workshop` / `salary` / `imports` 细分）。
+
+### 权限继承规则
+
+- 父资源 `finance.access` 自动覆盖所有子资源的 `access`。
+- 子资源 checker 的实现顺序：先查子资源权限，未命中再回退到父资源 `finance.*`。
+- 例：只授予 `finance.budget.access` 的用户，可以进入 `/finance/budget`，也可以通过 `/finance` 首页和 Portal 入口（`canAccessFinance` 在 session 层聚合了所有子权限）。
+
+### 页面 Guard
+
+| 页面 | 需要的权限字段 |
+|------|----------------|
+| `/finance` | `canAccessFinance`（任一财务子权限） |
+| `/finance/ledger` | `canAccessFinanceLedger` |
+| `/finance/statements` | `canAccessFinanceReport` |
+| `/finance/budget` | `canAccessFinanceBudget` |
+| `/finance/analysis` | `canAccessFinanceAnalysis` |
+| `/finance/import` | `canAccessFinanceImport` |
+| `/finance/cost` | `canAccessFinanceCost` |
+
+### API Guard Wrapper
+
+| API | Wrapper | 说明 |
+|-----|---------|------|
+| `/api/finance/accounts*` | `withFinanceLedgerAccess/Write/Delete` | 科目管理 |
+| `/api/finance/vouchers*` | `withFinanceLedgerAccess/Write/Delete` | 凭证管理 |
+| `/api/finance/balances*` | `withFinanceLedgerAccess/Write` | 余额查询/重算/校准 |
+| `/api/finance/periods*` | `withFinanceLedgerAccess/Write/Delete` | 会计期间 |
+| `/api/finance/init` | `withFinanceLedgerWrite` | 财务初始化 |
+| `/api/finance/reports` | `withFinanceReportAccess` | 报表生成 |
+| `/api/finance/budget` | `withFinanceBudgetAccess/Write` | 预算查询/导入 |
+| `/api/finance/import/preview` | `withFinanceImportAccess` | 导入预览（非变更操作，用 Access） |
+| `/api/finance/import/confirm` | `withFinanceImportWrite` | 导入确认（写入数据库，用 Write） |
+| `/api/finance/cost/*` | `withFinanceCostAccess/Write/Delete` | 成本子模块 |
