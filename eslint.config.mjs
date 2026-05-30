@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Claude worktrees (copies of codebase for agent isolation)
+    ".claude/**",
   ]),
   // Core quality gates: 0 warnings target for CI (--max-warnings=0)
   {
