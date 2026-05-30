@@ -63,8 +63,7 @@ async function main() {
   await upsertResource("docs.positions", "岗位说明书", "docs", "access", undefined, "inherit", 0);
   await upsertResource("docs.company", "公司管理", "docs", "access", undefined, "inherit", 1);
   await upsertResource("docs.expense", "报销规范", "docs", "access", undefined, "inherit", 2);
-  await upsertResource("docs.api", "API 接入指南", "docs", "access", undefined, "inherit", 3);
-
+  
   await upsertResource("library", "资料库", undefined, "access", undefined, "inherit", 7);
 
   await upsertResource("legal", "法务", undefined, "access", undefined, "inherit", 8);

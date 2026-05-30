@@ -24,6 +24,8 @@ export interface SessionUser {
   canAccessContract?: boolean;
   canAccessAdmin?: boolean;
   canManagePermissions?: boolean;
+  canAccessApi?: boolean;
+  canAccessAgent?: boolean;
   manageableResourceKeys?: string[];
   isActiveEmployee?: boolean;
   employeeId?: string | null;

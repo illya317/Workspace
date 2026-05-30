@@ -20,7 +20,6 @@ export const RES = {
     positions: "docs.positions",
     company: "docs.company",
     expense: "docs.expense",
-    api: "docs.api",
   },
   work: {
     root: "work",

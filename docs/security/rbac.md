@@ -56,7 +56,6 @@ docs                access  文档中心
   docs.positions    access  岗位说明书
   docs.company      access  公司管理
   docs.expense      access  报销规范
-  docs.api          access  API 接入指南
 
 library             access  资料库
 

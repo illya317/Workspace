@@ -79,19 +79,21 @@ export default function SettingsClient({ user: initialUser, hideShell }: { user:
             </div>
           </div>
 
-          <div className="rounded-xl bg-white px-8 py-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-800">API 接入</h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  机器人或外部系统可通过 API 接入，与网页版权限一致。
-                </p>
+          {user.canAccessApi && (
+            <div className="rounded-xl bg-white px-8 py-6 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-800">API 接入</h2>
+                  <p className="mt-1 text-sm text-gray-500">
+                    机器人或外部系统可通过 API 接入，与网页版权限一致。
+                  </p>
+                </div>
+                <Link href="/api-guide" className="shrink-0 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700">
+                  查看接入指南
+                </Link>
               </div>
-              <Link href="/api-guide" className="shrink-0 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700">
-                查看接入指南
-              </Link>
             </div>
-          </div>
+          )}
 
           {user.canAccessAdmin && (
             <div className="rounded-xl bg-white px-8 py-6 shadow-sm">
