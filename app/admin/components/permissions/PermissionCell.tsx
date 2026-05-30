@@ -24,13 +24,14 @@ export default function PermissionCell({
     if (isChild || isInherited) {
       const label = isChild ? "子资源" : "继承";
       return (
-        <span
-          className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium bg-gray-100 text-gray-500 cursor-default"
-          title={isChild ? "子资源已授权，父资源无直接授权" : state.source ? `来源: ${sourceLabel(state.source)}` : undefined}
+        <button
+          onClick={onClick}
+          className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium bg-gray-100 text-gray-500 hover:bg-emerald-100 hover:text-emerald-600"
+          title={isChild ? "子资源已授权，点击添加直接授权" : state.source ? `来源: ${sourceLabel(state.source)}，点击添加直接授权` : "点击添加直接授权"}
         >
           <span className="opacity-60">✓</span>
           <span>{label}</span>
-        </span>
+        </button>
       );
     }
 
