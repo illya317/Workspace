@@ -136,11 +136,11 @@ export function usePermissionsTab(
           subjectId,
           resourceKey: selectedResource,
           roleKey,
-          value: !state.has,
+          value: state.source === "direct" ? !state.has : true,
         }),
       });
       if (res.ok) {
-        showToast(!state.has ? "已授权" : "已取消授权", "success");
+        showToast(state.source !== "direct" || !state.has ? "已授权" : "已取消授权", "success");
         await loadData();
       } else {
         const e = await res.json().catch(() => ({ error: "操作失败" }));
