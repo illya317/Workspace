@@ -10,7 +10,7 @@
 | 预算管理 | `/finance/budget` | `budget/page.tsx` → `BudgetClient.tsx` |
 | 成本管理 | `/finance/cost` | `cost/page.tsx` → `FinanceCostClient.tsx` |
 | 财务分析 | `/finance/analysis` | `analysis/page.tsx` → `FinanceAnalysisClient.tsx` |
-| 数据导入 | `/finance/import` | `import/page.tsx` → `FinanceImportClient.tsx` |
+| 数据导入 | `/finance/import` | `import/page.tsx` → `ImportClient.tsx` |
 
 所有页面由 `FinanceShell` 统一包裹，提供顶部导航栏、Logo、返回入口及用户菜单。
 

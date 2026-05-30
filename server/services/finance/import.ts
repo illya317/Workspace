@@ -185,13 +185,10 @@ export function isSummaryRow(code: string, name: string): boolean {
 
 export function getParentCode(code: string): string | null {
   if (code.length <= 4) return null;
-  // 科目编码层级规则：
+  // 会计科目层级：4位→6位→8位→10位，每级加2位
   // 1002 → 一级, 100201 → 二级(parent=1002), 10020101 → 三级(parent=100201)
-  // 尝试逐级缩短找父级
-  for (let i = code.length - 1; i >= 4; i--) {
-    const parent = code.slice(0, i);
-    if (parent.length >= 4) return parent;
-  }
+  const parentLen = code.length - 2;
+  if (parentLen >= 4) return code.slice(0, parentLen);
   return null;
 }
 

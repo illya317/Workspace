@@ -29,6 +29,23 @@ async function upsertAccounts(preview: PreviewResult) {
     }
   }
 
+  // 批量预加载可能缺失的父科目（序时账只有叶子科目，父科目可能不在 accounts 列表里）
+  const missingParentCodes = new Set<string>();
+  for (const account of sortedAccounts) {
+    if (account.parentCode && !accountCodeToId.has(account.parentCode)) {
+      missingParentCodes.add(account.parentCode);
+    }
+  }
+  if (missingParentCodes.size > 0) {
+    const parentAccounts = await prisma.financeAccount.findMany({
+      where: { code: { in: Array.from(missingParentCodes) }, companyCode, year },
+      select: { id: true, code: true },
+    });
+    for (const pa of parentAccounts) {
+      accountCodeToId.set(pa.code, pa.id);
+    }
+  }
+
   for (const account of sortedAccounts) {
     const parentId = account.parentCode ? accountCodeToId.get(account.parentCode) ?? null : null;
     const existing = await prisma.financeAccount.findFirst({
