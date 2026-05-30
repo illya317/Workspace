@@ -11,7 +11,7 @@ interface Props {
   title: string;
   /** 返回目标路径 */
   backHref: string;
-  /** 返回按钮文字，默认"返回上一级" */
+  /** 返回按钮文字，默认"返回" */
   backLabel?: string;
   user: SessionUser;
   children: ReactNode;
@@ -25,7 +25,7 @@ interface Props {
  */
 export default function AppShell({ title, backHref, backLabel, user, children }: Props) {
   const router = useRouter();
-  const backText = backLabel || "返回上一级";
+  const backText = backLabel || "返回";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -57,7 +57,7 @@ export default function AppShell({ title, backHref, backLabel, user, children }:
             onClick={() => router.push(backHref)}
             className="rounded-md px-3 py-1.5 text-sm text-gray-600 transition hover:bg-gray-100 hover:text-gray-800"
           >
-            ← {backText}
+            {backText}
           </button>
 
           {/* User menu */}

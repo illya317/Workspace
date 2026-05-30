@@ -12,7 +12,7 @@ export default async function AdministrationPage() {
   if (!mod) redirect("/portal");
 
   return (
-    <AppShell title={mod.label} backHref="/portal" backLabel="返回入口" user={user}>
+    <AppShell title={mod.label} backHref="/portal" user={user}>
       <ModuleHome module={mod} user={user} />
     </AppShell>
   );

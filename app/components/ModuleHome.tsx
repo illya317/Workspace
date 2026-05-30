@@ -44,7 +44,7 @@ export default function ModuleHome({ module, user }: Props) {
                 className="group flex flex-col items-center rounded-xl bg-white p-6 shadow-sm transition-all hover:shadow-md hover:ring-2 hover:ring-emerald-400"
               >
                 <div className={`mb-3 flex h-14 w-14 items-center justify-center rounded-full ${bgCls} ${textCls}`}>
-                  <span className="text-2xl">{child.icon || "📌"}</span>
+                  <span className="text-xl font-bold">{child.label.charAt(0)}</span>
                 </div>
                 <h3 className="text-base font-semibold text-gray-800">{child.label}</h3>
                 <p className="mt-1 text-xs text-gray-500">{child.desc}</p>

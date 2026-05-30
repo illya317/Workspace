@@ -34,7 +34,7 @@ export default function InventoryClient({ user, hideShell }: { user: SessionUser
             <span className="text-sm font-medium text-gray-700">库存管理</span>
           </div>
           <div className="flex items-center gap-4">
-            <button onClick={() => router.push("/production")} className="text-sm text-gray-500 hover:text-emerald-600">← 返回上级</button>
+            <button onClick={() => router.push("/production")} className="text-sm text-gray-500 hover:text-emerald-600">返回</button>
             <UserMenu user={user} />
           </div>
         </div>
