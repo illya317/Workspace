@@ -36,10 +36,11 @@ export function sourceLabel(source: string): string {
 /** 返回 targetRoleKey 的所有隐含权限（含自身） */
 function impliedRoleKeys(roleKey: string): string[] {
   const normalized = roleKey === "read" ? "access" : roleKey;
-  if (normalized === "admin") return ["admin", "delete", "write", "access"];
-  if (normalized === "delete") return ["delete", "write", "access"];
-  if (normalized === "write") return ["write", "access"];
-  return ["access"];
+  // resolveRoleKeys(roleKey): 拥有哪些角色的用户，自动拥有 roleKey
+  if (normalized === "admin") return ["admin"];
+  if (normalized === "delete") return ["admin", "delete"];
+  if (normalized === "write") return ["admin", "delete", "write"];
+  return ["admin", "delete", "write", "access"];
 }
 
 export function computePermissionState(
