@@ -88,14 +88,6 @@ export const MODULES: ModuleDef[] = [
       { key: "contracts", label: "合同台账", desc: "合同录入、查询、到期预警", href: "/contracts", requiredPerm: "canAccessContract" },
     ],
   },
-  { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple",
-    children: [
-      { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions/GMP", requiredPerm: undefined },
-      { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company", requiredPerm: undefined },
-      { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense", requiredPerm: undefined },
-      { key: "api-guide", label: "API 接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide", requiredPerm: undefined },
-    ],
-  },
   { key: "finance", label: "财务管理", desc: "总账、凭证、财务报表、预算、分析", href: "/finance", icon: icons.finance, color: "amber", requiredPerm: "canAccessFinance",
     children: [
       { key: "ledger", label: "总账基础", desc: "科目设置、凭证明细、余额表、期间管理", href: "/finance/ledger", requiredPerm: "canAccessFinanceLedger" },
@@ -111,6 +103,19 @@ export const MODULES: ModuleDef[] = [
       { key: "inventory", label: "库存管理", desc: "原辅料、包装材料、成品库存", href: "/inventory", requiredPerm: "canAccessInventory" },
     ],
   },
+  { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple",
+    children: [
+      { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions/GMP" },
+      { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company" },
+      { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense" },
+      { key: "api-guide", label: "API 接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide" },
+    ],
+  },
+  { key: "library", label: "资料库", desc: "知识文档、学习资料", href: "/library", icon: (
+    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+    </svg>
+  ), color: "orange" },
   { key: "settings", label: "设置", desc: "个人设置、系统配置", href: "/settings", icon: (
     <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
