@@ -5,6 +5,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/server/auth/session";
 import { processMessage } from "@/server/services/agent/orchestrator";
+import type { HistoryMessage } from "@/server/services/agent/model/provider";
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { message?: string };
+  let body: { message?: string; history?: HistoryMessage[] };
   try {
     body = await request.json();
   } catch {
@@ -27,15 +28,26 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "message too long (max 2000)" }, { status: 400 });
   }
 
+  // 校验 history 格式
+  const history: HistoryMessage[] = [];
+  if (Array.isArray(body.history)) {
+    for (const h of body.history) {
+      if (h && typeof h.role === "string" && typeof h.content === "string"
+        && (h.role === "user" || h.role === "agent")) {
+        history.push({ role: h.role, content: h.content.slice(0, 1000) });
+      }
+    }
+  }
+
   try {
-    const response = await processMessage(body.message.trim(), user);
+    const response = await processMessage(body.message.trim(), user, history);
     return NextResponse.json(response);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Internal error";
     console.error("[agent] processMessage error:", message);
     return NextResponse.json(
       { type: "error", message: `处理请求时出错：${message}` },
-      { status: 200 }, // 200 让前端正常解析，type:error 让 UI 显示红色
+      { status: 200 },
     );
   }
 }

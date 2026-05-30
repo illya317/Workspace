@@ -5,7 +5,7 @@
 import type { SessionUser } from "@/lib/types";
 import { buildCapabilities, findTool } from "./capabilities";
 import { minimaxProvider } from "./model/minimax";
-import type { AgentModelProvider } from "./model/provider";
+import type { AgentModelProvider, HistoryMessage } from "./model/provider";
 
 export interface AgentResponse {
   type: "answer" | "error" | "clarification";
@@ -17,6 +17,7 @@ export interface AgentResponse {
 export async function processMessage(
   userMessage: string,
   user: SessionUser,
+  history?: HistoryMessage[],
   provider: AgentModelProvider = minimaxProvider,
 ): Promise<AgentResponse> {
   const capabilities = buildCapabilities(user);
@@ -28,11 +29,17 @@ export async function processMessage(
     };
   }
 
-  // 1. 意图分类
+  // 1. 意图分类（带对话历史）
   const intent = await provider.classifyIntent(
     userMessage,
     capabilities.map((c) => ({ key: c.key, label: c.label, description: c.description })),
+    history,
   );
+
+  // 上下文中已有答案，直接返回
+  if (intent.directAnswer) {
+    return { type: "answer", message: intent.directAnswer };
+  }
 
   // 需要澄清
   if (!intent.tool || intent.confidence < 0.5) {
@@ -61,6 +68,7 @@ export async function processMessage(
       toolLabel: tool.label,
       query: userMessage,
       result: result,
+      history,
     });
   } catch {
     summary = result.message;

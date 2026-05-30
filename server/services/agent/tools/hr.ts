@@ -17,19 +17,17 @@ export const searchEmployeesTool: AgentTool = {
 
   async execute(params: Record<string, unknown>, _user: SessionUser) {
     const keyword = typeof params.keyword === "string" ? params.keyword : "";
-    const limit = typeof params.limit === "number" ? params.limit : 50;
 
     const employees = await queryRawEmployees(keyword);
-    const sliced = employees.slice(0, limit);
 
-    if (sliced.length === 0) {
+    if (employees.length === 0) {
       return {
         type: "empty",
         message: keyword ? `未找到匹配"${keyword}"的员工` : "暂无员工数据",
       };
     }
 
-    const summary = sliced.map((e) => ({
+    const summary = employees.map((e) => ({
       id: e.id,
       employeeId: e.employeeId,
       name: e.name,
@@ -45,8 +43,8 @@ export const searchEmployeesTool: AgentTool = {
 
     return {
       type: "data",
-      message: `找到 ${employees.length} 名员工${keyword ? `匹配"${keyword}"` : ""}，显示前 ${sliced.length} 条`,
-      data: { total: employees.length, shown: sliced.length, items: summary },
+      message: `找到 ${employees.length} 名员工${keyword ? `匹配"${keyword}"` : ""}`,
+      data: { total: employees.length, items: summary },
     };
   },
 };

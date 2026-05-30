@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import type { AgentMood, AgentMessage } from "./types";
 
 let _msgId = 0;
@@ -27,6 +27,9 @@ export function useAgentSession() {
     return msg;
   }, []);
 
+  const messagesRef = useRef<AgentMessage[]>([]);
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
+
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || loading) return;
 
@@ -39,11 +42,17 @@ export function useAgentSession() {
     setMood("thinking");
     setLoading(true);
 
+    // 取最近用户+agent消息作为历史（排除system）
+    const history = messagesRef.current
+      .filter((m) => m.role === "user" || m.role === "agent")
+      .slice(-10)
+      .map((m) => ({ role: m.role as "user" | "agent", content: m.content }));
+
     try {
       const res = await fetch("/api/agent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text.trim() }),
+        body: JSON.stringify({ message: text.trim(), history }),
         signal: controller.signal,
       });
 
