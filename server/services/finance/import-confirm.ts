@@ -97,7 +97,8 @@ async function importVouchers(preview: PreviewResult, accountCodeToId: Map<strin
   for (const voucherPreview of preview.vouchers || []) {
     const dateStr = normalizeDate(voucherPreview.date);
     const period = await getOrCreateVoucherPeriod(preview.companyCode, dateStr, preview.year);
-    const voucherNo = `${preview.year}-${voucherPreview.voucherNo}`;
+    const month = String(period.month).padStart(2, "0");
+    const voucherNo = `${preview.year}-${month}-${voucherPreview.voucherNo}`;
     const existing = await prisma.financeVoucher.findUnique({
       where: { voucherNo_companyCode: { voucherNo, companyCode: preview.companyCode } },
     });

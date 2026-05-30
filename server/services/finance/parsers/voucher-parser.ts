@@ -33,7 +33,7 @@ export function parseJournal(
     const row = data[i];
     if (!row) continue;
     const headers = row.map((c) => String(c || "").trim());
-    if (headers.some((h) => h.includes("凭证号数"))) {
+    if (headers.some((h) => h.includes("凭证号数") || h.includes("凭证字号"))) {
       headerRow = i;
       break;
     }
@@ -47,19 +47,24 @@ export function parseJournal(
   const headers = (data[headerRow] || []).map((c) => String(c || "").trim());
   const colIndex: Record<string, number> = {};
   headers.forEach((h, i) => {
-    if (h.includes("日期")) colIndex.date = i;
-    if (h.includes("凭证号数")) colIndex.voucherNo = i;
+    if (h.includes("日期") || h.includes("制单日期")) colIndex.date = i;
+    if (h.includes("凭证号数") || h.includes("凭证字号")) colIndex.voucherNo = i;
     if (h.includes("科目编码")) colIndex.code = i;
     if (h.includes("科目名称")) colIndex.name = i;
     if (h.includes("摘要")) colIndex.desc = i;
     if (h.includes("方向")) colIndex.direction = i;
-    if (h.includes("金额")) colIndex.amount = i;
+    if (h.includes("借方") && !h.includes("期初") && !h.includes("期末")) colIndex.debit = i;
+    if (h.includes("贷方") && !h.includes("期初") && !h.includes("期末")) colIndex.credit = i;
+    if (h.includes("金额") && !h.includes("总金额")) colIndex.amount = i;
   });
 
   if (colIndex.voucherNo === undefined || colIndex.code === undefined) {
-    errors.push("缺少必要的列：凭证号数、科目编码");
+    errors.push("缺少必要的列：凭证号数/凭证字号、科目编码");
     return { type: "journal", companyCode, year: 0, rows: 0, accounts, vouchers, errors, warnings };
   }
+
+  // 检测格式：有独立借方/贷方列 vs 方向+金额列
+  const hasDirectSides = colIndex.debit !== undefined && colIndex.credit !== undefined;
 
   const seenAccounts = new Map<string, string>();
   const voucherMap = new Map<string, PreviewVoucher>();
@@ -96,10 +101,21 @@ export function parseJournal(
       accounts.push({ code, name, parentCode, category, balanceDirection });
     }
 
-    const debit = direction === "借" ? amount : 0;
-    const credit = direction === "贷" ? amount : 0;
+    let debit: number;
+    let credit: number;
+    if (hasDirectSides) {
+      debit = parseAmount(row[colIndex.debit]);
+      credit = parseAmount(row[colIndex.credit]);
+    } else {
+      debit = direction === "借" ? amount : 0;
+      credit = direction === "贷" ? amount : 0;
+    }
 
-    let voucher = voucherMap.get(voucherNo);
+    // 同凭证号不同月份是不同凭证，用年月+凭证号做复合key防止跨月合并
+    const monthKey = dateStr.replace(/\./g, "-").substring(0, 7);
+    const voucherKey = `${monthKey}_${voucherNo}`;
+
+    let voucher = voucherMap.get(voucherKey);
     if (!voucher) {
       voucher = {
         voucherNo,
@@ -109,7 +125,7 @@ export function parseJournal(
         totalDebit: 0,
         totalCredit: 0,
       };
-      voucherMap.set(voucherNo, voucher);
+      voucherMap.set(voucherKey, voucher);
     }
 
     voucher.items.push({
