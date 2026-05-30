@@ -4,11 +4,10 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import type { Position } from "./types";
 
 const STORAGE_KEY = "agentPosition";
-const DEFAULT_OFFSET: Position = { x: 24, y: 24 }; // 距右下角
+const DEFAULT_OFFSET: Position = { x: 24, y: 24 };
 const BUTTON_SIZE = 56;
 
 function loadPosition(): Position | null {
-  if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw) as Position;
@@ -26,23 +25,27 @@ function clamp(val: number, min: number, max: number) {
   return Math.min(Math.max(val, min), max);
 }
 
+function defaultPosition(): Position {
+  return {
+    x: window.innerWidth - BUTTON_SIZE - DEFAULT_OFFSET.x,
+    y: window.innerHeight - BUTTON_SIZE - DEFAULT_OFFSET.y,
+  };
+}
+
 export function useAgentPosition() {
-  const [position, setPosition] = useState<Position>(() => {
-    const saved = loadPosition();
-    if (saved) return saved;
-    // 默认右下角
-    if (typeof window !== "undefined") {
-      return {
-        x: window.innerWidth - BUTTON_SIZE - DEFAULT_OFFSET.x,
-        y: window.innerHeight - BUTTON_SIZE - DEFAULT_OFFSET.y,
-      };
-    }
-    return { x: 0, y: 0 };
-  });
+  // SSR-safe：初始值不依赖 window
+  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+  const [mounted, setMounted] = useState(false);
 
   const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef<{ startX: number; startY: number; posX: number; posY: number } | null>(null);
   const movedRef = useRef(false);
+
+  // 客户端首次挂载时计算真实位置
+  useEffect(() => {
+    setPosition(loadPosition() || defaultPosition());
+    setMounted(true);
+  }, []);
 
   // 窗口 resize 时保持在可视范围内
   useEffect(() => {
@@ -86,15 +89,13 @@ export function useAgentPosition() {
     setIsDragging(false);
     dragRef.current = null;
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-    // 保存位置
     setPosition((prev) => {
       savePosition(prev);
       return prev;
     });
   }, []);
 
-  /** 是否应触发 click（未明显移动） */
   const wasClick = useCallback(() => !movedRef.current, []);
 
-  return { position, isDragging, onPointerDown, onPointerMove, onPointerUp, wasClick };
+  return { position, mounted, isDragging, onPointerDown, onPointerMove, onPointerUp, wasClick };
 }

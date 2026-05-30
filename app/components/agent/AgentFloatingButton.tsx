@@ -11,11 +11,14 @@ interface Props {
 }
 
 export default function AgentFloatingButton({ mood, isOpen, onToggle }: Props) {
-  const { position, isDragging, onPointerDown, onPointerMove, onPointerUp, wasClick } = useAgentPosition();
+  const { position, mounted, isDragging, onPointerDown, onPointerMove, onPointerUp, wasClick } = useAgentPosition();
 
   function handleClick() {
     if (wasClick()) onToggle();
   }
+
+  // SSR 期间不渲染，避免 position 初始值导致 hydration mismatch
+  if (!mounted) return null;
 
   return (
     <div
