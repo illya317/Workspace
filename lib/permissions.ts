@@ -7,6 +7,7 @@ export const RES = {
     root: "system",
     audit: "system.audit",
     agent: "system.agent",
+    api: "system.api",
   },
   people: {
     root: "people",

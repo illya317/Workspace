@@ -7,7 +7,7 @@ export default async function DocsApiGuidePage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   return (
-    <AppShell title="API 接入指南" backHref="/docs" user={user}>
+    <AppShell title="接入指南" backHref="/docs" user={user}>
       <ApiGuidePage hideShell />
     </AppShell>
   );

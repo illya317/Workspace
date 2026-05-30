@@ -88,7 +88,7 @@ export default function SettingsClient({ user: initialUser, hideShell }: { user:
                 </p>
               </div>
               <Link href="/api-guide" className="shrink-0 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700">
-                查看 API 接入指南
+                查看接入指南
               </Link>
             </div>
           </div>

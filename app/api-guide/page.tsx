@@ -7,7 +7,7 @@ export default async function ApiGuideServerPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   return (
-    <AppShell title="API 接入指南" backHref="/portal" user={user}>
+    <AppShell title="接入指南" backHref="/portal" user={user}>
       <ApiGuidePage hideShell />
     </AppShell>
   );

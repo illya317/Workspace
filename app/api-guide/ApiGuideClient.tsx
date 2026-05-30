@@ -58,37 +58,37 @@ const ENDPOINTS = [
   { method: "GET", path: "/api/reports", note: "查看汇报", params: "date, targetType, targetIds" },
   { method: "POST", path: "/api/reports", note: "提交汇报", params: "taskName, date, targetType, targetId, items" },
   { method: "PUT", path: "/api/reports/:id", note: "更新汇报", params: "taskName, notes, items" },
-  { method: "GET", path: "/api/hr/employees", note: "员工列表", params: "?keyword, ?company", perm: "people.access" },
+  { method: "GET", path: "/api/hr/employees", note: "员工列表", params: "?keyword, ?company", perm: "people.roster.access" },
   { method: "PUT", path: "/api/hr/employees/:id", note: "更新员工单字段", params: "{field, value}", perm: "people.write" },
   { method: "DELETE", path: "/api/hr/employees/:id", note: "删除员工", perm: "people.delete" },
-  { method: "GET", path: "/api/hr/employments", note: "雇佣关系列表", perm: "people.access" },
+  { method: "GET", path: "/api/hr/employments", note: "雇佣关系列表", perm: "people.roster.access" },
   { method: "POST", path: "/api/hr/employments", note: "新建雇佣关系", perm: "people.write" },
   { method: "PUT", path: "/api/hr/employments/:id", note: "更新雇佣关系", perm: "people.write" },
   { method: "DELETE", path: "/api/hr/employments/:id", note: "删除雇佣关系", perm: "people.delete" },
-  { method: "GET", path: "/api/hr/departments", note: "部门列表", params: "?keyword", perm: "people.access" },
+  { method: "GET", path: "/api/hr/departments", note: "部门列表", params: "?keyword", perm: "people.roster.access" },
   { method: "POST", path: "/api/hr/departments", note: "新建部门", perm: "people.write" },
   { method: "PUT", path: "/api/hr/departments/:id", note: "更新部门", perm: "people.write" },
   { method: "DELETE", path: "/api/hr/departments/:id", note: "删除部门", perm: "people.delete" },
-  { method: "GET", path: "/api/hr/positions", note: "岗位列表", params: "?keyword", perm: "people.access" },
+  { method: "GET", path: "/api/hr/positions", note: "岗位列表", params: "?keyword", perm: "people.roster.access" },
   { method: "POST", path: "/api/hr/positions", note: "新建岗位", perm: "people.write" },
   { method: "PUT", path: "/api/hr/positions/:id", note: "更新岗位", perm: "people.write" },
   { method: "DELETE", path: "/api/hr/positions/:id", note: "删除岗位", perm: "people.delete" },
-  { method: "GET", path: "/api/hr/edps", note: "EDP 列表", perm: "people.access" },
+  { method: "GET", path: "/api/hr/edps", note: "EDP 列表", perm: "people.roster.access" },
   { method: "POST", path: "/api/hr/edps", note: "新建 EDP", perm: "people.write" },
   { method: "PUT", path: "/api/hr/edps/:id", note: "更新 EDP", perm: "people.write" },
   { method: "DELETE", path: "/api/hr/edps/:id", note: "删除 EDP", perm: "people.delete" },
-  { method: "GET", path: "/api/hr/companies", note: "公司列表", perm: "people.access" },
+  { method: "GET", path: "/api/hr/companies", note: "公司列表", perm: "people.roster.access" },
   { method: "POST", path: "/api/hr/companies", note: "新建公司", perm: "people.write" },
   { method: "PUT", path: "/api/hr/companies/:id", note: "更新公司", perm: "people.write" },
   { method: "DELETE", path: "/api/hr/companies/:id", note: "删除公司", perm: "people.delete" },
-  { method: "GET", path: "/api/hr/projects", note: "项目列表", perm: "people.access" },
+  { method: "GET", path: "/api/hr/projects", note: "项目列表", perm: "people.roster.access" },
   { method: "POST", path: "/api/hr/projects", note: "新建项目", perm: "people.write" },
   { method: "DELETE", path: "/api/hr/projects/:id", note: "删除项目", perm: "people.delete" },
-  { method: "GET", path: "/api/hr/employee-projects", note: "项目员工列表", perm: "people.access" },
+  { method: "GET", path: "/api/hr/employee-projects", note: "项目员工列表", perm: "people.roster.access" },
   { method: "POST", path: "/api/hr/employee-projects", note: "新建项目员工", perm: "people.write" },
   { method: "DELETE", path: "/api/hr/employee-projects/:id", note: "删除项目员工", perm: "people.delete" },
   { method: "GET", path: "/api/position-descriptions", note: "岗位说明书列表", params: "?code=xxx 查单个" },
-  { method: "GET", path: "/api/admin/audit-log", note: "编辑历史", params: "?entityType=xxx", perm: "people.access" },
+  { method: "GET", path: "/api/admin/audit-log", note: "编辑历史", params: "?entityType=xxx", perm: "people.roster.access" },
 ];
 
 export default function ApiGuidePage({ hideShell: _hideShell }: { hideShell?: boolean }) {
@@ -129,7 +129,7 @@ export default function ApiGuidePage({ hideShell: _hideShell }: { hideShell?: bo
   return (
     <div className="min-h-screen bg-gray-50">
       <main className="mx-auto max-w-4xl px-4 py-8">
-        <h1 className="mb-6 text-2xl font-bold text-gray-800">API 接入指南</h1>
+        <h1 className="mb-6 text-2xl font-bold text-gray-800">接入指南</h1>
 
         <MyApiKeyPanel apiKey={apiKey} onApiKeyChange={setApiKey} />
 

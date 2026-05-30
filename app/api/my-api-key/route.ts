@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate } from "@/lib/auth";
+import { authenticate, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { randomBytes } from "crypto";
 
@@ -7,11 +7,16 @@ function generateApiKey(): string {
   return randomBytes(24).toString("hex");
 }
 
-export async function GET(request: Request) {
+async function requireApiAccess(request: Request) {
   const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  if (!payload) return null;
+  if (!(await checkPermission(payload.userId, "system.api", "access"))) return null;
+  return payload;
+}
+
+export async function GET(request: Request) {
+  const payload = await requireApiAccess(request);
+  if (!payload) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
@@ -22,10 +27,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  const payload = await requireApiAccess(request);
+  if (!payload) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const newKey = generateApiKey();
 
