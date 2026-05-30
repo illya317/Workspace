@@ -57,7 +57,7 @@ export default function FinanceShell({ activeNav, children, user }: Props) {
               </button>
             ))}
             <button
-              onClick={() => router.push("/finance")}
+              onClick={() => router.push(activeNav ? "/finance" : "/portal")}
               className="text-sm text-gray-500 hover:text-emerald-600"
             >
               返回入口
