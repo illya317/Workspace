@@ -7,6 +7,7 @@ import ModuleHome from "@/app/components/ModuleHome";
 export default async function AdministrationPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  if (!user.canAccessContract) redirect("/portal");
 
   const mod = MODULES.find((m) => m.key === "administration");
   if (!mod) redirect("/portal");

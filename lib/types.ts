@@ -26,6 +26,7 @@ export interface SessionUser {
   canManagePermissions?: boolean;
   canAccessApi?: boolean;
   canAccessAgent?: boolean;
+  canAccessDocs?: boolean;
   manageableResourceKeys?: string[];
   isActiveEmployee?: boolean;
   employeeId?: string | null;

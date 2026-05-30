@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/server/auth/session";
+import { checkPermission } from "@/lib/auth";
 import AppShell from "@/app/components/AppShell";
 import { buildTree, getDefaultRoot } from "@/server/services/library/config";
 import LibraryClient from "./LibraryClient";
@@ -12,6 +13,7 @@ export const dynamic = "force-dynamic";
 export default async function LibraryPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  if (!(await checkPermission(user.id, "library", "access"))) redirect("/portal");
 
   const tree = ROOT ? await buildTree(ROOT, "/library") : [];
 

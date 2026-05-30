@@ -7,6 +7,7 @@ import ModuleHome from "@/app/components/ModuleHome";
 export default async function DocsPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  if (!user.canAccessDocs) redirect("/portal");
 
   const mod = MODULES.find((m) => m.key === "docs");
   if (!mod) redirect("/portal");
