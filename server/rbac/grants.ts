@@ -29,15 +29,24 @@ export async function setGrant(
     throw new Error(`Invalid resourceKey(${resourceKey}) or roleKey(${roleKey})`);
   }
 
-  // Self-protection: cannot revoke own system.admin
+  // Only one system.admin allowed
+  if (value && resourceKey === "system" && normalizedRole === "admin") {
+    const count = await prisma.userResourceRole.count({
+      where: { resource: { key: "system" }, role: { key: "admin" } },
+    });
+    if (count > 0) {
+      throw new Error("系统管理员只能有一位");
+    }
+  }
+
+  // Self-protection: cannot revoke own admin grant (system or any resource)
   if (
     !value &&
     subjectType === "user" &&
     subjectId === opts?.actorUserId &&
-    resourceKey === "system" &&
     normalizedRole === "admin"
   ) {
-    throw new Error("不能取消自己的系统管理员权限");
+    throw new Error("不能取消自己的管理权限");
   }
 
   const scopeId = opts?.scopeId ?? null;
