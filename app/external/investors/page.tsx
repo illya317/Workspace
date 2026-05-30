@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/server/auth/session";
 import AppShell from "@/app/components/AppShell";
+import InvestorsClient from "./InvestorsClient";
 
 export default async function InvestorsPage() {
   const user = await getCurrentUser();
@@ -8,11 +9,7 @@ export default async function InvestorsPage() {
 
   return (
     <AppShell title="投资人关系" backHref="/external" user={user}>
-      <main className="mx-auto max-w-4xl px-6 py-8">
-        <div className="rounded-lg bg-white py-16 text-center shadow-sm">
-          <p className="text-gray-500">投资人关系模块开发中</p>
-        </div>
-      </main>
+      <InvestorsClient />
     </AppShell>
   );
 }
