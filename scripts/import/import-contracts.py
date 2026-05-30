@@ -60,7 +60,12 @@ def import_csv(cursor, filepath, mapping):
             count += 1
         print(f"  -> imported {count} rows")
 
-db_path = os.path.join(os.path.dirname(__file__), '..', 'prisma', 'dev.db')
+# Resolve DB path from DATABASE_URL or fallback to project data/dev.db
+_db_from_env = os.environ.get('DATABASE_URL', '')
+if _db_from_env.startswith('file:'):
+    db_path = _db_from_env[5:]
+else:
+    db_path = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'dev.db')
 conn = sqlite3.connect(db_path)
 cursor = conn.cursor()
 
