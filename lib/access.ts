@@ -13,8 +13,8 @@ function resourceKeyForTarget(targetType: string): string {
   return "work.report"; // fallback
 }
 
-/** Leaf resources that carry scoped data grants */
-const SCOPED_LEAF_RESOURCES = ["work.report.department", "work.report.project", "work.task.department"];
+/** Leaf resources for report target picker (excludes work.task to avoid polluting report UI) */
+const REPORT_LEAF_RESOURCES = ["work.report.department", "work.report.project"];
 
 // ─── Target listing (UI) — returns all targets visible in pickers ───
 
@@ -38,74 +38,66 @@ export async function getUserTargets(userId: number): Promise<{
   positions: TargetInfo[];
   users: TargetInfo[];
 }> {
-  const empty = { departments: [], projects: [], positions: [], users: [] };
-
   if (await checkPermission(userId, "system", "admin")) {
     return await getAllTargets();
   }
 
-  // Batch 5.2: global leaf resource access → show all targets of matching type
-  const [showAllDepts, showAllProjs] = await Promise.all([
-    checkScopedPermission(userId, "work.report.department", "access", null),
-    checkScopedPermission(userId, "work.report.project", "access", null),
-  ]);
-  if (showAllDepts || showAllProjs) {
-    const [allDepts, allProjs] = await Promise.all([
-      showAllDepts ? prisma.department.findMany({ select: { id: true, name: true, code: true } }) : Promise.resolve([]),
-      showAllProjs ? prisma.project.findMany({ select: { id: true, name: true, type: true } }) : Promise.resolve([]),
-    ]);
-    return { departments: allDepts, projects: allProjs, positions: [], users: [] };
-  }
-
   const employees = await prisma.employee.findMany({
-    where: { userId },
-    select: { id: true, name: true },
+    where: { userId }, select: { id: true, name: true },
   });
   const employeeIds = employees.map((e) => e.id);
 
-  if (employeeIds.length === 0) return empty;
-
-  // Membership-based targets
-  const [eps, empProjects] = await Promise.all([
-    prisma.eDP.findMany({
-      where: { employeeId: { in: employeeIds } },
-      select: {
-        department: { select: { id: true, name: true, code: true } },
-        position: { select: { id: true, code: true, name: true } },
-      },
-    }),
-    prisma.employeeProject.findMany({
-      where: { employeeId: { in: employeeIds } },
-      select: { project: { select: { id: true, name: true, type: true } } },
-    }),
-  ]);
-
+  // Init maps — will merge global + membership + scoped sources
   const deptMap = new Map<number, TargetInfo>();
-  const posMap = new Map<number, TargetInfo>();
   const projMap = new Map<number, TargetInfo>();
-
-  for (const ep of eps) {
-    if (ep.department?.id && !deptMap.has(ep.department.id)) {
-      deptMap.set(ep.department.id, ep.department as TargetInfo);
-    }
-    if (ep.position?.id && !posMap.has(ep.position.id)) {
-      posMap.set(ep.position.id, ep.position as TargetInfo);
-    }
-  }
-  for (const ep of empProjects) {
-    if (!projMap.has(ep.project.id)) projMap.set(ep.project.id, ep.project);
-  }
-
-  // Batch 5.1: merge scoped grant targets into deptMap and projMap
-  await mergeScopedTargets(userId, employeeIds, deptMap, projMap, new Map());
-
-  // Implicit: user's own personal report target (backend-reserved, not in UI scope selector)
+  const posMap = new Map<number, TargetInfo>();
   const userMap = new Map<number, TargetInfo>();
-  for (const emp of employees) {
-    userMap.set(userId, { id: userId, name: `${emp.name}（个人）` });
+
+  // Source 1: global leaf resource access → all targets of that type
+  const [showAllDepts, showAllProjs] = employeeIds.length > 0 ? await Promise.all([
+    checkScopedPermission(userId, "work.report.department", "access", null),
+    checkScopedPermission(userId, "work.report.project", "access", null),
+  ]) : [false, false];
+
+  if (showAllDepts) {
+    const depts = await prisma.department.findMany({ select: { id: true, name: true, code: true } });
+    for (const d of depts) deptMap.set(d.id, d);
   }
-  // Merge user-scoped grant targets too (backend-reserved)
-  await mergeScopedTargets(userId, employeeIds, new Map(), new Map(), userMap);
+  if (showAllProjs) {
+    const projs = await prisma.project.findMany({ select: { id: true, name: true, type: true } });
+    for (const p of projs) projMap.set(p.id, p);
+  }
+
+  // Source 2: membership-based targets
+  if (employeeIds.length > 0) {
+    const [eps, empProjects] = await Promise.all([
+      prisma.eDP.findMany({
+        where: { employeeId: { in: employeeIds } },
+        select: {
+          department: { select: { id: true, name: true, code: true } },
+          position: { select: { id: true, code: true, name: true } },
+        },
+      }),
+      prisma.employeeProject.findMany({
+        where: { employeeId: { in: employeeIds } },
+        select: { project: { select: { id: true, name: true, type: true } } },
+      }),
+    ]);
+    for (const ep of eps) {
+      if (ep.department?.id) deptMap.set(ep.department.id, ep.department as TargetInfo);
+      if (ep.position?.id) posMap.set(ep.position.id, ep.position as TargetInfo);
+    }
+    for (const ep of empProjects) projMap.set(ep.project.id, ep.project);
+
+    // Source 3: scoped grant targets (report leaf resources only)
+    await mergeScopedTargets(userId, employeeIds, deptMap, projMap, new Map());
+
+    // Source 4: implicit own personal report + user-scoped grants (backend-reserved)
+    for (const emp of employees) {
+      userMap.set(userId, { id: userId, name: `${emp.name}（个人）` });
+    }
+    await mergeScopedTargets(userId, employeeIds, new Map(), new Map(), userMap);
+  }
 
   return {
     departments: Array.from(deptMap.values()),
@@ -126,9 +118,9 @@ async function mergeScopedTargets(
   projMap: Map<number, TargetInfo>,
   userMap: Map<number, TargetInfo>,
 ): Promise<void> {
-  // Query leaf resources for scoped grants
+  // Query report leaf resources for scoped grants
   const leafResources = await prisma.resource.findMany({
-    where: { key: { in: SCOPED_LEAF_RESOURCES } },
+    where: { key: { in: REPORT_LEAF_RESOURCES } },
     select: { id: true },
   });
   if (leafResources.length === 0) return;

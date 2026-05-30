@@ -92,16 +92,24 @@ export function usePermissionsTab(
   // Reset scope when resource changes
   useEffect(() => { scope.resetScope(); }, [selectedResource]); // eslint-disable-line
 
+  // Child resource keys for gray checkmark (no parent grant but child has)
+  const childResourceKeys = useMemo(() => {
+    if (!selectedResource) return [];
+    const node = findResourceInTree(resources, selectedResource);
+    return (node?.children || []).map((c) => c.key);
+  }, [selectedResource, resources]);
+
   const getPermissionState = useCallback(
     (subject: Subject, roleKey: string) =>
       computePermissionState(
         subject, roleKey, selectedResource, ancestorResourceKeys,
         systemAdminIds, bypassEnabled,
         directGrants, positionGrants, departmentGrants, subjectType,
+        childResourceKeys,
       ),
     [
       selectedResource, ancestorResourceKeys, systemAdminIds, bypassEnabled,
-      directGrants, positionGrants, departmentGrants, subjectType,
+      directGrants, positionGrants, departmentGrants, subjectType, childResourceKeys,
     ]
   );
 

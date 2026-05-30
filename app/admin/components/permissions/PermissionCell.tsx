@@ -18,7 +18,20 @@ export default function PermissionCell({
   }
 
   if (state.has) {
-    const isInherited = state.source !== "direct";
+    const isChild = state.source === "child";
+    const isInherited = !isChild && state.source !== "direct";
+
+    if (isChild) {
+      return (
+        <span
+          className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium bg-gray-50 text-gray-400 cursor-default"
+          title="子资源已授权，父资源无直接授权"
+        >
+          <span className="opacity-40">✓</span>
+        </span>
+      );
+    }
+
     return (
       <button
         onClick={isInherited ? undefined : onClick}

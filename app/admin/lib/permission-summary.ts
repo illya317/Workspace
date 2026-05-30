@@ -80,18 +80,20 @@ export function summarizeResourcePermissions(
   resourceTree: ResourceNodeLike[],
   grants: PermissionGrantLike[],
 ): PermissionSummary[] {
-  // Grant lookup: resourceKey → { roleKey, scopes }
-  const grantMap = new Map<string, { role: string; scopes: Map<string, string> }>();
+  // Grant lookup: resourceKey → { roleKey, hasGlobal, scopes }
+  const grantMap = new Map<string, { role: string; hasGlobal: boolean; scopes: Map<string, string> }>();
   for (const g of grants) {
     let entry = grantMap.get(g.resourceKey);
     if (!entry) {
-      entry = { role: g.roleKey, scopes: new Map() };
+      entry = { role: g.roleKey, hasGlobal: false, scopes: new Map() };
       grantMap.set(g.resourceKey, entry);
     }
     entry.role = maxRole(entry.role, g.roleKey);
     if (g.scopeId) {
       const existing = entry.scopes.get(g.scopeId);
       entry.scopes.set(g.scopeId, existing ? maxRole(existing, g.roleKey) : g.roleKey);
+    } else {
+      entry.hasGlobal = true;
     }
   }
 
@@ -113,8 +115,7 @@ export function summarizeResourcePermissions(
           const scopeMap = new Map<string, string>(); // scopeId → roleKey
 
           // Global grant?
-          if (nodeGrant.scopes.has("null") || grantMap.get(node.key)?.scopes.size === 0) {
-            // scopeId=null → global
+          if (nodeGrant.hasGlobal) {
             const globalRole = nodeGrant.role;
             summaries.push({
               kind: "scoped", key: node.key, label: node.name,
@@ -212,7 +213,7 @@ function roleLevel(r: string): number { return ROLE_LEVEL[r] ?? -1; }
 /** Build a tooltip string — one item per line for readability */
 export function formatSummaryTooltip(s: PermissionSummary): string {
   if (s.kind === "scoped") {
-    if (s.global) return `父-${roleLevel(s.roleKey)}\n全部${s.scopeLabel}`;
+    if (s.global) return `父-${roleLevel(s.roleKey)}\n${s.scopeLabel}`;
     return (s.scopes || []).map((sc) => `${sc.targetName}-${roleLevel(sc.roleKey)}`).join("\n");
   }
   if (s.source === "parent") {

@@ -42,7 +42,7 @@ async function migrateScopedGrants() {
     const tables = ["UserResourceRole", "PositionResourceRole", "DepartmentResourceRole"] as const;
 
     for (const table of tables) {
-      // Find old grants with scope matching this type
+      // Find old scoped grants and migrate
       const oldGrants = await (p as any)[
         table === "UserResourceRole" ? "userResourceRole" :
         table === "PositionResourceRole" ? "positionResourceRole" : "departmentResourceRole"
@@ -88,6 +88,14 @@ async function migrateScopedGrants() {
           });
         }
       }
+
+      // Delete old scoped work.report grants (keep non-scoped as entry permissions)
+      await (p as any)[
+        table === "UserResourceRole" ? "userResourceRole" :
+        table === "PositionResourceRole" ? "positionResourceRole" : "departmentResourceRole"
+      ].deleteMany({
+        where: { resourceId: oldReport.id, scopeId: { not: null, startsWith: prefix } },
+      });
     }
   }
 }

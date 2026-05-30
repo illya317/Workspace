@@ -16,20 +16,14 @@ export const ROLE_PRIORITY: Record<string, number> = {
 
 export function sourceLabel(source: string): string {
   switch (source) {
-    case "direct":
-      return "直接授权";
-    case "position":
-      return "岗位继承";
-    case "department":
-      return "部门继承";
-    case "ancestor":
-      return "父资源继承";
-    case "system.admin":
-      return "系统管理员";
-    case "implied":
-      return "高级权限隐含";
-    default:
-      return source;
+    case "direct": return "直接授权";
+    case "position": return "岗位继承";
+    case "department": return "部门继承";
+    case "ancestor": return "父资源继承";
+    case "system.admin": return "系统管理员";
+    case "implied": return "高级权限隐含";
+    case "child": return "子资源已授权";
+    default: return source;
   }
 }
 
@@ -53,10 +47,10 @@ export function computePermissionState(
   directGrants: Grant[],
   positionGrants: Grant[],
   departmentGrants: Grant[],
-  subjectType: SubjectType
+  subjectType: SubjectType,
+  childResourceKeys?: string[],
 ): PermissionState {
   // Batch 5.1: system.admin only bypasses business resources when toggle is ON
-  // system.* resources always show full access for system admins
   if (systemAdminIds.has(subject.id)) {
     if (!selectedResource || selectedResource.startsWith("system.") || selectedResource === "system") {
       return { has: true, source: "system.admin" };
@@ -64,35 +58,28 @@ export function computePermissionState(
     if (bypassEnabled) {
       return { has: true, source: "system.admin" };
     }
-    // bypass OFF: fall through to normal grant checks for business resources
   }
 
   const extra = subject.extra;
   const impliedRoles = impliedRoleKeys(roleKey);
 
-  // 1) 精确匹配（直接授权 / 父资源继承）
+  // 1) Exact match (direct / ancestor)
   const directExact = directGrants.find(
     (g) =>
       g.subjectId === subject.id &&
-      (g.resourceKey === selectedResource ||
-        ancestorResourceKeys.includes(g.resourceKey)) &&
+      (g.resourceKey === selectedResource || ancestorResourceKeys.includes(g.resourceKey)) &&
       g.roleKey === roleKey
   );
   if (directExact) {
-    return {
-      has: true,
-      source:
-        directExact.resourceKey === selectedResource ? "direct" : "ancestor",
-    };
+    return { has: true, source: directExact.resourceKey === selectedResource ? "direct" : "ancestor" };
   }
 
-  // 2) 精确匹配（岗位 / 部门）
+  // 2) Exact match (position / department)
   if (subjectType === "user" && extra?.positionIds?.length) {
     const posExact = positionGrants.find(
       (g) =>
         extra.positionIds!.includes(g.subjectId) &&
-        (g.resourceKey === selectedResource ||
-          ancestorResourceKeys.includes(g.resourceKey)) &&
+        (g.resourceKey === selectedResource || ancestorResourceKeys.includes(g.resourceKey)) &&
         g.roleKey === roleKey
     );
     if (posExact) return { has: true, source: "position" };
@@ -102,30 +89,27 @@ export function computePermissionState(
     const deptExact = departmentGrants.find(
       (g) =>
         extra.departmentIds!.includes(g.subjectId) &&
-        (g.resourceKey === selectedResource ||
-          ancestorResourceKeys.includes(g.resourceKey)) &&
+        (g.resourceKey === selectedResource || ancestorResourceKeys.includes(g.resourceKey)) &&
         g.roleKey === roleKey
     );
     if (deptExact) return { has: true, source: "department" };
   }
 
-  // 3) 高级权限隐含（直接授权 / 父资源继承）
+  // 3) Role hierarchy implied (higher role implies lower)
   const directImplied = directGrants.find(
     (g) =>
       g.subjectId === subject.id &&
-      (g.resourceKey === selectedResource ||
-        ancestorResourceKeys.includes(g.resourceKey)) &&
+      (g.resourceKey === selectedResource || ancestorResourceKeys.includes(g.resourceKey)) &&
       impliedRoles.includes(g.roleKey)
   );
   if (directImplied) return { has: true, source: "implied" };
 
-  // 4) 高级权限隐含（岗位 / 部门）
+  // 4) Role hierarchy implied (position / department)
   if (subjectType === "user" && extra?.positionIds?.length) {
     const posImplied = positionGrants.find(
       (g) =>
         extra.positionIds!.includes(g.subjectId) &&
-        (g.resourceKey === selectedResource ||
-          ancestorResourceKeys.includes(g.resourceKey)) &&
+        (g.resourceKey === selectedResource || ancestorResourceKeys.includes(g.resourceKey)) &&
         impliedRoles.includes(g.roleKey)
     );
     if (posImplied) return { has: true, source: "implied" };
@@ -135,11 +119,30 @@ export function computePermissionState(
     const deptImplied = departmentGrants.find(
       (g) =>
         extra.departmentIds!.includes(g.subjectId) &&
-        (g.resourceKey === selectedResource ||
-          ancestorResourceKeys.includes(g.resourceKey)) &&
+        (g.resourceKey === selectedResource || ancestorResourceKeys.includes(g.resourceKey)) &&
         impliedRoles.includes(g.roleKey)
     );
     if (deptImplied) return { has: true, source: "implied" };
+  }
+
+  // 5) Child resource has grant → gray check on parent (no parent grant, but children have)
+  if (childResourceKeys?.length) {
+    const childGrant = directGrants.find(
+      (g) => g.subjectId === subject.id && childResourceKeys.includes(g.resourceKey) && g.roleKey === roleKey
+    );
+    if (childGrant) return { has: true, source: "child" };
+    if (subjectType === "user" && extra?.positionIds?.length) {
+      const posChild = positionGrants.find(
+        (g) => extra.positionIds!.includes(g.subjectId) && childResourceKeys.includes(g.resourceKey) && g.roleKey === roleKey
+      );
+      if (posChild) return { has: true, source: "child" };
+    }
+    if (subjectType === "user" && extra?.departmentIds?.length) {
+      const deptChild = departmentGrants.find(
+        (g) => extra.departmentIds!.includes(g.subjectId) && childResourceKeys.includes(g.resourceKey) && g.roleKey === roleKey
+      );
+      if (deptChild) return { has: true, source: "child" };
+    }
   }
 
   return { has: false, source: null };
