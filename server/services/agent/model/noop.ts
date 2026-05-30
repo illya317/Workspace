@@ -11,11 +11,13 @@ const KEYWORD_RULES: Array<{
   extractParams: (input: string) => Record<string, unknown>;
 }> = [
   {
-    patterns: [/查.*员工/, /搜.*员工/, /.*信息$/, /找.*人/, /员工.*查/, /^[a-z]{2,4}$/],
+    patterns: [/^查\S+/, /查.*员工/, /搜.*员工/, /.*信息$/, /找.*人/, /员工.*查/, /^[a-z]{2,4}$/],
     tool: "hr.searchEmployees",
     extractParams: (input) => {
       // 提取可能的姓名/关键词：去掉"查""员工""信息"等
-      const kw = input.replace(/查询|搜索|查找|员工|信息|的资料|给我|帮我|一下|的$|是谁/g, "").trim();
+      // 提取关键词：去掉"查""查询""员工""信息"等前缀后缀
+      const kw = input.replace(/^查(询|找|一下)?\s*/g, "")
+        .replace(/查询|搜索|查找|员工|信息|的资料|给我|帮我|一下|的$|是谁/g, "").trim();
       // 纯拼音首字母直接当关键词
       return { keyword: kw || input.trim() };
     },

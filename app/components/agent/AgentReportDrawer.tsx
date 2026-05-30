@@ -2,6 +2,10 @@
 
 import type { AgentMessage } from "./types";
 
+function stripMd(t: string): string {
+  return t.replace(/\*\*(.+?)\*\*/g, "$1").replace(/`(.+?)`/g, "$1").replace(/^#{1,6}\s+/gm, "");
+}
+
 interface Props {
   message: AgentMessage | null;
   onClose: () => void;
@@ -34,7 +38,7 @@ export default function AgentReportDrawer({ message, onClose }: Props) {
 
       {/* Summary */}
       <div className="px-4 py-3 border-b bg-gray-50">
-        <p className="text-sm text-gray-700 whitespace-pre-wrap">{message.content}</p>
+        <p className="text-sm text-gray-700 whitespace-pre-wrap">{stripMd(message.content)}</p>
       </div>
 
       {/* Table */}

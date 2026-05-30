@@ -17,6 +17,7 @@ interface Props {
   onSend: (text: string) => void;
   onClear: () => void;
   hints?: string[];
+  hintsLoaded?: boolean;
 }
 
 const moodLabels: Record<AgentMood, string> = {
@@ -28,8 +29,6 @@ const moodLabels: Record<AgentMood, string> = {
   confirm: "等待确认",
   error: "出错了",
 };
-
-const defaultHints = ["查员工信息", "看预算执行", "查张三"];
 
 /** 去掉 LLM 输出的 markdown 标记 */
 function stripMarkdown(text: string): string {
@@ -43,12 +42,11 @@ function stripMarkdown(text: string): string {
 
 export default function AgentPanel({
   mood, messages, loading, drawerMsg, onOpenDrawer, onCloseDrawer,
-  isOpen, onClose, onSend, onClear, hints,
+  isOpen, onClose, onSend, onClear, hints, hintsLoaded,
 }: Props) {
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const displayHints = hints && hints.length > 0 ? hints : defaultHints;
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
   useEffect(() => { if (isOpen) setTimeout(() => inputRef.current?.focus(), 100); }, [isOpen]);
@@ -99,12 +97,18 @@ export default function AgentPanel({
               <p className="mt-3 text-sm text-gray-500">我是你的内部系统小助手</p>
               <p className="mt-1 text-xs text-gray-400">可以帮你查询数据、生成报告</p>
               <div className="mt-4 flex flex-wrap gap-1.5 justify-center">
-                {displayHints.map((hint) => (
-                  <button key={hint} onClick={() => { setInput(hint); inputRef.current?.focus(); }}
-                    className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
-                    {hint}
-                  </button>
-                ))}
+                {!hintsLoaded ? (
+                  <span className="text-xs text-gray-300">加载中...</span>
+                ) : hints && hints.length > 0 ? (
+                  hints.map((hint) => (
+                    <button key={hint} onClick={() => { setInput(hint); inputRef.current?.focus(); }}
+                      className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
+                      {hint}
+                    </button>
+                  ))
+                ) : (
+                  <span className="text-xs text-gray-400">暂无可用功能，请联系管理员</span>
+                )}
               </div>
             </div>
           ) : (

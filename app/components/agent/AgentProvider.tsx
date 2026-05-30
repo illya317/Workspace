@@ -9,18 +9,19 @@ export default function AgentProvider() {
   const [isOpen, setIsOpen] = useState(false);
   const { messages, mood, loading, drawerMsg, setDrawerMsg, sendMessage, clearMessages } = useAgentSession();
   const [hints, setHints] = useState<string[]>([]);
+  const [hintsLoaded, setHintsLoaded] = useState(false);
 
   // 面板打开时拉取动态能力清单
   useEffect(() => {
     if (!isOpen) return;
+    setHintsLoaded(false);
     fetch("/api/agent/capabilities")
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
-        if (d?.capabilities) {
-          setHints(d.capabilities.map((c: { label: string }) => c.label));
-        }
+        setHints(d?.capabilities?.map((c: { label: string }) => c.label) ?? []);
+        setHintsLoaded(true);
       })
-      .catch(() => {});
+      .catch(() => { setHints([]); setHintsLoaded(true); });
   }, [isOpen]);
 
   const toggle = useCallback(() => setIsOpen((v) => !v), []);
@@ -41,6 +42,7 @@ export default function AgentProvider() {
         onSend={sendMessage}
         onClear={clearMessages}
         hints={hints}
+        hintsLoaded={hintsLoaded}
       />
     </>
   );
