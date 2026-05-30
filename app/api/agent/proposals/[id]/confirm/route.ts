@@ -7,7 +7,7 @@ import { getCurrentUser } from "@/server/auth/session";
 import { confirmProposal } from "@/server/services/agent/proposals";
 import { prisma } from "@/lib/prisma";
 
-const ALLOWED_FIELDS = ["education", "title", "phone", "school", "major", "alias", "hometown"];
+const ALLOWED_FIELDS = ["education", "title", "phone", "school", "major", "alias", "hometown", "politics"];
 
 export async function POST(
   _request: Request,
@@ -22,17 +22,33 @@ export async function POST(
 
   try {
     const result = await confirmProposal(proposalId, user, async (payload) => {
-      const { employeeId, field, value } = payload as Record<string, string>;
+      if (!user.canEditHR) throw new Error("无 HR 编辑权限");
 
-      if (!employeeId || !field) throw new Error("缺少参数");
+      const { field, value, employeeIds } = payload as Record<string, unknown>;
+
+      if (!field || typeof field !== "string") throw new Error("缺少参数 field");
       if (!ALLOWED_FIELDS.includes(field)) throw new Error(`字段 ${field} 不允许修改`);
 
-      // 二次权限校验
-      if (!user.canEditHR) throw new Error("无 HR 编辑权限");
+      // 批量更新
+      if (Array.isArray(employeeIds) && employeeIds.length > 0) {
+        if (employeeIds.length > 200) throw new Error("批量更新上限 200");
+
+        const ids = employeeIds.map(String);
+        const result = await prisma.employee.updateMany({
+          where: { employeeId: { in: ids } },
+          data: { [field]: String(value ?? "") },
+        });
+
+        return { success: true, updatedCount: result.count };
+      }
+
+      // 单个更新
+      const employeeId = typeof payload.employeeId === "string" ? payload.employeeId : "";
+      if (!employeeId) throw new Error("缺少参数 employeeId");
 
       const updated = await prisma.employee.update({
         where: { employeeId },
-        data: { [field]: value },
+        data: { [field]: String(value ?? "") },
         select: { id: true, employeeId: true, name: true, [field]: true },
       });
 

@@ -7,6 +7,7 @@ import { buildCapabilities, findTool } from "./capabilities";
 import { minimaxProvider } from "./model/minimax";
 import { noopProvider } from "./model/noop";
 import type { AgentModelProvider, HistoryMessage, IntentResult } from "./model/provider";
+import { buildClassifyPrompt, buildSummarizePrompt } from "./prompts";
 
 export interface AgentResponse {
   type: "answer" | "error" | "clarification" | "proposal";
@@ -38,14 +39,15 @@ export async function processMessage(
   }
 
   const capList = capabilities.map((c) => ({ key: c.key, label: c.label, description: c.description }));
+  const classifyPrompt = buildClassifyPrompt(capList);
 
   // 1. 意图分类（优先 LLM，失败回退规则匹配）
   let intent: IntentResult;
   try {
-    intent = await provider.classifyIntent(userMessage, capList, history);
+    intent = await provider.classifyIntent(userMessage, classifyPrompt, history);
   } catch {
     console.warn("[agent] LLM classifyIntent failed, falling back to noop provider");
-    intent = await noopProvider.classifyIntent(userMessage, capList, history);
+    intent = await noopProvider.classifyIntent(userMessage, classifyPrompt, history);
   }
 
   // 上下文中已有答案，直接返回
@@ -91,13 +93,13 @@ export async function processMessage(
       query: userMessage,
       result: result,
       history,
-    });
+    }, buildSummarizePrompt());
   } catch {
     summary = await noopProvider.summarizeResult({
       toolLabel: tool.label,
       query: userMessage,
       result: result,
-    });
+    }, buildSummarizePrompt());
   }
 
   return {

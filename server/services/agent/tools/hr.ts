@@ -72,7 +72,7 @@ export const updateEmployeeDraftTool: AgentTool = {
     }
 
     // 允许修改的白名单字段
-    const allowedFields = ["education", "title", "phone", "school", "major", "alias", "hometown"];
+    const allowedFields = ["education", "title", "phone", "school", "major", "alias", "hometown", "politics"];
     if (!allowedFields.includes(field)) {
       return { type: "error", message: `字段"${field}"不支持修改。支持：${allowedFields.join("、")}` };
     }
@@ -117,6 +117,74 @@ export const updateEmployeeDraftTool: AgentTool = {
       type: "proposal",
       message: `待确认：将 ${emp.name}（${actualId}）的${field}从"${oldValue ?? "无"}"改为"${newValue}"`,
       proposal: { id: result.proposalId, actionKey: "hr.updateEmployee", targetType: "Employee", targetId: actualId as string, diff },
+    };
+  },
+};
+
+/** 批量修改员工信息（按条件筛选，生成一个 proposal） */
+export const batchUpdateEmployeeDraftTool: AgentTool = {
+  key: "hr.batchUpdateEmployee",
+  label: "批量修改员工",
+  description: "按条件筛选员工并批量修改字段。参数：filterField=筛选字段，filterOp=notContains(不包含)/contains(包含)，filterValue=筛选值，updateField=修改字段，updateValue=新值。如：非党员→群众：filterField=politics, filterOp=notContains, filterValue=党员, updateField=politics, updateValue=群众",
+  mutates: true,
+
+  canUse(user: SessionUser): boolean {
+    return !!user.canEditHR;
+  },
+
+  async execute(params: Record<string, unknown>, user: SessionUser) {
+    const filterField = typeof params.filterField === "string" ? params.filterField : "";
+    const filterOp = typeof params.filterOp === "string" ? params.filterOp : "notContains";
+    const filterValue = typeof params.filterValue === "string" ? params.filterValue : "";
+    const updateField = typeof params.updateField === "string" ? params.updateField : "";
+    const updateValue = typeof params.updateValue === "string" ? params.updateValue : "";
+
+    if (!filterField || !updateField) {
+      return { type: "error", message: "缺少必填参数：filterField 或 updateField" };
+    }
+
+    const allowedFields = ["education", "title", "phone", "school", "major", "alias", "hometown", "politics"];
+    if (!allowedFields.includes(filterField) || !allowedFields.includes(updateField)) {
+      return { type: "error", message: `字段不支持。允许：${allowedFields.join("、")}` };
+    }
+
+    const { prisma } = await import("@/lib/prisma");
+    const where: Record<string, unknown> = filterOp === "notContains"
+      ? { [filterField]: { not: { contains: filterValue } } }
+      : filterOp === "contains"
+        ? { [filterField]: { contains: filterValue } }
+        : { [filterField]: filterValue };
+    const all = await prisma.employee.findMany({ where,
+      select: { id: true, employeeId: true, name: true, [filterField]: true, [updateField]: true },
+      orderBy: { employeeId: "asc" },
+    });
+
+    if (all.length === 0) {
+      return { type: "error", message: `没有找到 ${filterField} ${filterOp === "neq" ? "不等于" : "等于"} "${filterValue}" 的员工` };
+    }
+
+    // 安全上限
+    if (all.length > 200) {
+      return { type: "error", message: `匹配 ${all.length} 名员工，超过批量上限 200，请缩小范围` };
+    }
+
+    const employeeIds = all.map((e) => e.employeeId);
+    const diff = { filterField, filterOp, filterValue, updateField, updateValue, count: all.length, sample: all.slice(0, 5).map((e) => ({ name: e.name, employeeId: e.employeeId, oldValue: (e as Record<string, unknown>)[updateField] })) };
+
+    // 创建 proposal
+    const { createProposal } = await import("@/server/services/agent/proposals");
+    const result = await createProposal(user, {
+      actionKey: "hr.batchUpdateEmployee",
+      targetType: "Employee",
+      targetId: employeeIds.join(","),
+      payload: { employeeIds, field: updateField, value: updateValue },
+      diff,
+    });
+
+    return {
+      type: "proposal",
+      message: `待确认：将 ${all.length} 名员工的${updateField}批量改为"${updateValue}"（条件：${filterField} 不包含 "${filterValue}"）`,
+      proposal: { id: result.proposalId, actionKey: "hr.batchUpdateEmployee", targetType: "Employee", targetId: `${all.length}名员工`, diff },
     };
   },
 };

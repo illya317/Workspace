@@ -28,10 +28,10 @@ export interface AgentModelProvider {
   /** 将用户自然语言分类为工具调用，支持多轮对话历史 */
   classifyIntent(
     userMessage: string,
-    capabilities: Array<{ key: string; label: string; description: string }>,
+    systemPrompt: string,
     history?: HistoryMessage[],
   ): Promise<IntentResult>;
 
   /** 将工具返回的原始数据总结为对话语言 */
-  summarizeResult(input: SummarizeInput): Promise<string>;
+  summarizeResult(input: SummarizeInput, systemPrompt: string): Promise<string>;
 }

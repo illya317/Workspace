@@ -12,7 +12,7 @@ const KEYWORD_RULES: Array<{
 }> = [
   // 写入必须在最前面，优先于查询
   {
-    patterns: [/改.*学校|改.*学历|改.*电话|修改.*员工|更新.*员工|改成|设置.*员工/],
+    patterns: [/改.*学校|改.*学历|改.*电话|修改.*员工|更新.*员工|改成|设置.*员工|批量.*改|统一.*改|全部.*改|非党员.*改成/],
     tool: "hr.updateEmployee",
     extractParams: (input) => {
       // 提取工号（从历史中，这里尽量提取）
@@ -52,11 +52,9 @@ const KEYWORD_RULES: Array<{
 ];
 
 export const noopProvider: AgentModelProvider = {
-  async classifyIntent(userMessage, capabilities) {
-    const capKeys = new Set(capabilities.map((c) => c.key));
-
+  async classifyIntent(userMessage, _systemPrompt, _history) {
+    // noop 不用 systemPrompt，纯规则匹配
     for (const rule of KEYWORD_RULES) {
-      if (!capKeys.has(rule.tool)) continue;
       for (const pattern of rule.patterns) {
         if (pattern.test(userMessage)) {
           return {
@@ -76,7 +74,7 @@ export const noopProvider: AgentModelProvider = {
     };
   },
 
-  async summarizeResult(input: SummarizeInput) {
+  async summarizeResult(input: SummarizeInput, _systemPrompt: string) {
     return input.result && typeof input.result === "object" && "message" in input.result
       ? String((input.result as { message: string }).message)
       : `查询完成（工具：${input.toolLabel}）`;

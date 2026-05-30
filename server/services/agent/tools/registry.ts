@@ -29,11 +29,12 @@ export interface AgentTool {
 }
 
 // 工具在此集中注册
-import { searchEmployeesTool, updateEmployeeDraftTool } from "./hr";
+import { searchEmployeesTool, updateEmployeeDraftTool, batchUpdateEmployeeDraftTool } from "./hr";
 import { queryBudgetTool } from "./finance";
 
 export const TOOLS: AgentTool[] = [
   searchEmployeesTool,
   updateEmployeeDraftTool,
+  batchUpdateEmployeeDraftTool,
   queryBudgetTool,
 ];
