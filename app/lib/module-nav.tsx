@@ -7,13 +7,16 @@ import type { ReactNode } from "react";
 
 // ─── 类型 ────────────────────────────────────────────────
 
+/** SessionUser 上用作权限门的布尔字段名；undefined = 所有人可见 */
+type PermKey = keyof SessionUser | undefined;
+
 export interface SubModuleDef {
   key: string;
   label: string;
   desc: string;
   href: string;
-  /** 返回 false 或 undefined 则该子模块不显示 */
-  checkAccess: (u: SessionUser) => boolean;
+  /** SessionUser 上的布尔字段；undefined = 不校验权限 */
+  requiredPerm?: PermKey;
 }
 
 export interface ModuleDef {
@@ -23,10 +26,14 @@ export interface ModuleDef {
   href: string;
   icon: ReactNode;
   color: "emerald" | "blue" | "indigo" | "purple" | "amber" | "cyan" | "orange";
-  /** L0 入口 & L1 首页的门控；无权限用户不显示该模块 */
-  checkAccess: (u: SessionUser) => boolean;
-  /** 子板块；为空则 L1 首页不渲染卡片网格（例如 /docs 暂时无子板块） */
+  requiredPerm?: PermKey;
   children?: SubModuleDef[];
+}
+
+/** 检查单个权限字段 */
+function canAccess(user: SessionUser, perm?: PermKey): boolean {
+  if (!perm) return true;
+  return !!user[perm];
 }
 
 // ─── SVG icons ────────────────────────────────────────────
@@ -68,77 +75,33 @@ const icons = {
 // ─── 注册表 ───────────────────────────────────────────────
 
 export const MODULES: ModuleDef[] = [
-  {
-    key: "reports",
-    label: "工作汇报",
-    desc: "填写周报、月报、季报、年报",
-    href: "/reports",
-    icon: icons.reports,
-    color: "emerald",
-    checkAccess: () => true,
-  },
-  {
-    key: "hr",
-    label: "人事管理",
-    desc: "花名册、考勤、绩效、人力分析",
-    href: "/hr",
-    icon: icons.hr,
-    color: "blue",
-    checkAccess: (u) => !!u.canAccessHR,
+  { key: "reports", label: "工作汇报", desc: "填写周报、月报、季报、年报", href: "/reports", icon: icons.reports, color: "emerald" },
+  { key: "hr", label: "人事管理", desc: "花名册、考勤、绩效、人力分析", href: "/hr", icon: icons.hr, color: "blue", requiredPerm: "canAccessHR",
     children: [
-      { key: "roster", label: "人事基础资料", desc: "员工、雇佣、合同、部门、岗位、EDP、项目", href: "/hr/roster", checkAccess: (u) => !!u.canAccessHR },
-      { key: "performance", label: "考勤绩效", desc: "考勤记录、工作查看、绩效评估", href: "/hr/performance", checkAccess: (u) => !!u.canAccessHR },
-      { key: "analytics", label: "人力分析", desc: "员工结构、部门架构、岗位分析、人员流动", href: "/hr/analytics", checkAccess: (u) => !!u.canAccessHR },
+      { key: "roster", label: "人事基础资料", desc: "员工、雇佣、合同、部门、岗位、EDP、项目", href: "/hr/roster", requiredPerm: "canAccessHR" },
+      { key: "performance", label: "考勤绩效", desc: "考勤记录、工作查看、绩效评估", href: "/hr/performance", requiredPerm: "canAccessHR" },
+      { key: "analytics", label: "人力分析", desc: "员工结构、部门架构、岗位分析、人员流动", href: "/hr/analytics", requiredPerm: "canAccessHR" },
     ],
   },
-  {
-    key: "administration",
-    label: "行政管理",
-    desc: "合同台账、办公事务",
-    href: "/administration",
-    icon: icons.admin,
-    color: "indigo",
-    checkAccess: () => true,
+  { key: "administration", label: "行政管理", desc: "合同台账、办公事务", href: "/administration", icon: icons.admin, color: "indigo",
     children: [
-      { key: "contracts", label: "合同台账", desc: "合同录入、查询、到期预警", href: "/contracts", checkAccess: (u) => !!u.canAccessContract },
+      { key: "contracts", label: "合同台账", desc: "合同录入、查询、到期预警", href: "/contracts", requiredPerm: "canAccessContract" },
     ],
   },
-  {
-    key: "docs",
-    label: "文档中心",
-    desc: "员工手册、操作指南、规章制度",
-    href: "/docs",
-    icon: icons.docs,
-    color: "purple",
-    checkAccess: () => true,
-  },
-  {
-    key: "finance",
-    label: "财务管理",
-    desc: "总账、凭证、财务报表、预算、分析",
-    href: "/finance",
-    icon: icons.finance,
-    color: "amber",
-    checkAccess: (u) => !!u.canAccessFinance,
+  { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple" },
+  { key: "finance", label: "财务管理", desc: "总账、凭证、财务报表、预算、分析", href: "/finance", icon: icons.finance, color: "amber", requiredPerm: "canAccessFinance",
     children: [
-      { key: "ledger", label: "总账基础", desc: "科目设置、凭证明细、余额表、期间管理", href: "/finance/ledger", checkAccess: (u) => !!u.canAccessFinanceLedger },
-      { key: "statements", label: "财务报表", desc: "资产负债表、利润表、现金流量表", href: "/finance/statements", checkAccess: (u) => !!u.canAccessFinanceReport },
-      { key: "budget", label: "预算管理", desc: "部门费用预算、研发费用预算", href: "/finance/budget", checkAccess: (u) => !!u.canAccessFinanceBudget },
-      { key: "analysis", label: "财务分析", desc: "预算执行分析、差异分析、趋势看板", href: "/finance/analysis", checkAccess: (u) => !!u.canAccessFinanceAnalysis },
-      { key: "cost", label: "成本管理", desc: "生产成本、发货、成本构成、车间工分", href: "/finance/cost", checkAccess: (u) => !!u.canAccessFinanceCost },
-      { key: "import", label: "数据导入", desc: "科目表、序时账、余额表导入", href: "/finance/import", checkAccess: (u) => !!u.canAccessFinanceImport },
+      { key: "ledger", label: "总账基础", desc: "科目设置、凭证明细、余额表、期间管理", href: "/finance/ledger", requiredPerm: "canAccessFinanceLedger" },
+      { key: "statements", label: "财务报表", desc: "资产负债表、利润表、现金流量表", href: "/finance/statements", requiredPerm: "canAccessFinanceReport" },
+      { key: "budget", label: "预算管理", desc: "部门费用预算、研发费用预算", href: "/finance/budget", requiredPerm: "canAccessFinanceBudget" },
+      { key: "analysis", label: "财务分析", desc: "预算执行分析、差异分析、趋势看板", href: "/finance/analysis", requiredPerm: "canAccessFinanceAnalysis" },
+      { key: "cost", label: "成本管理", desc: "生产成本、发货、成本构成、车间工分", href: "/finance/cost", requiredPerm: "canAccessFinanceCost" },
+      { key: "import", label: "数据导入", desc: "科目表、序时账、余额表导入", href: "/finance/import", requiredPerm: "canAccessFinanceImport" },
     ],
   },
-  {
-    key: "production",
-    label: "生产管理",
-    desc: "原辅料、包装、成品库存",
-    href: "/production",
-    icon: icons.production,
-    color: "cyan",
-    checkAccess: (u) => !!u.canAccessInventory,
+  { key: "production", label: "生产管理", desc: "原辅料、包装、成品库存", href: "/production", icon: icons.production, color: "cyan", requiredPerm: "canAccessInventory",
     children: [
-      { key: "inventory", label: "库存管理", desc: "原辅料、包装材料、成品库存", href: "/inventory", checkAccess: (u) => !!u.canAccessInventory },
+      { key: "inventory", label: "库存管理", desc: "原辅料、包装材料、成品库存", href: "/inventory", requiredPerm: "canAccessInventory" },
     ],
   },
 ];
@@ -147,14 +110,14 @@ export const MODULES: ModuleDef[] = [
 
 /** Portal 用：过滤用户有权限的一级模块 */
 export function getAccessibleModules(user: SessionUser): ModuleDef[] {
-  return MODULES.filter((m) => m.checkAccess(user));
+  return MODULES.filter((m) => canAccess(user, m.requiredPerm));
 }
 
 /** ModuleHome 用：获取某模块下用户有权限的子板块 */
 export function getSubModules(user: SessionUser, moduleKey: string): SubModuleDef[] {
   const mod = MODULES.find((m) => m.key === moduleKey);
   if (!mod?.children) return [];
-  return mod.children.filter((c) => c.checkAccess(user));
+  return mod.children.filter((c) => canAccess(user, c.requiredPerm));
 }
 
 /** 无子模块时 ModuleHome 的提示文案 */
