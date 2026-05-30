@@ -11,12 +11,11 @@ import { useSystemAdminIds } from "./useSystemAdminIds";
 export type PermissionsTabState = ReturnType<typeof usePermissionsTab>;
 
 export function usePermissionsTab(
-  resources: ResourceItem[],
+  _resources: ResourceItem[],
   showToast: (msg: string, type?: "success" | "error") => void
 ) {
   const [subjectType, setSubjectType] = useState<SubjectType>("user");
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
-  const [parentResource, setParentResource] = useState<string | null>(null);
   const [rawSubjects, setRawSubjects] = useState<Subject[]>([]);
   const [directGrants, setDirectGrants] = useState<Grant[]>([]);
   const [positionGrants, setPositionGrants] = useState<Grant[]>([]);
@@ -29,28 +28,6 @@ export function usePermissionsTab(
 
   const systemAdminIds = useSystemAdminIds();
   const scope = usePermissionScope(selectedResource);
-
-  const topResources = useMemo(
-    () => resources.filter((r) => !r.key.includes(".")),
-    [resources]
-  );
-
-  const childResources = useMemo(() => {
-    const parent = parentResource || selectedResource;
-    if (!parent) return [];
-    // 从树结构中找选中节点的直接子节点
-    function findChildren(nodes: ResourceItem[], targetKey: string): ResourceItem[] {
-      for (const n of nodes) {
-        if (n.key === targetKey) return n.children || [];
-        if (n.children?.length) {
-          const f = findChildren(n.children, targetKey);
-          if (f.length) return f;
-        }
-      }
-      return [];
-    }
-    return findChildren(resources, parent);
-  }, [resources, parentResource, selectedResource]);
 
   const roles = useMemo(() => {
     const keys = getAvailableRoles(selectedResource);
@@ -187,7 +164,6 @@ export function usePermissionsTab(
 
   return {
     subjectType, setSubjectType, selectedResource, setSelectedResource,
-    parentResource, setParentResource,
     subjects: filters.subjects, loading,
     l1Dept: filters.l1Dept, setL1Dept: filters.setL1Dept,
     l2Dept: filters.l2Dept, setL2Dept: filters.setL2Dept,
@@ -195,7 +171,7 @@ export function usePermissionsTab(
     l1Options: filters.l1Options, l2Options: filters.l2Options, l3Options: filters.l3Options,
     nameSearch: filters.nameSearch, setNameSearch: filters.setNameSearch,
     expandedRows: filters.expandedRows, toggleRowExpand: filters.toggleRowExpand,
-    topResources, childResources, roles,
+    roles,
     getPermissionState, toggleGrant,
     maxRoleKey, isSystemAdmin, updateMaxRole, systemAdminIds, scope,
   };

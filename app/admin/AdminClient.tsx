@@ -11,8 +11,18 @@ import AdminUsersTab from "./tabs/AdminUsersTab";
 import PermissionsTab from "./tabs/PermissionsTab";
 
 import type { ResourceItem } from "./types";
-import { flattenTree } from "./lib";
 import { SessionUser } from "@/lib/types";
+
+function filterTree(nodes: ResourceItem[], allowed: Set<string>): ResourceItem[] {
+  const result: ResourceItem[] = [];
+  for (const n of nodes) {
+    const children = n.children ? filterTree(n.children, allowed) : [];
+    if (allowed.has(n.key) || children.length > 0) {
+      result.push({ ...n, children: children.length > 0 ? children : n.children });
+    }
+  }
+  return result;
+}
 
 export default function AdminClient({ user }: { user: SessionUser }) {
   const router = useRouter();
@@ -38,12 +48,12 @@ export default function AdminClient({ user }: { user: SessionUser }) {
         if (!cancelled) {
           if (!resRes.ok) showToast("加载权限资源失败: " + resRes.status, "error");
           const resData = await resRes.json();
-          const all = flattenTree(resData.resources || []);
+          const tree = resData.resources || [];
           // Filter to only manageable resources (defense in depth; API already filters)
           const filtered = isSuperAdmin
-            ? all
-            : all.filter((r) => manageableKeys.has(r.key));
-          setResources(filtered);
+            ? tree
+            : filterTree(tree, manageableKeys);
+          setResources(filtered as ResourceItem[]);
           try {
             const cfgRes = await fetch("/api/admin/system-config");
             if (cfgRes.ok) {
