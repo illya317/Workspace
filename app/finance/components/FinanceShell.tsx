@@ -10,13 +10,15 @@ interface Props {
   activeNav: string;
   children: React.ReactNode;
   user: SessionUser;
+  hideShell?: boolean;
 }
 
-export default function FinanceShell({ activeNav, children, user }: Props) {
+export default function FinanceShell({ activeNav, children, user, hideShell }: Props) {
   const router = useRouter();
   const navItems = getFinanceNavItems(user);
   return (
     <div className="min-h-screen bg-gray-50">
+      {!hideShell && (
       <nav className="bg-white shadow-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
@@ -59,6 +61,7 @@ export default function FinanceShell({ activeNav, children, user }: Props) {
           </div>
         </div>
       </nav>
+      )}
       {children}
     </div>
   );

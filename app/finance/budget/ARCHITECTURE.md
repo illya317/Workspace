@@ -105,4 +105,4 @@
 | 页面 | 需要的权限字段 |
 |------|----------------|
 | `/finance/budget` | `canAccessFinanceBudget` |
-| 导入/激活/创建版本 | `canWriteFinanceBudget` |
+| 导入/激活/创建版本 | API: `withFinanceBudgetWrite` |

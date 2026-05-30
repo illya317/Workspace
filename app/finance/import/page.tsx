@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/server/auth/session";
+import AppShell from "@/app/components/AppShell";
 import FinanceShell from "@/app/finance/components/FinanceShell";
 import ImportClient from "./ImportClient";
 
@@ -8,8 +9,10 @@ export default async function ImportPage() {
   if (!user) redirect("/login");
   if (!user.canAccessFinanceImport) redirect("/portal");
   return (
-    <FinanceShell activeNav="import" user={user}>
-      <ImportClient user={user} />
-    </FinanceShell>
+    <AppShell title="数据导入" backHref="/finance" user={user}>
+      <FinanceShell activeNav="import" user={user} hideShell>
+        <ImportClient user={user} />
+      </FinanceShell>
+    </AppShell>
   );
 }

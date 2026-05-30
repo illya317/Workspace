@@ -116,9 +116,16 @@ export const MODULES: ModuleDef[] = [
 
 // ─── 辅助函数 ─────────────────────────────────────────────
 
-/** Portal 用：过滤用户有权限的一级模块 */
+/** Portal 用：过滤用户有权限的一级模块。有子模块的 L1，至少要有一个可见子模块才显示。 */
 export function getAccessibleModules(user: SessionUser): ModuleDef[] {
-  return MODULES.filter((m) => canAccess(user, m.requiredPerm));
+  return MODULES.filter((m) => {
+    if (!canAccess(user, m.requiredPerm)) return false;
+    // 有 children 且无 requiredPerm：至少一个子模块可见
+    if (!m.requiredPerm && m.children) {
+      return m.children.some((c) => canAccess(user, c.requiredPerm));
+    }
+    return true;
+  });
 }
 
 /** ModuleHome 用：获取某模块下用户有权限的子板块 */
@@ -129,6 +136,6 @@ export function getSubModules(user: SessionUser, moduleKey: string): SubModuleDe
 }
 
 /** 无子模块时 ModuleHome 的提示文案 */
-export function getEmptyMessage(moduleKey: string): string {
+export function getEmptyMessage(_moduleKey: string): string {
   return "暂无可用模块，请联系管理员开通权限";
 }
