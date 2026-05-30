@@ -168,6 +168,46 @@ export async function requireFinanceCostAccess(): Promise<SessionUser> {
   return user;
 }
 
+export async function requireFinanceLedgerAccess(): Promise<SessionUser> {
+  const user = await requireCurrentUser();
+  if (!user.canAccessFinanceLedger) {
+    throw new Error("FORBIDDEN");
+  }
+  return user;
+}
+
+export async function requireFinanceReportAccess(): Promise<SessionUser> {
+  const user = await requireCurrentUser();
+  if (!user.canAccessFinanceReport) {
+    throw new Error("FORBIDDEN");
+  }
+  return user;
+}
+
+export async function requireFinanceBudgetAccess(): Promise<SessionUser> {
+  const user = await requireCurrentUser();
+  if (!user.canAccessFinanceBudget) {
+    throw new Error("FORBIDDEN");
+  }
+  return user;
+}
+
+export async function requireFinanceAnalysisAccess(): Promise<SessionUser> {
+  const user = await requireCurrentUser();
+  if (!user.canAccessFinanceAnalysis) {
+    throw new Error("FORBIDDEN");
+  }
+  return user;
+}
+
+export async function requireFinanceImportAccess(): Promise<SessionUser> {
+  const user = await requireCurrentUser();
+  if (!user.canAccessFinanceImport) {
+    throw new Error("FORBIDDEN");
+  }
+  return user;
+}
+
 export async function requireInventoryAccess(): Promise<SessionUser> {
   const user = await requireCurrentUser();
   if (!user.canAccessInventory) {
