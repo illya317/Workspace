@@ -14,6 +14,7 @@ export const queryBudgetTool: AgentTool = {
   key: "finance.queryBudget",
   label: "查询预算",
   description: "查询年度预算数据（部门预算或研发预算）",
+  mutates: false,
 
   canUse(user: SessionUser): boolean {
     return !!user.canAccessFinanceBudget;

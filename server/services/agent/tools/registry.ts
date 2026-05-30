@@ -5,26 +5,35 @@
 import type { SessionUser } from "@/lib/types";
 
 export interface AgentToolResult {
-  type: "data" | "error" | "empty";
+  type: "data" | "error" | "empty" | "proposal";
   data?: unknown;
   message: string;
+  /** proposal 类型特有：待确认变更的详情 */
+  proposal?: {
+    id: number;
+    actionKey: string;
+    targetType: string;
+    targetId?: string;
+    diff: Record<string, unknown>;
+  };
 }
 
 export interface AgentTool {
   key: string;
   label: string;
   description: string;
-  /** 返回 true 表示该用户可使用此工具 */
+  /** true = 涉及写入，只能返回 proposal */
+  mutates: boolean;
   canUse: (user: SessionUser) => boolean;
-  /** 执行工具，返回结构化结果 */
   execute: (params: Record<string, unknown>, user: SessionUser) => Promise<AgentToolResult>;
 }
 
 // 工具在此集中注册
-import { searchEmployeesTool } from "./hr";
+import { searchEmployeesTool, updateEmployeeDraftTool } from "./hr";
 import { queryBudgetTool } from "./finance";
 
 export const TOOLS: AgentTool[] = [
   searchEmployeesTool,
+  updateEmployeeDraftTool,
   queryBudgetTool,
 ];

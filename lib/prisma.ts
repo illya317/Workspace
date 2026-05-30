@@ -5,7 +5,7 @@ const dbPath = process.env.DATABASE_URL?.replace("file:", "") ?? "./prisma/dev.d
 
 const adapter = new PrismaBetterSqlite3({ url: dbPath });
 
-const REQUIRED_DELEGATES = ["financeBalanceSnapshot", "financeBalanceSnapshotRow"] as const;
+const REQUIRED_DELEGATES = ["financeBalanceSnapshot", "financeBalanceSnapshotRow", "agentProposal"] as const;
 
 type RequiredDelegate = (typeof REQUIRED_DELEGATES)[number];
 type CachedPrismaClient = PrismaClient & Partial<Record<RequiredDelegate, unknown>>;

@@ -9,10 +9,17 @@ import { noopProvider } from "./model/noop";
 import type { AgentModelProvider, HistoryMessage, IntentResult } from "./model/provider";
 
 export interface AgentResponse {
-  type: "answer" | "error" | "clarification";
+  type: "answer" | "error" | "clarification" | "proposal";
   message: string;
   toolUsed?: string;
   data?: unknown;
+  proposal?: {
+    id: number;
+    actionKey: string;
+    targetType: string;
+    targetId?: string;
+    diff: Record<string, unknown>;
+  };
 }
 
 export async function processMessage(
@@ -65,6 +72,16 @@ export async function processMessage(
 
   // 3. 执行工具（内部有二次权限校验）
   const result = await tool.execute(intent.params, user);
+
+  // proposal 直接返回，不经过 LLM 总结
+  if (result.type === "proposal" && result.proposal) {
+    return {
+      type: "proposal",
+      message: result.message,
+      toolUsed: tool.key,
+      proposal: result.proposal,
+    };
+  }
 
   // 4. 用 LLM 总结为对话语言（失败则用规则总结）
   let summary: string;

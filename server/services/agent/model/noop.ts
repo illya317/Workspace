@@ -10,6 +10,25 @@ const KEYWORD_RULES: Array<{
   tool: string;
   extractParams: (input: string) => Record<string, unknown>;
 }> = [
+  // 写入必须在最前面，优先于查询
+  {
+    patterns: [/改.*学校|改.*学历|改.*电话|修改.*员工|更新.*员工|改成|设置.*员工/],
+    tool: "hr.updateEmployee",
+    extractParams: (input) => {
+      // 提取工号（从历史中，这里尽量提取）
+      const idMatch = input.match(/00\d{3}/);
+      const fieldMap: Record<string, string> = { 学校: "school", 学历: "education", 电话: "phone", 专业: "major", 别名: "alias", 籍贯: "hometown" };
+      let field = "school";
+      let newValue = "";
+      for (const [cn, key] of Object.entries(fieldMap)) {
+        if (input.includes(cn)) { field = key; break; }
+      }
+      // 尝试提取新值（"改成XXX"）
+      const valMatch = input.match(/改成\s*(\S+)/);
+      if (valMatch) newValue = valMatch[1];
+      return { employeeId: idMatch ? idMatch[0] : "", field, newValue };
+    },
+  },
   // 预算必须在 HR 前面，否则"查预算"会被 ^查\S+ 误判为查员工
   {
     patterns: [/预算/, /budget/i, /费用/],

@@ -74,12 +74,13 @@ ${toolList}
   "directAnswer": null
 }
 
-规则：
-- 如果对话历史已包含答案（如用户追问"她电话多少"而上一条结果中已有电话），设置 tool=null, confidence=1, directAnswer="从历史中提取的答案"
-- 利用对话历史理解代词引用（如"她"指上一个搜索结果中的人）
-- 需要查询新数据时，选择合适的工具并提取参数
-- 无法确定意图时 tool=null，confidence<0.5，填写 clarification
-- 只返回 JSON，不输出其他内容`;
+规则（严格优先级）：
+1. 如果对话历史已包含答案，设置 tool=null, confidence=1, directAnswer
+2. 包含"改"、"修改"、"更新"、"设置"、"变成"、"改成"等修改意图关键词 → 必须用修改工具 hr.updateEmployee
+3. 利用对话历史理解代词引用（如"她"指上一个搜索结果中的人）
+4. 需要查询新数据时，选择合适的查询工具
+5. 无法确定意图时 tool=null，confidence<0.5，填写 clarification
+6. 只返回 JSON，不输出其他内容`;
 
     const text = await chat(systemPrompt, userMessage, history);
     try {

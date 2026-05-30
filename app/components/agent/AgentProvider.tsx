@@ -4,14 +4,18 @@ import { useState, useCallback, useEffect } from "react";
 import { useAgentSession } from "./useAgentSession";
 import AgentFloatingButton from "./AgentFloatingButton";
 import AgentPanel from "./AgentPanel";
+import AgentConfirmModal from "./AgentConfirmModal";
 
 export default function AgentProvider() {
   const [isOpen, setIsOpen] = useState(false);
-  const { messages, mood, loading, drawerMsg, setDrawerMsg, sendMessage, clearMessages } = useAgentSession();
+  const {
+    messages, mood, loading, drawerMsg, setDrawerMsg,
+    pendingProposal, confirmProposal, cancelProposal,
+    sendMessage, clearMessages,
+  } = useAgentSession();
   const [hints, setHints] = useState<string[]>([]);
   const [hintsLoaded, setHintsLoaded] = useState(false);
 
-  // 面板打开时拉取动态能力清单
   useEffect(() => {
     if (!isOpen) return;
     setHintsLoaded(false);
@@ -44,6 +48,14 @@ export default function AgentProvider() {
         hints={hints}
         hintsLoaded={hintsLoaded}
       />
+      {pendingProposal && (
+        <AgentConfirmModal
+          proposal={pendingProposal.proposal}
+          summary={pendingProposal.summary}
+          onConfirm={confirmProposal}
+          onCancel={cancelProposal}
+        />
+      )}
     </>
   );
 }

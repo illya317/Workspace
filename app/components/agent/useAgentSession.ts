@@ -4,36 +4,46 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import type { AgentMood, AgentMessage } from "./types";
 
 let _msgId = 0;
-function nextId(): string {
-  return `msg-${Date.now()}-${++_msgId}`;
+function nextId(): string { return `msg-${Date.now()}-${++_msgId}`; }
+
+interface ProposalInfo {
+  proposal: { id: number; actionKey: string; targetType: string; targetId?: string; diff: Record<string, unknown> };
+  summary: string;
 }
 
 interface AgentResponse {
-  type: "answer" | "error" | "clarification";
+  type: "answer" | "error" | "clarification" | "proposal";
   message: string;
   toolUsed?: string;
   data?: unknown;
+  proposal?: ProposalInfo["proposal"];
 }
 
 export function useAgentSession() {
+  // ── state ──
   const [messages, setMessages] = useState<AgentMessage[]>([]);
   const [mood, setMood] = useState<AgentMood>("idle");
   const [loading, setLoading] = useState(false);
-  const abortRef = useRef<AbortController | null>(null);
+  const [drawerMsg, setDrawerMsg] = useState<AgentMessage | null>(null);
+  const [pendingProposal, setPendingProposal] = useState<ProposalInfo | null>(null);
 
+  const abortRef = useRef<AbortController | null>(null);
+  const messagesRef = useRef<AgentMessage[]>([]);
+  const pendingRef = useRef(pendingProposal);
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
+  useEffect(() => { pendingRef.current = pendingProposal; }, [pendingProposal]);
+
+  // ── helpers ──
   const addMessage = useCallback((role: AgentMessage["role"], content: string, data?: unknown) => {
     const msg: AgentMessage = { id: nextId(), role, content, timestamp: Date.now(), data };
     setMessages((prev) => [...prev, msg]);
     return msg;
   }, []);
 
-  const messagesRef = useRef<AgentMessage[]>([]);
-  useEffect(() => { messagesRef.current = messages; }, [messages]);
-
+  // ── send ──
   const sendMessage = useCallback(async (text: string) => {
     if (!text.trim() || loading) return;
 
-    // 取消上一次请求
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -42,7 +52,6 @@ export function useAgentSession() {
     setMood("thinking");
     setLoading(true);
 
-    // 取最近用户+agent消息作为历史（排除system）
     const history = messagesRef.current
       .filter((m) => m.role === "user" || m.role === "agent")
       .slice(-10)
@@ -66,6 +75,12 @@ export function useAgentSession() {
 
       const data: AgentResponse = await res.json();
 
+      if (data.type === "proposal" && data.proposal) {
+        addMessage("agent", data.message);
+        setPendingProposal({ proposal: data.proposal, summary: data.message });
+        setMood("confirm");
+        return;
+      }
       if (data.type === "clarification") {
         addMessage("agent", data.message);
         setMood("warning");
@@ -77,10 +92,8 @@ export function useAgentSession() {
         setMood("success");
       }
 
-      // 3 秒后回到 idle
       setTimeout(() => setMood("idle"), 3000);
     } catch (err: unknown) {
-      // 组件卸载、HMR 刷新、用户取消 → 静默忽略
       if (err instanceof Error && (err.name === "AbortError" || err.name === "TypeError")) return;
       addMessage("system", "网络请求失败，请稍后重试");
       setMood("error");
@@ -89,20 +102,45 @@ export function useAgentSession() {
     }
   }, [loading, addMessage]);
 
-  // 组件卸载时取消飞行中的请求（HMR 刷新等场景）
-  useEffect(() => {
-    return () => {
-      abortRef.current?.abort();
-    };
-  }, []);
+  // ── cleanup ──
+  useEffect(() => () => { abortRef.current?.abort(); }, []);
 
-  const [drawerMsg, setDrawerMsg] = useState<AgentMessage | null>(null);
+  // ── proposal actions ──
+  const confirmProposal = useCallback(async () => {
+    const p = pendingRef.current;
+    if (!p) return;
+    const res = await fetch(`/api/agent/proposals/${p.proposal.id}/confirm`, { method: "POST" });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "确认失败" }));
+      throw new Error(err.error || "确认失败");
+    }
+    const data = await res.json();
+    addMessage("system", `✅ ${data.message}`);
+    setPendingProposal(null);
+    setMood("success");
+    setTimeout(() => setMood("idle"), 3000);
+  }, [addMessage]);
+
+  const cancelProposal = useCallback(async () => {
+    const p = pendingRef.current;
+    if (!p) return;
+    fetch(`/api/agent/proposals/${p.proposal.id}/cancel`, { method: "POST" }).catch(() => {});
+    addMessage("system", "已取消变更");
+    setPendingProposal(null);
+    setMood("idle");
+  }, [addMessage]);
 
   const clearMessages = useCallback(() => {
     setMessages([]);
     setDrawerMsg(null);
+    setPendingProposal(null);
     setMood("idle");
   }, []);
 
-  return { messages, mood, loading, drawerMsg, setDrawerMsg, sendMessage, clearMessages };
+  return {
+    messages, mood, loading,
+    drawerMsg, setDrawerMsg,
+    pendingProposal, confirmProposal, cancelProposal,
+    sendMessage, clearMessages,
+  };
 }
