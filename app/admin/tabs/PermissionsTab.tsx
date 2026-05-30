@@ -19,7 +19,7 @@ export default function PermissionsTab({ resources, showToast }: Props) {
       <div className="flex flex-col gap-4 lg:flex-row">
         <div className="w-full shrink-0 lg:w-56">
           <h3 className="mb-2 text-sm font-semibold text-gray-700">资源模块</h3>
-          {s.selectedResource && s.isSystemAdmin && (
+          {s.selectedResource && s.isSystemAdmin && s.selectedResource !== "system" && (
             <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
               最高业务权限：
               <select
