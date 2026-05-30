@@ -29,7 +29,8 @@
 
 ```
 system              admin   系统管理
-agent               access  智能体
+  system.audit      admin   审计日志
+  system.agent      access  智能体
 
 people              admin   人事管理
   people.roster     admin   人事基础资料
