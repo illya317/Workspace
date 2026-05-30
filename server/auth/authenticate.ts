@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import { verifyToken, getTokenFromCookie } from "@/lib/auth/token";
-import { checkPermission } from "@/server/rbac/check";
 
 export async function authenticate(request: Request) {
   // 1. Cookie token (web)
@@ -14,12 +13,6 @@ export async function authenticate(request: Request) {
       });
       if (!user || !user.canLogin) return null;
       if (user.sessionVersion !== payload.sessionVersion) return null;
-      const canLogin = await checkPermission(
-        payload.userId,
-        "system",
-        "access",
-      );
-      if (!canLogin) return null;
       return payload;
     }
   }
