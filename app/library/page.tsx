@@ -58,7 +58,7 @@ export default async function LibraryPage() {
                   href={entry.isDir ? `/library/${encodeURIComponent(entry.name)}` : `/api/library/${encodeURIComponent(entry.name)}`}
                   className="flex items-center gap-3 px-3 py-2.5 transition hover:bg-gray-50 rounded"
                 >
-                  <span className="shrink-0 text-base">{entry.isDir ? "📁" : "📄"}</span>
+                  <span className="shrink-0 text-sm text-gray-400">{entry.isDir ? "▸" : ""}</span>
                   <span className="flex-1 truncate text-sm text-gray-800">{entry.name}</span>
                   {!entry.isDir && entry.size !== undefined && (
                     <span className="shrink-0 text-xs text-gray-400">{formatSize(entry.size)}</span>
