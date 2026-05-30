@@ -177,7 +177,7 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
                     <td className="px-3 py-2 text-gray-500 font-mono">{u.username || "-"}</td>
                     <td className="px-3 py-2">
                       <button onClick={() => toggleLogin(u.id, u.canLogin)}
-                        className={`rounded px-2 py-0.5 text-[11px] font-medium cursor-pointer border ${u.canLogin ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" : "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"}`}
+                        className={`whitespace-nowrap rounded px-2 py-0.5 text-[11px] font-medium cursor-pointer border ${u.canLogin ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" : "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"}`}
                       >
                         {u.canLogin ? "启用" : "停用"}
                       </button>
