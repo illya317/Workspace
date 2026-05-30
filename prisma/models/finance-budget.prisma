@@ -1,0 +1,90 @@
+/// 预算版本头表。每年可存在多个版本（draft/active/archived），同 (year, companyCode) 下只有一个 active。
+model FinanceBudgetVersion {
+  id          Int      @id @default(autoincrement())
+  year        Int
+  companyCode String?
+  name        String   /// 版本名称，如 "2026年初预算"、"2026年调整V1"
+  status      String   /// draft | active | archived
+  type        String   /// dept | rd | all，表示本版本包含的预算类型
+  sourceFile  String?
+  createdBy   Int?     /// userId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  deptBudgets FinanceBudgetDept[]
+  rdBudgets   FinanceBudgetRd[]
+
+  @@index([year, companyCode])
+  @@index([status])
+}
+
+/// 部门费用预算。每年导入一次，按部门+科目存储12个月预算金额，accountId 关联到 FinanceAccount 建立真 FK。从属于某个 FinanceBudgetVersion。
+model FinanceBudgetDept {
+  id            Int                  @id @default(autoincrement())
+  versionId     Int
+  version       FinanceBudgetVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  year          Int
+  companyCode   String?
+  dept          String
+  accountName   String
+  expenseType   String
+  accountId     Int?
+  account       FinanceAccount?      @relation(fields: [accountId], references: [id])
+  total         Float                @default(0)
+  month1        Float                @default(0)
+  month2        Float                @default(0)
+  month3        Float                @default(0)
+  month4        Float                @default(0)
+  month5        Float                @default(0)
+  month6        Float                @default(0)
+  month7        Float                @default(0)
+  month8        Float                @default(0)
+  month9        Float                @default(0)
+  month10       Float                @default(0)
+  month11       Float                @default(0)
+  month12       Float                @default(0)
+  sourceFile    String?
+  importedAt    DateTime             @default(now())
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @default(now()) @updatedAt
+
+  @@unique([versionId, dept, accountName])
+  @@index([year, companyCode])
+  @@index([accountId])
+  @@index([versionId])
+}
+
+/// 研发费用预算。每年导入一次，按项目+科目存储12个月预算金额，accountId 关联到 FinanceAccount 建立真 FK。从属于某个 FinanceBudgetVersion。
+model FinanceBudgetRd {
+  id          Int                  @id @default(autoincrement())
+  versionId   Int
+  version     FinanceBudgetVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  year        Int
+  companyCode String?
+  project     String
+  category    String
+  accountId   Int?
+  account     FinanceAccount?      @relation(fields: [accountId], references: [id])
+  total       Float                @default(0)
+  month1      Float                @default(0)
+  month2      Float                @default(0)
+  month3      Float                @default(0)
+  month4      Float                @default(0)
+  month5      Float                @default(0)
+  month6      Float                @default(0)
+  month7      Float                @default(0)
+  month8      Float                @default(0)
+  month9      Float                @default(0)
+  month10     Float                @default(0)
+  month11     Float                @default(0)
+  month12     Float                @default(0)
+  sourceFile  String?
+  importedAt  DateTime             @default(now())
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @default(now()) @updatedAt
+
+  @@unique([versionId, project, category])
+  @@index([year, companyCode])
+  @@index([accountId])
+  @@index([versionId])
+}

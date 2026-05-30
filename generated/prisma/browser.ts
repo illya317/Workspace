@@ -53,6 +53,21 @@ export type DepartmentResourceRole = Prisma.DepartmentResourceRoleModel
  */
 export type Contract = Prisma.ContractModel
 /**
+ * Model FinanceBudgetVersion
+ * 预算版本头表。每年可存在多个版本（draft/active/archived），同 (year, companyCode) 下只有一个 active。
+ */
+export type FinanceBudgetVersion = Prisma.FinanceBudgetVersionModel
+/**
+ * Model FinanceBudgetDept
+ * 部门费用预算。每年导入一次，按部门+科目存储12个月预算金额，accountId 关联到 FinanceAccount 建立真 FK。从属于某个 FinanceBudgetVersion。
+ */
+export type FinanceBudgetDept = Prisma.FinanceBudgetDeptModel
+/**
+ * Model FinanceBudgetRd
+ * 研发费用预算。每年导入一次，按项目+科目存储12个月预算金额，accountId 关联到 FinanceAccount 建立真 FK。从属于某个 FinanceBudgetVersion。
+ */
+export type FinanceBudgetRd = Prisma.FinanceBudgetRdModel
+/**
  * Model FinanceDataImport
  * 财务成本数据导入批次。每次从 Excel/JSON 导入时生成一条记录，作为该批次所有明细行的事实来源追溯。
  */
@@ -82,16 +97,6 @@ export type FinanceCostAnalysisRow = Prisma.FinanceCostAnalysisRowModel
  * 车间日报。记录生产车间每日各批次产品的人员投入、工序、工分和完成数量。employeeId/positionId 关联到员工和岗位，用于人工成本归集和计件工资计算。
  */
 export type FinanceWorkshopReport = Prisma.FinanceWorkshopReportModel
-/**
- * Model FinanceBudgetDept
- * 部门费用预算。每年导入一次，按部门+科目存储12个月预算金额，accountId 关联到 FinanceAccount 建立真 FK。
- */
-export type FinanceBudgetDept = Prisma.FinanceBudgetDeptModel
-/**
- * Model FinanceBudgetRd
- * 研发费用预算。每年导入一次，按项目+科目存储12个月预算金额，accountId 关联到 FinanceAccount 建立真 FK。
- */
-export type FinanceBudgetRd = Prisma.FinanceBudgetRdModel
 /**
  * Model FinanceAccount
  * 财务科目（含层级）

@@ -40,10 +40,10 @@ export default function InventoryClient({ user }: { user: SessionUser }) {
           </div>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push("/portal")}
+              onClick={() => router.push("/production")}
               className="text-sm text-gray-500 hover:text-emerald-600"
             >
-              返回入口
+              ← 返回上级
             </button>
             <UserMenu user={user} />
           </div>

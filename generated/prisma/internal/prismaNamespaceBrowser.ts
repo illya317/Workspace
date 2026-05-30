@@ -58,14 +58,15 @@ export const ModelName = {
   PositionResourceRole: 'PositionResourceRole',
   DepartmentResourceRole: 'DepartmentResourceRole',
   Contract: 'Contract',
+  FinanceBudgetVersion: 'FinanceBudgetVersion',
+  FinanceBudgetDept: 'FinanceBudgetDept',
+  FinanceBudgetRd: 'FinanceBudgetRd',
   FinanceDataImport: 'FinanceDataImport',
   FinanceShipment: 'FinanceShipment',
   FinanceSalesSalary: 'FinanceSalesSalary',
   FinanceCostStructureRow: 'FinanceCostStructureRow',
   FinanceCostAnalysisRow: 'FinanceCostAnalysisRow',
   FinanceWorkshopReport: 'FinanceWorkshopReport',
-  FinanceBudgetDept: 'FinanceBudgetDept',
-  FinanceBudgetRd: 'FinanceBudgetRd',
   FinanceAccount: 'FinanceAccount',
   FinancePeriod: 'FinancePeriod',
   FinanceVoucher: 'FinanceVoucher',
@@ -215,6 +216,83 @@ export const ContractScalarFieldEnum = {
 export type ContractScalarFieldEnum = (typeof ContractScalarFieldEnum)[keyof typeof ContractScalarFieldEnum]
 
 
+export const FinanceBudgetVersionScalarFieldEnum = {
+  id: 'id',
+  year: 'year',
+  companyCode: 'companyCode',
+  name: 'name',
+  status: 'status',
+  type: 'type',
+  sourceFile: 'sourceFile',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceBudgetVersionScalarFieldEnum = (typeof FinanceBudgetVersionScalarFieldEnum)[keyof typeof FinanceBudgetVersionScalarFieldEnum]
+
+
+export const FinanceBudgetDeptScalarFieldEnum = {
+  id: 'id',
+  versionId: 'versionId',
+  year: 'year',
+  companyCode: 'companyCode',
+  dept: 'dept',
+  accountName: 'accountName',
+  expenseType: 'expenseType',
+  accountId: 'accountId',
+  total: 'total',
+  month1: 'month1',
+  month2: 'month2',
+  month3: 'month3',
+  month4: 'month4',
+  month5: 'month5',
+  month6: 'month6',
+  month7: 'month7',
+  month8: 'month8',
+  month9: 'month9',
+  month10: 'month10',
+  month11: 'month11',
+  month12: 'month12',
+  sourceFile: 'sourceFile',
+  importedAt: 'importedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceBudgetDeptScalarFieldEnum = (typeof FinanceBudgetDeptScalarFieldEnum)[keyof typeof FinanceBudgetDeptScalarFieldEnum]
+
+
+export const FinanceBudgetRdScalarFieldEnum = {
+  id: 'id',
+  versionId: 'versionId',
+  year: 'year',
+  companyCode: 'companyCode',
+  project: 'project',
+  category: 'category',
+  accountId: 'accountId',
+  total: 'total',
+  month1: 'month1',
+  month2: 'month2',
+  month3: 'month3',
+  month4: 'month4',
+  month5: 'month5',
+  month6: 'month6',
+  month7: 'month7',
+  month8: 'month8',
+  month9: 'month9',
+  month10: 'month10',
+  month11: 'month11',
+  month12: 'month12',
+  sourceFile: 'sourceFile',
+  importedAt: 'importedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceBudgetRdScalarFieldEnum = (typeof FinanceBudgetRdScalarFieldEnum)[keyof typeof FinanceBudgetRdScalarFieldEnum]
+
+
 export const FinanceDataImportScalarFieldEnum = {
   id: 'id',
   profile: 'profile',
@@ -342,65 +420,6 @@ export const FinanceWorkshopReportScalarFieldEnum = {
 } as const
 
 export type FinanceWorkshopReportScalarFieldEnum = (typeof FinanceWorkshopReportScalarFieldEnum)[keyof typeof FinanceWorkshopReportScalarFieldEnum]
-
-
-export const FinanceBudgetDeptScalarFieldEnum = {
-  id: 'id',
-  year: 'year',
-  companyCode: 'companyCode',
-  dept: 'dept',
-  accountName: 'accountName',
-  expenseType: 'expenseType',
-  accountId: 'accountId',
-  total: 'total',
-  month1: 'month1',
-  month2: 'month2',
-  month3: 'month3',
-  month4: 'month4',
-  month5: 'month5',
-  month6: 'month6',
-  month7: 'month7',
-  month8: 'month8',
-  month9: 'month9',
-  month10: 'month10',
-  month11: 'month11',
-  month12: 'month12',
-  sourceFile: 'sourceFile',
-  importedAt: 'importedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type FinanceBudgetDeptScalarFieldEnum = (typeof FinanceBudgetDeptScalarFieldEnum)[keyof typeof FinanceBudgetDeptScalarFieldEnum]
-
-
-export const FinanceBudgetRdScalarFieldEnum = {
-  id: 'id',
-  year: 'year',
-  companyCode: 'companyCode',
-  project: 'project',
-  category: 'category',
-  accountId: 'accountId',
-  total: 'total',
-  month1: 'month1',
-  month2: 'month2',
-  month3: 'month3',
-  month4: 'month4',
-  month5: 'month5',
-  month6: 'month6',
-  month7: 'month7',
-  month8: 'month8',
-  month9: 'month9',
-  month10: 'month10',
-  month11: 'month11',
-  month12: 'month12',
-  sourceFile: 'sourceFile',
-  importedAt: 'importedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type FinanceBudgetRdScalarFieldEnum = (typeof FinanceBudgetRdScalarFieldEnum)[keyof typeof FinanceBudgetRdScalarFieldEnum]
 
 
 export const FinanceAccountScalarFieldEnum = {

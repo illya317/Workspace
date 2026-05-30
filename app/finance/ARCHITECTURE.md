@@ -113,14 +113,16 @@ budget/page.tsx
 
 ## 预算管理
 
+详见 `app/finance/budget/ARCHITECTURE.md`。
+
 预算数据来自 `prisma/seed-data/预算/` 下的 Excel 文件（部门费用预算、研发费用预算）。
 
-`FinanceBudgetDept` 和 `FinanceBudgetRd` 两张事实表持久化预算数据，`accountId` 外键关联到 `FinanceAccount`。`GET /api/finance/budget` 优先从数据库读取，无数据时回退到 Excel。
+`FinanceBudgetVersion` 为版本头表（draft/active/archived），`FinanceBudgetDept` / `FinanceBudgetRd` 为事实表，通过 `versionId` 关联到版本。`accountId` 外键关联到 `FinanceAccount`。
 
 ### 预算导入
 
 ```bash
-# 将 Excel 预算数据导入数据库（建立真 FK）
+# 将 Excel 预算数据导入数据库（创建 draft 版本）
 curl -X POST /api/finance/budget -H "Content-Type: application/json" -d '{"year":2026}'
 ```
 
