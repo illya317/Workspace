@@ -7,7 +7,6 @@ import type { ReactNode } from "react";
 
 // ─── 类型 ────────────────────────────────────────────────
 
-/** SessionUser 上用作权限门的布尔字段名；undefined = 所有人可见 */
 type PermKey = keyof SessionUser | undefined;
 
 export interface SubModuleDef {
@@ -15,8 +14,9 @@ export interface SubModuleDef {
   label: string;
   desc: string;
   href: string;
-  /** SessionUser 上的布尔字段；undefined = 不校验权限 */
   requiredPerm?: PermKey;
+  /** RBAC resource key — checked via visibleResourceKeys */
+  resourceKey?: string;
 }
 
 export interface ModuleDef {
@@ -27,13 +27,19 @@ export interface ModuleDef {
   icon: ReactNode;
   color: "emerald" | "blue" | "indigo" | "purple" | "amber" | "cyan" | "orange";
   requiredPerm?: PermKey;
+  resourceKey?: string;
   children?: SubModuleDef[];
 }
 
 /** 检查单个权限字段 */
-function canAccess(user: SessionUser, perm?: PermKey): boolean {
-  if (!perm) return true;
-  return !!user[perm];
+function canAccess(user: SessionUser, resourceKey?: string, requiredPerm?: PermKey): boolean {
+  // New: check visibleResourceKeys (DB-driven)
+  if (resourceKey) {
+    return (user.visibleResourceKeys || []).includes(resourceKey);
+  }
+  // Legacy: check session boolean field
+  if (requiredPerm) return !!user[requiredPerm];
+  return true;
 }
 
 // ─── SVG icons ────────────────────────────────────────────
@@ -80,7 +86,7 @@ const icons = {
 // ─── 注册表 ───────────────────────────────────────────────
 
 export const MODULES: ModuleDef[] = [
-  { key: "reports", label: "工作汇报", desc: "填写周报、月报、季报、年报", href: "/reports", icon: icons.reports, color: "emerald", requiredPerm: "canAccessWorks" },
+  { key: "reports", label: "工作汇报", desc: "填写周报、月报、季报、年报", href: "/reports", icon: icons.reports, color: "emerald", resourceKey: "work" },
   { key: "hr", label: "人事管理", desc: "花名册、考勤、绩效、人力分析", href: "/hr", icon: icons.hr, color: "blue", requiredPerm: "canAccessHR",
     children: [
       { key: "roster", label: "人事基础资料", desc: "员工、雇佣、合同、部门、岗位、EDP、项目", href: "/hr/roster", requiredPerm: "canAccessHR" },
@@ -88,7 +94,7 @@ export const MODULES: ModuleDef[] = [
       { key: "analytics", label: "人力分析", desc: "员工结构、部门架构、岗位分析、人员流动", href: "/hr/analytics", requiredPerm: "canAccessHR" },
     ],
   },
-  { key: "administration", label: "行政管理", desc: "合同台账、办公事务", href: "/administration", icon: icons.admin, color: "indigo", requiredPerm: "canAccessContract",
+  { key: "administration", label: "行政管理", desc: "合同台账、办公事务", href: "/administration", icon: icons.admin, color: "indigo", requiredPerm: "canAccessContract", resourceKey: "administration",
     children: [
       { key: "contracts", label: "合同台账", desc: "合同录入、查询、到期预警", href: "/contracts", requiredPerm: "canAccessContract" },
     ],
@@ -103,19 +109,19 @@ export const MODULES: ModuleDef[] = [
       { key: "import", label: "数据导入", desc: "科目表、序时账、余额表导入", href: "/finance/import", requiredPerm: "canAccessFinanceImport" },
     ],
   },
-  { key: "production", label: "生产管理", desc: "原辅料、包装、成品库存", href: "/production", icon: icons.production, color: "cyan", requiredPerm: "canAccessInventory",
+  { key: "production", label: "生产管理", desc: "原辅料、包装、成品库存", href: "/production", icon: icons.production, color: "cyan", requiredPerm: "canAccessInventory", resourceKey: "production",
     children: [
       { key: "inventory", label: "库存管理", desc: "原辅料、包装材料、成品库存", href: "/inventory", requiredPerm: "canAccessInventory" },
     ],
   },
-  { key: "external", label: "外部关系", desc: "客户、投资人、供应商", href: "/external", icon: icons.customers, color: "orange", requiredPerm: "canAccessExternal",
+  { key: "external", label: "外部关系", desc: "客户、投资人、供应商", href: "/external", icon: icons.customers, color: "orange", requiredPerm: "canAccessExternal", resourceKey: "external",
     children: [
       { key: "investors", label: "投资人关系", desc: "投资人信息、沟通记录", href: "/external/investors" },
       { key: "customers", label: "客户管理", desc: "客户信息、跟进记录", href: "/external/customers" },
       { key: "suppliers", label: "供应商管理", desc: "供应商信息、采购记录", href: "/external/suppliers" },
     ],
   },
-  { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple", requiredPerm: "canAccessDocs",
+  { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple", requiredPerm: "canAccessDocs", resourceKey: "docs",
     children: [
       { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions/GMP" },
       { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company" },
@@ -123,7 +129,7 @@ export const MODULES: ModuleDef[] = [
       { key: "api-guide", label: "接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide", requiredPerm: "canAccessApi" },
     ],
   },
-  { key: "library", label: "资料库", desc: "内部资料存档", href: "/library", requiredPerm: "canAccessLibrary", icon: (
+  { key: "library", label: "资料库", desc: "内部资料存档", href: "/library", requiredPerm: "canAccessLibrary", resourceKey: "library", icon: (
     <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
     </svg>
@@ -141,21 +147,18 @@ export const MODULES: ModuleDef[] = [
 /** Portal 用：过滤用户有权限的一级模块。有子模块的 L1，至少要有一个可见子模块才显示。 */
 export function getAccessibleModules(user: SessionUser): ModuleDef[] {
   return MODULES.filter((m) => {
-    // Parent perm passes → module visible
-    if (canAccess(user, m.requiredPerm)) return true;
-    // Parent perm fails but has children → show if any child is accessible
+    if (canAccess(user, m.resourceKey, m.requiredPerm)) return true;
     if (m.children?.length) {
-      return m.children.some((c) => canAccess(user, c.requiredPerm));
+      return m.children.some((c) => canAccess(user, c.resourceKey, c.requiredPerm));
     }
     return false;
   });
 }
 
-/** ModuleHome 用：获取某模块下用户有权限的子板块 */
 export function getSubModules(user: SessionUser, moduleKey: string): SubModuleDef[] {
   const mod = MODULES.find((m) => m.key === moduleKey);
   if (!mod?.children) return [];
-  return mod.children.filter((c) => canAccess(user, c.requiredPerm));
+  return mod.children.filter((c) => canAccess(user, c.resourceKey, c.requiredPerm));
 }
 
 /** 无子模块时 ModuleHome 的提示文案 */

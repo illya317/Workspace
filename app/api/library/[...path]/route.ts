@@ -2,13 +2,12 @@ import { NextResponse } from "next/server";
 import { readFile, stat } from "fs/promises";
 import path from "path";
 import { getCurrentUser } from "@/server/auth/session";
-import { checkPermission } from "@/lib/auth";
 import { safeResolve, getDefaultRoot } from "@/server/services/library/config";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ path: string[] }> }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!(await checkPermission(user.id, "library", "access"))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!user.canAccessLibrary) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { path: segments } = await params;
 

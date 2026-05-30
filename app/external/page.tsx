@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/server/auth/session";
-import { checkPermission } from "@/lib/auth";
 import AppShell from "@/app/components/AppShell";
 import ModuleHome from "@/app/components/ModuleHome";
 import { MODULES } from "@/app/lib/module-nav";
@@ -8,7 +7,7 @@ import { MODULES } from "@/app/lib/module-nav";
 export default async function ExternalPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (!(await checkPermission(user.id, "external", "access"))) redirect("/portal");
+  if (!user.canAccessExternal) redirect("/portal");
 
   const mod = MODULES.find((m) => m.key === "external");
   if (!mod) redirect("/portal");

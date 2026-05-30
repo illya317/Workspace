@@ -22,6 +22,7 @@ export interface SessionUser {
   canAccessFinanceImport?: boolean;
   canAccessInventory?: boolean;
   canAccessContract?: boolean;
+  visibleResourceKeys?: string[];
   canAccessAdmin?: boolean;
   canManagePermissions?: boolean;
   canAccessApi?: boolean;
