@@ -2,7 +2,7 @@
 export { createCrudHandlers, type CrudFactoryConfig, type AccessChecker } from "./crud-factory";
 
 import { createCrudHandlers } from "./crud-factory";
-import { checkFinanceAccess } from "./auth";
+import { checkFinanceAccess, checkFinanceDelete } from "./auth";
 import type { CrudFactoryConfig } from "./crud-factory";
 
 export type FinanceCrudConfig = Omit<CrudFactoryConfig, "accessCheck">;
