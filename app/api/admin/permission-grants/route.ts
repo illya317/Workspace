@@ -73,6 +73,14 @@ export async function PUT(request: Request) {
     );
   }
 
+  // Only system.admin can grant/revoke admin role
+  if (roleKey === "admin") {
+    const isSysAdmin = await checkPermission(payload.userId, "system", "admin");
+    if (!isSysAdmin) {
+      return NextResponse.json({ error: "仅系统管理员可管理 admin 权限" }, { status: 403 });
+    }
+  }
+
   const canManage = await canManageResourceGrant(
     payload.userId,
     resourceKey,
