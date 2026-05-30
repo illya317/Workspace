@@ -3,8 +3,8 @@
 import { useEffect, useState, Fragment } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import FinanceFilters from "./components/FinanceFilters";
-import Pagination from "./components/Pagination";
+import FinanceFilters from "../components/FinanceFilters";
+import Pagination from "../components/Pagination";
 
 const COMPANIES: Record<string, string> = { "01": "丰华生物", "02": "丰华天力通", "03": "丰华悦通", "04": "丰华制药", "05": "加拿大", "06": "上海悦通" };
 

@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import AccountCreateModal from "./components/AccountCreateModal";
-import AccountTable from "./components/AccountTable";
-import FinanceFilters from "./components/FinanceFilters";
-import Pagination from "./components/Pagination";
+import AccountCreateModal from "../components/AccountCreateModal";
+import AccountTable from "../components/AccountTable";
+import FinanceFilters from "../components/FinanceFilters";
+import Pagination from "../components/Pagination";
 
 interface Account {
   id: number;

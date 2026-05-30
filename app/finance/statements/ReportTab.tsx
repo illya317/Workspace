@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import FinanceFilters from "./components/FinanceFilters";
+import FinanceFilters from "../components/FinanceFilters";
 
 interface Period {
   id: number;
