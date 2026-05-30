@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { useAgentSession } from "./useAgentSession";
 import AgentFloatingButton from "./AgentFloatingButton";
+import { coreMoods, preloadImages } from "./avatarAssets";
 import AgentPanel from "./AgentPanel";
 import AgentConfirmModal from "./AgentConfirmModal";
 
@@ -18,6 +19,7 @@ export default function AgentProvider() {
 
   useEffect(() => {
     if (!isOpen) return;
+    preloadImages(coreMoods);
     setHintsLoaded(false);
     fetch("/api/agent/capabilities")
       .then((r) => r.ok ? r.json() : null)

@@ -54,6 +54,13 @@ export async function confirmProposal(
   if (proposal.userId !== user.id) throw new Error("无权确认他人的变更");
   if (proposal.status !== "pending") throw new Error("变更已处理，无法重复确认");
 
+  // 30 分钟过期
+  const age = Date.now() - new Date(proposal.createdAt).getTime();
+  if (age > 30 * 60 * 1000) {
+    await prisma.agentProposal.update({ where: { id: proposalId }, data: { status: "expired" } });
+    throw new Error("变更已过期（超过30分钟），请重新发起");
+  }
+
   try {
     const payload = JSON.parse(proposal.payloadJson);
     const result = await execute(payload);
@@ -85,6 +92,7 @@ export async function cancelProposal(
   const proposal = await prisma.agentProposal.findUnique({ where: { id: proposalId } });
   if (!proposal) throw new Error("变更记录不存在");
   if (proposal.userId !== user.id) throw new Error("无权取消他人的变更");
+  if (proposal.status !== "pending") throw new Error("只能取消待确认的变更");
 
   await prisma.agentProposal.update({
     where: { id: proposalId },

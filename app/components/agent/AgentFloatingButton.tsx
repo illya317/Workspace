@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import type { AgentMood } from "./types";
 import { useAgentPosition } from "./useAgentPosition";
 import AgentAvatar from "./AgentAvatar";
+import { mainAvatar, poseAvatar } from "./avatarAssets";
 
 interface Props {
   mood: AgentMood;
@@ -12,13 +14,18 @@ interface Props {
 
 export default function AgentFloatingButton({ mood, isOpen, onToggle }: Props) {
   const { position, mounted, isDragging, onPointerDown, onPointerMove, onPointerUp, wasClick } = useAgentPosition();
+  const [hovered, setHovered] = useState(false);
 
   function handleClick() {
     if (wasClick()) onToggle();
   }
 
-  // SSR 期间不渲染，避免 position 初始值导致 hydration mismatch
   if (!mounted) return null;
+
+  const avatarSrc = isDragging ? poseAvatar.side
+    : isOpen ? poseAvatar.back
+    : hovered ? poseAvatar["45front"]
+    : mainAvatar;
 
   return (
     <div
@@ -36,6 +43,8 @@ export default function AgentFloatingButton({ mood, isOpen, onToggle }: Props) {
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onClick={handleClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       role="button"
       aria-label="小助手"
       title="小助手"
@@ -49,7 +58,7 @@ export default function AgentFloatingButton({ mood, isOpen, onToggle }: Props) {
       `}
         style={{ width: 56, height: 56 }}
       >
-        <AgentAvatar mood={mood} size={40} />
+        <AgentAvatar mood={mood} size={40} src={avatarSrc} />
       </div>
     </div>
   );

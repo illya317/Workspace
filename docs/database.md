@@ -641,3 +641,21 @@
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @updatedAt |  |
 
+
+### AgentProposal
+
+> Agent 待确认变更审计记录
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) | 主键 |
+| userId | Int | - | 发起用户ID |
+| status | String | @default("pending") | pending/confirmed/cancelled/failed/expired |
+| actionKey | String | - | 工具key，如 hr.updateEmployee |
+| targetType | String | - | 目标实体，如 Employee |
+| targetId | String? | - | 目标记录标识 |
+| payloadJson | String | - | 变更内容JSON |
+| diffJson | String? | - | 变更前后对比JSON |
+| resultJson | String? | - | 执行结果JSON |
+| createdAt | DateTime | @default(now()) | 创建时间 |
+| confirmedAt | DateTime? | - | 确认时间 |

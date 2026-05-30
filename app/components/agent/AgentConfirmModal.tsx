@@ -59,18 +59,36 @@ export default function AgentConfirmModal({ proposal, summary, onConfirm, onCanc
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(proposal.diff).map(([key]) => {
-                  if (key === "employeeId" || key === "name") return null;
-                  const oldVal = proposal.diff.oldValue;
-                  const newVal = proposal.diff.newValue;
-                  return (
-                    <tr key={key} className="border-t">
-                      <td className="px-3 py-2 text-gray-600 font-medium">{key}</td>
-                      <td className="px-3 py-2 text-gray-400 line-through">{oldVal == null ? "-" : String(oldVal)}</td>
-                      <td className="px-3 py-2 text-emerald-600 font-medium">{newVal == null ? "-" : String(newVal)}</td>
+                {"count" in proposal.diff ? (
+                  // 批量更新 diff
+                  <>
+                    <tr className="border-t">
+                      <td className="px-3 py-2 text-gray-600 font-medium">条件</td>
+                      <td className="px-3 py-2 text-gray-700" colSpan={2}>
+                        {String(proposal.diff.filterField)} {String(proposal.diff.filterOp)} &ldquo;{String(proposal.diff.filterValue)}&rdquo;
+                      </td>
                     </tr>
-                  );
-                })}
+                    <tr className="border-t">
+                      <td className="px-3 py-2 text-gray-600 font-medium">修改</td>
+                      <td className="px-3 py-2 text-gray-700" colSpan={2}>
+                        {String(proposal.diff.updateField)} → &ldquo;{String(proposal.diff.updateValue)}&rdquo;
+                      </td>
+                    </tr>
+                    <tr className="border-t">
+                      <td className="px-3 py-2 text-gray-600 font-medium">数量</td>
+                      <td className="px-3 py-2 text-gray-700 font-bold" colSpan={2}>
+                        {String(proposal.diff.count)} 名员工
+                      </td>
+                    </tr>
+                  </>
+                ) : (
+                  // 单个更新 diff
+                  <tr className="border-t">
+                    <td className="px-3 py-2 text-gray-600 font-medium">{String(proposal.diff.field ?? "")}</td>
+                    <td className="px-3 py-2 text-gray-400 line-through">{proposal.diff.oldValue == null ? "-" : String(proposal.diff.oldValue)}</td>
+                    <td className="px-3 py-2 text-emerald-600 font-medium">{proposal.diff.newValue == null ? "-" : String(proposal.diff.newValue)}</td>
+                  </tr>
+                )}
                 <tr className="border-t bg-gray-50">
                   <td className="px-3 py-2 text-gray-500">影响</td>
                   <td className="px-3 py-2 text-gray-500" colSpan={2}>
