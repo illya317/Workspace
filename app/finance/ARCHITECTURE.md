@@ -4,22 +4,55 @@
 
 | 页面 | 路由 | 组件 |
 |------|------|------|
-| 财务总账 | `/finance` | `app/finance/page.tsx` → `FinanceClient.tsx` |
-| 成本管理 | `/finance/cost` | `app/finance/cost/page.tsx` → `FinanceCostClient.tsx` |
-| 财务分析 | `/finance/analysis` | `app/finance/analysis/page.tsx` → `FinanceAnalysisClient.tsx` |
+| 财务首页 | `/finance` | `page.tsx` → `FinanceHomeClient.tsx` |
+| 总账基础 | `/finance/ledger` | `ledger/page.tsx` → `LedgerClient.tsx` |
+| 财务报表 | `/finance/statements` | `statements/page.tsx` → `StatementsClient.tsx` |
+| 预算管理 | `/finance/budget` | `budget/page.tsx` → `BudgetClient.tsx` |
+| 成本管理 | `/finance/cost` | `cost/page.tsx` → `FinanceCostClient.tsx` |
+| 财务分析 | `/finance/analysis` | `analysis/page.tsx` → `FinanceAnalysisClient.tsx` |
+| 数据导入 | `/finance/import` | `import/page.tsx` → `FinanceImportClient.tsx` |
+
+所有页面由 `FinanceShell` 统一包裹，提供顶部导航栏、Logo、返回入口及用户菜单。
 
 ## 页面结构
 
-### 财务总账 Tab
+### 财务首页 (`/finance`)
 
-FinanceClient 渲染多个 Tab：
+`FinanceHomeClient` 渲染模块入口卡片与状态概览：
+
+| 模块 | 说明 |
+|------|------|
+| 总账基础 | 科目设置、凭证明细、余额表、期间管理 |
+| 财务报表 | 资产负债表、利润表、现金流量表 |
+| 预算管理 | 部门费用预算、研发费用预算 |
+| 财务分析 | 预算执行分析、差异分析、趋势看板 |
+| 成本管理 | 生产成本、发货、成本构成、车间工分 |
+
+### 总账基础 (`/finance/ledger`)
+
+`LedgerClient` 渲染多个 Tab：
 
 | Tab | 组件 | 说明 |
 |-----|------|------|
 | 科目管理 | AccountTab | 会计科目 CRUD |
 | 凭证明细 | VoucherTab | 凭证录入/查询 |
 | 余额表 | LedgerTab | 科目余额表查询、年度余额基准滚动计算、外部余额表校准 |
+
+### 财务报表 (`/finance/statements`)
+
+`StatementsClient` 渲染：
+
+| Tab | 组件 | 说明 |
+|-----|------|------|
 | 财务报表 | ReportTab | 资产负债表/利润表 |
+
+### 预算管理 (`/finance/budget`)
+
+`BudgetClient` 渲染：
+
+| Tab | 组件 | 说明 |
+|-----|------|------|
+| 预算 | BudgetTab | 部门费用预算、研发费用预算 |
 
 ### 成本管理（子模块）
 
@@ -29,11 +62,25 @@ FinanceClient 渲染多个 Tab：
 
 ```
 page.tsx
-  └─ FinanceClient.tsx
-       ├─ AccountTab.tsx
-       ├─ VoucherTab.tsx
-       ├─ LedgerTab.tsx
-       └─ ReportTab.tsx
+  └─ FinanceShell
+       └─ FinanceHomeClient.tsx
+
+ledger/page.tsx
+  └─ FinanceShell
+       └─ LedgerClient.tsx
+            ├─ AccountTab.tsx
+            ├─ VoucherTab.tsx
+            └─ LedgerTab.tsx
+
+statements/page.tsx
+  └─ FinanceShell
+       └─ StatementsClient.tsx
+            └─ ReportTab.tsx
+
+budget/page.tsx
+  └─ FinanceShell
+       └─ BudgetClient.tsx
+            └─ BudgetTab.tsx
 ```
 
 ## 数据流
