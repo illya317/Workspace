@@ -1,5 +1,6 @@
 "use client";
 
+import type React from "react";
 import { useRouter } from "next/navigation";
 import { SessionUser } from "@/lib/types";
 import { getSubModules, getEmptyMessage, type ModuleDef } from "@/app/lib/module-nav";
@@ -59,7 +60,7 @@ export default function ModuleHome({ module, user }: Props) {
                 className="group flex flex-col items-center rounded-xl bg-white p-6 shadow-sm transition-all hover:shadow-md hover:ring-2 hover:ring-emerald-400"
               >
                 <div className={`mb-3 flex h-14 w-14 items-center justify-center rounded-full ${bgCls} ${textCls}`}>
-                  {subIcons[child.key] || child.icon}
+                  {subIcons[child.key]}
                 </div>
                 <h3 className="text-base font-semibold text-gray-800">{child.label}</h3>
                 <p className="mt-1 text-xs text-gray-500">{child.desc}</p>
