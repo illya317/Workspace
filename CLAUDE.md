@@ -127,6 +127,7 @@ Company → Department → PositionDescription → Position → Employee → Emp
 | 管理后台 | `/admin` | `system.admin` 或 `people.access` |
 | API接入 | `/api-guide` | 登录 |
 | 设置 | `/settings` | 登录 |
+| 智能助手 | `/api/agent` | 登录（权限随用户） |
 | 文档中心 | `/docs` | 登录 |
 | 资料库 | `/library` | 登录 |
 | 财务数据 | `/finance` | 登录 |

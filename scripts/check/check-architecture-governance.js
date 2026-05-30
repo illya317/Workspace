@@ -30,6 +30,7 @@ const REQUIRED_AGENT_SECTIONS = [
 
 const ALLOWED_API_ROOTS = new Set([
   "admin",
+  "agent",
   "auth",
   "contracts",
   "departments",

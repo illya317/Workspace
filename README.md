@@ -21,6 +21,7 @@
 | 菜单注册 | `app/lib/module-nav.tsx` | 全站模块注册表，单一真相来源 |
 | 搜索 | `lib/search.ts`, `app/components/SearchBox.tsx` | 拼音搜索、统一搜索框 |
 | 审计 | `lib/history.ts`, `app/components/AuditLogModal.tsx` | 变更历史、版本回溯 |
+| 智能助手 | `app/components/agent/`, `app/api/agent/`, `server/services/agent/` | 浮窗对话助手，基于当前权限查询数据 |
 
 ## 目录契约
 

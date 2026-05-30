@@ -1,16 +1,62 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import type { AgentMood, AgentMessage } from "./types";
 import AgentAvatar from "./AgentAvatar";
 
 interface Props {
   mood: AgentMood;
   messages: AgentMessage[];
+  loading: boolean;
   isOpen: boolean;
   onClose: () => void;
+  onSend: (text: string) => void;
+  onClear: () => void;
 }
 
-export default function AgentPanel({ mood, messages, isOpen, onClose }: Props) {
+const moodLabels: Record<AgentMood, string> = {
+  idle: "有什么可以帮你的？",
+  listening: "正在听...",
+  thinking: "思考中...",
+  success: "查询完成",
+  warning: "需要确认",
+  confirm: "等待确认",
+  error: "出错了",
+};
+
+const hints = ["查员工信息", "看预算执行", "查张三"];
+
+export default function AgentPanel({ mood, messages, loading, isOpen, onClose, onSend, onClear }: Props) {
+  const [input, setInput] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  // 自动滚动到底部
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
+
+  // 打开时自动聚焦输入框
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
+  }, [isOpen]);
+
+  function handleSend() {
+    const text = input.trim();
+    if (!text || loading) return;
+    onSend(text);
+    setInput("");
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  }
+
   if (!isOpen) return null;
 
   return (
@@ -19,7 +65,7 @@ export default function AgentPanel({ mood, messages, isOpen, onClose }: Props) {
       style={{
         right: 24,
         bottom: 96,
-        width: 360,
+        width: 380,
         maxHeight: "70vh",
       }}
     >
@@ -28,16 +74,17 @@ export default function AgentPanel({ mood, messages, isOpen, onClose }: Props) {
         <AgentAvatar mood={mood} size={32} />
         <div className="flex-1">
           <div className="text-sm font-semibold text-gray-800">小助手</div>
-          <div className="text-xs text-gray-500">
-            {mood === "idle" && "有什么可以帮你的？"}
-            {mood === "listening" && "正在听..."}
-            {mood === "thinking" && "思考中..."}
-            {mood === "success" && "查询完成"}
-            {mood === "warning" && "需要确认"}
-            {mood === "confirm" && "等待确认"}
-            {mood === "error" && "出错了"}
-          </div>
+          <div className="text-xs text-gray-500">{moodLabels[mood]}</div>
         </div>
+        <button
+          onClick={onClear}
+          className="rounded-lg p-1.5 text-gray-300 hover:text-gray-500 transition"
+          title="清空对话"
+        >
+          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
         <button
           onClick={onClose}
           className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
@@ -49,7 +96,7 @@ export default function AgentPanel({ mood, messages, isOpen, onClose }: Props) {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3" style={{ minHeight: 120 }}>
+      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3" style={{ minHeight: 160 }}>
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <AgentAvatar mood="idle" size={40} />
@@ -58,10 +105,14 @@ export default function AgentPanel({ mood, messages, isOpen, onClose }: Props) {
               可以帮你查询数据、生成报告
             </p>
             <div className="mt-4 flex flex-wrap gap-1.5 justify-center">
-              {["查员工信息", "看预算执行", "查工作清单"].map((hint) => (
-                <span key={hint} className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+              {hints.map((hint) => (
+                <button
+                  key={hint}
+                  onClick={() => { setInput(hint); inputRef.current?.focus(); }}
+                  className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition"
+                >
                   {hint}
-                </span>
+                </button>
               ))}
             </div>
           </div>
@@ -71,13 +122,13 @@ export default function AgentPanel({ mood, messages, isOpen, onClose }: Props) {
               key={msg.id}
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
             >
-              {msg.role === "agent" && (
+              {msg.role !== "user" && (
                 <div className="mr-2 mt-0.5 shrink-0">
-                  <AgentAvatar mood={mood} size={20} />
+                  <AgentAvatar mood={msg.role === "system" ? "error" : mood} size={20} />
                 </div>
               )}
               <div
-                className={`max-w-[80%] rounded-xl px-3 py-2 text-sm ${
+                className={`max-w-[82%] rounded-xl px-3 py-2 text-sm whitespace-pre-wrap ${
                   msg.role === "user"
                     ? "bg-emerald-500 text-white"
                     : msg.role === "system"
@@ -90,19 +141,42 @@ export default function AgentPanel({ mood, messages, isOpen, onClose }: Props) {
             </div>
           ))
         )}
+
+        {/* 加载指示器 */}
+        {loading && (
+          <div className="flex justify-start">
+            <div className="mr-2 mt-0.5 shrink-0">
+              <AgentAvatar mood="thinking" size={20} />
+            </div>
+            <div className="bg-gray-100 rounded-xl px-3 py-2 text-sm text-gray-500">
+              <span className="inline-flex gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "0ms" }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "150ms" }} />
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: "300ms" }} />
+              </span>
+            </div>
+          </div>
+        )}
+        <div ref={bottomRef} />
       </div>
 
-      {/* Input (placeholder for Batch 2) */}
+      {/* Input */}
       <div className="border-t px-4 py-3">
-        <div className="flex items-center gap-2 rounded-xl border bg-gray-50 px-3 py-2">
+        <div className="flex items-center gap-2 rounded-xl border bg-gray-50 px-3 py-2 focus-within:border-emerald-400 transition-colors">
           <input
-            disabled
-            placeholder="输入消息（即将开放）..."
-            className="flex-1 bg-transparent text-sm outline-none disabled:text-gray-400"
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="输入消息..."
+            disabled={loading}
+            className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400 disabled:opacity-50"
+            maxLength={2000}
           />
           <button
-            disabled
-            className="rounded-lg bg-emerald-400 px-3 py-1 text-xs text-white font-medium disabled:opacity-50"
+            onClick={handleSend}
+            disabled={loading || !input.trim()}
+            className="rounded-lg bg-emerald-500 px-3 py-1 text-xs text-white font-medium hover:bg-emerald-600 disabled:opacity-40 transition"
           >
             发送
           </button>

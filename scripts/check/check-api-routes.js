@@ -102,6 +102,7 @@ function walkRoutes(dir) {
 
 const KNOWN_PREFIXES = [
   "admin",
+  "agent",
   "auth",
   "finance",
   "hr",
