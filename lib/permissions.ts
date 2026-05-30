@@ -5,10 +5,8 @@
 export const RES = {
   system: {
     root: "system",
-    user: "system.user",
-    permission: "system.permission",
     audit: "system.audit",
-    config: "system.config",
+    agent: "system.agent",
   },
   people: {
     root: "people",

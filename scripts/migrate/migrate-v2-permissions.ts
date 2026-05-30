@@ -13,9 +13,7 @@ async function main() {
   console.log("1. Seeding Resources (tree)...");
   const resDefs = [
     { key: "system", name: "系统管理", sortOrder: 0 },
-    { key: "system.user", name: "用户权限", sortOrder: 1, parentKey: "system" },
     { key: "system.audit", name: "审计日志", sortOrder: 2, parentKey: "system" },
-    { key: "system.config", name: "系统配置", sortOrder: 3, parentKey: "system" },
     { key: "people", name: "人员", sortOrder: 10 },
     { key: "people.employee", name: "员工档案", sortOrder: 11, parentKey: "people" },
     { key: "people.org", name: "组织架构", sortOrder: 12, parentKey: "people" },

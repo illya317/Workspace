@@ -1,6 +1,6 @@
 import "server-only";
 import { cookies } from "next/headers";
-import { verifyToken, checkPermission, getPermissionContext, checkPermissionWithContext } from "@/lib/auth";
+import { verifyToken, getPermissionContext, checkPermissionWithContext } from "@/lib/auth";
 import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
 import { prisma } from "@/lib/prisma";
 import type { SessionUser } from "@/lib/types";
@@ -12,9 +12,6 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
 
   const payload = await verifyToken(token);
   if (!payload) return null;
-
-  const canLogin = await checkPermission(payload.userId, "system", "access");
-  if (!canLogin) return null;
 
   const userWithPerms = await prisma.user.findUnique({
     where: { id: payload.userId },
