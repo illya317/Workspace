@@ -11,6 +11,20 @@ interface ProposalInfo {
   summary: string;
 }
 
+export interface SavedConversation {
+  id: string;
+  title: string;
+  messages: AgentMessage[];
+  createdAt: number;
+}
+
+function loadHistory(): SavedConversation[] {
+  try { return JSON.parse(localStorage.getItem("agentHistory") || "[]"); } catch { return []; }
+}
+function saveHistory(list: SavedConversation[]) {
+  try { localStorage.setItem("agentHistory", JSON.stringify(list.slice(0, 50))); } catch { /* */ }
+}
+
 interface AgentResponse {
   type: "answer" | "error" | "clarification" | "proposal";
   message: string;
@@ -26,6 +40,7 @@ export function useAgentSession() {
   const [loading, setLoading] = useState(false);
   const [drawerMsg, setDrawerMsg] = useState<AgentMessage | null>(null);
   const [pendingProposal, setPendingProposal] = useState<ProposalInfo | null>(null);
+  const [savedConversations, setSavedConversations] = useState<SavedConversation[]>(() => loadHistory());
 
   const abortRef = useRef<AbortController | null>(null);
   const messagesRef = useRef<AgentMessage[]>([]);
@@ -131,7 +146,22 @@ export function useAgentSession() {
   }, [addMessage]);
 
   const clearMessages = useCallback(() => {
+    // 保存当前对话到历史
+    if (messages.length > 0) {
+      const title = messages.find((m) => m.role === "user")?.content.slice(0, 30) || "空对话";
+      const conv: SavedConversation = { id: nextId(), title, messages: [...messages], createdAt: Date.now() };
+      const list = [conv, ...loadHistory()];
+      saveHistory(list);
+      setSavedConversations(list);
+    }
     setMessages([]);
+    setDrawerMsg(null);
+    setPendingProposal(null);
+    setMood("idle");
+  }, [messages]);
+
+  const loadConversation = useCallback((conv: SavedConversation) => {
+    setMessages(conv.messages);
     setDrawerMsg(null);
     setPendingProposal(null);
     setMood("idle");
@@ -141,6 +171,6 @@ export function useAgentSession() {
     messages, mood, loading,
     drawerMsg, setDrawerMsg,
     pendingProposal, confirmProposal, cancelProposal,
-    sendMessage, clearMessages,
+    sendMessage, clearMessages, savedConversations, loadConversation,
   };
 }

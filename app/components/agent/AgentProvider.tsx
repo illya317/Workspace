@@ -12,7 +12,7 @@ export default function AgentProvider() {
   const {
     messages, mood, loading, drawerMsg, setDrawerMsg,
     pendingProposal, confirmProposal, cancelProposal,
-    sendMessage, clearMessages,
+    sendMessage, clearMessages, savedConversations, loadConversation,
   } = useAgentSession();
   const [hints, setHints] = useState<string[]>([]);
   const [hintsLoaded, setHintsLoaded] = useState(false);
@@ -47,6 +47,8 @@ export default function AgentProvider() {
         onClose={close}
         onSend={sendMessage}
         onClear={clearMessages}
+        savedConversations={savedConversations}
+        onLoadConversation={loadConversation}
         hints={hints}
         hintsLoaded={hintsLoaded}
       />
