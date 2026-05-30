@@ -149,23 +149,28 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
     }
 
     const { prisma } = await import("@/lib/prisma");
-    const where: Record<string, unknown> = filterOp === "notContains"
-      ? { [filterField]: { not: { contains: filterValue } } }
-      : filterOp === "contains"
-        ? { [filterField]: { contains: filterValue } }
-        : { [filterField]: filterValue };
-    const all = await prisma.employee.findMany({ where,
+    // SQLite adapter 对 not: { contains } 支持不佳，走 JS 过滤
+    const allRows = await prisma.employee.findMany({
       select: { id: true, employeeId: true, name: true, [filterField]: true, [updateField]: true },
       orderBy: { employeeId: "asc" },
     });
 
+    // JS 过滤
+    const all = allRows.filter((r) => {
+      const val = String((r as Record<string, unknown>)[filterField] ?? "");
+      if (filterOp === "notContains") return !val.includes(filterValue);
+      if (filterOp === "contains") return val.includes(filterValue);
+      return val === filterValue;
+    });
+
     if (all.length === 0) {
-      return { type: "error", message: `没有找到 ${filterField} ${filterOp === "neq" ? "不等于" : "等于"} "${filterValue}" 的员工` };
+      const opLabel = filterOp === "notContains" ? "不包含" : filterOp === "contains" ? "包含" : "等于";
+      return { type: "error", message: `没有找到 ${filterField} ${opLabel} "${filterValue}" 的员工` };
     }
 
     // 安全上限
-    if (all.length > 200) {
-      return { type: "error", message: `匹配 ${all.length} 名员工，超过批量上限 200，请缩小范围` };
+    if (all.length > 500) {
+      return { type: "error", message: `匹配 ${all.length} 名员工，超过批量上限 500，请缩小范围` };
     }
 
     const employeeIds = all.map((e) => e.employeeId);

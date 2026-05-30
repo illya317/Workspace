@@ -31,7 +31,7 @@ export async function POST(
 
       // 批量更新
       if (Array.isArray(employeeIds) && employeeIds.length > 0) {
-        if (employeeIds.length > 200) throw new Error("批量更新上限 200");
+        if (employeeIds.length > 500) throw new Error("批量更新上限 500");
 
         const ids = employeeIds.map(String);
         const result = await prisma.employee.updateMany({
