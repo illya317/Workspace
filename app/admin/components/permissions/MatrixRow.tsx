@@ -15,7 +15,6 @@ export default function MatrixRow({ subject, s }: MatrixRowProps) {
 
   const ROLE_HIERARCHY: Record<string, number> = { access: 0, write: 1, delete: 2, admin: 3 };
   const maxLevel = ROLE_HIERARCHY[s.maxRoleKey] ?? 3;
-  const isSysAdminSubject = s.subjectType === "user" && s.systemAdminIds.has(subject.id);
 
   return (
     <>
@@ -38,8 +37,7 @@ export default function MatrixRow({ subject, s }: MatrixRowProps) {
           const state = s.getPermissionState(subject, role.key);
           const roleLevel = ROLE_HIERARCHY[role.key] ?? 0;
           const exceeds = (role.key !== "admin" && roleLevel > maxLevel)
-            || (role.key === "admin" && !s.isSystemAdmin)
-            || (role.key === "admin" && isSysAdminSubject);
+            || (role.key === "admin" && (!s.isSystemAdmin || s.selectedResource === "system"));
           return (
             <td key={role.key} className="whitespace-nowrap py-2 pr-3 text-center">
               {exceeds ? (
