@@ -21,16 +21,15 @@ export default function PermissionsTab({ resources, showToast }: Props) {
           <h3 className="mb-2 text-sm font-semibold text-gray-700">资源模块</h3>
           {s.selectedResource && s.isSystemAdmin && (
             <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
-              最高权限：
+              最高业务权限：
               <select
-                value={s.maxRoleKey}
+                value={s.maxRoleKey === "admin" ? "admin" : s.maxRoleKey}
                 onChange={(e) => s.updateMaxRole(e.target.value)}
                 className="rounded border border-gray-200 px-1 py-0.5 text-xs text-gray-600"
               >
                 <option value="access">访问</option>
                 <option value="write">编辑</option>
                 <option value="delete">删除</option>
-                <option value="admin">管理</option>
               </select>
             </div>
           )}

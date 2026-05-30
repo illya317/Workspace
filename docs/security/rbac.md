@@ -77,21 +77,21 @@ legal               access  法务
 
 每行末尾是该资源的 `maxRoleKey`（可授予的最高角色）。
 
-## Resource.maxRoleKey
+## Resource.maxRoleKey（最高业务权限）
 
-DB 字段 `Resource.maxRoleKey` 限制该资源能授予的最高角色：
+`maxRoleKey` 限制该资源能授予的**业务动作**上限（access/write/delete），**不限制 admin**。
 
-| maxRoleKey | 可授予 |
-|-----------|--------|
-| `access` | 仅访问 |
-| `write` | 访问、编辑 |
-| `delete` | 访问、编辑、删除 |
-| `admin` | 访问、编辑、删除、管理 |
+| maxRoleKey | 可授予的业务动作 | admin |
+|-----------|-----------------|-------|
+| `access` | 仅访问 | ✓ 始终可授予 |
+| `write` | 访问、编辑 | ✓ 始终可授予 |
+| `delete` | 访问、编辑、删除 | ✓ 始终可授予 |
 
+- admin = 授权管理权，不受业务动作上限限制。例如 `docs.maxRoleKey=access` 时，仍可授予 `docs.admin` 来管理资料库权限。
 - 子资源受**父资源有效上限**约束（沿 DB `parentId` 链取最严）。
 - `system` 的 `maxRoleKey` 锁定 `admin`，不可降级。
 - 只有 `system.admin` 可修改 `maxRoleKey`。
-- 运行时 `checkPermission` 会拒绝超过 `maxRoleKey` 的 grant。
+- 后台 UI 下拉改名为"最高业务权限"，仅含 访问/编辑/删除。
 
 ## system.admin 与业务权限
 

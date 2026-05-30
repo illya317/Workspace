@@ -54,20 +54,22 @@ export async function getResourceMaxRole(resourceKey: string): Promise<string> {
   return best;
 }
 
-/** 返回资源可用的所有角色 */
+/** 返回资源可用的所有角色。admin 永远可用（授权管理权不受业务动作上限限制） */
 export async function getAvailableRolesFromResource(resourceKey: string): Promise<string[]> {
   const max = await getResourceMaxRole(resourceKey);
   const maxLevel = ROLE_HIERARCHY[max] ?? 3;
-  return (["access", "write", "delete", "admin"] as const).filter(
+  const businessRoles = (["access", "write", "delete"] as const).filter(
     (r) => (ROLE_HIERARCHY[r] ?? 0) <= maxLevel,
   );
+  return [...businessRoles, "admin"]; // admin always available
 }
 
-/** 检查角色是否在资源允许范围内 */
+/** 检查角色是否在资源允许范围内。admin 永远允许（不限制授权管理） */
 export async function isRoleAllowedForResource(
   resourceKey: string,
   roleKey: string,
 ): Promise<boolean> {
+  if (roleKey === "admin") return true;
   const available = await getAvailableRolesFromResource(resourceKey);
   return available.includes(roleKey);
 }

@@ -38,22 +38,21 @@ export function usePermissionsTab(
   const systemAdminIds = useSystemAdminIds();
 
   const roles = useMemo(() => {
-    // work.task / work.report: only admin is meaningful (data access via business rules)
+    // work.task / work.report: only admin is meaningful
     if (selectedResource === "work.task" || selectedResource === "work.report") {
       return [{ key: "admin", ...(ROLE_META.admin || { name: "管理", color: "purple" }) }];
     }
-    // DB-driven: find effectiveMaxRoleKey from resource tree (not hardcoded fallback)
-    let maxRole: string = "admin";
+    // DB-driven: business roles capped by maxRoleKey, admin always available
+    let maxAction: string = "admin";
     if (selectedResource) {
       const found = findResourceInTree(resources, selectedResource);
-      if (found?.effectiveMaxRoleKey) maxRole = found.effectiveMaxRoleKey;
+      if (found?.effectiveMaxRoleKey) maxAction = found.effectiveMaxRoleKey;
     }
-    const ROLE_HIERARCHY: Record<string, number> = { access: 0, write: 1, delete: 2, admin: 3 };
-    const maxLevel = ROLE_HIERARCHY[maxRole] ?? 3;
-    const allKeys = ["access", "write", "delete", "admin"] as const;
-    return allKeys
-      .filter((k) => (ROLE_HIERARCHY[k] ?? 0) <= maxLevel)
-      .map((k) => ({ key: k, ...(ROLE_META[k] || { name: k, color: "gray" }) }));
+    const H = { access: 0, write: 1, delete: 2, admin: 3 } as Record<string, number>;
+    const maxLvl = H[maxAction] ?? 3;
+    const keys: string[] = (["access", "write", "delete"] as const).filter((k) => (H[k] ?? 0) <= maxLvl);
+    keys.push("admin"); // always available
+    return keys.map((k) => ({ key: k, ...(ROLE_META[k] || { name: k, color: "gray" }) }));
   }, [selectedResource, resources]);
 
   const loadData = useCallback(async () => {

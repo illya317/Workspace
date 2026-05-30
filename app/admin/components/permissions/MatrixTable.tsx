@@ -41,7 +41,7 @@ export default function MatrixTable({ s }: MatrixTableProps) {
                 {r.name}
               </th>
             ))}
-            <th className="whitespace-nowrap pb-2 pr-3 text-center text-[11px]">最高权限</th>
+            <th className="whitespace-nowrap pb-2 pr-3 text-center text-[11px]">最高业务权限</th>
             <th className="whitespace-nowrap pb-2"></th>
           </tr>
         </thead>
