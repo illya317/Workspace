@@ -25,8 +25,9 @@ export async function GET(request: Request) {
   const resourceKey = searchParams.get("resourceKey") || undefined;
   const scopeId = searchParams.get("scopeId") || undefined;
 
+  // Non-admin clicking un-manageable resource: return empty, not 403
   if (!isSysAdmin && resourceKey && !manageableKeys.has(resourceKey)) {
-    return NextResponse.json({ error: "无权限管理该资源" }, { status: 403 });
+    return NextResponse.json({ subjects: [], directGrants: [], positionGrants: [], departmentGrants: [], ancestorResourceKeys: [], maxRoleKey: "admin", isSystemAdmin: false, systemAdminBusinessBypass: false });
   }
 
   const data = await getPermissionGrantData(subjectType, resourceKey, scopeId ?? null);

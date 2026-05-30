@@ -5,8 +5,9 @@
 export const RES = {
   system: {
     root: "system",
-    audit: "system.audit",
-    agent: "system.agent",
+  },
+  agent: {
+    root: "agent",
   },
   people: {
     root: "people",
@@ -120,19 +121,3 @@ export function isRoleAllowed(resourceKey: string, roleKey: string): boolean {
   return getAvailableRoles(resourceKey).includes(roleKey);
 }
 
-// ─── Backward compat ──────────────────────────────────────
-export const perm = {
-  system: {
-    access: "system.access",
-    admin: "system.admin",
-  },
-  people: {
-    access: "people.access",
-  },
-  work: {
-    access: "work.access",
-  },
-  report: {
-    write: "work.report.write",
-  },
-};

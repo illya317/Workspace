@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  if (!(await checkPermission(user.id, "system.agent", "access"))) {
+  if (!(await checkPermission(user.id, "agent", "access"))) {
     return NextResponse.json({ error: "无权限使用智能体" }, { status: 403 });
   }
 
