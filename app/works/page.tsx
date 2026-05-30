@@ -8,9 +8,7 @@ export default async function WorksPage() {
   if (!user) redirect("/login");
   if (!user.canAccessWorks) redirect("/portal");
   return (
-    <AppShell title="工作清单" backHref="/portal"
-      navLinks={[{ label: "工作汇报", href: "/reports" }, { label: "历史记录", href: "/history" }]}
-      user={user}>
+    <AppShell title="工作清单" backHref="/portal" navLinks={[{ label: "工作汇报", href: "/reports" }, { label: "历史记录", href: "/history" }]} user={user}>
       <WorksClient user={user} hideShell />
     </AppShell>
   );

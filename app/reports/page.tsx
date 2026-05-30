@@ -7,9 +7,7 @@ export default async function ReportsPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   return (
-    <AppShell title="工作汇报" backHref="/portal"
-      navLinks={[{ label: "工作清单", href: "/works" }, { label: "历史记录", href: "/history" }]}
-      user={user}>
+    <AppShell title="工作汇报" backHref="/portal" navLinks={[{ label: "工作清单", href: "/works" }, { label: "历史记录", href: "/history" }]} user={user}>
       <ReportPage hideShell />
     </AppShell>
   );
