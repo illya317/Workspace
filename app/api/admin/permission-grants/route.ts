@@ -29,7 +29,15 @@ export async function GET(request: Request) {
   }
 
   const data = await getPermissionGrantData(subjectType, resourceKey);
-  return NextResponse.json(data);
+
+  // 附上当前资源及祖先的 maxRoleKey
+  let maxRoleKey = "admin";
+  if (resourceKey) {
+    const { getResourceMaxRole } = await import("@/server/rbac/maxRole");
+    maxRoleKey = await getResourceMaxRole(resourceKey);
+  }
+
+  return NextResponse.json({ ...data, maxRoleKey, isSystemAdmin: isSysAdmin });
 }
 
 export async function PUT(request: Request) {

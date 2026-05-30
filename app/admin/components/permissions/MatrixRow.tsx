@@ -13,6 +13,9 @@ export default function MatrixRow({ subject, s }: MatrixRowProps) {
   const isExpanded = s.expandedRows.has(subject.id);
   const hasNoUser = s.subjectType === "user" && !subject.extra?.hasUser;
 
+  const ROLE_HIERARCHY: Record<string, number> = { access: 0, write: 1, delete: 2, admin: 3 };
+  const maxLevel = ROLE_HIERARCHY[s.maxRoleKey] ?? 3;
+
   return (
     <>
       <tr className="border-b border-gray-100 hover:bg-gray-50">
@@ -32,16 +35,40 @@ export default function MatrixRow({ subject, s }: MatrixRowProps) {
         </td>
         {s.roles.map((role) => {
           const state = s.getPermissionState(subject, role.key);
+          const roleLevel = ROLE_HIERARCHY[role.key] ?? 0;
+          const exceeds = roleLevel > maxLevel;
           return (
             <td key={role.key} className="whitespace-nowrap py-2 pr-3 text-center">
-              <PermissionCell
-                state={state}
-                disabled={hasNoUser}
-                onClick={() => s.toggleGrant(subject, role.key)}
-              />
+              {exceeds ? (
+                <span className="text-xs text-gray-300" title={`最高仅${s.maxRoleKey === "access" ? "访问" : s.maxRoleKey === "write" ? "编辑" : s.maxRoleKey === "delete" ? "删除" : "管理"}`}>—</span>
+              ) : (
+                <PermissionCell
+                  state={state}
+                  disabled={hasNoUser}
+                  onClick={() => s.toggleGrant(subject, role.key)}
+                />
+              )}
             </td>
           );
         })}
+        <td className="whitespace-nowrap py-2 pr-3 text-center">
+          {s.isSystemAdmin ? (
+            <select
+              value={s.maxRoleKey}
+              onChange={(e) => s.updateMaxRole(e.target.value)}
+              className="rounded border border-gray-200 px-1 py-0.5 text-xs text-gray-600"
+            >
+              <option value="access">访问</option>
+              <option value="write">编辑</option>
+              <option value="delete">删除</option>
+              <option value="admin">管理</option>
+            </select>
+          ) : (
+            <span className="text-xs text-gray-500">
+              {s.maxRoleKey === "access" ? "访问" : s.maxRoleKey === "write" ? "编辑" : s.maxRoleKey === "delete" ? "删除" : "管理"}
+            </span>
+          )}
+        </td>
         <td className="whitespace-nowrap py-2">
           <button
             onClick={() => s.toggleRowExpand(subject.id)}
@@ -53,7 +80,7 @@ export default function MatrixRow({ subject, s }: MatrixRowProps) {
       </tr>
       {isExpanded && (
         <tr>
-          <td colSpan={s.roles.length + 2} className="border-b border-gray-100 bg-gray-50 px-3 py-3">
+          <td colSpan={s.roles.length + 3} className="border-b border-gray-100 bg-gray-50 px-3 py-3">
             <PermissionDetails subject={subject} s={s} />
           </td>
         </tr>

@@ -8,40 +8,48 @@ const ROLE_HIERARCHY: Record<string, number> = {
   access: 0, write: 1, delete: 2, admin: 3,
 };
 
-let cache: Record<string, string> | null = null;
-let cacheTs = 0;
-const CACHE_TTL = 60_000; // 1 分钟
+interface ResourceCache {
+  key: string;
+  maxRoleKey: string;
+  parentKey: string | null;
+}
 
-async function loadCache(): Promise<Record<string, string>> {
+let cache: ResourceCache[] | null = null;
+let cacheTs = 0;
+const CACHE_TTL = 60_000;
+
+async function loadCache(): Promise<ResourceCache[]> {
   if (cache && Date.now() - cacheTs < CACHE_TTL) return cache;
   const resources = await prisma.resource.findMany({
-    select: { key: true, maxRoleKey: true },
+    select: { key: true, maxRoleKey: true, parent: { select: { key: true } } },
   });
-  cache = {};
-  for (const r of resources) {
-    cache[r.key] = r.maxRoleKey;
-  }
+  cache = resources.map((r) => ({
+    key: r.key,
+    maxRoleKey: r.maxRoleKey,
+    parentKey: r.parent?.key ?? null,
+  }));
   cacheTs = Date.now();
   return cache;
 }
 
-function lookupParent(key: string): string | null {
-  const lastDot = key.lastIndexOf(".");
-  return lastDot > 0 ? key.slice(0, lastDot) : null;
-}
-
-/** 取祖先链上最严格的上限（父资源 access 时子资源不能突破为 admin） */
+/** 沿 DB parent 链取最严格上限 */
 export async function getResourceMaxRole(resourceKey: string): Promise<string> {
-  const map = await loadCache();
+  const resources = await loadCache();
+  const map = new Map(resources.map((r) => [r.key, r]));
   let key: string | null = resourceKey;
-  let best = "admin"; // 默认最宽松，沿链收紧
+  let best = "admin";
   while (key) {
-    if (map[key]) {
-      const cur = ROLE_HIERARCHY[map[key]] ?? 3;
+    const r = map.get(key);
+    if (r) {
+      const cur = ROLE_HIERARCHY[r.maxRoleKey] ?? 3;
       const prev = ROLE_HIERARCHY[best] ?? 3;
-      if (cur < prev) best = map[key];
+      if (cur < prev) best = r.maxRoleKey;
+      key = r.parentKey;
+    } else {
+      // key 不在 DB，回退到点号祖先
+      const dot = key.lastIndexOf(".");
+      key = dot > 0 ? key.slice(0, dot) : null;
     }
-    key = lookupParent(key);
   }
   return best;
 }
@@ -64,8 +72,6 @@ export async function isRoleAllowedForResource(
   return available.includes(roleKey);
 }
 
-/** 清除缓存（供 seed/admin 变更后使用） */
 export function clearMaxRoleCache() {
-  cache = null;
-  cacheTs = 0;
+  cache = null; cacheTs = 0;
 }

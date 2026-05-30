@@ -24,9 +24,9 @@ export function usePermissionsTab(
   const [ancestorResourceKeys, setAncestorResourceKeys] = useState<string[]>(
     []
   );
-  const [systemAdminIds, setSystemAdminIds] = useState<Set<number>>(
-    new Set()
-  );
+  const [systemAdminIds, setSystemAdminIds] = useState<Set<number>>(new Set());
+  const [maxRoleKey, setMaxRoleKey] = useState("admin");
+  const [isSystemAdmin, setIsSystemAdmin] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const topResources = useMemo(
@@ -69,6 +69,8 @@ export function usePermissionsTab(
         setPositionGrants(data.positionGrants || []);
         setDepartmentGrants(data.departmentGrants || []);
         setAncestorResourceKeys(data.ancestorResourceKeys || []);
+        setMaxRoleKey(data.maxRoleKey || "admin");
+        setIsSystemAdmin(data.isSystemAdmin || false);
       } else {
         showToast("加载权限数据失败", "error");
       }
@@ -164,6 +166,27 @@ export function usePermissionsTab(
     }
   }
 
+  const updateMaxRole = useCallback(async (newMax: string) => {
+    if (!selectedResource) return;
+    try {
+      const res = await fetch("/api/admin/permission-grants/max-role", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resourceKey: selectedResource, maxRoleKey: newMax }),
+      });
+      if (res.ok) {
+        setMaxRoleKey(newMax);
+        showToast("最高权限已更新", "success");
+        await loadData();
+      } else {
+        const e = await res.json().catch(() => ({ error: "操作失败" }));
+        showToast(e.error, "error");
+      }
+    } catch {
+      showToast("网络错误", "error");
+    }
+  }, [selectedResource, showToast, loadData]);
+
   const filters = usePermissionFilters(
     rawSubjects,
     subjectType,
@@ -198,6 +221,9 @@ export function usePermissionsTab(
     roles,
     getPermissionState,
     toggleGrant,
+    maxRoleKey,
+    isSystemAdmin,
+    updateMaxRole,
     systemAdminIds,
   };
 }
