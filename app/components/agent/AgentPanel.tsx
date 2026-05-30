@@ -52,6 +52,19 @@ export default function AgentPanel({
   const [showHistory, setShowHistory] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const historyRef = useRef<HTMLDivElement>(null);
+
+  // 点击外部关闭历史下拉
+  useEffect(() => {
+    if (!showHistory) return;
+    function onClick(e: MouseEvent) {
+      if (historyRef.current && !historyRef.current.contains(e.target as Node)) {
+        setShowHistory(false);
+      }
+    }
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [showHistory]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
   useEffect(() => { if (isOpen) setTimeout(() => inputRef.current?.focus(), 100); }, [isOpen]);
@@ -93,7 +106,7 @@ export default function AgentPanel({
               </svg>
             </button>
             {showHistory && savedConversations && savedConversations.length > 0 && (
-              <div className="absolute right-0 top-8 w-64 bg-white rounded-xl shadow-xl border z-50 max-h-64 overflow-y-auto">
+              <div ref={historyRef} className="absolute right-0 top-8 w-64 bg-white rounded-xl shadow-xl border z-50 max-h-64 overflow-y-auto">
                 <div className="px-3 py-2 text-xs font-medium text-gray-400 border-b">历史对话</div>
                 {savedConversations.map((c) => (
                   <button key={c.id}
