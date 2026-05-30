@@ -8,7 +8,7 @@ import type { CrudFactoryConfig } from "./crud-factory";
 export type FinanceCrudConfig = Omit<CrudFactoryConfig, "accessCheck">;
 
 function wrap(config: FinanceCrudConfig) {
-  return createCrudHandlers({ ...config, accessCheck: checkFinanceAccess });
+  return createCrudHandlers({ ...config, accessCheck: checkFinanceAccess, deleteCheck: checkFinanceDelete });
 }
 
 export function handleUpdateField(

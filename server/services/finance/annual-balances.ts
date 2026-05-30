@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { CODE_TO_NAME } from "@/lib/company";
 import type { PreviewResult } from "./import";
 import type { SideBalance } from "./balance-utils";
 
@@ -87,7 +88,8 @@ export async function materializeBaselineToPeriod(
   });
 
   if (!snapshot || snapshot.rows.length === 0) {
-    throw new Error(`请先导入 ${year} 年 ${companyCode} 的年度余额表作为 active baseline`);
+    const companyName = CODE_TO_NAME[companyCode] || companyCode;
+    throw new Error(`请先为${companyName}导入 ${year} 年年度余额表作为 active baseline`);
   }
 
   const period = await getOrCreatePeriod(companyCode, year, 12);

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { CODE_TO_NAME } from "@/lib/company";
 import {
   type ComputedBalance,
   type SideBalance,
@@ -25,7 +26,8 @@ export async function computeBalancesForPeriod(periodId: number) {
   // 查找 active baseline year
   const baselineYear = await findActiveBaselineYear(targetPeriod.companyCode, targetPeriod.year);
   if (!baselineYear) {
-    throw new Error(`请先导入年度余额表作为 ${targetPeriod.companyCode} 的 active baseline`);
+    const companyName = CODE_TO_NAME[targetPeriod.companyCode] || targetPeriod.companyCode;
+    throw new Error(`请先为${companyName}导入年度余额表作为 active baseline`);
   }
 
   // 基准年份只允许重算 12 月（materialize 快照），其余月份无计算基础
