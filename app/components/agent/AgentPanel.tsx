@@ -123,8 +123,7 @@ export default function AgentPanel({
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <AgentAvatar mood="idle" size={40} />
-              <p className="mt-3 text-sm text-gray-500">我是你的内部系统小助手</p>
-              <p className="mt-1 text-xs text-gray-400">可以帮你查询数据、生成报告</p>
+              <p className="mt-3 text-sm text-gray-400">可以帮你查询数据、生成报告</p>
               <div className="mt-4 flex flex-wrap gap-1.5 justify-center">
                 {!hintsLoaded ? (
                   <span className="text-xs text-gray-300">加载中...</span>
