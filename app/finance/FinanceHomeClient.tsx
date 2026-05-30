@@ -8,7 +8,6 @@ const modules = [
   { key: "statements", title: "财务报表", desc: "资产负债表、利润表、现金流量表", href: "/finance/statements" },
   { key: "budget", title: "预算管理", desc: "部门费用预算、研发费用预算", href: "/finance/budget" },
   { key: "analysis", title: "财务分析", desc: "预算执行分析、差异分析、趋势看板", href: "/finance/analysis" },
-  { key: "cost", title: "成本管理", desc: "生产成本、发货、成本构成、车间工分", href: "/finance/cost" },
 ];
 
 interface Props {
@@ -21,7 +20,7 @@ export default function FinanceHomeClient({ user: _user }: Props) {
   return (
     <main className="mx-auto max-w-5xl px-4 py-6">
       <h1 className="mb-2 text-2xl font-bold text-gray-800">财务管理</h1>
-      <p className="mb-6 text-sm text-gray-500">总账 · 报表 · 预算 · 分析 · 成本</p>
+      <p className="mb-6 text-sm text-gray-500">总账 · 报表 · 预算 · 分析</p>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {modules.map((m) => (
