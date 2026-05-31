@@ -11,6 +11,7 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const companyCode = searchParams.get("companyCode");
   const year = searchParams.get("year");
   const month = searchParams.get("month");
+  const keyword = searchParams.get("keyword") || "";
   const page = parseInt(searchParams.get("page") || "1", 10);
   const pageSize = parseInt(searchParams.get("pageSize") || "50", 10);
   const where: Prisma.FinanceVoucherWhereInput = {};
@@ -21,6 +22,12 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
     where.period = {};
     if (year) where.period.year = parseInt(year, 10);
     if (month) where.period.month = parseInt(month, 10);
+  }
+  if (keyword) {
+    where.OR = [
+      { voucherNo: { contains: keyword } },
+      { description: { contains: keyword } },
+    ];
   }
 
   const [vouchers, total] = await Promise.all([

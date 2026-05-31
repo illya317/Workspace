@@ -117,10 +117,7 @@ export default function LedgerTab() {
         onMonthChange={(v) => { setMonthFilter(v); setPage(1); }}
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
         extra={
-          <>
-            <span className="text-xs text-gray-400">口径：2024 年度余额基准 + 已过账凭证滚动计算（导入时自动）</span>
-            <span className="ml-auto text-xs text-gray-400">共 {total} 条</span>
-          </>
+          <span className="ml-auto text-xs text-gray-400">共 {total} 条</span>
         }
       />
 

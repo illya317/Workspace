@@ -28,17 +28,26 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
 
   const page = parseInt(searchParams.get("page") || "1", 10);
   const pageSize = parseInt(searchParams.get("pageSize") || "50", 10);
+  const keyword = searchParams.get("keyword") || "";
   const skip = (page - 1) * pageSize;
+
+  const where: any = { periodId: targetPeriodId };
+  if (keyword) {
+    where.OR = [
+      { account: { code: { contains: keyword } } },
+      { account: { name: { contains: keyword } } },
+    ];
+  }
 
   const [balances, total] = await Promise.all([
     prisma.financeAccountBalance.findMany({
-      where: { periodId: targetPeriodId },
+      where,
       include: { account: true },
       orderBy: { account: { code: "asc" } },
       skip,
       take: pageSize,
     }),
-    prisma.financeAccountBalance.count({ where: { periodId: targetPeriodId } }),
+    prisma.financeAccountBalance.count({ where }),
   ]);
 
   const totalPages = Math.ceil(total / pageSize);
