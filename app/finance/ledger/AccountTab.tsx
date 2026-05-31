@@ -18,7 +18,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [levelFilter, setLevelFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
   const [scope, setScope] = useState("");
-  const [extraField, setExtraField] = useState<"level" | "scope">("scope");
+  const [extraField, setExtraField] = useState<"level" | "scope" | "parent">("scope");
   const [extraValue, setExtraValue] = useState("");
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
@@ -86,10 +86,12 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
               fields={[
                 { key: "level", label: "层级" },
                 { key: "scope", label: "类型" },
+                { key: "parent", label: "父级科目" },
               ]}
               valueOptions={{
                 level: [{ value: "", label: "全部" }, { value: "1", label: "1级" }, { value: "2", label: "2级" }, { value: "3", label: "3级" }, { value: "4", label: "4级" }, { value: "5", label: "5级" }],
                 scope: [{ value: "", label: "全部" }, { value: "mapped", label: "集团" }, { value: "unmapped", label: "独有" }, { value: "inactive", label: "未启用" }],
+                parent: [{ value: "", label: "全部" }, { value: "1", label: "有" }, { value: "0", label: "无" }],
               }}
               fieldKey={extraField}
               onFieldKeyChange={(k) => {
@@ -99,7 +101,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
               value={extraValue}
               onValueChange={(v) => {
                 if (extraField === "level") setLevelFilter(v);
-                else setScope(v);
+                else if (extraField === "scope") setScope(v);
                 setExtraValue(v); setPage(1);
               }}
             />
