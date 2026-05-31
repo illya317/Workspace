@@ -21,7 +21,7 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/finance/reclass-rules/candidates?companyCode=${companyCode}&year=${year}`);
+      const res = await fetch(`/api/finance/reclass-rules?companyCode=${companyCode}&year=${year}`);
       if (res.ok) {
         const data = await res.json();
         setCandidates(data.candidates || []);

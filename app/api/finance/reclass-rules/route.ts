@@ -16,10 +16,14 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
       { status: 400 },
     );
   }
+  const yearNum = parseInt(year);
+  if (isNaN(yearNum)) {
+    return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
+  }
 
   const result = await scanCandidates({
     companyCode,
-    year: parseInt(year),
+    year: yearNum,
   });
 
   return NextResponse.json(result);
@@ -51,6 +55,11 @@ export const PUT = withFinanceLedgerWrite(async (request: Request) => {
     );
   }
 
+  const yearNum = parseInt(year);
+  if (isNaN(yearNum)) {
+    return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
+  }
+
   if (!["debit", "credit"].includes(abnormalSide)) {
     return NextResponse.json(
       { error: "abnormalSide 必须为 debit 或 credit" },
@@ -63,14 +72,14 @@ export const PUT = withFinanceLedgerWrite(async (request: Request) => {
     where: {
       companyCode_year_sourceAccountCode_abnormalSide: {
         companyCode,
-        year: parseInt(year),
+        year: yearNum,
         sourceAccountCode,
         abnormalSide,
       },
     },
     create: {
       companyCode,
-      year: parseInt(year),
+      year: yearNum,
       sourceAccountCode,
       abnormalSide,
       targetAccountCode,
