@@ -3,7 +3,7 @@ import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth
 import { prisma } from "@/lib/prisma";
 import { handleCreate } from "@/lib/crud-finance";
 import { parsePositiveInt, parseYear, parsePageParams } from "@/lib/validation";
-
+import { matchText } from "@/lib/search";
 export const GET = withFinanceLedgerAccess(async (request) => {
   const { searchParams } = new URL(request.url);
   const companyCode = searchParams.get("companyCode") || undefined;
@@ -11,14 +11,8 @@ export const GET = withFinanceLedgerAccess(async (request) => {
   const scope = searchParams.get("scope") || "mapped";
   const yearNum = parseYear(searchParams.get("year"));
   const keyword = searchParams.get("keyword") || "";
-
   const where: Record<string, unknown> = {};
-  if (keyword) {
-    where.OR = [
-      { code: { contains: keyword } },
-      { name: { contains: keyword } },
-    ];
-  }
+  const hasKeyword = !!keyword;
   if (scope === "mapped") {
     where.groupSubjectCode = { not: null };
   } else if (scope === "unmapped") {
@@ -34,10 +28,33 @@ export const GET = withFinanceLedgerAccess(async (request) => {
     if (sl > 0) where.subjectLevel = sl;
   }
   if (yearNum !== null) where.year = yearNum;
-
   const { page, pageSize } = parsePageParams(searchParams);
+  if (hasKeyword) {
+    // 拼音搜索：全量拉取 → matchText 过滤 → 前端分页
+    const all = await prisma.financeAccount.findMany({
+      where,
+      orderBy: [{ code: "asc" }],
+      include: {
+        parent: { select: { code: true, name: true } },
+      },
+    });
+    const filtered = all.filter(
+      (a) => matchText(a.code, keyword) || matchText(a.name, keyword),
+    );
+    const total = filtered.length;
+    const totalPages = Math.ceil(total / pageSize);
+    const skip = (page - 1) * pageSize;
+    const paged = filtered.slice(skip, skip + pageSize);
+    return NextResponse.json({
+      data: paged,
+      total,
+      page,
+      pageSize,
+      totalPages,
+      accounts: paged,
+    });
+  }
   const skip = (page - 1) * pageSize;
-
   const [accounts, total] = await Promise.all([
     prisma.financeAccount.findMany({
       where,
@@ -50,9 +67,7 @@ export const GET = withFinanceLedgerAccess(async (request) => {
     }),
     prisma.financeAccount.count({ where }),
   ]);
-
   const totalPages = Math.ceil(total / pageSize);
-
   return NextResponse.json({
     data: accounts,
     total,
@@ -62,14 +77,12 @@ export const GET = withFinanceLedgerAccess(async (request) => {
     accounts,
   });
 });
-
 export const POST = withFinanceLedgerWrite(async (request) => {
   const body = await request.json();
   const { code, name, category, parentId, balanceDirection, companyCode } = body;
   if (!code || !name || !category) {
     return NextResponse.json({ error: "科目编码、名称、类别为必填" }, { status: 400 });
   }
-
   return handleCreate(request, {
     entityType: "FinanceAccount",
     modelKey: "financeAccount",
