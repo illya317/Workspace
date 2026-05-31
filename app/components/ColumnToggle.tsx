@@ -41,13 +41,15 @@ export default function ColumnToggle({ columns, visible, onChange }: Props) {
   if (optional.length === 0) return null;
 
   return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={() => setOpen(!open)}
-        className="rounded border border-gray-200 px-1.5 py-1 text-xs hover:bg-gray-50"
-      >
-        字段 ({visibleOptional.length}/{optional.length})
-      </button>
+    <label className="flex items-center gap-1.5 text-xs">
+      <span className="text-gray-500">字段</span>
+      <div ref={ref} className="relative">
+        <button
+          onClick={() => setOpen(!open)}
+          className="rounded border border-gray-200 px-1.5 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+        >
+          {visibleOptional.length}/{optional.length}
+        </button>
       {open && (
         <div className="absolute right-0 top-full z-20 mt-1 rounded border border-gray-200 bg-white p-1 shadow-lg min-w-[150px]">
           {columns.map((c) => {
@@ -72,6 +74,7 @@ export default function ColumnToggle({ columns, visible, onChange }: Props) {
           })}
         </div>
       )}
-    </div>
+      </div>
+    </label>
   );
 }
