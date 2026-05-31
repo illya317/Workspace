@@ -179,8 +179,8 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
                     <td className="px-3 py-2 text-gray-700 max-w-xs truncate" title={v.description}>
                       {v.description}
                     </td>
-                    <td className="px-3 py-2 text-right text-gray-700 whitespace-nowrap">{fmt(v.totalDebit)}</td>
-                    <td className="px-3 py-2 text-right text-gray-700 whitespace-nowrap">{fmt(v.totalCredit)}</td>
+                    <td className="px-3 py-2 text-right text-gray-700 whitespace-nowrap">{fmt(v.items.reduce((s, it) => s + it.debit, 0))}</td>
+                    <td className="px-3 py-2 text-right text-gray-700 whitespace-nowrap">{fmt(v.items.reduce((s, it) => s + it.credit, 0))}</td>
                     <td className="px-3 py-2 whitespace-nowrap">
                       <span className="text-emerald-600 text-xs">
                         {expandedVoucherId === v.id ? "收起" : `展开 (${v.items.length}条)`}
