@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { BalanceItem, ReportPeriod, closingNetLeaf, closingNetLeafDebitOnly, closingNetLeafCreditOnly, mk, mkC } from "../report-helpers";
+import { BalanceItem, ReportPeriod, closingNetLeaf, reclassify, mk, mkC } from "../report-helpers";
 
 export function generateBalanceSheet(period: ReportPeriod, balances: BalanceItem[]) {
+  const reclass = reclassify(balances);
+
   const cash = closingNetLeaf(balances, ["1001", "1002"]);
   const tradingFinancial = closingNetLeaf(balances, ["1101"]);
   const derivativeFinancial = closingNetLeaf(balances, ["1031"]);
@@ -10,15 +12,15 @@ export function generateBalanceSheet(period: ReportPeriod, balances: BalanceItem
   const prepaid = closingNetLeaf(balances, ["1123"]);
   const interestReceivable = closingNetLeaf(balances, ["1132"]);
   const dividendReceivable = closingNetLeaf(balances, ["1131"]);
-  // 1221 debit positions only (credits reclassified to 其他应付款)
-  const otherReceivable = closingNetLeafDebitOnly(balances, ["1221"]);
+  const otherReceivable = closingNetLeaf(balances, ["1221"]);
   const badDebtAllowance = closingNetLeaf(balances, ["1231"]);
-  const otherReceivableNet = { debit: otherReceivable.debit - badDebtAllowance.credit, credit: otherReceivable.credit };
-  // 1221 credit positions → flow to 其他应付款
-  const otherReceivableReclass = closingNetLeafCreditOnly(balances, ["1221"]);
+  const otherReceivableNet = { debit: otherReceivable.debit - badDebtAllowance.credit, credit: otherReceivable.credit - reclass.assetToLiability.credit };
   const inventory = closingNetLeaf(balances, ["1405"]);
   const nonCurrentDueWithinYear = closingNetLeaf(balances, ["1501"]);
-  const otherCurrentAssets = closingNetLeaf(balances, ["1463"]);
+  const otherCurrentAssets = (() => {
+    const base = closingNetLeaf(balances, ["1463"]);
+    return { debit: base.debit + reclass.liabilityToAsset.debit, credit: base.credit + reclass.liabilityToAsset.credit };
+  })();
 
   const totalCurrentAssets =
     mk(cash.debit, cash.credit) +
@@ -91,7 +93,8 @@ export function generateBalanceSheet(period: ReportPeriod, balances: BalanceItem
   const dividendPayable = closingNetLeaf(balances, ["2231"]);
   const otherPayables = (() => {
     const base = closingNetLeaf(balances, ["2241"]);
-    return { debit: base.debit + otherReceivableReclass.debit, credit: base.credit + otherReceivableReclass.credit };
+    // Add reclassified credit balances from asset accounts
+    return { debit: base.debit + reclass.assetToLiability.debit, credit: base.credit + reclass.assetToLiability.credit };
   })();
   const nonCurrentDueWithinYearLiab = closingNetLeaf(balances, ["2501"]);
   const otherCurrentLiabilities = closingNetLeaf(balances, ["2701"]);
