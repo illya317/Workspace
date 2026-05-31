@@ -78,24 +78,24 @@ export default function ReclassCandidateList({
   // ── Actions ──────────────────────────────────────────
 
   function updateCandidate(code: string, id: number | null, target: string | null, source: string | null, enabled: boolean | null) {
-    const fn = (prev: RuleCandidate[]) => {
-      const next = prev.map((r) =>
-        r.accountCode === code
-          ? { ...r, existingRuleId: id, existingTarget: target, existingSource: source, existingEnabled: enabled }
-          : r);
-      onStats?.({
-        total: allAccounts.length,
-        noRule: next.filter((c) => !c.existingRuleId).length,
-        hasRule: next.filter((c) => !!c.existingRuleId).length,
-      });
-      return next;
-    };
-    setScanned(fn);
-    setAllAccounts((prev) => prev.map((r) =>
+    const fn = (prev: RuleCandidate[]) => prev.map((r) =>
       r.accountCode === code
         ? { ...r, existingRuleId: id, existingTarget: target, existingSource: source, existingEnabled: enabled }
-        : r));
+        : r);
+    setScanned(fn);
+    setAllAccounts(fn);
   }
+
+  // 规则变更后同步计数
+  useEffect(() => {
+    if (scanned.length > 0) {
+      onStats?.({
+        total: allAccounts.length,
+        noRule: scanned.filter((c) => !c.existingRuleId).length,
+        hasRule: scanned.filter((c) => !!c.existingRuleId).length,
+      });
+    }
+  }, [scanned, allAccounts.length, onStats]);
 
   async function saveRule(c: RuleCandidate, target: string) {
     const res = await fetch("/api/finance/reclass-rules", {
