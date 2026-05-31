@@ -92,7 +92,7 @@ export function summarizeResourcePermissions(
             key: node.key, label: nodeLabel,
             roleKey: nodeRole as RoleKey,
             source: "parent",
-            coveredChildren: children.length > 0 ? children.length : -1,
+            coveredChildren: children.length > 0 ? childGrants.length : -1,
             totalChildren: children.length,
             parentGrant: { resourceKey: node.key, roleKey: nodeRole },
             childGrants: children.map((c) => ({
