@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import { matchText } from "@/lib/search";
+import Pagination from "./Pagination";
 import type { RuleCandidate } from "@/server/services/finance/ledger/reclass-rules";
 import AccountCodeInput from "./AccountCodeInput";
 
@@ -12,10 +13,11 @@ interface Props {
   keyword?: string; statusFilter?: "all" | "noRule" | "hasRule";
   pageSize?: number;
   canWrite: boolean;
+  onStats?: (s: { total: number; noRule: number; hasRule: number }) => void;
 }
 
 export default function ReclassCandidateList({
-  companyCode, year, keyword = "", statusFilter = "noRule", pageSize = 50, canWrite,
+  companyCode, year, keyword = "", statusFilter = "noRule", pageSize = 50, canWrite, onStats,
 }: Props) {
   const [candidates, setCandidates] = useState<RuleCandidate[]>([]);
   const [loading, setLoading] = useState(false);
@@ -32,7 +34,13 @@ export default function ReclassCandidateList({
       const res = await fetch(`/api/finance/reclass-rules?companyCode=${companyCode}&year=${year}`);
       if (res.ok) {
         const data = await res.json();
-        setCandidates(data.candidates || []);
+        const list: RuleCandidate[] = data.candidates || [];
+        setCandidates(list);
+        onStats?.({
+          total: list.length,
+          noRule: list.filter((c) => !c.existingRuleId).length,
+          hasRule: list.filter((c) => !!c.existingRuleId).length,
+        });
       } else { showToast("加载失败", "error"); }
     } catch { showToast("网络错误", "error"); }
     setLoading(false);
@@ -159,15 +167,7 @@ export default function ReclassCandidateList({
           </tbody>
         </table>
       </div>
-      {totalPages > 1 && (
-        <div className="mt-3 flex items-center justify-center gap-2 text-xs text-gray-500">
-          <button onClick={() => setPage(1)} disabled={page === 1} className="hover:text-emerald-600 disabled:opacity-30">首页</button>
-          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="hover:text-emerald-600 disabled:opacity-30">上一页</button>
-          <span>{page}/{totalPages}</span>
-          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="hover:text-emerald-600 disabled:opacity-30">下一页</button>
-          <button onClick={() => setPage(totalPages)} disabled={page === totalPages} className="hover:text-emerald-600 disabled:opacity-30">末页</button>
-        </div>
-      )}
+      <Pagination page={page} totalPages={totalPages} total={filtered.length} onPageChange={setPage} />
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
   );

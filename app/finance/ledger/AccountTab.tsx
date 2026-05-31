@@ -20,6 +20,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [yearFilter, setYearFilter] = useState("");
   const [scope, setScope] = useState("");
   const [reclassMode, setReclassMode] = useState(false);
+  const [reclassStats, setReclassStats] = useState({ total: 0, noRule: 0, hasRule: 0 });
   const [reclassStatus, setReclassStatus] = useState<"noRule" | "hasRule" | "all">("noRule");
   const [extraField, setExtraField] = useState<"level" | "scope">("scope");
   const [extraValue, setExtraValue] = useState("");
@@ -123,15 +124,15 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
                 {reclassMode && (
                   <div className="flex items-center gap-0.5 rounded-md border border-gray-200 p-0.5">
                     {([
-                      { key: "noRule", label: "待配置" },
-                      { key: "hasRule", label: "已确认" },
-                      { key: "all", label: "全部" },
-                    ] as const).map((s) => (
+                      { key: "noRule" as const, label: "待配置", count: reclassStats.noRule },
+                      { key: "hasRule" as const, label: "已确认", count: reclassStats.hasRule },
+                      { key: "all" as const, label: "全部", count: reclassStats.total },
+                    ]).map((s) => (
                       <button key={s.key}
                         onClick={() => setReclassStatus(s.key)}
                         className={`rounded px-1.5 py-0.5 text-[11px] transition-colors ${
                           reclassStatus === s.key ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-gray-100"
-                        }`}>{s.label}</button>
+                        }`}>{s.label} {s.count}</button>
                     ))}
                   </div>
                 )}
@@ -143,7 +144,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
 
       {reclassMode ? (
         companyFilter && yearFilter ? (
-          <ReclassCandidateList companyCode={companyFilter} year={yearFilter} keyword={keyword} statusFilter={reclassStatus} pageSize={pageSize} canWrite={canWrite} />
+          <ReclassCandidateList companyCode={companyFilter} year={yearFilter} keyword={keyword} statusFilter={reclassStatus} pageSize={pageSize} canWrite={canWrite} onStats={setReclassStats} />
         ) : (
           <p className="py-8 text-center text-sm text-gray-400">请选择公司和年份以配置重分类规则</p>
         )
