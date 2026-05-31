@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ReclassResultRow } from "@/server/services/finance/ledger/reclass-results/types";
 
 interface Props {
@@ -16,18 +16,16 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit }: Pr
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
 
+  // Sync form state when modal opens with a new item
+  useEffect(() => {
+    if (open && item) {
+      setTargetAccount(item.targetAccount);
+      setAmount(String(item.amount));
+      setNote("");
+    }
+  }, [open, item]);
+
   if (!open || !item) return null;
-
-  function handleOpen() {
-    setTargetAccount(item!.targetAccount);
-    setAmount(String(item!.amount));
-    setNote("");
-  }
-
-  // Initialize when opening
-  if (targetAccount === "" && amount === "") {
-    handleOpen();
-  }
 
   async function handleSubmit() {
     const amt = parseFloat(amount);

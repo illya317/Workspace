@@ -7,6 +7,7 @@ import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
 import ReclassResultTable from "../components/ReclassResultTable";
 import ReclassReviewModal from "../components/ReclassReviewModal";
+import ConfirmModal from "@/app/components/ConfirmModal";
 import type { ReclassResultRow } from "@/server/services/finance/ledger/reclass-results/types";
 
 const STATUS_OPTIONS = [
@@ -31,6 +32,7 @@ export default function ReclassReviewTab({ canWrite }: { canWrite: boolean }) {
   const [totalPages, setTotalPages] = useState(1);
 
   const [adjustItem, setAdjustItem] = useState<ReclassResultRow | null>(null);
+  const [rejectTargetId, setRejectTargetId] = useState<number | null>(null);
   const { toast, showToast, closeToast } = useToast();
 
   async function load() {
@@ -103,10 +105,15 @@ export default function ReclassReviewTab({ canWrite }: { canWrite: boolean }) {
   }
 
   async function handleReject(id: number) {
-    if (!confirm("确定驳回该条目？")) return;
-    if (await doPatch(id, { action: "reject" })) {
-      removeFromList(id); showToast("已驳回");
+    setRejectTargetId(id);
+  }
+
+  async function confirmReject() {
+    if (rejectTargetId === null) return;
+    if (await doPatch(rejectTargetId, { action: "reject" })) {
+      removeFromList(rejectTargetId); showToast("已驳回");
     }
+    setRejectTargetId(null);
   }
 
   async function handleAdjust(id: number, targetAccount: string, amount: number, note: string) {
@@ -153,6 +160,15 @@ export default function ReclassReviewTab({ canWrite }: { canWrite: boolean }) {
       <ReclassReviewModal
         item={adjustItem} open={!!adjustItem}
         onClose={() => setAdjustItem(null)} onSubmit={handleAdjust}
+      />
+
+      <ConfirmModal
+        open={rejectTargetId !== null}
+        title="驳回确认"
+        message="确定驳回该重分类条目？驳回后该条目不参与报表重分类。"
+        confirmLabel="驳回"
+        onConfirm={confirmReject}
+        onCancel={() => setRejectTargetId(null)}
       />
 
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />

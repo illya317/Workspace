@@ -16,8 +16,10 @@ export const GET = withFinanceLedgerAccess(async (request) => {
     : "pending";
 
   const keyword = searchParams.get("keyword") || undefined;
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const pageSize = Math.min(parseInt(searchParams.get("pageSize") || "50", 10), 200);
+  const rawPage = parseInt(searchParams.get("page") || "1", 10);
+  const rawPageSize = parseInt(searchParams.get("pageSize") || "50", 10);
+  const page = isNaN(rawPage) || rawPage < 1 ? 1 : rawPage;
+  const pageSize = isNaN(rawPageSize) || rawPageSize < 1 ? 50 : Math.min(rawPageSize, 200);
 
   const result = await listReclassResults({
     periodId, status, keyword, page, pageSize,
