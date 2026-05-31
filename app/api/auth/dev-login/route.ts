@@ -77,10 +77,9 @@ export async function POST(request: Request) {
 
   const ctx = await getPermissionContext(user.id);
   const { getVisibleResourceKeys } = await import("@/server/rbac/visibility");
-  const [visibleAccess, visibleWrite, visibleDelete] = await Promise.all([
+  const [visibleAccess, visibleWrite] = await Promise.all([
     getVisibleResourceKeys(ctx, "access"),
     getVisibleResourceKeys(ctx, "write"),
-    getVisibleResourceKeys(ctx, "delete"),
   ]);
   const ma = (k: string) => visibleAccess.has(k);
   const isAdmin = ctx.isAdmin;
@@ -95,7 +94,6 @@ export async function POST(request: Request) {
       canSelectAnyWeek: canAnyWeek,
       visibleResourceKeys: [...visibleAccess],
       visibleWriteResourceKeys: [...visibleWrite],
-      visibleDeleteResourceKeys: [...visibleDelete],
       canAccessWorks: hasWorks,
     },
   });

@@ -48,10 +48,9 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
   const isAdmin = ctx.isAdmin;
 
   const { getVisibleResourceKeys } = await import("@/server/rbac/visibility");
-  const [visibleAccess, visibleWrite, visibleDelete] = await Promise.all([
+  const [visibleAccess, visibleWrite] = await Promise.all([
     getVisibleResourceKeys(ctx, "access"),
     getVisibleResourceKeys(ctx, "write"),
-    getVisibleResourceKeys(ctx, "delete"),
   ]);
 
   // L1 module visibility (DB-driven, auto-ancestor propagation)
@@ -84,7 +83,6 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     canSelectAnyWeek: canAnyWeek,
     visibleResourceKeys: [...visibleAccess],
     visibleWriteResourceKeys: [...visibleWrite],
-    visibleDeleteResourceKeys: [...visibleDelete],
     canAccessWorks: hasWorks,
     canAccessFinance: hasFinance,
     canAccessFinanceCost: ma("finance.cost"), canAccessFinanceLedger: ma("finance.ledger"),

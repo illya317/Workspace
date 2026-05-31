@@ -22,8 +22,6 @@ export interface SessionUser {
   visibleResourceKeys?: string[];
   /** Visible resources for "write" role (DB-driven). */
   visibleWriteResourceKeys?: string[];
-  /** Visible resources for "delete" role (DB-driven). */
-  visibleDeleteResourceKeys?: string[];
   canAccessAdmin?: boolean;
   canManagePermissions?: boolean;
   canAccessApi?: boolean;
