@@ -29,6 +29,7 @@ export const RES = {
   finance: {
     root: "finance",
     ledger: "finance.ledger",
+    schedules: "finance.schedules",
     statement: "finance.statement",
     budget: "finance.budget",
     analysis: "finance.analysis",
