@@ -5,12 +5,14 @@
 | 页面 | 路由 | 组件 |
 |------|------|------|
 | 财务首页 | `/finance` | `page.tsx` → `FinanceHomeClient.tsx` |
-| 总账基础 | `/finance/ledger` | `ledger/page.tsx` → `LedgerClient.tsx` |
+| 总账会计 | `/finance/ledger` | `ledger/page.tsx` → `LedgerClient.tsx` |
 | 财务报表 | `/finance/statements` | `statements/page.tsx` → `StatementsClient.tsx` |
+| 管理会计 | `/finance/analysis` | `analysis/page.tsx` → `FinanceAnalysisClient.tsx` |
 | 预算管理 | `/finance/budget` | `budget/page.tsx` → `BudgetClient.tsx` |
 | 成本管理 | `/finance/cost` | `cost/page.tsx` → `FinanceCostClient.tsx` |
-| 财务分析 | `/finance/analysis` | `analysis/page.tsx` → `FinanceAnalysisClient.tsx` |
-| 数据导入 | `/finance/import` | `import/page.tsx` → `ImportClient.tsx` |
+| 税务管理 | `/finance/tax` | `tax/page.tsx` (占位) |
+| 司库管理 | `/finance/treasury` | `treasury/page.tsx` (占位) |
+| 数据导入与治理 | `/finance/import` | `import/page.tsx` → `ImportClient.tsx` |
 
 所有页面由 `FinanceShell` 统一包裹，提供顶部导航栏、Logo、返回入口及用户菜单。
 
@@ -22,21 +24,26 @@
 
 | 模块 | 说明 |
 |------|------|
-| 总账基础 | 科目设置、凭证明细、余额表、期间管理 |
-| 财务报表 | 资产负债表、利润表、现金流量表 |
-| 预算管理 | 部门费用预算、研发费用预算 |
-| 财务分析 | 预算执行分析、差异分析、趋势看板 |
-| 成本管理 | 生产成本、发货、成本构成、车间工分 |
+| 总账会计 | 科目、凭证、期间、余额、结账、重分类 |
+| 财务报表 | 资产负债表、利润表、现金流量表、取数明细 |
+| 管理会计 | 经营分析、部门利润、产品客户维度、预算执行分析 |
+| 预算管理 | 预算版本、部门预算、研发预算、调整、执行 |
+| 成本管理 | 发货、成本结构、成本分析、车间工分、销售工资 |
+| 税务管理 | 销项/进项、税负、发票、纳税申报（规划中） |
+| 司库管理 | 银行账户、资金日报、收付款、现金流（规划中） |
+| 数据导入与治理 | 科目/凭证/余额/预算/成本导入，校验与异常 |
 
-### 总账基础 (`/finance/ledger`)
+### 总账会计 (`/finance/ledger`)
 
 `LedgerClient` 渲染多个 Tab：
 
 | Tab | 组件 | 说明 |
 |-----|------|------|
-| 科目管理 | AccountTab | 会计科目 CRUD |
-| 凭证明细 | VoucherTab | 凭证录入/查询 |
+| 科目设置 | AccountTab | 会计科目 CRUD |
+| 凭证明细 | VoucherTab | 凭证录入/查询/重分类审核 |
 | 余额表 | LedgerTab | 科目余额表查询、年度余额基准滚动计算、外部余额表校准 |
+| 重分类表 | ReclassTab | 重分类结果汇总只读视图（从附注明细迁入） |
+| 资产折旧 | — | 资产折旧表（开发中） |
 
 ### 财务报表 (`/finance/statements`)
 
@@ -70,7 +77,9 @@ ledger/page.tsx
        └─ LedgerClient.tsx
             ├─ AccountTab.tsx
             ├─ VoucherTab.tsx
-            └─ LedgerTab.tsx
+            ├─ LedgerTab.tsx
+            ├─ ReclassTab.tsx
+            └─ (折旧表, 占位)
 
 statements/page.tsx
   └─ FinanceShell
@@ -224,14 +233,15 @@ npm run budget:sync-accounts
 
 | 资源 | 键 | 说明 |
 |------|-----|------|
-| 财务根 | `finance` | 旧统一入口，现退化为"任一财务子权限"的汇总标识 |
-| 总账基础 | `finance.ledger` | 科目、凭证、余额、期间、初始化 |
+| 财务根 | `finance` | 任一财务子权限的汇总标识 |
+| 总账会计 | `finance.ledger` | 科目、凭证、余额、期间、重分类、折旧 |
 | 财务报表 | `finance.statement` | 资产负债表、利润表、现金流量表 |
-| 预算管理 | `finance.budget` | 部门费用预算、研发费用预算 |
-| 财务分析 | `finance.analysis` | 预算执行分析、差异分析、趋势看板 |
-| 数据导入 | `finance.import` | 科目表、序时账、余额表导入 |
-| 成本管理 | `finance.cost` | 生产成本、发货、成本构成、车间工分 |
-| 附注明细 | `finance.schedules` | 重分类、折旧、摊销等财报附注（过渡期，待并入总账）|
+| 管理会计 | `finance.analysis` | 经营分析、部门利润、预算执行分析 |
+| 预算管理 | `finance.budget` | 部门预算、研发预算、调整、执行 |
+| 成本管理 | `finance.cost` | 发货、成本结构、成本分析、车间工分 |
+| 税务管理 | `finance.tax` | 销项/进项、税负、发票（规划中） |
+| 司库管理 | `finance.treasury` | 银行账户、资金日报、收付款（规划中） |
+| 数据导入与治理 | `finance.import` | 科目/凭证/余额/预算/成本导入 |
 
 每个资源支持 `access` / `write` / `delete` 三个动作（成本子资源另有 `shipments` / `analysis` / `structure` / `workshop` / `salary` / `imports` 细分）。
 
@@ -250,11 +260,12 @@ npm run budget:sync-accounts
 | `/finance` | `requireResourceAccess("finance")` |
 | `/finance/ledger` | `requireResourceAccess("finance.ledger")` |
 | `/finance/statements` | `requireResourceAccess("finance.statement")` |
-| `/finance/budget` | `requireResourceAccess("finance.budget")` |
 | `/finance/analysis` | `requireResourceAccess("finance.analysis")` |
-| `/finance/import` | `requireResourceAccess("finance.import")` |
+| `/finance/budget` | `requireResourceAccess("finance.budget")` |
 | `/finance/cost` | `requireResourceAccess("finance.cost")` |
-| `/finance/schedules` | `requireResourceAccess("finance.schedules")` |
+| `/finance/tax` | 占位，无门禁 |
+| `/finance/treasury` | 占位，无门禁 |
+| `/finance/import` | `requireResourceAccess("finance.import")` |
 
 ### API Guard Wrapper
 
