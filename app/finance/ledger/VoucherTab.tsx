@@ -51,6 +51,8 @@ interface VoucherResponse {
   pageSize: number;
 }
 
+const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 export default function VoucherTab() {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
@@ -151,8 +153,8 @@ export default function VoucherTab() {
                     <td className="px-3 py-2 text-gray-700 max-w-xs truncate" title={v.description}>
                       {v.description}
                     </td>
-                    <td className="px-3 py-2 text-right text-gray-700 whitespace-nowrap">{v.totalDebit.toFixed(2)}</td>
-                    <td className="px-3 py-2 text-right text-gray-700 whitespace-nowrap">{v.totalCredit.toFixed(2)}</td>
+                    <td className="px-3 py-2 text-right text-gray-700 whitespace-nowrap">{fmt(v.totalDebit)}</td>
+                    <td className="px-3 py-2 text-right text-gray-700 whitespace-nowrap">{fmt(v.totalCredit)}</td>
                     <td className="px-3 py-2 whitespace-nowrap">
                       <span className="text-emerald-600 text-xs">
                         {expandedVoucherId === v.id ? "收起" : `展开 (${v.items.length}条)`}
@@ -181,8 +183,8 @@ export default function VoucherTab() {
                                   <td className="px-3 py-1.5 font-mono text-gray-600">{item.account?.code || "-"}</td>
                                   <td className="px-3 py-1.5 text-gray-700">{item.account?.name || "-"}</td>
                                   <td className="px-3 py-1.5 text-gray-600">{item.description || "-"}</td>
-                                  <td className="px-3 py-1.5 text-right text-gray-700">{item.debit > 0 ? item.debit.toFixed(2) : ""}</td>
-                                  <td className="px-3 py-1.5 text-right text-gray-700">{item.credit > 0 ? item.credit.toFixed(2) : ""}</td>
+                                  <td className="px-3 py-1.5 text-right text-gray-700">{item.debit > 0 ? fmt(item.debit) : ""}</td>
+                                  <td className="px-3 py-1.5 text-right text-gray-700">{item.credit > 0 ? fmt(item.credit) : ""}</td>
                                 </tr>
                               ))}
                             </tbody>

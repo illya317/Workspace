@@ -25,6 +25,8 @@ interface Balance {
   closingCredit: number;
 }
 
+const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
 export default function LedgerTab() {
   const [_periods, setPeriods] = useState<Period[]>([]);
   const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
@@ -145,12 +147,12 @@ export default function LedgerTab() {
                   <td className="px-3 py-2 font-mono text-gray-700">{b.account.code}</td>
                   <td className="px-3 py-2 text-gray-700">{b.account.name}</td>
                   <td className="px-3 py-2 text-gray-600">{CATEGORIES[b.account.category]}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{b.openingDebit.toFixed(2)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{b.openingCredit.toFixed(2)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{b.currentDebit.toFixed(2)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{b.currentCredit.toFixed(2)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{b.closingDebit.toFixed(2)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{b.closingCredit.toFixed(2)}</td>
+                  <td className="px-3 py-2 text-right text-gray-700">{fmt(b.openingDebit)}</td>
+                  <td className="px-3 py-2 text-right text-gray-700">{fmt(b.openingCredit)}</td>
+                  <td className="px-3 py-2 text-right text-gray-700">{fmt(b.currentDebit)}</td>
+                  <td className="px-3 py-2 text-right text-gray-700">{fmt(b.currentCredit)}</td>
+                  <td className="px-3 py-2 text-right text-gray-700">{fmt(b.closingDebit)}</td>
+                  <td className="px-3 py-2 text-right text-gray-700">{fmt(b.closingCredit)}</td>
                 </tr>
               ))}
               {balances.length === 0 && <tr><td colSpan={9} className="px-3 py-8 text-center text-gray-400">暂无余额数据，请先录入凭证并计算余额</td></tr>}
