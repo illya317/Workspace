@@ -8,6 +8,7 @@ import AccountCreateModal from "../components/AccountCreateModal";
 import AccountTable from "../components/AccountTable";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
+import ReclassCandidateList from "../components/ReclassCandidateList";
 
 interface Account {
   id: number;
@@ -53,7 +54,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [companyFilter, setCompanyFilter] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
-  const [scope, setScope] = useState<"all" | "mapped" | "unmapped" | "inactive">("all");
+  const [scope, setScope] = useState<"all" | "mapped" | "unmapped" | "inactive" | "reclass">("all");
   const [keyword, setKeyword] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -64,6 +65,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const { toast, showToast, closeToast } = useToast();
 
   async function load() {
+    if (scope === "reclass") { setLoading(false); return; } // reclass data loaded by ReclassCandidateList
     setLoading(true);
     const params = new URLSearchParams();
     if (companyFilter) params.set("companyCode", companyFilter);
@@ -154,6 +156,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
                 { key: "mapped", label: "集团" },
                 { key: "unmapped", label: "独有" },
                 { key: "inactive", label: "未启用" },
+                { key: "reclass", label: "重分类规则" },
               ].map((s) => (
                 <button key={s.key}
                   onClick={() => { setScope(s.key as typeof scope); setPage(1); }}
@@ -166,20 +169,33 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         }
       />
 
-      {/* Table */}
-      <div className="flex items-center justify-end">
-        <ColumnToggle columns={ACCOUNT_COLUMNS} visible={visibleColumns} onChange={setVisibleColumns} />
-      </div>
-      <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
-        <AccountTable
-          accounts={accounts}
-          loading={loading}
-          visibleColumns={visibleColumns}
-          onUpdateReclassTargetCode={canWrite ? handleUpdateReclassTargetCode : undefined}
-        />
-      </div>
-
-      <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
+      {/* Table / Reclass View */}
+      {scope === "reclass" ? (
+        companyFilter && yearFilter ? (
+          <ReclassCandidateList
+            companyCode={companyFilter}
+            year={yearFilter}
+            canWrite={canWrite}
+          />
+        ) : (
+          <p className="py-8 text-center text-sm text-gray-400">请选择公司和年份以查看重分类规则候选</p>
+        )
+      ) : (
+        <>
+          <div className="flex items-center justify-end">
+            <ColumnToggle columns={ACCOUNT_COLUMNS} visible={visibleColumns} onChange={setVisibleColumns} />
+          </div>
+          <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+            <AccountTable
+              accounts={accounts}
+              loading={loading}
+              visibleColumns={visibleColumns}
+              onUpdateReclassTargetCode={canWrite ? handleUpdateReclassTargetCode : undefined}
+            />
+          </div>
+          <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
+        </>
+      )}
 
       <AccountCreateModal
         open={modalOpen}
