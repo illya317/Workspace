@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import type { ReclassResultRow } from "@/server/services/finance/ledger/reclass-results/types";
+import ReclassReviewModal from "./ReclassReviewModal";
 
 interface Props {
   items: ReclassResultRow[];
@@ -22,6 +24,7 @@ const STATUS_CLASS: Record<string, string> = {
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default function ReclassReviewView({ items, canWrite, statusFilter, onStatusFilter, onReview }: Props) {
+  const [adjustItem, setAdjustItem] = useState<ReclassResultRow | null>(null);
   const filtered = items.filter((r) => statusFilter === "all" || r.status === statusFilter);
 
   return (
@@ -65,13 +68,7 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onSta
                       <div className="flex items-center gap-1">
                         <button onClick={() => onReview(r.id, "approve")} className="rounded bg-emerald-50 px-1.5 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">通过</button>
                         <button onClick={() => onReview(r.id, "reject")} className="rounded bg-red-50 px-1.5 py-0.5 text-xs text-red-700 hover:bg-red-100">驳回</button>
-                        <button onClick={() => {
-                          const t = prompt("调整目标科目:", r.targetAccount);
-                          if (!t) return;
-                          const a = prompt("调整金额:", String(r.amount));
-                          if (!a) return;
-                          onReview(r.id, "adjust", { targetAccount: t, amount: parseFloat(a) });
-                        }} className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-700 hover:bg-blue-100">调整</button>
+                        <button onClick={() => setAdjustItem(r)} className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-700 hover:bg-blue-100">调整</button>
                       </div>
                     ) : null}
                   </td>
@@ -84,6 +81,10 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onSta
           </tbody>
         </table>
       </div>
+      <ReclassReviewModal
+        item={adjustItem} open={!!adjustItem}
+        onClose={() => setAdjustItem(null)}
+        onSubmit={async (id, targetAccount, amount) => { onReview(id, "adjust", { targetAccount, amount }); }} />
     </div>
   );
 }

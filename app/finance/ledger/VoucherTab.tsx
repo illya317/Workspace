@@ -71,15 +71,15 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
   const { toast, showToast, closeToast } = useToast();
-  const { reclassMap, handleReview, generating, handleGenerate } = useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
+  const { reclassMap, handleReview, generating, handleGenerate, setAdjustItem, adjustModal } = useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
   const [viewMode, setViewMode] = useState<"vouchers" | "reclass">("vouchers");
   const [reclassStatusFilter, setReclassStatusFilter] = useState("pending");
 
   const itemColumns = useMemo(() => {
     const cols = [...BASE_ITEM_COLUMNS];
-    if (viewMode === "reclass") cols.push(...buildReclassItemColumns(reclassMap, canWrite, handleReview));
+    if (viewMode === "reclass") cols.push(...buildReclassItemColumns(reclassMap, canWrite, handleReview, setAdjustItem));
     return cols;
-  }, [reclassMap, canWrite, handleReview, viewMode]);
+  }, [reclassMap, canWrite, handleReview, viewMode, setAdjustItem]);
 
   async function load() {
     setLoading(true);
@@ -213,6 +213,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
       )}
       {viewMode !== "reclass" && <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />}
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
+      {adjustModal}
     </div>
   );
 }

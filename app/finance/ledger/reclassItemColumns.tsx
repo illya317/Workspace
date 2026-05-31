@@ -18,6 +18,7 @@ export function buildReclassItemColumns(
   reclassMap: Map<number, ReclassResultRow>,
   canWrite: boolean,
   onReview: (id: number, action: "approve" | "reject" | "adjust", body?: Record<string, unknown>) => void,
+  onAdjustOpen?: (rr: ReclassResultRow) => void,
 ): DataTableColumn<VoucherItemRow>[] {
   return [
     {
@@ -45,13 +46,7 @@ export function buildReclassItemColumns(
           <div className="flex items-center gap-1">
             <button onClick={() => onReview(rr.id, "approve")} className="rounded bg-emerald-50 px-1.5 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">通过</button>
             <button onClick={() => onReview(rr.id, "reject")} className="rounded bg-red-50 px-1.5 py-0.5 text-xs text-red-700 hover:bg-red-100">驳回</button>
-            <button onClick={() => {
-              const t = prompt("调整目标科目:", rr.targetAccount);
-              if (!t) return;
-              const a = prompt("调整金额:", String(rr.amount));
-              if (!a) return;
-              onReview(rr.id, "adjust", { targetAccount: t, amount: parseFloat(a) });
-            }} className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-700 hover:bg-blue-100">调整</button>
+            <button onClick={() => onAdjustOpen?.(rr)} className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-700 hover:bg-blue-100">调整</button>
           </div>
         );
       },

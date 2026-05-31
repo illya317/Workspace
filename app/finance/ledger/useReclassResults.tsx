@@ -2,12 +2,14 @@
 
 import { useEffect, useState, useCallback } from "react";
 import type { ReclassResultRow } from "@/server/services/finance/ledger/reclass-results/types";
+import ReclassReviewModal from "../components/ReclassReviewModal";
 
 const PAGE_SIZE = 200;
 
 export function useReclassResults(companyCode: string, year: string, month: string, showToast: (msg: string, type?: "error") => void) {
   const [reclassMap, setReclassMap] = useState<Map<number, ReclassResultRow>>(new Map());
   const [generating, setGenerating] = useState(false);
+  const [adjustItem, setAdjustItem] = useState<ReclassResultRow | null>(null);
 
   async function lookupPeriodId(): Promise<number | null> {
     const pRes = await fetch(`/api/finance/reclass-results/lookup-period?companyCode=${companyCode}&year=${year}&month=${month}`);
@@ -82,5 +84,15 @@ export function useReclassResults(companyCode: string, year: string, month: stri
     setGenerating(false);
   }
 
-  return { reclassMap, handleReview, generating, handleGenerate };
+  const adjustModal = adjustItem ? (
+    <ReclassReviewModal
+      item={adjustItem} open={!!adjustItem}
+      onClose={() => setAdjustItem(null)}
+      onSubmit={async (id, targetAccount, amount, note) => {
+        await handleReview(id, "adjust", { targetAccount, amount, note });
+        setAdjustItem(null);
+      }} />
+  ) : null;
+
+  return { reclassMap, handleReview, generating, handleGenerate, adjustItem, setAdjustItem, adjustModal };
 }
