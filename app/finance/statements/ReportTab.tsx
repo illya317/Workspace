@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import FinanceFilters from "../components/FinanceFilters";
+
+const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 interface Period {
   id: number;
@@ -19,6 +21,18 @@ interface ReportLine {
   isGrandTotal?: boolean;
 }
 
+interface AccountDetail {
+  code: string;
+  name: string;
+  category: string;
+  balanceDirection: string;
+  openingDebit: number;
+  openingCredit: number;
+  currentDebit: number;
+  currentCredit: number;
+  closing: number;
+}
+
 interface ReportData {
   type: string;
   period: Period;
@@ -31,15 +45,25 @@ interface ReportData {
   netChange?: number;
 }
 
+const CATEGORIES: Record<string, string> = { asset: "资产", liability: "负债", equity: "权益", cost: "成本", revenue: "损益" };
+
+function renderAmount(v: number) {
+  if (Math.abs(v) < 0.01) return <span className="text-gray-300">—</span>;
+  const neg = v < 0;
+  return <span className={neg ? "text-red-600" : "text-gray-800"}>{neg ? "-" : ""}{fmt(Math.abs(v))}</span>;
+}
+
 export default function ReportTab() {
   const [periods, setPeriods] = useState<Period[]>([]);
-  const [selectedPeriod, setSelectedPeriod] = useState<number | null>(null);
   const [companyFilter, setCompanyFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
   const [monthFilter, setMonthFilter] = useState("");
   const [reportType, setReportType] = useState<"balance" | "income" | "cashflow">("balance");
   const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [expandedCodes, setExpandedCodes] = useState<Set<string>>(new Set());
+  const [details, setDetails] = useState<Record<string, AccountDetail[]>>({});
+  const [loadingDetail, setLoadingDetail] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/finance/periods").then((r) => r.json()).then((d) => {
@@ -55,24 +79,110 @@ export default function ReportTab() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (companyFilter && yearFilter && monthFilter) {
-      const p = periods.find((p) => p.companyCode === companyFilter && String(p.year) === yearFilter && String(p.month) === monthFilter);
-      setSelectedPeriod(p?.id || null);
-    }
-  }, [companyFilter, yearFilter, monthFilter, periods]);
-
   async function loadReport() {
     if (!companyFilter || !yearFilter || !monthFilter) return;
     setLoading(true);
+    setExpandedCodes(new Set());
+    setDetails({});
     const res = await fetch(`/api/finance/reports?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}&type=${reportType}`);
     if (res.ok) setData(await res.json());
     setLoading(false);
   }
 
-  function renderAmount(v: number, isNegative = false) {
-    if (Math.abs(v) < 0.01) return <span className="text-gray-300">—</span>;
-    return <span className={v < 0 || isNegative ? "text-red-600" : "text-gray-800"}>{v.toFixed(2)}</span>;
+  const toggleDetail = useCallback(async (code: string) => {
+    if (!code) return;
+    const newSet = new Set(expandedCodes);
+    if (newSet.has(code)) {
+      newSet.delete(code);
+      setExpandedCodes(newSet);
+      return;
+    }
+    newSet.add(code);
+    setExpandedCodes(newSet);
+
+    if (!details[code]) {
+      setLoadingDetail(code);
+      try {
+        const res = await fetch(`/api/finance/reports/detail?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}&codes=${encodeURIComponent(code)}`);
+        if (res.ok) {
+          const d = await res.json();
+          setDetails((prev) => ({ ...prev, [code]: d.details || [] }));
+        }
+      } finally {
+        setLoadingDetail(null);
+      }
+    }
+  }, [expandedCodes, details, companyFilter, yearFilter, monthFilter]);
+
+  function renderLine(item: ReportLine, i: number) {
+    const hasCode = !!item.code;
+    const isExpanded = hasCode && expandedCodes.has(item.code!);
+    const detailRows = hasCode ? details[item.code!] : undefined;
+
+    return (
+      <tbody key={i}>
+        <tr
+          className={`border-b cursor-pointer hover:bg-gray-50 transition-colors ${
+            item.isGrandTotal ? "border-t-2 border-gray-300 font-bold" :
+            item.isTotal ? "font-medium bg-gray-50" :
+            item.isHeader ? "font-medium text-gray-700" : "text-gray-600"
+          }`}
+          onClick={() => hasCode && toggleDetail(item.code!)}
+        >
+          <td className={`py-1 ${item.isHeader ? "text-gray-700" : item.isTotal || item.isGrandTotal ? "text-gray-800" : "pl-4"}`}>
+            <span className="flex items-center gap-1">
+              {hasCode && <span className="text-gray-300 text-[10px]">{isExpanded ? "▼" : "▶"}</span>}
+              {item.label}
+            </span>
+          </td>
+          <td className="py-1 text-right">{renderAmount(item.amount)}</td>
+        </tr>
+        {isExpanded && (
+          <tr key={`${i}-detail`}>
+            <td colSpan={2} className="bg-gray-50 px-4 py-2">
+              {loadingDetail === item.code ? (
+                <p className="text-xs text-gray-400 py-2">加载明细...</p>
+              ) : detailRows && detailRows.length > 0 ? (
+                <table className="w-full text-[11px]">
+                  <thead>
+                    <tr className="text-gray-500 border-b">
+                      <th className="text-left py-1 font-medium">科目编码</th>
+                      <th className="text-left py-1 font-medium">科目名称</th>
+                      <th className="text-right py-1 font-medium">期初借</th>
+                      <th className="text-right py-1 font-medium">期初贷</th>
+                      <th className="text-right py-1 font-medium">本期借</th>
+                      <th className="text-right py-1 font-medium">本期贷</th>
+                      <th className="text-right py-1 font-medium">期末余额</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detailRows.map((d) => (
+                      <tr key={d.code} className="border-b border-gray-100">
+                        <td className="py-1 font-mono text-gray-600">{d.code}</td>
+                        <td className="py-1 text-gray-700">{d.name}</td>
+                        <td className="py-1 text-right text-gray-600">{d.openingDebit > 0 ? fmt(d.openingDebit) : ""}</td>
+                        <td className="py-1 text-right text-gray-600">{d.openingCredit > 0 ? fmt(d.openingCredit) : ""}</td>
+                        <td className="py-1 text-right text-gray-600">{d.currentDebit > 0 ? fmt(d.currentDebit) : ""}</td>
+                        <td className="py-1 text-right text-gray-600">{d.currentCredit > 0 ? fmt(d.currentCredit) : ""}</td>
+                        <td className={`py-1 text-right font-medium ${d.closing < 0 ? "text-red-600" : "text-gray-800"}`}>
+                          {fmt(Math.abs(d.closing))}{d.balanceDirection === "credit" && d.closing !== 0 ? " (贷)" : ""}
+                        </td>
+                      </tr>
+                    ))}
+                    <tr className="font-medium">
+                      <td colSpan={6} className="py-1 text-right text-gray-600">合计</td>
+                      <td className="py-1 text-right text-gray-800">{fmt(Math.abs(detailRows.reduce((s, d) => s + d.closing, 0)))}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-xs text-gray-400 py-2">无明细数据</p>
+              )}
+            </td>
+          </tr>
+        )}
+      </tbody>
+    );
   }
 
   return (
@@ -95,7 +205,7 @@ export default function ReportTab() {
                 <option value="cashflow">现金流量表</option>
               </select>
             </div>
-            <button onClick={loadReport} disabled={!selectedPeriod} className="rounded-md bg-emerald-600 px-4 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-50">生成报表</button>
+            <button onClick={loadReport} className="rounded-md bg-emerald-600 px-4 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-50">生成报表</button>
           </>
         }
       />
@@ -107,50 +217,29 @@ export default function ReportTab() {
           <h3 className="text-base font-semibold text-gray-800 text-center mb-1">资 产 负 债 表</h3>
           <p className="text-xs text-gray-500 text-center mb-4">{data.period.year}年{data.period.month}月</p>
           <div className="grid grid-cols-2 gap-0">
-            {/* 左侧：资产 */}
             <div className="border-r border-gray-200 pr-4">
               <table className="w-full text-xs">
                 <thead className="border-b"><tr>
                   <th className="py-1 text-left font-medium text-gray-700">资  产</th>
                   <th className="py-1 text-right font-medium text-gray-700">年末余额</th>
                 </tr></thead>
-                <tbody>
-                  {data.assets?.map((item, i) => (
-                    <tr key={i} className={`border-b ${item.isGrandTotal ? "border-t-2 border-gray-300 font-bold" : item.isTotal ? "font-medium bg-gray-50" : item.isHeader ? "font-medium text-gray-700" : ""}`}>
-                      <td className={`py-1 ${item.isHeader ? "text-gray-700" : item.isTotal || item.isGrandTotal ? "text-gray-800" : "text-gray-600 pl-4"}`}>{item.label}</td>
-                      <td className="py-1 text-right">{renderAmount(item.amount)}</td>
-                    </tr>
-                  ))}
-                </tbody>
+                {data.assets?.map((item, i) => renderLine(item, i))}
               </table>
             </div>
-            {/* 右侧：负债+权益 */}
             <div className="pl-4">
               <table className="w-full text-xs">
                 <thead className="border-b"><tr>
                   <th className="py-1 text-left font-medium text-gray-700">负债及所有者权益</th>
                   <th className="py-1 text-right font-medium text-gray-700">年末余额</th>
                 </tr></thead>
-                <tbody>
-                  {data.liabilities?.map((item, i) => (
-                    <tr key={`l${i}`} className={`border-b ${item.isTotal ? "font-medium bg-gray-50" : item.isHeader ? "font-medium text-gray-700" : ""}`}>
-                      <td className={`py-1 ${item.isHeader ? "text-gray-700" : item.isTotal ? "text-gray-800" : "text-gray-600 pl-4"}`}>{item.label}</td>
-                      <td className="py-1 text-right">{renderAmount(item.amount)}</td>
-                    </tr>
-                  ))}
-                  {data.equity?.map((item, i) => (
-                    <tr key={`e${i}`} className={`border-b ${item.isGrandTotal ? "border-t-2 border-gray-300 font-bold" : item.isTotal ? "font-medium bg-gray-50" : item.isHeader ? "font-medium text-gray-700" : ""}`}>
-                      <td className={`py-1 ${item.isHeader ? "text-gray-700" : item.isTotal || item.isGrandTotal ? "text-gray-800" : "text-gray-600 pl-4"}`}>{item.label}</td>
-                      <td className="py-1 text-right">{renderAmount(item.amount)}</td>
-                    </tr>
-                  ))}
-                </tbody>
+                {data.liabilities?.map((item, i) => renderLine(item, i))}
+                {data.equity?.map((item, i) => renderLine(item, i))}
               </table>
             </div>
           </div>
           {data.totalLiabilitiesAndEquity !== undefined && (
             <p className="text-xs text-gray-400 text-center mt-2">
-              资产总计 = {data.assets?.find((a) => a.isGrandTotal)?.amount.toFixed(2)} | 负债和权益总计 = {data.totalLiabilitiesAndEquity.toFixed(2)}
+              资产总计 = {fmt(data.assets?.find((a) => a.isGrandTotal)?.amount || 0)} | 负债和权益总计 = {fmt(data.totalLiabilitiesAndEquity)}
               {Math.abs((data.assets?.find((a) => a.isGrandTotal)?.amount || 0) - data.totalLiabilitiesAndEquity) > 0.01 && (
                 <span className="text-red-500 ml-2">⚠ 不平衡</span>
               )}
@@ -168,14 +257,7 @@ export default function ReportTab() {
               <th className="py-1 text-left font-medium text-gray-700">项       目</th>
               <th className="py-1 text-right font-medium text-gray-700">本年金额</th>
             </tr></thead>
-            <tbody>
-              {data.lines?.map((line, i) => (
-                <tr key={i} className={`border-b ${line.isGrandTotal ? "border-t-2 border-gray-300 font-bold" : line.isTotal ? "font-medium bg-gray-50" : ""}`}>
-                  <td className={`py-1.5 ${line.isTotal || line.isGrandTotal ? "text-gray-800" : "text-gray-600"}`}>{line.label}</td>
-                  <td className="py-1.5 text-right">{renderAmount(line.amount)}</td>
-                </tr>
-              ))}
-            </tbody>
+            {data.lines?.map((item, i) => renderLine(item, i))}
           </table>
         </div>
       )}
@@ -194,14 +276,14 @@ export default function ReportTab() {
               {data.cashAccounts?.map((a) => (
                 <tr key={a.code} className="border-b">
                   <td className="px-3 py-2 text-gray-600">{a.code} {a.name}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{a.opening?.toFixed(2)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{a.closing?.toFixed(2)}</td>
+                  <td className="px-3 py-2 text-right text-gray-700">{fmt(a.opening || 0)}</td>
+                  <td className="px-3 py-2 text-right text-gray-700">{fmt(a.closing || 0)}</td>
                 </tr>
               ))}
               <tr className="font-semibold border-t-2 border-gray-300">
                 <td className="px-3 py-2 text-gray-800">现金及等价物净增加额</td>
                 <td className="px-3 py-2 text-right" />
-                <td className="px-3 py-2 text-right text-emerald-700">{data.netChange?.toFixed(2)}</td>
+                <td className="px-3 py-2 text-right text-emerald-700">{fmt(data.netChange || 0)}</td>
               </tr>
             </tbody>
           </table>
