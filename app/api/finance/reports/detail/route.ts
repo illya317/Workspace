@@ -14,7 +14,7 @@ export const GET = withFinanceReportAccess(async (request: Request) => {
     return NextResponse.json({ error: "缺少参数" }, { status: 400 });
   }
 
-  const codeList = codes.split(",").map((c) => c.trim()).filter(Boolean);
+  const codeList = codes.split(/[,+]/).map((c) => c.trim()).filter(Boolean);
 
   const period = await prisma.financePeriod.findFirst({
     where: { companyCode, year: parseInt(year), month: parseInt(month) },
