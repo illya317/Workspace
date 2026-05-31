@@ -1,8 +1,13 @@
 "use client";
 
-// no React hooks needed — pure render
+import DataTable, {
+  type DataTableColumn,
+  getDefaultVisibleColumns,
+} from "@/app/components/DataTable";
 
-interface Account {
+// ─── Types ───────────────────────────────────────────────
+
+export interface Account {
   id: number;
   code: string;
   name: string;
@@ -16,6 +21,8 @@ interface Account {
   parent: { code: string; name: string } | null;
   isActive: boolean;
 }
+
+// ─── Lookups ─────────────────────────────────────────────
 
 const COMPANIES: Record<string, string> = {
   "01": "丰华生物",
@@ -36,72 +43,130 @@ const CATEGORIES: Record<string, string> = {
   other: "其他",
 };
 
+// ─── Column Definitions ──────────────────────────────────
+
+export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
+  {
+    key: "code",
+    label: "编码",
+    required: true,
+    render: (a) => <span className="font-mono text-gray-700">{a.code}</span>,
+  },
+  {
+    key: "name",
+    label: "名称",
+    required: true,
+    render: (a) => <span className="text-gray-700">{a.name}</span>,
+  },
+  {
+    key: "companyCode",
+    label: "公司",
+    render: (a) => (
+      <span className="text-gray-600">
+        {a.companyCode ? COMPANIES[a.companyCode] || a.companyCode : "-"}
+      </span>
+    ),
+  },
+  {
+    key: "category",
+    label: "类别",
+    render: (a) => (
+      <span className="text-gray-600">
+        {CATEGORIES[a.category] || a.category}
+      </span>
+    ),
+  },
+  {
+    key: "subjectLevel",
+    label: "层级",
+    render: (a) => (
+      <span className="text-gray-600">{a.subjectLevel ?? "-"}</span>
+    ),
+  },
+  {
+    key: "balanceDirection",
+    label: "余额方向",
+    render: (a) => (
+      <span className="text-gray-600">
+        {a.balanceDirection === "debit" ? "借" : "贷"}
+      </span>
+    ),
+  },
+  {
+    key: "groupSubjectCode",
+    label: "集团编码",
+    render: (a) => (
+      <span className="font-mono text-gray-500">
+        {a.groupSubjectCode || "-"}
+      </span>
+    ),
+  },
+  {
+    key: "mnemonicCode",
+    label: "助记码",
+    render: (a) => (
+      <span className="text-gray-500">{a.mnemonicCode || "-"}</span>
+    ),
+  },
+  {
+    key: "currency",
+    label: "币种",
+    render: (a) => (
+      <span className="text-gray-500">{a.currency || "-"}</span>
+    ),
+  },
+  {
+    key: "parent",
+    label: "父级科目",
+    render: (a) => (
+      <span className="text-gray-500">
+        {a.parent ? `${a.parent.code} ${a.parent.name}` : "-"}
+      </span>
+    ),
+  },
+  {
+    key: "isActive",
+    label: "状态",
+    render: (a) => (
+      <span
+        className={`text-xs ${a.isActive ? "text-emerald-600" : "text-gray-400"}`}
+      >
+        {a.isActive ? "启用" : "停用"}
+      </span>
+    ),
+  },
+];
+
+// ─── Component ───────────────────────────────────────────
+
 interface AccountTableProps {
   accounts: Account[];
   loading?: boolean;
   visibleColumns?: string[];
 }
 
-export default function AccountTable({ accounts, loading, visibleColumns }: AccountTableProps) {
-  const show = (key: string) => !visibleColumns || visibleColumns.includes(key);
-
-  if (loading) {
-    return <p className="p-8 text-center text-gray-500">加载中...</p>;
-  }
-
-  const visibleCount = visibleColumns ? visibleColumns.length : 12;
-
+/**
+ * 科目表格。
+ * 内部使用 DataTable，列定义从 ACCOUNT_COLUMNS 取。
+ *
+ * 典型用法：
+ *   const visible = getDefaultVisibleColumns(ACCOUNT_COLUMNS);
+ *   <ColumnToggle columns={ACCOUNT_COLUMNS} visible={visible} onChange={setVisible} />
+ *   <AccountTable accounts={data} visibleColumns={visible} loading={loading} />
+ */
+export default function AccountTable({
+  accounts,
+  loading,
+  visibleColumns = getDefaultVisibleColumns(ACCOUNT_COLUMNS),
+}: AccountTableProps) {
   return (
-    <table className="w-full text-xs">
-      <thead className="border-b bg-gray-50">
-        <tr>
-          {show("code") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">编码</th>}
-          {show("name") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">名称</th>}
-          {show("companyCode") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">公司</th>}
-          {show("category") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">类别</th>}
-          {show("subjectLevel") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">层级</th>}
-          {show("balanceDirection") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">余额方向</th>}
-          {show("groupSubjectCode") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">集团编码</th>}
-          {show("mnemonicCode") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">助记码</th>}
-          {show("currency") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">币种</th>}
-          {show("parent") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">父级科目</th>}
-          {show("isActive") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">状态</th>}
-        </tr>
-      </thead>
-      <tbody>
-        {accounts.map((acc) => (
-          <tr key={acc.id} className="border-b last:border-0 hover:bg-gray-50">
-            {show("code") && <td className="px-3 py-2 font-mono text-gray-700 whitespace-nowrap">{acc.code}</td>}
-            {show("name") && <td className="px-3 py-2 text-gray-700 whitespace-nowrap">{acc.name}</td>}
-            {show("companyCode") && <td className="px-3 py-2 text-gray-600 whitespace-nowrap">
-              {acc.companyCode ? COMPANIES[acc.companyCode] || acc.companyCode : "-"}
-            </td>}
-            {show("category") && <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{CATEGORIES[acc.category] || acc.category}</td>}
-            {show("subjectLevel") && <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{acc.subjectLevel ?? "-"}</td>}
-            {show("balanceDirection") && <td className="px-3 py-2 text-gray-600 whitespace-nowrap">
-              {acc.balanceDirection === "debit" ? "借" : "贷"}
-            </td>}
-            {show("groupSubjectCode") && <td className="px-3 py-2 font-mono text-gray-500 whitespace-nowrap">{acc.groupSubjectCode || "-"}</td>}
-            {show("mnemonicCode") && <td className="px-3 py-2 text-gray-500 whitespace-nowrap">{acc.mnemonicCode || "-"}</td>}
-            {show("currency") && <td className="px-3 py-2 text-gray-500 whitespace-nowrap">{acc.currency || "-"}</td>}
-            {show("parent") && <td className="px-3 py-2 text-gray-500 whitespace-nowrap">
-              {acc.parent ? `${acc.parent.code} ${acc.parent.name}` : "-"}
-            </td>}
-            {show("isActive") && <td className="px-3 py-2 whitespace-nowrap">
-              <span className={`text-xs ${acc.isActive ? "text-emerald-600" : "text-gray-400"}`}>
-                {acc.isActive ? "启用" : "停用"}
-              </span>
-            </td>}
-          </tr>
-        ))}
-        {accounts.length === 0 && (
-          <tr>
-            <td colSpan={visibleCount} className="px-3 py-8 text-center text-gray-400">
-              暂无科目数据
-            </td>
-          </tr>
-        )}
-      </tbody>
-    </table>
+    <DataTable
+      rows={accounts}
+      columns={ACCOUNT_COLUMNS}
+      visibleColumns={visibleColumns}
+      loading={loading}
+      emptyText="暂无科目数据"
+      rowKey={(a) => a.id}
+    />
   );
 }

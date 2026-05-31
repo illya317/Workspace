@@ -3,48 +3,15 @@
 import { useEffect, useState } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import ColumnToggle, { type ColumnDef } from "@/app/components/ColumnToggle";
+import ColumnToggle from "@/app/components/ColumnToggle";
+import { getDefaultVisibleColumns } from "@/app/components/DataTable";
 import AccountCreateModal from "../components/AccountCreateModal";
-import AccountTable from "../components/AccountTable";
+import AccountTable, { type Account, ACCOUNT_COLUMNS } from "../components/AccountTable";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
 import ReclassCandidateList from "../components/ReclassCandidateList";
 
-interface Account {
-  id: number;
-  code: string;
-  name: string;
-  category: string;
-  parentId: number | null;
-  balanceDirection: string;
-  isActive: boolean;
-  sortOrder: number;
-  companyCode: string | null;
-  mnemonicCode: string | null;
-  currency: string | null;
-  groupSubjectCode: string | null;
-  subjectLevel: number | null;
-  year: number | null;
-  parent: { code: string; name: string } | null;
-}
-
-const ACCOUNT_COLUMNS: ColumnDef[] = [
-  { key: "code", label: "编码", required: true },
-  { key: "name", label: "名称", required: true },
-  { key: "companyCode", label: "公司" },
-  { key: "category", label: "类别" },
-  { key: "subjectLevel", label: "层级" },
-  { key: "balanceDirection", label: "余额方向" },
-  { key: "groupSubjectCode", label: "集团编码" },
-  { key: "mnemonicCode", label: "助记码" },
-  { key: "currency", label: "币种" },
-  { key: "parent", label: "父级科目" },
-  { key: "isActive", label: "状态" },
-];
-
-const DEFAULT_VISIBLE = ACCOUNT_COLUMNS
-  .filter((c) => c.required)
-  .map((c) => c.key);
+// Account type and column definitions from shared AccountTable
 
 export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -59,7 +26,9 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(DEFAULT_VISIBLE);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(
+    () => getDefaultVisibleColumns(ACCOUNT_COLUMNS)
+  );
   const { toast, showToast, closeToast } = useToast();
 
   async function load() {
