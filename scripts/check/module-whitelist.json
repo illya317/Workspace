@@ -1,0 +1,39 @@
+{
+  "tab-bar": {
+    "description": "页面手写 border-b-2 下划线 tab，应改用 TabBar 组件",
+    "pattern": "border-b-2.*border-emerald-500|border-b-2.*text-emerald-600",
+    "allowed": [
+      "app/admin/AdminClient.tsx",
+      "app/hr/performance/HRPerformanceClient.tsx",
+      "app/hr/analytics/HRAnalyticsClient.tsx",
+      "app/finance/ledger/LedgerClient.tsx",
+      "app/finance/schedules/SchedulesClient.tsx",
+      "app/finance/budget/BudgetClient.tsx",
+      "app/finance/analysis/AnalysisClient.tsx"
+    ]
+  },
+  "pagination": {
+    "description": "页面手写分页控件，应改用全局 Pagination 组件",
+    "pattern": "首页.*上一页.*下一页.*末页|setPage.*setPageSize",
+    "allowed": []
+  },
+  "finance-filters": {
+    "description": "财务页面手写筛选栏，应改用 FinanceFilters",
+    "pattern": "公司.*年度.*<select",
+    "allowed": [
+      "app/finance/statements/ReportTab.tsx",
+      "app/finance/budget/components/DeptBudgetFilters.tsx",
+      "app/finance/budget/components/RdBudgetFilters.tsx"
+    ]
+  },
+  "hr-toolbar": {
+    "description": "HR 页面手写工具栏，应改用 HRToolbar",
+    "pattern": "编辑模式|editMode.*button|keyword.*onChange",
+    "allowed": [
+      "app/hr/HRClient.tsx",
+      "app/hr/code/CodeTab.tsx",
+      "app/hr/performance/HRPerformanceClient.tsx",
+      "app/hr/analytics/HRAnalyticsClient.tsx"
+    ]
+  }
+}

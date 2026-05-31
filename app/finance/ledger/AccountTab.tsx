@@ -95,61 +95,34 @@ export default function AccountTab() {
       <FinanceFilters
         companyFilter={companyFilter}
         yearFilter={yearFilter}
+        levelFilter={levelFilter}
+        keyword={keyword}
         pageSize={pageSize}
+        total={total}
         onCompanyChange={(v) => { setCompanyFilter(v); setPage(1); }}
         onYearChange={(v) => { setYearFilter(v); setPage(1); }}
+        onLevelChange={(v) => { setLevelFilter(v); setPage(1); }}
+        onKeywordChange={(v) => { setKeyword(v); setPage(1); }}
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
-        showMonth={false}
+        showMonth={false} showLevel
         extra={
           <>
-            <button
-              onClick={() => setModalOpen(true)}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
-            >
-              新增科目
-            </button>
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-500">层级</label>
-              <select
-                value={levelFilter}
-                onChange={(e) => { setLevelFilter(e.target.value); setPage(1); }}
-                className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-              >
-                <option value="">全部层级</option>
-                {[1, 2, 3, 4, 5].map((l) => (
-                  <option key={l} value={l}>{l}级</option>
-                ))}
-              </select>
-            </div>
-            <input
-              value={keyword}
-              onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
-              placeholder="搜索编码/名称..."
-              className="rounded border border-gray-300 px-2 py-1.5 text-xs w-44 focus:border-emerald-400 focus:outline-none"
-            />
+            <button onClick={() => setModalOpen(true)}
+              className="rounded-md border border-gray-300 px-2.5 py-1 text-xs text-gray-700 hover:bg-gray-50">新增科目</button>
             <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
               {[
-                { key: "all", label: "全部科目" },
-                { key: "mapped", label: "集团科目" },
-                { key: "unmapped", label: "独有科目" },
+                { key: "all", label: "全部" },
+                { key: "mapped", label: "集团" },
+                { key: "unmapped", label: "独有" },
                 { key: "inactive", label: "未启用" },
               ].map((s) => (
-                <button
-                  key={s.key}
-                  onClick={() => { setScope(s.key as "mapped" | "all" | "unmapped" | "inactive"); setPage(1); }}
-                  className={`rounded px-2.5 py-1 text-xs transition-colors ${
-                    scope === s.key
-                      ? "bg-emerald-600 text-white"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  {s.label}
-                </button>
+                <button key={s.key}
+                  onClick={() => { setScope(s.key as typeof scope); setPage(1); }}
+                  className={`rounded px-2 py-0.5 text-[11px] transition-colors ${
+                    scope === s.key ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-gray-100"
+                  }`}>{s.label}</button>
               ))}
             </div>
-            <span className="ml-auto text-xs text-gray-400">
-              共 {total} 条
-            </span>
           </>
         }
       />
