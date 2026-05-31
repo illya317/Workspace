@@ -2,6 +2,8 @@
 
 新增业务模块（非 UI 子页面）必须逐项完成。
 
+如果只是给现有模块增加一个 Tab、子页面、审核流、规则页或 CRUD 能力，不要使用本清单，改看 `docs/existing-module-feature-checklist.md`。
+
 ## 1. 数据库
 
 - [ ] Prisma model 定义，放 `prisma/models/<domain>.prisma`
