@@ -16,7 +16,6 @@ interface EditFilterToolbarProps {
   pageSize?: number;
   pageSizeOptions?: number[];
   onPageSizeChange?: (value: number) => void;
-  total?: number;
 
   // ── 编辑模式 ──
   editing?: boolean;
@@ -38,7 +37,6 @@ export default function EditFilterToolbar({
   children,
   columns, visibleColumns, onColumnsChange,
   pageSize, pageSizeOptions, onPageSizeChange,
-  total,
   editing, onStartEdit, onSave, onCancel, saving,
 }: EditFilterToolbarProps) {
   return (
@@ -52,7 +50,6 @@ export default function EditFilterToolbar({
       pageSize={pageSize}
       pageSizeOptions={pageSizeOptions}
       onPageSizeChange={onPageSizeChange}
-      total={total}
       extraRight={
         onStartEdit ? (
           <EditToolbar

@@ -38,7 +38,6 @@ interface FinanceFiltersProps {
   levelFilter?: string;
   keyword?: string;
   pageSize?: number;
-  total?: number;
   onCompanyChange: (value: string) => void;
   onYearChange: (value: string) => void;
   onMonthChange?: (value: string) => void;
@@ -60,7 +59,7 @@ interface FinanceFiltersProps {
  */
 export default function FinanceFilters({
   companyFilter, yearFilter, monthFilter = "", levelFilter = "",
-  keyword = "", pageSize = 50, total,
+  keyword = "", pageSize = 50,
   onCompanyChange, onYearChange, onMonthChange,
   onLevelChange, onKeywordChange, onPageSizeChange,
   extra,
@@ -72,7 +71,6 @@ export default function FinanceFilters({
       onKeywordChange={showSearch ? onKeywordChange : undefined}
       pageSize={showPageSize ? pageSize : undefined}
       onPageSizeChange={showPageSize ? onPageSizeChange : undefined}
-      total={total}
     >
       <SelectField label="公司" options={COMPANY_OPTIONS} value={companyFilter} onChange={onCompanyChange} placeholder="全部" />
       <SelectField label="年度" options={YEAR_OPTIONS} value={yearFilter} onChange={onYearChange} placeholder="全部" />
