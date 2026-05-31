@@ -4,7 +4,7 @@ import { useEffect, useState, Fragment, useMemo } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import ColumnToggle from "@/app/components/ColumnToggle";
-import DataTable, { getDefaultVisibleColumns } from "@/app/components/DataTable";
+import DataTable from "@/app/components/DataTable";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
 import { BASE_ITEM_COLUMNS } from "../components/VoucherItemTable";
@@ -72,10 +72,10 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [total, setTotal] = useState(0);
   const { toast, showToast, closeToast } = useToast();
   const { reclassMap, handleReview } = useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
-  const [visibleItemColumns, setVisibleItemColumns] = useState<string[]>(() => {
-    const base = getDefaultVisibleColumns(BASE_ITEM_COLUMNS);
-    return [...base, "reclassStatus"];
-  });
+  const [visibleItemColumns, setVisibleItemColumns] = useState<string[]>(() => [
+    ...BASE_ITEM_COLUMNS.map((c) => c.key),
+    "reclassStatus", "reclassTarget", "reclassAmount", "reclassActions",
+  ]);
 
   // ── Item columns (shared with ColumnToggle + DataTable) ─
 
