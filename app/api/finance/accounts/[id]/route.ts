@@ -16,7 +16,7 @@ export async function PUT(
   return withFinanceLedgerWrite(async (req, user) => {
     const { id } = await params;
     const body = await req.json();
-    const { code, name, category, balanceDirection, isActive, sortOrder } =
+    const { code, name, category, balanceDirection, isActive, sortOrder, reclassTargetCode, companyCode, mnemonicCode, currency, groupSubjectCode, subjectLevel } =
       body;
 
     const updateData: Record<string, unknown> = {
@@ -31,6 +31,12 @@ export async function PUT(
       updateData.balanceDirection = balanceDirection;
     if (isActive !== undefined) updateData.isActive = isActive;
     if (sortOrder !== undefined) updateData.sortOrder = parseInt(sortOrder);
+    if (reclassTargetCode !== undefined) updateData.reclassTargetCode = reclassTargetCode || null;
+    if (companyCode !== undefined) updateData.companyCode = companyCode || null;
+    if (mnemonicCode !== undefined) updateData.mnemonicCode = mnemonicCode || null;
+    if (currency !== undefined) updateData.currency = currency || null;
+    if (groupSubjectCode !== undefined) updateData.groupSubjectCode = groupSubjectCode || null;
+    if (subjectLevel !== undefined) updateData.subjectLevel = subjectLevel ? parseInt(subjectLevel) : null;
 
     const account = await prisma.financeAccount.update({
       where: { id: parseInt(id) },

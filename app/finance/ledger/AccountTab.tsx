@@ -109,6 +109,21 @@ export default function AccountTab() {
     }
   }
 
+  async function handleUpdateAccount(id: number, field: string, value: string) {
+    const res = await fetch(`/api/finance/accounts/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ [field]: value }),
+    });
+    if (res.ok) {
+      setAccounts((prev) =>
+        prev.map((a) => (a.id === id ? { ...a, [field]: value || null } : a))
+      );
+    } else {
+      showToast("更新失败", "error");
+    }
+  }
+
   const _levels = [...new Set(accounts.map((a) => a.subjectLevel).filter(Boolean))].sort((a, b) => (a || 0) - (b || 0));
   void _levels;
 
@@ -154,7 +169,7 @@ export default function AccountTab() {
         <ColumnToggle columns={ACCOUNT_COLUMNS} visible={visibleColumns} onChange={setVisibleColumns} />
       </div>
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
-        <AccountTable accounts={accounts} loading={loading} visibleColumns={visibleColumns} />
+        <AccountTable accounts={accounts} loading={loading} visibleColumns={visibleColumns} onUpdateAccount={handleUpdateAccount} />
       </div>
 
       <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
