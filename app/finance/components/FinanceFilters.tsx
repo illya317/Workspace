@@ -1,11 +1,40 @@
 "use client";
 
-const COMPANIES: Record<string, string> = {
-  "01": "丰华生物", "02": "丰华天力通", "03": "丰华悦通",
-  "04": "丰华制药", "05": "加拿大", "06": "上海悦通",
-};
+import FilterBar from "@/app/components/FilterBar";
+import SelectField from "@/app/components/SelectField";
 
-const YEARS = [2024, 2025, 2026];
+// ─── Options ──────────────────────────────────────────────
+
+const COMPANY_OPTIONS = [
+  { value: "01", label: "丰华生物" },
+  { value: "02", label: "丰华天力通" },
+  { value: "03", label: "丰华悦通" },
+  { value: "04", label: "丰华制药" },
+  { value: "05", label: "加拿大" },
+  { value: "06", label: "上海悦通" },
+];
+
+const YEAR_OPTIONS = [2024, 2025, 2026].map((y) => ({
+  value: String(y),
+  label: String(y),
+}));
+
+const MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => ({
+  value: String(i + 1),
+  label: `${i + 1}月`,
+}));
+
+const LEVEL_OPTIONS = [1, 2, 3, 4, 5].map((l) => ({
+  value: String(l),
+  label: `${l}级`,
+}));
+
+const PAGE_SIZE_OPTIONS = [20, 50, 100, 200].map((s) => ({
+  value: String(s),
+  label: `${s}条/页`,
+}));
+
+// ─── Props ────────────────────────────────────────────────
 
 interface FinanceFiltersProps {
   companyFilter: string;
@@ -28,75 +57,97 @@ interface FinanceFiltersProps {
   showPageSize?: boolean;
 }
 
+// ─── Component ────────────────────────────────────────────
+
+/**
+ * 财务通用筛选栏。
+ * 内部用 FilterBar + SelectField 组合，对外保留财务业务语义的 props。
+ *
+ * 典型组合：
+ *   FinanceFilters + ColumnToggle + DataTable + Pagination
+ */
 export default function FinanceFilters({
-  companyFilter, yearFilter, monthFilter = "", levelFilter = "",
-  keyword = "", pageSize = 50, total,
-  onCompanyChange, onYearChange, onMonthChange,
-  onLevelChange, onKeywordChange, onPageSizeChange,
+  companyFilter,
+  yearFilter,
+  monthFilter = "",
+  levelFilter = "",
+  keyword = "",
+  pageSize = 50,
+  total,
+  onCompanyChange,
+  onYearChange,
+  onMonthChange,
+  onLevelChange,
+  onKeywordChange,
+  onPageSizeChange,
   extra,
-  showMonth = true, showLevel = false, showSearch = true, showPageSize = true,
+  showMonth = true,
+  showLevel = false,
+  showSearch = true,
+  showPageSize = true,
 }: FinanceFiltersProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-lg bg-white p-2 shadow-sm">
-      <div className="flex items-center gap-1">
-        <label className="text-[11px] text-gray-400">公司</label>
-        <select value={companyFilter} onChange={(e) => onCompanyChange(e.target.value)}
-          className="rounded border border-gray-200 px-1.5 py-1 text-xs focus:border-emerald-400 focus:outline-none">
-          <option value="">全部</option>
-          {Object.entries(COMPANIES).map(([c, n]) => <option key={c} value={c}>{n}</option>)}
-        </select>
-      </div>
+    <FilterBar>
+      <SelectField
+        label="公司"
+        options={COMPANY_OPTIONS}
+        value={companyFilter}
+        onChange={onCompanyChange}
+        placeholder="全部"
+      />
 
-      <div className="flex items-center gap-1">
-        <label className="text-[11px] text-gray-400">年度</label>
-        <select value={yearFilter} onChange={(e) => onYearChange(e.target.value)}
-          className="rounded border border-gray-200 px-1.5 py-1 text-xs focus:border-emerald-400 focus:outline-none">
-          <option value="">全部</option>
-          {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-        </select>
-      </div>
+      <SelectField
+        label="年度"
+        options={YEAR_OPTIONS}
+        value={yearFilter}
+        onChange={onYearChange}
+        placeholder="全部"
+      />
 
       {showMonth && onMonthChange && (
-        <div className="flex items-center gap-1">
-          <label className="text-[11px] text-gray-400">月份</label>
-          <select value={monthFilter} onChange={(e) => onMonthChange(e.target.value)}
-            className="rounded border border-gray-200 px-1.5 py-1 text-xs focus:border-emerald-400 focus:outline-none">
-            <option value="">全部</option>
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => <option key={m} value={m}>{m}月</option>)}
-          </select>
-        </div>
+        <SelectField
+          label="月份"
+          options={MONTH_OPTIONS}
+          value={monthFilter}
+          onChange={onMonthChange}
+          placeholder="全部"
+        />
       )}
 
       {showLevel && onLevelChange && (
-        <div className="flex items-center gap-1">
-          <label className="text-[11px] text-gray-400">层级</label>
-          <select value={levelFilter} onChange={(e) => onLevelChange(e.target.value)}
-            className="rounded border border-gray-200 px-1.5 py-1 text-xs focus:border-emerald-400 focus:outline-none">
-            <option value="">全部</option>
-            {[1, 2, 3, 4, 5].map((l) => <option key={l} value={l}>{l}级</option>)}
-          </select>
-        </div>
+        <SelectField
+          label="层级"
+          options={LEVEL_OPTIONS}
+          value={levelFilter}
+          onChange={onLevelChange}
+          placeholder="全部"
+        />
       )}
 
       {showSearch && onKeywordChange && (
-        <input value={keyword} onChange={(e) => onKeywordChange(e.target.value)}
-          placeholder="搜索..." className="rounded border border-gray-200 px-2 py-1 text-xs w-36 focus:border-emerald-400 focus:outline-none" />
+        <input
+          value={keyword}
+          onChange={(e) => onKeywordChange(e.target.value)}
+          placeholder="搜索..."
+          className="rounded border border-gray-200 px-2 py-1 text-xs w-36 focus:border-emerald-400 focus:outline-none"
+        />
       )}
 
       {showPageSize && onPageSizeChange && (
-        <div className="flex items-center gap-1">
-          <select value={pageSize} onChange={(e) => onPageSizeChange(Number(e.target.value))}
-            className="rounded border border-gray-200 px-1.5 py-1 text-xs focus:border-emerald-400 focus:outline-none">
-            {[20, 50, 100, 200].map((s) => <option key={s} value={s}>{s}条/页</option>)}
-          </select>
-        </div>
+        <SelectField
+          options={PAGE_SIZE_OPTIONS}
+          value={String(pageSize)}
+          onChange={(v) => onPageSizeChange(Number(v))}
+        />
       )}
 
       <div className="flex-1" />
 
-      {total !== undefined && <span className="text-[11px] text-gray-400">共 {total} 条</span>}
+      {total !== undefined && (
+        <span className="text-[11px] text-gray-400">共 {total} 条</span>
+      )}
 
       {extra}
-    </div>
+    </FilterBar>
   );
 }
