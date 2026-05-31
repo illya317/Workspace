@@ -191,11 +191,8 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
                             className={`rounded px-1 py-0.5 text-[10px] ${ROLE_BG[ROLE_COLORS[s.roleKey] || "gray"]}`}
                             title={formatSummaryTooltip(s)}
                           >
-                            {s.source === "parent" && (s.totalChildren ?? 0) > 0
-                              ? `${s.label} ${s.totalChildren}/${s.totalChildren}`
-                              : s.source === "children"
-                                ? `${s.label} ${s.coveredChildren}/${s.totalChildren}`
-                                : s.label}
+                            {s.label}
+                            {s.totalChildren > 0 && s.coveredChildren < s.totalChildren && ` ${s.coveredChildren}/${s.totalChildren}`}
                           </span>
                         ))}
                       </div>
