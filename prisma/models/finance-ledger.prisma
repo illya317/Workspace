@@ -71,7 +71,7 @@ model FinanceVoucher {
   period      FinancePeriod        @relation(fields: [periodId], references: [id])
   items       FinanceVoucherItem[]
 
-  @@unique([voucherNo, companyCode])
+  @@unique([voucherNo, companyCode, periodId])
   @@index([periodId, date, companyCode])
   @@index([status])
 }
