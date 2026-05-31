@@ -42,6 +42,8 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
   const [keyword, setKeyword] = useState("");
   const [searchMode, setSearchMode] = useState<"name" | "all">("name");
 
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(20);
   const [creating, setCreating] = useState(false);
   const [newName, setNewName] = useState("");
   const [newUsername, setNewUsername] = useState("");
@@ -113,11 +115,17 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
       })
     : users;
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paged = filtered.slice(page * pageSize, (page + 1) * pageSize);
+
+  function onKeywordChange(k: string) { setKeyword(k); setPage(0); }
+  function onPageSizeChange(size: number) { setPageSize(size); setPage(0); }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
         <div className="flex rounded-md border border-gray-300 overflow-hidden">
-          <input value={keyword} onChange={(e) => setKeyword(e.target.value)}
+          <input value={keyword} onChange={(e) => onKeywordChange(e.target.value)}
             placeholder={searchMode === "name" ? "搜索姓名..." : "搜索全部..."}
             className="px-3 py-2 text-sm w-48 focus:outline-none"
           />
@@ -127,7 +135,12 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
             {searchMode === "name" ? "姓名" : "全部"}
           </button>
         </div>
-        <span className="text-sm text-gray-400">{users.length} 个用户</span>
+        <span className="text-sm text-gray-400">{filtered.length} 个用户{keyword && ` (共${users.length})`}</span>
+        <div className="flex-1" />
+        <select value={pageSize} onChange={(e) => onPageSizeChange(Number(e.target.value))}
+          className="rounded border border-gray-300 px-2 py-1.5 text-xs text-gray-600">
+          {[20, 50, 100].map((n) => <option key={n} value={n}>{n}条/页</option>)}
+        </select>
         <button onClick={() => { setCreating(true); setTimeout(() => nameRef.current?.focus(), 50); }}
           className="rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700">新建</button>
       </div>
@@ -162,7 +175,7 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((u) => {
+              {paged.map((u) => {
                 const summaries = summarizeResourcePermissions(
                   resources,
                   u.resourceRoles as PermissionGrantLike[],
@@ -205,6 +218,19 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
               })}
             </tbody>
           </table>
+        </div>
+      )}
+      {filtered.length > pageSize && (
+        <div className="flex items-center justify-center gap-2">
+          <button onClick={() => setPage(0)} disabled={page === 0}
+            className="rounded border px-2 py-1 text-xs disabled:opacity-30">首页</button>
+          <button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0}
+            className="rounded border px-2 py-1 text-xs disabled:opacity-30">上一页</button>
+          <span className="text-xs text-gray-500">{page + 1} / {totalPages}</span>
+          <button onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}
+            className="rounded border px-2 py-1 text-xs disabled:opacity-30">下一页</button>
+          <button onClick={() => setPage(totalPages - 1)} disabled={page >= totalPages - 1}
+            className="rounded border px-2 py-1 text-xs disabled:opacity-30">末页</button>
         </div>
       )}
     </div>
