@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import { createVoucher } from "@/server/services/finance/ledger/voucher-service";
 import { parsePositiveInt, parseYear, parseMonth, parsePageParams } from "@/lib/validation";
+import { matchText } from "@/lib/search";
 
 export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
@@ -13,6 +14,7 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const yearNum = parseYear(searchParams.get("year"));
   const monthNum = parseMonth(searchParams.get("month"));
   const keyword = searchParams.get("keyword") || "";
+  const hasKeyword = !!keyword;
   const { page, pageSize } = parsePageParams(searchParams);
   const where: Prisma.FinanceVoucherWhereInput = {};
   if (periodId) where.periodId = parsePositiveInt(periodId, 0);
@@ -23,11 +25,27 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
     if (yearNum !== null) where.period.year = yearNum;
     if (monthNum !== null) where.period.month = monthNum;
   }
-  if (keyword) {
-    where.OR = [
-      { voucherNo: { contains: keyword } },
-      { description: { contains: keyword } },
-    ];
+
+  if (hasKeyword) {
+    const all = await prisma.financeVoucher.findMany({
+      where,
+      orderBy: { date: "desc" },
+      include: {
+        items: { include: { account: true }, orderBy: { sortOrder: "asc" } },
+        period: true,
+      },
+    });
+    const filtered = all.filter(
+      (v) => matchText(v.voucherNo, keyword) || matchText(v.description, keyword),
+    );
+    const total = filtered.length;
+    const skip = (page - 1) * pageSize;
+    return NextResponse.json({
+      data: filtered.slice(skip, skip + pageSize),
+      total, page, pageSize,
+      totalPages: Math.ceil(total / pageSize),
+      vouchers: filtered.slice(skip, skip + pageSize),
+    });
   }
 
   const [vouchers, total] = await Promise.all([

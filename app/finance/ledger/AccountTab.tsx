@@ -5,6 +5,7 @@ import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import { getDefaultVisibleColumns } from "@/app/components/DataTable";
 import FilterField from "@/app/components/FilterField";
+import StatusToggle from "@/app/components/StatusToggle";
 import AccountTable, { type Account, ACCOUNT_COLUMNS } from "../components/AccountTable";
 import ReclassConfigView from "../components/ReclassConfigView";
 import FinanceFilters from "../components/FinanceFilters";
@@ -122,19 +123,15 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
                   重分类
                 </button>
                 {reclassMode && (
-                  <div className="flex items-center gap-0.5 rounded-md border border-gray-200 p-0.5">
-                    {([
-                      { key: "noRule" as const, label: "待配置", count: reclassStats.noRule },
-                      { key: "hasRule" as const, label: "已确认", count: reclassStats.hasRule },
-                      { key: "all" as const, label: "全部", count: reclassStats.total },
-                    ]).map((s) => (
-                      <button key={s.key}
-                        onClick={() => setReclassStatus(s.key)}
-                        className={`rounded px-1.5 py-0.5 text-[11px] transition-colors ${
-                          reclassStatus === s.key ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-gray-100"
-                        }`}>{s.label} {s.count}</button>
-                    ))}
-                  </div>
+                  <StatusToggle
+                    tabs={[
+                      { key: "noRule", label: "待审核", count: reclassStats.noRule },
+                      { key: "hasRule", label: "已通过", count: reclassStats.hasRule },
+                      { key: "all", label: "全部", count: reclassStats.total },
+                    ]}
+                    active={reclassStatus}
+                    onChange={(k) => setReclassStatus(k as typeof reclassStatus)}
+                  />
                 )}
               </>
             )}

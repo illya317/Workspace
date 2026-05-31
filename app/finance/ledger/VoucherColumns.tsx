@@ -32,7 +32,6 @@ export function getVoucherColumns(
     {
       key: "companyCode",
       label: "公司",
-      required: true,
       render: (v) => (
         <span className="text-gray-600">
           {v.companyCode ? COMPANIES[v.companyCode] || v.companyCode : "-"}
@@ -42,7 +41,6 @@ export function getVoucherColumns(
     {
       key: "period",
       label: "期间",
-      required: true,
       render: (v) => (
         <span className="text-gray-600">
           {v.period ? `${v.period.year}年${v.period.month}月` : "-"}
@@ -52,7 +50,7 @@ export function getVoucherColumns(
     {
       key: "description",
       label: "摘要",
-      required: true,
+      defaultVisible: true,
       render: (v) => (
         <span className="text-gray-700 max-w-xs truncate block" title={v.description}>
           {v.description}

@@ -3,15 +3,15 @@
 import { useEffect, useState, useMemo } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import DataTable from "@/app/components/DataTable";
+import DataTable, { getDefaultVisibleColumns } from "@/app/components/DataTable";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
 import { BASE_ITEM_COLUMNS } from "../components/VoucherItemTable";
 import type { VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
-import { buildReclassItemColumns } from "./reclassItemColumns";
 import ReclassReviewView from "../components/ReclassReviewView";
 import { getVoucherColumns } from "./VoucherColumns";
+import StatusToggle from "@/app/components/StatusToggle";
 import type { Voucher, VoucherResponse } from "./types";
 
 // ─── Component ───────────────────────────────────────────
@@ -27,22 +27,32 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
   const { toast, showToast, closeToast } = useToast();
-  const { reclassMap, handleReview, generating, handleGenerate, setAdjustItem, adjustModal } =
+  const { reclassMap, handleReview, handleGenerate, adjustModal } =
     useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
   const [viewMode, setViewMode] = useState<"vouchers" | "reclass">("vouchers");
-  const [reclassStatusFilter, setReclassStatusFilter] = useState("pending");
-
-  const itemColumns = useMemo(() => {
-    const cols = [...BASE_ITEM_COLUMNS];
-    if (viewMode === "reclass")
-      cols.push(...buildReclassItemColumns(reclassMap, canWrite, handleReview, setAdjustItem));
-    return cols;
-  }, [reclassMap, canWrite, handleReview, viewMode, setAdjustItem]);
-
-  const voucherColumns = useMemo(
-    () => getVoucherColumns(expandedVoucherId),
-    [expandedVoucherId],
+  const [keyword, setKeyword] = useState("");
+  const [reclassStatus, setReclassStatus] = useState("pending");
+  const voucherColumns = useMemo(() => getVoucherColumns(expandedVoucherId), [expandedVoucherId]);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(
+    () => getDefaultVisibleColumns(voucherColumns)
   );
+
+  // 选好公司+年+月后台静默生成重分类结果
+  useEffect(() => {
+    if (companyFilter && yearFilter && monthFilter) handleGenerate(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyFilter, yearFilter, monthFilter]);
+
+  const reclassCounts = useMemo(() => {
+    const all = Array.from(reclassMap.values());
+    return {
+      total: all.length,
+      pending: all.filter((r) => r.status === "pending").length,
+      confirmed: all.filter((r) => r.status !== "pending").length,
+    };
+  }, [reclassMap]);
+
+  const itemColumns = useMemo(() => [...BASE_ITEM_COLUMNS], []);
 
   async function load() {
     setLoading(true);
@@ -50,6 +60,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
     if (companyFilter) params.set("companyCode", companyFilter);
     if (yearFilter) params.set("year", yearFilter);
     if (monthFilter) params.set("month", monthFilter);
+    if (keyword) params.set("keyword", keyword);
     params.set("page", String(page));
     params.set("pageSize", String(pageSize));
 
@@ -72,7 +83,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyFilter, yearFilter, monthFilter, page, pageSize]);
+  }, [companyFilter, yearFilter, monthFilter, keyword, page, pageSize]);
 
   const totalPages = Math.ceil(total / pageSize);
 
@@ -82,57 +93,66 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
         companyFilter={companyFilter}
         yearFilter={yearFilter}
         monthFilter={monthFilter}
+        keyword={keyword}
         pageSize={pageSize}
         onCompanyChange={(v) => { setCompanyFilter(v); setPage(1); }}
         onYearChange={(v) => { setYearFilter(v); setPage(1); }}
         onMonthChange={(v) => { setMonthFilter(v); setPage(1); }}
+        onKeywordChange={(v) => { setKeyword(v); setPage(1); }}
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
+        columns={viewMode === "reclass" ? undefined : voucherColumns}
+        visibleColumns={viewMode === "reclass" ? undefined : visibleColumns}
+        onColumnsChange={viewMode === "reclass" ? undefined : setVisibleColumns}
         extra={
-          <div className="ml-auto flex items-center gap-2">
-            {companyFilter && yearFilter && monthFilter && (
-              <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
-                {(["vouchers", "reclass"] as const).map((k) => (
-                  <button
-                    key={k}
-                    onClick={() => setViewMode(k)}
-                    className={`rounded px-2 py-0.5 text-[11px] ${
-                      viewMode === k
-                        ? "bg-emerald-600 text-white"
-                        : "text-gray-600 hover:bg-gray-100"
-                    }`}
-                  >
-                    {k === "vouchers" ? "凭证" : "重分类审核"}
-                  </button>
-                ))}
-              </div>
+          <>
+            {canWrite && (
+              <>
+                <button
+                  onClick={() => setViewMode(viewMode === "reclass" ? "vouchers" : "reclass")}
+                  className={`rounded border px-2 py-1 text-xs transition-colors ${
+                    viewMode === "reclass"
+                      ? "bg-emerald-600 text-white border-emerald-600"
+                      : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  重分类
+                </button>
+                {viewMode === "reclass" && (
+                  <StatusToggle
+                    tabs={[
+                      { key: "pending", label: "待审核", count: reclassCounts.pending },
+                      { key: "confirmed", label: "已通过", count: reclassCounts.confirmed },
+                      { key: "all", label: "全部", count: reclassCounts.total },
+                    ]}
+                    active={reclassStatus}
+                    onChange={setReclassStatus}
+                  />
+                )}
+              </>
             )}
-            {canWrite && companyFilter && yearFilter && monthFilter && (
-              <button
-                onClick={handleGenerate}
-                disabled={generating}
-                className="rounded bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-700 disabled:opacity-50"
-              >
-                {generating ? "生成中..." : "生成重分类结果"}
-              </button>
-            )}
-          </div>
+          </>
         }
       />
 
       {viewMode === "reclass" ? (
-        <ReclassReviewView
-          items={Array.from(reclassMap.values())}
-          canWrite={canWrite}
-          statusFilter={reclassStatusFilter}
-          onStatusFilter={setReclassStatusFilter}
-          onReview={handleReview}
-        />
+        companyFilter && yearFilter && monthFilter ? (
+          <ReclassReviewView
+            items={Array.from(reclassMap.values())}
+            canWrite={canWrite}
+            statusFilter={reclassStatus}
+            onReview={handleReview}
+            companyCode={companyFilter}
+            year={yearFilter}
+          />
+        ) : (
+          <p className="py-8 text-center text-sm text-gray-400">请选择公司、年度和月份以配置重分类规则</p>
+        )
       ) : (
         <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
           <DataTable
             rows={vouchers}
             columns={voucherColumns}
-            visibleColumns={voucherColumns.map((c) => c.key)}
+            visibleColumns={visibleColumns}
             loading={loading}
             emptyText="暂无凭证"
             rowKey={(v) => v.id}
@@ -143,10 +163,10 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
             renderExpandedRow={(v) => (
               <div className="rounded border border-gray-200 bg-white">
                 <DataTable
-                  rows={v.items.map((it, i) => ({ ...it, _idx: i }))}
+                  rows={v.items.map((it, i) => ({ ...it, _idx: i, _voucherNo: v.voucherNo }))}
                   columns={itemColumns}
                   visibleColumns={itemColumns.map((c) => c.key)}
-                  rowKey={(r: VoucherItemRow) => r.id}
+                  rowKey={(r: VoucherItemRow) => `item-${r.id}`}
                 />
               </div>
             )}

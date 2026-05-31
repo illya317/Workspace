@@ -10,9 +10,10 @@ interface Props {
   value: string;
   onChange: (code: string) => void;
   placeholder?: string;
+  className?: string;
 }
 
-export default function AccountCodeInput({ companyCode, year, value, onChange, placeholder }: Props) {
+export default function AccountCodeInput({ companyCode, year, value, onChange, placeholder, className }: Props) {
   const [query, setQuery] = useState(value);
   const [options, setOptions] = useState<AccountOption[]>([]);
   const [open, setOpen] = useState(false);
@@ -42,7 +43,7 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
 
   function onInput(v: string) {
     setQuery(v);
-    onChange(v);
+    // 不调用 onChange — 只有 select 时才算选中有效科目
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => search(v), 300);
   }
@@ -73,7 +74,7 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
         onFocus={() => { if (options.length > 0) setOpen(true); }}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         onKeyDown={onKeyDown}
-        className="w-24 rounded border border-emerald-400 px-2 py-0.5 text-xs focus:outline-none"
+        className={className || "w-24 rounded border border-emerald-400 px-2 py-0.5 text-xs focus:outline-none"}
       />
       {open && (
         <div className="absolute left-0 top-full z-20 mt-0.5 max-h-40 w-56 overflow-auto rounded border border-gray-200 bg-white shadow-lg">

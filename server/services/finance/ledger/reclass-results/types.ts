@@ -11,7 +11,10 @@ export interface ReclassResultRow {
   voucherNo: string;
   voucherDate: string;
   relatedEntity: string | null;
+  description: string | null;
   sourceAccount: string;
+  sourceAccountName: string;
+  abnormalSide: string | null;
   targetAccount: string;
   amount: number;
   status: "pending" | "approved" | "adjusted" | "rejected";
@@ -43,6 +46,7 @@ export interface ListReclassResultsOutput {
 export type ReviewPayload =
   | { action: "approve"; note?: string }
   | { action: "reject"; note?: string }
+  | { action: "revert" }
   | { action: "adjust"; targetAccount: string; amount: number; note?: string };
 
 export interface ReviewReclassParams {

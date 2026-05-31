@@ -8,7 +8,6 @@ const PAGE_SIZE = 200;
 
 export function useReclassResults(companyCode: string, year: string, month: string, showToast: (msg: string, type?: "error") => void) {
   const [reclassMap, setReclassMap] = useState<Map<number, ReclassResultRow>>(new Map());
-  const [generating, setGenerating] = useState(false);
   const [adjustItem, setAdjustItem] = useState<ReclassResultRow | null>(null);
 
   async function lookupPeriodId(): Promise<number | null> {
@@ -41,7 +40,7 @@ export function useReclassResults(companyCode: string, year: string, month: stri
 
   // ── Review ──────────────────────────────────────────
 
-  async function handleReview(resultId: number, action: "approve" | "reject" | "adjust", body?: Record<string, unknown>) {
+  async function handleReview(resultId: number, action: "approve" | "revert" | "adjust", body?: Record<string, unknown>) {
     const res = await fetch(`/api/finance/reclass-results/${resultId}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ action, ...body }),
@@ -49,10 +48,10 @@ export function useReclassResults(companyCode: string, year: string, month: stri
     if (res.ok) {
       const data = await res.json();
       const item = data.item as ReclassResultRow;
-      showToast(action === "approve" ? "已通过" : action === "reject" ? "已驳回" : "已调整");
+      showToast(action === "approve" ? "已通过" : action === "revert" ? "已撤回" : "已调整");
       setReclassMap((prev) => {
         const next = new Map(prev);
-        next.set(item.voucherItemId, item);
+        if (action === "revert") next.set(item.voucherItemId, item); else next.set(item.voucherItemId, item);
         return next;
       });
     } else {
@@ -63,30 +62,29 @@ export function useReclassResults(companyCode: string, year: string, month: stri
 
   // ── Batch 6: Generate ───────────────────────────────
 
-  async function handleGenerate() {
-    setGenerating(true);
+  async function handleGenerate(silent = false) {
     try {
       const periodId = await lookupPeriodId();
-      if (!periodId) { showToast("期间不存在", "error"); setGenerating(false); return; }
+      if (!periodId) { if (!silent) showToast("期间不存在", "error"); return; }
       const res = await fetch("/api/finance/reclass-results", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ periodId, dryRun: false }),
       });
       if (res.ok) {
         const data = await res.json();
-        showToast(`生成完成：写入 ${data.written} 条，跳过 ${data.skippedNonPending ?? 0} 条已审核，${data.noRule} 无规则，${data.noEntity} 无实体`);
-        await loadReclassResults(); // refresh after generate
+        if (!silent) showToast(`生成完成：写入 ${data.written} 条，跳过 ${data.skippedNonPending ?? 0} 条已审核，${data.noRule} 无规则，${data.noEntity} 无实体`);
+        await loadReclassResults();
       } else {
         const err = await res.json().catch(() => ({}));
-        showToast(err.error || "生成失败", "error");
+        if (!silent) showToast(err.error || "生成失败", "error");
       }
-    } catch { showToast("网络错误", "error"); }
-    setGenerating(false);
+    } catch { if (!silent) showToast("网络错误", "error"); }
   }
 
   const adjustModal = adjustItem ? (
     <ReclassReviewModal
       item={adjustItem} open={!!adjustItem}
+      companyCode={companyCode} year={year}
       onClose={() => setAdjustItem(null)}
       onSubmit={async (id, targetAccount, amount, note) => {
         await handleReview(id, "adjust", { targetAccount, amount, note });
@@ -94,5 +92,5 @@ export function useReclassResults(companyCode: string, year: string, month: stri
       }} />
   ) : null;
 
-  return { reclassMap, handleReview, generating, handleGenerate, adjustItem, setAdjustItem, adjustModal };
+  return { reclassMap, handleReview, handleGenerate, adjustModal };
 }

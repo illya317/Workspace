@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import { matchText } from "@/lib/search";
 import Pagination from "./Pagination";
 import type { RuleCandidate } from "@/server/services/finance/ledger/reclass-rules";
 import AccountCodeInput from "./AccountCodeInput";
+import { RECLASS_HEADERS, dirBadge, targetDisplay } from "../ledger/reclassColumns";
 
 interface Props {
   companyCode: string; year: string;
@@ -26,6 +27,20 @@ export default function ReclassCandidateList({
   const { toast, showToast, closeToast } = useToast();
   const [editCode, setEditCode] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
+  const editRef = useRef<HTMLDivElement>(null);
+
+  // click outside → 退出编辑
+  useEffect(() => {
+    if (!editCode) return;
+    function onDown(e: MouseEvent) {
+      if (editRef.current && !editRef.current.contains(e.target as Node)) {
+        setEditCode(null);
+        setEditValue("");
+      }
+    }
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [editCode]);
 
   // ── Fetch ───────────────────────────────────────────
 
@@ -128,12 +143,6 @@ export default function ReclassCandidateList({
 
   // ── Render helpers ───────────────────────────────────
 
-  const dirBadge = (dir: string) =>
-    <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${dir === "debit" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}>
-      {dir === "debit" ? "借" : "贷"}</span>;
-
-  const TARGET_NAMES: Record<string, string> = { "2241": "其他应付款", "1463": "其他流动资产" };
-  const targetDisplay = (code: string) => TARGET_NAMES[code] ? `${code}/${TARGET_NAMES[code]}` : code;
 
   // ── Filter ───────────────────────────────────────────
 
@@ -163,13 +172,10 @@ export default function ReclassCandidateList({
         <table className="w-full text-xs">
           <thead className="border-b bg-gray-100">
             <tr>
-              <th className="px-3 py-1.5 text-left font-medium text-gray-500">科目编码</th>
-              <th className="px-3 py-1.5 text-left font-medium text-gray-500">科目名称</th>
-              <th className="px-3 py-1.5 text-left font-medium text-gray-500">异常方向</th>
-              <th className="px-3 py-1.5 text-right font-medium text-gray-500">异常金额</th>
-              <th className="px-3 py-1.5 text-left font-medium text-gray-500">建议目标</th>
-              <th className="px-3 py-1.5 text-left font-medium text-gray-500">当前目标</th>
-              {canWrite && <th className="px-3 py-1.5 text-left font-medium text-gray-500">操作</th>}
+              {RECLASS_HEADERS.map((h, i) => (
+                <th key={h} className={`px-3 py-1.5 font-medium text-gray-500 ${i === 3 ? "text-right" : "text-left"}`}>{h}</th>
+              ))}
+              {canWrite && <th className="px-3 py-1.5 text-center font-medium text-gray-500">操作</th>}
             </tr>
           </thead>
           <tbody>
@@ -183,24 +189,30 @@ export default function ReclassCandidateList({
                   <td className="px-3 py-1.5 text-gray-700">{c.accountName}</td>
                   <td className="px-3 py-1.5">{dirBadge(c.abnormalSide)}</td>
                   <td className="px-3 py-1.5 text-right font-mono text-gray-700">¥{c.abnormalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                  <td className="px-3 py-1.5 text-gray-500">{c.suggestedTarget ? targetDisplay(c.suggestedTarget) : "—"}</td>
-                  <td className="px-3 py-1.5">
+                  <td
+                    className="px-3 py-1.5 cursor-pointer hover:bg-gray-50"
+                    onClick={() => { if (!editing && canWrite) startEdit(c); }}
+                  >
                     {editing ? (
-                      <div onKeyDown={(e) => { if (e.key === "Escape") { setEditCode(null); setEditValue(""); } if (e.key === "Enter") commitEdit(c); }}>
+                      <div ref={editRef} onKeyDown={(e) => { if (e.key === "Escape") { setEditCode(null); setEditValue(""); } if (e.key === "Enter") commitEdit(c); }}>
                         <AccountCodeInput companyCode={companyCode} year={year} value={editValue} onChange={setEditValue} />
                       </div>
-                    ) : hasRule ? <span className="text-emerald-700">{targetDisplay(c.existingTarget!)}</span> : <span className="text-gray-300">—</span>}
+                    ) : hasRule ? (
+                      <span className="text-emerald-700">{targetDisplay(c.existingTarget!)}</span>
+                    ) : c.suggestedTarget ? (
+                      <span className="text-gray-500">{targetDisplay(c.suggestedTarget)}</span>
+                    ) : (
+                      <span className="text-gray-300">—</span>
+                    )}
                   </td>
                   {canWrite && (
-                    <td className="px-3 py-1.5">
-                      <div className="flex items-center gap-1">
-                        {!hasRule && c.suggestedTarget && (
-                          <button onClick={() => saveRule(c, c.suggestedTarget).then(ok => ok && showToast("已确认规则"))} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认建议</button>
-                        )}
-                        <button onClick={() => startEdit(c)} className="rounded px-1.5 py-0.5 text-xs text-gray-500 hover:bg-gray-100">
-                          {hasRule ? "编辑" : "手动配置"}</button>
-                        {hasRule && <button onClick={() => clearRule(c)} className="rounded px-1.5 py-0.5 text-xs text-red-500 hover:bg-red-50">清除</button>}
-                      </div>
+                    <td className="px-3 py-1.5 text-center">
+                      {!hasRule && c.suggestedTarget && (
+                        <button onClick={() => saveRule(c, c.suggestedTarget).then(ok => ok && showToast("已确认规则"))} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
+                      )}
+                      {hasRule && (
+                        <button onClick={() => clearRule(c)} className="rounded px-1.5 py-0.5 text-xs text-red-500 hover:bg-red-50">清除</button>
+                      )}
                     </td>
                   )}
                 </tr>

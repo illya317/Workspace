@@ -18,15 +18,17 @@ export async function reviewReclassResult(
       voucherItem: {
         select: {
           relatedEntity: true,
+          description: true,
           voucher: { select: { voucherNo: true, date: true } },
         },
       },
+      rule: { select: { abnormalSide: true } },
       reviewer: { select: { name: true } },
     },
   });
 
   if (!record) throw new ReviewError("NOT_FOUND", "记录不存在");
-  if (record.status !== "pending")
+  if (record.status !== "pending" && payload.action !== "revert")
     throw new ReviewError("NOT_PENDING", "只能审核待处理状态的记录");
 
   // 2. 按 action 处理
@@ -47,45 +49,31 @@ export async function reviewReclassResult(
       updateData = { status: "approved", note, adjustedBy: userId, adjustedAt: now };
       break;
 
-    case "reject":
-      updateData = { status: "rejected", note, adjustedBy: userId, adjustedAt: now };
-      break;
-
     case "adjust": {
       if (!payload.targetAccount || payload.amount <= 0) {
-        throw new ReviewError(
-          "INVALID_ADJUST",
-          "调整操作需提供有效的 targetAccount 和 amount > 0",
-        );
+        throw new ReviewError("INVALID_ADJUST", "调整操作需提供有效的 targetAccount 和 amount > 0");
+      }
+      if (payload.amount > record.amount) {
+        throw new ReviewError("AMOUNT_EXCEEDED", `调整金额不能超过原始金额 ¥${record.amount.toFixed(2)}`);
       }
 
       // scope 校验：targetAccount 必须在同 (companyCode, year) 下存在
       const targetExists = await prisma.financeAccount.findFirst({
-        where: {
-          code: payload.targetAccount,
-          companyCode: record.period.companyCode,
-          year: record.period.year,
-        },
+        where: { code: payload.targetAccount, companyCode: record.period.companyCode, year: record.period.year },
         select: { code: true },
       });
-
       if (!targetExists) {
-        throw new ReviewError(
-          "INVALID_TARGET",
-          `目标科目 ${payload.targetAccount} 在当前公司/年度范围内不存在`,
-        );
+        throw new ReviewError("INVALID_TARGET", `目标科目 ${payload.targetAccount} 在当前公司/年度范围内不存在`);
       }
 
-      updateData = {
-        status: "adjusted",
-        targetAccount: payload.targetAccount,
-        amount: payload.amount,
-        note,
-        adjustedBy: userId,
-        adjustedAt: now,
-      };
+      updateData = { status: "adjusted", targetAccount: payload.targetAccount, amount: payload.amount, note, adjustedBy: userId, adjustedAt: now };
       break;
     }
+
+    case "revert":
+      if (record.status === "pending") throw new ReviewError("ALREADY_PENDING", "该记录已是待审核状态");
+      updateData = { status: "pending", targetAccount: record.sourceAccount, amount: record.amount, note: null, adjustedBy: userId, adjustedAt: now };
+      break;
 
     default:
       throw new ReviewError("INVALID_ACTION", "无效的审核动作");
@@ -99,9 +87,12 @@ export async function reviewReclassResult(
       voucherItem: {
         select: {
           relatedEntity: true,
+          description: true,
+          account: { select: { name: true } },
           voucher: { select: { voucherNo: true, date: true } },
         },
       },
+      rule: { select: { abnormalSide: true } },
       reviewer: { select: { name: true } },
     },
   });
@@ -114,7 +105,10 @@ export async function reviewReclassResult(
     voucherNo: updated.voucherItem.voucher.voucherNo,
     voucherDate: updated.voucherItem.voucher.date,
     relatedEntity: updated.voucherItem.relatedEntity,
+    description: updated.voucherItem.description,
     sourceAccount: updated.sourceAccount,
+    sourceAccountName: updated.voucherItem.account.name,
+    abnormalSide: updated.rule?.abnormalSide ?? null,
     targetAccount: updated.targetAccount,
     amount: updated.amount,
     status: updated.status as ReclassResultRow["status"],

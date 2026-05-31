@@ -3,6 +3,7 @@ import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth
 import { prisma } from "@/lib/prisma";
 import { computeBalancesForPeriod } from "@/server/services/finance/ledger/balances";
 import { parsePositiveInt, parseYear, parseMonth, parsePageParams } from "@/lib/validation";
+import { matchText } from "@/lib/search";
 
 /** GET 查询余额 */
 export const GET = withFinanceLedgerAccess(async (request: Request) => {
@@ -33,11 +34,24 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const skip = (page - 1) * pageSize;
 
   const where: any = { periodId: targetPeriodId };
-  if (keyword) {
-    where.OR = [
-      { account: { code: { contains: keyword } } },
-      { account: { name: { contains: keyword } } },
-    ];
+  const hasKeyword = !!keyword;
+
+  if (hasKeyword) {
+    const all = await prisma.financeAccountBalance.findMany({
+      where,
+      include: { account: true },
+      orderBy: { account: { code: "asc" } },
+    });
+    const filtered = all.filter(
+      (b) => matchText(b.account.code, keyword) || matchText(b.account.name, keyword),
+    );
+    const total = filtered.length;
+    return NextResponse.json({
+      data: filtered.slice(skip, skip + pageSize),
+      total, page, pageSize,
+      totalPages: Math.ceil(total / pageSize),
+      balances: filtered.slice(skip, skip + pageSize),
+    });
   }
 
   const [balances, total] = await Promise.all([

@@ -45,9 +45,12 @@ export async function listReclassResults(
         voucherItem: {
           select: {
             relatedEntity: true,
+            description: true,
+            account: { select: { name: true } },
             voucher: { select: { voucherNo: true, date: true } },
           },
         },
+        rule: { select: { abnormalSide: true } },
         reviewer: { select: { name: true } },
       },
     }),
@@ -63,7 +66,10 @@ export async function listReclassResults(
     voucherNo: r.voucherItem.voucher.voucherNo,
     voucherDate: r.voucherItem.voucher.date,
     relatedEntity: r.voucherItem.relatedEntity,
+    description: r.voucherItem.description,
     sourceAccount: r.sourceAccount,
+    sourceAccountName: r.voucherItem.account.name,
+    abnormalSide: r.rule?.abnormalSide ?? null,
     targetAccount: r.targetAccount,
     amount: r.amount,
     status: r.status as ReclassResultRow["status"],
