@@ -9,11 +9,13 @@ export interface GenerateReportParams {
   yearBalances: BalanceItem[];
   reportType: "balance" | "income" | "cashflow";
   isCanada: boolean;
+  /** Phase 7: approved/adjusted ReclassResult source account codes for the period */
+  reclassSourceCodes?: Set<string>;
 }
 
 export function generateReport(params: GenerateReportParams) {
-  const { period, balances, yearBalances, reportType, isCanada } = params;
-  if (reportType === "balance") return generateBalanceSheet(period, balances);
+  const { period, balances, yearBalances, reportType, isCanada, reclassSourceCodes } = params;
+  if (reportType === "balance") return generateBalanceSheet(period, balances, reclassSourceCodes);
   if (reportType === "income") return generateIncomeStatement(period, yearBalances, isCanada);
   return generateCashFlow(period, balances);
 }

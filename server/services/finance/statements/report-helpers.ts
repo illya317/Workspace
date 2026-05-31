@@ -134,7 +134,18 @@ export function closingNetLeafCreditOnly(balances: BalanceItem[], prefixes: stri
 
 /** Reclassify: asset accounts with net credit → liability pool, liability accounts with net debit → asset pool. Only leaf accounts to avoid double-counting with parent. */
 export function reclassify(balances: BalanceItem[]) {
-  // Determine leaf accounts
+  return reclassifyFiltered(balances, null);
+}
+
+/**
+ * Reclassify from ReclassResult-approved codes instead of scanning all 1xxx/2xxx.
+ * When reclassSourceCodes is provided, only those accounts are considered.
+ * When null (default), falls back to the legacy startsWith("1"/"2") scan.
+ */
+export function reclassifyFiltered(
+  balances: BalanceItem[],
+  reclassSourceCodes: Set<string> | null,
+) {
   const codes = balances.map(b => b.account.code);
   const parentCodes = new Set<string>();
   for (const c1 of codes) {
@@ -152,15 +163,37 @@ export function reclassify(balances: BalanceItem[]) {
 
   for (const b of balances) {
     if (!leafCodes.has(b.account.code)) continue;
+
+    // If ReclassResult codes provided, only process those
+    if (reclassSourceCodes && !reclassSourceCodes.has(b.account.code)) continue;
+
     const net = b.closingDebit - b.closingCredit;
-    if (b.account.code.startsWith("1") && net < 0) {
+
+    // Legacy path: scan by prefix
+    if (!reclassSourceCodes) {
+      if (b.account.code.startsWith("1") && net < 0) {
+        assetToLiability.debit += b.closingDebit;
+        assetToLiability.credit += b.closingCredit;
+      }
+      if (b.account.code.startsWith("2") && net > 0) {
+        liabilityToAsset.debit += b.closingDebit;
+        liabilityToAsset.credit += b.closingCredit;
+      }
+      continue;
+    }
+
+    // ReclassResult path: classify by prefix, no net sign check needed
+    // (the fact that it's in ReclassResult means reclassification is warranted)
+    if (b.account.code.startsWith("1")) {
+      // Asset → Liability: subtract from asset side
       assetToLiability.debit += b.closingDebit;
       assetToLiability.credit += b.closingCredit;
-    }
-    if (b.account.code.startsWith("2") && net > 0) {
+    } else if (b.account.code.startsWith("2")) {
+      // Liability → Asset: subtract from liability side
       liabilityToAsset.debit += b.closingDebit;
       liabilityToAsset.credit += b.closingCredit;
     }
+    // Other categories (3xxx-6xxx) are not reclassified at balance-sheet level
   }
   return { assetToLiability, liabilityToAsset };
 }
