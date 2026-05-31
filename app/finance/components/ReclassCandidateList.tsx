@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import type { RuleCandidate } from "@/server/services/finance/ledger/reclass-rules";
+import AccountCodeInput from "./AccountCodeInput";
 
 interface Props { companyCode: string; year: string; canWrite: boolean; }
 
@@ -14,7 +15,8 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
   const { toast, showToast, closeToast } = useToast();
   const [editCode, setEditCode] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [keyword, setKeyword] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "noRule" | "hasRule">("noRule");
 
   // ── Fetch ───────────────────────────────────────────
 
@@ -64,7 +66,6 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
   function startEdit(c: RuleCandidate) {
     setEditCode(c.accountCode + "::" + c.abnormalSide);
     setEditValue(c.existingTarget || c.suggestedTarget);
-    setTimeout(() => inputRef.current?.focus(), 0);
   }
 
   async function commitEdit(c: RuleCandidate) {
@@ -79,6 +80,18 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
     <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${dir === "debit" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}>
       {dir === "debit" ? "借" : "贷"}</span>;
 
+  // ── Filter ───────────────────────────────────────────
+
+  const filtered = candidates.filter((c) => {
+    if (statusFilter === "hasRule" && !c.existingRuleId) return false;
+    if (statusFilter === "noRule" && c.existingRuleId) return false;
+    if (keyword) {
+      const q = keyword.toLowerCase();
+      if (!c.accountCode.toLowerCase().includes(q) && !c.accountName.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
   // ── Render ───────────────────────────────────────────
 
   if (loading) return <p className="py-8 text-center text-sm text-gray-400">扫描中...</p>;
@@ -86,7 +99,30 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
 
   return (
     <div>
-      {statsText && <p className="mb-3 text-xs text-gray-500">{statsText}</p>}
+      {statsText && <p className="mb-2 text-xs text-gray-500">{statsText}</p>}
+
+      {/* Filter bar */}
+      <div className="mb-3 flex items-center gap-3">
+        <input
+          type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)}
+          placeholder="搜索科目编码或名称..."
+          className="w-48 rounded border border-gray-200 px-2.5 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+        />
+        <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
+          {[
+            { key: "noRule", label: "待配置" },
+            { key: "hasRule", label: "已有规则" },
+            { key: "all", label: "全部" },
+          ].map((s) => (
+            <button key={s.key}
+              onClick={() => setStatusFilter(s.key as typeof statusFilter)}
+              className={`rounded px-2 py-0.5 text-[11px] transition-colors ${
+                statusFilter === s.key ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-gray-100"
+              }`}>{s.label}</button>
+          ))}
+        </div>
+        <span className="text-xs text-gray-400">{filtered.length} / {candidates.length}</span>
+      </div>
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
         <table className="w-full text-sm">
           <thead className="border-b bg-gray-50">
@@ -96,7 +132,7 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {candidates.map((c) => {
+            {filtered.map((c) => {
               const key = c.accountCode + "::" + c.abnormalSide;
               const editing = editCode === key;
               const hasRule = !!c.existingRuleId;
@@ -112,9 +148,9 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
                   <td className="px-3 py-2 font-mono text-xs text-gray-400">{c.suggestedTarget || "—"}</td>
                   <td className="px-3 py-2 font-mono text-xs">
                     {editing ? (
-                      <input ref={inputRef} type="text" value={editValue} onChange={(e) => setEditValue(e.target.value)}
-                        onBlur={() => commitEdit(c)} onKeyDown={(e) => { if (e.key === "Escape") { setEditCode(null); setEditValue(""); } if (e.key === "Enter") commitEdit(c); }}
-                        className="w-24 rounded border border-emerald-400 px-2 py-0.5 text-xs focus:outline-none" />
+                      <div onKeyDown={(e) => { if (e.key === "Escape") { setEditCode(null); setEditValue(""); } if (e.key === "Enter") commitEdit(c); }}>
+                        <AccountCodeInput companyCode={companyCode} year={year} value={editValue} onChange={setEditValue} />
+                      </div>
                     ) : hasRule ? <span className="text-emerald-700">{c.existingTarget}</span> : <span className="text-gray-300">—</span>}
                   </td>
                   {canWrite && (
