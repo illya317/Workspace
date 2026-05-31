@@ -6,7 +6,7 @@ import { useToast } from "@/app/hooks/useToast";
 import { getDefaultVisibleColumns } from "@/app/components/DataTable";
 import FilterField from "@/app/components/FilterField";
 import AccountTable, { type Account, ACCOUNT_COLUMNS } from "../components/AccountTable";
-import ReclassCandidateList from "../components/ReclassCandidateList";
+import ReclassConfigView from "../components/ReclassConfigView";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
 
@@ -144,7 +144,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
 
       {reclassMode ? (
         companyFilter && yearFilter ? (
-          <ReclassCandidateList companyCode={companyFilter} year={yearFilter} keyword={keyword} statusFilter={reclassStatus} pageSize={pageSize} canWrite={canWrite} onStats={setReclassStats} />
+          <ReclassConfigView companyCode={companyFilter} year={yearFilter} keyword={keyword} statusFilter={reclassStatus} pageSize={pageSize} canWrite={canWrite} onStats={setReclassStats} />
         ) : (
           <p className="py-8 text-center text-sm text-gray-400">请选择公司和年份以配置重分类规则</p>
         )
