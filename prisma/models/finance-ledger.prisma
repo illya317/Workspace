@@ -120,6 +120,7 @@ model FinanceLedgerImport {
   createdCount Int      @default(0)
   updatedCount Int      @default(0)
   skippedCount Int      @default(0)
+  deletedCount Int      @default(0)
   conflictCount Int     @default(0)
   blockedCount Int      @default(0)
   warnings     String?  // JSON array of warning messages

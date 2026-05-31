@@ -11,6 +11,7 @@ export interface ImportConfirmSummary {
   imported: number;
   created: number;
   updated: number;
+  deleted: number;
   skipped: number;
   conflicts: number;
   blocked: number;
@@ -150,7 +151,7 @@ export async function confirmFinanceImport(
         data: { createdCount: count, status: "completed" },
       });
       return {
-        imported: count, created: count, updated: 0, skipped: 0,
+        imported: count, created: count, updated: 0, deleted: 0, skipped: 0,
         conflicts: 0, blocked: 0, warnings: [],
         importId: importBatch.id,
         year: preview.year, companyCode: preview.companyCode, type: preview.type,
@@ -173,7 +174,7 @@ export async function confirmFinanceImport(
         data: { createdCount: imported, status: "completed" },
       });
       return {
-        imported, created: imported, updated: 0, skipped: 0,
+        imported, created: imported, updated: 0, deleted: 0, skipped: 0,
         conflicts: 0, blocked: 0, warnings: [],
         importId: importBatch.id,
         year: preview.year, companyCode: preview.companyCode, type: preview.type,
@@ -182,14 +183,15 @@ export async function confirmFinanceImport(
     }
 
     // ── Journal/Voucher import ──
-    const { imported, created, updated, skipped, blocked, warnings } =
+    const { imported, created, updated, deleted, skipped, blocked, warnings } =
       await importVouchers(preview, accountCodeToId, importBatch.id);
 
     await prisma.financeLedgerImport.update({
       where: { id: importBatch.id },
       data: {
         createdCount: created, updatedCount: updated,
-        skippedCount: skipped, blockedCount: blocked,
+        deletedCount: deleted, skippedCount: skipped,
+        blockedCount: blocked,
         status: blocked > 0 ? "partial" : "completed",
         warnings: warnings.length > 0 ? JSON.stringify(warnings) : null,
       },
@@ -215,7 +217,7 @@ export async function confirmFinanceImport(
     }
 
     return {
-      imported, created, updated, skipped, conflicts: 0, blocked, warnings,
+      imported, created, updated, deleted, skipped, conflicts: 0, blocked, warnings,
       importId: importBatch.id,
       year: preview.year, companyCode: preview.companyCode, type: preview.type,
     };
