@@ -129,7 +129,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
         extra={
           <div className="ml-auto flex items-center gap-2">
-            {reclassMap.size > 0 && (
+            {companyFilter && yearFilter && monthFilter && (
               <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
                 {(["vouchers","reclass"] as const).map((k) => (
                   <button key={k} onClick={() => setViewMode(k)}
