@@ -79,6 +79,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         showMonth={false} showLevel
         extra={
           <SelectField
+            label="类型"
             options={[
               { value: "all", label: "全部" },
               { value: "mapped", label: "集团" },
