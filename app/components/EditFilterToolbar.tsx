@@ -17,9 +17,6 @@ interface EditFilterToolbarProps {
   pageSizeOptions?: number[];
   onPageSizeChange?: (value: number) => void;
 
-  // ── 下方插槽 ──
-  below?: React.ReactNode;
-
   // ── 编辑模式 ──
   editing?: boolean;
   onStartEdit?: () => void;
@@ -41,7 +38,6 @@ export default function EditFilterToolbar({
   columns, visibleColumns, onColumnsChange,
   pageSize, pageSizeOptions, onPageSizeChange,
   editing, onStartEdit, onSave, onCancel, saving,
-  below,
 }: EditFilterToolbarProps) {
   return (
     <FilterToolbar
@@ -54,7 +50,6 @@ export default function EditFilterToolbar({
       pageSize={pageSize}
       pageSizeOptions={pageSizeOptions}
       onPageSizeChange={onPageSizeChange}
-      below={below}
       extraRight={
         onStartEdit ? (
           <EditToolbar
