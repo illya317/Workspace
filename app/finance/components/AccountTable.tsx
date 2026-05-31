@@ -70,6 +70,7 @@ export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
   {
     key: "category",
     label: "类别",
+    defaultVisible: true,
     render: (a) => (
       <span className="text-gray-600">
         {CATEGORIES[a.category] || a.category}
@@ -104,6 +105,7 @@ export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
   {
     key: "mnemonicCode",
     label: "助记码",
+    defaultVisible: true,
     render: (a) => (
       <span className="text-gray-500">{a.mnemonicCode || "-"}</span>
     ),
@@ -118,6 +120,7 @@ export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
   {
     key: "parent",
     label: "父级科目",
+    defaultVisible: true,
     render: (a) => (
       <span className="text-gray-500">
         {a.parent ? `${a.parent.code} ${a.parent.name}` : "-"}
@@ -127,6 +130,7 @@ export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
   {
     key: "isActive",
     label: "状态",
+    defaultVisible: true,
     render: (a) => (
       <span
         className={`text-xs ${a.isActive ? "text-emerald-600" : "text-gray-400"}`}
