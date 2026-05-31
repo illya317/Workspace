@@ -1,7 +1,5 @@
 "use client";
 
-import SelectField from "./SelectField";
-
 interface FilterFieldProps {
   /** 可选字段列表 */
   fields: { key: string; label: string }[];
@@ -13,25 +11,11 @@ interface FilterFieldProps {
   /** 当前选中的值 */
   value: string;
   onValueChange: (value: string) => void;
-  /** 字段标签 */
-  fieldLabel?: string;
 }
 
 /**
  * 二次筛选器：先选字段，再选值。
- *
- * 示例：
- *   <FilterField
- *     fields={[{key:"level",label:"层级"},{key:"type",label:"类型"}]}
- *     valueOptions={{
- *       level: [{value:"1",label:"1级"},...],
- *       type: [{value:"mapped",label:"集团"},...],
- *     }}
- *     fieldKey={filterKey}
- *     onFieldKeyChange={setFilterKey}
- *     value={filterValue}
- *     onValueChange={setFilterValue}
- *   />
+ * 渲染为紧贴的 [字段][值] 组合下拉。
  */
 export default function FilterField({
   fields,
@@ -40,28 +24,35 @@ export default function FilterField({
   onFieldKeyChange,
   value,
   onValueChange,
-  fieldLabel,
 }: FilterFieldProps) {
   const fieldOptions = fields.map((f) => ({ value: f.key, label: f.label }));
   const currentOptions = valueOptions[fieldKey] || [];
 
   return (
-    <>
-      <SelectField
-        label={fieldLabel}
-        options={fieldOptions}
+    <span className="inline-flex items-center text-xs">
+      {/* 字段选择 — 灰色背景，无框无箭头 */}
+      <select
         value={fieldKey}
-        onChange={(k) => {
-          onFieldKeyChange(k);
+        onChange={(e) => {
+          onFieldKeyChange(e.target.value);
           onValueChange("");
         }}
-        selectClassName="appearance-none border-transparent bg-transparent text-gray-500 cursor-pointer underline decoration-dotted underline-offset-2"
-      />
-      <SelectField
-        options={currentOptions}
+        className="appearance-none bg-gray-50 rounded-l border border-gray-200 px-1.5 py-1 text-gray-600 cursor-pointer focus:outline-none"
+      >
+        {fieldOptions.map((f) => (
+          <option key={f.value} value={f.value}>{f.label}</option>
+        ))}
+      </select>
+      {/* 值选择 — 正常框，左框线合并 */}
+      <select
         value={value}
-        onChange={onValueChange}
-      />
-    </>
+        onChange={(e) => onValueChange(e.target.value)}
+        className="rounded-r border border-l-0 border-gray-200 px-1.5 py-1 text-xs focus:border-emerald-400 focus:outline-none focus:z-10"
+      >
+        {currentOptions.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </select>
+    </span>
   );
 }
