@@ -141,13 +141,13 @@ export default function FinanceFilters({
         />
       )}
 
+      {extra}
+
       <div className="flex-1" />
 
       {total !== undefined && (
         <span className="text-[11px] text-gray-400">共 {total} 条</span>
       )}
-
-      {extra}
     </FilterBar>
   );
 }
