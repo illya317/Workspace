@@ -102,12 +102,12 @@ export const MODULES: ModuleDef[] = [
   { key: "finance", label: "财务管理", desc: "总账、凭证、财务报表、预算、分析", href: "/finance", icon: icons.finance, color: "amber", resourceKey: "finance",
     children: [
       { key: "ledger", label: "总账基础", desc: "科目设置、凭证明细、余额表、期间管理", href: "/finance/ledger", resourceKey: "finance.ledger" },
+      { key: "schedules", label: "附注明细", desc: "重分类、折旧、摊销等财报附注明细", href: "/finance/schedules", resourceKey: "finance.schedules" },
       { key: "statements", label: "财务报表", desc: "资产负债表、利润表、现金流量表", href: "/finance/statements", resourceKey: "finance.statement" },
       { key: "budget", label: "预算管理", desc: "部门费用预算、研发费用预算", href: "/finance/budget", resourceKey: "finance.budget" },
       { key: "analysis", label: "财务分析", desc: "预算执行分析、差异分析、趋势看板", href: "/finance/analysis", resourceKey: "finance.analysis" },
       { key: "cost", label: "成本管理", desc: "生产成本、发货、成本构成、车间工分", href: "/finance/cost", resourceKey: "finance.cost" },
       { key: "import", label: "数据导入", desc: "科目表、序时账、余额表导入", href: "/finance/import", resourceKey: "finance.import" },
-      { key: "schedules", label: "附注明细", desc: "重分类、折旧、摊销等财报附注明细", href: "/finance/schedules", resourceKey: "finance.schedules" },
     ],
   },
   { key: "production", label: "生产管理", desc: "原辅料、包装、成品库存", href: "/production", icon: icons.production, color: "cyan", resourceKey: "production",

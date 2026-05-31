@@ -38,6 +38,17 @@ export default function SchedulesClient() {
 
   useEffect(() => { load(); }, [companyFilter, yearFilter, monthFilter]);
 
+  function exportCSV() {
+    const header = "科目编码,科目名称,方向,借方余额,贷方余额,净额,说明\n";
+    const rows = entries.map(e =>
+      `"${e.accountCode}","${e.accountName}","${sideLabel(e.fromSide)}",${e.closingDebit},${e.closingCredit},${Math.abs(e.netAmount)},"${e.reason}"`
+    ).join("\n");
+    const blob = new Blob(["﻿" + header + rows], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = `重分类_${companyFilter}_${yearFilter}${monthFilter}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  }
+
   const sideLabel = (s: string) => s === "asset" ? "资产→负债" : "负债→资产";
 
   return (
@@ -51,9 +62,17 @@ export default function SchedulesClient() {
         onMonthChange={setMonthFilter}
         showPageSize={false}
         extra={
-          <span className="ml-auto text-xs text-gray-400">
-            {entries.length} 项需重分类
-          </span>
+          <>
+            <button onClick={exportCSV} disabled={entries.length === 0}
+              className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-500 hover:bg-gray-50 disabled:opacity-30"
+              title="导出CSV"
+            >
+              <svg className="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </button>
+            <span className="text-xs text-gray-400">{entries.length} 项</span>
+          </>
         }
       />
 
