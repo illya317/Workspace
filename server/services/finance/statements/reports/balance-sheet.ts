@@ -18,23 +18,22 @@ export function generateBalanceSheet(
   const src = (prefix: string) => sumByPrefix(reclass.deductions, prefix);
   const tgt = (prefix: string) => sumByPrefix(reclass.additions, prefix);
 
-  // Helper: closingNetLeaf + optional reclass source deduction / target addition
-  const line = (prefixes: string[], opts?: { src?: boolean; tgt?: boolean }) => {
+  // closingNetLeaf + full src/tgt reclass routing (both maps default-empty → safe for all lines)
+  const reclassLine = (prefixes: string[]) => {
     const base = closingNetLeaf(balances, prefixes);
-    if (!opts) return base;
-    const s = opts.src ? src(prefixes[0]) : { debit: 0, credit: 0 };
-    const t = opts.tgt ? tgt(prefixes[0]) : { debit: 0, credit: 0 };
+    const s = src(prefixes[0]);
+    const t = tgt(prefixes[0]);
     return { debit: base.debit - s.debit + t.debit, credit: base.credit - s.credit + t.credit };
   };
 
   const cash = closingNetLeaf(balances, ["1001", "1002"]);
-  const tradingFinancial = line(["1101"], { tgt: true });
-  const derivativeFinancial = line(["1031"], { tgt: true });
-  const notesReceivable = line(["1121"], { src: true });
-  const receivable = line(["1122"], { src: true });
-  const prepaid = line(["1123"], { src: true });
-  const interestReceivable = line(["1132"], { src: true });
-  const dividendReceivable = line(["1131"], { src: true });
+  const tradingFinancial = reclassLine(["1101"]);
+  const derivativeFinancial = reclassLine(["1031"]);
+  const notesReceivable = reclassLine(["1121"]);
+  const receivable = reclassLine(["1122"]);
+  const prepaid = reclassLine(["1123"]);
+  const interestReceivable = reclassLine(["1132"]);
+  const dividendReceivable = reclassLine(["1131"]);
   const otherReceivable = closingNetLeaf(balances, ["1221"]);
   const badDebtAllowance = closingNetLeaf(balances, ["1231"]);
   const otherReceivableNet = (() => {
@@ -42,8 +41,8 @@ export function generateBalanceSheet(
     return { debit: otherReceivable.debit - badDebtAllowance.credit - s.debit, credit: otherReceivable.credit - s.credit };
   })();
   const inventory = closingNetLeaf(balances, ["1405"]);
-  const nonCurrentDueWithinYear = line(["1501"], { tgt: true });
-  const otherCurrentAssets = line(["1463"], { tgt: true });
+  const nonCurrentDueWithinYear = reclassLine(["1501"]);
+  const otherCurrentAssets = reclassLine(["1463"]);
 
   const totalCurrentAssets =
     mk(cash.debit, cash.credit) +
@@ -59,13 +58,13 @@ export function generateBalanceSheet(
     mk(nonCurrentDueWithinYear.debit, nonCurrentDueWithinYear.credit) +
     mk(otherCurrentAssets.debit, otherCurrentAssets.credit);
 
-  const debtInvest = closingNetLeaf(balances, ["1503"]);
-  const otherDebtInvest = closingNetLeaf(balances, ["1504"]);
-  const longTermReceivable = line(["1531"], { src: true });
-  const longTermInvest = closingNetLeaf(balances, ["1511"]);
-  const otherEquityInvest = closingNetLeaf(balances, ["1512"]);
-  const otherNonCurrentFinancial = line(["1505"], { tgt: true });
-  const investmentProperty = closingNetLeaf(balances, ["1521"]);
+  const debtInvest = reclassLine(["1503"]);
+  const otherDebtInvest = reclassLine(["1504"]);
+  const longTermReceivable = reclassLine(["1531"]);
+  const longTermInvest = reclassLine(["1511"]);
+  const otherEquityInvest = reclassLine(["1512"]);
+  const otherNonCurrentFinancial = reclassLine(["1505"]);
+  const investmentProperty = reclassLine(["1521"]);
   const fixedAssets = closingNetLeaf(balances, ["1601"]);
   const accumDepreciation = closingNetLeaf(balances, ["1602"]);
   const constructionInProgress = closingNetLeaf(balances, ["1604"]);
@@ -76,8 +75,8 @@ export function generateBalanceSheet(
   const developmentExpenditure = closingNetLeaf(balances, ["1704"]);
   const goodwill = closingNetLeaf(balances, ["1711"]);
   const longTermDeferred = closingNetLeaf(balances, ["1801"]);
-  const deferredTaxAssets = line(["1811"], { tgt: true });
-  const otherNonCurrentAssets = line(["1901"], { tgt: true });
+  const deferredTaxAssets = reclassLine(["1811"]);
+  const otherNonCurrentAssets = reclassLine(["1901"]);
   const rightOfUse = closingNetLeaf(balances, ["1641"]);
   const accumROU = closingNetLeaf(balances, ["1642"]);
 
@@ -104,19 +103,19 @@ export function generateBalanceSheet(
 
   const totalAssets = totalCurrentAssets + totalNonCurrentAssets;
 
-  const shortTermLoans = line(["2001"], { tgt: true });
-  const tradingFinancialLiab = line(["2101"], { tgt: true });
-  const derivativeLiab = line(["2201"], { tgt: true });
-  const notesPayable = line(["2201"], { tgt: true });
-  const payables = line(["2202"], { tgt: true });
-  const advanceReceipts = line(["2203"], { tgt: true });
-  const salaries = line(["2211"], { tgt: true });
-  const taxes = line(["2221"], { tgt: true });
-  const interestPayable = line(["2232"], { tgt: true });
-  const dividendPayable = line(["2231"], { tgt: true });
-  const otherPayables = line(["2241"], { tgt: true });
-  const nonCurrentDueWithinYearLiab = line(["2501"], { tgt: true });
-  const otherCurrentLiabilities = line(["2701"], { tgt: true });
+  const shortTermLoans = reclassLine(["2001"]);
+  const tradingFinancialLiab = reclassLine(["2101"]);
+  const derivativeLiab = reclassLine(["2201"]);
+  const notesPayable = reclassLine(["2201"]);
+  const payables = reclassLine(["2202"]);
+  const advanceReceipts = reclassLine(["2203"]);
+  const salaries = reclassLine(["2211"]);
+  const taxes = reclassLine(["2221"]);
+  const interestPayable = reclassLine(["2232"]);
+  const dividendPayable = reclassLine(["2231"]);
+  const otherPayables = reclassLine(["2241"]);
+  const nonCurrentDueWithinYearLiab = reclassLine(["2501"]);
+  const otherCurrentLiabilities = reclassLine(["2701"]);
 
   const totalCurrentLiabilities =
     mkC(shortTermLoans.debit, shortTermLoans.credit) +
@@ -133,14 +132,14 @@ export function generateBalanceSheet(
     mkC(nonCurrentDueWithinYearLiab.debit, nonCurrentDueWithinYearLiab.credit) +
     mkC(otherCurrentLiabilities.debit, otherCurrentLiabilities.credit);
 
-  const longTermLoans = line(["2501"], { tgt: true });
-  const bondsPayable = line(["2502"], { tgt: true });
-  const longTermPayables = line(["2701"], { tgt: true });
-  const specialPayables = line(["2711"], { tgt: true });
-  const estimatedLiabilities = line(["2801"], { tgt: true });
-  const deferredTaxLiabilities = line(["2901"], { tgt: true });
-  const otherNonCurrentLiabilities = line(["2901"], { tgt: true });
-  const leaseLiabilities = line(["2702"], { tgt: true });
+  const longTermLoans = reclassLine(["2501"]);
+  const bondsPayable = reclassLine(["2502"]);
+  const longTermPayables = reclassLine(["2701"]);
+  const specialPayables = reclassLine(["2711"]);
+  const estimatedLiabilities = reclassLine(["2801"]);
+  const deferredTaxLiabilities = reclassLine(["2901"]);
+  const otherNonCurrentLiabilities = reclassLine(["2901"]);
+  const leaseLiabilities = reclassLine(["2702"]);
 
   const totalNonCurrentLiabilities =
     mkC(longTermLoans.debit, longTermLoans.credit) +
