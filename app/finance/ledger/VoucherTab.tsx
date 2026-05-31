@@ -70,7 +70,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
   const { toast, showToast, closeToast } = useToast();
-  const { reclassMap, handleReview } = useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
+  const { reclassMap, handleReview, generating, handleGenerate } = useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
 
   // ── Item columns (all keys visible, no ColumnToggle for sub-table) ─
 
@@ -126,7 +126,15 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
         onMonthChange={(v) => { setMonthFilter(v); setPage(1); }}
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
         extra={
-          <span className="ml-auto text-xs text-gray-400">共 {total} 条</span>
+          <div className="ml-auto flex items-center gap-2">
+            {canWrite && companyFilter && yearFilter && monthFilter && (
+              <button onClick={handleGenerate} disabled={generating}
+                className="rounded bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-700 disabled:opacity-50">
+                {generating ? "生成中..." : "生成重分类结果"}
+              </button>
+            )}
+            <span className="text-xs text-gray-400">共 {total} 条</span>
+          </div>
         }
       />
 
