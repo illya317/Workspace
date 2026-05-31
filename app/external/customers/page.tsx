@@ -1,9 +1,9 @@
-import { requireResourceAccess } from "@/server/auth/guard";
+import { requireCurrentUser } from "@/server/auth/session";
 import AppShell from "@/app/components/AppShell";
 import CustomersClient from "./CustomersClient";
 
 export default async function CustomersPage() {
-  const user = await requireResourceAccess("external.customer");
+  const user = await requireCurrentUser();
 
   return (
     <AppShell title="客户管理" backHref="/external" user={user}>

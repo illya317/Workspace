@@ -1,8 +1,8 @@
-import { requireResourceAccess } from "@/server/auth/guard";
+import { requireCurrentUser } from "@/server/auth/session";
 import AppShell from "@/app/components/AppShell";
 
 export default async function DocsCompanyPage() {
-  const user = await requireResourceAccess("docs.company");
+  const user = await requireCurrentUser();
   return (
     <AppShell title="公司管理" backHref="/docs" user={user}>
       <main className="mx-auto max-w-5xl px-4 py-10">

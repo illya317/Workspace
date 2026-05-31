@@ -1,11 +1,12 @@
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { verifyToken, getPermissionContext, checkPermissionWithContext } from "@/lib/auth";
 import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
 import { prisma } from "@/lib/prisma";
 import type { SessionUser } from "@/lib/types";
 
-export async function getCurrentUser(): Promise<SessionUser | null> {
+async function _getCurrentUser(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   if (!token) return null;
@@ -106,12 +107,14 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
   };
 }
 
+/** Cached per-request: layout + page can both call without double DB queries. */
+export const getCurrentUser = cache(_getCurrentUser);
+
 export async function requireCurrentUser(): Promise<SessionUser> {
+  const { redirect } = await import("next/navigation");
   const user = await getCurrentUser();
-  if (!user) {
-    throw new Error("UNAUTHORIZED");
-  }
-  return user;
+  if (!user) redirect("/login");
+  return user!;
 }
 
 export async function requireAdminAccess(): Promise<SessionUser> {
