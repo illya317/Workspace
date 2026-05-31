@@ -1,4 +1,4 @@
-interface StatusBadgeProps {
+export interface StatusBadgeProps {
   /** 显示文字 */
   label: string;
   /** 颜色变体，不内置任何业务状态映射 */
