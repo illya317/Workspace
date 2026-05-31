@@ -37,7 +37,7 @@ export default function FilterField({
           onFieldKeyChange(e.target.value);
           onValueChange("");
         }}
-        className="appearance-none bg-gray-50 rounded-l border border-gray-200 px-1.5 py-1 text-gray-600 cursor-pointer focus:outline-none"
+        className="appearance-none bg-gray-50 rounded-l border border-gray-200 px-1.5 py-1 text-gray-600 text-right cursor-pointer focus:outline-none"
       >
         {fieldOptions.map((f) => (
           <option key={f.value} value={f.value}>{f.label}</option>
