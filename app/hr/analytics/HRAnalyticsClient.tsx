@@ -6,6 +6,10 @@ import Image from "next/image";
 import UserMenu from "@/app/components/UserMenu";
 import { SessionUser } from "@/lib/types";
 import { useAnalyticsData } from "./useAnalyticsData";
+
+function hasKey(user: SessionUser, key: string) {
+  return (user.visibleResourceKeys || []).includes(key);
+}
 import EmployeeAnalytics from "./EmployeeAnalytics";
 import DepartmentAnalytics from "./DepartmentAnalytics";
 import PositionAnalytics from "./PositionAnalytics";
@@ -40,8 +44,8 @@ export default function HRAnalyticsClient({ user, hideShell }: { user: SessionUs
             <span className="text-sm font-medium text-gray-700">人力分析</span>
           </div>
           <div className="flex items-center gap-4">
-            <button onClick={() => router.push("/hr")} className="text-sm text-gray-500 hover:text-emerald-600">人事首页</button>
-            <button onClick={() => router.push("/hr/performance")} className="text-sm text-gray-500 hover:text-emerald-600">考勤绩效</button>
+            {hasKey(user, "people.roster") && <button onClick={() => router.push("/hr")} className="text-sm text-gray-500 hover:text-emerald-600">人事首页</button>}
+            {hasKey(user, "people.performance") && <button onClick={() => router.push("/hr/performance")} className="text-sm text-gray-500 hover:text-emerald-600">考勤绩效</button>}
             <button
               onClick={() => router.push("/portal")}
               className="text-sm text-gray-500 hover:text-emerald-600"

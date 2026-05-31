@@ -6,6 +6,10 @@ import Image from "next/image";
 import UserMenu from "@/app/components/UserMenu";
 import { SessionUser } from "@/lib/types";
 
+function hasKey(user: SessionUser, key: string) {
+  return (user.visibleResourceKeys || []).includes(key);
+}
+
 type PerfTab = "attendance" | "works" | "performance";
 
 const tabs: { key: PerfTab; label: string; desc: string }[] = [
@@ -35,8 +39,8 @@ export default function HRPerformanceClient({ user, hideShell }: { user: Session
             <span className="text-sm font-medium text-gray-700">考勤绩效</span>
           </div>
           <div className="flex items-center gap-4">
-            <button onClick={() => router.push("/hr")} className="text-sm text-gray-500 hover:text-emerald-600">人事首页</button>
-            <button onClick={() => router.push("/hr/analytics")} className="text-sm text-gray-500 hover:text-emerald-600">人力分析</button>
+            {hasKey(user, "people.roster") && <button onClick={() => router.push("/hr")} className="text-sm text-gray-500 hover:text-emerald-600">人事首页</button>}
+            {hasKey(user, "people.analytics") && <button onClick={() => router.push("/hr/analytics")} className="text-sm text-gray-500 hover:text-emerald-600">人力分析</button>}
             <button onClick={() => router.push("/portal")} className="text-sm text-gray-500 hover:text-emerald-600">返回入口</button>
             <UserMenu user={user} />
           </div>

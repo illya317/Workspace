@@ -14,16 +14,8 @@ export async function checkHRAccess(
 ): Promise<boolean> {
   if (await checkPermission(userId, "system", "admin")) return true;
 
-  const check = async (rk: string) => {
-    if (roleKey === "access") {
-      return (
-        (await checkPermission(userId, rk, "access")) ||
-        (await checkPermission(userId, rk, "write")) ||
-        (await checkPermission(userId, rk, "delete"))
-      );
-    }
-    return checkPermission(userId, rk, roleKey);
-  };
+  // checkPermission already handles role inheritance (admin > delete > write > access)
+  const check = (rk: string) => checkPermission(userId, rk, roleKey);
 
   if (await check(resourceKey)) return true;
   // Broad "people" parent grant also grants access to sub-resources

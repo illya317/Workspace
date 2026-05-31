@@ -54,6 +54,10 @@ function toHRUser(user: SessionUser): HRUser {
   };
 }
 
+function hasKey(user: SessionUser, key: string) {
+  return (user.visibleResourceKeys || []).includes(key);
+}
+
 export default function HRClient({ user, hideShell }: { user: SessionUser; hideShell?: boolean }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<HRTab>("employee");
@@ -70,8 +74,8 @@ export default function HRClient({ user, hideShell }: { user: SessionUser; hideS
               <span className="text-sm font-medium text-gray-700">组织人事</span>
             </div>
             <div className="flex items-center gap-4">
-              <button onClick={() => router.push("/hr/performance")} className="text-sm text-gray-500 hover:text-emerald-600">考勤绩效</button>
-              <button onClick={() => router.push("/hr/analytics")} className="text-sm text-gray-500 hover:text-emerald-600">人力分析</button>
+              {hasKey(user, "people.performance") && <button onClick={() => router.push("/hr/performance")} className="text-sm text-gray-500 hover:text-emerald-600">考勤绩效</button>}
+              {hasKey(user, "people.analytics") && <button onClick={() => router.push("/hr/analytics")} className="text-sm text-gray-500 hover:text-emerald-600">人力分析</button>}
               <button onClick={() => router.push("/portal")} className="text-sm text-gray-500 hover:text-emerald-600">返回入口</button>
               <UserMenu user={user} />
             </div>
