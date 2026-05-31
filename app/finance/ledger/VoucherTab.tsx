@@ -3,7 +3,6 @@
 import { useEffect, useState, Fragment, useMemo } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import ColumnToggle from "@/app/components/ColumnToggle";
 import DataTable from "@/app/components/DataTable";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
@@ -72,12 +71,8 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [total, setTotal] = useState(0);
   const { toast, showToast, closeToast } = useToast();
   const { reclassMap, handleReview } = useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
-  const [visibleItemColumns, setVisibleItemColumns] = useState<string[]>(() => [
-    ...BASE_ITEM_COLUMNS.map((c) => c.key),
-    "reclassStatus", "reclassTarget", "reclassAmount", "reclassActions",
-  ]);
 
-  // ── Item columns (shared with ColumnToggle + DataTable) ─
+  // ── Item columns (all keys visible, no ColumnToggle for sub-table) ─
 
   const itemColumns = useMemo(() =>
     [...BASE_ITEM_COLUMNS, ...buildReclassItemColumns(reclassMap, canWrite, handleReview)],
@@ -136,9 +131,6 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
       />
 
       {/* Table */}
-      <div className="flex items-center justify-end">
-        <ColumnToggle columns={itemColumns} visible={visibleItemColumns} onChange={setVisibleItemColumns} />
-      </div>
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         {loading ? (
           <p className="p-8 text-center text-gray-500">加载中...</p>
@@ -189,7 +181,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
                           <DataTable
                             rows={v.items.map((it, i) => ({ ...it, _idx: i }))}
                             columns={itemColumns}
-                            visibleColumns={visibleItemColumns}
+                            visibleColumns={itemColumns.map((c) => c.key)}
                             rowKey={(r) => r.id}
                           />
                         </div>
