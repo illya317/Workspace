@@ -88,6 +88,15 @@ export default function FinanceFilters({
 }: FinanceFiltersProps) {
   return (
     <FilterBar>
+      {showSearch && onKeywordChange && (
+        <input
+          value={keyword}
+          onChange={(e) => onKeywordChange(e.target.value)}
+          placeholder="搜索..."
+          className="rounded border border-gray-200 px-2 py-1 text-xs w-36 focus:border-emerald-400 focus:outline-none"
+        />
+      )}
+
       <SelectField
         label="公司"
         options={COMPANY_OPTIONS}
@@ -125,15 +134,6 @@ export default function FinanceFilters({
       )}
 
       {extra}
-
-      {showSearch && onKeywordChange && (
-        <input
-          value={keyword}
-          onChange={(e) => onKeywordChange(e.target.value)}
-          placeholder="搜索..."
-          className="rounded border border-gray-200 px-2 py-1 text-xs w-36 focus:border-emerald-400 focus:outline-none"
-        />
-      )}
 
       {showPageSize && onPageSizeChange && (
         <SelectField
