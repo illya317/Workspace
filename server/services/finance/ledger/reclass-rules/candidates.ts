@@ -107,31 +107,7 @@ export async function scanCandidates(
     }
   }
 
-  // 4. 补充所有科目（算法扫不到的也能手动配 both 规则）
-  const scannedCodes = new Set(candidates.map((c) => c.accountCode));
-  const allAccounts = await prisma.financeAccount.findMany({
-    where: { companyCode, year, isActive: true },
-    select: { code: true, name: true, balanceDirection: true },
-    orderBy: { code: "asc" },
-  });
-  for (const a of allAccounts) {
-    if (!scannedCodes.has(a.code)) {
-      candidates.push({
-        accountCode: a.code,
-        accountName: a.name,
-        balanceDirection: a.balanceDirection,
-        abnormalSide: deriveAbnormalSide(a.balanceDirection),
-        abnormalAmount: 0,
-        suggestedTarget: suggestTarget(a.code),
-        existingRuleId: null,
-        existingTarget: null,
-        existingSource: null,
-        existingEnabled: null,
-      });
-    }
-  }
-
-  // 5. 批量查询已有规则
+  // 4. 批量查询已有规则
   const candidateCodes = [...new Set(candidates.map((c) => c.accountCode))];
   if (candidateCodes.length > 0) {
     const rules = await prisma.financeReclassRule.findMany({
@@ -167,20 +143,18 @@ export async function scanCandidates(
     }
   }
 
-  // 6. 排序：有异常的在前，异常的按金额降序
-  candidates.sort((a, b) => {
-    if (a.abnormalAmount > 0 && b.abnormalAmount === 0) return -1;
-    if (a.abnormalAmount === 0 && b.abnormalAmount > 0) return 1;
-    return b.abnormalAmount - a.abnormalAmount;
-  });
+  // 5. 排序：异常金额降序
+  candidates.sort((a, b) => b.abnormalAmount - a.abnormalAmount);
 
   return {
     companyCode,
     year,
     candidates,
     stats: {
-      totalAccountsScanned: allAccounts.length,
-      abnormalCount: candidates.filter((c) => c.abnormalAmount > 0).length,
+      totalAccountsScanned: [...agg.values()].filter(
+        (e) => isBalanceSheetAccount(e.code),
+      ).length,
+      abnormalCount: candidates.length,
       withExistingRule: candidates.filter((c) => c.existingRuleId !== null).length,
       withoutRule: candidates.filter((c) => c.existingRuleId === null).length,
     },
