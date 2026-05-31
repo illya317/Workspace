@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
+import { matchText } from "@/lib/search";
 import type { RuleCandidate } from "@/server/services/finance/ledger/reclass-rules";
 import AccountCodeInput from "./AccountCodeInput";
 
@@ -89,8 +90,7 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
     if (statusFilter === "hasRule" && !c.existingRuleId) return false;
     if (statusFilter === "noRule" && c.existingRuleId) return false;
     if (keyword) {
-      const q = keyword.toLowerCase();
-      if (!c.accountCode.toLowerCase().includes(q) && !c.accountName.toLowerCase().includes(q)) return false;
+      if (!matchText(c.accountCode, keyword) && !matchText(c.accountName, keyword)) return false;
     }
     return true;
   });
@@ -102,8 +102,6 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
 
   return (
     <div>
-      {statsText && <p className="mb-2 text-xs text-gray-500">{statsText}</p>}
-
       {/* Filter bar */}
       <div className="mb-3 flex items-center gap-3">
         <input
@@ -125,6 +123,8 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
           ))}
         </div>
         <span className="text-xs text-gray-400">{filtered.length} / {candidates.length}</span>
+        <div className="flex-1" />
+        {statsText && <span className="text-xs text-gray-500">{statsText}</span>}
       </div>
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
         <table className="w-full text-xs">
