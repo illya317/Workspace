@@ -9,7 +9,6 @@ import SelectField from "@/app/components/SelectField";
 import AccountTable, { type Account, ACCOUNT_COLUMNS } from "../components/AccountTable";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
-import ReclassCandidateList from "../components/ReclassCandidateList";
 
 // Account type and column definitions from shared AccountTable
 
@@ -19,7 +18,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [companyFilter, setCompanyFilter] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
-  const [scope, setScope] = useState<"all" | "mapped" | "unmapped" | "inactive" | "reclass">("all");
+  const [scope, setScope] = useState<"all" | "mapped" | "unmapped" | "inactive">("all");
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
@@ -31,7 +30,6 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const { toast, showToast, closeToast } = useToast();
 
   async function load() {
-    if (scope === "reclass") { setLoading(false); return; } // reclass data loaded by ReclassCandidateList
     setLoading(true);
     const params = new URLSearchParams();
     if (companyFilter) params.set("companyCode", companyFilter);
@@ -86,7 +84,6 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
               { value: "mapped", label: "集团" },
               { value: "unmapped", label: "独有" },
               { value: "inactive", label: "未启用" },
-              { value: "reclass", label: "重分类规则" },
             ]}
             value={scope}
             onChange={(v) => { setScope(v as typeof scope); setPage(1); }}
@@ -94,32 +91,17 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         }
       />
 
-      {/* Table / Reclass View */}
-      {scope === "reclass" ? (
-        companyFilter && yearFilter ? (
-          <ReclassCandidateList
-            companyCode={companyFilter}
-            year={yearFilter}
-            canWrite={canWrite}
-          />
-        ) : (
-          <p className="py-8 text-center text-sm text-gray-400">请选择公司和年份以查看重分类规则候选</p>
-        )
-      ) : (
-        <>
-          <div className="flex items-center justify-end">
-            <ColumnToggle columns={ACCOUNT_COLUMNS} visible={visibleColumns} onChange={setVisibleColumns} />
-          </div>
-          <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
-            <AccountTable
-              accounts={accounts}
-              loading={loading}
-              visibleColumns={visibleColumns}
-            />
-          </div>
-          <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
-        </>
-      )}
+      <div className="flex items-center justify-end">
+        <ColumnToggle columns={ACCOUNT_COLUMNS} visible={visibleColumns} onChange={setVisibleColumns} />
+      </div>
+      <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+        <AccountTable
+          accounts={accounts}
+          loading={loading}
+          visibleColumns={visibleColumns}
+        />
+      </div>
+      <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
 
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
