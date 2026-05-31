@@ -26,7 +26,6 @@ interface Account {
   subjectLevel: number | null;
   year: number | null;
   parent: { code: string; name: string } | null;
-  reclassTargetCode?: string | null;
 }
 
 const ACCOUNT_COLUMNS: ColumnDef[] = [
@@ -41,11 +40,10 @@ const ACCOUNT_COLUMNS: ColumnDef[] = [
   { key: "currency", label: "币种" },
   { key: "parent", label: "父级科目" },
   { key: "isActive", label: "状态" },
-  { key: "reclassTargetCode", label: "重分类目标" },
 ];
 
 const DEFAULT_VISIBLE = ACCOUNT_COLUMNS
-  .filter((c) => c.required || c.key !== "reclassTargetCode")
+  .filter((c) => c.required)
   .map((c) => c.key);
 
 export default function AccountTab({ canWrite }: { canWrite: boolean }) {
@@ -108,21 +106,6 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
     } else {
       const err = await res.json().catch(() => ({ error: "创建失败" }));
       showToast(err.error || "创建失败", "error");
-    }
-  }
-
-  async function handleUpdateReclassTargetCode(id: number, value: string) {
-    const res = await fetch(`/api/finance/accounts/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ reclassTargetCode: value }),
-    });
-    if (res.ok) {
-      setAccounts((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, reclassTargetCode: value || null } : a))
-      );
-    } else {
-      showToast("更新失败", "error");
     }
   }
 
@@ -190,7 +173,6 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
               accounts={accounts}
               loading={loading}
               visibleColumns={visibleColumns}
-              onUpdateReclassTargetCode={canWrite ? handleUpdateReclassTargetCode : undefined}
             />
           </div>
           <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />

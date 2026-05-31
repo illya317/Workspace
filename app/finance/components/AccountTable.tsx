@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+// no React hooks needed — pure render
 
 interface Account {
   id: number;
@@ -15,7 +15,6 @@ interface Account {
   currency: string | null;
   parent: { code: string; name: string } | null;
   isActive: boolean;
-  reclassTargetCode?: string | null;
 }
 
 const COMPANIES: Record<string, string> = {
@@ -41,13 +40,10 @@ interface AccountTableProps {
   accounts: Account[];
   loading?: boolean;
   visibleColumns?: string[];
-  onUpdateReclassTargetCode?: (id: number, value: string) => Promise<void>;
 }
 
-export default function AccountTable({ accounts, loading, visibleColumns, onUpdateReclassTargetCode }: AccountTableProps) {
+export default function AccountTable({ accounts, loading, visibleColumns }: AccountTableProps) {
   const show = (key: string) => !visibleColumns || visibleColumns.includes(key);
-  const [editCell, setEditCell] = useState<number | null>(null);
-  const cancelRef = useRef(false);
 
   if (loading) {
     return <p className="p-8 text-center text-gray-500">加载中...</p>;
@@ -70,7 +66,6 @@ export default function AccountTable({ accounts, loading, visibleColumns, onUpda
           {show("currency") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">币种</th>}
           {show("parent") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">父级科目</th>}
           {show("isActive") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">状态</th>}
-          {show("reclassTargetCode") && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">重分类目标</th>}
         </tr>
       </thead>
       <tbody>
@@ -97,48 +92,6 @@ export default function AccountTable({ accounts, loading, visibleColumns, onUpda
                 {acc.isActive ? "启用" : "停用"}
               </span>
             </td>}
-            {show("reclassTargetCode") && (
-              <td className="px-3 py-2 font-mono whitespace-nowrap">
-                {editCell === acc.id ? (
-                  <input
-                    autoFocus
-                    type="text"
-                    defaultValue={acc.reclassTargetCode || ""}
-                    className="w-24 rounded border border-emerald-400 px-1.5 py-0.5 text-xs text-gray-700 outline-none"
-                    onBlur={async (e) => {
-                      if (cancelRef.current) {
-                        cancelRef.current = false;
-                        setEditCell(null);
-                        return;
-                      }
-                      const val = e.target.value.trim();
-                      setEditCell(null);
-                      if (val !== (acc.reclassTargetCode || "")) {
-                        await onUpdateReclassTargetCode?.(acc.id, val);
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Escape") {
-                        cancelRef.current = true;
-                        (e.target as HTMLInputElement).value = acc.reclassTargetCode || "";
-                        (e.target as HTMLInputElement).blur();
-                      }
-                      if (e.key === "Enter") (e.target as HTMLInputElement).blur();
-                    }}
-                  />
-                ) : (
-                  <span
-                    className={`rounded px-1 py-0.5 ${
-                      onUpdateReclassTargetCode ? "cursor-pointer hover:bg-emerald-50" : ""
-                    } ${acc.reclassTargetCode ? "text-emerald-700" : "text-gray-400"}`}
-                    title={onUpdateReclassTargetCode ? "点击编辑重分类目标科目" : undefined}
-                    onClick={() => onUpdateReclassTargetCode && setEditCell(acc.id)}
-                  >
-                    {acc.reclassTargetCode || "-"}
-                  </span>
-                )}
-              </td>
-            )}
           </tr>
         ))}
         {accounts.length === 0 && (
