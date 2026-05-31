@@ -28,7 +28,7 @@ export const GET = withFinanceLedgerAccess(async (request) => {
     if (sl > 0) where.subjectLevel = sl;
   }
   if (yearNum !== null) where.year = yearNum;
-  const { page, pageSize } = parsePageParams(searchParams);
+  const { page, pageSize } = parsePageParams(searchParams, 2000);
   if (hasKeyword) {
     // 拼音搜索：全量拉取 → matchText 过滤 → 前端分页
     const all = await prisma.financeAccount.findMany({

@@ -33,17 +33,16 @@ export default function ReclassCandidateList({
     try {
       const [scanRes, allRes] = await Promise.all([
         fetch(`/api/finance/reclass-rules?companyCode=${companyCode}&year=${year}`),
-        statusFilter === "all"
-          ? fetch(`/api/finance/accounts?companyCode=${companyCode}&year=${year}&scope=all&pageSize=2000`)
-          : null,
+        fetch(`/api/finance/accounts?companyCode=${companyCode}&year=${year}&scope=all&pageSize=2000`),
       ]);
 
       if (!scanRes.ok) { showToast("加载失败", "error"); return; }
       const scanData = await scanRes.json();
       const scanned: RuleCandidate[] = scanData.candidates || [];
 
+      // 合并全部科目（用于"全部" tab）
       let all: RuleCandidate[] = scanned;
-      if (allRes?.ok) {
+      if (allRes.ok) {
         const allData = await allRes.json();
         const allAccounts: { code: string; name: string; balanceDirection: string }[] =
           allData.data || allData.accounts || [];
@@ -64,6 +63,7 @@ export default function ReclassCandidateList({
       }
 
       setCandidates(all);
+      // 固定计数，不随 tab 切换变化
       onStats?.({
         total: all.length,
         noRule: scanned.filter((c) => !c.existingRuleId).length,
@@ -73,7 +73,7 @@ export default function ReclassCandidateList({
     setLoading(false);
   }
 
-  useEffect(() => { load(); setPage(1); }, [companyCode, year, statusFilter]);
+  useEffect(() => { load(); setPage(1); }, [companyCode, year]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
   // ── Actions ──────────────────────────────────────────
