@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import FinanceFilters from "../components/FinanceFilters";
+import { useCSV, CSV_ICON } from "@/app/hooks/useCSV";
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -38,18 +39,14 @@ export default function SchedulesClient() {
 
   useEffect(() => { load(); }, [companyFilter, yearFilter, monthFilter]);
 
-  function exportCSV() {
-    const header = "科目编码,科目名称,方向,借方余额,贷方余额,净额,说明\n";
-    const rows = entries.map(e =>
-      `"${e.accountCode}","${e.accountName}","${sideLabel(e.fromSide)}",${e.closingDebit},${e.closingCredit},${Math.abs(e.netAmount)},"${e.reason}"`
-    ).join("\n");
-    const blob = new Blob(["﻿" + header + rows], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a"); a.href = url; a.download = `重分类_${companyFilter}_${yearFilter}${monthFilter}.csv`; a.click();
-    URL.revokeObjectURL(url);
-  }
-
   const sideLabel = (s: string) => s === "asset" ? "资产→负债" : "负债→资产";
+  const exportCSV = useCSV(
+    `重分类_${companyFilter}_${yearFilter}${monthFilter}.csv`,
+    "科目编码,科目名称,方向,借方余额,贷方余额,净额,说明\n",
+    () => entries.map(e =>
+      `"${e.accountCode}","${e.accountName}","${sideLabel(e.fromSide)}",${e.closingDebit},${e.closingCredit},${Math.abs(e.netAmount)},"${e.reason}"`
+    ).join("\n")
+  );
 
   return (
     <div className="space-y-4">
@@ -64,13 +61,9 @@ export default function SchedulesClient() {
         extra={
           <>
             <button onClick={exportCSV} disabled={entries.length === 0}
-              className="rounded border border-gray-300 px-2 py-1 text-xs text-gray-500 hover:bg-gray-50 disabled:opacity-30"
+              className="rounded border border-gray-300 px-2 py-1 text-gray-500 hover:bg-gray-50 disabled:opacity-30"
               title="导出CSV"
-            >
-              <svg className="h-4 w-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-            </button>
+            ><CSV_ICON className="h-4 w-4" /></button>
             <span className="text-xs text-gray-400">{entries.length} 项</span>
           </>
         }
