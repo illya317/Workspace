@@ -44,7 +44,7 @@ export default function ColumnToggle({ columns, visible, onChange }: Props) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen(!open)}
-        className="rounded border border-gray-200 px-1.5 py-1 text-xs text-gray-500 hover:bg-gray-50"
+        className="rounded border border-gray-200 px-1.5 py-1 text-xs hover:bg-gray-50"
       >
         字段 ({visibleOptional.length}/{optional.length})
       </button>
