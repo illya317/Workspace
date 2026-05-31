@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import FinanceFilters from "../components/FinanceFilters";
-import { useCSV, CSV_ICON } from "@/app/hooks/useCSV";
+import { useCSV } from "@/app/hooks/useCSV";
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -63,7 +63,11 @@ export default function SchedulesClient() {
             <button onClick={exportCSV} disabled={entries.length === 0}
               className="rounded border border-gray-300 px-2 py-1 text-gray-500 hover:bg-gray-50 disabled:opacity-30"
               title="导出CSV"
-            ><CSV_ICON className="h-4 w-4" /></button>
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </button>
             <span className="text-xs text-gray-400">{entries.length} 项</span>
           </>
         }
