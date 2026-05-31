@@ -78,12 +78,23 @@ export default function ReclassCandidateList({
   // ── Actions ──────────────────────────────────────────
 
   function updateCandidate(code: string, id: number | null, target: string | null, source: string | null, enabled: boolean | null) {
-    const fn = (prev: RuleCandidate[]) => prev.map((r) =>
+    const fn = (prev: RuleCandidate[]) => {
+      const next = prev.map((r) =>
+        r.accountCode === code
+          ? { ...r, existingRuleId: id, existingTarget: target, existingSource: source, existingEnabled: enabled }
+          : r);
+      onStats?.({
+        total: allAccounts.length,
+        noRule: next.filter((c) => !c.existingRuleId).length,
+        hasRule: next.filter((c) => !!c.existingRuleId).length,
+      });
+      return next;
+    };
+    setScanned(fn);
+    setAllAccounts((prev) => prev.map((r) =>
       r.accountCode === code
         ? { ...r, existingRuleId: id, existingTarget: target, existingSource: source, existingEnabled: enabled }
-        : r);
-    setScanned(fn);
-    setAllAccounts(fn);
+        : r));
   }
 
   async function saveRule(c: RuleCandidate, target: string) {
