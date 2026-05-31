@@ -141,9 +141,7 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
                   <td className="px-3 py-2 font-mono text-xs text-gray-700">{c.accountCode}</td>
                   <td className="px-3 py-2 text-xs text-gray-700">{c.accountName}</td>
                   <td className="px-3 py-2">{dirBadge(c.balanceDirection)}</td>
-                  <td className="px-3 py-2">
-                    <span className="inline-block rounded bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700">{c.abnormalSide === "debit" ? "借" : "贷"}</span>
-                  </td>
+                  <td className="px-3 py-2">{dirBadge(c.abnormalSide)}</td>
                   <td className="px-3 py-2 text-right font-mono text-xs text-gray-700">¥{c.abnormalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
                   <td className="px-3 py-2 font-mono text-xs text-gray-400">{c.suggestedTarget || "—"}</td>
                   <td className="px-3 py-2 font-mono text-xs">
