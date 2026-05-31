@@ -2,14 +2,46 @@ import { prisma } from "@/lib/prisma";
 import type { PreviewResult } from "./import";
 import { createSnapshotFromPreview, materializeBaselineToPeriod } from "../ledger/annual-balances";
 import { computeBalancesForPeriod } from "../ledger/balances";
+import crypto from "crypto";
 
-export type FinanceImportConfirmResult = {
+// ─── Types ─────────────────────────────────────────────────
+
+export interface ImportConfirmSummary {
+  /** Total items imported (created + updated). @deprecated use created + updated */
   imported: number;
+  created: number;
+  updated: number;
+  skipped: number;
+  conflicts: number;
+  blocked: number;
+  warnings: string[];
+  importId?: number;
+}
+
+export type FinanceImportConfirmResult = ImportConfirmSummary & {
   year: number;
   companyCode: string;
   type: PreviewResult["type"];
   mode?: "baseline" | "reconcile";
 };
+
+// ─── Fingerprint ───────────────────────────────────────────
+
+function itemFingerprint(
+  companyCode: string,
+  voucherNo: string,
+  date: string,
+  sortOrder: number,
+  accountCode: string,
+  debit: number,
+  credit: number,
+  description: string,
+): string {
+  const raw = `${companyCode}|${voucherNo}|${date}|${sortOrder}|${accountCode}|${debit}|${credit}|${description}`;
+  return crypto.createHash("sha256").update(raw).digest("hex").slice(0, 16);
+}
+
+// ─── Upsert Accounts ───────────────────────────────────────
 
 async function upsertAccounts(preview: PreviewResult) {
   const { type, companyCode, year, accounts } = preview;
@@ -30,8 +62,6 @@ async function upsertAccounts(preview: PreviewResult) {
     }
   }
 
-  // 批量预加载可能缺失的父科目。部分科目表跳级（如只有6601和66010101，无660101）
-  // 先收集直接父级，再对不存在的尝试逐级缩短（每次减2位，最少4位）
   const missingParentCodes = new Set<string>();
   for (const account of sortedAccounts) {
     if (account.parentCode && !accountCodeToId.has(account.parentCode)) {
@@ -46,12 +76,10 @@ async function upsertAccounts(preview: PreviewResult) {
     for (const pa of parentAccounts) {
       accountCodeToId.set(pa.code, pa.id);
     }
-
-    // 对仍然缺失的父级code，尝试更短前缀（每次减2位，最低4位）
     const stillMissing = Array.from(missingParentCodes).filter(c => !accountCodeToId.has(c));
     if (stillMissing.length > 0) {
       const fallbackCodes = new Set<string>();
-      const codeToOriginal = new Map<string, string>(); // fallback code → original missing code
+      const codeToOriginal = new Map<string, string>();
       for (const code of stillMissing) {
         for (let len = code.length - 2; len >= 4; len -= 2) {
           const fallback = code.slice(0, len);
@@ -65,7 +93,6 @@ async function upsertAccounts(preview: PreviewResult) {
       });
       for (const fa of fallbackAccounts) {
         accountCodeToId.set(fa.code, fa.id);
-        // 也把原始缺失code映射到找到的父级（这样accountCodeToId.get("660101")也能找到6601的id）
         const orig = codeToOriginal.get(fa.code);
         if (orig && !accountCodeToId.has(orig)) {
           accountCodeToId.set(orig, fa.id);
@@ -88,16 +115,10 @@ async function upsertAccounts(preview: PreviewResult) {
     }
 
     const data = {
-      name: account.name,
-      category: account.category,
-      balanceDirection: account.balanceDirection,
-      parentId,
-      companyCode,
-      mnemonicCode: account.mnemonicCode ?? null,
-      currency: account.currency ?? null,
-      groupSubjectCode,
-      subjectLevel: account.subjectLevel ?? null,
-      year,
+      name: account.name, category: account.category,
+      balanceDirection: account.balanceDirection, parentId, companyCode,
+      mnemonicCode: account.mnemonicCode ?? null, currency: account.currency ?? null,
+      groupSubjectCode, subjectLevel: account.subjectLevel ?? null, year,
     };
 
     if (existing) {
@@ -110,9 +131,10 @@ async function upsertAccounts(preview: PreviewResult) {
       accountCodeToId.set(account.code, created.id);
     }
   }
-
   return accountCodeToId;
 }
+
+// ─── Helpers ───────────────────────────────────────────────
 
 function normalizeDate(date: string) {
   return /^\d{4}\.\d{2}\.\d{2}$/.test(date) ? date.replace(/\./g, "-") : date;
@@ -124,12 +146,10 @@ async function getOrCreateVoucherPeriod(companyCode: string, dateStr: string, fa
   const month = Number.isNaN(voucherDate.getTime()) ? 12 : voucherDate.getMonth() + 1;
   const existing = await prisma.financePeriod.findFirst({ where: { year, month, companyCode } });
   if (existing) return existing;
-
   const lastDay = new Date(year, month, 0).getDate();
   return prisma.financePeriod.create({
     data: {
-      year,
-      month,
+      year, month,
       startDate: `${year}-${String(month).padStart(2, "0")}-01`,
       endDate: `${year}-${String(month).padStart(2, "0")}-${lastDay}`,
       companyCode,
@@ -137,23 +157,46 @@ async function getOrCreateVoucherPeriod(companyCode: string, dateStr: string, fa
   });
 }
 
-async function importVouchers(preview: PreviewResult, accountCodeToId: Map<string, number>) {
-  let imported = 0;
+// ─── Import Vouchers with Fingerprint Dedup & Reclass Protection ──
+
+async function importVouchers(
+  preview: PreviewResult,
+  accountCodeToId: Map<string, number>,
+  importId: number,
+): Promise<{ imported: number; created: number; updated: number; skipped: number; blocked: number; warnings: string[] }> {
+  let created = 0, updated = 0, skipped = 0, blocked = 0;
+  const warnings: string[] = [];
+
   for (const voucherPreview of preview.vouchers || []) {
     const dateStr = normalizeDate(voucherPreview.date);
     const period = await getOrCreateVoucherPeriod(preview.companyCode, dateStr, preview.year);
     const month = String(period.month).padStart(2, "0");
     const voucherNo = `${preview.year}-${month}-${voucherPreview.voucherNo}`;
-    const existing = await prisma.financeVoucher.findUnique({
-      where: { voucherNo_companyCode: { voucherNo, companyCode: preview.companyCode } },
+
+    const existing = await prisma.financeVoucher.findFirst({
+      where: { voucherNo, companyCode: preview.companyCode, periodId: period.id },
+      include: { items: { include: { reclassResults: true } } },
     });
+
+    // Check if voucher exists and has non-pending reclass results (block overwrite)
+    if (existing) {
+      const nonPendingResults = existing.items.flatMap(it => it.reclassResults)
+        .filter(rr => rr.status !== "pending");
+      if (nonPendingResults.length > 0) {
+        blocked++;
+        warnings.push(`凭证 ${voucherNo} 存在 ${nonPendingResults.length} 条已审核重分类结果，跳过导入以免覆盖`);
+        continue;
+      }
+
+      // Delete old items to replace with new ones
+      await prisma.financeVoucherItem.deleteMany({ where: { voucherId: existing.id } });
+    }
 
     const voucher = existing
       ? await prisma.financeVoucher.update({
           where: { id: existing.id },
           data: {
-            date: dateStr,
-            periodId: period.id,
+            date: dateStr, periodId: period.id,
             description: voucherPreview.description,
             totalDebit: voucherPreview.totalDebit,
             totalCredit: voucherPreview.totalCredit,
@@ -162,9 +205,7 @@ async function importVouchers(preview: PreviewResult, accountCodeToId: Map<strin
         })
       : await prisma.financeVoucher.create({
           data: {
-            voucherNo,
-            date: dateStr,
-            periodId: period.id,
+            voucherNo, date: dateStr, periodId: period.id,
             description: voucherPreview.description,
             totalDebit: voucherPreview.totalDebit,
             totalCredit: voucherPreview.totalCredit,
@@ -173,81 +214,162 @@ async function importVouchers(preview: PreviewResult, accountCodeToId: Map<strin
           },
         });
 
-    if (existing) await prisma.financeVoucherItem.deleteMany({ where: { voucherId: existing.id } });
-
-    for (const item of voucherPreview.items) {
+    // Create voucher items with fingerprints
+    let itemCreated = 0, itemSkipped = 0;
+    for (let i = 0; i < voucherPreview.items.length; i++) {
+      const item = voucherPreview.items[i];
       const accountId = accountCodeToId.get(item.accountCode);
       if (!accountId) continue;
+
+      const fp = itemFingerprint(
+        preview.companyCode, voucherPreview.voucherNo, voucherPreview.date,
+        i, item.accountCode, item.debit, item.credit, item.description,
+      );
+
+      // Check if identical item already exists in this voucher
+      const existingItem = await prisma.financeVoucherItem.findFirst({
+        where: { voucherId: voucher.id, importFingerprint: fp },
+      });
+      if (existingItem) {
+        itemSkipped++;
+        continue;
+      }
+
       await prisma.financeVoucherItem.create({
         data: {
-          voucherId: voucher.id,
-          accountId,
-          debit: item.debit,
-          credit: item.credit,
+          voucherId: voucher.id, accountId,
+          debit: item.debit, credit: item.credit,
           description: item.description,
+          sortOrder: i,
+          importFingerprint: fp,
+          sourceFile: preview.sourceFileName,
+          importId,
         },
       });
+      itemCreated++;
     }
-    imported++;
+
+    if (itemCreated > 0) {
+      if (existing) updated++; else created++;
+    } else if (itemSkipped > 0 && existing) {
+      skipped++;
+    }
   }
-  return imported;
+
+  return { imported: created + updated, created, updated, skipped, blocked, warnings };
 }
 
-export async function confirmFinanceImport(preview: PreviewResult): Promise<FinanceImportConfirmResult> {
+// ─── Main Confirm ──────────────────────────────────────────
+
+export async function confirmFinanceImport(
+  preview: PreviewResult,
+  userId?: number,
+): Promise<FinanceImportConfirmResult> {
   if (!preview || preview.errors.length > 0) {
     throw new Error("预览数据有误，无法导入");
   }
 
-  const accountCodeToId = await upsertAccounts(preview);
+  // Create import batch record
+  const totalRows = preview.type === "account"
+    ? preview.accounts.length
+    : preview.type === "balance"
+      ? (preview.balances?.length || 0)
+      : (preview.vouchers?.reduce((s, v) => s + v.items.length, 0) || 0);
 
-  if (preview.type === "account") {
-    return {
-      imported: preview.accounts.length,
-      year: preview.year,
-      companyCode: preview.companyCode,
+  const importBatch = await prisma.financeLedgerImport.create({
+    data: {
       type: preview.type,
-    };
-  }
+      companyCode: preview.companyCode,
+      year: preview.year,
+      sourceFile: preview.sourceFileName,
+      rowCount: totalRows,
+      status: "completed",
+      importedBy: userId,
+    },
+  });
 
-  if (preview.type === "balance") {
-    const imported = await createSnapshotFromPreview(preview, accountCodeToId);
-    // Auto-materialize baseline to 12月 period
-    if (preview.year === 2024) {
-      const period = await prisma.financePeriod.findFirst({
-        where: { companyCode: preview.companyCode, year: preview.year, month: 12 },
+  try {
+    const accountCodeToId = await upsertAccounts(preview);
+
+    if (preview.type === "account") {
+      await prisma.financeLedgerImport.update({
+        where: { id: importBatch.id },
+        data: { createdCount: preview.accounts.length, status: "completed" },
       });
-      if (period) {
-        await materializeBaselineToPeriod(preview.companyCode, preview.year, async (_c, _y, _m) => period);
+      const count = preview.accounts.length;
+      return {
+        imported: count, created: count, updated: 0, skipped: 0,
+        conflicts: 0, blocked: 0, warnings: [],
+        importId: importBatch.id,
+        year: preview.year, companyCode: preview.companyCode, type: preview.type,
+      };
+    }
+
+    if (preview.type === "balance") {
+      const imported = await createSnapshotFromPreview(preview, accountCodeToId);
+      if (preview.year === 2024) {
+        const period = await prisma.financePeriod.findFirst({
+          where: { companyCode: preview.companyCode, year: preview.year, month: 12 },
+        });
+        if (period) {
+          await materializeBaselineToPeriod(preview.companyCode, preview.year, async (_c, _y, _m) => period);
+        }
+      }
+      await prisma.financeLedgerImport.update({
+        where: { id: importBatch.id },
+        data: { createdCount: imported, status: "completed" },
+      });
+      return {
+        imported, created: imported, updated: 0, skipped: 0, conflicts: 0, blocked: 0, warnings: [],
+        importId: importBatch.id,
+        year: preview.year, companyCode: preview.companyCode, type: preview.type,
+        mode: preview.year === 2024 ? "baseline" : "reconcile",
+      };
+    }
+
+    // Journal import
+    const { imported, created, updated, skipped, blocked, warnings } = await importVouchers(preview, accountCodeToId, importBatch.id);
+
+    // Update batch record
+    await prisma.financeLedgerImport.update({
+      where: { id: importBatch.id },
+      data: {
+        createdCount: created, updatedCount: updated,
+        skippedCount: skipped, blockedCount: blocked,
+        status: blocked > 0 ? "partial" : "completed",
+        warnings: warnings.length > 0 ? JSON.stringify(warnings) : null,
+      },
+    });
+
+    // Auto-recompute balances for the latest month
+    let latestYm: { year: number; month: number } | null = null;
+    for (const v of preview.vouchers || []) {
+      const d = new Date(v.date);
+      if (isNaN(d.getTime())) continue;
+      const y = d.getFullYear(), m = d.getMonth() + 1;
+      if (!latestYm || y > latestYm.year || (y === latestYm.year && m > latestYm.month)) {
+        latestYm = { year: y, month: m };
       }
     }
+    if (latestYm) {
+      const period = await prisma.financePeriod.findFirst({
+        where: { companyCode: preview.companyCode, year: latestYm.year, month: latestYm.month },
+      });
+      if (period) {
+        try { await computeBalancesForPeriod(period.id); } catch { /* skip */ }
+      }
+    }
+
     return {
-      imported,
-      year: preview.year,
-      companyCode: preview.companyCode,
-      type: preview.type,
-      mode: preview.year === 2024 ? "baseline" : "reconcile",
+      imported, created, updated, skipped, conflicts: 0, blocked, warnings,
+      importId: importBatch.id,
+      year: preview.year, companyCode: preview.companyCode, type: preview.type,
     };
-  }
-
-  // Journal import: auto-recompute latest affected month (covers all prior months)
-  const count = await importVouchers(preview, accountCodeToId);
-  let latestYm: { year: number; month: number } | null = null;
-  for (const v of preview.vouchers || []) {
-    const d = new Date(v.date);
-    if (isNaN(d.getTime())) continue;
-    const y = d.getFullYear(), m = d.getMonth() + 1;
-    if (!latestYm || y > latestYm.year || (y === latestYm.year && m > latestYm.month)) {
-      latestYm = { year: y, month: m };
-    }
-  }
-  if (latestYm) {
-    const period = await prisma.financePeriod.findFirst({
-      where: { companyCode: preview.companyCode, year: latestYm.year, month: latestYm.month },
+  } catch (err) {
+    await prisma.financeLedgerImport.update({
+      where: { id: importBatch.id },
+      data: { status: "failed", warnings: JSON.stringify([err instanceof Error ? err.message : "导入失败"]) },
     });
-    if (period) {
-      try { await computeBalancesForPeriod(period.id); } catch { /* skip if baseline not ready */ }
-    }
+    throw err;
   }
-
-  return { imported: count, year: preview.year, companyCode: preview.companyCode, type: preview.type };
 }

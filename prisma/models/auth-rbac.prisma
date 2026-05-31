@@ -30,6 +30,7 @@ model User {
   projectAssignees         ProjectWorkAssignee[]
   reviewedReclassResults   ReclassResult[]          @relation("ReclassResultReviewer")
   confirmedReclassRules    FinanceReclassRule[]     @relation("FinanceReclassRuleConfirmer")
+  ledgerImports            FinanceLedgerImport[]    @relation("FinanceLedgerImportImporter")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md
