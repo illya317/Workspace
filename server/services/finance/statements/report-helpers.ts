@@ -132,9 +132,57 @@ export function closingNetLeafCreditOnly(balances: BalanceItem[], prefixes: stri
   return { debit: d, credit: c };
 }
 
-/** Reclassify: asset accounts with net credit → liability pool, liability accounts with net debit → asset pool. Only leaf accounts to avoid double-counting with parent. */
-export function reclassify(balances: BalanceItem[]) {
-  // Legacy: scan all 1xxx/2xxx accounts by net sign
+// ─── Phase 7: ReclassResult-based reclassification ─────────
+
+/** A single approved/adjusted reclassification entry from ReclassResult. */
+export interface ReclassEntry {
+  sourceAccount: string;
+  targetAccount: string;
+  amount: number;
+}
+
+/**
+ * Reclassification pools: amounts to ADD to each target account line.
+ * Key = targetAccount code (or legacy bucket code).
+ *
+ * Asset→liability reclass: amount is a credit → added to target's credit.
+ * Liability→asset reclass:  amount is a debit  → added to target's debit.
+ *
+ * Deduction from source lines is handled by the caller aggregating
+ * totals per source prefix (1xxx / 2xxx).
+ */
+export type ReclassPools = Map<string, { debit: number; credit: number }>;
+
+/**
+ * Compute reclassification pools from approved ReclassResult entries.
+ * Each entry's `amount` is routed to the entry's `targetAccount`.
+ *
+ * Classification by sourceAccount prefix:
+ *   1xxx (asset)   → amount added as credit to targetAccount pool
+ *   2xxx (liability)→ amount added as debit  to targetAccount pool
+ */
+export function reclassifyFromEntries(entries: ReclassEntry[]): ReclassPools {
+  const pools: ReclassPools = new Map();
+
+  for (const e of entries) {
+    const cur = pools.get(e.targetAccount) || { debit: 0, credit: 0 };
+    if (e.sourceAccount.startsWith("1")) {
+      cur.credit += e.amount;
+    } else if (e.sourceAccount.startsWith("2")) {
+      cur.debit += e.amount;
+    }
+    pools.set(e.targetAccount, cur);
+  }
+  return pools;
+}
+
+/**
+ * Legacy balance-level reclassification.
+ * Returns pools under hardcoded target keys:
+ *   asset→liability  → "2241" (其他应付款)
+ *   liability→asset  → "1463" (其他流动资产)
+ */
+export function reclassify(balances: BalanceItem[]): ReclassPools {
   const codes = balances.map(b => b.account.code);
   const parentCodes = new Set<string>();
   for (const c1 of codes) {
@@ -162,42 +210,15 @@ export function reclassify(balances: BalanceItem[]) {
       liabilityToAsset.credit += b.closingCredit;
     }
   }
-  return { assetToLiability, liabilityToAsset };
-}
 
-// ─── Phase 7: ReclassResult-based reclassification ─────────
-
-/** A single approved/adjusted reclassification entry from ReclassResult. */
-export interface ReclassEntry {
-  sourceAccount: string;
-  targetAccount: string;
-  amount: number;
-}
-
-/**
- * Compute reclassification pools from approved ReclassResult entries.
- * Uses the exact `amount` from each entry — NOT the full account balance.
- *
- * Classification by sourceAccount prefix:
- *   1xxx (asset)   → assetToLiability pool   (credit to remove)
- *   2xxx (liability)→ liabilityToAsset pool   (debit to remove)
- *   other          → not aggregated (retained for future use)
- */
-export function reclassifyFromEntries(entries: ReclassEntry[]) {
-  let assetToLiability = { debit: 0, credit: 0 };
-  let liabilityToAsset = { debit: 0, credit: 0 };
-
-  for (const e of entries) {
-    if (e.sourceAccount.startsWith("1")) {
-      // Asset account: amount represents credit to remove → reduce asset
-      assetToLiability.credit += e.amount;
-    } else if (e.sourceAccount.startsWith("2")) {
-      // Liability account: amount represents debit to remove → reduce liability
-      liabilityToAsset.debit += e.amount;
-    }
-    // 3xxx-6xxx not relevant for balance-sheet-level reclassification
+  const pools: ReclassPools = new Map();
+  if (assetToLiability.debit > 0 || assetToLiability.credit > 0) {
+    pools.set("2241", assetToLiability);
   }
-  return { assetToLiability, liabilityToAsset };
+  if (liabilityToAsset.debit > 0 || liabilityToAsset.credit > 0) {
+    pools.set("1463", liabilityToAsset);
+  }
+  return pools;
 }
 
 export const mk = (d: number, c: number) => +(d - c).toFixed(2);

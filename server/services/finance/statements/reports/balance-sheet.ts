@@ -10,6 +10,10 @@ export function generateBalanceSheet(
     ? reclassifyFromEntries(reclassEntries)
     : reclassify(balances);
 
+  const r = (code: string) => reclass.get(code) || { debit: 0, credit: 0 };
+  let totalALCredit = 0, totalLADebit = 0;
+  for (const v of reclass.values()) { totalALCredit += v.credit; totalLADebit += v.debit; }
+
   const cash = closingNetLeaf(balances, ["1001", "1002"]);
   const tradingFinancial = closingNetLeaf(balances, ["1101"]);
   const derivativeFinancial = closingNetLeaf(balances, ["1031"]);
@@ -20,12 +24,13 @@ export function generateBalanceSheet(
   const dividendReceivable = closingNetLeaf(balances, ["1131"]);
   const otherReceivable = closingNetLeaf(balances, ["1221"]);
   const badDebtAllowance = closingNetLeaf(balances, ["1231"]);
-  const otherReceivableNet = { debit: otherReceivable.debit - badDebtAllowance.credit, credit: otherReceivable.credit - reclass.assetToLiability.credit };
+  const otherReceivableNet = { debit: otherReceivable.debit - badDebtAllowance.credit, credit: otherReceivable.credit - totalALCredit };
   const inventory = closingNetLeaf(balances, ["1405"]);
   const nonCurrentDueWithinYear = closingNetLeaf(balances, ["1501"]);
   const otherCurrentAssets = (() => {
     const base = closingNetLeaf(balances, ["1463"]);
-    return { debit: base.debit + reclass.liabilityToAsset.debit, credit: base.credit + reclass.liabilityToAsset.credit };
+    const t = r("1463");
+    return { debit: base.debit + t.debit, credit: base.credit + t.credit };
   })();
 
   const totalCurrentAssets =
@@ -91,16 +96,24 @@ export function generateBalanceSheet(
   const tradingFinancialLiab = closingNetLeaf(balances, ["2101"]);
   const derivativeLiab = closingNetLeaf(balances, ["2201"]);
   const notesPayable = closingNetLeaf(balances, ["2201"]);
-  const payables = closingNetLeaf(balances, ["2202"]);
-  const advanceReceipts = closingNetLeaf(balances, ["2203"]);
+  const payables = (() => {
+    const base = closingNetLeaf(balances, ["2202"]);
+    const t = r("2202");
+    return { debit: base.debit + t.debit, credit: base.credit + t.credit };
+  })();
+  const advanceReceipts = (() => {
+    const base = closingNetLeaf(balances, ["2203"]);
+    const t = r("2203");
+    return { debit: base.debit + t.debit, credit: base.credit + t.credit };
+  })();
   const salaries = closingNetLeaf(balances, ["2211"]);
   const taxes = closingNetLeaf(balances, ["2221"]);
   const interestPayable = closingNetLeaf(balances, ["2232"]);
   const dividendPayable = closingNetLeaf(balances, ["2231"]);
   const otherPayables = (() => {
     const base = closingNetLeaf(balances, ["2241"]);
-    // Add reclassified credit balances from asset accounts
-    return { debit: base.debit + reclass.assetToLiability.debit, credit: base.credit + reclass.assetToLiability.credit };
+    const t = r("2241");
+    return { debit: base.debit + t.debit, credit: base.credit + t.credit };
   })();
   const nonCurrentDueWithinYearLiab = closingNetLeaf(balances, ["2501"]);
   const otherCurrentLiabilities = closingNetLeaf(balances, ["2701"]);
