@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { handleCreate } from "@/lib/crud-finance";
+import { parsePositiveInt, parseYear, parsePageParams } from "@/lib/validation";
 
 export const GET = withFinanceLedgerAccess(async (request) => {
   const { searchParams } = new URL(request.url);
   const companyCode = searchParams.get("companyCode") || undefined;
   const subjectLevel = searchParams.get("subjectLevel");
   const scope = searchParams.get("scope") || "mapped";
-  const year = searchParams.get("year");
+  const yearNum = parseYear(searchParams.get("year"));
   const keyword = searchParams.get("keyword") || "";
 
   const where: Record<string, unknown> = {};
@@ -29,14 +30,12 @@ export const GET = withFinanceLedgerAccess(async (request) => {
     where.companyCode = companyCode;
   }
   if (subjectLevel) {
-    where.subjectLevel = parseInt(subjectLevel, 10);
+    const sl = parsePositiveInt(subjectLevel, 0);
+    if (sl > 0) where.subjectLevel = sl;
   }
-  if (year) {
-    where.year = parseInt(year, 10);
-  }
+  if (yearNum !== null) where.year = yearNum;
 
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const pageSize = parseInt(searchParams.get("pageSize") || "50", 10);
+  const { page, pageSize } = parsePageParams(searchParams);
   const skip = (page - 1) * pageSize;
 
   const [accounts, total] = await Promise.all([

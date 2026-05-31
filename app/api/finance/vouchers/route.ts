@@ -3,25 +3,25 @@ import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import { createVoucher } from "@/server/services/finance/ledger/voucher-service";
+import { parsePositiveInt, parseYear, parseMonth, parsePageParams } from "@/lib/validation";
 
 export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const periodId = searchParams.get("periodId");
   const status = searchParams.get("status");
   const companyCode = searchParams.get("companyCode");
-  const year = searchParams.get("year");
-  const month = searchParams.get("month");
+  const yearNum = parseYear(searchParams.get("year"));
+  const monthNum = parseMonth(searchParams.get("month"));
   const keyword = searchParams.get("keyword") || "";
-  const page = parseInt(searchParams.get("page") || "1", 10);
-  const pageSize = parseInt(searchParams.get("pageSize") || "50", 10);
+  const { page, pageSize } = parsePageParams(searchParams);
   const where: Prisma.FinanceVoucherWhereInput = {};
-  if (periodId) where.periodId = parseInt(periodId);
+  if (periodId) where.periodId = parsePositiveInt(periodId, 0);
   if (status) where.status = status;
   if (companyCode) where.companyCode = companyCode;
-  if (year || month) {
+  if (yearNum !== null || monthNum !== null) {
     where.period = {};
-    if (year) where.period.year = parseInt(year, 10);
-    if (month) where.period.month = parseInt(month, 10);
+    if (yearNum !== null) where.period.year = yearNum;
+    if (monthNum !== null) where.period.month = monthNum;
   }
   if (keyword) {
     where.OR = [
