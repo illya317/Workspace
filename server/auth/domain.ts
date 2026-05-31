@@ -1,26 +1,48 @@
 import { checkPermission } from "@/server/rbac/check";
 
+/**
+ * Check HR access for a specific resource key.
+ *
+ * @param resourceKey — the most specific resource to check (e.g. "people.roster").
+ *   Defaults to "people" for backward compat. Also checks "people" parent as a
+ *   fallback so broad grants still work.
+ */
 export async function checkHRAccess(
   userId: number,
   roleKey: "access" | "write" | "delete" | "admin" = "access",
+  resourceKey: string = "people",
 ): Promise<boolean> {
   if (await checkPermission(userId, "system", "admin")) return true;
-  if (roleKey === "access") {
-    return (
-      (await checkPermission(userId, "people", "access")) ||
-      (await checkPermission(userId, "people", "write")) ||
-      (await checkPermission(userId, "people", "delete"))
-    );
-  }
-  return checkPermission(userId, "people", roleKey);
+
+  const check = async (rk: string) => {
+    if (roleKey === "access") {
+      return (
+        (await checkPermission(userId, rk, "access")) ||
+        (await checkPermission(userId, rk, "write")) ||
+        (await checkPermission(userId, rk, "delete"))
+      );
+    }
+    return checkPermission(userId, rk, roleKey);
+  };
+
+  if (await check(resourceKey)) return true;
+  // Broad "people" parent grant also grants access to sub-resources
+  if (resourceKey !== "people" && await check("people")) return true;
+  return false;
 }
 
-export async function checkHRWrite(userId: number): Promise<boolean> {
-  return checkHRAccess(userId, "write");
+export async function checkHRWrite(
+  userId: number,
+  resourceKey: string = "people",
+): Promise<boolean> {
+  return checkHRAccess(userId, "write", resourceKey);
 }
 
-export async function checkHRDelete(userId: number): Promise<boolean> {
-  return checkHRAccess(userId, "delete");
+export async function checkHRDelete(
+  userId: number,
+  resourceKey: string = "people",
+): Promise<boolean> {
+  return checkHRAccess(userId, "delete", resourceKey);
 }
 
 export async function checkWorksAccess(userId: number): Promise<boolean> {

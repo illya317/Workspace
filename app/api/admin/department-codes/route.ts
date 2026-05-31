@@ -27,7 +27,7 @@ export async function GET(request: Request) {
   if (!payload) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
-  if (!(await checkHRAccess(payload.userId))) {
+  if (!(await checkHRAccess(payload.userId, "access", "people.roster"))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
@@ -54,7 +54,7 @@ export async function GET(request: Request) {
 export async function PUT(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkHRWrite(payload.userId))) {
+  if (!(await checkHRWrite(payload.userId, "people.roster"))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
@@ -94,7 +94,7 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkHRDelete(payload.userId))) {
+  if (!(await checkHRDelete(payload.userId, "people.roster"))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 

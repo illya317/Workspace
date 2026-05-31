@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkHRAccess(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await checkHRAccess(payload.userId, "access", "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const relations = await prisma.companyRelation.findMany({
     include: { parent: { select: { id: true, name: true } }, child: { select: { id: true, name: true } } },
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkHRWrite(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await checkHRWrite(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { parentId, childId, shareRatio, isConsolidated } = await request.json();
   if (!parentId || !childId) return NextResponse.json({ error: "缺少parentId或childId" }, { status: 400 });

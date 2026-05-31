@@ -12,7 +12,7 @@ const RESOLVERS: Record<string, string> = {
 export async function POST(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkHRWrite(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await checkHRWrite(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { historyId } = await request.json();
   if (!historyId) return NextResponse.json({ error: "缺少 historyId" }, { status: 400 });
