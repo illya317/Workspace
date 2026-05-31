@@ -15,7 +15,7 @@
 | `reports.prisma` | 工作汇报 | Report, ReportItem, ReportHistory |
 | `works.prisma` | 工作清单 | WorkItem, WorkParticipant |
 | `hr.prisma` | 人事行政 | Employee, Employment, Company, CompanyRelation, Department, Position, EDP, Project, EmployeeProject, PositionDescription, EditHistory |
-| `finance-ledger.prisma` | 财务总账 | FinanceAccount, FinancePeriod, FinanceVoucher, FinanceVoucherItem, FinanceAccountBalance |
+| `finance-ledger.prisma` | 财务总账 | FinanceAccount, FinancePeriod, FinanceVoucher, FinanceVoucherItem, FinanceAccountBalance, FinanceBalanceSnapshot, FinanceBalanceSnapshotRow, FinanceReclassRule, ReclassResult |
 | `finance-budget.prisma` | 预算管理 | FinanceBudgetVersion, FinanceBudgetDept, FinanceBudgetRd |
 | `finance-cost.prisma` | 成本管理 | FinanceDataImport, FinanceShipment, FinanceSalesSalary, FinanceCostStructureRow, FinanceCostAnalysisRow, FinanceWorkshopReport |
 | `inventory.prisma` | 库存管理 | StockRawMaterial, StockPackaging, StockFinishedGoods, StockBatch, StockOperation, StockReturn |
