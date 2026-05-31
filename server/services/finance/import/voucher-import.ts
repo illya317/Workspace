@@ -1,5 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import type { PreviewResult } from "./import";
+import crypto from "crypto";
+
+// ─── Fingerprint ───────────────────────────────────────────
+
+function itemFingerprint(
+  accountCode: string, debit: number, credit: number, description: string,
+): string {
+  const raw = `${accountCode}|${debit}|${credit}|${description}`;
+  return crypto.createHash("sha256").update(raw).digest("hex").slice(0, 16);
+}
 
 // ─── Helpers ───────────────────────────────────────────────
 
@@ -34,7 +44,8 @@ export async function importVouchers(
   imported: number; created: number; updated: number; deleted: number;
   skipped: number; blocked: number; warnings: string[];
 }> {
-  let created = 0, updated = 0, deleted = 0, blocked = 0;
+  let totalCreated = 0, totalUpdated = 0, totalSkipped = 0, totalDeleted = 0;
+  let voucherCreated = 0, voucherUpdated = 0, blocked = 0;
   const warnings: string[] = [];
 
   for (const voucherPreview of preview.vouchers || []) {
@@ -45,24 +56,17 @@ export async function importVouchers(
 
     const existing = await prisma.financeVoucher.findFirst({
       where: { voucherNo, companyCode: preview.companyCode, periodId: period.id },
-      include: { items: { include: { reclassResults: true } } },
+      include: { items: { include: { reclassResults: true }, orderBy: { sortOrder: "asc" } } },
     });
 
-    // Block overwrite if any item has non-pending reclass results
+    // Block if any item has non-pending ReclassResult
     if (existing) {
       const reviewed = existing.items.flatMap(it => it.reclassResults)
         .filter(rr => rr.status !== "pending");
       if (reviewed.length > 0) {
         blocked++;
-        warnings.push(
-          `凭证 ${voucherNo} 有 ${reviewed.length} 条已审核重分类结果，跳过导入`
-        );
+        warnings.push(`凭证 ${voucherNo} 有 ${reviewed.length} 条已审核重分类结果，跳过导入`);
         continue;
-      }
-      // Delete all old items
-      if (existing.items.length > 0) {
-        await prisma.financeVoucherItem.deleteMany({ where: { voucherId: existing.id } });
-        deleted += existing.items.length;
       }
     }
 
@@ -89,32 +93,82 @@ export async function importVouchers(
           },
         });
 
-    // Create new items — sortOrder follows Excel row order
-    let itemCount = 0;
+    // Index old items by sortOrder
+    type OldItem = { id: number; sortOrder: number; importFingerprint: string | null };
+    const oldByPos = new Map<number, OldItem>();
+    if (existing) {
+      for (const oi of existing.items) oldByPos.set(oi.sortOrder, oi);
+    }
+    const seenPositions = new Set<number>();
+
+    let itemCreated = 0, itemUpdated = 0, itemSkipped = 0;
+
     for (let i = 0; i < voucherPreview.items.length; i++) {
       const item = voucherPreview.items[i];
       const accountId = accountCodeToId.get(item.accountCode);
       if (!accountId) continue;
 
-      await prisma.financeVoucherItem.create({
-        data: {
-          voucherId: voucher.id, accountId,
-          debit: item.debit, credit: item.credit,
-          description: item.description, sortOrder: i,
-          sourceFile: preview.sourceFileName, importId,
-        },
-      });
-      itemCount++;
+      const fp = itemFingerprint(item.accountCode, item.debit, item.credit, item.description);
+      const oldItem = oldByPos.get(i);
+
+      if (oldItem) {
+        seenPositions.add(i);
+        if (oldItem.importFingerprint === fp) {
+          // Same position, same content → skip
+          itemSkipped++;
+        } else {
+          // Same position, different content → update in place
+          await prisma.financeVoucherItem.update({
+            where: { id: oldItem.id },
+            data: {
+              accountId, debit: item.debit, credit: item.credit,
+              description: item.description, importFingerprint: fp,
+              sourceFile: preview.sourceFileName, importId,
+            },
+          });
+          itemUpdated++;
+        }
+      } else {
+        // New position → create
+        await prisma.financeVoucherItem.create({
+          data: {
+            voucherId: voucher.id, accountId,
+            debit: item.debit, credit: item.credit,
+            description: item.description, sortOrder: i,
+            importFingerprint: fp,
+            sourceFile: preview.sourceFileName, importId,
+          },
+        });
+        itemCreated++;
+      }
     }
 
-    if (existing) updated++; else created++;
-    if (itemCount < voucherPreview.items.length) {
-      warnings.push(`凭证 ${voucherNo}: ${voucherPreview.items.length - itemCount} 条分录的科目编码未找到`);
+    // Delete old items at positions no longer in the new set
+    let itemDeleted = 0;
+    for (const [pos, oldItem] of oldByPos) {
+      if (!seenPositions.has(pos)) {
+        await prisma.reclassResult.deleteMany({
+          where: { voucherItemId: oldItem.id },
+        });
+        await prisma.financeVoucherItem.delete({ where: { id: oldItem.id } });
+        itemDeleted++;
+      }
     }
+
+    if (existing) voucherUpdated++; else voucherCreated++;
+    totalCreated += itemCreated;
+    totalUpdated += itemUpdated;
+    totalSkipped += itemSkipped;
+    totalDeleted += itemDeleted;
   }
 
   return {
-    imported: created + updated,
-    created, updated, deleted, skipped: 0, blocked, warnings,
+    imported: totalCreated + totalUpdated,
+    created: totalCreated,
+    updated: totalUpdated,
+    deleted: totalDeleted,
+    skipped: totalSkipped,
+    blocked,
+    warnings,
   };
 }
