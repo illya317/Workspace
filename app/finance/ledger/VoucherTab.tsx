@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, useState, Fragment, useMemo } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import ColumnToggle, { type ColumnDef } from "@/app/components/ColumnToggle";
+import ColumnToggle from "@/app/components/ColumnToggle";
+import DataTable, { getDefaultVisibleColumns } from "@/app/components/DataTable";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
-import VoucherItemTable from "../components/VoucherItemTable";
+import { BASE_ITEM_COLUMNS } from "../components/VoucherItemTable";
+import type { VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
+import { buildReclassItemColumns } from "./reclassItemColumns";
 
 const COMPANIES: Record<string, string> = { "01": "丰华生物", "02": "丰华天力通", "03": "丰华悦通", "04": "丰华制药", "05": "加拿大", "06": "上海悦通" };
 
@@ -57,24 +60,6 @@ interface VoucherResponse {
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const ITEM_COLUMNS: ColumnDef[] = [
-  { key: "seq", label: "序号", required: true },
-  { key: "accountCode", label: "科目编码", required: true },
-  { key: "accountName", label: "科目名称", required: true },
-  { key: "description", label: "摘要" },
-  { key: "debit", label: "借方" },
-  { key: "credit", label: "贷方" },
-  { key: "relatedEntity", label: "关联实体" },
-  { key: "reclassStatus", label: "重分类" },
-  { key: "reclassTarget", label: "目标科目" },
-  { key: "reclassAmount", label: "重分类金额" },
-  { key: "reclassActions", label: "操作" },
-];
-
-const DEFAULT_VISIBLE_ITEMS = ITEM_COLUMNS
-  .filter((c) => c.required || c.key === "reclassStatus")
-  .map((c) => c.key);
-
 export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
@@ -85,9 +70,18 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
-  const [visibleItemColumns, setVisibleItemColumns] = useState<string[]>(DEFAULT_VISIBLE_ITEMS);
   const { toast, showToast, closeToast } = useToast();
   const { reclassMap, handleReview } = useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
+  const [visibleItemColumns, setVisibleItemColumns] = useState<string[]>(() => {
+    const base = getDefaultVisibleColumns(BASE_ITEM_COLUMNS);
+    return [...base, "reclassStatus"];
+  });
+
+  // ── Item columns (shared with ColumnToggle + DataTable) ─
+
+  const itemColumns = useMemo(() =>
+    [...BASE_ITEM_COLUMNS, ...buildReclassItemColumns(reclassMap, canWrite, handleReview)],
+    [reclassMap, canWrite, handleReview]);
 
   async function load() {
     setLoading(true);
@@ -143,7 +137,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
 
       {/* Table */}
       <div className="flex items-center justify-end">
-        <ColumnToggle columns={ITEM_COLUMNS} visible={visibleItemColumns} onChange={setVisibleItemColumns} />
+        <ColumnToggle columns={itemColumns} visible={visibleItemColumns} onChange={setVisibleItemColumns} />
       </div>
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         {loading ? (
@@ -192,7 +186,12 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
                     <tr className="bg-gray-50">
                       <td colSpan={8} className="px-3 py-2">
                         <div className="rounded border border-gray-200 bg-white">
-                          <VoucherItemTable items={v.items} visibleColumns={visibleItemColumns} reclassMap={reclassMap} canWrite={canWrite} onReview={handleReview} />
+                          <DataTable
+                            rows={v.items.map((it, i) => ({ ...it, _idx: i }))}
+                            columns={itemColumns}
+                            visibleColumns={visibleItemColumns}
+                            rowKey={(r) => r.id}
+                          />
                         </div>
                       </td>
                     </tr>
