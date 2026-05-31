@@ -25,10 +25,8 @@ export async function GET(request: Request) {
   const resourceKey = searchParams.get("resourceKey") || undefined;
   const scopeId = searchParams.get("scopeId") || undefined;
 
-  // Non-admin clicking un-manageable resource: return empty, not 403
-  if (!isSysAdmin && resourceKey && !manageableKeys.has(resourceKey)) {
-    return NextResponse.json({ subjects: [], directGrants: [], positionGrants: [], departmentGrants: [], ancestorResourceKeys: [], maxRoleKey: "admin", isSystemAdmin: false, systemAdminBusinessBypass: false });
-  }
+  const empty = { subjects: [], directGrants: [], positionGrants: [], departmentGrants: [], ancestorResourceKeys: [], maxRoleKey: "admin", isSystemAdmin: false, systemAdminBusinessBypass: false };
+  if (!isSysAdmin && resourceKey && !manageableKeys.has(resourceKey)) return NextResponse.json(empty);
 
   const data = await getPermissionGrantData(subjectType, resourceKey, scopeId ?? null);
 
@@ -58,19 +56,8 @@ export async function PUT(request: Request) {
   const body = await request.json();
   const { subjectType, subjectId, resourceKey, roleKey, value, scopeId } = body;
 
-  if (
-    !subjectType ||
-    !subjectId ||
-    !resourceKey ||
-    !roleKey ||
-    typeof value !== "boolean"
-  ) {
-    return NextResponse.json(
-      {
-        error: "参数错误: 需要 subjectType, subjectId, resourceKey, roleKey, value",
-      },
-      { status: 400 }
-    );
+  if (!subjectType || !subjectId || !resourceKey || !roleKey || typeof value !== "boolean") {
+    return NextResponse.json({ error: "参数错误: 需要 subjectType, subjectId, resourceKey, roleKey, value" }, { status: 400 });
   }
 
   // Only system.admin can grant/revoke admin role
@@ -86,24 +73,14 @@ export async function PUT(request: Request) {
     resourceKey,
     roleKey
   );
-  if (!canManage) {
-    return NextResponse.json(
-      { error: "无权限管理该资源权限" },
-      { status: 403 }
-    );
-  }
+  if (!canManage) return NextResponse.json({ error: "无权限管理该资源权限" }, { status: 403 });
 
-  // 检查 role 是否超过资源允许的最高角色
   if (value) {
-    const { isRoleAllowedForResource } = await import("@/server/rbac/maxRole");
-    const allowed = await isRoleAllowedForResource(resourceKey, roleKey);
-    if (!allowed) {
-      const { getResourceMaxRole } = await import("@/server/rbac/maxRole");
+    const { isRoleAllowedForResource, getResourceMaxRole } = await import("@/server/rbac/maxRole");
+    if (!(await isRoleAllowedForResource(resourceKey, roleKey))) {
       const max = await getResourceMaxRole(resourceKey);
-      return NextResponse.json(
-        { error: `该资源最高仅支持 ${max === "access" ? "访问" : max === "write" ? "编辑" : max === "delete" ? "删除" : "管理"}` },
-        { status: 400 }
-      );
+      const labels: Record<string, string> = { access: "访问", write: "编辑", delete: "删除", admin: "管理" };
+      return NextResponse.json({ error: `该资源最高仅支持 ${labels[max] || max}` }, { status: 400 });
     }
   }
 
