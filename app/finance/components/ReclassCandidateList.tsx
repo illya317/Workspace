@@ -7,17 +7,20 @@ import { matchText } from "@/lib/search";
 import type { RuleCandidate } from "@/server/services/finance/ledger/reclass-rules";
 import AccountCodeInput from "./AccountCodeInput";
 
-interface Props { companyCode: string; year: string; canWrite: boolean; }
+interface Props { companyCode: string; year: string; keyword?: string; scope?: string; canWrite: boolean; }
 
-export default function ReclassCandidateList({ companyCode, year, canWrite }: Props) {
+export default function ReclassCandidateList({ companyCode, year, keyword: propsKeyword, scope, canWrite }: Props) {
   const [candidates, setCandidates] = useState<RuleCandidate[]>([]);
   const [statsText, setStatsText] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast, showToast, closeToast } = useToast();
   const [editCode, setEditCode] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [keyword, setKeyword] = useState("");
+  const [localKeyword, setLocalKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "noRule" | "hasRule">("noRule");
+
+  // 外部 keyword 和本地 keyword 合并：外部优先
+  const keyword = propsKeyword || localKeyword;
 
   // ── Fetch ───────────────────────────────────────────
 
@@ -105,7 +108,7 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
       {/* Filter bar */}
       <div className="mb-3 flex items-center gap-3">
         <input
-          type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)}
+          type="text" value={localKeyword} onChange={(e) => setLocalKeyword(e.target.value)}
           placeholder="搜索科目编码或名称..."
           className="w-48 rounded border border-gray-200 px-2.5 py-1 text-xs focus:border-emerald-400 focus:outline-none"
         />

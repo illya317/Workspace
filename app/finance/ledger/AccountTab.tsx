@@ -123,7 +123,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
 
       {reclassMode ? (
         companyFilter && yearFilter ? (
-          <ReclassCandidateList companyCode={companyFilter} year={yearFilter} canWrite={canWrite} />
+          <ReclassCandidateList companyCode={companyFilter} year={yearFilter} keyword={keyword} scope={scope} canWrite={canWrite} />
         ) : (
           <p className="py-8 text-center text-sm text-gray-400">请选择公司和年份以配置重分类规则</p>
         )
