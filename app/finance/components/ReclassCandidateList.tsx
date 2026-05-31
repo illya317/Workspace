@@ -31,22 +31,49 @@ export default function ReclassCandidateList({
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/finance/reclass-rules?companyCode=${companyCode}&year=${year}`);
-      if (res.ok) {
-        const data = await res.json();
-        const list: RuleCandidate[] = data.candidates || [];
-        setCandidates(list);
-        onStats?.({
-          total: list.length,
-          noRule: list.filter((c) => !c.existingRuleId).length,
-          hasRule: list.filter((c) => !!c.existingRuleId).length,
-        });
-      } else { showToast("加载失败", "error"); }
+      const [scanRes, allRes] = await Promise.all([
+        fetch(`/api/finance/reclass-rules?companyCode=${companyCode}&year=${year}`),
+        statusFilter === "all"
+          ? fetch(`/api/finance/accounts?companyCode=${companyCode}&year=${year}&scope=all&pageSize=2000`)
+          : null,
+      ]);
+
+      if (!scanRes.ok) { showToast("加载失败", "error"); return; }
+      const scanData = await scanRes.json();
+      const scanned: RuleCandidate[] = scanData.candidates || [];
+
+      let all: RuleCandidate[] = scanned;
+      if (allRes?.ok) {
+        const allData = await allRes.json();
+        const allAccounts: { code: string; name: string; balanceDirection: string }[] =
+          allData.data || allData.accounts || [];
+        const scannedCodes = new Set(scanned.map((c) => c.accountCode));
+        for (const a of allAccounts) {
+          if (!scannedCodes.has(a.code)) {
+            all.push({
+              accountCode: a.code, accountName: a.name,
+              balanceDirection: a.balanceDirection,
+              abnormalSide: "",
+              abnormalAmount: 0,
+              suggestedTarget: "",
+              existingRuleId: null, existingTarget: null,
+              existingSource: null, existingEnabled: null,
+            });
+          }
+        }
+      }
+
+      setCandidates(all);
+      onStats?.({
+        total: all.length,
+        noRule: scanned.filter((c) => !c.existingRuleId).length,
+        hasRule: scanned.filter((c) => !!c.existingRuleId).length,
+      });
     } catch { showToast("网络错误", "error"); }
     setLoading(false);
   }
 
-  useEffect(() => { load(); setPage(1); }, [companyCode, year]);
+  useEffect(() => { load(); setPage(1); }, [companyCode, year, statusFilter]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
   // ── Actions ──────────────────────────────────────────
