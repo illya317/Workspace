@@ -110,10 +110,20 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
 /** Cached per-request: layout + page can both call without double DB queries. */
 export const getCurrentUser = cache(_getCurrentUser);
 
+/** For API routes: throws on unauthenticated. */
 export async function requireCurrentUser(): Promise<SessionUser> {
-  const { redirect } = await import("next/navigation");
   const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  if (!user) throw new Error("UNAUTHORIZED");
+  return user;
+}
+
+/** For page components: redirects to /login on unauthenticated. */
+export async function requireAuth(): Promise<SessionUser> {
+  const user = await getCurrentUser();
+  if (!user) {
+    const { redirect } = await import("next/navigation");
+    redirect("/login");
+  }
   return user!;
 }
 

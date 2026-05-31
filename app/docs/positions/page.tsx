@@ -1,9 +1,9 @@
-import { requireCurrentUser } from "@/server/auth/session";
+import { requireAuth } from "@/server/auth/session";
 import AppShell from "@/app/components/AppShell";
 import Link from "next/link";
 
 export default async function DocsPositionsPage() {
-  const user = await requireCurrentUser();
+  const user = await requireAuth();
 
   return (
     <AppShell title="岗位说明书" backHref="/docs" user={user}>

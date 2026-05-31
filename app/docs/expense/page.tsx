@@ -1,8 +1,8 @@
-import { requireCurrentUser } from "@/server/auth/session";
+import { requireAuth } from "@/server/auth/session";
 import AppShell from "@/app/components/AppShell";
 
 export default async function DocsExpensePage() {
-  const user = await requireCurrentUser();
+  const user = await requireAuth();
   return (
     <AppShell title="报销规范" backHref="/docs" user={user}>
       <main className="mx-auto max-w-5xl px-4 py-10">
