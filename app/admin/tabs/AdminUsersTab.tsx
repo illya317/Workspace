@@ -152,7 +152,6 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
           <table className="w-full text-xs">
             <thead className="border-b bg-gray-50">
               <tr>
-                <th className="px-3 py-2 text-left font-medium text-gray-600 w-16">ID</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600">姓名</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600">用户名</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600 w-16">状态</th>
@@ -170,7 +169,6 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
                 );
                 return (
                   <tr key={u.id} className="border-b hover:bg-gray-50">
-                    <td className="px-3 py-2 text-gray-500 font-mono">{u.id}</td>
                     <td className="px-3 py-2 font-medium text-gray-800">
                       {u.name}{u.employeeId && <span className="text-gray-400 ml-1 text-[11px] font-normal">/ {u.employeeId}</span>}
                     </td>
