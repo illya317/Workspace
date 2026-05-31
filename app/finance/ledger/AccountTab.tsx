@@ -6,6 +6,7 @@ import { useToast } from "@/app/hooks/useToast";
 import { getDefaultVisibleColumns } from "@/app/components/DataTable";
 import FilterField from "@/app/components/FilterField";
 import AccountTable, { type Account, ACCOUNT_COLUMNS } from "../components/AccountTable";
+import ReclassCandidateList from "../components/ReclassCandidateList";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
 
@@ -18,6 +19,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [levelFilter, setLevelFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
   const [scope, setScope] = useState("");
+  const [reclassMode, setReclassMode] = useState(false);
   const [extraField, setExtraField] = useState<"level" | "scope">("scope");
   const [extraValue, setExtraValue] = useState("");
   const [keyword, setKeyword] = useState("");
@@ -103,18 +105,36 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
                 setExtraValue(v); setPage(1);
               }}
             />
+            {canWrite && (
+              <button
+                onClick={() => setReclassMode(!reclassMode)}
+                className={`rounded border px-2 py-1 text-xs transition-colors ${
+                  reclassMode
+                    ? "bg-emerald-600 text-white border-emerald-600"
+                    : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                重分类配置
+              </button>
+            )}
           </>
         }
       />
 
-      <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
-        <AccountTable
-          accounts={accounts}
-          loading={loading}
-          visibleColumns={visibleColumns}
-        />
-      </div>
-      <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
+      {reclassMode ? (
+        companyFilter && yearFilter ? (
+          <ReclassCandidateList companyCode={companyFilter} year={yearFilter} canWrite={canWrite} />
+        ) : (
+          <p className="py-8 text-center text-sm text-gray-400">请选择公司和年份以配置重分类规则</p>
+        )
+      ) : (
+        <>
+          <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+            <AccountTable accounts={accounts} loading={loading} visibleColumns={visibleColumns} />
+          </div>
+          <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
+        </>
+      )}
 
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
