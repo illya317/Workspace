@@ -9,9 +9,6 @@ export interface SessionUser {
   isWorkListAdmin?: boolean;
   isSuperAdmin?: boolean;
   canSelectAnyWeek?: boolean;
-  canAccessHR?: boolean;
-  canEditHR?: boolean;
-  canDeleteHR?: boolean;
   canAccessWorks?: boolean;
   canAccessFinance?: boolean;
   canAccessFinanceCost?: boolean;
@@ -23,9 +20,9 @@ export interface SessionUser {
   canAccessInventory?: boolean;
   canAccessContract?: boolean;
   visibleResourceKeys?: string[];
-  /** Visible resources for "write" role (DB-driven). Prefer this over canEditHR. */
+  /** Visible resources for "write" role (DB-driven). */
   visibleWriteResourceKeys?: string[];
-  /** Visible resources for "delete" role (DB-driven). Prefer this over canDeleteHR. */
+  /** Visible resources for "delete" role (DB-driven). */
   visibleDeleteResourceKeys?: string[];
   canAccessAdmin?: boolean;
   canManagePermissions?: boolean;

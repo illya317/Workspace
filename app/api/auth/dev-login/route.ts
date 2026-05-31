@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { createToken, checkPermission, getPermissionContext } from "@/lib/auth";
+import { createToken, getPermissionContext } from "@/lib/auth";
 import { checkBruteForce, recordAttempt } from "@/lib/security";
 import { LoginSchema, parseJson } from "@/lib/schemas";
 
@@ -83,15 +83,10 @@ export async function POST(request: Request) {
     getVisibleResourceKeys(ctx, "delete"),
   ]);
   const ma = (k: string) => visibleAccess.has(k);
-  const mw = (k: string) => visibleWrite.has(k);
-  const md = (k: string) => visibleDelete.has(k);
   const isAdmin = ctx.isAdmin;
 
-  const hasHR = ["people", "people.roster", "people.performance", "people.analytics"].some(ma);
-  const hasHRWrite = ["people", "people.roster", "people.performance", "people.analytics"].some(mw);
-  const hasHRDelete = ["people", "people.roster", "people.performance", "people.analytics"].some(md);
   const hasWorks = ma("work") || ma("work.report") || ma("work.task");
-  const canAnyWeek = mw("work.report") || (await checkPermission(user.id, "work.report", "write"));
+  const canAnyWeek = visibleWrite.has("work.report");
 
   const response = NextResponse.json({
     success: true,
@@ -101,8 +96,7 @@ export async function POST(request: Request) {
       visibleResourceKeys: [...visibleAccess],
       visibleWriteResourceKeys: [...visibleWrite],
       visibleDeleteResourceKeys: [...visibleDelete],
-      canAccessHR: isAdmin || hasHR, canEditHR: isAdmin || hasHRWrite,
-      canDeleteHR: isAdmin || hasHRDelete, canAccessWorks: hasWorks,
+      canAccessWorks: hasWorks,
     },
   });
   response.cookies.set("token", token, { httpOnly: true, secure: false, sameSite: "lax", maxAge: 60 * 60 * 24 * 7, path: "/" });

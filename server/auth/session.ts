@@ -56,14 +56,8 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
 
   // L1 module visibility (DB-driven, auto-ancestor propagation)
   const ma = (k: string) => visibleAccess.has(k);
-  const mw = (k: string) => visibleWrite.has(k);
-  const md = (k: string) => visibleDelete.has(k);
 
-  const hrKeys = ["people", "people.roster", "people.performance", "people.analytics"] as const;
   const hasWorks = ma("work") || ma("work.report") || ma("work.task");
-  const hasHR = hrKeys.some(ma);
-  const hasHRW = hrKeys.some(mw);
-  const hasHRD = hrKeys.some(md);
   const financeKeys = ["finance", "finance.cost", "finance.ledger", "finance.statement", "finance.budget", "finance.analysis", "finance.import"] as const;
   const hasFinance = financeKeys.some(ma);
   const hasInventory = ma("production") || ma("production.inventory");
@@ -91,10 +85,6 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     visibleResourceKeys: [...visibleAccess],
     visibleWriteResourceKeys: [...visibleWrite],
     visibleDeleteResourceKeys: [...visibleDelete],
-    // Module gates (deprecated — prefer visibleResourceKeys / visibleWriteResourceKeys / visibleDeleteResourceKeys)
-    canAccessHR: isAdmin || (hasHR && isActiveEmployee),
-    canEditHR: isAdmin || (hasHRW && isActiveEmployee),
-    canDeleteHR: isAdmin || (hasHRD && isActiveEmployee),
     canAccessWorks: hasWorks,
     canAccessFinance: hasFinance,
     canAccessFinanceCost: ma("finance.cost"), canAccessFinanceLedger: ma("finance.ledger"),
