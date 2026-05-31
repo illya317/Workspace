@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
-import { BalanceItem, ReportPeriod, closingNetLeaf, reclassifyFiltered, mk, mkC } from "../report-helpers";
+import { BalanceItem, ReportPeriod, ReclassEntry, closingNetLeaf, reclassify, reclassifyFromEntries, mk, mkC } from "../report-helpers";
 
 export function generateBalanceSheet(
   period: ReportPeriod,
   balances: BalanceItem[],
-  reclassSourceCodes?: Set<string>,
+  reclassEntries?: ReclassEntry[],
 ) {
-  const reclass = reclassifyFiltered(balances, reclassSourceCodes ?? null);
+  const reclass = reclassEntries && reclassEntries.length > 0
+    ? reclassifyFromEntries(reclassEntries)
+    : reclassify(balances);
 
   const cash = closingNetLeaf(balances, ["1001", "1002"]);
   const tradingFinancial = closingNetLeaf(balances, ["1101"]);

@@ -134,18 +134,7 @@ export function closingNetLeafCreditOnly(balances: BalanceItem[], prefixes: stri
 
 /** Reclassify: asset accounts with net credit → liability pool, liability accounts with net debit → asset pool. Only leaf accounts to avoid double-counting with parent. */
 export function reclassify(balances: BalanceItem[]) {
-  return reclassifyFiltered(balances, null);
-}
-
-/**
- * Reclassify from ReclassResult-approved codes instead of scanning all 1xxx/2xxx.
- * When reclassSourceCodes is provided, only those accounts are considered.
- * When null (default), falls back to the legacy startsWith("1"/"2") scan.
- */
-export function reclassifyFiltered(
-  balances: BalanceItem[],
-  reclassSourceCodes: Set<string> | null,
-) {
+  // Legacy: scan all 1xxx/2xxx accounts by net sign
   const codes = balances.map(b => b.account.code);
   const parentCodes = new Set<string>();
   for (const c1 of codes) {
@@ -163,37 +152,50 @@ export function reclassifyFiltered(
 
   for (const b of balances) {
     if (!leafCodes.has(b.account.code)) continue;
-
-    // If ReclassResult codes provided, only process those
-    if (reclassSourceCodes && !reclassSourceCodes.has(b.account.code)) continue;
-
     const net = b.closingDebit - b.closingCredit;
-
-    // Legacy path: scan by prefix
-    if (!reclassSourceCodes) {
-      if (b.account.code.startsWith("1") && net < 0) {
-        assetToLiability.debit += b.closingDebit;
-        assetToLiability.credit += b.closingCredit;
-      }
-      if (b.account.code.startsWith("2") && net > 0) {
-        liabilityToAsset.debit += b.closingDebit;
-        liabilityToAsset.credit += b.closingCredit;
-      }
-      continue;
-    }
-
-    // ReclassResult path: classify by prefix, no net sign check needed
-    // (the fact that it's in ReclassResult means reclassification is warranted)
-    if (b.account.code.startsWith("1")) {
-      // Asset → Liability: subtract from asset side
+    if (b.account.code.startsWith("1") && net < 0) {
       assetToLiability.debit += b.closingDebit;
       assetToLiability.credit += b.closingCredit;
-    } else if (b.account.code.startsWith("2")) {
-      // Liability → Asset: subtract from liability side
+    }
+    if (b.account.code.startsWith("2") && net > 0) {
       liabilityToAsset.debit += b.closingDebit;
       liabilityToAsset.credit += b.closingCredit;
     }
-    // Other categories (3xxx-6xxx) are not reclassified at balance-sheet level
+  }
+  return { assetToLiability, liabilityToAsset };
+}
+
+// ─── Phase 7: ReclassResult-based reclassification ─────────
+
+/** A single approved/adjusted reclassification entry from ReclassResult. */
+export interface ReclassEntry {
+  sourceAccount: string;
+  targetAccount: string;
+  amount: number;
+}
+
+/**
+ * Compute reclassification pools from approved ReclassResult entries.
+ * Uses the exact `amount` from each entry — NOT the full account balance.
+ *
+ * Classification by sourceAccount prefix:
+ *   1xxx (asset)   → assetToLiability pool   (credit to remove)
+ *   2xxx (liability)→ liabilityToAsset pool   (debit to remove)
+ *   other          → not aggregated (retained for future use)
+ */
+export function reclassifyFromEntries(entries: ReclassEntry[]) {
+  let assetToLiability = { debit: 0, credit: 0 };
+  let liabilityToAsset = { debit: 0, credit: 0 };
+
+  for (const e of entries) {
+    if (e.sourceAccount.startsWith("1")) {
+      // Asset account: amount represents credit to remove → reduce asset
+      assetToLiability.credit += e.amount;
+    } else if (e.sourceAccount.startsWith("2")) {
+      // Liability account: amount represents debit to remove → reduce liability
+      liabilityToAsset.debit += e.amount;
+    }
+    // 3xxx-6xxx not relevant for balance-sheet-level reclassification
   }
   return { assetToLiability, liabilityToAsset };
 }
