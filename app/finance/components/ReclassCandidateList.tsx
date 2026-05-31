@@ -3,24 +3,23 @@
 import { useEffect, useState } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import { matchText } from "@/lib/search";
 import type { RuleCandidate } from "@/server/services/finance/ledger/reclass-rules";
 import AccountCodeInput from "./AccountCodeInput";
 
-interface Props { companyCode: string; year: string; keyword?: string; scope?: string; canWrite: boolean; }
+interface Props {
+  companyCode: string; year: string;
+  keyword?: string; statusFilter?: "all" | "noRule" | "hasRule";
+  canWrite: boolean;
+}
 
-export default function ReclassCandidateList({ companyCode, year, keyword: propsKeyword, scope, canWrite }: Props) {
+export default function ReclassCandidateList({
+  companyCode, year, keyword = "", statusFilter = "noRule", canWrite,
+}: Props) {
   const [candidates, setCandidates] = useState<RuleCandidate[]>([]);
-  const [statsText, setStatsText] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast, showToast, closeToast } = useToast();
   const [editCode, setEditCode] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [localKeyword, setLocalKeyword] = useState("");
-  const [statusFilter, setStatusFilter] = useState<"all" | "noRule" | "hasRule">("noRule");
-
-  // 外部 keyword 和本地 keyword 合并：外部优先
-  const keyword = propsKeyword || localKeyword;
 
   // ── Fetch ───────────────────────────────────────────
 
@@ -31,8 +30,6 @@ export default function ReclassCandidateList({ companyCode, year, keyword: props
       if (res.ok) {
         const data = await res.json();
         setCandidates(data.candidates || []);
-        const s = data.stats;
-        if (s) setStatsText(`${s.totalAccountsScanned} 个科目，${s.abnormalCount} 异常，${s.withExistingRule} 已有规则`);
       } else { showToast("加载失败", "error"); }
     } catch { showToast("网络错误", "error"); }
     setLoading(false);
@@ -92,9 +89,6 @@ export default function ReclassCandidateList({ companyCode, year, keyword: props
   const filtered = candidates.filter((c) => {
     if (statusFilter === "hasRule" && !c.existingRuleId) return false;
     if (statusFilter === "noRule" && c.existingRuleId) return false;
-    if (keyword) {
-      if (!matchText(c.accountCode, keyword) && !matchText(c.accountName, keyword)) return false;
-    }
     return true;
   });
 
@@ -105,30 +99,6 @@ export default function ReclassCandidateList({ companyCode, year, keyword: props
 
   return (
     <div>
-      {/* Filter bar */}
-      <div className="mb-3 flex items-center gap-3">
-        <input
-          type="text" value={localKeyword} onChange={(e) => setLocalKeyword(e.target.value)}
-          placeholder="搜索科目编码或名称..."
-          className="w-48 rounded border border-gray-200 px-2.5 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-        />
-        <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
-          {[
-            { key: "noRule", label: "待配置" },
-            { key: "hasRule", label: "已有规则" },
-            { key: "all", label: "全部" },
-          ].map((s) => (
-            <button key={s.key}
-              onClick={() => setStatusFilter(s.key as typeof statusFilter)}
-              className={`rounded px-2 py-0.5 text-[11px] transition-colors ${
-                statusFilter === s.key ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-gray-100"
-              }`}>{s.label}</button>
-          ))}
-        </div>
-        <span className="text-xs text-gray-400">{filtered.length} / {candidates.length}</span>
-        <div className="flex-1" />
-        {statsText && <span className="text-xs text-gray-500">{statsText}</span>}
-      </div>
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
         <table className="w-full text-xs">
           <thead className="border-b bg-gray-100">

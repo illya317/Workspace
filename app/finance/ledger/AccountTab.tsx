@@ -20,6 +20,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [yearFilter, setYearFilter] = useState("");
   const [scope, setScope] = useState("");
   const [reclassMode, setReclassMode] = useState(false);
+  const [reclassStatus, setReclassStatus] = useState<"noRule" | "hasRule" | "all">("noRule");
   const [extraField, setExtraField] = useState<"level" | "scope">("scope");
   const [extraValue, setExtraValue] = useState("");
   const [keyword, setKeyword] = useState("");
@@ -78,44 +79,63 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         onLevelChange={(v) => { setLevelFilter(v); setPage(1); }}
         onKeywordChange={(v) => { setKeyword(v); setPage(1); }}
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
-        columns={ACCOUNT_COLUMNS}
-        visibleColumns={visibleColumns}
-        onColumnsChange={setVisibleColumns}
+        columns={reclassMode ? undefined : ACCOUNT_COLUMNS}
+        visibleColumns={reclassMode ? undefined : visibleColumns}
+        onColumnsChange={reclassMode ? undefined : setVisibleColumns}
         showMonth={false} showLevel={false}
         extra={
           <>
-            <FilterField
-              fields={[
-                { key: "level", label: "层级" },
-                { key: "scope", label: "类型" },
-              ]}
-              valueOptions={{
-                level: [{ value: "", label: "全部" }, { value: "1", label: "1级" }, { value: "2", label: "2级" }, { value: "3", label: "3级" }, { value: "4", label: "4级" }, { value: "5", label: "5级" }],
-                scope: [{ value: "", label: "全部" }, { value: "mapped", label: "集团" }, { value: "unmapped", label: "独有" }, { value: "inactive", label: "未启用" }],
-              }}
-              fieldKey={extraField}
-              onFieldKeyChange={(k) => {
-                setLevelFilter(""); setScope("");
-                setExtraField(k as typeof extraField); setExtraValue(""); setPage(1);
-              }}
-              value={extraValue}
-              onValueChange={(v) => {
-                if (extraField === "level") setLevelFilter(v);
-                else setScope(v);
-                setExtraValue(v); setPage(1);
-              }}
-            />
+            {!reclassMode && (
+              <FilterField
+                fields={[
+                  { key: "level", label: "层级" },
+                  { key: "scope", label: "类型" },
+                ]}
+                valueOptions={{
+                  level: [{ value: "", label: "全部" }, { value: "1", label: "1级" }, { value: "2", label: "2级" }, { value: "3", label: "3级" }, { value: "4", label: "4级" }, { value: "5", label: "5级" }],
+                  scope: [{ value: "", label: "全部" }, { value: "mapped", label: "集团" }, { value: "unmapped", label: "独有" }, { value: "inactive", label: "未启用" }],
+                }}
+                fieldKey={extraField}
+                onFieldKeyChange={(k) => {
+                  setLevelFilter(""); setScope("");
+                  setExtraField(k as typeof extraField); setExtraValue(""); setPage(1);
+                }}
+                value={extraValue}
+                onValueChange={(v) => {
+                  if (extraField === "level") setLevelFilter(v);
+                  else setScope(v);
+                  setExtraValue(v); setPage(1);
+                }}
+              />
+            )}
             {canWrite && (
-              <button
-                onClick={() => setReclassMode(!reclassMode)}
-                className={`rounded border px-2 py-1 text-xs transition-colors ${
-                  reclassMode
-                    ? "bg-emerald-600 text-white border-emerald-600"
-                    : "border-gray-300 text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                重分类配置
-              </button>
+              <>
+                <button
+                  onClick={() => setReclassMode(!reclassMode)}
+                  className={`rounded border px-2 py-1 text-xs transition-colors ${
+                    reclassMode
+                      ? "bg-emerald-600 text-white border-emerald-600"
+                      : "border-gray-300 text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  重分类
+                </button>
+                {reclassMode && (
+                  <div className="flex items-center gap-0.5 rounded-md border border-gray-200 p-0.5">
+                    {([
+                      { key: "noRule", label: "待配置" },
+                      { key: "hasRule", label: "已确认" },
+                      { key: "all", label: "全部" },
+                    ] as const).map((s) => (
+                      <button key={s.key}
+                        onClick={() => setReclassStatus(s.key)}
+                        className={`rounded px-1.5 py-0.5 text-[11px] transition-colors ${
+                          reclassStatus === s.key ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-gray-100"
+                        }`}>{s.label}</button>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </>
         }
@@ -123,7 +143,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
 
       {reclassMode ? (
         companyFilter && yearFilter ? (
-          <ReclassCandidateList companyCode={companyFilter} year={yearFilter} keyword={keyword} scope={scope} canWrite={canWrite} />
+          <ReclassCandidateList companyCode={companyFilter} year={yearFilter} keyword={keyword} statusFilter={reclassStatus} canWrite={canWrite} />
         ) : (
           <p className="py-8 text-center text-sm text-gray-400">请选择公司和年份以配置重分类规则</p>
         )
