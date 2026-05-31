@@ -186,3 +186,29 @@ model FinanceAnnualBalance {
   @@unique([accountId, year, companyCode])
   @@index([companyCode, year, isBaseline])
 }
+
+/// 重分类规则（科目级，替代 FinanceAccount.reclassTargetCode）
+/// 一条规则 = (公司, 年份, 源科目, 异常借贷方向) → 目标科目
+/// source="suggested" 为系统扫描凭证明细后生成的候选，source="manual" 为用户手动配置
+model FinanceReclassRule {
+  id                Int       @id @default(autoincrement())
+  companyCode       String?
+  year              Int
+  sourceAccountCode String
+  abnormalSide      String    // debit | credit —— 科目自然余额方向的反方向
+  targetAccountCode String
+  enabled           Boolean   @default(true)
+  source            String    @default("manual") // suggested | manual
+  confirmedBy       Int?
+  confirmedAt       DateTime?
+  note              String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+
+  confirmer User? @relation("FinanceReclassRuleConfirmer", fields: [confirmedBy], references: [id])
+  results  ReclassResult[]
+
+  @@unique([companyCode, year, sourceAccountCode, abnormalSide])
+  @@index([companyCode, year])
+  @@index([sourceAccountCode])
+}

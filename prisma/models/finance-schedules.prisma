@@ -5,6 +5,7 @@ model ReclassResult {
   id            Int       @id @default(autoincrement())
   periodId      Int
   voucherItemId Int // 来源凭证明细
+  ruleId        Int? // 追溯到生成此结果的规则；手工添加或历史兼容时为 null
   sourceAccount String // 原科目编码（快照，不FK）
   targetAccount String // 目标科目编码（可修改，解析规则见下方注释）
   amount        Float // 重分类金额
@@ -17,10 +18,12 @@ model ReclassResult {
 
   period      FinancePeriod      @relation(fields: [periodId], references: [id])
   voucherItem FinanceVoucherItem @relation(fields: [voucherItemId], references: [id])
+  rule        FinanceReclassRule? @relation(fields: [ruleId], references: [id])
   reviewer    User?              @relation("ReclassResultReviewer", fields: [adjustedBy], references: [id])
 
   @@unique([periodId, voucherItemId])
   @@index([periodId, status])
+  @@index([ruleId])
 }
 
 // targetAccount 解析规则：
