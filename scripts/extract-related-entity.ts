@@ -18,6 +18,7 @@
  *   npx tsx scripts/extract-related-entity.ts              # 实际写入
  */
 
+import "dotenv/config";
 import { PrismaClient } from "../generated/prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 
@@ -211,14 +212,14 @@ async function main() {
     for (let i = 0; i < ids.length; i += 500) {
       const batch = ids.slice(i, i + 500);
       // 双重守卫：id 匹配 + relatedEntity 仍为空（防止覆盖人工填写）
-      await p.financeVoucherItem.updateMany({
+      const result = await p.financeVoucherItem.updateMany({
         where: {
           id: { in: batch },
           OR: [{ relatedEntity: null }, { relatedEntity: "" }],
         },
         data: { relatedEntity: entity },
       });
-      written += batch.length;
+      written += result.count;
     }
   }
 
