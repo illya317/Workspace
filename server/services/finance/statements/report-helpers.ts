@@ -72,5 +72,65 @@ export function yearlyCurrentLeaf(yearBalances: BalanceItem[], prefixes: string[
   return total;
 }
 
+/** closingNetLeaf but only summing debit positions (for asset reclassification) */
+export function closingNetLeafDebitOnly(balances: BalanceItem[], prefixes: string[]) {
+  const { debit } = closingNetLeaf(balances, prefixes);
+  // Only count accounts with net debit position
+  const matched = new Set<string>();
+  for (const b of balances) {
+    if (prefixes.some((p) => b.account.code.startsWith(p))) {
+      matched.add(b.account.code);
+    }
+  }
+  const codes = Array.from(matched);
+  const parentCodes = new Set<string>();
+  for (const c1 of codes) {
+    for (const c2 of codes) {
+      if (c2 !== c1 && c2.startsWith(c1) && c2.length > c1.length) {
+        parentCodes.add(c1);
+        break;
+      }
+    }
+  }
+  const leafCodes = new Set(codes.filter((c) => !parentCodes.has(c)));
+  let d = 0, c = 0;
+  for (const b of balances) {
+    if (leafCodes.has(b.account.code) && b.closingDebit > b.closingCredit) {
+      d += b.closingDebit;
+      c += b.closingCredit;
+    }
+  }
+  return { debit: d, credit: c };
+}
+
+/** closingNetLeaf but only summing credit positions (for liability reclassification) */
+export function closingNetLeafCreditOnly(balances: BalanceItem[], prefixes: string[]) {
+  const matched = new Set<string>();
+  for (const b of balances) {
+    if (prefixes.some((p) => b.account.code.startsWith(p))) {
+      matched.add(b.account.code);
+    }
+  }
+  const codes = Array.from(matched);
+  const parentCodes = new Set<string>();
+  for (const c1 of codes) {
+    for (const c2 of codes) {
+      if (c2 !== c1 && c2.startsWith(c1) && c2.length > c1.length) {
+        parentCodes.add(c1);
+        break;
+      }
+    }
+  }
+  const leafCodes = new Set(codes.filter((c) => !parentCodes.has(c)));
+  let d = 0, c = 0;
+  for (const b of balances) {
+    if (leafCodes.has(b.account.code) && b.closingCredit > b.closingDebit) {
+      d += b.closingDebit;
+      c += b.closingCredit;
+    }
+  }
+  return { debit: d, credit: c };
+}
+
 export const mk = (d: number, c: number) => +(d - c).toFixed(2);
 export const mkC = (d: number, c: number) => +(c - d).toFixed(2);
