@@ -2,11 +2,7 @@
   "_note": "白名单分为两类：'待迁移'(todo)和'豁免'(exempt)。待迁移的逐步改用标准模块后从白名单删除。豁免的需标注原因。",
   "tab-bar": {
     "description": "页面手写 border-b-2 下划线 tab，应改用 TabBar 组件",
-    "entries": {
-      "app/hr/performance/HRPerformanceClient.tsx": "待迁移",
-      "app/hr/analytics/HRAnalyticsClient.tsx": "待迁移",
-      "app/finance/budget/BudgetClient.tsx": "待迁移"
-    }
+    "entries": {}
   },
   "pagination": {
     "description": "页面手写分页控件，应改用全局 Pagination 组件",
