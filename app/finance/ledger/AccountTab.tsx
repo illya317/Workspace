@@ -33,6 +33,7 @@ export default function AccountTab() {
   const [levelFilter, setLevelFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
   const [scope, setScope] = useState<"all" | "mapped" | "unmapped" | "inactive">("all");
+  const [keyword, setKeyword] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
@@ -46,6 +47,7 @@ export default function AccountTab() {
     if (companyFilter) params.set("companyCode", companyFilter);
     if (levelFilter) params.set("subjectLevel", levelFilter);
     if (yearFilter) params.set("year", yearFilter);
+    if (keyword) params.set("keyword", keyword);
     params.set("scope", scope);
     params.set("page", String(page));
     params.set("pageSize", String(pageSize));
@@ -67,7 +69,7 @@ export default function AccountTab() {
   useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyFilter, levelFilter, yearFilter, scope, page, pageSize]);
+  }, [companyFilter, levelFilter, yearFilter, scope, keyword, page, pageSize]);
 
   async function handleCreate(data: Record<string, unknown>) {
     const res = await fetch("/api/finance/accounts", {
@@ -119,6 +121,12 @@ export default function AccountTab() {
                 ))}
               </select>
             </div>
+            <input
+              value={keyword}
+              onChange={(e) => { setKeyword(e.target.value); setPage(1); }}
+              placeholder="搜索编码/名称..."
+              className="rounded border border-gray-300 px-2 py-1.5 text-xs w-44 focus:border-emerald-400 focus:outline-none"
+            />
             <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
               {[
                 { key: "all", label: "全部科目" },

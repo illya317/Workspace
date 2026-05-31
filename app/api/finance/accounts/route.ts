@@ -9,8 +9,15 @@ export const GET = withFinanceLedgerAccess(async (request) => {
   const subjectLevel = searchParams.get("subjectLevel");
   const scope = searchParams.get("scope") || "mapped";
   const year = searchParams.get("year");
+  const keyword = searchParams.get("keyword") || "";
 
   const where: Record<string, unknown> = {};
+  if (keyword) {
+    where.OR = [
+      { code: { contains: keyword } },
+      { name: { contains: keyword } },
+    ];
+  }
   if (scope === "mapped") {
     where.groupSubjectCode = { not: null };
   } else if (scope === "unmapped") {
