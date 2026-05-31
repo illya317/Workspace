@@ -10,8 +10,8 @@ import { prisma } from "@/lib/prisma";
 
 const ALLOWED_FIELDS = ["education", "title", "phone", "school", "major", "alias", "hometown", "politics"];
 
-async function executeHrUpdate(user: { canEditHR?: boolean }, payload: Record<string, unknown>) {
-  if (!user.canEditHR) throw new Error("无 HR 编辑权限");
+async function executeHrUpdate(user: { visibleWriteResourceKeys?: string[] }, payload: Record<string, unknown>) {
+  if (!(user.visibleWriteResourceKeys || []).includes("people.roster")) throw new Error("无 HR 编辑权限");
 
   const { field, value, employeeIds } = payload;
   if (!field || typeof field !== "string") throw new Error("缺少参数 field");

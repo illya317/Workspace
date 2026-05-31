@@ -23,6 +23,10 @@ export interface SessionUser {
   canAccessInventory?: boolean;
   canAccessContract?: boolean;
   visibleResourceKeys?: string[];
+  /** Visible resources for "write" role (DB-driven). Prefer this over canEditHR. */
+  visibleWriteResourceKeys?: string[];
+  /** Visible resources for "delete" role (DB-driven). Prefer this over canDeleteHR. */
+  visibleDeleteResourceKeys?: string[];
   canAccessAdmin?: boolean;
   canManagePermissions?: boolean;
   canAccessApi?: boolean;

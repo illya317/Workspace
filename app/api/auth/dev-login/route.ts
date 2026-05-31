@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { createToken, checkPermission } from "@/lib/auth";
+import { createToken, checkPermission, getPermissionContext } from "@/lib/auth";
 import { checkBruteForce, recordAttempt } from "@/lib/security";
 import { LoginSchema, parseJson } from "@/lib/schemas";
 
@@ -75,17 +75,33 @@ export async function POST(request: Request) {
     sessionVersion: updatedUser.sessionVersion,
   });
 
-  const [isAdmin, canAnyWeek, hasHRAccess, hasHRWrite, hasHRDelete, hasWorks] = await Promise.all([
-    checkPermission(user.id, "system", "admin"), checkPermission(user.id, "work.report", "write"),
-    checkPermission(user.id, "people", "access"), checkPermission(user.id, "people", "write"),
-    checkPermission(user.id, "people", "delete"), checkPermission(user.id, "work", "access"),
+  const ctx = await getPermissionContext(user.id);
+  const { getVisibleResourceKeys } = await import("@/server/rbac/visibility");
+  const [visibleAccess, visibleWrite, visibleDelete] = await Promise.all([
+    getVisibleResourceKeys(ctx, "access"),
+    getVisibleResourceKeys(ctx, "write"),
+    getVisibleResourceKeys(ctx, "delete"),
   ]);
-  const hasHR = hasHRAccess || hasHRWrite || hasHRDelete;
+  const ma = (k: string) => visibleAccess.has(k);
+  const mw = (k: string) => visibleWrite.has(k);
+  const md = (k: string) => visibleDelete.has(k);
+  const isAdmin = ctx.isAdmin;
+
+  const hasHR = ["people", "people.roster", "people.performance", "people.analytics"].some(ma);
+  const hasHRWrite = ["people", "people.roster", "people.performance", "people.analytics"].some(mw);
+  const hasHRDelete = ["people", "people.roster", "people.performance", "people.analytics"].some(md);
+  const hasWorks = ma("work") || ma("work.report") || ma("work.task");
+  const canAnyWeek = mw("work.report") || (await checkPermission(user.id, "work.report", "write"));
+
   const response = NextResponse.json({
     success: true,
     user: {
       id: user.id, name: user.name, departmentId: 0, isWorkListAdmin: isAdmin, isSuperAdmin: isAdmin,
-      canSelectAnyWeek: canAnyWeek, canAccessHR: isAdmin || hasHR, canEditHR: isAdmin || hasHRWrite,
+      canSelectAnyWeek: canAnyWeek,
+      visibleResourceKeys: [...visibleAccess],
+      visibleWriteResourceKeys: [...visibleWrite],
+      visibleDeleteResourceKeys: [...visibleDelete],
+      canAccessHR: isAdmin || hasHR, canEditHR: isAdmin || hasHRWrite,
       canDeleteHR: isAdmin || hasHRDelete, canAccessWorks: hasWorks,
     },
   });

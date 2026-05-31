@@ -89,7 +89,9 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     isSuperAdmin: isAdmin,
     canSelectAnyWeek: canAnyWeek,
     visibleResourceKeys: [...visibleAccess],
-    // Module gates
+    visibleWriteResourceKeys: [...visibleWrite],
+    visibleDeleteResourceKeys: [...visibleDelete],
+    // Module gates (deprecated — prefer visibleResourceKeys / visibleWriteResourceKeys / visibleDeleteResourceKeys)
     canAccessHR: isAdmin || (hasHR && isActiveEmployee),
     canEditHR: isAdmin || (hasHRW && isActiveEmployee),
     canDeleteHR: isAdmin || (hasHRD && isActiveEmployee),
@@ -117,14 +119,6 @@ export async function requireCurrentUser(): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) {
     throw new Error("UNAUTHORIZED");
-  }
-  return user;
-}
-
-export async function requireHRAccess(): Promise<SessionUser> {
-  const user = await requireCurrentUser();
-  if (!user.canAccessHR) {
-    throw new Error("FORBIDDEN");
   }
   return user;
 }

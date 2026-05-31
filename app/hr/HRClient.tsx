@@ -46,10 +46,9 @@ function toHRUser(user: SessionUser): HRUser {
   return {
     id: user.id,
     name: user.name,
-    canAccessHR: user.canAccessHR ?? false,
-    canEditHR: user.canEditHR ?? false,
-    canDeleteHR: user.canDeleteHR ?? false,
-    isWorkListAdmin: user.isWorkListAdmin ?? false,
+    visibleResourceKeys: user.visibleResourceKeys || [],
+    visibleWriteResourceKeys: user.visibleWriteResourceKeys || [],
+    isAdmin: user.isSuperAdmin ?? false,
     company: user.company ?? null,
   };
 }

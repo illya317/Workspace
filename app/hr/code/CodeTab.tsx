@@ -8,7 +8,7 @@ import { NAME_TO_CODE } from "@/lib/company";
 import { useCodeTab } from "@/app/hr/code/useCodeTab";
 import CodeTable from "@/app/hr/code/CodeTable";
 
-import type { HRUser as User } from "@/app/hr/types";
+import { type HRUser as User, hrCanAccess, hrCanEdit } from "@/app/hr/types";
 
 export function CodesTab({
   user,
@@ -118,7 +118,7 @@ export default function CodeTab({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-gray-700">{title}</h3>
-        {user.canAccessHR && (
+        {hrCanAccess(user, "people.roster") && (
           <EditToolbar
             editMode={editMode}
             onStartEdit={() => setEditMode(true)}
@@ -127,7 +127,7 @@ export default function CodeTab({
               setEditRow(null);
               setEditMode(false);
             }}
-            canEdit={user.canEditHR}
+            canEdit={hrCanEdit(user)}
             onShowHistory={() => setShowHistory(true)}
             saving={saving}
           />

@@ -2,7 +2,7 @@
 
 import { EditRow } from "../CodeEditRow";
 import CodeRow from "./CodeRow";
-import type { HRUser as User } from "@/app/hr/types";
+import { type HRUser as User, hrCanEdit } from "@/app/hr/types";
 import type { CodeItem } from "../types";
 
 interface CodeTableBodyProps {
@@ -86,7 +86,7 @@ export default function CodeTableBody({
         isSelected={selectedCode === item.code}
         onCodeClick={onSelect ? () => onSelect(item.code) : undefined}
         onNameClick={() => {
-          if (editMode && user.canEditHR) {
+          if (editMode && hrCanEdit(user)) {
             startEditRow(item);
           } else if (onSelect) {
             onSelect(item.code);
@@ -166,7 +166,7 @@ export default function CodeTableBody({
           </span>
         </td>
       </tr>
-      {editMode && user.canEditHR && (
+      {editMode && hrCanEdit(user) && (
         <tr className="border-b last:border-0 bg-gray-50">
           <td className="whitespace-nowrap px-2 py-1.5">
             <input

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { buildFullCode } from "../useCodeHelpers";
 import type { CodeItem } from "../types";
-import type { HRUser as User } from "@/app/hr/types";
+import { type HRUser as User, hrCanEdit } from "@/app/hr/types";
 
 export function useCodeEdit({
   user,
@@ -32,7 +32,7 @@ export function useCodeEdit({
   const [saving, setSaving] = useState(false);
 
   function startEditRow(item: CodeItem) {
-    if (!user.canEditHR) return;
+    if (!hrCanEdit(user)) return;
     setEditRow(item.code);
     setEditCodeValue(item.code.length === 5 ? item.code.slice(2) : item.code);
     setEditNameValue(item.name);

@@ -3,11 +3,22 @@
 export interface HRUser {
   id: number;
   name: string;
-  canAccessHR: boolean;
-  canEditHR: boolean;
-  canDeleteHR: boolean;
-  isWorkListAdmin: boolean;
+  /** All resource keys the user can access (DB-driven). */
+  visibleResourceKeys: string[];
+  /** Resource keys the user can write to. */
+  visibleWriteResourceKeys: string[];
+  isAdmin: boolean;
   company?: string | null;
+}
+
+/** Check if a resource key is in the user's visible set. */
+export function hrCanAccess(user: HRUser, key: string): boolean {
+  return user.visibleResourceKeys.includes(key);
+}
+
+/** Check if user has write permission on a resource. */
+export function hrCanEdit(user: HRUser, key: string = "people.roster"): boolean {
+  return user.isAdmin || user.visibleWriteResourceKeys.includes(key);
 }
 
 export interface RosterEmployee {

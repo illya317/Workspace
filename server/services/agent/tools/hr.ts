@@ -13,7 +13,7 @@ export const searchEmployeesTool: AgentTool = {
   mutates: false,
 
   canUse(user: SessionUser): boolean {
-    return !!user.canAccessHR;
+    return (user.visibleResourceKeys || []).includes("people");
   },
 
   async execute(params: Record<string, unknown>, _user: SessionUser) {
@@ -58,7 +58,7 @@ export const updateEmployeeDraftTool: AgentTool = {
   mutates: true,
 
   canUse(user: SessionUser): boolean {
-    return !!user.canEditHR;
+    return (user.visibleWriteResourceKeys || []).includes("people.roster");
   },
 
   async execute(params: Record<string, unknown>, user: SessionUser) {
@@ -129,7 +129,7 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
   mutates: true,
 
   canUse(user: SessionUser): boolean {
-    return !!user.canEditHR;
+    return (user.visibleWriteResourceKeys || []).includes("people.roster");
   },
 
   async execute(params: Record<string, unknown>, user: SessionUser) {

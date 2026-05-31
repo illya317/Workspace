@@ -12,9 +12,10 @@ import GenericCreateModal from "../components/GenericCreateModal";
 import GenericPagination from "../components/GenericPagination";
 import { useGenericTab } from "../hooks/useGenericTab";
 import EditableTable, { getVal } from "./EditableTable";
-import type { TabConfig, FieldConfig, HRUser } from "../types";
+import { type TabConfig, type FieldConfig, type HRUser, hrCanEdit } from "../types";
 
 export default function GenericTableTab({ config, user }: { config: TabConfig; user: HRUser }) {
+  const canEdit = hrCanEdit(user);
   const {
     items, loading, error, keyword, setKeyword, filters, setFilter, applyFilters, resetFilters,
     editMode, setEditMode,
@@ -38,7 +39,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
   const visibleFields = config.fields.filter((f) => !f.hidden);
 
   function handleStartEdit(item: Record<string, unknown>, field: FieldConfig) {
-    if (!user.canEditHR || !editMode || !field.editable) return;
+    if (!canEdit || !editMode || !field.editable) return;
     const itemId = item.id as number;
     if (editingCell?.id === itemId && editingCell?.field === field.key) return;
     let initVal: string | boolean | number | unknown;
@@ -80,11 +81,11 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
         keyword={keyword} onKeywordChange={setKeyword}
         onKeywordEnter={load}
         onReset={() => { setKeyword(""); resetFilters(); load(); }}
-        showEdit={user.canEditHR}
+        showEdit={canEdit}
         editProps={{
           editMode, onStartEdit: () => setEditMode(true),
           onSave: handleSave, onCancel: () => { cancelEdit(); setEditMode(false); },
-          canEdit: user.canEditHR, saving,
+          canEdit: canEdit, saving,
           onShowHistory: () => setShowHistory(true),
         }}
       >
@@ -93,7 +94,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
           filterValues={filters}
           onFilterChange={(key, val) => setFilter(key, val)}
           onShowAdvancedFilters={() => setShowFilterModal(true)}
-          canCreate={!!config.canCreate && user.canEditHR}
+          canCreate={!!config.canCreate && canEdit}
           onCreate={() => setCreating(true)}
         />
       </HRToolbar>
@@ -112,7 +113,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
             config={config}
             editingCell={editingCell}
             editMode={editMode}
-            canEdit={user.canEditHR}
+            canEdit={canEdit}
             renderEditInput={(fieldKey) =>
               editingField ? (
                 <GenericFieldInput
