@@ -76,9 +76,14 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
 
   // ── Render helpers ───────────────────────────────────
 
+  const dirLabel = (dir: string) => dir === "debit" ? "借" : "贷";
   const dirBadge = (dir: string) =>
     <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${dir === "debit" ? "bg-blue-50 text-blue-700" : "bg-amber-50 text-amber-700"}`}>
-      {dir === "debit" ? "借" : "贷"}</span>;
+      {dirLabel(dir)}</span>;
+
+  // Static name lookup for known target accounts (v1: only 2241, 1463)
+  const TARGET_NAMES: Record<string, string> = { "2241": "其他应付款", "1463": "其他流动资产" };
+  const targetDisplay = (code: string) => TARGET_NAMES[code] ? `${code}/${TARGET_NAMES[code]}` : code;
 
   // ── Filter ───────────────────────────────────────────
 
@@ -127,7 +132,7 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
         <table className="w-full text-sm">
           <thead className="border-b bg-gray-50">
             <tr>
-              {["科目编码", "科目名称", "常规方向", "异常方向", "异常金额", "建议目标", "当前目标"].map(h => <th key={h} className="px-3 py-2 text-left text-xs font-medium text-gray-500">{h}</th>)}
+              {["科目", "方向", "异常金额", "建议目标", "当前目标"].map(h => <th key={h} className="px-3 py-2 text-left text-xs font-medium text-gray-500">{h}</th>)}
               {canWrite && <th className="px-3 py-2 text-center text-xs font-medium text-gray-500">操作</th>}
             </tr>
           </thead>
@@ -138,18 +143,24 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
               const hasRule = !!c.existingRuleId;
               return (
                 <tr key={key} className="hover:bg-gray-50">
-                  <td className="px-3 py-2 font-mono text-xs text-gray-700">{c.accountCode}</td>
-                  <td className="px-3 py-2 text-xs text-gray-700">{c.accountName}</td>
-                  <td className="px-3 py-2">{dirBadge(c.balanceDirection)}</td>
-                  <td className="px-3 py-2">{dirBadge(c.abnormalSide)}</td>
+                  <td className="px-3 py-2 text-xs">
+                    <span className="font-mono text-gray-500">{c.accountCode}</span>
+                    <span className="mx-1 text-gray-300">/</span>
+                    <span className="text-gray-700">{c.accountName}</span>
+                  </td>
+                  <td className="px-3 py-2 text-xs">
+                    {dirBadge(c.balanceDirection)}
+                    <span className="mx-0.5 text-gray-300">→</span>
+                    {dirBadge(c.abnormalSide)}
+                  </td>
                   <td className="px-3 py-2 text-right font-mono text-xs text-gray-700">¥{c.abnormalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                  <td className="px-3 py-2 font-mono text-xs text-gray-400">{c.suggestedTarget || "—"}</td>
-                  <td className="px-3 py-2 font-mono text-xs">
+                  <td className="px-3 py-2 text-xs text-gray-400">{c.suggestedTarget ? targetDisplay(c.suggestedTarget) : "—"}</td>
+                  <td className="px-3 py-2 text-xs">
                     {editing ? (
                       <div onKeyDown={(e) => { if (e.key === "Escape") { setEditCode(null); setEditValue(""); } if (e.key === "Enter") commitEdit(c); }}>
                         <AccountCodeInput companyCode={companyCode} year={year} value={editValue} onChange={setEditValue} />
                       </div>
-                    ) : hasRule ? <span className="text-emerald-700">{c.existingTarget}</span> : <span className="text-gray-300">—</span>}
+                    ) : hasRule ? <span className="text-emerald-700">{targetDisplay(c.existingTarget!)}</span> : <span className="text-gray-300">—</span>}
                   </td>
                   {canWrite && (
                     <td className="px-3 py-2 text-center">
