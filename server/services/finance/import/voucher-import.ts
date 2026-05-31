@@ -53,6 +53,41 @@ export async function importVouchers(
     const period = await getOrCreateVoucherPeriod(preview.companyCode, dateStr, preview.year);
     const month = String(period.month).padStart(2, "0");
     const voucherNo = `${preview.year}-${month}-${voucherPreview.voucherNo}`;
+    const diff = Math.abs(voucherPreview.totalDebit - voucherPreview.totalCredit);
+
+    if (diff > 0.01) {
+      blocked++;
+      warnings.push(
+        `凭证 ${voucherNo} 源数据借贷不平衡，跳过导入：借方 ${voucherPreview.totalDebit.toFixed(2)} ≠ 贷方 ${voucherPreview.totalCredit.toFixed(2)}`,
+      );
+      continue;
+    }
+
+    const missingAccountCodes = voucherPreview.items
+      .map((item) => item.accountCode)
+      .filter((code) => !accountCodeToId.has(code));
+
+    if (missingAccountCodes.length > 0) {
+      blocked++;
+      warnings.push(
+        `凭证 ${voucherNo} 有 ${Array.from(new Set(missingAccountCodes)).join(", ")} 等科目未建档，跳过整张凭证`,
+      );
+      continue;
+    }
+
+    const nextItems = voucherPreview.items.map((item, index) => ({
+      accountId: accountCodeToId.get(item.accountCode)!,
+      debit: item.debit,
+      credit: item.credit,
+      description: item.description,
+      sortOrder: index,
+      importFingerprint: itemFingerprint(
+        item.accountCode,
+        item.debit,
+        item.credit,
+        item.description,
+      ),
+    }));
 
     const existing = await prisma.financeVoucher.findFirst({
       where: { voucherNo, companyCode: preview.companyCode, periodId: period.id },
@@ -70,98 +105,83 @@ export async function importVouchers(
       }
     }
 
-    // Upsert voucher header
-    const voucher = existing
-      ? await prisma.financeVoucher.update({
-          where: { id: existing.id },
-          data: {
-            date: dateStr, periodId: period.id,
-            description: voucherPreview.description,
-            totalDebit: voucherPreview.totalDebit,
-            totalCredit: voucherPreview.totalCredit,
-            companyCode: preview.companyCode,
-          },
-        })
-      : await prisma.financeVoucher.create({
-          data: {
-            voucherNo, date: dateStr, periodId: period.id,
-            description: voucherPreview.description,
-            totalDebit: voucherPreview.totalDebit,
-            totalCredit: voucherPreview.totalCredit,
-            companyCode: preview.companyCode,
-            status: "posted",
-          },
-        });
+    const currentFingerprints = (existing?.items || [])
+      .sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id)
+      .map((item) => item.importFingerprint);
+    const nextFingerprints = nextItems.map((item) => item.importFingerprint);
+    const unchanged = existing
+      && currentFingerprints.length === nextFingerprints.length
+      && currentFingerprints.every((fp, index) => fp === nextFingerprints[index]);
 
-    // Index old items by sortOrder
-    type OldItem = { id: number; sortOrder: number; importFingerprint: string | null };
-    const oldByPos = new Map<number, OldItem>();
-    if (existing) {
-      for (const oi of existing.items) oldByPos.set(oi.sortOrder, oi);
+    if (unchanged) {
+      totalSkipped += nextItems.length;
+      continue;
     }
-    const seenPositions = new Set<number>();
 
-    let itemCreated = 0, itemUpdated = 0, itemSkipped = 0;
-
-    for (let i = 0; i < voucherPreview.items.length; i++) {
-      const item = voucherPreview.items[i];
-      const accountId = accountCodeToId.get(item.accountCode);
-      if (!accountId) continue;
-
-      const fp = itemFingerprint(item.accountCode, item.debit, item.credit, item.description);
-      const oldItem = oldByPos.get(i);
-
-      if (oldItem) {
-        seenPositions.add(i);
-        if (oldItem.importFingerprint === fp) {
-          // Same position, same content → skip
-          itemSkipped++;
-        } else {
-          // Same position, different content → update in place
-          await prisma.financeVoucherItem.update({
-            where: { id: oldItem.id },
+    const result = await prisma.$transaction(async (tx) => {
+      const voucher = existing
+        ? await tx.financeVoucher.update({
+            where: { id: existing.id },
             data: {
-              accountId, debit: item.debit, credit: item.credit,
-              description: item.description, importFingerprint: fp,
-              sourceFile: preview.sourceFileName, importId,
+              date: dateStr, periodId: period.id,
+              description: voucherPreview.description,
+              totalDebit: Math.round(voucherPreview.totalDebit * 100) / 100,
+              totalCredit: Math.round(voucherPreview.totalCredit * 100) / 100,
+              companyCode: preview.companyCode,
+            },
+          })
+        : await tx.financeVoucher.create({
+            data: {
+              voucherNo, date: dateStr, periodId: period.id,
+              description: voucherPreview.description,
+              totalDebit: Math.round(voucherPreview.totalDebit * 100) / 100,
+              totalCredit: Math.round(voucherPreview.totalCredit * 100) / 100,
+              companyCode: preview.companyCode,
+              status: "posted",
             },
           });
-          itemUpdated++;
-        }
-      } else {
-        // New position → create
-        await prisma.financeVoucherItem.create({
-          data: {
-            voucherId: voucher.id, accountId,
-            debit: item.debit, credit: item.credit,
-            description: item.description, sortOrder: i,
-            importFingerprint: fp,
-            sourceFile: preview.sourceFileName, importId,
+
+      if (existing) {
+        await tx.reclassResult.deleteMany({
+          where: {
+            voucherItem: { voucherId: voucher.id },
+            status: "pending",
           },
         });
-        itemCreated++;
+        await tx.financeVoucherItem.deleteMany({ where: { voucherId: voucher.id } });
       }
-    }
 
-    // Delete old items at positions no longer in the new set
-    let itemDeleted = 0;
-    for (const [pos, oldItem] of oldByPos) {
-      if (!seenPositions.has(pos)) {
-        await prisma.reclassResult.deleteMany({
-          where: { voucherItemId: oldItem.id },
+      if (nextItems.length > 0) {
+        await tx.financeVoucherItem.createMany({
+          data: nextItems.map((item) => ({
+            voucherId: voucher.id,
+            accountId: item.accountId,
+            debit: item.debit,
+            credit: item.credit,
+            description: item.description,
+            sortOrder: item.sortOrder,
+            importFingerprint: item.importFingerprint,
+            sourceFile: preview.sourceFileName,
+            importId,
+          })),
         });
-        await prisma.financeVoucherItem.delete({ where: { id: oldItem.id } });
-        itemDeleted++;
       }
-    }
 
-    if (itemCreated + itemUpdated + itemDeleted > 0) {
-      if (existing) voucherUpdated++; else voucherCreated++;
+      return {
+        created: existing ? 0 : nextItems.length,
+        updated: existing ? nextItems.length : 0,
+        deleted: existing ? existing.items.length : 0,
+      };
+    });
+
+    if (existing) {
+      voucherUpdated++;
+    } else {
+      voucherCreated++;
     }
-    totalCreated += itemCreated;
-    totalUpdated += itemUpdated;
-    totalSkipped += itemSkipped;
-    totalDeleted += itemDeleted;
+    totalCreated += result.created;
+    totalUpdated += result.updated;
+    totalDeleted += result.deleted;
   }
 
   return {

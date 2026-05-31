@@ -1,0 +1,73 @@
+"use client";
+
+import type { RuleCandidate } from "@/server/services/finance/ledger/reclass-rules";
+import AccountCodeInput from "./AccountCodeInput";
+import { dirBadge, targetDisplay } from "../ledger/reclassColumns";
+
+interface Props {
+  c: RuleCandidate;
+  canWrite: boolean;
+  companyCode: string;
+  year: string;
+  editing: boolean;
+  editValue: string;
+  editRef: React.RefObject<HTMLDivElement | null>;
+  onStartEdit: (c: RuleCandidate) => void;
+  onCommitEdit: (c: RuleCandidate) => void;
+  onSaveRule: (c: RuleCandidate, target: string) => void;
+  onClearRule: (c: RuleCandidate) => void;
+  onEditValueChange: (v: string) => void;
+  onCancelEdit: () => void;
+}
+
+export default function ReclassConfigRow({
+  c, canWrite, companyCode, year, editing, editValue, editRef,
+  onStartEdit, onCommitEdit, onSaveRule, onClearRule, onEditValueChange, onCancelEdit,
+}: Props) {
+  const hasRule = !!c.existingRuleId;
+  const key = c.accountCode + "::" + c.abnormalSide;
+
+  return (
+    <tr key={key} className="border-b last:border-0">
+      <td className="px-3 py-1.5 font-mono text-gray-600">{c.accountCode}</td>
+      <td className="px-3 py-1.5 text-gray-700">{c.accountName}</td>
+      <td className="px-3 py-1.5">{dirBadge(c.abnormalSide)}</td>
+      <td className="px-3 py-1.5 text-right font-mono text-gray-700">
+        ¥{c.abnormalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+      </td>
+      <td
+        className="px-3 py-1.5 cursor-pointer hover:bg-gray-50"
+        onClick={() => { if (!editing && canWrite) onStartEdit(c); }}
+      >
+        {editing ? (
+          <div ref={editRef} onKeyDown={(e) => {
+            if (e.key === "Escape") onCancelEdit();
+            if (e.key === "Enter") onCommitEdit(c);
+          }}>
+            <AccountCodeInput
+              companyCode={companyCode} year={year}
+              value={editValue}
+              onChange={onEditValueChange}
+            />
+          </div>
+        ) : hasRule ? (
+          <span className="text-emerald-700">{targetDisplay(c.existingTarget!)}</span>
+        ) : c.suggestedTarget ? (
+          <span className="text-gray-500">{targetDisplay(c.suggestedTarget)}</span>
+        ) : (
+          <span className="text-gray-300">—</span>
+        )}
+      </td>
+      {canWrite && (
+        <td className="px-3 py-1.5 text-center">
+          {!hasRule && c.suggestedTarget && (
+            <button onClick={() => onSaveRule(c, c.suggestedTarget)} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
+          )}
+          {hasRule && (
+            <button onClick={() => onClearRule(c)} className="rounded px-1.5 py-0.5 text-xs text-red-500 hover:bg-red-50">清除</button>
+          )}
+        </td>
+      )}
+    </tr>
+  );
+}

@@ -6,8 +6,8 @@ import { useToast } from "@/app/hooks/useToast";
 import { matchText } from "@/lib/search";
 import Pagination from "./Pagination";
 import type { RuleCandidate } from "@/server/services/finance/ledger/reclass-rules";
-import AccountCodeInput from "./AccountCodeInput";
-import { RECLASS_HEADERS, dirBadge, targetDisplay } from "../ledger/reclassColumns";
+import { RECLASS_HEADERS } from "../ledger/reclassColumns";
+import ReclassConfigRow from "./ReclassConfigRow";
 
 interface Props {
   companyCode: string; year: string;
@@ -179,45 +179,21 @@ export default function ReclassCandidateList({
             </tr>
           </thead>
           <tbody>
-            {paged.map((c) => {
-              const key = c.accountCode + "::" + c.abnormalSide;
-              const editing = editCode === key;
-              const hasRule = !!c.existingRuleId;
-              return (
-                <tr key={key} className="border-b last:border-0">
-                  <td className="px-3 py-1.5 font-mono text-gray-600">{c.accountCode}</td>
-                  <td className="px-3 py-1.5 text-gray-700">{c.accountName}</td>
-                  <td className="px-3 py-1.5">{dirBadge(c.abnormalSide)}</td>
-                  <td className="px-3 py-1.5 text-right font-mono text-gray-700">¥{c.abnormalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                  <td
-                    className="px-3 py-1.5 cursor-pointer hover:bg-gray-50"
-                    onClick={() => { if (!editing && canWrite) startEdit(c); }}
-                  >
-                    {editing ? (
-                      <div ref={editRef} onKeyDown={(e) => { if (e.key === "Escape") { setEditCode(null); setEditValue(""); } if (e.key === "Enter") commitEdit(c); }}>
-                        <AccountCodeInput companyCode={companyCode} year={year} value={editValue} onChange={setEditValue} />
-                      </div>
-                    ) : hasRule ? (
-                      <span className="text-emerald-700">{targetDisplay(c.existingTarget!)}</span>
-                    ) : c.suggestedTarget ? (
-                      <span className="text-gray-500">{targetDisplay(c.suggestedTarget)}</span>
-                    ) : (
-                      <span className="text-gray-300">—</span>
-                    )}
-                  </td>
-                  {canWrite && (
-                    <td className="px-3 py-1.5 text-center">
-                      {!hasRule && c.suggestedTarget && (
-                        <button onClick={() => saveRule(c, c.suggestedTarget).then(ok => ok && showToast("已确认规则"))} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
-                      )}
-                      {hasRule && (
-                        <button onClick={() => clearRule(c)} className="rounded px-1.5 py-0.5 text-xs text-red-500 hover:bg-red-50">清除</button>
-                      )}
-                    </td>
-                  )}
-                </tr>
-              );
-            })}
+            {paged.map((c) => (
+              <ReclassConfigRow
+                key={c.accountCode + "::" + c.abnormalSide}
+                c={c} canWrite={canWrite}
+                companyCode={companyCode} year={year}
+                editing={editCode === c.accountCode + "::" + c.abnormalSide}
+                editValue={editValue} editRef={editRef}
+                onStartEdit={startEdit}
+                onCommitEdit={commitEdit}
+                onSaveRule={async (c, t) => { if (await saveRule(c, t)) showToast("已确认规则"); }}
+                onClearRule={clearRule}
+                onEditValueChange={setEditValue}
+                onCancelEdit={() => { setEditCode(null); setEditValue(""); }}
+              />
+            ))}
           </tbody>
         </table>
       </div>
