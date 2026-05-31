@@ -28,6 +28,7 @@ model User {
   resourceRoles            UserResourceRole[]
   departmentAssignees      DepartmentWorkAssignee[]
   projectAssignees         ProjectWorkAssignee[]
+  reviewedReclassResults   ReclassResult[]          @relation("ReclassResultReviewer")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md

@@ -1,13 +1,15 @@
 /// 重分类结果（引擎生成 + 人工审核）
+/// periodId + voucherItemId 唯一：同一凭证明细只生成一条重分类结果
+/// engine upsert 时幂等，不会重复
 model ReclassResult {
   id            Int       @id @default(autoincrement())
   periodId      Int
   voucherItemId Int // 来源凭证明细
-  sourceAccount String // 原科目编码
-  targetAccount String // 目标科目编码（可修改）
+  sourceAccount String // 原科目编码（快照，不FK）
+  targetAccount String // 目标科目编码（可修改，解析规则见下方注释）
   amount        Float // 重分类金额
   status        String    @default("pending") // pending|approved|adjusted|rejected
-  adjustedBy    Int? // 修改人 userId
+  adjustedBy    Int? // 审核人 userId
   adjustedAt    DateTime?
   note          String? // 审核备注
   createdAt     DateTime  @default(now())
@@ -15,6 +17,13 @@ model ReclassResult {
 
   period      FinancePeriod      @relation(fields: [periodId], references: [id])
   voucherItem FinanceVoucherItem @relation(fields: [voucherItemId], references: [id])
+  reviewer    User?              @relation("ReclassResultReviewer", fields: [adjustedBy], references: [id])
 
+  @@unique([periodId, voucherItemId])
   @@index([periodId, status])
 }
+
+// targetAccount 解析规则：
+// 1. 优先按 (companyCode, year, code=targetAccount) 查 FinanceAccount
+// 2. 找不到时标记 status="invalid_target"，不参与报表
+// 3. changed 时重新解析
