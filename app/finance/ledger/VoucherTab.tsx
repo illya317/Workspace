@@ -71,12 +71,17 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [total, setTotal] = useState(0);
   const { toast, showToast, closeToast } = useToast();
   const { reclassMap, handleReview, generating, handleGenerate } = useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
+  const [reclassFilter, setReclassFilter] = useState<"all" | "pending">("all");
 
-  // ── Item columns (all keys visible, no ColumnToggle for sub-table) ─
+  const itemColumns = useMemo(() => {
+    const cols = [...BASE_ITEM_COLUMNS];
+    if (reclassFilter === "pending") cols.push(...buildReclassItemColumns(reclassMap, canWrite, handleReview));
+    return cols;
+  }, [reclassMap, canWrite, handleReview, reclassFilter]);
 
-  const itemColumns = useMemo(() =>
-    [...BASE_ITEM_COLUMNS, ...buildReclassItemColumns(reclassMap, canWrite, handleReview)],
-    [reclassMap, canWrite, handleReview]);
+  const filteredVouchers = reclassFilter === "pending" && reclassMap.size > 0
+    ? vouchers.filter((v) => v.items.some((it) => reclassMap.get(it.id)?.status === "pending"))
+    : vouchers;
 
   async function load() {
     setLoading(true);
@@ -110,9 +115,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
 
   const totalPages = Math.ceil(total / pageSize);
 
-  function toggleExpand(id: number) {
-    setExpandedVoucherId((prev) => (prev === id ? null : id));
-  }
+  function toggleExpand(id: number) { setExpandedVoucherId((prev) => (prev === id ? null : id)); }
 
   return (
     <div className="space-y-4">
@@ -127,11 +130,19 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
         extra={
           <div className="ml-auto flex items-center gap-2">
+            {reclassMap.size > 0 && (
+              <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
+                {(["all","pending"] as const).map((k) => (
+                  <button key={k} onClick={() => setReclassFilter(k)}
+                    className={`rounded px-2 py-0.5 text-[11px] ${
+                      reclassFilter === k ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-gray-100"
+                    }`}>{k === "all" ? "全部" : "待审核"}</button>
+                ))}
+              </div>
+            )}
             {canWrite && companyFilter && yearFilter && monthFilter && (
-              <button onClick={handleGenerate} disabled={generating}
-                className="rounded bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-700 disabled:opacity-50">
-                {generating ? "生成中..." : "生成重分类结果"}
-              </button>
+              <button onClick={handleGenerate} disabled={generating} className="rounded bg-emerald-600 px-3 py-1 text-xs text-white hover:bg-emerald-700 disabled:opacity-50">
+                {generating ? "生成中..." : "生成重分类结果"}</button>
             )}
             <span className="text-xs text-gray-400">共 {total} 条</span>
           </div>
@@ -144,20 +155,14 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
           <p className="p-8 text-center text-gray-500">加载中...</p>
         ) : (
           <table className="w-full text-xs">
-            <thead className="border-b bg-gray-50">
-              <tr>
-                <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">凭证号</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">日期</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">公司</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">期间</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">摘要</th>
-                <th className="px-3 py-2 text-right font-medium text-gray-600 whitespace-nowrap">借方</th>
-                <th className="px-3 py-2 text-right font-medium text-gray-600 whitespace-nowrap">贷方</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">分录</th>
-              </tr>
-            </thead>
+            <thead className="border-b bg-gray-50"><tr>
+              {["凭证号","日期","公司","期间","摘要"].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">{h}</th>)}
+              <th className="px-3 py-2 text-right font-medium text-gray-600 whitespace-nowrap">借方</th>
+              <th className="px-3 py-2 text-right font-medium text-gray-600 whitespace-nowrap">贷方</th>
+              <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">分录</th>
+            </tr></thead>
             <tbody>
-              {vouchers.map((v) => (
+              {filteredVouchers.map((v) => (
                 <Fragment key={v.id}>
                   <tr
                     className="border-b last:border-0 hover:bg-gray-50 cursor-pointer"
@@ -198,12 +203,8 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
                   )}
                 </Fragment>
               ))}
-              {vouchers.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="px-3 py-8 text-center text-gray-400">
-                    暂无凭证
-                  </td>
-                </tr>
+              {filteredVouchers.length === 0 && (
+                <tr><td colSpan={8} className="px-3 py-8 text-center text-gray-400">{reclassFilter === "pending" ? "无待审核重分类凭证" : "暂无凭证"}</td></tr>
               )}
             </tbody>
           </table>
