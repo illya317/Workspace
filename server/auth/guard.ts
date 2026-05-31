@@ -24,11 +24,3 @@ export async function requireResourceAccess(resourceKey: string): Promise<Sessio
   if (!user.visibleResourceKeys?.includes(resourceKey)) redirect("/portal");
   return user;
 }
-
-/**
- * HR module requires either system admin bypass or active employment.
- * Mirrors the old `canAccessHR = isAdmin || (hasHR && isActiveEmployee)` logic.
- */
-export function canUseHr(user: SessionUser): boolean {
-  return !!user.isSuperAdmin || !!user.isActiveEmployee;
-}
