@@ -11,10 +11,11 @@ import type { RuleCandidate, ScanCandidatesParams, ScanCandidatesResult } from "
 
 // ─── 辅助 ────────────────────────────────────────────────
 
-/** 根据科目编码前缀建议目标科目（v1 保守默认） */
+/** 根据科目编码前缀建议目标科目（v1 保守默认，仅资产/负债类进入候选） */
 function suggestTarget(accountCode: string): string {
   if (accountCode.startsWith("1")) return "2241"; // 资产异常贷方 → 其他应付款
   if (accountCode.startsWith("2")) return "1463"; // 负债异常借方 → 其他流动资产
+  // 非资产/负债类科目不在候选范围内（见下方 isBalanceSheetAccount 筛选）
   return "";
 }
 
@@ -76,10 +77,15 @@ export async function scanCandidates(
     entry.creditSum += item.credit;
   }
 
-  // 3. 筛选异常方向
+  // 3. 筛选异常方向（v1 仅资产/负债类科目参与重分类候选）
   const candidates: RuleCandidate[] = [];
 
   for (const entry of agg.values()) {
+    const code = entry.code;
+    // 仅资产负债表科目（1xxx 资产 / 2xxx 负债）参与重分类；
+    // 权益/成本/损益类 (4/5/6xxx) 的异常发生额不纳入候选
+    if (!(code.startsWith("1") || code.startsWith("2"))) continue;
+
     const abnormalSide = deriveAbnormalSide(entry.balanceDirection);
     const abnormalAmount = abnormalSide === "credit" ? entry.creditSum : entry.debitSum;
 
@@ -143,7 +149,9 @@ export async function scanCandidates(
     year,
     candidates,
     stats: {
-      totalAccountsScanned: agg.size,
+      totalAccountsScanned: [...agg.values()].filter(
+        (e) => e.code.startsWith("1") || e.code.startsWith("2"),
+      ).length,
       abnormalCount: candidates.length,
       withExistingRule: candidates.filter((c) => c.existingRuleId !== null).length,
       withoutRule: candidates.filter((c) => c.existingRuleId === null).length,
