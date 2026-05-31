@@ -144,7 +144,7 @@ export default function ReclassCandidateList({
   // ── Render ───────────────────────────────────────────
 
   if (loading) return <p className="py-8 text-center text-sm text-gray-400">扫描中...</p>;
-  if (candidates.length === 0) return <p className="py-8 text-center text-sm text-gray-400">该年度无异常方向科目（仅扫描资产/负债类 1xxx、2xxx 科目）</p>;
+  if (allAccounts.length === 0) return <p className="py-8 text-center text-sm text-gray-400">该年度无科目数据</p>;
 
   return (
     <div>
