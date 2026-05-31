@@ -45,31 +45,20 @@ export default function FilterField({
   fieldLabel,
   valuePlaceholder = "全部",
 }: FilterFieldProps) {
+  const fieldOptions = fields.map((f) => ({ value: f.key, label: f.label }));
   const currentOptions = valueOptions[fieldKey] || [];
 
   return (
     <>
-      {fieldLabel && (
-        <SelectField
-          label={fieldLabel}
-          options={fields}
-          value={fieldKey}
-          onChange={(k) => {
-            onFieldKeyChange(k);
-            onValueChange("");
-          }}
-        />
-      )}
-      {!fieldLabel && (
-        <SelectField
-          options={fields}
-          value={fieldKey}
-          onChange={(k) => {
-            onFieldKeyChange(k);
-            onValueChange("");
-          }}
-        />
-      )}
+      <SelectField
+        label={fieldLabel}
+        options={fieldOptions}
+        value={fieldKey}
+        onChange={(k) => {
+          onFieldKeyChange(k);
+          onValueChange("");
+        }}
+      />
       <SelectField
         options={currentOptions}
         value={value}
