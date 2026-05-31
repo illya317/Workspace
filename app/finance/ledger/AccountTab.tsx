@@ -88,7 +88,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
                 { key: "scope", label: "类型" },
               ]}
               valueOptions={{
-                level: [{ value: "1", label: "1级" }, { value: "2", label: "2级" }, { value: "3", label: "3级" }, { value: "4", label: "4级" }, { value: "5", label: "5级" }],
+                level: [{ value: "", label: "全部" }, { value: "1", label: "1级" }, { value: "2", label: "2级" }, { value: "3", label: "3级" }, { value: "4", label: "4级" }, { value: "5", label: "5级" }],
                 scope: [{ value: "", label: "全部" }, { value: "mapped", label: "集团" }, { value: "unmapped", label: "独有" }, { value: "inactive", label: "未启用" }],
               }}
               fieldKey={extraField}
