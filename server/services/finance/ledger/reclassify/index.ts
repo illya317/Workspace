@@ -78,7 +78,7 @@ async function fetchRules(
 /** 收集所有规则 targetAccountCode，验证在 (companyCode, year) 范围内科目存在 */
 async function buildTargetExistenceSet(
   rules: Map<string, RuleEntry>,
-  companyCode: string | null,
+  companyCode: string,
   year: number,
 ): Promise<Set<string>> {
   const codes = new Set<string>();
