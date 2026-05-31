@@ -192,7 +192,7 @@ model FinanceAnnualBalance {
 /// source="suggested" 为系统扫描凭证明细后生成的候选，source="manual" 为用户手动配置
 model FinanceReclassRule {
   id                Int       @id @default(autoincrement())
-  companyCode       String?
+  companyCode       String
   year              Int
   sourceAccountCode String
   abnormalSide      String    // debit | credit —— 科目自然余额方向的反方向

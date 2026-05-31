@@ -108,7 +108,37 @@ budget/page.tsx
 3. 点击余额表"重新计算"时，系统从 active baseline snapshot 的 closing balance 开始，叠加已过账凭证逐月滚动到 `FinanceAccountBalance`。
 4. `FinanceAccountBalance` 是 `FinanceBalanceSnapshotRow` 的 materialized 缓存/展示层，不是数据源头。
 5. 换基准年份：将某个 reconcile snapshot 改为 `snapshotType="baseline"` + `isActive=true`（同 companyCode+year 下只有一个 active），然后重算受影响月份。
-6. 删除 active baseline：必须先选择新的 baseline。删除普通 reconcile snapshot 可直接级联删除。
+6. 删除 active baseline：必须先选择新的 baseline。删除普通 reconcile snapshot 可直接级联删除。## 重分类系统
+
+重分类工作流将凭证明细中"借贷方向与科目自然余额方向相反"的分录，重新归类到对应目标科目，以消除资产负债表中的虚增余额。
+
+### 数据模型
+
+| 表 | 文件 | 说明 |
+|---|---|---|
+| `FinanceReclassRule` | `prisma/models/finance-ledger.prisma` | 科目级规则：`(companyCode, year, sourceAccountCode, abnormalSide)` → `targetAccountCode` |
+| `ReclassResult` | `prisma/models/finance-schedules.prisma` | 明细级结果：每条凭证明细的生成/审核结果，`ruleId` 可空追溯到规则 |
+
+### 规则表 (`FinanceReclassRule`)
+
+- `companyCode` **非空**，规则总是公司作用域
+- `@@unique([companyCode, year, sourceAccountCode, abnormalSide])` 确保唯一
+- `abnormalSide`: `debit` 表示贷余科目的异常借方（需重分类到资产方），`credit` 表示借余科目的异常贷方（需重分类到负债方）
+- `source`: `"manual"` 为用户手动配置，`"suggested"` 为系统候选（Batch 2+）
+- 替代 `FinanceAccount.reclassTargetCode`（兼容字段，Batch 8 清理）
+
+### 结果表 (`ReclassResult`)
+
+- `@@unique([periodId, voucherItemId])` 确保同一明细只有一条结果
+- `ruleId` (Int?) 追溯到生成此结果的 `FinanceReclassRule`；手工添加或历史兼容时为 null
+- `status`: `pending` → `approved` | `adjusted` | `rejected`（终态不可逆）
+- `approved` / `adjusted` 结果被资产负债表消费；`pending` / `rejected` 不参与报表
+
+### 兼容过渡
+
+- Batch 1: 新表落位，引擎继续读 `FinanceAccount.reclassTargetCode`，`ReclassResult.ruleId` 为 null
+- Batch 4: 引擎切换到 `FinanceReclassRule`
+- Batch 8: 清理 `FinanceAccount.reclassTargetCode`
 
 
 ## 预算管理

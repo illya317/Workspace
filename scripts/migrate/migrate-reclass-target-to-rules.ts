@@ -47,8 +47,8 @@ async function main() {
 
   let created = 0;
   let skipped = 0;
-  let updated = 0;
   let skippedNullYear = 0;
+  let skippedNoCompany = 0;
   const errors: string[] = [];
 
   for (const acc of accounts) {
@@ -62,31 +62,25 @@ async function main() {
     const abnormalSide = deriveAbnormalSide(acc.balanceDirection);
     const targetCode = acc.reclassTargetCode!;
 
-    // 用 findFirst 而非 findUnique 以正确处理 companyCode=NULL 的 SQLite 语义
+    // companyCode 非空约束：旧科目若无 companyCode 则跳过
+    if (!acc.companyCode) {
+      console.log(`  ⚠️  跳过: ${acc.code} (year=${acc.year}) — companyCode=null，规则表要求 companyCode 非空`);
+      skippedNoCompany++;
+      continue;
+    }
+
     const existing = await prisma.financeReclassRule.findFirst({
       where: {
+        companyCode: acc.companyCode,
         year: acc.year,
         sourceAccountCode: acc.code,
         abnormalSide,
-        companyCode: acc.companyCode ?? null,
       },
     });
 
     if (existing) {
-      if (existing.targetAccountCode === targetCode) {
-        skipped++;
-        continue;
-      }
-      // 目标不同：以 FinanceAccount 上的最新值为准，更新规则
-      if (dryRun) {
-        console.log(`  [DRY] Update: ${acc.companyCode ?? "(通用)"} ${acc.year} ${acc.code} abnormal=${abnormalSide} ${existing.targetAccountCode} → ${targetCode}`);
-      } else {
-        await prisma.financeReclassRule.update({
-          where: { id: existing.id },
-          data: { targetAccountCode: targetCode },
-        });
-      }
-      updated++;
+      // 已有规则无条件跳过：新表是人工确认后的权威来源，旧字段不再覆盖
+      skipped++;
       continue;
     }
 
@@ -114,8 +108,8 @@ async function main() {
   console.log(dryRun ? "🔍 DRY RUN 汇总：" : "✅ 迁移完成：");
   console.log(`   新建规则: ${created}`);
   console.log(`   跳过(已存在): ${skipped}`);
-  console.log(`   更新(目标变更): ${updated}`);
   if (skippedNullYear > 0) console.log(`   跳过(year=null): ${skippedNullYear}`);
+  if (skippedNoCompany > 0) console.log(`   跳过(companyCode=null): ${skippedNoCompany}`);
   if (errors.length > 0) {
     console.log(`   ⚠️  错误: ${errors.length}`);
     for (const e of errors) console.log(`      ${e}`);
