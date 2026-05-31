@@ -26,6 +26,9 @@ interface FilterToolbarProps {
 
   // ── 总数 ──
   total?: number;
+
+  // ── 右侧插槽（EditToolbar 等）──
+  extraRight?: React.ReactNode;
 }
 
 /**
@@ -54,6 +57,7 @@ export default function FilterToolbar({
   pageSizeOptions = [20, 50, 100, 200],
   onPageSizeChange,
   total,
+  extraRight,
 }: FilterToolbarProps) {
   const sizeOptions = pageSizeOptions.map((s) => ({
     value: String(s),
@@ -95,6 +99,8 @@ export default function FilterToolbar({
       )}
 
       <div className="flex-1" />
+
+      {extraRight}
 
       {/* 共X条 */}
       {total !== undefined && (
