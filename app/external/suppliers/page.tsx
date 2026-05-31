@@ -1,11 +1,9 @@
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/server/auth/session";
+import { requireResourceAccess } from "@/server/auth/guard";
 import AppShell from "@/app/components/AppShell";
 import SuppliersClient from "./SuppliersClient";
 
 export default async function SuppliersPage() {
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  const user = await requireResourceAccess("external.supplier");
 
   return (
     <AppShell title="供应商管理" backHref="/external" user={user}>

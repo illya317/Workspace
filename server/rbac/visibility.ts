@@ -67,23 +67,3 @@ export async function hasResourceVisible(
   const visible = await getVisibleResourceKeys(ctx, roleKey);
   return visible.has(resourceKey);
 }
-
-/**
- * Get all resource keys where the user has the exact role
- * (without ancestor propagation).
- */
-export async function getDirectResourceKeys(
-  ctx: PermissionContext,
-  roleKey: string = "access",
-): Promise<Set<string>> {
-  const resources = await loadResources();
-  const direct = new Set<string>();
-
-  for (const r of resources) {
-    if (await checkPermissionWithContext(ctx, r.key, roleKey)) {
-      direct.add(r.key);
-    }
-  }
-
-  return direct;
-}

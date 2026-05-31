@@ -1,11 +1,9 @@
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/server/auth/session";
+import { requireResourceAccess } from "@/server/auth/guard";
 import AppShell from "@/app/components/AppShell";
 import CustomersClient from "./CustomersClient";
 
 export default async function CustomersPage() {
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  const user = await requireResourceAccess("external.customer");
 
   return (
     <AppShell title="客户管理" backHref="/external" user={user}>

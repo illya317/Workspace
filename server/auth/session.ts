@@ -48,20 +48,30 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
   const isAdmin = ctx.isAdmin;
 
   const { getVisibleResourceKeys } = await import("@/server/rbac/visibility");
-  const visibleKeys = await getVisibleResourceKeys(ctx, "access");
+  const [visibleAccess, visibleWrite, visibleDelete] = await Promise.all([
+    getVisibleResourceKeys(ctx, "access"),
+    getVisibleResourceKeys(ctx, "write"),
+    getVisibleResourceKeys(ctx, "delete"),
+  ]);
 
   // L1 module visibility (DB-driven, auto-ancestor propagation)
-  const m = (k: string) => visibleKeys.has(k);
+  const ma = (k: string) => visibleAccess.has(k);
+  const mw = (k: string) => visibleWrite.has(k);
+  const md = (k: string) => visibleDelete.has(k);
 
-  const hasWorks = m("work") || m("work.report") || m("work.task");
-  const hasHR = m("people") || m("people.roster") || m("people.performance") || m("people.analytics");
-  const hasHRW = m("people.write") || m("people.roster.write") || m("people.performance.write") || m("people.analytics.write");
-  const hasHRD = m("people.delete") || m("people.roster.delete") || m("people.performance.delete") || m("people.analytics.delete");
-  const hasFinance = m("finance") || m("finance.cost") || m("finance.ledger") || m("finance.statement") || m("finance.budget") || m("finance.analysis") || m("finance.import");
-  const hasInventory = m("production") || m("production.inventory");
-  const hasContract = m("administration") || m("administration.contract");
-  const hasDocs = m("docs") || m("docs.positions") || m("docs.company") || m("docs.expense");
-  const hasExternal = m("external") || m("external.investor") || m("external.customer") || m("external.supplier");
+  const hrKeys = ["people", "people.roster", "people.performance", "people.analytics"] as const;
+  const hasWorks = ma("work") || ma("work.report") || ma("work.task");
+  const hasHR = hrKeys.some(ma);
+  const hasHRW = hrKeys.some(mw);
+  const hasHRD = hrKeys.some(md);
+  const financeKeys = ["finance", "finance.cost", "finance.ledger", "finance.statement", "finance.budget", "finance.analysis", "finance.import"] as const;
+  const hasFinance = financeKeys.some(ma);
+  const hasInventory = ma("production") || ma("production.inventory");
+  const hasContract = ma("administration") || ma("administration.contract");
+  const extKeys = ["external", "external.investor", "external.customer", "external.supplier"] as const;
+  const docsKeys = ["docs", "docs.positions", "docs.company", "docs.expense", "system.api"] as const;
+  const hasDocs = docsKeys.some(ma);
+  const hasExternal = extKeys.some(ma);
 
   // Additional per-resource checks
   const [canAnyWeek, hasApi, hasAgent] = await Promise.all([
@@ -78,21 +88,21 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     isWorkListAdmin: isAdmin,
     isSuperAdmin: isAdmin,
     canSelectAnyWeek: canAnyWeek,
-    visibleResourceKeys: [...visibleKeys],
+    visibleResourceKeys: [...visibleAccess],
     // Module gates
     canAccessHR: isAdmin || (hasHR && isActiveEmployee),
     canEditHR: isAdmin || (hasHRW && isActiveEmployee),
     canDeleteHR: isAdmin || (hasHRD && isActiveEmployee),
     canAccessWorks: hasWorks,
     canAccessFinance: hasFinance,
-    canAccessFinanceCost: m("finance.cost"), canAccessFinanceLedger: m("finance.ledger"),
-    canAccessFinanceReport: m("finance.statement"), canAccessFinanceBudget: m("finance.budget"),
-    canAccessFinanceAnalysis: m("finance.analysis"), canAccessFinanceImport: m("finance.import"),
+    canAccessFinanceCost: ma("finance.cost"), canAccessFinanceLedger: ma("finance.ledger"),
+    canAccessFinanceReport: ma("finance.statement"), canAccessFinanceBudget: ma("finance.budget"),
+    canAccessFinanceAnalysis: ma("finance.analysis"), canAccessFinanceImport: ma("finance.import"),
     canAccessInventory: hasInventory,
     canAccessContract: hasContract,
     canAccessDocs: hasDocs,
     canAccessExternal: hasExternal,
-    canAccessLibrary: m("library"),
+    canAccessLibrary: ma("library"),
     canAccessApi: hasApi,
     canAccessAgent: hasAgent,
     canAccessAdmin: isAdmin || canManagePermissions,

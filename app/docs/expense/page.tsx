@@ -1,10 +1,8 @@
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/server/auth/session";
+import { requireResourceAccess } from "@/server/auth/guard";
 import AppShell from "@/app/components/AppShell";
 
 export default async function DocsExpensePage() {
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
+  const user = await requireResourceAccess("docs.expense");
   return (
     <AppShell title="报销规范" backHref="/docs" user={user}>
       <main className="mx-auto max-w-5xl px-4 py-10">
