@@ -9,6 +9,7 @@ const HR_KEYS = ["people.roster", "people.performance", "people.analytics"];
 export default async function HRHomePage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  if (!user.isActiveEmployee) redirect("/portal");
   if (!HR_KEYS.some((k) => user.visibleResourceKeys?.includes(k))) redirect("/portal");
 
   const mod = MODULES.find((m) => m.key === "hr");
