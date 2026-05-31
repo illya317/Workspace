@@ -72,7 +72,7 @@ const ITEM_COLUMNS: ColumnDef[] = [
 ];
 
 const DEFAULT_VISIBLE_ITEMS = ITEM_COLUMNS
-  .filter((c) => c.required || !["relatedEntity", "reclassStatus", "reclassTarget", "reclassAmount", "reclassActions"].includes(c.key))
+  .filter((c) => c.required || c.key === "reclassStatus")
   .map((c) => c.key);
 
 export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
