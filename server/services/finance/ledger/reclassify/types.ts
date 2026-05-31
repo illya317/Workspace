@@ -26,6 +26,11 @@ export const STATUS_LABELS: Record<ItemStatus, string> = {
 
 // ─── Per-item result ──────────────────────────────────────
 
+export interface RuleEntry {
+  id: number;
+  targetAccountCode: string;
+}
+
 export interface ReclassifyItemResult {
   voucherItemId: number;
   sourceAccount: string;
@@ -38,6 +43,8 @@ export interface ReclassifyItemResult {
    */
   amount: number;
   status: ItemStatus;
+  /** Batch 4: 匹配到的 FinanceReclassRule.id，未匹配时为 null */
+  ruleId: number | null;
 }
 
 // ─── Aggregate ────────────────────────────────────────────

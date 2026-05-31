@@ -5,9 +5,12 @@
  *   - 资产类（借余）科目：贷方发生额 → 重分类
  *   - 负债/权益类（贷余）科目：借方发生额 → 重分类
  *   - 其他组合（顺向发生额 / 无规则 / 无实体 / 目标不存在）→ 对应 skip 状态
+ *
+ * Batch 4: 规则来源从 FinanceAccount.reclassTargetCode 切换到 FinanceReclassRule 表。
+ *   rules map: key = "accountCode::abnormalSide" → value = { id, targetAccountCode }
  */
 
-import type { ReclassifyItemResult, ItemStatus } from "./types";
+import type { ReclassifyItemResult, ItemStatus, RuleEntry } from "./types";
 import { ItemStatus as S } from "./types";
 
 // ─── 分录查询结果的最小投影 ──────────────────────────────
@@ -20,23 +23,31 @@ export interface VoucherItemInput {
   account: {
     code: string;
     balanceDirection: string;
-    reclassTargetCode: string | null;
   };
+}
+
+// ─── helper ──────────────────────────────────────────────
+
+function abnormalSide(balanceDirection: string): string {
+  return balanceDirection === "debit" ? "credit" : "debit";
 }
 
 // ─── classifyItem ─────────────────────────────────────────
 
 export function classifyItem(
   item: VoucherItemInput,
+  rules: ReadonlyMap<string, RuleEntry>,
   targetExists: ReadonlySet<string>,
 ): ReclassifyItemResult {
   const base = {
     voucherItemId: item.id,
     sourceAccount: item.account.code,
+    ruleId: null as number | null,
   };
 
-  // 1. 无规则
-  if (!item.account.reclassTargetCode) {
+  // 1. 查规则：key = "accountCode::abnormalSide"
+  const rule = rules.get(`${item.account.code}::${abnormalSide(item.account.balanceDirection)}`);
+  if (!rule) {
     return { ...base, targetAccount: null, amount: 0, status: S.NO_RULE };
   }
 
@@ -46,50 +57,35 @@ export function classifyItem(
   }
 
   // 3. 目标科目不存在
-  if (!targetExists.has(item.account.reclassTargetCode)) {
-    return { ...base, targetAccount: item.account.reclassTargetCode, amount: 0, status: S.INVALID_TARGET };
+  if (!targetExists.has(rule.targetAccountCode)) {
+    return { ...base, targetAccount: rule.targetAccountCode, amount: 0, status: S.INVALID_TARGET };
   }
 
-  // 4. 判断借贷方向是否需要重分类
   const dir = item.account.balanceDirection;
   const isDebitBalance = dir === "debit";
 
-  // 借余科目（资产/成本/费用）：贷方发生额需重分类
+  // 4. 借余科目（资产）：贷方发生额需重分类
   if (isDebitBalance && item.credit > 0) {
-    return {
-      ...base,
-      targetAccount: item.account.reclassTargetCode,
-      amount: item.credit,
-      status: S.MATCHED,
-    };
+    return { ...base, targetAccount: rule.targetAccountCode, amount: item.credit, status: S.MATCHED, ruleId: rule.id };
   }
 
-  // 贷余科目（负债/权益/收入）：借方发生额需重分类
+  // 5. 贷余科目（负债）：借方发生额需重分类
   if (!isDebitBalance && item.debit > 0) {
-    return {
-      ...base,
-      targetAccount: item.account.reclassTargetCode,
-      amount: item.debit,
-      status: S.MATCHED,
-    };
+    return { ...base, targetAccount: rule.targetAccountCode, amount: item.debit, status: S.MATCHED, ruleId: rule.id };
   }
 
-  // 5. 借贷方向与自然余额方向一致 → 无需重分类
-  return {
-    ...base,
-    targetAccount: item.account.reclassTargetCode,
-    amount: 0,
-    status: S.SKIPPED,
-  };
+  // 6. 顺向发生额 → 无需重分类
+  return { ...base, targetAccount: rule.targetAccountCode, amount: 0, status: S.SKIPPED, ruleId: rule.id };
 }
 
 // ─── 批量分类 ─────────────────────────────────────────────
 
 export function classifyItems(
   items: VoucherItemInput[],
+  rules: ReadonlyMap<string, RuleEntry>,
   targetExists: ReadonlySet<string>,
 ): ReclassifyItemResult[] {
-  return items.map((item) => classifyItem(item, targetExists));
+  return items.map((item) => classifyItem(item, rules, targetExists));
 }
 
 // ─── 聚合统计 ─────────────────────────────────────────────

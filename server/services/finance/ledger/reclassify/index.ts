@@ -2,14 +2,11 @@
  * Phase 4: 凭证明细层重分类引擎
  *
  * 入口: buildReclassResults(periodId, opts?)
- *   - 读取 posted 凭证分录 + 科目 reclassTargetCode 规则
+ *   - 读取 posted 凭证分录
+ *   - 加载 period 对应的 FinanceReclassRule（Batch 4：替代旧 FinanceAccount.reclassTargetCode）
  *   - 逐条 classifyItem → 按 status 分组统计
  *   - dryRun (默认): 仅返回 ReclassifySummary，不写库
- *   - dryRun=false: upsert matched 到 ReclassResult，返回 ReclassifyExecutionResult
- *
- * 与后端 balance 层重分类 (computeReclassification) 的区别：
- *   - buildReclassResults: 凭证明细层，规则来自 FinanceAccount.reclassTargetCode
- *   - computeReclassification: 余额层，硬编码 startsWith("1"/"2") 兜底
+ *   - dryRun=false: upsert matched 到 ReclassResult（含 ruleId），返回 ReclassifyExecutionResult
  */
 
 import { prisma } from "@/lib/prisma";
@@ -17,6 +14,7 @@ import { classifyItem } from "./rules";
 import type { VoucherItemInput } from "./rules";
 import { aggregateResults } from "./rules";
 import { ItemStatus } from "./types";
+import type { RuleEntry } from "./types";
 import type {
   ReclassifyItemResult,
   ReclassifySummary,
@@ -34,7 +32,6 @@ interface RawItem {
   account: {
     code: string;
     balanceDirection: string;
-    reclassTargetCode: string | null;
   };
 }
 
@@ -53,29 +50,39 @@ async function fetchItems(periodId: number): Promise<RawItem[]> {
         select: {
           code: true,
           balanceDirection: true,
-          reclassTargetCode: true,
         },
       },
     },
   });
 }
 
-/**
- * 收集所有 reclassTargetCode，按 period 的 (companyCode, year) 范围
- * 批量查 FinanceAccount 确认存在性。
- * FinanceAccount @@unique([code, companyCode, year]) —— 同编码跨公司/跨年均视为不同科目。
- */
+/** Batch 4: 加载 period 对应的 (companyCode, year) 下的所有 enabled 规则 */
+async function fetchRules(
+  companyCode: string | null,
+  year: number,
+): Promise<Map<string, RuleEntry>> {
+  const rules = await prisma.financeReclassRule.findMany({
+    where: { companyCode: companyCode ?? undefined, year, enabled: true },
+    select: { id: true, sourceAccountCode: true, abnormalSide: true, targetAccountCode: true },
+  });
+  const map = new Map<string, RuleEntry>();
+  for (const r of rules) {
+    map.set(`${r.sourceAccountCode}::${r.abnormalSide}`, {
+      id: r.id,
+      targetAccountCode: r.targetAccountCode,
+    });
+  }
+  return map;
+}
+
+/** 收集所有规则 targetAccountCode，验证在 (companyCode, year) 范围内科目存在 */
 async function buildTargetExistenceSet(
-  items: RawItem[],
+  rules: Map<string, RuleEntry>,
   companyCode: string | null,
   year: number,
 ): Promise<Set<string>> {
   const codes = new Set<string>();
-  for (const item of items) {
-    if (item.account.reclassTargetCode) {
-      codes.add(item.account.reclassTargetCode);
-    }
-  }
+  for (const r of rules.values()) codes.add(r.targetAccountCode);
   if (codes.size === 0) return new Set();
 
   const existing = await prisma.financeAccount.findMany({
@@ -96,27 +103,19 @@ async function upsertResults(
   periodId: number,
   matched: ReclassifyItemResult[],
 ): Promise<{ written: number; skippedNonPending: number }> {
-  // 1. 查已有记录，非 pending 的跳过（保护人工审核结果）
   const existing = await prisma.reclassResult.findMany({
     where: { periodId, voucherItemId: { in: matched.map((r) => r.voucherItemId) } },
     select: { voucherItemId: true, status: true },
   });
   const nonPendingIds = new Set(
-    existing
-      .filter((e) => e.status !== "pending")
-      .map((e) => e.voucherItemId),
+    existing.filter((e) => e.status !== "pending").map((e) => e.voucherItemId),
   );
 
-  // 2. 过滤掉非 pending 记录（不覆盖人工审核/调整）
-  const writable = matched.filter(
-    (r) => !nonPendingIds.has(r.voucherItemId),
-  );
+  const writable = matched.filter((r) => !nonPendingIds.has(r.voucherItemId));
 
   let written = 0;
-
   for (let i = 0; i < writable.length; i += 500) {
     const batch = writable.slice(i, i + 500);
-
     const ops = batch.map((r) =>
       prisma.reclassResult.upsert({
         where: {
@@ -125,20 +124,20 @@ async function upsertResults(
         create: {
           periodId,
           voucherItemId: r.voucherItemId,
+          ruleId: r.ruleId,
           sourceAccount: r.sourceAccount,
           targetAccount: r.targetAccount!,
           amount: r.amount,
           status: "pending",
         },
         update: {
+          ruleId: r.ruleId,
           sourceAccount: r.sourceAccount,
           targetAccount: r.targetAccount!,
           amount: r.amount,
-          // status 不动 —— 保留 pending 以等待审核
         },
       }),
     );
-
     await prisma.$transaction(ops);
     written += batch.length;
   }
@@ -161,17 +160,14 @@ export async function buildReclassResults(
   });
   if (!period) throw new Error(`Period ${periodId} not found`);
 
-  // 1. 查询
+  // 1. 查询 items + rules
   const items = await fetchItems(periodId);
-  const targetExists = await buildTargetExistenceSet(
-    items,
-    period.companyCode,
-    period.year,
-  );
+  const rules = await fetchRules(period.companyCode, period.year);
+  const targetExists = await buildTargetExistenceSet(rules, period.companyCode, period.year);
 
   // 2. 逐条分类
   const results: ReclassifyItemResult[] = items.map((item) =>
-    classifyItem(item as VoucherItemInput, targetExists),
+    classifyItem(item as VoucherItemInput, rules, targetExists),
   );
 
   // 3. 聚合
@@ -201,7 +197,7 @@ export async function buildReclassResults(
   const execResult: ReclassifyExecutionResult = { ...summary, written };
   if (skippedNonPending > 0) {
     console.log(
-      `[buildReclassResults] 跳过 ${skippedNonPending} 条非 pending 记录 (已审核/调整/拒绝)，未被覆盖`,
+      `[buildReclassResults] 跳过 ${skippedNonPending} 条非 pending 记录，未被覆盖`,
     );
   }
   return execResult;
