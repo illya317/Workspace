@@ -78,23 +78,23 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
         showMonth={false} showLevel
         extra={
-          <SelectField
-            label="类型"
-            options={[
-              { value: "all", label: "全部" },
-              { value: "mapped", label: "集团" },
-              { value: "unmapped", label: "独有" },
-              { value: "inactive", label: "未启用" },
-            ]}
-            value={scope}
-            onChange={(v) => { setScope(v as typeof scope); setPage(1); }}
-          />
+          <>
+            <SelectField
+              label="类型"
+              options={[
+                { value: "all", label: "全部" },
+                { value: "mapped", label: "集团" },
+                { value: "unmapped", label: "独有" },
+                { value: "inactive", label: "未启用" },
+              ]}
+              value={scope}
+              onChange={(v) => { setScope(v as typeof scope); setPage(1); }}
+            />
+            <ColumnToggle columns={ACCOUNT_COLUMNS} visible={visibleColumns} onChange={setVisibleColumns} />
+          </>
         }
       />
 
-      <div className="flex items-center justify-end">
-        <ColumnToggle columns={ACCOUNT_COLUMNS} visible={visibleColumns} onChange={setVisibleColumns} />
-      </div>
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         <AccountTable
           accounts={accounts}

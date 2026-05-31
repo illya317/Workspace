@@ -2,6 +2,7 @@
 
 import FilterBar from "@/app/components/FilterBar";
 import SelectField from "@/app/components/SelectField";
+import SearchBox from "@/app/components/SearchBox";
 
 // ─── Options ──────────────────────────────────────────────
 
@@ -89,11 +90,12 @@ export default function FinanceFilters({
   return (
     <FilterBar>
       {showSearch && onKeywordChange && (
-        <input
-          value={keyword}
-          onChange={(e) => onKeywordChange(e.target.value)}
+        <SearchBox
+          compact
+          query={keyword}
+          onQueryChange={onKeywordChange}
           placeholder="搜索..."
-          className="rounded border border-gray-200 px-2 py-1 text-xs w-36 focus:border-emerald-400 focus:outline-none"
+          inputClassName="rounded border border-gray-200 px-2 py-1 text-xs w-36 focus:border-emerald-400 focus:outline-none"
         />
       )}
 

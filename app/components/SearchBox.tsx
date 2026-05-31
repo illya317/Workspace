@@ -7,13 +7,13 @@ import type { SearchConfig } from "@/app/hooks/useSearch";
 
 interface Props<T = unknown> {
   /** Search configuration, passed directly to useSearch */
-  config: SearchConfig<T>;
+  config?: SearchConfig<T>;
   /** Placeholder text for the input */
   placeholder?: string;
-  /** Called when user clicks a result */
-  onSelect: (item: T) => void;
-  /** Custom result row renderer */
-  renderItem: (item: T) => React.ReactNode;
+  /** Called when user clicks a result (ignored in compact mode) */
+  onSelect?: (item: T) => void;
+  /** Custom result row renderer (ignored in compact mode) */
+  renderItem?: (item: T) => React.ReactNode;
   /** Text shown while loading */
   loadingText?: string;
   /** Text shown when no results */
@@ -24,6 +24,12 @@ interface Props<T = unknown> {
   inputClassName?: string;
   /** Dropdown max height */
   maxHeight?: string;
+  /** Compact mode: only render the input, no dropdown/typeahead */
+  compact?: boolean;
+  /** Callback when input value changes (compact mode) */
+  onQueryChange?: (query: string) => void;
+  /** Controlled input value (compact mode) */
+  query?: string;
 }
 
 // ─── Component ────────────────────────────────────────────
@@ -38,16 +44,32 @@ export default function SearchBox<T = unknown>({
   extraFilters,
   inputClassName,
   maxHeight = "max-h-48",
+  compact,
+  onQueryChange,
+  query: controlledQuery,
 }: Props<T>) {
+  // Compact mode: just a controlled input
+  if (compact) {
+    return (
+      <input
+        type="text"
+        value={controlledQuery ?? ""}
+        onChange={(e) => onQueryChange?.(e.target.value)}
+        placeholder={placeholder}
+        className={inputClassName || "rounded border border-gray-200 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"}
+      />
+    );
+  }
+
   const {
     query, setQuery,
     results, loading,
     showDropdown, setShowDropdown,
     filterValues, setFilter,
-  } = useSearch<T>(config);
+  } = useSearch<T>(config!);
 
-  const hasFilters = config.filters && Object.values(config.filters).some(Boolean);
-  const opts = config.filterOptions || {};
+  const hasFilters = config?.filters && Object.values(config.filters).some(Boolean);
+  const opts = config?.filterOptions || {};
 
   return (
     <div className="space-y-2">
@@ -131,10 +153,10 @@ export default function SearchBox<T = unknown>({
                   return (
                     <div
                       key={rec.rowId ?? rec.id ?? rec.name ?? idx}
-                      onMouseDown={() => { onSelect(item); setShowDropdown(false); }}
+                      onMouseDown={() => { onSelect!(item); setShowDropdown(false); }}
                       className="flex cursor-pointer items-center justify-between px-3 py-2 text-sm hover:bg-emerald-50"
                     >
-                      {renderItem(item)}
+                      {renderItem!(item)}
                     </div>
                   );
                 })
