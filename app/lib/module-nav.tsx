@@ -81,6 +81,18 @@ const icons = {
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
     </svg>
   ),
+  tax: (
+    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 14l6-6m-4 0h4v4m-5 3h.01M4 4h16v16H4V4z" />
+      <circle cx="12" cy="12" r="8" strokeWidth={1.5} className="opacity-30" />
+    </svg>
+  ),
+  treasury: (
+    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 21h18M4 21V10l4-4h5l4 4v11M8 21v-4a1 1 0 011-1h2.5M14 21v-7M10 7h4M17 21v-7" />
+      <circle cx="12" cy="13" r="1.5" fill="currentColor" stroke="none" />
+    </svg>
+  ),
 };
 
 // ─── 注册表 ───────────────────────────────────────────────
