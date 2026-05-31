@@ -6,12 +6,14 @@ import AccountTab from "./AccountTab";
 import VoucherTab from "./VoucherTab";
 import LedgerTab from "./LedgerTab";
 import ReclassRulesTab from "./ReclassRulesTab";
+import ReclassReviewTab from "./ReclassReviewTab";
 
 const tabs = [
   { key: "accounts", label: "科目设置" },
   { key: "vouchers", label: "凭证明细" },
   { key: "ledger", label: "余额表" },
   { key: "reclassRules", label: "重分类规则" },
+  { key: "reclassReview", label: "重分类审核" },
 ];
 
 export default function LedgerClient({ canWrite }: { canWrite: boolean }) {
@@ -25,6 +27,7 @@ export default function LedgerClient({ canWrite }: { canWrite: boolean }) {
       {activeTab === "vouchers" && <VoucherTab />}
       {activeTab === "ledger" && <LedgerTab />}
       {activeTab === "reclassRules" && <ReclassRulesTab canWrite={canWrite} />}
+      {activeTab === "reclassReview" && <ReclassReviewTab canWrite={canWrite} />}
     </main>
   );
 }
