@@ -10,6 +10,7 @@ import { BASE_ITEM_COLUMNS } from "../components/VoucherItemTable";
 import type { VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
 import { buildReclassItemColumns } from "./reclassItemColumns";
+import ReclassReviewView, { buildReviewItems } from "../components/ReclassReviewView";
 
 const COMPANIES: Record<string, string> = { "01": "丰华生物", "02": "丰华天力通", "03": "丰华悦通", "04": "丰华制药", "05": "加拿大", "06": "上海悦通" };
 
@@ -71,17 +72,15 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [total, setTotal] = useState(0);
   const { toast, showToast, closeToast } = useToast();
   const { reclassMap, handleReview, generating, handleGenerate } = useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
-  const [reclassFilter, setReclassFilter] = useState<"all" | "pending">("all");
+  const [viewMode, setViewMode] = useState<"vouchers" | "reclass">("vouchers");
+  const [reclassStatusFilter, setReclassStatusFilter] = useState("pending");
+  const reviewItems = useMemo(() => buildReviewItems(reclassMap, vouchers), [reclassMap, vouchers]);
 
   const itemColumns = useMemo(() => {
     const cols = [...BASE_ITEM_COLUMNS];
-    if (reclassFilter === "pending") cols.push(...buildReclassItemColumns(reclassMap, canWrite, handleReview));
+    if (viewMode === "reclass") cols.push(...buildReclassItemColumns(reclassMap, canWrite, handleReview));
     return cols;
-  }, [reclassMap, canWrite, handleReview, reclassFilter]);
-
-  const filteredVouchers = reclassFilter === "pending" && reclassMap.size > 0
-    ? vouchers.filter((v) => v.items.some((it) => reclassMap.get(it.id)?.status === "pending"))
-    : vouchers;
+  }, [reclassMap, canWrite, handleReview, viewMode]);
 
   async function load() {
     setLoading(true);
@@ -132,11 +131,11 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
           <div className="ml-auto flex items-center gap-2">
             {reclassMap.size > 0 && (
               <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
-                {(["all","pending"] as const).map((k) => (
-                  <button key={k} onClick={() => setReclassFilter(k)}
+                {(["vouchers","reclass"] as const).map((k) => (
+                  <button key={k} onClick={() => setViewMode(k)}
                     className={`rounded px-2 py-0.5 text-[11px] ${
-                      reclassFilter === k ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-gray-100"
-                    }`}>{k === "all" ? "全部" : "待审核"}</button>
+                      viewMode === k ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-gray-100"
+                    }`}>{k === "vouchers" ? "凭证" : "重分类审核"}</button>
                 ))}
               </div>
             )}
@@ -149,7 +148,9 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
         }
       />
 
-      {/* Table */}
+      {viewMode === "reclass" ? (
+        <ReclassReviewView items={reviewItems} canWrite={canWrite} statusFilter={reclassStatusFilter} onStatusFilter={setReclassStatusFilter} onReview={handleReview} />
+      ) : (
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         {loading ? (
           <p className="p-8 text-center text-gray-500">加载中...</p>
@@ -162,7 +163,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
               <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">分录</th>
             </tr></thead>
             <tbody>
-              {filteredVouchers.map((v) => (
+              {vouchers.map((v) => (
                 <Fragment key={v.id}>
                   <tr
                     className="border-b last:border-0 hover:bg-gray-50 cursor-pointer"
@@ -203,16 +204,15 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
                   )}
                 </Fragment>
               ))}
-              {filteredVouchers.length === 0 && (
-                <tr><td colSpan={8} className="px-3 py-8 text-center text-gray-400">{reclassFilter === "pending" ? "无待审核重分类凭证" : "暂无凭证"}</td></tr>
+              {vouchers.length === 0 && (
+                <tr><td colSpan={8} className="px-3 py-8 text-center text-gray-400">暂无凭证</td></tr>
               )}
             </tbody>
           </table>
         )}
       </div>
-
-      <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
-
+      )}
+      {viewMode !== "reclass" && <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />}
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
   );
