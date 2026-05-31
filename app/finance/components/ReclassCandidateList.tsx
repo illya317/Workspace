@@ -77,6 +77,15 @@ export default function ReclassCandidateList({
 
   // ── Actions ──────────────────────────────────────────
 
+  function updateCandidate(code: string, id: number | null, target: string | null, source: string | null, enabled: boolean | null) {
+    const fn = (prev: RuleCandidate[]) => prev.map((r) =>
+      r.accountCode === code
+        ? { ...r, existingRuleId: id, existingTarget: target, existingSource: source, existingEnabled: enabled }
+        : r);
+    setScanned(fn);
+    setAllAccounts(fn);
+  }
+
   async function saveRule(c: RuleCandidate, target: string) {
     const res = await fetch("/api/finance/reclass-rules", {
       method: "PUT", headers: { "Content-Type": "application/json" },
@@ -84,20 +93,14 @@ export default function ReclassCandidateList({
     });
     if (!res.ok) { showToast("保存失败", "error"); return false; }
     const data = await res.json();
-    setCandidates((prev) => prev.map((r) =>
-      r.accountCode === c.accountCode && r.abnormalSide === c.abnormalSide
-        ? { ...r, existingRuleId: data.rule.id, existingTarget: data.rule.targetAccountCode, existingSource: data.rule.source, existingEnabled: data.rule.enabled }
-        : r));
+    updateCandidate(c.accountCode, data.rule.id, data.rule.targetAccountCode, data.rule.source, data.rule.enabled);
     return true;
   }
 
   async function clearRule(c: RuleCandidate) {
     if (!c.existingRuleId) return;
     if (!(await fetch(`/api/finance/reclass-rules/${c.existingRuleId}`, { method: "DELETE" })).ok) { showToast("清除失败", "error"); return; }
-    setCandidates((prev) => prev.map((r) =>
-      r.accountCode === c.accountCode && r.abnormalSide === c.abnormalSide
-        ? { ...r, existingRuleId: null, existingTarget: null, existingSource: null, existingEnabled: null }
-        : r));
+    updateCandidate(c.accountCode, null, null, null, null);
     showToast("已清除规则");
   }
 
