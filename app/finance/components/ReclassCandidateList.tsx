@@ -10,14 +10,16 @@ import AccountCodeInput from "./AccountCodeInput";
 interface Props {
   companyCode: string; year: string;
   keyword?: string; statusFilter?: "all" | "noRule" | "hasRule";
+  pageSize?: number;
   canWrite: boolean;
 }
 
 export default function ReclassCandidateList({
-  companyCode, year, keyword = "", statusFilter = "noRule", canWrite,
+  companyCode, year, keyword = "", statusFilter = "noRule", pageSize = 50, canWrite,
 }: Props) {
   const [candidates, setCandidates] = useState<RuleCandidate[]>([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
   const { toast, showToast, closeToast } = useToast();
   const [editCode, setEditCode] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -36,7 +38,7 @@ export default function ReclassCandidateList({
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, [companyCode, year]);
+  useEffect(() => { load(); setPage(1); }, [companyCode, year]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
   // ── Actions ──────────────────────────────────────────
@@ -87,12 +89,18 @@ export default function ReclassCandidateList({
 
   // ── Filter ───────────────────────────────────────────
 
+  useEffect(() => { setPage(1); }, [keyword, statusFilter]);
+
   const filtered = candidates.filter((c) => {
     if (statusFilter === "hasRule" && !c.existingRuleId) return false;
     if (statusFilter === "noRule" && c.existingRuleId) return false;
     if (keyword && !matchText(c.accountCode, keyword) && !matchText(c.accountName, keyword)) return false;
     return true;
   });
+
+  const totalPages = Math.ceil(filtered.length / pageSize);
+  const skip = (page - 1) * pageSize;
+  const paged = filtered.slice(skip, skip + pageSize);
 
   // ── Render ───────────────────────────────────────────
 
@@ -115,7 +123,7 @@ export default function ReclassCandidateList({
             </tr>
           </thead>
           <tbody>
-            {filtered.map((c) => {
+            {paged.map((c) => {
               const key = c.accountCode + "::" + c.abnormalSide;
               const editing = editCode === key;
               const hasRule = !!c.existingRuleId;
@@ -151,6 +159,15 @@ export default function ReclassCandidateList({
           </tbody>
         </table>
       </div>
+      {totalPages > 1 && (
+        <div className="mt-3 flex items-center justify-center gap-2 text-xs text-gray-500">
+          <button onClick={() => setPage(1)} disabled={page === 1} className="hover:text-emerald-600 disabled:opacity-30">首页</button>
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="hover:text-emerald-600 disabled:opacity-30">上一页</button>
+          <span>{page}/{totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="hover:text-emerald-600 disabled:opacity-30">下一页</button>
+          <button onClick={() => setPage(totalPages)} disabled={page === totalPages} className="hover:text-emerald-600 disabled:opacity-30">末页</button>
+        </div>
+      )}
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
   );
