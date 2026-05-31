@@ -1,4 +1,4 @@
-import { BalanceItem, ReportPeriod, ReclassEntry } from "./report-helpers";
+import { BalanceItem, ReportPeriod, ReclassEntry, ReclassRouting } from "./report-helpers";
 import { generateBalanceSheet } from "./reports/balance-sheet";
 import { generateIncomeStatement } from "./reports/income-statement";
 import { generateCashFlow } from "./reports/cash-flow";

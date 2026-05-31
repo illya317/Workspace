@@ -142,16 +142,22 @@ export interface ReclassEntry {
 }
 
 /**
- * Reclassification pools: amounts to ADD to each target account line.
- * Key = targetAccount code (or legacy bucket code).
+ * Reclassification routing: two maps for source deductions and target additions.
  *
- * Asset→liability reclass: amount is a credit → added to target's credit.
- * Liability→asset reclass:  amount is a debit  → added to target's debit.
+ * deductions: keyed by sourceAccount → amounts to REMOVE from the source line
+ *   - asset source: credit amount to deduct
+ *   - liability source: debit amount to deduct
  *
- * Deduction from source lines is handled by the caller aggregating
- * totals per source prefix (1xxx / 2xxx).
+ * additions: keyed by targetAccount → amounts to ADD to the target line
+ *   - asset→liability: credit amount to add
+ *   - liability→asset: debit amount to add
  */
-export type ReclassPools = Map<string, { debit: number; credit: number }>;
+export interface ReclassRouting {
+  /** By sourceAccount: amounts to DEDUCT from each source line */
+  deductions: Map<string, { debit: number; credit: number }>;
+  /** By targetAccount: amounts to ADD to each target line */
+  additions: Map<string, { debit: number; credit: number }>;
+}
 
 /**
  * Compute reclassification pools from approved ReclassResult entries.
@@ -161,28 +167,39 @@ export type ReclassPools = Map<string, { debit: number; credit: number }>;
  *   1xxx (asset)   → amount added as credit to targetAccount pool
  *   2xxx (liability)→ amount added as debit  to targetAccount pool
  */
-export function reclassifyFromEntries(entries: ReclassEntry[]): ReclassPools {
-  const pools: ReclassPools = new Map();
+export function reclassifyFromEntries(entries: ReclassEntry[]): ReclassRouting {
+  const deductions = new Map<string, { debit: number; credit: number }>();
+  const additions = new Map<string, { debit: number; credit: number }>();
 
   for (const e of entries) {
-    const cur = pools.get(e.targetAccount) || { debit: 0, credit: 0 };
+    // Source-side deduction
+    const src = deductions.get(e.sourceAccount) || { debit: 0, credit: 0 };
     if (e.sourceAccount.startsWith("1")) {
-      cur.credit += e.amount;
+      src.credit += e.amount; // deduct credit from asset line
     } else if (e.sourceAccount.startsWith("2")) {
-      cur.debit += e.amount;
+      src.debit += e.amount;  // deduct debit from liability line
     }
-    pools.set(e.targetAccount, cur);
+    deductions.set(e.sourceAccount, src);
+
+    // Target-side addition
+    const tgt = additions.get(e.targetAccount) || { debit: 0, credit: 0 };
+    if (e.sourceAccount.startsWith("1")) {
+      tgt.credit += e.amount; // add credit to target liability line
+    } else if (e.sourceAccount.startsWith("2")) {
+      tgt.debit += e.amount;  // add debit to target asset line
+    }
+    additions.set(e.targetAccount, tgt);
   }
-  return pools;
+  return { deductions, additions };
 }
 
 /**
  * Legacy balance-level reclassification.
- * Returns pools under hardcoded target keys:
+ * Deductions aggregated per source account, additions to hardcoded targets:
  *   asset→liability  → "2241" (其他应付款)
  *   liability→asset  → "1463" (其他流动资产)
  */
-export function reclassify(balances: BalanceItem[]): ReclassPools {
+export function reclassify(balances: BalanceItem[]): ReclassRouting {
   const codes = balances.map(b => b.account.code);
   const parentCodes = new Set<string>();
   for (const c1 of codes) {
@@ -195,30 +212,42 @@ export function reclassify(balances: BalanceItem[]): ReclassPools {
   }
   const leafCodes = new Set(codes.filter(c => !parentCodes.has(c)));
 
-  let assetToLiability = { debit: 0, credit: 0 };
-  let liabilityToAsset = { debit: 0, credit: 0 };
+  const deductions = new Map<string, { debit: number; credit: number }>();
+  let alDebit = 0, alCredit = 0;
+  let laDebit = 0, laCredit = 0;
 
   for (const b of balances) {
     if (!leafCodes.has(b.account.code)) continue;
     const net = b.closingDebit - b.closingCredit;
     if (b.account.code.startsWith("1") && net < 0) {
-      assetToLiability.debit += b.closingDebit;
-      assetToLiability.credit += b.closingCredit;
+      // Asset → Liability: deduct from source account
+      const cur = deductions.get(b.account.code) || { debit: 0, credit: 0 };
+      cur.debit += b.closingDebit;
+      cur.credit += b.closingCredit;
+      deductions.set(b.account.code, cur);
+      alDebit += b.closingDebit;
+      alCredit += b.closingCredit;
     }
     if (b.account.code.startsWith("2") && net > 0) {
-      liabilityToAsset.debit += b.closingDebit;
-      liabilityToAsset.credit += b.closingCredit;
+      // Liability → Asset: deduct from source account
+      const cur = deductions.get(b.account.code) || { debit: 0, credit: 0 };
+      cur.debit += b.closingDebit;
+      cur.credit += b.closingCredit;
+      deductions.set(b.account.code, cur);
+      laDebit += b.closingDebit;
+      laCredit += b.closingCredit;
     }
   }
 
-  const pools: ReclassPools = new Map();
-  if (assetToLiability.debit > 0 || assetToLiability.credit > 0) {
-    pools.set("2241", assetToLiability);
+  const additions = new Map<string, { debit: number; credit: number }>();
+  if (alDebit > 0 || alCredit > 0) {
+    additions.set("2241", { debit: alDebit, credit: alCredit });
   }
-  if (liabilityToAsset.debit > 0 || liabilityToAsset.credit > 0) {
-    pools.set("1463", liabilityToAsset);
+  if (laDebit > 0 || laCredit > 0) {
+    additions.set("1463", { debit: laDebit, credit: laCredit });
   }
-  return pools;
+
+  return { deductions, additions };
 }
 
 export const mk = (d: number, c: number) => +(d - c).toFixed(2);
