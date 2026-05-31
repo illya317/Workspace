@@ -132,11 +132,7 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
         <table className="w-full text-sm">
           <thead className="border-b bg-gray-50">
             <tr>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">科目</th>
-              <th className="px-3 py-2 text-center text-xs font-medium text-gray-500">方向</th>
-              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">异常金额</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">建议目标</th>
-              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">当前目标</th>
+              {["科目", "方向", "异常金额", "建议目标", "当前目标"].map(h => <th key={h} className="px-3 py-2 text-center text-xs font-medium text-gray-500">{h}</th>)}
               {canWrite && <th className="px-3 py-2 text-center text-xs font-medium text-gray-500">操作</th>}
             </tr>
           </thead>
