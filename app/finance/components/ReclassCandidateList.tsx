@@ -132,7 +132,11 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
         <table className="w-full text-sm">
           <thead className="border-b bg-gray-50">
             <tr>
-              {["科目", "方向", "异常金额", "建议目标", "当前目标"].map(h => <th key={h} className="px-3 py-2 text-left text-xs font-medium text-gray-500">{h}</th>)}
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">科目</th>
+              <th className="px-3 py-2 text-center text-xs font-medium text-gray-500">方向</th>
+              <th className="px-3 py-2 text-right text-xs font-medium text-gray-500">异常金额</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">建议目标</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500">当前目标</th>
               {canWrite && <th className="px-3 py-2 text-center text-xs font-medium text-gray-500">操作</th>}
             </tr>
           </thead>
@@ -148,7 +152,7 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
                     <span className="mx-1 text-gray-300">/</span>
                     <span className="text-gray-700">{c.accountName}</span>
                   </td>
-                  <td className="px-3 py-2 text-xs">
+                  <td className="px-3 py-2 text-center text-xs">
                     {dirBadge(c.balanceDirection)}
                     <span className="mx-0.5 text-gray-300">→</span>
                     {dirBadge(c.abnormalSide)}
