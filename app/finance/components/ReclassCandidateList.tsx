@@ -74,6 +74,10 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
     if (val && val !== (c.existingTarget || "")) { if (await saveRule(c, val)) showToast("已更新规则"); }
   }
 
+  // ── Shared styles ────────────────────────────────────
+
+  const TH = "px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap";
+
   // ── Render helpers ───────────────────────────────────
 
   const dirLabel = (dir: string) => dir === "debit" ? "借" : "贷";
@@ -132,8 +136,8 @@ export default function ReclassCandidateList({ companyCode, year, canWrite }: Pr
         <table className="w-full text-sm">
           <thead className="border-b bg-gray-50">
             <tr>
-              {["科目", "方向", "异常金额", "建议目标", "当前目标"].map(h => <th key={h} className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">{h}</th>)}
-              {canWrite && <th className="px-3 py-2 text-center text-xs font-medium text-gray-500">操作</th>}
+              {["科目", "方向", "异常金额", "建议目标", "当前目标"].map(h => <th key={h} className={TH}>{h}</th>)}
+              {canWrite && <th className={TH}>操作</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
