@@ -87,49 +87,49 @@ const icons = {
 
 export const MODULES: ModuleDef[] = [
   { key: "reports", label: "工作汇报", desc: "填写周报、月报、季报、年报", href: "/reports", icon: icons.reports, color: "emerald", resourceKey: "work" },
-  { key: "hr", label: "人事管理", desc: "花名册、考勤、绩效、人力分析", href: "/hr", icon: icons.hr, color: "blue", requiredPerm: "canAccessHR",
+  { key: "hr", label: "人事管理", desc: "花名册、考勤、绩效、人力分析", href: "/hr", icon: icons.hr, color: "blue", resourceKey: "people",
     children: [
-      { key: "roster", label: "人事基础资料", desc: "员工、雇佣、合同、部门、岗位、EDP、项目", href: "/hr/roster", requiredPerm: "canAccessHR" },
-      { key: "performance", label: "考勤绩效", desc: "考勤记录、工作查看、绩效评估", href: "/hr/performance", requiredPerm: "canAccessHR" },
-      { key: "analytics", label: "人力分析", desc: "员工结构、部门架构、岗位分析、人员流动", href: "/hr/analytics", requiredPerm: "canAccessHR" },
+      { key: "roster", label: "人事基础资料", desc: "员工、雇佣、合同、部门、岗位、EDP、项目", href: "/hr/roster", resourceKey: "people.roster" },
+      { key: "performance", label: "考勤绩效", desc: "考勤记录、工作查看、绩效评估", href: "/hr/performance", resourceKey: "people.performance" },
+      { key: "analytics", label: "人力分析", desc: "员工结构、部门架构、岗位分析、人员流动", href: "/hr/analytics", resourceKey: "people.analytics" },
     ],
   },
-  { key: "administration", label: "行政管理", desc: "合同台账、办公事务", href: "/administration", icon: icons.admin, color: "indigo", requiredPerm: "canAccessContract", resourceKey: "administration",
+  { key: "administration", label: "行政管理", desc: "合同台账、办公事务", href: "/administration", icon: icons.admin, color: "indigo", resourceKey: "administration",
     children: [
-      { key: "contracts", label: "合同台账", desc: "合同录入、查询、到期预警", href: "/contracts", requiredPerm: "canAccessContract" },
+      { key: "contracts", label: "合同台账", desc: "合同录入、查询、到期预警", href: "/contracts", resourceKey: "administration.contract" },
     ],
   },
-  { key: "finance", label: "财务管理", desc: "总账、凭证、财务报表、预算、分析", href: "/finance", icon: icons.finance, color: "amber", requiredPerm: "canAccessFinance",
+  { key: "finance", label: "财务管理", desc: "总账、凭证、财务报表、预算、分析", href: "/finance", icon: icons.finance, color: "amber", resourceKey: "finance",
     children: [
-      { key: "ledger", label: "总账基础", desc: "科目设置、凭证明细、余额表、期间管理", href: "/finance/ledger", requiredPerm: "canAccessFinanceLedger" },
-      { key: "statements", label: "财务报表", desc: "资产负债表、利润表、现金流量表", href: "/finance/statements", requiredPerm: "canAccessFinanceReport" },
-      { key: "budget", label: "预算管理", desc: "部门费用预算、研发费用预算", href: "/finance/budget", requiredPerm: "canAccessFinanceBudget" },
-      { key: "analysis", label: "财务分析", desc: "预算执行分析、差异分析、趋势看板", href: "/finance/analysis", requiredPerm: "canAccessFinanceAnalysis" },
-      { key: "cost", label: "成本管理", desc: "生产成本、发货、成本构成、车间工分", href: "/finance/cost", requiredPerm: "canAccessFinanceCost" },
-      { key: "import", label: "数据导入", desc: "科目表、序时账、余额表导入", href: "/finance/import", requiredPerm: "canAccessFinanceImport" },
+      { key: "ledger", label: "总账基础", desc: "科目设置、凭证明细、余额表、期间管理", href: "/finance/ledger", resourceKey: "finance.ledger" },
+      { key: "statements", label: "财务报表", desc: "资产负债表、利润表、现金流量表", href: "/finance/statements", resourceKey: "finance.statement" },
+      { key: "budget", label: "预算管理", desc: "部门费用预算、研发费用预算", href: "/finance/budget", resourceKey: "finance.budget" },
+      { key: "analysis", label: "财务分析", desc: "预算执行分析、差异分析、趋势看板", href: "/finance/analysis", resourceKey: "finance.analysis" },
+      { key: "cost", label: "成本管理", desc: "生产成本、发货、成本构成、车间工分", href: "/finance/cost", resourceKey: "finance.cost" },
+      { key: "import", label: "数据导入", desc: "科目表、序时账、余额表导入", href: "/finance/import", resourceKey: "finance.import" },
     ],
   },
-  { key: "production", label: "生产管理", desc: "原辅料、包装、成品库存", href: "/production", icon: icons.production, color: "cyan", requiredPerm: "canAccessInventory", resourceKey: "production",
+  { key: "production", label: "生产管理", desc: "原辅料、包装、成品库存", href: "/production", icon: icons.production, color: "cyan", resourceKey: "production",
     children: [
-      { key: "inventory", label: "库存管理", desc: "原辅料、包装材料、成品库存", href: "/inventory", requiredPerm: "canAccessInventory" },
+      { key: "inventory", label: "库存管理", desc: "原辅料、包装材料、成品库存", href: "/inventory", resourceKey: "production.inventory" },
     ],
   },
-  { key: "external", label: "外部关系", desc: "客户、投资人、供应商", href: "/external", icon: icons.customers, color: "orange", requiredPerm: "canAccessExternal", resourceKey: "external",
+  { key: "external", label: "外部关系", desc: "客户、投资人、供应商", href: "/external", icon: icons.customers, color: "orange", resourceKey: "external",
     children: [
       { key: "investors", label: "投资人关系", desc: "投资人信息、沟通记录", href: "/external/investors", resourceKey: "external.investor" },
       { key: "customers", label: "客户管理", desc: "客户信息、跟进记录", href: "/external/customers", resourceKey: "external.customer" },
       { key: "suppliers", label: "供应商管理", desc: "供应商信息、采购记录", href: "/external/suppliers", resourceKey: "external.supplier" },
     ],
   },
-  { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple", requiredPerm: "canAccessDocs", resourceKey: "docs",
+  { key: "docs", label: "文档中心", desc: "员工手册、操作指南、规章制度", href: "/docs", icon: icons.docs, color: "purple", resourceKey: "docs",
     children: [
       { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions/GMP", resourceKey: "docs.positions" },
       { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company", resourceKey: "docs.company" },
       { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense", resourceKey: "docs.expense" },
-      { key: "api-guide", label: "接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide", requiredPerm: "canAccessApi" },
+      { key: "api-guide", label: "接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide", resourceKey: "system.api" },
     ],
   },
-  { key: "library", label: "资料库", desc: "内部资料存档", href: "/library", requiredPerm: "canAccessLibrary", resourceKey: "library", icon: (
+  { key: "library", label: "资料库", desc: "内部资料存档", href: "/library", resourceKey: "library", icon: (
     <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
     </svg>
@@ -164,4 +164,18 @@ export function getSubModules(user: SessionUser, moduleKey: string): SubModuleDe
 /** 无子模块时 ModuleHome 的提示文案 */
 export function getEmptyMessage(_moduleKey: string): string {
   return "暂无可用模块，请联系管理员开通权限";
+}
+
+// Dev-time validation: catch missing access gates
+if (typeof window === "undefined") {
+  for (const m of MODULES) {
+    if (!m.resourceKey && !m.requiredPerm && m.key !== "settings") {
+      console.error(`[module-nav] ${m.key}: 缺少 resourceKey 或 requiredPerm，将全员可见`);
+    }
+    for (const c of m.children || []) {
+      if (!c.resourceKey && !c.requiredPerm) {
+        console.error(`[module-nav] ${m.key}.${c.key}: 缺少 resourceKey 或 requiredPerm，将全员可见`);
+      }
+    }
+  }
 }
