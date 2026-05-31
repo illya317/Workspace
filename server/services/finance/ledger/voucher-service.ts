@@ -18,6 +18,9 @@ export async function createVoucher(body: Record<string, unknown>, editorId: num
   if (!voucherNo || !date || !items?.length) {
     return { error: "凭证号、日期、分录为必填", status: 400 };
   }
+  if (!companyCode) {
+    return { error: "公司编码为必填", status: 400 };
+  }
 
   const totalDebit = items.reduce(
     (s: number, i) => s + (parseFloat(String(i.debit)) || 0),
@@ -35,7 +38,7 @@ export async function createVoucher(body: Record<string, unknown>, editorId: num
   const year = dateObj.getFullYear();
   const month = dateObj.getMonth() + 1;
   const period = await prisma.financePeriod.findFirst({
-    where: { year, month, companyCode: companyCode || null },
+    where: { year, month, companyCode },
   });
   if (!period) {
     return {
@@ -45,8 +48,8 @@ export async function createVoucher(body: Record<string, unknown>, editorId: num
     };
   }
 
-  const existing = await prisma.financeVoucher.findUnique({
-    where: { voucherNo_companyCode: { voucherNo, companyCode: companyCode || "" } },
+  const existing = await prisma.financeVoucher.findFirst({
+    where: { voucherNo, companyCode, periodId: period.id },
   });
   if (existing) {
     return { error: "凭证号已存在", status: 400 };
@@ -61,7 +64,7 @@ export async function createVoucher(body: Record<string, unknown>, editorId: num
       totalDebit,
       totalCredit,
       status: status || "draft",
-      companyCode: companyCode || null,
+      companyCode,
       editedBy: editorId,
       items: {
         create: items.map((item, idx) => ({
