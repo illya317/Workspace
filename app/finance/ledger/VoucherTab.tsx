@@ -65,10 +65,14 @@ const ITEM_COLUMNS: ColumnDef[] = [
   { key: "debit", label: "借方" },
   { key: "credit", label: "贷方" },
   { key: "relatedEntity", label: "关联实体" },
+  { key: "reclassStatus", label: "重分类" },
+  { key: "reclassTarget", label: "目标科目" },
+  { key: "reclassAmount", label: "重分类金额" },
+  { key: "reclassActions", label: "操作" },
 ];
 
 const DEFAULT_VISIBLE_ITEMS = ITEM_COLUMNS
-  .filter((c) => c.required || c.key !== "relatedEntity")
+  .filter((c) => c.required || !["relatedEntity", "reclassStatus", "reclassTarget", "reclassAmount", "reclassActions"].includes(c.key))
   .map((c) => c.key);
 
 export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
