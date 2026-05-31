@@ -29,7 +29,7 @@ export const STATUS_LABELS: Record<ItemStatus, string> = {
 export interface ReclassifyItemResult {
   voucherItemId: number;
   sourceAccount: string;
-  /** reclassTargetCode 值；no_rule / no_entity / invalid_target 时为 null */
+  /** reclassTargetCode 值；no_rule / no_entity 时为 null；invalid_target 时为原始无效编码 */
   targetAccount: string | null;
   /**
    * 需重分类的金额：

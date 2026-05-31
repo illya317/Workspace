@@ -60,9 +60,15 @@ async function fetchItems(periodId: number): Promise<RawItem[]> {
   });
 }
 
-/** 收集所有 reclassTargetCode，批量查 FinanceAccount 确认存在性 */
+/**
+ * 收集所有 reclassTargetCode，按 period 的 (companyCode, year) 范围
+ * 批量查 FinanceAccount 确认存在性。
+ * FinanceAccount @@unique([code, companyCode, year]) —— 同编码跨公司/跨年均视为不同科目。
+ */
 async function buildTargetExistenceSet(
   items: RawItem[],
+  companyCode: string | null,
+  year: number,
 ): Promise<Set<string>> {
   const codes = new Set<string>();
   for (const item of items) {
@@ -73,7 +79,11 @@ async function buildTargetExistenceSet(
   if (codes.size === 0) return new Set();
 
   const existing = await prisma.financeAccount.findMany({
-    where: { code: { in: [...codes] } },
+    where: {
+      code: { in: [...codes] },
+      companyCode,
+      year,
+    },
     select: { code: true },
   });
 
@@ -85,20 +95,32 @@ async function buildTargetExistenceSet(
 async function upsertResults(
   periodId: number,
   matched: ReclassifyItemResult[],
-): Promise<number> {
+): Promise<{ written: number; skippedNonPending: number }> {
+  // 1. 查已有记录，非 pending 的跳过（保护人工审核结果）
+  const existing = await prisma.reclassResult.findMany({
+    where: { periodId, voucherItemId: { in: matched.map((r) => r.voucherItemId) } },
+    select: { voucherItemId: true, status: true },
+  });
+  const nonPendingIds = new Set(
+    existing
+      .filter((e) => e.status !== "pending")
+      .map((e) => e.voucherItemId),
+  );
+
+  // 2. 过滤掉非 pending 记录（不覆盖人工审核/调整）
+  const writable = matched.filter(
+    (r) => !nonPendingIds.has(r.voucherItemId),
+  );
+
   let written = 0;
 
-  for (let i = 0; i < matched.length; i += 500) {
-    const batch = matched.slice(i, i + 500);
+  for (let i = 0; i < writable.length; i += 500) {
+    const batch = writable.slice(i, i + 500);
 
-    // 逐条 upsert 以确保幂等 (@@unique periodId+voucherItemId)
     const ops = batch.map((r) =>
       prisma.reclassResult.upsert({
         where: {
-          periodId_voucherItemId: {
-            periodId,
-            voucherItemId: r.voucherItemId,
-          },
+          periodId_voucherItemId: { periodId, voucherItemId: r.voucherItemId },
         },
         create: {
           periodId,
@@ -112,7 +134,7 @@ async function upsertResults(
           sourceAccount: r.sourceAccount,
           targetAccount: r.targetAccount!,
           amount: r.amount,
-          // status 保持 "pending" —— 新一次引擎运行不覆盖已审核的结果
+          // status 不动 —— 保留 pending 以等待审核
         },
       }),
     );
@@ -121,7 +143,7 @@ async function upsertResults(
     written += batch.length;
   }
 
-  return written;
+  return { written, skippedNonPending: nonPendingIds.size };
 }
 
 // ─── 入口 ─────────────────────────────────────────────────
@@ -132,9 +154,20 @@ export async function buildReclassResults(
 ): Promise<ReclassifySummary | ReclassifyExecutionResult> {
   const { dryRun = true } = opts;
 
+  // 0. 查 period 以锁定 (companyCode, year) 范围
+  const period = await prisma.financePeriod.findUnique({
+    where: { id: periodId },
+    select: { companyCode: true, year: true },
+  });
+  if (!period) throw new Error(`Period ${periodId} not found`);
+
   // 1. 查询
   const items = await fetchItems(periodId);
-  const targetExists = await buildTargetExistenceSet(items);
+  const targetExists = await buildTargetExistenceSet(
+    items,
+    period.companyCode,
+    period.year,
+  );
 
   // 2. 逐条分类
   const results: ReclassifyItemResult[] = items.map((item) =>
@@ -158,9 +191,18 @@ export async function buildReclassResults(
   // 4. dry-run → 仅返回统计
   if (dryRun) return summary;
 
-  // 5. 写入 matched 到 ReclassResult
+  // 5. 写入 matched 到 ReclassResult（跳过非 pending 记录）
   const matched = results.filter((r) => r.status === ItemStatus.MATCHED);
-  const written = matched.length > 0 ? await upsertResults(periodId, matched) : 0;
+  const { written, skippedNonPending } =
+    matched.length > 0
+      ? await upsertResults(periodId, matched)
+      : { written: 0, skippedNonPending: 0 };
 
-  return { ...summary, written } satisfies ReclassifyExecutionResult;
+  const execResult: ReclassifyExecutionResult = { ...summary, written };
+  if (skippedNonPending > 0) {
+    console.log(
+      `[buildReclassResults] 跳过 ${skippedNonPending} 条非 pending 记录 (已审核/调整/拒绝)，未被覆盖`,
+    );
+  }
+  return execResult;
 }
