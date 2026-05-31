@@ -134,11 +134,50 @@ budget/page.tsx
 - `status`: `pending` → `approved` | `adjusted` | `rejected`（终态不可逆）
 - `approved` / `adjusted` 结果被资产负债表消费；`pending` / `rejected` 不参与报表
 
-### 兼容过渡
+### 端到端数据流
 
-- Batch 1: 新表落位，引擎继续读 `FinanceAccount.reclassTargetCode`，`ReclassResult.ruleId` 为 null
-- Batch 4: 引擎切换到 `FinanceReclassRule`
-- Batch 8: 清理 `FinanceAccount.reclassTargetCode`
+```
+┌─ 配置规则 ──────────────────────────────────────────────┐
+│ 科目设置 → 重分类规则 scope                              │
+│   GET /api/finance/reclass-rules?companyCode=&year=       │
+│   调用 scanCandidates() 扫描凭证明细异常方向               │
+│   PUT /api/finance/reclass-rules → FinanceReclassRule     │
+│   DELETE /api/finance/reclass-rules/[id]                  │
+└──────────────────────────────────────────────────────────┘
+                    ↓
+┌─ 生成结果 ──────────────────────────────────────────────┐
+│ 凭证明细 → 生成重分类结果 按钮                            │
+│   POST /api/finance/reclass-results { periodId }          │
+│   调用 buildReclassResults() → upsert ReclassResult       │
+│   引擎读 FinanceReclassRule (enabled=true)                │
+│   匹配异常方向凭证明细 → 生成 pending ReclassResult        │
+│   已有 approved/adjusted/rejected 记录不被覆盖             │
+└──────────────────────────────────────────────────────────┘
+                    ↓
+┌─ 审核 ──────────────────────────────────────────────────┐
+│ 凭证明细 → 重分类审核 scope / 展开凭证内联                │
+│   PATCH /api/finance/reclass-results/[id]                │
+│   approve / reject / adjust                              │
+│   pending → approved | adjusted | rejected (终态不可逆)   │
+└──────────────────────────────────────────────────────────┘
+                    ↓
+┌─ 报表消费 (只读) ───────────────────────────────────────┐
+│ /api/finance/reports → generateReport()                   │
+│   查询 ReclassResult WHERE status IN (approved, adjusted)  │
+│   reclassifyFromEntries() 构建 deductions + additions     │
+│   按 sourceAccount 扣减 → 按 targetAccount 增加           │
+│   资产负债表 reclassLine() 统一应用 src+tgt 路由          │
+└──────────────────────────────────────────────────────────┘
+```
+
+### 报表消费口径
+
+- **只消费** `status IN ("approved", "adjusted")`，不消费 `pending` / `rejected`
+- 按 `sourceAccount` 前缀扣减对应资产负债表行（资产 1xxx 扣贷方，负债 2xxx 扣借方）
+- 按 `targetAccount` 前缀增加到对应资产负债表行
+- `ReclassEntry { sourceAccount, targetAccount, amount }` 精确金额，非整科目余额
+- 报表页不触发生成、不编辑规则、不审核结果
+- 遗留 `FinanceAccount.reclassTargetCode` 仍保留（Batch 8 清理），引擎已不读
 
 
 ## 预算管理
