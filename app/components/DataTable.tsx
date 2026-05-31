@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, Fragment } from "react";
 import type { ColumnDef } from "./ColumnToggle";
 
 /**
@@ -25,6 +25,12 @@ interface DataTableProps<T> {
   loading?: boolean;
   emptyText?: string;
   rowKey: (row: T) => string | number;
+  /** 行点击回调。如需阻止冒泡，在 render 的交互元素上 e.stopPropagation()。 */
+  onRowClick?: (row: T) => void;
+  /** 展开行的 key，与 rowKey 返回值比较。匹配时在该行下方渲染 expandedRow。 */
+  expandedRowKey?: string | number | null;
+  /** 展开行内容（colSpan 自动填满所有可见列）。 */
+  renderExpandedRow?: (row: T) => ReactNode;
 }
 
 /**
@@ -55,6 +61,9 @@ export default function DataTable<T>({
   loading,
   emptyText,
   rowKey,
+  onRowClick,
+  expandedRowKey,
+  renderExpandedRow,
 }: DataTableProps<T>) {
   // required 列始终显示，不依赖 visibleColumns 是否包含它
   const visible = columns.filter(
@@ -80,21 +89,34 @@ export default function DataTable<T>({
         </tr>
       </thead>
       <tbody>
-        {rows.map((row) => (
-          <tr
-            key={rowKey(row)}
-            className="border-b last:border-0 hover:bg-gray-50"
-          >
-            {visible.map((col) => (
-              <td
-                key={col.key}
-                className={`px-3 py-2 whitespace-nowrap ${col.className ?? ""} ${col.cellClassName ?? ""}`}
+        {rows.map((row) => {
+          const key = rowKey(row);
+          const isExpanded = expandedRowKey != null && expandedRowKey === key;
+          return (
+            <Fragment key={key}>
+              <tr
+                className={`border-b last:border-0 hover:bg-gray-50 ${onRowClick ? "cursor-pointer" : ""}`}
+                onClick={() => onRowClick?.(row)}
               >
-                {col.render(row)}
-              </td>
-            ))}
-          </tr>
-        ))}
+                {visible.map((col) => (
+                  <td
+                    key={col.key}
+                    className={`px-3 py-2 whitespace-nowrap ${col.className ?? ""} ${col.cellClassName ?? ""}`}
+                  >
+                    {col.render(row)}
+                  </td>
+                ))}
+              </tr>
+              {isExpanded && renderExpandedRow && (
+                <tr className="bg-gray-50">
+                  <td colSpan={visible.length} className="px-3 py-2">
+                    {renderExpandedRow(row)}
+                  </td>
+                </tr>
+              )}
+            </Fragment>
+          );
+        })}
         {rows.length === 0 && (
           <tr>
             <td
