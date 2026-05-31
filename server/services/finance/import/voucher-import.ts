@@ -155,7 +155,9 @@ export async function importVouchers(
       }
     }
 
-    if (existing) voucherUpdated++; else voucherCreated++;
+    if (itemCreated + itemUpdated + itemDeleted > 0) {
+      if (existing) voucherUpdated++; else voucherCreated++;
+    }
     totalCreated += itemCreated;
     totalUpdated += itemUpdated;
     totalSkipped += itemSkipped;
