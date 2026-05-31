@@ -1,0 +1,20 @@
+/// 重分类结果（引擎生成 + 人工审核）
+model ReclassResult {
+  id            Int       @id @default(autoincrement())
+  periodId      Int
+  voucherItemId Int // 来源凭证明细
+  sourceAccount String // 原科目编码
+  targetAccount String // 目标科目编码（可修改）
+  amount        Float // 重分类金额
+  status        String    @default("pending") // pending|approved|adjusted|rejected
+  adjustedBy    Int? // 修改人 userId
+  adjustedAt    DateTime?
+  note          String? // 审核备注
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  period      FinancePeriod      @relation(fields: [periodId], references: [id])
+  voucherItem FinanceVoucherItem @relation(fields: [voucherItemId], references: [id])
+
+  @@index([periodId, status])
+}

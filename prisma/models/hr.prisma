@@ -170,17 +170,17 @@ model EDP {
 
 /// 项目/虚拟团队
 model Project {
-  id          Int               @id @default(autoincrement())
-  name        String
-  type        String            @default("project")
-  description String?
-  endDate     DateTime?
-  editedBy    Int?
-  editedAt    DateTime?
-  version     Int               @default(1)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @default(now()) @updatedAt
-  employees   EmployeeProject[]
+  id            Int                   @id @default(autoincrement())
+  name          String
+  type          String                @default("project")
+  description   String?
+  endDate       DateTime?
+  editedBy      Int?
+  editedAt      DateTime?
+  version       Int                   @default(1)
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @default(now()) @updatedAt
+  employees     EmployeeProject[]
   workAssignees ProjectWorkAssignee[]
 }
 

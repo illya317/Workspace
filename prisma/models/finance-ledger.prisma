@@ -1,50 +1,52 @@
 /// 财务科目（含层级）
 model FinanceAccount {
-  id               Int                     @id @default(autoincrement())
-  code             String
-  name             String
-  category         String
-  parentId         Int?
-  balanceDirection String                  @default("debit")
-  isActive         Boolean                 @default(true)
-  companyCode      String?
-  mnemonicCode     String?
-  currency         String?
-  groupSubjectCode String?
-  subjectLevel     Int?
-  year             Int?
-  sortOrder        Int                     @default(0)
-  editedBy         Int?
-  editedAt         DateTime?
-  version          Int                     @default(1)
-  createdAt        DateTime                @default(now())
-  updatedAt        DateTime                @default(now()) @updatedAt
-  editor           User?                   @relation("FinanceAccountEditor", fields: [editedBy], references: [id])
-  parent           FinanceAccount?         @relation("AccountHierarchy", fields: [parentId], references: [id])
-  children         FinanceAccount[]        @relation("AccountHierarchy")
-  balances         FinanceAccountBalance[]
-  annualBalances   FinanceAnnualBalance[]
-  voucherItems     FinanceVoucherItem[]
-  snapshotRows     FinanceBalanceSnapshotRow[]
-  deptBudgets      FinanceBudgetDept[]
-  rdBudgets        FinanceBudgetRd[]
+  id                Int                         @id @default(autoincrement())
+  code              String
+  name              String
+  category          String
+  parentId          Int?
+  balanceDirection  String                      @default("debit")
+  isActive          Boolean                     @default(true)
+  companyCode       String?
+  mnemonicCode      String?
+  currency          String?
+  groupSubjectCode  String?
+  subjectLevel      Int?
+  year              Int?
+  sortOrder         Int                         @default(0)
+  reclassTargetCode String? // 重分类目标科目编码
+  editedBy          Int?
+  editedAt          DateTime?
+  version           Int                         @default(1)
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @default(now()) @updatedAt
+  editor            User?                       @relation("FinanceAccountEditor", fields: [editedBy], references: [id])
+  parent            FinanceAccount?             @relation("AccountHierarchy", fields: [parentId], references: [id])
+  children          FinanceAccount[]            @relation("AccountHierarchy")
+  balances          FinanceAccountBalance[]
+  annualBalances    FinanceAnnualBalance[]
+  voucherItems      FinanceVoucherItem[]
+  snapshotRows      FinanceBalanceSnapshotRow[]
+  deptBudgets       FinanceBudgetDept[]
+  rdBudgets         FinanceBudgetRd[]
 
   @@unique([code, companyCode, year])
 }
 
 /// 会计期间
 model FinancePeriod {
-  id          Int                     @id @default(autoincrement())
-  year        Int
-  month       Int
-  startDate   String
-  endDate     String
-  isClosed    Boolean                 @default(false)
-  companyCode String?
-  createdAt   DateTime                @default(now())
-  updatedAt   DateTime                @default(now()) @updatedAt
-  balances    FinanceAccountBalance[]
-  vouchers    FinanceVoucher[]
+  id             Int                     @id @default(autoincrement())
+  year           Int
+  month          Int
+  startDate      String
+  endDate        String
+  isClosed       Boolean                 @default(false)
+  companyCode    String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @default(now()) @updatedAt
+  balances       FinanceAccountBalance[]
+  vouchers       FinanceVoucher[]
+  reclassResults ReclassResult[]
 
   @@unique([companyCode, year, month])
 }
@@ -76,15 +78,17 @@ model FinanceVoucher {
 
 /// 凭证明细分录（事实：借/贷金额）
 model FinanceVoucherItem {
-  id          Int            @id @default(autoincrement())
-  voucherId   Int
-  accountId   Int
-  debit       Float          @default(0)
-  credit      Float          @default(0)
-  description String?
-  sortOrder   Int            @default(0)
-  account     FinanceAccount @relation(fields: [accountId], references: [id])
-  voucher     FinanceVoucher @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  id             Int             @id @default(autoincrement())
+  voucherId      Int
+  accountId      Int
+  debit          Float           @default(0)
+  credit         Float           @default(0)
+  description    String?
+  relatedEntity  String? // 正则从描述提取的关联实体
+  sortOrder      Int             @default(0)
+  account        FinanceAccount  @relation(fields: [accountId], references: [id])
+  voucher        FinanceVoucher  @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  reclassResults ReclassResult[]
 }
 
 /// 科目余额（事实：期初/本期/期末借贷）
@@ -109,26 +113,26 @@ model FinanceAccountBalance {
 
 /// 年度余额快照批次（一次外部会计软件余额表导入 = 一行）
 model FinanceBalanceSnapshot {
-  id           Int                          @id @default(autoincrement())
+  id           Int                         @id @default(autoincrement())
   companyCode  String
   year         Int
-  snapshotType String                       @default("reconcile") // "baseline" | "reconcile"
-  isActive     Boolean                      @default(false)       // 同(companyCode,year)只有一个active baseline
+  snapshotType String                      @default("reconcile") // "baseline" | "reconcile"
+  isActive     Boolean                     @default(false) // 同(companyCode,year)只有一个active baseline
   sourceFile   String?
   sourcePath   String?
   checksum     String?
-  rowCount     Int                          @default(0)
+  rowCount     Int                         @default(0)
   importedBy   Int?
-  importer     User?                        @relation("SnapshotImporter", fields: [importedBy], references: [id])
-  importedAt   DateTime                     @default(now())
+  importer     User?                       @relation("SnapshotImporter", fields: [importedBy], references: [id])
+  importedAt   DateTime                    @default(now())
   note         String?
   rows         FinanceBalanceSnapshotRow[]
   editedBy     Int?
-  editor       User?                        @relation("SnapshotEditor", fields: [editedBy], references: [id])
+  editor       User?                       @relation("SnapshotEditor", fields: [editedBy], references: [id])
   editedAt     DateTime?
-  version      Int                          @default(1)
-  createdAt    DateTime                     @default(now())
-  updatedAt    DateTime                     @default(now()) @updatedAt
+  version      Int                         @default(1)
+  createdAt    DateTime                    @default(now())
+  updatedAt    DateTime                    @default(now()) @updatedAt
 
   // 不设 unique 约束 —— 同文件可多次上传形成独立批次，便于追溯对比
   @@index([companyCode, year, isActive])
@@ -138,19 +142,19 @@ model FinanceBalanceSnapshot {
 
 /// 年度余额快照明细（每个科目一行，保存导入时的编码/名称快照）
 model FinanceBalanceSnapshotRow {
-  id            Int                      @id @default(autoincrement())
+  id            Int                    @id @default(autoincrement())
   snapshotId    Int
-  snapshot      FinanceBalanceSnapshot   @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  snapshot      FinanceBalanceSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
   accountId     Int
-  account       FinanceAccount           @relation(fields: [accountId], references: [id])
-  accountCode   String                   // 导入时的科目编码快照（审计追溯）
-  accountName   String                   // 导入时的科目名称快照
-  openingDebit  Float                    @default(0)
-  openingCredit Float                    @default(0)
-  currentDebit  Float                    @default(0)
-  currentCredit Float                    @default(0)
-  closingDebit  Float                    @default(0)
-  closingCredit Float                    @default(0)
+  account       FinanceAccount         @relation(fields: [accountId], references: [id])
+  accountCode   String // 导入时的科目编码快照（审计追溯）
+  accountName   String // 导入时的科目名称快照
+  openingDebit  Float                  @default(0)
+  openingCredit Float                  @default(0)
+  currentDebit  Float                  @default(0)
+  currentCredit Float                  @default(0)
+  closingDebit  Float                  @default(0)
+  closingCredit Float                  @default(0)
   sourceSheet   String?
   sourceRow     Int?
 

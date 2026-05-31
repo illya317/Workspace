@@ -1,30 +1,30 @@
 /// 用户与认证
 model User {
-  id                       Int                  @id @default(autoincrement())
-  wxUserId                 String?              @unique
-  username                 String?              @unique
+  id                       Int                      @id @default(autoincrement())
+  wxUserId                 String?                  @unique
+  username                 String?                  @unique
   password                 String?
   name                     String
   avatar                   String?
   routineItems             String?
-  canLogin                 Boolean              @default(true)
-  apiKey                   String?              @unique
+  canLogin                 Boolean                  @default(true)
+  apiKey                   String?                  @unique
   employeeId               String?
-  createdAt                DateTime             @default(now())
-  sessionVersion           Int                  @default(0)
-  editedContracts          Contract[]           @relation("ContractEditor")
-  managedDepartments       Department[]         @relation("DepartmentManager")
-  editHistories            EditHistory[]        @relation("EditHistoryEditor")
-  employees                Employee[]           @relation("EmployeeUser")
-  editedFinanceAccounts    FinanceAccount[]     @relation("FinanceAccountEditor")
-  editedFinanceVouchers    FinanceVoucher[]     @relation("FinanceVoucherEditor")
+  createdAt                DateTime                 @default(now())
+  sessionVersion           Int                      @default(0)
+  editedContracts          Contract[]               @relation("ContractEditor")
+  managedDepartments       Department[]             @relation("DepartmentManager")
+  editHistories            EditHistory[]            @relation("EditHistoryEditor")
+  employees                Employee[]               @relation("EmployeeUser")
+  editedFinanceAccounts    FinanceAccount[]         @relation("FinanceAccountEditor")
+  editedFinanceVouchers    FinanceVoucher[]         @relation("FinanceVoucherEditor")
   reports                  Report[]
-  editedStockFinishedGoods StockFinishedGoods[] @relation("StockFinishedGoodsEditor")
-  stockOperations          StockOperation[]     @relation("StockOperationEditor")
-  editedStockPackagings    StockPackaging[]     @relation("StockPackagingEditor")
-  editedStockRawMaterials  StockRawMaterial[]          @relation("StockRawMaterialEditor")
-  snapshotImports          FinanceBalanceSnapshot[]   @relation("SnapshotImporter")
-  snapshotEdits            FinanceBalanceSnapshot[]   @relation("SnapshotEditor")
+  editedStockFinishedGoods StockFinishedGoods[]     @relation("StockFinishedGoodsEditor")
+  stockOperations          StockOperation[]         @relation("StockOperationEditor")
+  editedStockPackagings    StockPackaging[]         @relation("StockPackagingEditor")
+  editedStockRawMaterials  StockRawMaterial[]       @relation("StockRawMaterialEditor")
+  snapshotImports          FinanceBalanceSnapshot[] @relation("SnapshotImporter")
+  snapshotEdits            FinanceBalanceSnapshot[] @relation("SnapshotEditor")
   resourceRoles            UserResourceRole[]
   departmentAssignees      DepartmentWorkAssignee[]
   projectAssignees         ProjectWorkAssignee[]
@@ -32,24 +32,24 @@ model User {
 
 /// RBAC 资源定义，详见 docs/rbac.md
 model Resource {
-  id              Int                      @id @default(autoincrement())
-  key             String                   @unique
-  name            String
-  description     String?
-  level           Int                      @default(1)
-  sortOrder       Int                      @default(0)
-  parentId        Int?
+  id                   Int                      @id @default(autoincrement())
+  key                  String                   @unique
+  name                 String
+  description          String?
+  level                Int                      @default(1)
+  sortOrder            Int                      @default(0)
+  parentId             Int?
   /// 该资源可授予的最高角色：access | write | delete | admin
-  maxRoleKey      String                   @default("admin")
+  maxRoleKey           String                   @default("admin")
   /// 逗号分隔的 scope 类型，如 "department,project"。null 表示不支持 scoped 授权
-  scopeTypes      String?
+  scopeTypes           String?
   /// 权限继承模式：inherit=查祖先, self_only=数据权限只查自身（父资源仅做入口）
-  scopeInheritanceMode String  @default("inherit")
-  departmentRoles DepartmentResourceRole[]
-  positionRoles   PositionResourceRole[]
-  parent          Resource?                @relation("ResHierarchy", fields: [parentId], references: [id])
-  children        Resource[]               @relation("ResHierarchy")
-  userRoles       UserResourceRole[]
+  scopeInheritanceMode String                   @default("inherit")
+  departmentRoles      DepartmentResourceRole[]
+  positionRoles        PositionResourceRole[]
+  parent               Resource?                @relation("ResHierarchy", fields: [parentId], references: [id])
+  children             Resource[]               @relation("ResHierarchy")
+  userRoles            UserResourceRole[]
 }
 
 /// RBAC 角色定义
@@ -105,4 +105,3 @@ model DepartmentResourceRole {
 
   @@unique([departmentId, resourceId, roleId, scopeId])
 }
-

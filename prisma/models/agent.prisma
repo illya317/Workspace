@@ -1,15 +1,15 @@
 /// Agent 待确认变更记录（审计用）
 /// Agent 不能直接写库，所有写入先创建 proposal，用户确认后才执行。
 model AgentProposal {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   userId      Int
-  status      String   @default("pending") // pending | confirmed | cancelled | failed
-  actionKey   String   // 工具 key，如 hr.updateEmployee
-  targetType  String   // 目标实体，如 Employee
-  targetId    String?  // 目标记录标识
-  payloadJson String   // 变更内容 JSON
-  diffJson    String?  // 变更前后对比 JSON
-  resultJson  String?  // 执行结果 JSON
-  createdAt   DateTime @default(now())
+  status      String    @default("pending") // pending | confirmed | cancelled | failed
+  actionKey   String // 工具 key，如 hr.updateEmployee
+  targetType  String // 目标实体，如 Employee
+  targetId    String? // 目标记录标识
+  payloadJson String // 变更内容 JSON
+  diffJson    String? // 变更前后对比 JSON
+  resultJson  String? // 执行结果 JSON
+  createdAt   DateTime  @default(now())
   confirmedAt DateTime?
 }
