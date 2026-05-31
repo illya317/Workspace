@@ -23,11 +23,12 @@ export async function GET(request: Request) {
   for (const e of employees) empByUser[e.userId!] = { name: e.name, employeeId: e.employeeId };
 
   // Use the same visibility engine as module-nav and page gates.
-  // getVisibleResourceKeys already handles user + position + department grants.
   const { getVisibleResourceKeys } = await import("@/server/rbac/visibility");
+  const { ensureGrantCache } = await import("@/server/rbac/context");
 
   const enrichedUsers = await Promise.all(users.map(async (u) => {
     const ctx = await getPermissionContext(u.id);
+    await ensureGrantCache(ctx); // preload → fast in-memory path
     const [visibleAccess, visibleWrite] = await Promise.all([
       getVisibleResourceKeys(ctx, "access"),
       getVisibleResourceKeys(ctx, "write"),

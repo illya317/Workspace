@@ -77,6 +77,8 @@ export async function POST(request: Request) {
 
   const ctx = await getPermissionContext(user.id);
   const { getVisibleResourceKeys } = await import("@/server/rbac/visibility");
+  const { ensureGrantCache } = await import("@/server/rbac/context");
+  await ensureGrantCache(ctx);
   const [visibleAccess, visibleWrite] = await Promise.all([
     getVisibleResourceKeys(ctx, "access"),
     getVisibleResourceKeys(ctx, "write"),

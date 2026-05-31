@@ -48,6 +48,9 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
   const isAdmin = ctx.isAdmin;
 
   const { getVisibleResourceKeys } = await import("@/server/rbac/visibility");
+  const { ensureGrantCache } = await import("@/server/rbac/context");
+  await ensureGrantCache(ctx); // preload all grants → checkPermissionWithContext hits in-memory fast path
+
   const [visibleAccess, visibleWrite] = await Promise.all([
     getVisibleResourceKeys(ctx, "access"),
     getVisibleResourceKeys(ctx, "write"),

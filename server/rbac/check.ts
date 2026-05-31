@@ -94,13 +94,93 @@ export async function checkPermissionWithContext(
     if (await isSystemAdminBypassEnabled()) return true;
   }
 
-  const resource = await prisma.resource.findUnique({
-    where: { key: resourceKey },
-    select: { id: true },
-  });
-  if (!resource) return false;
+  // Fast path: use preloaded grant cache (avoids N×3 DB queries)
+  if (ctx._grantCache) {
+    return checkPermissionCached(ctx, resourceKey, roleKey);
+  }
 
-  const resourceIds = await getResourceAncestors(resource.id);
+  // Slow path: individual DB queries
+  return checkPermissionSlow(ctx, resourceKey, roleKey);
+}
+
+const _resourceCache = new Map<string, { id: number } | null>();
+const _ancestorCache = new Map<number, number[]>();
+
+/** Warm caches for fast in-memory permission checks. Call once after ensureGrantCache. */
+export function _warmCaches(resources: Array<{ id: number; key: string; parentId: number | null }>) {
+  const byId = new Map(resources.map((r) => [r.id, r]));
+  for (const r of resources) {
+    _resourceCache.set(r.key, { id: r.id });
+    // Build ancestor chain
+    const chain: number[] = [];
+    let cur: number = r.id;
+    while (cur !== undefined && cur !== null) {
+      chain.push(cur);
+      const parent = byId.get(cur);
+      cur = parent?.parentId ?? undefined!;
+    }
+    _ancestorCache.set(r.id, chain);
+  }
+}
+
+async function resolveResourceIds(resourceKey: string): Promise<number[] | null> {
+  if (!_resourceCache.has(resourceKey)) {
+    _resourceCache.set(resourceKey, await prisma.resource.findUnique({
+      where: { key: resourceKey }, select: { id: true },
+    }));
+  }
+  const r = _resourceCache.get(resourceKey);
+  if (!r) return null;
+  if (!_ancestorCache.has(r.id)) {
+    _ancestorCache.set(r.id, await getResourceAncestors(r.id));
+  }
+  return _ancestorCache.get(r.id)!;
+}
+
+function checkGrantCache(
+  grants: Map<number, Set<string>> | undefined,
+  resourceIds: number[],
+  roleKeys: string[],
+): boolean {
+  if (!grants) return false;
+  for (const rid of resourceIds) {
+    const roles = grants.get(rid);
+    if (roles && roleKeys.some((rk) => roles.has(rk))) return true;
+  }
+  return false;
+}
+
+function checkPermissionCached(
+  ctx: PermissionContext,
+  resourceKey: string,
+  roleKey: string,
+): boolean {
+  const resourceIds = resolveResourceIdsSync(resourceKey);
+  if (!resourceIds) return false;
+
+  const roleKeys = resolveRoleKeys(roleKey);
+
+  const cache = ctx._grantCache!;
+  if (checkGrantCache(cache.userGrants, resourceIds, roleKeys)) return true;
+  if (checkGrantCache(cache.positionGrants, resourceIds, roleKeys)) return true;
+  if (checkGrantCache(cache.departmentGrants, resourceIds, roleKeys)) return true;
+  return false;
+}
+
+function resolveResourceIdsSync(resourceKey: string): number[] | null {
+  const r = _resourceCache.get(resourceKey);
+  if (!r) return null;
+  return _ancestorCache.get(r.id) ?? null;
+}
+
+async function checkPermissionSlow(
+  ctx: PermissionContext,
+  resourceKey: string,
+  roleKey: string,
+): Promise<boolean> {
+  const resourceIds = await resolveResourceIds(resourceKey);
+  if (!resourceIds) return false;
+
   const roleKeys = resolveRoleKeys(roleKey);
 
   const normRoleKey = normalizeRoleKey(roleKey);
