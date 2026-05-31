@@ -5,7 +5,6 @@ import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import ColumnToggle from "@/app/components/ColumnToggle";
 import { getDefaultVisibleColumns } from "@/app/components/DataTable";
-import AccountCreateModal from "../components/AccountCreateModal";
 import AccountTable, { type Account, ACCOUNT_COLUMNS } from "../components/AccountTable";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
@@ -21,7 +20,6 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [yearFilter, setYearFilter] = useState("");
   const [scope, setScope] = useState<"all" | "mapped" | "unmapped" | "inactive" | "reclass">("all");
   const [keyword, setKeyword] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
@@ -62,22 +60,6 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyFilter, levelFilter, yearFilter, scope, keyword, page, pageSize]);
 
-  async function handleCreate(data: Record<string, unknown>) {
-    const res = await fetch("/api/finance/accounts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (res.ok) {
-      showToast("创建成功");
-      setModalOpen(false);
-      load();
-    } else {
-      const err = await res.json().catch(() => ({ error: "创建失败" }));
-      showToast(err.error || "创建失败", "error");
-    }
-  }
-
   const _levels = [...new Set(accounts.map((a) => a.subjectLevel).filter(Boolean))].sort((a, b) => (a || 0) - (b || 0));
   void _levels;
 
@@ -98,10 +80,6 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         showMonth={false} showLevel
         extra={
           <>
-            {canWrite && (
-              <button onClick={() => setModalOpen(true)}
-                className="rounded-md border border-gray-300 px-2.5 py-1 text-xs text-gray-700 hover:bg-gray-50">新增科目</button>
-            )}
             <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
               {[
                 { key: "all", label: "全部" },
@@ -148,11 +126,6 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         </>
       )}
 
-      <AccountCreateModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSubmit={handleCreate}
-      />
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
   );
