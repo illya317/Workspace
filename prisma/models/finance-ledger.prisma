@@ -14,7 +14,7 @@ model FinanceAccount {
   subjectLevel      Int?
   year              Int?
   sortOrder         Int                         @default(0)
-  reclassTargetCode String? // 重分类目标科目编码
+  reclassTargetCode String? // @deprecated 重分类目标科目编码（已迁至 FinanceReclassRule，仅保留兼容）
   editedBy          Int?
   editedAt          DateTime?
   version           Int                         @default(1)

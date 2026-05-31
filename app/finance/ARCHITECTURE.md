@@ -214,6 +214,8 @@ npm run budget:sync-accounts
 | `GET/PUT /api/finance/periods` | 会计期间 |
 | `GET /api/finance/reports` | 财务报表 |
 | `GET /api/finance/init` | 财务初始化 |
+| `GET/PUT/DELETE /api/finance/reclass-rules` | 重分类规则管理 |
+| `GET/POST/PATCH /api/finance/reclass-results` | 重分类结果列表/生成/审核 |
 | `GET/POST/DELETE /api/finance/cost/*` | 成本管理子模块 |
 
 ## 权限标准
@@ -229,6 +231,7 @@ npm run budget:sync-accounts
 | 财务分析 | `finance.analysis` | 预算执行分析、差异分析、趋势看板 |
 | 数据导入 | `finance.import` | 科目表、序时账、余额表导入 |
 | 成本管理 | `finance.cost` | 生产成本、发货、成本构成、车间工分 |
+| 附注明细 | `finance.schedules` | 重分类、折旧、摊销等财报附注（过渡期，待并入总账）|
 
 每个资源支持 `access` / `write` / `delete` 三个动作（成本子资源另有 `shipments` / `analysis` / `structure` / `workshop` / `salary` / `imports` 细分）。
 
@@ -240,15 +243,18 @@ npm run budget:sync-accounts
 
 ### 页面 Guard
 
-| 页面 | 需要的权限字段 |
-|------|----------------|
-| `/finance` | `canAccessFinance`（任一财务子权限） |
-| `/finance/ledger` | `canAccessFinanceLedger` |
-| `/finance/statements` | `canAccessFinanceReport` |
-| `/finance/budget` | `canAccessFinanceBudget` |
-| `/finance/analysis` | `canAccessFinanceAnalysis` |
-| `/finance/import` | `canAccessFinanceImport` |
-| `/finance/cost` | `canAccessFinanceCost` |
+页面统一使用 `requireResourceAccess(resourceKey)` 做服务端门禁（基于 `visibleResourceKeys`）。
+
+| 页面 | Guard |
+|------|-------|
+| `/finance` | `requireResourceAccess("finance")` |
+| `/finance/ledger` | `requireResourceAccess("finance.ledger")` |
+| `/finance/statements` | `requireResourceAccess("finance.statement")` |
+| `/finance/budget` | `requireResourceAccess("finance.budget")` |
+| `/finance/analysis` | `requireResourceAccess("finance.analysis")` |
+| `/finance/import` | `requireResourceAccess("finance.import")` |
+| `/finance/cost` | `requireResourceAccess("finance.cost")` |
+| `/finance/schedules` | `requireResourceAccess("finance.schedules")` |
 
 ### API Guard Wrapper
 
@@ -263,4 +269,6 @@ npm run budget:sync-accounts
 | `/api/finance/budget` | `withFinanceBudgetAccess/Write` | 预算查询/导入 |
 | `/api/finance/import/preview` | `withFinanceImportAccess` | 导入预览（非变更操作，用 Access） |
 | `/api/finance/import/confirm` | `withFinanceImportWrite` | 导入确认（写入数据库，用 Write） |
+| `/api/finance/reclass-rules` | `withFinanceLedgerAccess/Write` | 重分类规则查询/写入 |
+| `/api/finance/reclass-results` | `withFinanceLedgerAccess/Write` | 重分类结果列表/生成/审核 |
 | `/api/finance/cost/*` | `withFinanceCostAccess/Write/Delete` | 成本子模块 |

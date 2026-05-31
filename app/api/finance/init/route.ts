@@ -5,15 +5,20 @@ import { prisma } from "@/lib/prisma";
 /** 初始化财务基础数据：默认期间 + 标准科目 */
 export const POST = withFinanceLedgerWrite(async (request: Request, user) => {
   const body = await request.json();
-  const { year = 2025, month = 1 } = body;
+  const { year = 2025, month = 1, companyCode } = body;
 
-  // 1. 创建期间
+  if (!companyCode || typeof companyCode !== "string" || companyCode.trim().length === 0) {
+    return NextResponse.json({ error: "companyCode 为必填" }, { status: 400 });
+  }
+
+  // 1. 创建期间 (company-scoped)
   let period = await prisma.financePeriod.findFirst({
-    where: { year, month },
+    where: { companyCode, year, month },
   });
   if (!period) {
     period = await prisma.financePeriod.create({
       data: {
+        companyCode,
         year,
         month,
         startDate: `${year}-${String(month).padStart(2, "0")}-01`,
@@ -49,7 +54,7 @@ export const POST = withFinanceLedgerWrite(async (request: Request, user) => {
     const existing = await prisma.financeAccount.findFirst({ where: { code: acc.code } });
     if (!existing) {
       const created = await prisma.financeAccount.create({
-        data: { ...acc, editedBy: user.userId },
+        data: { ...acc, companyCode, editedBy: user.userId },
       });
       createdAccounts.push(created);
     }
