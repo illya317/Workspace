@@ -5,6 +5,7 @@ import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import ColumnToggle from "@/app/components/ColumnToggle";
 import { getDefaultVisibleColumns } from "@/app/components/DataTable";
+import SelectField from "@/app/components/SelectField";
 import AccountTable, { type Account, ACCOUNT_COLUMNS } from "../components/AccountTable";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
@@ -79,23 +80,17 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
         showMonth={false} showLevel
         extra={
-          <>
-            <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
-              {[
-                { key: "all", label: "全部" },
-                { key: "mapped", label: "集团" },
-                { key: "unmapped", label: "独有" },
-                { key: "inactive", label: "未启用" },
-                { key: "reclass", label: "重分类规则" },
-              ].map((s) => (
-                <button key={s.key}
-                  onClick={() => { setScope(s.key as typeof scope); setPage(1); }}
-                  className={`rounded px-2 py-0.5 text-[11px] transition-colors ${
-                    scope === s.key ? "bg-emerald-600 text-white" : "text-gray-600 hover:bg-gray-100"
-                  }`}>{s.label}</button>
-              ))}
-            </div>
-          </>
+          <SelectField
+            options={[
+              { value: "all", label: "全部" },
+              { value: "mapped", label: "集团" },
+              { value: "unmapped", label: "独有" },
+              { value: "inactive", label: "未启用" },
+              { value: "reclass", label: "重分类规则" },
+            ]}
+            value={scope}
+            onChange={(v) => { setScope(v as typeof scope); setPage(1); }}
+          />
         }
       />
 
