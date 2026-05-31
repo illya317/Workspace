@@ -3,8 +3,10 @@
 import { useEffect, useState, Fragment } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
+import ColumnToggle, { type ColumnDef } from "@/app/components/ColumnToggle";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
+import VoucherItemTable from "../components/VoucherItemTable";
 
 const COMPANIES: Record<string, string> = { "01": "丰华生物", "02": "丰华天力通", "03": "丰华悦通", "04": "丰华制药", "05": "加拿大", "06": "上海悦通" };
 
@@ -22,6 +24,7 @@ interface VoucherItem {
   credit: number;
   description: string;
   sortOrder: number;
+  relatedEntity?: string | null;
 }
 
 interface Period {
@@ -53,6 +56,20 @@ interface VoucherResponse {
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+const ITEM_COLUMNS: ColumnDef[] = [
+  { key: "seq", label: "序号", required: true },
+  { key: "accountCode", label: "科目编码", required: true },
+  { key: "accountName", label: "科目名称", required: true },
+  { key: "description", label: "摘要" },
+  { key: "debit", label: "借方" },
+  { key: "credit", label: "贷方" },
+  { key: "relatedEntity", label: "关联实体" },
+];
+
+const DEFAULT_VISIBLE_ITEMS = ITEM_COLUMNS
+  .filter((c) => c.required || c.key !== "relatedEntity")
+  .map((c) => c.key);
+
 export default function VoucherTab() {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,6 +80,7 @@ export default function VoucherTab() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
+  const [visibleItemColumns, setVisibleItemColumns] = useState<string[]>(DEFAULT_VISIBLE_ITEMS);
   const { toast, showToast, closeToast } = useToast();
 
   async function load() {
@@ -118,6 +136,9 @@ export default function VoucherTab() {
       />
 
       {/* Table */}
+      <div className="flex items-center justify-end">
+        <ColumnToggle columns={ITEM_COLUMNS} visible={visibleItemColumns} onChange={setVisibleItemColumns} />
+      </div>
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         {loading ? (
           <p className="p-8 text-center text-gray-500">加载中...</p>
@@ -165,30 +186,7 @@ export default function VoucherTab() {
                     <tr className="bg-gray-50">
                       <td colSpan={8} className="px-3 py-2">
                         <div className="rounded border border-gray-200 bg-white">
-                          <table className="w-full text-xs">
-                            <thead className="border-b bg-gray-100">
-                              <tr>
-                                <th className="px-3 py-1.5 text-left font-medium text-gray-500">序号</th>
-                                <th className="px-3 py-1.5 text-left font-medium text-gray-500">科目编码</th>
-                                <th className="px-3 py-1.5 text-left font-medium text-gray-500">科目名称</th>
-                                <th className="px-3 py-1.5 text-left font-medium text-gray-500">摘要</th>
-                                <th className="px-3 py-1.5 text-right font-medium text-gray-500">借方</th>
-                                <th className="px-3 py-1.5 text-right font-medium text-gray-500">贷方</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {v.items.map((item, idx) => (
-                                <tr key={item.id} className="border-b last:border-0">
-                                  <td className="px-3 py-1.5 text-gray-500">{idx + 1}</td>
-                                  <td className="px-3 py-1.5 font-mono text-gray-600">{item.account?.code || "-"}</td>
-                                  <td className="px-3 py-1.5 text-gray-700">{item.account?.name || "-"}</td>
-                                  <td className="px-3 py-1.5 text-gray-600">{item.description || "-"}</td>
-                                  <td className="px-3 py-1.5 text-right text-gray-700">{item.debit > 0 ? fmt(item.debit) : ""}</td>
-                                  <td className="px-3 py-1.5 text-right text-gray-700">{item.credit > 0 ? fmt(item.credit) : ""}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                          <VoucherItemTable items={v.items} visibleColumns={visibleItemColumns} />
                         </div>
                       </td>
                     </tr>
