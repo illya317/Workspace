@@ -26,6 +26,9 @@ interface FilterToolbarProps {
 
   // ── 右侧插槽（EditToolbar 等）──
   extraRight?: React.ReactNode;
+
+  // ── 下方插槽（特殊模式/面板）──
+  below?: React.ReactNode;
 }
 
 /**
@@ -54,6 +57,7 @@ export default function FilterToolbar({
   pageSizeOptions = [20, 50, 100, 200],
   onPageSizeChange,
   extraRight,
+  below,
 }: FilterToolbarProps) {
   const sizeOptions = pageSizeOptions.map((s) => ({
     value: String(s),
@@ -98,5 +102,6 @@ export default function FilterToolbar({
 
       {extraRight}
     </FilterBar>
+    {below}
   );
 }

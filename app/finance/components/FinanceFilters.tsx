@@ -53,6 +53,9 @@ interface FinanceFiltersProps {
   columns?: import("@/app/components/ColumnToggle").ColumnDef[];
   visibleColumns?: string[];
   onColumnsChange?: (visible: string[]) => void;
+
+  // ── 下方插槽（特殊模式）──
+  below?: React.ReactNode;
 }
 
 // ─── Component ────────────────────────────────────────────
@@ -69,6 +72,7 @@ export default function FinanceFilters({
   extra,
   showMonth = true, showLevel = false, showSearch = true, showPageSize = true,
   columns, visibleColumns, onColumnsChange,
+  below,
 }: FinanceFiltersProps) {
   return (
     <FilterToolbar
@@ -79,6 +83,7 @@ export default function FinanceFilters({
       columns={columns}
       visibleColumns={visibleColumns}
       onColumnsChange={onColumnsChange}
+      below={below}
     >
       <SelectField label="公司" options={COMPANY_OPTIONS} value={companyFilter} onChange={onCompanyChange} placeholder="全部" />
       <SelectField label="年度" options={YEAR_OPTIONS} value={yearFilter} onChange={onYearChange} placeholder="全部" />
