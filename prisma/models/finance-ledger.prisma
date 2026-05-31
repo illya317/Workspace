@@ -7,7 +7,7 @@ model FinanceAccount {
   parentId          Int?
   balanceDirection  String                      @default("debit")
   isActive          Boolean                     @default(true)
-  companyCode       String?
+  companyCode       String
   mnemonicCode      String?
   currency          String?
   groupSubjectCode  String?
@@ -41,7 +41,7 @@ model FinancePeriod {
   startDate      String
   endDate        String
   isClosed       Boolean                 @default(false)
-  companyCode    String?
+  companyCode    String
   createdAt      DateTime                @default(now())
   updatedAt      DateTime                @default(now()) @updatedAt
   balances       FinanceAccountBalance[]
@@ -61,7 +61,7 @@ model FinanceVoucher {
   totalDebit  Float                @default(0)
   totalCredit Float                @default(0)
   status      String               @default("draft")
-  companyCode String?
+  companyCode String
   editedBy    Int?
   editedAt    DateTime?
   version     Int                  @default(1)
@@ -78,17 +78,60 @@ model FinanceVoucher {
 
 /// 凭证明细分录（事实：借/贷金额）
 model FinanceVoucherItem {
-  id             Int             @id @default(autoincrement())
-  voucherId      Int
-  accountId      Int
-  debit          Float           @default(0)
-  credit         Float           @default(0)
-  description    String?
-  relatedEntity  String? // 正则从描述提取的关联实体
-  sortOrder      Int             @default(0)
-  account        FinanceAccount  @relation(fields: [accountId], references: [id])
-  voucher        FinanceVoucher  @relation(fields: [voucherId], references: [id], onDelete: Cascade)
-  reclassResults ReclassResult[]
+  id               Int             @id @default(autoincrement())
+  voucherId        Int
+  accountId        Int
+  debit            Float           @default(0)
+  credit           Float           @default(0)
+  description      String?
+  relatedEntity    String? // 正则从描述提取的关联实体
+  sortOrder        Int             @default(0)
+  /// 导入去重指纹：companyCode|voucherNo|date|sortOrder|accountCode|debit|credit|description 的 hash
+  importFingerprint String?
+  /// 导入来源文件
+  sourceFile       String?
+  /// 导入来源 sheet
+  sourceSheet      String?
+  /// 导入来源行号
+  sourceRow        Int?
+  /// 关联导入批次
+  importId         Int?
+  account          FinanceAccount  @relation(fields: [accountId], references: [id])
+  voucher          FinanceVoucher  @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  reclassResults   ReclassResult[]
+  import           FinanceLedgerImport? @relation(fields: [importId], references: [id])
+
+  @@unique([voucherId, accountId, sortOrder])
+  @@index([importFingerprint])
+  @@index([importId])
+}
+
+/// 总账导入批次（科目/凭证/余额导入追溯）
+model FinanceLedgerImport {
+  id           Int      @id @default(autoincrement())
+  type         String   // account | voucher | balance
+  companyCode  String
+  year         Int
+  sourceFile   String?
+  sourcePath   String?
+  checksum     String?
+  status       String   @default("completed") // completed | partial | failed
+  rowCount     Int      @default(0)
+  createdCount Int      @default(0)
+  updatedCount Int      @default(0)
+  skippedCount Int      @default(0)
+  conflictCount Int     @default(0)
+  blockedCount Int      @default(0)
+  warnings     String?  // JSON array of warning messages
+  importedBy   Int?
+  importedAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+  importer     User?    @relation("FinanceLedgerImportImporter", fields: [importedBy], references: [id])
+  items        FinanceVoucherItem[]
+
+  @@index([companyCode, year, type])
+  @@index([sourceFile])
 }
 
 /// 科目余额（事实：期初/本期/期末借贷）
@@ -102,7 +145,7 @@ model FinanceAccountBalance {
   currentCredit Float          @default(0)
   closingDebit  Float          @default(0)
   closingCredit Float          @default(0)
-  companyCode   String?
+  companyCode   String
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @default(now()) @updatedAt
   period        FinancePeriod  @relation(fields: [periodId], references: [id])
