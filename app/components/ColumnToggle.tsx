@@ -37,6 +37,9 @@ export default function ColumnToggle({ columns, visible, onChange }: Props) {
     else onChange([...visible, key]);
   }
 
+  // 无可选列时不显示按钮
+  if (optional.length === 0) return null;
+
   return (
     <div ref={ref} className="relative">
       <button
@@ -48,7 +51,7 @@ export default function ColumnToggle({ columns, visible, onChange }: Props) {
       {open && (
         <div className="absolute right-0 top-full z-20 mt-1 rounded border border-gray-200 bg-white p-1 shadow-lg min-w-[150px]">
           {columns.map((c) => {
-            const checked = visible.includes(c.key);
+            const checked = c.required || visible.includes(c.key);
             return (
               <label
                 key={c.key}
