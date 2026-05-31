@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import NavLink from "@/app/components/NavLink";
 import UserMenu from "@/app/components/UserMenu";
 import { SessionUser } from '@/lib/types';
 
@@ -126,8 +125,7 @@ export default function GmpPositionsPage({ hideShell }: { hideShell?: boolean })
             <span className="text-sm text-gray-400">|</span><span className="text-sm font-medium text-gray-600">文档中心</span>
           </div>
           <div className="flex items-center gap-5">
-            <button onClick={() => router.push("/portal")} className="text-sm text-gray-500 hover:text-emerald-600">返回</button>
-            <NavLink href="/reports">工作汇报</NavLink><NavLink href="/works">工作清单</NavLink><NavLink href="/history">历史记录</NavLink>
+            <button onClick={() => router.push("/portal")} className="text-sm text-gray-500 hover:text-emerald-600">返回入口</button>
             <UserMenu user={user} />
           </div>
         </div>
