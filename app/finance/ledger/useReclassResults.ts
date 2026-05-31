@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import type { ReclassResultRow } from "@/server/services/finance/ledger/reclass-results/types";
+
+const PAGE_SIZE = 200;
 
 export function useReclassResults(companyCode: string, year: string, month: string, showToast: (msg: string, type?: "error") => void) {
   const [reclassMap, setReclassMap] = useState<Map<number, ReclassResultRow>>(new Map());
@@ -13,23 +15,29 @@ export function useReclassResults(companyCode: string, year: string, month: stri
     return periodId || null;
   }
 
-  useEffect(() => {
+  const loadReclassResults = useCallback(async () => {
     if (!companyCode || !year || !month) { setReclassMap(new Map()); return; }
-    (async () => {
-      try {
-        const periodId = await lookupPeriodId();
-        if (!periodId) { setReclassMap(new Map()); return; }
-        const rRes = await fetch(`/api/finance/reclass-results?periodId=${periodId}&status=all&pageSize=1000`);
-        if (rRes.ok) {
-          const data = await rRes.json();
-          const map = new Map<number, ReclassResultRow>();
-          for (const r of (data.items || [])) map.set(r.voucherItemId, r);
-          setReclassMap(map);
-        }
-      } catch { /* ignore */ }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    try {
+      const periodId = await lookupPeriodId();
+      if (!periodId) { setReclassMap(new Map()); return; }
+      // Loop-fetch all pages (API caps at 200/page)
+      const map = new Map<number, ReclassResultRow>();
+      let page = 1;
+      while (true) {
+        const rRes = await fetch(`/api/finance/reclass-results?periodId=${periodId}&status=all&page=${page}&pageSize=${PAGE_SIZE}`);
+        if (!rRes.ok) break;
+        const data = await rRes.json();
+        for (const r of (data.items || [])) map.set(r.voucherItemId, r);
+        if (data.items.length < PAGE_SIZE || map.size >= data.total) break;
+        page++;
+      }
+      setReclassMap(map);
+    } catch { /* ignore */ }
   }, [companyCode, year, month]);
+
+  useEffect(() => { loadReclassResults(); }, [loadReclassResults]);
+
+  // ── Review ──────────────────────────────────────────
 
   async function handleReview(resultId: number, action: "approve" | "reject" | "adjust", body?: Record<string, unknown>) {
     const res = await fetch(`/api/finance/reclass-results/${resultId}`, {
@@ -51,7 +59,7 @@ export function useReclassResults(companyCode: string, year: string, month: stri
     }
   }
 
-  // ── Batch 6: 触发生成 ─────────────────────────────
+  // ── Batch 6: Generate ───────────────────────────────
 
   async function handleGenerate() {
     setGenerating(true);
@@ -65,6 +73,7 @@ export function useReclassResults(companyCode: string, year: string, month: stri
       if (res.ok) {
         const data = await res.json();
         showToast(`生成完成：${data.matched} 条匹配，${data.noRule} 条无规则，${data.noEntity} 条无实体`);
+        await loadReclassResults(); // refresh after generate
       } else {
         const err = await res.json().catch(() => ({}));
         showToast(err.error || "生成失败", "error");

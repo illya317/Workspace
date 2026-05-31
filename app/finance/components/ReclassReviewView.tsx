@@ -2,20 +2,8 @@
 
 import type { ReclassResultRow } from "@/server/services/finance/ledger/reclass-results/types";
 
-interface ReviewItem {
-  id: number;
-  voucherNo: string;
-  voucherDate: string;
-  sourceAccount: string;
-  targetAccount: string;
-  amount: number;
-  status: string;
-  relatedEntity: string | null;
-  voucherItemId: number;
-}
-
 interface Props {
-  items: ReviewItem[];
+  items: ReclassResultRow[];
   canWrite: boolean;
   statusFilter: string;
   onStatusFilter: (v: string) => void;
@@ -98,31 +86,4 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onSta
       </div>
     </div>
   );
-}
-
-/** Build flat ReviewItem[] from ReclassResult map + voucher list */
-export function buildReviewItems(
-  reclassMap: Map<number, ReclassResultRow>,
-  vouchers: { voucherNo: string; date: string; items: { id: number }[] }[],
-): ReviewItem[] {
-  const items: ReviewItem[] = [];
-  for (const v of vouchers) {
-    for (const it of v.items) {
-      const rr = reclassMap.get(it.id);
-      if (rr) {
-        items.push({
-          id: rr.id,
-          voucherNo: v.voucherNo,
-          voucherDate: v.date,
-          sourceAccount: rr.sourceAccount,
-          targetAccount: rr.targetAccount,
-          amount: rr.amount,
-          status: rr.status,
-          relatedEntity: rr.relatedEntity,
-          voucherItemId: rr.voucherItemId,
-        });
-      }
-    }
-  }
-  return items;
 }

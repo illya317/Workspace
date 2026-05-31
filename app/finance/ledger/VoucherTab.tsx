@@ -10,7 +10,7 @@ import { BASE_ITEM_COLUMNS } from "../components/VoucherItemTable";
 import type { VoucherItemRow } from "../components/VoucherItemTable";
 import { useReclassResults } from "./useReclassResults";
 import { buildReclassItemColumns } from "./reclassItemColumns";
-import ReclassReviewView, { buildReviewItems } from "../components/ReclassReviewView";
+import ReclassReviewView from "../components/ReclassReviewView";
 
 const COMPANIES: Record<string, string> = { "01": "丰华生物", "02": "丰华天力通", "03": "丰华悦通", "04": "丰华制药", "05": "加拿大", "06": "上海悦通" };
 
@@ -74,7 +74,6 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const { reclassMap, handleReview, generating, handleGenerate } = useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
   const [viewMode, setViewMode] = useState<"vouchers" | "reclass">("vouchers");
   const [reclassStatusFilter, setReclassStatusFilter] = useState("pending");
-  const reviewItems = useMemo(() => buildReviewItems(reclassMap, vouchers), [reclassMap, vouchers]);
 
   const itemColumns = useMemo(() => {
     const cols = [...BASE_ITEM_COLUMNS];
@@ -149,7 +148,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
       />
 
       {viewMode === "reclass" ? (
-        <ReclassReviewView items={reviewItems} canWrite={canWrite} statusFilter={reclassStatusFilter} onStatusFilter={setReclassStatusFilter} onReview={handleReview} />
+        <ReclassReviewView items={Array.from(reclassMap.values())} canWrite={canWrite} statusFilter={reclassStatusFilter} onStatusFilter={setReclassStatusFilter} onReview={handleReview} />
       ) : (
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         {loading ? (
