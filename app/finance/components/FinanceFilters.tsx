@@ -49,6 +49,10 @@ interface FinanceFiltersProps {
   showLevel?: boolean;
   showSearch?: boolean;
   showPageSize?: boolean;
+  // ── 右侧显示控制（透传 FilterToolbar）──
+  columns?: import("@/app/components/ColumnToggle").ColumnDef[];
+  visibleColumns?: string[];
+  onColumnsChange?: (visible: string[]) => void;
 }
 
 // ─── Component ────────────────────────────────────────────
@@ -64,6 +68,7 @@ export default function FinanceFilters({
   onLevelChange, onKeywordChange, onPageSizeChange,
   extra,
   showMonth = true, showLevel = false, showSearch = true, showPageSize = true,
+  columns, visibleColumns, onColumnsChange,
 }: FinanceFiltersProps) {
   return (
     <FilterToolbar
@@ -71,6 +76,9 @@ export default function FinanceFilters({
       onKeywordChange={showSearch ? onKeywordChange : undefined}
       pageSize={showPageSize ? pageSize : undefined}
       onPageSizeChange={showPageSize ? onPageSizeChange : undefined}
+      columns={columns}
+      visibleColumns={visibleColumns}
+      onColumnsChange={onColumnsChange}
     >
       <SelectField label="公司" options={COMPANY_OPTIONS} value={companyFilter} onChange={onCompanyChange} placeholder="全部" />
       <SelectField label="年度" options={YEAR_OPTIONS} value={yearFilter} onChange={onYearChange} placeholder="全部" />

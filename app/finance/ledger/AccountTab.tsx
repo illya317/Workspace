@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import ColumnToggle from "@/app/components/ColumnToggle";
 import { getDefaultVisibleColumns } from "@/app/components/DataTable";
 import FilterField from "@/app/components/FilterField";
 import AccountTable, { type Account, ACCOUNT_COLUMNS } from "../components/AccountTable";
@@ -77,6 +76,9 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         onLevelChange={(v) => { setLevelFilter(v); setPage(1); }}
         onKeywordChange={(v) => { setKeyword(v); setPage(1); }}
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
+        columns={ACCOUNT_COLUMNS}
+        visibleColumns={visibleColumns}
+        onColumnsChange={setVisibleColumns}
         showMonth={false} showLevel={false}
         extra={
           <>
@@ -101,7 +103,6 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
                 setExtraValue(v); setPage(1);
               }}
             />
-            <ColumnToggle columns={ACCOUNT_COLUMNS} visible={visibleColumns} onChange={setVisibleColumns} />
           </>
         }
       />
