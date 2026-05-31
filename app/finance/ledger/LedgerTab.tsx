@@ -103,8 +103,6 @@ export default function LedgerTab() {
 
   useEffect(() => { loadBalances(); }, [loadBalances]);
 
-  useEffect(() => { setPage(1); }, [companyFilter, yearFilter, monthFilter]);
-
   const CATEGORIES: Record<string, string> = { asset: "资产", liability: "负债", equity: "权益", cost: "成本", revenue: "损益" };
 
   return (
@@ -120,8 +118,7 @@ export default function LedgerTab() {
         onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
         extra={
           <>
-            <button onClick={recalc} disabled={!selectedPeriodId} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-50">重新计算</button>
-            <span className="text-xs text-gray-400">口径：2024 年度余额基准 + 已过账凭证滚动计算</span>
+            <span className="text-xs text-gray-400">口径：2024 年度余额基准 + 已过账凭证滚动计算（导入时自动）</span>
             <span className="ml-auto text-xs text-gray-400">共 {total} 条</span>
           </>
         }

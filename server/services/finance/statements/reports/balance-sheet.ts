@@ -11,6 +11,8 @@ export function generateBalanceSheet(period: ReportPeriod, balances: BalanceItem
   const interestReceivable = closingNetLeaf(balances, ["1132"]);
   const dividendReceivable = closingNetLeaf(balances, ["1131"]);
   const otherReceivable = closingNetLeaf(balances, ["1221"]);
+  const badDebtAllowance = closingNetLeaf(balances, ["1231"]);
+  const otherReceivableNet = { debit: otherReceivable.debit - badDebtAllowance.credit, credit: otherReceivable.credit };
   const inventory = closingNetLeaf(balances, ["1405"]);
   const nonCurrentDueWithinYear = closingNetLeaf(balances, ["1501"]);
   const otherCurrentAssets = closingNetLeaf(balances, ["1463"]);
@@ -24,7 +26,7 @@ export function generateBalanceSheet(period: ReportPeriod, balances: BalanceItem
     mk(prepaid.debit, prepaid.credit) +
     mk(interestReceivable.debit, interestReceivable.credit) +
     mk(dividendReceivable.debit, dividendReceivable.credit) +
-    mk(otherReceivable.debit, otherReceivable.credit) +
+    mk(otherReceivableNet.debit, otherReceivableNet.credit) +
     mk(inventory.debit, inventory.credit) +
     mk(nonCurrentDueWithinYear.debit, nonCurrentDueWithinYear.credit) +
     mk(otherCurrentAssets.debit, otherCurrentAssets.credit);
@@ -156,7 +158,7 @@ export function generateBalanceSheet(period: ReportPeriod, balances: BalanceItem
       { label: "    预付款项", code: "1123", amount: mk(prepaid.debit, prepaid.credit) },
       { label: "    应收利息", code: "1132", amount: mk(interestReceivable.debit, interestReceivable.credit) },
       { label: "    应收股利", code: "1131", amount: mk(dividendReceivable.debit, dividendReceivable.credit) },
-      { label: "    其他应收款", code: "1221", amount: mk(otherReceivable.debit, otherReceivable.credit) },
+      { label: "    其他应收款", code: "1221,1231", amount: mk(otherReceivableNet.debit, otherReceivableNet.credit) },
       { label: "    存货", code: "1405", amount: mk(inventory.debit, inventory.credit) },
       { label: "    一年内到期的非流动资产", code: "1501", amount: mk(nonCurrentDueWithinYear.debit, nonCurrentDueWithinYear.credit) },
       { label: "    其他流动资产", code: "1463", amount: mk(otherCurrentAssets.debit, otherCurrentAssets.credit) },

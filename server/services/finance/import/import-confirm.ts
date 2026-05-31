@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import type { PreviewResult } from "./import";
-import { createSnapshotFromPreview } from "../ledger/annual-balances";
+import { createSnapshotFromPreview, materializeBaselineToPeriod } from "../ledger/annual-balances";
+import { computeBalancesForPeriod } from "../ledger/balances";
 
 export type FinanceImportConfirmResult = {
   imported: number;
@@ -210,6 +211,15 @@ export async function confirmFinanceImport(preview: PreviewResult): Promise<Fina
 
   if (preview.type === "balance") {
     const imported = await createSnapshotFromPreview(preview, accountCodeToId);
+    // Auto-materialize baseline to 12月 period
+    if (preview.year === 2024) {
+      const period = await prisma.financePeriod.findFirst({
+        where: { companyCode: preview.companyCode, year: preview.year, month: 12 },
+      });
+      if (period) {
+        await materializeBaselineToPeriod(preview.companyCode, preview.year, async (_c, _y, _m) => period);
+      }
+    }
     return {
       imported,
       year: preview.year,
@@ -219,10 +229,25 @@ export async function confirmFinanceImport(preview: PreviewResult): Promise<Fina
     };
   }
 
-  return {
-    imported: await importVouchers(preview, accountCodeToId),
-    year: preview.year,
-    companyCode: preview.companyCode,
-    type: preview.type,
-  };
+  // Journal import: auto-recompute latest affected month (covers all prior months)
+  const count = await importVouchers(preview, accountCodeToId);
+  let latestYm: { year: number; month: number } | null = null;
+  for (const v of preview.vouchers || []) {
+    const d = new Date(v.date);
+    if (isNaN(d.getTime())) continue;
+    const y = d.getFullYear(), m = d.getMonth() + 1;
+    if (!latestYm || y > latestYm.year || (y === latestYm.year && m > latestYm.month)) {
+      latestYm = { year: y, month: m };
+    }
+  }
+  if (latestYm) {
+    const period = await prisma.financePeriod.findFirst({
+      where: { companyCode: preview.companyCode, year: latestYm.year, month: latestYm.month },
+    });
+    if (period) {
+      try { await computeBalancesForPeriod(period.id); } catch { /* skip if baseline not ready */ }
+    }
+  }
+
+  return { imported: count, year: preview.year, companyCode: preview.companyCode, type: preview.type };
 }

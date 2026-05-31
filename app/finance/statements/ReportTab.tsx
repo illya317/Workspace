@@ -55,9 +55,9 @@ function renderAmount(v: number) {
 
 export default function ReportTab() {
   const [periods, setPeriods] = useState<Period[]>([]);
-  const [companyFilter, setCompanyFilter] = useState("");
-  const [yearFilter, setYearFilter] = useState("");
-  const [monthFilter, setMonthFilter] = useState("");
+  const [companyFilter, setCompanyFilter] = useState("02");
+  const [yearFilter, setYearFilter] = useState("2025");
+  const [monthFilter, setMonthFilter] = useState("12");
   const [reportType, setReportType] = useState<"balance" | "income" | "cashflow">("balance");
   const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -67,15 +67,9 @@ export default function ReportTab() {
 
   useEffect(() => {
     fetch("/api/finance/periods").then((r) => r.json()).then((d) => {
-      const list = d.periods || [];
-      setPeriods(list);
-      if (list.length && !companyFilter && !yearFilter && !monthFilter) {
-        const first = list[0];
-        if (first.companyCode) setCompanyFilter(first.companyCode);
-        setYearFilter(String(first.year));
-        setMonthFilter(String(first.month));
-      }
+      setPeriods(d.periods || []);
     });
+    loadReport();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
