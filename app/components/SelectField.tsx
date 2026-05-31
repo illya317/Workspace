@@ -10,6 +10,8 @@ interface SelectFieldProps {
   /** 占位选项（value=""），不传则不显示 */
   placeholder?: string;
   className?: string;
+  /** 直接应用到 select 的额外 className */
+  selectClassName?: string;
 }
 
 /**
@@ -23,6 +25,7 @@ export default function SelectField({
   onChange,
   placeholder,
   className,
+  selectClassName,
 }: SelectFieldProps) {
   return (
     <label className={`flex items-center gap-1.5 text-xs ${className ?? ""}`}>
@@ -30,7 +33,7 @@ export default function SelectField({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="rounded border border-gray-200 px-1.5 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+        className={`rounded border border-gray-200 px-1.5 py-1 text-xs focus:border-emerald-400 focus:outline-none ${selectClassName ?? ""}`}
       >
         {placeholder && <option value="">{placeholder}</option>}
         {options.map((o) => (

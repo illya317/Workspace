@@ -55,6 +55,7 @@ export default function FilterField({
           onFieldKeyChange(k);
           onValueChange("");
         }}
+        selectClassName="appearance-none border-transparent bg-transparent text-gray-500 cursor-pointer underline decoration-dotted underline-offset-2"
       />
       <SelectField
         options={currentOptions}
