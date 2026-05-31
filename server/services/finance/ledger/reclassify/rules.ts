@@ -53,9 +53,9 @@ export function classifyItem(
     return { ...base, targetAccount: null, amount: 0, status: S.NO_RULE };
   }
 
-  // 2. 无关联实体
+  // 2. 无关联实体（仅记录状态，不阻止匹配——序时账导入暂不包含关联实体列）
   if (!item.relatedEntity) {
-    return { ...base, targetAccount: null, amount: 0, status: S.NO_ENTITY };
+    // Fall through to match — relatedEntity is informational, not blocking
   }
 
   // 3. 目标科目不存在
