@@ -1,15 +1,5 @@
 import { prisma } from "@/lib/prisma";
 import type { PreviewResult } from "./import";
-import crypto from "crypto";
-
-// ─── Fingerprint ───────────────────────────────────────────
-
-function itemFingerprint(
-  accountCode: string, debit: number, credit: number, description: string,
-): string {
-  const raw = `${accountCode}|${debit}|${credit}|${description}`;
-  return crypto.createHash("sha256").update(raw).digest("hex").slice(0, 16);
-}
 
 // ─── Helpers ───────────────────────────────────────────────
 
@@ -44,8 +34,7 @@ export async function importVouchers(
   imported: number; created: number; updated: number; deleted: number;
   skipped: number; blocked: number; warnings: string[];
 }> {
-  let totalCreated = 0, totalUpdated = 0, totalSkipped = 0, totalDeleted = 0;
-  let voucherCreated = 0, voucherUpdated = 0, blocked = 0;
+  let created = 0, updated = 0, deleted = 0, skipped = 0, blocked = 0;
   const warnings: string[] = [];
 
   for (const voucherPreview of preview.vouchers || []) {
@@ -53,80 +42,75 @@ export async function importVouchers(
     const period = await getOrCreateVoucherPeriod(preview.companyCode, dateStr, preview.year);
     const month = String(period.month).padStart(2, "0");
     const voucherNo = `${preview.year}-${month}-${voucherPreview.voucherNo}`;
-    const diff = Math.abs(voucherPreview.totalDebit - voucherPreview.totalCredit);
-
-    if (diff > 0.01) {
-      blocked++;
-      warnings.push(
-        `凭证 ${voucherNo} 源数据借贷不平衡，跳过导入：借方 ${voucherPreview.totalDebit.toFixed(2)} ≠ 贷方 ${voucherPreview.totalCredit.toFixed(2)}`,
-      );
-      continue;
-    }
-
-    const missingAccountCodes = voucherPreview.items
-      .map((item) => item.accountCode)
-      .filter((code) => !accountCodeToId.has(code));
-
-    if (missingAccountCodes.length > 0) {
-      blocked++;
-      warnings.push(
-        `凭证 ${voucherNo} 有 ${Array.from(new Set(missingAccountCodes)).join(", ")} 等科目未建档，跳过整张凭证`,
-      );
-      continue;
-    }
-
-    const nextItems = voucherPreview.items.map((item, index) => ({
-      accountId: accountCodeToId.get(item.accountCode)!,
-      debit: item.debit,
-      credit: item.credit,
-      description: item.description,
-      sortOrder: index,
-      importFingerprint: itemFingerprint(
-        item.accountCode,
-        item.debit,
-        item.credit,
-        item.description,
-      ),
-    }));
 
     const existing = await prisma.financeVoucher.findFirst({
       where: { voucherNo, companyCode: preview.companyCode, periodId: period.id },
-      include: { items: { include: { reclassResults: true }, orderBy: { sortOrder: "asc" } } },
+      include: { items: { include: { reclassResults: true } } },
     });
 
-    // Block if any item has non-pending ReclassResult
+    // Block overwrite if any item has non-pending reclass results
     if (existing) {
       const reviewed = existing.items.flatMap(it => it.reclassResults)
         .filter(rr => rr.status !== "pending");
       if (reviewed.length > 0) {
         blocked++;
-        warnings.push(`凭证 ${voucherNo} 有 ${reviewed.length} 条已审核重分类结果，跳过导入`);
+        warnings.push(
+          `凭证 ${voucherNo} 有 ${reviewed.length} 条已审核重分类结果，跳过导入`
+        );
         continue;
       }
     }
 
-    const currentFingerprints = (existing?.items || [])
-      .sort((a, b) => a.sortOrder - b.sortOrder || a.id - b.id)
-      .map((item) => item.importFingerprint);
-    const nextFingerprints = nextItems.map((item) => item.importFingerprint);
-    const unchanged = existing
-      && currentFingerprints.length === nextFingerprints.length
-      && currentFingerprints.every((fp, index) => fp === nextFingerprints[index]);
+    const newItems: { accountId: number; debit: number; credit: number; description: string; sortOrder: number; sourceFile: string; importId: number }[] = [];
+    for (let i = 0; i < voucherPreview.items.length; i++) {
+      const item = voucherPreview.items[i];
+      const accountId = accountCodeToId.get(item.accountCode);
+      if (!accountId) {
+        warnings.push(`凭证 ${voucherNo}: 科目 ${item.accountCode} 未建档，跳过该分录`);
+        continue;
+      }
+      newItems.push({
+        accountId,
+        debit: item.debit, credit: item.credit,
+        description: item.description, sortOrder: i,
+        sourceFile: preview.sourceFileName || "", importId,
+      });
+    }
 
-    if (unchanged) {
-      totalSkipped += nextItems.length;
+    // Warn if source data is unbalanced
+    const srcDiff = Math.abs(voucherPreview.totalDebit - voucherPreview.totalCredit);
+    if (srcDiff > 0.01) {
+      warnings.push(
+        `凭证 ${voucherNo} 源数据借贷不平：借方 ${voucherPreview.totalDebit.toFixed(2)} ≠ 贷方 ${voucherPreview.totalCredit.toFixed(2)}，已按分录实际写入`
+      );
+    }
+
+    if (!existing && newItems.length === 0) {
+      skipped += voucherPreview.items.length;
       continue;
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
+      // Delete all old items + pending reclass results
+      if (existing && existing.items.length > 0) {
+        await tx.reclassResult.deleteMany({
+          where: { voucherItem: { voucherId: existing.id }, status: "pending" },
+        });
+        await tx.financeVoucherItem.deleteMany({ where: { voucherId: existing.id } });
+      }
+
+      // Upsert voucher header — recalculate totals from actual items
+      const totalDebit = newItems.reduce((s, it) => s + it.debit, 0);
+      const totalCredit = newItems.reduce((s, it) => s + it.credit, 0);
+
       const voucher = existing
         ? await tx.financeVoucher.update({
             where: { id: existing.id },
             data: {
               date: dateStr, periodId: period.id,
               description: voucherPreview.description,
-              totalDebit: Math.round(voucherPreview.totalDebit * 100) / 100,
-              totalCredit: Math.round(voucherPreview.totalCredit * 100) / 100,
+              totalDebit: Math.round(totalDebit * 100) / 100,
+              totalCredit: Math.round(totalCredit * 100) / 100,
               companyCode: preview.companyCode,
             },
           })
@@ -134,63 +118,31 @@ export async function importVouchers(
             data: {
               voucherNo, date: dateStr, periodId: period.id,
               description: voucherPreview.description,
-              totalDebit: Math.round(voucherPreview.totalDebit * 100) / 100,
-              totalCredit: Math.round(voucherPreview.totalCredit * 100) / 100,
+              totalDebit: Math.round(totalDebit * 100) / 100,
+              totalCredit: Math.round(totalCredit * 100) / 100,
               companyCode: preview.companyCode,
               status: "posted",
             },
           });
 
-      if (existing) {
-        await tx.reclassResult.deleteMany({
-          where: {
-            voucherItem: { voucherId: voucher.id },
-            status: "pending",
-          },
-        });
-        await tx.financeVoucherItem.deleteMany({ where: { voucherId: voucher.id } });
-      }
-
-      if (nextItems.length > 0) {
+      // Create all new items
+      if (newItems.length > 0) {
         await tx.financeVoucherItem.createMany({
-          data: nextItems.map((item) => ({
-            voucherId: voucher.id,
-            accountId: item.accountId,
-            debit: item.debit,
-            credit: item.credit,
-            description: item.description,
-            sortOrder: item.sortOrder,
-            importFingerprint: item.importFingerprint,
-            sourceFile: preview.sourceFileName,
-            importId,
-          })),
+          data: newItems.map(it => ({ ...it, voucherId: voucher.id })),
         });
       }
-
-      return {
-        created: existing ? 0 : nextItems.length,
-        updated: existing ? nextItems.length : 0,
-        deleted: existing ? existing.items.length : 0,
-      };
     });
 
     if (existing) {
-      voucherUpdated++;
+      updated++;
+      deleted += existing.items.length;
     } else {
-      voucherCreated++;
+      created++;
     }
-    totalCreated += result.created;
-    totalUpdated += result.updated;
-    totalDeleted += result.deleted;
   }
 
   return {
-    imported: totalCreated + totalUpdated,
-    created: totalCreated,
-    updated: totalUpdated,
-    deleted: totalDeleted,
-    skipped: totalSkipped,
-    blocked,
-    warnings,
+    imported: created + updated,
+    created, updated, deleted, skipped, blocked, warnings,
   };
 }
