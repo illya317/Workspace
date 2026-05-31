@@ -20,7 +20,7 @@ export default function LedgerClient({ canWrite }: { canWrite: boolean }) {
       <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
 
       {activeTab === "accounts" && <AccountTab canWrite={canWrite} />}
-      {activeTab === "vouchers" && <VoucherTab />}
+      {activeTab === "vouchers" && <VoucherTab canWrite={canWrite} />}
       {activeTab === "ledger" && <LedgerTab />}
     </main>
   );

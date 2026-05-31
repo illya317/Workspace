@@ -7,6 +7,7 @@ import ColumnToggle, { type ColumnDef } from "@/app/components/ColumnToggle";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
 import VoucherItemTable from "../components/VoucherItemTable";
+import { useReclassResults } from "./useReclassResults";
 
 const COMPANIES: Record<string, string> = { "01": "丰华生物", "02": "丰华天力通", "03": "丰华悦通", "04": "丰华制药", "05": "加拿大", "06": "上海悦通" };
 
@@ -70,7 +71,7 @@ const DEFAULT_VISIBLE_ITEMS = ITEM_COLUMNS
   .filter((c) => c.required || c.key !== "relatedEntity")
   .map((c) => c.key);
 
-export default function VoucherTab() {
+export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
   const [companyFilter, setCompanyFilter] = useState("");
@@ -82,6 +83,7 @@ export default function VoucherTab() {
   const [total, setTotal] = useState(0);
   const [visibleItemColumns, setVisibleItemColumns] = useState<string[]>(DEFAULT_VISIBLE_ITEMS);
   const { toast, showToast, closeToast } = useToast();
+  const { reclassMap, handleReview } = useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
 
   async function load() {
     setLoading(true);
@@ -186,7 +188,7 @@ export default function VoucherTab() {
                     <tr className="bg-gray-50">
                       <td colSpan={8} className="px-3 py-2">
                         <div className="rounded border border-gray-200 bg-white">
-                          <VoucherItemTable items={v.items} visibleColumns={visibleItemColumns} />
+                          <VoucherItemTable items={v.items} visibleColumns={visibleItemColumns} reclassMap={reclassMap} canWrite={canWrite} onReview={handleReview} />
                         </div>
                       </td>
                     </tr>
