@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
+import ColumnToggle, { type ColumnDef } from "@/app/components/ColumnToggle";
 import AccountCreateModal from "../components/AccountCreateModal";
 import AccountTable from "../components/AccountTable";
 import FinanceFilters from "../components/FinanceFilters";
@@ -24,7 +25,27 @@ interface Account {
   subjectLevel: number | null;
   year: number | null;
   parent: { code: string; name: string } | null;
+  reclassTargetCode?: string | null;
 }
+
+const ACCOUNT_COLUMNS: ColumnDef[] = [
+  { key: "code", label: "编码", required: true },
+  { key: "name", label: "名称", required: true },
+  { key: "companyCode", label: "公司" },
+  { key: "category", label: "类别" },
+  { key: "subjectLevel", label: "层级" },
+  { key: "balanceDirection", label: "余额方向" },
+  { key: "groupSubjectCode", label: "集团编码" },
+  { key: "mnemonicCode", label: "助记码" },
+  { key: "currency", label: "币种" },
+  { key: "parent", label: "父级科目" },
+  { key: "isActive", label: "状态" },
+  { key: "reclassTargetCode", label: "重分类目标" },
+];
+
+const DEFAULT_VISIBLE = ACCOUNT_COLUMNS
+  .filter((c) => c.required || c.key !== "reclassTargetCode")
+  .map((c) => c.key);
 
 export default function AccountTab() {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -39,6 +60,7 @@ export default function AccountTab() {
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(DEFAULT_VISIBLE);
   const { toast, showToast, closeToast } = useToast();
 
   async function load() {
@@ -128,8 +150,11 @@ export default function AccountTab() {
       />
 
       {/* Table */}
+      <div className="flex items-center justify-end">
+        <ColumnToggle columns={ACCOUNT_COLUMNS} visible={visibleColumns} onChange={setVisibleColumns} />
+      </div>
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
-        <AccountTable accounts={accounts} loading={loading} />
+        <AccountTable accounts={accounts} loading={loading} visibleColumns={visibleColumns} />
       </div>
 
       <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
