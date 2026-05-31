@@ -54,34 +54,46 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
 
   const itemColumns = useMemo(() => [...BASE_ITEM_COLUMNS], []);
 
-  async function load() {
-    setLoading(true);
-    const params = new URLSearchParams();
-    if (companyFilter) params.set("companyCode", companyFilter);
-    if (yearFilter) params.set("year", yearFilter);
-    if (monthFilter) params.set("month", monthFilter);
-    if (keyword) params.set("keyword", keyword);
-    params.set("page", String(page));
-    params.set("pageSize", String(pageSize));
-
-    try {
-      const res = await fetch(`/api/finance/vouchers?${params.toString()}`);
-      if (res.ok) {
-        const data: VoucherResponse = await res.json();
-        setVouchers(data.vouchers || []);
-        setTotal(data.total || 0);
-      } else {
-        const err = await res.json().catch(() => ({ error: "加载失败" }));
-        showToast(err.error || "加载失败", "error");
-      }
-    } catch {
-      showToast("网络错误", "error");
-    }
-    setLoading(false);
-  }
-
   useEffect(() => {
+    const ctrl = new AbortController();
+    let cancelled = false;
+
+    async function load() {
+      setLoading(true);
+      const params = new URLSearchParams();
+      if (companyFilter) params.set("companyCode", companyFilter);
+      if (yearFilter) params.set("year", yearFilter);
+      if (monthFilter) params.set("month", monthFilter);
+      if (keyword) params.set("keyword", keyword);
+      params.set("page", String(page));
+      params.set("pageSize", String(pageSize));
+
+      try {
+        const res = await fetch(`/api/finance/vouchers?${params.toString()}`, { signal: ctrl.signal });
+        if (cancelled) return;
+        if (res.ok) {
+          const data: VoucherResponse = await res.json();
+          if (!cancelled) {
+            setVouchers(data.vouchers || []);
+            setTotal(data.total || 0);
+          }
+        } else {
+          const err = await res.json().catch(() => ({ error: "加载失败" }));
+          if (!cancelled) showToast(err.error || "加载失败", "error");
+        }
+      } catch (e: any) {
+        if (e?.name === "AbortError") return;
+        if (!cancelled) showToast("网络错误", "error");
+      }
+      if (!cancelled) setLoading(false);
+    }
+
     load();
+
+    return () => {
+      cancelled = true;
+      ctrl.abort();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyFilter, yearFilter, monthFilter, keyword, page, pageSize]);
 

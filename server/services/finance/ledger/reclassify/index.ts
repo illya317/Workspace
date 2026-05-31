@@ -128,13 +128,14 @@ async function upsertResults(
           sourceAccount: r.sourceAccount,
           targetAccount: r.targetAccount!,
           amount: r.amount,
-          status: "pending",
+          status: "approved",
         },
         update: {
           ruleId: r.ruleId,
           sourceAccount: r.sourceAccount,
           targetAccount: r.targetAccount!,
           amount: r.amount,
+          status: "approved",
         },
       }),
     );

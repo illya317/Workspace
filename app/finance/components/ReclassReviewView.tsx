@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ReclassResultRow } from "@/server/services/finance/ledger/reclass-results/types";
 import ReclassReviewModal from "./ReclassReviewModal";
-import { RECLASS_HEADERS, fmt, dirBadge, targetDisplay } from "../ledger/reclassColumns";
+import { REVIEW_HEADERS, fmt, dirBadge, targetDisplay } from "../ledger/reclassColumns";
 
 interface Props {
   items: ReclassResultRow[];
@@ -28,8 +28,8 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
         <table className="w-full text-xs">
           <thead className="border-b bg-gray-100">
             <tr>
-              {RECLASS_HEADERS.map((h,i) => (
-                <th key={h} className={`px-3 py-1.5 font-medium text-gray-500 ${i===3?"text-right":"text-left"}`}>{h}</th>
+              {REVIEW_HEADERS.map((h,i) => (
+                <th key={h} className={`px-3 py-1.5 font-medium text-gray-500 ${h==="异常金额"?"text-right":"text-left"}`}>{h}</th>
               ))}
               {canWrite && <th className="px-3 py-1.5 text-center font-medium text-gray-500">操作</th>}
             </tr>
@@ -37,6 +37,7 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
           <tbody>
             {filtered.map((r) => (
               <tr key={r.id} className="border-b last:border-0">
+                <td className="px-3 py-1.5 font-mono text-gray-500">{r.voucherNo}</td>
                 <td className="px-3 py-1.5 font-mono text-gray-600">{r.sourceAccount}</td>
                 <td className="px-3 py-1.5 text-gray-700">{r.sourceAccountName}</td>
                 <td className="px-3 py-1.5">{dirBadge(r.abnormalSide)}</td>
@@ -63,7 +64,7 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={canWrite ? 6 : 5} className="px-3 py-8 text-center text-gray-400">无重分类条目</td></tr>
+              <tr><td colSpan={canWrite ? 7 : 6} className="px-3 py-8 text-center text-gray-400">无重分类条目</td></tr>
             )}
           </tbody>
         </table>

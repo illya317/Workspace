@@ -57,12 +57,12 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
         <div className="space-y-3">
           <div>
             <label className="block text-xs text-gray-400 mb-0.5">凭证号</label>
-            <p className="text-sm font-mono text-gray-700">{item.voucherNo}</p>
+            <p className="w-full rounded border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-sm font-mono text-gray-700">{item.voucherNo}</p>
           </div>
           {item.description && (
             <div>
               <label className="block text-xs text-gray-400 mb-0.5">摘要</label>
-              <p className="text-sm text-gray-700">{item.description}</p>
+              <p className="w-full rounded border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-sm text-gray-700">{item.description}</p>
             </div>
           )}
           <div>
