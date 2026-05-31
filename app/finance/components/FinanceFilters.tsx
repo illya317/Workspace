@@ -124,6 +124,8 @@ export default function FinanceFilters({
         />
       )}
 
+      {extra}
+
       {showSearch && onKeywordChange && (
         <input
           value={keyword}
@@ -140,8 +142,6 @@ export default function FinanceFilters({
           onChange={(v) => onPageSizeChange(Number(v))}
         />
       )}
-
-      {extra}
 
       <div className="flex-1" />
 
