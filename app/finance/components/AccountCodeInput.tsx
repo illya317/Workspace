@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { matchText } from "@/lib/search";
 
 interface AccountOption { code: string; name: string; }
 
@@ -12,42 +13,52 @@ interface Props {
   placeholder?: string;
 }
 
+const CACHE = new Map<string, AccountOption[]>();
+
 export default function AccountCodeInput({ companyCode, year, value, onChange, placeholder }: Props) {
   const [query, setQuery] = useState(value);
   const [options, setOptions] = useState<AccountOption[]>([]);
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [allAccounts, setAllAccounts] = useState<AccountOption[]>([]);
   const [highlight, setHighlight] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  // Sync external value in
   useEffect(() => { setQuery(value); }, [value]);
 
-  const search = useCallback(async (q: string) => {
-    if (q.length < 2) { setOptions([]); setOpen(false); return; }
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ keyword: q, companyCode, year, scope: "all", pageSize: "10" });
-      const res = await fetch(`/api/finance/accounts?${params}`);
-      if (res.ok) {
-        const data = await res.json();
-        const items: AccountOption[] = (data.data || data.accounts || []).map(
-          (a: { code: string; name: string }) => ({ code: a.code, name: a.name }),
-        );
-        setOptions(items);
-        setOpen(items.length > 0);
-        setHighlight(-1);
-      }
-    } catch { /* ignore */ }
-    setLoading(false);
+  // Load accounts once, cache by company+year
+  useEffect(() => {
+    const key = `${companyCode}|${year}`;
+    if (CACHE.has(key)) { setAllAccounts(CACHE.get(key)!); return; }
+    (async () => {
+      try {
+        const params = new URLSearchParams({ companyCode, year, scope: "all", pageSize: "500" });
+        const res = await fetch(`/api/finance/accounts?${params}`);
+        if (res.ok) {
+          const data = await res.json();
+          const items: AccountOption[] = (data.data || data.accounts || []).map(
+            (a: { code: string; name: string }) => ({ code: a.code, name: a.name }),
+          );
+          CACHE.set(key, items);
+          setAllAccounts(items);
+        }
+      } catch { /* ignore */ }
+    })();
   }, [companyCode, year]);
+
+  const filter = useCallback((q: string) => {
+    if (q.length < 1 || allAccounts.length === 0) { setOptions([]); setOpen(false); return; }
+    const matched = allAccounts.filter(
+      (a) => matchText(a.code, q) || matchText(a.name, q),
+    ).slice(0, 10);
+    setOptions(matched);
+    setOpen(matched.length > 0);
+    setHighlight(-1);
+  }, [allAccounts]);
 
   function onInput(v: string) {
     setQuery(v);
-    onChange(v); // allow free typing too
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => search(v), 300);
+    onChange(v);
+    filter(v);
   }
 
   function select(opt: AccountOption) {
@@ -80,9 +91,7 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
       />
       {open && (
         <div className="absolute left-0 top-full z-20 mt-0.5 max-h-40 w-56 overflow-auto rounded border border-gray-200 bg-white shadow-lg">
-          {loading ? (
-            <div className="px-3 py-2 text-xs text-gray-400">搜索中...</div>
-          ) : options.length === 0 ? (
+          {options.length === 0 ? (
             <div className="px-3 py-2 text-xs text-gray-400">无匹配科目</div>
           ) : (
             options.map((opt, i) => (
