@@ -1,39 +1,32 @@
 {
+  "_note": "白名单分为两类：'待迁移'(todo)和'豁免'(exempt)。待迁移的逐步改用标准模块后从白名单删除。豁免的需标注原因。",
   "tab-bar": {
     "description": "页面手写 border-b-2 下划线 tab，应改用 TabBar 组件",
-    "pattern": "border-b-2.*border-emerald-500|border-b-2.*text-emerald-600",
-    "allowed": [
-      "app/admin/AdminClient.tsx",
-      "app/hr/performance/HRPerformanceClient.tsx",
-      "app/hr/analytics/HRAnalyticsClient.tsx",
-      "app/finance/ledger/LedgerClient.tsx",
-      "app/finance/schedules/SchedulesClient.tsx",
-      "app/finance/budget/BudgetClient.tsx",
-      "app/finance/analysis/AnalysisClient.tsx"
-    ]
+    "entries": {
+      "app/hr/performance/HRPerformanceClient.tsx": "待迁移",
+      "app/hr/analytics/HRAnalyticsClient.tsx": "待迁移",
+      "app/finance/budget/BudgetClient.tsx": "待迁移"
+    }
   },
   "pagination": {
     "description": "页面手写分页控件，应改用全局 Pagination 组件",
-    "pattern": "首页.*上一页.*下一页.*末页|setPage.*setPageSize",
-    "allowed": []
+    "entries": {}
   },
   "finance-filters": {
     "description": "财务页面手写筛选栏，应改用 FinanceFilters",
-    "pattern": "公司.*年度.*<select",
-    "allowed": [
-      "app/finance/statements/ReportTab.tsx",
-      "app/finance/budget/components/DeptBudgetFilters.tsx",
-      "app/finance/budget/components/RdBudgetFilters.tsx"
-    ]
+    "entries": {
+      "app/finance/statements/ReportTab.tsx": "豁免: 有独特的报表类型选择器和生成按钮",
+      "app/finance/budget/components/DeptBudgetFilters.tsx": "豁免: 费用类型/科目筛选格式不同",
+      "app/finance/budget/components/RdBudgetFilters.tsx": "豁免: RD预算筛选格式不同"
+    }
   },
   "hr-toolbar": {
     "description": "HR 页面手写工具栏，应改用 HRToolbar",
-    "pattern": "编辑模式|editMode.*button|keyword.*onChange",
-    "allowed": [
-      "app/hr/HRClient.tsx",
-      "app/hr/code/CodeTab.tsx",
-      "app/hr/performance/HRPerformanceClient.tsx",
-      "app/hr/analytics/HRAnalyticsClient.tsx"
-    ]
+    "entries": {
+      "app/hr/HRClient.tsx": "待迁移",
+      "app/hr/code/CodeTab.tsx": "待迁移",
+      "app/hr/performance/HRPerformanceClient.tsx": "待迁移",
+      "app/hr/analytics/HRAnalyticsClient.tsx": "待迁移"
+    }
   }
 }
