@@ -215,7 +215,7 @@ model FinanceReclassRule {
   companyCode       String
   year              Int
   sourceAccountCode String
-  abnormalSide      String    // debit | credit —— 科目自然余额方向的反方向
+  abnormalSide      String    // debit | credit | both —— 异常方向；both=全部发生额都重分类
   targetAccountCode String
   enabled           Boolean   @default(true)
   source            String    @default("manual") // suggested | manual

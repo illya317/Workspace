@@ -45,8 +45,10 @@ export function classifyItem(
     ruleId: null as number | null,
   };
 
-  // 1. 查规则：key = "accountCode::abnormalSide"
-  const rule = rules.get(`${item.account.code}::${abnormalSide(item.account.balanceDirection)}`);
+  // 1. 查规则：先查定向 abnormalSide，再查 both（全部重分类）
+  const normalRule = rules.get(`${item.account.code}::${abnormalSide(item.account.balanceDirection)}`);
+  const bothRule = rules.get(`${item.account.code}::both`);
+  const rule = normalRule || bothRule;
   if (!rule) {
     return { ...base, targetAccount: null, amount: 0, status: S.NO_RULE };
   }
@@ -61,20 +63,30 @@ export function classifyItem(
     return { ...base, targetAccount: rule.targetAccountCode, amount: 0, status: S.INVALID_TARGET };
   }
 
+  const isBoth = !!bothRule;
+
+  // 4. both 模式：借方/贷方任有发生额即重分类
+  if (isBoth && item.debit > 0) {
+    return { ...base, targetAccount: rule.targetAccountCode, amount: item.debit, status: S.MATCHED, ruleId: rule.id };
+  }
+  if (isBoth && item.credit > 0) {
+    return { ...base, targetAccount: rule.targetAccountCode, amount: item.credit, status: S.MATCHED, ruleId: rule.id };
+  }
+
   const dir = item.account.balanceDirection;
   const isDebitBalance = dir === "debit";
 
-  // 4. 借余科目（资产）：贷方发生额需重分类
+  // 5. 借余科目（资产）：贷方发生额需重分类
   if (isDebitBalance && item.credit > 0) {
     return { ...base, targetAccount: rule.targetAccountCode, amount: item.credit, status: S.MATCHED, ruleId: rule.id };
   }
 
-  // 5. 贷余科目（负债）：借方发生额需重分类
+  // 6. 贷余科目（负债）：借方发生额需重分类
   if (!isDebitBalance && item.debit > 0) {
     return { ...base, targetAccount: rule.targetAccountCode, amount: item.debit, status: S.MATCHED, ruleId: rule.id };
   }
 
-  // 6. 顺向发生额 → 无需重分类
+  // 7. 顺向发生额 → 无需重分类
   return { ...base, targetAccount: rule.targetAccountCode, amount: 0, status: S.SKIPPED, ruleId: rule.id };
 }
 

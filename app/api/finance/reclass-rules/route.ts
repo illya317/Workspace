@@ -60,9 +60,9 @@ export const PUT = withFinanceLedgerWrite(async (request: Request) => {
     return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
   }
 
-  if (!["debit", "credit"].includes(abnormalSide)) {
+  if (!["debit", "credit", "both"].includes(abnormalSide)) {
     return NextResponse.json(
-      { error: "abnormalSide 必须为 debit 或 credit" },
+      { error: "abnormalSide 必须为 debit、credit 或 both" },
       { status: 400 },
     );
   }
