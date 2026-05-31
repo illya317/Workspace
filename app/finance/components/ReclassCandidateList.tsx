@@ -19,7 +19,8 @@ interface Props {
 export default function ReclassCandidateList({
   companyCode, year, keyword = "", statusFilter = "noRule", pageSize = 50, canWrite, onStats,
 }: Props) {
-  const [candidates, setCandidates] = useState<RuleCandidate[]>([]);
+  const [scanned, setScanned] = useState<RuleCandidate[]>([]);
+  const [allAccounts, setAllAccounts] = useState<RuleCandidate[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const { toast, showToast, closeToast } = useToast();
@@ -31,43 +32,41 @@ export default function ReclassCandidateList({
   async function load() {
     setLoading(true);
     try {
-      const [scanRes, allRes] = await Promise.all([
+      const [scanRes, accRes] = await Promise.all([
         fetch(`/api/finance/reclass-rules?companyCode=${companyCode}&year=${year}`),
         fetch(`/api/finance/accounts?companyCode=${companyCode}&year=${year}&scope=all&pageSize=2000`),
       ]);
 
       if (!scanRes.ok) { showToast("加载失败", "error"); return; }
       const scanData = await scanRes.json();
-      const scanned: RuleCandidate[] = scanData.candidates || [];
+      const s: RuleCandidate[] = scanData.candidates || [];
+      setScanned(s);
 
-      // 合并全部科目（用于"全部" tab）
-      let all: RuleCandidate[] = scanned;
-      if (allRes.ok) {
-        const allData = await allRes.json();
-        const allAccounts: { code: string; name: string; balanceDirection: string }[] =
-          allData.data || allData.accounts || [];
-        const scannedCodes = new Set(scanned.map((c) => c.accountCode));
-        for (const a of allAccounts) {
-          if (!scannedCodes.has(a.code)) {
+      // 全部科目（异常在最前面）
+      let all: RuleCandidate[] = [...s];
+      if (accRes.ok) {
+        const ad = await accRes.json();
+        const accounts: { code: string; name: string; balanceDirection: string }[] =
+          ad.data || ad.accounts || [];
+        const codeSet = new Set(s.map((c) => c.accountCode));
+        for (const a of accounts) {
+          if (!codeSet.has(a.code)) {
             all.push({
               accountCode: a.code, accountName: a.name,
               balanceDirection: a.balanceDirection,
-              abnormalSide: "",
-              abnormalAmount: 0,
-              suggestedTarget: "",
+              abnormalSide: "", abnormalAmount: 0, suggestedTarget: "",
               existingRuleId: null, existingTarget: null,
               existingSource: null, existingEnabled: null,
             });
           }
         }
       }
+      setAllAccounts(all);
 
-      setCandidates(all);
-      // 固定计数，不随 tab 切换变化
       onStats?.({
         total: all.length,
-        noRule: scanned.filter((c) => !c.existingRuleId).length,
-        hasRule: scanned.filter((c) => !!c.existingRuleId).length,
+        noRule: s.filter((c) => !c.existingRuleId).length,
+        hasRule: s.filter((c) => !!c.existingRuleId).length,
       });
     } catch { showToast("网络错误", "error"); }
     setLoading(false);
@@ -126,7 +125,9 @@ export default function ReclassCandidateList({
 
   useEffect(() => { setPage(1); }, [keyword, statusFilter]);
 
-  const filtered = candidates.filter((c) => {
+  // 选数据源：待配置/已确认用算法扫出的 scanned，全部用 allAccounts
+  const source = statusFilter === "all" ? allAccounts : scanned;
+  const filtered = source.filter((c) => {
     if (statusFilter === "hasRule" && !c.existingRuleId) return false;
     if (statusFilter === "noRule" && c.existingRuleId) return false;
     if (keyword && !matchText(c.accountCode, keyword) && !matchText(c.accountName, keyword)) return false;
