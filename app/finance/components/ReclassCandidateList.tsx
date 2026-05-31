@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
+import { matchText } from "@/lib/search";
 import type { RuleCandidate } from "@/server/services/finance/ledger/reclass-rules";
 import AccountCodeInput from "./AccountCodeInput";
 
@@ -89,6 +90,7 @@ export default function ReclassCandidateList({
   const filtered = candidates.filter((c) => {
     if (statusFilter === "hasRule" && !c.existingRuleId) return false;
     if (statusFilter === "noRule" && c.existingRuleId) return false;
+    if (keyword && !matchText(c.accountCode, keyword) && !matchText(c.accountName, keyword)) return false;
     return true;
   });
 
