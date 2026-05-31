@@ -20,6 +20,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   const [activeTab, setActiveTab] = useState<"users" | "permissions">(isSuperAdmin ? "users" : "permissions");
 
   const [resources, setResources] = useState<ResourceItem[]>([]);
+  const [fullResourceTree, setFullResourceTree] = useState<ResourceItem[]>([]);
   const [conflictStrategy, setConflictStrategy] = useState("union");
 
   const { toast, showToast, closeToast } = useToast();
@@ -34,6 +35,8 @@ export default function AdminClient({ user }: { user: SessionUser }) {
           const resData = await resRes.json();
           // API already filters by manageableKeys — no client-side second filter needed
           setResources((resData.resources || []) as ResourceItem[]);
+          // Full tree for badge computation (unscoped)
+          setFullResourceTree((resData.resourceTree || resData.resources || []) as ResourceItem[]);
           try {
             const cfgRes = await fetch("/api/admin/system-config");
             if (cfgRes.ok) {
@@ -110,7 +113,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
         </div>
 
         <div className="space-y-4">
-          {activeTab === "users" && <AdminUsersTab showToast={showToast} resources={resources} />}
+          {activeTab === "users" && <AdminUsersTab showToast={showToast} resources={fullResourceTree} />}
           {activeTab === "permissions" && <PermissionsTab resources={resources} showToast={showToast} />}
         </div>
 

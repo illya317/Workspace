@@ -100,5 +100,10 @@ export async function GET(request: Request) {
 
   const roles = (await prisma.role.findMany({ orderBy: { sortOrder: "asc" } })).filter((r) => r.key !== "read");
 
-  return NextResponse.json({ resources, roles });
+  // Full tree for badge computation (not scoped to manageableKeys)
+  const fullTree = allResources
+    .filter((r) => r.parentId === null)
+    .map((r) => toNode(r, countMap, new Set(allResources.map((x) => x.key)), effectiveMaxRoleMap));
+
+  return NextResponse.json({ resources, resourceTree: fullTree, roles });
 }
