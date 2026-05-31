@@ -72,7 +72,7 @@ export function useReclassResults(companyCode: string, year: string, month: stri
       });
       if (res.ok) {
         const data = await res.json();
-        showToast(`生成完成：${data.matched} 条匹配，${data.noRule} 条无规则，${data.noEntity} 条无实体`);
+        showToast(`生成完成：写入 ${data.written} 条，跳过 ${data.skippedNonPending ?? 0} 条已审核，${data.noRule} 无规则，${data.noEntity} 无实体`);
         await loadReclassResults(); // refresh after generate
       } else {
         const err = await res.json().catch(() => ({}));

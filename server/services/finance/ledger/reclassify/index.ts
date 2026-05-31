@@ -195,7 +195,7 @@ export async function buildReclassResults(
       ? await upsertResults(periodId, matched)
       : { written: 0, skippedNonPending: 0 };
 
-  const execResult: ReclassifyExecutionResult = { ...summary, written };
+  const execResult: ReclassifyExecutionResult = { ...summary, written, skippedNonPending };
   if (skippedNonPending > 0) {
     console.log(
       `[buildReclassResults] 跳过 ${skippedNonPending} 条非 pending 记录，未被覆盖`,
