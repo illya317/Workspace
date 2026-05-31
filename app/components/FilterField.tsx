@@ -15,8 +15,6 @@ interface FilterFieldProps {
   onValueChange: (value: string) => void;
   /** 字段标签 */
   fieldLabel?: string;
-  /** 值占位 */
-  valuePlaceholder?: string;
 }
 
 /**
@@ -43,7 +41,6 @@ export default function FilterField({
   value,
   onValueChange,
   fieldLabel,
-  valuePlaceholder = "全部",
 }: FilterFieldProps) {
   const fieldOptions = fields.map((f) => ({ value: f.key, label: f.label }));
   const currentOptions = valueOptions[fieldKey] || [];
@@ -63,7 +60,6 @@ export default function FilterField({
         options={currentOptions}
         value={value}
         onChange={onValueChange}
-        placeholder={valuePlaceholder}
       />
     </>
   );
