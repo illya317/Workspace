@@ -8,10 +8,11 @@ export default async function LedgerPage() {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
   if (!user.canAccessFinanceLedger) redirect("/portal");
+  const canWrite = user.visibleWriteResourceKeys?.includes("finance.ledger") ?? false;
   return (
     <AppShell title="总账基础" backHref="/finance" user={user}>
       <FinanceShell activeNav="ledger" user={user} hideShell>
-        <LedgerClient />
+        <LedgerClient canWrite={canWrite} />
       </FinanceShell>
     </AppShell>
   );

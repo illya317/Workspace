@@ -47,7 +47,7 @@ const DEFAULT_VISIBLE = ACCOUNT_COLUMNS
   .filter((c) => c.required || c.key !== "reclassTargetCode")
   .map((c) => c.key);
 
-export default function AccountTab() {
+export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [companyFilter, setCompanyFilter] = useState("");
@@ -109,15 +109,15 @@ export default function AccountTab() {
     }
   }
 
-  async function handleUpdateAccount(id: number, field: string, value: string) {
+  async function handleUpdateReclassTargetCode(id: number, value: string) {
     const res = await fetch(`/api/finance/accounts/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ [field]: value }),
+      body: JSON.stringify({ reclassTargetCode: value }),
     });
     if (res.ok) {
       setAccounts((prev) =>
-        prev.map((a) => (a.id === id ? { ...a, [field]: value || null } : a))
+        prev.map((a) => (a.id === id ? { ...a, reclassTargetCode: value || null } : a))
       );
     } else {
       showToast("更新失败", "error");
@@ -144,8 +144,10 @@ export default function AccountTab() {
         showMonth={false} showLevel
         extra={
           <>
-            <button onClick={() => setModalOpen(true)}
-              className="rounded-md border border-gray-300 px-2.5 py-1 text-xs text-gray-700 hover:bg-gray-50">新增科目</button>
+            {canWrite && (
+              <button onClick={() => setModalOpen(true)}
+                className="rounded-md border border-gray-300 px-2.5 py-1 text-xs text-gray-700 hover:bg-gray-50">新增科目</button>
+            )}
             <div className="flex items-center gap-1 rounded-md border border-gray-200 p-0.5">
               {[
                 { key: "all", label: "全部" },
@@ -169,7 +171,12 @@ export default function AccountTab() {
         <ColumnToggle columns={ACCOUNT_COLUMNS} visible={visibleColumns} onChange={setVisibleColumns} />
       </div>
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
-        <AccountTable accounts={accounts} loading={loading} visibleColumns={visibleColumns} onUpdateAccount={handleUpdateAccount} />
+        <AccountTable
+          accounts={accounts}
+          loading={loading}
+          visibleColumns={visibleColumns}
+          onUpdateReclassTargetCode={canWrite ? handleUpdateReclassTargetCode : undefined}
+        />
       </div>
 
       <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />

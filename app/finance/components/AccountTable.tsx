@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 interface Account {
   id: number;
@@ -41,12 +41,13 @@ interface AccountTableProps {
   accounts: Account[];
   loading?: boolean;
   visibleColumns?: string[];
-  onUpdateAccount?: (id: number, field: string, value: string) => Promise<void>;
+  onUpdateReclassTargetCode?: (id: number, value: string) => Promise<void>;
 }
 
-export default function AccountTable({ accounts, loading, visibleColumns, onUpdateAccount }: AccountTableProps) {
+export default function AccountTable({ accounts, loading, visibleColumns, onUpdateReclassTargetCode }: AccountTableProps) {
   const show = (key: string) => !visibleColumns || visibleColumns.includes(key);
-  const [editCell, setEditCell] = useState<{ accountId: number; field: string } | null>(null);
+  const [editCell, setEditCell] = useState<number | null>(null);
+  const cancelRef = useRef(false);
 
   if (loading) {
     return <p className="p-8 text-center text-gray-500">加载中...</p>;
@@ -98,31 +99,40 @@ export default function AccountTable({ accounts, loading, visibleColumns, onUpda
             </td>}
             {show("reclassTargetCode") && (
               <td className="px-3 py-2 font-mono whitespace-nowrap">
-                {editCell?.accountId === acc.id && editCell?.field === "reclassTargetCode" ? (
+                {editCell === acc.id ? (
                   <input
                     autoFocus
                     type="text"
                     defaultValue={acc.reclassTargetCode || ""}
                     className="w-24 rounded border border-emerald-400 px-1.5 py-0.5 text-xs text-gray-700 outline-none"
                     onBlur={async (e) => {
+                      if (cancelRef.current) {
+                        cancelRef.current = false;
+                        setEditCell(null);
+                        return;
+                      }
                       const val = e.target.value.trim();
                       setEditCell(null);
                       if (val !== (acc.reclassTargetCode || "")) {
-                        await onUpdateAccount?.(acc.id, "reclassTargetCode", val);
+                        await onUpdateReclassTargetCode?.(acc.id, val);
                       }
                     }}
                     onKeyDown={(e) => {
-                      if (e.key === "Escape") setEditCell(null);
+                      if (e.key === "Escape") {
+                        cancelRef.current = true;
+                        (e.target as HTMLInputElement).value = acc.reclassTargetCode || "";
+                        (e.target as HTMLInputElement).blur();
+                      }
                       if (e.key === "Enter") (e.target as HTMLInputElement).blur();
                     }}
                   />
                 ) : (
                   <span
-                    className={`cursor-pointer rounded px-1 py-0.5 hover:bg-emerald-50 ${
-                      acc.reclassTargetCode ? "text-emerald-700" : "text-gray-400"
-                    }`}
-                    title="点击编辑重分类目标科目"
-                    onClick={() => onUpdateAccount && setEditCell({ accountId: acc.id, field: "reclassTargetCode" })}
+                    className={`rounded px-1 py-0.5 ${
+                      onUpdateReclassTargetCode ? "cursor-pointer hover:bg-emerald-50" : ""
+                    } ${acc.reclassTargetCode ? "text-emerald-700" : "text-gray-400"}`}
+                    title={onUpdateReclassTargetCode ? "点击编辑重分类目标科目" : undefined}
+                    onClick={() => onUpdateReclassTargetCode && setEditCell(acc.id)}
                   >
                     {acc.reclassTargetCode || "-"}
                   </span>
