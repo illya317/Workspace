@@ -20,6 +20,9 @@ export async function reviewReclassResult(
         select: {
           relatedEntity: true,
           description: true,
+          debit: true,
+          credit: true,
+          account: { select: { code: true } },
           voucher: { select: { voucherNo: true, date: true } },
         },
       },
@@ -55,8 +58,9 @@ export async function reviewReclassResult(
       if (!payload.targetAccount || payload.amount <= 0) {
         throw new ReviewError("INVALID_ADJUST", "调整操作需提供有效的 targetAccount 和 amount > 0");
       }
-      if (payload.amount > record.amount) {
-        throw new ReviewError("AMOUNT_EXCEEDED", `调整金额不能超过原始金额 ¥${record.amount.toFixed(2)}`);
+      const maxAmount = record.voucherItem.debit || record.voucherItem.credit;
+      if (payload.amount > maxAmount) {
+        throw new ReviewError("AMOUNT_EXCEEDED", `调整金额不能超过分录金额 ¥${maxAmount.toFixed(2)}`);
       }
 
       // scope 校验：targetAccount 必须在同 (companyCode, year) 下存在
@@ -165,8 +169,14 @@ export async function createManualReclassResult(params: {
   if (!targetExists) throw new ReviewError("INVALID_TARGET", `目标科目 ${targetAccount} 不存在`);
   if (amount <= 0) throw new ReviewError("INVALID_AMOUNT", "金额必须大于 0");
   // Verify voucherItem exists and belongs to the period
-  const vi = await prisma.financeVoucherItem.findUnique({ where: { id: voucherItemId }, select: { voucher: { select: { periodId: true } } } });
+  const vi = await prisma.financeVoucherItem.findUnique({
+    where: { id: voucherItemId },
+    select: { debit: true, credit: true, account: { select: { code: true } }, voucher: { select: { periodId: true } } },
+  });
   if (!vi || vi.voucher.periodId !== periodId) throw new ReviewError("NOT_FOUND", "凭证明细不存在或不属于该期间");
+  if (sourceAccount && vi.account.code !== sourceAccount) throw new ReviewError("INVALID_SOURCE", "源科目与凭证明细不匹配");
+  const maxAmount = vi.debit || vi.credit;
+  if (amount > maxAmount) throw new ReviewError("AMOUNT_EXCEEDED", `金额不能超过分录金额 ¥${maxAmount.toFixed(2)}`);
 
   // Upsert ReclassResult（防重复点击 500）
   const created = await prisma.reclassResult.upsert({
