@@ -204,6 +204,35 @@ budget/page.tsx
 - **继承**：`ensureStatementMappings(companyCode, year)` → 已有不覆盖 → 上年复制 → prefix 迁移
 - **Resolver**：`resolveAccountMapping()` 返回 `{resolvedLineCode, mappingSource: explicit|inherited|none}`
 
+### 资产负债表口径（M11/M12 authoritative）
+
+资产负债表走 **mapping-based** 口径，legacy prefixes 仅作为 fallback / 诊断对比。
+
+```
+科目录属 ─→ FinanceStatementAccountMapping 解析（最近祖先优先）
+  ↓
+聚合 ─→ 只消费叶子科目余额（FinanceAccountBalance 中无子科目者）
+  ↓
+行计算 ─→ mappingByLine + reclassByLine（lineCode-keyed）
+  ↓
+最终金额 ─→ 由 line.side 决定（debit = mk(d-c), credit = mk(c-d)）
+```
+
+关键不变量：
+
+1. **只消费叶子**：`aggregateMappingBasedBalances()` 用 `parentId` 关系过滤出叶子科目；父级科目（如 1601 本身）只用于归属继承，不进聚合。
+2. **Contra 科目自然抵减**：坏账准备（1231）/ 累计折旧（1602 / 1642）等减项科目必须显式映射到与 gross 同一 lineCode。聚合时借方 - 贷方 = 净值，减项的贷方自然抵减 gross 的借方。
+3. **重分类按 lineCode 路由**：`resolveReclassEntriesToLines(companyCode, year, entries)` 把每条 `ReclassEntry.sourceAccount / targetAccount` 解析为 lineCode，按 `lineCode` 增减扣；不再用 `line.prefixes` 前缀匹配。
+4. **Legacy 仅诊断**：`computeBalanceSheet(config, balances, reclass)` 在 `mappingByLine` 缺失时走 legacy prefixes 路径；已知对 `subtractPrefixes` 符号处理有问题，仅作为 `scripts/balance-sheet-diff.ts` 的对比基线，不作主路径。
+5. **Additive mapping seed**：`ensureStatementMappings(companyCode, year, statementType)` 永不"有就跳过整年"，只按 accountCode 维度跳过（manual / 已有），缺失的 accountCode 从 `line.prefixes` + `line.subtractPrefixes` 补齐。复制上一年后**继续跑 backfill**，避免上一年自身的缺漏跨年漏到新年。
+
+诊断与防回归：
+
+- `npm run finance:bs-diff <companyCode> <year> <month>` 输出 legacy vs mapping 逐行 diff、unresolved 三分桶（relevant / ignored / zeroBalance）、`MAPPING_OK` / `MAPPING_GAP` 标识。
+- `npm run finance:bs-smoke` 跑 02/2025/2 常用 smoke。
+- `npx tsx scripts/repair-statement-mappings.ts [--all] [--dry-run]` 调用 `ensureStatementMappings` 修补缺失；`--all` 已批处理 14 个 (company, year) 补 42 条。
+- `MAPPING_OK` 条件：`|mappingBalanceGap| < 0.01` 且 `unresolvedGroups.relevant.length === 0`。
+
 
 ## 预算管理
 

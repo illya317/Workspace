@@ -82,6 +82,23 @@ function printTextReport(
   console.log(`  legacy:  资产 ${fmt(totals.legacyAssets).padStart(18)}  负债+权益 ${fmt(totals.legacyLiabilitiesAndEquity).padStart(18)}  差额 ${fmt(totals.legacyBalanceGap).padStart(14)}`);
   console.log(`  mapping: 资产 ${fmt(totals.mappingAssets).padStart(18)}  负债+权益 ${fmt(totals.mappingLiabilitiesAndEquity).padStart(18)}  差额 ${fmt(totals.mappingBalanceGap).padStart(14)}\n`);
 
+  // M12: MAPPING_OK / MAPPING_GAP marker (machine-greppable)
+  //   MAPPING_OK  ⇔  |mappingBalanceGap| < 0.01  AND  relevant.length === 0
+  //   MAPPING_GAP otherwise; emit reason lines
+  if (result.unresolvedGroups) {
+    const relevantCount = result.unresolvedGroups.relevant.length;
+    const gap = Math.abs(totals.mappingBalanceGap);
+    const ok = gap < 0.01 && relevantCount === 0;
+    console.log(`  ── 状态：${ok ? "MAPPING_OK ✅" : "MAPPING_GAP ❌"} ──`);
+    if (!ok) {
+      if (gap >= 0.01) console.log(`    mapping balance gap = ${fmt(totals.mappingBalanceGap)}`);
+      if (relevantCount > 0) console.log(`    unresolved relevant = ${relevantCount} (1xxx/2xxx/4xxx 非零)`);
+    } else {
+      console.log(`    balance gap = 0, relevant = 0`);
+    }
+    console.log();
+  }
+
   // Sort lines by absolute diff desc for the top table
   const ranked = [...lines]
     .filter((l) => !l.isHeader && !l.isTotal && !l.isGrandTotal)

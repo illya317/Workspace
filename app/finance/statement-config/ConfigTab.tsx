@@ -89,7 +89,11 @@ export default function ConfigTab() {
       {!error && loading && <p className="text-sm text-gray-400 py-8 text-center">加载中...</p>}
 
       {!error && !loading && (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+        <>
+          <div className="rounded-md border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-blue-700">
+            金额计算以叶子科目为准；父级科目仅用于归属继承和展示。
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
           <table className="w-full text-xs">
             <thead className="border-b bg-gray-100">
               <tr>
@@ -168,6 +172,7 @@ export default function ConfigTab() {
             </tbody>
           </table>
         </div>
+        </>
       )}
     </div>
   );
