@@ -59,6 +59,8 @@ export default function MappingTab() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedCodes, setExpandedCodes] = useState<Set<string>>(new Set());
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState<Set<string>>(new Set());
 
   const loadMapping = useCallback(async () => {
     setLoading(true); setError(null);
@@ -85,6 +87,22 @@ export default function MappingTab() {
     });
   }, []);
 
+  const saveMapping = useCallback(async (accountCode: string, lineCode: string) => {
+    setSaving((prev) => new Set(prev).add(accountCode));
+    try { await fetch("/api/finance/statement-mappings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ companyCode: companyFilter, year: parseInt(yearFilter), statementType: "balance", accountCode, lineCode }) }); } catch { /* ignore */ }
+    setSaving((prev) => { const next = new Set(prev); next.delete(accountCode); return next; });
+    loadMapping();
+  }, [companyFilter, yearFilter, loadMapping]);
+
+  const removeMapping = useCallback(async (accountCode: string) => {
+    setSaving((prev) => new Set(prev).add(accountCode));
+    try { await fetch(`/api/finance/statement-mappings?companyCode=${encodeURIComponent(companyFilter)}&year=${yearFilter}&statementType=balance&accountCode=${encodeURIComponent(accountCode)}`, { method: "DELETE" }); } catch { /* ignore */ }
+    setSaving((prev) => { const next = new Set(prev); next.delete(accountCode); return next; });
+    loadMapping();
+  }, [companyFilter, yearFilter, loadMapping]);
+
+  const lineOptions = useMemo(() => data?.lineConfigs.map((lc) => ({ lineCode: lc.lineCode, label: lc.label })) || [], [data]);
+
   const maxLevel = levelFilter ? Number(levelFilter) : Infinity;
   const lineLabelMap = useMemo(
     () => (data ? buildLineLabelMap(data.lineConfigs) : new Map<string, string>()), [data],
@@ -109,10 +127,17 @@ export default function MappingTab() {
         levelFilter={levelFilter} onLevelChange={setLevelFilter}
         showMonth={false} showLevel showSearch={false} showPageSize={false}
         extra={
-          <button onClick={loadMapping}
-            className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700">
-            刷新
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={loadMapping} className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700">刷新</button>
+            <button
+              onClick={() => setEditing((v) => !v)}
+              className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+                editing ? "bg-amber-100 text-amber-700 hover:bg-amber-200" : "bg-white border border-gray-300 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              {editing ? "完成编辑" : "编辑映射"}
+            </button>
+          </div>
         }
       />
 
@@ -170,6 +195,11 @@ export default function MappingTab() {
                     hasVisibleChildren={hasVisibleChildren(node, maxLevel)}
                     isExpanded={expandedCodes.has(node.accountCode)}
                     onToggle={() => toggleNode(node.accountCode)}
+                    editing={editing}
+                    lineOptions={lineOptions}
+                    saving={saving.has(node.accountCode)}
+                    onSetMapping={(lc) => saveMapping(node.accountCode, lc)}
+                    onRemoveMapping={() => removeMapping(node.accountCode)}
                   />
                 ))}
               </tbody>
