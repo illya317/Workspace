@@ -195,8 +195,8 @@ export async function createManualReclassResult(params: {
   const desc = description || created.voucherItem.description;
   if (desc) {
     await prisma.financeReclassItemRule.upsert({
-      where: { companyCode_year_sourceAccountCode_matchType_matchValue: { companyCode: period.companyCode, year: period.year, sourceAccountCode: sourceAccount, matchType: "exact_description", matchValue: desc } },
-      create: { companyCode: period.companyCode, year: period.year, sourceAccountCode: sourceAccount, matchType: "exact_description", matchValue: desc, targetAccountCode: targetAccount, note: "凭证明细手动调整" },
+      where: { companyCode_year_sourceAccountCode_matchType_matchValue: { companyCode: period.companyCode, year: period.year, sourceAccountCode: derivedSource, matchType: "exact_description", matchValue: desc } },
+      create: { companyCode: period.companyCode, year: period.year, sourceAccountCode: derivedSource, matchType: "exact_description", matchValue: desc, targetAccountCode: targetAccount, note: "凭证明细手动调整" },
       update: { targetAccountCode: targetAccount },
     });
   }
