@@ -66,7 +66,7 @@ export default function ReclassConfigRow({
       {canWrite && (
         <td className="px-3 py-1.5 text-center">
           {hasRule ? (
-            <button onClick={() => onClearRule(c)} className="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-700 hover:bg-amber-100">待审核</button>
+            <button onClick={() => onClearRule(c)} className="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-700 hover:bg-amber-100">清除规则</button>
           ) : c.suggestedTarget ? (
             <button onClick={() => onSaveRule(c, c.suggestedTarget)} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
           ) : (

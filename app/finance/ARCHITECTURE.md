@@ -165,13 +165,12 @@ budget/page.tsx
 └──────────────────────────────────────────────────────────┘
                     ↓
 ┌─ 审核 ──────────────────────────────────────────────────┐
-│ 凭证明细 → 重分类核查 scope / 展开凭证内联                │
+│ 凭证明细 → 查看系统结果 / 人工调整例外                    │
 │   PATCH /api/finance/reclass-results/[id]                │
-│   approve / mark_pending / adjust                         │
-│   正常分录 → 待审核 → pending ReclassResult                │
-│   pending → 确认 → approved                               │
-│   approved → 待审核 → pending                             │
-│   adjust → adjusted + 沉淀 FinanceReclassItemRule         │
+│   系统匹配规则 → approved（自动，不写 ReclassResult for normal） │
+│   人工设置/修改 → adjusted + 沉淀 FinanceReclassItemRule  │
+│   全部操作走 action="adjust"，id=0 创建、id>0 更新         │
+│   pending 仅历史兼容状态，不在 UI 主流程                   │
 └──────────────────────────────────────────────────────────┘
                     ↓
 ┌─ 报表消费 (只读) ───────────────────────────────────────┐

@@ -31,7 +31,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
     useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
   const [viewMode, setViewMode] = useState<"vouchers" | "reclass">("vouchers");
   const [keyword, setKeyword] = useState("");
-  const [reclassStatus, setReclassStatus] = useState("configured");
+  const [reclassStatus, setReclassStatus] = useState("adjusted");
   const voucherColumns = useMemo(() => getVoucherColumns(expandedVoucherId), [expandedVoucherId]);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
     () => getDefaultVisibleColumns(voucherColumns)
@@ -130,9 +130,9 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
                 {viewMode === "reclass" && (
                   <StatusToggle
                     tabs={[
+                      { key: "adjusted", label: "已调整", count: reclassCounts.adjusted },
                       { key: "configured", label: "已配置", count: reclassCounts.configured },
                       { key: "unconfigured", label: "未配置", count: reclassCounts.unconfigured },
-                      { key: "adjusted", label: "已调整", count: reclassCounts.adjusted },
                       { key: "all", label: "全部", count: reclassCounts.total },
                     ]}
                     active={reclassStatus}

@@ -111,7 +111,7 @@ export default function ReclassCandidateList({
     if (!c.existingRuleId) return;
     if (!(await fetch(`/api/finance/reclass-rules/${c.existingRuleId}`, { method: "DELETE" })).ok) { showToast("清除失败", "error"); return; }
     updateCandidate(c.accountCode, null, null, null, null);
-    showToast("已标记待审核");
+    showToast("已清除规则");
   }
   function startEdit(c: RuleCandidate) {
     setEditCode(c.accountCode + "::" + c.abnormalSide);
