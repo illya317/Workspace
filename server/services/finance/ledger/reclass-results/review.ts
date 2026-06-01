@@ -164,9 +164,11 @@ export async function createManualReclassResult(params: {
   if (!targetExists) throw new ReviewError("INVALID_TARGET", `目标科目 ${targetAccount} 不存在`);
   if (amount <= 0) throw new ReviewError("INVALID_AMOUNT", "金额必须大于 0");
 
-  // 创建 ReclassResult
-  const created = await prisma.reclassResult.create({
-    data: { periodId, voucherItemId, sourceAccount, targetAccount, amount, status: "adjusted", adjustedBy: userId, adjustedAt: new Date() },
+  // Upsert ReclassResult（防重复点击 500）
+  const created = await prisma.reclassResult.upsert({
+    where: { periodId_voucherItemId: { periodId, voucherItemId } },
+    create: { periodId, voucherItemId, sourceAccount, targetAccount, amount, status: "adjusted", adjustedBy: userId, adjustedAt: new Date() },
+    update: { sourceAccount, targetAccount, amount, status: "adjusted", adjustedBy: userId, adjustedAt: new Date() },
     include: {
       voucherItem: { select: { relatedEntity: true, description: true, account: { select: { name: true } }, voucher: { select: { voucherNo: true, date: true } } } },
       rule: { select: { abnormalSide: true } },
