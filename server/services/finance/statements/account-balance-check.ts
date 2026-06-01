@@ -7,7 +7,7 @@
  */
 import { prisma } from "@/lib/prisma";
 
-interface AccountNode {
+export interface AccountNode {
   code: string; name: string; level: number;
   closingDebit: number; closingCredit: number;
   net: number;
