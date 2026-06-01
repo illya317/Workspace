@@ -197,14 +197,16 @@ export async function confirmFinanceImport(
       }
     }
 
-    // Auto-recompute balances for the latest affected period only
+    // Auto-recompute balances: sort affected periods, compute from earliest
     if (affectedPeriodIds.length > 0) {
-      const latestPeriod = await prisma.financePeriod.findFirst({
+      const sorted = await prisma.financePeriod.findMany({
         where: { id: { in: affectedPeriodIds } },
-        orderBy: [{ year: "desc" }, { month: "desc" }],
+        orderBy: [{ year: "asc" }, { month: "asc" }],
+        select: { id: true },
       });
-      if (latestPeriod) {
-        try { await computeBalancesForPeriod(latestPeriod.id); } catch { /* skip */ }
+      // Only need the latest — computeBalancesForPeriod rolls forward from baseline
+      if (sorted.length > 0) {
+        try { await computeBalancesForPeriod(sorted[sorted.length - 1].id); } catch { /* skip */ }
       }
     }
 
