@@ -245,6 +245,29 @@ budget/page.tsx
 
 2024 同笔 100K credit 在 05 账上名为「实收资本」(cat=equity)，2025/2026 改名为「清算资金往来」(cat=other)。Phase 2.4A 已对 05/2024 加 `3001 → paidInCapital`，2024 现在 OK。2025/2026 不自动归类，避免污染 paidInCapital 语义；财务确认后再补。
 
+### Phase 3 Batch 1：利润表 / 现金流量表 line config 框架
+
+P3 Batch 1 只搭**配置**层（line config + DB 行），**不接 compute、不接 UI、不接 workpaper/review**。
+
+新增：
+- `server/services/finance/statements/config/cash-flow-lines.ts` — 完整现金流量表项目框架（经营 / 投资 / 筹资 三大活动 + 流入小计 + 流出小计 + 净额 + 净增加额 + 期末余额），支持 chnPrefixes / canPrefixes 双轨。
+- `server/services/finance/statements/config/load-config-reports.ts` — 新增 `loadIncomeStatementConfig` / `loadCashFlowConfig`，与 `loadBalanceSheetConfig` 同样的 3-tier 加载（DB → 上年 → TS default）。从主文件 re-export 以保持 ≤260 行。
+- `server/services/finance/statements/config/ensure-line-configs.ts` — 新增 `ensureStatementLineConfigs(companyCode, year, reportType)` 与 `ensureAllStatementLineConfigs(companyCode, year)`，封装 3-tier cascade：当年有 → no-op；无 + 上年有 → 复制；上年无 → TS default seed。`source` 返回 `existing | copied | migrated` 标签。
+
+复用 `FinanceStatementLineConfig`：`reportType = "balanceSheet" | "incomeStatement" | "cashFlow"`。每张表独立 sortOrder，按行分。
+
+不做的：
+- 不接 `generateIncomeStatement` / `generateCashFlow`（依然返回"未实现"或走老路径）。
+- 不动 `/finance/statements` 页面，不动 `/finance/statement-config` UI。
+- 不建 workpaper / review 表。
+- 不动资产负债表 authoritative 口径。
+
+后续 Batch 计划（见 `docs/planning/plans.md`）：
+- Batch 2: workpaper schema + API
+- Batch 3: review schema + API
+- Batch 4: review 页面骨架
+- Batch 5: 利润表 mapping preview
+- Batch 6: 天力通 2025 smoke
 
 ## 预算管理
 

@@ -86,3 +86,8 @@ function toLineConfig(db: any): BalanceSheetLineConfig {
     subtractPrefixes: JSON.parse(db.subtractPrefixesJson || "[]"),
   };
 }
+
+// Re-export income + cash flow loaders (defined in load-config-reports.ts
+// to keep this file under the 260-line cap).
+export { loadIncomeStatementConfig, loadCashFlowConfig } from "./load-config-reports";
+export type { IncomeStatementLineRow, CashFlowLineRow } from "./load-config-reports";
