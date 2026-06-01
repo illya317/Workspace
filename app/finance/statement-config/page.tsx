@@ -1,24 +1,15 @@
-"use client";
+import { requireResourceAccess } from "@/server/auth/guard";
+import AppShell from "@/app/components/AppShell";
+import FinanceShell from "@/app/finance/components/FinanceShell";
+import StatementConfigClient from "./StatementConfigClient";
 
-import { useState } from "react";
-import TabBar from "@/app/components/TabBar";
-import ConfigTab from "./ConfigTab";
-import MappingTab from "./MappingTab";
-
-const tabs = [
-  { key: "lines", label: "报表项目" },
-  { key: "mapping", label: "科目映射" },
-];
-
-export default function StatementConfigPage() {
-  const [activeTab, setActiveTab] = useState("lines");
-
+export default async function StatementConfigPage() {
+  const user = await requireResourceAccess("finance.statement");
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
-      <h1 className="text-lg font-semibold text-gray-800 mb-4">报表配置</h1>
-      <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
-      {activeTab === "lines" && <ConfigTab />}
-      {activeTab === "mapping" && <MappingTab />}
-    </main>
+    <AppShell title="报表配置" backHref="/finance" user={user}>
+      <FinanceShell activeNav="statementConfig" user={user} hideShell>
+        <StatementConfigClient />
+      </FinanceShell>
+    </AppShell>
   );
 }

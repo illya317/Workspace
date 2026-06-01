@@ -56,7 +56,7 @@ export default function MappingTab() {
   const [yearFilter, setYearFilter] = useState("2025");
   const [levelFilter, setLevelFilter] = useState("");
   const [data, setData] = useState<StatementConfigView | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedCodes, setExpandedCodes] = useState<Set<string>>(new Set());
 
@@ -66,9 +66,12 @@ export default function MappingTab() {
       const res = await fetch(
         `/api/finance/statement-config?companyCode=${encodeURIComponent(companyFilter)}&year=${yearFilter}&type=balance`,
       );
-      if (!res.ok) { setError((await res.json().catch(() => ({}))).error || "加载失败"); setData(null); }
-      else { setData(await res.json()); setExpandedCodes(new Set()); }
-    } catch { setError("网络错误"); setData(null); }
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setError(body?.error || `请求失败 (${res.status})`);
+        setData(null);
+      } else { setData(await res.json()); setExpandedCodes(new Set()); }
+    } catch { setError("网络错误，请检查连接后重试"); setData(null); }
     setLoading(false);
   }, [companyFilter, yearFilter]);
 

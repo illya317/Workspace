@@ -19,16 +19,20 @@ export default function ConfigTab() {
   const [company, setCompany] = useState("02");
   const [year, setYear] = useState("2025");
   const [lines, setLines] = useState<ConfigLine[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   async function load() {
-    setLoading(true);
+    setLoading(true); setError(null);
     const res = await fetch(`/api/finance/statement-config?companyCode=${company}&year=${year}`);
     if (res.ok) {
       const data = await res.json();
       setLines(data.lineConfigs || []);
+    } else {
+      const body = await res.json().catch(() => null);
+      setError(body?.error || `请求失败 (${res.status})`);
     }
     setLoading(false);
   }
@@ -66,7 +70,14 @@ export default function ConfigTab() {
         {msg && <span className="text-sm text-emerald-600">{msg}</span>}
       </div>
 
-      {loading ? <p className="text-sm text-gray-400">加载中...</p> : (
+      {error && (
+        <div className="rounded-lg bg-red-50 p-8 text-center">
+          <p className="text-sm text-red-600 mb-2">{error}</p>
+          <button onClick={load} className="text-xs text-red-500 underline hover:text-red-700">重试</button>
+        </div>
+      )}
+
+      {!error && loading ? <p className="text-sm text-gray-400">加载中...</p> : !error && (
         <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
           <table className="w-full text-xs">
             <thead className="border-b bg-gray-100">

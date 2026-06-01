@@ -19,6 +19,12 @@ export const allFinanceNavItems: FinanceNavItem[] = [
     checkAccess: (u) => !!u.canAccessFinanceLedger,
   },
   {
+    key: "statementConfig",
+    label: "报表配置",
+    href: "/finance/statement-config",
+    checkAccess: (u) => !!u.canAccessFinanceReport,
+  },
+  {
     key: "statements",
     label: "财务报表",
     href: "/finance/statements",
