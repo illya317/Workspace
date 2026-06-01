@@ -28,6 +28,7 @@ interface RawItem {
   id: number;
   debit: number;
   credit: number;
+  description: string | null;
   relatedEntity: string | null;
   account: {
     code: string;
@@ -45,6 +46,7 @@ async function fetchItems(periodId: number): Promise<RawItem[]> {
       id: true,
       debit: true,
       credit: true,
+      description: true,
       relatedEntity: true,
       account: {
         select: {

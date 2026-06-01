@@ -67,6 +67,15 @@ export async function reviewReclassResult(
       }
 
       updateData = { status: "adjusted", targetAccount: payload.targetAccount, amount: payload.amount, note, adjustedBy: userId, adjustedAt: now };
+
+      // 沉淀明细例外规则（公司级）
+      if (record.voucherItem.description) {
+        await prisma.financeReclassItemRule.upsert({
+          where: { companyCode_sourceAccountCode_matchType_matchValue: { companyCode: record.period.companyCode, sourceAccountCode: record.sourceAccount, matchType: "exact_description", matchValue: record.voucherItem.description } },
+          create: { companyCode: record.period.companyCode, sourceAccountCode: record.sourceAccount, matchType: "exact_description", matchValue: record.voucherItem.description, targetAccountCode: payload.targetAccount, note: "凭证明细调整" },
+          update: { targetAccountCode: payload.targetAccount },
+        });
+      }
       break;
     }
 

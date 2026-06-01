@@ -233,6 +233,23 @@ model FinanceReclassRule {
   @@index([sourceAccountCode])
 }
 
+/// 明细例外规则：凭证明细 adjust 后沉淀为公司级例外
+model FinanceReclassItemRule {
+  id                Int      @id @default(autoincrement())
+  companyCode       String
+  sourceAccountCode String
+  matchType         String   @default("exact_description") // exact_description | related_entity | contains
+  matchValue        String   // 摘要/实体/关键词
+  targetAccountCode String
+  enabled           Boolean  @default(true)
+  note              String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+
+  @@unique([companyCode, sourceAccountCode, matchType, matchValue])
+  @@index([companyCode, sourceAccountCode])
+}
+
 /// 重分类结果（引擎生成 + 人工审核，从 finance-schedules.prisma 迁入）
 /// periodId + voucherItemId 唯一：同一凭证明细只生成一条重分类结果
 /// engine upsert 时幂等，不会重复

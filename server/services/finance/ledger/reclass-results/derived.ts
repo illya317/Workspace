@@ -72,15 +72,24 @@ export async function deriveRows(periodId: number): Promise<DerivedRow[]> {
       targetAccountCode: r.targetAccountCode,
     });
   }
-  // 验证目标科目真实存在（不依赖规则自述）
-  const targetCodes = [...new Set(rules.map((r) => r.targetAccountCode))];
+  // 明细例外规则
+  const itemRules = await prisma.financeReclassItemRule.findMany({
+    where: { companyCode: period.companyCode, enabled: true, matchType: "exact_description" },
+    select: { id: true, sourceAccountCode: true, matchValue: true, targetAccountCode: true },
+  });
+  const itemRuleMap = new Map<string, { id: number; targetAccountCode: string }>();
+  for (const ir of itemRules) {
+    itemRuleMap.set(`${ir.sourceAccountCode}::${ir.matchValue}`, { id: ir.id, targetAccountCode: ir.targetAccountCode });
+  }
+  // 验证目标科目真实存在
+  const targetCodes = [...new Set([...rules.map(r => r.targetAccountCode), ...itemRules.map(ir => ir.targetAccountCode)])];
   const existingTargets = targetCodes.length > 0
     ? await prisma.financeAccount.findMany({
         where: { companyCode: period.companyCode, year: period.year, code: { in: targetCodes } },
         select: { code: true },
       })
     : [];
-  const targetExists = new Set(existingTargets.map((a) => a.code));
+  const targetExists = new Set(existingTargets.map(a => a.code));
 
   // 2. 分录
   const items = await prisma.financeVoucherItem.findMany({
@@ -101,7 +110,7 @@ export async function deriveRows(periodId: number): Promise<DerivedRow[]> {
 
   // 4. 逐条 classify + merge
   return items.map((item): DerivedRow => {
-    const classified = classifyItem(item as VoucherItemInput, ruleMap, targetExists);
+    const classified = classifyItem(item as VoucherItemInput, ruleMap, targetExists, itemRuleMap);
     const rr = resultMap.get(item.id);
     const itemSide: "debit" | "credit" | null =
       item.debit > 0 ? "debit" : item.credit > 0 ? "credit" : null;

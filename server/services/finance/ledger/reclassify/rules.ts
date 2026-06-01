@@ -19,6 +19,7 @@ export interface VoucherItemInput {
   id: number;
   debit: number;
   credit: number;
+  description: string | null;
   relatedEntity: string | null;
   account: {
     code: string;
@@ -38,12 +39,22 @@ export function classifyItem(
   item: VoucherItemInput,
   rules: ReadonlyMap<string, RuleEntry>,
   targetExists: ReadonlySet<string>,
+  itemRules?: ReadonlyMap<string, { id: number; targetAccountCode: string }>,
 ): ReclassifyItemResult {
   const base = {
     voucherItemId: item.id,
     sourceAccount: item.account.code,
     ruleId: null as number | null,
   };
+
+  // 0. 优先：明细例外规则 (exact_description)
+  if (itemRules && item.description) {
+    const itemRule = itemRules.get(`${item.account.code}::${item.description}`);
+    if (itemRule && targetExists.has(itemRule.targetAccountCode)) {
+      const amount = item.debit > 0 ? item.debit : item.credit;
+      return { ...base, targetAccount: itemRule.targetAccountCode, amount, status: S.MATCHED, ruleId: null };
+    }
+  }
 
   // 1. 查规则：先查定向 abnormalSide，再查 both（全部重分类）
   const normalRule = rules.get(`${item.account.code}::${abnormalSide(item.account.balanceDirection)}`);
