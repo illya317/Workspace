@@ -128,6 +128,9 @@ budget/page.tsx
 | `FinanceReclassRule` | `prisma/models/finance-ledger.prisma` | 科目规则：`(companyCode, year, sourceAccountCode, abnormalSide)` → `targetAccountCode` |
 | `FinanceReclassItemRule` | `prisma/models/finance-ledger.prisma` | 明细例外规则：`(companyCode, year, sourceAccountCode, matchType, matchValue)` → `targetAccountCode` |
 | `ReclassResult` | `prisma/models/finance-ledger.prisma` | 明细级结果：每条凭证明细的生成/审核结果，`ruleId` 可空 |
+| `FinanceStatementAccountMapping` | `prisma/models/finance-ledger.prisma` | 科目→报表项目映射：`(companyCode, year, statementType, accountCode)` → `lineCode` |
+| `FinanceStatementLineConfig` | `prisma/models/finance-ledger.prisma` | 报表行定义：section/side/isTotal/isGrandTotal |
+| `FinanceBalanceReclassAdjustment` | `prisma/models/finance-ledger.prisma` | 余额残差调整：residual = 异常余额 - YTD 凭证明细已调 |
 
 ### 规则表 (`FinanceReclassRule`)
 
@@ -190,6 +193,16 @@ budget/page.tsx
 - `ReclassEntry { sourceAccount, targetAccount, amount }` 精确金额，非整科目余额
 - 报表页不触发生成、不编辑规则、不审核结果
 - 遗留 `FinanceAccount.reclassTargetCode` 仍保留（Batch 8 清理），引擎已不读
+
+### 科目→报表项目映射
+
+- **`FinanceStatementAccountMapping`** 定义科目归属哪个报表行
+- **解析规则**：最近祖先优先
+  - 优先用 `FinanceAccount.parentId` 构建 parent chain
+  - parent 缺失时 prefix fallback（逐位截断）
+  - 无需手动 exclude — 更深层 mapping 自动覆盖父级
+- **继承**：`ensureStatementMappings(companyCode, year)` → 已有不覆盖 → 上年复制 → prefix 迁移
+- **Resolver**：`resolveAccountMapping()` 返回 `{resolvedLineCode, mappingSource: explicit|inherited|none}`
 
 
 ## 预算管理

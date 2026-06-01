@@ -282,13 +282,14 @@ model FinanceStatementAccountMapping {
   lineCode        String   // 报表项目 lineCode
   accountCode     String   // 科目编码
   includeChildren Boolean  @default(true)
-  source          String   @default("default") // default | manual | copied
+  source          String   @default("default") // default | manual | copied | migrated
   note            String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @default(now()) @updatedAt
 
   @@unique([companyCode, year, statementType, accountCode])
   @@index([companyCode, year, statementType, lineCode])
+  @@index([companyCode, year, accountCode])
 }
 
 /// 报表项目配置（资产负债表/利润表/现金流量表）
