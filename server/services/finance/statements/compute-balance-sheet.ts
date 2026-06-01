@@ -1,6 +1,8 @@
 import type { BalanceItem, ReclassRouting } from "./report-helpers";
-import { closingNetLeaf, mk, mkC } from "./report-helpers";
+import { mk, mkC } from "./report-helpers";
+import type { ReclassLineRouting } from "./mapping/reclass-routing";
 import type { BalanceSheetLineConfig } from "./config/balance-sheet-lines";
+import { computeLineBase, computeOtherReceivableNet, sumByPrefix } from "./compute-balance-sheet-legacy";
 
 export interface ComputedLine {
   lineCode: string;
@@ -21,83 +23,8 @@ export interface ComputeBalanceSheetParams {
   reclass: ReclassRouting;
   /** M10b: mapping-based leaf aggregation by lineCode */
   mappingByLine?: Map<string, { debit: number; credit: number }>;
-}
-
-// ─── Helpers ───────────────────────────────────────────────
-
-function sumByPrefix(
-  map: Map<string, { debit: number; credit: number }>,
-  prefix: string,
-): { debit: number; credit: number } {
-  let d = 0, c = 0;
-  for (const [code, v] of map) {
-    if (code.startsWith(prefix)) { d += v.debit; c += v.credit; }
-  }
-  return { debit: d, credit: c };
-}
-
-/**
- * Compute the base balance for a line, applying reclass source deductions
- * and target additions, and subtracting any subtractPrefixes.
- */
-function computeLineBase(
-  line: BalanceSheetLineConfig,
-  balances: BalanceItem[],
-  reclass: ReclassRouting,
-): { debit: number; credit: number } {
-  if (!line.prefixes || line.prefixes.length === 0) {
-    return { debit: 0, credit: 0 };
-  }
-
-  const base = closingNetLeaf(balances, line.prefixes);
-  let debit = base.debit;
-  let credit = base.credit;
-
-  // Apply reclass source deductions (amounts to REMOVE from this line)
-  if (line.reclassSource) {
-    for (const prefix of line.prefixes) {
-      const s = sumByPrefix(reclass.deductions, prefix);
-      debit -= s.debit;
-      credit -= s.credit;
-    }
-  }
-
-  // Apply reclass target additions (amounts to ADD to this line)
-  if (line.reclassTarget) {
-    for (const prefix of line.prefixes) {
-      const t = sumByPrefix(reclass.additions, prefix);
-      debit += t.debit;
-      credit += t.credit;
-    }
-  }
-
-  // Apply subtract prefixes (e.g., accumulated depreciation)
-  if (line.subtractPrefixes && line.subtractPrefixes.length > 0) {
-    const sub = closingNetLeaf(balances, line.subtractPrefixes);
-    debit -= sub.debit;
-    credit -= sub.credit;
-  }
-
-  return { debit, credit };
-}
-
-/**
- * Special-case compute for otherReceivableNet:
- *   otherReceivable(1221) - badDebtAllowance(1231) - reclass source(1221)
- * The badDebtAllowance credit is subtracted from the debit side (contra-asset).
- */
-function computeOtherReceivableNet(
-  balances: BalanceItem[],
-  reclass: ReclassRouting,
-): { debit: number; credit: number } {
-  const gross = closingNetLeaf(balances, ["1221"]);
-  const allowance = closingNetLeaf(balances, ["1231"]);
-  const src = sumByPrefix(reclass.deductions, "1221");
-
-  return {
-    debit: gross.debit - allowance.credit - src.debit,
-    credit: gross.credit - src.credit,
-  };
+  /** M11: lineCode-keyed reclass routing; used in mapping mode in place of `reclass` */
+  reclassByLine?: ReclassLineRouting;
 }
 
 // ─── Main Compute ──────────────────────────────────────────
@@ -106,7 +33,7 @@ export function computeBalanceSheetLines(params: ComputeBalanceSheetParams): {
   lines: ComputedLine[];
   diagnostics: string[];
 } {
-  const { balances, reclass } = params;
+  const { balances, reclass, reclassByLine } = params;
   const diagnostics: string[] = [];
   const computed: ComputedLine[] = [];
 
@@ -159,34 +86,43 @@ export function computeBalanceSheetLines(params: ComputeBalanceSheetParams): {
     // Compute the line amount
     let dc: { debit: number; credit: number };
 
-    // M10b: prefer mapping-based leaf aggregation over prefix-based
-    const fromMapping = mappingByLine?.get(line.lineCode);
-    if (fromMapping && mappingByLine && mappingByLine.size > 0) {
-      let debit = fromMapping.debit;
-      let credit = fromMapping.credit;
+    // M10b: prefer mapping-based leaf aggregation over prefix-based.
+    // M11: when mapping is active, the line's natural balance is taken from
+    // the aggregation (defaulting to 0 if no leaves resolved to it), and any
+    // reclass additions/deductions are layered on top. This means a line with
+    // no natural balance but a reclass addition (e.g. otherCurrentAssets
+    // receiving 2241→1463) still picks up that amount.
+    if (mappingByLine && mappingByLine.size > 0) {
+      const fromMapping = mappingByLine.get(line.lineCode);
+      let debit = fromMapping?.debit ?? 0;
+      let credit = fromMapping?.credit ?? 0;
 
-      // Apply legacy prefix-based reclass on top (will be replaced by M11)
-      if (line.reclassSource && line.prefixes) {
-        for (const prefix of line.prefixes) {
-          const s = sumByPrefix(reclass.deductions, prefix);
-          debit -= s.debit; credit -= s.credit;
+      if (reclassByLine) {
+        const d = reclassByLine.deductionsByLine.get(line.lineCode);
+        if (d) { debit -= d.debit; credit -= d.credit; }
+        const a = reclassByLine.additionsByLine.get(line.lineCode);
+        if (a) { debit += a.debit; credit += a.credit; }
+      } else {
+        // Legacy prefix-based reclass (kept for callers without M11 routing)
+        if (line.reclassSource && line.prefixes) {
+          for (const prefix of line.prefixes) {
+            const s = sumByPrefix(reclass.deductions, prefix);
+            debit -= s.debit; credit -= s.credit;
+          }
         }
-      }
-      if (line.reclassTarget && line.prefixes) {
-        for (const prefix of line.prefixes) {
-          const t = sumByPrefix(reclass.additions, prefix);
-          debit += t.debit; credit += t.credit;
+        if (line.reclassTarget && line.prefixes) {
+          for (const prefix of line.prefixes) {
+            const t = sumByPrefix(reclass.additions, prefix);
+            debit += t.debit; credit += t.credit;
+          }
         }
       }
 
       // In mapping mode, contra accounts are mapped into the same line and reduce
       // the amount naturally via line.side, so subtractPrefixes is legacy-only.
-      // (See `computeLineBase` below for the prefixes-fallback path.)
+      // (See `computeLineBase` in compute-balance-sheet-legacy for the prefixes-fallback path.)
 
       dc = { debit, credit };
-    } else if (mappingByLine && mappingByLine.size > 0) {
-      // mapping available but this line has no data → zero
-      dc = { debit: 0, credit: 0 };
     } else if (line.lineCode === "otherReceivableNet") {
       // Legacy prefixes path
       dc = computeOtherReceivableNet(balances, reclass);
@@ -196,17 +132,24 @@ export function computeBalanceSheetLines(params: ComputeBalanceSheetParams): {
     }
 
     // Track which reclass entries were matched
-    if (line.reclassSource && line.prefixes) {
-      for (const prefix of line.prefixes) {
-        for (const code of reclass.deductions.keys()) {
-          if (code.startsWith(prefix)) matchedSources.add(code);
+    if (reclassByLine) {
+      // M11: in mapping mode, all routed entries are matched at the lineCode level;
+      // unresolved entries are surfaced via reclassByLine.unresolved elsewhere.
+      for (const code of reclassByLine.deductionsByLine.keys()) matchedSources.add(code);
+      for (const code of reclassByLine.additionsByLine.keys()) matchedTargets.add(code);
+    } else {
+      if (line.reclassSource && line.prefixes) {
+        for (const prefix of line.prefixes) {
+          for (const code of reclass.deductions.keys()) {
+            if (code.startsWith(prefix)) matchedSources.add(code);
+          }
         }
       }
-    }
-    if (line.reclassTarget && line.prefixes) {
-      for (const prefix of line.prefixes) {
-        for (const code of reclass.additions.keys()) {
-          if (code.startsWith(prefix)) matchedTargets.add(code);
+      if (line.reclassTarget && line.prefixes) {
+        for (const prefix of line.prefixes) {
+          for (const code of reclass.additions.keys()) {
+            if (code.startsWith(prefix)) matchedTargets.add(code);
+          }
         }
       }
     }
@@ -219,14 +162,19 @@ export function computeBalanceSheetLines(params: ComputeBalanceSheetParams): {
   }
 
   // Diagnostics: unmatched reclass sources/targets
-  for (const code of reclass.deductions.keys()) {
-    if (!matchedSources.has(code)) {
-      diagnostics.push(`重分类源科目 ${code} 未匹配到任何报表行`);
+  // In M11 mapping mode, the caller surfaces unresolved entries from
+  // `reclassByLine.unresolved` separately, so the legacy prefix-match
+  // diagnostic (which compares account codes against lineCodes) is skipped.
+  if (!reclassByLine) {
+    for (const code of reclass.deductions.keys()) {
+      if (!matchedSources.has(code)) {
+        diagnostics.push(`重分类源科目 ${code} 未匹配到任何报表行`);
+      }
     }
-  }
-  for (const code of reclass.additions.keys()) {
-    if (!matchedTargets.has(code)) {
-      diagnostics.push(`重分类目标科目 ${code} 未匹配到任何报表行`);
+    for (const code of reclass.additions.keys()) {
+      if (!matchedTargets.has(code)) {
+        diagnostics.push(`重分类目标科目 ${code} 未匹配到任何报表行`);
+      }
     }
   }
 
@@ -239,6 +187,7 @@ export function computeBalanceSheet(
   balances: BalanceItem[],
   reclass: ReclassRouting,
   mappingByLine?: Map<string, { debit: number; credit: number }>,
+  reclassByLine?: ReclassLineRouting,
 ): { lines: ComputedLine[]; diagnostics: string[] } {
-  return computeBalanceSheetLines({ config, balances, reclass, mappingByLine });
+  return computeBalanceSheetLines({ config, balances, reclass, mappingByLine, reclassByLine });
 }

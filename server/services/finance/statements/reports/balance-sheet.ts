@@ -6,6 +6,8 @@ import { loadBalanceSheetConfig } from "../config/load-config";
 import { computeBalanceSheet } from "../compute-balance-sheet";
 import type { ComputedLine } from "../compute-balance-sheet";
 import { aggregateMappingBasedBalances } from "../mapping-based-balances";
+import { resolveReclassEntriesToLines } from "../mapping/reclass-routing";
+import type { ReclassLineRouting } from "../mapping/reclass-routing";
 
 interface ReportLineItem {
   label: string; code: string; amount: number;
@@ -55,8 +57,30 @@ export async function generateBalanceSheet(
     }
   }
 
-  const { lines, diagnostics } = computeBalanceSheet(config, balances, reclass, mappingByLine);
-  if (mappingByLine) warnings.push("(M10b: 使用 mapping-based leaf aggregation，reclass 仍走旧 prefixes 路由)");
+  // M11: in mapping mode, also resolve reclass entries to lineCodes so the
+  // compute step can apply per-line deltas without prefix-matching.
+  let reclassByLine: ReclassLineRouting | undefined;
+  if (mappingByLine && period.companyCode) {
+    try {
+      reclassByLine = await resolveReclassEntriesToLines(period.companyCode, period.year, reclassEntries || []);
+      for (const u of reclassByLine.unresolved) {
+        const label = u.reason === "noSourceLine" ? "源科目" : "目标科目";
+        warnings.push(`重分类${label} ${u.entry.sourceAccount}→${u.entry.targetAccount} (${u.entry.amount}) 无法解析到报表行，已跳过`);
+      }
+    } catch (e) {
+      warnings.push(`reclass lineCode 路由失败 (${(e as Error).message})，回退 prefixes 路由`);
+      reclassByLine = undefined;
+    }
+  }
+
+  const { lines, diagnostics } = computeBalanceSheet(config, balances, reclass, mappingByLine, reclassByLine);
+  if (mappingByLine) {
+    warnings.push(
+      reclassByLine
+        ? "(M11: 使用 mapping-based 路由，含 reclass)"
+        : "(M10b: 使用 mapping-based leaf aggregation，reclass 走旧 prefixes 路由)",
+    );
+  }
   const allDiagnostics = [...warnings, ...diagnostics];
 
   const sectionMap = new Map(config.map((c) => [c.lineCode, c.section]));
