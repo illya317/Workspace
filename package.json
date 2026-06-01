@@ -23,7 +23,8 @@
     "size:check": "node scripts/check/check-file-size.js",
     "budget:sync-accounts": "node scripts/sync-budget-accounts.js",
     "finance:bs-diff": "npx tsx scripts/balance-sheet-diff.ts",
-    "finance:bs-smoke": "npx tsx scripts/balance-sheet-diff.ts 02 2025 2 --top 20"
+    "finance:bs-smoke": "npx tsx scripts/balance-sheet-diff.ts 02 2025 2 --top 20",
+    "finance:bs-smoke:all": "npx tsx scripts/balance-sheet-smoke-all.ts"
   },
   "prisma": {
     "schema": "./prisma"
