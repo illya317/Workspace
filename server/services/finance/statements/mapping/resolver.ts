@@ -23,7 +23,7 @@ export async function resolveAccountMapping(
   const map = await loadMappingCache(companyCode, year, statementType);
 
   // Build parent chain (prefer actual hierarchy, fallback to prefix)
-  const chain = await buildParentChain(accountCode);
+  const chain = await buildParentChain(companyCode, year, accountCode);
 
   // Look for nearest ancestor with mapping
   for (const code of chain) {
@@ -42,17 +42,17 @@ export async function resolveAccountMapping(
   return { accountCode, explicitLineCode: null, resolvedLineCode: null, mappingSource: "none", ancestorAccountCode: null };
 }
 
-async function buildParentChain(accountCode: string): Promise<string[]> {
+async function buildParentChain(companyCode: string, year: number, accountCode: string): Promise<string[]> {
   const chain: string[] = [accountCode];
 
-  // Try parentId-based lookup
-  const account = await prisma.financeAccount.findFirst({
-    where: { code: accountCode },
+  // Try parentId-based lookup (must scope by company+year)
+  const account = await prisma.financeAccount.findUnique({
+    where: { code_companyCode_year: { code: accountCode, companyCode, year } },
     select: { parentId: true, parent: { select: { code: true } } },
   });
 
   if (account?.parent) {
-    const parentChain = await buildParentChain(account.parent.code);
+    const parentChain = await buildParentChain(companyCode, year, account.parent.code);
     return [...chain, ...parentChain];
   }
 
