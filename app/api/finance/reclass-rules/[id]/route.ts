@@ -24,12 +24,10 @@ export async function DELETE(
 
     const { companyCode, year } = existing;
 
-    await prisma.financeReclassRule.delete({ where: { id: ruleId } });
-
-    // 清理该规则关联的自动结果（保护人工 adjusted）
-    await prisma.reclassResult.deleteMany({
-      where: { ruleId, status: { in: ["approved", "pending"] } },
-    });
+    await prisma.$transaction([
+      prisma.reclassResult.deleteMany({ where: { ruleId, status: { in: ["approved", "pending"] } } }),
+      prisma.financeReclassRule.delete({ where: { id: ruleId } }),
+    ]);
 
     // 重跑该年度同步
     const sync = await syncReclassRuleResults(companyCode, year);

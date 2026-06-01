@@ -29,8 +29,9 @@ export async function reviewReclassResult(
   });
 
   if (!record) throw new ReviewError("NOT_FOUND", "记录不存在");
-  if (record.status !== "pending" && payload.action !== "revert" && payload.action !== "mark_pending")
-    throw new ReviewError("NOT_PENDING", "只能审核待处理状态的记录");
+  if (record.status === "rejected") throw new ReviewError("REJECTED", "已拒绝的记录不可操作");
+  const needsPending = payload.action === "approve";
+  if (needsPending && record.status !== "pending") throw new ReviewError("NOT_PENDING", "只能确认待处理状态的记录");
 
   // 2. 按 action 处理
   const now = new Date();
@@ -163,6 +164,9 @@ export async function createManualReclassResult(params: {
   });
   if (!targetExists) throw new ReviewError("INVALID_TARGET", `目标科目 ${targetAccount} 不存在`);
   if (amount <= 0) throw new ReviewError("INVALID_AMOUNT", "金额必须大于 0");
+  // Verify voucherItem exists and belongs to the period
+  const vi = await prisma.financeVoucherItem.findUnique({ where: { id: voucherItemId }, select: { voucher: { select: { periodId: true } } } });
+  if (!vi || vi.voucher.periodId !== periodId) throw new ReviewError("NOT_FOUND", "凭证明细不存在或不属于该期间");
 
   // Upsert ReclassResult（防重复点击 500）
   const created = await prisma.reclassResult.upsert({
