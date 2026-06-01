@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, Fragment } from "react";
+import { useStatementConfig } from "./StatementConfigContext";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -18,11 +19,28 @@ interface Acct { accountCode: string; accountName: string; level: number; closin
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const SECTIONS: Record<string, string> = { currentAssets: "流动资产", nonCurrentAssets: "非流动资产", currentLiabilities: "流动负债", nonCurrentLiabilities: "非流动负债", equity: "所有者权益", liabilities: "负债" };
 
+// ─── Outstanding items (Phase 2.4) ────────────────────────
+// Hardcoded for now; matches the doc in app/finance/ARCHITECTURE.md.
+// Surfaces a yellow banner above the line table when the user is
+// viewing a (company, year) where the item is still unresolved.
+
+interface OutstandingItem {
+  match: (company: string, year: string) => boolean;
+  message: string;
+}
+
+const OUTSTANDING_ITEMS: OutstandingItem[] = [
+  {
+    match: (c, y) => c === "05" && (y === "2025" || y === "2026"),
+    message:
+      "05 / 2025-2026 3001 清算资金往来 (credit 100K) 当前不映射，待财务确认列示（paidInCapital / otherEquityItems / 其他权益项目）。详见 ARCHITECTURE.md 已知 outstanding 项。",
+  },
+];
+
 // ─── Component ─────────────────────────────────────────────
 
 export default function ConfigTab() {
-  const [company, setCompany] = useState("02");
-  const [year, setYear] = useState("2025");
+  const { company, year } = useStatementConfig();
   const [lines, setLines] = useState<LineConfig[]>([]);
   const [tree, setTree] = useState<MappingNode[] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -50,6 +68,8 @@ export default function ConfigTab() {
 
   useEffect(() => { load(); }, [company, year]);
 
+  const outstanding = OUTSTANDING_ITEMS.find((i) => i.match(company, year));
+
   function toggleLine(code: string) { setExpanded((p) => { const n = new Set(p); if (n.has(code)) n.delete(code); else n.add(code); return n; }); }
   function toggleReclass(lineCode: string, f: "reclassSource" | "reclassTarget") { setLines((p) => p.map((l) => l.lineCode === lineCode ? { ...l, [f]: !l[f] } : l)); }
 
@@ -75,15 +95,15 @@ export default function ConfigTab() {
   return (
     <div className="space-y-4 mt-4">
       <div className="flex items-center gap-3">
-        <select value={company} onChange={(e) => setCompany(e.target.value)} className="rounded border px-2 py-1 text-sm">
-          <option value="01">丰华生物</option><option value="02">天力通</option><option value="03">丰华悦通</option><option value="05">加拿大</option><option value="06">上海悦通</option>
-        </select>
-        <select value={year} onChange={(e) => setYear(e.target.value)} className="rounded border px-2 py-1 text-sm">
-          {["2024","2025","2026"].map((y) => <option key={y} value={y}>{y}</option>)}
-        </select>
         <button onClick={saveReclass} disabled={saving} className="rounded bg-emerald-600 px-3 py-1 text-sm text-white hover:bg-emerald-700">{saving ? "保存中..." : "保存重分类"}</button>
         {msg && <span className="text-sm text-emerald-600">{msg}</span>}
       </div>
+
+      {outstanding && (
+        <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <span className="font-medium">⚠ 待确认：</span>{outstanding.message}
+        </div>
+      )}
 
       {error && <div className="rounded-lg bg-red-50 p-8 text-center"><p className="text-sm text-red-600 mb-2">{error}</p><button onClick={load} className="text-xs text-red-500 underline hover:text-red-700">重试</button></div>}
       {!error && loading && <p className="text-sm text-gray-400 py-8 text-center">加载中...</p>}

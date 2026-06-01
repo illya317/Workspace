@@ -32,14 +32,14 @@ const LEVEL_OPTIONS = [1, 2, 3, 4, 5].map((l) => ({
 // ─── Props ────────────────────────────────────────────────
 
 interface FinanceFiltersProps {
-  companyFilter: string;
-  yearFilter: string;
+  companyFilter?: string;
+  yearFilter?: string;
   monthFilter?: string;
   levelFilter?: string;
   keyword?: string;
   pageSize?: number;
-  onCompanyChange: (value: string) => void;
-  onYearChange: (value: string) => void;
+  onCompanyChange?: (value: string) => void;
+  onYearChange?: (value: string) => void;
   onMonthChange?: (value: string) => void;
   onLevelChange?: (value: string) => void;
   onKeywordChange?: (value: string) => void;
@@ -49,6 +49,8 @@ interface FinanceFiltersProps {
   showLevel?: boolean;
   showSearch?: boolean;
   showPageSize?: boolean;
+  /** When false, hide the company + year selectors (use a shared parent filter). */
+  showCompanyYear?: boolean;
   // ── 右侧显示控制（透传 FilterToolbar）──
   columns?: import("@/app/components/ColumnToggle").ColumnDef[];
   visibleColumns?: string[];
@@ -63,12 +65,13 @@ interface FinanceFiltersProps {
  * 预置公司/年度/月份/层级选项，通过 children 传入 FilterToolbar。
  */
 export default function FinanceFilters({
-  companyFilter, yearFilter, monthFilter = "", levelFilter = "",
+  companyFilter = "", yearFilter = "", monthFilter = "", levelFilter = "",
   keyword = "", pageSize = 50,
   onCompanyChange, onYearChange, onMonthChange,
   onLevelChange, onKeywordChange, onPageSizeChange,
   extra,
   showMonth = true, showLevel = false, showSearch = true, showPageSize = true,
+  showCompanyYear = true,
   columns, visibleColumns, onColumnsChange,
 }: FinanceFiltersProps) {
   return (
@@ -81,8 +84,12 @@ export default function FinanceFilters({
       visibleColumns={visibleColumns}
       onColumnsChange={onColumnsChange}
     >
-      <SelectField label="公司" options={COMPANY_OPTIONS} value={companyFilter} onChange={onCompanyChange} placeholder="全部" />
-      <SelectField label="年度" options={YEAR_OPTIONS} value={yearFilter} onChange={onYearChange} placeholder="全部" />
+      {showCompanyYear && onCompanyChange && (
+        <SelectField label="公司" options={COMPANY_OPTIONS} value={companyFilter} onChange={onCompanyChange} placeholder="全部" />
+      )}
+      {showCompanyYear && onYearChange && (
+        <SelectField label="年度" options={YEAR_OPTIONS} value={yearFilter} onChange={onYearChange} placeholder="全部" />
+      )}
 
       {showMonth && onMonthChange && (
         <SelectField label="月份" options={MONTH_OPTIONS} value={monthFilter} onChange={onMonthChange} placeholder="全部" />

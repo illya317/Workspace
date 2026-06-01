@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import FinanceFilters from "../components/FinanceFilters";
 import MappingRow from "./MappingRow";
+import { useStatementConfig } from "./StatementConfigContext";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -52,8 +53,7 @@ function buildLineLabelMap(lineConfigs: { lineCode: string; label: string }[]): 
 // ─── Component ─────────────────────────────────────────────
 
 export default function MappingTab() {
-  const [companyFilter, setCompanyFilter] = useState("02");
-  const [yearFilter, setYearFilter] = useState("2025");
+  const { company: companyFilter, setCompany: setCompanyFilter, year: yearFilter, setYear: setYearFilter } = useStatementConfig();
   const [levelFilter, setLevelFilter] = useState("");
   const [data, setData] = useState<StatementConfigView | null>(null);
   const [loading, setLoading] = useState(true);
@@ -122,8 +122,7 @@ export default function MappingTab() {
   return (
     <div className="space-y-4 mt-4">
       <FinanceFilters
-        companyFilter={companyFilter} yearFilter={yearFilter}
-        onCompanyChange={setCompanyFilter} onYearChange={setYearFilter}
+        showCompanyYear={false}
         levelFilter={levelFilter} onLevelChange={setLevelFilter}
         showMonth={false} showLevel showSearch={false} showPageSize={false}
         extra={

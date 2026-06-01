@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import FinanceFilters from "../components/FinanceFilters";
+import { useStatementConfig } from "./StatementConfigContext";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -38,8 +39,7 @@ function flattenTree(nodes: AccountNode[], expanded: Set<string>, maxLevel: numb
 // ─── Component ─────────────────────────────────────────────
 
 export default function BalanceCheckTab() {
-  const [company, setCompany] = useState("02");
-  const [year, setYear] = useState("2025");
+  const { company, year } = useStatementConfig();
   const [levelFilter, setLevelFilter] = useState("");
   const [tree, setTree] = useState<AccountNode[] | null>(null);
   const [summary, setSummary] = useState<{ leafDebit: number; leafCredit: number; leafBalanced: boolean } | null>(null);
@@ -109,8 +109,7 @@ export default function BalanceCheckTab() {
   return (
     <div className="space-y-4 mt-4">
       <FinanceFilters
-        companyFilter={company} yearFilter={year}
-        onCompanyChange={setCompany} onYearChange={setYear}
+        showCompanyYear={false}
         levelFilter={levelFilter} onLevelChange={setLevelFilter}
         showMonth={false} showLevel showSearch={false} showPageSize={false}
         extra={
