@@ -1,12 +1,4 @@
-/**
- * M11.5: line-level diff between legacy prefixes and mapping-based balance
- * sheet computation. Read-only — does not write to DB; intended for ad-hoc
- * verification (e.g. diagnosing "02/2025 报表不平").
- *
- * Per line: legacyAmount, mappingAmount, diff, mappedAccountCount,
- * unresolvedAccountCount, reclass additions/deductions. Plus period totals
- * and a balance check (assets - (liabilities + equity)).
- */
+/** M11.5: line-level diff between legacy prefixes and mapping-based balance sheet compute. Read-only diagnostic. */
 import { prisma } from "@/lib/prisma";
 import type { BalanceItem, ReclassEntry, ReportPeriod } from "./report-helpers";
 import { reclassifyFromEntries } from "./report-helpers";
@@ -15,7 +7,12 @@ import { loadBalanceSheetConfig } from "./config/load-config";
 import { computeBalanceSheet } from "./compute-balance-sheet";
 import { aggregateMappingBasedBalances } from "./mapping-based-balances";
 import { resolveReclassEntriesToLines } from "./mapping/reclass-routing";
-import { aggregateMappedAccountCodes, bucketUnresolvedByLegacyPrefix } from "./balance-sheet-diff-helpers";
+import {
+  aggregateMappedAccountCodes,
+  bucketUnresolvedByLegacyPrefix,
+  classifyUnresolved,
+} from "./balance-sheet-diff-helpers";
+import type { UnresolvedGroups } from "./balance-sheet-diff-helpers";
 
 export interface BalanceSheetDiffParams {
   companyCode: string;
@@ -81,6 +78,11 @@ export interface BalanceSheetDiffResult {
     reclassResolvedCount: number;
     reclassUnresolvedCount: number;
   };
+  /**
+   * M11.7: unresolved leaves bucketed by likely relevance to the balance sheet.
+   * Only populated when withMapping is true.
+   */
+  unresolvedGroups?: UnresolvedGroups;
 }
 
 export async function computeBalanceSheetDiff(
@@ -247,8 +249,10 @@ export async function computeBalanceSheetDiff(
       reclassResolvedCount: reclassEntries.length - (reclassByLine?.unresolved.length ?? 0),
       reclassUnresolvedCount: reclassByLine?.unresolved.length ?? 0,
     },
+    unresolvedGroups: withMapping ? classifyUnresolved(unresolvedAccounts) : undefined,
   };
 }
 
 // ─── Helpers ───────────────────────────────────────────────
-// in-memory resolver and bucket logic live in balance-sheet-diff-helpers.ts
+// in-memory resolver, bucket logic, and M11.7 classifier live in
+// balance-sheet-diff-helpers.ts

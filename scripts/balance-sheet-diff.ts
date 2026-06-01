@@ -124,28 +124,48 @@ function printTextReport(
     }
   }
 
-  // Show unresolved accounts
-  if (meta.unresolvedCount > 0) {
-    const unresolvedByLine = lines.filter((l) => l.unresolvedAccountCount > 0);
-    const bucketed = unresolvedByLine.reduce((s, l) => s + l.unresolvedAccountCount, 0);
-    const unBucketed = meta.unresolvedCount - bucketed;
-    console.log(`\n  ── 未解析叶子 (${meta.unresolvedCount})：${bucketed} 个能按 legacy prefix 归桶，${unBucketed} 个无法归桶 ──`);
-    for (const l of unresolvedByLine) {
-      console.log(`  ${l.lineCode.padEnd(24)} (${l.unresolvedAccountCount}) ${l.unresolvedAccountCodes.join(", ")}`);
+  // Show unresolved accounts (M11.7 grouping)
+  const groups = result.unresolvedGroups;
+  if (groups) {
+    const total = groups.relevant.length + groups.ignoredProfitLoss.length + groups.zeroBalance.length;
+    console.log(`\n  ── 未解析叶子 (${total})：relevant=${groups.relevant.length}  ignored(P&L)=${groups.ignoredProfitLoss.length}  zeroBalance=${groups.zeroBalance.length} ──`);
+    if (groups.relevant.length > 0) {
+      console.log(`  relevant (1xxx/2xxx/4xxx 非零) — 资产净额 ${fmt(groups.relevantAssetNet)}，负债+权益净额 ${fmt(groups.relevantLiabEquityNet)}：`);
+      for (const u of groups.relevant) {
+        const side = u.accountCode.startsWith("1") ? "1xxx" : u.accountCode.startsWith("2") ? "2xxx" : "4xxx";
+        console.log(`    ${u.accountCode.padEnd(10)} ${side}  net=${fmt(u.net).padStart(16)}  ${u.accountName}`);
+      }
+    } else {
+      console.log(`  relevant: 无 (1xxx/2xxx/4xxx 全部已映射或余额为 0)`);
     }
-    if (unBucketed > 0) {
-      const bucketedSet = new Set(unresolvedByLine.flatMap((l) => l.unresolvedAccountCodes));
-      const unBucketedCodes = meta.unresolvedAccountCodes.filter((c) => !bucketedSet.has(c));
-      const groupByPrefix = new Map<string, number>();
-      for (const c of unBucketedCodes) {
-        const k = c.slice(0, 2);
-        groupByPrefix.set(k, (groupByPrefix.get(k) || 0) + 1);
+    if (groups.ignoredProfitLoss.length > 0) {
+      console.log(`  ignored (3xxx/5xxx/6xxx 非零，P&L / 共同类) — ${groups.ignoredProfitLoss.length} 个：`);
+      const byPrefix = new Map<string, number>();
+      let pnlNet = 0;
+      for (const u of groups.ignoredProfitLoss) {
+        const k = u.accountCode.slice(0, 2);
+        byPrefix.set(k, (byPrefix.get(k) || 0) + 1);
+        pnlNet += u.net;
       }
-      console.log(`  无法归桶的科目按 2 位前缀分组：`);
-      for (const [k, n] of [...groupByPrefix.entries()].sort()) {
-        const samples = unBucketedCodes.filter((c) => c.startsWith(k)).slice(0, 5).join(", ");
-        console.log(`    ${k}: ${n} (e.g. ${samples})`);
+      for (const [k, n] of [...byPrefix.entries()].sort()) {
+        console.log(`    ${k}: ${n}`);
       }
+      console.log(`    合计净额 ${fmt(pnlNet)} (不计入资产负债表)`);
+    }
+    if (groups.zeroBalance.length > 0) {
+      console.log(`  zeroBalance — ${groups.zeroBalance.length} 个科目 abs(debit-credit) <= 0.01，无金额影响`);
+    }
+  } else if (meta.unresolvedCount > 0) {
+    // legacy-only mode: fall back to the flat prefix histogram
+    const groupByPrefix = new Map<string, number>();
+    for (const c of meta.unresolvedAccountCodes) {
+      const k = c.slice(0, 2);
+      groupByPrefix.set(k, (groupByPrefix.get(k) || 0) + 1);
+    }
+    console.log(`\n  ── 未解析叶子 (${meta.unresolvedCount})，按 2 位前缀分组 ──`);
+    for (const [k, n] of [...groupByPrefix.entries()].sort()) {
+      const samples = meta.unresolvedAccountCodes.filter((c) => c.startsWith(k)).slice(0, 5).join(", ");
+      console.log(`    ${k}: ${n} (e.g. ${samples})`);
     }
   }
 

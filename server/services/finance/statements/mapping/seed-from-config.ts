@@ -7,6 +7,10 @@
  * line config 的 prefixesJson + subtractPrefixesJson 补齐，source
  * 记 "migrated"，note 区分 prefix / subtractPrefix。
  *
+ * M11.6 P1 fix: 复制上一年后**不直接 return**，继续跑 backfill pass。
+ * 否则当年 line config 新增的 prefix、或上一年本身就缺的 subtractPrefix，
+ * 会跨年漏到新年。
+ *
  * 整体流程：
  *  1. 加载（必要时初始化）line config
  *  2. 加载当前年度已有 mappings（accountCode → 已有记录）
@@ -15,11 +19,12 @@
  *     - 对 prefixes + subtractPrefixes 中每个 accountCode
  *     - 若 existingByCode 中没有 → upsert (create with source="migrated")
  *     - 若已存在 → 跳过（manual 保护 + 不覆盖迁移来源）
- *  5. 返回 created 数 + source 标签
- *     - "copied"      从上一年复制
- *     - "migrated"    从 line config 全新创建（之前 0 条）
- *     - "backfilled"  在已有 mapping 上补齐缺失
- *     - "existing"    啥也没改
+ *  5. 返回 created 数（copied + backfilled 之和）+ source 标签
+ *     - "copied_backfilled"   复制后又有 backfill
+ *     - "copied"              只复制
+ *     - "migrated"            从 line config 全新创建（之前 0 条）
+ *     - "backfilled"          在已有 mapping 上补齐缺失
+ *     - "existing"            啥也没改
  */
 import { prisma } from "@/lib/prisma";
 import { BALANCE_SHEET_LINES } from "../config/balance-sheet-lines";
@@ -64,36 +69,34 @@ export async function ensureStatementMappings(
   for (const m of existing) existingByCode.set(m.accountCode, { lineCode: m.lineCode, source: m.source });
   const initiallyHadAny = existing.length > 0;
 
-  // 3. If empty + prev year has mappings → copy (preserves original "copy from prev" path)
+  // 3. If empty + prev year has mappings → copy (does NOT return; backfill still runs)
+  let copied = 0;
   if (existing.length === 0 && year > 2024) {
     const prevMappings = await prisma.financeStatementAccountMapping.findMany({
       where: { companyCode, year: year - 1, statementType },
     });
-    if (prevMappings.length > 0) {
-      let copied = 0;
-      for (const pm of prevMappings) {
-        if (existingByCode.has(pm.accountCode)) continue;
-        await prisma.financeStatementAccountMapping.upsert({
-          where: { companyCode_year_statementType_accountCode: { companyCode, year, statementType, accountCode: pm.accountCode } },
-          create: {
-            companyCode, year, statementType,
-            lineCode: pm.lineCode, accountCode: pm.accountCode,
-            includeChildren: pm.includeChildren,
-            source: "copied",
-            note: `从 ${year - 1} 年度复制`,
-          },
-          update: {},
-        });
-        existingByCode.set(pm.accountCode, { lineCode: pm.lineCode, source: "copied" });
-        copied++;
-      }
-      return { created: copied, source: "copied" };
+    for (const pm of prevMappings) {
+      if (existingByCode.has(pm.accountCode)) continue;
+      await prisma.financeStatementAccountMapping.upsert({
+        where: { companyCode_year_statementType_accountCode: { companyCode, year, statementType, accountCode: pm.accountCode } },
+        create: {
+          companyCode, year, statementType,
+          lineCode: pm.lineCode, accountCode: pm.accountCode,
+          includeChildren: pm.includeChildren,
+          source: "copied",
+          note: `从 ${year - 1} 年度复制`,
+        },
+        update: {},
+      });
+      existingByCode.set(pm.accountCode, { lineCode: pm.lineCode, source: "copied" });
+      copied++;
     }
   }
 
   // 4. Migrate / backfill pass: add missing accountCodes from line config.
   //    Skips any accountCode that already has a mapping (manual-safe + no-clobber).
-  let created = 0;
+  //    Always runs, regardless of whether step 3 happened.
+  let backfilled = 0;
   for (const line of config) {
     const prefixes = JSON.parse(line.prefixesJson || "[]") as string[];
     const subs = JSON.parse(line.subtractPrefixesJson || "[]") as string[];
@@ -111,12 +114,16 @@ export async function ensureStatementMappings(
         update: {},
       });
       existingByCode.set(prefix, { lineCode: line.lineCode, source: "migrated" });
-      created++;
+      backfilled++;
     }
   }
 
-  const source = initiallyHadAny
-    ? (created > 0 ? "backfilled" : "existing")
-    : "migrated";
-  return { created, source };
+  // 5. Compute source label
+  const total = copied + backfilled;
+  let source: string;
+  if (copied > 0 && backfilled > 0) source = "copied_backfilled";
+  else if (copied > 0) source = "copied";
+  else if (backfilled > 0) source = initiallyHadAny ? "backfilled" : "migrated";
+  else source = "existing";
+  return { created: total, source };
 }
