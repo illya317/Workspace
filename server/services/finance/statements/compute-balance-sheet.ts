@@ -136,13 +136,16 @@ export function computeBalanceSheetLines(params: ComputeBalanceSheetParams): {
     }
 
     if (line.isGrandTotal) {
-      // Grand total = sum of section totals across all asset sections (or liability+equity)
-      const assetTotals = computed.filter(
-        (l) => l.isTotal && ["currentAssets", "nonCurrentAssets"].includes(
+      // Grand total = sum of section totals (assets or liabilities)
+      const grandTotalSections = line.lineCode === "totalLiabilities"
+        ? ["currentLiabilities", "nonCurrentLiabilities"]
+        : ["currentAssets", "nonCurrentAssets"];
+      const sectionTotals = computed.filter(
+        (l) => l.isTotal && grandTotalSections.includes(
           params.config.find(c => c.lineCode === l.lineCode)?.section || "",
         ),
       );
-      const total = assetTotals.reduce((s, l) => s + l.amount, 0);
+      const total = sectionTotals.reduce((s, l) => s + l.amount, 0);
       computed.push({
         lineCode: line.lineCode, label: line.label, displayCode: line.displayCode,
         amount: +total.toFixed(2), isGrandTotal: true, _debit: 0, _credit: 0,

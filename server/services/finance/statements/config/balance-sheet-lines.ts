@@ -7,6 +7,7 @@ export type BalanceSheetSection =
   | "nonCurrentAssets"
   | "currentLiabilities"
   | "nonCurrentLiabilities"
+  | "liabilities"
   | "equity";
 
 export type LineSide = "debit" | "credit"; // debit=asset, credit=liability/equity
@@ -100,7 +101,7 @@ const CURRENT_LIABILITIES: BalanceSheetLineConfig[] = [
   { lineCode: "dividendPayable",    label: "应付股利",             displayCode: "2231",      side: "credit", section: "currentLiabilities", prefixes: ["2231"] },
   { lineCode: "otherPayables",      label: "其他应付款",           displayCode: "2241",      side: "credit", section: "currentLiabilities", prefixes: ["2241"], reclassTarget: true },
   { lineCode: "nonCurrentDueWithinYearLiab", label: "一年内到期的非流动负债", displayCode: "2501", side: "credit", section: "currentLiabilities", prefixes: ["2501"], reclassSource: true, reclassTarget: true },
-  { lineCode: "otherCurrentLiabilities", label: "其他流动负债",    displayCode: "2701",      side: "credit", section: "currentLiabilities", prefixes: ["2701"], reclassSource: true, reclassTarget: true },
+  { lineCode: "otherCurrentLiabilities", label: "其他流动负债",    displayCode: "2701",      side: "credit", section: "currentLiabilities", prefixes: ["2281","2701"], reclassSource: true, reclassTarget: true },
   { lineCode: "totalCurrentLiabilities", label: "流动负债合计",    displayCode: "",          side: "credit", section: "currentLiabilities", isTotal: true },
 ];
 
@@ -114,10 +115,10 @@ const NON_CURRENT_LIABILITIES: BalanceSheetLineConfig[] = [
   { lineCode: "specialPayables",    label: "专项应付款",           displayCode: "2711",      side: "credit", section: "nonCurrentLiabilities", prefixes: ["2711"] },
   { lineCode: "estimatedLiabilities", label: "预计负债",           displayCode: "2801",      side: "credit", section: "nonCurrentLiabilities", prefixes: ["2801"] },
   { lineCode: "deferredTaxLiabilities", label: "递延所得税负债",   displayCode: "2901",      side: "credit", section: "nonCurrentLiabilities", prefixes: ["2901"], reclassSource: true, reclassTarget: true },
-  { lineCode: "otherNonCurrentLiabilities", label: "其他非流动负债", displayCode: "",       side: "credit", section: "nonCurrentLiabilities", prefixes: ["2901"], reclassSource: true, reclassTarget: true },
-  { lineCode: "leaseLiabilities",   label: "租赁负债",             displayCode: "2702",      side: "credit", section: "nonCurrentLiabilities", prefixes: ["2702"] },
+  { lineCode: "otherNonCurrentLiabilities", label: "其他非流动负债", displayCode: "",       side: "credit", section: "nonCurrentLiabilities", prefixes: [], reclassSource: true, reclassTarget: true },
+  { lineCode: "leaseLiabilities",   label: "租赁负债",             displayCode: "2702",      side: "credit", section: "nonCurrentLiabilities", prefixes: ["2271","2702"] },
   { lineCode: "totalNonCurrentLiabilities", label: "非流动负债合计", displayCode: "",       side: "credit", section: "nonCurrentLiabilities", isTotal: true },
-  { lineCode: "totalLiabilities",   label: "负债合计",             displayCode: "",          side: "credit", section: "nonCurrentLiabilities", isTotal: true },
+  { lineCode: "totalLiabilities",   label: "负债合计",             displayCode: "",          side: "credit", section: "liabilities", isGrandTotal: true },
 ];
 
 // ─── Equity ─────────────────────────────────────────────────
