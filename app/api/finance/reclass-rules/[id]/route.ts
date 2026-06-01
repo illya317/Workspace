@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { buildReclassResults } from "@/server/services/finance/ledger/reclassify";
+import { syncReclassRuleResults } from "@/server/services/finance/ledger/reclass-rules/sync";
 
 /** 规则删除：仅允许通过 write 权限操作自己的规则 */
 export async function DELETE(
@@ -32,16 +32,8 @@ export async function DELETE(
     });
 
     // 重跑全年同步
-    const periods = await prisma.financePeriod.findMany({
-      where: { companyCode, year },
-      select: { id: true },
-    });
-    let synced = 0, skippedAdjusted = 0;
-    for (const p of periods) {
-      const result = await buildReclassResults(p.id, { dryRun: false });
-      if ("written" in result) { synced += result.written; skippedAdjusted += result.skippedAdjusted; }
-    }
+    const sync = await syncReclassRuleResults(companyCode, year);
 
-    return NextResponse.json({ success: true, sync: { periods: periods.length, synced, skippedAdjusted } });
+    return NextResponse.json({ success: true, sync });
   })(request);
 }

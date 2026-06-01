@@ -72,7 +72,15 @@ export async function deriveRows(periodId: number): Promise<DerivedRow[]> {
       targetAccountCode: r.targetAccountCode,
     });
   }
-  const targetExists = new Set(rules.map((r) => r.targetAccountCode));
+  // 验证目标科目真实存在（不依赖规则自述）
+  const targetCodes = [...new Set(rules.map((r) => r.targetAccountCode))];
+  const existingTargets = targetCodes.length > 0
+    ? await prisma.financeAccount.findMany({
+        where: { companyCode: period.companyCode, year: period.year, code: { in: targetCodes } },
+        select: { code: true },
+      })
+    : [];
+  const targetExists = new Set(existingTargets.map((a) => a.code));
 
   // 2. 分录
   const items = await prisma.financeVoucherItem.findMany({
