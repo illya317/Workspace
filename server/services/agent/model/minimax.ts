@@ -5,7 +5,7 @@ import type { AgentModelProvider, HistoryMessage, IntentResult, SummarizeInput }
 
 const BASE = process.env.MINIMAX_BASE_URL || "https://api.minimaxi.com/anthropic";
 const API_KEY = process.env.MINIMAX_API_KEY || "";
-const MODEL = process.env.MINIMAX_MODEL || "MiniMax-M2.7";
+const MODEL = process.env.MINIMAX_MODEL || "MiniMax-M3";
 const MAX_TOKENS = 1024;
 const MAX_HISTORY = 10; // 滑动窗口大小
 
