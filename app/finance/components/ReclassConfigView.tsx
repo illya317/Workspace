@@ -68,11 +68,8 @@ export default function ReclassCandidateList({
       }
       setAllAccounts(all);
 
-      onStats?.({
-        total: all.length,
-        noRule: s.filter((c) => !c.existingRuleId).length,
-        hasRule: s.filter((c) => !!c.existingRuleId).length,
-      });
+      const noRuleCount = all.filter((c) => !c.existingRuleId).length;
+      onStats?.({ total: all.length, noRule: noRuleCount, hasRule: all.length - noRuleCount });
     } catch { showToast("网络错误", "error"); }
     setLoading(false);
   }
@@ -90,10 +87,13 @@ export default function ReclassCandidateList({
     setAllAccounts(fn);
   }
 
-  // 规则变更后同步计数
+  // 规则变更后同步计数（from allAccounts）
   useEffect(() => {
-    if (scanned.length > 0) onStats?.({ total: allAccounts.length, noRule: scanned.filter((c) => !c.existingRuleId).length, hasRule: scanned.filter((c) => !!c.existingRuleId).length });
-  }, [scanned, allAccounts.length, onStats]);
+    if (allAccounts.length > 0) {
+      const noRule = allAccounts.filter((c) => !c.existingRuleId).length;
+      onStats?.({ total: allAccounts.length, noRule, hasRule: allAccounts.length - noRule });
+    }
+  }, [allAccounts, onStats]);
 
   async function saveRule(c: RuleCandidate, target: string) {
     const body = JSON.stringify({ companyCode, year: parseInt(year), sourceAccountCode: c.accountCode, abnormalSide: c.abnormalSide, targetAccountCode: target });
@@ -102,6 +102,12 @@ export default function ReclassCandidateList({
     const data = await res.json();
     updateCandidate(c.accountCode, data.rule.id, data.rule.targetAccountCode, data.rule.source, data.rule.enabled);
     return true;
+  }
+  async function clearRule(c: RuleCandidate) {
+    if (!c.existingRuleId) return;
+    if (!(await fetch(`/api/finance/reclass-rules/${c.existingRuleId}`, { method: "DELETE" })).ok) { showToast("清除失败", "error"); return; }
+    updateCandidate(c.accountCode, null, null, null, null);
+    showToast("已标记待审核");
   }
   function startEdit(c: RuleCandidate) {
     setEditCode(c.accountCode + "::" + c.abnormalSide);
@@ -196,6 +202,7 @@ export default function ReclassCandidateList({
                 onStartEdit={startEdit}
                 onCommitEdit={commitEdit}
                 onSaveRule={async (c, t) => { if (await saveRule(c, t)) showToast("已确认规则"); }}
+                onClearRule={clearRule}
                 onEditValueChange={setEditValue}
                 onCancelEdit={() => { setEditCode(null); setEditValue(""); }}
               />

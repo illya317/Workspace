@@ -15,13 +15,14 @@ interface Props {
   onStartEdit: (c: RuleCandidate) => void;
   onCommitEdit: (c: RuleCandidate) => void;
   onSaveRule: (c: RuleCandidate, target: string) => void;
+  onClearRule: (c: RuleCandidate) => void;
   onEditValueChange: (v: string) => void;
   onCancelEdit: () => void;
 }
 
 export default function ReclassConfigRow({
   c, canWrite, companyCode, year, editing, editValue, editRef,
-  onStartEdit, onCommitEdit, onSaveRule, onEditValueChange, onCancelEdit,
+  onStartEdit, onCommitEdit, onSaveRule, onClearRule, onEditValueChange, onCancelEdit,
 }: Props) {
   const hasRule = !!c.existingRuleId;
   const key = c.accountCode + "::" + c.abnormalSide;
@@ -59,9 +60,11 @@ export default function ReclassConfigRow({
       </td>
       {canWrite && (
         <td className="px-3 py-1.5 text-center">
-          {!hasRule && c.suggestedTarget && (
+          {!hasRule && c.suggestedTarget ? (
             <button onClick={() => onSaveRule(c, c.suggestedTarget)} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
-          )}
+          ) : hasRule ? (
+            <button onClick={() => onClearRule(c)} className="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-700 hover:bg-amber-100">待审核</button>
+          ) : null}
         </td>
       )}
     </tr>
