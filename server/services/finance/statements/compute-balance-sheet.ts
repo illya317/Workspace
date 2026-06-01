@@ -19,6 +19,8 @@ export interface ComputeBalanceSheetParams {
   config: BalanceSheetLineConfig[];
   balances: BalanceItem[];
   reclass: ReclassRouting;
+  /** M10b: mapping-based leaf aggregation by lineCode */
+  mappingByLine?: Map<string, { debit: number; credit: number }>;
 }
 
 // ─── Helpers ───────────────────────────────────────────────
@@ -113,6 +115,7 @@ export function computeBalanceSheetLines(params: ComputeBalanceSheetParams): {
   const matchedTargets = new Set<string>();
 
   for (const line of params.config) {
+    const mappingByLine = params.mappingByLine;
     if (line.isHeader) {
       computed.push({
         lineCode: line.lineCode, label: line.label, displayCode: line.displayCode,
@@ -155,9 +158,42 @@ export function computeBalanceSheetLines(params: ComputeBalanceSheetParams): {
 
     // Compute the line amount
     let dc: { debit: number; credit: number };
-    if (line.lineCode === "otherReceivableNet") {
+
+    // M10b: prefer mapping-based leaf aggregation over prefix-based
+    const fromMapping = mappingByLine?.get(line.lineCode);
+    if (fromMapping && mappingByLine && mappingByLine.size > 0) {
+      let debit = fromMapping.debit;
+      let credit = fromMapping.credit;
+
+      // Apply legacy prefix-based reclass on top (will be replaced by M11)
+      if (line.reclassSource && line.prefixes) {
+        for (const prefix of line.prefixes) {
+          const s = sumByPrefix(reclass.deductions, prefix);
+          debit -= s.debit; credit -= s.credit;
+        }
+      }
+      if (line.reclassTarget && line.prefixes) {
+        for (const prefix of line.prefixes) {
+          const t = sumByPrefix(reclass.additions, prefix);
+          debit += t.debit; credit += t.credit;
+        }
+      }
+
+      // Apply subtract prefixes (legacy)
+      if (line.subtractPrefixes && line.subtractPrefixes.length > 0) {
+        const sub = closingNetLeaf(balances, line.subtractPrefixes);
+        debit -= sub.debit; credit -= sub.credit;
+      }
+
+      dc = { debit, credit };
+    } else if (mappingByLine && mappingByLine.size > 0) {
+      // mapping available but this line has no data → zero
+      dc = { debit: 0, credit: 0 };
+    } else if (line.lineCode === "otherReceivableNet") {
+      // Legacy prefixes path
       dc = computeOtherReceivableNet(balances, reclass);
     } else {
+      // Legacy prefixes path
       dc = computeLineBase(line, balances, reclass);
     }
 
@@ -204,6 +240,7 @@ export function computeBalanceSheet(
   config: BalanceSheetLineConfig[],
   balances: BalanceItem[],
   reclass: ReclassRouting,
+  mappingByLine?: Map<string, { debit: number; credit: number }>,
 ): { lines: ComputedLine[]; diagnostics: string[] } {
-  return computeBalanceSheetLines({ config, balances, reclass });
+  return computeBalanceSheetLines({ config, balances, reclass, mappingByLine });
 }

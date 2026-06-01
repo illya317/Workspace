@@ -62,7 +62,6 @@ export async function aggregateMappingBasedBalances(
   });
 
   // 3. Identify leaf accounts (no other account has this as parentId)
-  const accountIds = new Set(balances.map((b) => b.account.id));
   const parentIds = new Set<number>();
   for (const b of balances) {
     if (b.account.parentId != null) parentIds.add(b.account.parentId);

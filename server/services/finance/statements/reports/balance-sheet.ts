@@ -5,6 +5,7 @@ import { BALANCE_SHEET_LINES } from "../config/balance-sheet-lines";
 import { loadBalanceSheetConfig } from "../config/load-config";
 import { computeBalanceSheet } from "../compute-balance-sheet";
 import type { ComputedLine } from "../compute-balance-sheet";
+import { aggregateMappingBasedBalances } from "../mapping-based-balances";
 
 interface ReportLineItem {
   label: string; code: string; amount: number;
@@ -34,8 +35,30 @@ export async function generateBalanceSheet(
     ? await loadBalanceSheetConfig(period.companyCode, period.year)
     : BALANCE_SHEET_LINES;
   const reclass = reclassifyFromEntries(reclassEntries || []);
+  const warnings: string[] = [];
 
-  const { lines, diagnostics } = computeBalanceSheet(config, balances, reclass);
+  // M10b: try mapping-based leaf aggregation first
+  let mappingByLine: Map<string, { debit: number; credit: number }> | undefined;
+  if (period.companyCode) {
+    try {
+      const agg = await aggregateMappingBasedBalances(period.companyCode, period.year, period.month, "balance");
+      if (agg.resolvedCount > 0 && agg.byLineCode.length > 0) {
+        mappingByLine = new Map(agg.byLineCode.map((l) => [l.lineCode, { debit: l.debit, credit: l.credit }]));
+      } else {
+        warnings.push("mapping 聚合 resolvedCount=0，回退到旧 prefixes 口径");
+      }
+      if (agg.unresolved.length > 0) {
+        warnings.push(`存在 ${agg.unresolved.length} 个叶子科目未映射，未计入资产负债表: ${agg.unresolved.map((u) => u.accountCode).slice(0, 20).join(", ")}${agg.unresolved.length > 20 ? "..." : ""}`);
+      }
+    } catch (e) {
+      warnings.push(`mapping 聚合失败 (${(e as Error).message})，回退 prefixes 口径`);
+    }
+  }
+
+  const { lines, diagnostics } = computeBalanceSheet(config, balances, reclass, mappingByLine);
+  if (mappingByLine) warnings.push("(M10b: 使用 mapping-based leaf aggregation，reclass 仍走旧 prefixes 路由)");
+  const allDiagnostics = [...warnings, ...diagnostics];
+
   const sectionMap = new Map(config.map((c) => [c.lineCode, c.section]));
   const linesWithSection = lines.map((l) => ({ ...l, _section: sectionMap.get(l.lineCode) || "" }));
 
@@ -49,6 +72,6 @@ export async function generateBalanceSheet(
   ).toFixed(2);
 
   const payload: Record<string, unknown> = { type: "balance", period, assets, liabilities, equity, totalLiabilitiesAndEquity };
-  if (diagnostics.length > 0) payload.diagnostics = diagnostics;
+  if (allDiagnostics.length > 0) payload.diagnostics = allDiagnostics;
   return NextResponse.json(payload);
 }
