@@ -258,13 +258,15 @@ model FinanceStatementLineConfig {
   companyCode       String
   year              Int
   reportType        String   @default("balanceSheet") // balanceSheet | incomeStatement | cashFlow
-  lineCode          String   // unique line identifier
-  label             String   // display label
-  section           String   // currentAssets | nonCurrentAssets | currentLiabilities | nonCurrentLiabilities | equity
-  side              String   @default("debit") // debit | credit
-  sortOrder         Int      @default(0)
-  prefixesJson      String   @default("[]") // JSON array of account code prefixes
-  formulaJson       String   @default("{}") // JSON: {type, operands} for computed lines
+  lineCode            String   // unique line identifier
+  label               String   // display label
+  displayCode         String   @default("") // display code hint
+  section             String   // currentAssets | nonCurrentAssets | currentLiabilities | nonCurrentLiabilities | equity
+  side                String   @default("debit") // debit | credit
+  sortOrder           Int      @default(0)
+  prefixesJson        String   @default("[]") // JSON array of account code prefixes
+  subtractPrefixesJson String  @default("[]") // JSON array of subtract prefixes (e.g. accumulated depreciation)
+  formulaJson         String   @default("{}")
   reclassSource     Boolean  @default(false)
   reclassTarget     Boolean  @default(false)
   isHeader          Boolean  @default(false)

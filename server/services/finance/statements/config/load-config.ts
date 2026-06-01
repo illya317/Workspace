@@ -31,7 +31,7 @@ export async function loadBalanceSheetConfig(
       for (const pl of prevLines) {
         await prisma.financeStatementLineConfig.upsert({
           where: { companyCode_year_reportType_lineCode: { companyCode, year, reportType: "balanceSheet", lineCode: pl.lineCode } },
-          create: { companyCode, year, reportType: "balanceSheet", lineCode: pl.lineCode, label: pl.label, section: pl.section, side: pl.side, sortOrder: pl.sortOrder, prefixesJson: pl.prefixesJson, formulaJson: pl.formulaJson, reclassSource: pl.reclassSource, reclassTarget: pl.reclassTarget, isHeader: pl.isHeader, isTotal: pl.isTotal, isGrandTotal: pl.isGrandTotal },
+          create: { companyCode, year, reportType: "balanceSheet", lineCode: pl.lineCode, label: pl.label, displayCode: pl.displayCode, section: pl.section, side: pl.side, sortOrder: pl.sortOrder, prefixesJson: pl.prefixesJson, subtractPrefixesJson: pl.subtractPrefixesJson, formulaJson: pl.formulaJson, reclassSource: pl.reclassSource, reclassTarget: pl.reclassTarget, isHeader: pl.isHeader, isTotal: pl.isTotal, isGrandTotal: pl.isGrandTotal },
           update: {},
         });
       }
@@ -50,9 +50,10 @@ export async function loadBalanceSheetConfig(
       where: { companyCode_year_reportType_lineCode: { companyCode, year, reportType: "balanceSheet", lineCode: line.lineCode } },
       create: {
         companyCode, year, reportType: "balanceSheet",
-        lineCode: line.lineCode, label: line.label, section: line.section,
-        side: line.side, sortOrder: order++,
+        lineCode: line.lineCode, label: line.label, displayCode: line.displayCode || "",
+        section: line.section, side: line.side, sortOrder: order++,
         prefixesJson: JSON.stringify((line as any).prefixes || []),
+        subtractPrefixesJson: JSON.stringify((line as any).subtractPrefixes || []),
         reclassSource: line.reclassSource || false,
         reclassTarget: line.reclassTarget || false,
         isHeader: line.isHeader || false,
@@ -73,6 +74,7 @@ function toLineConfig(db: any): BalanceSheetLineConfig {
   return {
     lineCode: db.lineCode,
     label: db.label,
+    displayCode: db.displayCode || "",
     section: db.section as any,
     side: db.side as any,
     isHeader: db.isHeader,
@@ -81,6 +83,6 @@ function toLineConfig(db: any): BalanceSheetLineConfig {
     reclassSource: db.reclassSource,
     reclassTarget: db.reclassTarget,
     prefixes: JSON.parse(db.prefixesJson || "[]"),
-    displayCode: "",
+    subtractPrefixes: JSON.parse(db.subtractPrefixesJson || "[]"),
   };
 }

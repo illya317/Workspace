@@ -46,8 +46,8 @@ export async function generateBalanceSheet(
   const equity = filterBySections(linesWithSection, EQUITY_SECTIONS);
 
   const totalLiabilitiesAndEquity = +(
-    (liabilities.find((l) => l.label === "负债合计")?.amount || 0) +
-    (equity.find((l) => l.label === "所有者权益合计")?.amount || 0)
+    (linesWithSection.find((l) => l.lineCode === "totalLiabilities")?.amount || 0) +
+    (linesWithSection.find((l) => l.lineCode === "totalEquity")?.amount || 0)
   ).toFixed(2);
 
   const payload: Record<string, unknown> = { type: "balance", period, assets, liabilities, equity, totalLiabilitiesAndEquity };
