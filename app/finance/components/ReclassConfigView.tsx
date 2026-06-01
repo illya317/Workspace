@@ -68,7 +68,7 @@ export default function ReclassCandidateList({
       }
       setAllAccounts(all);
 
-      const noRuleCount = all.filter((c) => !c.existingRuleId).length;
+      const noRuleCount = all.filter((c) => c.abnormalSide && !c.existingRuleId).length;
       onStats?.({ total: all.length, noRule: noRuleCount, hasRule: all.length - noRuleCount });
     } catch { showToast("网络错误", "error"); }
     setLoading(false);
@@ -90,7 +90,7 @@ export default function ReclassCandidateList({
   // 规则变更后同步计数（from allAccounts）
   useEffect(() => {
     if (allAccounts.length > 0) {
-      const noRule = allAccounts.filter((c) => !c.existingRuleId).length;
+      const noRule = allAccounts.filter((c) => c.abnormalSide && !c.existingRuleId).length;
       onStats?.({ total: allAccounts.length, noRule, hasRule: allAccounts.length - noRule });
     }
   }, [allAccounts, onStats]);
@@ -148,8 +148,8 @@ export default function ReclassCandidateList({
 
   const filtered = useMemo(() => {
     const list = allAccounts.filter((c) => {
-      if (statusFilter === "hasRule" && !c.existingRuleId) return false;
-      if (statusFilter === "noRule" && c.existingRuleId) return false;
+      if (statusFilter === "noRule" && (c.existingRuleId || !c.abnormalSide)) return false;
+      if (statusFilter === "hasRule" && !c.existingRuleId && c.abnormalSide) return false;
       if (keyword && !matchText(c.accountCode, keyword) && !matchText(c.accountName, keyword)) return false;
       return true;
     });
