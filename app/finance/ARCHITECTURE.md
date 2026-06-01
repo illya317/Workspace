@@ -125,8 +125,8 @@ budget/page.tsx
 
 | 表 | 文件 | 说明 |
 |---|---|---|
-| `FinanceReclassRule` | `prisma/models/finance-ledger.prisma` | 公司级科目规则：`(companyCode, sourceAccountCode, abnormalSide)` → `targetAccountCode` |
-| `FinanceReclassItemRule` | `prisma/models/finance-ledger.prisma` | 公司级明细例外规则：`(companyCode, sourceAccountCode, matchType, matchValue)` → `targetAccountCode` |
+| `FinanceReclassRule` | `prisma/models/finance-ledger.prisma` | 科目规则：`(companyCode, year, sourceAccountCode, abnormalSide)` → `targetAccountCode` |
+| `FinanceReclassItemRule` | `prisma/models/finance-ledger.prisma` | 明细例外规则：`(companyCode, year, sourceAccountCode, matchType, matchValue)` → `targetAccountCode` |
 | `ReclassResult` | `prisma/models/finance-ledger.prisma` | 明细级结果：每条凭证明细的生成/审核结果，`ruleId` 可空 |
 
 ### 规则表 (`FinanceReclassRule`)

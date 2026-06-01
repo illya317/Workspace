@@ -1,5 +1,5 @@
 /**
- * 确保某公司某年度有规则。如无规则，从上一年度复制。
+ * 确保某公司某年度有完整规则。逐条从上年补缺，已存在的跳过。
  */
 import { prisma } from "@/lib/prisma";
 
@@ -7,15 +7,9 @@ export async function ensureReclassRulesForYear(
   companyCode: string,
   year: number,
 ): Promise<{ rulesCopied: number; itemRulesCopied: number }> {
-  // Already has rules?
-  const existingCount = await prisma.financeReclassRule.count({
-    where: { companyCode, year },
-  });
-  if (existingCount > 0) return { rulesCopied: 0, itemRulesCopied: 0 };
-
   const prevYear = year - 1;
 
-  // Copy account rules
+  // 逐条复制上年 account rules（已存在则 upsert no-op）
   const prevRules = await prisma.financeReclassRule.findMany({
     where: { companyCode, year: prevYear, enabled: true },
   });
@@ -24,12 +18,12 @@ export async function ensureReclassRulesForYear(
     await prisma.financeReclassRule.upsert({
       where: { companyCode_year_sourceAccountCode_abnormalSide: { companyCode, year, sourceAccountCode: r.sourceAccountCode, abnormalSide: r.abnormalSide } },
       create: { companyCode, year, sourceAccountCode: r.sourceAccountCode, abnormalSide: r.abnormalSide, targetAccountCode: r.targetAccountCode, source: "copied", note: `从 ${prevYear} 年度继承` },
-      update: {}, // no-op if already exists
+      update: {},
     });
     rulesCopied++;
   }
 
-  // Copy item rules
+  // 逐条复制上年 item rules
   const prevItemRules = await prisma.financeReclassItemRule.findMany({
     where: { companyCode, year: prevYear, enabled: true },
   });

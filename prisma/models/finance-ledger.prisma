@@ -207,9 +207,9 @@ model FinanceBalanceSnapshotRow {
   @@index([accountId])
 }
 
-/// 重分类规则（科目级，替代 FinanceAccount.reclassTargetCode）
-/// 一条规则 = (公司, 源科目, 异常借贷方向) → 目标科目（公司级，不限年份）
+/// 重分类规则 — 作用域：公司 + 年度
 /// 一条规则 = (公司, 年度, 源科目, 借贷方向) → 目标科目
+/// 新年度首次使用时从上一年度复制初始化
 model FinanceReclassRule {
   id                Int       @id @default(autoincrement())
   companyCode       String

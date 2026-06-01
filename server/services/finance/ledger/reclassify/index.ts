@@ -21,6 +21,7 @@ import type {
   ReclassifyExecutionResult,
   BuildReclassResultsOptions,
 } from "./types";
+import { ensureReclassRulesForYear } from "../reclass-rules/ensure";
 
 // ─── 查询 ─────────────────────────────────────────────────
 
@@ -140,9 +141,12 @@ export async function buildReclassResults(
     select: { companyCode: true, year: true },
   });
   if (!period) throw new Error(`Period ${periodId} not found`);
-  if (!period.companyCode) throw new Error(`Period ${periodId} has no companyCode — reclass engine requires company-scoped rules`);
+  if (!period.companyCode) throw new Error(`Period ${periodId} has no companyCode`);
 
-  // 1. 查询 items + rules（规则公司级，不再限定 year）
+  // 确保该年度有规则（无则从上年继承）
+  await ensureReclassRulesForYear(period.companyCode, period.year);
+
+  // 1. 查询 items + rules
   const items = await fetchItems(periodId);
   const rules = await fetchRules(period.companyCode, period.year);
   // 明细例外规则（年度级）

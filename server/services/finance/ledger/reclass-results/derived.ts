@@ -13,6 +13,7 @@ import { classifyItem } from "../reclassify/rules";
 import type { VoucherItemInput } from "../reclassify/rules";
 import type { RuleEntry } from "../reclassify/types";
 import { ItemStatus } from "../reclassify/types";
+import { ensureReclassRulesForYear } from "../reclass-rules/ensure";
 
 // ─── Unified Row ─────────────────────────────────────────
 
@@ -59,6 +60,9 @@ export async function deriveRows(periodId: number): Promise<DerivedRow[]> {
     select: { companyCode: true, year: true },
   });
   if (!period || !period.companyCode) return [];
+
+  // 确保该年度有规则（无则从上年继承）
+  await ensureReclassRulesForYear(period.companyCode, period.year);
 
   // 1. 规则（公司+年度级）
   const rules = await prisma.financeReclassRule.findMany({
