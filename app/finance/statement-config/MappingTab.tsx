@@ -173,7 +173,7 @@ export default function MappingTab() {
                   <th className="py-2 text-left font-medium text-gray-600 w-48">科目名称</th>
                   <th className="py-2 text-right font-medium text-gray-600 w-28">期末借方</th>
                   <th className="py-2 text-right font-medium text-gray-600 w-28">期末贷方</th>
-                  <th className="py-2 text-right font-medium text-gray-600 w-24">净值</th>
+                  <th className="py-2 text-right font-medium text-gray-600 w-28 pr-3">净值</th>
                   <th className="py-2 text-left font-medium text-gray-600 w-40">报表项目</th>
                   <th className="py-2 text-left font-medium text-gray-600 w-24">映射来源</th>
                 </tr>

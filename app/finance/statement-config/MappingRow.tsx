@@ -122,7 +122,7 @@ export default function MappingRow(props: MappingRowProps) {
       <td className="py-1.5 text-gray-700">{accountName}</td>
       <td className="py-1.5 text-right text-gray-600">{fmt(closingDebit)}</td>
       <td className="py-1.5 text-right text-gray-600">{fmt(closingCredit)}</td>
-      <td className={`py-1.5 text-right ${net < 0 ? "text-red-600" : "text-gray-700"}`}>{fmt(Math.abs(net))}</td>
+      <td className={`py-1.5 text-right pr-3 ${net < 0 ? "text-red-600" : "text-gray-700"}`}>{fmt(Math.abs(net))}</td>
       <td className="py-1.5">{renderLineCell()}</td>
       <td className="py-1.5">{sourceBadge}</td>
     </tr>
