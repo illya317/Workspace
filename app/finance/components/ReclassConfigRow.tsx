@@ -60,15 +60,17 @@ export default function ReclassConfigRow({
         ) : c.suggestedTarget ? (
           <span className="inline-block rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-mono text-gray-500 cursor-pointer hover:ring-1 hover:ring-emerald-300">{targetDisplay(c.suggestedTarget)}</span>
         ) : (
-          <span className="inline-block rounded border border-gray-100 bg-gray-50 px-2 py-0.5 text-xs font-mono text-gray-300 cursor-pointer hover:ring-1 hover:ring-emerald-300">—</span>
+          <span className="inline-block rounded border border-dashed border-gray-200 bg-white px-2 py-0.5 text-xs text-gray-400 cursor-pointer hover:border-emerald-300 hover:text-emerald-600">选择科目</span>
         )}
       </td>
       {canWrite && (
         <td className="px-3 py-1.5 text-center">
           {hasRule ? (
             <button onClick={() => onClearRule(c)} className="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-700 hover:bg-amber-100">待审核</button>
+          ) : c.suggestedTarget ? (
+            <button onClick={() => onSaveRule(c, c.suggestedTarget)} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
           ) : (
-            <button onClick={() => onSaveRule(c, c.suggestedTarget || c.accountCode)} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
+            <button onClick={() => onStartEdit(c)} className="rounded bg-blue-50 px-2 py-0.5 text-xs text-blue-700 hover:bg-blue-100">调整</button>
           )}
         </td>
       )}

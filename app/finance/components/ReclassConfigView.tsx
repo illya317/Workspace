@@ -9,6 +9,9 @@ import type { RuleCandidate } from "@/server/services/finance/ledger/reclass-rul
 import { RECLASS_HEADERS } from "../ledger/reclassColumns";
 import ReclassConfigRow from "./ReclassConfigRow";
 
+function deriveAbnormalSide(bd: string) { return bd === "debit" ? "credit" : "debit"; }
+function suggestTarget(c: string) { return c.startsWith("1") ? "2241" : c.startsWith("2") ? "1463" : ""; }
+
 interface Props {
   companyCode: string; year: string;
   keyword?: string; statusFilter?: "all" | "noRule" | "hasRule";
@@ -63,7 +66,7 @@ export default function ReclassCandidateList({
         const accounts = (ad.data || ad.accounts || []) as { code: string; name: string; balanceDirection: string }[];
         const codeSet = new Set(s.map((c) => c.accountCode));
         for (const a of accounts) {
-          if (!codeSet.has(a.code)) all.push({ accountCode: a.code, accountName: a.name, balanceDirection: a.balanceDirection, abnormalSide: "", abnormalAmount: 0, suggestedTarget: "", existingRuleId: null, existingTarget: null, existingSource: null, existingEnabled: null });
+          if (!codeSet.has(a.code)) all.push({ accountCode: a.code, accountName: a.name, balanceDirection: a.balanceDirection, abnormalSide: deriveAbnormalSide(a.balanceDirection), abnormalAmount: 0, suggestedTarget: suggestTarget(a.code), existingRuleId: null, existingTarget: null, existingSource: null, existingEnabled: null });
         }
       }
       setAllAccounts(all);
@@ -167,7 +170,6 @@ export default function ReclassCandidateList({
   const paged = filtered.slice(skip, skip + pageSize);
 
   // ── Render ───────────────────────────────────────────
-
   if (loading) return <p className="py-8 text-center text-sm text-gray-400">扫描中...</p>;
   if (allAccounts.length === 0) return <p className="py-8 text-center text-sm text-gray-400">该年度无科目数据</p>;
 
