@@ -179,11 +179,9 @@ export function computeBalanceSheetLines(params: ComputeBalanceSheetParams): {
         }
       }
 
-      // Apply subtract prefixes (legacy)
-      if (line.subtractPrefixes && line.subtractPrefixes.length > 0) {
-        const sub = closingNetLeaf(balances, line.subtractPrefixes);
-        debit -= sub.debit; credit -= sub.credit;
-      }
+      // In mapping mode, contra accounts are mapped into the same line and reduce
+      // the amount naturally via line.side, so subtractPrefixes is legacy-only.
+      // (See `computeLineBase` below for the prefixes-fallback path.)
 
       dc = { debit, credit };
     } else if (mappingByLine && mappingByLine.size > 0) {
