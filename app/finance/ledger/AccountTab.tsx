@@ -125,8 +125,8 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
                 {reclassMode && (
                   <StatusToggle
                     tabs={[
-                      { key: "noRule", label: "待审核", count: reclassStats.noRule },
-                      { key: "hasRule", label: "已通过", count: reclassStats.hasRule },
+                      { key: "noRule", label: "未配置", count: reclassStats.noRule },
+                      { key: "hasRule", label: "已配置", count: reclassStats.hasRule },
                       { key: "all", label: "全部", count: reclassStats.total },
                     ]}
                     active={reclassStatus}

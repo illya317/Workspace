@@ -99,6 +99,7 @@ export default function ReclassCandidateList({
   }, [allAccounts, onStats]);
 
   async function saveRule(c: RuleCandidate, target: string) {
+    if (!target.trim()) { showToast("请选择目标科目", "error"); return false; }
     const body = JSON.stringify({ companyCode, year: parseInt(year), sourceAccountCode: c.accountCode, abnormalSide: c.abnormalSide, targetAccountCode: target });
     const res = await fetch("/api/finance/reclass-rules", { method: "PUT", headers: { "Content-Type": "application/json" }, body });
     if (!res.ok) { showToast("保存失败", "error"); return false; }
@@ -168,7 +169,6 @@ export default function ReclassCandidateList({
   const totalPages = Math.ceil(filtered.length / pageSize);
   const skip = (page - 1) * pageSize;
   const paged = filtered.slice(skip, skip + pageSize);
-
   // ── Render ───────────────────────────────────────────
   if (loading) return <p className="py-8 text-center text-sm text-gray-400">扫描中...</p>;
   if (allAccounts.length === 0) return <p className="py-8 text-center text-sm text-gray-400">该年度无科目数据</p>;
