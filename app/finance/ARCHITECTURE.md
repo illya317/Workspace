@@ -204,14 +204,16 @@ budget/page.tsx
 - **继承**：`ensureStatementMappings(companyCode, year)` → 已有不覆盖 → 上年复制 → prefix 迁移
 - **Resolver**：`resolveAccountMapping()` 返回 `{resolvedLineCode, mappingSource: explicit|inherited|none}`
 
-### 资产负债表口径（M11/M12 authoritative）
+### 资产负债表口径（M11/M12 authoritative + Phase 2.3B residual）
 
 资产负债表走 **mapping-based** 口径，legacy prefixes 仅作为 fallback / 诊断对比。
 
 ```
 科目录属 ─→ FinanceStatementAccountMapping 解析（最近祖先优先）
   ↓
-聚合 ─→ 只消费叶子科目余额（FinanceAccountBalance 中无子科目者）
+聚合 ─→ residual = own_balance - direct_children_balance_sum
+       若 abs(residual) > 0.01 → 贡献该 residual 到所属 line
+       （避免 parent 自身有余额但 children 全 0 时丢失）
   ↓
 行计算 ─→ mappingByLine + reclassByLine（lineCode-keyed）
   ↓
@@ -220,7 +222,7 @@ budget/page.tsx
 
 关键不变量：
 
-1. **只消费叶子**：`aggregateMappingBasedBalances()` 用 `parentId` 关系过滤出叶子科目；父级科目（如 1601 本身）只用于归属继承，不进聚合。
+1. **Residual leaf 聚合**（Phase 2.3B）：`aggregateMappingBasedBalances()` 计算每个 account node 的 `residual = own - direct_children_sum`，仅当 `abs(residual) > 0.01` 时纳入。真正叶子（无 children）的 residual = own，与原 leaf-only 行为一致；父级有余额但 children 全 0 时，parent 自身余额代表有效余额，纳入；parent 完全等于 children 汇总时排除，避免双算。`residualParents` 列表作为 diagnostics。
 2. **Contra 科目自然抵减**：坏账准备（1231）/ 累计折旧（1602 / 1642）等减项科目必须显式映射到与 gross 同一 lineCode。聚合时借方 - 贷方 = 净值，减项的贷方自然抵减 gross 的借方。
 3. **重分类按 lineCode 路由**：`resolveReclassEntriesToLines(companyCode, year, entries)` 把每条 `ReclassEntry.sourceAccount / targetAccount` 解析为 lineCode，按 `lineCode` 增减扣；不再用 `line.prefixes` 前缀匹配。
 4. **Legacy 仅诊断**：`computeBalanceSheet(config, balances, reclass)` 在 `mappingByLine` 缺失时走 legacy prefixes 路径；已知对 `subtractPrefixes` 符号处理有问题，仅作为 `scripts/balance-sheet-diff.ts` 的对比基线，不作主路径。
@@ -232,6 +234,16 @@ budget/page.tsx
 - `npm run finance:bs-smoke` 跑 02/2025/2 常用 smoke。
 - `npx tsx scripts/repair-statement-mappings.ts [--all] [--dry-run]` 调用 `ensureStatementMappings` 修补缺失；`--all` 已批处理 14 个 (company, year) 补 42 条。
 - `MAPPING_OK` 条件：`|mappingBalanceGap| < 0.01` 且 `unresolvedGroups.relevant.length === 0`。
+
+### 已知 outstanding 项（业务待确认）
+
+`npm run finance:bs-smoke:all` 当前结果：**14 OK / 1 GAP**（05 加拿大 2025/2026）。
+
+| 期间 | 缺口来源 | 状态 |
+|---|---|---|
+| 05 / 2025-2026 | `3001 清算资金往来`，credit 100K（3 年同笔） | **业务待财务确认列示**：paidInCapital / otherEquityItems / 其他权益项目 |
+
+2024 同笔 100K credit 在 05 账上名为「实收资本」(cat=equity)，2025/2026 改名为「清算资金往来」(cat=other)。Phase 2.4A 已对 05/2024 加 `3001 → paidInCapital`，2024 现在 OK。2025/2026 不自动归类，避免污染 paidInCapital 语义；财务确认后再补。
 
 
 ## 预算管理
