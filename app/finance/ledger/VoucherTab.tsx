@@ -44,7 +44,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   }, [companyFilter, yearFilter, monthFilter]);
 
   const reclassCounts = useMemo(() => {
-    const pending = allItems.filter((r) => r.status === "pending").length;
+    const pending = allItems.filter((r: any) => r.kind === "pending").length;
     return {
       total: allItems.length,
       pending,

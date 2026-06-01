@@ -20,6 +20,8 @@ export interface ReclassResultRow {
   targetAccount: string;
   amount: number;
   status: "pending" | "approved" | "adjusted" | "rejected" | "no_match";
+  kind?: string;
+  suggestedTarget?: string | null;
   note: string | null;
   adjustedBy: number | null;
   adjustedByName: string | null;
