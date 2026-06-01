@@ -184,8 +184,32 @@ export async function confirmFinanceImport(
     }
 
     // ── Journal/Voucher import ──
-    const { imported, created, updated, deleted, skipped, blocked, warnings } =
+    const { imported, created, updated, deleted, skipped, blocked, warnings, affectedPeriodIds } =
       await importVouchers(preview, accountCodeToId, importBatch.id);
+
+    // Auto-reclass for all affected periods (errors → warnings, not silent)
+    const reclassErrors: string[] = [];
+    for (const pid of affectedPeriodIds) {
+      try {
+        await buildReclassResults(pid, { dryRun: false });
+      } catch (e) {
+        reclassErrors.push(`period ${pid}: ${e instanceof Error ? e.message : "reclass failed"}`);
+      }
+    }
+
+    // Auto-recompute balances for the latest affected period only
+    if (affectedPeriodIds.length > 0) {
+      const latestPeriod = await prisma.financePeriod.findFirst({
+        where: { id: { in: affectedPeriodIds } },
+        orderBy: [{ year: "desc" }, { month: "desc" }],
+      });
+      if (latestPeriod) {
+        try { await computeBalancesForPeriod(latestPeriod.id); } catch { /* skip */ }
+      }
+    }
+
+    const allWarnings = [...warnings, ...reclassErrors];
+    const isPartial = blocked > 0 || reclassErrors.length > 0;
 
     await prisma.financeLedgerImport.update({
       where: { id: importBatch.id },
@@ -193,41 +217,13 @@ export async function confirmFinanceImport(
         createdCount: created, updatedCount: updated,
         deletedCount: deleted, skippedCount: skipped,
         blockedCount: blocked,
-        status: blocked > 0 ? "partial" : "completed",
-        warnings: warnings.length > 0 ? JSON.stringify(warnings) : null,
+        status: isPartial ? "partial" : "completed",
+        warnings: allWarnings.length > 0 ? JSON.stringify(allWarnings) : null,
       },
     });
 
-    // Auto-recompute balances for latest month
-    let latestYm: { year: number; month: number } | null = null;
-    const reclassPeriods = new Set<number>();
-    for (const v of preview.vouchers || []) {
-      const d = new Date(v.date);
-      if (isNaN(d.getTime())) continue;
-      const y = d.getFullYear(), m = d.getMonth() + 1;
-      const period = await prisma.financePeriod.findFirst({
-        where: { companyCode: preview.companyCode, year: y, month: m },
-      });
-      if (period) reclassPeriods.add(period.id);
-      if (!latestYm || y > latestYm.year || (y === latestYm.year && m > latestYm.month)) {
-        latestYm = { year: y, month: m };
-      }
-    }
-    // Auto-reclass for all affected periods
-    for (const pid of reclassPeriods) {
-      try { await buildReclassResults(pid, { dryRun: false }); } catch { /* skip */ }
-    }
-    if (latestYm) {
-      const period = await prisma.financePeriod.findFirst({
-        where: { companyCode: preview.companyCode, year: latestYm.year, month: latestYm.month },
-      });
-      if (period) {
-        try { await computeBalancesForPeriod(period.id); } catch { /* skip */ }
-      }
-    }
-
     return {
-      imported, created, updated, deleted, skipped, conflicts: 0, blocked, warnings,
+      imported, created, updated, deleted, skipped, conflicts: 0, blocked, warnings: allWarnings,
       importId: importBatch.id,
       year: preview.year, companyCode: preview.companyCode, type: preview.type,
     };

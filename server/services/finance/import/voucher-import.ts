@@ -32,14 +32,16 @@ export async function importVouchers(
   importId: number,
 ): Promise<{
   imported: number; created: number; updated: number; deleted: number;
-  skipped: number; blocked: number; warnings: string[];
+  skipped: number; blocked: number; warnings: string[]; affectedPeriodIds: number[];
 }> {
   let created = 0, updated = 0, deleted = 0, skipped = 0, blocked = 0;
   const warnings: string[] = [];
+  const affectedPeriodIds = new Set<number>();
 
   for (const voucherPreview of preview.vouchers || []) {
     const dateStr = normalizeDate(voucherPreview.date);
     const period = await getOrCreateVoucherPeriod(preview.companyCode, dateStr, preview.year);
+    affectedPeriodIds.add(period.id);
     const month = String(period.month).padStart(2, "0");
     const voucherNo = `${preview.year}-${month}-${voucherPreview.voucherNo}`;
 
@@ -144,5 +146,6 @@ export async function importVouchers(
   return {
     imported: created + updated,
     created, updated, deleted, skipped, blocked, warnings,
+    affectedPeriodIds: [...affectedPeriodIds],
   };
 }
