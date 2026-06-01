@@ -62,6 +62,7 @@ export async function PATCH(
     } catch (err) {
       if (err instanceof ReviewError) {
         const statusMap: Record<string, number> = {
+          INVALID_AMOUNT: 400,
           NOT_FOUND: 404,
           NOT_PENDING: 409,
           ALREADY_PENDING: 409,

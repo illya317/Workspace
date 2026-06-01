@@ -68,17 +68,6 @@ export async function reviewReclassResult(
       }
 
       updateData = { status: "adjusted", targetAccount: payload.targetAccount, amount: payload.amount, note, adjustedBy: userId, adjustedAt: now };
-
-      // 沉淀明细例外规则（公司级）
-      if (record.voucherItem.description) {
-        await prisma.financeReclassItemRule.upsert({
-          where: { companyCode_sourceAccountCode_matchType_matchValue: { companyCode: record.period.companyCode, sourceAccountCode: record.sourceAccount, matchType: "exact_description", matchValue: record.voucherItem.description } },
-          create: { companyCode: record.period.companyCode, sourceAccountCode: record.sourceAccount, matchType: "exact_description", matchValue: record.voucherItem.description, targetAccountCode: payload.targetAccount, note: "凭证明细调整" },
-          update: { targetAccountCode: payload.targetAccount },
-        });
-        // 全公司同步（fire-and-forget，不阻塞响应）
-        syncReclassRuleResults(record.period.companyCode).catch(() => {});
-      }
       break;
     }
 
@@ -113,6 +102,16 @@ export async function reviewReclassResult(
       reviewer: { select: { name: true } },
     },
   });
+
+  // 3b. adjust 后沉淀 itemRule + 全公司同步（在 update 之后，避免竞态）
+  if (payload.action === "adjust" && updated.voucherItem.description) {
+    await prisma.financeReclassItemRule.upsert({
+      where: { companyCode_sourceAccountCode_matchType_matchValue: { companyCode: record.period.companyCode, sourceAccountCode: updated.sourceAccount, matchType: "exact_description", matchValue: updated.voucherItem.description } },
+      create: { companyCode: record.period.companyCode, sourceAccountCode: updated.sourceAccount, matchType: "exact_description", matchValue: updated.voucherItem.description, targetAccountCode: updated.targetAccount, note: "凭证明细调整" },
+      update: { targetAccountCode: updated.targetAccount },
+    });
+    await syncReclassRuleResults(record.period.companyCode);
+  }
 
   // 4. 返回 DTO
   return {
@@ -163,6 +162,7 @@ export async function createManualReclassResult(params: {
     select: { code: true },
   });
   if (!targetExists) throw new ReviewError("INVALID_TARGET", `目标科目 ${targetAccount} 不存在`);
+  if (amount <= 0) throw new ReviewError("INVALID_AMOUNT", "金额必须大于 0");
 
   // 创建 ReclassResult
   const created = await prisma.reclassResult.create({
@@ -184,8 +184,8 @@ export async function createManualReclassResult(params: {
     });
   }
 
-  // 全公司同步（fire-and-forget）
-  syncReclassRuleResults(period.companyCode).catch(() => {});
+  // 全公司同步（await 确保报表立即可读）
+  await syncReclassRuleResults(period.companyCode);
 
   return {
     id: created.id, periodId: created.periodId, voucherItemId: created.voucherItemId,
