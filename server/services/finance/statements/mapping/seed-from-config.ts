@@ -1,7 +1,25 @@
 /**
  * M2: 确保某公司某年度某报表类型有科目映射
  *
- * 优先级：DB 已有 → 上年度复制 → 根据 FinanceStatementLineConfig.prefixesJson 生成
+ * M11.6: 改为 additive 补缺模式。任何"已有 mapping"都不再直接整年跳过，
+ * 只跳过 accountCode 维度——即"已存在的 accountCode 不覆盖"（无论 source
+ * 是 manual / copied / migrated / default），缺失的 accountCode 仍按
+ * line config 的 prefixesJson + subtractPrefixesJson 补齐，source
+ * 记 "migrated"，note 区分 prefix / subtractPrefix。
+ *
+ * 整体流程：
+ *  1. 加载（必要时初始化）line config
+ *  2. 加载当前年度已有 mappings（accountCode → 已有记录）
+ *  3. 若当前年度完全为空 + 上一年有 mapping → 复制上一年（保留原行为）
+ *  4. 无论之前是否复制，按 line config 跑一次 migrate pass：
+ *     - 对 prefixes + subtractPrefixes 中每个 accountCode
+ *     - 若 existingByCode 中没有 → upsert (create with source="migrated")
+ *     - 若已存在 → 跳过（manual 保护 + 不覆盖迁移来源）
+ *  5. 返回 created 数 + source 标签
+ *     - "copied"      从上一年复制
+ *     - "migrated"    从 line config 全新创建（之前 0 条）
+ *     - "backfilled"  在已有 mapping 上补齐缺失
+ *     - "existing"    啥也没改
  */
 import { prisma } from "@/lib/prisma";
 import { BALANCE_SHEET_LINES } from "../config/balance-sheet-lines";
@@ -11,43 +29,11 @@ export async function ensureStatementMappings(
   year: number,
   statementType: string = "balance",
 ): Promise<{ created: number; source: string }> {
-  // 1. Already has mappings?
-  const existingCount = await prisma.financeStatementAccountMapping.count({
-    where: { companyCode, year, statementType },
-  });
-  if (existingCount > 0) return { created: 0, source: "existing" };
-
-  // 2. Copy from previous year
-  if (year > 2024) {
-    const prevMappings = await prisma.financeStatementAccountMapping.findMany({
-      where: { companyCode, year: year - 1, statementType },
-    });
-    if (prevMappings.length > 0) {
-      for (const pm of prevMappings) {
-        await prisma.financeStatementAccountMapping.upsert({
-          where: { companyCode_year_statementType_accountCode: { companyCode, year, statementType, accountCode: pm.accountCode } },
-          create: {
-            companyCode, year, statementType,
-            lineCode: pm.lineCode, accountCode: pm.accountCode,
-            includeChildren: pm.includeChildren,
-            source: "copied",
-            note: `从 ${year - 1} 年度复制`,
-          },
-          update: {},
-        });
-      }
-      return { created: prevMappings.length, source: "copied" };
-    }
-  }
-
-  // 3. Generate from FinanceStatementLineConfig or TS default
-  // First, ensure the line config exists
-  // Use BALANCE_SHEET_LINES as default
+  // 1. Ensure line config exists (DB or seeded from TS default)
   let config = await prisma.financeStatementLineConfig.findMany({
     where: { companyCode, year, reportType: "balanceSheet", enabled: true },
   });
   if (config.length === 0) {
-    // Seed line config first
     let order = 0;
     for (const line of BALANCE_SHEET_LINES) {
       await prisma.financeStatementLineConfig.upsert({
@@ -69,20 +55,68 @@ export async function ensureStatementMappings(
     });
   }
 
-  // Generate mappings from prefixes
+  // 2. Load existing mappings for this (company, year, statementType)
+  const existing = await prisma.financeStatementAccountMapping.findMany({
+    where: { companyCode, year, statementType },
+    select: { accountCode: true, lineCode: true, source: true },
+  });
+  const existingByCode = new Map<string, { lineCode: string; source: string }>();
+  for (const m of existing) existingByCode.set(m.accountCode, { lineCode: m.lineCode, source: m.source });
+  const initiallyHadAny = existing.length > 0;
+
+  // 3. If empty + prev year has mappings → copy (preserves original "copy from prev" path)
+  if (existing.length === 0 && year > 2024) {
+    const prevMappings = await prisma.financeStatementAccountMapping.findMany({
+      where: { companyCode, year: year - 1, statementType },
+    });
+    if (prevMappings.length > 0) {
+      let copied = 0;
+      for (const pm of prevMappings) {
+        if (existingByCode.has(pm.accountCode)) continue;
+        await prisma.financeStatementAccountMapping.upsert({
+          where: { companyCode_year_statementType_accountCode: { companyCode, year, statementType, accountCode: pm.accountCode } },
+          create: {
+            companyCode, year, statementType,
+            lineCode: pm.lineCode, accountCode: pm.accountCode,
+            includeChildren: pm.includeChildren,
+            source: "copied",
+            note: `从 ${year - 1} 年度复制`,
+          },
+          update: {},
+        });
+        existingByCode.set(pm.accountCode, { lineCode: pm.lineCode, source: "copied" });
+        copied++;
+      }
+      return { created: copied, source: "copied" };
+    }
+  }
+
+  // 4. Migrate / backfill pass: add missing accountCodes from line config.
+  //    Skips any accountCode that already has a mapping (manual-safe + no-clobber).
   let created = 0;
   for (const line of config) {
     const prefixes = JSON.parse(line.prefixesJson || "[]") as string[];
     const subs = JSON.parse(line.subtractPrefixesJson || "[]") as string[];
     for (const prefix of [...prefixes, ...subs]) {
-      if (!prefix) continue;
+      if (!prefix || existingByCode.has(prefix)) continue;
+      const kind = subs.includes(prefix) ? "subtractPrefix" : "prefix";
       await prisma.financeStatementAccountMapping.upsert({
         where: { companyCode_year_statementType_accountCode: { companyCode, year, statementType, accountCode: prefix } },
-        create: { companyCode, year, statementType, lineCode: line.lineCode, accountCode: prefix, source: "migrated", note: "从 prefix 迁移" },
+        create: {
+          companyCode, year, statementType,
+          lineCode: line.lineCode, accountCode: prefix,
+          source: "migrated",
+          note: kind === "subtractPrefix" ? "补齐 subtractPrefix" : "补齐 prefix",
+        },
         update: {},
       });
+      existingByCode.set(prefix, { lineCode: line.lineCode, source: "migrated" });
       created++;
     }
   }
-  return { created, source: "migrated" };
+
+  const source = initiallyHadAny
+    ? (created > 0 ? "backfilled" : "existing")
+    : "migrated";
+  return { created, source };
 }
