@@ -1,7 +1,4 @@
-/**
- * P3 Batch 1: line config loaders for income statement and cash flow.
- * Extracted from load-config.ts to keep that file under the 260-line cap.
- */
+/** P3 Batch 1: line config loaders for income + cash flow. */
 import { prisma } from "@/lib/prisma";
 import { INCOME_STATEMENT_LINES, type IncomeLineConfig } from "./income-statement-lines";
 import { CASH_FLOW_LINES, type CashFlowLineConfig } from "./cash-flow-lines";
@@ -43,8 +40,12 @@ export interface IncomeStatementLineRow {
   isHeader: boolean;
   isTotal: boolean;
   isGrandTotal: boolean;
-  chnPrefixes: string[];
-  canPrefixes: string[];
+  /**
+   * Account code prefixes for this line. For company 05 (加拿大) this is
+   * canPrefixes from the TS default; for all others it is chnPrefixes.
+   * Sourced from FinanceStatementLineConfig.prefixesJson.
+   */
+  prefixes: string[];
   direction: "debit" | "credit";
   subtract: boolean;
 }
@@ -59,13 +60,7 @@ export async function loadIncomeStatementConfig(
     orderBy: { sortOrder: "asc" },
   });
   if (dbLines.length > 0) {
-    return dbLines.map((db) => ({
-      lineCode: db.lineCode, label: db.label, section: db.section,
-      side: db.side as "debit" | "credit",
-      isHeader: db.isHeader, isTotal: db.isTotal, isGrandTotal: db.isGrandTotal,
-      chnPrefixes: [], canPrefixes: [],
-      direction: db.side as "debit" | "credit", subtract: false,
-    }));
+    return dbLines.map(toIncomeRow);
   }
   // 2. Inherit from previous year
   if (year > 2024) {
@@ -125,14 +120,25 @@ export async function loadIncomeStatementConfig(
 function toIncomeRow(db: {
   lineCode: string; label: string; section: string; side: string;
   isHeader: boolean; isTotal: boolean; isGrandTotal: boolean;
+  prefixesJson: string;
 }): IncomeStatementLineRow {
   return {
     lineCode: db.lineCode, label: db.label, section: db.section,
     side: db.side as "debit" | "credit",
     isHeader: db.isHeader, isTotal: db.isTotal, isGrandTotal: db.isGrandTotal,
-    chnPrefixes: [], canPrefixes: [],
+    prefixes: parsePrefixesJson(db.prefixesJson),
     direction: db.side as "debit" | "credit", subtract: false,
   };
+}
+
+function parsePrefixesJson(json: string | null | undefined): string[] {
+  if (!json) return [];
+  try {
+    const v = JSON.parse(json);
+    return Array.isArray(v) ? v.filter((x) => typeof x === "string") : [];
+  } catch {
+    return [];
+  }
 }
 
 // ─── Cash flow config loader ───────────────────────────────
@@ -145,8 +151,12 @@ export interface CashFlowLineRow {
   direction: "in" | "out" | "net";
   isSubtotal: boolean;
   isGrandTotal: boolean;
-  chnPrefixes: string[];
-  canPrefixes: string[];
+  /**
+   * Account code prefixes for this line. For company 05 (加拿大) this is
+   * canPrefixes from the TS default; for all others it is chnPrefixes.
+   * Sourced from FinanceStatementLineConfig.prefixesJson.
+   */
+  prefixes: string[];
 }
 
 const CASH_FLOW_NET_LINE_CODES = new Set([
@@ -232,6 +242,7 @@ export async function loadCashFlowConfig(
 function deriveCashFlowRow(db: {
   lineCode: string; label: string; section: string; side: string;
   isTotal: boolean; isGrandTotal: boolean;
+  prefixesJson: string;
 }): CashFlowLineRow {
   let direction: "in" | "out" | "net";
   if (CASH_FLOW_NET_LINE_CODES.has(db.lineCode)) direction = "net";
@@ -241,6 +252,6 @@ function deriveCashFlowRow(db: {
     lineCode: db.lineCode, label: db.label, section: db.section,
     side: db.side as "debit" | "credit", direction,
     isSubtotal: db.isTotal, isGrandTotal: db.isGrandTotal,
-    chnPrefixes: [], canPrefixes: [],
+    prefixes: parsePrefixesJson(db.prefixesJson),
   };
 }
