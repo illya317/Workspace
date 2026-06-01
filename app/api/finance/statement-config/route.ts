@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceReportAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
+import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { getStatementConfigView } from "@/server/services/finance/statements/statement-config-view";
 
@@ -13,16 +13,16 @@ export const GET = withFinanceReportAccess(async (request) => {
     return NextResponse.json({ error: "companyCode, year 为必填" }, { status: 400 });
 
   const type = searchParams.get("type") || "balance";
-  if (!["balance", "income", "cashflow"].includes(type))
-    return NextResponse.json({ error: "type 仅支持 balance/income/cashflow" }, { status: 400 });
+  if (type !== "balance")
+    return NextResponse.json({ error: "statement-config 暂只支持 balance" }, { status: 400 });
 
   const view = await getStatementConfigView(companyCode, year, type);
   return NextResponse.json(view);
 });
 
-// PUT: 批量保存配置行（unchanged from before M5）
-// 权限：finance.ledger write（写操作走 ledger 口径）
-export const PUT = withFinanceLedgerWrite(async (request) => {
+// PUT: 批量保存配置行
+// 权限：finance.statement write
+export const PUT = withFinanceReportWrite(async (request) => {
   const body = await request.json().catch(() => null);
   if (!body || !Array.isArray(body.lines))
     return NextResponse.json({ error: "lines 数组为必填" }, { status: 400 });
