@@ -3,6 +3,7 @@ import type { PreviewResult } from "./import";
 import { importVouchers } from "./voucher-import";
 import { createSnapshotFromPreview, materializeBaselineToPeriod } from "../ledger/annual-balances";
 import { computeBalancesForPeriod } from "../ledger/balances";
+import { buildReclassResults } from "../ledger/reclassify";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -199,13 +200,22 @@ export async function confirmFinanceImport(
 
     // Auto-recompute balances for latest month
     let latestYm: { year: number; month: number } | null = null;
+    const reclassPeriods = new Set<number>();
     for (const v of preview.vouchers || []) {
       const d = new Date(v.date);
       if (isNaN(d.getTime())) continue;
       const y = d.getFullYear(), m = d.getMonth() + 1;
+      const period = await prisma.financePeriod.findFirst({
+        where: { companyCode: preview.companyCode, year: y, month: m },
+      });
+      if (period) reclassPeriods.add(period.id);
       if (!latestYm || y > latestYm.year || (y === latestYm.year && m > latestYm.month)) {
         latestYm = { year: y, month: m };
       }
+    }
+    // Auto-reclass for all affected periods
+    for (const pid of reclassPeriods) {
+      try { await buildReclassResults(pid, { dryRun: false }); } catch { /* skip */ }
     }
     if (latestYm) {
       const period = await prisma.financePeriod.findFirst({
