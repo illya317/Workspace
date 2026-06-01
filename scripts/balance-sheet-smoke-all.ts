@@ -100,7 +100,8 @@ async function main() {
         const relevantCount = groups?.relevant.length ?? 0;
         const ignoredCount = groups?.ignoredProfitLoss.length ?? 0;
         const zeroCount = groups?.zeroBalance.length ?? 0;
-        const isOk = Math.abs(gap) < 0.01 && relevantCount === 0;
+        // FP rounding toFixed(2) can yield ±0.01; treat up to that as OK
+        const isOk = Math.abs(gap) <= 0.01 && relevantCount === 0;
         const status = isOk ? "MAPPING_OK ✅" : "MAPPING_GAP ❌";
         if (isOk) okCount++; else { gapCount++; gapRows.push({ period, result }); }
 
@@ -134,7 +135,15 @@ async function main() {
       for (const { period, result } of gapRows) {
         const groups = result.unresolvedGroups!;
         const gap = result.totals.mappingBalanceGap;
+        const residuals = result.meta.residualParents;
         console.log(`\n  [${period.companyCode} ${period.year}/${period.month}]  gap=${fmt(gap)}  relevant=${groups.relevant.length}`);
+        if (residuals.length > 0) {
+          console.log(`    residual parents (${residuals.length}):`);
+          for (const r of residuals) {
+            const res = (r.residualDebit - r.residualCredit).toFixed(2);
+            console.log(`      ${r.accountCode.padEnd(10)} ${r.lineCode.padEnd(24)}  own=${(r.residualDebit + r.residualCredit).toFixed(2)}  residual=${res}  ${r.accountName}`);
+          }
+        }
         // Top 5 diff lines (only non-header/total/grandTotal)
         const top = [...result.lines]
           .filter((l) => !l.isHeader && !l.isTotal && !l.isGrandTotal)

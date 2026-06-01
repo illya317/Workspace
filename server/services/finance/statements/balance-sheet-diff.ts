@@ -36,10 +36,7 @@ export interface LineDiff {
   /** Leaf accounts that the mapping resolver routed to this lineCode. */
   mappedAccountCount: number;
   mappedAccountCodes: string[];
-  /**
-   * Leaf accounts whose lineCode could not be resolved, bucketed here
-   * because their code starts with one of this line's `prefixes` (legacy match).
-   */
+  /** Leaf accounts whose lineCode could not be resolved, bucketed via legacy prefix match. */
   unresolvedAccountCount: number;
   unresolvedAccountCodes: string[];
   /** M11 reclass additions routed to this lineCode. */
@@ -71,17 +68,16 @@ export interface BalanceSheetDiffResult {
   };
   meta: {
     totalLeafCount: number;
+    balanceBearingCount: number;
     resolvedCount: number;
     unresolvedCount: number;
     unresolvedAccountCodes: string[];
+    residualParents: { accountCode: string; accountName: string; lineCode: string; residualDebit: number; residualCredit: number }[];
     reclassEntryCount: number;
     reclassResolvedCount: number;
     reclassUnresolvedCount: number;
   };
-  /**
-   * M11.7: unresolved leaves bucketed by likely relevance to the balance sheet.
-   * Only populated when withMapping is true.
-   */
+  /** M11.7: unresolved leaves bucketed by likely BS relevance. Only set when withMapping. */
   unresolvedGroups?: UnresolvedGroups;
 }
 
@@ -105,12 +101,9 @@ export async function computeBalanceSheetDiff(
   });
   const balances: BalanceItem[] = dbBalances.map((b) => ({
     account: { code: b.account.code, name: b.account.name },
-    openingDebit: b.openingDebit,
-    openingCredit: b.openingCredit,
-    closingDebit: b.closingDebit,
-    closingCredit: b.closingCredit,
-    currentDebit: b.currentDebit,
-    currentCredit: b.currentCredit,
+    openingDebit: b.openingDebit, openingCredit: b.openingCredit,
+    closingDebit: b.closingDebit, closingCredit: b.closingCredit,
+    currentDebit: b.currentDebit, currentCredit: b.currentCredit,
   }));
 
   const voucherRows = await prisma.reclassResult.findMany({
@@ -154,12 +147,14 @@ export async function computeBalanceSheetDiff(
   let reclassByLine: Awaited<ReturnType<typeof resolveReclassEntriesToLines>> | undefined;
   let mappingDiagnostics: string[] = [];
   let mappingLines: { lineCode: string; amount: number }[] = [];
+  let mappingResidualParents: Awaited<ReturnType<typeof aggregateMappingBasedBalances>>["residualParents"] = [] as Awaited<ReturnType<typeof aggregateMappingBasedBalances>>["residualParents"];
 
   if (withMapping) {
     const agg = await aggregateMappingBasedBalances(params.companyCode, params.year, params.month, "balance");
-    aggLeafCount = agg.leafCount;
+    aggLeafCount = agg.balanceBearingCount;
     aggResolvedCount = agg.resolvedCount;
     unresolvedAccounts = agg.unresolved;
+    mappingResidualParents = agg.residualParents;
     mappingByLine = new Map(
       agg.byLineCode.map((l) => [l.lineCode, { debit: l.debit, credit: l.credit }]),
     );
@@ -215,12 +210,10 @@ export async function computeBalanceSheetDiff(
   });
 
   // ─── 6. Totals + balance check ───
-  const sumSide = (side: "debit" | "credit", source: "legacy" | "mapping") => {
-    const get = (l: LineDiff) => (source === "legacy" ? l.legacyAmount : l.mappingAmount);
-    return diffs
+  const sumSide = (side: "debit" | "credit", source: "legacy" | "mapping") =>
+    diffs
       .filter((l) => !l.isHeader && !l.isTotal && !l.isGrandTotal && l.side === side)
-      .reduce((s, l) => s + get(l), 0);
-  };
+      .reduce((s, l) => s + (source === "legacy" ? l.legacyAmount : l.mappingAmount), 0);
   const round2 = (n: number) => +n.toFixed(2);
   const legacyAssets = round2(sumSide("debit", "legacy"));
   const mappingAssets = round2(sumSide("debit", "mapping"));
@@ -242,9 +235,17 @@ export async function computeBalanceSheetDiff(
     diagnostics: { legacy: legacyResult.diagnostics, mapping: mappingDiagnostics },
     meta: {
       totalLeafCount: aggLeafCount,
+      balanceBearingCount: mappingResidualParents.length > 0 ? aggLeafCount : 0,
       resolvedCount: aggResolvedCount,
       unresolvedCount: unresolvedAccounts.length,
       unresolvedAccountCodes: unresolvedAccounts.map((u) => u.accountCode).sort(),
+      residualParents: mappingResidualParents.map((r) => ({
+        accountCode: r.accountCode,
+        accountName: r.accountName,
+        lineCode: r.lineCode,
+        residualDebit: r.residualDebit,
+        residualCredit: r.residualCredit,
+      })),
       reclassEntryCount: reclassEntries.length,
       reclassResolvedCount: reclassEntries.length - (reclassByLine?.unresolved.length ?? 0),
       reclassUnresolvedCount: reclassByLine?.unresolved.length ?? 0,
@@ -253,6 +254,4 @@ export async function computeBalanceSheetDiff(
   };
 }
 
-// ─── Helpers ───────────────────────────────────────────────
-// in-memory resolver, bucket logic, and M11.7 classifier live in
-// balance-sheet-diff-helpers.ts
+// in-memory resolver, bucket logic, and M11.7 classifier live in balance-sheet-diff-helpers.ts

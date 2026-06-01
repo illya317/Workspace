@@ -1,11 +1,14 @@
 /**
- * M10a: mapping-based leaf balance aggregation
+ * M10a + Phase 2.3B: mapping-based balance aggregation with residual leaf.
  *
- * 从 mappingPreview 口径出发，只消费叶子科目余额，
- * 通过 effective mapping (nearest-ancestor) 解析每个叶子的 lineCode，
- * 按 lineCode 聚合 debit/credit/net。
+ * Aggregation口径：
+ *   对每个 account node 计算 residual = own_balance - direct_children_balance_sum
+ *   若 abs(residual) > 0.01, 该 node 的 residual 视为有效余额，参与 mapping 聚合。
+ *   真正叶子 (无 children) 的 residual = own_balance，与原 leaf-only 行为一致。
+ *   若 parent 余额完全等于 children 汇总, residual=0, 不重复计入。
+ *   若 parent 有余额而 children 全 0, parent 自身余额代表有效余额, 纳入。
  *
- * 不改 generateBalanceSheet，不改 UI，不改 reclass。
+ * 不改 generateBalanceSheet, 不改 UI, 不改 reclass。
  */
 import { prisma } from "@/lib/prisma";
 import { ensureStatementMappings } from "./mapping/seed-from-config";
@@ -28,11 +31,29 @@ export interface UnresolvedAccount {
   net: number;
 }
 
+/** Parent node whose own balance was not fully explained by its children. */
+export interface ResidualParent {
+  accountCode: string;
+  accountName: string;
+  lineCode: string;
+  residualDebit: number;
+  residualCredit: number;
+  ownDebit: number;
+  ownCredit: number;
+  childrenDebit: number;
+  childrenCredit: number;
+}
+
 export interface MappingBasedBalancesResult {
   byLineCode: LeafAggregation[];
   unresolved: UnresolvedAccount[];
-  leafCount: number;
+  /** Number of balance-bearing nodes (leaf + residual parent) that contributed. */
+  balanceBearingCount: number;
+  /** Total nodes examined (all balance rows in the period). */
+  totalAccountCount: number;
   resolvedCount: number;
+  /** Phase 2.3B diagnostics: parents that contributed residual. */
+  residualParents: ResidualParent[];
 }
 
 // ─── Main ──────────────────────────────────────────────────
@@ -61,14 +82,50 @@ export async function aggregateMappingBasedBalances(
     },
   });
 
-  // 3. Identify leaf accounts (no other account has this as parentId)
-  const parentIds = new Set<number>();
+  // 3. Index balances by accountCode (own balance) and by id
+  const ownByCode = new Map<string, { code: string; name: string; debit: number; credit: number; parentId: number | null; id: number }>();
   for (const b of balances) {
-    if (b.account.parentId != null) parentIds.add(b.account.parentId);
+    ownByCode.set(b.account.code, {
+      code: b.account.code,
+      name: b.account.name,
+      debit: b.closingDebit,
+      credit: b.closingCredit,
+      parentId: b.account.parentId,
+      id: b.account.id,
+    });
   }
-  const leafBalances = balances.filter((b) => !parentIds.has(b.account.id));
 
-  // 4. Preload mappings (batch)
+  // 4. Build parent(id) → [childCode] map
+  const childrenOfId = new Map<number, string[]>();
+  for (const a of ownByCode.values()) {
+    if (a.parentId != null) {
+      const arr = childrenOfId.get(a.parentId) || [];
+      arr.push(a.code);
+      childrenOfId.set(a.parentId, arr);
+    }
+  }
+
+  // 5. For each account, compute children sum + residual
+  const residuals: { code: string; name: string; debit: number; credit: number }[] = [];
+  for (const a of ownByCode.values()) {
+    const childCodes = childrenOfId.get(a.id) || [];
+    let childDebit = 0;
+    let childCredit = 0;
+    for (const cc of childCodes) {
+      const c = ownByCode.get(cc);
+      if (c) {
+        childDebit += c.debit;
+        childCredit += c.credit;
+      }
+    }
+    const resDebit = a.debit - childDebit;
+    const resCredit = a.credit - childCredit;
+    if (Math.abs(resDebit) > 0.01 || Math.abs(resCredit) > 0.01) {
+      residuals.push({ code: a.code, name: a.name, debit: resDebit, credit: resCredit });
+    }
+  }
+
+  // 6. Preload mappings (batch)
   const mappings = await prisma.financeStatementAccountMapping.findMany({
     where: { companyCode, year, statementType },
     select: { accountCode: true, lineCode: true },
@@ -76,7 +133,7 @@ export async function aggregateMappingBasedBalances(
   const mappingMap = new Map<string, string>();
   for (const m of mappings) mappingMap.set(m.accountCode, m.lineCode);
 
-  // 5. Preload accounts for parent-chain resolution (batch)
+  // 7. Preload accounts for parent-chain resolution (batch)
   const accounts = await prisma.financeAccount.findMany({
     where: { companyCode, year },
     select: { code: true, parent: { select: { code: true } } },
@@ -84,32 +141,53 @@ export async function aggregateMappingBasedBalances(
   const parentMap = new Map<string, string | null>();
   for (const a of accounts) parentMap.set(a.code, a.parent?.code ?? null);
 
-  // 6. Resolve each leaf's lineCode via effective mapping (in-memory)
+  // 8. Resolve each residual node's lineCode via effective mapping (in-memory)
   const byLine = new Map<string, { debit: number; credit: number; accountCodes: string[] }>();
   const unresolved: UnresolvedAccount[] = [];
+  const residualParents: ResidualParent[] = [];
 
-  for (const b of leafBalances) {
-    const code = b.account.code;
-    const lineCode = resolveLineCode(code, parentMap, mappingMap);
-
+  for (const r of residuals) {
+    const lineCode = resolveLineCode(r.code, parentMap, mappingMap);
     if (lineCode) {
       const agg = byLine.get(lineCode) || { debit: 0, credit: 0, accountCodes: [] };
-      agg.debit += b.closingDebit;
-      agg.credit += b.closingCredit;
-      agg.accountCodes.push(code);
+      agg.debit += r.debit;
+      agg.credit += r.credit;
+      agg.accountCodes.push(r.code);
       byLine.set(lineCode, agg);
+      // Diagnostics: parents (non-leaf) that contributed residual
+      const own = ownByCode.get(r.code)!;
+      const childCodes = childrenOfId.get(own.id) || [];
+      if (childCodes.length > 0) {
+        let cD = 0, cC = 0;
+        for (const cc of childCodes) {
+          const c = ownByCode.get(cc);
+          if (c) { cD += c.debit; cC += c.credit; }
+        }
+        residualParents.push({
+          accountCode: r.code,
+          accountName: r.name,
+          lineCode,
+          residualDebit: r.debit,
+          residualCredit: r.credit,
+          ownDebit: own.debit,
+          ownCredit: own.credit,
+          childrenDebit: cD,
+          childrenCredit: cC,
+        });
+      }
     } else {
+      const own = ownByCode.get(r.code);
       unresolved.push({
-        accountCode: code,
-        accountName: b.account.name,
-        debit: b.closingDebit,
-        credit: b.closingCredit,
-        net: b.closingDebit - b.closingCredit,
+        accountCode: r.code,
+        accountName: r.name,
+        debit: r.debit,
+        credit: r.credit,
+        net: r.debit - r.credit,
       });
     }
   }
 
-  // 7. Build result
+  // 9. Build result
   const byLineCode: LeafAggregation[] = [];
   for (const [lineCode, agg] of byLine) {
     byLineCode.push({
@@ -124,8 +202,10 @@ export async function aggregateMappingBasedBalances(
   return {
     byLineCode,
     unresolved: unresolved.sort((a, b) => a.accountCode.localeCompare(b.accountCode)),
-    leafCount: leafBalances.length,
-    resolvedCount: leafBalances.length - unresolved.length,
+    balanceBearingCount: residuals.length,
+    totalAccountCount: ownByCode.size,
+    resolvedCount: residuals.length - unresolved.length,
+    residualParents: residualParents.sort((a, b) => a.accountCode.localeCompare(b.accountCode)),
   };
 }
 
