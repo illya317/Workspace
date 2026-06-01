@@ -34,10 +34,15 @@ export async function syncBalanceReclassForPeriod(periodId: number): Promise<{ w
   const ruleMap = new Map<string, string>();
   for (const r of rules) ruleMap.set(`${r.sourceAccountCode}::${r.abnormalSide}`, r.targetAccountCode);
 
-  // 4. 已有凭证明细 reclass 按 sourceAccount 汇总
+  // 4. Year-to-date voucher reclass sum（本年度所有 <= 当前月份）
+  const ytdPeriods = await prisma.financePeriod.findMany({
+    where: { companyCode: period.companyCode, year: period.year, month: { lte: period.month } },
+    select: { id: true },
+  });
+  const ytdPeriodIds = ytdPeriods.map(p => p.id);
   const voucherReclass = await prisma.reclassResult.groupBy({
     by: ["sourceAccount"],
-    where: { periodId, status: { in: ["approved", "adjusted"] } },
+    where: { periodId: { in: ytdPeriodIds }, status: { in: ["approved", "adjusted"] } },
     _sum: { amount: true },
   });
   const voucherSum = new Map<string, number>();
