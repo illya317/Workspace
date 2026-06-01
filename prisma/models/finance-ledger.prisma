@@ -273,6 +273,24 @@ model FinanceBalanceReclassAdjustment {
   @@index([periodId, status])
 }
 
+/// 科目→报表项目映射（一个科目节点只能归属一个报表项目）
+model FinanceStatementAccountMapping {
+  id              Int      @id @default(autoincrement())
+  companyCode     String
+  year            Int
+  statementType   String   @default("balance") // balance | income | cashflow
+  lineCode        String   // 报表项目 lineCode
+  accountCode     String   // 科目编码
+  includeChildren Boolean  @default(true)
+  source          String   @default("default") // default | manual | copied
+  note            String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+
+  @@unique([companyCode, year, statementType, accountCode])
+  @@index([companyCode, year, statementType, lineCode])
+}
+
 /// 报表项目配置（资产负债表/利润表/现金流量表）
 /// 按公司+年度+报表类型存储，新年度从上年度复制
 model FinanceStatementLineConfig {
