@@ -133,7 +133,7 @@ budget/page.tsx
 
 - `companyCode` **非空**，规则总是公司作用域
 - `@@unique([companyCode, sourceAccountCode, abnormalSide])` 公司级唯一
-- `year`: 保留字段，记录首次配置年份，不作为规则维度
+- `year`: nullable，首次配置/候选扫描来源年份，仅追溯
 - `abnormalSide`: `debit` = 异常借方、`credit` = 异常贷方、`both` = 全部重分类
 - `source`: `"manual"` 手动配置、`"auto"` 系统自动确认、`"suggested"` 系统候选
 

@@ -209,12 +209,11 @@ model FinanceBalanceSnapshotRow {
 
 /// 重分类规则（科目级，替代 FinanceAccount.reclassTargetCode）
 /// 一条规则 = (公司, 源科目, 异常借贷方向) → 目标科目（公司级，不限年份）
-/// year: 记录规则首次配置的年份，不作为规则维度
 /// source="suggested" 为系统扫描候选，source="manual"/"auto" 为用户/系统配置
 model FinanceReclassRule {
   id                Int       @id @default(autoincrement())
   companyCode       String
-  year              Int
+  year              Int?      // 首次配置/候选扫描来源年份，仅追溯，不参与匹配和唯一性
   sourceAccountCode String
   abnormalSide      String    // debit | credit | both —— 异常方向；both=全部发生额都重分类
   targetAccountCode String

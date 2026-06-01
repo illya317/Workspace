@@ -56,9 +56,9 @@ export const PUT = withFinanceLedgerWrite(async (request: Request) => {
     );
   }
 
-  // year 仅记录首次配置年份，不作为规则维度
-  const yearNum = year ? parseInt(year) : new Date().getFullYear();
-  if (isNaN(yearNum)) {
+  // year 仅追溯，不作为规则维度
+  const yearNum = year ? parseInt(year, 10) : null;
+  if (year && isNaN(yearNum!)) {
     return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
   }
 
@@ -80,7 +80,7 @@ export const PUT = withFinanceLedgerWrite(async (request: Request) => {
     },
     create: {
       companyCode,
-      year: yearNum,
+      year: yearNum ?? undefined,
       sourceAccountCode,
       abnormalSide,
       targetAccountCode,
