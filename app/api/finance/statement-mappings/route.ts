@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { withFinanceReportAccess, withFinanceReportWrite, withFinanceReportDelete } from "@/lib/with-auth";
+import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { clearMappingCache } from "@/server/services/finance/statements/mapping/resolver";
 
-const VALID_TYPES = ["balance", "income", "cashflow"];
+const VALID_TYPES = ["balance"];
 
 // GET: 列出所有映射（反向视图用）
 export const GET = withFinanceReportAccess(async (request) => {
@@ -15,7 +15,7 @@ export const GET = withFinanceReportAccess(async (request) => {
   if (!companyCode || !year)
     return NextResponse.json({ error: "companyCode, year 为必填" }, { status: 400 });
   if (!VALID_TYPES.includes(statementType))
-    return NextResponse.json({ error: "statementType 仅支持 balance/income/cashflow" }, { status: 400 });
+    return NextResponse.json({ error: "statementType 暂只支持 balance" }, { status: 400 });
 
   const mappings = await prisma.financeStatementAccountMapping.findMany({
     where: { companyCode, year, statementType },
@@ -42,7 +42,13 @@ export const POST = withFinanceReportWrite(async (request) => {
   const yearNum = parseInt(year, 10);
   if (isNaN(yearNum)) return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
   if (!VALID_TYPES.includes(statementType))
-    return NextResponse.json({ error: "statementType 仅支持 balance/income/cashflow" }, { status: 400 });
+    return NextResponse.json({ error: "statementType 暂只支持 balance" }, { status: 400 });
+
+  // Validate lineCode exists
+  const line = await prisma.financeStatementLineConfig.findUnique({
+    where: { companyCode_year_reportType_lineCode: { companyCode, year: yearNum, reportType: "balanceSheet", lineCode } },
+  });
+  if (!line) return NextResponse.json({ error: "lineCode 不存在" }, { status: 400 });
 
   const mapping = await prisma.financeStatementAccountMapping.upsert({
     where: {
@@ -59,8 +65,8 @@ export const POST = withFinanceReportWrite(async (request) => {
   return NextResponse.json({ success: true, mapping });
 });
 
-// DELETE: 移除映射
-export const DELETE = withFinanceReportDelete(async (request) => {
+// DELETE: 清除映射（回到父级继承，幂等）
+export const DELETE = withFinanceReportWrite(async (request) => {
   const { searchParams } = new URL(request.url);
   const companyCode = searchParams.get("companyCode");
   const year = parseInt(searchParams.get("year") || "", 10);
@@ -70,17 +76,13 @@ export const DELETE = withFinanceReportDelete(async (request) => {
   if (!companyCode || !year || !accountCode)
     return NextResponse.json({ error: "companyCode, year, accountCode 为必填" }, { status: 400 });
   if (!VALID_TYPES.includes(statementType))
-    return NextResponse.json({ error: "statementType 仅支持 balance/income/cashflow" }, { status: 400 });
+    return NextResponse.json({ error: "statementType 仅支持 balance" }, { status: 400 });
 
-  await prisma.financeStatementAccountMapping.delete({
-    where: {
-      companyCode_year_statementType_accountCode: {
-        companyCode, year, statementType, accountCode,
-      },
-    },
+  const result = await prisma.financeStatementAccountMapping.deleteMany({
+    where: { companyCode, year, statementType, accountCode },
   });
 
   clearMappingCache();
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, deleted: result.count });
 });

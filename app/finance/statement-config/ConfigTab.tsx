@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Fragment } from "react";
 
 interface ConfigLine {
   lineCode: string; label: string; section: string;
@@ -70,6 +70,7 @@ export default function ConfigTab() {
 
   return (
     <div className="space-y-4 mt-4">
+      <p className="text-xs text-gray-400">以下为直接映射配置（仅显示手动/继承/迁移到各报表项目的科目，不含继承链展开）。完整归属关系请见「科目映射」tab。</p>
       <div className="flex items-center gap-3">
         <select value={company} onChange={(e) => setCompany(e.target.value)} className="rounded border px-2 py-1 text-sm">
           <option value="01">丰华生物</option><option value="02">天力通</option>
@@ -104,7 +105,7 @@ export default function ConfigTab() {
                 const isExp = expanded.has(l.lineCode);
                 const accts = mappingsByLine.get(l.lineCode) || [];
                 return (
-                  <tbody key={l.lineCode}>
+                  <Fragment key={l.lineCode}>
                     <tr className="border-b cursor-pointer hover:bg-gray-50" onClick={() => toggleLine(l.lineCode)}>
                       <td className="px-2 py-1 text-gray-300 text-[10px]">{accts.length > 0 ? (isExp ? "▼" : "▶") : ""}</td>
                       <td className="px-2 py-1 font-medium text-gray-700">{l.label}</td>
@@ -135,7 +136,7 @@ export default function ConfigTab() {
                         </td>
                       </tr>
                     )}
-                  </tbody>
+                  </Fragment>
                 );
               })}
             </tbody>
