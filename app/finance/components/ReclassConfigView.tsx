@@ -57,23 +57,13 @@ export default function ReclassCandidateList({
       const s: RuleCandidate[] = scanData.candidates || [];
       setScanned(s);
 
-      // 全部科目（异常在最前面）
       let all: RuleCandidate[] = [...s];
       if (accRes.ok) {
         const ad = await accRes.json();
-        const accounts: { code: string; name: string; balanceDirection: string }[] =
-          ad.data || ad.accounts || [];
+        const accounts = (ad.data || ad.accounts || []) as { code: string; name: string; balanceDirection: string }[];
         const codeSet = new Set(s.map((c) => c.accountCode));
         for (const a of accounts) {
-          if (!codeSet.has(a.code)) {
-            all.push({
-              accountCode: a.code, accountName: a.name,
-              balanceDirection: a.balanceDirection,
-              abnormalSide: "", abnormalAmount: 0, suggestedTarget: "",
-              existingRuleId: null, existingTarget: null,
-              existingSource: null, existingEnabled: null,
-            });
-          }
+          if (!codeSet.has(a.code)) all.push({ accountCode: a.code, accountName: a.name, balanceDirection: a.balanceDirection, abnormalSide: "", abnormalAmount: 0, suggestedTarget: "", existingRuleId: null, existingTarget: null, existingSource: null, existingEnabled: null });
         }
       }
       setAllAccounts(all);
@@ -102,20 +92,12 @@ export default function ReclassCandidateList({
 
   // 规则变更后同步计数
   useEffect(() => {
-    if (scanned.length > 0) {
-      onStats?.({
-        total: allAccounts.length,
-        noRule: scanned.filter((c) => !c.existingRuleId).length,
-        hasRule: scanned.filter((c) => !!c.existingRuleId).length,
-      });
-    }
+    if (scanned.length > 0) onStats?.({ total: allAccounts.length, noRule: scanned.filter((c) => !c.existingRuleId).length, hasRule: scanned.filter((c) => !!c.existingRuleId).length });
   }, [scanned, allAccounts.length, onStats]);
 
   async function saveRule(c: RuleCandidate, target: string) {
-    const res = await fetch("/api/finance/reclass-rules", {
-      method: "PUT", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ companyCode, year: parseInt(year), sourceAccountCode: c.accountCode, abnormalSide: c.abnormalSide, targetAccountCode: target }),
-    });
+    const body = JSON.stringify({ companyCode, year: parseInt(year), sourceAccountCode: c.accountCode, abnormalSide: c.abnormalSide, targetAccountCode: target });
+    const res = await fetch("/api/finance/reclass-rules", { method: "PUT", headers: { "Content-Type": "application/json" }, body });
     if (!res.ok) { showToast("保存失败", "error"); return false; }
     const data = await res.json();
     updateCandidate(c.accountCode, data.rule.id, data.rule.targetAccountCode, data.rule.source, data.rule.enabled);

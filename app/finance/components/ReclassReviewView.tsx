@@ -128,7 +128,7 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
                     ) : (
                       <button onClick={() => {
                         if (r.id === 0) {
-                          onReview(0, "mark_pending", {}, { periodId: r.periodId, voucherItemId: r.voucherItemId, sourceAccount: r.sourceAccount });
+                          onReview(0, "mark_pending", { targetAccount: r.targetAccount }, { periodId: r.periodId, voucherItemId: r.voucherItemId, sourceAccount: r.sourceAccount });
                         } else {
                           onReview(r.id, "mark_pending");
                         }

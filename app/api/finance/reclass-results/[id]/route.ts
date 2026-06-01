@@ -25,8 +25,8 @@ export async function PATCH(
     // id=0 → create new ReclassResult for no_match item
     if (resultId === 0) {
       const { periodId, voucherItemId, targetAccount, amount } = body;
-      if (!periodId || !voucherItemId || !targetAccount) {
-        return NextResponse.json({ error: "缺少 periodId / voucherItemId / targetAccount" }, { status: 400 });
+      if (!periodId || !voucherItemId) {
+        return NextResponse.json({ error: "缺少 periodId / voucherItemId" }, { status: 400 });
       }
       const created = await prisma.reclassResult.create({
         data: {

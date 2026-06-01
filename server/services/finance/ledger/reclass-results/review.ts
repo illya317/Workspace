@@ -28,7 +28,7 @@ export async function reviewReclassResult(
   });
 
   if (!record) throw new ReviewError("NOT_FOUND", "记录不存在");
-  if (record.status !== "pending" && payload.action !== "revert")
+  if (record.status !== "pending" && payload.action !== "revert" && payload.action !== "mark_pending")
     throw new ReviewError("NOT_PENDING", "只能审核待处理状态的记录");
 
   // 2. 按 action 处理
