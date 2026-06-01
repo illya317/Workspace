@@ -3,6 +3,7 @@ import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth
 import { prisma } from "@/lib/prisma";
 import { scanCandidates } from "@/server/services/finance/ledger/reclass-rules";
 import { syncReclassRuleResults } from "@/server/services/finance/ledger/reclass-rules/sync";
+import { ensureReclassRulesForYear } from "@/server/services/finance/ledger/reclass-rules/ensure";
 
 // ─── GET: 扫描候选 ────────────────────────────────────────
 
@@ -21,6 +22,9 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
   if (isNaN(yearNum)) {
     return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
   }
+
+  // 确保该年度有规则（无则从上年继承）
+  await ensureReclassRulesForYear(companyCode, yearNum);
 
   const result = await scanCandidates({
     companyCode,
@@ -49,16 +53,15 @@ export const PUT = withFinanceLedgerWrite(async (request: Request) => {
   }
 
   const { companyCode, year, sourceAccountCode, abnormalSide, targetAccountCode } = body;
-  if (!companyCode || !sourceAccountCode || !abnormalSide || !targetAccountCode) {
+  if (!companyCode || !year || !sourceAccountCode || !abnormalSide || !targetAccountCode) {
     return NextResponse.json(
-      { error: "companyCode, sourceAccountCode, abnormalSide, targetAccountCode 为必填" },
+      { error: "companyCode, year, sourceAccountCode, abnormalSide, targetAccountCode 为必填" },
       { status: 400 },
     );
   }
 
-  // year 仅追溯，不作为规则维度
-  const yearNum = year ? parseInt(year, 10) : null;
-  if (year && isNaN(yearNum!)) {
+  const yearNum = parseInt(year, 10);
+  if (isNaN(yearNum)) {
     return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
   }
 
@@ -69,18 +72,19 @@ export const PUT = withFinanceLedgerWrite(async (request: Request) => {
     );
   }
 
-  // Upsert by company-level unique key
+  // Upsert by (公司, 年度, 源科目, 借贷方向)
   const rule = await prisma.financeReclassRule.upsert({
     where: {
-      companyCode_sourceAccountCode_abnormalSide: {
+      companyCode_year_sourceAccountCode_abnormalSide: {
         companyCode,
+        year: yearNum,
         sourceAccountCode,
         abnormalSide,
       },
     },
     create: {
       companyCode,
-      year: yearNum ?? undefined,
+      year: yearNum,
       sourceAccountCode,
       abnormalSide,
       targetAccountCode,
@@ -95,8 +99,8 @@ export const PUT = withFinanceLedgerWrite(async (request: Request) => {
     },
   });
 
-  // 同步全公司所有期间（规则已公司级化）
-  const sync = await syncReclassRuleResults(companyCode);
+  // 同步该公司该年度所有期间
+  const sync = await syncReclassRuleResults(companyCode, yearNum);
 
   return NextResponse.json({ success: true, rule, sync });
 });

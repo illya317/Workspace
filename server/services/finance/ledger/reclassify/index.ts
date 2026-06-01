@@ -58,12 +58,13 @@ async function fetchItems(periodId: number): Promise<RawItem[]> {
   });
 }
 
-/** 加载公司级所有 enabled 规则（不再限定 year） */
+/** 加载 (公司, 年度) 下所有 enabled 规则 */
 async function fetchRules(
   companyCode: string,
+  year: number,
 ): Promise<Map<string, RuleEntry>> {
   const rules = await prisma.financeReclassRule.findMany({
-    where: { companyCode, enabled: true },
+    where: { companyCode, year, enabled: true },
     select: { id: true, sourceAccountCode: true, abnormalSide: true, targetAccountCode: true },
   });
   const map = new Map<string, RuleEntry>();
@@ -143,10 +144,10 @@ export async function buildReclassResults(
 
   // 1. 查询 items + rules（规则公司级，不再限定 year）
   const items = await fetchItems(periodId);
-  const rules = await fetchRules(period.companyCode);
-  // 明细例外规则
+  const rules = await fetchRules(period.companyCode, period.year);
+  // 明细例外规则（年度级）
   const itemRules = await prisma.financeReclassItemRule.findMany({
-    where: { companyCode: period.companyCode, enabled: true, matchType: "exact_description" },
+    where: { companyCode: period.companyCode, year: period.year, enabled: true, matchType: "exact_description" },
     select: { id: true, sourceAccountCode: true, matchValue: true, targetAccountCode: true },
   });
   const itemRuleMap = new Map<string, { id: number; targetAccountCode: string }>();

@@ -12,10 +12,10 @@ export interface SyncReclassResult {
 
 export async function syncReclassRuleResults(
   companyCode: string,
-  year?: number,
+  year: number,
 ): Promise<SyncReclassResult> {
   const periods = await prisma.financePeriod.findMany({
-    where: { companyCode, ...(year ? { year } : {}) },
+    where: { companyCode, year },
     select: { id: true },
   });
 

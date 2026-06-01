@@ -86,6 +86,8 @@ export function useReclassResults(companyCode: string, year: string, month: stri
 
   async function handleGenerate(silent = false) {
     try {
+      // 确保该年度有规则（无则从上年继承）
+      await fetch(`/api/finance/reclass-rules?companyCode=${companyCode}&year=${year}`, { method: "GET" });
       const periodId = await lookupPeriodId();
       if (!periodId) { if (!silent) showToast("期间不存在", "error"); return; }
       const res = await fetch("/api/finance/reclass-results", {

@@ -113,6 +113,7 @@ export async function scanCandidates(
     const rules = await prisma.financeReclassRule.findMany({
       where: {
         companyCode,
+        year,
         sourceAccountCode: { in: candidateCodes },
       },
       select: {

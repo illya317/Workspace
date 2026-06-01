@@ -60,9 +60,9 @@ export async function deriveRows(periodId: number): Promise<DerivedRow[]> {
   });
   if (!period || !period.companyCode) return [];
 
-  // 1. 规则（公司级，不限 year）
+  // 1. 规则（公司+年度级）
   const rules = await prisma.financeReclassRule.findMany({
-    where: { companyCode: period.companyCode, enabled: true },
+    where: { companyCode: period.companyCode, year: period.year, enabled: true },
     select: { id: true, sourceAccountCode: true, abnormalSide: true, targetAccountCode: true },
   });
   const ruleMap = new Map<string, RuleEntry>();
@@ -72,9 +72,9 @@ export async function deriveRows(periodId: number): Promise<DerivedRow[]> {
       targetAccountCode: r.targetAccountCode,
     });
   }
-  // 明细例外规则
+  // 明细例外规则（年度级）
   const itemRules = await prisma.financeReclassItemRule.findMany({
-    where: { companyCode: period.companyCode, enabled: true, matchType: "exact_description" },
+    where: { companyCode: period.companyCode, year: period.year, enabled: true, matchType: "exact_description" },
     select: { id: true, sourceAccountCode: true, matchValue: true, targetAccountCode: true },
   });
   const itemRuleMap = new Map<string, { id: number; targetAccountCode: string }>();

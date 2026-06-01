@@ -209,16 +209,16 @@ model FinanceBalanceSnapshotRow {
 
 /// 重分类规则（科目级，替代 FinanceAccount.reclassTargetCode）
 /// 一条规则 = (公司, 源科目, 异常借贷方向) → 目标科目（公司级，不限年份）
-/// source="suggested" 为系统扫描候选，source="manual"/"auto" 为用户/系统配置
+/// 一条规则 = (公司, 年度, 源科目, 借贷方向) → 目标科目
 model FinanceReclassRule {
   id                Int       @id @default(autoincrement())
   companyCode       String
-  year              Int?      // 首次配置/候选扫描来源年份，仅追溯，不参与匹配和唯一性
+  year              Int
   sourceAccountCode String
-  abnormalSide      String    // debit | credit | both —— 异常方向；both=全部发生额都重分类
+  abnormalSide      String    // debit | credit | both
   targetAccountCode String
   enabled           Boolean   @default(true)
-  source            String    @default("manual") // suggested | manual
+  source            String    @default("manual") // suggested | manual | auto | copied
   confirmedBy       Int?
   confirmedAt       DateTime?
   note              String?
@@ -228,26 +228,27 @@ model FinanceReclassRule {
   confirmer User? @relation("FinanceReclassRuleConfirmer", fields: [confirmedBy], references: [id])
   results  ReclassResult[]
 
-  @@unique([companyCode, sourceAccountCode, abnormalSide])
-  @@index([companyCode])
+  @@unique([companyCode, year, sourceAccountCode, abnormalSide])
+  @@index([companyCode, year])
   @@index([sourceAccountCode])
 }
 
-/// 明细例外规则：凭证明细 adjust 后沉淀为公司级例外
+/// 明细例外规则：凭证明细 adjust 后沉淀为公司+年度级例外
 model FinanceReclassItemRule {
   id                Int      @id @default(autoincrement())
   companyCode       String
+  year              Int
   sourceAccountCode String
-  matchType         String   @default("exact_description") // exact_description | related_entity | contains
-  matchValue        String   // 摘要/实体/关键词
+  matchType         String   @default("exact_description")
+  matchValue        String
   targetAccountCode String
   enabled           Boolean  @default(true)
   note              String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @default(now()) @updatedAt
 
-  @@unique([companyCode, sourceAccountCode, matchType, matchValue])
-  @@index([companyCode, sourceAccountCode])
+  @@unique([companyCode, year, sourceAccountCode, matchType, matchValue])
+  @@index([companyCode, year, sourceAccountCode])
 }
 
 /// 重分类结果（引擎生成 + 人工审核，从 finance-schedules.prisma 迁入）

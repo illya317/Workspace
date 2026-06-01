@@ -106,11 +106,11 @@ export async function reviewReclassResult(
   // 3b. adjust 后沉淀 itemRule + 全公司同步（在 update 之后，避免竞态）
   if (payload.action === "adjust" && updated.voucherItem.description) {
     await prisma.financeReclassItemRule.upsert({
-      where: { companyCode_sourceAccountCode_matchType_matchValue: { companyCode: record.period.companyCode, sourceAccountCode: updated.sourceAccount, matchType: "exact_description", matchValue: updated.voucherItem.description } },
-      create: { companyCode: record.period.companyCode, sourceAccountCode: updated.sourceAccount, matchType: "exact_description", matchValue: updated.voucherItem.description, targetAccountCode: updated.targetAccount, note: "凭证明细调整" },
+      where: { companyCode_year_sourceAccountCode_matchType_matchValue: { companyCode: record.period.companyCode, year: record.period.year, sourceAccountCode: updated.sourceAccount, matchType: "exact_description", matchValue: updated.voucherItem.description } },
+      create: { companyCode: record.period.companyCode, year: record.period.year, sourceAccountCode: updated.sourceAccount, matchType: "exact_description", matchValue: updated.voucherItem.description, targetAccountCode: updated.targetAccount, note: "凭证明细调整" },
       update: { targetAccountCode: updated.targetAccount },
     });
-    await syncReclassRuleResults(record.period.companyCode);
+    await syncReclassRuleResults(record.period.companyCode, record.period.year);
   }
 
   // 4. 返回 DTO
@@ -180,14 +180,14 @@ export async function createManualReclassResult(params: {
   const desc = description || created.voucherItem.description;
   if (desc) {
     await prisma.financeReclassItemRule.upsert({
-      where: { companyCode_sourceAccountCode_matchType_matchValue: { companyCode: period.companyCode, sourceAccountCode: sourceAccount, matchType: "exact_description", matchValue: desc } },
-      create: { companyCode: period.companyCode, sourceAccountCode: sourceAccount, matchType: "exact_description", matchValue: desc, targetAccountCode: targetAccount, note: "凭证明细手动调整" },
+      where: { companyCode_year_sourceAccountCode_matchType_matchValue: { companyCode: period.companyCode, year: period.year, sourceAccountCode: sourceAccount, matchType: "exact_description", matchValue: desc } },
+      create: { companyCode: period.companyCode, year: period.year, sourceAccountCode: sourceAccount, matchType: "exact_description", matchValue: desc, targetAccountCode: targetAccount, note: "凭证明细手动调整" },
       update: { targetAccountCode: targetAccount },
     });
   }
 
   // 全公司同步（await 确保报表立即可读）
-  await syncReclassRuleResults(period.companyCode);
+  await syncReclassRuleResults(period.companyCode, period.year);
 
   return {
     id: created.id, periodId: created.periodId, voucherItemId: created.voucherItemId,
