@@ -184,7 +184,7 @@ export default function ReclassCandidateList({
                 const active = CONFIG_SORT[h] === sortKey;
                 return (
                   <th key={h}
-                    className={`px-3 py-1.5 font-medium text-gray-500 ${h === "金额" ? "text-right" : "text-left"} ${canSort ? "cursor-pointer select-none hover:text-gray-700" : ""}`}
+                    className={`px-3 py-1.5 font-medium text-gray-500 ${h === "金额" ? "text-right" : h === "借贷" ? "text-center" : "text-left"} ${canSort ? "cursor-pointer select-none hover:text-gray-700" : ""}`}
                     onClick={canSort ? () => handleSort(h) : undefined}>
                     {h}{active && <span className="text-gray-400">{sortDir === "asc" ? " ↑" : " ↓"}</span>}
                   </th>

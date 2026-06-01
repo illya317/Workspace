@@ -31,7 +31,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
     useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
   const [viewMode, setViewMode] = useState<"vouchers" | "reclass">("vouchers");
   const [keyword, setKeyword] = useState("");
-  const [reclassStatus, setReclassStatus] = useState("confirmed");
+  const [reclassStatus, setReclassStatus] = useState("configured");
   const voucherColumns = useMemo(() => getVoucherColumns(expandedVoucherId), [expandedVoucherId]);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
     () => getDefaultVisibleColumns(voucherColumns)
@@ -44,12 +44,10 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   }, [companyFilter, yearFilter, monthFilter]);
 
   const reclassCounts = useMemo(() => {
-    const pending = allItems.filter((r: any) => r.kind === "pending").length;
-    return {
-      total: allItems.length,
-      pending,
-      confirmed: allItems.length - pending,
-    };
+    const unconfigured = allItems.filter((r: any) => r.kind === "normal").length;
+    const configured = allItems.filter((r: any) => r.kind === "approved").length;
+    const adjusted = allItems.filter((r: any) => r.kind === "adjusted").length;
+    return { total: allItems.length, unconfigured, configured, adjusted };
   }, [allItems]);
 
   const itemColumns = useMemo(() => [...BASE_ITEM_COLUMNS], []);
@@ -132,8 +130,9 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
                 {viewMode === "reclass" && (
                   <StatusToggle
                     tabs={[
-                      { key: "pending", label: "待审核", count: reclassCounts.pending },
-                      { key: "confirmed", label: "已通过", count: reclassCounts.confirmed },
+                      { key: "configured", label: "已配置", count: reclassCounts.configured },
+                      { key: "unconfigured", label: "未配置", count: reclassCounts.unconfigured },
+                      { key: "adjusted", label: "已调整", count: reclassCounts.adjusted },
                       { key: "all", label: "全部", count: reclassCounts.total },
                     ]}
                     active={reclassStatus}

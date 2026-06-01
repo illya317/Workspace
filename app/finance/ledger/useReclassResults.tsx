@@ -66,7 +66,7 @@ export function useReclassResults(companyCode: string, year: string, month: stri
     if (res.ok) {
       const data = await res.json();
       const item = data.item as ReclassResultRow;
-      const labels: Record<string, string> = { approve: "已通过", revert: "已撤回", adjust: "已调整", mark_pending: "已标记待审核" };
+      const labels: Record<string, string> = { approve: "已保存", revert: "已撤回", adjust: "已保存调整", mark_pending: "已设置重分类" };
       showToast(labels[action] || "操作成功");
       setReclassMap((prev) => {
         const next = new Map(prev);

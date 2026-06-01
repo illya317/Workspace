@@ -26,9 +26,13 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
   const filtered = useMemo(() => {
     const list = items.filter((r) => {
       if (statusFilter === "all") return true;
-      if (statusFilter === "pending") return r.kind === "pending";
-      // confirmed = approved + adjusted + normal
-      return r.kind !== "pending";
+      if (statusFilter === "unconfigured") return (r as any).kind === "normal";
+      if (statusFilter === "configured") return (r as any).kind === "approved";
+      if (statusFilter === "adjusted") return (r as any).kind === "adjusted";
+      // legacy: pending → treat as unconfigured; confirmed → treat as configured
+      if (statusFilter === "pending") return (r as any).kind === "pending";
+      if (statusFilter === "confirmed") return (r as any).kind !== "pending";
+      return true;
     });
     const cmp = sortDir === "asc" ? 1 : -1;
     if (sortKey === "amount") list.sort((a, b) => ((a.itemDebit || a.itemCredit || 0) - (b.itemDebit || b.itemCredit || 0)) * cmp);
@@ -61,12 +65,13 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
           <tbody>
             {filtered.map((r) => {
               const kind = (r as any).kind as string || "normal";
-              const isPending = kind === "pending";
               const isNormal = kind === "normal";
+              const isAdjusted = kind === "adjusted";
               const isAbnormal = !isNormal;
               const itemSide = r.itemDebit > 0 ? "debit" : r.itemCredit > 0 ? "credit" : null;
               const itemAmount = r.itemDebit || r.itemCredit || 0;
               const displayTarget = (r as any).suggestedTarget || r.targetAccount;
+              const hasTarget = !!displayTarget;
               return (
               <tr key={`${r.voucherItemId}-${r.voucherNo}`} className="border-b last:border-0">
                 <td className="px-3 py-1.5 font-mono text-gray-500">{r.voucherNo}</td>
@@ -80,18 +85,18 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
                 </td>
                 <td className="px-3 py-1.5 text-right font-mono text-gray-700">¥{fmt(itemAmount)}</td>
                 <td className="px-3 py-1.5">
-                  {isNormal
+                  {isNormal && !hasTarget
                     ? <span className="inline-block rounded border border-dashed border-gray-200 bg-white px-2 py-0.5 text-xs text-gray-400 cursor-pointer hover:border-emerald-300 hover:text-emerald-600" onClick={() => canWrite && setAdjustItem(r)}>选择科目</span>
-                    : <span className={`inline-block rounded border px-2 py-0.5 text-xs font-mono cursor-pointer hover:ring-1 hover:ring-emerald-300 ${isPending ? "border-gray-200 bg-gray-50 text-gray-500" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`} onClick={() => canWrite && setAdjustItem(r)}>{targetDisplay(displayTarget)}</span>}
+                    : <span className={`inline-block rounded border px-2 py-0.5 text-xs font-mono cursor-pointer hover:ring-1 hover:ring-emerald-300 ${isNormal ? "border-gray-200 bg-gray-50 text-gray-500" : isAdjusted ? "border-blue-200 bg-blue-50 text-blue-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`} onClick={() => canWrite && setAdjustItem(r)}>{targetDisplay(displayTarget)}</span>}
                 </td>
                 {canWrite && (
                   <td className="px-3 py-1.5 text-center">
-                    {isPending ? (
-                      <button onClick={() => onReview(r.id, "approve")} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
+                    {isNormal && !hasTarget ? (
+                      <button onClick={() => setAdjustItem(r)} className="rounded bg-blue-50 px-2 py-0.5 text-xs text-blue-700 hover:bg-blue-100">设置</button>
                     ) : isNormal ? (
-                      <button onClick={() => setAdjustItem(r)} className="rounded bg-blue-50 px-2 py-0.5 text-xs text-blue-700 hover:bg-blue-100">调整</button>
+                      <button onClick={() => setAdjustItem(r)} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">使用建议</button>
                     ) : (
-                      <button onClick={() => onReview(r.id, "mark_pending")} className="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-700 hover:bg-amber-100">待审核</button>
+                      <button onClick={() => setAdjustItem(r)} className="rounded bg-gray-50 px-2 py-0.5 text-xs text-gray-600 hover:bg-gray-100">修改</button>
                     )}
                   </td>
                 )}
