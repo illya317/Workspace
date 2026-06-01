@@ -132,8 +132,8 @@ budget/page.tsx
 ### 规则表 (`FinanceReclassRule`)
 
 - `companyCode` **非空**，规则总是公司作用域
-- `@@unique([companyCode, sourceAccountCode, abnormalSide])` 公司级唯一
-- `year`: nullable，首次配置/候选扫描来源年份，仅追溯
+- `@@unique([companyCode, year, sourceAccountCode, abnormalSide])` 公司+年度唯一
+- `year`: 规则所属年度，新年度首次使用时从上年度复制初始化
 - `abnormalSide`: `debit` = 异常借方、`credit` = 异常贷方、`both` = 全部重分类
 - `source`: `"manual"` 手动配置、`"auto"` 系统自动确认、`"suggested"` 系统候选
 

@@ -9,30 +9,38 @@ export async function ensureReclassRulesForYear(
 ): Promise<{ rulesCopied: number; itemRulesCopied: number }> {
   const prevYear = year - 1;
 
-  // 逐条复制上年 account rules（已存在则 upsert no-op）
+  // 目标年度已有 keys（避免重复计数）
+  const existingRuleKeys = new Set(
+    (await prisma.financeReclassRule.findMany({ where: { companyCode, year }, select: { sourceAccountCode: true, abnormalSide: true } }))
+      .map(r => `${r.sourceAccountCode}::${r.abnormalSide}`)
+  );
+  const existingItemRuleKeys = new Set(
+    (await prisma.financeReclassItemRule.findMany({ where: { companyCode, year }, select: { sourceAccountCode: true, matchType: true, matchValue: true } }))
+      .map(r => `${r.sourceAccountCode}::${r.matchType}::${r.matchValue}`)
+  );
+
+  // 逐条复制上年 account rules（只补缺失）
   const prevRules = await prisma.financeReclassRule.findMany({
     where: { companyCode, year: prevYear, enabled: true },
   });
   let rulesCopied = 0;
   for (const r of prevRules) {
-    await prisma.financeReclassRule.upsert({
-      where: { companyCode_year_sourceAccountCode_abnormalSide: { companyCode, year, sourceAccountCode: r.sourceAccountCode, abnormalSide: r.abnormalSide } },
-      create: { companyCode, year, sourceAccountCode: r.sourceAccountCode, abnormalSide: r.abnormalSide, targetAccountCode: r.targetAccountCode, source: "copied", note: `从 ${prevYear} 年度继承` },
-      update: {},
+    if (existingRuleKeys.has(`${r.sourceAccountCode}::${r.abnormalSide}`)) continue;
+    await prisma.financeReclassRule.create({
+      data: { companyCode, year, sourceAccountCode: r.sourceAccountCode, abnormalSide: r.abnormalSide, targetAccountCode: r.targetAccountCode, source: "copied", note: `从 ${prevYear} 年度继承` },
     });
     rulesCopied++;
   }
 
-  // 逐条复制上年 item rules
+  // 逐条复制上年 item rules（只补缺失）
   const prevItemRules = await prisma.financeReclassItemRule.findMany({
     where: { companyCode, year: prevYear, enabled: true },
   });
   let itemRulesCopied = 0;
   for (const ir of prevItemRules) {
-    await prisma.financeReclassItemRule.upsert({
-      where: { companyCode_year_sourceAccountCode_matchType_matchValue: { companyCode, year, sourceAccountCode: ir.sourceAccountCode, matchType: ir.matchType, matchValue: ir.matchValue } },
-      create: { companyCode, year, sourceAccountCode: ir.sourceAccountCode, matchType: ir.matchType, matchValue: ir.matchValue, targetAccountCode: ir.targetAccountCode, note: `从 ${prevYear} 年度继承` },
-      update: {},
+    if (existingItemRuleKeys.has(`${ir.sourceAccountCode}::${ir.matchType}::${ir.matchValue}`)) continue;
+    await prisma.financeReclassItemRule.create({
+      data: { companyCode, year, sourceAccountCode: ir.sourceAccountCode, matchType: ir.matchType, matchValue: ir.matchValue, targetAccountCode: ir.targetAccountCode, note: `从 ${prevYear} 年度继承` },
     });
     itemRulesCopied++;
   }
