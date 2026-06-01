@@ -78,6 +78,13 @@ export const allFinanceModules: FinanceModuleItem[] = [
     checkAccess: (u) => !!u.canAccessFinanceReport,
   },
   {
+    key: "statementConfig",
+    label: "报表配置",
+    desc: "资产负债表项目、科目映射、重分类开关",
+    href: "/finance/statement-config",
+    checkAccess: (u) => !!u.canAccessFinanceReport,
+  },
+  {
     key: "analysis",
     label: "管理会计",
     desc: "经营分析、部门利润、产品客户维度、预算执行分析",
