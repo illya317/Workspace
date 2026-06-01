@@ -228,8 +228,8 @@ model FinanceReclassRule {
   confirmer User? @relation("FinanceReclassRuleConfirmer", fields: [confirmedBy], references: [id])
   results  ReclassResult[]
 
-  @@unique([companyCode, year, sourceAccountCode, abnormalSide])
-  @@index([companyCode, year])
+  @@unique([companyCode, sourceAccountCode, abnormalSide])
+  @@index([companyCode])
   @@index([sourceAccountCode])
 }
 

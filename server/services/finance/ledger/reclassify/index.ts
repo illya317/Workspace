@@ -56,13 +56,12 @@ async function fetchItems(periodId: number): Promise<RawItem[]> {
   });
 }
 
-/** Batch 4: 加载 period 对应的 (companyCode, year) 下的所有 enabled 规则 */
+/** 加载公司级所有 enabled 规则（不再限定 year） */
 async function fetchRules(
   companyCode: string,
-  year: number,
 ): Promise<Map<string, RuleEntry>> {
   const rules = await prisma.financeReclassRule.findMany({
-    where: { companyCode, year, enabled: true },
+    where: { companyCode, enabled: true },
     select: { id: true, sourceAccountCode: true, abnormalSide: true, targetAccountCode: true },
   });
   const map = new Map<string, RuleEntry>();
@@ -162,9 +161,9 @@ export async function buildReclassResults(
   if (!period) throw new Error(`Period ${periodId} not found`);
   if (!period.companyCode) throw new Error(`Period ${periodId} has no companyCode — reclass engine requires company-scoped rules`);
 
-  // 1. 查询 items + rules
+  // 1. 查询 items + rules（规则公司级，不再限定 year）
   const items = await fetchItems(periodId);
-  const rules = await fetchRules(period.companyCode, period.year);
+  const rules = await fetchRules(period.companyCode);
   const targetExists = await buildTargetExistenceSet(rules, period.companyCode, period.year);
 
   // 2. 逐条分类

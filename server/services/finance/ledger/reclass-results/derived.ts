@@ -60,9 +60,9 @@ export async function deriveRows(periodId: number): Promise<DerivedRow[]> {
   });
   if (!period || !period.companyCode) return [];
 
-  // 1. 规则
+  // 1. 规则（公司级，不限 year）
   const rules = await prisma.financeReclassRule.findMany({
-    where: { companyCode: period.companyCode, year: period.year, enabled: true },
+    where: { companyCode: period.companyCode, enabled: true },
     select: { id: true, sourceAccountCode: true, abnormalSide: true, targetAccountCode: true },
   });
   const ruleMap = new Map<string, RuleEntry>();

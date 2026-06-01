@@ -31,8 +31,8 @@ export async function DELETE(
       where: { ruleId, status: { in: ["approved", "pending"] } },
     });
 
-    // 重跑全年同步
-    const sync = await syncReclassRuleResults(companyCode, year);
+    // 重跑全公司同步
+    const sync = await syncReclassRuleResults(companyCode);
 
     return NextResponse.json({ success: true, sync });
   })(request);

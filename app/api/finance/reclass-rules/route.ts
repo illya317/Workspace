@@ -68,12 +68,11 @@ export const PUT = withFinanceLedgerWrite(async (request: Request) => {
     );
   }
 
-  // Upsert by unique key
+  // Upsert by company-level unique key
   const rule = await prisma.financeReclassRule.upsert({
     where: {
-      companyCode_year_sourceAccountCode_abnormalSide: {
+      companyCode_sourceAccountCode_abnormalSide: {
         companyCode,
-        year: yearNum,
         sourceAccountCode,
         abnormalSide,
       },
@@ -95,8 +94,8 @@ export const PUT = withFinanceLedgerWrite(async (request: Request) => {
     },
   });
 
-  // 同步全年
-  const sync = await syncReclassRuleResults(companyCode, yearNum);
+  // 同步全公司所有期间（规则已公司级化）
+  const sync = await syncReclassRuleResults(companyCode);
 
   return NextResponse.json({ success: true, rule, sync });
 });
