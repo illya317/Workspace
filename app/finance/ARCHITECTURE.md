@@ -141,8 +141,8 @@ budget/page.tsx
 
 - `@@unique([periodId, voucherItemId])` 确保同一明细只有一条结果
 - `ruleId` (Int?) 追溯到生成此结果的 `FinanceReclassRule`；手工添加或历史兼容时为 null
-- `status`: 默认 `approved`（系统自动通过），`adjusted`（人工调整，受保护不被覆盖），`pending`（待审核），`rejected`（不参与报表）
-- `approved` / `adjusted` 被报表消费；`pending` / `rejected` 不参与
+- `status`: 默认 `approved`（系统自动通过），`adjusted`（人工调整，受保护不被覆盖），`pending`（历史兼容，不在 UI 主流程），`rejected`（历史兼容）
+- `approved` / `adjusted` 被报表消费
 
 ### 端到端数据流
 
