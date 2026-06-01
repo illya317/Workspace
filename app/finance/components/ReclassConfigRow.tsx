@@ -50,11 +50,11 @@ export default function ReclassConfigRow({
             />
           </div>
         ) : hasRule ? (
-          <span className="inline-block rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-mono text-emerald-700">{targetDisplay(c.existingTarget!)}</span>
+          <span className="inline-block rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-mono text-emerald-700 cursor-pointer hover:ring-1 hover:ring-emerald-300">{targetDisplay(c.existingTarget!)}</span>
         ) : c.suggestedTarget ? (
-          <span className="inline-block rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-mono text-gray-500">{targetDisplay(c.suggestedTarget)}</span>
+          <span className="inline-block rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-mono text-gray-500 cursor-pointer hover:ring-1 hover:ring-emerald-300">{targetDisplay(c.suggestedTarget)}</span>
         ) : (
-          <span className="inline-block rounded border border-gray-100 bg-gray-50 px-2 py-0.5 text-xs font-mono text-gray-300">—</span>
+          <span className="inline-block rounded border border-gray-100 bg-gray-50 px-2 py-0.5 text-xs font-mono text-gray-300 cursor-pointer hover:ring-1 hover:ring-emerald-300">—</span>
         )}
       </td>
       {canWrite && (
