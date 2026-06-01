@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { scanCandidates } from "@/server/services/finance/ledger/reclass-rules";
+import { buildReclassResults } from "@/server/services/finance/ledger/reclassify";
 
 // ─── GET: 扫描候选 ────────────────────────────────────────
 
@@ -94,5 +95,16 @@ export const PUT = withFinanceLedgerWrite(async (request: Request) => {
     },
   });
 
-  return NextResponse.json({ success: true, rule });
+  // 同步：对该公司该年度所有期间重跑重分类
+  const periods = await prisma.financePeriod.findMany({
+    where: { companyCode, year: yearNum },
+    select: { id: true },
+  });
+  let synced = 0, skippedAdjusted = 0;
+  for (const p of periods) {
+    const result = await buildReclassResults(p.id, { dryRun: false });
+    if ("written" in result) { synced += result.written; skippedAdjusted += result.skippedAdjusted; }
+  }
+
+  return NextResponse.json({ success: true, rule, sync: { periods: periods.length, synced, skippedAdjusted } });
 });

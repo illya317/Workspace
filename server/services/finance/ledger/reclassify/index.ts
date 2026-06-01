@@ -102,16 +102,16 @@ async function buildTargetExistenceSet(
 async function upsertResults(
   periodId: number,
   matched: ReclassifyItemResult[],
-): Promise<{ written: number; skippedNonPending: number }> {
+): Promise<{ written: number; skippedAdjusted: number }> {
   const existing = await prisma.reclassResult.findMany({
     where: { periodId, voucherItemId: { in: matched.map((r) => r.voucherItemId) } },
     select: { voucherItemId: true, status: true },
   });
-  const nonPendingIds = new Set(
-    existing.filter((e) => e.status !== "pending").map((e) => e.voucherItemId),
+  // 只保护人工调整过的记录，自动 approved/pending 允许被规则刷新覆盖
+  const protectedIds = new Set(
+    existing.filter((e) => e.status === "adjusted" || e.status === "rejected").map((e) => e.voucherItemId),
   );
-
-  const writable = matched.filter((r) => !nonPendingIds.has(r.voucherItemId));
+  const writable = matched.filter((r) => !protectedIds.has(r.voucherItemId));
 
   let written = 0;
   for (let i = 0; i < writable.length; i += 500) {
@@ -143,7 +143,7 @@ async function upsertResults(
     written += batch.length;
   }
 
-  return { written, skippedNonPending: nonPendingIds.size };
+  return { written, skippedAdjusted: protectedIds.size };
 }
 
 // ─── 入口 ─────────────────────────────────────────────────
@@ -191,15 +191,15 @@ export async function buildReclassResults(
 
   // 5. 只写入 matched（异常方向命中规则）到 ReclassResult
   const matched = results.filter((r) => r.status === ItemStatus.MATCHED);
-  const { written, skippedNonPending } =
+  const { written, skippedAdjusted } =
     matched.length > 0
       ? await upsertResults(periodId, matched)
-      : { written: 0, skippedNonPending: 0 };
+      : { written: 0, skippedAdjusted: 0 };
 
-  const execResult: ReclassifyExecutionResult = { ...summary, written, skippedNonPending };
-  if (skippedNonPending > 0) {
+  const execResult: ReclassifyExecutionResult = { ...summary, written, skippedAdjusted };
+  if (skippedAdjusted > 0) {
     console.log(
-      `[buildReclassResults] 跳过 ${skippedNonPending} 条非 pending 记录，未被覆盖`,
+      `[buildReclassResults] 保护 ${skippedAdjusted} 条人工调整记录，未被覆盖`,
     );
   }
   return execResult;

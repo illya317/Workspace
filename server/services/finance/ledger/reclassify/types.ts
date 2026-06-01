@@ -61,10 +61,10 @@ export interface ReclassifySummary {
 }
 
 export interface ReclassifyExecutionResult extends ReclassifySummary {
-  /** 实际写入 ReclassResult 表的新增/更新行数 */
+  /** 实际写入 ReclassResult 表的行数 */
   written: number;
-  /** 被跳过的非 pending（已审核/调整/拒绝）记录数 */
-  skippedNonPending: number;
+  /** 被保护的人工调整/拒绝记录数 */
+  skippedAdjusted: number;
 }
 
 // ─── Options ──────────────────────────────────────────────
