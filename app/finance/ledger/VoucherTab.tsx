@@ -31,7 +31,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
     useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
   const [viewMode, setViewMode] = useState<"vouchers" | "reclass">("vouchers");
   const [keyword, setKeyword] = useState("");
-  const [reclassStatus, setReclassStatus] = useState("pending");
+  const [reclassStatus, setReclassStatus] = useState("confirmed");
   const voucherColumns = useMemo(() => getVoucherColumns(expandedVoucherId), [expandedVoucherId]);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(
     () => getDefaultVisibleColumns(voucherColumns)

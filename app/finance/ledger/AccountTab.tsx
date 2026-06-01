@@ -22,7 +22,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
   const [scope, setScope] = useState("");
   const [reclassMode, setReclassMode] = useState(false);
   const [reclassStats, setReclassStats] = useState({ total: 0, noRule: 0, hasRule: 0 });
-  const [reclassStatus, setReclassStatus] = useState<"noRule" | "hasRule" | "all">("noRule");
+  const [reclassStatus, setReclassStatus] = useState<"noRule" | "hasRule" | "all">("hasRule");
   const [extraField, setExtraField] = useState<"level" | "scope">("scope");
   const [extraValue, setExtraValue] = useState("");
   const [keyword, setKeyword] = useState("");

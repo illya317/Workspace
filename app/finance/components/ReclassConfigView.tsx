@@ -18,7 +18,7 @@ interface Props {
 }
 
 export default function ReclassCandidateList({
-  companyCode, year, keyword = "", statusFilter = "noRule", pageSize = 50, canWrite, onStats,
+  companyCode, year, keyword = "", statusFilter = "hasRule", pageSize = 50, canWrite, onStats,
 }: Props) {
   const [scanned, setScanned] = useState<RuleCandidate[]>([]);
   const [allAccounts, setAllAccounts] = useState<RuleCandidate[]>([]);

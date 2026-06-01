@@ -31,7 +31,12 @@ export default function ReclassConfigRow({
     <tr key={key} className="border-b last:border-0">
       <td className="px-3 py-1.5 font-mono text-gray-600">{c.accountCode}</td>
       <td className="px-3 py-1.5 text-gray-700">{c.accountName}</td>
-      <td className="px-3 py-1.5">{dirBadge(c.abnormalSide)}</td>
+      <td className="px-3 py-1.5 text-center">
+        {c.abnormalSide
+          ? <span className="inline-block rounded px-1.5 py-0.5 text-xs font-medium bg-red-50 text-red-700">{c.abnormalSide === "debit" ? "借" : "贷"}</span>
+          : <span className="text-gray-400">{c.balanceDirection === "debit" ? "借" : c.balanceDirection === "credit" ? "贷" : "—"}</span>
+        }
+      </td>
       <td className="px-3 py-1.5 text-right font-mono text-gray-700">
         ¥{c.abnormalAmount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
       </td>
@@ -60,11 +65,13 @@ export default function ReclassConfigRow({
       </td>
       {canWrite && (
         <td className="px-3 py-1.5 text-center">
-          {!hasRule && c.suggestedTarget ? (
-            <button onClick={() => onSaveRule(c, c.suggestedTarget)} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
-          ) : hasRule ? (
+          {hasRule ? (
             <button onClick={() => onClearRule(c)} className="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-700 hover:bg-amber-100">待审核</button>
-          ) : null}
+          ) : c.suggestedTarget ? (
+            <button onClick={() => onSaveRule(c, c.suggestedTarget)} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
+          ) : (
+            <button onClick={() => onStartEdit(c)} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
+          )}
         </td>
       )}
     </tr>
