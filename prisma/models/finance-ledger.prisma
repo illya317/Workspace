@@ -251,6 +251,33 @@ model FinanceReclassItemRule {
   @@index([companyCode, year, sourceAccountCode])
 }
 
+/// 报表项目配置（资产负债表/利润表/现金流量表）
+/// 按公司+年度+报表类型存储，新年度从上年度复制
+model FinanceStatementLineConfig {
+  id                Int      @id @default(autoincrement())
+  companyCode       String
+  year              Int
+  reportType        String   @default("balanceSheet") // balanceSheet | incomeStatement | cashFlow
+  lineCode          String   // unique line identifier
+  label             String   // display label
+  section           String   // currentAssets | nonCurrentAssets | currentLiabilities | nonCurrentLiabilities | equity
+  side              String   @default("debit") // debit | credit
+  sortOrder         Int      @default(0)
+  prefixesJson      String   @default("[]") // JSON array of account code prefixes
+  formulaJson       String   @default("{}") // JSON: {type, operands} for computed lines
+  reclassSource     Boolean  @default(false)
+  reclassTarget     Boolean  @default(false)
+  isHeader          Boolean  @default(false)
+  isTotal           Boolean  @default(false)
+  isGrandTotal      Boolean  @default(false)
+  enabled           Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+
+  @@unique([companyCode, year, reportType, lineCode])
+  @@index([companyCode, year, reportType])
+}
+
 /// 重分类结果（引擎生成 + 人工审核，从 finance-schedules.prisma 迁入）
 /// periodId + voucherItemId 唯一：同一凭证明细只生成一条重分类结果
 /// engine upsert 时幂等，不会重复

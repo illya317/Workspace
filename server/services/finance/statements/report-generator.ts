@@ -13,7 +13,7 @@ export interface GenerateReportParams {
   reclassEntries?: ReclassEntry[];
 }
 
-export function generateReport(params: GenerateReportParams) {
+export async function generateReport(params: GenerateReportParams) {
   const { period, balances, yearBalances, reportType, isCanada, reclassEntries } = params;
   if (reportType === "balance") return generateBalanceSheet(period, balances, reclassEntries);
   if (reportType === "income") return generateIncomeStatement(period, yearBalances, isCanada);
