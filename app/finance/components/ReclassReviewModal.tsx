@@ -21,8 +21,9 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
 
   useEffect(() => {
     if (open && item) {
-      setTargetAccount(item.targetAccount);
-      setAmount(String(item.amount));
+      const st = (item as any).suggestedTarget as string | undefined;
+      setTargetAccount(item.targetAccount || st || "");
+      setAmount(String(item.amount > 0 ? item.amount : (item.itemDebit || item.itemCredit || 0)));
       setNote("");
     }
   }, [open, item]);

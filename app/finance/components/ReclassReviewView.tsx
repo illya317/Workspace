@@ -81,18 +81,17 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
                 <td className="px-3 py-1.5 text-right font-mono text-gray-700">¥{fmt(itemAmount)}</td>
                 <td className="px-3 py-1.5">
                   {isNormal
-                    ? <span className="text-gray-300">—</span>
+                    ? <span className="inline-block rounded border border-dashed border-gray-200 bg-white px-2 py-0.5 text-xs text-gray-400 cursor-pointer hover:border-emerald-300 hover:text-emerald-600" onClick={() => canWrite && setAdjustItem(r)}>选择科目</span>
                     : <span className={`inline-block rounded border px-2 py-0.5 text-xs font-mono cursor-pointer hover:ring-1 hover:ring-emerald-300 ${isPending ? "border-gray-200 bg-gray-50 text-gray-500" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`} onClick={() => canWrite && setAdjustItem(r)}>{targetDisplay(displayTarget)}</span>}
                 </td>
                 {canWrite && (
                   <td className="px-3 py-1.5 text-center">
                     {isPending ? (
                       <button onClick={() => onReview(r.id, "approve")} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
+                    ) : isNormal ? (
+                      <button onClick={() => setAdjustItem(r)} className="rounded bg-blue-50 px-2 py-0.5 text-xs text-blue-700 hover:bg-blue-100">调整</button>
                     ) : (
-                      <button onClick={() => {
-                        if (r.id === 0) onReview(0, "mark_pending", { targetAccount: r.targetAccount }, { periodId: r.periodId, voucherItemId: r.voucherItemId, sourceAccount: r.sourceAccount });
-                        else onReview(r.id, "mark_pending");
-                      }} className="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-700 hover:bg-amber-100">待审核</button>
+                      <button onClick={() => onReview(r.id, "mark_pending")} className="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-700 hover:bg-amber-100">待审核</button>
                     )}
                   </td>
                 )}
