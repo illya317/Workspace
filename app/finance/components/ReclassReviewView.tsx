@@ -9,7 +9,7 @@ interface Props {
   items: ReclassResultRow[];
   canWrite: boolean;
   statusFilter: string;
-  onReview: (id: number, action: "approve" | "revert" | "adjust", body?: Record<string, unknown>, extra?: { periodId?: number; voucherItemId?: number; sourceAccount?: string }) => void;
+  onReview: (id: number, action: "approve" | "revert" | "adjust" | "mark_pending", body?: Record<string, unknown>, extra?: { periodId?: number; voucherItemId?: number; sourceAccount?: string }) => void;
   companyCode?: string;
   year?: string;
 }
@@ -36,7 +36,7 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
   const filtered = useMemo(() => {
     const list = items.filter((r) =>
       statusFilter === "all" ||
-      (statusFilter === "confirmed" && r.status !== "pending" && r.status !== "no_match") ||
+      (statusFilter === "confirmed" && r.status !== "pending") ||
       r.status === statusFilter
     );
     const cmp = sortDir === "asc" ? 1 : -1;
@@ -87,43 +87,53 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
           </thead>
           <tbody>
             {filtered.map((r) => {
-              const noMatch = r.status === "no_match";
-              const isAbnormal = !noMatch && r.amount > 0;
+              const isAbnormal = !!r.abnormalSide;
               const itemSide = r.itemDebit > 0 ? "debit" : r.itemCredit > 0 ? "credit" : null;
               const itemAmount = r.itemDebit || r.itemCredit || 0;
+              const isPending = r.status === "pending";
+              const hasTarget = !!r.targetAccount;
               return (
               <tr key={`${r.voucherItemId || r.id}-${r.voucherNo}`} className="border-b last:border-0">
                 <td className="px-3 py-1.5 font-mono text-gray-500">{r.voucherNo}</td>
                 <td className="px-3 py-1.5 font-mono text-gray-600">{r.sourceAccount}</td>
                 <td className="px-3 py-1.5 text-gray-700">{r.sourceAccountName}</td>
                 <td className="px-3 py-1.5 text-center">
-                  {itemSide
-                    ? isAbnormal
-                      ? <span className="inline-block rounded px-1.5 py-0.5 text-xs font-medium bg-red-50 text-red-700">{itemSide === "debit" ? "借" : "贷"}</span>
-                      : <span className="text-gray-400">{itemSide === "debit" ? "借" : "贷"}</span>
+                  {itemSide && isAbnormal
+                    ? <span className="inline-block rounded px-1.5 py-0.5 text-xs font-medium bg-red-50 text-red-700">{itemSide === "debit" ? "借" : "贷"}</span>
+                    : itemSide
+                    ? <span className="text-gray-400">{itemSide === "debit" ? "借" : "贷"}</span>
                     : <span className="text-gray-300">—</span>
                   }
                 </td>
                 <td className="px-3 py-1.5 text-right font-mono text-gray-700">¥{fmt(itemAmount)}</td>
                 <td className="px-3 py-1.5">
-                  {noMatch
-                    ? <span className="text-gray-300">—</span>
-                    : r.status === "pending"
-                    ? <span className="text-gray-500">{targetDisplay(r.targetAccount)}</span>
-                    : <span className="text-emerald-700">{targetDisplay(r.targetAccount)}</span>
-                  }
+                  {hasTarget ? (
+                    <span
+                      className={`inline-block rounded border px-2 py-0.5 text-xs font-mono cursor-pointer hover:ring-1 hover:ring-emerald-300 ${
+                        isPending
+                          ? "border-gray-200 bg-gray-50 text-gray-500"
+                          : "border-emerald-200 bg-emerald-50 text-emerald-700"
+                      }`}
+                      onClick={() => setAdjustItem(r)}>
+                      {targetDisplay(r.targetAccount)}
+                    </span>
+                  ) : (
+                    <span className="text-gray-300">—</span>
+                  )}
                 </td>
                 {canWrite && (
                   <td className="px-3 py-1.5 text-center">
-                    <div className="inline-flex items-center gap-1">
-                      {!noMatch && r.status === "pending" && (
-                        <button onClick={() => onReview(r.id, "approve")} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
-                      )}
-                      <button onClick={() => setAdjustItem(r)} className="rounded px-1.5 py-0.5 text-xs text-gray-500 hover:bg-gray-100">编辑</button>
-                      {!noMatch && r.status !== "pending" && (
-                        <button onClick={() => onReview(r.id, "revert")} className="rounded px-1.5 py-0.5 text-xs text-red-500 hover:bg-red-50">清除</button>
-                      )}
-                    </div>
+                    {isPending ? (
+                      <button onClick={() => onReview(r.id, "approve")} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
+                    ) : (
+                      <button onClick={() => {
+                        if (r.id === 0) {
+                          onReview(0, "mark_pending", {}, { periodId: r.periodId, voucherItemId: r.voucherItemId, sourceAccount: r.sourceAccount });
+                        } else {
+                          onReview(r.id, "mark_pending");
+                        }
+                      }} className="rounded bg-amber-50 px-2 py-0.5 text-xs text-amber-700 hover:bg-amber-100">待审核</button>
+                    )}
                   </td>
                 )}
               </tr>

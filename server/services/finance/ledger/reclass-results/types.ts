@@ -49,6 +49,7 @@ export type ReviewPayload =
   | { action: "approve"; note?: string }
   | { action: "reject"; note?: string }
   | { action: "revert" }
+  | { action: "mark_pending"; note?: string }
   | { action: "adjust"; targetAccount: string; amount: number; note?: string };
 
 export interface ReviewReclassParams {

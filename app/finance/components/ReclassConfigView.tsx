@@ -86,7 +86,6 @@ export default function ReclassCandidateList({
     } catch { showToast("网络错误", "error"); }
     setLoading(false);
   }
-
   useEffect(() => { load(); setPage(1); }, [companyCode, year]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
 
@@ -122,14 +121,6 @@ export default function ReclassCandidateList({
     updateCandidate(c.accountCode, data.rule.id, data.rule.targetAccountCode, data.rule.source, data.rule.enabled);
     return true;
   }
-
-  async function clearRule(c: RuleCandidate) {
-    if (!c.existingRuleId) return;
-    if (!(await fetch(`/api/finance/reclass-rules/${c.existingRuleId}`, { method: "DELETE" })).ok) { showToast("清除失败", "error"); return; }
-    updateCandidate(c.accountCode, null, null, null, null);
-    showToast("已清除规则");
-  }
-
   function startEdit(c: RuleCandidate) {
     setEditCode(c.accountCode + "::" + c.abnormalSide);
     setEditValue(c.existingTarget || c.suggestedTarget);
@@ -140,9 +131,6 @@ export default function ReclassCandidateList({
     setEditCode(null); setEditValue("");
     if (val && val !== (c.existingTarget || "")) { if (await saveRule(c, val)) showToast("已更新规则"); }
   }
-
-  // ── Render helpers ───────────────────────────────────
-
 
   // ── Sort ─────────────────────────────────────────────
 
@@ -226,7 +214,6 @@ export default function ReclassCandidateList({
                 onStartEdit={startEdit}
                 onCommitEdit={commitEdit}
                 onSaveRule={async (c, t) => { if (await saveRule(c, t)) showToast("已确认规则"); }}
-                onClearRule={clearRule}
                 onEditValueChange={setEditValue}
                 onCancelEdit={() => { setEditCode(null); setEditValue(""); }}
               />

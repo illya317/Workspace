@@ -75,6 +75,11 @@ export async function reviewReclassResult(
       updateData = { status: "pending", targetAccount: record.sourceAccount, amount: record.amount, note: null, adjustedBy: userId, adjustedAt: now };
       break;
 
+    case "mark_pending":
+      if (record.status === "pending") throw new ReviewError("ALREADY_PENDING", "该记录已是待审核状态");
+      updateData = { status: "pending", targetAccount: record.targetAccount, amount: record.amount, note, adjustedBy: userId, adjustedAt: now };
+      break;
+
     default:
       throw new ReviewError("INVALID_ACTION", "无效的审核动作");
   }

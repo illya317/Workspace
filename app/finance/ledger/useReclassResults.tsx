@@ -52,7 +52,7 @@ export function useReclassResults(companyCode: string, year: string, month: stri
 
   // ── Review ──────────────────────────────────────────
 
-  async function handleReview(resultId: number, action: "approve" | "revert" | "adjust", body?: Record<string, unknown>, extra?: { periodId?: number; voucherItemId?: number; sourceAccount?: string }) {
+  async function handleReview(resultId: number, action: "approve" | "revert" | "adjust" | "mark_pending", body?: Record<string, unknown>, extra?: { periodId?: number; voucherItemId?: number; sourceAccount?: string }) {
     const payload: Record<string, unknown> = { action, ...body };
     if (resultId === 0 && extra) {
       payload.periodId = extra.periodId;
@@ -66,12 +66,16 @@ export function useReclassResults(companyCode: string, year: string, month: stri
     if (res.ok) {
       const data = await res.json();
       const item = data.item as ReclassResultRow;
-      showToast(action === "approve" ? "已通过" : action === "revert" ? "已撤回" : "已调整");
+      const labels: Record<string, string> = { approve: "已通过", revert: "已撤回", adjust: "已调整", mark_pending: "已标记待审核" };
+      showToast(labels[action] || "操作成功");
       setReclassMap((prev) => {
         const next = new Map(prev);
-        if (action === "revert") next.set(item.voucherItemId, item); else next.set(item.voucherItemId, item);
+        next.set(item.voucherItemId, item);
         return next;
       });
+      // Also refresh allItems
+      const periodId = await lookupPeriodId();
+      if (periodId) await loadAllItemsForPeriod(periodId);
     } else {
       const err = await res.json().catch(() => ({}));
       showToast(err.error || "操作失败", "error");

@@ -44,13 +44,13 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   }, [companyFilter, yearFilter, monthFilter]);
 
   const reclassCounts = useMemo(() => {
-    const matched = Array.from(reclassMap.values());
+    const pending = allItems.filter((r) => r.status === "pending").length;
     return {
       total: allItems.length,
-      pending: matched.filter((r) => r.status === "pending").length,
-      confirmed: matched.filter((r) => r.status !== "pending").length,
+      pending,
+      confirmed: allItems.length - pending,
     };
-  }, [reclassMap, allItems]);
+  }, [allItems]);
 
   const itemColumns = useMemo(() => [...BASE_ITEM_COLUMNS], []);
 

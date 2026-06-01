@@ -15,14 +15,13 @@ interface Props {
   onStartEdit: (c: RuleCandidate) => void;
   onCommitEdit: (c: RuleCandidate) => void;
   onSaveRule: (c: RuleCandidate, target: string) => void;
-  onClearRule: (c: RuleCandidate) => void;
   onEditValueChange: (v: string) => void;
   onCancelEdit: () => void;
 }
 
 export default function ReclassConfigRow({
   c, canWrite, companyCode, year, editing, editValue, editRef,
-  onStartEdit, onCommitEdit, onSaveRule, onClearRule, onEditValueChange, onCancelEdit,
+  onStartEdit, onCommitEdit, onSaveRule, onEditValueChange, onCancelEdit,
 }: Props) {
   const hasRule = !!c.existingRuleId;
   const key = c.accountCode + "::" + c.abnormalSide;
@@ -51,20 +50,17 @@ export default function ReclassConfigRow({
             />
           </div>
         ) : hasRule ? (
-          <span className="text-emerald-700">{targetDisplay(c.existingTarget!)}</span>
+          <span className="inline-block rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-mono text-emerald-700">{targetDisplay(c.existingTarget!)}</span>
         ) : c.suggestedTarget ? (
-          <span className="text-gray-500">{targetDisplay(c.suggestedTarget)}</span>
+          <span className="inline-block rounded border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-mono text-gray-500">{targetDisplay(c.suggestedTarget)}</span>
         ) : (
-          <span className="text-gray-300">—</span>
+          <span className="inline-block rounded border border-gray-100 bg-gray-50 px-2 py-0.5 text-xs font-mono text-gray-300">—</span>
         )}
       </td>
       {canWrite && (
         <td className="px-3 py-1.5 text-center">
           {!hasRule && c.suggestedTarget && (
             <button onClick={() => onSaveRule(c, c.suggestedTarget)} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
-          )}
-          {hasRule && (
-            <button onClick={() => onClearRule(c)} className="rounded px-1.5 py-0.5 text-xs text-red-500 hover:bg-red-50">清除</button>
           )}
         </td>
       )}

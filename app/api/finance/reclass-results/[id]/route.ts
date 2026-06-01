@@ -35,7 +35,7 @@ export async function PATCH(
           sourceAccount: body.sourceAccount || "",
           targetAccount,
           amount: amount || 0,
-          status: "approved",
+          status: body.action === "mark_pending" ? "pending" : "approved",
         },
         include: {
           voucherItem: {
@@ -80,9 +80,9 @@ export async function PATCH(
     }
 
     // 参数校验
-    if (!["approve", "reject", "adjust", "revert"].includes(body.action)) {
+    if (!["approve", "reject", "adjust", "revert", "mark_pending"].includes(body.action)) {
       return NextResponse.json(
-        { error: "action 必须为 approve / reject / adjust / revert" },
+        { error: "action 必须为 approve / reject / adjust / revert / mark_pending" },
         { status: 400 },
       );
     }
