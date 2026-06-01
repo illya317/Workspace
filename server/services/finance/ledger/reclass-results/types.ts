@@ -15,6 +15,8 @@ export interface ReclassResultRow {
   sourceAccount: string;
   sourceAccountName: string;
   abnormalSide: string | null;
+  itemDebit: number;
+  itemCredit: number;
   targetAccount: string;
   amount: number;
   status: "pending" | "approved" | "adjusted" | "rejected" | "no_match";

@@ -52,10 +52,16 @@ export function useReclassResults(companyCode: string, year: string, month: stri
 
   // ── Review ──────────────────────────────────────────
 
-  async function handleReview(resultId: number, action: "approve" | "revert" | "adjust", body?: Record<string, unknown>) {
+  async function handleReview(resultId: number, action: "approve" | "revert" | "adjust", body?: Record<string, unknown>, extra?: { periodId?: number; voucherItemId?: number; sourceAccount?: string }) {
+    const payload: Record<string, unknown> = { action, ...body };
+    if (resultId === 0 && extra) {
+      payload.periodId = extra.periodId;
+      payload.voucherItemId = extra.voucherItemId;
+      payload.sourceAccount = extra.sourceAccount;
+    }
     const res = await fetch(`/api/finance/reclass-results/${resultId}`, {
       method: "PATCH", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action, ...body }),
+      body: JSON.stringify(payload),
     });
     if (res.ok) {
       const data = await res.json();

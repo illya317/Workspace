@@ -109,6 +109,8 @@ export async function reviewReclassResult(
     sourceAccount: updated.sourceAccount,
     sourceAccountName: updated.voucherItem.account.name,
     abnormalSide: updated.rule?.abnormalSide ?? null,
+    itemDebit: 0,
+    itemCredit: 0,
     targetAccount: updated.targetAccount,
     amount: updated.amount,
     status: updated.status as ReclassResultRow["status"],

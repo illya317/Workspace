@@ -32,7 +32,7 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
   async function handleSubmit() {
     const amt = parseFloat(amount);
     if (!targetAccount.trim() || !amt || amt <= 0) return;
-    if (amt > item!.amount) return;
+    if (item!.amount > 0 && amt > item!.amount) return;
     setSaving(true);
     try {
       await onSubmit(item!.id, targetAccount.trim(), amt, note.trim());
@@ -71,7 +71,7 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
           </div>
           <div>
             <label className="block text-xs text-gray-400 mb-0.5">重分类金额</label>
-            <input type="number" step="0.01" value={amount} max={item.amount}
+            <input type="number" step="0.01" value={amount} {...(item.amount > 0 ? { max: item.amount } : {})}
               onChange={(e) => setAmount(e.target.value)}
               className="w-full rounded border border-gray-200 px-2.5 py-1.5 text-sm focus:border-emerald-400 focus:outline-none" />
           </div>

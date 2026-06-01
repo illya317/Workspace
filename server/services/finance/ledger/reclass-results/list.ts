@@ -70,6 +70,8 @@ export async function listReclassResults(
     sourceAccount: r.sourceAccount,
     sourceAccountName: r.voucherItem.account.name,
     abnormalSide: r.rule?.abnormalSide ?? null,
+    itemDebit: 0,
+    itemCredit: 0,
     targetAccount: r.targetAccount,
     amount: r.amount,
     status: r.status as ReclassResultRow["status"],

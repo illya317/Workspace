@@ -3,10 +3,10 @@
 // ─── 表头标签 ─────────────────────────────────────────────────
 
 /** 科目设置重分类：科目视角 */
-export const RECLASS_HEADERS = ["科目编码", "科目名称", "异常方向", "异常金额", "建议科目"] as const;
+export const RECLASS_HEADERS = ["科目编码", "科目名称", "借贷", "金额", "建议科目"] as const;
 
 /** 凭证明细重分类：凭证视角，多了凭证号 */
-export const REVIEW_HEADERS = ["凭证号", "科目编码", "科目名称", "异常方向", "异常金额", "建议科目"] as const;
+export const REVIEW_HEADERS = ["凭证号", "科目编码", "科目名称", "借贷", "金额", "建议科目"] as const;
 
 // ─── 金额格式化 ───────────────────────────────────────────────
 
@@ -18,8 +18,8 @@ export const fmt = (n: number) =>
 export function dirBadge(side: string | null) {
   if (!side) return <>—</>;
   return side === "debit"
-    ? <span className="inline-block rounded px-1.5 py-0.5 text-xs font-medium bg-blue-50 text-blue-700">借</span>
-    : <span className="inline-block rounded px-1.5 py-0.5 text-xs font-medium bg-amber-50 text-amber-700">贷</span>;
+    ? <span className="inline-block rounded px-1.5 py-0.5 text-xs font-medium bg-red-50 text-red-700">借</span>
+    : <span className="inline-block rounded px-1.5 py-0.5 text-xs font-medium bg-red-50 text-red-700">贷</span>;
 }
 
 // ─── 目标科目显示 ─────────────────────────────────────────────

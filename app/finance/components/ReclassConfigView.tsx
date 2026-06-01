@@ -152,7 +152,7 @@ export default function ReclassCandidateList({
 
   const CONFIG_SORT: Record<string, ConfigSortKey> = {
     "科目编码": "accountCode",
-    "异常金额": "amount",
+    "金额": "amount",
   };
 
   function handleSort(label: string) {
@@ -206,7 +206,7 @@ export default function ReclassCandidateList({
                 const active = CONFIG_SORT[h] === sortKey;
                 return (
                   <th key={h}
-                    className={`px-3 py-1.5 font-medium text-gray-500 ${h === "异常金额" ? "text-right" : "text-left"} ${canSort ? "cursor-pointer select-none hover:text-gray-700" : ""}`}
+                    className={`px-3 py-1.5 font-medium text-gray-500 ${h === "金额" ? "text-right" : "text-left"} ${canSort ? "cursor-pointer select-none hover:text-gray-700" : ""}`}
                     onClick={canSort ? () => handleSort(h) : undefined}>
                     {h}{active && <span className="text-gray-400">{sortDir === "asc" ? " ↑" : " ↓"}</span>}
                   </th>

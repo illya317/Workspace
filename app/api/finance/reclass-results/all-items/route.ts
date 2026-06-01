@@ -44,6 +44,8 @@ export const GET = withFinanceLedgerAccess(async (request) => {
       sourceAccount: item.account.code,
       sourceAccountName: item.account.name,
       abnormalSide: rr?.rule?.abnormalSide ?? null,
+      itemDebit: item.debit,
+      itemCredit: item.credit,
       targetAccount: rr?.targetAccount ?? "",
       amount: rr?.amount ?? 0,
       status: rr?.status ?? "no_match",
