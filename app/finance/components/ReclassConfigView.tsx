@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import { matchText } from "@/lib/search";
@@ -144,18 +144,47 @@ export default function ReclassCandidateList({
   // ── Render helpers ───────────────────────────────────
 
 
-  // ── Filter ───────────────────────────────────────────
+  // ── Sort ─────────────────────────────────────────────
 
-  useEffect(() => { setPage(1); }, [keyword, statusFilter]);
+  type ConfigSortKey = "accountCode" | "amount";
+  const [sortKey, setSortKey] = useState<ConfigSortKey>("amount");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
-  // 选数据源：待配置/已确认用算法扫出的 scanned，全部用 allAccounts
-  const source = statusFilter === "all" ? allAccounts : scanned;
-  const filtered = source.filter((c) => {
-    if (statusFilter === "hasRule" && !c.existingRuleId) return false;
-    if (statusFilter === "noRule" && c.existingRuleId) return false;
-    if (keyword && !matchText(c.accountCode, keyword) && !matchText(c.accountName, keyword)) return false;
-    return true;
-  });
+  const CONFIG_SORT: Record<string, ConfigSortKey> = {
+    "科目编码": "accountCode",
+    "异常金额": "amount",
+  };
+
+  function handleSort(label: string) {
+    const key = CONFIG_SORT[label];
+    if (!key) return;
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir(key === "amount" ? "desc" : "asc");
+    }
+  }
+
+  // ── Filter & Sort ─────────────────────────────────────
+
+  useEffect(() => { setPage(1); }, [keyword, statusFilter, sortKey, sortDir]);
+
+  const filtered = useMemo(() => {
+    const list = allAccounts.filter((c) => {
+      if (statusFilter === "hasRule" && !c.existingRuleId) return false;
+      if (statusFilter === "noRule" && c.existingRuleId) return false;
+      if (keyword && !matchText(c.accountCode, keyword) && !matchText(c.accountName, keyword)) return false;
+      return true;
+    });
+    const cmp = sortDir === "asc" ? 1 : -1;
+    if (sortKey === "amount") {
+      list.sort((a, b) => (a.abnormalAmount - b.abnormalAmount) * cmp);
+    } else {
+      list.sort((a, b) => a.accountCode.localeCompare(b.accountCode) * cmp);
+    }
+    return list;
+  }, [allAccounts, statusFilter, keyword, sortKey, sortDir]);
 
   const totalPages = Math.ceil(filtered.length / pageSize);
   const skip = (page - 1) * pageSize;
@@ -172,9 +201,17 @@ export default function ReclassCandidateList({
         <table className="w-full text-xs">
           <thead className="border-b bg-gray-100">
             <tr>
-              {RECLASS_HEADERS.map((h, i) => (
-                <th key={h} className={`px-3 py-1.5 font-medium text-gray-500 ${i === 3 ? "text-right" : "text-left"}`}>{h}</th>
-              ))}
+              {RECLASS_HEADERS.map((h) => {
+                const canSort = h in CONFIG_SORT;
+                const active = CONFIG_SORT[h] === sortKey;
+                return (
+                  <th key={h}
+                    className={`px-3 py-1.5 font-medium text-gray-500 ${h === "异常金额" ? "text-right" : "text-left"} ${canSort ? "cursor-pointer select-none hover:text-gray-700" : ""}`}
+                    onClick={canSort ? () => handleSort(h) : undefined}>
+                    {h}{active && <span className="text-gray-400">{sortDir === "asc" ? " ↑" : " ↓"}</span>}
+                  </th>
+                );
+              })}
               {canWrite && <th className="px-3 py-1.5 text-center font-medium text-gray-500">操作</th>}
             </tr>
           </thead>

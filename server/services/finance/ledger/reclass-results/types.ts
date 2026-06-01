@@ -17,7 +17,7 @@ export interface ReclassResultRow {
   abnormalSide: string | null;
   targetAccount: string;
   amount: number;
-  status: "pending" | "approved" | "adjusted" | "rejected";
+  status: "pending" | "approved" | "adjusted" | "rejected" | "no_match";
   note: string | null;
   adjustedBy: number | null;
   adjustedByName: string | null;

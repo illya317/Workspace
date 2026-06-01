@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { ReclassResultRow } from "@/server/services/finance/ledger/reclass-results/types";
 import ReclassReviewModal from "./ReclassReviewModal";
 import { REVIEW_HEADERS, fmt, dirBadge, targetDisplay } from "../ledger/reclassColumns";
@@ -14,13 +14,57 @@ interface Props {
   year?: string;
 }
 
+type SortKey = "voucherNo" | "sourceAccount" | "amount";
+
+const SORT_LABELS: Record<string, SortKey> = {
+  "凭证号": "voucherNo",
+  "科目编码": "sourceAccount",
+  "异常金额": "amount",
+};
+
+const DEFAULT_DIR: Record<SortKey, "asc" | "desc"> = {
+  voucherNo: "asc",
+  sourceAccount: "asc",
+  amount: "desc",
+};
+
 export default function ReclassReviewView({ items, canWrite, statusFilter, onReview, companyCode = "", year = "" }: Props) {
   const [adjustItem, setAdjustItem] = useState<ReclassResultRow | null>(null);
-  const filtered = items.filter((r) =>
-    statusFilter === "all" ||
-    (statusFilter === "confirmed" && r.status !== "pending") ||
-    r.status === statusFilter
-  );
+  const [sortKey, setSortKey] = useState<SortKey>("amount");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
+  const filtered = useMemo(() => {
+    const list = items.filter((r) =>
+      statusFilter === "all" ||
+      (statusFilter === "confirmed" && r.status !== "pending" && r.status !== "no_match") ||
+      r.status === statusFilter
+    );
+    const cmp = sortDir === "asc" ? 1 : -1;
+    if (sortKey === "amount") {
+      list.sort((a, b) => (a.amount - b.amount) * cmp);
+    } else if (sortKey === "voucherNo") {
+      list.sort((a, b) => a.voucherNo.localeCompare(b.voucherNo) * cmp);
+    } else {
+      list.sort((a, b) => a.sourceAccount.localeCompare(b.sourceAccount) * cmp);
+    }
+    return list;
+  }, [items, statusFilter, sortKey, sortDir]);
+
+  function handleSort(label: string) {
+    const key = SORT_LABELS[label];
+    if (!key) return;
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir(DEFAULT_DIR[key]);
+    }
+  }
+
+  const arrow = (label: string) => {
+    if (SORT_LABELS[label] !== sortKey) return null;
+    return sortDir === "asc" ? " ↑" : " ↓";
+  };
 
   return (
     <div>
@@ -28,41 +72,55 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
         <table className="w-full text-xs">
           <thead className="border-b bg-gray-100">
             <tr>
-              {REVIEW_HEADERS.map((h,i) => (
-                <th key={h} className={`px-3 py-1.5 font-medium text-gray-500 ${h==="异常金额"?"text-right":"text-left"}`}>{h}</th>
-              ))}
+              {REVIEW_HEADERS.map((h) => {
+                const canSort = h in SORT_LABELS;
+                return (
+                  <th key={h}
+                    className={`px-3 py-1.5 font-medium text-gray-500 ${h === "异常金额" ? "text-right" : "text-left"} ${canSort ? "cursor-pointer select-none hover:text-gray-700" : ""}`}
+                    onClick={canSort ? () => handleSort(h) : undefined}>
+                    {h}<span className="text-gray-400">{arrow(h)}</span>
+                  </th>
+                );
+              })}
               {canWrite && <th className="px-3 py-1.5 text-center font-medium text-gray-500">操作</th>}
             </tr>
           </thead>
           <tbody>
-            {filtered.map((r) => (
-              <tr key={r.id} className="border-b last:border-0">
+            {filtered.map((r) => {
+              const noMatch = r.status === "no_match";
+              return (
+              <tr key={`${r.voucherItemId || r.id}-${r.voucherNo}`} className="border-b last:border-0">
                 <td className="px-3 py-1.5 font-mono text-gray-500">{r.voucherNo}</td>
                 <td className="px-3 py-1.5 font-mono text-gray-600">{r.sourceAccount}</td>
                 <td className="px-3 py-1.5 text-gray-700">{r.sourceAccountName}</td>
-                <td className="px-3 py-1.5">{dirBadge(r.abnormalSide)}</td>
-                <td className="px-3 py-1.5 text-right font-mono text-gray-700">¥{fmt(r.amount)}</td>
+                <td className="px-3 py-1.5">{noMatch ? "—" : dirBadge(r.abnormalSide)}</td>
+                <td className="px-3 py-1.5 text-right font-mono text-gray-700">{noMatch ? "—" : `¥${fmt(r.amount)}`}</td>
                 <td className="px-3 py-1.5">
-                  {r.status === "pending"
+                  {noMatch
+                    ? <span className="text-gray-300">—</span>
+                    : r.status === "pending"
                     ? <span className="text-gray-500">{targetDisplay(r.targetAccount)}</span>
                     : <span className="text-emerald-700">{targetDisplay(r.targetAccount)}</span>
                   }
                 </td>
                 {canWrite && (
                   <td className="px-3 py-1.5 text-center">
-                    <div className="inline-flex items-center gap-1">
-                      {r.status === "pending" && (
-                        <button onClick={() => onReview(r.id, "approve")} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
-                      )}
-                      <button onClick={() => setAdjustItem(r)} className="rounded px-1.5 py-0.5 text-xs text-gray-500 hover:bg-gray-100">编辑</button>
-                      {r.status !== "pending" && (
-                        <button onClick={() => onReview(r.id, "revert")} className="rounded px-1.5 py-0.5 text-xs text-red-500 hover:bg-red-50">清除</button>
-                      )}
-                    </div>
+                    {!noMatch && (
+                      <div className="inline-flex items-center gap-1">
+                        {r.status === "pending" && (
+                          <button onClick={() => onReview(r.id, "approve")} className="rounded bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-100">确认</button>
+                        )}
+                        <button onClick={() => setAdjustItem(r)} className="rounded px-1.5 py-0.5 text-xs text-gray-500 hover:bg-gray-100">编辑</button>
+                        {r.status !== "pending" && (
+                          <button onClick={() => onReview(r.id, "revert")} className="rounded px-1.5 py-0.5 text-xs text-red-500 hover:bg-red-50">清除</button>
+                        )}
+                      </div>
+                    )}
                   </td>
                 )}
               </tr>
-            ))}
+              );
+            })}
             {filtered.length === 0 && (
               <tr><td colSpan={canWrite ? 7 : 6} className="px-3 py-8 text-center text-gray-400">无重分类条目</td></tr>
             )}

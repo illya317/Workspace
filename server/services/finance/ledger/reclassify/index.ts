@@ -189,11 +189,11 @@ export async function buildReclassResults(
   // 4. dry-run → 仅返回统计
   if (dryRun) return summary;
 
-  // 5. 写入 matched 到 ReclassResult（跳过非 pending 记录）
-  const matched = results.filter((r) => r.status === ItemStatus.MATCHED);
+  // 5. 写入 matched + skipped 到 ReclassResult（skipped 金额=0, 可人工编辑）
+  const writable = results.filter((r) => r.status === ItemStatus.MATCHED || r.status === ItemStatus.SKIPPED);
   const { written, skippedNonPending } =
-    matched.length > 0
-      ? await upsertResults(periodId, matched)
+    writable.length > 0
+      ? await upsertResults(periodId, writable)
       : { written: 0, skippedNonPending: 0 };
 
   const execResult: ReclassifyExecutionResult = { ...summary, written, skippedNonPending };

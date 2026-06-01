@@ -27,7 +27,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
   const { toast, showToast, closeToast } = useToast();
-  const { reclassMap, handleReview, handleGenerate, adjustModal } =
+  const { reclassMap, allItems, handleReview, handleGenerate, adjustModal } =
     useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
   const [viewMode, setViewMode] = useState<"vouchers" | "reclass">("vouchers");
   const [keyword, setKeyword] = useState("");
@@ -44,13 +44,13 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   }, [companyFilter, yearFilter, monthFilter]);
 
   const reclassCounts = useMemo(() => {
-    const all = Array.from(reclassMap.values());
+    const matched = Array.from(reclassMap.values());
     return {
-      total: all.length,
-      pending: all.filter((r) => r.status === "pending").length,
-      confirmed: all.filter((r) => r.status !== "pending").length,
+      total: allItems.length,
+      pending: matched.filter((r) => r.status === "pending").length,
+      confirmed: matched.filter((r) => r.status !== "pending").length,
     };
-  }, [reclassMap]);
+  }, [reclassMap, allItems]);
 
   const itemColumns = useMemo(() => [...BASE_ITEM_COLUMNS], []);
 
@@ -149,7 +149,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
       {viewMode === "reclass" ? (
         companyFilter && yearFilter && monthFilter ? (
           <ReclassReviewView
-            items={Array.from(reclassMap.values())}
+            items={allItems}
             canWrite={canWrite}
             statusFilter={reclassStatus}
             onReview={handleReview}

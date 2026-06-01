@@ -8,6 +8,7 @@ const PAGE_SIZE = 200;
 
 export function useReclassResults(companyCode: string, year: string, month: string, showToast: (msg: string, type?: "error") => void) {
   const [reclassMap, setReclassMap] = useState<Map<number, ReclassResultRow>>(new Map());
+  const [allItems, setAllItems] = useState<ReclassResultRow[]>([]);
   const [adjustItem, setAdjustItem] = useState<ReclassResultRow | null>(null);
 
   async function lookupPeriodId(): Promise<number | null> {
@@ -17,10 +18,10 @@ export function useReclassResults(companyCode: string, year: string, month: stri
   }
 
   const loadReclassResults = useCallback(async () => {
-    if (!companyCode || !year || !month) { setReclassMap(new Map()); return; }
+    if (!companyCode || !year || !month) { setReclassMap(new Map()); setAllItems([]); return; }
     try {
       const periodId = await lookupPeriodId();
-      if (!periodId) { setReclassMap(new Map()); return; }
+      if (!periodId) { setReclassMap(new Map()); setAllItems([]); return; }
       // Loop-fetch all pages (API caps at 200/page)
       const map = new Map<number, ReclassResultRow>();
       let page = 1;
@@ -33,8 +34,19 @@ export function useReclassResults(companyCode: string, year: string, month: stri
         page++;
       }
       setReclassMap(map);
+      // Also load all voucher items for "全部" tab
+      await loadAllItemsForPeriod(periodId);
     } catch { /* ignore */ }
   }, [companyCode, year, month]);
+
+  async function loadAllItemsForPeriod(periodId: number) {
+    try {
+      const res = await fetch(`/api/finance/reclass-results/all-items?periodId=${periodId}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setAllItems(data.items || []);
+    } catch { /* ignore */ }
+  }
 
   useEffect(() => { loadReclassResults(); }, [loadReclassResults]);
 
@@ -92,5 +104,5 @@ export function useReclassResults(companyCode: string, year: string, month: stri
       }} />
   ) : null;
 
-  return { reclassMap, handleReview, handleGenerate, adjustModal };
+  return { reclassMap, allItems, handleReview, handleGenerate, adjustModal };
 }
