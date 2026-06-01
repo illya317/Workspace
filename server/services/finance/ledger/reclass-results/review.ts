@@ -4,6 +4,7 @@
 
 import { prisma } from "@/lib/prisma";
 import type { ReviewReclassParams, ReclassResultRow } from "./types";
+import { syncReclassRuleResults } from "../reclass-rules/sync";
 
 export async function reviewReclassResult(
   params: ReviewReclassParams,
@@ -75,6 +76,8 @@ export async function reviewReclassResult(
           create: { companyCode: record.period.companyCode, sourceAccountCode: record.sourceAccount, matchType: "exact_description", matchValue: record.voucherItem.description, targetAccountCode: payload.targetAccount, note: "凭证明细调整" },
           update: { targetAccountCode: payload.targetAccount },
         });
+        // 全公司同步（fire-and-forget，不阻塞响应）
+        syncReclassRuleResults(record.period.companyCode).catch(() => {});
       }
       break;
     }
@@ -132,6 +135,68 @@ export async function reviewReclassResult(
     adjustedBy: updated.adjustedBy,
     adjustedByName: updated.reviewer?.name ?? null,
     adjustedAt: updated.adjustedAt?.toISOString() ?? null,
+  };
+}
+
+// ─── Create Manual ───────────────────────────────────────
+
+export async function createManualReclassResult(params: {
+  periodId: number;
+  voucherItemId: number;
+  sourceAccount: string;
+  targetAccount: string;
+  amount: number;
+  description?: string;
+  userId: number;
+}): Promise<ReclassResultRow> {
+  const { periodId, voucherItemId, sourceAccount, targetAccount, amount, description, userId } = params;
+
+  const period = await prisma.financePeriod.findUnique({
+    where: { id: periodId },
+    select: { companyCode: true, year: true },
+  });
+  if (!period || !period.companyCode) throw new ReviewError("NOT_FOUND", "期间不存在");
+
+  // 校验目标科目
+  const targetExists = await prisma.financeAccount.findFirst({
+    where: { code: targetAccount, companyCode: period.companyCode, year: period.year },
+    select: { code: true },
+  });
+  if (!targetExists) throw new ReviewError("INVALID_TARGET", `目标科目 ${targetAccount} 不存在`);
+
+  // 创建 ReclassResult
+  const created = await prisma.reclassResult.create({
+    data: { periodId, voucherItemId, sourceAccount, targetAccount, amount, status: "adjusted", adjustedBy: userId, adjustedAt: new Date() },
+    include: {
+      voucherItem: { select: { relatedEntity: true, description: true, account: { select: { name: true } }, voucher: { select: { voucherNo: true, date: true } } } },
+      rule: { select: { abnormalSide: true } },
+      reviewer: { select: { name: true } },
+    },
+  });
+
+  // 沉淀明细例外规则
+  const desc = description || created.voucherItem.description;
+  if (desc) {
+    await prisma.financeReclassItemRule.upsert({
+      where: { companyCode_sourceAccountCode_matchType_matchValue: { companyCode: period.companyCode, sourceAccountCode: sourceAccount, matchType: "exact_description", matchValue: desc } },
+      create: { companyCode: period.companyCode, sourceAccountCode: sourceAccount, matchType: "exact_description", matchValue: desc, targetAccountCode: targetAccount, note: "凭证明细手动调整" },
+      update: { targetAccountCode: targetAccount },
+    });
+  }
+
+  // 全公司同步（fire-and-forget）
+  syncReclassRuleResults(period.companyCode).catch(() => {});
+
+  return {
+    id: created.id, periodId: created.periodId, voucherItemId: created.voucherItemId,
+    voucherNo: created.voucherItem.voucher.voucherNo, voucherDate: created.voucherItem.voucher.date,
+    relatedEntity: created.voucherItem.relatedEntity, description: created.voucherItem.description,
+    sourceAccount: created.sourceAccount, sourceAccountName: created.voucherItem.account.name,
+    abnormalSide: created.rule?.abnormalSide ?? null, itemDebit: 0, itemCredit: 0,
+    targetAccount: created.targetAccount, amount: created.amount,
+    status: created.status as ReclassResultRow["status"],
+    note: created.note, adjustedBy: created.adjustedBy, adjustedByName: created.reviewer?.name ?? null,
+    adjustedAt: created.adjustedAt?.toISOString() ?? null,
   };
 }
 

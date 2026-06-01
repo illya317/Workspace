@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { withFinanceLedgerWrite } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
 import {
   reviewReclassResult,
+  createManualReclassResult,
   ReviewError,
 } from "@/server/services/finance/ledger/reclass-results/review";
 import type { ReviewPayload } from "@/server/services/finance/ledger/reclass-results/types";
@@ -22,57 +22,22 @@ export async function PATCH(
       return NextResponse.json({ error: "请求体格式错误" }, { status: 400 });
     }
 
-    // id=0 → create new ReclassResult for no_match item
+    // id=0 → 手动创建 ReclassResult + 沉淀例外规则 + 全公司同步
     if (resultId === 0) {
-      const { periodId, voucherItemId, targetAccount, amount } = body;
-      if (!periodId || !voucherItemId) {
-        return NextResponse.json({ error: "缺少 periodId / voucherItemId" }, { status: 400 });
+      const { periodId, voucherItemId, sourceAccount, targetAccount, amount } = body;
+      if (!periodId || !voucherItemId || !targetAccount) {
+        return NextResponse.json({ error: "缺少 periodId / voucherItemId / targetAccount" }, { status: 400 });
       }
-      const created = await prisma.reclassResult.create({
-        data: {
-          periodId,
-          voucherItemId,
-          sourceAccount: body.sourceAccount || "",
-          targetAccount,
-          amount: amount || 0,
-          status: body.action === "mark_pending" ? "pending" : "approved",
-        },
-        include: {
-          voucherItem: {
-            select: {
-              relatedEntity: true,
-              description: true,
-              account: { select: { name: true } },
-              voucher: { select: { voucherNo: true, date: true } },
-            },
-          },
-          rule: { select: { abnormalSide: true } },
-          reviewer: { select: { name: true } },
-        },
-      });
-      return NextResponse.json({
-        item: {
-          id: created.id,
-          periodId: created.periodId,
-          voucherItemId: created.voucherItemId,
-          voucherNo: created.voucherItem.voucher.voucherNo,
-          voucherDate: created.voucherItem.voucher.date,
-          relatedEntity: created.voucherItem.relatedEntity,
-          description: created.voucherItem.description,
-          sourceAccount: created.sourceAccount,
-          sourceAccountName: created.voucherItem.account.name,
-          abnormalSide: created.rule?.abnormalSide ?? null,
-          itemDebit: 0,
-          itemCredit: 0,
-          targetAccount: created.targetAccount,
-          amount: created.amount,
-          status: created.status as any,
-          note: created.note,
-          adjustedBy: created.adjustedBy,
-          adjustedByName: created.reviewer?.name ?? null,
-          adjustedAt: created.adjustedAt?.toISOString() ?? null,
-        },
-      });
+      try {
+        const item = await createManualReclassResult({
+          periodId, voucherItemId, sourceAccount: sourceAccount || "",
+          targetAccount, amount: amount || 0, userId: user.userId,
+        });
+        return NextResponse.json({ item });
+      } catch (err) {
+        if (err instanceof ReviewError) return NextResponse.json({ error: err.message, code: err.code }, { status: 400 });
+        throw err;
+      }
     }
 
     if (!resultId) {

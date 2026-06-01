@@ -49,14 +49,15 @@ export const PUT = withFinanceLedgerWrite(async (request: Request) => {
   }
 
   const { companyCode, year, sourceAccountCode, abnormalSide, targetAccountCode } = body;
-  if (!companyCode || !year || !sourceAccountCode || !abnormalSide || !targetAccountCode) {
+  if (!companyCode || !sourceAccountCode || !abnormalSide || !targetAccountCode) {
     return NextResponse.json(
-      { error: "companyCode, year, sourceAccountCode, abnormalSide, targetAccountCode 为必填" },
+      { error: "companyCode, sourceAccountCode, abnormalSide, targetAccountCode 为必填" },
       { status: 400 },
     );
   }
 
-  const yearNum = parseInt(year);
+  // year 仅记录首次配置年份，不作为规则维度
+  const yearNum = year ? parseInt(year) : new Date().getFullYear();
   if (isNaN(yearNum)) {
     return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
   }

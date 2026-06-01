@@ -125,23 +125,24 @@ budget/page.tsx
 
 | 表 | 文件 | 说明 |
 |---|---|---|
-| `FinanceReclassRule` | `prisma/models/finance-ledger.prisma` | 科目级规则：`(companyCode, year, sourceAccountCode, abnormalSide)` → `targetAccountCode` |
-| `ReclassResult` | `prisma/models/finance-ledger.prisma` | 明细级结果：每条凭证明细的生成/审核结果，`ruleId` 可空追溯到规则 |
+| `FinanceReclassRule` | `prisma/models/finance-ledger.prisma` | 公司级科目规则：`(companyCode, sourceAccountCode, abnormalSide)` → `targetAccountCode` |
+| `FinanceReclassItemRule` | `prisma/models/finance-ledger.prisma` | 公司级明细例外规则：`(companyCode, sourceAccountCode, matchType, matchValue)` → `targetAccountCode` |
+| `ReclassResult` | `prisma/models/finance-ledger.prisma` | 明细级结果：每条凭证明细的生成/审核结果，`ruleId` 可空 |
 
 ### 规则表 (`FinanceReclassRule`)
 
 - `companyCode` **非空**，规则总是公司作用域
-- `@@unique([companyCode, year, sourceAccountCode, abnormalSide])` 确保唯一
-- `abnormalSide`: `debit` 表示贷余科目的异常借方（需重分类到资产方），`credit` 表示借余科目的异常贷方（需重分类到负债方）
-- `source`: `"manual"` 为用户手动配置，`"suggested"` 为系统候选（Batch 2+）
-- 替代 `FinanceAccount.reclassTargetCode`（兼容字段，Batch 8 清理）
+- `@@unique([companyCode, sourceAccountCode, abnormalSide])` 公司级唯一
+- `year`: 保留字段，记录首次配置年份，不作为规则维度
+- `abnormalSide`: `debit` = 异常借方、`credit` = 异常贷方、`both` = 全部重分类
+- `source`: `"manual"` 手动配置、`"auto"` 系统自动确认、`"suggested"` 系统候选
 
 ### 结果表 (`ReclassResult`)
 
 - `@@unique([periodId, voucherItemId])` 确保同一明细只有一条结果
 - `ruleId` (Int?) 追溯到生成此结果的 `FinanceReclassRule`；手工添加或历史兼容时为 null
-- `status`: `pending` → `approved` | `adjusted` | `rejected`（终态不可逆）
-- `approved` / `adjusted` 结果被资产负债表消费；`pending` / `rejected` 不参与报表
+- `status`: 默认 `approved`（系统自动通过），`adjusted`（人工调整，受保护不被覆盖），`pending`（待审核），`rejected`（不参与报表）
+- `approved` / `adjusted` 被报表消费；`pending` / `rejected` 不参与
 
 ### 端到端数据流
 
@@ -158,16 +159,19 @@ budget/page.tsx
 │ 凭证明细 → 生成重分类结果 按钮                            │
 │   POST /api/finance/reclass-results { periodId }          │
 │   调用 buildReclassResults() → upsert ReclassResult       │
-│   引擎读 FinanceReclassRule (enabled=true)                │
-│   匹配异常方向凭证明细 → 生成 pending ReclassResult        │
-│   已有 approved/adjusted/rejected 记录不被覆盖             │
+│   引擎读 FinanceReclassRule + FinanceReclassItemRule      │
+│   匹配异常方向凭证明细 → 生成 approved ReclassResult       │
+│   只保护 adjusted/rejected，approved/pending 可覆盖        │
 └──────────────────────────────────────────────────────────┘
                     ↓
 ┌─ 审核 ──────────────────────────────────────────────────┐
-│ 凭证明细 → 重分类审核 scope / 展开凭证内联                │
+│ 凭证明细 → 重分类核查 scope / 展开凭证内联                │
 │   PATCH /api/finance/reclass-results/[id]                │
-│   approve / reject / adjust                              │
-│   pending → approved | adjusted | rejected (终态不可逆)   │
+│   approve / mark_pending / adjust                         │
+│   正常分录 → 待审核 → pending ReclassResult                │
+│   pending → 确认 → approved                               │
+│   approved → 待审核 → pending                             │
+│   adjust → adjusted + 沉淀 FinanceReclassItemRule         │
 └──────────────────────────────────────────────────────────┘
                     ↓
 ┌─ 报表消费 (只读) ───────────────────────────────────────┐

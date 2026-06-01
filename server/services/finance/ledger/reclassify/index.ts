@@ -76,28 +76,6 @@ async function fetchRules(
   return map;
 }
 
-/** 收集所有规则 targetAccountCode，验证在 (companyCode, year) 范围内科目存在 */
-async function buildTargetExistenceSet(
-  rules: Map<string, RuleEntry>,
-  companyCode: string,
-  year: number,
-): Promise<Set<string>> {
-  const codes = new Set<string>();
-  for (const r of rules.values()) codes.add(r.targetAccountCode);
-  if (codes.size === 0) return new Set();
-
-  const existing = await prisma.financeAccount.findMany({
-    where: {
-      code: { in: [...codes] },
-      companyCode,
-      year,
-    },
-    select: { code: true },
-  });
-
-  return new Set(existing.map((a) => a.code));
-}
-
 // ─── 写入 ─────────────────────────────────────────────────
 
 async function upsertResults(
@@ -166,11 +144,23 @@ export async function buildReclassResults(
   // 1. 查询 items + rules（规则公司级，不再限定 year）
   const items = await fetchItems(periodId);
   const rules = await fetchRules(period.companyCode);
-  const targetExists = await buildTargetExistenceSet(rules, period.companyCode, period.year);
+  // 明细例外规则
+  const itemRules = await prisma.financeReclassItemRule.findMany({
+    where: { companyCode: period.companyCode, enabled: true, matchType: "exact_description" },
+    select: { id: true, sourceAccountCode: true, matchValue: true, targetAccountCode: true },
+  });
+  const itemRuleMap = new Map<string, { id: number; targetAccountCode: string }>();
+  for (const ir of itemRules) itemRuleMap.set(`${ir.sourceAccountCode}::${ir.matchValue}`, { id: ir.id, targetAccountCode: ir.targetAccountCode });
+  // targetExists 包含 account rules + item rules
+  const allTargetCodes = [...new Set([...Array.from(rules.values()).map(r => r.targetAccountCode), ...itemRules.map(ir => ir.targetAccountCode)])];
+  const existingTargets = allTargetCodes.length > 0
+    ? await prisma.financeAccount.findMany({ where: { companyCode: period.companyCode, year: period.year, code: { in: allTargetCodes } }, select: { code: true } })
+    : [];
+  const targetExists = new Set(existingTargets.map(a => a.code));
 
-  // 2. 逐条分类
+  // 2. 逐条分类（优先级 itemRule > accountRule）
   const results: ReclassifyItemResult[] = items.map((item) =>
-    classifyItem(item as VoucherItemInput, rules, targetExists),
+    classifyItem(item as VoucherItemInput, rules, targetExists, itemRuleMap),
   );
 
   // 3. 聚合
