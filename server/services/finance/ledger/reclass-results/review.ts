@@ -174,15 +174,16 @@ export async function createManualReclassResult(params: {
     select: { debit: true, credit: true, account: { select: { code: true } }, voucher: { select: { periodId: true } } },
   });
   if (!vi || vi.voucher.periodId !== periodId) throw new ReviewError("NOT_FOUND", "凭证明细不存在或不属于该期间");
-  if (sourceAccount && vi.account.code !== sourceAccount) throw new ReviewError("INVALID_SOURCE", "源科目与凭证明细不匹配");
+  const derivedSource = vi.account.code;
+  if (sourceAccount && sourceAccount !== derivedSource) throw new ReviewError("INVALID_SOURCE", "源科目与凭证明细不匹配");
   const maxAmount = vi.debit || vi.credit;
   if (amount > maxAmount) throw new ReviewError("AMOUNT_EXCEEDED", `金额不能超过分录金额 ¥${maxAmount.toFixed(2)}`);
 
-  // Upsert ReclassResult（防重复点击 500）
+  // Upsert ReclassResult（sourceAccount 从 DB 派生，不信任前端）
   const created = await prisma.reclassResult.upsert({
     where: { periodId_voucherItemId: { periodId, voucherItemId } },
-    create: { periodId, voucherItemId, sourceAccount, targetAccount, amount, status: "adjusted", adjustedBy: userId, adjustedAt: new Date() },
-    update: { sourceAccount, targetAccount, amount, status: "adjusted", adjustedBy: userId, adjustedAt: new Date() },
+    create: { periodId, voucherItemId, sourceAccount: derivedSource, targetAccount, amount, status: "adjusted", adjustedBy: userId, adjustedAt: new Date() },
+    update: { sourceAccount: derivedSource, targetAccount, amount, status: "adjusted", adjustedBy: userId, adjustedAt: new Date() },
     include: {
       voucherItem: { select: { relatedEntity: true, description: true, account: { select: { name: true } }, voucher: { select: { voucherNo: true, date: true } } } },
       rule: { select: { abnormalSide: true } },
