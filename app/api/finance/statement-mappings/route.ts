@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { clearMappingCache } from "@/server/services/finance/statements/mapping/resolver";
+import { ensureStatementMappings } from "@/server/services/finance/statements/mapping/seed-from-config";
 
 const VALID_TYPES = ["balance"];
 
@@ -16,6 +17,9 @@ export const GET = withFinanceReportAccess(async (request) => {
     return NextResponse.json({ error: "companyCode, year 为必填" }, { status: 400 });
   if (!VALID_TYPES.includes(statementType))
     return NextResponse.json({ error: "statementType 暂只支持 balance" }, { status: 400 });
+
+  // Ensure mappings exist before read (avoid race with statement-config init)
+  await ensureStatementMappings(companyCode, year, statementType);
 
   const mappings = await prisma.financeStatementAccountMapping.findMany({
     where: { companyCode, year, statementType },
@@ -50,6 +54,12 @@ export const POST = withFinanceReportWrite(async (request) => {
   });
   if (!line) return NextResponse.json({ error: "lineCode 不存在" }, { status: 400 });
 
+  // Validate accountCode exists for this company+year
+  const account = await prisma.financeAccount.findUnique({
+    where: { code_companyCode_year: { code: accountCode, companyCode, year: yearNum } },
+  });
+  if (!account) return NextResponse.json({ error: "accountCode 不存在" }, { status: 400 });
+
   const mapping = await prisma.financeStatementAccountMapping.upsert({
     where: {
       companyCode_year_statementType_accountCode: {
@@ -57,7 +67,7 @@ export const POST = withFinanceReportWrite(async (request) => {
       },
     },
     create: { companyCode, year: yearNum, statementType, accountCode, lineCode, source: "manual" },
-    update: { lineCode, source: "manual" },
+    update: { lineCode, source: "manual", note: null },
   });
 
   clearMappingCache();
@@ -76,7 +86,7 @@ export const DELETE = withFinanceReportWrite(async (request) => {
   if (!companyCode || !year || !accountCode)
     return NextResponse.json({ error: "companyCode, year, accountCode 为必填" }, { status: 400 });
   if (!VALID_TYPES.includes(statementType))
-    return NextResponse.json({ error: "statementType 仅支持 balance" }, { status: 400 });
+    return NextResponse.json({ error: "statementType 暂只支持 balance" }, { status: 400 });
 
   const result = await prisma.financeStatementAccountMapping.deleteMany({
     where: { companyCode, year, statementType, accountCode },
