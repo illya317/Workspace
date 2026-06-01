@@ -3,6 +3,7 @@
  */
 import { prisma } from "@/lib/prisma";
 import { buildReclassResults } from "../reclassify";
+import { syncBalanceReclassForYear } from "../balance-reclass";
 
 export interface SyncReclassResult {
   periods: number;
@@ -27,6 +28,9 @@ export async function syncReclassRuleResults(
       skippedAdjusted += result.skippedAdjusted;
     }
   }
+
+  // 同步余额层 residual reclass
+  await syncBalanceReclassForYear(companyCode, year);
 
   return { periods: periods.length, synced, skippedAdjusted };
 }

@@ -4,6 +4,7 @@ import { importVouchers } from "./voucher-import";
 import { createSnapshotFromPreview, materializeBaselineToPeriod } from "../ledger/annual-balances";
 import { computeBalancesForPeriod } from "../ledger/balances";
 import { buildReclassResults } from "../ledger/reclassify";
+import { syncBalanceReclassForPeriod } from "../ledger/balance-reclass";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -206,7 +207,10 @@ export async function confirmFinanceImport(
       });
       // Only need the latest — computeBalancesForPeriod rolls forward from baseline
       if (sorted.length > 0) {
-        try { await computeBalancesForPeriod(sorted[sorted.length - 1].id); } catch { /* skip */ }
+        try {
+          await computeBalancesForPeriod(sorted[sorted.length - 1].id);
+          await syncBalanceReclassForPeriod(sorted[sorted.length - 1].id);
+        } catch { /* skip */ }
       }
     }
 

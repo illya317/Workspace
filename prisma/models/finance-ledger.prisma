@@ -251,6 +251,28 @@ model FinanceReclassItemRule {
   @@index([companyCode, year, sourceAccountCode])
 }
 
+/// 余额层重分类调整（residual = 期末异常余额 - 凭证明细已调金额）
+model FinanceBalanceReclassAdjustment {
+  id                Int      @id @default(autoincrement())
+  periodId          Int
+  companyCode       String
+  year              Int
+  sourceAccountCode String
+  targetAccountCode String
+  amount            Float
+  sourceType        String   @default("balance_residual") // balance_residual | manual
+  ruleId            Int?
+  status            String   @default("approved") // approved | adjusted | rejected
+  note              String?
+  adjustedBy        Int?
+  adjustedAt        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+
+  @@unique([periodId, sourceAccountCode])
+  @@index([periodId, status])
+}
+
 /// 报表项目配置（资产负债表/利润表/现金流量表）
 /// 按公司+年度+报表类型存储，新年度从上年度复制
 model FinanceStatementLineConfig {

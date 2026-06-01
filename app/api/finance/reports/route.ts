@@ -44,12 +44,20 @@ export const GET = withFinanceReportAccess(async (request: Request) => {
     include: { account: true },
   });
 
-  // Phase 7: Fetch approved/adjusted ReclassResult entries with precise amounts
-  const reclassRows = await prisma.reclassResult.findMany({
+  // Fetch approved/adjusted ReclassResult + BalanceReclassAdjustment
+  const voucherRows = await prisma.reclassResult.findMany({
     where: { periodId: targetPeriodId, status: { in: ["approved", "adjusted"] } },
     select: { sourceAccount: true, targetAccount: true, amount: true },
   });
-  const reclassEntries = reclassRows.length > 0 ? reclassRows : undefined;
+  const balanceRows = await prisma.financeBalanceReclassAdjustment.findMany({
+    where: { periodId: targetPeriodId, status: { in: ["approved", "adjusted"] } },
+    select: { sourceAccountCode: true, targetAccountCode: true, amount: true },
+  });
+  const allRows = [
+    ...voucherRows.map(r => ({ sourceAccount: r.sourceAccount, targetAccount: r.targetAccount, amount: r.amount })),
+    ...balanceRows.map(r => ({ sourceAccount: r.sourceAccountCode, targetAccount: r.targetAccountCode, amount: r.amount })),
+  ];
+  const reclassEntries = allRows.length > 0 ? allRows : undefined;
 
   return generateReport({ period, balances, yearBalances, reportType, isCanada, reclassEntries });
 });

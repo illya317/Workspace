@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { BalanceItem, ReportPeriod, ReclassEntry } from "../report-helpers";
-import { reclassifyFromEntries, reclassify } from "../report-helpers";
+import { reclassifyFromEntries } from "../report-helpers";
 import { BALANCE_SHEET_LINES } from "../config/balance-sheet-lines";
 import { loadBalanceSheetConfig } from "../config/load-config";
 import { computeBalanceSheet } from "../compute-balance-sheet";
@@ -33,9 +33,7 @@ export async function generateBalanceSheet(
   const config = period.companyCode
     ? await loadBalanceSheetConfig(period.companyCode, period.year)
     : BALANCE_SHEET_LINES;
-  const reclass = reclassEntries && reclassEntries.length > 0
-    ? reclassifyFromEntries(reclassEntries)
-    : reclassify(balances);
+  const reclass = reclassifyFromEntries(reclassEntries || []);
 
   const { lines, diagnostics } = computeBalanceSheet(config, balances, reclass);
   const sectionMap = new Map(config.map((c) => [c.lineCode, c.section]));
