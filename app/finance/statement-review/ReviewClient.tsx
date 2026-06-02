@@ -2,8 +2,9 @@
 
 import { useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
 import ReviewFilters from "./ReviewFilters";
+import ReviewAlerts from "./ReviewAlerts";
+import ReviewToolbar from "./ReviewToolbar";
 import ReviewTable from "./ReviewTable";
 import type { RvLine } from "./types";
 import type { LineState } from "./ReviewTable";
@@ -108,6 +109,10 @@ export default function ReviewClient() {
 
   const isReadOnly = rv?.status === "confirmed";
   const changedCount = edits.size;
+  const hasFlaggedWithoutComment = rv ? rv.lines.some(l => {
+    const s = getLineState(l);
+    return s.status === "flagged" && !s.comment;
+  }) : false;
 
   // ─── render ─────────────────────────────────────────────────
 
@@ -115,29 +120,11 @@ export default function ReviewClient() {
     <div className="space-y-4">
       <ReviewFilters co={co} yr={yr} mo={mo} rt={rt} setCo={setCo} setYr={setYr} setMo={setMo} setRt={setRt} loading={loading} onLoad={loadWp} />
 
-      {error && <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>}
-      {rv?.isStale && <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">⚠ 底稿已更新，当前校对为旧快照；请后续重新生成校对（下一批支持）。</div>}
-      {rv && rv.lines.some(l => { const s = getLineState(l); return s.status === "flagged" && !s.comment; }) && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-600">⚠ 存在已标记(flagged)但未填写备注的行，请点击备注列填写标记原因。</div>
-      )}
+      <ReviewAlerts error={error} isStale={rv?.isStale} hasFlaggedWithoutComment={hasFlaggedWithoutComment} />
 
-      {wp && (
-        <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3">
-          <span className="text-xs text-gray-500">底稿已加载{!wp.id ? "（空草稿，请先在底稿页录入数据）" : ""}</span>
-          {wp.id > 0 && !rv && <button onClick={generate} disabled={loading} className="rounded bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700 disabled:opacity-50">生成校对</button>}
-          {rv && <span className="text-xs text-gray-500">校对状态：<b className={rv.status === "confirmed" ? "text-emerald-600" : "text-blue-600"}>{rv.status === "confirmed" ? "已确认" : "草稿"}</b></span>}
-          {rv && changedCount > 0 && <button onClick={saveEdits} disabled={saving || isReadOnly} className="rounded bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700 disabled:opacity-50">保存修改 ({changedCount})</button>}
-          {rv && rv.status !== "confirmed" && <button onClick={doConfirm} disabled={saving || changedCount > 0} className="rounded bg-purple-600 px-3 py-1.5 text-xs text-white hover:bg-purple-700 disabled:opacity-50">确认校对</button>}
-        </div>
-      )}
-
-      {rv?.status === "confirmed" && (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 flex items-center justify-between">
-          <span className="text-sm text-emerald-700">✅ 校对已确认</span>
-          <Link href={`/finance/statements?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt === "incomeStatement" ? "income" : "cashflow"}`}
-            className="rounded bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700">前往财务报表查看最终结果 →</Link>
-        </div>
-      )}
+      <ReviewToolbar wp={wp} rv={rv} changedCount={changedCount} saving={saving} loading={loading}
+        isReadOnly={isReadOnly} co={co} yr={yr} mo={mo} rt={rt}
+        onGenerate={generate} onSave={saveEdits} onConfirm={doConfirm} />
 
       {rv && <ReviewTable rv={rv} getLineState={getLineState} isReadOnly={isReadOnly}
         editingAmt={editingAmt} setEditingAmt={setEditingAmt} editAmt={editAmt} setEditAmt={setEditAmt} commitAmt={commitAmt}
