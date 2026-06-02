@@ -1,6 +1,7 @@
 /** P3 Batch 3: review CRUD + confirm service. */
 import { prisma } from "@/lib/prisma";
 import { loadIncomeStatementConfig, loadCashFlowConfig } from "../config/load-config-reports";
+import { computeIncomeSystemAmounts } from "./system-amounts";
 import type {
   ReviewReportType, ReviewLineInput, ReviewLineStatus,
   ReviewOutput, ReviewLineOutput, ReviewRecord, ReviewLineRecord,
@@ -72,6 +73,9 @@ export async function generateReview(
   }
 
   const config = await loadLineConfig(wp.companyCode, wp.year, validateReportType(wp.reportType));
+  const sysAmts = wp.reportType === "incomeStatement"
+    ? await computeIncomeSystemAmounts(wp.companyCode, wp.year, wp.month)
+    : new Map<string, number>();
 
   const newReview = await prisma.$transaction(async (tx) => {
     const r = await tx.financeStatementReview.create({
@@ -86,10 +90,11 @@ export async function generateReview(
       const c = config[i];
       const wpl = wp.lines.find((l) => l.lineCode === c.lineCode);
       const wpAmt = (wpl?.manualAmount ?? 0) + (wpl?.importedAmount ?? 0);
+      const sys = sysAmts.get(c.lineCode) ?? 0;
       await tx.financeStatementReviewLine.create({
         data: {
           reviewId: r.id, lineCode: c.lineCode, label: c.label, sortOrder: i,
-          systemAmount: 0, workpaperAmount: wpAmt, finalAmount: wpAmt,
+          systemAmount: sys, workpaperAmount: wpAmt, finalAmount: wpAmt,
         },
       });
     }
