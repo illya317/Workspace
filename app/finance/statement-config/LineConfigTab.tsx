@@ -26,6 +26,7 @@ export default function LineConfigTab() {
   const [saving, setSaving] = useState<Set<string>>(new Set());
   const [addingFor, setAddingFor] = useState<string | null>(null);
   const [newAccount, setNewAccount] = useState("");
+  const [acctSearch, setAcctSearch] = useState("");
   const [effectiveCodes, setEffectiveCodes] = useState<Set<string>>(new Set());
 
   async function load() {
@@ -37,8 +38,7 @@ export default function LineConfigTab() {
       fetch(`/api/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance`),
     ]);
     if (!cr.ok || !mr.ok) { setError(`加载失败 (${cr.status}/${mr.status})`); setLoading(false); return; }
-    const cj = await cr.json();
-    const mj = await mr.json();
+    const cj = await cr.json(); const mj = await mr.json();
     setLines((cj.lineConfigs || []).map((l: ApiLineCfg) => ({
       lineCode: l.lineCode, label: l.label, section: l.section,
       reclassSource: !!l.reclassSource, reclassTarget: !!l.reclassTarget,
@@ -67,10 +67,7 @@ export default function LineConfigTab() {
     if (isNaN(yearNum)) { setError("年度无效"); return; }
     const key = `${lineCode}:${accountCode}`;
     setSaving((p) => new Set(p).add(key));
-    const res = await fetch("/api/finance/statement-mappings", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ companyCode: company, year: yearNum, statementType: "balance", accountCode, lineCode, operator }),
-    });
+    const res = await fetch("/api/finance/statement-mappings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ companyCode: company, year: yearNum, statementType: "balance", accountCode, lineCode, operator }) });
     setSaving((p) => { const n = new Set(p); n.delete(key); return n; });
     if (!res.ok) { const err: ApiErrorBody = await res.json().catch((): ApiErrorBody => ({})); setError(err.error || `保存失败 (${res.status})`); return; }
     load();
@@ -97,6 +94,11 @@ export default function LineConfigTab() {
   }, [mappings]);
 
   const unmappedAccts = useMemo(() => accounts.filter((a) => !effectiveCodes.has(a.code)), [accounts, effectiveCodes]);
+  const filteredAccts = useMemo(() => {
+    const q = acctSearch.toLowerCase().trim();
+    if (!q) return unmappedAccts;
+    return unmappedAccts.filter((a) => a.code.includes(q) || a.name.toLowerCase().includes(q));
+  }, [unmappedAccts, acctSearch]);
   const acctMap = useMemo(() => { const m = new Map<string, AcctInfo>(); for (const a of accounts) m.set(a.code, a); return m; }, [accounts]);
 
   if (loading) return <p className="text-sm text-gray-400 py-8 text-center">加载中...</p>;
@@ -175,16 +177,26 @@ export default function LineConfigTab() {
                                 </table>
                               )}
                               {addingFor === l.lineCode ? (
-                                <div className="flex items-center gap-2 mt-1">
-                                  <select value={newAccount} onChange={(e) => setNewAccount(e.target.value)} className="rounded border border-gray-200 px-1.5 py-0.5 text-[11px] focus:border-emerald-400 focus:outline-none">
-                                    <option value="">— 选择科目 —</option>
-                                    {unmappedAccts.map((a) => (<option key={a.code} value={a.code}>{a.code} {a.name}</option>))}
-                                  </select>
-                                  <button onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "add"); setAddingFor(null); setNewAccount(""); }} disabled={!newAccount}
-                                    className="rounded bg-emerald-600 px-2 py-0.5 text-[10px] text-white hover:bg-emerald-700 disabled:opacity-50">添加 (+)</button>
-                                  <button onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "subtract"); setAddingFor(null); setNewAccount(""); }} disabled={!newAccount}
-                                    className="rounded bg-red-500 px-2 py-0.5 text-[10px] text-white hover:bg-red-600 disabled:opacity-50">添加 (−)</button>
-                                  <button onClick={() => setAddingFor(null)} className="text-[10px] text-gray-400 hover:text-gray-600">取消</button>
+                                <div className="flex flex-col gap-1 mt-1">
+                                  <input
+                                    type="text" placeholder="搜索科目编码或名称..." value={acctSearch}
+                                    onChange={(e) => setAcctSearch(e.target.value)}
+                                    className="rounded border border-gray-200 px-2 py-1 text-[11px] focus:border-emerald-400 focus:outline-none w-64"
+                                  />
+                                  <div className="flex items-center gap-2">
+                                    <select value={newAccount} onChange={(e) => setNewAccount(e.target.value)} size={Math.min(filteredAccts.length + 1, 8)}
+                                      className="rounded border border-gray-200 px-1.5 py-0.5 text-[11px] focus:border-emerald-400 focus:outline-none w-64">
+                                      <option value="">— 选择科目 ({filteredAccts.length}) —</option>
+                                      {filteredAccts.map((a) => (<option key={a.code} value={a.code}>{a.code} {a.name}</option>))}
+                                    </select>
+                                    <div className="flex flex-col gap-1">
+                                      <button onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "add"); setAddingFor(null); setNewAccount(""); setAcctSearch(""); }} disabled={!newAccount}
+                                        className="rounded bg-emerald-600 px-2 py-0.5 text-[10px] text-white hover:bg-emerald-700 disabled:opacity-50">添加 (+)</button>
+                                      <button onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "subtract"); setAddingFor(null); setNewAccount(""); setAcctSearch(""); }} disabled={!newAccount}
+                                        className="rounded bg-red-500 px-2 py-0.5 text-[10px] text-white hover:bg-red-600 disabled:opacity-50">添加 (−)</button>
+                                      <button onClick={() => { setAddingFor(null); setNewAccount(""); setAcctSearch(""); }} className="text-[10px] text-gray-400 hover:text-gray-600">取消</button>
+                                    </div>
+                                  </div>
                                 </div>
                               ) : (
                                 <button onClick={() => setAddingFor(l.lineCode)} className="mt-1 text-[10px] text-emerald-600 hover:text-emerald-800 hover:underline">+ 添加科目</button>
