@@ -68,8 +68,12 @@ export async function generateReview(
     include: { lines: { orderBy: { sortOrder: "asc" } } },
   });
   if (existing) {
-    if (existing.status === "confirmed") throw409("该底稿已有已确认的校对，不能重新生成");
-    return { review: toReviewOutput(existing as ReviewRecord, wp.version), created: false };
+    if (existing.status === "confirmed") {
+      if (existing.generatedFromVersion === wp.version) throw409("该底稿已有已确认的校对，不能重新生成");
+      // Stale confirmed → regenerate in place (workpaperId is @unique)
+    } else {
+      return { review: toReviewOutput(existing as ReviewRecord, wp.version), created: false };
+    }
   }
 
   const config = await loadLineConfig(wp.companyCode, wp.year, validateReportType(wp.reportType));
@@ -77,15 +81,33 @@ export async function generateReview(
     ? await computeIncomeSystemAmounts(wp.companyCode, wp.year, wp.month)
     : new Map<string, number>();
 
-  const newReview = await prisma.$transaction(async (tx) => {
-    const r = await tx.financeStatementReview.create({
-      data: {
-        workpaperId: wp.id, companyCode: wp.companyCode, year: wp.year,
-        month: wp.month, reportType: wp.reportType, status: "draft",
-        generatedFromVersion: wp.version, editedBy: userId ?? null,
-        editedAt: userId ? new Date() : null,
-      },
-    });
+  const reviewRecord = await prisma.$transaction(async (tx) => {
+    const reviewId = existing
+      ? (
+        await tx.financeStatementReview.update({
+          where: { id: existing.id },
+          data: {
+            status: "draft", generatedFromVersion: wp.version,
+            reviewedBy: null, reviewedAt: null, note: null,
+            editedBy: userId ?? null, editedAt: userId ? new Date() : null,
+            version: { increment: 1 },
+          },
+        })
+      ).id
+      : (
+        await tx.financeStatementReview.create({
+          data: {
+            workpaperId: wp.id, companyCode: wp.companyCode, year: wp.year,
+            month: wp.month, reportType: wp.reportType, status: "draft",
+            generatedFromVersion: wp.version, editedBy: userId ?? null,
+            editedAt: userId ? new Date() : null,
+          },
+        })
+      ).id;
+
+    // Regenerating: delete stale lines before inserting fresh ones
+    if (existing) await tx.financeStatementReviewLine.deleteMany({ where: { reviewId } });
+
     for (let i = 0; i < config.length; i++) {
       const c = config[i];
       const wpl = wp.lines.find((l) => l.lineCode === c.lineCode);
@@ -93,18 +115,18 @@ export async function generateReview(
       const sys = sysAmts.get(c.lineCode) ?? 0;
       await tx.financeStatementReviewLine.create({
         data: {
-          reviewId: r.id, lineCode: c.lineCode, label: c.label, sortOrder: i,
+          reviewId, lineCode: c.lineCode, label: c.label, sortOrder: i,
           systemAmount: sys, workpaperAmount: wpAmt, finalAmount: wpAmt,
         },
       });
     }
     return tx.financeStatementReview.findUniqueOrThrow({
-      where: { id: r.id },
+      where: { id: reviewId },
       include: { lines: { orderBy: { sortOrder: "asc" } } },
     });
   });
 
-  return { review: toReviewOutput(newReview as ReviewRecord, wp.version), created: true };
+  return { review: toReviewOutput(reviewRecord as ReviewRecord, wp.version), created: true };
 }
 
 /** Get review by workpaperId, or by company/year/month/reportType. Returns null if not found. */
