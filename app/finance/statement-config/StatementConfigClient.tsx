@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import TabBar from "@/app/components/TabBar";
-import MappingTab from "./MappingTab";
-import ConfigTab from "./ConfigTab";
+import LineConfigTab from "./LineConfigTab";
+import UnmappedTab from "./UnmappedTab";
 import BalanceCheckTab from "./BalanceCheckTab";
 import { StatementConfigProvider, useStatementConfig } from "./StatementConfigContext";
 import SelectField from "@/app/components/SelectField";
 
 const tabs = [
-  { key: "mapping", label: "科目映射" },
-  { key: "lines", label: "报表项目" },
+  { key: "lines", label: "报表项目配置" },
+  { key: "unmapped", label: "遗漏科目" },
   { key: "balance", label: "余额校对" },
 ];
 
@@ -50,14 +50,14 @@ function SharedFilters() {
 }
 
 function TabContent() {
-  const [activeTab, setActiveTab] = useState("mapping");
+  const [activeTab, setActiveTab] = useState("lines");
   return (
     <>
       <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
       <SharedFilters />
       <div className="mt-4">
-        {activeTab === "mapping" && <MappingTab />}
-        {activeTab === "lines" && <ConfigTab />}
+        {activeTab === "lines" && <LineConfigTab />}
+        {activeTab === "unmapped" && <UnmappedTab />}
         {activeTab === "balance" && <BalanceCheckTab />}
       </div>
     </>
