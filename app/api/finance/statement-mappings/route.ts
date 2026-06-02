@@ -42,7 +42,9 @@ export const POST = withFinanceReportWrite(async (request) => {
       { error: "companyCode, year, statementType, accountCode, lineCode 为必填" },
       { status: 400 },
     );
-  const op = operator === "subtract" ? "subtract" : "add";
+  const op = (operator || "add") as string;
+  if (op !== "add" && op !== "subtract")
+    return NextResponse.json({ error: "operator 必须为 add 或 subtract" }, { status: 400 });
 
   const yearNum = parseInt(year, 10);
   if (isNaN(yearNum)) return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
