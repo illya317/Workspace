@@ -1,14 +1,7 @@
 /**
- * M10a + Phase 2.3B: mapping-based balance aggregation with residual leaf.
- *
- * Aggregation口径：
- *   对每个 account node 计算 residual = own_balance - direct_children_balance_sum
- *   若 abs(residual) > 0.01, 该 node 的 residual 视为有效余额，参与 mapping 聚合。
- *   真正叶子 (无 children) 的 residual = own_balance，与原 leaf-only 行为一致。
- *   若 parent 余额完全等于 children 汇总, residual=0, 不重复计入。
- *   若 parent 有余额而 children 全 0, parent 自身余额代表有效余额, 纳入。
- *
- * 不改 generateBalanceSheet, 不改 UI, 不改 reclass。
+ * M10a + Phase 2: mapping-based balance aggregation with residual leaf.
+ * residual = own_balance - direct_children_balance_sum.
+ * Leaf = own_balance. Parent fully explained = residual=0, excluded.
  */
 import { prisma } from "@/lib/prisma";
 import { ensureStatementMappings } from "./mapping/seed-from-config";
@@ -164,47 +157,10 @@ export async function aggregateMappingBasedBalances(
       const { lineCode, operator } = resolved;
       const side = lineSideMap.get(lineCode) || "debit";
       const agg = byLine.get(lineCode) || { debit: 0, credit: 0, accountCodes: [] };
-
-      // 1. Normalized contribution
-      const contribution = side === "debit"
-        ? r.debit - r.credit
-        : r.credit - r.debit;
-
-      // 2. Apply operator
-      const adjusted = operator === "subtract" ? -Math.abs(contribution) : contribution;
-
-      // 3. Write back to debit/credit buckets
-      if (side === "debit") {
-        if (adjusted >= 0) agg.debit += adjusted;
-        else agg.credit += -adjusted;
-      } else {
-        if (adjusted >= 0) agg.credit += adjusted;
-        else agg.debit += -adjusted;
-      }
-
-      agg.accountCodes.push(r.code);
+      applyContribution(agg, r, side, operator, r.code);
       byLine.set(lineCode, agg);
-      // Diagnostics: parents (non-leaf) that contributed residual
-      const own = ownByCode.get(r.code)!;
-      const childCodes = childrenOfId.get(own.id) || [];
-      if (childCodes.length > 0) {
-        let cD = 0, cC = 0;
-        for (const cc of childCodes) {
-          const c = ownByCode.get(cc);
-          if (c) { cD += c.debit; cC += c.credit; }
-        }
-        residualParents.push({
-          accountCode: r.code,
-          accountName: r.name,
-          lineCode: resolved.lineCode,
-          residualDebit: r.debit,
-          residualCredit: r.credit,
-          ownDebit: own.debit,
-          ownCredit: own.credit,
-          childrenDebit: cD,
-          childrenCredit: cC,
-        });
-      }
+      const rp = buildResidualParent(r, lineCode, ownByCode, childrenOfId);
+      if (rp) residualParents.push(rp);
     } else {
       const own = ownByCode.get(r.code);
       unresolved.push({
@@ -239,7 +195,38 @@ export async function aggregateMappingBasedBalances(
   };
 }
 
-// ─── In-memory resolver (avoids N+1 DB queries) ───────────
+// ─── Helpers ───────────────────────────────────────────────
+
+/** Compute normalized contribution for one residual, apply operator, write to agg buckets. */
+function applyContribution(
+  agg: { debit: number; credit: number; accountCodes: string[] },
+  r: { debit: number; credit: number },
+  side: "debit" | "credit",
+  operator: "add" | "subtract",
+  accountCode: string,
+) {
+  const contribution = side === "debit" ? r.debit - r.credit : r.credit - r.debit;
+  const adjusted = operator === "subtract" ? -Math.abs(contribution) : contribution;
+  if (side === "debit") {
+    if (adjusted >= 0) agg.debit += adjusted; else agg.credit += -adjusted;
+  } else {
+    if (adjusted >= 0) agg.credit += adjusted; else agg.debit += -adjusted;
+  }
+  agg.accountCodes.push(accountCode);
+}
+
+/** Assemble a ResidualParent diagnostic for a non-leaf residual. */
+function buildResidualParent(r: { code: string; name: string; debit: number; credit: number },
+  lineCode: string, ownByCode: Map<string, any>, childrenOfId: Map<number, string[]>): ResidualParent | null {
+  const own = ownByCode.get(r.code)!;
+  const childCodes = childrenOfId.get(own.id) || [];
+  if (childCodes.length === 0) return null;
+  let cD = 0, cC = 0;
+  for (const cc of childCodes) { const c = ownByCode.get(cc); if (c) { cD += c.debit; cC += c.credit; } }
+  return { accountCode: r.code, accountName: r.name, lineCode, residualDebit: r.debit, residualCredit: r.credit, ownDebit: own.debit, ownCredit: own.credit, childrenDebit: cD, childrenCredit: cC };
+}
+
+// ─── Resolver ──────────────────────────────────────────────
 
 function buildParentChain(
   code: string,
