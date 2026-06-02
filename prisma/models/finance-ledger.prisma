@@ -349,7 +349,46 @@ model ReclassResult {
   @@index([ruleId])
 }
 
-// targetAccount 解析规则：
-// 1. 优先按 (companyCode, year, code=targetAccount) 查 FinanceAccount
-// 2. 找不到时标记 status="invalid_target"，不参与报表
-// 3. changed 时重新解析
+/// 报表底稿头（P3 Batch 2：利润表/现金流量表手工输入底稿）
+/// 唯一键：companyCode + year + month + reportType
+/// 只存事实输入（manualAmount / importedAmount / formulaText / note / source），不存计算结果
+model FinanceStatementWorkpaper {
+  id              Int      @id @default(autoincrement())
+  companyCode     String
+  year            Int
+  month           Int
+  reportType      String   // incomeStatement | cashFlow
+  status          String   @default("draft") // draft | submitted
+  note            String?
+  updatedBy       Int?
+  editedAt        DateTime?
+  version         Int      @default(1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+  editor          User?    @relation("WorkpaperEditor", fields: [updatedBy], references: [id])
+  lines           FinanceStatementWorkpaperLine[]
+
+  @@unique([companyCode, year, month, reportType])
+  @@index([companyCode, year, reportType])
+}
+
+/// 报表底稿行（P3 Batch 2：底稿每行的手工/导入输入）
+/// 唯一键：workpaperId + lineCode
+/// lineCode 必须存在于对应 reportType 的 FinanceStatementLineConfig
+model FinanceStatementWorkpaperLine {
+  id              Int      @id @default(autoincrement())
+  workpaperId     Int
+  lineCode        String
+  manualAmount    Float    @default(0)
+  importedAmount  Float    @default(0)
+  formulaText     String?
+  note            String?
+  source          String?
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+  workpaper       FinanceStatementWorkpaper @relation(fields: [workpaperId], references: [id], onDelete: Cascade)
+
+  @@unique([workpaperId, lineCode])
+  @@index([workpaperId])
+}
