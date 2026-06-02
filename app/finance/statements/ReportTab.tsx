@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import FinanceFilters from "../components/FinanceFilters";
 import ReportLines from "./ReportLines";
+import ReportBanner from "./ReportBanner";
 import type { ReportLine, AccountDetail } from "./ReportLines";
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -146,13 +147,11 @@ export default function ReportTab() {
         <div className="rounded-lg bg-white shadow-sm p-4">
           <h3 className="text-base font-semibold text-gray-800 text-center mb-1">利  润  表</h3>
           <p className="text-xs text-gray-500 text-center mb-4">{data.period.year}年{data.period.month}月</p>
-          {data.source && data.source !== "review" && (
-            <div className="mb-3 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-              {data.diagnostics?.map((d) => (
-                <p key={d.type}>⚠ {d.message}</p>
-              ))}
-            </div>
-          )}
+          <ReportBanner
+            source={data.source}
+            diagnostics={data.diagnostics}
+            reviewHref={`/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=incomeStatement`}
+          />
           <table className="w-full text-xs max-w-2xl mx-auto">
             <thead className="border-b"><tr>
               <th className="py-1 text-left font-medium text-gray-700">项       目</th>
@@ -167,13 +166,11 @@ export default function ReportTab() {
         <div className="rounded-lg bg-white shadow-sm p-4">
           <h3 className="text-base font-semibold text-gray-800 text-center mb-1">现 金 流 量 表</h3>
           <p className="text-xs text-gray-500 text-center mb-4">{data.period.year}年{data.period.month}月</p>
-          {data.source && data.source !== "review" && (
-            <div className="mb-3 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-              {data.diagnostics?.map((d) => (
-                <p key={d.type}>⚠ {d.message}</p>
-              ))}
-            </div>
-          )}
+          <ReportBanner
+            source={data.source}
+            diagnostics={data.diagnostics}
+            reviewHref={`/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=cashFlow`}
+          />
           <table className="w-full text-xs max-w-2xl mx-auto">
             <thead className="border-b"><tr>
               <th className="py-1 text-left font-medium text-gray-700">项       目</th>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import SelectField from "@/app/components/SelectField";
 
 interface WpLine { id: number; lineCode: string; manualAmount: number; importedAmount: number; }
@@ -127,6 +128,17 @@ export default function ReviewClient() {
           {rv && <span className="text-xs text-gray-500">校对状态：<b className={rv.status === "confirmed" ? "text-emerald-600" : "text-blue-600"}>{rv.status === "confirmed" ? "已确认" : "草稿"}</b></span>}
           {rv && changedCount > 0 && <button onClick={saveEdits} disabled={saving || isReadOnly} className="rounded bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700 disabled:opacity-50">保存修改 ({changedCount})</button>}
           {rv && rv.status !== "confirmed" && <button onClick={doConfirm} disabled={saving || changedCount > 0} className="rounded bg-purple-600 px-3 py-1.5 text-xs text-white hover:bg-purple-700 disabled:opacity-50">确认校对</button>}
+        </div>
+      )}
+      {rv?.status === "confirmed" && (
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 flex items-center justify-between">
+          <span className="text-sm text-emerald-700">✅ 校对已确认</span>
+          <Link
+            href={`/finance/statements?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt === "incomeStatement" ? "income" : "cashflow"}`}
+            className="rounded bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700"
+          >
+            前往财务报表查看最终结果 →
+          </Link>
         </div>
       )}
       {rv && (
