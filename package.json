@@ -27,7 +27,9 @@
     "finance:bs-smoke:all": "npx tsx scripts/balance-sheet-smoke-all.ts",
     "finance:wp-smoke": "npx tsx scripts/statement-workpapers-smoke.ts",
     "finance:income-smoke": "npx tsx scripts/income-system-smoke.ts",
-    "finance:review-report-smoke": "npx tsx scripts/review-report-smoke.ts"
+    "finance:review-report-smoke": "npx tsx scripts/review-report-smoke.ts",
+    "finance:cashflow-import": "npx tsx scripts/import-cash-flow-workpapers.ts",
+    "finance:cashflow-import:execute": "npx tsx scripts/import-cash-flow-workpapers.ts --execute"
   },
   "prisma": {
     "schema": "./prisma"

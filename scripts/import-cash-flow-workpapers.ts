@@ -19,7 +19,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 const prisma = new PrismaClient({
-  adapter: new PrismaBetterSqlite3({ url: "data/dev.db" }),
+  adapter: new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || "data/dev.db" }),
 });
 
 const IS_EXEC = process.argv.includes("--execute");
@@ -403,7 +403,8 @@ async function writeWorkpaper(
       manualAmount: prev?.manualAmount ?? 0,
       importedAmount: m.amount,
       formulaText: prev?.formulaText ?? null,
-      note: `${m.project}（${m.direction}）`,
+      // Preserve existing note if user-added; use import description for new lines
+      note: prev?.note ?? `${m.project}（${m.direction}）`,
       source,
     });
   }
@@ -420,7 +421,7 @@ async function writeWorkpaper(
     const wp = await tx.financeStatementWorkpaper.upsert({
       where: { companyCode_year_month_reportType: { companyCode, year, month, reportType } },
       create: { companyCode, year, month, reportType, status: "draft" },
-      update: {},
+      update: { version: { increment: 1 }, editedAt: new Date() },
     });
 
     const keepCodes = new Set(lines.map((l) => l.lineCode));
