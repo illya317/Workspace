@@ -23,13 +23,13 @@ export default function ReviewToolbar({ wp, rv, changedCount, saving, loading, i
           <span className="text-xs text-gray-500">底稿已加载{!wp.id ? "（空草稿，请先在底稿页录入数据）" : ""}</span>
           {wp.id > 0 && !rv && <button onClick={onGenerate} disabled={loading} className="rounded bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700 disabled:opacity-50">生成校对</button>}
           {wp.id > 0 && rv?.isStale && <button onClick={onGenerate} disabled={loading} className="rounded bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700 disabled:opacity-50">重新生成校对</button>}
-          {rv && <span className="text-xs text-gray-500">校对状态：<b className={rv.status === "confirmed" ? "text-emerald-600" : "text-blue-600"}>{rv.status === "confirmed" ? "已确认" : "草稿"}</b></span>}
+          {rv && <span className="text-xs text-gray-500">校对状态：<b className={rv.status === "confirmed" && rv.isStale ? "text-amber-600" : rv.status === "confirmed" ? "text-emerald-600" : "text-blue-600"}>{rv.status === "confirmed" && rv.isStale ? "已过期" : rv.status === "confirmed" ? "已确认" : "草稿"}</b></span>}
           {rv && changedCount > 0 && <button onClick={onSave} disabled={saving || isReadOnly} className="rounded bg-emerald-600 px-3 py-1.5 text-xs text-white hover:bg-emerald-700 disabled:opacity-50">保存修改 ({changedCount})</button>}
           {rv && rv.status !== "confirmed" && <button onClick={onConfirm} disabled={saving || changedCount > 0} className="rounded bg-purple-600 px-3 py-1.5 text-xs text-white hover:bg-purple-700 disabled:opacity-50">确认校对</button>}
         </div>
       )}
 
-      {rv?.status === "confirmed" && (
+      {rv?.status === "confirmed" && !rv.isStale && (
         <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 flex items-center justify-between">
           <span className="text-sm text-emerald-700">✅ 校对已确认</span>
           <Link
