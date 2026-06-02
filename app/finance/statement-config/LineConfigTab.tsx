@@ -8,7 +8,7 @@ interface Mapping { accountCode: string; lineCode: string; operator: "add" | "su
 interface AcctInfo { code: string; name: string; closingDebit: number; closingCredit: number; }
 /** API response shapes — minimal fields consumed by this component. */
 interface ApiLineCfg { lineCode: string; label: string; section: string; reclassSource?: boolean; reclassTarget?: boolean; isHeader?: boolean; isTotal?: boolean; isGrandTotal?: boolean; }
-interface ApiTreeNode { accountCode: string; accountName: string; closingDebit: number; closingCredit: number; resolvedLineCode: string | null; children: ApiTreeNode[]; }
+interface ApiTreeNode { accountCode: string; accountName: string; closingDebit: number; closingCredit: number; resolvedLineCode: string | null; effectiveOperator: "add" | "subtract" | null; children: ApiTreeNode[]; }
 interface ApiErrorBody { error?: string; }
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -50,7 +50,7 @@ export default function LineConfigTab() {
     const walk = (ns: ApiTreeNode[]) => {
       for (const n of ns) {
         accts.push({ code: n.accountCode, name: n.accountName, closingDebit: n.closingDebit, closingCredit: n.closingCredit });
-        if (n.resolvedLineCode) effCodes.add(n.accountCode);
+        if (n.effectiveOperator === "add") effCodes.add(n.accountCode);
         walk(n.children);
       }
     };

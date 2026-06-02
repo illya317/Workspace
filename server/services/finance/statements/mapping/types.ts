@@ -4,4 +4,5 @@ export interface MappingResolveResult {
   resolvedLineCode: string | null;
   mappingSource: "explicit" | "inherited" | "none";
   ancestorAccountCode: string | null;
+  effectiveOperator: "add" | "subtract" | null;
 }

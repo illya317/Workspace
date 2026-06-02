@@ -7,7 +7,7 @@
 import { prisma } from "@/lib/prisma";
 import type { MappingResolveResult } from "./types";
 
-let _cache: Map<string, string> | null = null;
+let _cache: Map<string, { lineCode: string; operator: "add" | "subtract" }> | null = null;
 let _cacheKey = "";
 
 export async function resolveAccountLine(
@@ -27,19 +27,20 @@ export async function resolveAccountMapping(
 
   // Look for nearest ancestor with mapping
   for (const code of chain) {
-    const line = map.get(code);
-    if (line) {
+    const entry = map.get(code);
+    if (entry) {
       return {
         accountCode,
-        explicitLineCode: code === accountCode ? line : null,
-        resolvedLineCode: line,
+        explicitLineCode: code === accountCode ? entry.lineCode : null,
+        resolvedLineCode: entry.lineCode,
         mappingSource: code === accountCode ? "explicit" : "inherited",
         ancestorAccountCode: code === accountCode ? null : code,
+        effectiveOperator: entry.operator,
       };
     }
   }
 
-  return { accountCode, explicitLineCode: null, resolvedLineCode: null, mappingSource: "none", ancestorAccountCode: null };
+  return { accountCode, explicitLineCode: null, resolvedLineCode: null, mappingSource: "none", ancestorAccountCode: null, effectiveOperator: null };
 }
 
 async function buildParentChain(companyCode: string, year: number, accountCode: string): Promise<string[]> {
@@ -67,18 +68,18 @@ async function buildParentChain(companyCode: string, year: number, accountCode: 
 
 async function loadMappingCache(
   companyCode: string, year: number, statementType: string,
-): Promise<Map<string, string>> {
+): Promise<Map<string, { lineCode: string; operator: "add" | "subtract" }>> {
   const key = `${companyCode}:${year}:${statementType}`;
   if (_cache && _cacheKey === key) return _cache;
 
   const mappings = await prisma.financeStatementAccountMapping.findMany({
     where: { companyCode, year, statementType },
-    select: { accountCode: true, lineCode: true },
+    select: { accountCode: true, lineCode: true, operator: true },
     orderBy: { accountCode: "asc" },
   });
 
-  const map = new Map<string, string>();
-  for (const m of mappings) map.set(m.accountCode, m.lineCode);
+  const map = new Map<string, { lineCode: string; operator: "add" | "subtract" }>();
+  for (const m of mappings) map.set(m.accountCode, { lineCode: m.lineCode, operator: (m.operator as "add" | "subtract") || "add" });
   _cache = map;
   _cacheKey = key;
   return map;
