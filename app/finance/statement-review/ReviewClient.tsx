@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import SelectField from "@/app/components/SelectField";
 
@@ -18,7 +19,13 @@ const FMT = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2,
 const STS: Record<string, string> = { pending: "待确认", confirmed: "✓已确认", adjusted: "⚡已调整", flagged: "⚠已标记" };
 
 export default function ReviewClient() {
-  const [co, setCo] = useState("02"); const [yr, setYr] = useState("2025"); const [mo, setMo] = useState("6"); const [rt, setRt] = useState("incomeStatement");
+  const searchParams = useSearchParams();
+  const rtFromQuery = searchParams.get("reportType");
+  const RT_SET: Set<string> = new Set(["incomeStatement", "cashFlow"]);
+  const [co, setCo] = useState(searchParams.get("companyCode") || "02");
+  const [yr, setYr] = useState(searchParams.get("year") || "2025");
+  const [mo, setMo] = useState(searchParams.get("month") || "6");
+  const [rt, setRt] = useState(rtFromQuery && RT_SET.has(rtFromQuery) ? rtFromQuery : "incomeStatement");
   const [wp, setWp] = useState<Workpaper | null>(null); const [rv, setRv] = useState<Review | null>(null);
   const [loading, setLoading] = useState(false); const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);

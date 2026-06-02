@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import FinanceFilters from "../components/FinanceFilters";
 import ReportLines from "./ReportLines";
 import ReportBanner from "./ReportBanner";
@@ -24,11 +25,16 @@ interface ReportData {
 }
 
 export default function ReportTab() {
+  const searchParams = useSearchParams();
+  const rtFromQuery = searchParams.get("reportType");
+  const RT_SET: Set<string> = new Set(["balance", "income", "cashflow"]);
+  const [companyFilter, setCompanyFilter] = useState(searchParams.get("companyCode") || "02");
+  const [yearFilter, setYearFilter] = useState(searchParams.get("year") || "2025");
+  const [monthFilter, setMonthFilter] = useState(searchParams.get("month") || "12");
+  const [reportType, setReportType] = useState<"balance" | "income" | "cashflow">(
+    rtFromQuery && RT_SET.has(rtFromQuery) ? rtFromQuery as "balance" | "income" | "cashflow" : "balance",
+  );
   const [periods, setPeriods] = useState<Period[]>([]);
-  const [companyFilter, setCompanyFilter] = useState("02");
-  const [yearFilter, setYearFilter] = useState("2025");
-  const [monthFilter, setMonthFilter] = useState("12");
-  const [reportType, setReportType] = useState<"balance" | "income" | "cashflow">("balance");
   const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(false);
   const [expandedCodes, setExpandedCodes] = useState<Set<string>>(new Set());
