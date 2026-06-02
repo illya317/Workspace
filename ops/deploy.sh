@@ -47,13 +47,12 @@ rsync -avz -e "ssh -i $TMPKEY" \
   .next/standalone/ "$SERVER:$DEPLOY_DIR/"
 
 echo ""
-echo "==> 同步数据库..."
-ssh -i "$TMPKEY" "$SERVER" "mkdir -p $REMOTE_DIR/data"
-rsync -avz -e "ssh -i $TMPKEY" data/dev.db "$SERVER:$REMOTE_DIR/data/dev.db"
-
-echo ""
 echo "==> 重启服务..."
 ssh -i "$TMPKEY" "$SERVER" "
+  cd $DEPLOY_DIR
+  echo '==> 安装依赖（重建 native 模块）...'
+  npm install 2>&1 | tail -3
+
   sed -i \"s|file:.*/data/dev.db|file:$REMOTE_DIR/data/dev.db|\" $REMOTE_DIR/.env 2>/dev/null || true
   pm2 restart $PM2_NAME --update-env 2>/dev/null || pm2 start server.js --name $PM2_NAME --cwd $DEPLOY_DIR --env production
   pm2 save
