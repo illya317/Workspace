@@ -1,8 +1,9 @@
 /**
  * P3 Batch 5: income statement systemAmount from voucher-item activity.
  *
- * Aggregates current-period debit/credit from FinanceAccountBalance,
- * matched by account code prefix per line config.
+ * Aggregates debit/credit from FinanceVoucherItem (not FinanceAccountBalance,
+ * because some companies have annual-snapshot balances with zero current activity).
+ * Filters by voucher.periodId for the target month.
  *
  * Rules:
  *   direction=credit (revenue): amount = credit - debit
@@ -15,7 +16,7 @@ import { prisma } from "@/lib/prisma";
 import type { IncomeStatementLineRow } from "../config/load-config-reports";
 import { loadIncomeStatementConfig } from "../config/load-config-reports";
 
-/** Compute systemAmount for every income statement data line. */
+/** Compute systemAmount for every income statement data line from voucher items. */
 export async function computeIncomeSystemAmounts(
   companyCode: string,
   year: number,
@@ -27,54 +28,50 @@ export async function computeIncomeSystemAmounts(
   if (!period) return new Map();
 
   const config = await loadIncomeStatementConfig(companyCode, year);
-  return computeFromBalances(period.id, config);
+  return computeFromVouchers(period.id, config);
 }
 
-/** Internal: given periodId and config, aggregate balances into systemAmounts. */
-async function computeFromBalances(
+async function computeFromVouchers(
   periodId: number,
   config: IncomeStatementLineRow[],
 ): Promise<Map<string, number>> {
-  // Load all balances with account codes for this period
-  const balances = await prisma.financeAccountBalance.findMany({
-    where: { periodId },
+  // Load all voucher items for this period with account codes
+  const items = await prisma.financeVoucherItem.findMany({
+    where: { voucher: { periodId } },
     include: { account: { select: { code: true } } },
   });
-
   const result = new Map<string, number>();
 
   for (const line of config) {
-    // Header / total / grandTotal: skip, systemAmount stays 0
     if (line.isHeader || line.isTotal || line.isGrandTotal || line.prefixes.length === 0) {
       result.set(line.lineCode, 0);
       continue;
     }
 
-    // Leaf-only: collect matched codes, exclude parents whose child also matches
-    const matched = new Set(balances.filter((b) =>
-      line.prefixes.some((p) => b.account.code.startsWith(p)),
-    ));
+    // Filter items matching any prefix
+    const matched = items.filter((it) =>
+      line.prefixes.some((p) => it.account.code.startsWith(p)),
+    );
+
+    // Leaf-only: exclude parents whose child also matched
+    const codes = new Set(matched.map((it) => it.account.code));
     const parents = new Set<string>();
-    for (const a of matched) {
-      for (const b of matched) {
-        if (b.account.code !== a.account.code &&
-            b.account.code.startsWith(a.account.code) &&
-            b.account.code.length > a.account.code.length) {
-          parents.add(a.account.code);
-          break;
+    for (const c1 of codes) {
+      for (const c2 of codes) {
+        if (c2 !== c1 && c2.startsWith(c1) && c2.length > c1.length) {
+          parents.add(c1); break;
         }
       }
     }
-    const leafBalances = [...matched].filter((b) => !parents.has(b.account.code));
-
-    const totalDebit = leafBalances.reduce((s, b) => s + b.currentDebit, 0);
-    const totalCredit = leafBalances.reduce((s, b) => s + b.currentCredit, 0);
+    const leafItems = matched.filter((it) => !parents.has(it.account.code));
 
     let amount: number;
     if (line.direction === "credit") {
-      amount = totalCredit - totalDebit;
+      // Revenue: sum credit entries only (debit entries are reversals/closing)
+      amount = leafItems.reduce((s, it) => s + it.credit, 0);
     } else {
-      amount = totalDebit - totalCredit;
+      // Expense: sum debit entries only (credit entries are reversals/closing)
+      amount = leafItems.reduce((s, it) => s + it.debit, 0);
     }
     if (line.subtract) amount = -amount;
 

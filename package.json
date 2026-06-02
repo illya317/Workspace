@@ -25,7 +25,8 @@
     "finance:bs-diff": "npx tsx scripts/balance-sheet-diff.ts",
     "finance:bs-smoke": "npx tsx scripts/balance-sheet-diff.ts 02 2025 2 --top 20",
     "finance:bs-smoke:all": "npx tsx scripts/balance-sheet-smoke-all.ts",
-    "finance:wp-smoke": "npx tsx scripts/statement-workpapers-smoke.ts"
+    "finance:wp-smoke": "npx tsx scripts/statement-workpapers-smoke.ts",
+    "finance:income-smoke": "npx tsx scripts/income-system-smoke.ts"
   },
   "prisma": {
     "schema": "./prisma"
