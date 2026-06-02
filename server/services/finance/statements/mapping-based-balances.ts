@@ -137,6 +137,14 @@ export async function aggregateMappingBasedBalances(
     operatorMap.set(m.accountCode, (m.operator as "add" | "subtract") || "add");
   }
 
+  // 6b. Preload line configs for side lookup
+  const lineConfigs = await prisma.financeStatementLineConfig.findMany({
+    where: { companyCode, year, reportType: "balanceSheet", enabled: true },
+    select: { lineCode: true, side: true },
+  });
+  const lineSideMap = new Map<string, "debit" | "credit">();
+  for (const lc of lineConfigs) lineSideMap.set(lc.lineCode, lc.side as "debit" | "credit");
+
   // 7. Preload accounts for parent-chain resolution (batch)
   const accounts = await prisma.financeAccount.findMany({
     where: { companyCode, year },
@@ -154,15 +162,26 @@ export async function aggregateMappingBasedBalances(
     const resolved = resolveLineCodeWithOperator(r.code, parentMap, mappingMap, operatorMap);
     if (resolved) {
       const { lineCode, operator } = resolved;
+      const side = lineSideMap.get(lineCode) || "debit";
       const agg = byLine.get(lineCode) || { debit: 0, credit: 0, accountCodes: [] };
-      if (operator === "subtract") {
-        // Subtract: flip the sign — deduct from the line
-        agg.debit -= r.debit;
-        agg.credit -= r.credit;
+
+      // 1. Normalized contribution
+      const contribution = side === "debit"
+        ? r.debit - r.credit
+        : r.credit - r.debit;
+
+      // 2. Apply operator
+      const adjusted = operator === "subtract" ? -Math.abs(contribution) : contribution;
+
+      // 3. Write back to debit/credit buckets
+      if (side === "debit") {
+        if (adjusted >= 0) agg.debit += adjusted;
+        else agg.credit += -adjusted;
       } else {
-        agg.debit += r.debit;
-        agg.credit += r.credit;
+        if (adjusted >= 0) agg.credit += adjusted;
+        else agg.debit += -adjusted;
       }
+
       agg.accountCodes.push(r.code);
       byLine.set(lineCode, agg);
       // Diagnostics: parents (non-leaf) that contributed residual
