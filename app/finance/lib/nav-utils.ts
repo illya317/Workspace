@@ -25,6 +25,12 @@ export const allFinanceNavItems: FinanceNavItem[] = [
     checkAccess: (u) => !!u.canAccessFinanceReport,
   },
   {
+    key: "statementReview",
+    label: "报表校对",
+    href: "/finance/statement-review",
+    checkAccess: (u) => !!u.canAccessFinanceReport,
+  },
+  {
     key: "statements",
     label: "财务报表",
     href: "/finance/statements",
@@ -88,6 +94,13 @@ export const allFinanceModules: FinanceModuleItem[] = [
     label: "报表配置",
     desc: "资产负债表项目、科目映射、重分类开关",
     href: "/finance/statement-config",
+    checkAccess: (u) => !!u.canAccessFinanceReport,
+  },
+  {
+    key: "statementReview",
+    label: "报表校对",
+    desc: "利润表、现金流量表底稿校对与签核",
+    href: "/finance/statement-review",
     checkAccess: (u) => !!u.canAccessFinanceReport,
   },
   {
