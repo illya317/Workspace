@@ -37,13 +37,15 @@ async function ensureWorkpaper(rt: "incomeStatement" | "cashFlow") {
 
 async function cleanup(rt: "incomeStatement" | "cashFlow") {
   const key = { companyCode: CO, year: YR, month: MO, reportType: rt };
-  const rv = await p.financeStatementReview.findFirst({ where: key });
-  if (rv) await p.financeStatementReview.delete({ where: { id: rv.id } });
   const wp = await p.financeStatementWorkpaper.findUnique({ where: { companyCode_year_month_reportType: key } });
-  if (wp) {
-    await p.financeStatementWorkpaperLine.deleteMany({ where: { workpaperId: wp.id } });
-    await p.financeStatementWorkpaper.delete({ where: { id: wp.id } });
-  }
+  if (!wp) return;
+
+  // 1. Delete associated review (FK without CASCADE → must go before workpaper)
+  await p.financeStatementReview.deleteMany({ where: { workpaperId: wp.id } });
+  // 2. Delete workpaper lines (explicit, though CASCADE would handle it)
+  await p.financeStatementWorkpaperLine.deleteMany({ where: { workpaperId: wp.id } });
+  // 3. Delete workpaper
+  await p.financeStatementWorkpaper.delete({ where: { id: wp.id } });
 }
 
 async function main() {

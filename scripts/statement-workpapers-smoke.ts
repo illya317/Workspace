@@ -11,8 +11,8 @@
  *   npx tsx scripts/statement-workpapers-smoke.ts
  *
  * Read-only except for the workpaper under test — creates and cleans up
- * a test workpaper (02/2099/12/incomeStatement) so it won't collide with
- * real data.
+ * a test workpaper (02/2099/11/incomeStatement) so it won't collide with
+ * real data or other smoke scripts.
  */
 
 import "dotenv/config";
@@ -25,7 +25,7 @@ import {
 
 const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: "data/dev.db" }) });
 
-const TEST = { companyCode: "02", year: 2099, month: 12, reportType: "incomeStatement" as const };
+const TEST = { companyCode: "02", year: 2099, month: 11, reportType: "incomeStatement" as const };
 
 let passed = 0;
 let failed = 0;
@@ -43,9 +43,14 @@ async function cleanup() {
   const wp = await prisma.financeStatementWorkpaper.findUnique({
     where: { companyCode_year_month_reportType: TEST },
   });
-  if (wp) {
-    await prisma.financeStatementWorkpaper.delete({ where: { id: wp.id } });
-  }
+  if (!wp) return;
+
+  // 1. Delete associated review (FK without CASCADE → must go before workpaper)
+  await prisma.financeStatementReview.deleteMany({ where: { workpaperId: wp.id } });
+  // 2. Delete workpaper lines (explicit, though CASCADE would handle it)
+  await prisma.financeStatementWorkpaperLine.deleteMany({ where: { workpaperId: wp.id } });
+  // 3. Delete workpaper
+  await prisma.financeStatementWorkpaper.delete({ where: { id: wp.id } });
 }
 
 async function main() {
