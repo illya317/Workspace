@@ -17,8 +17,9 @@ interface ReportData {
   equity?: ReportLine[];
   totalLiabilitiesAndEquity?: number;
   lines?: ReportLine[];
-  cashAccounts?: { code: string; name: string; opening?: number; closing?: number }[];
-  netChange?: number;
+  /** P3 Batch 7: review-based report metadata */
+  source?: "review" | "empty" | "stale";
+  diagnostics?: { type: string; message: string }[];
 }
 
 export default function ReportTab() {
@@ -145,6 +146,13 @@ export default function ReportTab() {
         <div className="rounded-lg bg-white shadow-sm p-4">
           <h3 className="text-base font-semibold text-gray-800 text-center mb-1">利  润  表</h3>
           <p className="text-xs text-gray-500 text-center mb-4">{data.period.year}年{data.period.month}月</p>
+          {data.source && data.source !== "review" && (
+            <div className="mb-3 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              {data.diagnostics?.map((d) => (
+                <p key={d.type}>⚠ {d.message}</p>
+              ))}
+            </div>
+          )}
           <table className="w-full text-xs max-w-2xl mx-auto">
             <thead className="border-b"><tr>
               <th className="py-1 text-left font-medium text-gray-700">项       目</th>
@@ -157,28 +165,21 @@ export default function ReportTab() {
 
       {data?.type === "cashflow" && (
         <div className="rounded-lg bg-white shadow-sm p-4">
-          <h3 className="text-base font-semibold text-gray-800 text-center mb-1">现金流量表（简化）</h3>
+          <h3 className="text-base font-semibold text-gray-800 text-center mb-1">现 金 流 量 表</h3>
           <p className="text-xs text-gray-500 text-center mb-4">{data.period.year}年{data.period.month}月</p>
-          <table className="w-full text-xs max-w-2xl mx-auto">
-            <thead className="border-b bg-gray-50"><tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-600">科目</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-600">期初余额</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-600">期末余额</th>
-            </tr></thead>
-            <tbody>
-              {data.cashAccounts?.map((a) => (
-                <tr key={a.code} className="border-b">
-                  <td className="px-3 py-2 text-gray-600">{a.code} {a.name}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{fmt(a.opening || 0)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{fmt(a.closing || 0)}</td>
-                </tr>
+          {data.source && data.source !== "review" && (
+            <div className="mb-3 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              {data.diagnostics?.map((d) => (
+                <p key={d.type}>⚠ {d.message}</p>
               ))}
-              <tr className="font-semibold border-t-2 border-gray-300">
-                <td className="px-3 py-2 text-gray-800">现金及等价物净增加额</td>
-                <td className="px-3 py-2 text-right" />
-                <td className="px-3 py-2 text-right text-emerald-700">{fmt(data.netChange || 0)}</td>
-              </tr>
-            </tbody>
+            </div>
+          )}
+          <table className="w-full text-xs max-w-2xl mx-auto">
+            <thead className="border-b"><tr>
+              <th className="py-1 text-left font-medium text-gray-700">项       目</th>
+              <th className="py-1 text-right font-medium text-gray-700">金额</th>
+            </tr></thead>
+            <ReportLines items={data.lines || []} {...lineProps} />
           </table>
         </div>
       )}

@@ -29,6 +29,18 @@ export const GET = withFinanceReportAccess(async (request: Request) => {
   const period = await prisma.financePeriod.findUnique({ where: { id: targetPeriodId } });
   if (!period) return NextResponse.json({ error: "期间不存在" }, { status: 404 });
 
+  // P3 Batch 7: income/cashflow go review-based — skip balance/reclass queries
+  if (reportType === "income" || reportType === "cashflow") {
+    return generateReport({
+      period,
+      balances: [],
+      yearBalances: [],
+      reportType,
+      isCanada: period.companyCode === "04",
+    });
+  }
+
+  // balance type: mapping-based (unchanged)
   const isCanada = period.companyCode === "04";
 
   const balances = await prisma.financeAccountBalance.findMany({
