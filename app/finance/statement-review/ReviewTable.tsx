@@ -29,15 +29,15 @@ export default function ReviewTable({ rv, getLineState, isReadOnly, editingAmt, 
   return (
     <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
       <table className="w-full text-xs">
-        <thead className="border-b bg-gray-100">
-          <tr>
-            <th className="px-2 py-2 text-left">项目</th>
-            <th className="px-2 py-2 text-right w-28">系统建议</th>
-            <th className="px-2 py-2 text-right w-28">底稿输入</th>
-            <th className="px-2 py-2 text-right w-28">调整金额</th>
-            <th className="px-2 py-2 text-right w-28">最终金额</th>
-            <th className="px-2 py-2 text-center w-20">状态</th>
-            <th className="px-2 py-2 text-left w-40">备注</th>
+        <thead className="border-b-2 border-gray-300 bg-gray-200">
+          <tr className="text-gray-800">
+            <th className="px-2 py-2 text-left font-semibold">项目</th>
+            <th className="px-2 py-2 text-right font-semibold w-28">系统建议</th>
+            <th className="px-2 py-2 text-right font-semibold w-28">底稿输入</th>
+            <th className="px-2 py-2 text-right font-semibold w-28">调整金额</th>
+            <th className="px-2 py-2 text-right font-semibold w-28">最终金额</th>
+            <th className="px-2 py-2 text-center font-semibold w-20">状态</th>
+            <th className="px-2 py-2 text-left font-semibold w-40">备注</th>
           </tr>
         </thead>
         <tbody>
