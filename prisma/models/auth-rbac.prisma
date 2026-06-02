@@ -32,6 +32,8 @@ model User {
   confirmedReclassRules    FinanceReclassRule[]     @relation("FinanceReclassRuleConfirmer")
   ledgerImports            FinanceLedgerImport[]    @relation("FinanceLedgerImportImporter")
   editedWorkpapers         FinanceStatementWorkpaper[] @relation("WorkpaperEditor")
+  editedReviews           FinanceStatementReview[]    @relation("ReviewEditor")
+  reviewedReviews         FinanceStatementReview[]    @relation("ReviewReviewer")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md

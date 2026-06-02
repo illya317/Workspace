@@ -368,6 +368,7 @@ model FinanceStatementWorkpaper {
   updatedAt       DateTime @default(now()) @updatedAt
   editor          User?    @relation("WorkpaperEditor", fields: [updatedBy], references: [id])
   lines           FinanceStatementWorkpaperLine[]
+  review          FinanceStatementReview?
 
   @@unique([companyCode, year, month, reportType])
   @@index([companyCode, year, reportType])
@@ -392,4 +393,57 @@ model FinanceStatementWorkpaperLine {
 
   @@unique([workpaperId, lineCode])
   @@index([workpaperId])
+}
+
+/// 报表校对头（P3 Batch 3：workpaper → review，校对签核）
+/// 1 workpaper → 1 active review
+/// companyCode/year/month/reportType 是快照冗余，便于查询
+model FinanceStatementReview {
+  id                   Int      @id @default(autoincrement())
+  workpaperId          Int      @unique
+  companyCode          String
+  year                 Int
+  month                Int
+  reportType           String   // incomeStatement | cashFlow
+  status               String   @default("draft") // draft | confirmed | voided
+  generatedFromVersion Int
+  reviewedBy           Int?
+  reviewedAt           DateTime?
+  note                 String?
+  editedBy             Int?
+  editedAt             DateTime?
+  version              Int      @default(1)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @default(now()) @updatedAt
+  workpaper            FinanceStatementWorkpaper @relation(fields: [workpaperId], references: [id])
+  editor               User?    @relation("ReviewEditor", fields: [editedBy], references: [id])
+  reviewer              User?    @relation("ReviewReviewer", fields: [reviewedBy], references: [id])
+  lines                FinanceStatementReviewLine[]
+
+  @@index([companyCode, year, month, reportType])
+  @@index([status])
+}
+
+/// 报表校对行（P3 Batch 3：校对签核行数据）
+/// systemAmount = 系统建议 (Batch 5 前为 0)
+/// workpaperAmount = 底稿快照 (manualAmount + importedAmount)
+/// finalAmount = adjustedAmount ?? workpaperAmount
+model FinanceStatementReviewLine {
+  id              Int      @id @default(autoincrement())
+  reviewId        Int
+  lineCode        String
+  label           String   // 创建 review 时的项目名称快照
+  sortOrder       Int      // 创建 review 时的排序快照
+  systemAmount    Float    @default(0)
+  workpaperAmount Float    @default(0)
+  adjustedAmount  Float?
+  finalAmount     Float    @default(0)
+  status          String   @default("pending") // pending | confirmed | adjusted | flagged
+  comment         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+  review          FinanceStatementReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@unique([reviewId, lineCode])
+  @@index([reviewId, status])
 }
