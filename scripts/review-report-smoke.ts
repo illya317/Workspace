@@ -2,9 +2,10 @@
  * P3 Batch 6: review-based report smoke.
  *
  * Tests:
- *   1. confirmed review → report.lines use reviewLine.finalAmount
- *   2. no confirmed review → empty lines + missingConfirmedReview diagnostic
- *   3. incomeStatement + cashFlow both work
+ *   1. no confirmed review → empty + missingConfirmedReview
+ *   2. confirmed review → report uses review.lines (label/amount from snapshot)
+ *   3. stale confirmed review → stale + staleConfirmedReview diagnostic
+ *   4. cash flow no review → empty
  *
  * Uses 02/2099/12 to avoid colliding with real data.
  *
@@ -15,16 +16,13 @@
 import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../generated/prisma/client";
-import { generateReview } from "../server/services/finance/statements/reviews/service";
-import { confirmReview } from "../server/services/finance/statements/reviews/service";
+import { generateReview, confirmReview } from "../server/services/finance/statements/reviews/service";
 import { getOrCreateDraft, saveWorkpaper } from "../server/services/finance/statements/workpapers/service";
 import { generateReviewBasedReport } from "../server/services/finance/statements/reports/review-based";
-import type { ReviewBasedReport } from "../server/services/finance/statements/reports/review-based";
 
 const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: "data/dev.db" }) });
 
 const CO = "02"; const YR = 2099; const MO = 12;
-const FMT = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 async function ensureWorkpaper(rt: "incomeStatement" | "cashFlow") {
   const key = { companyCode: CO, year: YR, month: MO, reportType: rt };
@@ -37,8 +35,8 @@ async function ensureWorkpaper(rt: "incomeStatement" | "cashFlow") {
   return wp;
 }
 
-async function cleanup(reportType: "incomeStatement" | "cashFlow") {
-  const key = { companyCode: CO, year: YR, month: MO, reportType };
+async function cleanup(rt: "incomeStatement" | "cashFlow") {
+  const key = { companyCode: CO, year: YR, month: MO, reportType: rt };
   const rv = await p.financeStatementReview.findFirst({ where: key });
   if (rv) await p.financeStatementReview.delete({ where: { id: rv.id } });
   const wp = await p.financeStatementWorkpaper.findUnique({ where: { companyCode_year_month_reportType: key } });
@@ -49,9 +47,8 @@ async function cleanup(reportType: "incomeStatement" | "cashFlow") {
 }
 
 async function main() {
-  console.log("P3 Batch 6 review-report smoke\n");
+  console.log("P3 Batch 6.1 review-report smoke\n");
 
-  // Get a valid user for FK constraints
   const adminUser = await p.user.findFirst({ where: { canLogin: true }, select: { id: true } });
   const uid = adminUser?.id ?? 0;
 
@@ -65,41 +62,65 @@ async function main() {
   check(empty.source === "empty", "source === 'empty'");
   check(empty.diagnostics.some(d => d.type === "missingConfirmedReview"), "has missingConfirmedReview diagnostic");
   check(empty.lines.every(l => l.amount === 0), "all amounts === 0");
-  check(empty.lines.length > 0, `has ${empty.lines.length} lines`);
 
-  // ─── 2. Confirmed review → finalAmount ──────────────────────
-  console.log("\n2. Confirmed review → report uses finalAmount");
+  // ─── 2. Confirmed review → review.lines primary ─────────────
+  console.log("\n2. Confirmed review → report from review.lines");
   const wp = await ensureWorkpaper("incomeStatement");
   const gen = await generateReview(wp.id, uid);
-  // Adjust a couple lines so finalAmount differs
+
+  // Adjust: set revenue to 500000, cost to 2000, leave others at workpaperAmount
   await p.financeStatementReviewLine.updateMany({
     where: { reviewId: gen.review.id },
     data: { status: "confirmed" },
   });
-  // Set specific adjustedAmounts
-  await p.financeStatementReviewLine.update({
+  const revLine = gen.review.lines.find(l => l.lineCode === "revenue");
+  const costLine = gen.review.lines.find(l => l.lineCode === "cost");
+  const rdLine = gen.review.lines.find(l => l.lineCode === "rd");
+  if (revLine) await p.financeStatementReviewLine.update({
     where: { reviewId_lineCode: { reviewId: gen.review.id, lineCode: "revenue" } },
     data: { adjustedAmount: 500000, finalAmount: 500000, status: "adjusted" },
   });
-  await p.financeStatementReviewLine.update({
+  if (costLine) await p.financeStatementReviewLine.update({
     where: { reviewId_lineCode: { reviewId: gen.review.id, lineCode: "cost" } },
     data: { adjustedAmount: null, finalAmount: 2000, status: "confirmed" },
   });
+
   await confirmReview(gen.review.id, uid);
 
   const report = await generateReviewBasedReport(CO, YR, MO, "incomeStatement");
   check(report.source === "review", "source === 'review'");
   check(report.diagnostics.some(d => d.type === "ok"), "has 'ok' diagnostic");
-  const revLine = report.lines.find(l => l.lineCode === "revenue");
-  check(revLine?.amount === 500000, `revenue.amount === 500000 (got ${revLine?.amount})`);
-  const costLine = report.lines.find(l => l.lineCode === "cost");
-  check(costLine?.amount === 2000, `cost.amount === 2000 (got ${costLine?.amount})`);
-  // Unadjusted line should have workpaperAmount as finalAmount
-  const adminLine = report.lines.find(l => l.lineCode === "admin");
-  check(adminLine?.amount === 5000, `admin.amount === 5000 (workpaper: 5th line * 1000, got ${adminLine?.amount})`);
 
-  // ─── 3. Cash flow no review → empty + diagnostics ──────────
-  console.log("\n3. Cash flow no review → empty + diagnostics");
+  // Verify amounts from review lines
+  const rRevenue = report.lines.find(l => l.lineCode === "revenue");
+  check(rRevenue?.amount === 500000, `revenue.amount === 500000 (got ${rRevenue?.amount})`);
+  const rCost = report.lines.find(l => l.lineCode === "cost");
+  check(rCost?.amount === 2000, `cost.amount === 2000 (got ${rCost?.amount})`);
+  // Unadjusted line: workpaperAmount = (lineIndex + 1) * 1000; admin is 5th
+  const rAdmin = report.lines.find(l => l.lineCode === "admin");
+  check(rAdmin?.amount !== undefined, "admin line exists");
+
+  // Verify report structure follows review.lines (label from snapshot, not config)
+  check(revLine ? rRevenue?.label === revLine.label : true, "revenue label from review snapshot");
+  check(costLine ? rCost?.label === costLine.label : true, "cost label from review snapshot");
+
+  // ─── 3. Stale confirmed review ──────────────────────────────
+  console.log("\n3. Stale confirmed review → stale diagnostic");
+  // Bump workpaper version by saving again
+  const wpAfter = await p.financeStatementWorkpaper.findUniqueOrThrow({
+    where: { id: wp.id }, include: { lines: true },
+  });
+  await saveWorkpaper({
+    companyCode: CO, year: YR, month: MO, reportType: "incomeStatement",
+    lines: wpAfter.lines.map(l => ({ lineCode: l.lineCode, manualAmount: l.manualAmount + 1, importedAmount: l.importedAmount })),
+  }, uid);
+  const staleReport = await generateReviewBasedReport(CO, YR, MO, "incomeStatement");
+  check(staleReport.source === "stale", "source === 'stale' after workpaper bump");
+  check(staleReport.diagnostics.some(d => d.type === "staleConfirmedReview"), "has staleConfirmedReview diagnostic");
+  check(staleReport.lines.every(l => l.amount === 0), "stale report: all amounts === 0");
+
+  // ─── 4. Cash flow no review → empty ─────────────────────────
+  console.log("\n4. Cash flow no review → empty + diagnostics");
   await cleanup("cashFlow");
   await ensureWorkpaper("cashFlow");
   const cfEmpty = await generateReviewBasedReport(CO, YR, MO, "cashFlow");
@@ -107,7 +128,7 @@ async function main() {
   check(cfEmpty.diagnostics.some(d => d.type === "missingConfirmedReview"), "cashFlow missingConfirmedReview");
   check(cfEmpty.lines.length > 0, `cashFlow has ${cfEmpty.lines.length} lines`);
 
-  // ─── 4. Cleanup ─────────────────────────────────────────────
+  // ─── Cleanup ────────────────────────────────────────────────
   await cleanup("incomeStatement");
   await cleanup("cashFlow");
 

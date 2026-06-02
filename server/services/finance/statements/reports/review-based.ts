@@ -1,8 +1,8 @@
 /**
  * P3 Batch 6: review-based income / cash flow report generator.
  *
- * Consumes confirmed review.finalAmount. Without confirmed review, returns
- * empty lines + missingConfirmedReview diagnostic.
+ * Consumes confirmed review.finalAmount. Returns empty lines + diagnostic
+ * when no confirmed review exists or when the review is stale.
  *
  * Does NOT touch balanceSheet, statement-mappings, or legacy compute.
  */
@@ -22,7 +22,7 @@ export interface ReportLine {
 }
 
 export interface ReportDiagnostic {
-  type: "missingConfirmedReview" | "ok";
+  type: "missingConfirmedReview" | "staleConfirmedReview" | "ok";
   message: string;
 }
 
@@ -31,17 +31,20 @@ export interface ReviewBasedReport {
   companyCode: string;
   year: number;
   month: number;
-  source: "review" | "empty";
+  source: "review" | "empty" | "stale";
   diagnostics: ReportDiagnostic[];
   lines: ReportLine[];
 }
 
 // ─── helpers ─────────────────────────────────────────────────
 
-function isDataLine(c: IncomeStatementLineRow | CashFlowLineRow): boolean {
-  if ("isHeader" in c) return !c.isHeader && !c.isTotal && !c.isGrandTotal;
-  // CashFlowLineRow has isSubtotal / isGrandTotal
-  return !("isSubtotal" in c && c.isSubtotal) && !c.isGrandTotal;
+type LineConfigRow = IncomeStatementLineRow | CashFlowLineRow;
+
+function configFlags(c: LineConfigRow): Partial<ReportLine> {
+  if ("isTotal" in c && c.isTotal) return { isTotal: true as const };
+  if ("isGrandTotal" in c && c.isGrandTotal) return { isGrandTotal: true as const };
+  if ("isSubtotal" in c && c.isSubtotal) return { isTotal: true as const };
+  return {};
 }
 
 // ─── main ────────────────────────────────────────────────────
@@ -52,17 +55,17 @@ export async function generateReviewBasedReport(
   month: number,
   reportType: "incomeStatement" | "cashFlow",
 ): Promise<ReviewBasedReport> {
-  // 1. Look for confirmed review
-  const review = await prisma.financeStatementReview.findFirst({
-    where: { companyCode, year, month, reportType, status: "confirmed" },
-    include: { lines: { orderBy: { sortOrder: "asc" } } },
-    orderBy: { createdAt: "desc" },
-  });
-
-  // 2. Load line config for structure
   const config = reportType === "incomeStatement"
     ? await loadIncomeStatementConfig(companyCode, year)
     : await loadCashFlowConfig(companyCode, year);
+  const configByCode = new Map(config.map((c) => [c.lineCode, c]));
+
+  // 1. Look for confirmed review
+  const review = await prisma.financeStatementReview.findFirst({
+    where: { companyCode, year, month, reportType, status: "confirmed" },
+    include: { lines: { orderBy: { sortOrder: "asc" } }, workpaper: { select: { version: true } } },
+    orderBy: { createdAt: "desc" },
+  });
 
   if (!review) {
     return {
@@ -70,23 +73,35 @@ export async function generateReviewBasedReport(
       source: "empty",
       diagnostics: [{ type: "missingConfirmedReview", message: "当前期间没有已确认校对结果" }],
       lines: config.map((c) => ({
-        lineCode: c.lineCode, label: c.label, amount: 0,
-        ...("isTotal" in c && c.isTotal ? { isTotal: true as const } : {}),
-        ...("isGrandTotal" in c && c.isGrandTotal ? { isGrandTotal: true as const } : {}),
-        ...("isSubtotal" in c && c.isSubtotal ? { isTotal: true as const } : {}),
+        lineCode: c.lineCode, label: c.label, amount: 0, ...configFlags(c),
       })),
     };
   }
 
-  // 3. Map review lines to report lines
-  const reviewByCode = new Map(review.lines.map((l) => [l.lineCode, l.finalAmount]));
-  const lines: ReportLine[] = config.map((c) => {
-    const amount = reviewByCode.get(c.lineCode) ?? 0;
+  // 2. Stale check: workpaper updated after review was generated
+  const wpVersion = review.workpaper?.version ?? 0;
+  if (wpVersion > review.generatedFromVersion) {
     return {
-      lineCode: c.lineCode, label: c.label, amount,
-      ...("isTotal" in c && c.isTotal ? { isTotal: true as const } : {}),
-      ...("isGrandTotal" in c && c.isGrandTotal ? { isGrandTotal: true as const } : {}),
-      ...("isSubtotal" in c && c.isSubtotal ? { isTotal: true as const } : {}),
+      reportType, companyCode, year, month,
+      source: "stale",
+      diagnostics: [{
+        type: "staleConfirmedReview",
+        message: `底稿已更新(v${wpVersion})，当前校对为旧快照(v${review.generatedFromVersion})，请重新生成校对`,
+      }],
+      lines: config.map((c) => ({
+        lineCode: c.lineCode, label: c.label, amount: 0, ...configFlags(c),
+      })),
+    };
+  }
+
+  // 3. Build report from review.lines (primary) + config flags
+  const lines: ReportLine[] = review.lines.map((rl) => {
+    const c = configByCode.get(rl.lineCode);
+    return {
+      lineCode: rl.lineCode,
+      label: rl.label, // review snapshot label, not current config
+      amount: rl.finalAmount,
+      ...(c ? configFlags(c) : {}),
     };
   });
 
