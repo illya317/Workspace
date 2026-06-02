@@ -6,6 +6,10 @@ import { useStatementConfig } from "./StatementConfigContext";
 interface LineCfg { lineCode: string; label: string; section: string; reclassSource: boolean; reclassTarget: boolean; isHeader: boolean; isTotal: boolean; isGrandTotal: boolean; }
 interface Mapping { accountCode: string; lineCode: string; operator: "add" | "subtract"; source: string; }
 interface AcctInfo { code: string; name: string; closingDebit: number; closingCredit: number; }
+/** API response shapes — minimal fields consumed by this component. */
+interface ApiLineCfg { lineCode: string; label: string; section: string; reclassSource?: boolean; reclassTarget?: boolean; isHeader?: boolean; isTotal?: boolean; isGrandTotal?: boolean; }
+interface ApiTreeNode { accountCode: string; accountName: string; closingDebit: number; closingCredit: number; resolvedLineCode: string | null; children: ApiTreeNode[]; }
+interface ApiErrorBody { error?: string; }
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const SECTIONS: Record<string, string> = { currentAssets: "流动资产", nonCurrentAssets: "非流动资产", currentLiabilities: "流动负债", nonCurrentLiabilities: "非流动负债", equity: "所有者权益", liabilities: "负债" };
@@ -35,7 +39,7 @@ export default function LineConfigTab() {
     if (!cr.ok || !mr.ok) { setError(`加载失败 (${cr.status}/${mr.status})`); setLoading(false); return; }
     const cj = await cr.json();
     const mj = await mr.json();
-    setLines((cj.lineConfigs || []).map((l: any) => ({
+    setLines((cj.lineConfigs || []).map((l: ApiLineCfg) => ({
       lineCode: l.lineCode, label: l.label, section: l.section,
       reclassSource: !!l.reclassSource, reclassTarget: !!l.reclassTarget,
       isHeader: !!l.isHeader, isTotal: !!l.isTotal, isGrandTotal: !!l.isGrandTotal,
@@ -43,7 +47,7 @@ export default function LineConfigTab() {
     setMappings(mj.mappings || []);
     const accts: AcctInfo[] = [];
     const effCodes = new Set<string>();
-    const walk = (ns: any[]) => {
+    const walk = (ns: ApiTreeNode[]) => {
       for (const n of ns) {
         accts.push({ code: n.accountCode, name: n.accountName, closingDebit: n.closingDebit, closingCredit: n.closingCredit });
         if (n.resolvedLineCode) effCodes.add(n.accountCode);
@@ -68,7 +72,7 @@ export default function LineConfigTab() {
       body: JSON.stringify({ companyCode: company, year: yearNum, statementType: "balance", accountCode, lineCode, operator }),
     });
     setSaving((p) => { const n = new Set(p); n.delete(key); return n; });
-    if (!res.ok) { const err = await res.json().catch(() => ({})); setError((err as any).error || `保存失败 (${res.status})`); return; }
+    if (!res.ok) { const err: ApiErrorBody = await res.json().catch((): ApiErrorBody => ({})); setError(err.error || `保存失败 (${res.status})`); return; }
     load();
   }
 
@@ -78,7 +82,7 @@ export default function LineConfigTab() {
     setSaving((p) => new Set(p).add(accountCode));
     const res = await fetch(`/api/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance&accountCode=${encodeURIComponent(accountCode)}`, { method: "DELETE" });
     setSaving((p) => { const n = new Set(p); n.delete(accountCode); return n; });
-    if (!res.ok) { const err = await res.json().catch(() => ({})); setError((err as any).error || `删除失败 (${res.status})`); return; }
+    if (!res.ok) { const err: ApiErrorBody = await res.json().catch((): ApiErrorBody => ({})); setError(err.error || `删除失败 (${res.status})`); return; }
     load();
   }
 
