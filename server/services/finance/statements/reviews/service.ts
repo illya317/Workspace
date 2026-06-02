@@ -68,12 +68,15 @@ export async function generateReview(
     include: { lines: { orderBy: { sortOrder: "asc" } } },
   });
   if (existing) {
+    const isStale = wp.version > existing.generatedFromVersion;
     if (existing.status === "confirmed") {
-      if (existing.generatedFromVersion === wp.version) throw409("该底稿已有已确认的校对，不能重新生成");
+      if (!isStale) throw409("该底稿已有已确认的校对，不能重新生成");
       // Stale confirmed → regenerate in place (workpaperId is @unique)
-    } else {
+    } else if (!isStale) {
+      // Draft, not stale → return existing
       return { review: toReviewOutput(existing as ReviewRecord, wp.version), created: false };
     }
+    // Draft + stale → fall through to regenerate
   }
 
   const config = await loadLineConfig(wp.companyCode, wp.year, validateReportType(wp.reportType));
