@@ -60,23 +60,35 @@ export default function ReviewClient() {
     setRv(d.review); setSaving(false);
   };
 
-  function upsertEdit(lineCode: string, patch: Partial<{ adjustedAmount: number | null; status: string; comment: string | null }>) {
-    setEdits((p) => { const n = new Map(p); const e = n.get(lineCode) || { adjustedAmount: null, status: "pending", comment: null }; Object.assign(e, patch); n.set(lineCode, e); return n; });
+  /** Merge patch into edit, initializing from current line state (not fixed defaults). */
+  function upsertEdit(line: RvLine, patch: Partial<{ adjustedAmount: number | null; status: string; comment: string | null }>) {
+    setEdits((p) => {
+      const n = new Map(p);
+      const cur = getLineState(line);
+      const base = n.get(line.lineCode) || { adjustedAmount: cur.adjustedAmount, status: cur.status, comment: cur.comment };
+      if (patch.adjustedAmount !== undefined) base.adjustedAmount = patch.adjustedAmount;
+      if (patch.status !== undefined) base.status = patch.status;
+      if (patch.comment !== undefined) base.comment = patch.comment;
+      n.set(line.lineCode, base);
+      return n;
+    });
   }
 
-  const commitAmt = (lineCode: string) => {
+  const commitAmt = (line: RvLine) => {
     const val = editAmt.trim();
     const adj: number | null = val === "" ? null : parseFloat(val);
     if (val !== "" && (isNaN(adj!) || !Number.isFinite(adj!))) { setEditingAmt(null); return; }
-    const origStatus = rv?.lines.find(l => l.lineCode === lineCode)?.status;
-    upsertEdit(lineCode, { adjustedAmount: adj, status: adj != null ? "adjusted" : (origStatus === "adjusted" ? "confirmed" : undefined) });
+    const cur = getLineState(line);
+    const status = adj != null ? "adjusted" : (cur.status === "adjusted" ? "confirmed" : undefined);
+    upsertEdit(line, { adjustedAmount: adj, ...(status !== undefined ? { status } : {}) });
     setEditingAmt(null);
   };
-  const commitCmt = (lineCode: string) => { upsertEdit(lineCode, { comment: editCmt.trim() || null }); setEditingCmt(null); };
-  const toggleStatus = (lineCode: string, cur: string) => {
+  const commitCmt = (line: RvLine) => { upsertEdit(line, { comment: editCmt.trim() || null }); setEditingCmt(null); };
+  const toggleStatus = (line: RvLine) => {
     if (rv?.status === "confirmed") return;
+    const cur = getLineState(line).status;
     const next = cur === "pending" ? "confirmed" : cur === "confirmed" ? "flagged" : "pending";
-    upsertEdit(lineCode, { status: next });
+    upsertEdit(line, { status: next });
   };
 
   const getLineState = (l: RvLine) => {
@@ -143,7 +155,7 @@ export default function ReviewClient() {
                     <td className="px-2 py-1.5 text-right">
                       {amtEdit ? (
                         <input autoFocus value={editAmt} onChange={(e) => setEditAmt(e.target.value)}
-                          onBlur={() => commitAmt(l.lineCode)} onKeyDown={(e) => { if (e.key === "Enter") commitAmt(l.lineCode); if (e.key === "Escape") setEditingAmt(null); }}
+                          onBlur={() => commitAmt(l)} onKeyDown={(e) => { if (e.key === "Enter") commitAmt(l); if (e.key === "Escape") setEditingAmt(null); }}
                           className="w-full rounded border border-emerald-300 px-1 py-0.5 text-right text-xs focus:outline-none focus:ring-1 focus:ring-emerald-400" />
                       ) : (
                         <button onClick={() => { if (!isReadOnly) { setEditingAmt(l.lineCode); setEditAmt(s.adjustedAmount != null ? String(s.adjustedAmount) : ""); } }}
@@ -154,7 +166,7 @@ export default function ReviewClient() {
                     </td>
                     <td className="px-2 py-1.5 text-right font-medium text-gray-800">{FMT(s.finalAmount)}</td>
                     <td className="px-2 py-1.5 text-center">
-                      <button onClick={() => toggleStatus(l.lineCode, s.status)} disabled={isReadOnly}
+                      <button onClick={() => toggleStatus(l)} disabled={isReadOnly}
                         className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${isReadOnly ? "" : "hover:opacity-80"} ${s.status === "confirmed" ? "bg-emerald-50 text-emerald-700" : s.status === "adjusted" ? "bg-blue-50 text-blue-700" : s.status === "flagged" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-500"}`}>
                         {STS[s.status] || s.status}
                       </button>
@@ -162,7 +174,7 @@ export default function ReviewClient() {
                     <td className="px-2 py-1.5 text-[11px]">
                       {cmtEdit ? (
                         <input autoFocus value={editCmt} onChange={(e) => setEditCmt(e.target.value)}
-                          onBlur={() => commitCmt(l.lineCode)} onKeyDown={(e) => { if (e.key === "Enter") commitCmt(l.lineCode); if (e.key === "Escape") setEditingCmt(null); }}
+                          onBlur={() => commitCmt(l)} onKeyDown={(e) => { if (e.key === "Enter") commitCmt(l); if (e.key === "Escape") setEditingCmt(null); }}
                           className="w-full rounded border border-emerald-300 px-1 py-0.5 text-[11px] focus:outline-none focus:ring-1 focus:ring-emerald-400" />
                       ) : (
                         <button onClick={() => { if (!isReadOnly) { setEditingCmt(l.lineCode); setEditCmt(s.comment || ""); } }}
