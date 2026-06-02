@@ -4,7 +4,7 @@
  */
 import type { SessionUser } from "@/lib/types";
 import { buildCapabilities, findTool } from "./capabilities";
-import { minimaxProvider } from "./model/minimax";
+import { deepseekProvider } from "./model/deepseek";
 import { noopProvider } from "./model/noop";
 import type { AgentModelProvider, HistoryMessage, IntentResult } from "./model/provider";
 import { buildClassifyPrompt, buildSummarizePrompt } from "./prompts";
@@ -27,7 +27,7 @@ export async function processMessage(
   userMessage: string,
   user: SessionUser,
   history?: HistoryMessage[],
-  provider: AgentModelProvider = minimaxProvider,
+  provider: AgentModelProvider = deepseekProvider,
 ): Promise<AgentResponse> {
   const capabilities = buildCapabilities(user);
 
