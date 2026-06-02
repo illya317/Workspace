@@ -23,7 +23,7 @@ export const GET = withFinanceReportAccess(async (request) => {
 
   const mappings = await prisma.financeStatementAccountMapping.findMany({
     where: { companyCode, year, statementType },
-    select: { accountCode: true, lineCode: true, source: true, note: true },
+    select: { accountCode: true, lineCode: true, operator: true, source: true, note: true },
     orderBy: { lineCode: "asc" },
   });
 
@@ -36,12 +36,13 @@ export const POST = withFinanceReportWrite(async (request) => {
   if (!body || typeof body !== "object")
     return NextResponse.json({ error: "请求体为必填" }, { status: 400 });
 
-  const { companyCode, year, statementType, accountCode, lineCode } = body;
+  const { companyCode, year, statementType, accountCode, lineCode, operator } = body;
   if (!companyCode || !year || !statementType || !accountCode || !lineCode)
     return NextResponse.json(
       { error: "companyCode, year, statementType, accountCode, lineCode 为必填" },
       { status: 400 },
     );
+  const op = operator === "subtract" ? "subtract" : "add";
 
   const yearNum = parseInt(year, 10);
   if (isNaN(yearNum)) return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
@@ -66,8 +67,8 @@ export const POST = withFinanceReportWrite(async (request) => {
         companyCode, year: yearNum, statementType, accountCode,
       },
     },
-    create: { companyCode, year: yearNum, statementType, accountCode, lineCode, source: "manual" },
-    update: { lineCode, source: "manual", note: null },
+    create: { companyCode, year: yearNum, statementType, accountCode, lineCode, operator: op, source: "manual" },
+    update: { lineCode, operator: op, source: "manual", note: null },
   });
 
   clearMappingCache();

@@ -125,13 +125,17 @@ export async function aggregateMappingBasedBalances(
     }
   }
 
-  // 6. Preload mappings (batch)
+  // 6. Preload mappings with operator (batch)
   const mappings = await prisma.financeStatementAccountMapping.findMany({
     where: { companyCode, year, statementType },
-    select: { accountCode: true, lineCode: true },
+    select: { accountCode: true, lineCode: true, operator: true },
   });
   const mappingMap = new Map<string, string>();
-  for (const m of mappings) mappingMap.set(m.accountCode, m.lineCode);
+  const operatorMap = new Map<string, "add" | "subtract">();
+  for (const m of mappings) {
+    mappingMap.set(m.accountCode, m.lineCode);
+    operatorMap.set(m.accountCode, (m.operator as "add" | "subtract") || "add");
+  }
 
   // 7. Preload accounts for parent-chain resolution (batch)
   const accounts = await prisma.financeAccount.findMany({
@@ -147,11 +151,18 @@ export async function aggregateMappingBasedBalances(
   const residualParents: ResidualParent[] = [];
 
   for (const r of residuals) {
-    const lineCode = resolveLineCode(r.code, parentMap, mappingMap);
-    if (lineCode) {
+    const resolved = resolveLineCodeWithOperator(r.code, parentMap, mappingMap, operatorMap);
+    if (resolved) {
+      const { lineCode, operator } = resolved;
       const agg = byLine.get(lineCode) || { debit: 0, credit: 0, accountCodes: [] };
-      agg.debit += r.debit;
-      agg.credit += r.credit;
+      if (operator === "subtract") {
+        // Subtract: flip the sign — deduct from the line
+        agg.debit -= r.debit;
+        agg.credit -= r.credit;
+      } else {
+        agg.debit += r.debit;
+        agg.credit += r.credit;
+      }
       agg.accountCodes.push(r.code);
       byLine.set(lineCode, agg);
       // Diagnostics: parents (non-leaf) that contributed residual
@@ -166,7 +177,7 @@ export async function aggregateMappingBasedBalances(
         residualParents.push({
           accountCode: r.code,
           accountName: r.name,
-          lineCode,
+          lineCode: resolved.lineCode,
           residualDebit: r.debit,
           residualCredit: r.credit,
           ownDebit: own.debit,
@@ -227,15 +238,16 @@ function buildParentChain(
   return chain;
 }
 
-function resolveLineCode(
+function resolveLineCodeWithOperator(
   accountCode: string,
   parentMap: Map<string, string | null>,
   mappingMap: Map<string, string>,
-): string | null {
+  operatorMap: Map<string, "add" | "subtract">,
+): { lineCode: string; operator: "add" | "subtract" } | null {
   const chain = buildParentChain(accountCode, parentMap);
   for (const code of chain) {
     const line = mappingMap.get(code);
-    if (line) return line;
+    if (line) return { lineCode: line, operator: operatorMap.get(code) || "add" };
   }
   return null;
 }
