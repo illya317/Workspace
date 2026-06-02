@@ -3,6 +3,13 @@ import { NextResponse } from "next/server";
 import { withFinanceReportWrite } from "@/lib/with-auth";
 import { confirmReview } from "@/server/services/finance/statements/reviews/service";
 
+function statusFrom(e: unknown): number {
+  if (e instanceof Error && "statusCode" in e && typeof (e as { statusCode: unknown }).statusCode === "number") {
+    return (e as { statusCode: number }).statusCode;
+  }
+  return 400;
+}
+
 export function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   return withFinanceReportWrite(async (_req, user) => {
     const { id } = await params;
@@ -12,9 +19,7 @@ export function POST(req: Request, { params }: { params: Promise<{ id: string }>
       const review = await confirmReview(reviewId, user.userId);
       return NextResponse.json({ review });
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "确认校对失败";
-      const is409 = e instanceof Error && "statusCode" in e && (e as { statusCode: unknown }).statusCode === 409;
-      return NextResponse.json({ error: msg }, { status: is409 ? 409 : 400 });
+      return NextResponse.json({ error: e instanceof Error ? e.message : "确认校对失败" }, { status: statusFrom(e) });
     }
   })(req);
 }

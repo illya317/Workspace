@@ -1,8 +1,15 @@
-/** P3 Batch 3: PUT /api/finance/statement-reviews/[id] — update review lines. */
+/** P3 Batch 3: PUT /api/finance/statement-reviews/[id] — update review lines (partial). */
 import { NextResponse } from "next/server";
 import { withFinanceReportWrite } from "@/lib/with-auth";
 import { updateReviewLines } from "@/server/services/finance/statements/reviews/service";
 import type { ReviewLineInput } from "@/server/services/finance/statements/reviews/types";
+
+function statusFrom(e: unknown): number {
+  if (e instanceof Error && "statusCode" in e && typeof (e as { statusCode: unknown }).statusCode === "number") {
+    return (e as { statusCode: number }).statusCode;
+  }
+  return 400;
+}
 
 export function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   return withFinanceReportWrite(async (_req, user) => {
@@ -24,9 +31,7 @@ export function PUT(req: Request, { params }: { params: Promise<{ id: string }> 
       const review = await updateReviewLines(reviewId, body.lines, body.note, user.userId);
       return NextResponse.json({ review });
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "更新校对失败";
-      const is409 = e instanceof Error && "statusCode" in e && (e as { statusCode: unknown }).statusCode === 409;
-      return NextResponse.json({ error: msg }, { status: is409 ? 409 : 400 });
+      return NextResponse.json({ error: e instanceof Error ? e.message : "更新校对失败" }, { status: statusFrom(e) });
     }
   })(req);
 }

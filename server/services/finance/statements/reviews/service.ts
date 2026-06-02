@@ -1,7 +1,11 @@
 /** P3 Batch 3: review CRUD + confirm service. */
 import { prisma } from "@/lib/prisma";
 import { loadIncomeStatementConfig, loadCashFlowConfig } from "../config/load-config-reports";
-import type { ReviewReportType, ReviewLineInput, ReviewOutput, ReviewLineOutput } from "./types";
+import type {
+  ReviewReportType, ReviewLineInput, ReviewLineStatus,
+  ReviewOutput, ReviewLineOutput, ReviewRecord, ReviewLineRecord,
+} from "./types";
+import { isValidLineStatus } from "./types";
 
 // ─── helpers ─────────────────────────────────────────────────
 
@@ -21,45 +25,55 @@ async function loadLineConfig(companyCode: string, year: number, reportType: Rev
   return loadCashFlowConfig(companyCode, year);
 }
 
-function toReviewOutput(r: any): ReviewOutput {
+function toReviewOutput(r: ReviewRecord, workpaperVersion?: number): ReviewOutput {
+  const isStale = workpaperVersion != null && workpaperVersion > r.generatedFromVersion;
   return {
     id: r.id, workpaperId: r.workpaperId, companyCode: r.companyCode,
     year: r.year, month: r.month, reportType: r.reportType as ReviewReportType,
     status: r.status, generatedFromVersion: r.generatedFromVersion, note: r.note,
-    lines: (r.lines || []).map((l: any): ReviewLineOutput => ({
+    isStale,
+    lines: r.lines.map((l: ReviewLineRecord): ReviewLineOutput => ({
       id: l.id, lineCode: l.lineCode, label: l.label, sortOrder: l.sortOrder,
       systemAmount: l.systemAmount, workpaperAmount: l.workpaperAmount,
       adjustedAmount: l.adjustedAmount, finalAmount: l.finalAmount,
-      status: l.status, comment: l.comment,
+      status: l.status as ReviewLineStatus, comment: l.comment,
     })),
   };
 }
 
+function throw409(msg: string): never {
+  throw Object.assign(new Error(msg), { statusCode: 409 });
+}
+
+function throw400(msg: string): never {
+  throw Object.assign(new Error(msg), { statusCode: 400 });
+}
+
 // ─── public API ──────────────────────────────────────────────
 
-/** Generate review from workpaper. If draft review exists, return it (no overwrite). */
-export async function generateReview(workpaperId: number, userId?: number): Promise<ReviewOutput> {
+/** Generate review from workpaper. Returns created flag. */
+export async function generateReview(
+  workpaperId: number, userId?: number,
+): Promise<{ review: ReviewOutput; created: boolean }> {
   const wp = await prisma.financeStatementWorkpaper.findUnique({
     where: { id: workpaperId },
     include: { lines: true },
   });
   if (!wp) throw new Error("底稿不存在");
-  const reportType = validateReportType(wp.reportType);
+  validateReportType(wp.reportType);
 
   const existing = await prisma.financeStatementReview.findUnique({
     where: { workpaperId },
     include: { lines: { orderBy: { sortOrder: "asc" } } },
   });
   if (existing) {
-    if (existing.status === "confirmed") {
-      throw Object.assign(new Error("该底稿已有已确认的校对，不能重新生成"), { statusCode: 409 });
-    }
-    return toReviewOutput(existing);
+    if (existing.status === "confirmed") throw409("该底稿已有已确认的校对，不能重新生成");
+    return { review: toReviewOutput(existing as ReviewRecord, wp.version), created: false };
   }
 
-  const config = await loadLineConfig(wp.companyCode, wp.year, reportType);
+  const config = await loadLineConfig(wp.companyCode, wp.year, validateReportType(wp.reportType));
 
-  const review = await prisma.$transaction(async (tx) => {
+  const newReview = await prisma.$transaction(async (tx) => {
     const r = await tx.financeStatementReview.create({
       data: {
         workpaperId: wp.id, companyCode: wp.companyCode, year: wp.year,
@@ -85,27 +99,30 @@ export async function generateReview(workpaperId: number, userId?: number): Prom
     });
   });
 
-  return toReviewOutput(review);
+  return { review: toReviewOutput(newReview as ReviewRecord, wp.version), created: true };
 }
 
 /** Get review by workpaperId, or by company/year/month/reportType. Returns null if not found. */
 export async function getReview(
   params: { workpaperId?: number; companyCode?: string; year?: number; month?: number; reportType?: string },
 ): Promise<ReviewOutput | null> {
-  let where: any;
+  let where: { workpaperId: number } | { companyCode: string; year: number; month: number; reportType: string };
   if (params.workpaperId) {
     where = { workpaperId: params.workpaperId };
   } else if (params.companyCode && params.year != null && params.month != null && params.reportType) {
+    validateReportType(params.reportType);
     where = { companyCode: params.companyCode, year: params.year, month: params.month, reportType: params.reportType };
   } else {
     throw new Error("workpaperId 或 (companyCode, year, month, reportType) 为必填");
   }
   const r = await prisma.financeStatementReview.findFirst({
     where,
-    include: { lines: { orderBy: { sortOrder: "asc" } } },
+    include: { lines: { orderBy: { sortOrder: "asc" } }, workpaper: { select: { version: true } } },
     orderBy: { createdAt: "desc" },
   });
-  return r ? toReviewOutput(r) : null;
+  if (!r) return null;
+  return toReviewOutput(r as ReviewRecord & { workpaper: { version: number } | null },
+    r.workpaper?.version ?? undefined);
 }
 
 /** Update review lines (partial: only lines in payload are touched). */
@@ -114,22 +131,33 @@ export async function updateReviewLines(
 ): Promise<ReviewOutput> {
   const review = await prisma.financeStatementReview.findUnique({
     where: { id: reviewId },
-    include: { lines: true },
+    include: { lines: true, workpaper: { select: { version: true } } },
   });
   if (!review) throw new Error("校对不存在");
-  if (review.status === "confirmed") {
-    throw Object.assign(new Error("已确认的校对不能修改"), { statusCode: 409 });
+  if (review.status === "confirmed") throw409("已确认的校对不能修改");
+
+  // Validate each input line
+  for (const li of lines) {
+    if (li.status && !isValidLineStatus(li.status)) {
+      throw400(`无效 status "${li.status}"，仅支持 pending/confirmed/adjusted/flagged`);
+    }
+    if (li.adjustedAmount !== undefined && li.adjustedAmount !== null) {
+      if (typeof li.adjustedAmount !== "number" || !Number.isFinite(li.adjustedAmount)) {
+        throw400(`lineCode "${li.lineCode}" 的 adjustedAmount 无效：${li.adjustedAmount}（必须为有限数字）`);
+      }
+    }
   }
 
   await prisma.$transaction(async (tx) => {
     for (const li of lines) {
       const existing = review.lines.find((l) => l.lineCode === li.lineCode);
       if (!existing) throw new Error(`无效 lineCode "${li.lineCode}"，不在校对行中`);
+      const adj = li.adjustedAmount !== undefined ? li.adjustedAmount : existing.adjustedAmount;
       await tx.financeStatementReviewLine.update({
         where: { reviewId_lineCode: { reviewId, lineCode: li.lineCode } },
         data: {
-          adjustedAmount: li.adjustedAmount ?? null,
-          finalAmount: resolveFinal(li.adjustedAmount, existing.workpaperAmount),
+          adjustedAmount: adj,
+          finalAmount: resolveFinal(adj, existing.workpaperAmount),
           status: li.status ?? existing.status,
           comment: li.comment !== undefined ? li.comment : existing.comment,
         },
@@ -145,24 +173,29 @@ export async function updateReviewLines(
 
   const updated = await prisma.financeStatementReview.findUniqueOrThrow({
     where: { id: reviewId },
-    include: { lines: { orderBy: { sortOrder: "asc" } } },
+    include: { lines: { orderBy: { sortOrder: "asc" } }, workpaper: { select: { version: true } } },
   });
-  return toReviewOutput(updated);
+  return toReviewOutput(updated as ReviewRecord & { workpaper: { version: number } | null },
+    updated.workpaper?.version ?? undefined);
 }
 
-/** Confirm review: all non-header lines must not be pending, no flagged allowed. */
+/** Confirm review: rejects flagged AND pending lines. Only confirmed/adjusted allowed. */
 export async function confirmReview(reviewId: number, userId: number): Promise<ReviewOutput> {
   const review = await prisma.financeStatementReview.findUnique({
     where: { id: reviewId },
-    include: { lines: true },
+    include: { lines: true, workpaper: { select: { version: true } } },
   });
   if (!review) throw new Error("校对不存在");
-  if (review.status === "confirmed") throw Object.assign(new Error("校对已确认"), { statusCode: 409 });
-  if (review.status === "voided") throw Object.assign(new Error("校对已作废"), { statusCode: 409 });
+  if (review.status === "confirmed") throw409("校对已确认");
+  if (review.status === "voided") throw409("校对已作废");
 
   const flagged = review.lines.filter((l) => l.status === "flagged");
   if (flagged.length > 0) {
-    throw new Error(`有 ${flagged.length} 行被标记(flagged)，不能确认：${flagged.map((l) => l.lineCode).join(", ")}`);
+    throw409(`有 ${flagged.length} 行被标记(flagged)，不能确认：${flagged.map((l) => l.lineCode).join(", ")}`);
+  }
+  const pending = review.lines.filter((l) => l.status === "pending");
+  if (pending.length > 0) {
+    throw409(`有 ${pending.length} 行仍为 pending，请先确认或调整：${pending.map((l) => l.lineCode).join(", ")}`);
   }
 
   await prisma.financeStatementReview.update({
@@ -172,7 +205,8 @@ export async function confirmReview(reviewId: number, userId: number): Promise<R
 
   const updated = await prisma.financeStatementReview.findUniqueOrThrow({
     where: { id: reviewId },
-    include: { lines: { orderBy: { sortOrder: "asc" } } },
+    include: { lines: { orderBy: { sortOrder: "asc" } }, workpaper: { select: { version: true } } },
   });
-  return toReviewOutput(updated);
+  return toReviewOutput(updated as ReviewRecord & { workpaper: { version: number } | null },
+    updated.workpaper?.version ?? undefined);
 }

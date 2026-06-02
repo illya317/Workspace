@@ -3,6 +3,13 @@ import { NextResponse } from "next/server";
 import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
 import { generateReview, getReview } from "@/server/services/finance/statements/reviews/service";
 
+function extractStatus(e: unknown): number {
+  if (e instanceof Error && "statusCode" in e && typeof (e as { statusCode: unknown }).statusCode === "number") {
+    return (e as { statusCode: number }).statusCode;
+  }
+  return 400;
+}
+
 /** GET ?workpaperId= or ?companyCode=&year=&month=&reportType= */
 export const GET = withFinanceReportAccess(async (req) => {
   const { searchParams } = new URL(req.url);
@@ -24,11 +31,14 @@ export const GET = withFinanceReportAccess(async (req) => {
   if (isNaN(y) || isNaN(m) || m < 1 || m > 12) {
     return NextResponse.json({ error: "year, month 无效" }, { status: 400 });
   }
+  if (reportType !== "incomeStatement" && reportType !== "cashFlow") {
+    return NextResponse.json({ error: "reportType 仅支持 incomeStatement / cashFlow" }, { status: 400 });
+  }
   const r = await getReview({ companyCode, year: y, month: m, reportType });
   return NextResponse.json({ review: r });
 });
 
-/** POST { workpaperId } — generate review from workpaper */
+/** POST { workpaperId } — generate review from workpaper. 201=created, 200=existing draft. */
 export const POST = withFinanceReportWrite(async (req, user) => {
   let body: { workpaperId?: number };
   try { body = await req.json(); } catch {
@@ -38,11 +48,9 @@ export const POST = withFinanceReportWrite(async (req, user) => {
     return NextResponse.json({ error: "workpaperId 为必填" }, { status: 400 });
   }
   try {
-    const review = await generateReview(body.workpaperId, user.userId);
-    return NextResponse.json({ review }, { status: 201 });
+    const { review, created } = await generateReview(body.workpaperId, user.userId);
+    return NextResponse.json({ review }, { status: created ? 201 : 200 });
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : "生成校对失败";
-    const is409 = e instanceof Error && "statusCode" in e && (e as { statusCode: unknown }).statusCode === 409;
-    return NextResponse.json({ error: msg }, { status: is409 ? 409 : 400 });
+    return NextResponse.json({ error: e instanceof Error ? e.message : "生成校对失败" }, { status: extractStatus(e) });
   }
 });
