@@ -282,6 +282,7 @@ model FinanceStatementAccountMapping {
   lineCode        String   // 报表项目 lineCode
   accountCode     String   // 科目编码
   includeChildren Boolean  @default(true)
+  operator        String   @default("add")    // add | subtract
   source          String   @default("default") // default | manual | copied | migrated
   note            String?
   createdAt       DateTime @default(now())
