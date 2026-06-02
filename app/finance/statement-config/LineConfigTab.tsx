@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, Fragment } from "react";
 import { useStatementConfig } from "./StatementConfigContext";
 
-interface LineCfg { lineCode: string; label: string; section: string; reclassSource: boolean; reclassTarget: boolean; }
+interface LineCfg { lineCode: string; label: string; section: string; reclassSource: boolean; reclassTarget: boolean; isHeader: boolean; isTotal: boolean; isGrandTotal: boolean; }
 interface Mapping { accountCode: string; lineCode: string; operator: "add" | "subtract"; source: string; }
 interface AcctInfo { code: string; name: string; closingDebit: number; closingCredit: number; }
 
@@ -20,44 +20,65 @@ export default function LineConfigTab() {
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [saving, setSaving] = useState<Set<string>>(new Set());
-  const [addingFor, setAddingFor] = useState<string | null>(null); // lineCode being added to
+  const [addingFor, setAddingFor] = useState<string | null>(null);
   const [newAccount, setNewAccount] = useState("");
+  const [effectiveCodes, setEffectiveCodes] = useState<Set<string>>(new Set());
 
   async function load() {
     setLoading(true); setError(null);
+    const yearNum = parseInt(year, 10);
+    if (isNaN(yearNum)) { setError("年度无效"); setLoading(false); return; }
     const [cr, mr] = await Promise.all([
-      fetch(`/api/finance/statement-config?companyCode=${company}&year=${year}`),
-      fetch(`/api/finance/statement-mappings?companyCode=${company}&year=${year}&statementType=balance`),
+      fetch(`/api/finance/statement-config?companyCode=${company}&year=${yearNum}`),
+      fetch(`/api/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance`),
     ]);
-    if (!cr.ok || !mr.ok) { setError("加载失败"); setLoading(false); return; }
+    if (!cr.ok || !mr.ok) { setError(`加载失败 (${cr.status}/${mr.status})`); setLoading(false); return; }
     const cj = await cr.json();
     const mj = await mr.json();
-    setLines((cj.lineConfigs || []).map((l: any) => ({ lineCode: l.lineCode, label: l.label, section: l.section, reclassSource: !!l.reclassSource, reclassTarget: !!l.reclassTarget })));
+    setLines((cj.lineConfigs || []).map((l: any) => ({
+      lineCode: l.lineCode, label: l.label, section: l.section,
+      reclassSource: !!l.reclassSource, reclassTarget: !!l.reclassTarget,
+      isHeader: !!l.isHeader, isTotal: !!l.isTotal, isGrandTotal: !!l.isGrandTotal,
+    })));
     setMappings(mj.mappings || []);
-    // Build flat account list from mappingPreview tree
     const accts: AcctInfo[] = [];
-    const walk = (ns: any[]) => { for (const n of ns) { accts.push({ code: n.accountCode, name: n.accountName, closingDebit: n.closingDebit, closingCredit: n.closingCredit }); walk(n.children); } };
+    const effCodes = new Set<string>();
+    const walk = (ns: any[]) => {
+      for (const n of ns) {
+        accts.push({ code: n.accountCode, name: n.accountName, closingDebit: n.closingDebit, closingCredit: n.closingCredit });
+        if (n.resolvedLineCode) effCodes.add(n.accountCode);
+        walk(n.children);
+      }
+    };
     if (cj.mappingPreview) walk(cj.mappingPreview);
     setAccounts(accts);
+    setEffectiveCodes(effCodes);
     setLoading(false);
   }
 
   useEffect(() => { load(); }, [company, year]);
 
-  function toggleLine(code: string) { setExpanded((p) => { const n = new Set(p); if (n.has(code)) n.delete(code); else n.add(code); return n; }); }
-
   async function saveMapping(accountCode: string, lineCode: string, operator: "add" | "subtract") {
+    const yearNum = parseInt(year, 10);
+    if (isNaN(yearNum)) { setError("年度无效"); return; }
     const key = `${lineCode}:${accountCode}`;
     setSaving((p) => new Set(p).add(key));
-    await fetch("/api/finance/statement-mappings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ companyCode: company, year: parseInt(year), statementType: "balance", accountCode, lineCode, operator }) });
+    const res = await fetch("/api/finance/statement-mappings", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ companyCode: company, year: yearNum, statementType: "balance", accountCode, lineCode, operator }),
+    });
     setSaving((p) => { const n = new Set(p); n.delete(key); return n; });
+    if (!res.ok) { const err = await res.json().catch(() => ({})); setError((err as any).error || `保存失败 (${res.status})`); return; }
     load();
   }
 
   async function removeMapping(accountCode: string) {
+    const yearNum = parseInt(year, 10);
+    if (isNaN(yearNum)) { setError("年度无效"); return; }
     setSaving((p) => new Set(p).add(accountCode));
-    await fetch(`/api/finance/statement-mappings?companyCode=${company}&year=${year}&statementType=balance&accountCode=${encodeURIComponent(accountCode)}`, { method: "DELETE" });
+    const res = await fetch(`/api/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance&accountCode=${encodeURIComponent(accountCode)}`, { method: "DELETE" });
     setSaving((p) => { const n = new Set(p); n.delete(accountCode); return n; });
+    if (!res.ok) { const err = await res.json().catch(() => ({})); setError((err as any).error || `删除失败 (${res.status})`); return; }
     load();
   }
 
@@ -71,11 +92,7 @@ export default function LineConfigTab() {
     return m;
   }, [mappings]);
 
-  // Accounts not yet mapped to any line
-  const mappedCodes = useMemo(() => new Set(mappings.map((m) => m.accountCode)), [mappings]);
-  const unmappedAccts = useMemo(() => accounts.filter((a) => !mappedCodes.has(a.code)), [accounts, mappedCodes]);
-
-  // Account info lookup
+  const unmappedAccts = useMemo(() => accounts.filter((a) => !effectiveCodes.has(a.code)), [accounts, effectiveCodes]);
   const acctMap = useMemo(() => { const m = new Map<string, AcctInfo>(); for (const a of accounts) m.set(a.code, a); return m; }, [accounts]);
 
   if (loading) return <p className="text-sm text-gray-400 py-8 text-center">加载中...</p>;
@@ -101,11 +118,22 @@ export default function LineConfigTab() {
                 <Fragment key={sec}>
                   <tr className="bg-gray-50"><td colSpan={4} className="px-2 py-1.5 text-[11px] font-medium text-gray-500">{SECTIONS[sec] || sec}</td></tr>
                   {secLines.map((l) => {
+                    const special = l.isHeader || l.isTotal || l.isGrandTotal;
+                    if (special) {
+                      return (
+                        <tr key={l.lineCode} className="border-b bg-gray-50/50">
+                          <td className="px-2 py-1.5" />
+                          <td className={`px-2 py-1.5 font-medium ${l.isHeader ? "text-gray-500" : "text-gray-600"}`}>{l.label}</td>
+                          <td className="px-2 py-1.5 text-gray-400 text-[11px]">{SECTIONS[l.section] || l.section}</td>
+                          <td className="px-2 py-1.5 text-center text-gray-300">—</td>
+                        </tr>
+                      );
+                    }
                     const isExp = expanded.has(l.lineCode);
                     const lineMappings = mappingsByLine.get(l.lineCode) || [];
                     return (
                       <Fragment key={l.lineCode}>
-                        <tr className="border-b cursor-pointer hover:bg-gray-50" onClick={() => toggleLine(l.lineCode)}>
+                        <tr className="border-b cursor-pointer hover:bg-gray-50" onClick={() => { setExpanded((p) => { const n = new Set(p); n.has(l.lineCode) ? n.delete(l.lineCode) : n.add(l.lineCode); return n; }); }}>
                           <td className="px-2 py-1.5 text-gray-300 text-[10px]">{lineMappings.length > 0 ? (isExp ? "▼" : "▶") : ""}</td>
                           <td className="px-2 py-1.5 font-medium text-gray-700">{l.label}</td>
                           <td className="px-2 py-1.5 text-gray-400 text-[11px]">{SECTIONS[l.section] || l.section}</td>
@@ -124,15 +152,8 @@ export default function LineConfigTab() {
                                       return (
                                         <tr key={m.accountCode} className="border-b border-gray-100">
                                           <td className="py-1">
-                                            <button
-                                              onClick={() => toggleOperator(m.accountCode, l.lineCode, m.operator)}
-                                              disabled={isSaving}
-                                              className={`rounded px-2 py-0.5 text-[10px] font-medium transition-colors ${
-                                                m.operator === "subtract"
-                                                  ? "bg-red-50 text-red-700 hover:bg-red-100"
-                                                  : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                                              }`}
-                                            >
+                                            <button onClick={() => toggleOperator(m.accountCode, l.lineCode, m.operator)} disabled={isSaving}
+                                              className={`rounded px-2 py-0.5 text-[10px] font-medium transition-colors ${m.operator === "subtract" ? "bg-red-50 text-red-700 hover:bg-red-100" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}>
                                               {isSaving ? "..." : m.operator === "subtract" ? "− 减" : "+ 加"}
                                             </button>
                                           </td>
@@ -149,35 +170,20 @@ export default function LineConfigTab() {
                                   </tbody>
                                 </table>
                               )}
-                              {/* Add account */}
                               {addingFor === l.lineCode ? (
                                 <div className="flex items-center gap-2 mt-1">
                                   <select value={newAccount} onChange={(e) => setNewAccount(e.target.value)} className="rounded border border-gray-200 px-1.5 py-0.5 text-[11px] focus:border-emerald-400 focus:outline-none">
                                     <option value="">— 选择科目 —</option>
-                                    {unmappedAccts.map((a) => (
-                                      <option key={a.code} value={a.code}>{a.code} {a.name}</option>
-                                    ))}
+                                    {unmappedAccts.map((a) => (<option key={a.code} value={a.code}>{a.code} {a.name}</option>))}
                                   </select>
-                                  <button
-                                    onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "add"); setAddingFor(null); setNewAccount(""); }}
-                                    disabled={!newAccount}
-                                    className="rounded bg-emerald-600 px-2 py-0.5 text-[10px] text-white hover:bg-emerald-700 disabled:opacity-50"
-                                  >
-                                    添加 (+)
-                                  </button>
-                                  <button
-                                    onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "subtract"); setAddingFor(null); setNewAccount(""); }}
-                                    disabled={!newAccount}
-                                    className="rounded bg-red-500 px-2 py-0.5 text-[10px] text-white hover:bg-red-600 disabled:opacity-50"
-                                  >
-                                    添加 (−)
-                                  </button>
+                                  <button onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "add"); setAddingFor(null); setNewAccount(""); }} disabled={!newAccount}
+                                    className="rounded bg-emerald-600 px-2 py-0.5 text-[10px] text-white hover:bg-emerald-700 disabled:opacity-50">添加 (+)</button>
+                                  <button onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "subtract"); setAddingFor(null); setNewAccount(""); }} disabled={!newAccount}
+                                    className="rounded bg-red-500 px-2 py-0.5 text-[10px] text-white hover:bg-red-600 disabled:opacity-50">添加 (−)</button>
                                   <button onClick={() => setAddingFor(null)} className="text-[10px] text-gray-400 hover:text-gray-600">取消</button>
                                 </div>
                               ) : (
-                                <button onClick={() => setAddingFor(l.lineCode)} className="mt-1 text-[10px] text-emerald-600 hover:text-emerald-800 hover:underline">
-                                  + 添加科目
-                                </button>
+                                <button onClick={() => setAddingFor(l.lineCode)} className="mt-1 text-[10px] text-emerald-600 hover:text-emerald-800 hover:underline">+ 添加科目</button>
                               )}
                             </td>
                           </tr>
