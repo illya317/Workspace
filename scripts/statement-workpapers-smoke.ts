@@ -30,6 +30,9 @@ const TEST = { companyCode: "02", year: 2099, month: 12, reportType: "incomeStat
 let passed = 0;
 let failed = 0;
 
+/** Intentional type bypass for testing invalid inputs. */
+function invalid<T>(v: unknown): T { return v as unknown as T; }
+
 function ok(label: string) { passed++; console.log(`  ✓ ${label}`); }
 function fail(label: string, detail?: unknown) {
   failed++;
@@ -114,7 +117,7 @@ async function main() {
 
   // 4b. Invalid reportType (getOrCreateDraft)
   try {
-    await getOrCreateDraft({ companyCode: "02", year: 2099, month: 12, reportType: "balanceSheet" as any });
+    await getOrCreateDraft({ companyCode: "02", year: 2099, month: 12, reportType: invalid("balanceSheet") });
     fail("should reject balanceSheet reportType");
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
@@ -124,7 +127,7 @@ async function main() {
 
   // 4c. Invalid reportType (saveWorkpaper)
   try {
-    await saveWorkpaper({ companyCode: "02", year: 2099, month: 12, reportType: "balanceSheet" as any, lines: fewLines });
+    await saveWorkpaper({ companyCode: "02", year: 2099, month: 12, reportType: invalid("balanceSheet"), lines: fewLines });
     fail("should reject balanceSheet reportType in save");
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
