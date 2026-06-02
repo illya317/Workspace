@@ -77,6 +77,7 @@ ops/server.env.sh
 
 # Seed data (raw Excel, intermediate JSON, normalized JSON, engine)
 /prisma/seed/data/
+/prisma/seed-data/现金流/
 prisma/dev.db
 
 # Python
