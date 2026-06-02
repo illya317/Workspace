@@ -54,14 +54,14 @@ export default function UnmappedTab() {
           </div>
           <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
             <table className="w-full text-xs">
-              <thead className="border-b bg-gray-100">
-                <tr>
-                  <th className="px-2 py-2 text-left">科目编码</th>
-                  <th className="px-2 py-2 text-left">科目名称</th>
-                  <th className="px-2 py-2 text-center w-16">层级</th>
-                  <th className="px-2 py-2 text-right w-28">期末借方</th>
-                  <th className="px-2 py-2 text-right w-28">期末贷方</th>
-                  <th className="px-2 py-2 text-right w-28">净值</th>
+              <thead className="border-b-2 border-gray-300 bg-gray-200">
+                <tr className="text-gray-800">
+                  <th className="px-2 py-2 text-left font-semibold">科目编码</th>
+                  <th className="px-2 py-2 text-left font-semibold">科目名称</th>
+                  <th className="px-2 py-2 text-center font-semibold w-16">层级</th>
+                  <th className="px-2 py-2 text-right font-semibold w-28">期末借方</th>
+                  <th className="px-2 py-2 text-right font-semibold w-28">期末贷方</th>
+                  <th className="px-2 py-2 text-right font-semibold w-28">净值</th>
                 </tr>
               </thead>
               <tbody>

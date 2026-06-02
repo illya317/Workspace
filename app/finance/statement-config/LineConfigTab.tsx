@@ -108,12 +108,12 @@ export default function LineConfigTab() {
     <div className="space-y-4">
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
         <table className="w-full text-xs">
-          <thead className="border-b bg-gray-100">
-            <tr>
+          <thead className="border-b-2 border-gray-300 bg-gray-200">
+            <tr className="text-gray-800">
               <th className="px-2 py-2 text-left w-8" />
-              <th className="px-2 py-2 text-left">报表项目</th>
-              <th className="px-2 py-2 text-left w-24">Section</th>
-              <th className="px-2 py-2 text-center w-20">科目</th>
+              <th className="px-2 py-2 text-left font-semibold">报表项目</th>
+              <th className="px-2 py-2 text-left font-semibold w-24">Section</th>
+              <th className="px-2 py-2 text-center font-semibold w-20">科目</th>
             </tr>
           </thead>
           <tbody>
@@ -150,7 +150,7 @@ export default function LineConfigTab() {
                             <td colSpan={4} className="bg-gray-50 px-4 py-2">
                               {lineMappings.length > 0 && (
                                 <table className="w-full text-[11px] mb-2">
-                                  <thead><tr className="text-gray-500 border-b"><th className="text-left py-1 font-medium w-20">操作</th><th className="text-left py-1 font-medium">科目编码</th><th className="text-left py-1 font-medium">科目名称</th><th className="text-right py-1 font-medium w-24">期末借方</th><th className="text-right py-1 font-medium w-24">期末贷方</th><th className="text-center py-1 font-medium w-16" /></tr></thead>
+                                  <thead><tr className="text-gray-700 border-b-2 border-gray-200"><th className="text-left py-1 font-semibold w-20">操作</th><th className="text-left py-1 font-semibold">科目编码</th><th className="text-left py-1 font-semibold">科目名称</th><th className="text-right py-1 font-semibold w-24">期末借方</th><th className="text-right py-1 font-semibold w-24">期末贷方</th><th className="text-center py-1 font-semibold w-16" /></tr></thead>
                                   <tbody>
                                     {lineMappings.map((m) => {
                                       const a = acctMap.get(m.accountCode);

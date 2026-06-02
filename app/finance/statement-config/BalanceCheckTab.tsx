@@ -149,17 +149,17 @@ export default function BalanceCheckTab() {
           {/* Tree table */}
           <div className="rounded-lg bg-white shadow-sm overflow-x-auto">
             <table className="w-full text-xs">
-              <thead className="border-b bg-gray-50">
+              <thead className="border-b-2 border-gray-300 bg-gray-200">
                 <tr>
-                  <th className="py-2 text-left font-medium text-gray-600 w-28">科目编码</th>
-                  <th className="py-2 text-left font-medium text-gray-600 w-44">科目名称</th>
-                  <th className="py-2 text-right font-medium text-gray-600 w-24">期末借方</th>
-                  <th className="py-2 text-right font-medium text-gray-600 w-24">期末贷方</th>
-                  <th className="py-2 text-right font-medium text-gray-600 w-24">子级借方</th>
-                  <th className="py-2 text-right font-medium text-gray-600 w-24">子级贷方</th>
-                  <th className="py-2 text-right font-medium text-gray-600 w-20">借方差</th>
-                  <th className="py-2 text-right font-medium text-gray-600 w-20">贷方差</th>
-                  <th className="py-2 text-center font-medium text-gray-600 w-20">状态</th>
+                  <th className="py-2 text-left font-semibold text-gray-800 w-28">科目编码</th>
+                  <th className="py-2 text-left font-semibold text-gray-800 w-44">科目名称</th>
+                  <th className="py-2 text-right font-semibold text-gray-800 w-24">期末借方</th>
+                  <th className="py-2 text-right font-semibold text-gray-800 w-24">期末贷方</th>
+                  <th className="py-2 text-right font-semibold text-gray-800 w-24">子级借方</th>
+                  <th className="py-2 text-right font-semibold text-gray-800 w-24">子级贷方</th>
+                  <th className="py-2 text-right font-semibold text-gray-800 w-20">借方差</th>
+                  <th className="py-2 text-right font-semibold text-gray-800 w-20">贷方差</th>
+                  <th className="py-2 text-center font-semibold text-gray-800 w-20">状态</th>
                 </tr>
               </thead>
               <tbody>
