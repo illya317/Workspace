@@ -88,6 +88,7 @@ export default function LineConfigTab() {
   const mappingsByLine = useMemo(() => {
     const m = new Map<string, Mapping[]>();
     for (const mp of mappings) { const arr = m.get(mp.lineCode) || []; arr.push(mp); m.set(mp.lineCode, arr); }
+    for (const arr of m.values()) arr.sort((a, b) => a.accountCode.localeCompare(b.accountCode));
     return m;
   }, [mappings]);
   const unmappedAccts = useMemo(() => accounts.filter((a) => !effectiveCodes.has(a.code)), [accounts, effectiveCodes]);
