@@ -8,11 +8,11 @@ interface Node {
   closingDebit: number; closingCredit: number; net: number;
   resolvedLineCode: string | null;
   mappingSource: "explicit" | "inherited" | "none";
-  effectiveOperator: "add" | "subtract" | null;
+  effectiveOperator: "add" | "subtract" | "exclude" | null;
   children: Node[];
 }
 
-type Status = "unmapped" | "subtractOnly";
+type Status = "unmapped" | "subtractOnly" | "excluded";
 
 interface DisplayItem {
   accountCode: string; accountName: string; level: number;
@@ -46,11 +46,15 @@ export default function UnmappedTab() {
         const hasBalance = Math.abs(n.closingDebit) > 0.01 || Math.abs(n.closingCredit) > 0.01;
         if (!hasBalance) { walk(n.children); continue; }
 
-        if (n.effectiveOperator === "add" || n.mappingSource === "none" && n.effectiveOperator === null) {
-          // Add-mapped = consumed; unmapped with null operator = will be caught below
-        }
-        // subtract-only: has mapping but operator is subtract (not consumed)
-        if (n.effectiveOperator === "subtract") {
+        if (n.effectiveOperator === "add") { walk(n.children); continue; }
+        if (n.effectiveOperator === "exclude") {
+          result.push({
+            accountCode: n.accountCode, accountName: n.accountName, level: n.level,
+            closingDebit: n.closingDebit, closingCredit: n.closingCredit, net: n.net,
+            status: "excluded",
+            subtractSourceLine: null,
+          });
+        } else if (n.effectiveOperator === "subtract") {
           result.push({
             accountCode: n.accountCode, accountName: n.accountName, level: n.level,
             closingDebit: n.closingDebit, closingCredit: n.closingCredit, net: n.net,
@@ -80,6 +84,7 @@ export default function UnmappedTab() {
 
   const subtractOnly = items.filter((a) => a.status === "subtractOnly");
   const unmappedOnly = items.filter((a) => a.status === "unmapped");
+  const excluded = items.filter((a) => a.status === "excluded");
 
   return (
     <div className="space-y-4">
@@ -90,11 +95,14 @@ export default function UnmappedTab() {
       ) : (
         <>
           <div className="flex gap-4 text-xs text-gray-500">
-            <span>遗漏: <b className="text-red-500">{unmappedOnly.length}</b> 未映射</span>
+            <span>未映射: <b className="text-red-500">{unmappedOnly.length}</b></span>
             {subtractOnly.length > 0 && (
               <span>仅减项: <b className="text-amber-600">{subtractOnly.length}</b></span>
             )}
-            <span className="text-gray-400">（余额非零但未被 add 消费的科目）</span>
+            {excluded.length > 0 && (
+              <span>已排除: <b className="text-gray-600">{excluded.length}</b></span>
+            )}
+            <span className="text-gray-400">（余额非零但未被 add 消费）</span>
           </div>
           <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
             <table className="w-full text-xs">
@@ -111,7 +119,7 @@ export default function UnmappedTab() {
               </thead>
               <tbody>
                 {items.map((a) => (
-                  <tr key={a.accountCode} className={`border-b ${a.status === "unmapped" ? "bg-red-50/60" : "bg-amber-50/50"}`}>
+                  <tr key={a.accountCode} className={`border-b ${a.status === "unmapped" ? "bg-red-50/60" : a.status === "excluded" ? "bg-gray-50" : "bg-amber-50/50"}`}>
                     <td className="px-2 py-1.5 font-mono text-gray-600">{a.accountCode}</td>
                     <td className="px-2 py-1.5 text-gray-700">{a.accountName}</td>
                     <td className="px-2 py-1.5 text-center text-gray-500">L{a.level}</td>
@@ -119,7 +127,9 @@ export default function UnmappedTab() {
                     <td className="px-2 py-1.5 text-right text-gray-600">{fmt(a.closingCredit)}</td>
                     <td className={`px-2 py-1.5 text-right font-medium ${a.net < 0 ? "text-red-600" : "text-gray-700"}`}>{fmt(Math.abs(a.net))}</td>
                     <td className="px-2 py-1.5">
-                      {a.status === "subtractOnly" ? (
+                      {a.status === "excluded" ? (
+                        <span className="rounded bg-gray-200 px-1.5 py-0.5 text-[10px] font-medium text-gray-600">已排除</span>
+                      ) : a.status === "subtractOnly" ? (
                         <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
                           仅减项 → {a.subtractSourceLine ? (lineLabelMap.get(a.subtractSourceLine) || a.subtractSourceLine) : "?"}
                         </span>

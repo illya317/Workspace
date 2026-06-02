@@ -7,7 +7,7 @@
 import { prisma } from "@/lib/prisma";
 import type { MappingResolveResult } from "./types";
 
-let _cache: Map<string, { lineCode: string; operator: "add" | "subtract" }> | null = null;
+let _cache: Map<string, { lineCode: string; operator: "add" | "subtract" | "exclude" }> | null = null;
 let _cacheKey = "";
 
 export async function resolveAccountLine(
@@ -29,6 +29,10 @@ export async function resolveAccountMapping(
   for (const code of chain) {
     const entry = map.get(code);
     if (entry) {
+      // exclude: stop inheritance, this account is explicitly excluded
+      if (entry.operator === "exclude") {
+        return { accountCode, explicitLineCode: null, resolvedLineCode: null, mappingSource: "explicit", ancestorAccountCode: null, effectiveOperator: "exclude" };
+      }
       return {
         accountCode,
         explicitLineCode: code === accountCode ? entry.lineCode : null,
@@ -68,7 +72,7 @@ async function buildParentChain(companyCode: string, year: number, accountCode: 
 
 async function loadMappingCache(
   companyCode: string, year: number, statementType: string,
-): Promise<Map<string, { lineCode: string; operator: "add" | "subtract" }>> {
+): Promise<Map<string, { lineCode: string; operator: "add" | "subtract" | "exclude" }>> {
   const key = `${companyCode}:${year}:${statementType}`;
   if (_cache && _cacheKey === key) return _cache;
 
@@ -78,8 +82,8 @@ async function loadMappingCache(
     orderBy: { accountCode: "asc" },
   });
 
-  const map = new Map<string, { lineCode: string; operator: "add" | "subtract" }>();
-  for (const m of mappings) map.set(m.accountCode, { lineCode: m.lineCode, operator: (m.operator as "add" | "subtract") || "add" });
+  const map = new Map<string, { lineCode: string; operator: "add" | "subtract" | "exclude" }>();
+  for (const m of mappings) map.set(m.accountCode, { lineCode: m.lineCode, operator: (m.operator as "add" | "subtract" | "exclude") || "add" });
   _cache = map;
   _cacheKey = key;
   return map;

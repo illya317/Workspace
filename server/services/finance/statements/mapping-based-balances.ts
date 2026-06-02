@@ -1,8 +1,4 @@
-/**
- * M10a + Phase 2: mapping-based balance aggregation with residual leaf.
- * residual = own_balance - direct_children_balance_sum.
- * Leaf = own_balance. Parent fully explained = residual=0, excluded.
- */
+/** M10a: mapping-based balance aggregation with residual leaf. residual = own - children sum. */
 import { prisma } from "@/lib/prisma";
 import { ensureStatementMappings } from "./mapping/seed-from-config";
 
@@ -124,11 +120,8 @@ export async function aggregateMappingBasedBalances(
     select: { accountCode: true, lineCode: true, operator: true },
   });
   const mappingMap = new Map<string, string>();
-  const operatorMap = new Map<string, "add" | "subtract">();
-  for (const m of mappings) {
-    mappingMap.set(m.accountCode, m.lineCode);
-    operatorMap.set(m.accountCode, (m.operator as "add" | "subtract") || "add");
-  }
+  const operatorMap = new Map<string, "add" | "subtract" | "exclude">();
+  for (const m of mappings) { mappingMap.set(m.accountCode, m.lineCode); operatorMap.set(m.accountCode, (m.operator as "add" | "subtract" | "exclude") || "add"); }
 
   // 6b. Preload line configs for side lookup
   const lineConfigs = await prisma.financeStatementLineConfig.findMany({
@@ -248,12 +241,16 @@ function resolveLineCodeWithOperator(
   accountCode: string,
   parentMap: Map<string, string | null>,
   mappingMap: Map<string, string>,
-  operatorMap: Map<string, "add" | "subtract">,
+  operatorMap: Map<string, "add" | "subtract" | "exclude">,
 ): { lineCode: string; operator: "add" | "subtract" } | null {
   const chain = buildParentChain(accountCode, parentMap);
   for (const code of chain) {
     const line = mappingMap.get(code);
-    if (line) return { lineCode: line, operator: operatorMap.get(code) || "add" };
+    if (line) {
+      const op = operatorMap.get(code) || "add";
+      if (op === "exclude") return null; // excluded — don't aggregate
+      return { lineCode: line, operator: op };
+    }
   }
   return null;
 }

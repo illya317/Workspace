@@ -43,8 +43,8 @@ export const POST = withFinanceReportWrite(async (request) => {
       { status: 400 },
     );
   const op = (operator || "add") as string;
-  if (op !== "add" && op !== "subtract")
-    return NextResponse.json({ error: "operator 必须为 add 或 subtract" }, { status: 400 });
+  if (op !== "add" && op !== "subtract" && op !== "exclude")
+    return NextResponse.json({ error: "operator 必须为 add、subtract 或 exclude" }, { status: 400 });
 
   const yearNum = parseInt(year, 10);
   if (isNaN(yearNum)) return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });

@@ -25,7 +25,7 @@ export interface MappingNode {
   mappingSource: "explicit" | "inherited" | "none";
   ancestorAccountCode: string | null;
   /** Effective operator: based on nearest ancestor's mapping operator */
-  effectiveOperator: "add" | "subtract" | null;
+  effectiveOperator: "add" | "subtract" | "exclude" | null;
   children: MappingNode[];
 }
 
@@ -81,8 +81,8 @@ export async function getStatementConfigView(
     where: { companyCode, year, statementType },
     select: { accountCode: true, lineCode: true, operator: true },
   });
-  const mappingMap = new Map<string, { lineCode: string; operator: "add" | "subtract" }>();
-  for (const m of mappings) mappingMap.set(m.accountCode, { lineCode: m.lineCode, operator: (m.operator as "add" | "subtract") || "add" });
+  const mappingMap = new Map<string, { lineCode: string; operator: "add" | "subtract" | "exclude" }>();
+  for (const m of mappings) mappingMap.set(m.accountCode, { lineCode: m.lineCode, operator: (m.operator as "add" | "subtract" | "exclude") || "add" });
 
   // 7. Build mapping preview
   const mappingPreview = tree.map((node) =>
@@ -117,18 +117,21 @@ interface MappingResult {
   explicitLineCode: string | null;
   mappingSource: "explicit" | "inherited" | "none";
   ancestorAccountCode: string | null;
-  effectiveOperator: "add" | "subtract" | null;
+  effectiveOperator: "add" | "subtract" | "exclude" | null;
 }
 
 function resolveAccountMapping(
   accountCode: string,
   parentMap: Map<string, string | null>,
-  mappingMap: Map<string, { lineCode: string; operator: "add" | "subtract" }>,
+  mappingMap: Map<string, { lineCode: string; operator: "add" | "subtract" | "exclude" }>,
 ): MappingResult {
   const chain = buildParentChain(accountCode, parentMap);
   for (const code of chain) {
     const entry = mappingMap.get(code);
     if (entry) {
+      if (entry.operator === "exclude") {
+        return { explicitLineCode: null, resolvedLineCode: null, mappingSource: "explicit", ancestorAccountCode: null, effectiveOperator: "exclude" };
+      }
       return {
         explicitLineCode: code === accountCode ? entry.lineCode : null,
         resolvedLineCode: entry.lineCode,
@@ -138,11 +141,7 @@ function resolveAccountMapping(
       };
     }
   }
-  return {
-    explicitLineCode: null, resolvedLineCode: null,
-    mappingSource: "none", ancestorAccountCode: null,
-    effectiveOperator: null,
-  };
+  return { explicitLineCode: null, resolvedLineCode: null, mappingSource: "none", ancestorAccountCode: null, effectiveOperator: null };
 }
 
 // ─── Tree conversion ───────────────────────────────────────
@@ -150,7 +149,7 @@ function resolveAccountMapping(
 function toMappingNode(
   node: AccountNode,
   parentMap: Map<string, string | null>,
-  mappingMap: Map<string, { lineCode: string; operator: "add" | "subtract" }>,
+  mappingMap: Map<string, { lineCode: string; operator: "add" | "subtract" | "exclude" }>,
 ): MappingNode {
   const mapping = resolveAccountMapping(node.code, parentMap, mappingMap);
   return {
