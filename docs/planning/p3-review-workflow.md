@@ -1,162 +1,460 @@
-# P3 Review Workflow Plan
+# P3：利润表 / 现金流量表底稿与校对计划
 
-> 状态：设计草案。不改 prisma、不改 compute、不改 statement-mappings。
-> 依赖：P3 Batch 2 底稿输入（workpaper）已完成。
+本文档用于指导 P3 后续实现。当前状态：
 
-## 1. 目的
+- Batch 1 已完成：利润表 / 现金流量表 line config 框架。
+- Batch 2 已完成：`statement-workpapers` 输入底稿 schema、service、API、smoke。
+- Batch 3 尚未开始：校对 review schema + API。
 
-校对（review）是 workpaper（底稿输入）和 final report（最终报表）之间的桥。
+重要前置条件：
 
+- 在资产负债表 Phase 2 的 `finance:bs-smoke:all` 恢复稳定前，不继续 P3 Batch 3 schema。
+- P3 不改变资产负债表 mapping 计算口径。
+- P3 的目标是给利润表、现金流量表补齐“底稿输入 -> 人工校对 -> 最终报表消费”的链路。
+
+---
+
+## 1. 分层原则
+
+P3 必须保持三层分离：
+
+| 层 | 表 / 服务 | 说明 |
+|---|---|---|
+| 输入底稿 | `FinanceStatementWorkpaper` / `FinanceStatementWorkpaperLine` | 会计录入或导入的原始底稿输入 |
+| 人工校对 | `FinanceStatementReview` / `FinanceStatementReviewLine` | 校对人确认后的事实快照 |
+| 最终报表 | report generator | 只读消费 confirmed review，不直接消费 workpaper |
+
+核心规则：
+
+```text
+Workpaper 是输入，不是最终数。
+Review 是确认结果，可以进入报表。
+Report 只读，不写业务状态。
 ```
-Workpaper (输入)  →  Review (校对)  →  Report (消费)
-会计填数字          校对签核            报表取数
-```
 
-**原则：**
-- Review 不改 workpaper。Workpaper 始终是会计的原始输入。
-- 只有经过 review confirmed 的金额才进入最终报表。
-- Review 可反复重建（从 workpaper 重新快照），历史 review 保留。
+---
 
-## 2. 数据模型（草案，不改 prisma）
+## 2. Batch 3：Review Schema
 
-### FinanceStatementReview（校对头）
+### 2.1 FinanceStatementReview
+
+用途：校对头表。表示某个底稿已经进入人工校对流程。
+
+建议字段：
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
-| id | Int PK | |
-| workpaperId | Int FK (unique) | 1 workpaper → 1 active review |
-| status | String | `"pending"` → `"inProgress"` → `"confirmed"` |
-| reviewedBy | Int? → User | |
-| reviewedAt | DateTime? | |
-| note | String? | |
+| `id` | `Int @id` | 主键 |
+| `workpaperId` | `Int @unique` | 1 个 workpaper 对应 1 个 active review |
+| `companyCode` | `String` | 冗余快照，便于查询 |
+| `year` | `Int` | 冗余快照 |
+| `month` | `Int` | 冗余快照 |
+| `reportType` | `String` | `incomeStatement` / `cashFlow` |
+| `status` | `String` | `draft` / `confirmed` / `voided` |
+| `generatedFromVersion` | `Int` | 创建 review 时的 workpaper version |
+| `reviewedBy` | `Int?` | 最终确认人 |
+| `reviewedAt` | `DateTime?` | 最终确认时间 |
+| `note` | `String?` | 校对备注 |
+| `editedBy` | `Int?` | 最近编辑人 |
+| `editedAt` | `DateTime?` | 最近编辑时间 |
+| `version` | `Int @default(1)` | 乐观版本 |
+| `createdAt` | `DateTime @default(now())` | 创建时间 |
+| `updatedAt` | `DateTime @updatedAt` | 更新时间 |
 
-唯一键：`workpaperId`。
+约束：
 
-### FinanceStatementReviewLine（校对行）
+```prisma
+@@unique([workpaperId])
+@@index([companyCode, year, month, reportType])
+@@index([status])
+```
+
+说明：
+
+- `companyCode/year/month/reportType` 是快照冗余，不用于替代 `workpaperId` 外键。
+- `generatedFromVersion` 用来判断 review 是否落后于 workpaper。
+- 如果 workpaper 后续被改动，review 不自动改；UI 应提示“底稿已更新，需要重新生成校对”。
+
+### 2.2 FinanceStatementReviewLine
+
+用途：校对行表。保存每个报表项目的系统数、底稿数、人工调整数和最终确认数。
+
+建议字段：
 
 | 字段 | 类型 | 说明 |
 |---|---|---|
-| id | Int PK | |
-| reviewId | Int FK → FinanceStatementReview | |
-| lineCode | String | |
-| systemAmount | Float @default(0) | 系统计算建议（Batch 5 前为 0） |
-| workpaperAmount | Float | 校对发起时 workpaper 快照（manual + imported） |
-| adjustedAmount | Float? | 校对人的调整金额，null = 未调整 |
-| finalAmount | Float | 最终确认金额 = `adjustedAmount ?? workpaperAmount` |
-| status | String | `"pending"` / `"confirmed"` / `"adjusted"` / `"flagged"` |
-| comment | String? | |
+| `id` | `Int @id` | 主键 |
+| `reviewId` | `Int` | FK |
+| `lineCode` | `String` | 报表项目编码 |
+| `label` | `String` | 创建 review 时的项目名称快照 |
+| `sortOrder` | `Int` | 创建 review 时的排序快照 |
+| `systemAmount` | `Float` | 系统建议数，Batch 5 前可为 0 |
+| `workpaperAmount` | `Float` | 创建 review 时 `manualAmount + importedAmount` 快照 |
+| `adjustedAmount` | `Float?` | 人工调整数；`null` 表示未调整 |
+| `finalAmount` | `Float` | 最终确认数快照 |
+| `status` | `String` | `pending` / `confirmed` / `adjusted` / `flagged` |
+| `comment` | `String?` | 行备注 |
+| `createdAt` | `DateTime @default(now())` | 创建时间 |
+| `updatedAt` | `DateTime @updatedAt` | 更新时间 |
 
-唯一键：`(reviewId, lineCode)`。
+约束：
 
-**为什么 finalAmount 存 DB：** 它是校对签核的事实——"校对人在此时此地确认了这个数字"。不是派生字段，是审批事实。schema-governance 允许存审批结果。
-
-## 3. 生命周期
-
-```
-1. 会计填 workpaper → PUT save → status=draft
-2. 会计点"提交校对" → POST create review
-   - 快照 workpaper 金额到 workpaperAmount
-   - 每行 status=pending
-3. 校对人对每条 line：
-   - 确认 → status=confirmed, adjustedAmount=null
-   - 调整 → status=adjusted, adjustedAmount=<新数字>
-   - 标记 → status=flagged, comment=<原因>
-   - finalAmount 自动 resolve
-4. 全部行非 pending → 可点"完成校对" → review status=confirmed
-5. 最终报表只读 finalAmount WHERE review.status=confirmed
+```prisma
+@@unique([reviewId, lineCode])
+@@index([reviewId, status])
 ```
 
-## 4. 报表消费路径
+`finalAmount` 的规则：
 
-```
-for each lineCode in lineConfig:
-  if review exists AND review.status == "confirmed":
-    return reviewLine.finalAmount   ← 校对签核后的数字
-  else:
-    return 0（或无数据标记）
-
-不消费：
-  - workpaper.manualAmount / importedAmount（未经校对）
-  - reviewLine.systemAmount（诊断参考）
-  - reviewLine.workpaperAmount（快照记录）
+```text
+finalAmount = adjustedAmount ?? workpaperAmount
 ```
 
-唯一消费路径：**workpaper → review confirmed → finalAmount**。
+为什么允许存 `finalAmount`：
 
-## 5. API 草案
+- 它不是普通派生字段，而是“校对人在某一时点确认的最终事实快照”。
+- 未来底稿或系统建议重算，不应静默改变已经确认的报表。
+- 报表消费 `confirmed review` 的 `finalAmount`，保证口径可追溯。
 
-```
-POST /api/finance/statement-reviews
-  Body: { workpaperId }
-  Auth: withFinanceReportWrite
-  → 从 workpaper 生成 review（快照金额）
-  → 幂等：已有 review 则返回已有
-  → 返回 { id, status, lines[] }
+---
 
-GET /api/finance/statement-reviews?workpaperId=
-  Auth: withFinanceReportAccess
-  → 返回 review + lines（含四列金额）
+## 3. Workpaper 与 Review 的关系
 
-PUT /api/finance/statement-reviews/[id]/lines
-  Body: { lines: [{ lineCode, adjustedAmount?, status, comment? }] }
-  Auth: withFinanceReportWrite
-  → 局部更新：只改传入的行
-  → resolve finalAmount = adjustedAmount ?? workpaperAmount
-
-POST /api/finance/statement-reviews/[id]/confirm
-  Body: {}
-  Auth: withFinanceReportWrite
-  → 校验所有行 status != pending
-  → review status → confirmed, 记录 reviewedBy/At
-```
-
-## 6. UI 草案
-
-页面：`/finance/statement-review`
-
-```
-┌─ 筛选 ──────────────────────────────────────────────────────┐
-│ 公司 [02▾] 年度 [2025▾] 月份 [6▾] 报表 [利润表▾]           │
-│ [从底稿生成校对]  [完成校对]                                  │
-├──────────┬──────────┬──────────┬──────────┬────────┬───────┤
-│ 项目      │ 系统建议  │ 底稿输入  │ 调整金额  │ 最终    │ 状态  │
-├──────────┼──────────┼──────────┼──────────┼────────┼───────┤
-│ 营业收入   │        0 │1,000,000 │ [      ] │1,000K  │ ✓已确认│
-│ 营业成本   │        0 │  600,000 │ [      ] │  600K  │ ✓已确认│
-│ 销售费用   │        0 │        0 │ [ 5000] │    5K  │ ⚡已调整│
-│ 管理费用   │        0 │        0 │ [      ] │      0 │ ⚠已标记│
-│ ...       │          │          │          │        │        │
-├──────────┼──────────┼──────────┼──────────┼────────┼───────┤
-│ 净利润    │        0 │  400,000 │          │  395K  │ 待确认  │
-└──────────┴──────────┴──────────┴──────────┴────────┴───────┘
+```text
+FinanceStatementWorkpaper
+  manualAmount
+  importedAmount
+  version
+        │
+        │ generate review
+        ▼
+FinanceStatementReview
+  generatedFromVersion
+  status
+        │
+        ▼
+FinanceStatementReviewLine
+  systemAmount
+  workpaperAmount
+  adjustedAmount
+  finalAmount
+        │
+        │ confirmed only
+        ▼
+Report generator
 ```
 
-**列说明：**
-- 系统建议：Batch 5 前为 0，之后从科目 mapping 取
-- 底稿输入：workpaper 快照（只读）
-- 调整金额：校对人的可编辑列，inline edit
-- 最终：自动计算，只读
-- 状态：行级状态标签，可下拉切换
+生命周期：
 
-**关键交互：**
-- Header/Total/GrandTotal 行只读
-- 调整金额列 inline edit
-- 行尾状态下拉
-- "完成校对"需全行非 pending
+1. 会计维护 workpaper，状态保持 `draft`。
+2. 用户点击“生成校对”，系统从 workpaper 创建 review。
+3. review 行快照保存 `systemAmount`、`workpaperAmount`、`finalAmount`。
+4. 校对人逐行调整 `adjustedAmount/status/comment`。
+5. 全部关键行完成后，用户点击“确认校对”。
+6. review 进入 `confirmed`。
+7. 最终利润表 / 现金流量表只读消费 confirmed review。
 
-## 7. 实施分 Batch
+重建规则：
 
-| Batch | 内容 | 估算 |
-|---|---|---|
-| Batch 3 | review schema + API（不改 compute） | 1 session |
-| Batch 4 | review UI 页面骨架（/finance/statement-review） | 1 session |
-| Batch 5 | 利润表 mapping preview + systemAmount 连接 | 1-2 sessions |
-| Batch 6 | 天力通 2025 smoke 全量 | 1 session |
+- 如果 review 未确认，可以允许重新生成，覆盖旧 review line。
+- 如果 review 已确认，不允许自动覆盖。
+- 若确需重做，新增 `voided` 或 `reopened` 流程，不在 Batch 3 实现。
 
-## 8. 边界
+---
 
-- 不做 balanceSheet review（资产负债表已有 authoritative 口径）
-- 不做多轮校对（一轮确认即可）
-- 不做校对历史/回滚（第一版只保留最新）
-- 不做邮件通知/审批流
-- `systemAmount` Batch 5 前为 0，UI 列可先隐藏
+## 4. 报表消费规则
+
+Batch 5/6 实现报表消费时使用以下优先级：
+
+```text
+if confirmed review exists:
+  line amount = reviewLine.finalAmount
+else:
+  line amount = 0
+  diagnostics: missingConfirmedReview
+```
+
+不直接消费：
+
+- `workpaper.manualAmount`
+- `workpaper.importedAmount`
+- `reviewLine.systemAmount`
+- `reviewLine.workpaperAmount`
+
+原因：
+
+- workpaper 是输入草稿，不代表已确认。
+- systemAmount 是参考，不代表最终口径。
+- workpaperAmount 是快照，不代表校对后结果。
+
+---
+
+## 5. Batch 3 API
+
+### 5.1 POST `/api/finance/statement-reviews`
+
+用途：从 workpaper 生成 review。
+
+权限：
+
+```text
+withFinanceReportWrite
+```
+
+Body：
+
+```json
+{
+  "workpaperId": 123
+}
+```
+
+行为：
+
+1. 查 workpaper + lines。
+2. 校验 reportType 只能是 `incomeStatement` / `cashFlow`。
+3. 加载对应 line config。
+4. 若已有 confirmed review，返回 409。
+5. 若已有 draft review，允许重建或返回现有 review。建议 Batch 3 先返回现有 review，避免误覆盖。
+6. 创建 review + review lines。
+7. `workpaperAmount = manualAmount + importedAmount`。
+8. `systemAmount = 0`，Batch 5 再接系统建议。
+9. `finalAmount = workpaperAmount`。
+10. 返回 DTO。
+
+### 5.2 GET `/api/finance/statement-reviews`
+
+用途：读取 review。
+
+权限：
+
+```text
+withFinanceReportAccess
+```
+
+Query：
+
+```text
+workpaperId=123
+```
+
+或：
+
+```text
+companyCode=02&year=2025&month=12&reportType=incomeStatement
+```
+
+行为：
+
+- 优先支持 `workpaperId`。
+- company/year/month/reportType 查询用于页面初始化。
+- 返回 review + lines。
+- 没有 review 时返回 `{ review: null }`，不要自动创建。
+
+### 5.3 PUT `/api/finance/statement-reviews/[id]`
+
+用途：局部更新 review 行。
+
+权限：
+
+```text
+withFinanceReportWrite
+```
+
+Body：
+
+```json
+{
+  "lines": [
+    {
+      "lineCode": "revenue",
+      "adjustedAmount": 1000000,
+      "status": "adjusted",
+      "comment": "按审计底稿调整"
+    }
+  ],
+  "note": "本月已核对"
+}
+```
+
+行为：
+
+- 局部更新，只改 payload 中出现的行。
+- 不删除未出现的行。
+- `adjustedAmount === null` 表示清除人工调整。
+- 更新后重新计算该行 `finalAmount`。
+- 如果 review 已 confirmed，Batch 3 先禁止修改，返回 409。
+
+### 5.4 POST `/api/finance/statement-reviews/[id]/confirm`
+
+用途：最终确认 review。
+
+权限：
+
+```text
+withFinanceReportWrite
+```
+
+行为：
+
+1. 校验 review 存在。
+2. 校验不是 confirmed / voided。
+3. 校验没有 `flagged` 行。
+4. 校验关键数据行都不是 `pending`。
+5. 写入 `status=confirmed`、`reviewedBy`、`reviewedAt`。
+
+---
+
+## 6. Batch 4 UI：校对页面
+
+建议路径：
+
+```text
+/finance/statement-review
+```
+
+页面结构：
+
+```text
+筛选栏：
+  公司 / 年度 / 月份 / 报表类型
+
+操作区：
+  [读取底稿] [生成校对] [确认校对]
+
+表格：
+  项目
+  系统建议
+  底稿输入
+  调整金额
+  最终金额
+  状态
+  备注
+```
+
+表格示例：
+
+| 项目 | 系统建议 | 底稿输入 | 调整金额 | 最终金额 | 状态 | 备注 |
+|---|---:|---:|---:|---:|---|---|
+| 营业收入 | 0.00 | 1,000,000.00 |  | 1,000,000.00 | confirmed |  |
+| 营业成本 | 0.00 | 600,000.00 | 580,000.00 | 580,000.00 | adjusted | 按审计底稿调整 |
+| 税金及附加 | 0.00 | 0.00 |  | 0.00 | confirmed |  |
+
+交互要求：
+
+- 调整金额 inline edit。
+- 状态可切换：`pending` / `confirmed` / `adjusted` / `flagged`。
+- `adjustedAmount` 非空时默认状态为 `adjusted`。
+- `flagged` 行阻止最终确认。
+- confirmed review 页面只读。
+- 若 workpaper.version > review.generatedFromVersion，顶部提示“底稿已更新，需要重新生成校对”。
+
+---
+
+## 7. Batch 5：系统建议数
+
+Batch 5 才接系统建议，不要在 Batch 3 提前实现。
+
+利润表建议数：
+
+- 从凭证明细按 line config prefixes 聚合。
+- 收入类按贷方方向。
+- 成本费用类按借方方向。
+- `subtract` 类项目按配置反向。
+
+现金流量表建议数：
+
+- 第一版不要试图自动完整编制现金流量表。
+- 先支持底稿输入 + 人工校对。
+- 后续再接现金流辅助底稿。
+
+---
+
+## 8. Batch 6：最终报表消费
+
+目标：
+
+- 利润表页面消费 confirmed review。
+- 现金流量表页面消费 confirmed review。
+- 没有 confirmed review 时，显示空表 + 提示，不要静默用 workpaper。
+
+报表 API 应返回 diagnostics：
+
+```json
+{
+  "diagnostics": [
+    {
+      "type": "missingConfirmedReview",
+      "message": "当前期间没有已确认校对结果"
+    }
+  ]
+}
+```
+
+---
+
+## 9. 与资产负债表 Phase 2 的关系
+
+P3 Batch 3 之前必须满足：
+
+```text
+npm run finance:bs-smoke:all
+```
+
+验收口径：
+
+```text
+02/2024、02/2025、02/2026 必须恢复 OK。
+05/2025、05/2026 的 3001 100K 可继续作为业务 pending。
+```
+
+如果资产负债表 smoke 仍然是 `10 OK / 5 GAP`，不得继续 P3 Batch 3 schema。
+
+---
+
+## 10. Batch 3 交付清单
+
+Batch 3 只交付 schema + service + API，不做 UI，不接报表消费。
+
+交付文件建议：
+
+```text
+prisma/models/finance-ledger.prisma
+prisma/models/auth-rbac.prisma
+server/services/finance/statements/reviews/types.ts
+server/services/finance/statements/reviews/service.ts
+app/api/finance/statement-reviews/route.ts
+app/api/finance/statement-reviews/[id]/route.ts
+app/api/finance/statement-reviews/[id]/confirm/route.ts
+app/finance/ARCHITECTURE.md
+```
+
+验收：
+
+```text
+npx prisma validate
+npx prisma generate
+npx prisma db push
+npx tsc --noEmit
+npm run size:check
+npm run build
+npm run finance:wp-smoke
+```
+
+如果本批新增 smoke：
+
+```text
+npm run finance:review-smoke
+```
+
+---
+
+## 11. 不在 Batch 3 范围
+
+- 不做校对 UI。
+- 不做利润表系统建议聚合。
+- 不做现金流量表自动编制。
+- 不修改资产负债表 mapping 计算。
+- 不让最终报表消费 review。
+- 不引入复杂审批流。
+
