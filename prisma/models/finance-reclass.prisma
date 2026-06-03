@@ -1,0 +1,93 @@
+/// 重分类规则 — 作用域：公司 + 年度
+/// 一条规则 = (公司, 年度, 源科目, 借贷方向) → 目标科目
+/// 新年度首次使用时从上一年度复制初始化
+model FinanceReclassRule {
+  id                Int       @id @default(autoincrement())
+  companyCode       String
+  year              Int
+  sourceAccountCode String
+  abnormalSide      String    // debit | credit | both
+  targetAccountCode String
+  enabled           Boolean   @default(true)
+  source            String    @default("manual") // suggested | manual | auto | copied
+  confirmedBy       Int?
+  confirmedAt       DateTime?
+  note              String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+
+  confirmer User? @relation("FinanceReclassRuleConfirmer", fields: [confirmedBy], references: [id])
+  results  ReclassResult[]
+
+  @@unique([companyCode, year, sourceAccountCode, abnormalSide])
+  @@index([companyCode, year])
+  @@index([sourceAccountCode])
+}
+
+/// 明细例外规则：凭证明细 adjust 后沉淀为公司+年度级例外
+model FinanceReclassItemRule {
+  id                Int      @id @default(autoincrement())
+  companyCode       String
+  year              Int
+  sourceAccountCode String
+  matchType         String   @default("exact_description")
+  matchValue        String
+  targetAccountCode String
+  enabled           Boolean  @default(true)
+  note              String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+
+  @@unique([companyCode, year, sourceAccountCode, matchType, matchValue])
+  @@index([companyCode, year, sourceAccountCode])
+}
+
+/// 余额层重分类调整（residual = 期末异常余额 - 凭证明细已调金额）
+model FinanceBalanceReclassAdjustment {
+  id                Int      @id @default(autoincrement())
+  periodId          Int
+  companyCode       String
+  year              Int
+  sourceAccountCode String
+  targetAccountCode String
+  amount            Float
+  sourceType        String   @default("balance_residual") // balance_residual | manual
+  ruleId            Int?
+  status            String   @default("approved") // approved | adjusted | rejected
+  note              String?
+  adjustedBy        Int?
+  adjustedAt        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+
+  @@unique([periodId, sourceAccountCode])
+  @@index([periodId, status])
+}
+
+/// 重分类结果（引擎生成 + 人工审核，从 finance-schedules.prisma 迁入）
+/// periodId + voucherItemId 唯一：同一凭证明细只生成一条重分类结果
+/// engine upsert 时幂等，不会重复
+model ReclassResult {
+  id            Int       @id @default(autoincrement())
+  periodId      Int
+  voucherItemId Int // 来源凭证明细
+  ruleId        Int? // 追溯到生成此结果的规则；手工添加或历史兼容时为 null
+  sourceAccount String // 原科目编码（快照，不FK）
+  targetAccount String // 目标科目编码（可修改）
+  amount        Float // 重分类金额
+  status        String    @default("pending") // pending|approved|adjusted|rejected
+  adjustedBy    Int? // 审核人 userId
+  adjustedAt    DateTime?
+  note          String? // 审核备注
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+
+  period      FinancePeriod      @relation(fields: [periodId], references: [id])
+  voucherItem FinanceVoucherItem @relation(fields: [voucherItemId], references: [id])
+  rule        FinanceReclassRule? @relation(fields: [ruleId], references: [id])
+  reviewer    User?              @relation("ReclassResultReviewer", fields: [adjustedBy], references: [id])
+
+  @@unique([periodId, voucherItemId])
+  @@index([periodId, status])
+  @@index([ruleId])
+}
