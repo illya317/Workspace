@@ -30,7 +30,20 @@ function walk(dir, pattern) {
   for (const entry of entries) {
     const full = path.join(dir, entry);
     const rel = path.relative(ROOT, full).replace(/\\/g, "/");
-    if (fs.statSync(full).isDirectory()) {
+    const lstat = fs.lstatSync(full);
+    if (lstat.isSymbolicLink()) {
+      try {
+        fs.statSync(full);
+      } catch (err) {
+        if (err.code === "ENOENT") {
+          console.warn(`⚠ ${rel}: broken symlink, skipped`);
+          continue;
+        }
+        throw err;
+      }
+    }
+    const stat = fs.statSync(full);
+    if (stat.isDirectory()) {
       if (entry === "node_modules" || entry === ".next" || entry === "generated" || entry.startsWith(".")) continue;
       results.push(...walk(full, pattern));
     } else if (pattern.test(rel)) {
