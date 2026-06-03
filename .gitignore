@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+/.next
 /out/
 
 # production
@@ -46,6 +47,7 @@ next-env.d.ts
 /app/generated/prisma
 
 # SQLite database and runtime data
+/data
 /data/*.db
 /data/*.db-journal
 /data/*.db.backup-*
@@ -53,6 +55,7 @@ next-env.d.ts
 
 # Company-specific assets (logo, favicon, etc.)
 /public/company/
+/public/company
 
 # Deployment lock file
 .deploying
@@ -62,9 +65,6 @@ ops/server.env.sh
 
 # Playwright test results
 /test-results/
-
-# Generated artifacts
-/generated/
 
 # Agent worktrees
 /.claude/
