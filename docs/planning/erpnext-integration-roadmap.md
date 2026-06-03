@@ -1,5 +1,7 @@
 # ERPNext 集成规划
 
+相关管理层分析框架：`docs/planning/erp-selection-management-framework.md`。
+
 ## 系统定位
 
 ```
