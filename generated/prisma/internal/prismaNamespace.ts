@@ -412,9 +412,9 @@ export const ModelName = {
   FinanceReclassRule: 'FinanceReclassRule',
   FinanceReclassItemRule: 'FinanceReclassItemRule',
   FinanceBalanceReclassAdjustment: 'FinanceBalanceReclassAdjustment',
+  ReclassResult: 'ReclassResult',
   FinanceStatementAccountMapping: 'FinanceStatementAccountMapping',
   FinanceStatementLineConfig: 'FinanceStatementLineConfig',
-  ReclassResult: 'ReclassResult',
   FinanceStatementWorkpaper: 'FinanceStatementWorkpaper',
   FinanceStatementWorkpaperLine: 'FinanceStatementWorkpaperLine',
   FinanceStatementReview: 'FinanceStatementReview',
@@ -436,6 +436,13 @@ export const ModelName = {
   StockBatch: 'StockBatch',
   StockOperation: 'StockOperation',
   StockReturn: 'StockReturn',
+  LibraryDocument: 'LibraryDocument',
+  LibraryDocumentVersion: 'LibraryDocumentVersion',
+  DueDiligenceParty: 'DueDiligenceParty',
+  DueDiligenceRequest: 'DueDiligenceRequest',
+  DueDiligenceQuestion: 'DueDiligenceQuestion',
+  DueDiligenceMaterialSelection: 'DueDiligenceMaterialSelection',
+  LibraryGeneratedSource: 'LibraryGeneratedSource',
   Report: 'Report',
   ReportItem: 'ReportItem',
   ReportHistory: 'ReportHistory',
@@ -460,7 +467,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "reclassResult" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "project" | "employeeProject" | "positionDescription" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
+    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "project" | "employeeProject" | "positionDescription" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2536,6 +2543,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ReclassResult: {
+      payload: Prisma.$ReclassResultPayload<ExtArgs>
+      fields: Prisma.ReclassResultFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ReclassResultFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ReclassResultFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>
+        }
+        findFirst: {
+          args: Prisma.ReclassResultFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ReclassResultFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>
+        }
+        findMany: {
+          args: Prisma.ReclassResultFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>[]
+        }
+        create: {
+          args: Prisma.ReclassResultCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>
+        }
+        createMany: {
+          args: Prisma.ReclassResultCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ReclassResultCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>[]
+        }
+        delete: {
+          args: Prisma.ReclassResultDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>
+        }
+        update: {
+          args: Prisma.ReclassResultUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>
+        }
+        deleteMany: {
+          args: Prisma.ReclassResultDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ReclassResultUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ReclassResultUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>[]
+        }
+        upsert: {
+          args: Prisma.ReclassResultUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>
+        }
+        aggregate: {
+          args: Prisma.ReclassResultAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateReclassResult>
+        }
+        groupBy: {
+          args: Prisma.ReclassResultGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReclassResultGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ReclassResultCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ReclassResultCountAggregateOutputType> | number
+        }
+      }
+    }
     FinanceStatementAccountMapping: {
       payload: Prisma.$FinanceStatementAccountMappingPayload<ExtArgs>
       fields: Prisma.FinanceStatementAccountMappingFieldRefs
@@ -2681,80 +2762,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.FinanceStatementLineConfigCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.FinanceStatementLineConfigCountAggregateOutputType> | number
-        }
-      }
-    }
-    ReclassResult: {
-      payload: Prisma.$ReclassResultPayload<ExtArgs>
-      fields: Prisma.ReclassResultFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ReclassResultFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ReclassResultFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>
-        }
-        findFirst: {
-          args: Prisma.ReclassResultFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ReclassResultFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>
-        }
-        findMany: {
-          args: Prisma.ReclassResultFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>[]
-        }
-        create: {
-          args: Prisma.ReclassResultCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>
-        }
-        createMany: {
-          args: Prisma.ReclassResultCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ReclassResultCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>[]
-        }
-        delete: {
-          args: Prisma.ReclassResultDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>
-        }
-        update: {
-          args: Prisma.ReclassResultUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>
-        }
-        deleteMany: {
-          args: Prisma.ReclassResultDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ReclassResultUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ReclassResultUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>[]
-        }
-        upsert: {
-          args: Prisma.ReclassResultUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ReclassResultPayload>
-        }
-        aggregate: {
-          args: Prisma.ReclassResultAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateReclassResult>
-        }
-        groupBy: {
-          args: Prisma.ReclassResultGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ReclassResultGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ReclassResultCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ReclassResultCountAggregateOutputType> | number
         }
       }
     }
@@ -4312,6 +4319,524 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    LibraryDocument: {
+      payload: Prisma.$LibraryDocumentPayload<ExtArgs>
+      fields: Prisma.LibraryDocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryDocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryDocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryDocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryDocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentPayload>
+        }
+        findMany: {
+          args: Prisma.LibraryDocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentPayload>[]
+        }
+        create: {
+          args: Prisma.LibraryDocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentPayload>
+        }
+        createMany: {
+          args: Prisma.LibraryDocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryDocumentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentPayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryDocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentPayload>
+        }
+        update: {
+          args: Prisma.LibraryDocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryDocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryDocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryDocumentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentPayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryDocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryDocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryDocument>
+        }
+        groupBy: {
+          args: Prisma.LibraryDocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryDocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryDocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryDocumentCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibraryDocumentVersion: {
+      payload: Prisma.$LibraryDocumentVersionPayload<ExtArgs>
+      fields: Prisma.LibraryDocumentVersionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryDocumentVersionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentVersionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryDocumentVersionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentVersionPayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryDocumentVersionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentVersionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryDocumentVersionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentVersionPayload>
+        }
+        findMany: {
+          args: Prisma.LibraryDocumentVersionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentVersionPayload>[]
+        }
+        create: {
+          args: Prisma.LibraryDocumentVersionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentVersionPayload>
+        }
+        createMany: {
+          args: Prisma.LibraryDocumentVersionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryDocumentVersionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentVersionPayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryDocumentVersionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentVersionPayload>
+        }
+        update: {
+          args: Prisma.LibraryDocumentVersionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentVersionPayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryDocumentVersionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryDocumentVersionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryDocumentVersionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentVersionPayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryDocumentVersionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentVersionPayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryDocumentVersionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryDocumentVersion>
+        }
+        groupBy: {
+          args: Prisma.LibraryDocumentVersionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryDocumentVersionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryDocumentVersionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryDocumentVersionCountAggregateOutputType> | number
+        }
+      }
+    }
+    DueDiligenceParty: {
+      payload: Prisma.$DueDiligencePartyPayload<ExtArgs>
+      fields: Prisma.DueDiligencePartyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DueDiligencePartyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligencePartyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DueDiligencePartyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligencePartyPayload>
+        }
+        findFirst: {
+          args: Prisma.DueDiligencePartyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligencePartyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DueDiligencePartyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligencePartyPayload>
+        }
+        findMany: {
+          args: Prisma.DueDiligencePartyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligencePartyPayload>[]
+        }
+        create: {
+          args: Prisma.DueDiligencePartyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligencePartyPayload>
+        }
+        createMany: {
+          args: Prisma.DueDiligencePartyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DueDiligencePartyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligencePartyPayload>[]
+        }
+        delete: {
+          args: Prisma.DueDiligencePartyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligencePartyPayload>
+        }
+        update: {
+          args: Prisma.DueDiligencePartyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligencePartyPayload>
+        }
+        deleteMany: {
+          args: Prisma.DueDiligencePartyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DueDiligencePartyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DueDiligencePartyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligencePartyPayload>[]
+        }
+        upsert: {
+          args: Prisma.DueDiligencePartyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligencePartyPayload>
+        }
+        aggregate: {
+          args: Prisma.DueDiligencePartyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDueDiligenceParty>
+        }
+        groupBy: {
+          args: Prisma.DueDiligencePartyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DueDiligencePartyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DueDiligencePartyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DueDiligencePartyCountAggregateOutputType> | number
+        }
+      }
+    }
+    DueDiligenceRequest: {
+      payload: Prisma.$DueDiligenceRequestPayload<ExtArgs>
+      fields: Prisma.DueDiligenceRequestFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DueDiligenceRequestFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceRequestPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DueDiligenceRequestFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceRequestPayload>
+        }
+        findFirst: {
+          args: Prisma.DueDiligenceRequestFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceRequestPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DueDiligenceRequestFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceRequestPayload>
+        }
+        findMany: {
+          args: Prisma.DueDiligenceRequestFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceRequestPayload>[]
+        }
+        create: {
+          args: Prisma.DueDiligenceRequestCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceRequestPayload>
+        }
+        createMany: {
+          args: Prisma.DueDiligenceRequestCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DueDiligenceRequestCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceRequestPayload>[]
+        }
+        delete: {
+          args: Prisma.DueDiligenceRequestDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceRequestPayload>
+        }
+        update: {
+          args: Prisma.DueDiligenceRequestUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceRequestPayload>
+        }
+        deleteMany: {
+          args: Prisma.DueDiligenceRequestDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DueDiligenceRequestUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DueDiligenceRequestUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceRequestPayload>[]
+        }
+        upsert: {
+          args: Prisma.DueDiligenceRequestUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceRequestPayload>
+        }
+        aggregate: {
+          args: Prisma.DueDiligenceRequestAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDueDiligenceRequest>
+        }
+        groupBy: {
+          args: Prisma.DueDiligenceRequestGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DueDiligenceRequestGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DueDiligenceRequestCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DueDiligenceRequestCountAggregateOutputType> | number
+        }
+      }
+    }
+    DueDiligenceQuestion: {
+      payload: Prisma.$DueDiligenceQuestionPayload<ExtArgs>
+      fields: Prisma.DueDiligenceQuestionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DueDiligenceQuestionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceQuestionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DueDiligenceQuestionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceQuestionPayload>
+        }
+        findFirst: {
+          args: Prisma.DueDiligenceQuestionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceQuestionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DueDiligenceQuestionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceQuestionPayload>
+        }
+        findMany: {
+          args: Prisma.DueDiligenceQuestionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceQuestionPayload>[]
+        }
+        create: {
+          args: Prisma.DueDiligenceQuestionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceQuestionPayload>
+        }
+        createMany: {
+          args: Prisma.DueDiligenceQuestionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DueDiligenceQuestionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceQuestionPayload>[]
+        }
+        delete: {
+          args: Prisma.DueDiligenceQuestionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceQuestionPayload>
+        }
+        update: {
+          args: Prisma.DueDiligenceQuestionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceQuestionPayload>
+        }
+        deleteMany: {
+          args: Prisma.DueDiligenceQuestionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DueDiligenceQuestionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DueDiligenceQuestionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceQuestionPayload>[]
+        }
+        upsert: {
+          args: Prisma.DueDiligenceQuestionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceQuestionPayload>
+        }
+        aggregate: {
+          args: Prisma.DueDiligenceQuestionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDueDiligenceQuestion>
+        }
+        groupBy: {
+          args: Prisma.DueDiligenceQuestionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DueDiligenceQuestionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DueDiligenceQuestionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DueDiligenceQuestionCountAggregateOutputType> | number
+        }
+      }
+    }
+    DueDiligenceMaterialSelection: {
+      payload: Prisma.$DueDiligenceMaterialSelectionPayload<ExtArgs>
+      fields: Prisma.DueDiligenceMaterialSelectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DueDiligenceMaterialSelectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceMaterialSelectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DueDiligenceMaterialSelectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceMaterialSelectionPayload>
+        }
+        findFirst: {
+          args: Prisma.DueDiligenceMaterialSelectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceMaterialSelectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DueDiligenceMaterialSelectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceMaterialSelectionPayload>
+        }
+        findMany: {
+          args: Prisma.DueDiligenceMaterialSelectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceMaterialSelectionPayload>[]
+        }
+        create: {
+          args: Prisma.DueDiligenceMaterialSelectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceMaterialSelectionPayload>
+        }
+        createMany: {
+          args: Prisma.DueDiligenceMaterialSelectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DueDiligenceMaterialSelectionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceMaterialSelectionPayload>[]
+        }
+        delete: {
+          args: Prisma.DueDiligenceMaterialSelectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceMaterialSelectionPayload>
+        }
+        update: {
+          args: Prisma.DueDiligenceMaterialSelectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceMaterialSelectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.DueDiligenceMaterialSelectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DueDiligenceMaterialSelectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DueDiligenceMaterialSelectionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceMaterialSelectionPayload>[]
+        }
+        upsert: {
+          args: Prisma.DueDiligenceMaterialSelectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DueDiligenceMaterialSelectionPayload>
+        }
+        aggregate: {
+          args: Prisma.DueDiligenceMaterialSelectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDueDiligenceMaterialSelection>
+        }
+        groupBy: {
+          args: Prisma.DueDiligenceMaterialSelectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DueDiligenceMaterialSelectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DueDiligenceMaterialSelectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DueDiligenceMaterialSelectionCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibraryGeneratedSource: {
+      payload: Prisma.$LibraryGeneratedSourcePayload<ExtArgs>
+      fields: Prisma.LibraryGeneratedSourceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryGeneratedSourceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryGeneratedSourcePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryGeneratedSourceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryGeneratedSourcePayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryGeneratedSourceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryGeneratedSourcePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryGeneratedSourceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryGeneratedSourcePayload>
+        }
+        findMany: {
+          args: Prisma.LibraryGeneratedSourceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryGeneratedSourcePayload>[]
+        }
+        create: {
+          args: Prisma.LibraryGeneratedSourceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryGeneratedSourcePayload>
+        }
+        createMany: {
+          args: Prisma.LibraryGeneratedSourceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryGeneratedSourceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryGeneratedSourcePayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryGeneratedSourceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryGeneratedSourcePayload>
+        }
+        update: {
+          args: Prisma.LibraryGeneratedSourceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryGeneratedSourcePayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryGeneratedSourceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryGeneratedSourceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryGeneratedSourceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryGeneratedSourcePayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryGeneratedSourceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryGeneratedSourcePayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryGeneratedSourceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryGeneratedSource>
+        }
+        groupBy: {
+          args: Prisma.LibraryGeneratedSourceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryGeneratedSourceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryGeneratedSourceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryGeneratedSourceCountAggregateOutputType> | number
+        }
+      }
+    }
     Report: {
       payload: Prisma.$ReportPayload<ExtArgs>
       fields: Prisma.ReportFieldRefs
@@ -5565,6 +6090,25 @@ export const FinanceBalanceReclassAdjustmentScalarFieldEnum = {
 export type FinanceBalanceReclassAdjustmentScalarFieldEnum = (typeof FinanceBalanceReclassAdjustmentScalarFieldEnum)[keyof typeof FinanceBalanceReclassAdjustmentScalarFieldEnum]
 
 
+export const ReclassResultScalarFieldEnum = {
+  id: 'id',
+  periodId: 'periodId',
+  voucherItemId: 'voucherItemId',
+  ruleId: 'ruleId',
+  sourceAccount: 'sourceAccount',
+  targetAccount: 'targetAccount',
+  amount: 'amount',
+  status: 'status',
+  adjustedBy: 'adjustedBy',
+  adjustedAt: 'adjustedAt',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReclassResultScalarFieldEnum = (typeof ReclassResultScalarFieldEnum)[keyof typeof ReclassResultScalarFieldEnum]
+
+
 export const FinanceStatementAccountMappingScalarFieldEnum = {
   id: 'id',
   companyCode: 'companyCode',
@@ -5608,25 +6152,6 @@ export const FinanceStatementLineConfigScalarFieldEnum = {
 } as const
 
 export type FinanceStatementLineConfigScalarFieldEnum = (typeof FinanceStatementLineConfigScalarFieldEnum)[keyof typeof FinanceStatementLineConfigScalarFieldEnum]
-
-
-export const ReclassResultScalarFieldEnum = {
-  id: 'id',
-  periodId: 'periodId',
-  voucherItemId: 'voucherItemId',
-  ruleId: 'ruleId',
-  sourceAccount: 'sourceAccount',
-  targetAccount: 'targetAccount',
-  amount: 'amount',
-  status: 'status',
-  adjustedBy: 'adjustedBy',
-  adjustedAt: 'adjustedAt',
-  note: 'note',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ReclassResultScalarFieldEnum = (typeof ReclassResultScalarFieldEnum)[keyof typeof ReclassResultScalarFieldEnum]
 
 
 export const FinanceStatementWorkpaperScalarFieldEnum = {
@@ -6029,6 +6554,129 @@ export const StockReturnScalarFieldEnum = {
 export type StockReturnScalarFieldEnum = (typeof StockReturnScalarFieldEnum)[keyof typeof StockReturnScalarFieldEnum]
 
 
+export const LibraryDocumentScalarFieldEnum = {
+  id: 'id',
+  stableKey: 'stableKey',
+  rootKey: 'rootKey',
+  relativePath: 'relativePath',
+  fileName: 'fileName',
+  extension: 'extension',
+  mimeType: 'mimeType',
+  fileSizeBytes: 'fileSizeBytes',
+  fileMtime: 'fileMtime',
+  checksumSha256: 'checksumSha256',
+  categoryCode: 'categoryCode',
+  categoryName: 'categoryName',
+  subcategoryPath: 'subcategoryPath',
+  title: 'title',
+  summary: 'summary',
+  confidentialityLevel: 'confidentialityLevel',
+  status: 'status',
+  origin: 'origin',
+  generatorKey: 'generatorKey',
+  versionLabel: 'versionLabel',
+  gitRepo: 'gitRepo',
+  gitCommit: 'gitCommit',
+  gitPath: 'gitPath',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LibraryDocumentScalarFieldEnum = (typeof LibraryDocumentScalarFieldEnum)[keyof typeof LibraryDocumentScalarFieldEnum]
+
+
+export const LibraryDocumentVersionScalarFieldEnum = {
+  id: 'id',
+  documentId: 'documentId',
+  versionNo: 'versionNo',
+  relativePath: 'relativePath',
+  fileSizeBytes: 'fileSizeBytes',
+  fileMtime: 'fileMtime',
+  checksumSha256: 'checksumSha256',
+  gitCommit: 'gitCommit',
+  changeNote: 'changeNote',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryDocumentVersionScalarFieldEnum = (typeof LibraryDocumentVersionScalarFieldEnum)[keyof typeof LibraryDocumentVersionScalarFieldEnum]
+
+
+export const DueDiligencePartyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  contact: 'contact',
+  type: 'type',
+  ndaStatus: 'ndaStatus',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DueDiligencePartyScalarFieldEnum = (typeof DueDiligencePartyScalarFieldEnum)[keyof typeof DueDiligencePartyScalarFieldEnum]
+
+
+export const DueDiligenceRequestScalarFieldEnum = {
+  id: 'id',
+  partyId: 'partyId',
+  title: 'title',
+  receivedAt: 'receivedAt',
+  status: 'status',
+  defaultConfidentialityLevel: 'defaultConfidentialityLevel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DueDiligenceRequestScalarFieldEnum = (typeof DueDiligenceRequestScalarFieldEnum)[keyof typeof DueDiligenceRequestScalarFieldEnum]
+
+
+export const DueDiligenceQuestionScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  questionText: 'questionText',
+  categoryHint: 'categoryHint',
+  answerDraft: 'answerDraft',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DueDiligenceQuestionScalarFieldEnum = (typeof DueDiligenceQuestionScalarFieldEnum)[keyof typeof DueDiligenceQuestionScalarFieldEnum]
+
+
+export const DueDiligenceMaterialSelectionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  documentId: 'documentId',
+  documentVersionId: 'documentVersionId',
+  matchScore: 'matchScore',
+  reason: 'reason',
+  selected: 'selected',
+  selectedBy: 'selectedBy',
+  selectedAt: 'selectedAt'
+} as const
+
+export type DueDiligenceMaterialSelectionScalarFieldEnum = (typeof DueDiligenceMaterialSelectionScalarFieldEnum)[keyof typeof DueDiligenceMaterialSelectionScalarFieldEnum]
+
+
+export const LibraryGeneratedSourceScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  name: 'name',
+  outputCategory: 'outputCategory',
+  defaultConfidentialityLevel: 'defaultConfidentialityLevel',
+  enabled: 'enabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LibraryGeneratedSourceScalarFieldEnum = (typeof LibraryGeneratedSourceScalarFieldEnum)[keyof typeof LibraryGeneratedSourceScalarFieldEnum]
+
+
 export const ReportScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -6333,9 +6981,9 @@ export type GlobalOmitConfig = {
   financeReclassRule?: Prisma.FinanceReclassRuleOmit
   financeReclassItemRule?: Prisma.FinanceReclassItemRuleOmit
   financeBalanceReclassAdjustment?: Prisma.FinanceBalanceReclassAdjustmentOmit
+  reclassResult?: Prisma.ReclassResultOmit
   financeStatementAccountMapping?: Prisma.FinanceStatementAccountMappingOmit
   financeStatementLineConfig?: Prisma.FinanceStatementLineConfigOmit
-  reclassResult?: Prisma.ReclassResultOmit
   financeStatementWorkpaper?: Prisma.FinanceStatementWorkpaperOmit
   financeStatementWorkpaperLine?: Prisma.FinanceStatementWorkpaperLineOmit
   financeStatementReview?: Prisma.FinanceStatementReviewOmit
@@ -6357,6 +7005,13 @@ export type GlobalOmitConfig = {
   stockBatch?: Prisma.StockBatchOmit
   stockOperation?: Prisma.StockOperationOmit
   stockReturn?: Prisma.StockReturnOmit
+  libraryDocument?: Prisma.LibraryDocumentOmit
+  libraryDocumentVersion?: Prisma.LibraryDocumentVersionOmit
+  dueDiligenceParty?: Prisma.DueDiligencePartyOmit
+  dueDiligenceRequest?: Prisma.DueDiligenceRequestOmit
+  dueDiligenceQuestion?: Prisma.DueDiligenceQuestionOmit
+  dueDiligenceMaterialSelection?: Prisma.DueDiligenceMaterialSelectionOmit
+  libraryGeneratedSource?: Prisma.LibraryGeneratedSourceOmit
   report?: Prisma.ReportOmit
   reportItem?: Prisma.ReportItemOmit
   reportHistory?: Prisma.ReportHistoryOmit

@@ -25,6 +25,7 @@ model User {
   editedStockRawMaterials  StockRawMaterial[]       @relation("StockRawMaterialEditor")
   snapshotImports          FinanceBalanceSnapshot[] @relation("SnapshotImporter")
   snapshotEdits            FinanceBalanceSnapshot[] @relation("SnapshotEditor")
+  editedLibraryDocuments LibraryDocument[] @relation("LibraryDocumentEditor")
   resourceRoles            UserResourceRole[]
   departmentAssignees      DepartmentWorkAssignee[]
   projectAssignees         ProjectWorkAssignee[]

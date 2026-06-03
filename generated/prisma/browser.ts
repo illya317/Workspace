@@ -161,6 +161,13 @@ export type FinanceReclassItemRule = Prisma.FinanceReclassItemRuleModel
  */
 export type FinanceBalanceReclassAdjustment = Prisma.FinanceBalanceReclassAdjustmentModel
 /**
+ * Model ReclassResult
+ * 重分类结果（引擎生成 + 人工审核，从 finance-schedules.prisma 迁入）
+ * periodId + voucherItemId 唯一：同一凭证明细只生成一条重分类结果
+ * engine upsert 时幂等，不会重复
+ */
+export type ReclassResult = Prisma.ReclassResultModel
+/**
  * Model FinanceStatementAccountMapping
  * 科目→报表项目映射（一个科目节点只能归属一个报表项目）
  */
@@ -171,13 +178,6 @@ export type FinanceStatementAccountMapping = Prisma.FinanceStatementAccountMappi
  * 按公司+年度+报表类型存储，新年度从上年度复制
  */
 export type FinanceStatementLineConfig = Prisma.FinanceStatementLineConfigModel
-/**
- * Model ReclassResult
- * 重分类结果（引擎生成 + 人工审核，从 finance-schedules.prisma 迁入）
- * periodId + voucherItemId 唯一：同一凭证明细只生成一条重分类结果
- * engine upsert 时幂等，不会重复
- */
-export type ReclassResult = Prisma.ReclassResultModel
 /**
  * Model FinanceStatementWorkpaper
  * 报表底稿头（P3 Batch 2：利润表/现金流量表手工输入底稿）
@@ -292,6 +292,44 @@ export type StockOperation = Prisma.StockOperationModel
  * 成品退货记录
  */
 export type StockReturn = Prisma.StockReturnModel
+/**
+ * Model LibraryDocument
+ * 资料库文档元数据（事实表：文件系统扫描 + 人工维护元数据）
+ */
+export type LibraryDocument = Prisma.LibraryDocumentModel
+/**
+ * Model LibraryDocumentVersion
+ * 资料库文档版本历史（事实表：扫描检测到变更时自动创建）
+ */
+export type LibraryDocumentVersion = Prisma.LibraryDocumentVersionModel
+/**
+ * Model DueDiligenceParty
+ * 尽调参与方（事实表，手工录入）
+ */
+export type DueDiligenceParty = Prisma.DueDiligencePartyModel
+/**
+ * Model DueDiligenceRequest
+ * 尽调请求/问卷（事实表，手工录入或导入）
+ */
+export type DueDiligenceRequest = Prisma.DueDiligenceRequestModel
+/**
+ * Model DueDiligenceQuestion
+ * 尽调问题（事实表，从问卷拆分）
+ */
+export type DueDiligenceQuestion = Prisma.DueDiligenceQuestionModel
+/**
+ * Model DueDiligenceMaterialSelection
+ * 尽调材料推荐与选择（关联表：问题 ↔ 文档版本）
+ * 注意：documentVersionId 与 documentId 的一致性由 service 层校验保证。
+ * Prisma 不支持 nullable 字段参与复合 FK，因此 DB 层不强制 version 必须属于同一 document。
+ * 归档/确认操作前，service 必须验证：documentVersion.documentId == selection.documentId。
+ */
+export type DueDiligenceMaterialSelection = Prisma.DueDiligenceMaterialSelectionModel
+/**
+ * Model LibraryGeneratedSource
+ * 自动生成来源预留表（配置表，Phase 6 启用）
+ */
+export type LibraryGeneratedSource = Prisma.LibraryGeneratedSourceModel
 /**
  * Model Report
  * 周报/日报主表

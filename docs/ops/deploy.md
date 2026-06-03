@@ -106,6 +106,8 @@ tcb app deploy
 npx prisma db push
 ```
 
+> **注意**：当前项目不使用 `prisma migrate deploy`。部分旧 migration（如 `20260530000000_add_budget_version_v1`）包含表重定义操作，在空库上会因目标表不存在而失败。SQLite 开发/生产环境统一使用 `prisma db push` 从 schema 直接同步，或从已有数据库备份恢复。修复 migration 历史需单独开任务处理。
+
 ### 8. 后续更新部署
 
 ```bash

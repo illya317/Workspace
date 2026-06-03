@@ -1,0 +1,152 @@
+/// 资料库文档元数据（事实表：文件系统扫描 + 人工维护元数据）
+model LibraryDocument {
+  id                    Int      @id @default(autoincrement())
+  stableKey             String   @unique
+  rootKey               String   @default("default")
+  relativePath          String
+  fileName              String
+  extension             String?
+  mimeType              String?
+  fileSizeBytes         Int?
+  fileMtime             DateTime?
+  checksumSha256        String?
+  categoryCode          String?
+  categoryName          String?
+  subcategoryPath       String?
+  title                 String?
+  summary               String?
+  confidentialityLevel  Int      @default(2)
+  status                String   @default("active")
+  origin                String   @default("uploaded")
+  generatorKey          String?
+  versionLabel          String?
+  gitRepo               String?
+  gitCommit             String?
+  gitPath               String?
+  editedBy              Int?
+  editedAt              DateTime?
+  version               Int      @default(1)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @default(now()) @updatedAt
+
+  editor                User?    @relation("LibraryDocumentEditor", fields: [editedBy], references: [id])
+  versions              LibraryDocumentVersion[]
+  materialSelections    DueDiligenceMaterialSelection[]
+
+  @@index([stableKey])
+  @@index([rootKey])
+  @@index([categoryCode])
+  @@index([status])
+  @@index([confidentialityLevel])
+  @@index([origin])
+}
+
+/// 资料库文档版本历史（事实表：扫描检测到变更时自动创建）
+model LibraryDocumentVersion {
+  id             Int      @id @default(autoincrement())
+  documentId     Int
+  versionNo      Int
+  relativePath   String
+  fileSizeBytes  Int?
+  fileMtime      DateTime?
+  checksumSha256 String?
+  gitCommit      String?
+  changeNote     String?
+  createdBy      Int?
+  createdAt      DateTime @default(now())
+
+  document       LibraryDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  selections     DueDiligenceMaterialSelection[]
+
+  @@unique([documentId, versionNo])
+  @@index([documentId])
+  @@index([versionNo])
+}
+
+/// 尽调参与方（事实表，手工录入）
+model DueDiligenceParty {
+  id          Int      @id @default(autoincrement())
+  name        String
+  contact     String?
+  type        String?
+  ndaStatus   String   @default("none")
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  requests    DueDiligenceRequest[]
+}
+
+/// 尽调请求/问卷（事实表，手工录入或导入）
+model DueDiligenceRequest {
+  id                         Int      @id @default(autoincrement())
+  partyId                    Int
+  title                      String
+  receivedAt                 DateTime?
+  status                     String   @default("draft")
+  defaultConfidentialityLevel Int      @default(2)
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @default(now()) @updatedAt
+
+  party      DueDiligenceParty @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  questions  DueDiligenceQuestion[]
+
+  @@index([partyId])
+  @@index([status])
+}
+
+/// 尽调问题（事实表，从问卷拆分）
+model DueDiligenceQuestion {
+  id           Int      @id @default(autoincrement())
+  requestId    Int
+  questionText String
+  categoryHint String?
+  answerDraft  String?
+  status       String   @default("draft")
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  request    DueDiligenceRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  materials  DueDiligenceMaterialSelection[]
+
+  @@index([requestId])
+  @@index([status])
+}
+
+/// 尽调材料推荐与选择（关联表：问题 ↔ 文档版本）
+/// 注意：documentVersionId 与 documentId 的一致性由 service 层校验保证。
+/// Prisma 不支持 nullable 字段参与复合 FK，因此 DB 层不强制 version 必须属于同一 document。
+/// 归档/确认操作前，service 必须验证：documentVersion.documentId == selection.documentId。
+model DueDiligenceMaterialSelection {
+  id                Int      @id @default(autoincrement())
+  questionId        Int
+  documentId        Int
+  documentVersionId Int?
+  matchScore        Float?
+  reason            String?
+  selected          Boolean  @default(false)
+  selectedBy        Int?
+  selectedAt        DateTime?
+
+  question          DueDiligenceQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  document          LibraryDocument      @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  documentVersion   LibraryDocumentVersion? @relation(fields: [documentVersionId], references: [id], onDelete: SetNull)
+
+  @@index([questionId])
+  @@index([documentId])
+}
+
+/// 自动生成来源预留表（配置表，Phase 6 启用）
+model LibraryGeneratedSource {
+  id                        Int      @id @default(autoincrement())
+  key                       String   @unique
+  name                      String
+  outputCategory            String?
+  defaultConfidentialityLevel Int      @default(2)
+  enabled                   Boolean  @default(false)
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @default(now()) @updatedAt
+
+  @@index([key])
+}

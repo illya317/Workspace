@@ -46,6 +46,9 @@ export const RES = {
   },
   library: {
     root: "library",
+    write: "library.write",
+    secret: "library.secret",
+    topSecret: "library.top_secret",
   },
   external: {
     root: "external",
@@ -82,7 +85,10 @@ export function normalizeRoleKey(roleKey: string): string {
 // ─── Fallback 常量：DB 未就绪时使用 ──
 export const RESOURCE_MAX_ROLE: Record<string, string> = {
   system: "admin",
-  library: "access",
+  library: "write",
+  "library.write": "write",
+  "library.secret": "access",
+  "library.top_secret": "access",
   docs: "access",
   external: "delete",
   production: "admin",

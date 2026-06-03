@@ -57,7 +57,10 @@ docs                access  文档中心
   docs.company      access  公司管理
   docs.expense      access  报销规范
 
-library             access  资料库
+library              write   资料库
+  library.write      write   资料库编辑
+  library.secret     access  保密资料
+  library.top_secret access  绝密资料
 
 external            delete  外部关系
   external.investor delete  投资人关系

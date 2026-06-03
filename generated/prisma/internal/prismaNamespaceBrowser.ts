@@ -79,9 +79,9 @@ export const ModelName = {
   FinanceReclassRule: 'FinanceReclassRule',
   FinanceReclassItemRule: 'FinanceReclassItemRule',
   FinanceBalanceReclassAdjustment: 'FinanceBalanceReclassAdjustment',
+  ReclassResult: 'ReclassResult',
   FinanceStatementAccountMapping: 'FinanceStatementAccountMapping',
   FinanceStatementLineConfig: 'FinanceStatementLineConfig',
-  ReclassResult: 'ReclassResult',
   FinanceStatementWorkpaper: 'FinanceStatementWorkpaper',
   FinanceStatementWorkpaperLine: 'FinanceStatementWorkpaperLine',
   FinanceStatementReview: 'FinanceStatementReview',
@@ -103,6 +103,13 @@ export const ModelName = {
   StockBatch: 'StockBatch',
   StockOperation: 'StockOperation',
   StockReturn: 'StockReturn',
+  LibraryDocument: 'LibraryDocument',
+  LibraryDocumentVersion: 'LibraryDocumentVersion',
+  DueDiligenceParty: 'DueDiligenceParty',
+  DueDiligenceRequest: 'DueDiligenceRequest',
+  DueDiligenceQuestion: 'DueDiligenceQuestion',
+  DueDiligenceMaterialSelection: 'DueDiligenceMaterialSelection',
+  LibraryGeneratedSource: 'LibraryGeneratedSource',
   Report: 'Report',
   ReportItem: 'ReportItem',
   ReportHistory: 'ReportHistory',
@@ -678,6 +685,25 @@ export const FinanceBalanceReclassAdjustmentScalarFieldEnum = {
 export type FinanceBalanceReclassAdjustmentScalarFieldEnum = (typeof FinanceBalanceReclassAdjustmentScalarFieldEnum)[keyof typeof FinanceBalanceReclassAdjustmentScalarFieldEnum]
 
 
+export const ReclassResultScalarFieldEnum = {
+  id: 'id',
+  periodId: 'periodId',
+  voucherItemId: 'voucherItemId',
+  ruleId: 'ruleId',
+  sourceAccount: 'sourceAccount',
+  targetAccount: 'targetAccount',
+  amount: 'amount',
+  status: 'status',
+  adjustedBy: 'adjustedBy',
+  adjustedAt: 'adjustedAt',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ReclassResultScalarFieldEnum = (typeof ReclassResultScalarFieldEnum)[keyof typeof ReclassResultScalarFieldEnum]
+
+
 export const FinanceStatementAccountMappingScalarFieldEnum = {
   id: 'id',
   companyCode: 'companyCode',
@@ -721,25 +747,6 @@ export const FinanceStatementLineConfigScalarFieldEnum = {
 } as const
 
 export type FinanceStatementLineConfigScalarFieldEnum = (typeof FinanceStatementLineConfigScalarFieldEnum)[keyof typeof FinanceStatementLineConfigScalarFieldEnum]
-
-
-export const ReclassResultScalarFieldEnum = {
-  id: 'id',
-  periodId: 'periodId',
-  voucherItemId: 'voucherItemId',
-  ruleId: 'ruleId',
-  sourceAccount: 'sourceAccount',
-  targetAccount: 'targetAccount',
-  amount: 'amount',
-  status: 'status',
-  adjustedBy: 'adjustedBy',
-  adjustedAt: 'adjustedAt',
-  note: 'note',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ReclassResultScalarFieldEnum = (typeof ReclassResultScalarFieldEnum)[keyof typeof ReclassResultScalarFieldEnum]
 
 
 export const FinanceStatementWorkpaperScalarFieldEnum = {
@@ -1140,6 +1147,129 @@ export const StockReturnScalarFieldEnum = {
 } as const
 
 export type StockReturnScalarFieldEnum = (typeof StockReturnScalarFieldEnum)[keyof typeof StockReturnScalarFieldEnum]
+
+
+export const LibraryDocumentScalarFieldEnum = {
+  id: 'id',
+  stableKey: 'stableKey',
+  rootKey: 'rootKey',
+  relativePath: 'relativePath',
+  fileName: 'fileName',
+  extension: 'extension',
+  mimeType: 'mimeType',
+  fileSizeBytes: 'fileSizeBytes',
+  fileMtime: 'fileMtime',
+  checksumSha256: 'checksumSha256',
+  categoryCode: 'categoryCode',
+  categoryName: 'categoryName',
+  subcategoryPath: 'subcategoryPath',
+  title: 'title',
+  summary: 'summary',
+  confidentialityLevel: 'confidentialityLevel',
+  status: 'status',
+  origin: 'origin',
+  generatorKey: 'generatorKey',
+  versionLabel: 'versionLabel',
+  gitRepo: 'gitRepo',
+  gitCommit: 'gitCommit',
+  gitPath: 'gitPath',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LibraryDocumentScalarFieldEnum = (typeof LibraryDocumentScalarFieldEnum)[keyof typeof LibraryDocumentScalarFieldEnum]
+
+
+export const LibraryDocumentVersionScalarFieldEnum = {
+  id: 'id',
+  documentId: 'documentId',
+  versionNo: 'versionNo',
+  relativePath: 'relativePath',
+  fileSizeBytes: 'fileSizeBytes',
+  fileMtime: 'fileMtime',
+  checksumSha256: 'checksumSha256',
+  gitCommit: 'gitCommit',
+  changeNote: 'changeNote',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryDocumentVersionScalarFieldEnum = (typeof LibraryDocumentVersionScalarFieldEnum)[keyof typeof LibraryDocumentVersionScalarFieldEnum]
+
+
+export const DueDiligencePartyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  contact: 'contact',
+  type: 'type',
+  ndaStatus: 'ndaStatus',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DueDiligencePartyScalarFieldEnum = (typeof DueDiligencePartyScalarFieldEnum)[keyof typeof DueDiligencePartyScalarFieldEnum]
+
+
+export const DueDiligenceRequestScalarFieldEnum = {
+  id: 'id',
+  partyId: 'partyId',
+  title: 'title',
+  receivedAt: 'receivedAt',
+  status: 'status',
+  defaultConfidentialityLevel: 'defaultConfidentialityLevel',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DueDiligenceRequestScalarFieldEnum = (typeof DueDiligenceRequestScalarFieldEnum)[keyof typeof DueDiligenceRequestScalarFieldEnum]
+
+
+export const DueDiligenceQuestionScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  questionText: 'questionText',
+  categoryHint: 'categoryHint',
+  answerDraft: 'answerDraft',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DueDiligenceQuestionScalarFieldEnum = (typeof DueDiligenceQuestionScalarFieldEnum)[keyof typeof DueDiligenceQuestionScalarFieldEnum]
+
+
+export const DueDiligenceMaterialSelectionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  documentId: 'documentId',
+  documentVersionId: 'documentVersionId',
+  matchScore: 'matchScore',
+  reason: 'reason',
+  selected: 'selected',
+  selectedBy: 'selectedBy',
+  selectedAt: 'selectedAt'
+} as const
+
+export type DueDiligenceMaterialSelectionScalarFieldEnum = (typeof DueDiligenceMaterialSelectionScalarFieldEnum)[keyof typeof DueDiligenceMaterialSelectionScalarFieldEnum]
+
+
+export const LibraryGeneratedSourceScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  name: 'name',
+  outputCategory: 'outputCategory',
+  defaultConfidentialityLevel: 'defaultConfidentialityLevel',
+  enabled: 'enabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LibraryGeneratedSourceScalarFieldEnum = (typeof LibraryGeneratedSourceScalarFieldEnum)[keyof typeof LibraryGeneratedSourceScalarFieldEnum]
 
 
 export const ReportScalarFieldEnum = {
