@@ -53,7 +53,7 @@ export function parsePageParams(
  */
 export function requireString(
   value: string | null | undefined,
-  name: string,
+  _name: string,
 ): string | null {
   if (!value || value.trim().length === 0) return null;
   return value.trim();

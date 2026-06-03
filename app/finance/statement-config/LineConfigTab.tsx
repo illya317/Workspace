@@ -54,6 +54,7 @@ export default function LineConfigTab() {
     setLoading(false);
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, [company, year]);
 
   async function saveMapping(accountCode: string, lineCode: string, operator: "add" | "subtract" | "exclude") {
@@ -118,7 +119,7 @@ export default function LineConfigTab() {
                 const inhAccts = inheritedByLine.get(l.lineCode) || [];
                 const ctxAcctCount = lineMappings.filter((m) => m.operator !== "exclude").length + inhAccts.length;
                 return (<Fragment key={l.lineCode}>
-                  <tr className="border-b cursor-pointer hover:bg-gray-50" onClick={() => { setExpanded((p) => { const n = new Set(p); n.has(l.lineCode) ? n.delete(l.lineCode) : n.add(l.lineCode); return n; }); }}>
+                  <tr className="border-b cursor-pointer hover:bg-gray-50" onClick={() => { setExpanded((p) => { const n = new Set(p); if (n.has(l.lineCode)) { n.delete(l.lineCode); } else { n.add(l.lineCode); } return n; }); }}>
                     <td className="px-2 py-1.5 text-gray-300 text-[10px]">{ctxAcctCount > 0 ? (isExp ? "▼" : "▶") : ""}</td>
                     <td className="px-2 py-1.5 font-medium text-gray-700">{l.label}</td>
                     <td className="px-2 py-1.5 text-gray-400 text-[11px]">{SECTIONS[l.section] || l.section}</td>

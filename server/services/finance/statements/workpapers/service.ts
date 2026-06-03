@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { loadIncomeStatementConfig, loadCashFlowConfig } from "../config/load-config-reports";
 import type { IncomeStatementLineRow, CashFlowLineRow } from "../config/load-config-reports";
 import type {
-  WorkpaperReportType, WorkpaperLineInput,
+  WorkpaperReportType,
   WorkpaperOutput, WorkpaperLineOutput,
   GetWorkpaperParams, SaveWorkpaperInput,
 } from "./types";

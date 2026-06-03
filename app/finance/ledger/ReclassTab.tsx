@@ -32,6 +32,7 @@ export default function ReclassTab() {
     setLoading(false);
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, [companyFilter, yearFilter, monthFilter]);
 
   const sideLabel = (s: string) => s === "asset" ? "资产→负债" : "负债→资产";

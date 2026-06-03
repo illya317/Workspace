@@ -29,7 +29,7 @@ const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2,
 
 export default function LedgerTab() {
   const [_periods, setPeriods] = useState<Period[]>([]);
-  const [selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
+  const [_selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
   const [balances, setBalances] = useState<Balance[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -83,23 +83,6 @@ export default function LedgerTab() {
     }
     setLoading(false);
   }, [companyFilter, yearFilter, monthFilter, page, pageSize]);
-
-  async function recalc() {
-    if (!selectedPeriodId) return;
-    if (!confirm("确定重新计算该期间余额？")) return;
-    const res = await fetch("/api/finance/balances", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ periodId: selectedPeriodId }),
-    });
-    if (res.ok) {
-      showToast("余额计算完成");
-      loadBalances();
-    } else {
-      const err = await res.json().catch(() => ({ error: "计算失败" }));
-      showToast(err.error || "计算失败", "error");
-    }
-  }
 
   useEffect(() => { loadBalances(); }, [loadBalances]);
 

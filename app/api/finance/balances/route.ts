@@ -33,7 +33,7 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const keyword = searchParams.get("keyword") || "";
   const skip = (page - 1) * pageSize;
 
-  const where: any = { periodId: targetPeriodId };
+  const where = { periodId: targetPeriodId! };
   const hasKeyword = !!keyword;
 
   if (hasKeyword) {

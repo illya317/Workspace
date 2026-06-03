@@ -77,6 +77,7 @@ export default function UnmappedTab() {
     setLoading(false);
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { load(); }, [company, year]);
 
   if (loading) return <p className="text-sm text-gray-400 py-8 text-center">加载中...</p>;

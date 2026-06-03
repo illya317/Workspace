@@ -27,7 +27,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
   const { toast, showToast, closeToast } = useToast();
-  const { reclassMap, allItems, handleReview, handleGenerate, adjustModal } =
+  const { allItems, handleReview, handleGenerate, adjustModal } =
     useReclassResults(companyFilter, yearFilter, monthFilter, showToast);
   const [viewMode, setViewMode] = useState<"vouchers" | "reclass">("vouchers");
   const [keyword, setKeyword] = useState("");
@@ -44,9 +44,9 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
   }, [companyFilter, yearFilter, monthFilter]);
 
   const reclassCounts = useMemo(() => {
-    const unconfigured = allItems.filter((r: any) => r.kind === "normal").length;
-    const configured = allItems.filter((r: any) => r.kind === "approved").length;
-    const adjusted = allItems.filter((r: any) => r.kind === "adjusted").length;
+    const unconfigured = allItems.filter((r) => r.kind === "normal").length;
+    const configured = allItems.filter((r) => r.kind === "approved").length;
+    const adjusted = allItems.filter((r) => r.kind === "adjusted").length;
     return { total: allItems.length, unconfigured, configured, adjusted };
   }, [allItems]);
 
@@ -79,8 +79,9 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
           const err = await res.json().catch(() => ({ error: "加载失败" }));
           if (!cancelled) showToast(err.error || "加载失败", "error");
         }
-      } catch (e: any) {
-        if (e?.name === "AbortError") return;
+      } catch (e: unknown) {
+        const err = e as Error;
+        if (err.name === "AbortError") return;
         if (!cancelled) showToast("网络错误", "error");
       }
       if (!cancelled) setLoading(false);

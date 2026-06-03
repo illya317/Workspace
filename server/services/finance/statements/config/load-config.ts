@@ -52,8 +52,8 @@ export async function loadBalanceSheetConfig(
         companyCode, year, reportType: "balanceSheet",
         lineCode: line.lineCode, label: line.label, displayCode: line.displayCode || "",
         section: line.section, side: line.side, sortOrder: order++,
-        prefixesJson: JSON.stringify((line as any).prefixes || []),
-        subtractPrefixesJson: JSON.stringify((line as any).subtractPrefixes || []),
+        prefixesJson: JSON.stringify(line.prefixes || []),
+        subtractPrefixesJson: JSON.stringify(line.subtractPrefixes || []),
         reclassSource: line.reclassSource || false,
         reclassTarget: line.reclassTarget || false,
         isHeader: line.isHeader || false,
@@ -70,13 +70,14 @@ export async function loadBalanceSheetConfig(
   return seeded.map(toLineConfig);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function toLineConfig(db: any): BalanceSheetLineConfig {
   return {
     lineCode: db.lineCode,
     label: db.label,
     displayCode: db.displayCode || "",
-    section: db.section as any,
-    side: db.side as any,
+    section: db.section,
+    side: db.side,
     isHeader: db.isHeader,
     isTotal: db.isTotal,
     isGrandTotal: db.isGrandTotal,

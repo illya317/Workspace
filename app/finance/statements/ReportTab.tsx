@@ -34,7 +34,7 @@ export default function ReportTab() {
   const [reportType, setReportType] = useState<"balance" | "income" | "cashflow">(
     rtFromQuery && RT_SET.has(rtFromQuery) ? rtFromQuery as "balance" | "income" | "cashflow" : "balance",
   );
-  const [periods, setPeriods] = useState<Period[]>([]);
+  const [_periods, setPeriods] = useState<Period[]>([]);
   const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(false);
   const [expandedCodes, setExpandedCodes] = useState<Set<string>>(new Set());

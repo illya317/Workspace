@@ -48,6 +48,8 @@ export default function SearchBox<T = unknown>({
   onQueryChange,
   query: controlledQuery,
 }: Props<T>) {
+  const searchState = useSearch<T>(config ?? { target: "employee" });
+
   // Compact mode: just a controlled input
   if (compact) {
     return (
@@ -66,7 +68,7 @@ export default function SearchBox<T = unknown>({
     results, loading,
     showDropdown, setShowDropdown,
     filterValues, setFilter,
-  } = useSearch<T>(config!);
+  } = searchState;
 
   const hasFilters = config?.filters && Object.values(config.filters).some(Boolean);
   const opts = config?.filterOptions || {};

@@ -15,6 +15,7 @@ export async function PATCH(
     const { id } = await params;
     const resultId = parseInt(id, 10);
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let body: any;
     try {
       body = await req.json();

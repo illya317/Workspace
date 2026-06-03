@@ -2,7 +2,6 @@
 import { prisma } from "@/lib/prisma";
 import type { BalanceItem, ReclassEntry, ReportPeriod } from "./report-helpers";
 import { reclassifyFromEntries } from "./report-helpers";
-import type { BalanceSheetLineConfig } from "./config/balance-sheet-lines";
 import { loadBalanceSheetConfig } from "./config/load-config";
 import { computeBalanceSheet } from "./compute-balance-sheet";
 import { aggregateMappingBasedBalances } from "./mapping-based-balances";

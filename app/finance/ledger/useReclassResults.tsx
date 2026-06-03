@@ -37,6 +37,7 @@ export function useReclassResults(companyCode: string, year: string, month: stri
       // Also load all voucher items for "全部" tab
       await loadAllItemsForPeriod(periodId);
     } catch { /* ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyCode, year, month]);
 
   async function loadAllItemsForPeriod(periodId: number) {

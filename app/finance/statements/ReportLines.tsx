@@ -1,7 +1,5 @@
 "use client";
 
-import { useCallback } from "react";
-
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export interface ReportLine {

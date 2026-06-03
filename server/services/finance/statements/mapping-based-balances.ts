@@ -155,7 +155,6 @@ export async function aggregateMappingBasedBalances(
       const rp = buildResidualParent(r, lineCode, ownByCode, childrenOfId);
       if (rp) residualParents.push(rp);
     } else {
-      const own = ownByCode.get(r.code);
       unresolved.push({
         accountCode: r.code,
         accountName: r.name,
@@ -210,7 +209,7 @@ function applyContribution(
 
 /** Assemble a ResidualParent diagnostic for a non-leaf residual. */
 function buildResidualParent(r: { code: string; name: string; debit: number; credit: number },
-  lineCode: string, ownByCode: Map<string, any>, childrenOfId: Map<number, string[]>): ResidualParent | null {
+  lineCode: string, ownByCode: Map<string, { id: number; debit: number; credit: number }>, childrenOfId: Map<number, string[]>): ResidualParent | null {
   const own = ownByCode.get(r.code)!;
   const childCodes = childrenOfId.get(own.id) || [];
   if (childCodes.length === 0) return null;

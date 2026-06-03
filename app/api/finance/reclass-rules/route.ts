@@ -36,16 +36,6 @@ export const GET = withFinanceLedgerAccess(async (request: Request) => {
 
 // ─── PUT: 创建或更新规则 ──────────────────────────────────
 
-const PUT_BODY_KEYS = [
-  "companyCode",
-  "year",
-  "sourceAccountCode",
-  "abnormalSide",
-  "targetAccountCode",
-  "enabled",
-  "note",
-] as const;
-
 export const PUT = withFinanceLedgerWrite(async (request: Request) => {
   const body = await request.json().catch(() => null);
   if (!body || typeof body !== "object") {

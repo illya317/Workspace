@@ -26,12 +26,12 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
   const filtered = useMemo(() => {
     const list = items.filter((r) => {
       if (statusFilter === "all") return true;
-      if (statusFilter === "unconfigured") return (r as any).kind === "normal";
-      if (statusFilter === "configured") return (r as any).kind === "approved";
-      if (statusFilter === "adjusted") return (r as any).kind === "adjusted";
+      if (statusFilter === "unconfigured") return r.kind === "normal";
+      if (statusFilter === "configured") return r.kind === "approved";
+      if (statusFilter === "adjusted") return r.kind === "adjusted";
       // legacy: pending → treat as unconfigured; confirmed → treat as configured
-      if (statusFilter === "pending") return (r as any).kind === "pending";
-      if (statusFilter === "confirmed") return (r as any).kind !== "pending";
+      if (statusFilter === "pending") return r.kind === "pending";
+      if (statusFilter === "confirmed") return r.kind !== "pending";
       return true;
     });
     const cmp = sortDir === "asc" ? 1 : -1;
@@ -64,13 +64,13 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
           </thead>
           <tbody>
             {filtered.map((r) => {
-              const kind = (r as any).kind as string || "normal";
+              const kind = r.kind as string || "normal";
               const isNormal = kind === "normal";
               const isAdjusted = kind === "adjusted";
               const isAbnormal = !isNormal;
               const itemSide = r.itemDebit > 0 ? "debit" : r.itemCredit > 0 ? "credit" : null;
               const itemAmount = r.itemDebit || r.itemCredit || 0;
-              const displayTarget = (r as any).suggestedTarget || r.targetAccount;
+              const displayTarget = r.suggestedTarget || r.targetAccount;
               const hasTarget = !!displayTarget;
               return (
               <tr key={`${r.voucherItemId}-${r.voucherNo}`} className="border-b last:border-0">

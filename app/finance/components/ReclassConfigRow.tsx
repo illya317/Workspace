@@ -2,7 +2,7 @@
 
 import type { RuleCandidate } from "@/server/services/finance/ledger/reclass-rules";
 import AccountCodeInput from "./AccountCodeInput";
-import { dirBadge, targetDisplay } from "../ledger/reclassColumns";
+import { targetDisplay } from "../ledger/reclassColumns";
 
 interface Props {
   c: RuleCandidate;

@@ -74,7 +74,6 @@ export function yearlyCurrentLeaf(yearBalances: BalanceItem[], prefixes: string[
 
 /** closingNetLeaf but only summing debit positions (for asset reclassification) */
 export function closingNetLeafDebitOnly(balances: BalanceItem[], prefixes: string[]) {
-  const { debit } = closingNetLeaf(balances, prefixes);
   // Only count accounts with net debit position
   const matched = new Set<string>();
   for (const b of balances) {

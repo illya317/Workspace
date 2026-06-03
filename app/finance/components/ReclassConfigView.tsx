@@ -23,7 +23,7 @@ interface Props {
 export default function ReclassCandidateList({
   companyCode, year, keyword = "", statusFilter = "hasRule", pageSize = 50, canWrite, onStats,
 }: Props) {
-  const [scanned, setScanned] = useState<RuleCandidate[]>([]);
+  const [_scanned, setScanned] = useState<RuleCandidate[]>([]);
   const [allAccounts, setAllAccounts] = useState<RuleCandidate[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -60,7 +60,7 @@ export default function ReclassCandidateList({
       const s: RuleCandidate[] = scanData.candidates || [];
       setScanned(s);
 
-      let all: RuleCandidate[] = [...s];
+      const all: RuleCandidate[] = [...s];
       if (accRes.ok) {
         const ad = await accRes.json();
         const accounts = (ad.data || ad.accounts || []) as { code: string; name: string; balanceDirection: string }[];
@@ -76,8 +76,8 @@ export default function ReclassCandidateList({
     } catch { showToast("网络错误", "error"); }
     setLoading(false);
   }
-  useEffect(() => { load(); setPage(1); }, [companyCode, year]);
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load(); setPage(1); }, [companyCode, year]);
 
   // ── Actions ──────────────────────────────────────────
 

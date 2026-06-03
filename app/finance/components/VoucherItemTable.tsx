@@ -1,6 +1,6 @@
 "use client";
 
-import DataTable, { type DataTableColumn, getDefaultVisibleColumns } from "@/app/components/DataTable";
+import { type DataTableColumn, getDefaultVisibleColumns } from "@/app/components/DataTable";
 
 interface VoucherItem {
   id: number;
