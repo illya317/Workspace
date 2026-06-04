@@ -31,6 +31,9 @@ export function safeResolve(relativePath: string, root?: string): string | null 
   const base = root || getDefaultRoot();
   if (!base) return null;
 
+  // 空路径直接返回 base（用于 scan 验证 root 自身）
+  if (!relativePath) return path.resolve(base);
+
   // 规范化：去除 .. 和多余的 /
   const resolved = path.resolve(base, relativePath);
 
