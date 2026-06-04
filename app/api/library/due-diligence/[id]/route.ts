@@ -20,7 +20,7 @@ export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
   return NextResponse.json(req);
 });
 
-const VALID_STATUSES = ["draft", "reviewing", "approved", "provided", "cancelled"];
+const VALID_STATUSES = ["draft", "reviewing", "approved", "cancelled"];
 
 export const PATCH = withLibraryWrite(async (request: Request, _user, ctx?: RouteContext) => {
   const id = await parseId(ctx);

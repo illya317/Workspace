@@ -1179,6 +1179,8 @@
 | receivedAt | DateTime? | - |  |
 | status | String | @default("draft") |  |
 | defaultConfidentialityLevel | Int | @default(2) |  |
+| archivedAt | DateTime? | - |  |
+| archivedBy | Int? | - |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | party | DueDiligenceParty | @relation(fields: [partyId], references: [id], onDelete: Cascade) |  |
