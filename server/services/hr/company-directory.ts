@@ -106,7 +106,11 @@ export async function loadCompanyMap(): Promise<
 export function resolveCompanyCode(map: Map<string, unknown>, code: string): string {
   if (!code) return code;
   if (map.has(code)) return code;
-  // Find longest known prefix from map keys (e.g. "011" beats "01" for "01123")
+  // 1) Split by common separators and match each part (e.g. GW-01-01 → 01)
+  for (const part of code.split(/[-_/]/)) {
+    if (map.has(part)) return part;
+  }
+  // 2) Fallback: find longest known prefix from map keys (e.g. "011" beats "01" for "01123")
   let best = "";
   for (const key of map.keys()) {
     if (typeof key === "string" && code.startsWith(key) && key.length > best.length) {
