@@ -13,13 +13,22 @@ export function getVal(obj: unknown, path: string): unknown {
 
 function renderCell(item: Record<string, unknown>, field: FieldConfig, config: TabConfig): string {
   if (field.key === "gender") return item.gender === true ? "男" : item.gender === false ? "女" : "-";
-  if (field.key === "isActive") return item.isActive === true ? "在职" : item.isActive === false ? "离职" : "-";
   if (field.key === "level") {
     const map: Record<number, string> = { 1: "事业部", 2: "部门", 3: "子部门" };
     const level = item.level as number;
     return map[level] ?? String(level);
   }
-  if (field.type === "boolean") return item[field.key] ? "是" : "否";
+  if (field.type === "boolean") {
+    const labels = field.booleanLabels;
+    if (item[field.key] === true) return labels?.true ?? "是";
+    if (item[field.key] === false) return labels?.false ?? "否";
+    return "-";
+  }
+  if (field.type === "select" && field.options) {
+    const v = item[field.key];
+    const found = field.options.find((o) => o.value === String(v ?? ""));
+    return found?.label ?? String(v ?? "-");
+  }
   if (field.type === "fk" && config.fkFields?.[field.key]) {
     const v = field.displayField
       ? getVal(item, field.displayField)

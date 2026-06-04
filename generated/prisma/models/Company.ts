@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Company
- * 公司实体
+ * 公司实体（唯一真相源：编码/名称/管理体系/编码池/启用状态）
  */
 export type CompanyModel = runtime.Types.Result.DefaultSelection<Prisma.$CompanyPayload>
 
@@ -28,7 +28,6 @@ export type AggregateCompany = {
 
 export type CompanyAvgAggregateOutputType = {
   id: number | null
-  queryGroup: number | null
   sortOrder: number | null
   editedBy: number | null
   version: number | null
@@ -36,7 +35,6 @@ export type CompanyAvgAggregateOutputType = {
 
 export type CompanySumAggregateOutputType = {
   id: number | null
-  queryGroup: number | null
   sortOrder: number | null
   editedBy: number | null
   version: number | null
@@ -53,7 +51,9 @@ export type CompanyMinAggregateOutputType = {
   registeredAddress: string | null
   registeredDate: string | null
   legalPerson: string | null
-  queryGroup: number | null
+  managementGroup: string | null
+  codePoolCode: string | null
+  isActive: boolean | null
   sortOrder: number | null
   editedBy: number | null
   editedAt: Date | null
@@ -73,7 +73,9 @@ export type CompanyMaxAggregateOutputType = {
   registeredAddress: string | null
   registeredDate: string | null
   legalPerson: string | null
-  queryGroup: number | null
+  managementGroup: string | null
+  codePoolCode: string | null
+  isActive: boolean | null
   sortOrder: number | null
   editedBy: number | null
   editedAt: Date | null
@@ -93,7 +95,9 @@ export type CompanyCountAggregateOutputType = {
   registeredAddress: number
   registeredDate: number
   legalPerson: number
-  queryGroup: number
+  managementGroup: number
+  codePoolCode: number
+  isActive: number
   sortOrder: number
   editedBy: number
   editedAt: number
@@ -106,7 +110,6 @@ export type CompanyCountAggregateOutputType = {
 
 export type CompanyAvgAggregateInputType = {
   id?: true
-  queryGroup?: true
   sortOrder?: true
   editedBy?: true
   version?: true
@@ -114,7 +117,6 @@ export type CompanyAvgAggregateInputType = {
 
 export type CompanySumAggregateInputType = {
   id?: true
-  queryGroup?: true
   sortOrder?: true
   editedBy?: true
   version?: true
@@ -131,7 +133,9 @@ export type CompanyMinAggregateInputType = {
   registeredAddress?: true
   registeredDate?: true
   legalPerson?: true
-  queryGroup?: true
+  managementGroup?: true
+  codePoolCode?: true
+  isActive?: true
   sortOrder?: true
   editedBy?: true
   editedAt?: true
@@ -151,7 +155,9 @@ export type CompanyMaxAggregateInputType = {
   registeredAddress?: true
   registeredDate?: true
   legalPerson?: true
-  queryGroup?: true
+  managementGroup?: true
+  codePoolCode?: true
+  isActive?: true
   sortOrder?: true
   editedBy?: true
   editedAt?: true
@@ -171,7 +177,9 @@ export type CompanyCountAggregateInputType = {
   registeredAddress?: true
   registeredDate?: true
   legalPerson?: true
-  queryGroup?: true
+  managementGroup?: true
+  codePoolCode?: true
+  isActive?: true
   sortOrder?: true
   editedBy?: true
   editedAt?: true
@@ -278,7 +286,9 @@ export type CompanyGroupByOutputType = {
   registeredAddress: string | null
   registeredDate: string | null
   legalPerson: string | null
-  queryGroup: number | null
+  managementGroup: string
+  codePoolCode: string | null
+  isActive: boolean
   sortOrder: number
   editedBy: number | null
   editedAt: Date | null
@@ -321,7 +331,9 @@ export type CompanyWhereInput = {
   registeredAddress?: Prisma.StringNullableFilter<"Company"> | string | null
   registeredDate?: Prisma.StringNullableFilter<"Company"> | string | null
   legalPerson?: Prisma.StringNullableFilter<"Company"> | string | null
-  queryGroup?: Prisma.IntNullableFilter<"Company"> | number | null
+  managementGroup?: Prisma.StringFilter<"Company"> | string
+  codePoolCode?: Prisma.StringNullableFilter<"Company"> | string | null
+  isActive?: Prisma.BoolFilter<"Company"> | boolean
   sortOrder?: Prisma.IntFilter<"Company"> | number
   editedBy?: Prisma.IntNullableFilter<"Company"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Company"> | Date | string | null
@@ -343,7 +355,9 @@ export type CompanyOrderByWithRelationInput = {
   registeredAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   registeredDate?: Prisma.SortOrderInput | Prisma.SortOrder
   legalPerson?: Prisma.SortOrderInput | Prisma.SortOrder
-  queryGroup?: Prisma.SortOrderInput | Prisma.SortOrder
+  managementGroup?: Prisma.SortOrder
+  codePoolCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -368,7 +382,9 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   registeredAddress?: Prisma.StringNullableFilter<"Company"> | string | null
   registeredDate?: Prisma.StringNullableFilter<"Company"> | string | null
   legalPerson?: Prisma.StringNullableFilter<"Company"> | string | null
-  queryGroup?: Prisma.IntNullableFilter<"Company"> | number | null
+  managementGroup?: Prisma.StringFilter<"Company"> | string
+  codePoolCode?: Prisma.StringNullableFilter<"Company"> | string | null
+  isActive?: Prisma.BoolFilter<"Company"> | boolean
   sortOrder?: Prisma.IntFilter<"Company"> | number
   editedBy?: Prisma.IntNullableFilter<"Company"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Company"> | Date | string | null
@@ -390,7 +406,9 @@ export type CompanyOrderByWithAggregationInput = {
   registeredAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   registeredDate?: Prisma.SortOrderInput | Prisma.SortOrder
   legalPerson?: Prisma.SortOrderInput | Prisma.SortOrder
-  queryGroup?: Prisma.SortOrderInput | Prisma.SortOrder
+  managementGroup?: Prisma.SortOrder
+  codePoolCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -418,7 +436,9 @@ export type CompanyScalarWhereWithAggregatesInput = {
   registeredAddress?: Prisma.StringNullableWithAggregatesFilter<"Company"> | string | null
   registeredDate?: Prisma.StringNullableWithAggregatesFilter<"Company"> | string | null
   legalPerson?: Prisma.StringNullableWithAggregatesFilter<"Company"> | string | null
-  queryGroup?: Prisma.IntNullableWithAggregatesFilter<"Company"> | number | null
+  managementGroup?: Prisma.StringWithAggregatesFilter<"Company"> | string
+  codePoolCode?: Prisma.StringNullableWithAggregatesFilter<"Company"> | string | null
+  isActive?: Prisma.BoolWithAggregatesFilter<"Company"> | boolean
   sortOrder?: Prisma.IntWithAggregatesFilter<"Company"> | number
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"Company"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Company"> | Date | string | null
@@ -437,7 +457,9 @@ export type CompanyCreateInput = {
   registeredAddress?: string | null
   registeredDate?: string | null
   legalPerson?: string | null
-  queryGroup?: number | null
+  managementGroup?: string
+  codePoolCode?: string | null
+  isActive?: boolean
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -459,7 +481,9 @@ export type CompanyUncheckedCreateInput = {
   registeredAddress?: string | null
   registeredDate?: string | null
   legalPerson?: string | null
-  queryGroup?: number | null
+  managementGroup?: string
+  codePoolCode?: string | null
+  isActive?: boolean
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -480,7 +504,9 @@ export type CompanyUpdateInput = {
   registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  queryGroup?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -502,7 +528,9 @@ export type CompanyUncheckedUpdateInput = {
   registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  queryGroup?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -524,7 +552,9 @@ export type CompanyCreateManyInput = {
   registeredAddress?: string | null
   registeredDate?: string | null
   legalPerson?: string | null
-  queryGroup?: number | null
+  managementGroup?: string
+  codePoolCode?: string | null
+  isActive?: boolean
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -543,7 +573,9 @@ export type CompanyUpdateManyMutationInput = {
   registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  queryGroup?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -563,7 +595,9 @@ export type CompanyUncheckedUpdateManyInput = {
   registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  queryGroup?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -583,7 +617,9 @@ export type CompanyCountOrderByAggregateInput = {
   registeredAddress?: Prisma.SortOrder
   registeredDate?: Prisma.SortOrder
   legalPerson?: Prisma.SortOrder
-  queryGroup?: Prisma.SortOrder
+  managementGroup?: Prisma.SortOrder
+  codePoolCode?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -594,7 +630,6 @@ export type CompanyCountOrderByAggregateInput = {
 
 export type CompanyAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  queryGroup?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -611,7 +646,9 @@ export type CompanyMaxOrderByAggregateInput = {
   registeredAddress?: Prisma.SortOrder
   registeredDate?: Prisma.SortOrder
   legalPerson?: Prisma.SortOrder
-  queryGroup?: Prisma.SortOrder
+  managementGroup?: Prisma.SortOrder
+  codePoolCode?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -631,7 +668,9 @@ export type CompanyMinOrderByAggregateInput = {
   registeredAddress?: Prisma.SortOrder
   registeredDate?: Prisma.SortOrder
   legalPerson?: Prisma.SortOrder
-  queryGroup?: Prisma.SortOrder
+  managementGroup?: Prisma.SortOrder
+  codePoolCode?: Prisma.SortOrder
+  isActive?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -642,7 +681,6 @@ export type CompanyMinOrderByAggregateInput = {
 
 export type CompanySumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  queryGroup?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -691,7 +729,9 @@ export type CompanyCreateWithoutChildOfRelationsInput = {
   registeredAddress?: string | null
   registeredDate?: string | null
   legalPerson?: string | null
-  queryGroup?: number | null
+  managementGroup?: string
+  codePoolCode?: string | null
+  isActive?: boolean
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -712,7 +752,9 @@ export type CompanyUncheckedCreateWithoutChildOfRelationsInput = {
   registeredAddress?: string | null
   registeredDate?: string | null
   legalPerson?: string | null
-  queryGroup?: number | null
+  managementGroup?: string
+  codePoolCode?: string | null
+  isActive?: boolean
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -737,7 +779,9 @@ export type CompanyCreateWithoutParentOfRelationsInput = {
   registeredAddress?: string | null
   registeredDate?: string | null
   legalPerson?: string | null
-  queryGroup?: number | null
+  managementGroup?: string
+  codePoolCode?: string | null
+  isActive?: boolean
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -758,7 +802,9 @@ export type CompanyUncheckedCreateWithoutParentOfRelationsInput = {
   registeredAddress?: string | null
   registeredDate?: string | null
   legalPerson?: string | null
-  queryGroup?: number | null
+  managementGroup?: string
+  codePoolCode?: string | null
+  isActive?: boolean
   sortOrder?: number
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -794,7 +840,9 @@ export type CompanyUpdateWithoutChildOfRelationsInput = {
   registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  queryGroup?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -815,7 +863,9 @@ export type CompanyUncheckedUpdateWithoutChildOfRelationsInput = {
   registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  queryGroup?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -846,7 +896,9 @@ export type CompanyUpdateWithoutParentOfRelationsInput = {
   registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  queryGroup?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -867,7 +919,9 @@ export type CompanyUncheckedUpdateWithoutParentOfRelationsInput = {
   registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  queryGroup?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -928,7 +982,9 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   registeredAddress?: boolean
   registeredDate?: boolean
   legalPerson?: boolean
-  queryGroup?: boolean
+  managementGroup?: boolean
+  codePoolCode?: boolean
+  isActive?: boolean
   sortOrder?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -951,7 +1007,9 @@ export type CompanySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   registeredAddress?: boolean
   registeredDate?: boolean
   legalPerson?: boolean
-  queryGroup?: boolean
+  managementGroup?: boolean
+  codePoolCode?: boolean
+  isActive?: boolean
   sortOrder?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -971,7 +1029,9 @@ export type CompanySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   registeredAddress?: boolean
   registeredDate?: boolean
   legalPerson?: boolean
-  queryGroup?: boolean
+  managementGroup?: boolean
+  codePoolCode?: boolean
+  isActive?: boolean
   sortOrder?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -991,7 +1051,9 @@ export type CompanySelectScalar = {
   registeredAddress?: boolean
   registeredDate?: boolean
   legalPerson?: boolean
-  queryGroup?: boolean
+  managementGroup?: boolean
+  codePoolCode?: boolean
+  isActive?: boolean
   sortOrder?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -1000,7 +1062,7 @@ export type CompanySelectScalar = {
   updatedAt?: boolean
 }
 
-export type CompanyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "fullName" | "registeredCapital" | "unifiedCode" | "bankName" | "registeredAddress" | "registeredDate" | "legalPerson" | "queryGroup" | "sortOrder" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
+export type CompanyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "fullName" | "registeredCapital" | "unifiedCode" | "bankName" | "registeredAddress" | "registeredDate" | "legalPerson" | "managementGroup" | "codePoolCode" | "isActive" | "sortOrder" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["company"]>
 export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   childOfRelations?: boolean | Prisma.Company$childOfRelationsArgs<ExtArgs>
   parentOfRelations?: boolean | Prisma.Company$parentOfRelationsArgs<ExtArgs>
@@ -1026,7 +1088,9 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     registeredAddress: string | null
     registeredDate: string | null
     legalPerson: string | null
-    queryGroup: number | null
+    managementGroup: string
+    codePoolCode: string | null
+    isActive: boolean
     sortOrder: number
     editedBy: number | null
     editedAt: Date | null
@@ -1468,7 +1532,9 @@ export interface CompanyFieldRefs {
   readonly registeredAddress: Prisma.FieldRef<"Company", 'String'>
   readonly registeredDate: Prisma.FieldRef<"Company", 'String'>
   readonly legalPerson: Prisma.FieldRef<"Company", 'String'>
-  readonly queryGroup: Prisma.FieldRef<"Company", 'Int'>
+  readonly managementGroup: Prisma.FieldRef<"Company", 'String'>
+  readonly codePoolCode: Prisma.FieldRef<"Company", 'String'>
+  readonly isActive: Prisma.FieldRef<"Company", 'Boolean'>
   readonly sortOrder: Prisma.FieldRef<"Company", 'Int'>
   readonly editedBy: Prisma.FieldRef<"Company", 'Int'>
   readonly editedAt: Prisma.FieldRef<"Company", 'DateTime'>

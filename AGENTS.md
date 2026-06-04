@@ -174,8 +174,9 @@ Company → Department → PositionDescription → Position → Employee → Emp
 
 ## 公司分组
 
-- **体系判断**：通过 code 前缀，`isPharma(code)`（startsWith "PPA" / "04"）→ GMP/丰华制药，其余 → 常规体系/丰华生物。所有判断从 `lib/company.ts` 导入，禁止硬编码。
-- **常量**：`CODE_TO_NAME`, `FENGHUA_BIO_GROUP`, `SHARED_GROUP_CODES`, `isPharma`, `isBio`
+- **公司事实来源**：公司名称、编码、管理体系、查询分组、共享编码池等来自 `Company` 表；seed/migration 只负责初始化事实数据。
+- **查询封装**：公司相关判断必须通过领域 service/helper 从 DB 派生，禁止在调用方复制公司映射、分组数组或特殊判断。
+- **通用框架约束**：公司专有事实禁止硬编码在 `app/`、`server/`、`lib/`、`scripts/` 中，包括具体公司名、公司编码、管理体系、查询分组、共享编码池、特殊公司判断。此类信息必须来自 `Company` 表（或 seed/migration 的输入数据），业务代码只允许通过领域 service/helper 查询和派生。
 
 ## 编码规则
 
@@ -201,7 +202,7 @@ Company → Department → PositionDescription → Position → Employee → Emp
 **规范**:
 - 确认弹框 → `<ConfirmModal>`，禁止 `window.confirm`
 - 通知 → `useToast()`，禁止裸 `setTimeout`
-- 公司名/编码 → `lib/company` 导入，禁止硬编码
+- 公司名/编码/管理体系 → 通过 API 或领域 service/helper 获取，禁止硬编码
 - API 鉴权 → `lib/auth.ts`
 - 搜索 → `useSearch` hook 或 `<SearchBox>` 组件
 - 当前用户类型 → `import { SessionUser } from "@/lib/types"`，禁止页面内重复定义 `interface User`
@@ -216,7 +217,7 @@ Company → Department → PositionDescription → Position → Employee → Emp
 
 | 模块 | 用途 | 关键导出 |
 |------|------|----------|
-| `lib/company.ts` | 公司常量/分组/体系判断 | `CODE_TO_NAME`, `FENGHUA_BIO_GROUP`, `SHARED_GROUP_CODES`, `resolveCompanyFilter`, `isPharma`, `isBio` |
+| `server/services/hr/company-directory.ts` | 公司事实查询/分组/体系判断 | 从 `Company` 表派生公司名、编码池、管理体系、查询分组 |
 | `lib/types.ts` | 共享类型 | `SessionUser`（当前用户，全站统一，禁止各处重复定义） |
 | `lib/security.ts` | 登录安全 | `checkBruteForce`, `recordAttempt` |
 | `lib/search.ts` | 拼音搜索 | `getInitials`, `matchEmployee` |

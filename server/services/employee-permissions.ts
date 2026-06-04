@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { isPharma } from "@/lib/company";
+import { loadCompanyMap, isPharmaSync } from "@/server/services/hr/company-directory";
 
 interface EmployeeRole {
   company: string | null;
@@ -52,6 +52,8 @@ export async function getEmployeesWithPermissions(): Promise<EmployeePermission[
     { employeeId: string; name: string; roles: EmployeeRole[] }
   >();
 
+  const companyMap = await loadCompanyMap();
+
   for (const emp of employees) {
     const key = emp.employeeId;
     if (!mergedMap.has(key)) {
@@ -62,7 +64,7 @@ export async function getEmployeesWithPermissions(): Promise<EmployeePermission[
       item.roles.push({ company: null, dept1: null, position: null });
     } else {
       for (const pos of emp.positions) {
-        const company: string | null = isPharma(pos.department?.code || "") ? "丰华制药" : "丰华生物";
+        const company: string | null = isPharmaSync(companyMap, pos.department?.code || "") ? "丰华制药" : "丰华生物";
         item.roles.push({
           company,
           dept1: pos.department?.name || null,

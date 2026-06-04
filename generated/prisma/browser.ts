@@ -219,7 +219,7 @@ export type Employee = Prisma.EmployeeModel
 export type Employment = Prisma.EmploymentModel
 /**
  * Model Company
- * 公司实体
+ * 公司实体（唯一真相源：编码/名称/管理体系/编码池/启用状态）
  */
 export type Company = Prisma.CompanyModel
 /**

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { CODE_TO_NAME } from "@/lib/company";
+import { getCompanyNameByCode } from "@/server/services/hr/company-directory";
 import {
   type ComputedBalance,
   type SideBalance,
@@ -26,7 +26,7 @@ export async function computeBalancesForPeriod(periodId: number) {
   // 查找 active baseline year
   const baselineYear = await findActiveBaselineYear(targetPeriod.companyCode, targetPeriod.year);
   if (!baselineYear) {
-    const companyName = CODE_TO_NAME[targetPeriod.companyCode] || targetPeriod.companyCode;
+    const companyName = await getCompanyNameByCode(targetPeriod.companyCode);
     throw new Error(`请先为${companyName}导入年度余额表作为 active baseline`);
   }
 

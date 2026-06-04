@@ -1,14 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
-import { SHARED_GROUP_CODES } from "@/lib/company";
+import { getCodePoolCode } from "@/server/services/hr/company-directory";
 
-function normalizeCompany(company: string): string {
-  if (SHARED_GROUP_CODES.includes(company)) return "01";
-  return company;
-}
-
-function buildFullCode(code: string, company: string): string {
-  const normalized = normalizeCompany(company);
+async function buildFullCode(code: string, company: string): Promise<string> {
+  const normalized = await getCodePoolCode(company);
   if (code.length <= 3) {
     return normalized + code.padStart(3, "0");
   }
@@ -70,7 +65,7 @@ export async function upsertPositionCode(
   userId: number
 ) {
   const { code, name, company, originalCode, departmentCode } = body;
-  const finalCode = buildFullCode(code, company || "");
+  const finalCode = await buildFullCode(code, company || "");
 
   return prisma.$transaction(async (tx) => {
     if (originalCode && originalCode !== finalCode) {

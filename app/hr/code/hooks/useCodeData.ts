@@ -1,16 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { NAME_TO_CODE, resolveCompanyFilter } from "@/lib/company";
 import type { Employee, CodeItem } from "../types";
-
-const PREFIX_TO_COMPANIES: Record<string, string[]> = {
-  "01": ["丰华生物", "丰华天力通", "丰华悦通", "加拿大"],
-  "02": ["丰华生物", "丰华天力通", "丰华悦通", "加拿大"],
-  "03": ["丰华生物", "丰华天力通", "丰华悦通", "加拿大"],
-  "04": ["丰华制药"],
-  "05": ["丰华生物", "丰华天力通", "丰华悦通", "加拿大"],
-};
 
 export function useCodeData({
   type,
@@ -27,12 +18,30 @@ export function useCodeData({
   const [codes, setCodes] = useState<CodeItem[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [companies, setCompanies] = useState<Array<{ code: string; name: string; managementGroup: string; codePoolCode: string | null }>>([]);
+
+  useEffect(() => {
+    fetch("/api/hr/companies?active=1")
+      .then((r) => r.json())
+      .then((data) => setCompanies(data.companies || []))
+      .catch(() => {});
+  }, []);
+
+  const prefixToCompanies = useMemo(() => {
+    const result: Record<string, string[]> = {};
+    for (const c of companies) {
+      const pool = c.codePoolCode || c.code;
+      if (!result[pool]) result[pool] = [];
+      result[pool].push(c.name);
+    }
+    return result;
+  }, [companies]);
 
   const stats = useMemo(() => {
     const map: Record<string, number> = {};
     for (const c of codes) {
       const prefix = c.code.slice(0, 2);
-      const allowedCompanies = PREFIX_TO_COMPANIES[prefix] || [];
+      const allowedCompanies = prefixToCompanies[prefix] || [];
       const companyEmps = employees.filter((e) =>
         allowedCompanies.includes(e.company || "")
       );
@@ -53,15 +62,21 @@ export function useCodeData({
       }
     }
     return map;
-  }, [codes, employees, type]);
+  }, [codes, employees, type, prefixToCompanies]);
 
   const load = useCallback(async () => {
     setLoading(true);
+    const resolveCodes = (selected: string): string[] => {
+      if (selected === "全部") return companies.map((c) => c.code);
+      const c = companies.find((x) => x.name === selected);
+      if (!c) return [];
+      if (c.managementGroup === "GMP") {
+        return companies.filter((x) => x.managementGroup === "GMP").map((x) => x.code);
+      }
+      return companies.filter((x) => x.managementGroup !== "GMP").map((x) => x.code);
+    };
     const codesParam = selectedCompany
-      ? resolveCompanyFilter(selectedCompany)
-          .map((n) => NAME_TO_CODE[n] || "")
-          .filter(Boolean)
-          .join(",")
+      ? resolveCodes(selectedCompany).join(",")
       : "";
     const params = new URLSearchParams();
     if (codesParam) params.set("companys", codesParam);
@@ -82,7 +97,7 @@ export function useCodeData({
       setEmployees(data.employees || []);
     }
     setLoading(false);
-  }, [apiPath, selectedCompany, departmentCode]);
+  }, [apiPath, selectedCompany, departmentCode, companies]);
 
   useEffect(() => {
     load();

@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import * as XLSX from "xlsx";
 import { matchAnyField } from "@/lib/search-schema";
-import { isPharma } from "@/lib/company";
+import { loadCompanyMap, isPharmaSync } from "@/server/services/hr/company-directory";
 
 export const ROSTER_FIELDS = [
   { key: "employeeId", label: "ID" },
@@ -83,11 +83,14 @@ export async function buildRosterRows(dept: string, keyword: string): Promise<Ro
     epWhere.department = { name: { contains: dept } };
   }
 
-  const eps = await prisma.eDP.findMany({
-    where: epWhere,
-    include: { department: true, position: true },
-    orderBy: [{ employeeId: "asc" }],
-  });
+  const [eps, companyMap] = await Promise.all([
+    prisma.eDP.findMany({
+      where: epWhere,
+      include: { department: true, position: true },
+      orderBy: [{ employeeId: "asc" }],
+    }),
+    loadCompanyMap(),
+  ]);
 
   const epByEmp = new Map<number, typeof eps>();
   for (const ep of eps) {
@@ -98,9 +101,9 @@ export async function buildRosterRows(dept: string, keyword: string): Promise<Ro
   const rows: RosterRow[] = [];
   for (const emp of baseEmployees) {
     const epsForEmp = epByEmp.get(emp.id) || [];
-    const defEP = epsForEmp.find((e) => !isPharma(e.department?.code || "")) || epsForEmp[0];
-    const gmpEP = epsForEmp.find((e) => isPharma(e.department?.code || ""));
-    const companyName = isPharma(defEP?.department?.code || "") ? "丰华制药" : "丰华生物";
+    const defEP = epsForEmp.find((e) => !isPharmaSync(companyMap, e.department?.code || "")) || epsForEmp[0];
+    const gmpEP = epsForEmp.find((e) => isPharmaSync(companyMap, e.department?.code || ""));
+    const companyName = isPharmaSync(companyMap, defEP?.department?.code || "") ? "丰华制药" : "丰华生物";
     rows.push({
       id: emp.id,
       employeeId: emp.employeeId,

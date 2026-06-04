@@ -18,10 +18,14 @@ export async function GET(request: Request) {
 
   const { searchParams } = new URL(request.url);
   const keyword = searchParams.get("keyword") || "";
+  const activeOnly = searchParams.get("active") === "1";
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
 
-  const companies = await prisma.company.findMany({ orderBy: { id: "asc" } });
+  const where: { isActive?: boolean } = {};
+  if (activeOnly) where.isActive = true;
+
+  const companies = await prisma.company.findMany({ where, orderBy: { sortOrder: "asc" } });
   const mapped = companies.map((r) => ({
     id: r.id,
     code: r.code,
@@ -33,6 +37,10 @@ export async function GET(request: Request) {
     registeredAddress: r.registeredAddress,
     registeredDate: r.registeredDate,
     legalPerson: r.legalPerson,
+    managementGroup: r.managementGroup,
+    codePoolCode: r.codePoolCode,
+    isActive: r.isActive,
+    sortOrder: r.sortOrder,
   }));
 
   let result = mapped;
@@ -63,10 +71,10 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json();
-  const { id, code, name, fullName, registeredCapital, unifiedCode, bankName, registeredAddress, registeredDate, legalPerson } = body;
+  const { id, code, name, fullName, registeredCapital, unifiedCode, bankName, registeredAddress, registeredDate, legalPerson, managementGroup, codePoolCode, isActive, sortOrder } = body;
   if (!code || !name) return NextResponse.json({ error: "缺少 code/name" }, { status: 400 });
 
-  const dataFields = { fullName: fullName ?? null, registeredCapital: registeredCapital ?? null, unifiedCode: unifiedCode ?? null, bankName: bankName ?? null, registeredAddress: registeredAddress ?? null, registeredDate: registeredDate ?? null, legalPerson: legalPerson ?? null };
+  const dataFields = { fullName: fullName ?? null, registeredCapital: registeredCapital ?? null, unifiedCode: unifiedCode ?? null, bankName: bankName ?? null, registeredAddress: registeredAddress ?? null, registeredDate: registeredDate ?? null, legalPerson: legalPerson ?? null, managementGroup: managementGroup ?? "常规体系", codePoolCode: codePoolCode ?? null, isActive: typeof isActive === "boolean" ? isActive : true, sortOrder: typeof sortOrder === "number" ? sortOrder : 0 };
   if (id) {
     const existing = await prisma.company.findFirst({ where: { code } });
     if (existing && existing.id !== id) return NextResponse.json({ error: "编码已存在" }, { status: 400 });

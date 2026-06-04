@@ -1,6 +1,6 @@
 "use client";
 
-import { isBio, isPharma } from "@/lib/company";
+import { useEffect, useState } from "react";
 import CodeTableHeader from "./components/CodeTableHeader";
 import CodeTableBody from "./components/CodeTableBody";
 import PersonListModal from "./components/PersonListModal";
@@ -86,6 +86,24 @@ export default function CodeTable({
   user,
   type,
 }: CodeTableProps) {
+  const [pharmaCodesSet, setPharmaCodesSet] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    fetch("/api/hr/companies?active=1")
+      .then((r) => r.json())
+      .then((data) => {
+        const gmpCodes = new Set<string>(
+          (data.companies || [])
+            .filter((c: { managementGroup: string }) => c.managementGroup === "GMP")
+            .map((c: { code: string }) => c.code)
+        );
+        setPharmaCodesSet(gmpCodes);
+      });
+  }, []);
+
+  const isPharma = (code: string) => pharmaCodesSet.has(code.slice(0, 2));
+  const isBio = (code: string) => !isPharma(code);
+
   const bioCodes = sortedCodes.filter((c) => isBio(c.code));
   const pharmaCodes = sortedCodes.filter((c) => isPharma(c.code));
   const bioTotal = bioCodes.reduce(

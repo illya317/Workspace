@@ -67,6 +67,23 @@ export default function GenericFieldInput({
     );
   }
 
+  if (field.type === "select" && field.options) {
+    return (
+      <select
+        value={String(value ?? "")}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={onKeyDown}
+        className={`rounded border border-emerald-400 px-2 py-1.5 text-sm focus:outline-none ${className || ""}`}
+      >
+        {field.options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
   if (field.type === "boolean") {
     if (mode === "edit") {
       return (

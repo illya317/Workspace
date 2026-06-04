@@ -4,7 +4,6 @@ import { useState } from "react";
 import EditToolbar from "@/app/components/EditToolbar";
 import AuditLogModal from "@/app/components/AuditLogModal";
 import Toast from "@/app/components/Toast";
-import { NAME_TO_CODE } from "@/lib/company";
 import { useCodeTab } from "@/app/hr/code/useCodeTab";
 import CodeTable from "@/app/hr/code/CodeTable";
 
@@ -17,8 +16,20 @@ export function CodesTab({
   user: User;
   selectedCompany: string;
 }) {
-  const companyCode = NAME_TO_CODE[selectedCompany] || "";
+  const [companyCode, setCompanyCode] = useState("");
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
+
+  useState(() => {
+    fetch("/api/hr/companies?active=1")
+      .then((r) => r.json())
+      .then((data) => {
+        const found = (data.companies || []).find(
+          (c: { name: string; code: string }) => c.name === selectedCompany
+        );
+        if (found) setCompanyCode(found.code);
+      });
+  });
+
   return (
     <div className="flex gap-6">
       <div className="w-1/2">

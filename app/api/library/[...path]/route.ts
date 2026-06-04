@@ -32,14 +32,15 @@ export async function GET(_req: Request, { params }: { params: Promise<{ path: s
     where: { relativePath: relativePath.replace(/\\/g, "/") },
     select: { id: true, confidentialityLevel: true, status: true },
   });
-  if (doc) {
-    const maxLevel = await getMaxConfidentialityLevel(user.id);
-    if (doc.confidentialityLevel > maxLevel) {
-      return NextResponse.json({ error: "Higher confidentiality required" }, { status: 403 });
-    }
-    if (doc.status === "missing") {
-      return NextResponse.json({ error: "File missing" }, { status: 404 });
-    }
+  if (!doc) {
+    return NextResponse.json({ error: "File not indexed — run scan first" }, { status: 403 });
+  }
+  const maxLevel = await getMaxConfidentialityLevel(user.id);
+  if (doc.confidentialityLevel > maxLevel) {
+    return NextResponse.json({ error: "Higher confidentiality required" }, { status: 403 });
+  }
+  if (doc.status === "missing") {
+    return NextResponse.json({ error: "File missing" }, { status: 404 });
   }
 
   try {

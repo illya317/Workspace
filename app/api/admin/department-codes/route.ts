@@ -2,15 +2,10 @@ import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
-import { SHARED_GROUP_CODES } from "@/lib/company";
+import { getCodePoolCode } from "@/server/services/hr/company-directory";
 
-function normalizeCompany(company: string): string {
-  if (SHARED_GROUP_CODES.includes(company)) return "01";
-  return company;
-}
-
-function buildFullCode(code: string, company: string): string {
-  const normalized = normalizeCompany(company);
+async function buildFullCode(code: string, company: string): Promise<string> {
+  const normalized = await getCodePoolCode(company);
   if (code.length <= 3) return normalized + code.padStart(3, "0");
   return code;
 }
@@ -62,7 +57,7 @@ export async function PUT(request: Request) {
   const { code, name, company, originalCode } = body;
   if (!code || !name) return NextResponse.json({ error: "缺少参数" }, { status: 400 });
 
-  const finalCode = buildFullCode(code, company || "");
+  const finalCode = await buildFullCode(code, company || "");
 
   if (originalCode && originalCode !== finalCode) {
     const existing = await prisma.department.findFirst({ where: { code: finalCode } });

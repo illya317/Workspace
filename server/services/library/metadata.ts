@@ -122,14 +122,23 @@ export async function updateDocumentMetadata(
     throw new Error("Document not found");
   }
 
+  // 只接受白名单字段，拒绝运行时传入的额外字段
+  const data: Record<string, unknown> = {
+    editedBy: userId,
+    editedAt: new Date(),
+    version: { increment: 1 },
+  };
+  if (input.title !== undefined) data.title = input.title;
+  if (input.summary !== undefined) data.summary = input.summary;
+  if (input.categoryCode !== undefined) data.categoryCode = input.categoryCode;
+  if (input.categoryName !== undefined) data.categoryName = input.categoryName;
+  if (input.subcategoryPath !== undefined) data.subcategoryPath = input.subcategoryPath;
+  if (input.confidentialityLevel !== undefined) data.confidentialityLevel = input.confidentialityLevel;
+  if (input.status !== undefined) data.status = input.status;
+
   const updated = await prisma.libraryDocument.update({
     where: { id },
-    data: {
-      ...input,
-      editedBy: userId,
-      editedAt: new Date(),
-      version: { increment: 1 },
-    },
+    data,
   });
 
   const result = await attachLatestVersion(updated);

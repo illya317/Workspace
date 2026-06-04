@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { CODE_TO_NAME } from "@/lib/company";
+import { getCompanyNameByCode } from "@/server/services/hr/company-directory";
 import type { PreviewResult } from "../import/import";
 import type { SideBalance } from "./balance-utils";
 
@@ -88,7 +88,7 @@ export async function materializeBaselineToPeriod(
   });
 
   if (!snapshot || snapshot.rows.length === 0) {
-    const companyName = CODE_TO_NAME[companyCode] || companyCode;
+    const companyName = await getCompanyNameByCode(companyCode);
     throw new Error(`请先为${companyName}导入 ${year} 年年度余额表作为 active baseline`);
   }
 

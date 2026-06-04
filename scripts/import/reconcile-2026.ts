@@ -7,7 +7,10 @@ import * as path from "path";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../../generated/prisma/client";
 import { reconcileBalanceSheet } from "../../server/services/finance/ledger/balance-reconcile";
-import { CODE_TO_NAME } from "../../lib/company";
+async function getCompanyName(code: string): Promise<string> {
+  const c = await prisma.company.findUnique({ where: { code }, select: { name: true } });
+  return c?.name ?? code;
+}
 
 const ROOT = path.resolve(__dirname, "../..");
 const dbPath = process.env.DATABASE_URL?.replace("file:", "") ?? path.join(ROOT, "data/dev.db");
@@ -27,7 +30,7 @@ async function main() {
   console.log("📊 2026 年度余额表核对\n");
 
   for (const [code, relativePath] of Object.entries(COMPANIES)) {
-    const name = CODE_TO_NAME[code] || code;
+    const name = await getCompanyName(code);
     const filePath = path.join(SEED, relativePath);
     if (!fs.existsSync(filePath)) { console.log(`  ❌ ${code} ${name}: 文件不存在\n`); continue; }
 

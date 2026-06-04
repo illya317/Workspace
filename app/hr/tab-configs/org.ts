@@ -11,7 +11,29 @@ const companyFields: FieldConfig[] = [
   { key: "registeredAddress", label: "办公地址", editable: true },
   { key: "registeredDate", label: "注册时间", editable: true, type: "date" },
   { key: "legalPerson", label: "法定代表人", editable: true },
-  { key: "queryGroup", label: "查询分组", editable: true, type: "number" },
+  {
+    key: "managementGroup",
+    label: "管理体系",
+    editable: true,
+    type: "select",
+    options: [
+      { label: "常规体系", value: "常规体系" },
+      { label: "GMP", value: "GMP" },
+    ],
+  },
+  {
+    key: "codePoolCode",
+    label: "编码池",
+    editable: true,
+    type: "select",
+    options: [
+      { label: "自身", value: "" },
+      { label: "01 丰华生物", value: "01" },
+      { label: "04 丰华制药", value: "04" },
+    ],
+  },
+  { key: "isActive", label: "启用", editable: true, type: "boolean", booleanLabels: { true: "启用", false: "禁用" } },
+  { key: "sortOrder", label: "排序", editable: true, type: "number" },
 ];
 
 export const companyConfig: TabConfig = {

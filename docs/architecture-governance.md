@@ -94,6 +94,8 @@ DB 不等于 Excel，也不等于 normalized JSON。
 
 不确定的原始行可以先放 `rawPayload`，但不能为了还原 Excel 样子把几十个不稳定列都建成 schema。
 
+公司、组织、租户相关的专有事实必须数据化，不能散落在代码里。具体公司名、公司编码、管理体系、查询分组、共享编码池、特殊公司判断等信息应来自 `Company` 表或对应 seed/migration 输入；应用代码只保留通用机制，通过领域 service/helper 查询、缓存和派生。
+
 ## 5. API 规则
 
 API route 只做：

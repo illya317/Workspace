@@ -8,7 +8,10 @@ import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../../generated/prisma/client";
 import { parseJournal } from "../../server/services/finance/import/parsers/voucher-parser";
 import { confirmFinanceImport } from "../../server/services/finance/import/import-confirm";
-import { CODE_TO_NAME } from "../../lib/company";
+async function getCompanyName(code: string): Promise<string> {
+  const c = await prisma.company.findUnique({ where: { code }, select: { name: true } });
+  return c?.name ?? code;
+}
 
 const ROOT = path.resolve(__dirname, "../..");
 const dbPath = process.env.DATABASE_URL?.replace("file:", "") ?? path.join(ROOT, "data/dev.db");
@@ -29,7 +32,7 @@ const COMPANIES: Record<string, { dir: string; prefix: string }> = {
 async function main() {
   console.log("📥 重新导入全公司序时账\n");
   for (const [code, cfg] of Object.entries(COMPANIES)) {
-    const name = CODE_TO_NAME[code] || code;
+    const name = await getCompanyName(code);
     console.log(`${code} ${name}:`);
 
     for (const year of YEARS) {

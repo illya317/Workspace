@@ -617,6 +617,28 @@
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 
+### ReclassResult
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| periodId | Int | - |  |
+| voucherItemId | Int | - | 来源凭证明细 |
+| ruleId | Int? | - | 追溯到生成此结果的规则；手工添加或历史兼容时为 null |
+| sourceAccount | String | - | 原科目编码（快照，不FK） |
+| targetAccount | String | - | 目标科目编码（可修改） |
+| amount | Float | - | 重分类金额 |
+| status | String | @default("pending") | pending|approved|adjusted|rejected |
+| adjustedBy | Int? | - | 审核人 userId |
+| adjustedAt | DateTime? | - |  |
+| note | String? | - | 审核备注 |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| period | FinancePeriod | @relation(fields: [periodId], references: [id]) |  |
+| voucherItem | FinanceVoucherItem | @relation(fields: [voucherItemId], references: [id]) |  |
+| rule | FinanceReclassRule? | @relation(fields: [ruleId], references: [id]) |  |
+| reviewer | User? | @relation("ReclassResultReviewer", fields: [adjustedBy], references: [id]) |  |
+
 ### FinanceStatementAccountMapping
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -651,28 +673,6 @@
 | prefixesJson | String | @default("[]") | JSON array of account code prefixes |
 | subtractPrefixesJson | String | @default("[]") | JSON array of subtract prefixes (e.g. accumulated depreciation) |
 | formulaJson | String | @default("{ |  |
-
-### ReclassResult
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| periodId | Int | - |  |
-| voucherItemId | Int | - | 来源凭证明细 |
-| ruleId | Int? | - | 追溯到生成此结果的规则；手工添加或历史兼容时为 null |
-| sourceAccount | String | - | 原科目编码（快照，不FK） |
-| targetAccount | String | - | 目标科目编码（可修改） |
-| amount | Float | - | 重分类金额 |
-| status | String | @default("pending") | pending|approved|adjusted|rejected |
-| adjustedBy | Int? | - | 审核人 userId |
-| adjustedAt | DateTime? | - |  |
-| note | String? | - | 审核备注 |
-| createdAt | DateTime | @default(now()) |  |
-| updatedAt | DateTime | @default(now()) @updatedAt |  |
-| period | FinancePeriod | @relation(fields: [periodId], references: [id]) |  |
-| voucherItem | FinanceVoucherItem | @relation(fields: [voucherItemId], references: [id]) |  |
-| rule | FinanceReclassRule? | @relation(fields: [ruleId], references: [id]) |  |
-| reviewer | User? | @relation("ReclassResultReviewer", fields: [adjustedBy], references: [id]) |  |
 
 ### FinanceStatementWorkpaper
 
@@ -823,7 +823,9 @@
 | registeredAddress | String? | - |  |
 | registeredDate | String? | - |  |
 | legalPerson | String? | - |  |
-| queryGroup | Int? | - |  |
+| managementGroup | String | @default("常规体系") |  |
+| codePoolCode | String? | - |  |
+| isActive | Boolean | @default(true) |  |
 | sortOrder | Int | @default(0) |  |
 | editedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |

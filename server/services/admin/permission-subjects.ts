@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { isPharma } from "@/lib/company";
+import { loadCompanyMap, isPharmaSync } from "@/server/services/hr/company-directory";
 import { getGrants } from "@/server/rbac/grants";
 import { getResourceAncestors } from "@/server/rbac/resource";
 import type { SubjectType } from "@/server/rbac/grants";
@@ -98,12 +98,13 @@ async function buildDeptPathMaps() {
   return { getDeptPath };
 }
 
-function resolveCompany(code: string | null | undefined): string {
-  return isPharma(code || "") ? "丰华制药" : "丰华生物";
+function resolveCompany(map: Map<string, unknown>, code: string | null | undefined): string {
+  return isPharmaSync(map, code || "") ? "丰华制药" : "丰华生物";
 }
 
 export async function getUserSubjects(): Promise<SubjectInfo[]> {
   const { getDeptPath } = await buildDeptPathMaps();
+  const companyMap = await loadCompanyMap();
 
   const activeEmpIds = new Set(
     (
@@ -147,7 +148,7 @@ export async function getUserSubjects(): Promise<SubjectInfo[]> {
         employeeId: emp.employeeId,
         userId,
         hasUser: !!userId,
-        company: resolveCompany(dept?.code),
+        company: resolveCompany(companyMap, dept?.code),
         department: dept?.name || "",
         deptPath: getDeptPath(dept?.id ?? null),
         positionIds: emp.positions
@@ -168,6 +169,7 @@ export async function getUserSubjects(): Promise<SubjectInfo[]> {
 
 export async function getPositionSubjects(): Promise<SubjectInfo[]> {
   const { getDeptPath } = await buildDeptPathMaps();
+  const companyMap = await loadCompanyMap();
 
   const positions = await prisma.position.findMany({
     include: {
@@ -185,7 +187,7 @@ export async function getPositionSubjects(): Promise<SubjectInfo[]> {
       name: pos.name,
       extra: {
         code: pos.code,
-        company: resolveCompany(dept?.code),
+        company: resolveCompany(companyMap, dept?.code),
         department: dept?.name || "",
         deptPath: getDeptPath(dept?.id ?? null),
       },
@@ -196,6 +198,7 @@ export async function getPositionSubjects(): Promise<SubjectInfo[]> {
 
 export async function getDepartmentSubjects(): Promise<SubjectInfo[]> {
   const { getDeptPath } = await buildDeptPathMaps();
+  const companyMap = await loadCompanyMap();
 
   const depts = await prisma.department.findMany({
     orderBy: { code: "asc" },
@@ -208,7 +211,7 @@ export async function getDepartmentSubjects(): Promise<SubjectInfo[]> {
       name: d.name,
       extra: {
         code: d.code,
-        company: resolveCompany(d.code),
+        company: resolveCompany(companyMap, d.code),
         deptPath: getDeptPath(d.id),
       },
     });

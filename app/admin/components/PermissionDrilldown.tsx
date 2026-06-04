@@ -1,8 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { matchEmployee } from "@/lib/search";
-import { resolveCompanyFilter } from "@/lib/company";
 import FilterBar from "@/app/components/FilterBar";
 
 export interface EmployeePerm {
@@ -26,8 +25,32 @@ interface Props {
 export default function PermissionDrilldown({ drillKey, empPerms, empLoading, fCompany, fDept, fKeyword,
   setFCompany, setFDept, setFKeyword, allCompanies, allDepts, onToggle, onClose, empHasAccess,
 }: Props) {
+  const [companyMap, setCompanyMap] = useState<Map<string, { name: string; managementGroup: string }>>(new Map());
+
+  useEffect(() => {
+    fetch("/api/hr/companies?active=1")
+      .then((r) => r.json())
+      .then((data) => {
+        const map = new Map<string, { name: string; managementGroup: string }>();
+        for (const c of data.companies || []) {
+          map.set(c.name, c);
+        }
+        setCompanyMap(map);
+      });
+  }, []);
+
   const filtered = useMemo(() => empPerms.filter(emp => {
-    if (fCompany !== "全部" && !emp.roles.some(r => resolveCompanyFilter(fCompany).includes(r.company || "" || ""))) return false;
+    if (fCompany !== "全部") {
+      const target = companyMap.get(fCompany);
+      if (!target) return false;
+      const mgmt = target.managementGroup;
+      const allowed = new Set(
+        Array.from(companyMap.values())
+          .filter((c) => c.managementGroup === mgmt)
+          .map((c) => c.name)
+      );
+      if (!emp.roles.some(r => allowed.has(r.company || ""))) return false;
+    }
     if (fDept !== "全部" && !emp.roles.some(r => r.dept1 === fDept)) return false;
     if (fKeyword && !matchEmployee(emp, fKeyword)) return false;
     return true;
@@ -35,7 +58,7 @@ export default function PermissionDrilldown({ drillKey, empPerms, empLoading, fC
     const aHas = empHasAccess(a, drillKey) ? 0 : 1;
     const bHas = empHasAccess(b, drillKey) ? 0 : 1;
     return aHas - bHas;
-  }), [empPerms, fCompany, fDept, fKeyword, drillKey, empHasAccess]);
+  }), [empPerms, fCompany, fDept, fKeyword, drillKey, empHasAccess, companyMap]);
 
   return (
     <section>

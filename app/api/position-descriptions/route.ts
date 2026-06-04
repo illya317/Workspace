@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { isPharma } from "@/lib/company";
+import { getManagementGroupByCode } from "@/server/services/hr/company-directory";
 import { getInitials } from "@/lib/search";
 
 export async function GET(request: Request) {
@@ -65,7 +65,7 @@ export async function GET(request: Request) {
         positionPurpose: desc.positionPurpose, summary: desc.summary,
         headcount: desc.headcount, version: desc.version,
         effectiveDate: desc.effectiveDate, sourceFile: desc.sourceFile,
-        managementGroup: isPharma(desc.code) ? "GMP" : "常规体系",
+        managementGroup: await getManagementGroupByCode(desc.code),
         details,
       },
     });

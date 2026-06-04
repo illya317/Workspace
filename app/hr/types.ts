@@ -48,7 +48,12 @@ export interface RosterEmployee {
 
 // ─── Generic Tab Types ──────────────────────────────────────
 
-export type FieldType = "text" | "number" | "boolean" | "date" | "fk" | "textarea";
+export type FieldType = "text" | "number" | "boolean" | "date" | "fk" | "textarea" | "select";
+
+export interface SelectOption {
+  label: string;
+  value: string;
+}
 
 export interface FieldConfig {
   key: string;
@@ -61,6 +66,8 @@ export interface FieldConfig {
   hidden?: boolean; // 不展示在表格中，但新建时可用
   displayField?: string; // 表格显示用的字段路径（如 "codeRaw"）
   filterEntity?: string; // 高级筛选时调用 autocomplete 的实体（如 "employee"）
+  options?: SelectOption[]; // select 类型的选项列表
+  booleanLabels?: { true: string; false: string }; // boolean 类型的自定义显示文本
 }
 
 export interface FKFieldConfig {

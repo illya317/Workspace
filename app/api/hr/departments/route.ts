@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import { matchAnyField } from "@/lib/search-schema";
 import { snapshotHistory } from "@/lib/history";
-import { isPharma } from "@/lib/company";
+import { loadCompanyMap, isPharmaSync } from "@/server/services/hr/company-directory";
 
 export const GET = withHRAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
@@ -17,23 +17,26 @@ export const GET = withHRAccess(async (request: Request) => {
 
   const where: Prisma.DepartmentWhereInput = {};
 
-  const depts = await prisma.department.findMany({
-    where,
-    include: {
-      _count: { select: { edps: true } },
-      parent: { select: { id: true, name: true } },
-      children: { select: { id: true, name: true } },
-      manager: { select: { id: true, name: true } },
-    },
-    orderBy: { id: "asc" },
-  });
+  const [depts, companyMap] = await Promise.all([
+    prisma.department.findMany({
+      where,
+      include: {
+        _count: { select: { edps: true } },
+        parent: { select: { id: true, name: true } },
+        children: { select: { id: true, name: true } },
+        manager: { select: { id: true, name: true } },
+      },
+      orderBy: { id: "asc" },
+    }),
+    loadCompanyMap(),
+  ]);
 
   let departments = depts.map((d) => ({
     id: d.id,
     code: d.code,
     name: d.name,
     alias: d.alias || null,
-    company: isPharma(d.code) ? '丰华制药' : '丰华生物',
+    company: isPharmaSync(companyMap, d.code) ? '丰华制药' : '丰华生物',
     level: d.level,
     levelLabel: d.level === 1 ? '事业部' : d.level === 2 ? '部门' : '子部门',
     parentId: d.parentId,
@@ -86,12 +89,8 @@ export const PUT = withHRWrite(async (request: Request, user) => {
     await snapshotHistory("Department", id, user.userId);
     return NextResponse.json({ success: true, department: updated });
   } catch (e: unknown) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-      return NextResponse.json({ error: "编码已存在" }, { status: 409 });
-    }
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
-      return NextResponse.json({ error: "部门不存在" }, { status: 404 });
-    }
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return NextResponse.json({ error: "编码已存在" }, { status: 409 });
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") return NextResponse.json({ error: "部门不存在" }, { status: 404 });
     throw e;
   }
 });
@@ -99,20 +98,13 @@ export const PUT = withHRWrite(async (request: Request, user) => {
 export const DELETE = withHRDelete(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const id = searchParams.get("id");
-  if (!id) {
-    return NextResponse.json({ error: "缺少id" }, { status: 400 });
-  }
-
+  if (!id) return NextResponse.json({ error: "缺少id" }, { status: 400 });
   try {
     await prisma.department.delete({ where: { id: parseInt(id) } });
     return NextResponse.json({ success: true });
   } catch (e: unknown) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
-      return NextResponse.json({ error: "部门不存在" }, { status: 404 });
-    }
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003") {
-      return NextResponse.json({ error: "该部门下有关联岗位，无法删除" }, { status: 409 });
-    }
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") return NextResponse.json({ error: "部门不存在" }, { status: 404 });
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003") return NextResponse.json({ error: "该部门下有关联岗位，无法删除" }, { status: 409 });
     throw e;
   }
 });

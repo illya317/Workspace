@@ -1,0 +1,8 @@
+[
+  { "code": "01", "name": "丰华生物", "managementGroup": "常规体系", "codePoolCode": "01", "isActive": true, "sortOrder": 1 },
+  { "code": "02", "name": "丰华天力通", "managementGroup": "常规体系", "codePoolCode": "01", "isActive": true, "sortOrder": 2 },
+  { "code": "03", "name": "丰华悦通", "managementGroup": "常规体系", "codePoolCode": "01", "isActive": true, "sortOrder": 3 },
+  { "code": "04", "name": "丰华制药", "managementGroup": "GMP", "codePoolCode": "04", "isActive": true, "sortOrder": 4 },
+  { "code": "05", "name": "加拿大", "managementGroup": "常规体系", "codePoolCode": "01", "isActive": true, "sortOrder": 5 },
+  { "code": "06", "name": "上海悦通", "managementGroup": "常规体系", "codePoolCode": "01", "isActive": true, "sortOrder": 6 }
+]

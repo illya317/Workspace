@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { isPharma } from "@/lib/company";
+import { getManagementGroupByCode } from "@/server/services/hr/company-directory";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -18,15 +18,20 @@ export async function GET(request: Request) {
     orderBy: [{ code: "asc" }, { name: "asc" }],
   });
 
-  return NextResponse.json({
-    departments: depts.map((d) => ({
-      id: d.id,
-      name: d.name,
-      managementGroup: isPharma(d.code) ? "GMP" : "常规体系",
-      company: isPharma(d.code) ? "丰华制药" : "丰华生物",
-      count: 0,
-    })),
-  });
+  const results = await Promise.all(
+    depts.map(async (d) => {
+      const mgmt = await getManagementGroupByCode(d.code);
+      return {
+        id: d.id,
+        name: d.name,
+        managementGroup: mgmt,
+        company: mgmt === "GMP" ? "丰华制药" : "丰华生物",
+        count: 0,
+      };
+    })
+  );
+
+  return NextResponse.json({ departments: results });
 }
 
 export async function DELETE(request: Request) {

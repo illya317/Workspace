@@ -1,12 +1,7 @@
-import { SHARED_GROUP_CODES } from "@/lib/company";
 import type { Employee, CodeItem } from "./types";
 
 export function buildFullCode(shortCode: string, companyCode: string): string {
-  const normalized = companyCode
-    ? SHARED_GROUP_CODES.includes(companyCode)
-      ? "01"
-      : companyCode
-    : "";
+  const normalized = companyCode || "";
   return normalized ? normalized + shortCode : shortCode;
 }
 

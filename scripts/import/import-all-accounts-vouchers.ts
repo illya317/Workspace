@@ -10,7 +10,10 @@ import { PrismaClient } from "../../generated/prisma/client";
 import { parseAccountTable } from "../../server/services/finance/import/parsers/account-parser";
 import { parseJournal } from "../../server/services/finance/import/parsers/voucher-parser";
 import { confirmFinanceImport } from "../../server/services/finance/import/import-confirm";
-import { CODE_TO_NAME } from "../../lib/company";
+async function getCompanyName(code: string): Promise<string> {
+  const c = await prisma.company.findUnique({ where: { code }, select: { name: true } });
+  return c?.name ?? code;
+}
 
 const ROOT = path.resolve(__dirname, "../..");
 const dbPath = process.env.DATABASE_URL?.replace("file:", "") ?? path.join(ROOT, "data/dev.db");
@@ -36,7 +39,7 @@ function findGarbledFiles(dir: string, year: number): string[] {
 }
 
 async function importFile(filePath: string, companyCode: string, type: "account" | "journal", year: number): Promise<number> {
-  const name = CODE_TO_NAME[companyCode] || companyCode;
+  const name = await getCompanyName(companyCode);
   const buffer = fs.readFileSync(filePath);
   const ext = path.extname(filePath).toLowerCase() || ".xls";
 
@@ -63,7 +66,7 @@ async function main() {
   console.log(dryRun ? "🔍 DRY RUN\n" : "📥 批量导入科目表 + 序时账\n");
 
   for (const [code, cfg] of Object.entries(COMPANIES)) {
-    const name = CODE_TO_NAME[code] || code;
+    const name = await getCompanyName(code);
     console.log(`\n${code} ${name}`);
 
     for (const year of YEARS) {
@@ -103,7 +106,7 @@ async function main() {
   // Summary
   console.log("\n📊 导入后统计:");
   for (const [code] of Object.entries(COMPANIES)) {
-    const name = CODE_TO_NAME[code] || code;
+    const name = await getCompanyName(code);
     const accts = await prisma.financeAccount.count({ where: { companyCode: code } });
     const vouchers = await prisma.financeVoucher.count({ where: { companyCode: code, status: "posted" } });
     console.log(`  ${code} ${name}: ${accts} 科目, ${vouchers} 凭证`);

@@ -34,7 +34,7 @@ export const employeeConfig: TabConfig = {
 
 const employmentFields: FieldConfig[] = [
   { key: "employeeId", label: "员工", type: "fk", editable: true, required: true },
-  { key: "isActive", label: "在职", editable: true, type: "boolean" },
+  { key: "isActive", label: "在职", editable: true, type: "boolean", booleanLabels: { true: "在职", false: "离职" } },
   { key: "currentCompany", label: "当前公司", editable: true },
   { key: "joinDate", label: "入职日期", editable: true, type: "date" },
   { key: "leaveDate", label: "离职日期", editable: true, type: "date", hidden: true },
