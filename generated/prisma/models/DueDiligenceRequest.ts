@@ -30,12 +30,14 @@ export type DueDiligenceRequestAvgAggregateOutputType = {
   id: number | null
   partyId: number | null
   defaultConfidentialityLevel: number | null
+  archivedBy: number | null
 }
 
 export type DueDiligenceRequestSumAggregateOutputType = {
   id: number | null
   partyId: number | null
   defaultConfidentialityLevel: number | null
+  archivedBy: number | null
 }
 
 export type DueDiligenceRequestMinAggregateOutputType = {
@@ -45,6 +47,8 @@ export type DueDiligenceRequestMinAggregateOutputType = {
   receivedAt: Date | null
   status: string | null
   defaultConfidentialityLevel: number | null
+  archivedAt: Date | null
+  archivedBy: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +60,8 @@ export type DueDiligenceRequestMaxAggregateOutputType = {
   receivedAt: Date | null
   status: string | null
   defaultConfidentialityLevel: number | null
+  archivedAt: Date | null
+  archivedBy: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -67,6 +73,8 @@ export type DueDiligenceRequestCountAggregateOutputType = {
   receivedAt: number
   status: number
   defaultConfidentialityLevel: number
+  archivedAt: number
+  archivedBy: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -77,12 +85,14 @@ export type DueDiligenceRequestAvgAggregateInputType = {
   id?: true
   partyId?: true
   defaultConfidentialityLevel?: true
+  archivedBy?: true
 }
 
 export type DueDiligenceRequestSumAggregateInputType = {
   id?: true
   partyId?: true
   defaultConfidentialityLevel?: true
+  archivedBy?: true
 }
 
 export type DueDiligenceRequestMinAggregateInputType = {
@@ -92,6 +102,8 @@ export type DueDiligenceRequestMinAggregateInputType = {
   receivedAt?: true
   status?: true
   defaultConfidentialityLevel?: true
+  archivedAt?: true
+  archivedBy?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -103,6 +115,8 @@ export type DueDiligenceRequestMaxAggregateInputType = {
   receivedAt?: true
   status?: true
   defaultConfidentialityLevel?: true
+  archivedAt?: true
+  archivedBy?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -114,6 +128,8 @@ export type DueDiligenceRequestCountAggregateInputType = {
   receivedAt?: true
   status?: true
   defaultConfidentialityLevel?: true
+  archivedAt?: true
+  archivedBy?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -212,6 +228,8 @@ export type DueDiligenceRequestGroupByOutputType = {
   receivedAt: Date | null
   status: string
   defaultConfidentialityLevel: number
+  archivedAt: Date | null
+  archivedBy: number | null
   createdAt: Date
   updatedAt: Date
   _count: DueDiligenceRequestCountAggregateOutputType | null
@@ -246,6 +264,8 @@ export type DueDiligenceRequestWhereInput = {
   receivedAt?: Prisma.DateTimeNullableFilter<"DueDiligenceRequest"> | Date | string | null
   status?: Prisma.StringFilter<"DueDiligenceRequest"> | string
   defaultConfidentialityLevel?: Prisma.IntFilter<"DueDiligenceRequest"> | number
+  archivedAt?: Prisma.DateTimeNullableFilter<"DueDiligenceRequest"> | Date | string | null
+  archivedBy?: Prisma.IntNullableFilter<"DueDiligenceRequest"> | number | null
   createdAt?: Prisma.DateTimeFilter<"DueDiligenceRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DueDiligenceRequest"> | Date | string
   party?: Prisma.XOR<Prisma.DueDiligencePartyScalarRelationFilter, Prisma.DueDiligencePartyWhereInput>
@@ -259,6 +279,8 @@ export type DueDiligenceRequestOrderByWithRelationInput = {
   receivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   defaultConfidentialityLevel?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  archivedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   party?: Prisma.DueDiligencePartyOrderByWithRelationInput
@@ -275,6 +297,8 @@ export type DueDiligenceRequestWhereUniqueInput = Prisma.AtLeast<{
   receivedAt?: Prisma.DateTimeNullableFilter<"DueDiligenceRequest"> | Date | string | null
   status?: Prisma.StringFilter<"DueDiligenceRequest"> | string
   defaultConfidentialityLevel?: Prisma.IntFilter<"DueDiligenceRequest"> | number
+  archivedAt?: Prisma.DateTimeNullableFilter<"DueDiligenceRequest"> | Date | string | null
+  archivedBy?: Prisma.IntNullableFilter<"DueDiligenceRequest"> | number | null
   createdAt?: Prisma.DateTimeFilter<"DueDiligenceRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DueDiligenceRequest"> | Date | string
   party?: Prisma.XOR<Prisma.DueDiligencePartyScalarRelationFilter, Prisma.DueDiligencePartyWhereInput>
@@ -288,6 +312,8 @@ export type DueDiligenceRequestOrderByWithAggregationInput = {
   receivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   defaultConfidentialityLevel?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  archivedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.DueDiligenceRequestCountOrderByAggregateInput
@@ -307,6 +333,8 @@ export type DueDiligenceRequestScalarWhereWithAggregatesInput = {
   receivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DueDiligenceRequest"> | Date | string | null
   status?: Prisma.StringWithAggregatesFilter<"DueDiligenceRequest"> | string
   defaultConfidentialityLevel?: Prisma.IntWithAggregatesFilter<"DueDiligenceRequest"> | number
+  archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"DueDiligenceRequest"> | Date | string | null
+  archivedBy?: Prisma.IntNullableWithAggregatesFilter<"DueDiligenceRequest"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"DueDiligenceRequest"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"DueDiligenceRequest"> | Date | string
 }
@@ -316,6 +344,8 @@ export type DueDiligenceRequestCreateInput = {
   receivedAt?: Date | string | null
   status?: string
   defaultConfidentialityLevel?: number
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   party: Prisma.DueDiligencePartyCreateNestedOneWithoutRequestsInput
@@ -329,6 +359,8 @@ export type DueDiligenceRequestUncheckedCreateInput = {
   receivedAt?: Date | string | null
   status?: string
   defaultConfidentialityLevel?: number
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   questions?: Prisma.DueDiligenceQuestionUncheckedCreateNestedManyWithoutRequestInput
@@ -339,6 +371,8 @@ export type DueDiligenceRequestUpdateInput = {
   receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   defaultConfidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.DueDiligencePartyUpdateOneRequiredWithoutRequestsNestedInput
@@ -352,6 +386,8 @@ export type DueDiligenceRequestUncheckedUpdateInput = {
   receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   defaultConfidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.DueDiligenceQuestionUncheckedUpdateManyWithoutRequestNestedInput
@@ -364,6 +400,8 @@ export type DueDiligenceRequestCreateManyInput = {
   receivedAt?: Date | string | null
   status?: string
   defaultConfidentialityLevel?: number
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -373,6 +411,8 @@ export type DueDiligenceRequestUpdateManyMutationInput = {
   receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   defaultConfidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -384,6 +424,8 @@ export type DueDiligenceRequestUncheckedUpdateManyInput = {
   receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   defaultConfidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -405,6 +447,8 @@ export type DueDiligenceRequestCountOrderByAggregateInput = {
   receivedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   defaultConfidentialityLevel?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
+  archivedBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -413,6 +457,7 @@ export type DueDiligenceRequestAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   partyId?: Prisma.SortOrder
   defaultConfidentialityLevel?: Prisma.SortOrder
+  archivedBy?: Prisma.SortOrder
 }
 
 export type DueDiligenceRequestMaxOrderByAggregateInput = {
@@ -422,6 +467,8 @@ export type DueDiligenceRequestMaxOrderByAggregateInput = {
   receivedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   defaultConfidentialityLevel?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
+  archivedBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -433,6 +480,8 @@ export type DueDiligenceRequestMinOrderByAggregateInput = {
   receivedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   defaultConfidentialityLevel?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
+  archivedBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -441,6 +490,7 @@ export type DueDiligenceRequestSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   partyId?: Prisma.SortOrder
   defaultConfidentialityLevel?: Prisma.SortOrder
+  archivedBy?: Prisma.SortOrder
 }
 
 export type DueDiligenceRequestScalarRelationFilter = {
@@ -509,6 +559,8 @@ export type DueDiligenceRequestCreateWithoutPartyInput = {
   receivedAt?: Date | string | null
   status?: string
   defaultConfidentialityLevel?: number
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   questions?: Prisma.DueDiligenceQuestionCreateNestedManyWithoutRequestInput
@@ -520,6 +572,8 @@ export type DueDiligenceRequestUncheckedCreateWithoutPartyInput = {
   receivedAt?: Date | string | null
   status?: string
   defaultConfidentialityLevel?: number
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   questions?: Prisma.DueDiligenceQuestionUncheckedCreateNestedManyWithoutRequestInput
@@ -560,6 +614,8 @@ export type DueDiligenceRequestScalarWhereInput = {
   receivedAt?: Prisma.DateTimeNullableFilter<"DueDiligenceRequest"> | Date | string | null
   status?: Prisma.StringFilter<"DueDiligenceRequest"> | string
   defaultConfidentialityLevel?: Prisma.IntFilter<"DueDiligenceRequest"> | number
+  archivedAt?: Prisma.DateTimeNullableFilter<"DueDiligenceRequest"> | Date | string | null
+  archivedBy?: Prisma.IntNullableFilter<"DueDiligenceRequest"> | number | null
   createdAt?: Prisma.DateTimeFilter<"DueDiligenceRequest"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"DueDiligenceRequest"> | Date | string
 }
@@ -569,6 +625,8 @@ export type DueDiligenceRequestCreateWithoutQuestionsInput = {
   receivedAt?: Date | string | null
   status?: string
   defaultConfidentialityLevel?: number
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   party: Prisma.DueDiligencePartyCreateNestedOneWithoutRequestsInput
@@ -581,6 +639,8 @@ export type DueDiligenceRequestUncheckedCreateWithoutQuestionsInput = {
   receivedAt?: Date | string | null
   status?: string
   defaultConfidentialityLevel?: number
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -606,6 +666,8 @@ export type DueDiligenceRequestUpdateWithoutQuestionsInput = {
   receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   defaultConfidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.DueDiligencePartyUpdateOneRequiredWithoutRequestsNestedInput
@@ -618,6 +680,8 @@ export type DueDiligenceRequestUncheckedUpdateWithoutQuestionsInput = {
   receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   defaultConfidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -628,6 +692,8 @@ export type DueDiligenceRequestCreateManyPartyInput = {
   receivedAt?: Date | string | null
   status?: string
   defaultConfidentialityLevel?: number
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -637,6 +703,8 @@ export type DueDiligenceRequestUpdateWithoutPartyInput = {
   receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   defaultConfidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.DueDiligenceQuestionUpdateManyWithoutRequestNestedInput
@@ -648,6 +716,8 @@ export type DueDiligenceRequestUncheckedUpdateWithoutPartyInput = {
   receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   defaultConfidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   questions?: Prisma.DueDiligenceQuestionUncheckedUpdateManyWithoutRequestNestedInput
@@ -659,6 +729,8 @@ export type DueDiligenceRequestUncheckedUpdateManyWithoutPartyInput = {
   receivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   defaultConfidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -701,6 +773,8 @@ export type DueDiligenceRequestSelect<ExtArgs extends runtime.Types.Extensions.I
   receivedAt?: boolean
   status?: boolean
   defaultConfidentialityLevel?: boolean
+  archivedAt?: boolean
+  archivedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   party?: boolean | Prisma.DueDiligencePartyDefaultArgs<ExtArgs>
@@ -715,6 +789,8 @@ export type DueDiligenceRequestSelectCreateManyAndReturn<ExtArgs extends runtime
   receivedAt?: boolean
   status?: boolean
   defaultConfidentialityLevel?: boolean
+  archivedAt?: boolean
+  archivedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   party?: boolean | Prisma.DueDiligencePartyDefaultArgs<ExtArgs>
@@ -727,6 +803,8 @@ export type DueDiligenceRequestSelectUpdateManyAndReturn<ExtArgs extends runtime
   receivedAt?: boolean
   status?: boolean
   defaultConfidentialityLevel?: boolean
+  archivedAt?: boolean
+  archivedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   party?: boolean | Prisma.DueDiligencePartyDefaultArgs<ExtArgs>
@@ -739,11 +817,13 @@ export type DueDiligenceRequestSelectScalar = {
   receivedAt?: boolean
   status?: boolean
   defaultConfidentialityLevel?: boolean
+  archivedAt?: boolean
+  archivedBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type DueDiligenceRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "partyId" | "title" | "receivedAt" | "status" | "defaultConfidentialityLevel" | "createdAt" | "updatedAt", ExtArgs["result"]["dueDiligenceRequest"]>
+export type DueDiligenceRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "partyId" | "title" | "receivedAt" | "status" | "defaultConfidentialityLevel" | "archivedAt" | "archivedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["dueDiligenceRequest"]>
 export type DueDiligenceRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   party?: boolean | Prisma.DueDiligencePartyDefaultArgs<ExtArgs>
   questions?: boolean | Prisma.DueDiligenceRequest$questionsArgs<ExtArgs>
@@ -769,6 +849,8 @@ export type $DueDiligenceRequestPayload<ExtArgs extends runtime.Types.Extensions
     receivedAt: Date | null
     status: string
     defaultConfidentialityLevel: number
+    archivedAt: Date | null
+    archivedBy: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["dueDiligenceRequest"]>
@@ -1202,6 +1284,8 @@ export interface DueDiligenceRequestFieldRefs {
   readonly receivedAt: Prisma.FieldRef<"DueDiligenceRequest", 'DateTime'>
   readonly status: Prisma.FieldRef<"DueDiligenceRequest", 'String'>
   readonly defaultConfidentialityLevel: Prisma.FieldRef<"DueDiligenceRequest", 'Int'>
+  readonly archivedAt: Prisma.FieldRef<"DueDiligenceRequest", 'DateTime'>
+  readonly archivedBy: Prisma.FieldRef<"DueDiligenceRequest", 'Int'>
   readonly createdAt: Prisma.FieldRef<"DueDiligenceRequest", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"DueDiligenceRequest", 'DateTime'>
 }

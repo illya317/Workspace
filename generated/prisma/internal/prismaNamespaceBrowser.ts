@@ -1223,6 +1223,8 @@ export const DueDiligenceRequestScalarFieldEnum = {
   receivedAt: 'receivedAt',
   status: 'status',
   defaultConfidentialityLevel: 'defaultConfidentialityLevel',
+  archivedAt: 'archivedAt',
+  archivedBy: 'archivedBy',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
