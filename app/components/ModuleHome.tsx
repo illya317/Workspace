@@ -4,6 +4,7 @@ import type React from "react";
 import { useRouter } from "next/navigation";
 import { SessionUser } from "@/lib/types";
 import { getSubModules, getEmptyMessage, type ModuleDef } from "@/app/lib/module-nav";
+import { MODULE_LIFECYCLE_BY_RESOURCE, MODULE_LIFECYCLE_LABELS } from "@/app/lib/module-lifecycle";
 
 const subColors: Record<string, string> = {
   emerald: "bg-emerald-100 text-emerald-600",
@@ -64,6 +65,7 @@ export default function ModuleHome({ module, user }: Props) {
           {children.map((child) => {
             const colorCls = subColors[module.color] || subColors.emerald;
             const [bgCls, textCls] = colorCls.split(" ");
+            const lifecycleStatus = child.lifecycleStatus || MODULE_LIFECYCLE_BY_RESOURCE[child.resourceKey];
             return (
               <button
                 key={child.key}
@@ -73,7 +75,14 @@ export default function ModuleHome({ module, user }: Props) {
                 <div className={`mb-3 flex h-14 w-14 items-center justify-center rounded-full ${bgCls} ${textCls}`}>
                   {subIcons[child.key]}
                 </div>
-                <h3 className="text-base font-semibold text-gray-800">{child.label}</h3>
+                <div className="flex flex-wrap items-center justify-center gap-2">
+                  <h3 className="text-base font-semibold text-gray-800">{child.label}</h3>
+                  {lifecycleStatus && lifecycleStatus !== "workspace-owned" && (
+                    <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] text-amber-700">
+                      {MODULE_LIFECYCLE_LABELS[lifecycleStatus]}
+                    </span>
+                  )}
+                </div>
                 <p className="mt-1 text-xs text-gray-500">{child.desc}</p>
               </button>
             );

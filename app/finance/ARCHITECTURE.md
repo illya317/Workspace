@@ -33,6 +33,10 @@
 | 司库管理 | 银行账户、资金日报、收付款、现金流（规划中） |
 | 数据导入与治理 | 科目/凭证/余额/预算/成本导入，校验与异常 |
 
+### ERPNext 生命周期标记
+
+`finance.ledger` 为 `legacy-fallback`；`finance.statement`、`finance.analysis`、`finance.budget`、`finance.cost` 为 `hybrid-analysis`；`finance.tax`、`finance.treasury` 为 `erpnext-owned`；`finance.import` 仅保留为历史 fallback 和特殊清洗入口。
+
 ### 总账会计 (`/finance/ledger`)
 
 `LedgerClient` 渲染多个 Tab：
@@ -385,15 +389,15 @@ npm run budget:sync-accounts
 
 - 父资源 `finance.access` 自动覆盖所有子资源的 `access`。
 - 子资源 checker 的实现顺序：先查子资源权限，未命中再回退到父资源 `finance.*`。
-- 例：只授予 `finance.budget.access` 的用户，可以进入 `/finance/budget`，也可以通过 `/finance` 首页和 Portal 入口（`canAccessFinance` 在 session 层聚合了所有子权限）。
+- 例：只授予 `finance.budget.access` 的用户，可以进入 `/finance/budget`，也可以通过 `/finance` 首页和 Portal 入口（`visibleResourceKeys` 会自动包含祖先 `finance`）。
 
 ### 页面 Guard
 
-财务子页面统一使用 `requireResourceAccess(resourceKey)` 做服务端门禁（基于 `visibleResourceKeys`）；模块首页 `/finance` 使用 session 层聚合权限 `canAccessFinance`。"
+财务页面统一使用 `requireResourceAccess(resourceKey)` 做服务端门禁（基于 `visibleResourceKeys`）。
 
 | 页面 | Guard |
 |------|-------|
-| `/finance` | `getCurrentUser` + `canAccessFinance`（session 层聚合所有 finance 子权限） |
+| `/finance` | `requireResourceAccess("finance")` |
 | `/finance/ledger` | `requireResourceAccess("finance.ledger")` |
 | `/finance/statements` | `requireResourceAccess("finance.statement")` |
 | `/finance/analysis` | `requireResourceAccess("finance.analysis")` |

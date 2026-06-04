@@ -20,33 +20,9 @@ const WHITELIST_PATHS = new Set([
   "/portal",
   "/login",
   "/history",
-  "/works",
-  "/reports",
 ]);
 
-/**
- * 历史债务：这些页面在引入 requireResourceAccess 之前就已存在，
- * 使用的是旧权限字段（canAccess* / visibleResourceKeys 手动检查 / requireAuth）。
- * 它们需要逐步迁移到 requireResourceAccess，在此之前先放行以避免阻塞 CI。
- * 新模块必须直接走 requireResourceAccess，不得加入此列表。
- */
-const LEGACY_EXCEPTIONS = new Set([
-  "app/hr/page.tsx",
-  "app/administration/page.tsx",
-  "app/contracts/page.tsx",
-  "app/finance/page.tsx",
-  "app/production/page.tsx",
-  "app/inventory/page.tsx",
-  "app/external/page.tsx",
-  "app/external/investors/page.tsx",
-  "app/external/customers/page.tsx",
-  "app/external/suppliers/page.tsx",
-  "app/docs/page.tsx",
-  "app/docs/positions/GMP/page.tsx",
-  "app/docs/company/page.tsx",
-  "app/docs/expense/page.tsx",
-  "app/docs/api-guide/page.tsx",
-]);
+const LEGACY_EXCEPTIONS = new Set([]);
 
 function readText(filePath) {
   return fs.readFileSync(filePath, "utf8");

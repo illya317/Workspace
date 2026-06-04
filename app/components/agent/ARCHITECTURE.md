@@ -42,10 +42,10 @@ AgentPanel
 ## 工具注册
 
 ```txt
-hr.searchEmployees     mutates=false  canAccessHR
+hr.searchEmployees     mutates=false  people.access
 hr.updateEmployee      mutates=true   canEditHR
 hr.batchUpdateEmployee mutates=true   canEditHR
-finance.queryBudget    mutates=false  canAccessFinanceBudget
+finance.queryBudget    mutates=false  finance.budget.access
 ```
 
 ## 数据模型

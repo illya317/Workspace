@@ -4,6 +4,7 @@ import bcrypt from "bcryptjs";
 import { createToken, getPermissionContext } from "@/lib/auth";
 import { checkBruteForce, recordAttempt } from "@/lib/security";
 import { LoginSchema, parseJson } from "@/lib/schemas";
+import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
 
 export async function POST(request: Request) {
   // 非浏览器拦截
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { username },
-    select: { id: true, name: true, username: true, wxUserId: true, password: true, apiKey: true, canLogin: true },
+    select: { id: true, name: true, username: true, wxUserId: true, password: true, apiKey: true, canLogin: true, erpnextUserId: true, erpnextUsername: true },
   });
 
   if (!user || !user.password || !bcrypt.compareSync(password, user.password)) {
@@ -83,11 +84,10 @@ export async function POST(request: Request) {
     getVisibleResourceKeys(ctx, "access"),
     getVisibleResourceKeys(ctx, "write"),
   ]);
-  const ma = (k: string) => visibleAccess.has(k);
   const isAdmin = ctx.isAdmin;
 
-  const hasWorks = ma("work") || ma("work.report") || ma("work.task");
   const canAnyWeek = visibleWrite.has("work.report");
+  const manageableKeys = await getManageableResourceKeys(user.id);
 
   const response = NextResponse.json({
     success: true,
@@ -96,7 +96,9 @@ export async function POST(request: Request) {
       canSelectAnyWeek: canAnyWeek,
       visibleResourceKeys: [...visibleAccess],
       visibleWriteResourceKeys: [...visibleWrite],
-      canAccessWorks: hasWorks,
+      manageableResourceKeys: [...manageableKeys],
+      erpnextUserId: user.erpnextUserId,
+      erpnextUsername: user.erpnextUsername,
     },
   });
   response.cookies.set("token", token, { httpOnly: true, secure: false, sameSite: "lax", maxAge: 60 * 60 * 24 * 7, path: "/" });

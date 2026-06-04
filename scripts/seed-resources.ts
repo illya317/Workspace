@@ -80,6 +80,7 @@ async function main() {
   await upsertResource("system.audit", "审计日志", "system", "admin", undefined, "inherit", 0);
   await upsertResource("system.agent", "智能体", "system", "access", undefined, "inherit", 1);
   await upsertResource("system.api", "API接入", "system", "access", undefined, "inherit", 2);
+  await upsertResource("system.erpnext", "ERPNext 连接", "system", "admin", undefined, "inherit", 3);
 
   // Repair orphaned production.inventory children (from old buggy seed)
   await p.$executeRawUnsafe(`

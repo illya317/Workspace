@@ -59,8 +59,9 @@ docs/                  # 治理文档
 - 资源树定义在 `lib/permissions.ts`，动作只用 `access/write/delete/admin`
 - GET→access, POST/PUT/PATCH→write, DELETE→delete
 - 页面按钮隐藏不是安全边界，所有写入/删除必须在 API 层校验
-- `SessionUser` 布尔字段（`canAccessHR` 等）由 `server/auth/session.ts` 统一计算
-- 模块注册在 `app/lib/module-nav.tsx`，`requiredPerm` 字段控制可见性
+- 页面入口统一使用 `visibleResourceKeys` + `requireResourceAccess(resourceKey)`
+- 后台入口使用 `manageableResourceKeys.length > 0`，不是 `system.access`
+- ERPNext 有的标准 ERP 功能不在 Workspace 重复建设；Workspace 只管入口、分析、协同和审批写回
 
 ## 技术栈
 

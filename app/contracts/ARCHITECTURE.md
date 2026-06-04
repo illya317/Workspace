@@ -46,8 +46,13 @@ page.tsx
 
 ## 权限标准
 
-- `people.access` — 查看合同（GET）
-- `people.write` — 新增/编辑合同（POST/PUT）
-- `people.delete` — 删除合同（DELETE）
+- 页面入口：`requireResourceAccess("administration.contract")`
+- GET：`administration.contract.access`
+- POST/PUT：`administration.contract.write`
+- DELETE：`administration.contract.delete`
 
 合同数据关联 Employee 和 Company，通过 employeeId + companyId 外键关联。
+
+## ERPNext 生命周期标记
+
+状态：`workspace-owned`。当前合同台账是行政/人事轻流程，不作为 ERPNext 采购、销售、应收应付合同单据引擎使用。

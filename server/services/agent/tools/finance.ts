@@ -17,7 +17,7 @@ export const queryBudgetTool: AgentTool = {
   mutates: false,
 
   canUse(user: SessionUser): boolean {
-    return !!user.canAccessFinanceBudget;
+    return (user.visibleResourceKeys || []).includes("finance.budget");
   },
 
   async execute(params: Record<string, unknown>, _user: SessionUser) {

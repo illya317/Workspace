@@ -7,6 +7,7 @@ import UserMenu from "@/app/components/UserMenu";
 import { SessionUser } from "@/lib/types";
 
 function getDocCategories(user: SessionUser): Record<string, Array<{ title: string; href: string }>> {
+  const hasApiAccess = (user.visibleResourceKeys || []).includes("system.api");
   return {
   "入职指南": [
     { title: "入职流程说明", href: "/docs/onboarding" },
@@ -16,7 +17,7 @@ function getDocCategories(user: SessionUser): Record<string, Array<{ title: stri
   "常用工具": [
     { title: "系统使用手册", href: "/docs/system-guide" },
     { title: "工作汇报填写说明", href: "/docs/report-guide" },
-    ...(user.canAccessApi ? [{ title: "接入指南", href: "/api-guide" }] : []),
+    ...(hasApiAccess ? [{ title: "接入指南", href: "/api-guide" }] : []),
   ],
   "规章制度": [
     { title: "考勤管理制度", href: "/docs/attendance" },

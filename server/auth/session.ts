@@ -24,6 +24,8 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
       apiKey: true,
       canLogin: true,
       sessionVersion: true,
+      erpnextUserId: true,
+      erpnextUsername: true,
     },
   });
   if (!userWithPerms) return null;
@@ -57,28 +59,9 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
     getVisibleResourceKeys(ctx, "write"),
   ]);
 
-  // L1 module visibility (DB-driven, auto-ancestor propagation)
-  const ma = (k: string) => visibleAccess.has(k);
-
-  const hasWorks = ma("work") || ma("work.report") || ma("work.task");
-  const financeKeys = ["finance", "finance.cost", "finance.ledger", "finance.statement", "finance.budget", "finance.analysis", "finance.import"] as const;
-  const hasFinance = financeKeys.some(ma);
-  const hasInventory = ma("production") || ma("production.inventory");
-  const hasContract = ma("administration") || ma("administration.contract");
-  const extKeys = ["external", "external.investor", "external.customer", "external.supplier"] as const;
-  const docsKeys = ["docs", "docs.positions", "docs.company", "docs.expense", "system.api"] as const;
-  const hasDocs = docsKeys.some(ma);
-  const hasExternal = extKeys.some(ma);
-
-  // Additional per-resource checks
-  const [canAnyWeek, hasApi, hasAgent] = await Promise.all([
-    checkPermissionWithContext(ctx, "work.report", "write"),
-    checkPermissionWithContext(ctx, "system.api", "access"),
-    checkPermissionWithContext(ctx, "system.agent", "access"),
-  ]);
+  const canAnyWeek = await checkPermissionWithContext(ctx, "work.report", "write");
 
   const manageableKeys = await getManageableResourceKeys(payload.userId);
-  const canManagePermissions = manageableKeys.size > 0;
 
   return {
     ...userWithPerms,
@@ -87,20 +70,6 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
     canSelectAnyWeek: canAnyWeek,
     visibleResourceKeys: [...visibleAccess],
     visibleWriteResourceKeys: [...visibleWrite],
-    canAccessWorks: hasWorks,
-    canAccessFinance: hasFinance,
-    canAccessFinanceCost: ma("finance.cost"), canAccessFinanceLedger: ma("finance.ledger"),
-    canAccessFinanceReport: ma("finance.statement"), canAccessFinanceBudget: ma("finance.budget"),
-    canAccessFinanceAnalysis: ma("finance.analysis"), canAccessFinanceImport: ma("finance.import"),
-    canAccessInventory: hasInventory,
-    canAccessContract: hasContract,
-    canAccessDocs: hasDocs,
-    canAccessExternal: hasExternal,
-    canAccessLibrary: ma("library"),
-    canAccessApi: hasApi,
-    canAccessAgent: hasAgent,
-    canAccessAdmin: isAdmin || canManagePermissions,
-    canManagePermissions,
     manageableResourceKeys: [...manageableKeys],
     employeeId: employee?.employeeId ?? null,
     isActiveEmployee,
@@ -125,92 +94,4 @@ export async function requireAuth(): Promise<SessionUser> {
     redirect("/login");
   }
   return user!;
-}
-
-export async function requireAdminAccess(): Promise<SessionUser> {
-  const user = await requireCurrentUser();
-  if (!user.canAccessAdmin) {
-    throw new Error("FORBIDDEN");
-  }
-  return user;
-}
-
-export async function requireFinanceAccess(): Promise<SessionUser> {
-  const user = await requireCurrentUser();
-  if (!user.canAccessFinance) {
-    throw new Error("FORBIDDEN");
-  }
-  return user;
-}
-
-export async function requireWorksAccess(): Promise<SessionUser> {
-  const user = await requireCurrentUser();
-  if (!user.canAccessWorks) {
-    throw new Error("FORBIDDEN");
-  }
-  return user;
-}
-
-export async function requireContractAccess(): Promise<SessionUser> {
-  const user = await requireCurrentUser();
-  if (!user.canAccessContract) {
-    throw new Error("FORBIDDEN");
-  }
-  return user;
-}
-
-export async function requireFinanceCostAccess(): Promise<SessionUser> {
-  const user = await requireCurrentUser();
-  if (!user.canAccessFinanceCost) {
-    throw new Error("FORBIDDEN");
-  }
-  return user;
-}
-
-export async function requireFinanceLedgerAccess(): Promise<SessionUser> {
-  const user = await requireCurrentUser();
-  if (!user.canAccessFinanceLedger) {
-    throw new Error("FORBIDDEN");
-  }
-  return user;
-}
-
-export async function requireFinanceReportAccess(): Promise<SessionUser> {
-  const user = await requireCurrentUser();
-  if (!user.canAccessFinanceReport) {
-    throw new Error("FORBIDDEN");
-  }
-  return user;
-}
-
-export async function requireFinanceBudgetAccess(): Promise<SessionUser> {
-  const user = await requireCurrentUser();
-  if (!user.canAccessFinanceBudget) {
-    throw new Error("FORBIDDEN");
-  }
-  return user;
-}
-
-export async function requireFinanceAnalysisAccess(): Promise<SessionUser> {
-  const user = await requireCurrentUser();
-  if (!user.canAccessFinanceAnalysis) {
-    throw new Error("FORBIDDEN");
-  }
-  return user;
-}
-
-export async function requireFinanceImportAccess(): Promise<SessionUser> {
-  const user = await requireCurrentUser();
-  if (!user.canAccessFinanceImport) {
-    throw new Error("FORBIDDEN");
-  }
-  return user;
-}
-
-export async function requireInventoryAccess(): Promise<SessionUser> {
-  const user = await requireCurrentUser();
-  if (!user.canAccessInventory) {
-    throw new Error("FORBIDDEN");
-  }
-  return user;
 }

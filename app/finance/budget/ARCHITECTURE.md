@@ -8,6 +8,8 @@
 
 由 `FinanceShell` 统一包裹。
 
+生命周期状态：`hybrid-analysis`。ERPNext Budget / Cost Center 是后续标准事实来源；Workspace 保留预算版本、导入兼容、管理层预算分析和差异解释。
+
 ## 页面结构
 
 `BudgetTab` 渲染两个视图切换：
@@ -104,5 +106,5 @@
 
 | 页面 | 需要的权限字段 |
 |------|----------------|
-| `/finance/budget` | `canAccessFinanceBudget` |
+| `/finance/budget` | `requireResourceAccess("finance.budget")` |
 | 导入/激活/创建版本 | API: `withFinanceBudgetWrite` |

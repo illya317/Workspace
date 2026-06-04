@@ -69,6 +69,20 @@ Workspace
 | 文档/资料库 | ERPNext 不适合 | Workspace 自己做 |
 | AI 助手 | ERPNext 没有 | Workspace 自己做 |
 
+## 功能生命周期标记
+
+Workspace 模块先标记、再隐藏、最后删除，不一步硬删历史功能。
+
+| 状态 | 含义 | 典型模块 |
+|---|---|---|
+| `workspace-owned` | Workspace 长期自有 | HR、工作汇报、文档、资料库、AI |
+| `erpnext-owned` | ERPNext 有标准功能，Workspace 不新建同类能力 | 采购、销售、应收应付、固定资产、MRP、BOM |
+| `hybrid-analysis` | ERPNext 存事实，Workspace 做分析/展示/校对 | 财务报表、管理分析、预算、成本分析 |
+| `legacy-fallback` | 本地历史数据保留，不继续扩成 ERP 核心 | 总账引擎、本地库存轻台账、历史导入 |
+| `deprecated` | 准备隐藏或删除 | 后续观察后单独标记 |
+
+当前标记：`finance.ledger` 为 `legacy-fallback`；`finance.statement`、`finance.analysis`、`finance.budget`、`finance.cost` 为 `hybrid-analysis`；`finance.tax`、`finance.treasury` 为 `erpnext-owned`；`production.inventory` 为 `legacy-fallback`。
+
 ## 数据策略
 
 三类表，不混：

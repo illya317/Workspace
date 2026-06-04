@@ -1,13 +1,11 @@
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/server/auth/session";
+import { requireResourceAccess } from "@/server/auth/guard";
 import { MODULES } from "@/app/lib/module-nav";
 import AppShell from "@/app/components/AppShell";
 import ModuleHome from "@/app/components/ModuleHome";
 
 export default async function FinancePage() {
-  const user = await getCurrentUser();
-  if (!user) redirect("/login");
-  if (!user.canAccessFinance) redirect("/portal");
+  const user = await requireResourceAccess("finance");
 
   const mod = MODULES.find((m) => m.key === "finance");
   if (!mod) redirect("/portal");

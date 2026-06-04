@@ -13,6 +13,9 @@ import PasswordModal from "./PasswordModal";
 export default function SettingsClient({ user: initialUser, hideShell }: { user: SessionUser; hideShell?: boolean }) {
   const router = useRouter();
   const [user, setUser] = useState<SessionUser>(initialUser);
+  const visibleResourceKeys = user.visibleResourceKeys || [];
+  const hasApiAccess = visibleResourceKeys.includes("system.api");
+  const hasAdminAccess = (user.manageableResourceKeys?.length ?? 0) > 0;
 
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -79,7 +82,7 @@ export default function SettingsClient({ user: initialUser, hideShell }: { user:
             </div>
           </div>
 
-          {user.canAccessApi && (
+          {hasApiAccess && (
             <div className="rounded-xl bg-white px-8 py-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
@@ -95,7 +98,7 @@ export default function SettingsClient({ user: initialUser, hideShell }: { user:
             </div>
           )}
 
-          {user.canAccessAdmin && (
+          {hasAdminAccess && (
             <div className="rounded-xl bg-white px-8 py-6 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>

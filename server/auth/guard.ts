@@ -24,3 +24,14 @@ export async function requireResourceAccess(resourceKey: string): Promise<Sessio
   if (!user.visibleResourceKeys?.includes(resourceKey)) redirect("/portal");
   return user;
 }
+
+/**
+ * Require the user to manage at least one resource.
+ * Resource admins can enter /admin without broad system access.
+ */
+export async function requireAdminManageAccess(): Promise<SessionUser> {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  if ((user.manageableResourceKeys?.length ?? 0) === 0) redirect("/portal");
+  return user;
+}

@@ -52,8 +52,13 @@ page.tsx
 
 ## 权限标准
 
-- `inventory.access` — 查看库存数据
-- `inventory.write` — 入库/出库/编辑
-- `inventory.delete` — 删除库存记录
+- 页面入口：`requireResourceAccess("production.inventory")`
+- API 查询：`production.inventory.access`
+- API 写入：`production.inventory.write`
+- API 删除：`production.inventory.delete`
+
+## ERPNext 生命周期标记
+
+状态：`legacy-fallback`。现有库存主数据和操作记录保留为历史轻台账；后续不继续扩展 FIFO/LIFO/移动加权、MRP、BOM、生产工单、WIP、质量检验等完整 ERP 库存/生产能力。
 
 库存数据按物料类型分类存储，各类型共享通用的 InventoryTableTab 组件和 API 模式。

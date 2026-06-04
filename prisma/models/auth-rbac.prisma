@@ -10,6 +10,10 @@ model User {
   canLogin                 Boolean                  @default(true)
   apiKey                   String?                  @unique
   employeeId               String?
+  /// 绑定的 ERPNext 用户 ID。Workspace 只用它做 ERPNext snapshot 权限过滤，不管理 ERPNext 角色。
+  erpnextUserId            String?
+  /// 绑定的 ERPNext 用户名/邮箱，用于展示和同步日志追溯。
+  erpnextUsername          String?
   createdAt                DateTime                 @default(now())
   sessionVersion           Int                      @default(0)
   editedContracts          Contract[]               @relation("ContractEditor")

@@ -4,19 +4,18 @@
  */
 import { SessionUser } from "@/lib/types";
 import type { ReactNode } from "react";
+import type { ModuleLifecycleStatus } from "./module-lifecycle";
 
 // ─── 类型 ────────────────────────────────────────────────
-
-type PermKey = keyof SessionUser | undefined;
 
 export interface SubModuleDef {
   key: string;
   label: string;
   desc: string;
   href: string;
-  requiredPerm?: PermKey;
   /** RBAC resource key — checked via visibleResourceKeys */
-  resourceKey?: string;
+  resourceKey: string;
+  lifecycleStatus?: ModuleLifecycleStatus;
 }
 
 export interface ModuleDef {
@@ -26,19 +25,16 @@ export interface ModuleDef {
   href: string;
   icon: ReactNode;
   color: "emerald" | "blue" | "indigo" | "purple" | "amber" | "cyan" | "orange";
-  requiredPerm?: PermKey;
   resourceKey?: string;
+  lifecycleStatus?: ModuleLifecycleStatus;
   children?: SubModuleDef[];
 }
 
-/** 检查单个权限字段 */
-function canAccess(user: SessionUser, resourceKey?: string, requiredPerm?: PermKey): boolean {
-  // New: check visibleResourceKeys (DB-driven)
+/** 检查单个资源可见性 */
+function canAccess(user: SessionUser, resourceKey?: string): boolean {
   if (resourceKey) {
     return (user.visibleResourceKeys || []).includes(resourceKey);
   }
-  // Legacy: check session boolean field
-  if (requiredPerm) return !!user[requiredPerm];
   return true;
 }
 
@@ -163,9 +159,9 @@ export const MODULES: ModuleDef[] = [
 /** Portal 用：过滤用户有权限的一级模块。有子模块的 L1，至少要有一个可见子模块才显示。 */
 export function getAccessibleModules(user: SessionUser): ModuleDef[] {
   return MODULES.filter((m) => {
-    if (canAccess(user, m.resourceKey, m.requiredPerm)) return true;
+    if (canAccess(user, m.resourceKey)) return true;
     if (m.children?.length) {
-      return m.children.some((c) => canAccess(user, c.resourceKey, c.requiredPerm));
+      return m.children.some((c) => canAccess(user, c.resourceKey));
     }
     return false;
   });
@@ -174,7 +170,7 @@ export function getAccessibleModules(user: SessionUser): ModuleDef[] {
 export function getSubModules(user: SessionUser, moduleKey: string): SubModuleDef[] {
   const mod = MODULES.find((m) => m.key === moduleKey);
   if (!mod?.children) return [];
-  return mod.children.filter((c) => canAccess(user, c.resourceKey, c.requiredPerm));
+  return mod.children.filter((c) => canAccess(user, c.resourceKey));
 }
 
 /** 无子模块时 ModuleHome 的提示文案 */
@@ -185,13 +181,11 @@ export function getEmptyMessage(_moduleKey: string): string {
 // Dev-time validation: catch missing access gates
 if (typeof window === "undefined") {
   for (const m of MODULES) {
-    if (!m.resourceKey && !m.requiredPerm && m.key !== "settings") {
-      console.error(`[module-nav] ${m.key}: 缺少 resourceKey 或 requiredPerm，将全员可见`);
+    if (!m.resourceKey && m.key !== "settings") {
+      console.error(`[module-nav] ${m.key}: 缺少 resourceKey，将全员可见`);
     }
     for (const c of m.children || []) {
-      if (!c.resourceKey && !c.requiredPerm) {
-        console.error(`[module-nav] ${m.key}.${c.key}: 缺少 resourceKey 或 requiredPerm，将全员可见`);
-      }
+      if (!c.resourceKey) console.error(`[module-nav] ${m.key}.${c.key}: 缺少 resourceKey，将全员可见`);
     }
   }
 }

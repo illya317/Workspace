@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * 硬约束：module-nav.tsx 中的每个模块/子模块必须配置 resourceKey 或 requiredPerm。
+ * 硬约束：module-nav.tsx 中的每个模块/子模块必须配置 resourceKey。
  * settings 模块作为白名单放行（个人设置类页面天然登录可见）。
  *
  * 实现：使用 TypeScript AST 精确区分父对象自身属性与 children 数组内部，
@@ -78,7 +78,7 @@ function hasOwnGate(ts, obj) {
   if (!ts.isObjectLiteralExpression(obj)) return false;
   for (const prop of obj.properties) {
     const propName = getPropertyName(ts, prop);
-    if (propName === "resourceKey" || propName === "requiredPerm") {
+    if (propName === "resourceKey") {
       return true;
     }
   }
@@ -101,7 +101,7 @@ function collectViolations(ts, sourceFile, arrayNode, pathPrefix, violations) {
       violations.push({
         key: fullKey,
         line,
-        message: `${pathPrefix ? "子模块" : "模块"} "${fullKey}" 缺少 resourceKey 或 requiredPerm`,
+        message: `${pathPrefix ? "子模块" : "模块"} "${fullKey}" 缺少 resourceKey`,
       });
     }
 

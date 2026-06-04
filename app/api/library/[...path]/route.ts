@@ -5,11 +5,12 @@ import { getCurrentUser } from "@/server/auth/session";
 import { safeResolve, getDefaultRoot } from "@/server/services/library/config";
 import { prisma } from "@/lib/prisma";
 import { getMaxConfidentialityLevel } from "@/server/services/library/permissions";
+import { checkPermission } from "@/server/rbac/check";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ path: string[] }> }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!user.canAccessLibrary) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!(await checkPermission(user.id, "library", "access"))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { path: segments } = await params;
 

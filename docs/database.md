@@ -34,6 +34,8 @@
 | canLogin | Boolean | @default(true) |  |
 | apiKey | String? | @unique |  |
 | employeeId | String? | - |  |
+| erpnextUserId | String? | - | 绑定的 ERPNext 用户 ID，用于 snapshot 权限过滤 |
+| erpnextUsername | String? | - | ERPNext 用户名/邮箱，用于展示与同步追溯 |
 | createdAt | DateTime | @default(now()) |  |
 | sessionVersion | Int | @default(0) |  |
 | editedContracts | Contract[] | @relation("ContractEditor") |  |
@@ -1345,4 +1347,3 @@
 | kind | String | - | "task" | "report" |
 | project | Project | @relation(fields: [projectId], references: [id], onDelete: Cascade) |  |
 | user | User | @relation(fields: [userId], references: [id], onDelete: Cascade) |  |
-

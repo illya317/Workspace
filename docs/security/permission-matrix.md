@@ -4,43 +4,44 @@
 
 ## 资源清单
 
-| 资源 key | SessionUser 字段 | 动作 |
-|----------|-----------------|------|
-| `people` | `canAccessHR / canEditHR / canDeleteHR` | access, write, delete, admin |
-| `finance` | `canAccessFinance` | access, write, delete, admin |
-| `finance.ledger` | `canAccessFinanceLedger` | access, write, delete |
-| `finance.statement` | `canAccessFinanceReport` | access |
-| `finance.budget` | `canAccessFinanceBudget` | access, write |
-| `finance.analysis` | `canAccessFinanceAnalysis` | access |
-| `finance.cost` | `canAccessFinanceCost` | access, write, delete |
-| `finance.import` | `canAccessFinanceImport` | access (preview), write (confirm) |
-| `inventory` | `canAccessInventory` | access, write, delete |
-| `administration.contract` | `canAccessContract` | access, write, delete |
-| `work` | `canAccessWorks` | access, write |
-| `system` | `canAccessAdmin / canManagePermissions` | admin |
+| 资源 key | Session 表达 | 动作 |
+|----------|--------------|------|
+| `people` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
+| `finance` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
+| `finance.ledger` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
+| `finance.statement` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
+| `finance.budget` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
+| `finance.analysis` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access |
+| `finance.cost` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
+| `finance.import` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access (preview), write (confirm) |
+| `production.inventory` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
+| `administration.contract` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
+| `work` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
+| `system` | `manageableResourceKeys` | admin |
+| `system.erpnext` | `manageableResourceKeys` | admin |
 
 ## 页面 Guard
 
 | 页面 | 权限检查 | 无权限行为 |
 |------|---------|-----------|
 | `/portal` | 无（入口页） | — |
-| `/hr` | `canAccessHR` | redirect `/portal` |
-| `/hr/roster` | `canAccessHR` | redirect `/portal` |
-| `/hr/performance` | `canAccessHR` | redirect `/portal` |
-| `/hr/analytics` | `canAccessHR` | redirect `/portal` |
-| `/finance` | `canAccessFinance` | redirect `/portal` |
-| `/finance/ledger` | `canAccessFinanceLedger` | — |
-| `/finance/statements` | `canAccessFinanceReport` | — |
-| `/finance/budget` | `canAccessFinanceBudget` | — |
-| `/finance/analysis` | `canAccessFinanceAnalysis` | — |
-| `/finance/cost` | `canAccessFinanceCost` | — |
-| `/finance/import` | `canAccessFinanceImport` | — |
-| `/administration` | 无 | — |
-| `/contracts` | `canAccessContract` | redirect `/portal` |
-| `/production` | `canAccessInventory` | redirect `/portal` |
-| `/inventory` | `canAccessInventory` | redirect `/portal` |
-| `/reports` | 无 | — |
-| `/docs` | 无 | — |
+| `/hr` | `requireResourceAccess("people")` | redirect `/portal` |
+| `/hr/roster` | `requireResourceAccess("people.roster")` | redirect `/portal` |
+| `/hr/performance` | `requireResourceAccess("people.performance")` | redirect `/portal` |
+| `/hr/analytics` | `requireResourceAccess("people.analytics")` | redirect `/portal` |
+| `/finance` | `requireResourceAccess("finance")` | redirect `/portal` |
+| `/finance/ledger` | `requireResourceAccess("finance.ledger")` | redirect `/portal` |
+| `/finance/statements` | `requireResourceAccess("finance.statement")` | redirect `/portal` |
+| `/finance/budget` | `requireResourceAccess("finance.budget")` | redirect `/portal` |
+| `/finance/analysis` | `requireResourceAccess("finance.analysis")` | redirect `/portal` |
+| `/finance/cost` | `requireResourceAccess("finance.cost")` | redirect `/portal` |
+| `/finance/import` | `requireResourceAccess("finance.import")` | redirect `/portal` |
+| `/administration` | `requireResourceAccess("administration")` | redirect `/portal` |
+| `/contracts` | `requireResourceAccess("administration.contract")` | redirect `/portal` |
+| `/production` | `requireResourceAccess("production")` | redirect `/portal` |
+| `/inventory` | `requireResourceAccess("production.inventory")` | redirect `/portal` |
+| `/reports` | `requireResourceAccess("work")` | redirect `/portal` |
+| `/docs` | `requireResourceAccess("docs")` | redirect `/portal` |
 
 ## API Guard
 
@@ -66,8 +67,8 @@
 | `/api/finance/cost/*` | GET | `finance.cost.access` |
 | `/api/finance/cost/*` | POST/PUT | `finance.cost.write` |
 | `/api/finance/cost/*` | DELETE | `finance.cost.delete` |
-| `/api/inventory/*` | GET | `inventory.access` |
-| `/api/inventory/*` | POST/PUT | `inventory.write` |
+| `/api/inventory/*` | GET | `production.inventory.access` |
+| `/api/inventory/*` | POST/PUT | `production.inventory.write` |
 | `/api/contracts*` | GET | `administration.contract.access` |
 | `/api/contracts*` | POST/PUT | `administration.contract.write` |
 | `/api/contracts*` | DELETE | `administration.contract.delete` |

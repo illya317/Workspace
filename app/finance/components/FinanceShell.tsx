@@ -5,6 +5,7 @@ import Image from "next/image";
 import UserMenu from "@/app/components/UserMenu";
 import { SessionUser } from "@/lib/types";
 import { getFinanceNavItems } from "@/app/finance/lib/nav-utils";
+import { MODULE_LIFECYCLE_BY_RESOURCE, MODULE_LIFECYCLE_LABELS } from "@/app/lib/module-lifecycle";
 
 interface Props {
   activeNav: string;
@@ -16,6 +17,8 @@ interface Props {
 export default function FinanceShell({ activeNav, children, user, hideShell }: Props) {
   const router = useRouter();
   const navItems = getFinanceNavItems(user);
+  const lifecycleStatus = MODULE_LIFECYCLE_BY_RESOURCE[`finance.${activeNav}`];
+
   return (
     <div className="min-h-screen bg-gray-50">
       {!hideShell && (
@@ -61,6 +64,13 @@ export default function FinanceShell({ activeNav, children, user, hideShell }: P
           </div>
         </div>
       </nav>
+      )}
+      {!hideShell && lifecycleStatus && lifecycleStatus !== "workspace-owned" && (
+        <div className="border-b border-amber-200 bg-amber-50">
+          <div className="mx-auto max-w-5xl px-4 py-2 text-xs text-amber-800">
+            {MODULE_LIFECYCLE_LABELS[lifecycleStatus]}
+          </div>
+        </div>
       )}
       {children}
     </div>

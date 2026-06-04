@@ -8,6 +8,7 @@ export const RES = {
     audit: "system.audit",
     agent: "system.agent",
     api: "system.api",
+    erpnext: "system.erpnext",
   },
   people: {
     root: "people",
@@ -87,6 +88,7 @@ export function normalizeRoleKey(roleKey: string): string {
 // ─── Fallback 常量：DB 未就绪时使用 ──
 export const RESOURCE_MAX_ROLE: Record<string, string> = {
   system: "admin",
+  "system.erpnext": "admin",
   library: "write",
   "library.write": "write",
   "library.secret": "access",
@@ -128,4 +130,3 @@ export function getAvailableRoles(resourceKey: string | null): string[] {
 export function isRoleAllowed(resourceKey: string, roleKey: string): boolean {
   return getAvailableRoles(resourceKey).includes(roleKey);
 }
-
