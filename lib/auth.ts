@@ -45,9 +45,12 @@ export {
   checkFinanceImportDelete,
   checkInventoryAccess,
   checkContractAccess,
+} from "@/server/auth/domain";
+
+export {
   checkLibraryAccess,
   checkLibraryWrite,
-} from "@/server/auth/domain";
+} from "@/server/auth/library";
 
 // RBAC resource tree
 export {

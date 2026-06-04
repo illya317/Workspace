@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import * as XLSX from "xlsx";
 import { matchAnyField } from "@/lib/search-schema";
-import { loadCompanyMap, isPharmaSync } from "@/server/services/hr/company-directory";
+import { loadCompanyMap, isPharmaSync, getCompanyNameSync } from "@/server/services/hr/company-directory";
 
 export const ROSTER_FIELDS = [
   { key: "employeeId", label: "ID" },
@@ -103,7 +103,7 @@ export async function buildRosterRows(dept: string, keyword: string): Promise<Ro
     const epsForEmp = epByEmp.get(emp.id) || [];
     const defEP = epsForEmp.find((e) => !isPharmaSync(companyMap, e.department?.code || "")) || epsForEmp[0];
     const gmpEP = epsForEmp.find((e) => isPharmaSync(companyMap, e.department?.code || ""));
-    const companyName = isPharmaSync(companyMap, defEP?.department?.code || "") ? "丰华制药" : "丰华生物";
+    const companyName = getCompanyNameSync(companyMap, defEP?.department?.code || "");
     rows.push({
       id: emp.id,
       employeeId: emp.employeeId,

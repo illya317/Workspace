@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import { matchAnyField } from "@/lib/search-schema";
 import { snapshotHistory } from "@/lib/history";
-import { loadCompanyMap, isPharmaSync } from "@/server/services/hr/company-directory";
+import { loadCompanyMap, getCompanyNameSync } from "@/server/services/hr/company-directory";
 
 export interface PositionListItem {
   id: number;
@@ -49,7 +49,7 @@ export async function getPositionList(
       codeRaw,
       name: p.name,
       alias: p.alias || null,
-      company: isPharmaSync(companyMap, p.code) ? "丰华制药" : "丰华生物",
+      company: getCompanyNameSync(companyMap, p.code),
       departmentId: p.departmentId,
       departmentName: p.department?.name || null,
       positionDescriptionId: p.positionDescriptionId,

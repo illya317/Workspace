@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import { matchAnyField } from "@/lib/search-schema";
 import { snapshotHistory } from "@/lib/history";
-import { loadCompanyMap, isPharmaSync } from "@/server/services/hr/company-directory";
+import { loadCompanyMap, getCompanyNameSync } from "@/server/services/hr/company-directory";
 
 export const GET = withHRAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
@@ -36,7 +36,7 @@ export const GET = withHRAccess(async (request: Request) => {
     code: d.code,
     name: d.name,
     alias: d.alias || null,
-    company: isPharmaSync(companyMap, d.code) ? '丰华制药' : '丰华生物',
+    company: getCompanyNameSync(companyMap, d.code),
     level: d.level,
     levelLabel: d.level === 1 ? '事业部' : d.level === 2 ? '部门' : '子部门',
     parentId: d.parentId,

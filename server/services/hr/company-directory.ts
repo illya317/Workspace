@@ -105,7 +105,11 @@ export async function loadCompanyMap(): Promise<
 /** 同步版本：需先调用 loadCompanyMap() */
 export function getCompanyNameSync(map: Map<string, unknown>, code: string): string {
   const c = map.get(code) as { name?: string } | undefined;
-  return c?.name ?? code;
+  if (c?.name) return c.name;
+  // Fallback: try first 2 chars as company code prefix (handles composite codes like GW-01-01)
+  const prefix = code.slice(0, 2);
+  const byPrefix = map.get(prefix) as { name?: string } | undefined;
+  return byPrefix?.name ?? code;
 }
 
 export function isPharmaSync(map: Map<string, unknown>, code: string): boolean {
