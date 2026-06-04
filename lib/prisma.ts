@@ -1,9 +1,19 @@
 import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "@/generated/prisma/client";
+import os from "os";
+import path from "path";
+
+function expandTilde(input: string): string {
+  if (input.startsWith("~/")) {
+    return path.join(os.homedir(), input.slice(2));
+  }
+  return input;
+}
 
 function getDbPath(): string {
-  return process.env.DATABASE_URL?.replace("file:", "") ?? "./prisma/dev.db";
+  const raw = process.env.DATABASE_URL?.replace("file:", "") ?? "./prisma/dev.db";
+  return expandTilde(raw);
 }
 
 const REQUIRED_DELEGATES = ["financeBalanceSnapshot", "financeBalanceSnapshotRow", "agentProposal"] as const;

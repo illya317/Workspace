@@ -5,15 +5,23 @@
  * 适配其他文件夹只需修改 LIBRARY_ROOT 环境变量。
  */
 import { readdir, stat } from "fs/promises";
+import os from "os";
 import path from "path";
 
 // ─── 配置 ──────────────────────────────────────────────────
+
+function expandTilde(input: string): string {
+  if (input.startsWith("~/")) {
+    return path.join(os.homedir(), input.slice(2));
+  }
+  return input;
+}
 
 /** 允许访问的根目录列表（未来可扩展为 LIBRARY_ROOTS JSON 数组） */
 export function getLibraryRoots(): string[] {
   const env = process.env.LIBRARY_ROOT;
   if (!env) return [];
-  return env.split(",").map((p) => p.trim()).filter(Boolean);
+  return env.split(",").map((p) => expandTilde(p.trim())).filter(Boolean);
 }
 
 /** 主根目录 */
