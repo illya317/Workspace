@@ -8,6 +8,7 @@ import {
   buildRosterExcel,
   getAllDepartmentNames,
 } from "@/server/services/hr/roster";
+import { listActiveCompanies } from "@/server/services/hr/company-directory";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -39,7 +40,8 @@ export async function GET(request: Request) {
     });
   }
 
-  const allCompanies = ["丰华制药", "丰华生物"];
+  const companies = await listActiveCompanies();
+  const allCompanies = companies.map((c) => c.name);
   const allDepts = await getAllDepartmentNames();
 
   return NextResponse.json({ employees: rows, fields: ROSTER_FIELDS, visibleFields, allCompanies, allDepts });

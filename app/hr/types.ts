@@ -67,6 +67,7 @@ export interface FieldConfig {
   displayField?: string; // 表格显示用的字段路径（如 "codeRaw"）
   filterEntity?: string; // 高级筛选时调用 autocomplete 的实体（如 "employee"）
   options?: SelectOption[]; // select 类型的选项列表
+  optionsSource?: string; // 动态选项来源（如 "companies"），优先于 options
   booleanLabels?: { true: string; false: string }; // boolean 类型的自定义显示文本
 }
 

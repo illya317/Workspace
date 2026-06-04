@@ -102,19 +102,30 @@ export async function loadCompanyMap(): Promise<
   return new Map(all.map((c) => [c.code, c]));
 }
 
+/** 从复合编码中解析公司 code（如 GW-01-01 → 01；01001 → 01） */
+export function resolveCompanyCode(map: Map<string, unknown>, code: string): string {
+  if (!code) return code;
+  if (map.has(code)) return code;
+  // Find longest known prefix from map keys (e.g. "011" beats "01" for "01123")
+  let best = "";
+  for (const key of map.keys()) {
+    if (typeof key === "string" && code.startsWith(key) && key.length > best.length) {
+      best = key;
+    }
+  }
+  return best || code;
+}
+
 /** 同步版本：需先调用 loadCompanyMap() */
 export function getCompanyNameSync(map: Map<string, unknown>, code: string): string {
-  const c = map.get(code) as { name?: string } | undefined;
-  if (c?.name) return c.name;
-  // Fallback: try first 2 chars as company code prefix (handles composite codes like GW-01-01)
-  const prefix = code.slice(0, 2);
-  const byPrefix = map.get(prefix) as { name?: string } | undefined;
-  return byPrefix?.name ?? code;
+  const resolved = resolveCompanyCode(map, code);
+  const c = map.get(resolved) as { name?: string } | undefined;
+  return c?.name ?? code;
 }
 
 export function isPharmaSync(map: Map<string, unknown>, code: string): boolean {
-  const prefix = code.slice(0, 2);
-  const c = map.get(prefix) as { managementGroup?: string } | undefined;
+  const resolved = resolveCompanyCode(map, code);
+  const c = map.get(resolved) as { managementGroup?: string } | undefined;
   return c?.managementGroup === "GMP";
 }
 

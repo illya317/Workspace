@@ -1,8 +1,8 @@
 "use client";
 
 import SelectField from "@/app/components/SelectField";
+import { useCompanyOptions } from "@/app/hooks/useCompanyOptions";
 
-const COS = [{ v: "01", l: "丰华生物" }, { v: "02", l: "天力通" }, { v: "03", l: "悦通" }, { v: "04", l: "制药" }, { v: "05", l: "加拿大" }, { v: "06", l: "上海悦通" }];
 const YS = ["2024", "2025", "2026"];
 const MS = Array.from({ length: 12 }, (_, i) => ({ v: String(i + 1), l: `${i + 1}月` }));
 const RTS = [{ v: "incomeStatement", l: "利润表" }, { v: "cashFlow", l: "现金流量表" }];
@@ -14,9 +14,10 @@ interface Props {
 }
 
 export default function ReviewFilters({ co, yr, mo, rt, setCo, setYr, setMo, setRt, loading, onLoad }: Props) {
+  const companyOptions = useCompanyOptions();
   return (
     <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3">
-      <SelectField label="公司" options={COS.map(c => ({ value: c.v, label: c.l }))} value={co} onChange={setCo} placeholder="—" />
+      <SelectField label="公司" options={companyOptions} value={co} onChange={setCo} placeholder="—" />
       <SelectField label="年度" options={YS.map(y => ({ value: y, label: y }))} value={yr} onChange={setYr} placeholder="—" />
       <SelectField label="月份" options={MS.map(m => ({ value: m.v, label: m.l }))} value={mo} onChange={setMo} placeholder="—" />
       <SelectField label="报表" options={RTS.map(r => ({ value: r.v, label: r.l }))} value={rt} onChange={setRt} placeholder="—" />

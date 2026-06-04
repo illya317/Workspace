@@ -26,11 +26,7 @@ const companyFields: FieldConfig[] = [
     label: "编码池",
     editable: true,
     type: "select",
-    options: [
-      { label: "自身", value: "" },
-      { label: "01 丰华生物", value: "01" },
-      { label: "04 丰华制药", value: "04" },
-    ],
+    optionsSource: "companies",
   },
   { key: "isActive", label: "启用", editable: true, type: "boolean", booleanLabels: { true: "启用", false: "禁用" } },
   { key: "sortOrder", label: "排序", editable: true, type: "number" },

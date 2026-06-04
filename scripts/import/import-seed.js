@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 
 const prisma = new PrismaClient();
-const SEED_DIR = path.join(__dirname, '..', '..', 'prisma', 'seed');
+const SEED_DIR = path.join(__dirname, '..', '..', 'prisma', 'seed-data');
 const WEB_DIR = path.join(__dirname, '..', '..', 'web');
 
 function loadJSON(filename) {
@@ -11,7 +11,6 @@ function loadJSON(filename) {
 }
 
 async function main() {
-  const prisma = await createPrisma();
   console.log('=== Step 0: Seed base data ===');
   const companies = loadJSON('companies.json');
   for (const c of companies) {
@@ -27,8 +26,10 @@ async function main() {
         unifiedCode: c.unifiedCode || null,
         registeredAddress: c.registeredAddress || null,
         registeredDate: c.registeredDate || null,
-        legalPerson: c.legalRepresentative || null,
-        queryGroup: c.queryGroup || null,
+        legalPerson: c.legalPerson || null,
+        managementGroup: c.managementGroup || '常规体系',
+        codePoolCode: c.codePoolCode || null,
+        isActive: c.isActive ?? true,
         sortOrder: c.sortOrder || 0,
         createdAt: c.createdAt ? new Date(c.createdAt) : undefined,
         updatedAt: c.updatedAt ? new Date(c.updatedAt) : undefined,

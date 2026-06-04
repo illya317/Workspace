@@ -1,12 +1,8 @@
 "use client";
 
 import type { DataTableColumn } from "@/app/components/DataTable";
+import CompanyNameCell from "@/app/components/CompanyNameCell";
 import type { Voucher } from "./types";
-
-const COMPANIES: Record<string, string> = {
-  "01": "丰华生物", "02": "丰华天力通", "03": "丰华悦通",
-  "04": "丰华制药", "05": "加拿大", "06": "上海悦通",
-};
 
 const fmt = (n: number) =>
   n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -32,11 +28,7 @@ export function getVoucherColumns(
     {
       key: "companyCode",
       label: "公司",
-      render: (v) => (
-        <span className="text-gray-600">
-          {v.companyCode ? COMPANIES[v.companyCode] || v.companyCode : "-"}
-        </span>
-      ),
+      render: (v) => <CompanyNameCell code={v.companyCode} />,
     },
     {
       key: "period",

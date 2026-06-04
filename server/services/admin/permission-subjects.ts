@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { loadCompanyMap, isPharmaSync } from "@/server/services/hr/company-directory";
+import { loadCompanyMap, getCompanyNameSync } from "@/server/services/hr/company-directory";
 import { getGrants } from "@/server/rbac/grants";
 import { getResourceAncestors } from "@/server/rbac/resource";
 import type { SubjectType } from "@/server/rbac/grants";
@@ -99,7 +99,7 @@ async function buildDeptPathMaps() {
 }
 
 function resolveCompany(map: Map<string, unknown>, code: string | null | undefined): string {
-  return isPharmaSync(map, code || "") ? "丰华制药" : "丰华生物";
+  return getCompanyNameSync(map, code || "");
 }
 
 export async function getUserSubjects(): Promise<SubjectInfo[]> {

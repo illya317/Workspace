@@ -30,9 +30,7 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
             .then((d) => {
               const list = (d.departments || []) as Dept[];
               setDepts(list);
-              const comps = [
-                ...new Set(list.map((d) => d.company).filter((c) => c === '丰华生物' || c === '丰华制药')),
-              ];
+              const comps = [...new Set(list.map((d) => d.company).filter(Boolean))];
               setCompanies(comps);
               if (saved) {
                 const savedDept = list.find((d) => d.id === parseInt(saved));

@@ -7,6 +7,7 @@ import UnmappedTab from "./UnmappedTab";
 import BalanceCheckTab from "./BalanceCheckTab";
 import { StatementConfigProvider, useStatementConfig } from "./StatementConfigContext";
 import SelectField from "@/app/components/SelectField";
+import { useCompanyOptions } from "@/app/hooks/useCompanyOptions";
 
 const tabs = [
   { key: "lines", label: "报表项目配置" },
@@ -14,23 +15,15 @@ const tabs = [
   { key: "balance", label: "余额校对" },
 ];
 
-const COMPANY_OPTIONS = [
-  { value: "01", label: "丰华生物" },
-  { value: "02", label: "丰华天力通" },
-  { value: "03", label: "丰华悦通" },
-  { value: "04", label: "丰华制药" },
-  { value: "05", label: "加拿大" },
-  { value: "06", label: "上海悦通" },
-];
-
 function SharedFilters() {
   const { company, setCompany, year, setYear, availablePairs, loading } = useStatementConfig();
   const years = [...new Set(availablePairs.map((p) => p.year))].sort((a, b) => b - a).map(String);
+  const companyOptions = useCompanyOptions();
   return (
     <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3">
       <SelectField
         label="公司（全部 tab 共享）"
-        options={COMPANY_OPTIONS}
+        options={companyOptions}
         value={company}
         onChange={setCompany}
         placeholder="—"

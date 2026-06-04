@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getManagementGroupByCode } from "@/server/services/hr/company-directory";
+import { loadCompanyMap, resolveCompanyCode } from "@/server/services/hr/company-directory";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -13,23 +13,25 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
-  const depts = await prisma.department.findMany({
-    where: { level: 2 },
-    orderBy: [{ code: "asc" }, { name: "asc" }],
-  });
+  const [depts, companyMap] = await Promise.all([
+    prisma.department.findMany({
+      where: { level: 2 },
+      orderBy: [{ code: "asc" }, { name: "asc" }],
+    }),
+    loadCompanyMap(),
+  ]);
 
-  const results = await Promise.all(
-    depts.map(async (d) => {
-      const mgmt = await getManagementGroupByCode(d.code);
-      return {
-        id: d.id,
-        name: d.name,
-        managementGroup: mgmt,
-        company: mgmt === "GMP" ? "丰华制药" : "丰华生物",
-        count: 0,
-      };
-    })
-  );
+  const results = depts.map((d) => {
+    const companyCode = resolveCompanyCode(companyMap, d.code);
+    const c = companyMap.get(companyCode) as { name?: string; managementGroup?: string } | undefined;
+    return {
+      id: d.id,
+      name: d.name,
+      managementGroup: c?.managementGroup ?? "常规体系",
+      company: c?.name ?? d.code,
+      count: 0,
+    };
+  });
 
   return NextResponse.json({ departments: results });
 }

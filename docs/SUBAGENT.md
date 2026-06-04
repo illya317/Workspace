@@ -4,7 +4,7 @@
 
 ## 必须遵守
 
-- 禁止硬编码：公司名/编码从 `@/lib/company` 导入，UI组件用共享组件
+- 禁止硬编码：公司名/编码从 `Company` 表通过 `@/server/services/hr/company-directory.ts` 查询获取，UI组件用共享组件
 - 确认弹框 → `<ConfirmModal>`，通知 → `useToast()`，表格编辑 → `<EditToolbar>`
 - API 鉴权 → `@/lib/auth`，禁止在路由中本地定义鉴权函数
 - 改完代码后必须 `npx tsc --noEmit` 验证零错误
@@ -14,7 +14,7 @@
 
 | 模块 | 用途 | 关键导出 |
 |------|------|----------|
-| `@/lib/company` | 公司常量 | `CODE_TO_NAME`, `NAME_TO_CODE`, `FENGHUA_BIO_GROUP`, `SHARED_GROUP_CODES`, `resolveCompanyFilter`, `getCompanyFromCode` |
+| `@/server/services/hr/company-directory.ts` | 公司事实查询 | `getCompanyByCode`, `getCompanyNameByCode`, `getManagementGroupByCode`, `getCodePoolCode`, `loadCompanyMap`, `isPharmaSync`, `getCompanyNameSync` |
 | `@/lib/search` | 拼音搜索 | `getInitials`, `matchEmployee` |
 | `@/lib/auth` | 认证鉴权 | `authenticate`, `checkPermission`, `requireAdmin`, `isAdmin`, `isGroupAdmin` |
 | `@/lib/permissions` | RBAC常量 | `RES`(资源树), `ROLE`(5角色), `perm`(兼容) |
@@ -25,7 +25,7 @@
 
 | 模块 | 用途 | 关键导出 |
 |------|------|----------|
-| `lib/company` | 公司常量 | `isPharma`, `isBio`, `CODE_TO_NAME`, `resolveCompanyFilter` |
+| `server/services/hr/company-directory.ts` | 公司事实查询 | `getCompanyByCode`, `getCompanyNameByCode`, `getManagementGroupByCode`, `getCodePoolCode`, `loadCompanyMap`, `isPharmaSync`, `getCompanyNameSync` |
 | `lib/search` | 拼音搜索 | `matchEmployee`, `getInitials`（唯一 import `pinyin-pro` 的地方） |
 | `lib/auth` | 认证鉴权 | `authenticate`, `checkPermission`, `checkHRAccess` |
 | `lib/period` | 周期计算 | `getCurrentPeriod`, `getPeriodRange`, `getPeriodOptions` |

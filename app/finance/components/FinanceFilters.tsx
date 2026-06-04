@@ -2,17 +2,9 @@
 
 import SelectField from "@/app/components/SelectField";
 import FilterToolbar from "@/app/components/FilterToolbar";
+import { useCompanyOptions } from "@/app/hooks/useCompanyOptions";
 
-// ─── Options ──────────────────────────────────────────────
-
-const COMPANY_OPTIONS = [
-  { value: "01", label: "丰华生物" },
-  { value: "02", label: "丰华天力通" },
-  { value: "03", label: "丰华悦通" },
-  { value: "04", label: "丰华制药" },
-  { value: "05", label: "加拿大" },
-  { value: "06", label: "上海悦通" },
-];
+// ─── Static Options ───────────────────────────────────────
 
 const YEAR_OPTIONS = [2024, 2025, 2026].map((y) => ({
   value: String(y),
@@ -74,6 +66,7 @@ export default function FinanceFilters({
   showCompanyYear = true,
   columns, visibleColumns, onColumnsChange,
 }: FinanceFiltersProps) {
+  const companyOptions = useCompanyOptions();
   return (
     <FilterToolbar
       keyword={showSearch ? keyword : undefined}
@@ -85,7 +78,7 @@ export default function FinanceFilters({
       onColumnsChange={onColumnsChange}
     >
       {showCompanyYear && onCompanyChange && (
-        <SelectField label="公司" options={COMPANY_OPTIONS} value={companyFilter} onChange={onCompanyChange} placeholder="全部" />
+        <SelectField label="公司" options={companyOptions} value={companyFilter} onChange={onCompanyChange} placeholder="全部" />
       )}
       {showCompanyYear && onYearChange && (
         <SelectField label="年度" options={YEAR_OPTIONS} value={yearFilter} onChange={onYearChange} placeholder="全部" />

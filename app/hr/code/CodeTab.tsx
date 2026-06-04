@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import EditToolbar from "@/app/components/EditToolbar";
 import AuditLogModal from "@/app/components/AuditLogModal";
 import Toast from "@/app/components/Toast";
@@ -19,7 +19,7 @@ export function CodesTab({
   const [companyCode, setCompanyCode] = useState("");
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
 
-  useState(() => {
+  useEffect(() => {
     fetch("/api/hr/companies?active=1")
       .then((r) => r.json())
       .then((data) => {
@@ -28,7 +28,7 @@ export function CodesTab({
         );
         if (found) setCompanyCode(found.code);
       });
-  });
+  }, [selectedCompany]);
 
   return (
     <div className="flex gap-6">

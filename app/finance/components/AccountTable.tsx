@@ -24,14 +24,7 @@ export interface Account {
 
 // ─── Lookups ─────────────────────────────────────────────
 
-const COMPANIES: Record<string, string> = {
-  "01": "丰华生物",
-  "02": "丰华天力通",
-  "03": "丰华悦通",
-  "04": "丰华制药",
-  "05": "加拿大",
-  "06": "上海悦通",
-};
+import CompanyNameCell from "@/app/components/CompanyNameCell";
 
 const CATEGORIES: Record<string, string> = {
   asset: "资产",
@@ -61,11 +54,7 @@ export const ACCOUNT_COLUMNS: DataTableColumn<Account>[] = [
   {
     key: "companyCode",
     label: "公司",
-    render: (a) => (
-      <span className="text-gray-600">
-        {a.companyCode ? COMPANIES[a.companyCode] || a.companyCode : "-"}
-      </span>
-    ),
+    render: (a) => <CompanyNameCell code={a.companyCode} />,
   },
   {
     key: "category",

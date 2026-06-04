@@ -1,8 +1,9 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import FKInput from "./FKInput";
 import { AutoSizeInput } from "./AutoSizeInput";
-import type { FieldConfig } from "../types";
+import type { FieldConfig, SelectOption } from "../types";
 
 interface GenericFieldInputProps {
   field: FieldConfig;
@@ -25,6 +26,26 @@ export default function GenericFieldInput({
   mode,
   className,
 }: GenericFieldInputProps) {
+  // 动态加载 select 选项
+  const [dynamicOptions, setDynamicOptions] = useState<SelectOption[]>([]);
+  useEffect(() => {
+    if (field.optionsSource === "companies") {
+      fetch("/api/hr/companies?active=1")
+        .then((r) => r.json())
+        .then((data) => {
+          const companies = (data.companies || []) as Array<{ code: string; name: string }>;
+          const opts: SelectOption[] = [
+            { label: "自身", value: "" },
+            ...companies.map((c) => ({ label: `${c.code} ${c.name}`, value: c.code })),
+          ];
+          setDynamicOptions(opts);
+        })
+        .catch(() => {});
+    }
+  }, [field.optionsSource]);
+
+  const selectOptions = field.options?.length ? field.options : dynamicOptions;
+
   if (field.type === "fk" && fkConfig) {
     if (mode === "create") {
       return (
@@ -67,7 +88,7 @@ export default function GenericFieldInput({
     );
   }
 
-  if (field.type === "select" && field.options) {
+  if (field.type === "select" && selectOptions.length > 0) {
     return (
       <select
         value={String(value ?? "")}
@@ -75,7 +96,7 @@ export default function GenericFieldInput({
         onKeyDown={onKeyDown}
         className={`rounded border border-emerald-400 px-2 py-1.5 text-sm focus:outline-none ${className || ""}`}
       >
-        {field.options.map((opt) => (
+        {selectOptions.map((opt) => (
           <option key={opt.value} value={opt.value}>
             {opt.label}
           </option>

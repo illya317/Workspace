@@ -29,6 +29,22 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
   const inputRef = useRef<HTMLInputElement>(null);
   const [showFilterModal, setShowFilterModal] = useState(false);
 
+  // 动态加载公司列表作为编码池选项
+  const [companyOptions, setCompanyOptions] = useState<Array<{ label: string; value: string }>>([]);
+  useEffect(() => {
+    fetch("/api/hr/companies?active=1")
+      .then((r) => r.json())
+      .then((data) => {
+        const companies = (data.companies || []) as Array<{ code: string; name: string }>;
+        const opts = [
+          { label: "自身", value: "" },
+          ...companies.map((c) => ({ label: `${c.code} ${c.name}`, value: c.code })),
+        ];
+        setCompanyOptions(opts);
+      })
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (editingCell && inputRef.current && !config.fkFields?.[editingCell.field]) {
       inputRef.current.focus();
@@ -36,7 +52,9 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
     }
   }, [editingCell, config.fkFields]);
 
-  const visibleFields = config.fields.filter((f) => !f.hidden);
+  const visibleFields = config.fields.filter((f) => !f.hidden).map((f) =>
+    f.optionsSource === "companies" ? { ...f, options: companyOptions } : f
+  );
 
   function handleStartEdit(item: Record<string, unknown>, field: FieldConfig) {
     if (!canEdit || !editMode || !field.editable) return;
