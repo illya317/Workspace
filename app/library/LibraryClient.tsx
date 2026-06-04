@@ -7,6 +7,7 @@ import { useLibraryCategories } from "./hooks/useLibraryCategories";
 import LibrarySidebar from "./components/LibrarySidebar";
 import LibraryTable from "./components/LibraryTable";
 import SearchBox from "@/app/components/SearchBox";
+import GenerateDocumentModal from "./components/GenerateDocumentModal";
 import DueDiligencePanel from "./due-diligence/components/DueDiligencePanel";
 
 const STATUS_OPTIONS = [
@@ -78,6 +79,7 @@ export default function LibraryClient({ rootLabel }: Props) {
 
 function DocumentsTab() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showGenerate, setShowGenerate] = useState(false);
   const { filters, setFilter, clearFilters, page, setPage, pageSize } = useLibraryFilters();
   const { documents, total, loading, error, refresh } = useLibraryDocuments(filters, page, pageSize);
   const { categories, loading: categoriesLoading, refresh: refreshCategories } = useLibraryCategories();
@@ -153,6 +155,12 @@ function DocumentsTab() {
             >
               清除筛选
             </button>
+            <button
+              onClick={() => setShowGenerate(true)}
+              className="ml-auto rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700 transition"
+            >
+              + 生成文档
+            </button>
           </div>
 
           {error && <div className="mb-4 rounded bg-red-50 px-4 py-2 text-sm text-red-600">{error}</div>}
@@ -183,6 +191,13 @@ function DocumentsTab() {
           )}
         </main>
       </div>
+
+      {showGenerate && (
+        <GenerateDocumentModal
+          onClose={() => setShowGenerate(false)}
+          onSuccess={handleUpdated}
+        />
+      )}
     </div>
   );
 }
