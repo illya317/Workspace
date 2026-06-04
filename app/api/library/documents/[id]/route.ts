@@ -46,7 +46,7 @@ function validateBody(raw: unknown): { ok: true; body: UpdateBody } | { ok: fals
     out.subcategoryPath = body.subcategoryPath;
   }
   if (body.confidentialityLevel !== undefined) {
-    if (typeof body.confidentialityLevel !== "number" || body.confidentialityLevel < 0 || body.confidentialityLevel > 4) {
+    if (typeof body.confidentialityLevel !== "number" || !Number.isInteger(body.confidentialityLevel) || body.confidentialityLevel < 0 || body.confidentialityLevel > 4) {
       return { ok: false, error: "confidentialityLevel must be an integer between 0 and 4" };
     }
     out.confidentialityLevel = body.confidentialityLevel;
