@@ -23,7 +23,11 @@ export async function upsertGeneratedDocument(
   if (!root) throw new Error("LIBRARY_ROOT not configured");
 
   const dirSlug = sanitizePathSegment(input.generatorKey);
-  const fileSlug = sanitizePathSegment(output.fileName);
+  const titleSlug = slug(input.title);
+  const titleHash = crypto.createHash("sha256").update(input.title).digest("hex").slice(0, 8);
+  const baseName = `${titleSlug || "untitled"}-${titleHash}`;
+  const fileName = `${baseName}.${output.extension}`;
+  const fileSlug = sanitizePathSegment(fileName);
   const relativePath = path.join("generated", dirSlug, fileSlug);
   const absPath = safeResolve(relativePath, root);
   if (!absPath) throw new Error("Invalid generated file path");
@@ -36,9 +40,7 @@ export async function upsertGeneratedDocument(
 
   const stats = await fs.stat(absPath);
   const checksum = crypto.createHash("sha256").update(content).digest("hex");
-  const titleSlug = slug(input.title);
-  const titleHash = crypto.createHash("sha256").update(input.title).digest("hex").slice(0, 8);
-  const stableKey = `generated:${input.generatorKey}:${titleSlug || "untitled"}-${titleHash}`;
+  const stableKey = `generated:${input.generatorKey}:${baseName}`;
 
   const now = new Date();
 
@@ -49,7 +51,7 @@ export async function upsertGeneratedDocument(
       stableKey,
       rootKey: "default",
       relativePath,
-      fileName: output.fileName,
+      fileName,
       extension: output.extension,
       mimeType: output.mimeType,
       fileSizeBytes: stats.size,
@@ -68,7 +70,7 @@ export async function upsertGeneratedDocument(
     },
     update: {
       relativePath,
-      fileName: output.fileName,
+      fileName,
       extension: output.extension,
       mimeType: output.mimeType,
       fileSizeBytes: stats.size,
