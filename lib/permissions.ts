@@ -34,6 +34,8 @@ export const RES = {
     budget: "finance.budget",
     analysis: "finance.analysis",
     cost: "finance.cost",
+    tax: "finance.tax",
+    treasury: "finance.treasury",
     import: "finance.import",
   },
   production: {

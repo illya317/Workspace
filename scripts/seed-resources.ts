@@ -45,8 +45,10 @@ async function main() {
   await upsertResource("finance.budget", "预算管理", "finance", "admin", undefined, "inherit", 2);
   await upsertResource("finance.analysis", "财务分析", "finance", "admin", undefined, "inherit", 3);
   await upsertResource("finance.cost", "成本管理", "finance", "admin", undefined, "inherit", 4);
-  await upsertResource("finance.import", "数据导入", "finance", "admin", undefined, "inherit", 5);
-  await upsertResource("finance.schedules", "附注明细", "finance", "admin", undefined, "inherit", 6);
+  await upsertResource("finance.tax", "税务管理", "finance", "admin", undefined, "inherit", 5);
+  await upsertResource("finance.treasury", "司库管理", "finance", "admin", undefined, "inherit", 6);
+  await upsertResource("finance.import", "数据导入", "finance", "admin", undefined, "inherit", 7);
+  await upsertResource("finance.schedules", "附注明细", "finance", "admin", undefined, "inherit", 8);
 
   await upsertResource("production", "生产管理", undefined, "admin", undefined, "inherit", 4);
   await upsertResource("production.inventory", "库存管理", "production", "admin", undefined, "inherit", 0);
