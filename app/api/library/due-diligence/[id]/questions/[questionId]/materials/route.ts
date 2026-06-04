@@ -75,14 +75,22 @@ export const PATCH = withLibraryWrite(async (request: Request, user, ctx?: Route
     return NextResponse.json({ error: "selected boolean is required" }, { status: 400 });
   }
 
-  // Verify selection belongs to this question
+  // Verify selection belongs to this question and user can access the document
+  const maxLevel = await getMaxConfidentialityLevel(user.userId);
+
   const selection = await prisma.dueDiligenceMaterialSelection.findUnique({
     where: { id: b.selectionId },
-    select: { questionId: true },
+    select: {
+      questionId: true,
+      document: { select: { confidentialityLevel: true } },
+    },
   });
   if (!selection) return NextResponse.json({ error: "Selection not found" }, { status: 404 });
   if (selection.questionId !== ids.questionId) {
     return NextResponse.json({ error: "Selection does not belong to this question" }, { status: 403 });
+  }
+  if (selection.document.confidentialityLevel > maxLevel) {
+    return NextResponse.json({ error: "Document confidentiality exceeds your access level" }, { status: 403 });
   }
 
   const updated = await updateMaterialSelection(b.selectionId, {
