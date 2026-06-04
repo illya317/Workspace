@@ -68,7 +68,7 @@ async function main() {
   await upsertResource("docs.expense", "报销规范", "docs", "access", undefined, "inherit", 2);
   
   await upsertResource("library", "资料库", undefined, "write", undefined, "inherit", 7);
-  await upsertResource("library.write", "资料库编辑", "library", "write", undefined, "inherit", 0);
+  await upsertResource("library.write", "资料库编辑", "library", "admin", undefined, "inherit", 0);
   await upsertResource("library.secret", "保密资料", "library", "access", undefined, "inherit", 1);
   await upsertResource("library.top_secret", "绝密资料", "library", "access", undefined, "inherit", 2);
 

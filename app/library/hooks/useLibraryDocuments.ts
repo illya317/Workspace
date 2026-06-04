@@ -21,6 +21,7 @@ export function useLibraryDocuments(filters: LibraryFilters, page: number, pageS
       params.set("page", String(page));
       params.set("pageSize", String(pageSize));
       if (filters.categoryCode) params.set("categoryCode", filters.categoryCode);
+      if (filters.directoryPath) params.set("directoryPath", filters.directoryPath);
       if (filters.status) params.set("status", filters.status);
       if (filters.origin) params.set("origin", filters.origin);
       if (filters.confidentialityLevel !== undefined) params.set("confidentialityLevel", String(filters.confidentialityLevel));
@@ -75,4 +76,12 @@ export async function updateDocument(id: number, body: Record<string, unknown>):
     throw new Error(err.error || `HTTP ${res.status}`);
   }
   return res.json();
+}
+
+export async function deleteDocument(id: number): Promise<void> {
+  const res = await fetch(`/api/library/documents/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Delete failed" }));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
 }

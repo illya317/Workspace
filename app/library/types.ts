@@ -3,6 +3,7 @@ export interface LibraryDocumentItem {
   stableKey: string;
   fileName: string;
   relativePath: string | null;
+  directoryPath: string | null;
   extension: string | null;
   fileSizeBytes: number | null;
   categoryCode: string | null;
@@ -24,6 +25,7 @@ export interface LibraryDocumentItem {
 
 export interface LibraryFilters {
   categoryCode?: string;
+  directoryPath?: string;
   status?: string;
   origin?: string;
   confidentialityLevel?: number;
@@ -34,4 +36,11 @@ export interface CategoryGroup {
   code: string;
   name: string;
   count: number;
+}
+
+export interface DirectoryNode {
+  path: string;
+  name: string;
+  count: number;
+  children: DirectoryNode[];
 }

@@ -6572,6 +6572,7 @@ export const LibraryDocumentScalarFieldEnum = {
   categoryCode: 'categoryCode',
   categoryName: 'categoryName',
   subcategoryPath: 'subcategoryPath',
+  directoryPath: 'directoryPath',
   title: 'title',
   summary: 'summary',
   confidentialityLevel: 'confidentialityLevel',

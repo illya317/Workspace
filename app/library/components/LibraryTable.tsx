@@ -8,27 +8,9 @@ interface Props {
   documents: LibraryDocumentItem[];
   loading: boolean;
   onRefresh: () => void;
-}
-
-const STATUS_LABELS: Record<string, string> = {
-  active: "正常",
-  missing: "缺失",
-  archived: "归档",
-  draft: "草稿",
-};
-
-const STATUS_STYLES: Record<string, string> = {
-  active: "bg-green-100 text-green-700",
-  missing: "bg-red-100 text-red-700",
-  archived: "bg-gray-100 text-gray-600",
-  draft: "bg-yellow-100 text-yellow-700",
-};
-
-function fmtSize(b: number | null) {
-  if (!b) return "—";
-  if (b < 1024) return `${b} B`;
-  if (b < 1024 * 1024) return `${(b / 1024).toFixed(1)} KB`;
-  return `${(b / (1024 * 1024)).toFixed(1)} MB`;
+  canWrite?: boolean;
+  canDelete?: boolean;
+  canAdmin?: boolean;
 }
 
 function fmtDate(iso: string | null) {
@@ -49,7 +31,14 @@ function confidentialityStyle(level: number) {
   return "bg-red-100 text-red-700";
 }
 
-export default function LibraryTable({ documents, loading, onRefresh }: Props) {
+export default function LibraryTable({
+  documents,
+  loading,
+  onRefresh,
+  canWrite,
+  canDelete,
+  canAdmin,
+}: Props) {
   const [detailId, setDetailId] = useState<number | null>(null);
 
   if (loading) {
@@ -66,13 +55,10 @@ export default function LibraryTable({ documents, loading, onRefresh }: Props) {
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-gray-600">标题</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600 w-32">分类</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600">文件名</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600 w-48">简介</th>
               <th className="px-4 py-3 text-left font-medium text-gray-600 w-28">更新时间</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600 w-20">版本</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600 w-24">大小</th>
               <th className="px-4 py-3 text-left font-medium text-gray-600 w-20">保密</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600 w-20">状态</th>
               <th className="px-4 py-3 text-left font-medium text-gray-600 w-16">操作</th>
             </tr>
           </thead>
@@ -84,21 +70,22 @@ export default function LibraryTable({ documents, loading, onRefresh }: Props) {
                 className="hover:bg-gray-50 cursor-pointer transition"
               >
                 <td className="px-4 py-3">
-                  <div className="font-medium text-gray-800">{d.title || d.fileName}</div>
-                  {d.summary && <div className="text-xs text-gray-400 truncate max-w-xs">{d.summary}</div>}
+                  <div className="font-medium text-gray-800 truncate max-w-xs">{d.fileName}</div>
+                  {d.title && d.title !== d.fileName && (
+                    <div className="text-xs text-gray-400 truncate max-w-xs">{d.title}</div>
+                  )}
                 </td>
-                <td className="px-4 py-3 text-gray-600">{d.categoryName || d.categoryCode || "—"}</td>
-                <td className="px-4 py-3 text-gray-500">{fmtDate(d.updatedAt)}</td>
-                <td className="px-4 py-3 text-gray-500">v{d.version}</td>
-                <td className="px-4 py-3 text-gray-500">{fmtSize(d.fileSizeBytes)}</td>
-                <td className="px-4 py-3">
-                  <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${confidentialityStyle(d.confidentialityLevel)}`}>
-                    {confidentialityLabel(d.confidentialityLevel)}
+                <td className="px-4 py-3 text-gray-500">
+                  <span className="truncate max-w-[12rem] block" title={d.summary || ""}>
+                    {d.summary || "—"}
                   </span>
                 </td>
+                <td className="px-4 py-3 text-gray-500">{fmtDate(d.updatedAt)}</td>
                 <td className="px-4 py-3">
-                  <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${STATUS_STYLES[d.status] || "bg-gray-100 text-gray-600"}`}>
-                    {STATUS_LABELS[d.status] || d.status}
+                  <span
+                    className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${confidentialityStyle(d.confidentialityLevel)}`}
+                  >
+                    {confidentialityLabel(d.confidentialityLevel)}
                   </span>
                 </td>
                 <td className="px-4 py-3">
@@ -110,7 +97,12 @@ export default function LibraryTable({ documents, loading, onRefresh }: Props) {
                       onClick={(e) => e.stopPropagation()}
                     >
                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                        />
                       </svg>
                     </a>
                   )}
@@ -125,6 +117,9 @@ export default function LibraryTable({ documents, loading, onRefresh }: Props) {
           documentId={detailId}
           onClose={() => setDetailId(null)}
           onUpdated={onRefresh}
+          canWrite={canWrite}
+          canDelete={canDelete}
+          canAdmin={canAdmin}
         />
       )}
     </>

@@ -18,6 +18,7 @@ export interface ScanResult {
 interface FileInfo {
   absolutePath: string;
   relativePath: string;
+  directoryPath: string;
   fileName: string;
   extension: string;
   size: number;
@@ -78,9 +79,11 @@ async function collectFiles(
       continue;
     }
 
+    const rel = path.relative(root, full);
     files.push({
       absolutePath: full,
-      relativePath: path.relative(root, full),
+      relativePath: rel,
+      directoryPath: path.dirname(rel),
       fileName: entry.name,
       extension: getExtension(entry.name),
       size: s.size,
@@ -158,6 +161,7 @@ export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
               fileSizeBytes: info.size,
               fileMtime: info.mtime,
               checksumSha256: null,
+              directoryPath: info.directoryPath === "." ? null : info.directoryPath,
               version: nextVersion,
               status: "active",
               updatedAt: new Date(),
@@ -180,6 +184,7 @@ export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
           checksumSha256: null,
           categoryCode: info.categoryCode || null,
           categoryName: info.categoryName || null,
+          directoryPath: info.directoryPath === "." ? null : info.directoryPath,
           status: "active",
           origin: "scanned",
           version: 1,

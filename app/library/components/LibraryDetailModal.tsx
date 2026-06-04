@@ -3,15 +3,20 @@
 import { useState, useEffect } from "react";
 import DetailModal from "@/app/components/DetailModal";
 import EditToolbar from "@/app/components/EditToolbar";
+import ConfirmModal from "@/app/components/ConfirmModal";
 import { useToast } from "@/app/hooks/useToast";
 import Toast from "@/app/components/Toast";
-import { useDocumentDetail, updateDocument } from "../hooks/useLibraryDocuments";
+import { useDocumentDetail, updateDocument, deleteDocument } from "../hooks/useLibraryDocuments";
+import LibraryEditForm from "./LibraryEditForm";
 import type { LibraryDocumentItem } from "../types";
 
 interface Props {
   documentId: number;
   onClose: () => void;
   onUpdated: () => void;
+  canWrite?: boolean;
+  canDelete?: boolean;
+  canAdmin?: boolean;
 }
 
 const STATUS_OPTIONS = [
@@ -42,12 +47,23 @@ function fmtDate(iso: string | null) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
 
-export default function LibraryDetailModal({ documentId, onClose, onUpdated }: Props) {
+export default function LibraryDetailModal({
+  documentId,
+  onClose,
+  onUpdated,
+  canWrite,
+  canDelete,
+  canAdmin,
+}: Props) {
   const { doc, loading, setDoc } = useDocumentDetail(documentId);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [form, setForm] = useState<Partial<LibraryDocumentItem>>({});
   const { toast, showToast, closeToast } = useToast();
+
+  const canEdit = canWrite || canAdmin;
 
   useEffect(() => {
     if (doc) setForm({});
@@ -82,6 +98,22 @@ export default function LibraryDetailModal({ documentId, onClose, onUpdated }: P
     setEditing(false);
   };
 
+  const handleDelete = async () => {
+    if (!doc) return;
+    setDeleting(true);
+    try {
+      await deleteDocument(doc.id);
+      showToast("已删除", "success");
+      setShowDeleteConfirm(false);
+      onUpdated();
+      onClose();
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : "删除失败", "error");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const renderField = (label: string, value: React.ReactNode) => (
     <div className="py-2 border-b border-gray-100 last:border-0">
       <span className="text-xs text-gray-400 block mb-0.5">{label}</span>
@@ -91,98 +123,44 @@ export default function LibraryDetailModal({ documentId, onClose, onUpdated }: P
 
   return (
     <>
-      <Toast
-        show={!!toast}
-        message={toast?.message || ""}
-        type={toast?.type}
-        onClose={closeToast}
-      />
+      <Toast show={!!toast} message={toast?.message || ""} type={toast?.type} onClose={closeToast} />
       <DetailModal open={true} title={doc?.title || doc?.fileName || "资料详情"} onClose={onClose}>
         <div className="max-w-lg mx-auto">
-          <EditToolbar
-            editMode={editing}
-            onStartEdit={() => setEditing(true)}
-            onSave={handleSave}
-            onCancel={handleCancel}
-            saving={saving}
-          />
+          {canEdit && (
+            <EditToolbar
+              editMode={editing}
+              onStartEdit={() => setEditing(true)}
+              onSave={handleSave}
+              onCancel={handleCancel}
+              saving={saving}
+            />
+          )}
 
           {loading || !doc ? (
             <div className="py-12 text-center text-gray-400">加载中…</div>
           ) : (
             <div className="mt-4 space-y-1">
               {editing ? (
-                <>
-                  <div className="py-2">
-                    <label className="text-xs text-gray-400 block mb-1">标题</label>
-                    <input
-                      type="text"
-                      value={form.title ?? doc.title ?? ""}
-                      onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                      className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                    />
-                  </div>
-                  <div className="py-2">
-                    <label className="text-xs text-gray-400 block mb-1">简介</label>
-                    <textarea
-                      value={form.summary ?? doc.summary ?? ""}
-                      onChange={(e) => setForm((f) => ({ ...f, summary: e.target.value }))}
-                      rows={3}
-                      className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                    />
-                  </div>
-                  <div className="py-2">
-                    <label className="text-xs text-gray-400 block mb-1">分类编码</label>
-                    <input
-                      type="text"
-                      value={form.categoryCode ?? doc.categoryCode ?? ""}
-                      onChange={(e) => setForm((f) => ({ ...f, categoryCode: e.target.value }))}
-                      className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                    />
-                  </div>
-                  <div className="py-2">
-                    <label className="text-xs text-gray-400 block mb-1">分类名称</label>
-                    <input
-                      type="text"
-                      value={form.categoryName ?? doc.categoryName ?? ""}
-                      onChange={(e) => setForm((f) => ({ ...f, categoryName: e.target.value }))}
-                      className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                    />
-                  </div>
-                  <div className="py-2">
-                    <label className="text-xs text-gray-400 block mb-1">保密等级</label>
-                    <select
-                      value={form.confidentialityLevel !== undefined ? form.confidentialityLevel : doc.confidentialityLevel}
-                      onChange={(e) => setForm((f) => ({ ...f, confidentialityLevel: parseInt(e.target.value, 10) }))}
-                      className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                    >
-                      {CONFIDENTIALITY_OPTIONS.map((o) => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="py-2">
-                    <label className="text-xs text-gray-400 block mb-1">状态</label>
-                    <select
-                      value={form.status !== undefined ? form.status : doc.status}
-                      onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))}
-                      className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                    >
-                      {STATUS_OPTIONS.map((o) => (
-                        <option key={o.value} value={o.value}>{o.label}</option>
-                      ))}
-                    </select>
-                  </div>
-                </>
+                <LibraryEditForm
+                  doc={doc}
+                  form={form}
+                  setForm={setForm}
+                  canWrite={canWrite}
+                  canAdmin={canAdmin}
+                />
               ) : (
                 <>
                   {renderField("文件名", doc.fileName)}
                   {renderField("标题", doc.title || "—")}
                   {renderField("简介", doc.summary || "—")}
                   {renderField("分类", `${doc.categoryCode || "—"} ${doc.categoryName || ""}`)}
-                  {renderField("路径", doc.subcategoryPath || "—")}
+                  {renderField("目录", doc.directoryPath || "—")}
                   {renderField("大小", fmtSize(doc.fileSizeBytes))}
-                  {renderField("保密等级", CONFIDENTIALITY_OPTIONS.find((o) => o.value === doc.confidentialityLevel)?.label || `L${doc.confidentialityLevel}`)}
+                  {renderField(
+                    "保密等级",
+                    CONFIDENTIALITY_OPTIONS.find((o) => o.value === doc.confidentialityLevel)?.label ||
+                      `L${doc.confidentialityLevel}`,
+                  )}
                   {renderField("状态", STATUS_OPTIONS.find((o) => o.value === doc.status)?.label || doc.status)}
                   {renderField("来源", doc.origin)}
                   {renderField("版本", `v${doc.version}`)}
@@ -197,10 +175,25 @@ export default function LibraryDetailModal({ documentId, onClose, onUpdated }: P
                         rel="noopener noreferrer"
                       >
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                          />
                         </svg>
                         下载文件
                       </a>
+                    </div>
+                  )}
+                  {canDelete && (
+                    <div className="pt-4">
+                      <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 hover:bg-red-100 transition"
+                      >
+                        删除
+                      </button>
                     </div>
                   )}
                 </>
@@ -209,6 +202,15 @@ export default function LibraryDetailModal({ documentId, onClose, onUpdated }: P
           )}
         </div>
       </DetailModal>
+
+      <ConfirmModal
+        open={showDeleteConfirm}
+        title="确认删除"
+        message={`确定要删除 "${doc?.fileName || "此文件"}" 吗？删除后将归档，不会永久丢失。`}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteConfirm(false)}
+        confirmLabel={deleting ? "删除中..." : "确认删除"}
+      />
     </>
   );
 }

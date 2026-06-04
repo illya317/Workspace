@@ -90,7 +90,7 @@ export const RESOURCE_MAX_ROLE: Record<string, string> = {
   system: "admin",
   "system.erpnext": "admin",
   library: "write",
-  "library.write": "write",
+  "library.write": "admin",
   "library.secret": "access",
   "library.top_secret": "access",
   docs: "access",

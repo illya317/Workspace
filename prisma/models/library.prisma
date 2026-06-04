@@ -13,6 +13,7 @@ model LibraryDocument {
   categoryCode          String?
   categoryName          String?
   subcategoryPath       String?
+  directoryPath         String?
   title                 String?
   summary               String?
   confidentialityLevel  Int      @default(2)
@@ -36,6 +37,7 @@ model LibraryDocument {
   @@index([stableKey])
   @@index([rootKey])
   @@index([categoryCode])
+  @@index([directoryPath])
   @@index([status])
   @@index([confidentialityLevel])
   @@index([origin])

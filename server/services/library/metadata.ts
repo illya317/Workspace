@@ -5,6 +5,7 @@ import type { LibraryDocument, LibraryDocumentVersion } from "@/generated/prisma
 
 export interface ListFilters {
   categoryCode?: string;
+  directoryPath?: string;
   status?: string;
   origin?: string;
   confidentialityLevel?: number | { lte: number };
@@ -39,6 +40,12 @@ function buildWhere(filters: ListFilters) {
 
   if (filters.categoryCode) {
     where.categoryCode = filters.categoryCode;
+  }
+  if (filters.directoryPath) {
+    where.OR = [
+      { directoryPath: filters.directoryPath },
+      { directoryPath: { startsWith: filters.directoryPath + "/" } },
+    ];
   }
   if (filters.status) {
     where.status = filters.status;
@@ -127,7 +134,6 @@ export async function listCategories(
   }
   where.categoryCode = { not: null };
 
-  // 按 code 聚合：同一 code 下取第一个非空 name，count 累加
   const docs = await prisma.libraryDocument.findMany({
     where,
     select: { categoryCode: true, categoryName: true, id: true },
@@ -182,4 +188,20 @@ export async function updateDocumentMetadata(
   const result = await attachLatestVersion(updated);
   if (!result) throw new Error("Update failed");
   return result;
+}
+
+export async function archiveDocument(id: number, userId: number): Promise<void> {
+  const doc = await prisma.libraryDocument.findUnique({ where: { id } });
+  if (!doc) {
+    throw new Error("Document not found");
+  }
+  await prisma.libraryDocument.update({
+    where: { id },
+    data: {
+      status: "archived",
+      editedBy: userId,
+      editedAt: new Date(),
+      version: { increment: 1 },
+    },
+  });
 }

@@ -7,6 +7,7 @@ export const GET = withLibraryAccess(async (request: Request, user) => {
   const { searchParams } = new URL(request.url);
   const filters = {
     categoryCode: searchParams.get("categoryCode") || undefined,
+    directoryPath: searchParams.get("directoryPath") || undefined,
     status: searchParams.get("status") || undefined,
     origin: searchParams.get("origin") || undefined,
     confidentialityLevel: searchParams.get("confidentialityLevel")

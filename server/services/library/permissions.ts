@@ -14,10 +14,22 @@ export async function checkLibraryAccess(userId: number): Promise<boolean> {
   return checkPermission(userId, "library", "access");
 }
 
-/** Check library write permission. */
+/** Check library write permission (edit summary/title/category). */
 export async function checkLibraryWrite(userId: number): Promise<boolean> {
   if (await checkPermission(userId, "system", "admin")) return true;
   return checkPermission(userId, "library.write", "write");
+}
+
+/** Check library delete permission (soft delete / archive). */
+export async function checkLibraryDelete(userId: number): Promise<boolean> {
+  if (await checkPermission(userId, "system", "admin")) return true;
+  return checkPermission(userId, "library.write", "delete");
+}
+
+/** Check library admin permission (edit confidentialityLevel). */
+export async function checkLibraryAdmin(userId: number): Promise<boolean> {
+  if (await checkPermission(userId, "system", "admin")) return true;
+  return checkPermission(userId, "library.write", "admin");
 }
 
 /** Check library.secret access (confidentiality 3). */

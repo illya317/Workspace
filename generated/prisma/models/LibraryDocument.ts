@@ -56,6 +56,7 @@ export type LibraryDocumentMinAggregateOutputType = {
   categoryCode: string | null
   categoryName: string | null
   subcategoryPath: string | null
+  directoryPath: string | null
   title: string | null
   summary: string | null
   confidentialityLevel: number | null
@@ -87,6 +88,7 @@ export type LibraryDocumentMaxAggregateOutputType = {
   categoryCode: string | null
   categoryName: string | null
   subcategoryPath: string | null
+  directoryPath: string | null
   title: string | null
   summary: string | null
   confidentialityLevel: number | null
@@ -118,6 +120,7 @@ export type LibraryDocumentCountAggregateOutputType = {
   categoryCode: number
   categoryName: number
   subcategoryPath: number
+  directoryPath: number
   title: number
   summary: number
   confidentialityLevel: number
@@ -167,6 +170,7 @@ export type LibraryDocumentMinAggregateInputType = {
   categoryCode?: true
   categoryName?: true
   subcategoryPath?: true
+  directoryPath?: true
   title?: true
   summary?: true
   confidentialityLevel?: true
@@ -198,6 +202,7 @@ export type LibraryDocumentMaxAggregateInputType = {
   categoryCode?: true
   categoryName?: true
   subcategoryPath?: true
+  directoryPath?: true
   title?: true
   summary?: true
   confidentialityLevel?: true
@@ -229,6 +234,7 @@ export type LibraryDocumentCountAggregateInputType = {
   categoryCode?: true
   categoryName?: true
   subcategoryPath?: true
+  directoryPath?: true
   title?: true
   summary?: true
   confidentialityLevel?: true
@@ -347,6 +353,7 @@ export type LibraryDocumentGroupByOutputType = {
   categoryCode: string | null
   categoryName: string | null
   subcategoryPath: string | null
+  directoryPath: string | null
   title: string | null
   summary: string | null
   confidentialityLevel: number
@@ -401,6 +408,7 @@ export type LibraryDocumentWhereInput = {
   categoryCode?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   categoryName?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   subcategoryPath?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
+  directoryPath?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   title?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   summary?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   confidentialityLevel?: Prisma.IntFilter<"LibraryDocument"> | number
@@ -435,6 +443,7 @@ export type LibraryDocumentOrderByWithRelationInput = {
   categoryCode?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryName?: Prisma.SortOrderInput | Prisma.SortOrder
   subcategoryPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  directoryPath?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   confidentialityLevel?: Prisma.SortOrder
@@ -472,6 +481,7 @@ export type LibraryDocumentWhereUniqueInput = Prisma.AtLeast<{
   categoryCode?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   categoryName?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   subcategoryPath?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
+  directoryPath?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   title?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   summary?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   confidentialityLevel?: Prisma.IntFilter<"LibraryDocument"> | number
@@ -506,6 +516,7 @@ export type LibraryDocumentOrderByWithAggregationInput = {
   categoryCode?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryName?: Prisma.SortOrderInput | Prisma.SortOrder
   subcategoryPath?: Prisma.SortOrderInput | Prisma.SortOrder
+  directoryPath?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   confidentialityLevel?: Prisma.SortOrder
@@ -545,6 +556,7 @@ export type LibraryDocumentScalarWhereWithAggregatesInput = {
   categoryCode?: Prisma.StringNullableWithAggregatesFilter<"LibraryDocument"> | string | null
   categoryName?: Prisma.StringNullableWithAggregatesFilter<"LibraryDocument"> | string | null
   subcategoryPath?: Prisma.StringNullableWithAggregatesFilter<"LibraryDocument"> | string | null
+  directoryPath?: Prisma.StringNullableWithAggregatesFilter<"LibraryDocument"> | string | null
   title?: Prisma.StringNullableWithAggregatesFilter<"LibraryDocument"> | string | null
   summary?: Prisma.StringNullableWithAggregatesFilter<"LibraryDocument"> | string | null
   confidentialityLevel?: Prisma.IntWithAggregatesFilter<"LibraryDocument"> | number
@@ -575,6 +587,7 @@ export type LibraryDocumentCreateInput = {
   categoryCode?: string | null
   categoryName?: string | null
   subcategoryPath?: string | null
+  directoryPath?: string | null
   title?: string | null
   summary?: string | null
   confidentialityLevel?: number
@@ -608,6 +621,7 @@ export type LibraryDocumentUncheckedCreateInput = {
   categoryCode?: string | null
   categoryName?: string | null
   subcategoryPath?: string | null
+  directoryPath?: string | null
   title?: string | null
   summary?: string | null
   confidentialityLevel?: number
@@ -640,6 +654,7 @@ export type LibraryDocumentUpdateInput = {
   categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
@@ -673,6 +688,7 @@ export type LibraryDocumentUncheckedUpdateInput = {
   categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
@@ -706,6 +722,7 @@ export type LibraryDocumentCreateManyInput = {
   categoryCode?: string | null
   categoryName?: string | null
   subcategoryPath?: string | null
+  directoryPath?: string | null
   title?: string | null
   summary?: string | null
   confidentialityLevel?: number
@@ -736,6 +753,7 @@ export type LibraryDocumentUpdateManyMutationInput = {
   categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
@@ -766,6 +784,7 @@ export type LibraryDocumentUncheckedUpdateManyInput = {
   categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
@@ -807,6 +826,7 @@ export type LibraryDocumentCountOrderByAggregateInput = {
   categoryCode?: Prisma.SortOrder
   categoryName?: Prisma.SortOrder
   subcategoryPath?: Prisma.SortOrder
+  directoryPath?: Prisma.SortOrder
   title?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   confidentialityLevel?: Prisma.SortOrder
@@ -846,6 +866,7 @@ export type LibraryDocumentMaxOrderByAggregateInput = {
   categoryCode?: Prisma.SortOrder
   categoryName?: Prisma.SortOrder
   subcategoryPath?: Prisma.SortOrder
+  directoryPath?: Prisma.SortOrder
   title?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   confidentialityLevel?: Prisma.SortOrder
@@ -877,6 +898,7 @@ export type LibraryDocumentMinOrderByAggregateInput = {
   categoryCode?: Prisma.SortOrder
   categoryName?: Prisma.SortOrder
   subcategoryPath?: Prisma.SortOrder
+  directoryPath?: Prisma.SortOrder
   title?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   confidentialityLevel?: Prisma.SortOrder
@@ -990,6 +1012,7 @@ export type LibraryDocumentCreateWithoutEditorInput = {
   categoryCode?: string | null
   categoryName?: string | null
   subcategoryPath?: string | null
+  directoryPath?: string | null
   title?: string | null
   summary?: string | null
   confidentialityLevel?: number
@@ -1022,6 +1045,7 @@ export type LibraryDocumentUncheckedCreateWithoutEditorInput = {
   categoryCode?: string | null
   categoryName?: string | null
   subcategoryPath?: string | null
+  directoryPath?: string | null
   title?: string | null
   summary?: string | null
   confidentialityLevel?: number
@@ -1082,6 +1106,7 @@ export type LibraryDocumentScalarWhereInput = {
   categoryCode?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   categoryName?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   subcategoryPath?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
+  directoryPath?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   title?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   summary?: Prisma.StringNullableFilter<"LibraryDocument"> | string | null
   confidentialityLevel?: Prisma.IntFilter<"LibraryDocument"> | number
@@ -1112,6 +1137,7 @@ export type LibraryDocumentCreateWithoutVersionsInput = {
   categoryCode?: string | null
   categoryName?: string | null
   subcategoryPath?: string | null
+  directoryPath?: string | null
   title?: string | null
   summary?: string | null
   confidentialityLevel?: number
@@ -1144,6 +1170,7 @@ export type LibraryDocumentUncheckedCreateWithoutVersionsInput = {
   categoryCode?: string | null
   categoryName?: string | null
   subcategoryPath?: string | null
+  directoryPath?: string | null
   title?: string | null
   summary?: string | null
   confidentialityLevel?: number
@@ -1191,6 +1218,7 @@ export type LibraryDocumentUpdateWithoutVersionsInput = {
   categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1223,6 +1251,7 @@ export type LibraryDocumentUncheckedUpdateWithoutVersionsInput = {
   categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1254,6 +1283,7 @@ export type LibraryDocumentCreateWithoutMaterialSelectionsInput = {
   categoryCode?: string | null
   categoryName?: string | null
   subcategoryPath?: string | null
+  directoryPath?: string | null
   title?: string | null
   summary?: string | null
   confidentialityLevel?: number
@@ -1286,6 +1316,7 @@ export type LibraryDocumentUncheckedCreateWithoutMaterialSelectionsInput = {
   categoryCode?: string | null
   categoryName?: string | null
   subcategoryPath?: string | null
+  directoryPath?: string | null
   title?: string | null
   summary?: string | null
   confidentialityLevel?: number
@@ -1333,6 +1364,7 @@ export type LibraryDocumentUpdateWithoutMaterialSelectionsInput = {
   categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1365,6 +1397,7 @@ export type LibraryDocumentUncheckedUpdateWithoutMaterialSelectionsInput = {
   categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1397,6 +1430,7 @@ export type LibraryDocumentCreateManyEditorInput = {
   categoryCode?: string | null
   categoryName?: string | null
   subcategoryPath?: string | null
+  directoryPath?: string | null
   title?: string | null
   summary?: string | null
   confidentialityLevel?: number
@@ -1426,6 +1460,7 @@ export type LibraryDocumentUpdateWithoutEditorInput = {
   categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1458,6 +1493,7 @@ export type LibraryDocumentUncheckedUpdateWithoutEditorInput = {
   categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1490,6 +1526,7 @@ export type LibraryDocumentUncheckedUpdateManyWithoutEditorInput = {
   categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1560,6 +1597,7 @@ export type LibraryDocumentSelect<ExtArgs extends runtime.Types.Extensions.Inter
   categoryCode?: boolean
   categoryName?: boolean
   subcategoryPath?: boolean
+  directoryPath?: boolean
   title?: boolean
   summary?: boolean
   confidentialityLevel?: boolean
@@ -1595,6 +1633,7 @@ export type LibraryDocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   categoryCode?: boolean
   categoryName?: boolean
   subcategoryPath?: boolean
+  directoryPath?: boolean
   title?: boolean
   summary?: boolean
   confidentialityLevel?: boolean
@@ -1627,6 +1666,7 @@ export type LibraryDocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   categoryCode?: boolean
   categoryName?: boolean
   subcategoryPath?: boolean
+  directoryPath?: boolean
   title?: boolean
   summary?: boolean
   confidentialityLevel?: boolean
@@ -1659,6 +1699,7 @@ export type LibraryDocumentSelectScalar = {
   categoryCode?: boolean
   categoryName?: boolean
   subcategoryPath?: boolean
+  directoryPath?: boolean
   title?: boolean
   summary?: boolean
   confidentialityLevel?: boolean
@@ -1676,7 +1717,7 @@ export type LibraryDocumentSelectScalar = {
   updatedAt?: boolean
 }
 
-export type LibraryDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "stableKey" | "rootKey" | "relativePath" | "fileName" | "extension" | "mimeType" | "fileSizeBytes" | "fileMtime" | "checksumSha256" | "categoryCode" | "categoryName" | "subcategoryPath" | "title" | "summary" | "confidentialityLevel" | "status" | "origin" | "generatorKey" | "versionLabel" | "gitRepo" | "gitCommit" | "gitPath" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["libraryDocument"]>
+export type LibraryDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "stableKey" | "rootKey" | "relativePath" | "fileName" | "extension" | "mimeType" | "fileSizeBytes" | "fileMtime" | "checksumSha256" | "categoryCode" | "categoryName" | "subcategoryPath" | "directoryPath" | "title" | "summary" | "confidentialityLevel" | "status" | "origin" | "generatorKey" | "versionLabel" | "gitRepo" | "gitCommit" | "gitPath" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["libraryDocument"]>
 export type LibraryDocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.LibraryDocument$editorArgs<ExtArgs>
   versions?: boolean | Prisma.LibraryDocument$versionsArgs<ExtArgs>
@@ -1711,6 +1752,7 @@ export type $LibraryDocumentPayload<ExtArgs extends runtime.Types.Extensions.Int
     categoryCode: string | null
     categoryName: string | null
     subcategoryPath: string | null
+    directoryPath: string | null
     title: string | null
     summary: string | null
     confidentialityLevel: number
@@ -2165,6 +2207,7 @@ export interface LibraryDocumentFieldRefs {
   readonly categoryCode: Prisma.FieldRef<"LibraryDocument", 'String'>
   readonly categoryName: Prisma.FieldRef<"LibraryDocument", 'String'>
   readonly subcategoryPath: Prisma.FieldRef<"LibraryDocument", 'String'>
+  readonly directoryPath: Prisma.FieldRef<"LibraryDocument", 'String'>
   readonly title: Prisma.FieldRef<"LibraryDocument", 'String'>
   readonly summary: Prisma.FieldRef<"LibraryDocument", 'String'>
   readonly confidentialityLevel: Prisma.FieldRef<"LibraryDocument", 'Int'>
