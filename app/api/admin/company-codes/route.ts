@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { snapshotHistory } from "@/lib/history";
+import type { Company } from "@/generated/prisma/client";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -14,7 +15,7 @@ export async function GET(request: Request) {
 
   const companies = await prisma.company.findMany({ orderBy: { sortOrder: "asc" } });
   return NextResponse.json({
-    companies: companies.map((r) => ({
+    companies: companies.map((r: Company) => ({
       id: r.id,
       code: r.code,
       name: r.name,

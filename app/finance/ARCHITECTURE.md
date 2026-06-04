@@ -393,14 +393,14 @@ npm run budget:sync-accounts
 
 | 页面 | Guard |
 |------|-------|
-| `/finance` | `requireResourceAccess("finance")` |
+| `/finance` | `getCurrentUser` + `canAccessFinance`（session 层聚合所有 finance 子权限） |
 | `/finance/ledger` | `requireResourceAccess("finance.ledger")` |
 | `/finance/statements` | `requireResourceAccess("finance.statement")` |
 | `/finance/analysis` | `requireResourceAccess("finance.analysis")` |
 | `/finance/budget` | `requireResourceAccess("finance.budget")` |
 | `/finance/cost` | `requireResourceAccess("finance.cost")` |
-| `/finance/tax` | 占位，无门禁 |
-| `/finance/treasury` | 占位，无门禁 |
+| `/finance/tax` | `requireResourceAccess("finance.tax")` |
+| `/finance/treasury` | `requireResourceAccess("finance.treasury")` |
 | `/finance/import` | `requireResourceAccess("finance.import")` |
 
 ### API Guard Wrapper

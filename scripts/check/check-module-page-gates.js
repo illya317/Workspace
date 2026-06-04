@@ -99,13 +99,33 @@ function hrefToPagePath(href) {
   return path.join(APP_DIR, relative, "page.tsx");
 }
 
-function checkPageGate(pagePath, expectedResourceKey) {
-  if (!fs.existsSync(pagePath)) return null; // no page to gate
-  const text = readText(pagePath);
+function hasResourceGate(filePath, expectedResourceKey) {
+  if (!fs.existsSync(filePath)) return false;
+  const text = readText(filePath);
   const regex = new RegExp(
     `requireResourceAccess\\s*\\(\\s*["']${expectedResourceKey.replace(/\./g, "\\.")}["']\\s*\\)`,
   );
   return regex.test(text);
+}
+
+function findLayoutFiles(pageDir) {
+  const layouts = [];
+  let dir = pageDir;
+  while (dir.startsWith(APP_DIR)) {
+    const layout = path.join(dir, "layout.tsx");
+    if (fs.existsSync(layout)) layouts.push(layout);
+    if (dir === APP_DIR) break;
+    dir = path.dirname(dir);
+  }
+  return layouts;
+}
+
+function checkPageGate(pagePath, expectedResourceKey) {
+  if (!fs.existsSync(pagePath)) return null; // no page to gate
+  if (hasResourceGate(pagePath, expectedResourceKey)) return true;
+  const pageDir = path.dirname(pagePath);
+  const layouts = findLayoutFiles(pageDir);
+  return layouts.some((layout) => hasResourceGate(layout, expectedResourceKey));
 }
 
 function main() {
@@ -222,7 +242,7 @@ function main() {
     console.error("✗ Module page gate check failed.");
     for (const v of violations) {
       console.error(
-        `  ${v.pagePath} — missing requireResourceAccess("${v.expectedResourceKey}") (declared at app/lib/module-nav.tsx:${v.navLine} for ${v.key})`,
+        `  ${v.pagePath} — missing requireResourceAccess("${v.expectedResourceKey}") in page.tsx or upstream layout.tsx (declared at app/lib/module-nav.tsx:${v.navLine} for ${v.key})`,
       );
     }
     process.exit(1);
