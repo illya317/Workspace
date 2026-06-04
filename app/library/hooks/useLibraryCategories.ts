@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { CategoryGroup } from "../types";
 
 export function useLibraryCategories() {
@@ -8,7 +8,7 @@ export function useLibraryCategories() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const refresh = useCallback(() => {
     setLoading(true);
     fetch("/api/library/categories")
       .then((r) => (r.ok ? r.json() : []))
@@ -17,5 +17,9 @@ export function useLibraryCategories() {
       .finally(() => setLoading(false));
   }, []);
 
-  return { categories, loading, error };
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  return { categories, loading, error, refresh };
 }

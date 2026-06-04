@@ -48,7 +48,7 @@ export function useDocumentDetail(id: number | null) {
   const [doc, setDoc] = useState<LibraryDocumentItem | null>(null);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
+  const fetchDoc = useCallback(() => {
     if (!id) { setDoc(null); return; }
     setLoading(true);
     fetch(`/api/library/documents/${id}`)
@@ -57,7 +57,11 @@ export function useDocumentDetail(id: number | null) {
       .finally(() => setLoading(false));
   }, [id]);
 
-  return { doc, loading };
+  useEffect(() => {
+    fetchDoc();
+  }, [fetchDoc]);
+
+  return { doc, loading, setDoc, refresh: fetchDoc };
 }
 
 export async function updateDocument(id: number, body: Record<string, unknown>): Promise<LibraryDocumentItem> {

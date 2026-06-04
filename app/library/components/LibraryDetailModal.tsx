@@ -43,7 +43,7 @@ function fmtDate(iso: string | null) {
 }
 
 export default function LibraryDetailModal({ documentId, onClose, onUpdated }: Props) {
-  const { doc, loading } = useDocumentDetail(documentId);
+  const { doc, loading, setDoc } = useDocumentDetail(documentId);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Partial<LibraryDocumentItem>>({});
@@ -65,7 +65,8 @@ export default function LibraryDetailModal({ documentId, onClose, onUpdated }: P
       if (form.categoryName !== undefined) payload.categoryName = form.categoryName;
       if (form.confidentialityLevel !== undefined) payload.confidentialityLevel = form.confidentialityLevel;
       if (form.status !== undefined) payload.status = form.status;
-      await updateDocument(doc.id, payload);
+      const updated = await updateDocument(doc.id, payload);
+      setDoc(updated);
       showToast("保存成功", "success");
       setEditing(false);
       onUpdated();

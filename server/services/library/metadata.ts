@@ -127,18 +127,26 @@ export async function listCategories(
   }
   where.categoryCode = { not: null };
 
-  const rows = await prisma.libraryDocument.groupBy({
-    by: ["categoryCode", "categoryName"],
+  // 按 code 聚合：同一 code 下取第一个非空 name，count 累加
+  const docs = await prisma.libraryDocument.findMany({
     where,
-    _count: { id: true },
+    select: { categoryCode: true, categoryName: true, id: true },
   });
 
-  return rows
-    .map((r) => ({
-      code: r.categoryCode!,
-      name: r.categoryName || r.categoryCode!,
-      count: r._count.id,
-    }))
+  const map = new Map<string, { name: string; count: number }>();
+  for (const d of docs) {
+    if (!d.categoryCode) continue;
+    const existing = map.get(d.categoryCode);
+    if (existing) {
+      existing.count++;
+      if (!existing.name && d.categoryName) existing.name = d.categoryName;
+    } else {
+      map.set(d.categoryCode, { name: d.categoryName || d.categoryCode, count: 1 });
+    }
+  }
+
+  return Array.from(map.entries())
+    .map(([code, { name, count }]) => ({ code, name, count }))
     .sort((a, b) => a.code.localeCompare(b.code, "zh"));
 }
 

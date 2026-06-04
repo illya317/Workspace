@@ -41,9 +41,14 @@ export default function LibraryClient({ rootLabel }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { filters, setFilter, clearFilters, page, setPage, pageSize } = useLibraryFilters();
   const { documents, total, loading, error, refresh } = useLibraryDocuments(filters, page, pageSize);
-  const { categories, loading: categoriesLoading } = useLibraryCategories();
+  const { categories, loading: categoriesLoading, refresh: refreshCategories } = useLibraryCategories();
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  const handleUpdated = () => {
+    refresh();
+    refreshCategories();
+  };
 
   return (
     <div className="flex h-[calc(100vh-48px)]">
@@ -115,7 +120,7 @@ export default function LibraryClient({ rootLabel }: Props) {
 
           {error && <div className="mb-4 rounded bg-red-50 px-4 py-2 text-sm text-red-600">{error}</div>}
 
-          <LibraryTable documents={documents} loading={loading} onRefresh={refresh} />
+          <LibraryTable documents={documents} loading={loading} onRefresh={handleUpdated} />
 
           {/* 分页 */}
           {totalPages > 1 && (
