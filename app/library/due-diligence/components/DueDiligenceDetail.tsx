@@ -17,10 +17,11 @@ const STATUS_OPTIONS = [
 ];
 
 export default function DueDiligenceDetail({ requestId, onBack }: Props) {
-  const { detail, loading, splitQuestions, runMatch, toggleMaterial, updateStatus } = useDueDiligenceDetail(requestId);
+  const { detail, loading, splitQuestions, runMatch, toggleMaterial, updateStatus, archiveRequest } = useDueDiligenceDetail(requestId);
   const [text, setText] = useState("");
   const [splitting, setSplitting] = useState(false);
   const [matching, setMatching] = useState(false);
+  const [archiving, setArchiving] = useState(false);
 
   const handleSplit = async () => {
     if (!text.trim()) return;
@@ -43,6 +44,17 @@ export default function DueDiligenceDetail({ requestId, onBack }: Props) {
       alert(e instanceof Error ? e.message : "匹配失败");
     } finally {
       setMatching(false);
+    }
+  };
+
+  const handleArchive = async () => {
+    setArchiving(true);
+    try {
+      await archiveRequest();
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "归档失败");
+    } finally {
+      setArchiving(false);
     }
   };
 
@@ -70,6 +82,15 @@ export default function DueDiligenceDetail({ requestId, onBack }: Props) {
           >
             {STATUS_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
           </select>
+          {detail.status === "approved" && (
+            <button
+              onClick={handleArchive}
+              disabled={archiving || selectedCount === 0}
+              className="rounded-md bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
+            >
+              {archiving ? "归档中..." : "完成提供"}
+            </button>
+          )}
         </div>
 
         {/* Split input */}

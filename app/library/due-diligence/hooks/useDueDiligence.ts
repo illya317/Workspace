@@ -147,5 +147,16 @@ export function useDueDiligenceDetail(id: number | null) {
     return res.json();
   }, [id, refresh]);
 
-  return { detail, loading, refresh, splitQuestions, runMatch, toggleMaterial, updateStatus };
+  const archiveRequest = useCallback(async () => {
+    if (!id) throw new Error("No request id");
+    const res = await fetch(`/api/library/due-diligence/${id}/archive`, { method: "POST" });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Archive failed" }));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    refresh();
+    return res.json();
+  }, [id, refresh]);
+
+  return { detail, loading, refresh, splitQuestions, runMatch, toggleMaterial, updateStatus, archiveRequest };
 }
