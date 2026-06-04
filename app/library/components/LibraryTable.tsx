@@ -94,6 +94,8 @@ export default function LibraryTable({
                       href={`/api/library/${encodeURIComponent(d.relativePath)}`}
                       className="inline-flex items-center text-emerald-600 hover:text-emerald-700"
                       title="下载"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

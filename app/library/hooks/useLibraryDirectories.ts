@@ -10,10 +10,20 @@ export function useLibraryDirectories() {
 
   const refresh = useCallback(() => {
     setLoading(true);
+    setError(null);
     fetch("/api/library/directories")
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data: DirectoryNode[]) => setDirectories(data))
-      .catch((e) => setError(e instanceof Error ? e.message : "Failed"))
+      .then(async (r) => {
+        if (!r.ok) {
+          const text = await r.text().catch(() => "");
+          throw new Error(text || `HTTP ${r.status}`);
+        }
+        return r.json() as Promise<DirectoryNode[]>;
+      })
+      .then((data) => setDirectories(data))
+      .catch((e) => {
+        setDirectories([]);
+        setError(e instanceof Error ? e.message : "加载目录失败");
+      })
       .finally(() => setLoading(false));
   }, []);
 

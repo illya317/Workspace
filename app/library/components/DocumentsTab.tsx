@@ -38,7 +38,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
   const [showGenerate, setShowGenerate] = useState(false);
   const { filters, setFilter, clearFilters, page, setPage, pageSize } = useLibraryFilters();
   const { documents, total, loading, error, refresh } = useLibraryDocuments(filters, page, pageSize);
-  const { directories, loading: dirLoading, refresh: refreshDirs } = useLibraryDirectories();
+  const { directories, loading: dirLoading, error: dirError, refresh: refreshDirs } = useLibraryDirectories();
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -66,6 +66,9 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
             </svg>
           </button>
         </div>
+        {dirError && (
+          <div className="px-3 py-2 text-xs text-red-500">目录加载失败: {dirError}</div>
+        )}
         <LibrarySidebar
           directories={directories}
           selectedPath={filters.directoryPath || null}

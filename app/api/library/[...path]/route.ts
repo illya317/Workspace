@@ -67,7 +67,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ path: s
     return new NextResponse(buffer, {
       headers: {
         "Content-Type": contentType,
-        "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(path.basename(filePath))}`,
+        "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(path.basename(filePath))}`,
         "Content-Length": String(s.size),
       },
     });
