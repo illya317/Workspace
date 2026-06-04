@@ -85,39 +85,6 @@ try {
 
 // ── 4. CI 环境下检查环境变量，否则检查本地 .env ──────────────────────────
 
-function parseEnv(content) {
-  return new Map(
-    Array.from(content.matchAll(/^[ \t]*([A-Z_][A-Z0-9_]*)[ \t]*=[ \t]*(.+)$/gm)).map((m) => [
-      m[1],
-      m[2].replace(/^["']|["']$/g, "").trim(),
-    ])
-  );
-}
-
-function expandTilde(input) {
-  if (input.startsWith("~/")) {
-    return path.join(require("os").homedir(), input.slice(2));
-  }
-  return input;
-}
-
-function loadMergedEnv() {
-  const merged = new Map();
-  if (fs.existsSync(ENV_FILE)) {
-    const rootEnv = parseEnv(fs.readFileSync(ENV_FILE, "utf-8"));
-    for (const [k, v] of rootEnv) merged.set(k, v);
-    const workspaceDir = merged.get("WORKSPACE_CONFIG_DIR");
-    if (workspaceDir) {
-      const workspaceEnvPath = path.join(expandTilde(workspaceDir), ".env");
-      if (fs.existsSync(workspaceEnvPath)) {
-        const workspaceEnv = parseEnv(fs.readFileSync(workspaceEnvPath, "utf-8"));
-        for (const [k, v] of workspaceEnv) merged.set(k, v);
-      }
-    }
-  }
-  return merged;
-}
-
 const isCI = !!process.env.CI;
 
 if (isCI) {
@@ -131,7 +98,14 @@ if (isCI) {
   if (!fs.existsSync(ENV_FILE)) {
     fail(".env is missing locally. Copy .env.example to .env and fill in real values.");
   } else {
-    const envVars = loadMergedEnv();
+    const envContent = fs.readFileSync(ENV_FILE, "utf-8");
+    const envVars = new Map(
+      Array.from(envContent.matchAll(/^[ \t]*([A-Z_][A-Z0-9_]*)[ \t]*=[ \t]*(.+)$/gm)).map((m) => [
+        m[1],
+        m[2].replace(/^["']|["']$/g, "").trim(),
+      ])
+    );
+
     const secret = envVars.get("NEXTAUTH_SECRET");
     if (!secret || secret.includes("replace-with") || secret.length < 16) {
       fail("NEXTAUTH_SECRET in .env is missing or looks like a placeholder. Set a real secret.");

@@ -1,6 +1,3 @@
-import { loadWorkspaceEnv } from "../lib/env-loader";
-loadWorkspaceEnv();
-
 import { scanLibrary } from "../server/services/library/scan";
 
 async function main() {

@@ -1,6 +1,4 @@
-import { loadWorkspaceEnv } from "./lib/env-loader";
-loadWorkspaceEnv();
-
+import "dotenv/config";
 import { defineConfig, env } from "prisma/config";
 
 type Env = {

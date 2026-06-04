@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "@/generated/prisma/client";
 
@@ -46,7 +47,7 @@ function createPrismaClient(): PrismaClient {
 }
 
 // Lazy proxy: PrismaClient is created on first property access,
-// ensuring process.env.DATABASE_URL is already set by loadWorkspaceEnv().
+// ensuring process.env.DATABASE_URL is already set (dotenv loads it above).
 export const prisma = new Proxy({} as PrismaClient, {
   get(_target, prop) {
     const client = createPrismaClient();

@@ -1,6 +1,3 @@
-import { loadWorkspaceEnv } from "./lib/env-loader";
-loadWorkspaceEnv();
-
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
