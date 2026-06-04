@@ -28,14 +28,19 @@ import {
   checkFinanceImportDelete,
   checkInventoryAccess,
   checkContractAccess,
+  checkLibraryAccess,
+  checkLibraryWrite,
   type AuthPayload,
 } from "@/lib/auth";
 
 export type { AuthPayload };
 
+export type RouteContext = { params: Promise<Record<string, string>> };
+
 export type AuthHandler = (
   req: Request,
   user: AuthPayload,
+  ctx?: RouteContext,
 ) => Promise<Response>;
 
 export type AccessChecker = (userId: number) => Promise<boolean>;
@@ -43,8 +48,8 @@ export type AccessChecker = (userId: number) => Promise<boolean>;
 export function withAuth(
   handler: AuthHandler,
   checkAccess?: AccessChecker,
-): (req: Request) => Promise<Response> {
-  return async (req: Request) => {
+): (req: Request, ctx?: RouteContext) => Promise<Response> {
+  return async (req: Request, ctx?: RouteContext) => {
     const payload = await authenticate(req);
     if (!payload) {
       if (await isKicked(req)) {
@@ -65,7 +70,7 @@ export function withAuth(
     if (checkAccess && !(await checkAccess(payload.userId))) {
       return NextResponse.json({ error: "无权限" }, { status: 403 });
     }
-    return handler(req, payload);
+    return handler(req, payload, ctx);
   };
 }
 
@@ -223,4 +228,16 @@ export function withContractAccess(
   handler: AuthHandler,
 ): (req: Request) => Promise<Response> {
   return withAuth(handler, checkContractAccess);
+}
+
+export function withLibraryAccess(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkLibraryAccess);
+}
+
+export function withLibraryWrite(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkLibraryWrite);
 }

@@ -254,3 +254,19 @@ export async function checkContractAccess(userId: number): Promise<boolean> {
     (await checkPermission(userId, "administration.contract", "access"))
   );
 }
+
+export async function checkLibraryAccess(userId: number): Promise<boolean> {
+  return (
+    (await checkPermission(userId, "system", "admin")) ||
+    (await checkPermission(userId, "library", "access")) ||
+    (await checkPermission(userId, "library", "write"))
+  );
+}
+
+export async function checkLibraryWrite(userId: number): Promise<boolean> {
+  return (
+    (await checkPermission(userId, "system", "admin")) ||
+    (await checkPermission(userId, "library.write", "write")) ||
+    (await checkPermission(userId, "library", "write"))
+  );
+}

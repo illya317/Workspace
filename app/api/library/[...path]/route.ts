@@ -3,6 +3,8 @@ import { readFile, stat } from "fs/promises";
 import path from "path";
 import { getCurrentUser } from "@/server/auth/session";
 import { safeResolve, getDefaultRoot } from "@/server/services/library/config";
+import { prisma } from "@/lib/prisma";
+import { getMaxConfidentialityLevel } from "@/server/services/library/permissions";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ path: string[] }> }) {
   const user = await getCurrentUser();
@@ -23,6 +25,21 @@ export async function GET(_req: Request, { params }: { params: Promise<{ path: s
   const normalizedRoot = path.resolve(root) + path.sep;
   if (!path.resolve(filePath).startsWith(normalizedRoot)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  // Phase 2: documentId 权限校验 — 通过 relativePath 查 DB 确认保密等级
+  const doc = await prisma.libraryDocument.findFirst({
+    where: { relativePath: relativePath.replace(/\\/g, "/") },
+    select: { id: true, confidentialityLevel: true, status: true },
+  });
+  if (doc) {
+    const maxLevel = await getMaxConfidentialityLevel(user.id);
+    if (doc.confidentialityLevel > maxLevel) {
+      return NextResponse.json({ error: "Higher confidentiality required" }, { status: 403 });
+    }
+    if (doc.status === "missing") {
+      return NextResponse.json({ error: "File missing" }, { status: 404 });
+    }
   }
 
   try {
