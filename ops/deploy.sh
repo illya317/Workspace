@@ -55,6 +55,13 @@ ssh -i "$TMPKEY" "$SERVER" "
 
   sed -i \"s|file:.*/data/dev.db|file:$REMOTE_DIR/data/dev.db|\" .env 2>/dev/null || true
   pm2 restart $PM2_NAME --update-env 2>/dev/null || pm2 start server.js --name $PM2_NAME --cwd $DEPLOY_DIR --env production
+
+  # Auto-scan library if LIBRARY_ROOT is configured
+  if grep -q 'LIBRARY_ROOT=' .env 2>/dev/null; then
+    echo '==> 扫描资料库...'
+    npm run db:scan:library 2>&1 | tail -5
+  fi
+
   pm2 save
   pm2 status
 "
