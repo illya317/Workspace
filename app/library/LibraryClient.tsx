@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useLibraryDocuments } from "./hooks/useLibraryDocuments";
 import { useLibraryFilters } from "./hooks/useLibraryFilters";
+import { useLibraryCategories } from "./hooks/useLibraryCategories";
 import LibrarySidebar from "./components/LibrarySidebar";
 import LibraryTable from "./components/LibraryTable";
 import SearchBox from "@/app/components/SearchBox";
@@ -40,6 +41,7 @@ export default function LibraryClient({ rootLabel }: Props) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { filters, setFilter, clearFilters, page, setPage, pageSize } = useLibraryFilters();
   const { documents, total, loading, error, refresh } = useLibraryDocuments(filters, page, pageSize);
+  const { categories, loading: categoriesLoading } = useLibraryCategories();
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
@@ -54,9 +56,10 @@ export default function LibraryClient({ rootLabel }: Props) {
           </button>
         </div>
         <LibrarySidebar
-          documents={documents}
+          categories={categories}
           selectedCategory={filters.categoryCode || null}
           onSelectCategory={(code) => setFilter("categoryCode", code || undefined)}
+          loading={categoriesLoading}
         />
       </div>
 
@@ -76,8 +79,9 @@ export default function LibraryClient({ rootLabel }: Props) {
           {/* 筛选栏 */}
           <div className="mb-4 flex flex-wrap items-center gap-2">
             <SearchBox
-              value={filters.keyword || ""}
-              onChange={(v) => setFilter("keyword", v || undefined)}
+              compact
+              query={filters.keyword || ""}
+              onQueryChange={(v) => setFilter("keyword", v || undefined)}
               placeholder="搜索标题、文件名、简介..."
             />
             <select

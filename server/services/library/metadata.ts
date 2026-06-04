@@ -112,6 +112,36 @@ export async function getDocument(id: number): Promise<DocumentWithVersion | nul
   return attachLatestVersion(doc);
 }
 
+export interface CategoryItem {
+  code: string;
+  name: string;
+  count: number;
+}
+
+export async function listCategories(
+  confidentialityFilter?: { lte: number },
+): Promise<CategoryItem[]> {
+  const where: Record<string, unknown> = {};
+  if (confidentialityFilter) {
+    where.confidentialityLevel = confidentialityFilter;
+  }
+  where.categoryCode = { not: null };
+
+  const rows = await prisma.libraryDocument.groupBy({
+    by: ["categoryCode", "categoryName"],
+    where,
+    _count: { id: true },
+  });
+
+  return rows
+    .map((r) => ({
+      code: r.categoryCode!,
+      name: r.categoryName || r.categoryCode!,
+      count: r._count.id,
+    }))
+    .sort((a, b) => a.code.localeCompare(b.code, "zh"));
+}
+
 export async function updateDocumentMetadata(
   id: number,
   input: UpdateMetadataInput,

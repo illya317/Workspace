@@ -2,6 +2,7 @@ export interface LibraryDocumentItem {
   id: number;
   stableKey: string;
   fileName: string;
+  relativePath: string | null;
   extension: string | null;
   fileSizeBytes: number | null;
   categoryCode: string | null;

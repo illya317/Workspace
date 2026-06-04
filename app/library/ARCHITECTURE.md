@@ -15,11 +15,11 @@
 ```
 app/library/
   page.tsx                    # 服务端组件：加载元数据列表，渲染 AppShell + LibraryClient
-  LibraryClient.tsx           # 客户端组件（待重构拆分）
-  types.ts                    # 领域类型（待创建）
+  LibraryClient.tsx           # 客户端组件：筛选 + 分类树 + 资料表 + 分页
+  types.ts                    # 领域类型：LibraryDocumentItem, LibraryFilters, CategoryGroup
   ARCHITECTURE.md             # 本文件
-  hooks/                      # useLibraryDocuments, useLibraryFilters（待创建）
-  components/                 # LibrarySidebar, LibraryTable, LibraryDetailModal（待创建）
+  hooks/                      # useLibraryDocuments, useLibraryFilters, useLibraryCategories
+  components/                 # LibrarySidebar, LibraryTable, LibraryDetailModal
   due-diligence/              # 尽调问卷页面（Phase 4）
     page.tsx
     [id]/page.tsx

@@ -47,11 +47,12 @@ export default function LibraryDetailModal({ documentId, onClose, onUpdated }: P
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<Partial<LibraryDocumentItem>>({});
-  const { showToast } = useToast();
+  const { toast, showToast, closeToast } = useToast();
 
   useEffect(() => {
     if (doc) setForm({});
-  }, [doc?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documentId]);
 
   const handleSave = async () => {
     if (!doc) return;
@@ -98,12 +99,11 @@ export default function LibraryDetailModal({ documentId, onClose, onUpdated }: P
       <DetailModal open={true} title={doc?.title || doc?.fileName || "资料详情"} onClose={onClose}>
         <div className="max-w-lg mx-auto">
           <EditToolbar
-            editing={editing}
-            onEdit={() => setEditing(true)}
+            editMode={editing}
+            onStartEdit={() => setEditing(true)}
             onSave={handleSave}
             onCancel={handleCancel}
             saving={saving}
-            version={doc?.version}
           />
 
           {loading || !doc ? (
@@ -116,7 +116,7 @@ export default function LibraryDetailModal({ documentId, onClose, onUpdated }: P
                     <label className="text-xs text-gray-400 block mb-1">标题</label>
                     <input
                       type="text"
-                      value={form.title !== undefined ? form.title : (doc.title || "")}
+                      value={form.title ?? doc.title ?? ""}
                       onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
                       className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     />
@@ -124,7 +124,7 @@ export default function LibraryDetailModal({ documentId, onClose, onUpdated }: P
                   <div className="py-2">
                     <label className="text-xs text-gray-400 block mb-1">简介</label>
                     <textarea
-                      value={form.summary !== undefined ? form.summary : (doc.summary || "")}
+                      value={form.summary ?? doc.summary ?? ""}
                       onChange={(e) => setForm((f) => ({ ...f, summary: e.target.value }))}
                       rows={3}
                       className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
@@ -134,7 +134,7 @@ export default function LibraryDetailModal({ documentId, onClose, onUpdated }: P
                     <label className="text-xs text-gray-400 block mb-1">分类编码</label>
                     <input
                       type="text"
-                      value={form.categoryCode !== undefined ? form.categoryCode : (doc.categoryCode || "")}
+                      value={form.categoryCode ?? doc.categoryCode ?? ""}
                       onChange={(e) => setForm((f) => ({ ...f, categoryCode: e.target.value }))}
                       className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     />
@@ -143,7 +143,7 @@ export default function LibraryDetailModal({ documentId, onClose, onUpdated }: P
                     <label className="text-xs text-gray-400 block mb-1">分类名称</label>
                     <input
                       type="text"
-                      value={form.categoryName !== undefined ? form.categoryName : (doc.categoryName || "")}
+                      value={form.categoryName ?? doc.categoryName ?? ""}
                       onChange={(e) => setForm((f) => ({ ...f, categoryName: e.target.value }))}
                       className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
                     />
@@ -186,6 +186,22 @@ export default function LibraryDetailModal({ documentId, onClose, onUpdated }: P
                   {renderField("来源", doc.origin)}
                   {renderField("版本", `v${doc.version}`)}
                   {renderField("更新时间", fmtDate(doc.updatedAt))}
+                  {doc.relativePath && doc.status === "active" && (
+                    <div className="py-2 border-b border-gray-100 last:border-0">
+                      <span className="text-xs text-gray-400 block mb-0.5">下载</span>
+                      <a
+                        href={`/api/library/${encodeURIComponent(doc.relativePath)}`}
+                        className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        下载文件
+                      </a>
+                    </div>
+                  )}
                 </>
               )}
             </div>

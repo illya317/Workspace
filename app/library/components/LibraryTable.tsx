@@ -73,6 +73,7 @@ export default function LibraryTable({ documents, loading, onRefresh }: Props) {
               <th className="px-4 py-3 text-left font-medium text-gray-600 w-24">大小</th>
               <th className="px-4 py-3 text-left font-medium text-gray-600 w-20">保密</th>
               <th className="px-4 py-3 text-left font-medium text-gray-600 w-20">状态</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600 w-16">操作</th>
             </tr>
           </thead>
           <tbody className="divide-y">
@@ -99,6 +100,20 @@ export default function LibraryTable({ documents, loading, onRefresh }: Props) {
                   <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${STATUS_STYLES[d.status] || "bg-gray-100 text-gray-600"}`}>
                     {STATUS_LABELS[d.status] || d.status}
                   </span>
+                </td>
+                <td className="px-4 py-3">
+                  {d.relativePath && d.status === "active" && (
+                    <a
+                      href={`/api/library/${encodeURIComponent(d.relativePath)}`}
+                      className="inline-flex items-center text-emerald-600 hover:text-emerald-700"
+                      title="下载"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                    </a>
+                  )}
                 </td>
               </tr>
             ))}

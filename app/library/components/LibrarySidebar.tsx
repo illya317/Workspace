@@ -1,31 +1,20 @@
 "use client";
 
-import { useMemo } from "react";
-import type { LibraryDocumentItem } from "../types";
+import type { CategoryGroup } from "../types";
 
 interface Props {
-  documents: LibraryDocumentItem[];
+  categories: CategoryGroup[];
   selectedCategory: string | null;
   onSelectCategory: (code: string | null) => void;
+  loading?: boolean;
 }
 
-export default function LibrarySidebar({ documents, selectedCategory, onSelectCategory }: Props) {
-  const categories = useMemo(() => {
-    const map = new Map<string, { name: string; count: number }>();
-    for (const d of documents) {
-      if (!d.categoryCode) continue;
-      const existing = map.get(d.categoryCode);
-      if (existing) {
-        existing.count++;
-      } else {
-        map.set(d.categoryCode, { name: d.categoryName || d.categoryCode, count: 1 });
-      }
-    }
-    return Array.from(map.entries())
-      .map(([code, { name, count }]) => ({ code, name, count }))
-      .sort((a, b) => a.code.localeCompare(b.code, "zh"));
-  }, [documents]);
-
+export default function LibrarySidebar({
+  categories,
+  selectedCategory,
+  onSelectCategory,
+  loading,
+}: Props) {
   return (
     <div className="h-full overflow-y-auto py-2">
       <button
@@ -36,6 +25,9 @@ export default function LibrarySidebar({ documents, selectedCategory, onSelectCa
       >
         全部
       </button>
+      {loading && (
+        <div className="px-3 py-4 text-xs text-gray-400">加载中…</div>
+      )}
       {categories.map((c) => (
         <button
           key={c.code}
