@@ -106,7 +106,10 @@ export async function createRequest(
   });
 }
 
-export async function getRequest(id: number): Promise<RequestWithQuestions | null> {
+export async function getRequest(
+  id: number,
+  maxConfidentialityLevel?: number,
+): Promise<RequestWithQuestions | null> {
   const req = await prisma.dueDiligenceRequest.findUnique({
     where: { id },
     include: {
@@ -123,7 +126,17 @@ export async function getRequest(id: number): Promise<RequestWithQuestions | nul
       },
     },
   });
-  return req as RequestWithQuestions | null;
+  if (!req) return null;
+
+  if (maxConfidentialityLevel !== undefined) {
+    const filtered = req.questions.map((q) => ({
+      ...q,
+      materials: q.materials.filter((m) => m.document.confidentialityLevel <= maxConfidentialityLevel),
+    }));
+    return { ...req, questions: filtered } as RequestWithQuestions;
+  }
+
+  return req as RequestWithQuestions;
 }
 
 export async function updateRequest(

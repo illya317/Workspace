@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { withLibraryAccess, withLibraryWrite } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
 import { getRequest, updateRequest, deleteRequest } from "@/server/services/library/due-diligence";
+import { getMaxConfidentialityLevel } from "@/server/services/library/permissions";
 
 async function parseId(ctx?: RouteContext) {
   const { id } = await ctx!.params;
@@ -10,10 +11,11 @@ async function parseId(ctx?: RouteContext) {
   return num;
 }
 
-export const GET = withLibraryAccess(async (_req, _user, ctx?: RouteContext) => {
+export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
   const id = await parseId(ctx);
   if (id === null) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
-  const req = await getRequest(id);
+  const maxLevel = await getMaxConfidentialityLevel(user.userId);
+  const req = await getRequest(id, maxLevel);
   if (!req) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(req);
 });

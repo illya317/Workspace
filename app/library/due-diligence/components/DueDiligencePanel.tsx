@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useDueDiligenceRequests } from "../hooks/useDueDiligence";
 import DueDiligenceDetail from "./DueDiligenceDetail";
+import ConfirmModal from "@/app/components/ConfirmModal";
 
 const STATUS_LABELS: Record<string, string> = {
   draft: "草稿",
@@ -27,6 +28,7 @@ export default function DueDiligencePanel() {
   const [title, setTitle] = useState("");
   const [partyName, setPartyName] = useState("");
   const [creating, setCreating] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
   if (detailId !== null) {
     return (
@@ -132,7 +134,7 @@ export default function DueDiligencePanel() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (confirm("确定删除此问卷？")) deleteRequest(req.id);
+                      setConfirmDeleteId(req.id);
                     }}
                     className="text-gray-400 hover:text-red-500"
                     title="删除"
@@ -147,6 +149,20 @@ export default function DueDiligencePanel() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        open={confirmDeleteId !== null}
+        title="删除问卷"
+        message="确定删除此问卷？此操作不可撤销。"
+        confirmLabel="删除"
+        onConfirm={() => {
+          if (confirmDeleteId !== null) {
+            deleteRequest(confirmDeleteId);
+            setConfirmDeleteId(null);
+          }
+        }}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </div>
   );
 }

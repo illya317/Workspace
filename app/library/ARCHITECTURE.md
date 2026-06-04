@@ -1,6 +1,6 @@
 # Library — 资料库（文件系统 + 元数据索引 + 尽调材料选择/存档）
 
-## 状态：Phase 1-3 完成（Schema、权限、扫描服务、元数据 API、页面重构），Phase 4-6 待实施
+## 状态：Phase 1-4 完成（Schema、权限、扫描服务、元数据 API、页面重构、尽调问卷），Phase 5-6 待实施
 
 ## 架构演进
 
@@ -20,9 +20,9 @@ app/library/
   ARCHITECTURE.md             # 本文件
   hooks/                      # useLibraryDocuments, useLibraryFilters, useLibraryCategories
   components/                 # LibrarySidebar, LibraryTable, LibraryDetailModal
-  due-diligence/              # 尽调问卷页面（Phase 4）
-    page.tsx
-    [id]/page.tsx
+  due-diligence/              # 尽调问卷组件（Phase 4，以 Tab 嵌入 LibraryClient）
+    components/                 # DueDiligencePanel, DueDiligenceDetail
+    hooks/                      # useDueDiligence
 
 app/api/library/
   [...path]/route.ts          # 文件下载 API（保留，增加 documentId 权限校验）
@@ -31,9 +31,11 @@ app/api/library/
   documents/[id]/route.ts     # GET / PATCH（Phase 2）
   documents/[id]/versions/route.ts  # GET（Phase 2）
   due-diligence/route.ts      # POST / GET（Phase 4）
-  due-diligence/[id]/route.ts # GET / PATCH（Phase 4）
-  due-diligence/[id]/match/route.ts # POST（Phase 4）
-  due-diligence/[id]/questions/[questionId]/materials/route.ts # PATCH（Phase 4）
+  due-diligence/[id]/route.ts # GET / PATCH / DELETE（Phase 4）
+  due-diligence/[id]/split/route.ts # POST 拆分问卷（Phase 4）
+  due-diligence/[id]/match/route.ts # POST 运行材料匹配（Phase 4）
+  due-diligence/[id]/questions/route.ts # GET 问题列表（Phase 4）
+  due-diligence/[id]/questions/[questionId]/materials/route.ts # GET / PATCH（Phase 4）
   due-diligence/[id]/archive/route.ts # POST（Phase 5）
 
 server/services/library/
@@ -42,6 +44,7 @@ server/services/library/
   metadata.ts                 # 元数据 CRUD（Phase 2）
   permissions.ts              # 保密等级过滤 + 权限校验（Phase 2）
   versions.ts                 # 版本管理（Phase 2）
+  due-diligence.ts            # 尽调 Request/Question/MaterialSelection CRUD（Phase 4）
   matching.ts                 # 规则匹配推荐（Phase 4）
 
 prisma/models/library.prisma  # LibraryDocument, LibraryDocumentVersion, DueDiligenceParty,
