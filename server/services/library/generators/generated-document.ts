@@ -36,7 +36,9 @@ export async function upsertGeneratedDocument(
 
   const stats = await fs.stat(absPath);
   const checksum = crypto.createHash("sha256").update(content).digest("hex");
-  const stableKey = `generated:${input.generatorKey}:${slug(input.title)}`;
+  const titleSlug = slug(input.title);
+  const titleHash = crypto.createHash("sha256").update(input.title).digest("hex").slice(0, 8);
+  const stableKey = `generated:${input.generatorKey}:${titleSlug || "untitled"}-${titleHash}`;
 
   const now = new Date();
 

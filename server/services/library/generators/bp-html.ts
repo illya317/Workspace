@@ -10,7 +10,7 @@ export async function generateBpHtml(input: Record<string, unknown>): Promise<Ge
 <body>
 <h1>${escapeHtml(title)}</h1>
 ${summary ? `<p>${escapeHtml(summary)}</p>` : ""}
-<p>生成时间：${new Date().toLocaleString("zh-CN")}</p>
+<p><!-- auto-generated --></p>
 </body>
 </html>`;
 

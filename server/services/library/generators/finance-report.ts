@@ -4,7 +4,7 @@ export async function generateFinanceReport(input: Record<string, unknown>): Pro
   const title = typeof input.title === "string" ? input.title : "财务报表";
   const summary = typeof input.summary === "string" ? input.summary : undefined;
 
-  const md = `# ${title}\n\n${summary ? summary + "\n\n" : ""}生成时间：${new Date().toLocaleString("zh-CN")}\n`;
+  const md = `# ${title}\n\n${summary ? summary + "\n\n" : ""}<!-- auto-generated -->\n`;
 
   return {
     fileName: `${slug(title)}.md`,

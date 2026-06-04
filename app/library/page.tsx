@@ -8,10 +8,11 @@ export const dynamic = "force-dynamic";
 
 export default async function LibraryPage() {
   const user = await requireResourceAccess("library");
+  const canWriteLibrary = user.visibleWriteResourceKeys?.includes("library.write") ?? false;
 
   return (
     <AppShell title={ROOT_LABEL} backHref="/portal" user={user}>
-      <LibraryClient rootLabel={ROOT_LABEL} />
+      <LibraryClient rootLabel={ROOT_LABEL} canWrite={canWriteLibrary} />
     </AppShell>
   );
 }

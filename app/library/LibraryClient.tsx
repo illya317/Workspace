@@ -37,9 +37,10 @@ const CONFIDENTIALITY_OPTIONS = [
 
 interface Props {
   rootLabel: string;
+  canWrite?: boolean;
 }
 
-export default function LibraryClient({ rootLabel }: Props) {
+export default function LibraryClient({ rootLabel, canWrite }: Props) {
   const [activeTab, setActiveTab] = useState<"documents" | "due-diligence">("documents");
 
   return (
@@ -71,13 +72,13 @@ export default function LibraryClient({ rootLabel }: Props) {
       </div>
 
       <div className="flex-1 overflow-hidden">
-        {activeTab === "documents" ? <DocumentsTab /> : <DueDiligencePanel />}
+        {activeTab === "documents" ? <DocumentsTab canWrite={canWrite} /> : <DueDiligencePanel />}
       </div>
     </div>
   );
 }
 
-function DocumentsTab() {
+function DocumentsTab({ canWrite }: { canWrite?: boolean }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showGenerate, setShowGenerate] = useState(false);
   const { filters, setFilter, clearFilters, page, setPage, pageSize } = useLibraryFilters();
@@ -155,12 +156,14 @@ function DocumentsTab() {
             >
               清除筛选
             </button>
-            <button
-              onClick={() => setShowGenerate(true)}
-              className="ml-auto rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700 transition"
-            >
-              + 生成文档
-            </button>
+            {canWrite && (
+              <button
+                onClick={() => setShowGenerate(true)}
+                className="ml-auto rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700 transition"
+              >
+                + 生成文档
+              </button>
+            )}
           </div>
 
           {error && <div className="mb-4 rounded bg-red-50 px-4 py-2 text-sm text-red-600">{error}</div>}

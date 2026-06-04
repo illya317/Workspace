@@ -31,7 +31,8 @@
     "finance:income-smoke": "npx tsx scripts/income-system-smoke.ts",
     "finance:review-report-smoke": "npx tsx scripts/review-report-smoke.ts",
     "finance:cashflow-import": "npx tsx scripts/import-cash-flow-workpapers.ts",
-    "finance:cashflow-import:execute": "npx tsx scripts/import-cash-flow-workpapers.ts --execute"
+    "finance:cashflow-import:execute": "npx tsx scripts/import-cash-flow-workpapers.ts --execute",
+    "db:seed:library-generated": "npx tsx scripts/seed-library-generated-sources.ts"
   },
   "prisma": {
     "schema": "./prisma"
