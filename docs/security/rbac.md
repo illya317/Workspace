@@ -25,7 +25,7 @@
 
 优先级：直接授权 > 岗位继承 > 部门继承。`system.admin` 额外有 bypass 开关。
 
-## 资源树（39 个）
+## 资源树（41 个）
 
 ```
 system              admin   系统管理
@@ -44,6 +44,8 @@ finance             admin   财务管理
   finance.budget    admin   预算管理
   finance.analysis  admin   财务分析
   finance.cost      admin   成本管理
+  finance.tax       admin   税务管理
+  finance.treasury  admin   司库管理
   finance.import    admin   数据导入
 
 administration      admin   行政管理

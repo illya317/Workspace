@@ -3,6 +3,9 @@
 /**
  * 硬约束：module-nav.tsx 中的每个模块/子模块必须配置 resourceKey 或 requiredPerm。
  * settings 模块作为白名单放行（个人设置类页面天然登录可见）。
+ *
+ * 实现：使用 TypeScript AST 精确区分父对象自身属性与 children 数组内部，
+ * 避免文本正则把子模块的 resourceKey 误算到父模块上。
  */
 
 const fs = require("fs");
@@ -17,131 +20,257 @@ function readText(filePath) {
   return fs.readFileSync(filePath, "utf8");
 }
 
-function stripComments(text) {
-  return text
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\/\/.*$/gm, "");
+function parseNavFile(filePath) {
+  const ts = require("typescript");
+  const text = readText(filePath);
+  const sourceFile = ts.createSourceFile(
+    filePath,
+    text,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  return { ts, sourceFile, text };
 }
 
-function findLineNumber(text, index) {
-  return text.slice(0, index).split("\n").length;
+function getLine(sourceFile, pos) {
+  return sourceFile.getLineAndCharacterOfPosition(pos).line + 1;
 }
 
-function findMatchingBrace(text, openBraceIndex) {
-  let braceCount = 1;
-  let i = openBraceIndex + 1;
-  while (i < text.length && braceCount > 0) {
-    if (text[i] === "{") braceCount++;
-    else if (text[i] === "}") braceCount--;
-    i++;
+function getPropertyName(ts, prop) {
+  if (ts.isPropertyAssignment(prop) || ts.isShorthandPropertyAssignment(prop) || ts.isMethodDeclaration(prop)) {
+    if (ts.isIdentifier(prop.name) || ts.isStringLiteral(prop.name)) {
+      return prop.name.text;
+    }
   }
-  return i;
+  if (ts.isPropertyAssignment(prop) && ts.isComputedPropertyName(prop.name)) {
+    if (ts.isStringLiteral(prop.name.expression)) {
+      return prop.name.expression.text;
+    }
+  }
+  return undefined;
 }
 
-function hasProperty(block, prop) {
-  const regex = new RegExp(`\\b${prop}\\s*:`);
-  return regex.test(block);
+function getObjectProperty(ts, obj, name) {
+  if (!ts.isObjectLiteralExpression(obj)) return undefined;
+  for (const prop of obj.properties) {
+    const propName = getPropertyName(ts, prop);
+    if (propName === name) return prop;
+  }
+  return undefined;
 }
 
-function main() {
-  if (!fs.existsSync(NAV_PATH)) {
-    console.error(`✗ module-nav file not found: ${NAV_PATH}`);
+function getKeyValue(ts, obj) {
+  const keyProp = getObjectProperty(ts, obj, "key");
+  if (!keyProp) return undefined;
+  if (ts.isPropertyAssignment(keyProp)) {
+    if (ts.isStringLiteral(keyProp.initializer)) {
+      return keyProp.initializer.text;
+    }
+  }
+  if (ts.isShorthandPropertyAssignment(keyProp) && ts.isIdentifier(keyProp.name)) {
+    return keyProp.name.text;
+  }
+  return undefined;
+}
+
+function hasOwnGate(ts, obj) {
+  if (!ts.isObjectLiteralExpression(obj)) return false;
+  for (const prop of obj.properties) {
+    const propName = getPropertyName(ts, prop);
+    if (propName === "resourceKey" || propName === "requiredPerm") {
+      return true;
+    }
+  }
+  return false;
+}
+
+function collectViolations(ts, sourceFile, arrayNode, pathPrefix, violations) {
+  if (!arrayNode) return;
+  if (!ts.isArrayLiteralExpression(arrayNode)) return;
+
+  for (const element of arrayNode.elements) {
+    if (!ts.isObjectLiteralExpression(element)) continue;
+
+    const key = getKeyValue(ts, element);
+    const fullKey = pathPrefix ? `${pathPrefix}.${key}` : key;
+    const line = getLine(sourceFile, element.getStart(sourceFile));
+
+    const isWhitelisted = !pathPrefix && WHITELIST_MODULES.has(key);
+    if (!isWhitelisted && !hasOwnGate(ts, element)) {
+      violations.push({
+        key: fullKey,
+        line,
+        message: `${pathPrefix ? "子模块" : "模块"} "${fullKey}" 缺少 resourceKey 或 requiredPerm`,
+      });
+    }
+
+    const childrenProp = getObjectProperty(ts, element, "children");
+    if (childrenProp && ts.isPropertyAssignment(childrenProp)) {
+      const childrenInit = childrenProp.initializer;
+      if (ts.isArrayLiteralExpression(childrenInit)) {
+        collectViolations(ts, sourceFile, childrenInit, key, violations);
+      }
+    }
+  }
+}
+
+function findModulesArray(ts, sourceFile) {
+  let modulesArray = null;
+
+  function visit(node) {
+    if (modulesArray) return;
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isIdentifier(node.name) &&
+      node.name.text === "MODULES" &&
+      node.initializer &&
+      ts.isArrayLiteralExpression(node.initializer)
+    ) {
+      modulesArray = node.initializer;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  }
+
+  visit(sourceFile);
+  return modulesArray;
+}
+
+function runCheck(filePath) {
+  if (!fs.existsSync(filePath)) {
+    console.error(`✗ module-nav file not found: ${filePath}`);
     process.exit(1);
   }
 
-  const raw = readText(NAV_PATH);
-  const cleaned = stripComments(raw);
+  const { ts, sourceFile } = parseNavFile(filePath);
+  const modulesArray = findModulesArray(ts, sourceFile);
 
-  const violations = [];
-
-  // Find MODULES array: export const MODULES: ModuleDef[] = [ ... ]
-  const modulesStart = cleaned.indexOf("export const MODULES");
-  if (modulesStart === -1) {
+  if (!modulesArray) {
     console.error("✗ MODULES array not found in module-nav.tsx");
     process.exit(1);
   }
 
-  const arrayOpen = cleaned.indexOf("[", modulesStart);
-  const arrayClose = cleaned.indexOf("];", arrayOpen);
-  if (arrayOpen === -1 || arrayClose === -1) {
-    console.error("✗ MODULES array brackets not found");
-    process.exit(1);
-  }
-
-  const arrayBody = cleaned.slice(arrayOpen + 1, arrayClose);
-
-  // Scan top-level module objects in the array body
-  const moduleRegex = /\{\s*key:\s*["']([^"']+)["']/g;
-  let moduleMatch;
-  while ((moduleMatch = moduleRegex.exec(arrayBody)) !== null) {
-    const moduleKey = moduleMatch[1];
-    const moduleStartInArray = moduleMatch.index;
-    const moduleOpenBrace = arrayBody.indexOf("{", moduleStartInArray);
-    const moduleEnd = findMatchingBrace(arrayBody, moduleOpenBrace);
-    const moduleBlock = arrayBody.slice(moduleStartInArray, moduleEnd);
-    const moduleLine = findLineNumber(raw, arrayOpen + 1 + moduleStartInArray);
-
-    const modHasResourceKey = hasProperty(moduleBlock, "resourceKey");
-    const modHasRequiredPerm = hasProperty(moduleBlock, "requiredPerm");
-
-    if (!WHITELIST_MODULES.has(moduleKey) && !modHasResourceKey && !modHasRequiredPerm) {
-      violations.push({
-        key: moduleKey,
-        line: moduleLine,
-        message: `模块 "${moduleKey}" 缺少 resourceKey 或 requiredPerm`,
-      });
-    }
-
-    // Find children: array inside this module object
-    const childrenMatch = moduleBlock.match(/children\s*:\s*\[/);
-    if (childrenMatch && childrenMatch.index !== undefined) {
-      const childrenOpen = moduleBlock.indexOf("[", childrenMatch.index);
-      // Find matching close bracket for children array
-      let bracketCount = 1;
-      let k = childrenOpen + 1;
-      while (k < moduleBlock.length && bracketCount > 0) {
-        if (moduleBlock[k] === "[") bracketCount++;
-        else if (moduleBlock[k] === "]") bracketCount--;
-        k++;
-      }
-      const childrenBody = moduleBlock.slice(childrenOpen + 1, k - 1);
-
-      const childRegex = /\{\s*key:\s*["']([^"']+)["']/g;
-      let childMatch;
-      while ((childMatch = childRegex.exec(childrenBody)) !== null) {
-        const childKey = childMatch[1];
-        const childStartInChildren = childMatch.index;
-        const childOpenBrace = childrenBody.indexOf("{", childStartInChildren);
-        const childEnd = findMatchingBrace(childrenBody, childOpenBrace);
-        const childBlock = childrenBody.slice(childStartInChildren, childEnd);
-        const childLine = findLineNumber(
-          raw,
-          arrayOpen + 1 + moduleStartInArray + childrenOpen + 1 + childStartInChildren,
-        );
-
-        const childHasResourceKey = hasProperty(childBlock, "resourceKey");
-        const childHasRequiredPerm = hasProperty(childBlock, "requiredPerm");
-
-        if (!childHasResourceKey && !childHasRequiredPerm) {
-          violations.push({
-            key: `${moduleKey}.${childKey}`,
-            line: childLine,
-            message: `子模块 "${moduleKey}.${childKey}" 缺少 resourceKey 或 requiredPerm`,
-          });
-        }
-      }
-    }
-  }
+  const violations = [];
+  collectViolations(ts, sourceFile, modulesArray, "", violations);
 
   if (violations.length > 0) {
     console.error("✗ Module-nav access gate check failed.");
     for (const v of violations) {
       console.error(`  app/lib/module-nav.tsx:${v.line} — ${v.message}`);
     }
-    process.exit(1);
+    return { ok: false, violations };
   }
 
-  console.log("✓ Module-nav access gate check passed.");
+  return { ok: true, violations: [] };
 }
 
-main();
+function main() {
+  const result = runCheck(NAV_PATH);
+  if (result.ok) {
+    console.log("✓ Module-nav access gate check passed.");
+  } else {
+    process.exit(1);
+  }
+}
+
+// ─── Fixture tests ─────────────────────────────────────────
+
+function runFixtures() {
+  const ts = require("typescript");
+
+  function makeSource(text) {
+    return ts.createSourceFile("fixture.tsx", text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  }
+
+  function expectResult(text, expectedOk, label) {
+    const sourceFile = makeSource(text);
+    const modulesArray = findModulesArray(ts, sourceFile);
+    if (!modulesArray) {
+      console.error(`  ✗ fixture "${label}": MODULES array not found`);
+      return false;
+    }
+    const violations = [];
+    collectViolations(ts, sourceFile, modulesArray, "", violations);
+    const ok = violations.length === 0;
+    if (ok !== expectedOk) {
+      console.error(
+        `  ✗ fixture "${label}": expected ${expectedOk ? "pass" : "fail"}, got ${ok ? "pass" : "fail"}`,
+      );
+      if (violations.length) {
+        for (const v of violations) {
+          console.error(`      line ${v.line}: ${v.message}`);
+        }
+      }
+      return false;
+    }
+    console.log(`  ✓ fixture "${label}" ${expectedOk ? "passes" : "fails"} as expected`);
+    return true;
+  }
+
+  const fixtures = [
+    {
+      label: "parent missing gate, child has gate → fail",
+      text: `export const MODULES: any[] = [
+        { key: "finance", label: "财务", href: "/finance", icon: null, color: "amber",
+          children: [
+            { key: "tax", label: "税务", href: "/finance/tax", resourceKey: "finance.tax" },
+          ],
+        },
+      ];`,
+      expectedOk: false,
+    },
+    {
+      label: "parent has gate, child has gate → pass",
+      text: `export const MODULES: any[] = [
+        { key: "finance", label: "财务", href: "/finance", icon: null, color: "amber", resourceKey: "finance",
+          children: [
+            { key: "tax", label: "税务", href: "/finance/tax", resourceKey: "finance.tax" },
+          ],
+        },
+      ];`,
+      expectedOk: true,
+    },
+    {
+      label: "settings module without gate → pass",
+      text: `export const MODULES: any[] = [
+        { key: "settings", label: "设置", href: "/settings", icon: null, color: "orange" },
+      ];`,
+      expectedOk: true,
+    },
+    {
+      label: "parent missing gate, no children → fail",
+      text: `export const MODULES: any[] = [
+        { key: "library", label: "资料库", href: "/library", icon: null, color: "orange" },
+      ];`,
+      expectedOk: false,
+    },
+    {
+      label: "child missing gate → fail",
+      text: `export const MODULES: any[] = [
+        { key: "finance", label: "财务", href: "/finance", icon: null, color: "amber", resourceKey: "finance",
+          children: [
+            { key: "tax", label: "税务", href: "/finance/tax" },
+          ],
+        },
+      ];`,
+      expectedOk: false,
+    },
+  ];
+
+  console.log("Running fixtures...");
+  let allPassed = true;
+  for (const f of fixtures) {
+    if (!expectResult(f.text, f.expectedOk, f.label)) {
+      allPassed = false;
+    }
+  }
+  return allPassed;
+}
+
+if (process.argv.includes("--fixtures")) {
+  const ok = runFixtures();
+  process.exit(ok ? 0 : 1);
+} else {
+  main();
+}
