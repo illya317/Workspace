@@ -112,6 +112,44 @@ export async function getDocument(id: number): Promise<DocumentWithVersion | nul
   return attachLatestVersion(doc);
 }
 
+export interface CategoryItem {
+  code: string;
+  name: string;
+  count: number;
+}
+
+export async function listCategories(
+  confidentialityFilter?: { lte: number },
+): Promise<CategoryItem[]> {
+  const where: Record<string, unknown> = {};
+  if (confidentialityFilter) {
+    where.confidentialityLevel = confidentialityFilter;
+  }
+  where.categoryCode = { not: null };
+
+  // 按 code 聚合：同一 code 下取第一个非空 name，count 累加
+  const docs = await prisma.libraryDocument.findMany({
+    where,
+    select: { categoryCode: true, categoryName: true, id: true },
+  });
+
+  const map = new Map<string, { name: string; count: number }>();
+  for (const d of docs) {
+    if (!d.categoryCode) continue;
+    const existing = map.get(d.categoryCode);
+    if (existing) {
+      existing.count++;
+      if (!existing.name && d.categoryName) existing.name = d.categoryName;
+    } else {
+      map.set(d.categoryCode, { name: d.categoryName || d.categoryCode, count: 1 });
+    }
+  }
+
+  return Array.from(map.entries())
+    .map(([code, { name, count }]) => ({ code, name, count }))
+    .sort((a, b) => a.code.localeCompare(b.code, "zh"));
+}
+
 export async function updateDocumentMetadata(
   id: number,
   input: UpdateMetadataInput,

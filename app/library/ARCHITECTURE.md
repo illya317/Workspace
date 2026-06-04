@@ -1,6 +1,6 @@
 # Library — 资料库（文件系统 + 元数据索引 + 尽调材料选择/存档）
 
-## 状态：Phase 1-2 完成（Schema、权限、扫描服务、元数据 API），Phase 3-6 待实施
+## 状态：Phase 1-3 完成（Schema、权限、扫描服务、元数据 API、页面重构），Phase 4-6 待实施
 
 ## 架构演进
 
@@ -15,11 +15,11 @@
 ```
 app/library/
   page.tsx                    # 服务端组件：加载元数据列表，渲染 AppShell + LibraryClient
-  LibraryClient.tsx           # 客户端组件（待重构拆分）
-  types.ts                    # 领域类型（待创建）
+  LibraryClient.tsx           # 客户端组件：筛选 + 分类树 + 资料表 + 分页
+  types.ts                    # 领域类型：LibraryDocumentItem, LibraryFilters, CategoryGroup
   ARCHITECTURE.md             # 本文件
-  hooks/                      # useLibraryDocuments, useLibraryFilters（待创建）
-  components/                 # LibrarySidebar, LibraryTable, LibraryDetailModal（待创建）
+  hooks/                      # useLibraryDocuments, useLibraryFilters, useLibraryCategories
+  components/                 # LibrarySidebar, LibraryTable, LibraryDetailModal
   due-diligence/              # 尽调问卷页面（Phase 4）
     page.tsx
     [id]/page.tsx
