@@ -389,7 +389,7 @@ npm run budget:sync-accounts
 
 ### 页面 Guard
 
-页面统一使用 `requireResourceAccess(resourceKey)` 做服务端门禁（基于 `visibleResourceKeys`）。
+财务子页面统一使用 `requireResourceAccess(resourceKey)` 做服务端门禁（基于 `visibleResourceKeys`）；模块首页 `/finance` 使用 session 层聚合权限 `canAccessFinance`。"
 
 | 页面 | Guard |
 |------|-------|
