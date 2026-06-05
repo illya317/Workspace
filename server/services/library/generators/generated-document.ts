@@ -3,6 +3,7 @@ import path from "path";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { safeResolve, getDefaultRoot } from "@/server/services/library/config";
+import { generateUniqueDocId } from "@/server/services/library/doc-id";
 import type { GeneratorOutput } from "./types";
 
 export interface GeneratedDocumentInput {
@@ -44,6 +45,10 @@ export async function upsertGeneratedDocument(
 
   const now = new Date();
 
+  // 如果更新的是已有 generated 文档且没有 docId，补一个
+  const existingDoc = await prisma.libraryDocument.findUnique({ where: { stableKey } });
+  const docId = existingDoc?.docId ?? (await generateUniqueDocId());
+
   // Upsert LibraryDocument
   const doc = await prisma.libraryDocument.upsert({
     where: { stableKey },
@@ -67,6 +72,7 @@ export async function upsertGeneratedDocument(
       generatorKey: input.generatorKey,
       editedBy: input.userId,
       editedAt: now,
+      docId,
     },
     update: {
       relativePath,
@@ -84,6 +90,7 @@ export async function upsertGeneratedDocument(
       status: "active",
       editedBy: input.userId,
       editedAt: now,
+      docId,
     },
   });
 

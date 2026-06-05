@@ -7,6 +7,7 @@ import path from "path";
 import { prisma } from "@/lib/prisma";
 import { getLibraryRoots, safeResolve } from "./config";
 import { computeChecksum } from "./checksum";
+import { generateUniqueDocId } from "./doc-id";
 
 export interface ScanResult {
   scanned: number;
@@ -104,28 +105,10 @@ function hasChanged(doc: { fileSizeBytes: number | null; fileMtime: Date | null;
 
 const normalizeDirPath = (p: string): string | null => p === "." ? null : p;
 
-function generateDocId(): string {
-  const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
-  const rand = Math.floor(Math.random() * 10000).toString().padStart(4, "0");
-  return `DOC-${date}-${rand}`;
-}
-
-async function generateUniqueDocId(): Promise<string> {
-  let attempts = 0;
-  while (attempts < 5) {
-    const candidate = generateDocId();
-    const existing = await prisma.libraryDocument.findUnique({ where: { docId: candidate } });
-    if (!existing) return candidate;
-    attempts++;
-  }
-  // 兜底：加时间戳微秒
-  return `DOC-${Date.now()}`;
-}
-
 async function tryLinkMovedFile(info: FileInfo, stableKey: string, checksum: string | null, result: ScanResult) {
   if (!checksum) return false;
   const movedDoc = await prisma.libraryDocument.findFirst({
-    where: { checksumSha256: checksum, status: "missing" },
+    where: { checksumSha256: checksum, status: "missing", origin: "scanned" },
     orderBy: { updatedAt: "desc" },
   });
   if (!movedDoc) return false;
@@ -180,11 +163,11 @@ export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
     scannedStableKeys.add(`${key}:${info.relativePath}`);
   }
 
-  // ── Phase 2: 先把本轮未命中的旧 active 标记为 missing ───────
-  // 这样改名/移动的旧记录变成 missing，新路径扫描时才能通过 checksum 关联
+  // ── Phase 2: 先把本轮未命中的旧 scanned active 标记为 missing ───
+  // 只处理 origin="scanned"，避免误标 generated/uploaded/manual 文档
   try {
     const oldActiveDocs = await prisma.libraryDocument.findMany({
-      where: { rootKey: key, status: "active" },
+      where: { rootKey: key, status: "active", origin: "scanned" },
       select: { id: true, stableKey: true },
     });
     const toMarkMissing = oldActiveDocs.filter((d) => !scannedStableKeys.has(d.stableKey));
