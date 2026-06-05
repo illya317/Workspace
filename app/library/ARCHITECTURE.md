@@ -72,11 +72,13 @@ prisma/models/library.prisma  # LibraryDocument, LibraryDocumentVersion, DueDili
 
 ### LibraryDocument（资料库文档元数据）
 
-- `stableKey`: rootKey + relativePath 或 checksum 派生，唯一标识
+- `stableKey`: rootKey + relativePath，扫描时派生，唯一标识（改名后会更新）
+- `docId`: 用户可维护的业务编号（扫描时自动生成 `DOC-YYYYMMDD-XXXX`），唯一，改名后不变
+- `tags`: 通过 `LibraryDocumentTag` 关联表实现的多标签，支持精确筛选
 - `rootKey`: 多根目录支持，默认 `default`
-- `relativePath`: 相对于 root 的路径
+- `relativePath`: 相对于 root 的路径（改名/移动后会更新）
 - `fileName`, `extension`, `mimeType`, `fileSizeBytes`, `fileMtime`
-- `checksumSha256`: 文件内容校验和
+- `checksumSha256`: 文件内容校验和，用于改名/移动自动关联
 - `categoryCode` / `categoryName`: 目录首层解析，如 `03` / `财务`
 - `subcategoryPath`: 子分类路径
 - `title`, `summary`: 人工维护标题和简介
@@ -90,6 +92,10 @@ prisma/models/library.prisma  # LibraryDocument, LibraryDocumentVersion, DueDili
 ### LibraryDocumentVersion（版本历史）
 
 扫描检测到 mtime/size/checksum 变化时自动创建版本记录，保留历史路径、大小、校验和、Git commit、变更备注。
+
+### LibraryDocumentTag（文档标签）
+
+关联表：`documentId + tag` 复合唯一键。支持多标签精确筛选、标签云统计。删除文档时级联清标签。
 
 ### DueDiligenceParty / Request / Question / MaterialSelection
 
@@ -148,14 +154,20 @@ Phase 6 自动生成接口配置表。每个来源定义：
 
 ## 扫描服务（Phase 2）
 
-幂等扫描流程：
-1. 从 `LIBRARY_ROOT` 递归读取文件
-2. 跳过 `.DS_Store`、隐藏文件
-3. 用目录首层解析 `categoryCode/categoryName`，例如 `03 财务`
-4. 对新增文件创建 `LibraryDocument`
-5. 对 mtime/size/checksum 变化的文件创建 `LibraryDocumentVersion`
-6. 文件消失则标记 `status = missing`，不要硬删
-7. checksum 可先按需计算，避免大文件扫描太慢
+**两阶段幂等扫描流程**：
+1. 从 `LIBRARY_ROOT` 递归读取文件，收集所有 `stableKey`
+2. **Phase A — 标记 missing**：先把本轮未命中的旧 `active` 记录标记为 `missing`
+3. **Phase B — 处理文件**：
+   - 路径未变 → 检查 mtime/size/checksum 变化，有变化则创建 `LibraryDocumentVersion`
+   - 路径不存在但 checksum 匹配到 `missing` 记录 → **自动关联**（更新路径、创建版本记录 `changeNote: "路径变更（自动关联）"`），保留 `docId` 和标签
+   - 全新文件 → 创建 `LibraryDocument`（自动生成 `docId: DOC-YYYYMMDD-XXXX`）
+4. 跳过 `.DS_Store`、隐藏文件
+5. 用目录首层解析 `categoryCode/categoryName`，例如 `03 财务`
+6. checksum 只计算 ≤10MB 的文件，大文件留空避免扫描太慢
+
+**改名/移动自动关联原理**：
+- 文件从 A 移到 B → 旧路径 A 在 Phase A 被标记 `missing` → 新路径 B 在 Phase B 扫描时 checksum 匹配到 A → 关联成功，`docId` 和标签保留
+- 复制同内容文件 → 原路径仍在 Phase B 被识别为 `existing`，保持 `active`；新路径找不到 `missing` 记录，创建新文档
 
 ## 页面重构方向（Phase 3）
 
@@ -163,7 +175,7 @@ Phase 6 自动生成接口配置表。每个来源定义：
 - 右侧资料表：标题、分类、更新时间、版本、简介、大小、保密等级、状态
 - 筛选：分类、保密等级、来源、文件类型、更新时间
 - 详情弹窗：编辑简介、分类、保密等级、版本备注
-- 下载链接仍走 `/api/library/[...path]`，但下载前用 `documentId` 权限校验更稳
+- 下载链接走 `/api/library/documents/:id/download`，后端按 `doc.id` 查 DB 取当前 `relativePath` 再返回文件流，权限和路径校验都在服务端完成，前端不再拼接路径
 
 ## 尽调流程（Phase 4-5）
 

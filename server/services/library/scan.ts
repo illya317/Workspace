@@ -104,6 +104,24 @@ function hasChanged(doc: { fileSizeBytes: number | null; fileMtime: Date | null;
 
 const normalizeDirPath = (p: string): string | null => p === "." ? null : p;
 
+function generateDocId(): string {
+  const date = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  const rand = Math.floor(Math.random() * 10000).toString().padStart(4, "0");
+  return `DOC-${date}-${rand}`;
+}
+
+async function generateUniqueDocId(): Promise<string> {
+  let attempts = 0;
+  while (attempts < 5) {
+    const candidate = generateDocId();
+    const existing = await prisma.libraryDocument.findUnique({ where: { docId: candidate } });
+    if (!existing) return candidate;
+    attempts++;
+  }
+  // 兜底：加时间戳微秒
+  return `DOC-${Date.now()}`;
+}
+
 async function tryLinkMovedFile(info: FileInfo, stableKey: string, checksum: string | null, result: ScanResult) {
   if (!checksum) return false;
   const movedDoc = await prisma.libraryDocument.findFirst({
@@ -147,8 +165,8 @@ export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
   }
 
   const result: ScanResult = { scanned: 0, created: 0, updated: 0, missing: 0, errors: [] };
-  const scannedStableKeys = new Set<string>();
 
+  // ── Phase 1: 收集文件 ──────────────────────────────────────
   let files: FileInfo[];
   try {
     files = await collectFiles(resolved, resolved);
@@ -157,84 +175,19 @@ export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
     return result;
   }
 
+  const scannedStableKeys = new Set<string>();
   for (const info of files) {
-    const stableKey = `${key}:${info.relativePath}`;
-    scannedStableKeys.add(stableKey);
-    result.scanned++;
-
-    const checksum = await computeChecksum(info.absolutePath);
-
-    try {
-      const existing = await prisma.libraryDocument.findUnique({
-        where: { stableKey },
-      });
-
-      if (existing) {
-        if (hasChanged(existing, info) || existing.checksumSha256 !== checksum) {
-          const nextVersion = existing.version + 1;
-          await prisma.libraryDocumentVersion.create({
-            data: {
-              documentId: existing.id,
-              versionNo: nextVersion,
-              relativePath: info.relativePath,
-              fileSizeBytes: info.size,
-              fileMtime: info.mtime,
-              checksumSha256: checksum,
-            },
-          });
-          await prisma.libraryDocument.update({
-            where: { id: existing.id },
-            data: {
-              fileSizeBytes: info.size,
-              fileMtime: info.mtime,
-              checksumSha256: checksum,
-              directoryPath: info.directoryPath === "." ? null : info.directoryPath,
-              version: nextVersion,
-              status: "active",
-              updatedAt: new Date(),
-            },
-          });
-          result.updated++;
-        }
-        continue;
-      }
-
-      if (await tryLinkMovedFile(info, stableKey, checksum, result)) continue;
-
-      await prisma.libraryDocument.create({
-        data: {
-          stableKey,
-          rootKey: key,
-          relativePath: info.relativePath,
-          fileName: info.fileName,
-          extension: info.extension || null,
-          fileSizeBytes: info.size,
-          fileMtime: info.mtime,
-          checksumSha256: checksum,
-          categoryCode: info.categoryCode || null,
-          categoryName: info.categoryName || null,
-          directoryPath: normalizeDirPath(info.directoryPath),
-          status: "active",
-          origin: "scanned",
-          version: 1,
-        },
-      });
-      result.created++;
-    } catch (_e) {
-      result.errors.push(`${stableKey}: ${_e instanceof Error ? _e.message : String(_e)}`);
-    }
+    scannedStableKeys.add(`${key}:${info.relativePath}`);
   }
 
+  // ── Phase 2: 先把本轮未命中的旧 active 标记为 missing ───────
+  // 这样改名/移动的旧记录变成 missing，新路径扫描时才能通过 checksum 关联
   try {
-    const missingDocs = await prisma.libraryDocument.findMany({
-      where: {
-        rootKey: key,
-        status: "active",
-      },
+    const oldActiveDocs = await prisma.libraryDocument.findMany({
+      where: { rootKey: key, status: "active" },
       select: { id: true, stableKey: true },
     });
-
-    const toMarkMissing = missingDocs.filter((d) => !scannedStableKeys.has(d.stableKey));
+    const toMarkMissing = oldActiveDocs.filter((d) => !scannedStableKeys.has(d.stableKey));
     for (const doc of toMarkMissing) {
       try {
         await prisma.libraryDocument.update({
@@ -248,6 +201,56 @@ export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
     }
   } catch (_e) {
     result.errors.push(`Missing check: ${_e instanceof Error ? _e.message : String(_e)}`);
+  }
+
+  // ── Phase 3: 逐个处理文件（existing → update, moved → link, new → create）
+  for (const info of files) {
+    const stableKey = `${key}:${info.relativePath}`;
+    result.scanned++;
+
+    const checksum = await computeChecksum(info.absolutePath);
+
+    try {
+      const existing = await prisma.libraryDocument.findUnique({ where: { stableKey } });
+
+      if (existing) {
+        if (hasChanged(existing, info) || existing.checksumSha256 !== checksum) {
+          const nextVersion = existing.version + 1;
+          await prisma.libraryDocumentVersion.create({
+            data: {
+              documentId: existing.id, versionNo: nextVersion, relativePath: info.relativePath,
+              fileSizeBytes: info.size, fileMtime: info.mtime, checksumSha256: checksum,
+            },
+          });
+          await prisma.libraryDocument.update({
+            where: { id: existing.id },
+            data: {
+              fileSizeBytes: info.size, fileMtime: info.mtime, checksumSha256: checksum,
+              directoryPath: normalizeDirPath(info.directoryPath), version: nextVersion,
+              status: "active", updatedAt: new Date(),
+            },
+          });
+          result.updated++;
+        }
+        continue;
+      }
+
+      if (await tryLinkMovedFile(info, stableKey, checksum, result)) continue;
+
+      const docId = await generateUniqueDocId();
+      await prisma.libraryDocument.create({
+        data: {
+          stableKey, rootKey: key, relativePath: info.relativePath, fileName: info.fileName,
+          extension: info.extension || null, fileSizeBytes: info.size, fileMtime: info.mtime,
+          checksumSha256: checksum, categoryCode: info.categoryCode || null,
+          categoryName: info.categoryName || null, directoryPath: normalizeDirPath(info.directoryPath),
+          status: "active", origin: "scanned", version: 1, docId,
+        },
+      });
+      result.created++;
+    } catch (_e) {
+      result.errors.push(`${stableKey}: ${_e instanceof Error ? _e.message : String(_e)}`);
+    }
   }
 
   return result;
