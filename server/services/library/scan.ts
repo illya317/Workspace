@@ -62,7 +62,8 @@ async function collectFiles(
     const full = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
-      if (SKIP_DIRS.has(entry.name)) continue;
+      // 只在根目录跳过 generated/，避免误跳原始资料里的普通 generated 目录
+      if (dir === root && SKIP_DIRS.has(entry.name)) continue;
       const cat = parseCategory(entry.name);
       const childFiles = await collectFiles(
         root,
