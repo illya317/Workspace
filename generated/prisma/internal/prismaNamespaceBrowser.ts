@@ -110,6 +110,7 @@ export const ModelName = {
   DueDiligenceQuestion: 'DueDiligenceQuestion',
   DueDiligenceMaterialSelection: 'DueDiligenceMaterialSelection',
   LibraryGeneratedSource: 'LibraryGeneratedSource',
+  LibraryDocumentTag: 'LibraryDocumentTag',
   Report: 'Report',
   ReportItem: 'ReportItem',
   ReportHistory: 'ReportHistory',
@@ -1170,6 +1171,7 @@ export const LibraryDocumentScalarFieldEnum = {
   directoryPath: 'directoryPath',
   title: 'title',
   summary: 'summary',
+  docId: 'docId',
   confidentialityLevel: 'confidentialityLevel',
   status: 'status',
   origin: 'origin',
@@ -1277,6 +1279,15 @@ export const LibraryGeneratedSourceScalarFieldEnum = {
 } as const
 
 export type LibraryGeneratedSourceScalarFieldEnum = (typeof LibraryGeneratedSourceScalarFieldEnum)[keyof typeof LibraryGeneratedSourceScalarFieldEnum]
+
+
+export const LibraryDocumentTagScalarFieldEnum = {
+  id: 'id',
+  documentId: 'documentId',
+  tag: 'tag'
+} as const
+
+export type LibraryDocumentTagScalarFieldEnum = (typeof LibraryDocumentTagScalarFieldEnum)[keyof typeof LibraryDocumentTagScalarFieldEnum]
 
 
 export const ReportScalarFieldEnum = {

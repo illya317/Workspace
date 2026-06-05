@@ -26,6 +26,8 @@ export function useLibraryDocuments(filters: LibraryFilters, page: number, pageS
       if (filters.origin) params.set("origin", filters.origin);
       if (filters.confidentialityLevel !== undefined) params.set("confidentialityLevel", String(filters.confidentialityLevel));
       if (filters.keyword) params.set("keyword", filters.keyword);
+      if (filters.docId) params.set("docId", filters.docId);
+      if (filters.tag) params.set("tag", filters.tag);
 
       const res = await fetch(`/api/library/documents?${params.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);

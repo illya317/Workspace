@@ -97,6 +97,13 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
               onQueryChange={(v) => setFilter("keyword", v || undefined)}
               placeholder="搜索标题、文件名、简介..."
             />
+            <input
+              type="text"
+              value={filters.tag || ""}
+              onChange={(e) => setFilter("tag", e.target.value || undefined)}
+              placeholder="标签筛选"
+              className="rounded border px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-emerald-500 w-28"
+            />
             <select
               value={filters.status || ""}
               onChange={(e) => setFilter("status", e.target.value || undefined)}

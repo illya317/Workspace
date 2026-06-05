@@ -331,6 +331,11 @@ export type DueDiligenceMaterialSelection = Prisma.DueDiligenceMaterialSelection
  */
 export type LibraryGeneratedSource = Prisma.LibraryGeneratedSourceModel
 /**
+ * Model LibraryDocumentTag
+ * 资料库文档标签（关联表：支持多标签精确筛选）
+ */
+export type LibraryDocumentTag = Prisma.LibraryDocumentTagModel
+/**
  * Model Report
  * 周报/日报主表
  */

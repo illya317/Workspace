@@ -150,17 +150,15 @@ export default function LibraryDetailModal({
                 />
               ) : (
                 <>
+                  {renderField("文档编号", doc.docId || "—")}
                   {renderField("文件名", doc.fileName)}
                   {renderField("标题", doc.title || "—")}
                   {renderField("简介", doc.summary || "—")}
+                  {renderField("标签", doc.tags?.length ? <div className="flex flex-wrap gap-1">{doc.tags.map((t) => <span key={t} className="inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">{t}</span>)}</div> : "—")}
                   {renderField("分类", `${doc.categoryCode || "—"} ${doc.categoryName || ""}`)}
                   {renderField("目录", doc.directoryPath || "—")}
                   {renderField("大小", fmtSize(doc.fileSizeBytes))}
-                  {renderField(
-                    "保密等级",
-                    CONFIDENTIALITY_OPTIONS.find((o) => o.value === doc.confidentialityLevel)?.label ||
-                      `L${doc.confidentialityLevel}`,
-                  )}
+                  {renderField("保密等级", CONFIDENTIALITY_OPTIONS.find((o) => o.value === doc.confidentialityLevel)?.label || `L${doc.confidentialityLevel}`)}
                   {renderField("状态", STATUS_OPTIONS.find((o) => o.value === doc.status)?.label || doc.status)}
                   {renderField("来源", doc.origin)}
                   {renderField("版本", `v${doc.version}`)}
@@ -171,16 +169,10 @@ export default function LibraryDetailModal({
                       <a
                         href={`/api/library/${encodeURIComponent(doc.relativePath)}`}
                         className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        target="_blank" rel="noopener noreferrer"
                       >
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                          />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         下载文件
                       </a>

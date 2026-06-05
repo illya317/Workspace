@@ -443,6 +443,7 @@ export const ModelName = {
   DueDiligenceQuestion: 'DueDiligenceQuestion',
   DueDiligenceMaterialSelection: 'DueDiligenceMaterialSelection',
   LibraryGeneratedSource: 'LibraryGeneratedSource',
+  LibraryDocumentTag: 'LibraryDocumentTag',
   Report: 'Report',
   ReportItem: 'ReportItem',
   ReportHistory: 'ReportHistory',
@@ -467,7 +468,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "project" | "employeeProject" | "positionDescription" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
+    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "project" | "employeeProject" | "positionDescription" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4837,6 +4838,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    LibraryDocumentTag: {
+      payload: Prisma.$LibraryDocumentTagPayload<ExtArgs>
+      fields: Prisma.LibraryDocumentTagFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryDocumentTagFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentTagPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryDocumentTagFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentTagPayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryDocumentTagFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentTagPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryDocumentTagFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentTagPayload>
+        }
+        findMany: {
+          args: Prisma.LibraryDocumentTagFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentTagPayload>[]
+        }
+        create: {
+          args: Prisma.LibraryDocumentTagCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentTagPayload>
+        }
+        createMany: {
+          args: Prisma.LibraryDocumentTagCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryDocumentTagCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentTagPayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryDocumentTagDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentTagPayload>
+        }
+        update: {
+          args: Prisma.LibraryDocumentTagUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentTagPayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryDocumentTagDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryDocumentTagUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryDocumentTagUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentTagPayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryDocumentTagUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryDocumentTagPayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryDocumentTagAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryDocumentTag>
+        }
+        groupBy: {
+          args: Prisma.LibraryDocumentTagGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryDocumentTagGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryDocumentTagCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryDocumentTagCountAggregateOutputType> | number
+        }
+      }
+    }
     Report: {
       payload: Prisma.$ReportPayload<ExtArgs>
       fields: Prisma.ReportFieldRefs
@@ -6575,6 +6650,7 @@ export const LibraryDocumentScalarFieldEnum = {
   directoryPath: 'directoryPath',
   title: 'title',
   summary: 'summary',
+  docId: 'docId',
   confidentialityLevel: 'confidentialityLevel',
   status: 'status',
   origin: 'origin',
@@ -6682,6 +6758,15 @@ export const LibraryGeneratedSourceScalarFieldEnum = {
 } as const
 
 export type LibraryGeneratedSourceScalarFieldEnum = (typeof LibraryGeneratedSourceScalarFieldEnum)[keyof typeof LibraryGeneratedSourceScalarFieldEnum]
+
+
+export const LibraryDocumentTagScalarFieldEnum = {
+  id: 'id',
+  documentId: 'documentId',
+  tag: 'tag'
+} as const
+
+export type LibraryDocumentTagScalarFieldEnum = (typeof LibraryDocumentTagScalarFieldEnum)[keyof typeof LibraryDocumentTagScalarFieldEnum]
 
 
 export const ReportScalarFieldEnum = {
@@ -7019,6 +7104,7 @@ export type GlobalOmitConfig = {
   dueDiligenceQuestion?: Prisma.DueDiligenceQuestionOmit
   dueDiligenceMaterialSelection?: Prisma.DueDiligenceMaterialSelectionOmit
   libraryGeneratedSource?: Prisma.LibraryGeneratedSourceOmit
+  libraryDocumentTag?: Prisma.LibraryDocumentTagOmit
   report?: Prisma.ReportOmit
   reportItem?: Prisma.ReportItemOmit
   reportHistory?: Prisma.ReportHistoryOmit

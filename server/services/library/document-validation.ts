@@ -4,6 +4,8 @@ export type Status = (typeof VALID_STATUSES)[number];
 export interface UpdateBody {
   title?: string;
   summary?: string;
+  docId?: string;
+  tags?: string[];
   categoryCode?: string;
   categoryName?: string;
   subcategoryPath?: string;
@@ -25,6 +27,16 @@ export function validateBody(raw: unknown): { ok: true; body: UpdateBody } | { o
   if (body.summary !== undefined) {
     if (typeof body.summary !== "string") return { ok: false, error: "summary must be a string" };
     out.summary = body.summary;
+  }
+  if (body.docId !== undefined) {
+    if (typeof body.docId !== "string") return { ok: false, error: "docId must be a string" };
+    out.docId = body.docId;
+  }
+  if (body.tags !== undefined) {
+    if (!Array.isArray(body.tags) || body.tags.some((t) => typeof t !== "string")) {
+      return { ok: false, error: "tags must be an array of strings" };
+    }
+    out.tags = body.tags as string[];
   }
   if (body.categoryCode !== undefined) {
     if (typeof body.categoryCode !== "string") return { ok: false, error: "categoryCode must be a string" };

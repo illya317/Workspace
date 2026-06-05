@@ -6,6 +6,7 @@ import { readdir, stat } from "fs/promises";
 import path from "path";
 import { prisma } from "@/lib/prisma";
 import { getLibraryRoots, safeResolve } from "./config";
+import { computeChecksum } from "./checksum";
 
 export interface ScanResult {
   scanned: number;
@@ -96,16 +97,40 @@ async function collectFiles(
   return files;
 }
 
-function hasChanged(doc: {
-  fileSizeBytes: number | null;
-  fileMtime: Date | null;
-  checksumSha256: string | null;
-}, info: FileInfo): boolean {
+function hasChanged(doc: { fileSizeBytes: number | null; fileMtime: Date | null; checksumSha256: string | null }, info: FileInfo): boolean {
   if (doc.fileSizeBytes !== info.size) return true;
-  const docMtime = doc.fileMtime?.getTime() ?? 0;
-  const infoMtime = info.mtime.getTime();
-  if (Math.abs(docMtime - infoMtime) > 1000) return true;
-  return false;
+  return Math.abs((doc.fileMtime?.getTime() ?? 0) - info.mtime.getTime()) > 1000;
+}
+
+const normalizeDirPath = (p: string): string | null => p === "." ? null : p;
+
+async function tryLinkMovedFile(info: FileInfo, stableKey: string, checksum: string | null, result: ScanResult) {
+  if (!checksum) return false;
+  const movedDoc = await prisma.libraryDocument.findFirst({
+    where: { checksumSha256: checksum, status: { in: ["active", "missing"] } },
+    orderBy: { updatedAt: "desc" },
+  });
+  if (!movedDoc) return false;
+  const nextVersion = movedDoc.version + 1;
+  const dirPath = normalizeDirPath(info.directoryPath);
+  await prisma.libraryDocumentVersion.create({
+    data: {
+      documentId: movedDoc.id, versionNo: nextVersion, relativePath: info.relativePath,
+      fileSizeBytes: info.size, fileMtime: info.mtime, checksumSha256: checksum,
+      changeNote: "路径变更（自动关联）",
+    },
+  });
+  await prisma.libraryDocument.update({
+    where: { id: movedDoc.id },
+    data: {
+      stableKey, relativePath: info.relativePath, fileName: info.fileName,
+      extension: info.extension || null, directoryPath: dirPath,
+      fileSizeBytes: info.size, fileMtime: info.mtime, checksumSha256: checksum,
+      version: nextVersion, status: "active", updatedAt: new Date(),
+    },
+  });
+  result.updated++;
+  return true;
 }
 
 export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
@@ -137,13 +162,15 @@ export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
     scannedStableKeys.add(stableKey);
     result.scanned++;
 
+    const checksum = await computeChecksum(info.absolutePath);
+
     try {
       const existing = await prisma.libraryDocument.findUnique({
         where: { stableKey },
       });
 
       if (existing) {
-        if (hasChanged(existing, info)) {
+        if (hasChanged(existing, info) || existing.checksumSha256 !== checksum) {
           const nextVersion = existing.version + 1;
           await prisma.libraryDocumentVersion.create({
             data: {
@@ -152,7 +179,7 @@ export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
               relativePath: info.relativePath,
               fileSizeBytes: info.size,
               fileMtime: info.mtime,
-              checksumSha256: null,
+              checksumSha256: checksum,
             },
           });
           await prisma.libraryDocument.update({
@@ -160,7 +187,7 @@ export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
             data: {
               fileSizeBytes: info.size,
               fileMtime: info.mtime,
-              checksumSha256: null,
+              checksumSha256: checksum,
               directoryPath: info.directoryPath === "." ? null : info.directoryPath,
               version: nextVersion,
               status: "active",
@@ -172,6 +199,8 @@ export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
         continue;
       }
 
+      if (await tryLinkMovedFile(info, stableKey, checksum, result)) continue;
+
       await prisma.libraryDocument.create({
         data: {
           stableKey,
@@ -181,10 +210,10 @@ export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
           extension: info.extension || null,
           fileSizeBytes: info.size,
           fileMtime: info.mtime,
-          checksumSha256: null,
+          checksumSha256: checksum,
           categoryCode: info.categoryCode || null,
           categoryName: info.categoryName || null,
-          directoryPath: info.directoryPath === "." ? null : info.directoryPath,
+          directoryPath: normalizeDirPath(info.directoryPath),
           status: "active",
           origin: "scanned",
           version: 1,

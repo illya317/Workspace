@@ -74,11 +74,23 @@ export default function LibraryTable({
                   {d.title && d.title !== d.fileName && (
                     <div className="text-xs text-gray-400 truncate max-w-xs">{d.title}</div>
                   )}
+                  {d.docId && (
+                    <div className="text-xs text-emerald-600 font-medium truncate max-w-xs">{d.docId}</div>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-gray-500">
                   <span className="truncate max-w-[12rem] block" title={d.summary || ""}>
                     {d.summary || "—"}
                   </span>
+                  {d.tags && d.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {d.tags.map((tag) => (
+                        <span key={tag} className="inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-gray-500">{fmtDate(d.updatedAt)}</td>
                 <td className="px-4 py-3">

@@ -44,7 +44,7 @@ export const PATCH = withLibraryAccess(async (request, user, ctx?: RouteContext)
   if (!validated.ok) return NextResponse.json({ error: validated.error }, { status: 400 });
 
   const body = validated.body;
-  const writeFields = ["title", "summary", "categoryCode", "categoryName", "subcategoryPath", "status"] as const;
+  const writeFields = ["title", "summary", "docId", "tags", "categoryCode", "categoryName", "subcategoryPath", "status"] as const;
   const hasWriteField = writeFields.some((f) => body[f] !== undefined);
   const hasAdminField = body.confidentialityLevel !== undefined;
 

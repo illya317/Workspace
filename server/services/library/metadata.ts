@@ -10,12 +10,15 @@ export interface ListFilters {
   origin?: string;
   confidentialityLevel?: number | { lte: number };
   keyword?: string;
+  docId?: string;
+  tag?: string;
   page?: number;
   pageSize?: number;
 }
 
 export interface DocumentWithVersion extends LibraryDocument {
   versions: LibraryDocumentVersion[];
+  tags: string[];
 }
 
 export interface DocumentListResult {
@@ -26,6 +29,8 @@ export interface DocumentListResult {
 export interface UpdateMetadataInput {
   title?: string;
   summary?: string;
+  docId?: string;
+  tags?: string[];
   categoryCode?: string;
   categoryName?: string;
   subcategoryPath?: string;
@@ -58,6 +63,12 @@ function buildWhere(filters: ListFilters) {
   } else if (filters.confidentialityLevel && typeof filters.confidentialityLevel === "object") {
     where.confidentialityLevel = { lte: filters.confidentialityLevel.lte };
   }
+  if (filters.docId?.trim()) {
+    where.docId = { contains: filters.docId.trim() };
+  }
+  if (filters.tag?.trim()) {
+    where.tags = { some: { tag: filters.tag.trim() } };
+  }
   if (filters.keyword?.trim()) {
     const kw = filters.keyword.trim();
     where.OR = [
@@ -65,6 +76,7 @@ function buildWhere(filters: ListFilters) {
       { fileName: { contains: kw } },
       { summary: { contains: kw } },
       { categoryName: { contains: kw } },
+      { docId: { contains: kw } },
     ];
   }
 
@@ -79,12 +91,19 @@ function getPagination(filters: ListFilters) {
 
 async function attachLatestVersion(doc: LibraryDocument | null): Promise<DocumentWithVersion | null> {
   if (!doc) return null;
-  const versions = await prisma.libraryDocumentVersion.findMany({
-    where: { documentId: doc.id },
-    orderBy: { createdAt: "desc" },
-    take: 1,
-  });
-  return { ...doc, versions };
+  const [versions, tagRows] = await Promise.all([
+    prisma.libraryDocumentVersion.findMany({
+      where: { documentId: doc.id },
+      orderBy: { createdAt: "desc" },
+      take: 1,
+    }),
+    prisma.libraryDocumentTag.findMany({
+      where: { documentId: doc.id },
+      select: { tag: true },
+    }),
+  ]);
+  const tags = tagRows.map((t) => t.tag);
+  return { ...doc, versions, tags };
 }
 
 // ─── CRUD ────────────────────────────────────────────────────
@@ -174,15 +193,30 @@ export async function updateDocumentMetadata(
   };
   if (input.title !== undefined) data.title = input.title;
   if (input.summary !== undefined) data.summary = input.summary;
+  if (input.docId !== undefined) data.docId = input.docId || null;
   if (input.categoryCode !== undefined) data.categoryCode = input.categoryCode;
   if (input.categoryName !== undefined) data.categoryName = input.categoryName;
   if (input.subcategoryPath !== undefined) data.subcategoryPath = input.subcategoryPath;
   if (input.confidentialityLevel !== undefined) data.confidentialityLevel = input.confidentialityLevel;
   if (input.status !== undefined) data.status = input.status;
 
-  const updated = await prisma.libraryDocument.update({
-    where: { id },
-    data,
+  const updated = await prisma.$transaction(async (tx) => {
+    const updatedDoc = await tx.libraryDocument.update({
+      where: { id },
+      data,
+    });
+
+    if (input.tags !== undefined) {
+      await tx.libraryDocumentTag.deleteMany({ where: { documentId: id } });
+      const uniqueTags = [...new Set(input.tags.filter((t) => t.trim()))];
+      if (uniqueTags.length > 0) {
+        await tx.libraryDocumentTag.createMany({
+          data: uniqueTags.map((tag) => ({ documentId: id, tag: tag.trim() })),
+        });
+      }
+    }
+
+    return updatedDoc;
   });
 
   const result = await attachLatestVersion(updated);

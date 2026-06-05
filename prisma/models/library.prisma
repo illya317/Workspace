@@ -16,6 +16,8 @@ model LibraryDocument {
   directoryPath         String?
   title                 String?
   summary               String?
+  docId                 String?  @unique
+  tags                  LibraryDocumentTag[]
   confidentialityLevel  Int      @default(2)
   status                String   @default("active")
   origin                String   @default("uploaded")
@@ -153,4 +155,15 @@ model LibraryGeneratedSource {
   updatedAt                 DateTime @default(now()) @updatedAt
 
   @@index([key])
+}
+
+/// 资料库文档标签（关联表：支持多标签精确筛选）
+model LibraryDocumentTag {
+  id         Int    @id @default(autoincrement())
+  documentId Int
+  tag        String
+  document   LibraryDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@unique([documentId, tag])
+  @@index([tag])
 }

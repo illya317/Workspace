@@ -1,6 +1,7 @@
 export interface LibraryDocumentItem {
   id: number;
   stableKey: string;
+  docId: string | null;
   fileName: string;
   relativePath: string | null;
   directoryPath: string | null;
@@ -11,6 +12,7 @@ export interface LibraryDocumentItem {
   subcategoryPath: string | null;
   title: string | null;
   summary: string | null;
+  tags?: string[];
   confidentialityLevel: number;
   status: string;
   origin: string;
@@ -30,6 +32,8 @@ export interface LibraryFilters {
   origin?: string;
   confidentialityLevel?: number;
   keyword?: string;
+  docId?: string;
+  tag?: string;
 }
 
 export interface CategoryGroup {
