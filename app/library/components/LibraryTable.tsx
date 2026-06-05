@@ -101,9 +101,9 @@ export default function LibraryTable({
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  {d.relativePath && d.status === "active" && (
+                  {d.status === "active" && (
                     <a
-                      href={`/api/library/${encodeURIComponent(d.relativePath)}`}
+                      href={`/api/library/documents/${d.id}/download`}
                       className="inline-flex items-center text-emerald-600 hover:text-emerald-700"
                       title="下载"
                       target="_blank"

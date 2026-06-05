@@ -107,7 +107,7 @@ const normalizeDirPath = (p: string): string | null => p === "." ? null : p;
 async function tryLinkMovedFile(info: FileInfo, stableKey: string, checksum: string | null, result: ScanResult) {
   if (!checksum) return false;
   const movedDoc = await prisma.libraryDocument.findFirst({
-    where: { checksumSha256: checksum, status: { in: ["active", "missing"] } },
+    where: { checksumSha256: checksum, status: "missing" },
     orderBy: { updatedAt: "desc" },
   });
   if (!movedDoc) return false;

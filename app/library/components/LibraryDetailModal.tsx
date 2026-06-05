@@ -163,11 +163,11 @@ export default function LibraryDetailModal({
                   {renderField("来源", doc.origin)}
                   {renderField("版本", `v${doc.version}`)}
                   {renderField("更新时间", fmtDate(doc.updatedAt))}
-                  {doc.relativePath && doc.status === "active" && (
+                  {doc.status === "active" && (
                     <div className="py-2 border-b border-gray-100 last:border-0">
                       <span className="text-xs text-gray-400 block mb-0.5">下载</span>
                       <a
-                        href={`/api/library/${encodeURIComponent(doc.relativePath)}`}
+                        href={`/api/library/documents/${doc.id}/download`}
                         className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700"
                         target="_blank" rel="noopener noreferrer"
                       >
