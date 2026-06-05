@@ -20,5 +20,5 @@ CREATE UNIQUE INDEX "LibraryDocument_docId_key" ON "LibraryDocument"("docId");
 -- CreateIndex: LibraryDocumentTag composite unique
 CREATE UNIQUE INDEX "LibraryDocumentTag_documentId_tag_key" ON "LibraryDocumentTag"("documentId", "tag");
 
--- CreateIndex: LibraryDocumentTag tag index for filtering
-CREATE INDEX "LibraryDocumentTag_tag_idx" ON "LibraryDocumentTag"("tag");
+-- CreateIndex: LibraryDocument directoryPath index
+CREATE INDEX "LibraryDocument_directoryPath_idx" ON "LibraryDocument"("directoryPath");

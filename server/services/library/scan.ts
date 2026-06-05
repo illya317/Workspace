@@ -30,6 +30,7 @@ interface FileInfo {
 }
 
 const SKIP_NAMES = new Set([".DS_Store"]);
+const SKIP_DIRS = new Set(["generated"]);
 
 function parseCategory(dirName: string): { code: string; name: string } | undefined {
   const m = dirName.match(/^(\d+)\s+(.+)$/);
@@ -61,6 +62,7 @@ async function collectFiles(
     const full = path.join(dir, entry.name);
 
     if (entry.isDirectory()) {
+      if (SKIP_DIRS.has(entry.name)) continue;
       const cat = parseCategory(entry.name);
       const childFiles = await collectFiles(
         root,
