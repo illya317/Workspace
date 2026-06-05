@@ -19,18 +19,6 @@ function fmtDate(iso: string | null) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function confidentialityLabel(level: number) {
-  const map: Record<number, string> = { 0: "公开", 1: "内部", 2: "普通", 3: "机密", 4: "绝密" };
-  return map[level] || `L${level}`;
-}
-
-function confidentialityStyle(level: number) {
-  if (level <= 1) return "bg-blue-100 text-blue-700";
-  if (level === 2) return "bg-green-100 text-green-700";
-  if (level === 3) return "bg-orange-100 text-orange-700";
-  return "bg-red-100 text-red-700";
-}
-
 export default function LibraryTable({
   documents,
   loading,
@@ -58,7 +46,7 @@ export default function LibraryTable({
               <th className="px-4 py-3 text-left font-medium text-gray-600">文件名</th>
               <th className="px-4 py-3 text-left font-medium text-gray-600 w-48">简介</th>
               <th className="px-4 py-3 text-left font-medium text-gray-600 w-28">更新时间</th>
-              <th className="px-4 py-3 text-left font-medium text-gray-600 w-20">保密</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-600 w-32">标签</th>
               <th className="px-4 py-3 text-left font-medium text-gray-600 w-16">操作</th>
             </tr>
           </thead>
@@ -82,23 +70,20 @@ export default function LibraryTable({
                   <span className="truncate max-w-[12rem] block" title={d.summary || ""}>
                     {d.summary || "—"}
                   </span>
-                  {d.tags && d.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1">
+                </td>
+                <td className="px-4 py-3 text-gray-500">{fmtDate(d.updatedAt)}</td>
+                <td className="px-4 py-3">
+                  {d.tags && d.tags.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
                       {d.tags.map((tag) => (
-                        <span key={tag} className="inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-600">
+                        <span key={tag} className="inline-block rounded bg-emerald-50 px-1.5 py-0.5 text-xs text-emerald-700">
                           {tag}
                         </span>
                       ))}
                     </div>
+                  ) : (
+                    <span className="text-gray-300">—</span>
                   )}
-                </td>
-                <td className="px-4 py-3 text-gray-500">{fmtDate(d.updatedAt)}</td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${confidentialityStyle(d.confidentialityLevel)}`}
-                  >
-                    {confidentialityLabel(d.confidentialityLevel)}
-                  </span>
                 </td>
                 <td className="px-4 py-3">
                   {d.status === "active" && (
