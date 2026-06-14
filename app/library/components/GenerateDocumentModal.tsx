@@ -33,7 +33,7 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
 
   useEffect(() => {
     setLoadingSources(true);
-    fetch("/api/library/generated-sources")
+    fetch("/workspace/api/library/generated-sources")
       .then((r) => (r.ok ? r.json() : []))
       .then((data: Source[]) => {
         setSources(data);
@@ -60,7 +60,7 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
     setGenerating(true);
     setError(null);
     try {
-      const res = await fetch(`/api/library/generated-sources/${selectedKey}/generate`, {
+      const res = await fetch(`/workspace/api/library/generated-sources/${selectedKey}/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

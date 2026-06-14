@@ -29,7 +29,7 @@ export default function UsernameModal({ open, onClose, user, onSuccess }: Userna
     setUnameError("");
     setUnameSuccess("");
     if (!newUsername.trim()) { setUnameError("用户名不能为空"); return; }
-    const res = await fetch("/api/admin/users/" + user.id, {
+    const res = await fetch("/workspace/api/admin/users/" + user.id, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ field: "username", value: newUsername.trim() }),

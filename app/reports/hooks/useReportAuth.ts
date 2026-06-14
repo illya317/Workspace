@@ -21,7 +21,7 @@ export function useReportAuth() {
 
   const fetchUser = useCallback(async () => {
     try {
-      const res = await fetch("/api/auth/me");
+      const res = await fetch("/workspace/api/auth/me");
       if (!res.ok) {
         router.push("/login");
         return null;

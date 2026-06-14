@@ -26,11 +26,11 @@ export default function GmpPositionsPage({ hideShell }: { hideShell?: boolean })
   });
 
   useEffect(() => {
-    fetch("/api/auth/me").then(r => r.ok ? r.json() : Promise.reject()).then(d => setUser(d.user)).catch(() => router.push("/login"));
+    fetch("/workspace/api/auth/me").then(r => r.ok ? r.json() : Promise.reject()).then(d => setUser(d.user)).catch(() => router.push("/login"));
   }, [router]);
 
   useEffect(() => {
-    fetch("/api/position-descriptions?tree=1")
+    fetch("/workspace/api/position-descriptions?tree=1")
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => {
         const allNodes = data.tree as TreeNode[];
@@ -121,7 +121,7 @@ export default function GmpPositionsPage({ hideShell }: { hideShell?: boolean })
       <nav className="bg-white shadow-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <Image src="/company/logo.png" alt="logo" width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
+            <Image src="/workspace/company/logo.png" alt="logo" width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
             <span className="text-sm text-gray-400">|</span><span className="text-sm font-medium text-gray-600">文档中心</span>
           </div>
           <div className="flex items-center gap-5">

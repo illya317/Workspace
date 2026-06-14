@@ -35,8 +35,8 @@ export default function LineConfigTab() {
     const yearNum = parseInt(year, 10);
     if (isNaN(yearNum)) { setError("年度无效"); setLoading(false); return; }
     const [cr, mr] = await Promise.all([
-      fetch(`/api/finance/statement-config?companyCode=${company}&year=${yearNum}`),
-      fetch(`/api/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance`),
+      fetch(`/workspace/api/finance/statement-config?companyCode=${company}&year=${yearNum}`),
+      fetch(`/workspace/api/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance`),
     ]);
     if (!cr.ok || !mr.ok) { setError(`加载失败 (${cr.status}/${mr.status})`); setLoading(false); return; }
     const cj = await cr.json(); const mj = await mr.json();
@@ -62,7 +62,7 @@ export default function LineConfigTab() {
     if (isNaN(yearNum)) { setError("年度无效"); return; }
     const key = `${lineCode}:${accountCode}`;
     setSaving((p) => new Set(p).add(key));
-    const res = await fetch("/api/finance/statement-mappings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ companyCode: company, year: yearNum, statementType: "balance", accountCode, lineCode, operator }) });
+    const res = await fetch("/workspace/api/finance/statement-mappings", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ companyCode: company, year: yearNum, statementType: "balance", accountCode, lineCode, operator }) });
     setSaving((p) => { const n = new Set(p); n.delete(key); return n; });
     if (!res.ok) { const err: ApiErrorBody = await res.json().catch((): ApiErrorBody => ({})); setError(err.error || `保存失败 (${res.status})`); return; }
     load();
@@ -76,7 +76,7 @@ export default function LineConfigTab() {
     const yearNum = parseInt(year, 10);
     if (isNaN(yearNum)) { setError("年度无效"); return; }
     setSaving((p) => new Set(p).add(accountCode));
-    const res = await fetch(`/api/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance&accountCode=${encodeURIComponent(accountCode)}`, { method: "DELETE" });
+    const res = await fetch(`/workspace/api/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance&accountCode=${encodeURIComponent(accountCode)}`, { method: "DELETE" });
     setSaving((p) => { const n = new Set(p); n.delete(accountCode); return n; });
     if (!res.ok) { const err: ApiErrorBody = await res.json().catch((): ApiErrorBody => ({})); setError(err.error || `删除失败 (${res.status})`); return; }
     load();

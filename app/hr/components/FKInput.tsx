@@ -48,7 +48,7 @@ export default function FKInput({
     }
     setLoading(true);
     try {
-      const res = await fetch(`/api/hr/autocomplete?entity=${entity}&keyword=${encodeURIComponent(q)}`);
+      const res = await fetch(`/workspace/api/hr/autocomplete?entity=${entity}&keyword=${encodeURIComponent(q)}`);
       if (res.ok) {
         const data = await res.json();
         setOptions(data.items || []);

@@ -89,7 +89,7 @@ export default function CodeTable({
   const [pharmaCodesSet, setPharmaCodesSet] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    fetch("/api/hr/companies?active=1")
+    fetch("/workspace/api/hr/companies?active=1")
       .then((r) => r.json())
       .then((data) => {
         const gmpCodes = new Set<string>(

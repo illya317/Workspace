@@ -68,7 +68,7 @@ export default function HRClient({ user, hideShell }: { user: SessionUser; hideS
         <nav className="bg-white shadow-sm">
           <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
             <div className="flex items-center gap-3">
-              <Image src="/company/logo.png" alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"} width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
+              <Image src="/workspace/company/logo.png" alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"} width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
               <span className="text-sm text-gray-400">|</span>
               <span className="text-sm font-medium text-gray-700">组织人事</span>
             </div>

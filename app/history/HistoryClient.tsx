@@ -40,7 +40,7 @@ export default function HistoryPage({ hideShell: _hideShell }: { hideShell?: boo
     async function fetchReports() {
       try {
         // 获取所有报告（无过滤 = 用户自己的报告）
-        const res = await fetch("/api/reports");
+        const res = await fetch("/workspace/api/reports");
         if (!res.ok) {
           setReports([]);
           setLoading(false);
@@ -60,7 +60,7 @@ export default function HistoryPage({ hideShell: _hideShell }: { hideShell?: boo
     }
     async function fetchUserAndReports() {
       try {
-        const userRes = await fetch("/api/auth/me");
+        const userRes = await fetch("/workspace/api/auth/me");
         if (!userRes.ok) {
           router.push("/login");
           return;

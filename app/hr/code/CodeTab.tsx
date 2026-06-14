@@ -20,7 +20,7 @@ export function CodesTab({
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/hr/companies?active=1")
+    fetch("/workspace/api/hr/companies?active=1")
       .then((r) => r.json())
       .then((data) => {
         const found = (data.companies || []).find(

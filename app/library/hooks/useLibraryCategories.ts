@@ -10,7 +10,7 @@ export function useLibraryCategories() {
 
   const refresh = useCallback(() => {
     setLoading(true);
-    fetch("/api/library/categories")
+    fetch("/workspace/api/library/categories")
       .then((r) => (r.ok ? r.json() : []))
       .then((data: CategoryGroup[]) => setCategories(data))
       .catch((e) => setError(e instanceof Error ? e.message : "Failed"))

@@ -21,7 +21,7 @@ export function useCodeData({
   const [companies, setCompanies] = useState<Array<{ code: string; name: string; managementGroup: string; codePoolCode: string | null }>>([]);
 
   useEffect(() => {
-    fetch("/api/hr/companies?active=1")
+    fetch("/workspace/api/hr/companies?active=1")
       .then((r) => r.json())
       .then((data) => setCompanies(data.companies || []))
       .catch(() => {});

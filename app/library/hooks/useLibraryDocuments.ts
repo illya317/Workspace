@@ -29,7 +29,7 @@ export function useLibraryDocuments(filters: LibraryFilters, page: number, pageS
       if (filters.docId) params.set("docId", filters.docId);
       if (filters.tag) params.set("tag", filters.tag);
 
-      const res = await fetch(`/api/library/documents?${params.toString()}`);
+      const res = await fetch(`/workspace/api/library/documents?${params.toString()}`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       setData(json);
@@ -54,7 +54,7 @@ export function useDocumentDetail(id: number | null) {
   const fetchDoc = useCallback(() => {
     if (!id) { setDoc(null); return; }
     setLoading(true);
-    fetch(`/api/library/documents/${id}`)
+    fetch(`/workspace/api/library/documents/${id}`)
       .then((r) => r.ok ? r.json() : null)
       .then((d) => setDoc(d))
       .finally(() => setLoading(false));
@@ -68,7 +68,7 @@ export function useDocumentDetail(id: number | null) {
 }
 
 export async function updateDocument(id: number, body: Record<string, unknown>): Promise<LibraryDocumentItem> {
-  const res = await fetch(`/api/library/documents/${id}`, {
+  const res = await fetch(`/workspace/api/library/documents/${id}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -81,7 +81,7 @@ export async function updateDocument(id: number, body: Record<string, unknown>):
 }
 
 export async function deleteDocument(id: number): Promise<void> {
-  const res = await fetch(`/api/library/documents/${id}`, { method: "DELETE" });
+  const res = await fetch(`/workspace/api/library/documents/${id}`, { method: "DELETE" });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: "Delete failed" }));
     throw new Error(err.error || `HTTP ${res.status}`);

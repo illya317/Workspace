@@ -51,8 +51,8 @@ export default function ReclassCandidateList({
     setLoading(true);
     try {
       const [scanRes, accRes] = await Promise.all([
-        fetch(`/api/finance/reclass-rules?companyCode=${companyCode}&year=${year}`),
-        fetch(`/api/finance/accounts?companyCode=${companyCode}&year=${year}&scope=all&pageSize=2000`),
+        fetch(`/workspace/api/finance/reclass-rules?companyCode=${companyCode}&year=${year}`),
+        fetch(`/workspace/api/finance/accounts?companyCode=${companyCode}&year=${year}&scope=all&pageSize=2000`),
       ]);
 
       if (!scanRes.ok) { showToast("加载失败", "error"); return; }
@@ -101,7 +101,7 @@ export default function ReclassCandidateList({
   async function saveRule(c: RuleCandidate, target: string) {
     if (!target.trim()) { showToast("请选择目标科目", "error"); return false; }
     const body = JSON.stringify({ companyCode, year: parseInt(year), sourceAccountCode: c.accountCode, abnormalSide: c.abnormalSide, targetAccountCode: target });
-    const res = await fetch("/api/finance/reclass-rules", { method: "PUT", headers: { "Content-Type": "application/json" }, body });
+    const res = await fetch("/workspace/api/finance/reclass-rules", { method: "PUT", headers: { "Content-Type": "application/json" }, body });
     if (!res.ok) { showToast("保存失败", "error"); return false; }
     const data = await res.json();
     updateCandidate(c.accountCode, data.rule.id, data.rule.targetAccountCode, data.rule.source, data.rule.enabled);
@@ -109,7 +109,7 @@ export default function ReclassCandidateList({
   }
   async function clearRule(c: RuleCandidate) {
     if (!c.existingRuleId) return;
-    if (!(await fetch(`/api/finance/reclass-rules/${c.existingRuleId}`, { method: "DELETE" })).ok) { showToast("清除失败", "error"); return; }
+    if (!(await fetch(`/workspace/api/finance/reclass-rules/${c.existingRuleId}`, { method: "DELETE" })).ok) { showToast("清除失败", "error"); return; }
     updateCandidate(c.accountCode, null, null, null, null);
     showToast("已清除规则");
   }

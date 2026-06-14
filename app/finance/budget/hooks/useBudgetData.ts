@@ -25,7 +25,7 @@ export function useBudgetData(year: number, companyCode?: string) {
 
   // 加载版本列表
   useEffect(() => {
-    fetch(`/api/finance/budget/versions?year=${year}${companyCode ? `&companyCode=${companyCode}` : ""}`)
+    fetch(`/workspace/api/finance/budget/versions?year=${year}${companyCode ? `&companyCode=${companyCode}` : ""}`)
       .then((r) => r.json())
       .then((d: { versions: Version[] }) => {
         setVersions(d.versions);

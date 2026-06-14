@@ -9,7 +9,7 @@ export type AgentPose = "front" | "side" | "back" | "45front" | "45back";
 export type AgentExpression =
   | "talking" | "questioning" | "surprised" | "disappointed" | "wink" | "sleeping";
 
-const BASE = "/assets/agent/avatar";
+const BASE = `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/assets/agent/avatar`;
 
 /** 7 个核心 mood → 图片路径 */
 export const moodAvatar: Record<AgentMood, string> = {

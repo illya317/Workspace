@@ -30,7 +30,7 @@ export default function AppShell({ title, backHref, backLabel, navLinks, user, c
           {/* Logo */}
           <button onClick={() => router.push("/portal")} className="flex-shrink-0">
             <Image
-              src="/company/logo.png"
+              src="/workspace/company/logo.png"
               alt="Logo"
               width={28}
               height={28}

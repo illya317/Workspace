@@ -35,7 +35,7 @@ export default function RosterTab({ user: _user, selectedCompany }: { user: User
     if (deptParam) params.set("dept", deptParam);
     if (keyword) params.set("keyword", keyword);
     params.set("status", rosterFilter);
-    const res = await fetch(`/api/hr/roster?${params.toString()}`);
+    const res = await fetch(`/workspace/api/hr/roster?${params.toString()}`);
     if (res.ok) {
       const data = await res.json();
       setEmployees(data.employees || []);

@@ -42,7 +42,7 @@ export default function ReportTab() {
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/finance/periods").then((r) => r.json()).then((d) => {
+    fetch("/workspace/api/finance/periods").then((r) => r.json()).then((d) => {
       setPeriods(d.periods || []);
     });
     loadReport();
@@ -54,7 +54,7 @@ export default function ReportTab() {
     setLoading(true);
     setExpandedCodes(new Set());
     setDetails({});
-    const res = await fetch(`/api/finance/reports?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}&type=${reportType}`);
+    const res = await fetch(`/workspace/api/finance/reports?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}&type=${reportType}`);
     if (res.ok) setData(await res.json());
     setLoading(false);
   }
@@ -73,7 +73,7 @@ export default function ReportTab() {
     if (!details[code]) {
       setLoadingDetail(code);
       try {
-        const res = await fetch(`/api/finance/reports/detail?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}&codes=${encodeURIComponent(code)}`);
+        const res = await fetch(`/workspace/api/finance/reports/detail?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}&codes=${encodeURIComponent(code)}`);
         if (res.ok) {
           const d = await res.json();
           setDetails((prev) => ({ ...prev, [code]: d.details || [] }));

@@ -23,7 +23,7 @@ export default function PortalClient({ user }: { user: SessionUser }) {
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
       <div className="mb-8 flex flex-col items-center">
         <Image
-          src="/company/logo.png"
+          src="/workspace/company/logo.png"
           alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"}
           width={200}
           height={60}

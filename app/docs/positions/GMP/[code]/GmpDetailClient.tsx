@@ -33,7 +33,7 @@ export default function GmpDetailClient({ code }: { code: string }) {
 
   useEffect(() => {
     if (!code) return;
-    fetch(`/api/position-descriptions?code=${encodeURIComponent(code)}`)
+    fetch(`/workspace/api/position-descriptions?code=${encodeURIComponent(code)}`)
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(d => { setPos(d.positionDescription); setLoading(false); })
       .catch(() => { setError("获取失败"); setLoading(false); });

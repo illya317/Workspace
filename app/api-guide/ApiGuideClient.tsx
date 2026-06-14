@@ -16,7 +16,7 @@ function MyApiKeyPanel({ apiKey, onApiKeyChange }: { apiKey: string | null; onAp
   async function applyApiKey() {
     const doApply = async () => {
       setLoading(true);
-      const res = await fetch("/api/my-api-key", { method: "POST" });
+      const res = await fetch("/workspace/api/my-api-key", { method: "POST" });
       if (res.ok) { const data = await res.json(); onApiKeyChange(data.apiKey || null); }
       setLoading(false);
       closeConfirm();
@@ -97,8 +97,8 @@ export default function ApiGuidePage({ hideShell: _hideShell }: { hideShell?: bo
   const [apiKey, setApiKey] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/auth/me").then(r => r.ok ? r.json() : Promise.reject()).then(d => setUser(d.user)).catch(() => router.push("/login"));
-    fetch("/api/my-api-key").then(r => r.json()).then(d => setApiKey(d.apiKey || null)).catch(() => {});
+    fetch("/workspace/api/auth/me").then(r => r.ok ? r.json() : Promise.reject()).then(d => setUser(d.user)).catch(() => router.push("/login"));
+    fetch("/workspace/api/my-api-key").then(r => r.json()).then(d => setApiKey(d.apiKey || null)).catch(() => {});
   }, [router]);
 
   const BASE = "http://49.235.213.225:3000";

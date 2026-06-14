@@ -17,7 +17,7 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
   const [selectedDeptId, setSelectedDeptId] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch("/api/auth/me")
+    fetch("/workspace/api/auth/me")
       .then((r) => r.json())
       .then((data) => {
         const u = data.user as SessionUser;
@@ -25,7 +25,7 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
         if (u?.isWorkListAdmin) {
           const saved = localStorage.getItem("selectedDeptId");
           if (saved) setSelectedDeptId(parseInt(saved));
-          fetch("/api/hr/departments")
+          fetch("/workspace/api/hr/departments")
             .then((r) => r.json())
             .then((d) => {
               const list = (d.departments || []) as Dept[];

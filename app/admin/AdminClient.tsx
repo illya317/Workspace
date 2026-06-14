@@ -30,7 +30,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     let cancelled = false;
     async function loadInitial() {
       try {
-        const resRes = await fetch("/api/admin/permissions");
+        const resRes = await fetch("/workspace/api/admin/permissions");
         if (!cancelled) {
           if (!resRes.ok) showToast("加载权限资源失败: " + resRes.status, "error");
           const resData = await resRes.json();
@@ -39,7 +39,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
           // Full tree for badge computation (unscoped)
           setFullResourceTree((resData.resourceTree || resData.resources || []) as ResourceItem[]);
           try {
-            const cfgRes = await fetch("/api/admin/system-config");
+            const cfgRes = await fetch("/workspace/api/admin/system-config");
             if (cfgRes.ok) {
               const cfgData = await cfgRes.json();
               setConflictStrategy(cfgData.conflictStrategy || "union");
@@ -57,7 +57,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   }, [showToast, isSuperAdmin]);
 
   async function saveConflictStrategy(strategy: string) {
-    const res = await fetch("/api/admin/system-config", {
+    const res = await fetch("/workspace/api/admin/system-config", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ conflictStrategy: strategy }),
@@ -88,7 +88,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
       <nav className="bg-white shadow-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <Image src="/company/logo.png" alt="logo" width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
+            <Image src="/workspace/company/logo.png" alt="logo" width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
           </div>
           <div className="flex items-center gap-5">
             <button onClick={() => router.push("/portal")} className="text-sm text-gray-500 hover:text-emerald-600">返回入口</button>

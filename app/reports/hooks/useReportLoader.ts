@@ -41,8 +41,8 @@ export async function fetchReportData(
   const prevDate = prev.date;
 
   const [reportsRes, prevRes, worksRes] = await Promise.all([
-    fetch(`/api/reports?date=${date}${targetParam}`),
-    fetch(`/api/reports?date=${prevDate}${targetParam}`),
+    fetch(`/workspace/api/reports?date=${date}${targetParam}`),
+    fetch(`/workspace/api/reports?date=${prevDate}${targetParam}`),
     fetch(targetType && targetId ? `/api/works?targetType=${targetType}&targetId=${targetId}` : `/api/works?deptId=${user.departmentId}`),
   ]);
 
@@ -53,7 +53,7 @@ export async function fetchReportData(
 
   if (reportsData.reports?.length > 0) {
     const r = reportsData.reports[0] as Report;
-    const vRes = await fetch(`/api/reports/${r.id}/versions`);
+    const vRes = await fetch(`/workspace/api/reports/${r.id}/versions`);
     const vData = await vRes.json();
 
     const mapItems = (cat: string) =>
@@ -163,7 +163,7 @@ export function useReportLoader() {
 
   const loadVersion = useCallback(
     async (reportId: number, version: number) => {
-      const res = await fetch(`/api/reports/${reportId}/versions/${version}`);
+      const res = await fetch(`/workspace/api/reports/${reportId}/versions/${version}`);
       const data = await res.json();
       if (data.report) {
         const r = data.report as Report;

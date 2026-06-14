@@ -28,7 +28,7 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
     if (q.length < 2) { setOptions([]); setOpen(false); return; }
     try {
       const params = new URLSearchParams({ keyword: q, companyCode, year, scope: "all", pageSize: "10" });
-      const res = await fetch(`/api/finance/accounts?${params}`);
+      const res = await fetch(`/workspace/api/finance/accounts?${params}`);
       if (res.ok) {
         const data = await res.json();
         const items: AccountOption[] = (data.data || data.accounts || []).map(

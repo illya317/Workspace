@@ -133,7 +133,7 @@ export function useReports(showToast: (message: string, type?: "success" | "erro
       if (d.report) {
         loader.setReport(d.report);
         if (loader.report) {
-          const vRes = await fetch(`/api/reports/${loader.report.id}/versions`);
+          const vRes = await fetch(`/workspace/api/reports/${loader.report.id}/versions`);
           const vData = await vRes.json();
           loader.setVersions(vData.history || []);
         }

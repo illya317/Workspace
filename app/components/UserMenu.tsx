@@ -20,7 +20,7 @@ export default function UserMenu({ user }: { user: SessionUser | null }) {
   }, []);
 
   async function handleLogout() {
-    await fetch("/api/auth/dev-login", { method: "DELETE" }).catch(() => {});
+    await fetch("/workspace/api/auth/dev-login", { method: "DELETE" }).catch(() => {});
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     router.push("/login");
   }

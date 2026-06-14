@@ -19,7 +19,7 @@ export function useDueDiligenceRequests() {
 
   const refresh = useCallback(() => {
     setLoading(true);
-    fetch("/api/library/due-diligence")
+    fetch("/workspace/api/library/due-diligence")
       .then((r) => (r.ok ? r.json() : []))
       .then((data: DueDiligenceRequest[]) => setRequests(data))
       .catch((e) => setError(e instanceof Error ? e.message : "Failed"))
@@ -31,7 +31,7 @@ export function useDueDiligenceRequests() {
   }, [refresh]);
 
   const createRequest = useCallback(async (title: string, partyName: string) => {
-    const res = await fetch("/api/library/due-diligence", {
+    const res = await fetch("/workspace/api/library/due-diligence", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title, partyName }),
@@ -45,7 +45,7 @@ export function useDueDiligenceRequests() {
   }, [refresh]);
 
   const deleteRequest = useCallback(async (id: number) => {
-    const res = await fetch(`/api/library/due-diligence/${id}`, { method: "DELETE" });
+    const res = await fetch(`/workspace/api/library/due-diligence/${id}`, { method: "DELETE" });
     if (!res.ok) throw new Error("Delete failed");
     refresh();
   }, [refresh]);
@@ -91,7 +91,7 @@ export function useDueDiligenceDetail(id: number | null) {
   const refresh = useCallback(() => {
     if (!id) { setDetail(null); return; }
     setLoading(true);
-    fetch(`/api/library/due-diligence/${id}`)
+    fetch(`/workspace/api/library/due-diligence/${id}`)
       .then((r) => (r.ok ? r.json() : null))
       .then((d: RequestDetail | null) => setDetail(d))
       .finally(() => setLoading(false));
@@ -103,7 +103,7 @@ export function useDueDiligenceDetail(id: number | null) {
 
   const splitQuestions = useCallback(async (text: string) => {
     if (!id) throw new Error("No request id");
-    const res = await fetch(`/api/library/due-diligence/${id}/split`, {
+    const res = await fetch(`/workspace/api/library/due-diligence/${id}/split`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
@@ -118,14 +118,14 @@ export function useDueDiligenceDetail(id: number | null) {
 
   const runMatch = useCallback(async () => {
     if (!id) throw new Error("No request id");
-    const res = await fetch(`/api/library/due-diligence/${id}/match`, { method: "POST" });
+    const res = await fetch(`/workspace/api/library/due-diligence/${id}/match`, { method: "POST" });
     if (!res.ok) throw new Error("Match failed");
     refresh();
     return res.json();
   }, [id, refresh]);
 
   const toggleMaterial = useCallback(async (questionId: number, selectionId: number, selected: boolean) => {
-    const res = await fetch(`/api/library/due-diligence/${id}/questions/${questionId}/materials`, {
+    const res = await fetch(`/workspace/api/library/due-diligence/${id}/questions/${questionId}/materials`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ selectionId, selected }),
@@ -137,7 +137,7 @@ export function useDueDiligenceDetail(id: number | null) {
 
   const updateStatus = useCallback(async (status: string) => {
     if (!id) throw new Error("No request id");
-    const res = await fetch(`/api/library/due-diligence/${id}`, {
+    const res = await fetch(`/workspace/api/library/due-diligence/${id}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
@@ -149,7 +149,7 @@ export function useDueDiligenceDetail(id: number | null) {
 
   const archiveRequest = useCallback(async () => {
     if (!id) throw new Error("No request id");
-    const res = await fetch(`/api/library/due-diligence/${id}/archive`, { method: "POST" });
+    const res = await fetch(`/workspace/api/library/due-diligence/${id}/archive`, { method: "POST" });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: "Archive failed" }));
       throw new Error(err.error || `HTTP ${res.status}`);

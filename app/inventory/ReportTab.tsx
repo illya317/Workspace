@@ -38,14 +38,14 @@ export default function ReportTab() {
 
   async function loadWarning() {
     setLoading(true);
-    const res = await fetch("/api/inventory/reports?type=warning");
+    const res = await fetch("/workspace/api/inventory/reports?type=warning");
     if (res.ok) setWarningData(await res.json());
     setLoading(false);
   }
 
   async function loadLedger() {
     setLoading(true);
-    const res = await fetch("/api/inventory/reports?type=ledger");
+    const res = await fetch("/workspace/api/inventory/reports?type=ledger");
     if (res.ok) setLedgerData(await res.json());
     setLoading(false);
   }

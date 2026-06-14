@@ -41,7 +41,7 @@ export function StatementConfigProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch("/api/finance/periods");
+        const res = await fetch("/workspace/api/finance/periods");
         if (!res.ok) return;
         const d = await res.json();
         const seen = new Map<string, CompanyYearOption>();

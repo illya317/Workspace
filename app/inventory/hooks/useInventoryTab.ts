@@ -91,7 +91,7 @@ export function useInventoryTab({ apiBase, targetType, defaultOpType }: UseInven
   }
 
   async function handleOperation() {
-    const res = await fetch("/api/inventory/operations", {
+    const res = await fetch("/workspace/api/inventory/operations", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

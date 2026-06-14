@@ -11,7 +11,7 @@ export function useLibraryDirectories() {
   const refresh = useCallback(() => {
     setLoading(true);
     setError(null);
-    fetch("/api/library/directories")
+    fetch("/workspace/api/library/directories")
       .then(async (r) => {
         if (!r.ok) {
           const text = await r.text().catch(() => "");

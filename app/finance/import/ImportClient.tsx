@@ -20,7 +20,7 @@ export default function ImportClient({ user: _user }: { user: SessionUser }) {
   const [dragActive, setDragActive] = useState(false);
 
   useEffect(() => {
-    fetch("/api/hr/companies")
+    fetch("/workspace/api/hr/companies")
       .then((r) => r.json())
       .then((data) => {
         const list = (data.companies || []) as Company[];
@@ -60,7 +60,7 @@ export default function ImportClient({ user: _user }: { user: SessionUser }) {
     formData.append("year", year);
 
     try {
-      const res = await fetch("/api/finance/import/preview", {
+      const res = await fetch("/workspace/api/finance/import/preview", {
         method: "POST",
         body: formData,
       });
@@ -83,7 +83,7 @@ export default function ImportClient({ user: _user }: { user: SessionUser }) {
     setResult(null);
 
     try {
-      const res = await fetch("/api/finance/import/confirm", {
+      const res = await fetch("/workspace/api/finance/import/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ preview }),

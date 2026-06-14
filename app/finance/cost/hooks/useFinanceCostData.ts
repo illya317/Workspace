@@ -43,7 +43,7 @@ export function useCostData<T = Record<string, unknown>>({
       params.set("page", String(page));
       params.set("pageSize", String(pageSize));
 
-      const res = await fetch(`/api/finance/cost/${endpoint}?${params.toString()}`);
+      const res = await fetch(`/workspace/api/finance/cost/${endpoint}?${params.toString()}`);
       const json = (await res.json()) as PaginatedResponse<T>;
 
       if (!res.ok || !json.success) {
@@ -83,7 +83,7 @@ export function useCostSummary(filters: CostFiltersState) {
       if (filters.productName) params.set("productName", filters.productName);
       if (filters.customerName) params.set("customerName", filters.customerName);
 
-      const res = await fetch(`/api/finance/cost/summary?${params.toString()}`);
+      const res = await fetch(`/workspace/api/finance/cost/summary?${params.toString()}`);
       const json = await res.json();
 
       if (!res.ok || !json.success) {

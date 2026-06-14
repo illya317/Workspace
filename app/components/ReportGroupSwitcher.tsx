@@ -20,7 +20,7 @@ export default function ReportGroupSwitcher({ value, onChange }: Props) {
   useEffect(() => {
     async function load() {
       try {
-        const res = await fetch("/api/report-groups/my");
+        const res = await fetch("/workspace/api/report-groups/my");
         if (res.ok) {
           const data = await res.json();
           const all = [

@@ -36,7 +36,7 @@ export default function ProjectInfoTab({ user: _user }: { user: User }) {
   const { toast, showToast, closeToast } = useToast();
 
   useEffect(() => {
-    fetch("/api/hr/projects")
+    fetch("/workspace/api/hr/projects")
       .then((r) => r.json())
       .then((d) => setProjects(d.projects || []));
   }, []);
@@ -44,7 +44,7 @@ export default function ProjectInfoTab({ user: _user }: { user: User }) {
   const loadEntries = useCallback(async () => {
     if (!selectedProject) return;
     setLoading(true);
-    const res = await fetch(`/api/hr/employee-projects?projectId=${selectedProject}`);
+    const res = await fetch(`/workspace/api/hr/employee-projects?projectId=${selectedProject}`);
     const data = await res.json();
     setEntries(data.entries || []);
     setLoading(false);

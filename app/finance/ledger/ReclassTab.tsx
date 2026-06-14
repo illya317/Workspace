@@ -27,7 +27,7 @@ export default function ReclassTab() {
   async function load() {
     if (!companyFilter || !yearFilter || !monthFilter) return;
     setLoading(true);
-    const res = await fetch(`/api/finance/schedules/reclassify?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}`);
+    const res = await fetch(`/workspace/api/finance/schedules/reclassify?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}`);
     if (res.ok) setEntries((await res.json()).entries || []);
     setLoading(false);
   }

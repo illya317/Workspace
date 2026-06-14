@@ -33,17 +33,17 @@ export default function ReviewClient() {
 
   const loadWp = useCallback(async () => {
     setLoading(true); setError(null); clear();
-    const r = await fetch(`/api/finance/statement-workpapers?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt}`);
+    const r = await fetch(`/workspace/api/finance/statement-workpapers?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt}`);
     if (!r.ok) { setError(`加载底稿失败 (${r.status})`); setLoading(false); return; }
     const d = await r.json(); setWp(d.id ? d : { ...d, id: 0 });
-    if (d.id) { const rr = await fetch(`/api/finance/statement-reviews?workpaperId=${d.id}`); if (rr.ok) { const rd = await rr.json(); if (rd.review) setRv(rd.review); } }
+    if (d.id) { const rr = await fetch(`/workspace/api/finance/statement-reviews?workpaperId=${d.id}`); if (rr.ok) { const rd = await rr.json(); if (rd.review) setRv(rd.review); } }
     setLoading(false);
   }, [co, yr, mo, rt]);
 
   const generate = async () => {
     if (!wp || !wp.id) return;
     setLoading(true); setError(null);
-    const r = await fetch("/api/finance/statement-reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workpaperId: wp.id }) });
+    const r = await fetch("/workspace/api/finance/statement-reviews", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workpaperId: wp.id }) });
     const d = await r.json(); if (!r.ok) { setError(d.error || "生成校对失败"); setLoading(false); return; }
     setRv(d.review); setEdits(new Map()); setLoading(false);
   };
@@ -52,7 +52,7 @@ export default function ReviewClient() {
     if (!rv || edits.size === 0) return;
     setSaving(true); setError(null);
     const lines = [...edits.entries()].map(([lineCode, e]) => ({ lineCode, ...e }));
-    const r = await fetch(`/api/finance/statement-reviews/${rv.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lines }) });
+    const r = await fetch(`/workspace/api/finance/statement-reviews/${rv.id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ lines }) });
     const d = await r.json(); if (!r.ok) { setError(d.error || "保存失败"); setSaving(false); return; }
     setRv(d.review); setEdits(new Map()); setSaving(false);
   };
@@ -60,7 +60,7 @@ export default function ReviewClient() {
   const doConfirm = async () => {
     if (!rv) return;
     setSaving(true); setError(null);
-    const r = await fetch(`/api/finance/statement-reviews/${rv.id}/confirm`, { method: "POST" });
+    const r = await fetch(`/workspace/api/finance/statement-reviews/${rv.id}/confirm`, { method: "POST" });
     const d = await r.json(); if (!r.ok) { setError(d.error || "确认失败"); setSaving(false); return; }
     setRv(d.review); setSaving(false);
   };

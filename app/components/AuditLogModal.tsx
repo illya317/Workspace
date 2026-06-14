@@ -23,7 +23,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
 
   const loadDates = useCallback(async () => {
     try {
-      const res = await fetch(`/api/admin/audit-log?entityType=${entityType}&dates=1`);
+      const res = await fetch(`/workspace/api/admin/audit-log?entityType=${entityType}&dates=1`);
       if (res.ok) { const d = await res.json(); setDates(d.dates || []); }
     } catch {}
   }, [entityType]);
@@ -33,7 +33,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
     try {
       const params = new URLSearchParams({ entityType, page: String(p), pageSize: String(pageSize) });
       if (d) params.set("date", d);
-      const res = await fetch(`/api/admin/audit-log?${params}`);
+      const res = await fetch(`/workspace/api/admin/audit-log?${params}`);
       if (res.ok) { const data = await res.json(); setEntries(data.entries || []); setTotal(data.total || 0); }
     } finally { setLoading(false); }
   }, [entityType]);
@@ -41,7 +41,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
   const restore = useCallback(async (historyId: number) => {
     setRestoring(historyId);
     try {
-      const res = await fetch("/api/admin/audit-log/restore", {
+      const res = await fetch("/workspace/api/admin/audit-log/restore", {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ historyId }),
       });
       if (res.ok) { load(1, selectedDate); loadDates(); onRestored?.(); }

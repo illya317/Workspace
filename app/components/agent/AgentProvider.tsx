@@ -21,7 +21,7 @@ export default function AgentProvider() {
     if (!isOpen) return;
     preloadImages(coreMoods);
     setHintsLoaded(false);
-    fetch("/api/agent/capabilities")
+    fetch("/workspace/api/agent/capabilities")
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
         setHints(d?.capabilities?.map((c: { label: string }) => c.label) ?? []);

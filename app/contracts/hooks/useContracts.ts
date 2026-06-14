@@ -23,7 +23,7 @@ export function useContracts() {
     if (locationFilter) params.set("location", locationFilter);
     if (categoryFilter) params.set("category", categoryFilter);
     if (statusFilter) params.set("status", statusFilter);
-    const res = await fetch(`/api/contracts?${params.toString()}`);
+    const res = await fetch(`/workspace/api/contracts?${params.toString()}`);
     const data = await res.json();
     setContracts(data.contracts || []);
     setTotal(data.total || 0);

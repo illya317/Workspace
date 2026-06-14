@@ -41,7 +41,7 @@ export default function FinanceBalanceReconcile({
   const [result, setResult] = useState<ReconcileResult | null>(null);
 
   useEffect(() => {
-    fetch("/api/hr/companies").then((r) => r.json()).then((d) => {
+    fetch("/workspace/api/hr/companies").then((r) => r.json()).then((d) => {
       const list = d.companies || [];
       setCompanies(list);
       if (list.length) setCompanyCode(list[0].code);
@@ -61,7 +61,7 @@ export default function FinanceBalanceReconcile({
     formData.append("companyCode", companyCode);
 
     try {
-      const res = await fetch("/api/finance/balances/reconcile", {
+      const res = await fetch("/workspace/api/finance/balances/reconcile", {
         method: "POST",
         body: formData,
       });

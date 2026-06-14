@@ -23,7 +23,7 @@ export default function ImportHistoryTable({ filters }: Props) {
     if (!confirm("确定删除该导入批次？关联数据将被一并删除。")) return;
     setDeleting(id);
     try {
-      const res = await fetch(`/api/finance/cost/imports/${id}`, { method: "DELETE" });
+      const res = await fetch(`/workspace/api/finance/cost/imports/${id}`, { method: "DELETE" });
       const json = await res.json();
       if (!res.ok || !json.success) {
         alert(json.error || "删除失败");

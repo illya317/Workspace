@@ -18,7 +18,7 @@ export default function WorksHeader({
     <nav className="bg-white shadow-sm">
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
-          <Image src="/company/logo.png" alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"} width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
+          <Image src="/workspace/company/logo.png" alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"} width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
           {!hideShell && <DepartmentSwitcher onChange={onDeptChange} />}
         </div>
         <div className="flex items-center gap-5">

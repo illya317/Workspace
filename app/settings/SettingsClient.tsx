@@ -21,7 +21,7 @@ export default function SettingsClient({ user: initialUser, hideShell }: { user:
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const handleUsernameSuccess = useCallback(() => {
-    fetch("/api/auth/me")
+    fetch("/workspace/api/auth/me")
       .then((r) => r.json())
       .then((d) => { if (d.user) setUser(d.user); })
       .catch(() => {});
@@ -33,7 +33,7 @@ export default function SettingsClient({ user: initialUser, hideShell }: { user:
       <nav className="bg-white shadow-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-2">
-            <Image src="/company/logo.png" alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"} width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
+            <Image src="/workspace/company/logo.png" alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"} width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
           </div>
           <div className="flex items-center gap-5">
             <button onClick={() => router.push("/portal")} className="text-sm text-gray-500 hover:text-emerald-600">返回入口</button>
