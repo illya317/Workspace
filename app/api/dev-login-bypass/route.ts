@@ -21,6 +21,7 @@ export async function GET(request: Request) {
     name: user.name,
     departmentId: 0,
     sessionVersion: user.sessionVersion,
+    authProvider: "password",
   });
 
   const response = NextResponse.json({ success: true, message: `已登录为 ${user.name}` });

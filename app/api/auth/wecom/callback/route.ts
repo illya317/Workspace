@@ -90,6 +90,7 @@ export async function GET(request: Request) {
       name: user.name,
       departmentId: 0,
       sessionVersion: updatedUser.sessionVersion,
+      authProvider: "wecom",
     });
 
     const response = NextResponse.redirect(new URL(`${getRequestOrigin(request)}${BASE_PATH}/portal`));

@@ -74,6 +74,7 @@ export async function POST(request: Request) {
     name: user.name,
     departmentId: 0,
     sessionVersion: updatedUser.sessionVersion,
+    authProvider: "password",
   });
 
   const ctx = await getPermissionContext(user.id);

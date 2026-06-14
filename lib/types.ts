@@ -5,6 +5,7 @@ export interface SessionUser {
   username?: string | null;
   wxUserId?: string | null;
   avatar?: string | null;
+  authProvider?: "password" | "wecom" | "api" | null;
   apiKey?: string | null;
   canLogin?: boolean;
   isWorkListAdmin?: boolean;
