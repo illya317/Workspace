@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
+
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -15,16 +17,24 @@ export default function LoginPage() {
   useEffect(() => {
     // 检查 kicked cookie 或 URL 参数
     const kickedCookie = document.cookie.split("; ").find((row) => row.startsWith("kicked="));
-    const kickedParam = new URLSearchParams(window.location.search).get("kicked");
+    const searchParams = new URLSearchParams(window.location.search);
+    const kickedParam = searchParams.get("kicked");
+    const wecomError = searchParams.get("wecom_error");
+    if (wecomError) {
+      setError(wecomError);
+    }
     if (kickedCookie || kickedParam) {
       setKickedAlert(true);
       // 清除 cookie
       document.cookie = "kicked=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       // 清除 URL 参数
-      if (kickedParam) {
+      if (kickedParam || wecomError) {
         const newUrl = window.location.pathname;
         window.history.replaceState({}, "", newUrl);
       }
+    } else if (wecomError) {
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, "", newUrl);
     }
   }, []);
 
@@ -33,7 +43,7 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const res = await fetch("/workspace/api/auth/dev-login", {
+    const res = await fetch(`${BASE_PATH}/api/auth/dev-login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -47,6 +57,10 @@ export default function LoginPage() {
       setError(data.error || "登录失败");
       setLoading(false);
     }
+  };
+
+  const handleWecomLogin = () => {
+    window.location.href = `${BASE_PATH}/api/auth/wecom/start`;
   };
 
   return (
@@ -104,6 +118,18 @@ export default function LoginPage() {
             {loading ? "登录中..." : "登录"}
           </button>
         </form>
+        <div className="my-5 flex items-center gap-3 text-xs text-gray-400">
+          <span className="h-px flex-1 bg-gray-200" />
+          <span>或</span>
+          <span className="h-px flex-1 bg-gray-200" />
+        </div>
+        <button
+          type="button"
+          onClick={handleWecomLogin}
+          className="w-full rounded-md border border-emerald-200 bg-white py-2 text-sm font-medium text-emerald-700 transition-colors hover:bg-emerald-50"
+        >
+          企业微信登录
+        </button>
       </div>
     </div>
   );

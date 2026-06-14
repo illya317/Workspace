@@ -49,6 +49,27 @@ Public-facing company name used in logos and alt text.
 
 Default fallback: `""` (empty)
 
+### `WECHAT_CORP_ID`
+
+Enterprise WeChat CorpID used for OAuth login.
+
+### `WECHAT_AGENT_ID`
+
+Enterprise WeChat self-built app AgentId used when constructing the OAuth URL.
+
+### `WECHAT_SECRET`
+
+Enterprise WeChat self-built app secret. Server-side only; never expose it to the browser.
+
+### `WECHAT_REDIRECT_ORIGIN`
+
+Optional absolute origin used to build the OAuth callback URL when the app is behind a reverse proxy.
+
+Production example:
+```
+WECHAT_REDIRECT_ORIGIN=https://fh-bio.cn
+```
+
 ## Check Script
 
 ```bash

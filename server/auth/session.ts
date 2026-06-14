@@ -21,6 +21,7 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
       name: true,
       username: true,
       wxUserId: true,
+      avatar: true,
       apiKey: true,
       canLogin: true,
       sessionVersion: true,
