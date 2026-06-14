@@ -12,8 +12,23 @@ function readCookie(request: Request, name: string) {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
+function getRequestOrigin(request: Request) {
+  if (process.env.WECHAT_REDIRECT_ORIGIN) {
+    return process.env.WECHAT_REDIRECT_ORIGIN;
+  }
+
+  const forwardedHost = request.headers.get("x-forwarded-host");
+  const forwardedProto = request.headers.get("x-forwarded-proto");
+  if (forwardedHost) {
+    return `${forwardedProto || "https"}://${forwardedHost}`;
+  }
+
+  const url = new URL(request.url);
+  return `${url.protocol}//${url.host}`;
+}
+
 function redirectToLogin(request: Request, error: string) {
-  const url = new URL(`${BASE_PATH}/login`, request.url);
+  const url = new URL(`${getRequestOrigin(request)}${BASE_PATH}/login`);
   url.searchParams.set("wecom_error", error);
   const response = NextResponse.redirect(url);
   response.cookies.set("wecom_oauth_state", "", {
@@ -77,7 +92,7 @@ export async function GET(request: Request) {
       sessionVersion: updatedUser.sessionVersion,
     });
 
-    const response = NextResponse.redirect(new URL(`${BASE_PATH}/portal`, request.url));
+    const response = NextResponse.redirect(new URL(`${getRequestOrigin(request)}${BASE_PATH}/portal`));
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: false,
