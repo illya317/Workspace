@@ -54,16 +54,16 @@ function assertWecomOk(data: { errcode?: number; errmsg?: string }, action: stri
   }
 }
 
-export function buildWecomAuthorizeUrl(redirectUri: string, state: string) {
+export function buildWecomWebLoginUrl(redirectUri: string, state: string) {
   const { corpId, agentId } = requireWecomEnv();
-  const url = new URL("https://open.weixin.qq.com/connect/oauth2/authorize");
+  const url = new URL("https://login.work.weixin.qq.com/wwlogin/sso/login");
+  url.searchParams.set("login_type", "CorpApp");
   url.searchParams.set("appid", corpId);
-  url.searchParams.set("redirect_uri", redirectUri);
-  url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", "snsapi_privateinfo");
   url.searchParams.set("agentid", agentId);
+  url.searchParams.set("redirect_uri", redirectUri);
   url.searchParams.set("state", state);
-  return `${url.toString()}#wechat_redirect`;
+  url.searchParams.set("lang", "zh");
+  return url.toString();
 }
 
 export async function getWecomAccessToken() {
