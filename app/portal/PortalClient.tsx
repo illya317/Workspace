@@ -8,7 +8,7 @@ import { getAccessibleModules } from "@/app/lib/module-nav";
 export default function PortalClient({ user }: { user: SessionUser }) {
   const router = useRouter();
   const entries = getAccessibleModules(user);
-  const externalEntries = user.authProvider === "wecom" ? [
+  const externalEntries = [
     {
       key: "erp",
       label: "ERP",
@@ -33,7 +33,7 @@ export default function PortalClient({ user }: { user: SessionUser }) {
         </svg>
       ),
     },
-  ] : [];
+  ];
 
   const colorMap: Record<string, { bg: string; text: string; ring: string }> = {
     emerald: { bg: "bg-emerald-100", text: "text-emerald-600", ring: "hover:ring-emerald-400" },

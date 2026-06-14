@@ -32,7 +32,6 @@ export async function authenticate(request: Request) {
         wxUserId: user.wxUserId ?? "",
         name: user.name,
         departmentId: 0,
-        authProvider: "api" as const,
       };
     }
   }

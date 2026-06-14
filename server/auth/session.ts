@@ -74,7 +74,6 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
     manageableResourceKeys: [...manageableKeys],
     employeeId: employee?.employeeId ?? null,
     isActiveEmployee,
-    authProvider: payload.authProvider ?? null,
   };
 }
 

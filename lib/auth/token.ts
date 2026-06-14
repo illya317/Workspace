@@ -15,7 +15,6 @@ export async function createToken(payload: {
   departmentId: number;
   departmentName?: string | null;
   sessionVersion: number;
-  authProvider?: "password" | "wecom" | "api";
 }) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
@@ -36,7 +35,6 @@ export async function verifyToken(token: string) {
       departmentId: number;
       departmentName?: string | null;
       sessionVersion: number;
-      authProvider?: "password" | "wecom" | "api";
     };
   } catch {
     return null;
@@ -56,5 +54,4 @@ export type AuthPayload = {
   name: string;
   departmentId: number;
   departmentName?: string | null;
-  authProvider?: "password" | "wecom" | "api";
 };
