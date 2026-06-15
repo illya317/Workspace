@@ -48,8 +48,43 @@ function summarizeStandard(test: Record<string, unknown>) {
   const template = asString(test["标准规定模板"]);
   const params = asRecord(test["标准规定参数"]);
   if (!template) return undefined;
+  if (template === "variation_difference_limit") {
+    const basis = asString(params.basis, "平均片重");
+    const limit = asString(params.limit, "7.0");
+    const differenceName = asString(params.difference_name, "重量差异");
+    const maxOver = asString(params.max_over, "2");
+    const unit = asString(params.unit, "片");
+    const oneUnit = asString(params.one_unit, `一${unit}`);
+    return `差异限度应为${basis}的±${limit}%以内，如有超出${differenceName}限度的不得多于${maxOver}${unit}，并不得有${oneUnit}超出限度一倍。`;
+  }
+  if (template === "moisture_s_limit") {
+    return `水分不得过${asString(params.limit)}%。`;
+  }
+  if (template === "appearance_description") {
+    return asString(params.description);
+  }
+  if (template === "dissolution_release_limit") {
+    return `限度为标示量的${asString(params.limit)}%。`;
+  }
+  if (template === "content_assay_range") {
+    return `${asString(params.subject, "含量")}${asString(params.phrase, "应为")} ${asString(params.lower)}%～${asString(params.upper)}%。`;
+  }
   const values = Object.entries(params).map(([key, value]) => `${key}=${String(value)}`);
   return values.length ? `${template} (${values.join(", ")})` : template;
+}
+
+function cleanupItems(test: Record<string, unknown>) {
+  const configured = asArray(test["清场项目"] || test["清场"]).map((item) => asString(asRecord(item)["名称"] || asRecord(item).text || item)).filter(Boolean);
+  if (configured.length) return configured;
+  if (asString(test["清场模板"]) === "standard_cleanup") {
+    return [
+      "关闭电源",
+      "清洁设备及房间",
+      "检查仪器、设备，填写《仪器使用记录》",
+      "更换仪器、设备状态标识",
+    ];
+  }
+  return [];
 }
 
 async function loadMethods(configRoot: string): Promise<MethodIndex> {
@@ -144,6 +179,7 @@ function toTestItem(
     standardText: summarizeStandard(test),
     conclusionName: asString(test["结论名称"]) || undefined,
     hasNumericConclusion: test["结论含数值"] === true,
+    cleanupItems: cleanupItems(test),
     layout: resolveLayout(`products/${templateId}/${stageKey}/${englishName}`, layouts),
     methodFile: method.fileName,
     methodGroups: method.groups,
@@ -200,7 +236,7 @@ export async function getQcTemplateDetail(templateId: string): Promise<QcTemplat
   const stages = Object.entries(asRecord(template["阶段"]))
     .map(([key, stage]) => toStage(templateId, key, stage, methods, layouts));
   await Promise.all(stages.flatMap((stage) => stage.tests.map(async (test) => {
-    test.layoutBlocks = await loadQcLayoutBlocks(source.configRoot, test.layout?.key);
+    test.layoutBlocks = await loadQcLayoutBlocks(source.configRoot, test.layout);
   })));
 
   return {

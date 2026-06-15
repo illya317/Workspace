@@ -117,7 +117,7 @@ function TestPreview({ test }: { test: QcTemplateTestItem }) {
           <tr><td className="border border-slate-950 px-3 py-2 text-center font-semibold">组件映射</td><td className="border border-slate-950 px-3 py-2">{test.layout?.templateId || "未映射"}</td></tr>
         </tbody>
       </table>
-      {test.layoutBlocks?.length ? <QcLayoutPaper blocks={test.layoutBlocks} compact /> : <QcMethodFieldTable test={test} compact />}
+      {test.layoutBlocks?.length ? <QcLayoutPaper blocks={test.layoutBlocks} compact test={test} /> : <QcMethodFieldTable test={test} compact />}
     </div>
   );
 }

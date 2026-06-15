@@ -70,15 +70,19 @@ export interface QcTemplateLayoutAssignment {
   params: Record<string, unknown>;
 }
 
-export type QcLayoutPartType = "text" | "note" | "line" | "date" | "radio" | "checkbox";
+export type QcLayoutPartType = "text" | "note" | "line" | "date" | "radio" | "checkbox" | "field" | "br" | "param";
 
 export interface QcLayoutPart {
   type: QcLayoutPartType | string;
   text?: string;
   fieldKey?: string;
+  field?: string;
+  name?: string;
   options?: string[];
   width?: string;
   withTime?: boolean;
+  defaultValue?: string;
+  readonlyDisplay?: boolean;
 }
 
 export interface QcLayoutCell {
@@ -87,13 +91,35 @@ export interface QcLayoutCell {
   colspan: number;
   rowspan: number;
   isEmpty: boolean;
+  header?: boolean;
+  align?: string;
+  bold?: boolean;
+  width?: string;
   className?: string;
 }
 
 export interface QcLayoutBlock {
   type: "table" | string;
   label?: string;
-  rows: QcLayoutCell[][];
+  title?: string;
+  text?: string;
+  sectionSuffix?: string;
+  sectionRole?: string;
+  sectionAnchor?: boolean;
+  fieldPrefix?: string;
+  rows?: QcLayoutCell[][];
+  parts?: QcLayoutPart[];
+  devices?: Array<{ name: string; status?: string }>;
+  items?: string[];
+  temperatureRange?: string;
+  humidityLimit?: string;
+  roomRows?: number;
+  hasValue?: boolean;
+  autoJudgment?: boolean;
+  conclusionName?: string;
+  unit?: string;
+  order?: number;
+  moduleOrder?: number;
 }
 
 export interface QcTemplateMethodField {
@@ -118,6 +144,7 @@ export interface QcTemplateTestItem {
   standardText?: string;
   conclusionName?: string;
   hasNumericConclusion: boolean;
+  cleanupItems?: string[];
   layout?: QcTemplateLayoutAssignment;
   layoutBlocks?: QcLayoutBlock[];
   methodFile?: string;
