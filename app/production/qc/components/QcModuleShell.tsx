@@ -1,4 +1,5 @@
 import AppShell from "@/app/components/AppShell";
+import Link from "next/link";
 import type { SessionUser } from "@/lib/types";
 
 interface QcPanel {
@@ -11,6 +12,7 @@ interface Props {
   user: SessionUser;
   title: string;
   description: string;
+  activeResourceKey: string;
   panels: QcPanel[];
 }
 
@@ -19,19 +21,38 @@ const navLinks = [
   { label: "检验模板", href: "/production/qc/templates", resourceKey: "production.qc.templates" },
 ];
 
-export default function QcModuleShell({ user, title, description, panels }: Props) {
+export default function QcModuleShell({ user, title, description, activeResourceKey, panels }: Props) {
   const visibleNavLinks = navLinks
-    .filter((link) => user.visibleResourceKeys?.includes(link.resourceKey))
-    .map(({ label, href }) => ({ label, href }));
+    .filter((link) => user.visibleResourceKeys?.includes(link.resourceKey));
 
   return (
-    <AppShell title={title} backHref="/production" user={user} navLinks={visibleNavLinks}>
-      <main className="mx-auto max-w-6xl px-4 py-8">
-        <section className="mb-6 border-b border-slate-200 pb-5">
-          <p className="text-sm font-medium text-cyan-700">生产管理 / 质量检验</p>
-          <h1 className="mt-2 text-2xl font-semibold text-slate-900">{title}</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">{description}</p>
-        </section>
+    <AppShell title={title} backHref="/production" user={user}>
+      <main className="mx-auto max-w-6xl space-y-4 px-4 py-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
+          <p className="text-sm text-gray-500">{description}</p>
+        </div>
+
+        {visibleNavLinks.length > 1 && (
+          <nav className="flex gap-2 border-b border-gray-200 pb-1">
+            {visibleNavLinks.map((link) => {
+              const active = link.resourceKey === activeResourceKey;
+              return (
+                <Link
+                  key={link.resourceKey}
+                  href={link.href}
+                  className={`px-3 py-2 text-sm font-medium ${
+                    active
+                      ? "border-b-2 border-emerald-600 text-emerald-700"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
 
         <section className="grid gap-4 md:grid-cols-3">
           {panels.map((panel) => (

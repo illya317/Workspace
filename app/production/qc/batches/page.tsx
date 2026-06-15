@@ -9,6 +9,7 @@ export default async function QcBatchesPage() {
       user={user}
       title="批次检验"
       description="承接药品批次检验记录，先建立 Workspace 入口、权限边界和后续迁移落点。"
+      activeResourceKey="production.qc.batches"
       panels={[
         {
           eyebrow: "批次",

@@ -9,6 +9,7 @@ export default async function QcTemplatesPage() {
       user={user}
       title="检验模板"
       description="承接组件映射、方法字段和表格布局，先用于收集模板建议，后续扩展为自助搭建模板。"
+      activeResourceKey="production.qc.templates"
       panels={[
         {
           eyebrow: "反馈",
