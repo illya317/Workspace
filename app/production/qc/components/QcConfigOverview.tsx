@@ -16,14 +16,17 @@ function Metric({ label, value }: { label: string; value: number | string }) {
 
 function SourceStatus({ overview }: { overview: QcConfigOverview }) {
   const hasUncommittedChanges = overview.source.dirty;
-  const tone = !overview.source.available || hasUncommittedChanges
+  const cannotVerifyRevision = overview.source.available && overview.source.gitAvailable === false;
+  const tone = !overview.source.available || hasUncommittedChanges || cannotVerifyRevision
     ? "border-amber-200 bg-amber-50 text-amber-800"
     : "border-emerald-200 bg-emerald-50 text-emerald-800";
   const title = !overview.source.available
     ? "未连接配置源"
     : hasUncommittedChanges
       ? "pharma-ops 配置源有未提交改动"
-      : "已连接 pharma-ops 配置";
+      : cannotVerifyRevision
+        ? "已连接配置源，但无法确认版本状态"
+        : "已连接 pharma-ops 配置";
 
   return (
     <div className={`rounded-lg border px-4 py-3 text-sm ${tone}`}>
@@ -34,6 +37,9 @@ function SourceStatus({ overview }: { overview: QcConfigOverview }) {
           revision {overview.source.revision}
           {typeof overview.source.changedFileCount === "number" && ` · ${overview.source.changedFileCount} 个未提交文件`}
         </div>
+      )}
+      {cannotVerifyRevision && (
+        <div className="mt-1 text-xs opacity-80">配置源不是 git checkout，无法判断是否已稳定提交。</div>
       )}
       {!!overview.source.changedFiles?.length && (
         <div className="mt-2 flex flex-wrap gap-1">

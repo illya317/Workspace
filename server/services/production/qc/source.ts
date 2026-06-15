@@ -7,7 +7,7 @@ import type { QcSourceStatus } from "./types";
 
 const execFile = promisify(execFileCallback);
 
-async function readGitMetadata(root: string): Promise<Pick<QcSourceStatus, "revision" | "dirty" | "changedFileCount" | "changedFiles">> {
+async function readGitMetadata(root: string): Promise<Pick<QcSourceStatus, "gitAvailable" | "revision" | "dirty" | "changedFileCount" | "changedFiles">> {
   try {
     const [revisionResult, statusResult] = await Promise.all([
       execFile("git", ["-C", root, "rev-parse", "--short", "HEAD"], { timeout: 1500 }),
@@ -20,13 +20,14 @@ async function readGitMetadata(root: string): Promise<Pick<QcSourceStatus, "revi
       .map((line) => line.slice(3).replace(/^.* -> /, ""));
 
     return {
+      gitAvailable: true,
       revision: revisionResult.stdout.trim() || undefined,
       dirty: changedFiles.length > 0,
       changedFileCount: changedFiles.length,
       changedFiles: changedFiles.slice(0, 12),
     };
   } catch {
-    return {};
+    return { gitAvailable: false };
   }
 }
 

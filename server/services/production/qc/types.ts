@@ -3,6 +3,7 @@ export interface QcSourceStatus {
   configRoot: string;
   available: boolean;
   message?: string;
+  gitAvailable?: boolean;
   revision?: string;
   dirty?: boolean;
   changedFileCount?: number;
