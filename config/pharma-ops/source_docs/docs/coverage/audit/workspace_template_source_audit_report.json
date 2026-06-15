@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-15T16:32:28.074Z",
+  "generatedAt": "2026-06-15T16:37:54.988Z",
   "productCount": 16,
-  "issueCount": 472,
+  "issueCount": 388,
   "products": [
     {
       "productId": "allopurinol",
@@ -49,9 +49,7 @@
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [],
               "missingHeadings": [],
-              "missingFormulaDom": [
-                "结论-结果"
-              ],
+              "missingFormulaDom": [],
               "missingFormulaInputs": []
             }
           ]
@@ -115,10 +113,7 @@
               "missingHeadings": [
                 "2.4.9 结论 (heading)"
               ],
-              "missingFormulaDom": [
-                "20片总净重",
-                "结论-结果"
-              ],
+              "missingFormulaDom": [],
               "missingFormulaInputs": []
             }
           ]
@@ -170,9 +165,7 @@
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [],
               "missingHeadings": [],
-              "missingFormulaDom": [
-                "测定是否符合规定"
-              ],
+              "missingFormulaDom": [],
               "missingFormulaInputs": []
             },
             {
@@ -224,10 +217,7 @@
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [],
               "missingHeadings": [],
-              "missingFormulaDom": [
-                "20片总净重",
-                "结论-结果"
-              ],
+              "missingFormulaDom": [],
               "missingFormulaInputs": []
             },
             {
@@ -260,16 +250,8 @@
                 "2.8.9.2.2 阴性对照 (heading)",
                 "2.8.9.2.3 培养 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均菌落数",
-                "需氧菌总数",
-                "平均菌落数",
-                "霉菌酵母菌总数"
-              ],
-              "missingFormulaInputs": [
-                "平均菌落数 <= 菌落数1",
-                "平均菌落数 <= 菌落数2"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         }
@@ -432,12 +414,8 @@
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [],
               "missingHeadings": [],
-              "missingFormulaDom": [
-                "单杂"
-              ],
-              "missingFormulaInputs": [
-                "单杂 <= 供试品单杂峰面积"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             },
             {
               "sequence": "2.4",
@@ -521,16 +499,8 @@
                 "2.8.9.2.2 阴性对照 (heading)",
                 "2.8.9.2.3 培养 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均菌落数",
-                "需氧菌总数",
-                "平均菌落数",
-                "霉菌酵母菌总数"
-              ],
-              "missingFormulaInputs": [
-                "平均菌落数 <= 菌落数1",
-                "平均菌落数 <= 菌落数2"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         }
@@ -749,16 +719,8 @@
                 "2.7.9.2.5.1 需氧菌观察记录 (heading)",
                 "2.7.9.2.5.2 霉菌和酵母菌观察记录 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均菌落数",
-                "需氧菌总数",
-                "平均菌落数",
-                "霉菌酵母菌总数"
-              ],
-              "missingFormulaInputs": [
-                "平均菌落数 <= 菌落数1",
-                "平均菌落数 <= 菌落数2"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         }
@@ -1166,12 +1128,8 @@
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [],
               "missingHeadings": [],
-              "missingFormulaDom": [
-                "总杂"
-              ],
-              "missingFormulaInputs": [
-                "总杂 <= 供试品总杂峰面积"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             },
             {
               "sequence": "2.4",
@@ -1248,16 +1206,8 @@
                 "2.7.9.2.5.1 需氧菌观察记录 (heading)",
                 "2.7.9.2.5.2 霉菌和酵母菌观察记录 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均菌落数",
-                "需氧菌总数",
-                "平均菌落数",
-                "霉菌酵母菌总数"
-              ],
-              "missingFormulaInputs": [
-                "平均菌落数 <= 菌落数1",
-                "平均菌落数 <= 菌落数2"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         }
@@ -1729,16 +1679,8 @@
                 "2.6.9.2.2 阴性对照 (heading)",
                 "2.6.9.2.3 培养 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均菌落数",
-                "需氧菌总数",
-                "平均菌落数",
-                "霉菌酵母菌总数"
-              ],
-              "missingFormulaInputs": [
-                "平均菌落数 <= 菌落数1",
-                "平均菌落数 <= 菌落数2"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         }
@@ -1994,16 +1936,8 @@
                 "2.8.9.2.2 阴性对照 (heading)",
                 "2.8.9.2.3 培养 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均菌落数",
-                "需氧菌总数",
-                "平均菌落数",
-                "霉菌酵母菌总数"
-              ],
-              "missingFormulaInputs": [
-                "平均菌落数 <= 菌落数1",
-                "平均菌落数 <= 菌落数2"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         }
@@ -2249,16 +2183,8 @@
                 "2.7.9.2.2 阴性对照 (heading)",
                 "2.7.9.2.3 培养 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均菌落数",
-                "需氧菌总数",
-                "平均菌落数",
-                "霉菌酵母菌总数"
-              ],
-              "missingFormulaInputs": [
-                "平均菌落数 <= 菌落数1",
-                "平均菌落数 <= 菌落数2"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         }
@@ -2717,16 +2643,8 @@
                 "2.7.9.2.2 阴性对照 (heading)",
                 "2.7.9.2.3 培养 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均菌落数",
-                "需氧菌总数",
-                "平均菌落数",
-                "霉菌酵母菌总数"
-              ],
-              "missingFormulaInputs": [
-                "平均菌落数 <= 菌落数1",
-                "平均菌落数 <= 菌落数2"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         }
@@ -2917,12 +2835,8 @@
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [],
               "missingHeadings": [],
-              "missingFormulaDom": [
-                "单杂"
-              ],
-              "missingFormulaInputs": [
-                "单杂 <= 供试品单杂峰面积"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             },
             {
               "sequence": "2.5",
@@ -3006,16 +2920,8 @@
                 "2.9.9.2.2 阴性对照 (heading)",
                 "2.9.9.2.3 培养 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均菌落数",
-                "需氧菌总数",
-                "平均菌落数",
-                "霉菌酵母菌总数"
-              ],
-              "missingFormulaInputs": [
-                "平均菌落数 <= 菌落数1",
-                "平均菌落数 <= 菌落数2"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         }
@@ -3265,16 +3171,8 @@
                 "2.7.9.2.2 阴性对照 (heading)",
                 "2.7.9.2.3 培养 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均菌落数",
-                "需氧菌总数",
-                "平均菌落数",
-                "霉菌酵母菌总数"
-              ],
-              "missingFormulaInputs": [
-                "平均菌落数 <= 菌落数1",
-                "平均菌落数 <= 菌落数2"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         }
@@ -3533,16 +3431,8 @@
                 "2.8.9.2.2 阴性对照 (heading)",
                 "2.8.9.2.3 培养 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均菌落数",
-                "需氧菌总数",
-                "平均菌落数",
-                "霉菌酵母菌总数"
-              ],
-              "missingFormulaInputs": [
-                "平均菌落数 <= 菌落数1",
-                "平均菌落数 <= 菌落数2"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         }
@@ -4018,16 +3908,8 @@
                 "2.7.9.2.2 阴性对照 (heading)",
                 "2.7.9.2.3 培养 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均菌落数",
-                "需氧菌总数",
-                "平均菌落数",
-                "霉菌酵母菌总数"
-              ],
-              "missingFormulaInputs": [
-                "平均菌落数 <= 菌落数1",
-                "平均菌落数 <= 菌落数2"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         }

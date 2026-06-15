@@ -8,6 +8,7 @@ const templatePath = path.join(configRoot, "table_layouts/templates/measurement/
 const operationPath = path.join(configRoot, "table_layouts/templates/operation/hplc_content_operation.json");
 const mappingPath = path.join(configRoot, "table_layouts/layout_mapping.json");
 const uvTheoreticalPath = path.join(configRoot, "table_layouts/templates/weighing/uv_absorbance_sample_theoretical.json");
+const uvTwentyTabletsPath = path.join(configRoot, "table_layouts/templates/weighing/uv_absorbance_sample_20_tablets.json");
 const uvMethodPath = path.join(configRoot, "methods/uv.yaml");
 
 const field = (name, readonly = false) => ({ type: "field", field: name, readonly_display: readonly });
@@ -75,6 +76,18 @@ if (Array.isArray(formulaParts) && !JSON.stringify(formulaParts).includes('"fiel
   );
 }
 await fs.writeFile(uvTheoreticalPath, `${JSON.stringify(uvTheoretical, null, 2)}\n`);
+
+const uvTwentyTablets = JSON.parse(await fs.readFile(uvTwentyTabletsPath, "utf8"));
+const twentyParts = uvTwentyTablets.blocks?.[1]?.rows?.[0]?.cells?.[2]?.parts;
+if (Array.isArray(twentyParts) && !JSON.stringify(twentyParts).includes('"field":"20片总净重"')) {
+  const insertAt = twentyParts.findIndex((part) => part.field === "平均片重");
+  if (insertAt >= 0) {
+    const previousText = twentyParts[insertAt - 1];
+    if (previousText?.text === ") ÷20 = ") previousText.text = ") = ";
+    twentyParts.splice(insertAt, 0, { type: "field", field: "20片总净重", readonly_display: true }, { type: "text", text: " ÷20 = " });
+  }
+}
+await fs.writeFile(uvTwentyTabletsPath, `${JSON.stringify(uvTwentyTablets, null, 2)}\n`);
 
 let uvMethod = await fs.readFile(uvMethodPath, "utf8");
 uvMethod = uvMethod.replaceAll("平均粒重", "平均片重");

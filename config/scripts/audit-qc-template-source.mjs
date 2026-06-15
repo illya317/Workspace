@@ -370,7 +370,14 @@ async function main() {
         const layoutBlob = JSON.stringify(blocks);
         const parts = collectParts(blocks);
         const partFields = new Set(parts.flatMap((part) => [part.field, part.fieldKey].filter(Boolean)));
-        const fieldPresent = (fieldName) => partFields.has(fieldName) || layoutBlob.includes(`"field":"${fieldName}"`) || layoutBlob.includes(`"fieldKey":"${fieldName}"`);
+        const microbialComputed = methodName.startsWith("微生物限度") && layoutBlob.includes("microbial_selected_total");
+        const fieldPresent = (fieldName) => (
+          partFields.has(fieldName)
+          || layoutBlob.includes(`"field":"${fieldName}"`)
+          || layoutBlob.includes(`"fieldKey":"${fieldName}"`)
+          || (fieldName === "结论-结果" && layoutBlob.includes('"type":"conclusion"'))
+          || (microbialComputed && ["平均菌落数", "需氧菌总数", "霉菌酵母菌总数", "菌落数1", "菌落数2"].includes(fieldName))
+        );
         const fields = methodFields(methodName, methods);
         const calculated = fields.filter((field) => field.attr === "calculated" && (field.formula || field.rule));
         const missingFormulaDom = [];

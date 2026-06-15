@@ -28,68 +28,251 @@
       "rows": [
         {
           "cells": [
-            {"header": true, "text": "供试品"},
-            {"header": true, "text": "杂质A"},
-            {"header": true, "text": "杂质B"},
-            {"header": true, "text": "杂质C"},
-            {"header": true, "text": "杂质D"},
-            {"header": true, "text": "杂质E"},
-            {"header": true, "text": "单（未知）"},
-            {"header": true, "text": "总（未知）"}
+            {
+              "header": true,
+              "text": "供试品"
+            },
+            {
+              "header": true,
+              "text": "杂质A"
+            },
+            {
+              "header": true,
+              "text": "杂质B"
+            },
+            {
+              "header": true,
+              "text": "杂质C"
+            },
+            {
+              "header": true,
+              "text": "杂质D"
+            },
+            {
+              "header": true,
+              "text": "杂质E"
+            },
+            {
+              "header": true,
+              "text": "单（未知）"
+            },
+            {
+              "header": true,
+              "text": "总（未知）"
+            }
           ]
         },
         {
           "cells": [
-            {"text": "Ar"},
-            {"parts": [{"type": "field", "field": "Ar", "occurrence": 1, "readonly_display": true}]},
-            {"parts": [{"type": "field", "field": "Ar", "occurrence": 2, "readonly_display": true}]},
-            {"parts": [{"type": "field", "field": "Ar", "occurrence": 3, "readonly_display": true}]},
-            {"parts": [{"type": "field", "field": "Ar", "occurrence": 4, "readonly_display": true}]},
-            {"parts": [{"type": "field", "field": "Ar", "occurrence": 5, "readonly_display": true}]},
-            {"parts": [{"type": "line", "key": "layout/related_substances/unknown_single_ar", "underline": false, "initial_chars": 6}]},
-            {"parts": [{"type": "line", "key": "layout/related_substances/unknown_total_ar", "underline": false, "initial_chars": 6}]}
+            {
+              "text": "Ar"
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "Ar",
+                  "occurrence": 1,
+                  "readonly_display": true
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "Ar",
+                  "occurrence": 2,
+                  "readonly_display": true
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "Ar",
+                  "occurrence": 3,
+                  "readonly_display": true
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "Ar",
+                  "occurrence": 4,
+                  "readonly_display": true
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "Ar",
+                  "occurrence": 5,
+                  "readonly_display": true
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "key": "layout/related_substances/unknown_single_ar",
+                  "underline": false,
+                  "initial_chars": 6
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "key": "layout/related_substances/unknown_total_ar",
+                  "underline": false,
+                  "initial_chars": 6
+                }
+              ]
+            }
           ]
         },
         {
           "cells": [
-            {"text": "杂质A（%）"},
-            {"colspan": 7, "parts": [{"type": "field", "field": "杂质A", "readonly_display": true}]}
+            {
+              "text": "杂质A（%）"
+            },
+            {
+              "colspan": 7,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "杂质A",
+                  "readonly_display": true
+                }
+              ]
+            }
           ]
         },
         {
           "cells": [
-            {"text": "杂质B（%）"},
-            {"colspan": 7, "parts": [{"type": "field", "field": "杂质B", "readonly_display": true}]}
+            {
+              "text": "杂质B（%）"
+            },
+            {
+              "colspan": 7,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "杂质B",
+                  "readonly_display": true
+                }
+              ]
+            }
           ]
         },
         {
           "cells": [
-            {"text": "杂质C（%）"},
-            {"colspan": 7, "parts": [{"type": "field", "field": "杂质C", "readonly_display": true}]}
+            {
+              "text": "杂质C（%）"
+            },
+            {
+              "colspan": 7,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "杂质C",
+                  "readonly_display": true
+                }
+              ]
+            }
           ]
         },
         {
           "cells": [
-            {"text": "杂质D（%）"},
-            {"colspan": 7, "parts": [{"type": "field", "field": "杂质D", "readonly_display": true}]}
+            {
+              "text": "杂质D（%）"
+            },
+            {
+              "colspan": 7,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "杂质D",
+                  "readonly_display": true
+                }
+              ]
+            }
           ]
         },
         {
           "cells": [
-            {"text": "杂质E（%）"},
-            {"colspan": 7, "parts": [{"type": "field", "field": "杂质E", "readonly_display": true}]}
+            {
+              "text": "杂质E（%）"
+            },
+            {
+              "colspan": 7,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "杂质E",
+                  "readonly_display": true
+                }
+              ]
+            }
           ]
         },
         {
           "cells": [
-            {"text": "单杂（%）"},
-            {"colspan": 7, "parts": [{"type": "field", "field": "单杂", "readonly_display": true}]}
+            {
+              "text": "单杂（%）"
+            },
+            {
+              "colspan": 7,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "单杂",
+                  "readonly_display": true
+                }
+              ]
+            }
           ]
         },
         {
           "cells": [
-            {"text": "总杂（%）"},
-            {"colspan": 7, "parts": [{"type": "field", "field": "总杂", "readonly_display": true}]}
+            {
+              "text": "总杂（%）"
+            },
+            {
+              "colspan": 7,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "总杂",
+                  "readonly_display": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "测定是否符合规定"
+            },
+            {
+              "colspan": 7,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "测定是否符合规定",
+                  "readonly_display": true
+                }
+              ]
+            }
           ]
         }
       ],

@@ -964,6 +964,11 @@
             "group": "供试品溶液",
             "item": "总杂质峰面积",
             "field": "供试品总杂峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "其他单个最大峰面积",
+            "field": "供试品单杂峰面积"
           }
         ],
         "related_result_rows": [
@@ -989,6 +994,36 @@
               {
                 "type": "field",
                 "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          },
+          {
+            "label": "单杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品单杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "单杂",
                 "readonly_display": true
               },
               {
@@ -1384,6 +1419,36 @@
                 "text": "% 应≤4.0%（对照）"
               }
             ]
+          },
+          {
+            "label": "单杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品单杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "单杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
           }
         ],
         "related_operation_method_variant": "hplc_related_substances_full_gradient_0512",
@@ -1769,6 +1834,11 @@
             "group": "供试品溶液",
             "item": "单个最大杂质峰面积",
             "field": "供试品单杂峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "总杂质峰面积",
+            "field": "供试品总杂峰面积"
           }
         ],
         "related_result_rows": [
@@ -1794,6 +1864,36 @@
               {
                 "type": "field",
                 "field": "单杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          },
+          {
+            "label": "总杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品总杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "总杂",
                 "readonly_display": true
               },
               {
@@ -2650,6 +2750,36 @@
                 "text": "%"
               }
             ]
+          },
+          {
+            "label": "单杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品单杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "单杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
           }
         ],
         "related_operation_method_variant": "hplc_related_substances_full_gradient_0512",
@@ -3054,6 +3184,11 @@
             "group": "供试品溶液",
             "item": "总杂质峰面积",
             "field": "供试品总杂峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "其他单个最大峰面积",
+            "field": "供试品单杂峰面积"
           }
         ],
         "related_result_rows": [
@@ -3083,6 +3218,36 @@
               {
                 "type": "field",
                 "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          },
+          {
+            "label": "单杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品单杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "单杂",
                 "readonly_display": true
               },
               {
@@ -3378,6 +3543,16 @@
             "group": "供试品溶液",
             "item": "总杂质峰面积",
             "field": "供试品总杂质峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "其他单个最大峰面积",
+            "field": "供试品单杂峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "总杂质峰面积",
+            "field": "供试品总杂峰面积"
           }
         ],
         "related_result_rows": [
@@ -3728,6 +3903,36 @@
               {
                 "type": "field",
                 "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          },
+          {
+            "label": "单杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品单杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "单杂",
                 "readonly_display": true
               },
               {
@@ -4197,6 +4402,11 @@
             "group": "供试品溶液",
             "item": "总杂质峰面积",
             "field": "供试品总杂峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "其他单个最大峰面积",
+            "field": "供试品单杂峰面积"
           }
         ],
         "related_result_rows": [
@@ -4222,6 +4432,36 @@
               {
                 "type": "field",
                 "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          },
+          {
+            "label": "单杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品单杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "单杂",
                 "readonly_display": true
               },
               {

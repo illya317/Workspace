@@ -58,7 +58,16 @@
                 },
                 {
                   "type": "text",
-                  "text": ") ÷20 = "
+                  "text": ") = "
+                },
+                {
+                  "type": "field",
+                  "field": "20片总净重",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " ÷20 = "
                 },
                 {
                   "type": "field",
