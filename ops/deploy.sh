@@ -108,7 +108,7 @@ import re
 env_path = Path('.env')
 text = env_path.read_text() if env_path.exists() else ''
 replacements = {
-    'DATABASE_URL': '\"file:./data/dev.db\"',
+    'DATABASE_URL': '\"file:$REMOTE_DIR/data/dev.db\"',
     'WORKSPACE_CONFIG_DIR': '$REMOTE_DIR',
 }
 for key, value in replacements.items():
