@@ -67,6 +67,7 @@
 | `/api/finance/cost/*` | POST/PUT | `finance.cost.write` |
 | `/api/finance/cost/*` | DELETE | `finance.cost.delete` |
 | `/api/production/qc/config` | GET | `production.qc.access` |
+| `/api/production/qc/templates/[templateId]` | GET | `production.qc.templates.access` |
 | `/api/inventory/*` | GET/POST/PUT/DELETE | `410 Gone` |
 | `/api/contracts*` | GET | `administration.contract.access` |
 | `/api/contracts*` | POST/PUT | `administration.contract.write` |

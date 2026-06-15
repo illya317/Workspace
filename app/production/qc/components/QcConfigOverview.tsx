@@ -1,4 +1,5 @@
 import type { QcConfigOverview } from "@/server/services/production/qc";
+import Link from "next/link";
 
 interface Props {
   overview: QcConfigOverview;
@@ -108,12 +109,16 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
           </div>
           <div className="divide-y divide-slate-100">
             {overview.recordTemplates.slice(0, 8).map((template) => (
-              <div key={template.id} className="px-4 py-3">
+              <Link
+                key={template.id}
+                href={`/production/qc/templates/${template.id}`}
+                className="block px-4 py-3 transition hover:bg-slate-50"
+              >
                 <div className="text-sm font-medium text-slate-900">{template.productName}</div>
                 <div className="mt-1 text-xs text-slate-500">
                   {template.stageCount} 个阶段 · {template.itemCount} 个检测项 · {template.fileName}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>

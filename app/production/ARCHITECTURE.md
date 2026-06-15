@@ -8,6 +8,7 @@
 | 质量检验中转 | `/production/qc` | `production.qc.access` |
 | 批次检验 | `/production/qc/batches` | `production.qc.batches.access` |
 | 检验模板 | `/production/qc/templates` | `production.qc.templates.access` |
+| 检验模板详情 | `/production/qc/templates/[templateId]` | `production.qc.templates.access` |
 
 ## 模块边界
 
@@ -26,10 +27,12 @@
 2. `/api/production/qc/config` 返回产品、record templates、methods、layout mapping 的只读概览，并暴露配置源 revision/dirty 状态。
 3. `/production/qc/batches` 展示产品、阶段和检测项映射概览。
 4. `/production/qc/templates` 展示记录模板、方法字段和布局映射概览。
+5. `/production/qc/templates/[templateId]` 展示单个 record template 的阶段、检测项、方法字段和组件布局映射。
+6. `/api/production/qc/templates/[templateId]` 返回同一份只读 record-structure DTO，供后续编辑器复用。
 
 后续迁移目标：
 
-1. 输出更细的 record-structure DTO，承接单个产品/阶段的检验记录渲染。
+1. 承接单个批次的检验记录渲染、填写、提交和复核。
 2. `prisma/models/production-qc.prisma` 承接批次记录、字段值和审计。
 3. `app/api/production/qc/*` 按权限动作暴露批次、记录、模板建议 API。
 4. `app/production/qc/*` 逐步替换 Flask/Jinja 页面。

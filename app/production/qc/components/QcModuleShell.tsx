@@ -14,7 +14,7 @@ interface Props {
   title: string;
   description: string;
   activeResourceKey: string;
-  panels: QcPanel[];
+  panels?: QcPanel[];
   children?: ReactNode;
 }
 
@@ -56,22 +56,24 @@ export default function QcModuleShell({ user, title, description, activeResource
           </nav>
         )}
 
-        <section className="grid gap-4 md:grid-cols-3">
-          {panels.map((panel) => (
-            <article key={panel.title} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-xs font-medium text-cyan-700">{panel.eyebrow}</p>
-              <h2 className="mt-2 text-base font-semibold text-slate-900">{panel.title}</h2>
-              <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                {panel.items.map((item) => (
-                  <li key={item} className="flex gap-2">
-                    <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-cyan-500" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </section>
+        {!!panels?.length && (
+          <section className="grid gap-4 md:grid-cols-3">
+            {panels.map((panel) => (
+              <article key={panel.title} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                <p className="text-xs font-medium text-cyan-700">{panel.eyebrow}</p>
+                <h2 className="mt-2 text-base font-semibold text-slate-900">{panel.title}</h2>
+                <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                  {panel.items.map((item) => (
+                    <li key={item} className="flex gap-2">
+                      <span className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-cyan-500" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            ))}
+          </section>
+        )}
 
         {children}
       </main>
