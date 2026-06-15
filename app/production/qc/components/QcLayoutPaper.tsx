@@ -180,13 +180,13 @@ function RenderBlock({ block, context }: {
   if (block.type === "conclusion") {
     const processKey = "layout/conclusion/process";
     const resultKey = test?.conclusionFieldKey || "layout/conclusion/result";
-    return <PostSection block={block} title="结论">批号<QcPaperLineInput part={{ type: "line", fieldKey: "batch_number", width: "8rem" }} value={values.batch_number} onChange={(value) => onFieldChange("batch_number", value)} />{test?.name || "本品"}（{block.conclusionName || test?.conclusionName || test?.name || "结论"}）检测过程<QcPaperSelectInput part={{ type: "select", fieldKey: processKey, width: "5.5rem", underline: false }} options={["符合", "不符合"]} value={values[processKey]} onChange={(value) => onFieldChange(processKey, value)} />各项规定，结果<QcPaperSelectInput part={{ type: "select", fieldKey: resultKey, width: "5.5rem", underline: false }} options={["符合", "不符合"]} value={values[resultKey]} onChange={(value) => onFieldChange(resultKey, value)} />标准规定。</PostSection>;
+    return <PostSection block={block} title="结论">批号<QcPaperLineInput part={{ type: "line", fieldKey: "batch_number", width: "8rem" }} value={values.batch_number} onChange={(value) => onFieldChange("batch_number", value)} />{test?.name || "本品"}（{block.conclusionName || test?.conclusionName || test?.name || "结论"}）检测过程<QcPaperSelectInput part={{ type: "select", fieldKey: processKey, underline: false }} options={["符合", "不符合"]} value={values[processKey]} onChange={(value) => onFieldChange(processKey, value)} />各项规定，结果<QcPaperSelectInput part={{ type: "select", fieldKey: resultKey, underline: false }} options={["符合", "不符合"]} value={values[resultKey]} onChange={(value) => onFieldChange(resultKey, value)} />标准规定。</PostSection>;
   }
   if (block.type === "table") return <TableBlock block={block} context={context} />;
   return block.text ? <p className="mb-3 text-[15px] leading-8 text-slate-950">{block.text}</p> : null;
 }
 
-export default function QcLayoutPaper({ blocks, compact, test, values: controlledValues, onFieldChange }: Props) {
+export default function QcLayoutPaper({ blocks, compact: _compact, test, values: controlledValues, onFieldChange }: Props) {
   const engineTest = test || EMPTY_TEST;
   const form = useQcFormulaEngine(engineTest);
   const values = controlledValues || form.values;
@@ -203,7 +203,7 @@ export default function QcLayoutPaper({ blocks, compact, test, values: controlle
   const numberedBlocks = numbered.blocks;
   return (
     <div
-      className={`${compact ? "max-h-[78vh] overflow-y-auto overflow-x-hidden pr-2" : ""} min-w-[1120px]`}
+      className="mx-auto w-[210mm] max-w-full overflow-visible"
       style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"FangSong_GB2312\", \"仿宋\", serif" }}
     >
       {numberedBlocks.map((block, index) => <RenderBlock key={`${block.label || block.type}-${index}`} block={block} context={context} />)}

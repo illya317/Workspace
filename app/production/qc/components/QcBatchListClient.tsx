@@ -93,7 +93,8 @@ export default function QcBatchListClient({ initialData, products }: Props) {
             <select
               value={productKey}
               onChange={(event) => setProductKey(event.target.value)}
-              className="mt-2 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-emerald-600"
+              className="mt-2 h-11 w-full appearance-none rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-emerald-600"
+              style={{ backgroundImage: "none" }}
             >
               {products.map((product) => (
                 <option key={product.id} value={product.id}>{product.productName}</option>

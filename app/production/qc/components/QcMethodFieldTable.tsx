@@ -44,7 +44,8 @@ function FieldInput({
           value={value}
           onChange={(event) => onChange(event.target.value)}
           disabled={calculated || field.attr === "prefilled"}
-          className="h-8 min-w-24 border-0 border-b border-slate-950 bg-transparent px-2 text-center text-sm outline-none disabled:opacity-100"
+          className="h-8 min-w-16 appearance-none border-0 border-b border-slate-950 bg-transparent px-1 text-center text-sm outline-none disabled:opacity-100"
+          style={{ backgroundImage: "none" }}
         >
           <option value=""> </option>
           {field.options?.map((option) => (

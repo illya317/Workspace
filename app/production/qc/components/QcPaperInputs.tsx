@@ -4,7 +4,13 @@ import type { CSSProperties, ChangeEvent } from "react";
 import type { QcLayoutPart } from "@/server/services/production/qc";
 
 function inputWidth(part: QcLayoutPart): CSSProperties {
-  return { width: part.width || "4em" };
+  return { width: part.width || "5.5em", minWidth: part.width ? "4.5em" : undefined };
+}
+
+function selectWidth(part: QcLayoutPart, options: string[], value?: string): CSSProperties {
+  if (part.width) return { width: part.width, backgroundImage: "none" };
+  const longest = Math.max(2, value?.length || 0, ...options.map((option) => option.length));
+  return { width: `${Math.min(7, Math.max(3.2, longest * 1.15 + 1.2))}em`, backgroundImage: "none" };
 }
 
 export function qcRangeLabel(part: QcLayoutPart) {
@@ -64,7 +70,7 @@ export function QcPaperLineInput({
         readOnly={readOnly || part.readonlyDisplay}
         rows={part.rows || 2}
         title={error}
-        className={`mx-1 inline-block min-w-[8em] resize-y border-0 bg-transparent px-1 text-center align-middle outline-none read-only:border-b-0 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+        className={`mx-1 inline-block min-w-[8em] resize-y border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none read-only:border-b-0 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
         style={inputWidth(part)}
       />
     );
@@ -79,7 +85,7 @@ export function QcPaperLineInput({
       inputMode={part.inputType === "number" ? "decimal" : undefined}
       type={textInputType(part)}
       title={error}
-      className={`mx-1 inline-block h-5 min-w-[3em] border-0 bg-transparent px-1 text-center align-baseline outline-none read-only:border-b-0 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+      className={`mx-1 inline-block h-7 min-w-[4.5em] border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none read-only:border-b-0 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
       style={inputWidth(part)}
     />
   );
@@ -107,8 +113,8 @@ export function QcPaperSelectInput({
       onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange?.(event.target.value)}
       disabled={readOnly || part.readonlyDisplay}
       title={error}
-      className={`mx-1 inline-block h-7 min-w-[4em] border-0 bg-transparent px-1 text-center align-baseline outline-none disabled:opacity-100 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
-      style={inputWidth(part)}
+      className={`mx-1 inline-block h-7 appearance-none border-0 bg-transparent px-0.5 text-center align-middle leading-7 outline-none disabled:opacity-100 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+      style={selectWidth(part, options, value ?? part.defaultValue)}
     >
       <option value=""> </option>
       {options.map((option) => (
