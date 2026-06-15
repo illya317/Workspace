@@ -1,7 +1,6 @@
 import "server-only";
 import path from "path";
 import { readFile } from "fs/promises";
-import { unstable_cache } from "next/cache";
 import { parse as parseYaml } from "yaml";
 import { loadQcLayoutBlocks } from "./layout-blocks";
 import { buildPrecheckLayoutBlocks } from "./precheck-layout";
@@ -146,7 +145,7 @@ function toStage(
   };
 }
 
-async function getQcTemplateDetailUncached(templateId: string): Promise<QcTemplateDetail> {
+export async function getQcTemplateDetail(templateId: string): Promise<QcTemplateDetail> {
   if (!TEMPLATE_ID_PATTERN.test(templateId)) {
     throw new Error("Invalid QC template id");
   }
@@ -180,9 +179,3 @@ async function getQcTemplateDetailUncached(templateId: string): Promise<QcTempla
     layoutAssignmentCount: Object.keys(layouts).length,
   };
 }
-
-export const getQcTemplateDetail = unstable_cache(
-  getQcTemplateDetailUncached,
-  ["production-qc-template-detail"],
-  { revalidate: 300, tags: ["production-qc-template"] },
-);
