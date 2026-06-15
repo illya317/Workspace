@@ -123,7 +123,7 @@ export interface QcLayoutBlock {
   sectionRole?: string;
   sectionRef?: string;
   sectionAnchor?: boolean;
-  fieldPrefix?: string;
+  fieldPrefix?: string; fileSectionSuffix?: string; fileTitle?: string;
   rows?: QcLayoutCell[][];
   parts?: QcLayoutPart[];
   devices?: Array<{ name: string; status?: string }>;

@@ -106,14 +106,15 @@ function toTestItem(
   };
 }
 
-function toStage(
+async function toStage(
+  configRoot: string,
   templateId: string,
   productName: string,
   key: string,
   raw: unknown,
   methods: MethodIndex,
   layouts: LayoutAssignments,
-): QcTemplateStage {
+): Promise<QcTemplateStage> {
   const stage = asRecord(raw);
   const precheck = asRecord(stage["检验前确认"]);
   const precheckInfo = Object.fromEntries(
@@ -124,7 +125,8 @@ function toStage(
     return { name: asString(data["名称"]), code: asString(data["编码"]) };
   });
   const precheckItems = asArray(precheck["确认项"]).map((item) => ({ name: asString(asRecord(item)["名称"]) }));
-  const precheckLayoutBlocks = buildPrecheckLayoutBlocks(
+  const precheckLayoutBlocks = await buildPrecheckLayoutBlocks(
+    configRoot,
     productName,
     asString(stage["显示名"], key),
     precheckInfo,
@@ -164,8 +166,9 @@ export async function getQcTemplateDetail(templateId: string): Promise<QcTemplat
   ]);
   const template = asRecord(rawTemplate);
   const stages = Object.entries(asRecord(template["阶段"]))
-    .map(([key, stage]) => toStage(templateId, asString(template["产品名称"], templateId), key, stage, methods, layouts));
-  await Promise.all(stages.flatMap((stage) => stage.tests.map(async (test) => {
+    .map(([key, stage]) => toStage(source.configRoot, templateId, asString(template["产品名称"], templateId), key, stage, methods, layouts));
+  const resolvedStages = await Promise.all(stages);
+  await Promise.all(resolvedStages.flatMap((stage) => stage.tests.map(async (test) => {
     test.layoutBlocks = await loadQcLayoutBlocks(source.configRoot, test.layout);
   })));
 
@@ -174,7 +177,7 @@ export async function getQcTemplateDetail(templateId: string): Promise<QcTemplat
     id: templateId,
     fileName,
     productName: asString(template["产品名称"], templateId),
-    stages,
+    stages: resolvedStages,
     methodFileCount: new Set(Object.values(methods).map((method) => method.fileName)).size,
     layoutAssignmentCount: Object.keys(layouts).length,
   };

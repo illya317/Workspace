@@ -106,7 +106,8 @@ function mapPart(value: unknown, params: Params = {}): QcLayoutPart {
 
 function mapCell(value: unknown, params: Params = {}): QcLayoutCell {
   const cell = asRecord(value);
-  const text = formatText(asString(cell.raw_text || cell.rawText || cell.text), params);
+  const textPath = asString(cell.text_path || cell.textPath);
+  const text = textPath ? paramString(params, textPath) || "" : formatText(asString(cell.raw_text || cell.rawText || cell.text), params);
   return {
     rawText: text,
     parts: asArray(cell.parts).map((part) => mapPart(part, params)),
@@ -147,12 +148,13 @@ function mapBlock(value: unknown, params: Params = {}): QcLayoutBlock | null {
     label: asString(raw.label) || undefined,
     title: asString(raw.title || raw.text) || undefined,
     text: asString(raw.text || raw.fixed_text) || undefined,
-    sectionSuffix: asString(raw.section_suffix || raw.sectionSuffix) || undefined,
+    sectionSuffix: asString(raw.section_suffix || raw.sectionSuffix || raw.section_no || raw.sectionNo) || undefined,
     sectionSlot: asString(raw.section_slot || raw.sectionSlot) || undefined,
     sectionRole: asString(raw.section_role || raw.sectionRole) || undefined,
     sectionRef: asString(raw.section_ref || raw.sectionRef) || undefined,
     sectionAnchor: asBoolean(raw.section_anchor ?? raw.sectionAnchor),
     fieldPrefix: asString(raw.field_prefix || raw.fieldPrefix) || undefined,
+    fileSectionSuffix: asString(raw.file_section_suffix || raw.fileSectionSuffix || raw.file_section_no || raw.fileSectionNo) || undefined, fileTitle: asString(raw.file_title || raw.fileTitle) || undefined,
     rows: rows.length ? rows : undefined,
     parts: asArray(raw.parts).map((part) => mapPart(part, params)),
     devices: asArray(raw.devices).map((device) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import type { QcTemplateTestItem } from "@/server/services/production/qc";
+import type { QcLayoutBlock, QcTemplateTestItem } from "@/server/services/production/qc";
 import QcLayoutPaper from "../QcLayoutPaper";
 import QcMethodFieldTable from "../QcMethodFieldTable";
 import { numerals, selectionTitle, type WorkbenchSelection } from "./types";
@@ -10,27 +10,15 @@ interface Props {
   onClose: () => void;
 }
 
-function ExperimentPreview({ tests }: { tests: QcTemplateTestItem[] }) {
-  return (
-    <table className="w-full border-collapse text-sm text-slate-950">
-      <tbody>
-        <tr>
-          <td className="w-24 border border-slate-950 px-3 py-2 text-center font-semibold">序号</td>
-          <td className="border border-slate-950 px-3 py-2 text-center font-semibold">项目</td>
-          <td className="border border-slate-950 px-3 py-2 text-center font-semibold">方法</td>
-          <td className="border border-slate-950 px-3 py-2 text-center font-semibold">组件</td>
-        </tr>
-        {tests.map((test) => (
-          <tr key={test.englishName}>
-            <td className="border border-slate-950 px-3 py-2 text-center">{test.sequence}</td>
-            <td className="border border-slate-950 px-3 py-2">{test.name}</td>
-            <td className="border border-slate-950 px-3 py-2">{test.methodName || "-"}</td>
-            <td className="border border-slate-950 px-3 py-2">{test.layout?.templateId || "未映射"}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+function topLevel(section?: string) {
+  return section?.split(".")[0];
+}
+
+function fullSectionBlocks(blocks: QcLayoutBlock[], section: "1" | "2") {
+  if (section === "1") {
+    return blocks.filter((block) => topLevel(block.sectionSuffix) !== "2");
+  }
+  return blocks.filter((block) => topLevel(block.sectionSuffix) === "2");
 }
 
 function TestPreview({ test }: { test: QcTemplateTestItem }) {
@@ -50,7 +38,9 @@ function TestPreview({ test }: { test: QcTemplateTestItem }) {
 
 export default function TemplatePreviewModal({ selection, onClose }: Props) {
   if (!selection) return null;
-  const precheckBlocks = selection.stage.precheckLayoutBlocks ?? [];
+  const fullBlocks = selection.stage.precheckLayoutBlocks ?? [];
+  const precheckBlocks = fullSectionBlocks(fullBlocks, "1");
+  const experimentBlocks = fullSectionBlocks(fullBlocks, "2");
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/55">
       <div className="h-full overflow-auto px-3 py-7 md:px-6">
@@ -73,7 +63,7 @@ export default function TemplatePreviewModal({ selection, onClose }: Props) {
               <QcLayoutPaper blocks={precheckBlocks} compact />
             </>
           )}
-          {selection.kind === "experiment" && <ExperimentPreview tests={selection.stage.tests} />}
+          {selection.kind === "experiment" && <QcLayoutPaper blocks={experimentBlocks} compact />}
           {selection.kind === "test" && selection.test && <TestPreview test={selection.test} />}
         </div>
       </div>
