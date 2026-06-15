@@ -366,9 +366,12 @@ async function main() {
         const params = rec(assignment.params);
         const blocks = templateId ? await loadTemplate(templateId, params).catch(() => []) : [];
         const numbered = numberBlocks(blocks, sequence);
-        const rendered = numbered.filter((block) => block.displaySection).map((block) => ({ section: block.displaySection, title: blockTitle(block), type: block.type }));
         const layoutBlob = JSON.stringify(blocks);
         const parts = collectParts(blocks);
+        const rendered = [
+          ...numbered.filter((block) => block.displaySection).map((block) => ({ section: block.displaySection, title: blockTitle(block), type: block.type })),
+          ...parts.filter((part) => part.type === "section_heading" && part.sectionSuffix).map((part) => ({ section: `${sequence}.${part.sectionSuffix}`, title: part.text || "", type: "section_heading" })),
+        ];
         const partFields = new Set(parts.flatMap((part) => [part.field, part.fieldKey].filter(Boolean)));
         const microbialComputed = methodName.startsWith("微生物限度") && layoutBlob.includes("microbial_selected_total");
         const fieldPresent = (fieldName) => (

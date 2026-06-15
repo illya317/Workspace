@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-15T16:37:54.988Z",
+  "generatedAt": "2026-06-15T16:40:21.881Z",
   "productCount": 16,
-  "issueCount": 388,
+  "issueCount": 346,
   "products": [
     {
       "productId": "allopurinol",
@@ -232,14 +232,12 @@
                 "2.8.12→14"
               ],
               "renderedHeadingGaps": [
-                "2.8.2→7",
+                "2.8.2→4",
                 "2.8.9.1.1 missing before 2.8.9.1.7",
                 "2.8.9.2.1 missing before 2.8.9.2.4"
               ],
               "missingHeadings": [
                 "2.8.3 仪器、设备 (heading)",
-                "2.8.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.8.5 仪器、设备是否在校验有效期内 (inline)",
                 "2.8.9.1.1 菌液制备 (heading)",
                 "2.8.9.1.2 供试品制备 (heading)",
                 "2.8.9.1.3 阳性对照试验 (heading)",
@@ -480,15 +478,12 @@
               "titleMismatch": false,
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [
-                "2.8.2→7",
+                "2.8.2→4",
                 "2.8.9.1.1 missing before 2.8.9.1.7",
                 "2.8.9.2.1 missing before 2.8.9.2.4"
               ],
               "missingHeadings": [
                 "2.8.3 仪器、设备 (heading)",
-                "2.8.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.8.5 仪器、设备 (heading)",
-                "2.8.6 检验用具 (heading)",
                 "2.8.9.1.1 菌液制备 (heading)",
                 "2.8.9.1.2 供试品制备 (heading)",
                 "2.8.9.1.3 阳性对照试验 (heading)",
@@ -696,15 +691,12 @@
                 "2.7.12→14"
               ],
               "renderedHeadingGaps": [
-                "2.7.2→7",
+                "2.7.2→4",
                 "2.7.9.1.1 missing before 2.7.9.1.7",
                 "2.7.9.2.1 missing before 2.7.9.2.4"
               ],
               "missingHeadings": [
                 "2.7.3 仪器、设备 (heading)",
-                "2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.7.5 仪器、设备 (heading)",
-                "2.7.6 检验用具 (heading)",
                 "2.7.9.1.1 菌液制备 (heading)",
                 "2.7.9.1.2 试验准备 (heading)",
                 "2.7.9.1.3 供试品制备 (heading)",
@@ -943,15 +935,12 @@
               "titleMismatch": false,
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [
-                "2.7.2→7",
+                "2.7.2→4",
                 "2.7.9.1.1 missing before 2.7.9.1.7",
                 "2.7.9.2.1 missing before 2.7.9.2.4"
               ],
               "missingHeadings": [
                 "2.7.3 仪器、设备 (heading)",
-                "2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.7.5 仪器、设备 (heading)",
-                "2.7.6 检验用具 (heading)",
                 "2.7.9.1.1 菌液制备 (heading)",
                 "2.7.9.1.2 供试品制备 (heading)",
                 "2.7.9.1.3 阳性对照试验 (heading)",
@@ -1183,15 +1172,12 @@
               "titleMismatch": false,
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [
-                "2.7.2→7",
+                "2.7.2→4",
                 "2.7.9.1.1 missing before 2.7.9.1.7",
                 "2.7.9.2.1 missing before 2.7.9.2.4"
               ],
               "missingHeadings": [
                 "2.7.3 仪器、设备 (heading)",
-                "2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.7.5 仪器、设备 (heading)",
-                "2.7.6 检验用具 (heading)",
                 "2.7.9.1.1 菌液制备 (heading)",
                 "2.7.9.1.2 试验准备 (heading)",
                 "2.7.9.1.3 供试品制备 (heading)",
@@ -1427,15 +1413,12 @@
               "titleMismatch": false,
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [
-                "2.7.2→7",
+                "2.7.2→4",
                 "2.7.9.1.1 missing before 2.7.9.1.7",
                 "2.7.9.2.1 missing before 2.7.9.2.4"
               ],
               "missingHeadings": [
                 "2.7.3 仪器、设备 (heading)",
-                "2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.7.5 仪器、设备 (heading)",
-                "2.7.6 检验用具 (heading)",
                 "2.7.9.1.1 菌液制备 (heading)",
                 "2.7.9.1.2 供试品制备 (heading)",
                 "2.7.9.1.3 阳性对照试验 (heading)",
@@ -1660,15 +1643,12 @@
                 "2.6.12→14"
               ],
               "renderedHeadingGaps": [
-                "2.6.2→7",
+                "2.6.2→4",
                 "2.6.9.1.1 missing before 2.6.9.1.7",
                 "2.6.9.2.1 missing before 2.6.9.2.4"
               ],
               "missingHeadings": [
                 "2.6.3 仪器、设备 (heading)",
-                "2.6.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.6.5 仪器、设备 (heading)",
-                "2.6.6 检验用具 (heading)",
                 "2.6.9.1.1 菌液制备 (heading)",
                 "2.6.9.1.2 供试品制备 (heading)",
                 "2.6.9.1.3 阳性对照试验 (heading)",
@@ -1918,14 +1898,12 @@
                 "2.8.12→14"
               ],
               "renderedHeadingGaps": [
-                "2.8.2→7",
+                "2.8.2→4",
                 "2.8.9.1.1 missing before 2.8.9.1.7",
                 "2.8.9.2.1 missing before 2.8.9.2.4"
               ],
               "missingHeadings": [
                 "2.8.3 仪器、设备 (heading)",
-                "2.8.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.8.5 仪器、设备是否在校验有效期内 (inline)",
                 "2.8.9.1.1 菌液制备 (heading)",
                 "2.8.9.1.2 供试品制备 (heading)",
                 "2.8.9.1.3 阳性对照试验 (heading)",
@@ -2165,14 +2143,12 @@
                 "2.7.5→7"
               ],
               "renderedHeadingGaps": [
-                "2.7.2→7",
+                "2.7.2→4",
                 "2.7.9.1.1 missing before 2.7.9.1.7",
                 "2.7.9.2.1 missing before 2.7.9.2.4"
               ],
               "missingHeadings": [
                 "2.7.3 仪器、设备 (heading)",
-                "2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.7.5 仪器、设备是否在校验有效期内 (inline)",
                 "2.7.9.1.1 菌液制备 (heading)",
                 "2.7.9.1.2 供试品制备 (heading)",
                 "2.7.9.1.3 阳性对照试验 (heading)",
@@ -2362,15 +2338,12 @@
               "titleMismatch": false,
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [
-                "2.6.2→7",
+                "2.6.2→4",
                 "2.6.9.1.1 missing before 2.6.9.1.7",
                 "2.6.9.2.1 missing before 2.6.9.2.4"
               ],
               "missingHeadings": [
                 "2.6.3 仪器、设备 (heading)",
-                "2.6.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.6.5 仪器、设备 (heading)",
-                "2.6.6 检验用具 (heading)",
                 "2.6.9.1.1 菌液制备 (heading)",
                 "2.6.9.1.2 试验准备 (heading)",
                 "2.6.9.1.3 供试品制备 (heading)",
@@ -2624,15 +2597,12 @@
                 "2.7.12→14"
               ],
               "renderedHeadingGaps": [
-                "2.7.2→7",
+                "2.7.2→4",
                 "2.7.9.1.1 missing before 2.7.9.1.7",
                 "2.7.9.2.1 missing before 2.7.9.2.4"
               ],
               "missingHeadings": [
                 "2.7.3 仪器、设备 (heading)",
-                "2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.7.5 仪器、设备 (heading)",
-                "2.7.6 检验用具 (heading)",
                 "2.7.9.1.1 菌液制备 (heading)",
                 "2.7.9.1.2 供试品制备 (heading)",
                 "2.7.9.1.3 阳性对照试验 (heading)",
@@ -2901,15 +2871,12 @@
                 "2.9.12→14"
               ],
               "renderedHeadingGaps": [
-                "2.9.2→7",
+                "2.9.2→4",
                 "2.9.9.1.1 missing before 2.9.9.1.7",
                 "2.9.9.2.1 missing before 2.9.9.2.4"
               ],
               "missingHeadings": [
                 "2.9.3 仪器、设备 (heading)",
-                "2.9.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.9.5 仪器、设备 (heading)",
-                "2.9.6 检验用具 (heading)",
                 "2.9.9.1.1 菌液制备 (heading)",
                 "2.9.9.1.2 供试品制备 (heading)",
                 "2.9.9.1.3 阳性对照试验 (heading)",
@@ -3154,13 +3121,12 @@
                 "2.7.12→14"
               ],
               "renderedHeadingGaps": [
-                "2.7.2→7",
+                "2.7.2→4",
                 "2.7.9.1.1 missing before 2.7.9.1.7",
                 "2.7.9.2.1 missing before 2.7.9.2.4"
               ],
               "missingHeadings": [
                 "2.7.3 仪器、设备 (heading)",
-                "2.7.5 仪器、设备是否在校验有效期内 (inline)",
                 "2.7.9.1.1 菌液制备 (heading)",
                 "2.7.9.1.2 供试品制备 (heading)",
                 "2.7.9.1.3 阳性对照试验 (heading)",
@@ -3414,14 +3380,12 @@
                 "2.8.9.1.1 missing before 2.8.9.1.2"
               ],
               "renderedHeadingGaps": [
-                "2.8.2→7",
+                "2.8.2→4",
                 "2.8.9.1.1 missing before 2.8.9.1.7",
                 "2.8.9.2.1 missing before 2.8.9.2.4"
               ],
               "missingHeadings": [
                 "2.8.3 仪器、设备 (heading)",
-                "2.8.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.8.5 仪器、设备是否在校验有效期内 (inline)",
                 "2.8.9.1.2 供试品制备 (heading)",
                 "2.8.9.1.3 阳性对照试验 (heading)",
                 "2.8.9.1.4 阴性对照试验 (heading)",
@@ -3652,15 +3616,12 @@
               "titleMismatch": false,
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [
-                "2.7.2→7",
+                "2.7.2→4",
                 "2.7.9.1.1 missing before 2.7.9.1.7",
                 "2.7.9.2.1 missing before 2.7.9.2.4"
               ],
               "missingHeadings": [
                 "2.7.3 仪器、设备 (heading)",
-                "2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.7.5 仪器、设备 (heading)",
-                "2.7.6 检验用具 (heading)",
                 "2.7.9.1.1 菌液制备 (heading)",
                 "2.7.9.1.2 供试品制备 (heading)",
                 "2.7.9.1.3 阳性对照试验 (heading)",
@@ -3889,15 +3850,12 @@
                 "2.7.12→14"
               ],
               "renderedHeadingGaps": [
-                "2.7.2→7",
+                "2.7.2→4",
                 "2.7.9.1.1 missing before 2.7.9.1.7",
                 "2.7.9.2.1 missing before 2.7.9.2.4"
               ],
               "missingHeadings": [
                 "2.7.3 仪器、设备 (heading)",
-                "2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)",
-                "2.7.5 仪器、设备 (heading)",
-                "2.7.6 检验用具 (heading)",
                 "2.7.9.1.1 菌液制备 (heading)",
                 "2.7.9.1.2 供试品制备 (heading)",
                 "2.7.9.1.3 阳性对照试验 (heading)",
