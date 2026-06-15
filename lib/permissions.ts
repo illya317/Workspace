@@ -42,6 +42,9 @@ export const RES = {
   production: {
     root: "production",
     inventory: "production.inventory",
+    qc: "production.qc",
+    qcBatches: "production.qc.batches",
+    qcTemplates: "production.qc.templates",
   },
   administration: {
     root: "administration",
@@ -96,6 +99,9 @@ export const RESOURCE_MAX_ROLE: Record<string, string> = {
   docs: "access",
   external: "delete",
   production: "admin",
+  "production.qc": "admin",
+  "production.qc.batches": "admin",
+  "production.qc.templates": "admin",
   finance: "admin",
   administration: "admin",
   people: "admin",

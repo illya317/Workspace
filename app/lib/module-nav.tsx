@@ -121,8 +121,10 @@ export const MODULES: ModuleDef[] = [
       { key: "import", label: "数据导入与治理", desc: "科目/凭证/余额/预算/成本导入，校验与异常", href: "/finance/import", resourceKey: "finance.import" },
     ],
   },
-  { key: "production", label: "生产管理", desc: "原辅料、包装、成品库存", href: "/production", icon: icons.production, color: "cyan", resourceKey: "production",
+  { key: "production", label: "生产管理", desc: "批次检验、检验模板、库存管理", href: "/production", icon: icons.production, color: "cyan", resourceKey: "production",
     children: [
+      { key: "qcBatches", label: "批次检验", desc: "批次创建、检验记录填写、提交复核", href: "/production/qc/batches", resourceKey: "production.qc.batches" },
+      { key: "qcTemplates", label: "检验模板", desc: "组件映射建议、方法字段、模板草稿", href: "/production/qc/templates", resourceKey: "production.qc.templates" },
       { key: "inventory", label: "库存管理", desc: "原辅料、包装材料、成品库存", href: "/inventory", resourceKey: "production.inventory" },
     ],
   },

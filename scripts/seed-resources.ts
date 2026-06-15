@@ -56,6 +56,9 @@ async function main() {
   await upsertResource("production.inventory.packaging", "包装材料", "production.inventory", "admin", undefined, "inherit", 1);
   await upsertResource("production.inventory.finished", "成品", "production.inventory", "admin", undefined, "inherit", 2);
   await upsertResource("production.inventory.report", "库存报表", "production.inventory", "admin", undefined, "inherit", 3);
+  await upsertResource("production.qc", "质量检验", "production", "admin", undefined, "inherit", 1);
+  await upsertResource("production.qc.batches", "批次检验", "production.qc", "admin", undefined, "inherit", 0);
+  await upsertResource("production.qc.templates", "检验模板", "production.qc", "admin", undefined, "inherit", 1);
 
   await upsertResource("external", "外部关系", undefined, "delete", undefined, "inherit", 5);
   await upsertResource("external.investor", "投资人关系", "external", "delete", undefined, "inherit", 0);

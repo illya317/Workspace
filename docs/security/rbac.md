@@ -25,7 +25,7 @@
 
 优先级：直接授权 > 岗位继承 > 部门继承。`system.admin` 额外有 bypass 开关。
 
-## 资源树（41 个）
+## 资源树
 
 ```
 system              admin   系统管理
@@ -54,6 +54,13 @@ administration      admin   行政管理
 
 production          admin   生产管理
   production.inventory admin 库存管理
+    production.inventory.raw admin 原辅料
+    production.inventory.packaging admin 包装材料
+    production.inventory.finished admin 成品
+    production.inventory.report admin 库存报表
+  production.qc     admin   质量检验
+    production.qc.batches admin 批次检验
+    production.qc.templates admin 检验模板
 
 docs                access  文档中心
   docs.positions    access  岗位说明书
