@@ -11,6 +11,11 @@ interface QcTemplateFeedbackStore {
   items: QcTemplateFeedbackItem[];
 }
 
+interface FeedbackAuthor {
+  userId: number;
+  userName: string;
+}
+
 function dataPath() {
   const root = process.env.WORKSPACE_CONFIG_DIR
     ? path.join(process.env.WORKSPACE_CONFIG_DIR, "data")
@@ -29,6 +34,10 @@ export function qcTemplateFeedbackKey(context: QcTemplateFeedbackContext) {
     normalizePart(context.itemType),
     normalizePart(context.testNameEn || context.sequence || context.templateId || context.testName),
   ].filter(Boolean).join("/");
+}
+
+function userFeedbackKey(contextKey: string, userId: number) {
+  return `${contextKey}#user:${userId}`;
 }
 
 function normalizeContext(value: unknown): QcTemplateFeedbackContext | null {
@@ -71,28 +80,36 @@ async function writeStore(store: QcTemplateFeedbackStore) {
 export async function listQcTemplateFeedback(): Promise<QcTemplateFeedbackList> {
   const store = await readStore();
   const items = [...store.items].sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt));
-  return { items, keys: items.map((item) => item.key) };
+  return { items, keys: Array.from(new Set(items.map((item) => item.contextKey || item.key))) };
 }
 
-export async function getQcTemplateFeedback(key: string): Promise<QcTemplateFeedbackItem | null> {
+export async function getQcTemplateFeedback(key: string, userId: number): Promise<QcTemplateFeedbackItem | null> {
   const store = await readStore();
-  return store.items.find((item) => item.key === key) ?? null;
+  return store.items.find((item) => item.key === userFeedbackKey(key, userId))
+    ?? store.items.find((item) => !item.contextKey && item.key === key)
+    ?? null;
 }
 
 export async function saveQcTemplateFeedback(
   rawContext: unknown,
   rawNote: unknown,
+  author: FeedbackAuthor,
 ): Promise<QcTemplateFeedbackItem | null> {
   const context = normalizeContext(rawContext);
   if (!context) throw new Error("反馈上下文不完整");
-  const key = qcTemplateFeedbackKey(context);
+  const contextKey = qcTemplateFeedbackKey(context);
+  const key = userFeedbackKey(contextKey, author.userId);
   const note = String(rawNote ?? "").trim();
   const store = await readStore();
   const index = store.items.findIndex((item) => item.key === key);
+  const legacyIndex = store.items.findIndex((item) => !item.contextKey && item.key === contextKey);
 
   if (!note) {
     if (index >= 0) {
       store.items.splice(index, 1);
+      await writeStore(store);
+    } else if (legacyIndex >= 0) {
+      store.items.splice(legacyIndex, 1);
       await writeStore(store);
     }
     return null;
@@ -100,11 +117,15 @@ export async function saveQcTemplateFeedback(
 
   const item: QcTemplateFeedbackItem = {
     key,
+    contextKey,
     context,
+    userId: author.userId,
+    userName: author.userName,
     note,
     updatedAt: new Date().toISOString(),
   };
   if (index >= 0) store.items[index] = item;
+  else if (legacyIndex >= 0) store.items[legacyIndex] = item;
   else store.items.push(item);
   await writeStore(store);
   return item;

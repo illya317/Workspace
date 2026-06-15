@@ -25,7 +25,7 @@
 第一阶段做 Workspace 入口、权限、YAML/JSON 配置适配、批次台账和记录页面。当前为避免外部 `pharma-ops` 持续更新影响 Workspace 迁移，已把 `pharma-ops/config` 的 YAML/JSON 复制为仓库内快照 `config/pharma-ops/`，Workspace 默认优先读取该快照；外部 `PHARMA_OPS_ROOT` 仅作为 fallback。MD 暂不接入。
 
 迁移期批次数据先落在 `WORKSPACE_CONFIG_DIR/data/qc-batches.json`，模板反馈先落在
-`WORKSPACE_CONFIG_DIR/data/qc-template-feedback.json`，后续再进入 Prisma 表和审计模型。
+`WORKSPACE_CONFIG_DIR/data/qc-template-feedback.json`，反馈项会记录 `userId/userName` 并按用户区分同一模板位置的意见，后续再进入 Prisma 表和审计模型。
 
 当前已接入：
 

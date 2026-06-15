@@ -201,7 +201,10 @@ export interface QcTemplateFeedbackContext {
 
 export interface QcTemplateFeedbackItem {
   key: string;
+  contextKey: string;
   context: QcTemplateFeedbackContext;
+  userId: number;
+  userName: string;
   note: string;
   updatedAt: string;
 }
