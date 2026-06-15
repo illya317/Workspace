@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { QcBatchSummary, QcTemplateStage } from "@/server/services/production/qc";
+import { QcPaperChoiceInput, QcPaperDateInput, QcPaperLineInput } from "./QcPaperInputs";
 
 interface Props {
   batch: QcBatchSummary;
@@ -9,14 +10,6 @@ interface Props {
 }
 
 const numerals = ["一", "二", "三", "四", "五", "六"];
-
-function CheckBox() {
-  return <span className="inline-block h-3.5 w-3.5 border border-slate-950 align-middle" />;
-}
-
-function todayText() {
-  return new Date().toLocaleDateString("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" });
-}
 
 export default function QcBatchStagePrecheck({ batch, productName, stage, stageIndex }: Props) {
   const files = stage.precheckFiles ?? [];
@@ -60,25 +53,25 @@ export default function QcBatchStagePrecheck({ batch, productName, stage, stageI
               <td className="border border-slate-950 px-3 py-2">检品名称</td>
               <td className="border border-slate-950 px-3 py-2">{String(info["检品名称"] ?? `${productName}${stage.label}`)}</td>
               <td className="border border-slate-950 px-3 py-2">检品数量</td>
-              <td className="border border-slate-950 px-3 py-2">_____</td>
+              <td className="border border-slate-950 px-3 py-2"><QcPaperLineInput part={{ type: "line", fieldKey: "pre_check/quantity", width: "4em" }} /></td>
             </tr>
             <tr>
               <td className="border border-slate-950 px-3 py-2">检验目的</td>
               <td className="border border-slate-950 px-3 py-2">{String(info["检验目的"] ?? "")}</td>
               <td className="border border-slate-950 px-3 py-2">检品数量</td>
-              <td className="border border-slate-950 px-3 py-2">_____</td>
+              <td className="border border-slate-950 px-3 py-2"><QcPaperLineInput part={{ type: "line", fieldKey: "pre_check/quantity_2", width: "4em" }} /></td>
             </tr>
             <tr>
               <td className="border border-slate-950 px-3 py-2">请验部门</td>
               <td className="border border-slate-950 px-3 py-2">{String(info["请验部门"] ?? "")}</td>
               <td className="border border-slate-950 px-3 py-2">请验日期</td>
-              <td className="border border-slate-950 px-3 py-2">{todayText()}</td>
+              <td className="border border-slate-950 px-3 py-2"><QcPaperDateInput part={{ type: "date", fieldKey: "pre_check/request_date" }} /></td>
             </tr>
             <tr>
               <td className="border border-slate-950 px-3 py-2">检验日期</td>
-              <td className="border border-slate-950 px-3 py-2">{todayText()}</td>
+              <td className="border border-slate-950 px-3 py-2"><QcPaperDateInput part={{ type: "date", fieldKey: "pre_check/inspect_date" }} /></td>
               <td className="border border-slate-950 px-3 py-2">报告日期</td>
-              <td className="border border-slate-950 px-3 py-2">{todayText()}</td>
+              <td className="border border-slate-950 px-3 py-2"><QcPaperDateInput part={{ type: "date", fieldKey: "pre_check/report_date" }} /></td>
             </tr>
             <tr>
               <td className="border border-slate-950 px-3 py-2">检验依据</td>
@@ -98,13 +91,12 @@ export default function QcBatchStagePrecheck({ batch, productName, stage, stageI
               <td className="w-[25%] border border-slate-950 px-3 py-2">文件编码</td>
               <td className="w-[20%] border border-slate-950 px-3 py-2">是否在实验现场</td>
             </tr>
-            {files.map((file) => (
+            {files.map((file, index) => (
               <tr key={`${file.name}-${file.code}`}>
                 <td className="border border-slate-950 px-3 py-2">《{file.name}》</td>
                 <td className="border border-slate-950 px-3 py-2">{file.code}</td>
                 <td className="border border-slate-950 px-3 py-2">
-                  <span className="mr-4"><CheckBox /> 是</span>
-                  <span><CheckBox /> 否</span>
+                  <QcPaperChoiceInput fieldKey={`pre_check/file_${index + 1}`} />
                 </td>
               </tr>
             ))}
@@ -115,8 +107,7 @@ export default function QcBatchStagePrecheck({ batch, productName, stage, stageI
           <div key={item.name} className="flex items-center justify-between border-b border-slate-950 py-2 text-sm font-semibold text-slate-950">
             <span>1.{index + 2} {item.name}</span>
             <span className="font-normal">
-              <span className="mr-6"><CheckBox /> 是</span>
-              <span><CheckBox /> 否</span>
+              <QcPaperChoiceInput fieldKey={`pre_check/confirm_${index + 1}`} />
             </span>
           </div>
         ))}
@@ -124,8 +115,7 @@ export default function QcBatchStagePrecheck({ batch, productName, stage, stageI
         <div className="flex items-center justify-between border-b border-slate-950 py-2 text-sm font-semibold text-slate-950">
           <span>1.{confirmItems.length + 2} 实验环境</span>
           <span className="font-normal">
-            <span className="mr-6"><CheckBox /> 符合要求</span>
-            <span><CheckBox /> 不符合要求</span>
+            <QcPaperChoiceInput fieldKey="pre_check/env" options={["符合要求", "不符合要求"]} />
           </span>
         </div>
 

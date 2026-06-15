@@ -3,15 +3,12 @@
 import type { QcTemplateStage, QcTemplateTestItem } from "@/server/services/production/qc";
 import QcLayoutPaper from "../QcLayoutPaper";
 import QcMethodFieldTable from "../QcMethodFieldTable";
+import { QcPaperChoiceInput, QcPaperDateInput, QcPaperLineInput } from "../QcPaperInputs";
 import { numerals, selectionTitle, type WorkbenchSelection } from "./types";
 
 interface Props {
   selection: WorkbenchSelection | null;
   onClose: () => void;
-}
-
-function CheckBox() {
-  return <span className="inline-block h-3.5 w-3.5 border border-slate-950 align-middle" />;
 }
 
 function PaperHeader({ selection }: { selection: WorkbenchSelection }) {
@@ -34,13 +31,13 @@ function PaperHeader({ selection }: { selection: WorkbenchSelection }) {
             <td className="border border-slate-950 px-3 py-2 font-semibold">检验目的</td>
             <td className="border border-slate-950 px-3 py-2">{String(info["检验目的"] ?? "")}</td>
             <td className="border border-slate-950 px-3 py-2 font-semibold">检品数量</td>
-            <td className="border border-slate-950 px-3 py-2">_____</td>
+            <td className="border border-slate-950 px-3 py-2"><QcPaperLineInput part={{ type: "line", fieldKey: "pre_check/quantity", width: "4em" }} /></td>
           </tr>
           <tr>
             <td className="border border-slate-950 px-3 py-2 font-semibold">请验部门</td>
             <td className="border border-slate-950 px-3 py-2">{String(info["请验部门"] ?? "")}</td>
             <td className="border border-slate-950 px-3 py-2 font-semibold">请验日期</td>
-            <td className="border border-slate-950 px-3 py-2">年　月　日</td>
+            <td className="border border-slate-950 px-3 py-2"><QcPaperDateInput part={{ type: "date", fieldKey: "pre_check/request_date" }} /></td>
           </tr>
           <tr>
             <td className="border border-slate-950 px-3 py-2 font-semibold">检验依据</td>
@@ -65,19 +62,19 @@ function PrecheckPreview({ stage }: { stage: QcTemplateStage }) {
             <td className="w-[25%] border border-slate-950 px-3 py-2">文件编码</td>
             <td className="w-[20%] border border-slate-950 px-3 py-2">是否在实验现场</td>
           </tr>
-          {stage.precheckFiles.map((file) => (
+          {stage.precheckFiles.map((file, index) => (
             <tr key={`${file.name}-${file.code}`}>
               <td className="border border-slate-950 px-3 py-2">《{file.name}》</td>
               <td className="border border-slate-950 px-3 py-2">{file.code}</td>
-              <td className="border border-slate-950 px-3 py-2"><CheckBox /> 是　<CheckBox /> 否</td>
-            </tr>
+            <td className="border border-slate-950 px-3 py-2"><QcPaperChoiceInput fieldKey={`pre_check/file_${index + 1}`} /></td>
+          </tr>
           ))}
         </tbody>
       </table>
       {stage.precheckItems.map((item, index) => (
         <div key={item.name} className="flex justify-between border-x border-b border-slate-950 px-4 py-2 text-sm font-semibold text-slate-950">
           <span>1.{index + 2} {item.name}</span>
-          <span className="font-normal"><CheckBox /> 是　<CheckBox /> 否</span>
+          <span className="font-normal"><QcPaperChoiceInput fieldKey={`pre_check/confirm_${index + 1}`} /></span>
         </div>
       ))}
     </>

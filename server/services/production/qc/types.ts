@@ -81,6 +81,7 @@ export interface QcLayoutPart {
   options?: string[];
   width?: string;
   withTime?: boolean;
+  inputType?: string;
   defaultValue?: string;
   readonlyDisplay?: boolean;
 }

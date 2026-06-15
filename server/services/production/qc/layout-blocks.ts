@@ -52,6 +52,7 @@ function mapPart(value: unknown, params: Params = {}): QcLayoutPart {
   const part = asRecord(value);
   const type = asString(part.type, "text");
   const name = asString(part.name);
+  const paramValue = type === "param" && name ? asString(params[name]) : "";
   return {
     type,
     text: formatText(asString(part.text), params) || undefined,
@@ -61,7 +62,8 @@ function mapPart(value: unknown, params: Params = {}): QcLayoutPart {
     options: asArray(part.options).map((option) => asString(option)).filter(Boolean),
     width: asString(part.width) || widthFromChars(part.initial_chars || part.initialChars),
     withTime: asBoolean(part.with_time ?? part.withTime),
-    defaultValue: asString(part.default ?? part.default_value ?? part.placeholder) || undefined,
+    inputType: asString(part.input_type || part.inputType) || undefined,
+    defaultValue: paramValue || asString(part.default ?? part.default_value ?? part.placeholder) || undefined,
     readonlyDisplay: asBoolean(part.readonly_display ?? part.readOnlyDisplay),
   };
 }

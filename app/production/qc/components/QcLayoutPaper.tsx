@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcTemplateTestItem } from "@/server/services/production/qc";
+import { QcPaperChoiceInput, QcPaperDateInput, QcPaperLineInput } from "./QcPaperInputs";
 
 interface Props {
   blocks: QcLayoutBlock[];
@@ -11,55 +12,6 @@ interface NumberedBlock extends QcLayoutBlock {
   displaySection?: string;
 }
 
-function inputWidth(part: QcLayoutPart): CSSProperties {
-  return { width: part.width || "7rem" };
-}
-
-function LineInput({ part, readOnly }: { part: QcLayoutPart; readOnly?: boolean }) {
-  return (
-    <input
-      aria-label={part.fieldKey || part.field || part.name || "填写项"}
-      defaultValue={part.defaultValue}
-      readOnly={readOnly || part.readonlyDisplay}
-      className="mx-1 inline-block h-5 border-0 border-b border-slate-950 bg-transparent px-1 text-center align-baseline outline-none"
-      style={inputWidth(part)}
-    />
-  );
-}
-
-function DateInput({ part }: { part: QcLayoutPart }) {
-  return (
-    <span className="inline-flex items-center gap-1 whitespace-nowrap align-baseline">
-      <LineInput part={{ ...part, fieldKey: `${part.fieldKey || "date"}/year`, width: "3rem" }} />年
-      <LineInput part={{ ...part, fieldKey: `${part.fieldKey || "date"}/month`, width: "2rem" }} />月
-      <LineInput part={{ ...part, fieldKey: `${part.fieldKey || "date"}/day`, width: "2rem" }} />日
-      {part.withTime && (
-        <>
-          <LineInput part={{ ...part, fieldKey: `${part.fieldKey || "date"}/hour`, width: "2rem" }} />时
-          <LineInput part={{ ...part, fieldKey: `${part.fieldKey || "date"}/minute`, width: "2rem" }} />分
-        </>
-      )}
-    </span>
-  );
-}
-
-function ChoiceInput({ fieldKey, options = ["是", "否"], type = "radio" }: { fieldKey?: string; options?: string[]; type?: "radio" | "checkbox" }) {
-  return (
-    <span className="inline-flex flex-wrap items-center justify-center gap-x-4 gap-y-1 align-baseline">
-      {options.map((option) => (
-        <label key={`${fieldKey}-${option}`} className="inline-flex items-center gap-1.5 whitespace-nowrap">
-          <input
-            type={type}
-            name={type === "radio" ? fieldKey : undefined}
-            className="h-4 w-4 appearance-none border border-slate-950 bg-white align-middle checked:bg-slate-950"
-          />
-          <span>{option}</span>
-        </label>
-      ))}
-    </span>
-  );
-}
-
 function defaultValueForPart(part: QcLayoutPart, test?: Props["test"]) {
   if (part.defaultValue) return part.defaultValue;
   if (part.field === "重量差异限度") return test?.standardText?.match(/±\s*([\d.]+)\s*%/)?.[1];
@@ -68,9 +20,9 @@ function defaultValueForPart(part: QcLayoutPart, test?: Props["test"]) {
 
 function Part({ part, test }: { part: QcLayoutPart; test?: Props["test"] }) {
   if (part.type === "br") return <br />;
-  if (part.type === "line" || part.type === "field") return <LineInput part={{ ...part, fieldKey: part.fieldKey || part.field, defaultValue: defaultValueForPart(part, test) }} readOnly={part.readonlyDisplay} />;
-  if (part.type === "date") return <DateInput part={part} />;
-  if (part.type === "radio" || part.type === "checkbox") return <ChoiceInput fieldKey={part.fieldKey} options={part.options} type={part.type} />;
+  if (part.type === "line" || part.type === "field") return <QcPaperLineInput part={{ ...part, fieldKey: part.fieldKey || part.field, defaultValue: defaultValueForPart(part, test) }} readOnly={part.readonlyDisplay} />;
+  if (part.type === "date") return <QcPaperDateInput part={part} />;
+  if (part.type === "radio" || part.type === "checkbox") return <QcPaperChoiceInput fieldKey={part.fieldKey} options={part.options} type={part.type} />;
   if (part.type === "param") return <span>{part.defaultValue || part.name}</span>;
   if (part.type === "note") return <span className="text-slate-700">{part.text}</span>;
   return <span>{part.text}</span>;
@@ -185,9 +137,9 @@ function RenderBlock({ block, test }: { block: NumberedBlock; test?: Props["test
   if (block.type === "operation_text") return <p className="mb-5 [text-indent:2em] text-[15px] leading-8 text-slate-950">{block.text}</p>;
   if (block.type === "paragraph") return <p className="mb-3 text-[15px] leading-8 text-slate-950">{block.parts?.map((part, index) => <Part key={index} part={part} test={test} />)}</p>;
   if (block.type === "standard_text") return <PostSection block={block} title="标准规定">{test?.standardText || "YAML 未配置标准规定"}</PostSection>;
-  if (block.type === "abnormal_handling") return <PostSection block={block} title="实验结果异常处理"><ChoiceInput fieldKey={`${block.fieldPrefix || "layout/abnormal"}/occurred`} /> <span className="ml-8">实验室异常情况编号</span><LineInput part={{ type: "line", fieldKey: `${block.fieldPrefix || "layout/abnormal"}/code`, width: "14rem" }} /></PostSection>;
-  if (block.type === "cleanup_checklist") return <PostSection block={block} title="清场">{(test?.cleanupItems?.length ? test.cleanupItems : block.items || ["YAML 未配置清场项目"]).map((item, index) => <div key={item} className="flex items-center justify-between border-b border-slate-950 py-1"><span>{item.replace(/[。.]?$/, "。")}</span><ChoiceInput fieldKey={`${block.fieldPrefix || "layout/cleanup"}/item_${index + 1}`} /></div>)}</PostSection>;
-  if (block.type === "conclusion") return <PostSection block={block} title="结论">批号<LineInput part={{ type: "line", fieldKey: "batch_number", width: "8rem" }} />{test?.name || "本品"}（{block.conclusionName || test?.conclusionName || test?.name || "结论"}）检测过程<ChoiceInput fieldKey="layout/conclusion/process" options={["符合", "不符合"]} />各项规定，结果<ChoiceInput fieldKey="layout/conclusion/result" options={["符合", "不符合"]} />标准规定。</PostSection>;
+  if (block.type === "abnormal_handling") return <PostSection block={block} title="实验结果异常处理"><QcPaperChoiceInput fieldKey={`${block.fieldPrefix || "layout/abnormal"}/occurred`} /> <span className="ml-8">实验室异常情况编号</span><QcPaperLineInput part={{ type: "line", fieldKey: `${block.fieldPrefix || "layout/abnormal"}/code`, width: "14rem" }} /></PostSection>;
+  if (block.type === "cleanup_checklist") return <PostSection block={block} title="清场">{(test?.cleanupItems?.length ? test.cleanupItems : block.items || ["YAML 未配置清场项目"]).map((item, index) => <div key={item} className="flex items-center justify-between border-b border-slate-950 py-1"><span>{item.replace(/[。.]?$/, "。")}</span><QcPaperChoiceInput fieldKey={`${block.fieldPrefix || "layout/cleanup"}/item_${index + 1}`} /></div>)}</PostSection>;
+  if (block.type === "conclusion") return <PostSection block={block} title="结论">批号<QcPaperLineInput part={{ type: "line", fieldKey: "batch_number", width: "8rem" }} />{test?.name || "本品"}（{block.conclusionName || test?.conclusionName || test?.name || "结论"}）检测过程<QcPaperChoiceInput fieldKey="layout/conclusion/process" options={["符合", "不符合"]} />各项规定，结果<QcPaperChoiceInput fieldKey="layout/conclusion/result" options={["符合", "不符合"]} />标准规定。</PostSection>;
   if (block.type === "table") return <TableBlock block={block} test={test} />;
   return block.text ? <p className="mb-3 text-[15px] leading-8 text-slate-950">{block.text}</p> : null;
 }
