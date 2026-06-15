@@ -169,6 +169,7 @@ export interface QcTemplateStage {
   precheckInfo: Record<string, string>;
   precheckFiles: QcTemplatePrecheckFile[];
   precheckItems: QcTemplatePrecheckItem[];
+  precheckLayoutBlocks?: QcLayoutBlock[];
   tests: QcTemplateTestItem[];
 }
 

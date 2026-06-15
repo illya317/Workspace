@@ -4,7 +4,9 @@ import { readdir, readFile } from "fs/promises";
 import { unstable_cache } from "next/cache";
 import { parse as parseYaml } from "yaml";
 import { loadQcLayoutBlocks } from "./layout-blocks";
+import { buildPrecheckLayoutBlocks } from "./precheck-layout";
 import { resolvePharmaOpsRoot } from "./source";
+import { cleanupItems, summarizeStandard } from "./test-metadata";
 import type {
   QcTemplateDetail,
   QcTemplateLayoutAssignment,
@@ -42,50 +44,6 @@ async function listYamlFiles(dir: string) {
     .filter((entry) => entry.isFile() && entry.name.endsWith(".yaml"))
     .map((entry) => path.join(dir, entry.name))
     .sort();
-}
-
-function summarizeStandard(test: Record<string, unknown>) {
-  if (typeof test["标准规定"] === "string") return test["标准规定"];
-  const template = asString(test["标准规定模板"]);
-  const params = asRecord(test["标准规定参数"]);
-  if (!template) return undefined;
-  if (template === "variation_difference_limit") {
-    const basis = asString(params.basis, "平均片重");
-    const limit = asString(params.limit, "7.0");
-    const differenceName = asString(params.difference_name, "重量差异");
-    const maxOver = asString(params.max_over, "2");
-    const unit = asString(params.unit, "片");
-    const oneUnit = asString(params.one_unit, `一${unit}`);
-    return `差异限度应为${basis}的±${limit}%以内，如有超出${differenceName}限度的不得多于${maxOver}${unit}，并不得有${oneUnit}超出限度一倍。`;
-  }
-  if (template === "moisture_s_limit") {
-    return `水分不得过${asString(params.limit)}%。`;
-  }
-  if (template === "appearance_description") {
-    return asString(params.description);
-  }
-  if (template === "dissolution_release_limit") {
-    return `限度为标示量的${asString(params.limit)}%。`;
-  }
-  if (template === "content_assay_range") {
-    return `${asString(params.subject, "含量")}${asString(params.phrase, "应为")} ${asString(params.lower)}%～${asString(params.upper)}%。`;
-  }
-  const values = Object.entries(params).map(([key, value]) => `${key}=${String(value)}`);
-  return values.length ? `${template} (${values.join(", ")})` : template;
-}
-
-function cleanupItems(test: Record<string, unknown>) {
-  const configured = asArray(test["清场项目"] || test["清场"]).map((item) => asString(asRecord(item)["名称"] || asRecord(item).text || item)).filter(Boolean);
-  if (configured.length) return configured;
-  if (asString(test["清场模板"]) === "standard_cleanup") {
-    return [
-      "关闭电源",
-      "清洁设备及房间",
-      "检查仪器、设备，填写《仪器使用记录》",
-      "更换仪器、设备状态标识",
-    ];
-  }
-  return [];
 }
 
 async function loadMethods(configRoot: string): Promise<MethodIndex> {
@@ -189,6 +147,7 @@ function toTestItem(
 
 function toStage(
   templateId: string,
+  productName: string,
   key: string,
   raw: unknown,
   methods: MethodIndex,
@@ -204,6 +163,14 @@ function toStage(
     return { name: asString(data["名称"]), code: asString(data["编码"]) };
   });
   const precheckItems = asArray(precheck["确认项"]).map((item) => ({ name: asString(asRecord(item)["名称"]) }));
+  const precheckLayoutBlocks = buildPrecheckLayoutBlocks(
+    productName,
+    asString(stage["显示名"], key),
+    precheckInfo,
+    precheckFiles,
+    precheckItems,
+    asRecord(precheck["环境确认"]),
+  );
   return {
     key,
     label: asString(stage["显示名"], key),
@@ -212,6 +179,7 @@ function toStage(
     precheckInfo,
     precheckFiles,
     precheckItems,
+    precheckLayoutBlocks,
     tests: asArray(stage["检测项"]).map((test) => toTestItem(templateId, key, test, methods, layouts)),
   };
 }
@@ -235,7 +203,7 @@ async function getQcTemplateDetailUncached(templateId: string): Promise<QcTempla
   ]);
   const template = asRecord(rawTemplate);
   const stages = Object.entries(asRecord(template["阶段"]))
-    .map(([key, stage]) => toStage(templateId, key, stage, methods, layouts));
+    .map(([key, stage]) => toStage(templateId, asString(template["产品名称"], templateId), key, stage, methods, layouts));
   await Promise.all(stages.flatMap((stage) => stage.tests.map(async (test) => {
     test.layoutBlocks = await loadQcLayoutBlocks(source.configRoot, test.layout);
   })));
