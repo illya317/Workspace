@@ -95,6 +95,32 @@ rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
   --exclude='.DS_Store' \
   ./ "$SERVER:$REMOTE_DIR/"
 
+if [ "${SKIP_RUNTIME_CONFIG_SYNC:-0}" = "1" ]; then
+echo "==> 跳过运行态配置同步，保留服务器现有 data/dev.db..."
+ssh_cmd "
+  set -e
+  cd '$REMOTE_DIR'
+  test -s data/dev.db
+  python3 - <<'PY'
+from pathlib import Path
+import re
+
+env_path = Path('.env')
+text = env_path.read_text() if env_path.exists() else ''
+replacements = {
+    'DATABASE_URL': '\"file:./data/dev.db\"',
+    'WORKSPACE_CONFIG_DIR': '$REMOTE_DIR',
+}
+for key, value in replacements.items():
+    line = f'{key}={value}'
+    if re.search(rf'^{key}=.*$', text, flags=re.M):
+        text = re.sub(rf'^{key}=.*$', line, text, flags=re.M)
+    else:
+        text = text.rstrip() + '\\n' + line + '\\n'
+env_path.write_text(text)
+PY
+"
+else
 echo "==> 同步运行态配置到服务器..."
 ssh_cmd "
   set -e
@@ -144,6 +170,10 @@ env_path.write_text(text)
 PY
   fi
 "
+fi
+if [ "${SKIP_RUNTIME_CONFIG_SYNC:-0}" = "1" ]; then
+  echo "==> 跳过 data 同步，避免覆盖本地或服务器数据库"
+else
 echo "==> 拉取服务器 data 到本地..."
 LOCAL_DATA_DIR="$LOCAL_WORKSPACE_CONFIG_DIR/data"
 if [ -d "$LOCAL_DATA_DIR" ]; then
@@ -154,6 +184,7 @@ fi
 mkdir -p "$LOCAL_DATA_DIR"
 rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
   "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/data/" "$LOCAL_DATA_DIR/"
+fi
 
 echo ""
 echo "==> 服务器构建并重启服务..."
