@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-06-15T16:29:13.396Z",
+  "generatedAt": "2026-06-15T16:32:28.074Z",
   "productCount": 16,
-  "issueCount": 594,
+  "issueCount": 472,
   "products": [
     {
       "productId": "allopurinol",
@@ -52,14 +52,7 @@
               "missingFormulaDom": [
                 "结论-结果"
               ],
-              "missingFormulaInputs": [
-                "理论片重 <= 投料量",
-                "理论片重 <= 批量",
-                "样1-含量 <= 样1-OD",
-                "样1-含量 <= 空白OD",
-                "样2-含量 <= 样2-OD",
-                "样2-含量 <= 空白OD"
-              ]
+              "missingFormulaInputs": []
             }
           ]
         },
@@ -126,12 +119,7 @@
                 "20片总净重",
                 "结论-结果"
               ],
-              "missingFormulaInputs": [
-                "样1-含量 <= 样1-OD",
-                "样1-含量 <= 空白OD",
-                "样2-含量 <= 样2-OD",
-                "样2-含量 <= 空白OD"
-              ]
+              "missingFormulaInputs": []
             }
           ]
         },
@@ -240,12 +228,7 @@
                 "20片总净重",
                 "结论-结果"
               ],
-              "missingFormulaInputs": [
-                "样1-含量 <= 样1-OD",
-                "样1-含量 <= 空白OD",
-                "样2-含量 <= 样2-OD",
-                "样2-含量 <= 空白OD"
-              ]
+              "missingFormulaInputs": []
             },
             {
               "sequence": "2.8",
@@ -830,19 +813,8 @@
                 "2.3.5.1.1 称重 (heading)",
                 "2.3.5.1.2 测定与计算 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均-OD/mg"
-              ],
-              "missingFormulaInputs": [
-                "平均-OD/mg <= 对照1-OD",
-                "平均-OD/mg <= 对照2-OD",
-                "样1-含量 <= 样1-OD",
-                "样1-含量 <= 空白OD",
-                "样1-含量 <= 规格",
-                "样2-含量 <= 样2-OD",
-                "样2-含量 <= 空白OD",
-                "样2-含量 <= 规格"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         },
@@ -904,19 +876,8 @@
                 "2.4.5.1.1 称重 (heading)",
                 "2.4.5.1.2 测定与计算 (heading)"
               ],
-              "missingFormulaDom": [
-                "平均-OD/mg"
-              ],
-              "missingFormulaInputs": [
-                "平均-OD/mg <= 对照1-OD",
-                "平均-OD/mg <= 对照2-OD",
-                "样1-含量 <= 样1-OD",
-                "样1-含量 <= 空白OD",
-                "样1-含量 <= 规格",
-                "样2-含量 <= 样2-OD",
-                "样2-含量 <= 空白OD",
-                "样2-含量 <= 规格"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         },
@@ -1008,19 +969,8 @@
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [],
               "missingHeadings": [],
-              "missingFormulaDom": [
-                "平均-OD/mg"
-              ],
-              "missingFormulaInputs": [
-                "平均-OD/mg <= 对照1-OD",
-                "平均-OD/mg <= 对照2-OD",
-                "样1-含量 <= 样1-OD",
-                "样1-含量 <= 空白OD",
-                "样1-含量 <= 规格",
-                "样2-含量 <= 样2-OD",
-                "样2-含量 <= 空白OD",
-                "样2-含量 <= 规格"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             },
             {
               "sequence": "2.7",
@@ -1599,28 +1549,8 @@
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [],
               "missingHeadings": [],
-              "missingFormulaDom": [
-                "对照1-OD/mg",
-                "对照2-OD/mg",
-                "平均-OD/mg",
-                "对照RD"
-              ],
-              "missingFormulaInputs": [
-                "对照1-OD/mg <= 空白溶剂OD",
-                "对照1-OD/mg <= 对照1-OD",
-                "对照2-OD/mg <= 空白溶剂OD",
-                "对照2-OD/mg <= 对照2-OD",
-                "平均-OD/mg <= 对照1-OD",
-                "平均-OD/mg <= 对照2-OD",
-                "对照RD <= 对照1-OD",
-                "对照RD <= 对照2-OD",
-                "样1-含量 <= 样品空白OD",
-                "样1-含量 <= 样1-OD",
-                "样1-含量 <= 平均粒重",
-                "样2-含量 <= 样品空白OD",
-                "样2-含量 <= 样2-OD",
-                "样2-含量 <= 平均粒重"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         },
@@ -1683,28 +1613,8 @@
               "missingHeadings": [
                 "2.4.9 结论 (heading)"
               ],
-              "missingFormulaDom": [
-                "对照1-OD/mg",
-                "对照2-OD/mg",
-                "平均-OD/mg",
-                "对照RD"
-              ],
-              "missingFormulaInputs": [
-                "对照1-OD/mg <= 空白溶剂OD",
-                "对照1-OD/mg <= 对照1-OD",
-                "对照2-OD/mg <= 空白溶剂OD",
-                "对照2-OD/mg <= 对照2-OD",
-                "平均-OD/mg <= 对照1-OD",
-                "平均-OD/mg <= 对照2-OD",
-                "对照RD <= 对照1-OD",
-                "对照RD <= 对照2-OD",
-                "样1-含量 <= 样品空白OD",
-                "样1-含量 <= 样1-OD",
-                "样1-含量 <= 平均粒重",
-                "样2-含量 <= 样品空白OD",
-                "样2-含量 <= 样2-OD",
-                "样2-含量 <= 平均粒重"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         },
@@ -1786,28 +1696,8 @@
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [],
               "missingHeadings": [],
-              "missingFormulaDom": [
-                "对照1-OD/mg",
-                "对照2-OD/mg",
-                "平均-OD/mg",
-                "对照RD"
-              ],
-              "missingFormulaInputs": [
-                "对照1-OD/mg <= 空白溶剂OD",
-                "对照1-OD/mg <= 对照1-OD",
-                "对照2-OD/mg <= 空白溶剂OD",
-                "对照2-OD/mg <= 对照2-OD",
-                "平均-OD/mg <= 对照1-OD",
-                "平均-OD/mg <= 对照2-OD",
-                "对照RD <= 对照1-OD",
-                "对照RD <= 对照2-OD",
-                "样1-含量 <= 样品空白OD",
-                "样1-含量 <= 样1-OD",
-                "样1-含量 <= 平均粒重",
-                "样2-含量 <= 样品空白OD",
-                "样2-含量 <= 样2-OD",
-                "样2-含量 <= 平均粒重"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             },
             {
               "sequence": "2.6",
@@ -2888,19 +2778,8 @@
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [],
               "missingHeadings": [],
-              "missingFormulaDom": [
-                "平均-OD/mg"
-              ],
-              "missingFormulaInputs": [
-                "平均-OD/mg <= 对照1-OD",
-                "平均-OD/mg <= 对照2-OD",
-                "样1-含量 <= 样1-OD",
-                "样1-含量 <= 空白OD",
-                "样1-含量 <= 规格",
-                "样2-含量 <= 样2-OD",
-                "样2-含量 <= 空白OD",
-                "样2-含量 <= 规格"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         },
@@ -2972,19 +2851,8 @@
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [],
               "missingHeadings": [],
-              "missingFormulaDom": [
-                "平均-OD/mg"
-              ],
-              "missingFormulaInputs": [
-                "平均-OD/mg <= 对照1-OD",
-                "平均-OD/mg <= 对照2-OD",
-                "样1-含量 <= 样1-OD",
-                "样1-含量 <= 空白OD",
-                "样1-含量 <= 规格",
-                "样2-含量 <= 样2-OD",
-                "样2-含量 <= 空白OD",
-                "样2-含量 <= 规格"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             }
           ]
         },
@@ -3105,19 +2973,8 @@
               "sourceHeadingGaps": [],
               "renderedHeadingGaps": [],
               "missingHeadings": [],
-              "missingFormulaDom": [
-                "平均-OD/mg"
-              ],
-              "missingFormulaInputs": [
-                "平均-OD/mg <= 对照1-OD",
-                "平均-OD/mg <= 对照2-OD",
-                "样1-含量 <= 样1-OD",
-                "样1-含量 <= 空白OD",
-                "样1-含量 <= 规格",
-                "样2-含量 <= 样2-OD",
-                "样2-含量 <= 空白OD",
-                "样2-含量 <= 规格"
-              ]
+              "missingFormulaDom": [],
+              "missingFormulaInputs": []
             },
             {
               "sequence": "2.9",

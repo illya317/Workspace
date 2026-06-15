@@ -64,6 +64,10 @@
         "inline": {
           "template_id": "measurement/hplc_reference_sample_calculation",
           "title": "测定与计算（内嵌）"
+        },
+        "uv_absorbance": {
+          "template_id": "measurement/uv_absorbance_calculation",
+          "title": "UV含量测定与计算"
         }
       }
     }

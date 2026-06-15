@@ -656,7 +656,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
-        "hplc_measurement_heading_variant": "show",
+        "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       }
     },
@@ -714,7 +714,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
-        "hplc_measurement_heading_variant": "show",
+        "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       }
     },
@@ -838,7 +838,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
-        "hplc_measurement_heading_variant": "show",
+        "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       },
       "reuse_from": "products/allopurinol/packaging/content",
@@ -1539,7 +1539,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "show",
+        "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       }
     },
@@ -1584,7 +1584,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "show",
+        "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       }
     },
@@ -1643,7 +1643,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "show",
+        "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       },
       "reuse_from": "products/berberine_tannate/packaging/content",
@@ -2034,7 +2034,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "show",
+        "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       }
     },
@@ -2092,7 +2092,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       }
     },
@@ -2166,7 +2166,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       },
       "reuse_from": "products/diammonium_glycyrrhizinate/packaging/content",
@@ -2919,7 +2919,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "show",
+        "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       }
     },
@@ -2997,7 +2997,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "show",
+        "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       }
     },
@@ -3180,7 +3180,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "show",
+        "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       },
       "reuse_from": "products/pantoprazole/packaging/content",

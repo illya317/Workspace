@@ -44,6 +44,24 @@
                 },
                 {
                   "type": "field",
+                  "field": "投料量",
+                  "width": "4em"
+                },
+                {
+                  "type": "text",
+                  "text": " / ["
+                },
+                {
+                  "type": "field",
+                  "field": "批量",
+                  "width": "4em"
+                },
+                {
+                  "type": "text",
+                  "text": " ×10] = "
+                },
+                {
+                  "type": "field",
                   "field": "理论片重",
                   "readonly_display": true
                 },

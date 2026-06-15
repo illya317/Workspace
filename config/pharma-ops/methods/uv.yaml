@@ -153,7 +153,7 @@ methods:
       type: number
       attr: calculated
       formula: 对照2-毛重 - 对照2-皮重
-    - name: 平均粒重
+    - name: 平均片重
       unit: g/粒
       type: number
       attr: fillable
@@ -235,12 +235,12 @@ methods:
       unit: '%'
       type: number
       attr: calculated
-      formula: (样1-OD - 样品空白OD) * 对照含量 * 25 * 换算系数 * 平均粒重 * 100 / (平均-OD/mg * 10 * 50 * 样1-净重)
+      formula: (样1-OD - 样品空白OD) * 对照含量 * 25 * 换算系数 * 平均片重 * 100 / (平均-OD/mg * 10 * 50 * 样1-净重)
     - name: 样2-含量
       unit: '%'
       type: number
       attr: calculated
-      formula: (样2-OD - 样品空白OD) * 对照含量 * 25 * 换算系数 * 平均粒重 * 100 / (平均-OD/mg * 10 * 50 * 样2-净重)
+      formula: (样2-OD - 样品空白OD) * 对照含量 * 25 * 换算系数 * 平均片重 * 100 / (平均-OD/mg * 10 * 50 * 样2-净重)
     - name: 平均含量
       unit: '%'
       type: number
