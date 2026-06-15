@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useState, useTransition } from "react";
 import type { QcBatchSummary, QcTemplateStage, QcTemplateTestItem } from "@/server/services/production/qc";
 import QcLayoutPaper from "./QcLayoutPaper";
 import QcMethodFieldTable from "./QcMethodFieldTable";
+import { useQcFormulaEngine } from "./useQcFormulaEngine";
 
 interface Props {
   batch: QcBatchSummary;
@@ -11,9 +15,25 @@ interface Props {
 }
 
 export default function QcBatchTestRecord({ batch, productName, stage, test }: Props) {
+  const [saveState, setSaveState] = useState<"idle" | "saved" | "error">("idle");
+  const [isPending, startTransition] = useTransition();
+  const form = useQcFormulaEngine(test, { ...batch.fields, batch_number: batch.batchNumber });
+
+  function save() {
+    setSaveState("idle");
+    startTransition(async () => {
+      const response = await fetch(`/workspace/api/production/qc/batches/${batch.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fields: form.values }),
+      });
+      setSaveState(response.ok ? "saved" : "error");
+    });
+  }
+
   return (
     <section className="bg-white px-4 py-7 shadow-sm">
-      <div className="mx-auto max-w-5xl" style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif" }}>
+      <div className="mx-auto max-w-[min(1540px,calc(100vw-2rem))]" style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif" }}>
         <nav className="mb-5 flex flex-wrap gap-2 text-xs">
           <Link href={`/production/qc/batches/${batch.id}`} className="rounded bg-blue-100 px-3 py-2 font-medium text-blue-800">
             返回批次主页
@@ -63,10 +83,21 @@ export default function QcBatchTestRecord({ batch, productName, stage, test }: P
         </table>
 
         <div className="mb-3 text-sm font-semibold text-slate-950">实验记录</div>
-        {test.layoutBlocks?.length ? <QcLayoutPaper blocks={test.layoutBlocks} test={test} /> : <QcMethodFieldTable test={test} />}
+        {test.layoutBlocks?.length
+          ? <QcLayoutPaper blocks={test.layoutBlocks} test={test} values={form.values} onFieldChange={form.setValue} />
+          : <QcMethodFieldTable test={test} values={form.values} onFieldChange={form.setValue} />}
 
-        <div className="mt-8 text-center">
-          <button className="rounded-md bg-blue-600 px-8 py-2 text-sm font-semibold text-white">保存</button>
+        <div className="mt-8 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={save}
+            disabled={isPending}
+            className="rounded-md bg-blue-600 px-8 py-2 text-sm font-semibold text-white disabled:bg-slate-400"
+          >
+            {isPending ? "保存中" : "保存"}
+          </button>
+          {saveState === "saved" && <span className="text-sm text-emerald-700">已保存</span>}
+          {saveState === "error" && <span className="text-sm text-red-700">保存失败</span>}
         </div>
       </div>
     </section>

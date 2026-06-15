@@ -125,11 +125,15 @@ export interface QcLayoutBlock {
 
 export interface QcTemplateMethodField {
   name: string;
+  fieldKey: string;
   group: string;
   type?: string;
   attr?: string;
   unit?: string;
   formula?: string;
+  rule?: string;
+  options?: string[];
+  defaultValue?: string;
 }
 
 export interface QcTemplateMethodGroup {
@@ -144,6 +148,7 @@ export interface QcTemplateTestItem {
   methodName: string;
   standardText?: string;
   conclusionName?: string;
+  conclusionFieldKey?: string;
   hasNumericConclusion: boolean;
   cleanupItems?: string[];
   layout?: QcTemplateLayoutAssignment;

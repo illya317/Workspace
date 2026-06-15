@@ -1,22 +1,22 @@
 import "server-only";
 import path from "path";
-import { readdir, readFile } from "fs/promises";
+import { readFile } from "fs/promises";
 import { unstable_cache } from "next/cache";
 import { parse as parseYaml } from "yaml";
 import { loadQcLayoutBlocks } from "./layout-blocks";
 import { buildPrecheckLayoutBlocks } from "./precheck-layout";
+import { buildQcMethodGroups, loadQcMethods } from "./method-fields";
 import { resolvePharmaOpsRoot } from "./source";
 import { cleanupItems, summarizeStandard } from "./test-metadata";
 import type {
   QcTemplateDetail,
   QcTemplateLayoutAssignment,
-  QcTemplateMethodField,
   QcTemplateMethodGroup,
   QcTemplateStage,
   QcTemplateTestItem,
 } from "./types";
 
-type MethodIndex = Record<string, { fileName: string; definition: Record<string, unknown> }>;
+type MethodIndex = Awaited<ReturnType<typeof loadQcMethods>>;
 type LayoutAssignments = Record<string, Record<string, unknown>>;
 
 const TEMPLATE_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
@@ -36,62 +36,6 @@ function asString(value: unknown, fallback = "") {
 async function readYamlFile(filePath: string): Promise<unknown> {
   const text = await readFile(filePath, "utf8");
   return parseYaml(text, { uniqueKeys: false });
-}
-
-async function listYamlFiles(dir: string) {
-  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
-  return entries
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".yaml"))
-    .map((entry) => path.join(dir, entry.name))
-    .sort();
-}
-
-async function loadMethods(configRoot: string): Promise<MethodIndex> {
-  const files = await listYamlFiles(path.join(configRoot, "methods"));
-  const pairs = await Promise.all(files.map(async (filePath) => {
-    const methods = asRecord(asRecord(await readYamlFile(filePath)).methods);
-    return Object.entries(methods).map(([name, definition]) => [
-      name,
-      { fileName: path.basename(filePath), definition: asRecord(definition) },
-    ] as const);
-  }));
-  return Object.fromEntries(pairs.flat());
-}
-
-function flattenFields(group: string, value: unknown): QcTemplateMethodField[] {
-  return asArray(value).flatMap((item) => {
-    const field = asRecord(item);
-    const repeat = asRecord(field.repeat);
-    if (Array.isArray(repeat.fields)) {
-      return flattenFields(group, repeat.fields).map((child) => ({
-        ...child,
-        name: child.name.replace("{序号}", `1-${asString(repeat.count, "N")}`),
-      }));
-    }
-    const name = asString(field.name);
-    if (!name) return [];
-    return [{
-      name,
-      group,
-      type: asString(field.type) || undefined,
-      attr: asString(field.attr) || undefined,
-      unit: asString(field.unit) || undefined,
-      formula: asString(field.formula) || undefined,
-    }];
-  });
-}
-
-function methodGroups(methodName: string, methods: MethodIndex): { fileName?: string; groups: QcTemplateMethodGroup[] } {
-  const method = methods[methodName] ?? methods[methodName.split("-")[0]];
-  if (!method) return { groups: [] };
-  const base = methods[asString(method.definition.extends)];
-  const groupSource = base ? { ...base.definition, ...method.definition } : method.definition;
-  const groups = Object.entries(groupSource)
-    .filter(([name]) => !["extends", "extra"].includes(name))
-    .map(([name, value]) => ({ name, fields: flattenFields(name, value) }))
-    .filter((group) => group.fields.length > 0);
-  const extra = flattenFields("扩展", method.definition.extra);
-  return { fileName: method.fileName, groups: extra.length ? [...groups, { name: "扩展", fields: extra }] : groups };
 }
 
 async function loadLayoutAssignments(configRoot: string): Promise<LayoutAssignments> {
@@ -129,7 +73,24 @@ function toTestItem(
   const test = asRecord(raw);
   const methodName = asString(test["方法"]);
   const englishName = asString(test["英文名"]);
-  const method = methodGroups(methodName, methods);
+  const method = buildQcMethodGroups(methodName, methods, stageKey, englishName || `t${asString(test["序号"], "0")}`);
+  const conclusion = asRecord(test["结论判定"]);
+  const conclusionRule = asString(conclusion.rule);
+  const conclusionFieldKey = `${stageKey}/${englishName || "test"}/conclusion/result`;
+  const groupsWithConclusion: QcTemplateMethodGroup[] = conclusionRule
+    ? [...method.groups, {
+      name: "结论",
+      fields: [{
+        name: "result",
+        fieldKey: conclusionFieldKey,
+        group: "结论",
+        type: "select",
+        attr: "calculated",
+        rule: conclusionRule,
+        options: ["符合", "不符合"],
+      }],
+    }]
+    : method.groups;
   return {
     sequence: asString(test["序号"]),
     name: asString(test["名称"]),
@@ -137,11 +98,12 @@ function toTestItem(
     methodName,
     standardText: summarizeStandard(test),
     conclusionName: asString(test["结论名称"]) || undefined,
+    conclusionFieldKey: conclusionRule ? conclusionFieldKey : undefined,
     hasNumericConclusion: test["结论含数值"] === true,
     cleanupItems: cleanupItems(test),
     layout: resolveLayout(`products/${templateId}/${stageKey}/${englishName}`, layouts),
     methodFile: method.fileName,
-    methodGroups: method.groups,
+    methodGroups: groupsWithConclusion,
   };
 }
 
@@ -198,7 +160,7 @@ async function getQcTemplateDetailUncached(templateId: string): Promise<QcTempla
   const templatePath = path.join(source.configRoot, "record_templates", fileName);
   const [rawTemplate, methods, layouts] = await Promise.all([
     readYamlFile(templatePath),
-    loadMethods(source.configRoot),
+    loadQcMethods(source.configRoot),
     loadLayoutAssignments(source.configRoot),
   ]);
   const template = asRecord(rawTemplate);

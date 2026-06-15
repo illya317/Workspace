@@ -1,65 +1,31 @@
-import type { CSSProperties, ReactNode } from "react";
+"use client";
+
+import type { ReactNode } from "react";
 import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcTemplateTestItem } from "@/server/services/production/qc";
-import { QcPaperChoiceInput, QcPaperDateInput, QcPaperLineInput } from "./QcPaperInputs";
+import { QcPaperChoiceInput, QcPaperLineInput } from "./QcPaperInputs";
+import { Part, TableBlock, type LayoutRenderContext } from "./QcLayoutTable";
+import { useQcFormulaEngine, type QcFieldValues } from "./useQcFormulaEngine";
 
 interface Props {
   blocks: QcLayoutBlock[];
   compact?: boolean;
-  test?: Pick<QcTemplateTestItem, "sequence" | "name" | "standardText" | "conclusionName" | "hasNumericConclusion" | "cleanupItems">;
+  test?: QcTemplateTestItem;
+  values?: QcFieldValues;
+  onFieldChange?: (key: string, value: string) => void;
 }
 
 interface NumberedBlock extends QcLayoutBlock {
   displaySection?: string;
 }
 
-function defaultValueForPart(part: QcLayoutPart, test?: Props["test"]) {
-  if (part.defaultValue) return part.defaultValue;
-  if (part.field === "重量差异限度") return test?.standardText?.match(/±\s*([\d.]+)\s*%/)?.[1];
-  return undefined;
-}
-
-function Part({ part, test }: { part: QcLayoutPart; test?: Props["test"] }) {
-  if (part.type === "br") return <br />;
-  if (part.type === "line" || part.type === "field") return <QcPaperLineInput part={{ ...part, fieldKey: part.fieldKey || part.field, defaultValue: defaultValueForPart(part, test) }} readOnly={part.readonlyDisplay} />;
-  if (part.type === "date") return <QcPaperDateInput part={part} />;
-  if (part.type === "radio" || part.type === "checkbox") return <QcPaperChoiceInput fieldKey={part.fieldKey} options={part.options} type={part.type} />;
-  if (part.type === "param") return <span>{part.defaultValue || part.name}</span>;
-  if (part.type === "note") return <span className="text-slate-700">{part.text}</span>;
-  return <span>{part.text}</span>;
-}
-
-function CellContent({ cell, test }: { cell: QcLayoutCell; test?: Props["test"] }) {
-  if (cell.parts.length === 0) return cell.rawText ? <span>{cell.rawText}</span> : <span>&nbsp;</span>;
-  return <>{cell.parts.map((part, index) => <Part key={`${part.fieldKey || part.field || part.text || part.type}-${index}`} part={part} test={test} />)}</>;
-}
-
-function TableBlock({ block, className = "", test }: { block: QcLayoutBlock; className?: string; test?: Props["test"] }) {
-  if (!block.rows?.length) return null;
-  return (
-    <table className={`mb-4 w-full table-fixed border-collapse text-[15px] leading-7 text-slate-950 ${className}`}>
-      <tbody>
-        {block.rows.map((row, rowIndex) => (
-          <tr key={rowIndex}>
-            {row.map((cell, cellIndex) => {
-              const Tag = cell.header ? "th" : "td";
-              return (
-                <Tag
-                  key={`${rowIndex}-${cellIndex}`}
-                  colSpan={cell.colspan}
-                  rowSpan={cell.rowspan}
-                  className={`border border-slate-950 px-2 py-1.5 align-middle ${cell.bold || cell.header ? "font-semibold" : "font-normal"} ${cell.isEmpty ? "text-transparent" : ""}`}
-                  style={{ textAlign: cell.align as CSSProperties["textAlign"], width: cell.width }}
-                >
-                  <CellContent cell={cell} test={test} />
-                </Tag>
-              );
-            })}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
+const EMPTY_TEST: QcTemplateTestItem = {
+  sequence: "",
+  name: "",
+  englishName: "",
+  methodName: "",
+  hasNumericConclusion: false,
+  methodGroups: [],
+};
 
 function numberBlocks(blocks: QcLayoutBlock[], sequence?: string): NumberedBlock[] {
   let maxSuffix = 0;
@@ -81,16 +47,23 @@ function Heading({ block, fallback }: { block: NumberedBlock; fallback: string }
   return <h3 className="mb-2 mt-5 text-[17px] font-semibold leading-7 text-slate-950">{block.displaySection ? `${block.displaySection} ` : ""}{block.title || fallback}</h3>;
 }
 
-function ProjectHeader({ block, test }: { block: QcLayoutBlock; test?: Props["test"] }) {
+function ProjectHeader({ block, context }: {
+  block: QcLayoutBlock;
+  context: LayoutRenderContext;
+}) {
+  const { test } = context;
   return (
     <TableBlock block={{ ...block, rows: [
       [{ rawText: `${test?.sequence || ""}  检测项目`, parts: [], colspan: 1, rowspan: 1, isEmpty: false, bold: true, align: "left" }, { rawText: test?.name || "项目名称", parts: [], colspan: 1, rowspan: 1, isEmpty: false, bold: true }, { rawText: "检验日期", parts: [], colspan: 1, rowspan: 1, isEmpty: false }, { rawText: "", parts: [{ type: "date", fieldKey: "layout/common/inspection_date" }], colspan: 1, rowspan: 1, isEmpty: false }],
       [{ rawText: "完成日期", parts: [], colspan: 1, rowspan: 1, isEmpty: false }, { rawText: "", parts: [{ type: "date", fieldKey: "layout/common/complete_date" }], colspan: 1, rowspan: 1, isEmpty: false }, { rawText: "判定日期", parts: [], colspan: 1, rowspan: 1, isEmpty: false }, { rawText: "", parts: [{ type: "date", fieldKey: "layout/common/judgment_date" }], colspan: 1, rowspan: 1, isEmpty: false }],
-    ] }} />
+    ] }} context={context} />
   );
 }
 
-function EnvironmentTable({ block }: { block: NumberedBlock }) {
+function EnvironmentTable({ block, context }: {
+  block: NumberedBlock;
+  context: LayoutRenderContext;
+}) {
   const prefix = block.fieldPrefix || "layout/environment";
   const rowCount = block.roomRows || 1;
   const cell = (rawText: string, width: string, parts: QcLayoutPart[] = []): QcLayoutCell => ({
@@ -118,10 +91,13 @@ function EnvironmentTable({ block }: { block: NumberedBlock }) {
   return <TableBlock block={{ ...block, rows: [
     [{ rawText: `${block.displaySection ? `${block.displaySection} ` : ""}${block.title || "实验环境"}：温度：${block.temperatureRange || "10℃～30℃"}，湿度${block.humidityLimit || "≤75%"}`, parts: [], colspan: 8, rowspan: 1, isEmpty: false, bold: true, align: "left" }],
     ...rows,
-  ] }} />;
+  ] }} context={context} />;
 }
 
-function EquipmentTable({ block }: { block: NumberedBlock }) {
+function EquipmentTable({ block, context }: {
+  block: NumberedBlock;
+  context: LayoutRenderContext;
+}) {
   const prefix = block.fieldPrefix || "layout/equipment";
   const devices = block.devices?.length ? block.devices : [{ name: "仪器、设备", status: "“已清洁”" }];
   return <TableBlock block={{ ...block, rows: [
@@ -134,7 +110,7 @@ function EquipmentTable({ block }: { block: NumberedBlock }) {
       { rawText: "", parts: [{ type: "line", fieldKey: `${prefix}/valid_until_${index + 1}`, width: "8rem" }], colspan: 1, rowspan: 1, isEmpty: false },
       { rawText: "", parts: [{ type: "radio", fieldKey: `${prefix}/confirmed_${index + 1}`, options: ["是", "否"] }], colspan: 1, rowspan: 1, isEmpty: false },
     ]),
-  ] }} />;
+  ] }} context={context} />;
 }
 
 function PostSection({ block, title, children }: { block: NumberedBlock; title: string; children: ReactNode }) {
@@ -146,29 +122,51 @@ function PostSection({ block, title, children }: { block: NumberedBlock; title: 
   );
 }
 
-function RenderBlock({ block, test }: { block: NumberedBlock; test?: Props["test"] }) {
-  if (block.type === "project_header") return <ProjectHeader block={block} test={test} />;
-  if (block.type === "environment_table") return <EnvironmentTable block={block} />;
-  if (block.type === "equipment_table") return <EquipmentTable block={block} />;
+function RenderBlock({ block, context }: {
+  block: NumberedBlock;
+  context: LayoutRenderContext;
+}) {
+  const { test, values, onFieldChange } = context;
+  if (block.type === "project_header") return <ProjectHeader block={block} context={context} />;
+  if (block.type === "environment_table") return <EnvironmentTable block={block} context={context} />;
+  if (block.type === "equipment_table") return <EquipmentTable block={block} context={context} />;
   if (block.type === "title") return <Heading block={block} fallback="操作方法" />;
   if (block.type === "operation_text") return <p className="mb-5 [text-indent:2em] text-[15px] leading-8 text-slate-950">{block.text}</p>;
-  if (block.type === "paragraph") return <p className="mb-3 text-[15px] leading-8 text-slate-950">{block.parts?.map((part, index) => <Part key={index} part={part} test={test} />)}</p>;
+  if (block.type === "paragraph") return <p className="mb-3 text-[15px] leading-8 text-slate-950">{block.parts?.map((part, index) => <Part key={index} part={part} context={context} />)}</p>;
   if (block.type === "standard_text") return <PostSection block={block} title="标准规定">{test?.standardText || "YAML 未配置标准规定"}</PostSection>;
-  if (block.type === "abnormal_handling") return <PostSection block={block} title="实验结果异常处理"><QcPaperChoiceInput fieldKey={`${block.fieldPrefix || "layout/abnormal"}/occurred`} /> <span className="ml-8">实验室异常情况编号</span><QcPaperLineInput part={{ type: "line", fieldKey: `${block.fieldPrefix || "layout/abnormal"}/code`, width: "14rem" }} /></PostSection>;
-  if (block.type === "cleanup_checklist") return <PostSection block={block} title="清场">{(test?.cleanupItems?.length ? test.cleanupItems : block.items || ["YAML 未配置清场项目"]).map((item, index) => <div key={item} className="flex items-center justify-between border-b border-slate-950 py-1"><span>{item.replace(/[。.]?$/, "。")}</span><QcPaperChoiceInput fieldKey={`${block.fieldPrefix || "layout/cleanup"}/item_${index + 1}`} /></div>)}</PostSection>;
-  if (block.type === "conclusion") return <PostSection block={block} title="结论">批号<QcPaperLineInput part={{ type: "line", fieldKey: "batch_number", width: "8rem" }} />{test?.name || "本品"}（{block.conclusionName || test?.conclusionName || test?.name || "结论"}）检测过程<QcPaperChoiceInput fieldKey="layout/conclusion/process" options={["符合", "不符合"]} />各项规定，结果<QcPaperChoiceInput fieldKey="layout/conclusion/result" options={["符合", "不符合"]} />标准规定。</PostSection>;
-  if (block.type === "table") return <TableBlock block={block} test={test} />;
+  if (block.type === "abnormal_handling") return <PostSection block={block} title="实验结果异常处理"><QcPaperChoiceInput fieldKey={`${block.fieldPrefix || "layout/abnormal"}/occurred`} value={values[`${block.fieldPrefix || "layout/abnormal"}/occurred`]} onChange={(value) => onFieldChange(`${block.fieldPrefix || "layout/abnormal"}/occurred`, value)} /> <span className="ml-8">实验室异常情况编号</span><QcPaperLineInput part={{ type: "line", fieldKey: `${block.fieldPrefix || "layout/abnormal"}/code`, width: "14rem" }} value={values[`${block.fieldPrefix || "layout/abnormal"}/code`]} onChange={(value) => onFieldChange(`${block.fieldPrefix || "layout/abnormal"}/code`, value)} /></PostSection>;
+  if (block.type === "cleanup_checklist") return <PostSection block={block} title="清场">{(test?.cleanupItems?.length ? test.cleanupItems : block.items || ["YAML 未配置清场项目"]).map((item, index) => {
+    const key = `${block.fieldPrefix || "layout/cleanup"}/item_${index + 1}`;
+    return <div key={`${key}-${item}`} className="flex items-center justify-between border-b border-slate-950 py-1"><span>{item.replace(/[。.]?$/, "。")}</span><QcPaperChoiceInput fieldKey={key} value={values[key]} onChange={(value) => onFieldChange(key, value)} /></div>;
+  })}</PostSection>;
+  if (block.type === "conclusion") {
+    const processKey = "layout/conclusion/process";
+    const resultKey = test?.conclusionFieldKey || "layout/conclusion/result";
+    return <PostSection block={block} title="结论">批号<QcPaperLineInput part={{ type: "line", fieldKey: "batch_number", width: "8rem" }} value={values.batch_number} onChange={(value) => onFieldChange("batch_number", value)} />{test?.name || "本品"}（{block.conclusionName || test?.conclusionName || test?.name || "结论"}）检测过程<QcPaperChoiceInput fieldKey={processKey} options={["符合", "不符合"]} value={values[processKey]} onChange={(value) => onFieldChange(processKey, value)} />各项规定，结果<QcPaperChoiceInput fieldKey={resultKey} options={["符合", "不符合"]} value={values[resultKey]} onChange={(value) => onFieldChange(resultKey, value)} />标准规定。</PostSection>;
+  }
+  if (block.type === "table") return <TableBlock block={block} context={context} />;
   return block.text ? <p className="mb-3 text-[15px] leading-8 text-slate-950">{block.text}</p> : null;
 }
 
-export default function QcLayoutPaper({ blocks, compact, test }: Props) {
+export default function QcLayoutPaper({ blocks, compact, test, values: controlledValues, onFieldChange }: Props) {
+  const engineTest = test || EMPTY_TEST;
+  const form = useQcFormulaEngine(engineTest);
+  const values = controlledValues || form.values;
+  const setValue = onFieldChange || form.setValue;
+  const context: LayoutRenderContext = {
+    test,
+    values,
+    onFieldChange: setValue,
+    fieldByName: form.fieldByName,
+    fieldByKey: form.fieldByKey,
+  };
   const numberedBlocks = numberBlocks(blocks, test?.sequence);
   return (
     <div
-      className={compact ? "max-h-[70vh] overflow-auto" : ""}
+      className={`${compact ? "max-h-[78vh] overflow-y-auto overflow-x-hidden pr-2" : ""} min-w-[1120px]`}
       style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"FangSong_GB2312\", \"仿宋\", serif" }}
     >
-      {numberedBlocks.map((block, index) => <RenderBlock key={`${block.label || block.type}-${index}`} block={block} test={test} />)}
+      {numberedBlocks.map((block, index) => <RenderBlock key={`${block.label || block.type}-${index}`} block={block} context={context} />)}
     </div>
   );
 }

@@ -53,8 +53,8 @@ export default function TemplatePreviewModal({ selection, onClose }: Props) {
   const precheckBlocks = selection.stage.precheckLayoutBlocks ?? [];
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/55">
-      <div className="h-full overflow-auto px-6 py-7">
-        <div className="relative mx-auto min-h-[720px] max-w-5xl bg-white px-10 py-8 shadow-sm" style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif" }}>
+      <div className="h-full overflow-auto px-3 py-7 md:px-6">
+        <div className="relative mx-auto min-h-[720px] max-w-[min(1640px,calc(100vw-3rem))] bg-white px-8 py-8 shadow-sm xl:px-12" style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif" }}>
           <div className="mb-6 flex items-start justify-between gap-4 pr-12 text-sm font-semibold text-slate-950">
             <span>布局预览：{selectionTitle(selection)}</span>
             <button

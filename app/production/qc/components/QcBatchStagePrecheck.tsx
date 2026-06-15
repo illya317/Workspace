@@ -28,7 +28,7 @@ export default function QcBatchStagePrecheck({ batch, productName, stage, stageI
 
   return (
     <section className="bg-white px-4 py-7 shadow-sm">
-      <div className="mx-auto max-w-5xl" style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif" }}>
+      <div className="mx-auto max-w-[min(1540px,calc(100vw-2rem))]" style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif" }}>
         <nav className="mb-5 flex flex-wrap gap-2 text-xs">
           <Link href={`/production/qc/batches/${batch.id}`} className="rounded bg-blue-100 px-3 py-2 font-medium text-blue-800">
             返回批次主页

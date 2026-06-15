@@ -29,7 +29,7 @@ export default function QcModuleShell({ user, title, description, activeResource
 
   return (
     <AppShell title={title} backHref="/production" user={user}>
-      <main className="mx-auto max-w-6xl space-y-4 px-4 py-6">
+      <main className="mx-auto max-w-[min(1700px,calc(100vw-1rem))] space-y-4 px-4 py-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">{title}</h1>
           <p className="text-sm text-gray-500">{description}</p>

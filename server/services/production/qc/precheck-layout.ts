@@ -29,6 +29,25 @@ function partCell(parts: QcLayoutCell["parts"], options: Partial<QcLayoutCell> =
   };
 }
 
+function fileNameText(name: string) {
+  const trimmed = name.trim();
+  if (!trimmed) return "";
+  return trimmed.startsWith("《") && trimmed.endsWith("》") ? trimmed : `《${trimmed}》`;
+}
+
+function fileWithCodeText(file: QcTemplatePrecheckFile) {
+  const name = fileNameText(file.name);
+  if (!name) return "";
+  const code = file.code.trim();
+  return code && !name.includes(code) ? `${name}（${code}）` : name;
+}
+
+function basisText(precheckInfo: Record<string, string>, files: QcTemplatePrecheckFile[]) {
+  const explicit = precheckInfo["检验依据"]?.trim();
+  if (explicit) return explicit;
+  return files.slice(0, 2).map(fileWithCodeText).filter(Boolean).join("、");
+}
+
 export function buildPrecheckLayoutBlocks(
   productName: string,
   stageLabel: string,
@@ -37,7 +56,7 @@ export function buildPrecheckLayoutBlocks(
   items: QcTemplatePrecheckItem[],
   environment: Record<string, unknown>,
 ): QcLayoutBlock[] {
-  const basis = files.map((file) => `《${file.name}》（${file.code}）`).join("、");
+  const basis = basisText(precheckInfo, files);
   const environmentOptions = Object.entries(environment)
     .filter(([, value]) => value === true)
     .map(([key]) => key);
@@ -96,7 +115,7 @@ export function buildPrecheckLayoutBlocks(
           textCell("是否在实验现场", { width: "20%" }),
         ],
         ...files.map((file, index) => [
-          textCell(`《${file.name}》`),
+          textCell(fileNameText(file.name)),
           textCell(file.code),
           partCell([{ type: "radio", fieldKey: `pre_check/file_${index + 1}`, options: ["是", "否"] }]),
         ]),
