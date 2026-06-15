@@ -34,34 +34,30 @@ function joinSectionSuffix(base?: string, suffix?: string) {
   return `${base}.${suffix}`;
 }
 
+function isNumericSection(suffix?: string): suffix is string {
+  return !!suffix && /^\d+(?:\.\d+)*$/.test(suffix);
+}
+
 function numberBlocks(blocks: QcLayoutBlock[], sequence?: string): { blocks: NumberedBlock[]; sectionAliases: Record<string, string> } {
-  let maxSuffix = 0;
+  let nextTopLevel = 1;
   const sectionAliases: Record<string, string> = {};
-  for (const block of blocks) {
-    const role = block.sectionRole;
-    const suffix = block.sectionSuffix;
-    if (role && (block.sectionAnchor || !suffix || suffix === "auto")) {
-      sectionAliases[role] ||= suffix && suffix !== "auto" ? suffix : String(maxSuffix + 1);
-      const aliasNumber = Number(String(sectionAliases[role]).split(".")[0]);
-      if (Number.isFinite(aliasNumber)) maxSuffix = Math.max(maxSuffix, aliasNumber);
-      continue;
-    }
-    if (!block.sectionRef && suffix && /^\d+$/.test(suffix)) maxSuffix = Math.max(maxSuffix, Number(suffix));
-  }
   return { sectionAliases, blocks: blocks.map((block) => {
     const suffix = block.sectionSuffix;
+    const role = block.sectionRole;
     let displaySection: string | undefined;
     if (block.sectionRef) {
       const nestedSuffix = joinSectionSuffix(sectionAliases[block.sectionRef], suffix);
       displaySection = nestedSuffix ? sequence ? `${sequence}.${nestedSuffix}` : nestedSuffix : undefined;
-    } else if (block.sectionRole && (suffix === "auto" || block.sectionAnchor)) {
-      const alias = sectionAliases[block.sectionRole];
-      displaySection = alias ? sequence ? `${sequence}.${alias}` : alias : undefined;
-    } else if (suffix && /^\d+(?:\.\d+)*$/.test(suffix)) {
+      if (nestedSuffix && role && (block.sectionAnchor || block.sectionSlot)) sectionAliases[role] = nestedSuffix;
+    } else if (block.sectionSlot || suffix === "auto" || block.sectionAnchor) {
+      const alias = String(nextTopLevel++);
+      if (role) sectionAliases[role] = alias;
+      displaySection = sequence ? `${sequence}.${alias}` : alias;
+    } else if (isNumericSection(suffix)) {
       displaySection = sequence ? `${sequence}.${suffix}` : suffix;
-    } else if (suffix === "auto" || block.sectionAnchor) {
-      const next = String(maxSuffix + 1);
-      displaySection = sequence ? `${sequence}.${next}` : next;
+      const topLevel = Number(suffix.split(".")[0]);
+      if (Number.isFinite(topLevel)) nextTopLevel = Math.max(nextTopLevel, topLevel + 1);
+      if (role) sectionAliases[role] = suffix;
     }
     return { ...block, displaySection };
   }) };

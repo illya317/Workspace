@@ -17,6 +17,7 @@
   "blocks": [
     {
       "type": "cleanup_checklist",
+      "section_slot": "cleanup",
       "section_suffix": "auto",
       "section_role": "cleanup",
       "section_anchor": true,

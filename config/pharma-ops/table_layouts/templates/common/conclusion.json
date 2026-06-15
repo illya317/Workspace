@@ -16,6 +16,7 @@
   "blocks": [
     {
       "type": "conclusion",
+      "section_slot": "conclusion",
       "section_suffix": "auto",
       "section_role": "conclusion",
       "section_anchor": true,

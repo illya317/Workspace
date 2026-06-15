@@ -23,10 +23,7 @@
         },
         "theoretical_inline": {
           "template_id": "weighing/hplc_reference_sample_theoretical",
-          "title": "理论片重称重（内嵌）",
-          "params": {
-            "skip_heading": true
-          }
+          "title": "理论片重称重（内嵌）"
         },
         "20_tablets": {
           "template_id": "weighing/hplc_reference_sample_20_tablets",
@@ -34,10 +31,7 @@
         },
         "20_tablets_inline": {
           "template_id": "weighing/hplc_reference_sample_20_tablets",
-          "title": "20片片重称重（内嵌）",
-          "params": {
-            "skip_heading": true
-          }
+          "title": "20片片重称重（内嵌）"
         },
         "uv_absorbance_theoretical": {
           "template_id": "weighing/uv_absorbance_sample_theoretical",
@@ -45,10 +39,7 @@
         },
         "uv_absorbance_theoretical_inline": {
           "template_id": "weighing/uv_absorbance_sample_theoretical",
-          "title": "UV吸收系数法样品称重（理论片重，内嵌）",
-          "params": {
-            "skip_heading": true
-          }
+          "title": "UV吸收系数法样品称重（理论片重，内嵌）"
         },
         "uv_absorbance_20_tablets": {
           "template_id": "weighing/uv_absorbance_sample_20_tablets",
@@ -56,10 +47,7 @@
         },
         "uv_absorbance_20_tablets_inline": {
           "template_id": "weighing/uv_absorbance_sample_20_tablets",
-          "title": "UV吸收系数法样品称重（20片片重，内嵌）",
-          "params": {
-            "skip_heading": true
-          }
+          "title": "UV吸收系数法样品称重（20片片重，内嵌）"
         }
       }
     },
@@ -75,10 +63,7 @@
         },
         "inline": {
           "template_id": "measurement/hplc_reference_sample_calculation",
-          "title": "测定与计算（内嵌）",
-          "params": {
-            "skip_heading": true
-          }
+          "title": "测定与计算（内嵌）"
         }
       }
     }

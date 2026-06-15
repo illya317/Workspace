@@ -23,10 +23,7 @@
         },
         "inline": {
           "template_id": "calculation/content_uniformity_10_sample",
-          "title": "测定与计算（内嵌）",
-          "params": {
-            "skip_heading": true
-          }
+          "title": "测定与计算（内嵌）"
         }
       }
     }

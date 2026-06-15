@@ -38,37 +38,6 @@
           "title": "目测法操作说明"
         }
       }
-    },
-    {
-      "type": "paragraph",
-      "className": "section-body layout-section-body",
-      "parts": [
-        {
-          "type": "test_value",
-          "path": "standard",
-          "default": "应符合标准规定。"
-        }
-      ],
-      "module_order": 30,
-      "order": 171
-    },
-    {
-      "type": "paragraph",
-      "className": "section-body layout-section-body",
-      "parts": [
-        {
-          "type": "text",
-          "text": "实验室异常情况编号"
-        },
-        {
-          "type": "line",
-          "field_key": "layout/appearance/abnormal_no",
-          "width": "12em",
-          "underline": true
-        }
-      ],
-      "module_order": 40,
-      "order": 181
     }
   ],
   "order": 110

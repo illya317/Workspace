@@ -24,6 +24,7 @@
       ],
       "field_prefix": "layout/common/materials",
       "order": 120,
+      "section_slot": "materials",
       "section_suffix": "3"
     }
   ],

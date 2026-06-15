@@ -21,6 +21,7 @@
       "text": "原始数据、图谱、待包装品检验报告单见数据图谱粘贴页。",
       "field_key": "layout/raw_data/attachments",
       "button_text": "上传数据图谱",
+      "section_slot": "raw_data",
       "section_suffix": "auto",
       "section_role": "raw_data",
       "section_anchor": true

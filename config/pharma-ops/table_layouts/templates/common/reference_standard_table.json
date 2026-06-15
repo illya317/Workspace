@@ -24,6 +24,7 @@
       ],
       "field_prefix": "layout/common/reference_standards",
       "order": 130,
+      "section_slot": "reference",
       "section_suffix": "4"
     }
   ],

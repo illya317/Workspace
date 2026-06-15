@@ -119,6 +119,7 @@ export interface QcLayoutBlock {
   title?: string;
   text?: string;
   sectionSuffix?: string;
+  sectionSlot?: string;
   sectionRole?: string;
   sectionRef?: string;
   sectionAnchor?: boolean;
@@ -126,8 +127,7 @@ export interface QcLayoutBlock {
   rows?: QcLayoutCell[][];
   parts?: QcLayoutPart[];
   devices?: Array<{ name: string; status?: string }>;
-  materials?: Array<{ name: string }>;
-  standards?: Array<{ name: string }>;
+  materials?: Array<{ name: string }>; standards?: Array<{ name: string }>;
   items?: string[];
   temperatureRange?: string;
   humidityLimit?: string;

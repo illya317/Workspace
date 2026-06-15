@@ -18,7 +18,7 @@
     {
       "type": "title",
       "title": "计算",
-      "order": 40
+      "order": 132
     },
     {
       "type": "table",
@@ -450,7 +450,7 @@
           ]
         }
       ],
-      "order": 50
+      "order": 133
     }
   ],
   "order": 50

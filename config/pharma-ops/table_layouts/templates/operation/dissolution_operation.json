@@ -23,10 +23,7 @@
         },
         "hplc_inline": {
           "template_id": "measurement/hplc_reference_sample_calculation",
-          "title": "HPLC测定（内嵌）",
-          "params": {
-            "skip_heading": true
-          }
+          "title": "HPLC测定（内嵌）"
         }
       }
     }

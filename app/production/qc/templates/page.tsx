@@ -3,6 +3,9 @@ import { getQcConfigOverview, getQcTemplateDetail, listQcTemplateFeedback } from
 import QcModuleShell from "../components/QcModuleShell";
 import QcTemplateWorkbench from "../components/QcTemplateWorkbench";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function QcTemplatesPage() {
   const user = await requireResourceAccess("production.qc.templates");
   const [overview, feedback] = await Promise.all([

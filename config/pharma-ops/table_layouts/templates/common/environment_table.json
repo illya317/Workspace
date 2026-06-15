@@ -22,6 +22,7 @@
       "room_rows": 1,
       "field_prefix": "layout/common/environment",
       "order": 100,
+      "section_slot": "environment",
       "section_suffix": "1"
     }
   ],

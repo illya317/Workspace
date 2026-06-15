@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "template_id": "parents/precheck_full",
+  "title": "检验前确认",
+  "section_no": "1",
+  "category": "precheck",
+  "status": "pilot",
+  "level": 1,
+  "includes": [
+    {
+      "template_id": "common/stage_header",
+      "order": 0
+    }
+  ],
+  "blocks": [
+    {
+      "type": "precheck_confirmation",
+      "section_no": "1",
+      "title": "检验前确认",
+      "file_section_no": "1.1",
+      "file_title": "文件",
+      "order": 10
+    }
+  ],
+  "order": 1
+}

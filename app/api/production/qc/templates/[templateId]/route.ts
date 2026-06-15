@@ -3,6 +3,9 @@ import { withAuth, type RouteContext } from "@/lib/with-auth";
 import { checkPermission } from "@/server/rbac/check";
 import { getQcTemplateDetail } from "@/server/services/production/qc";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const GET = withAuth(async (_req, _user, context?: RouteContext) => {
   const templateId = (await context?.params)?.templateId;
   if (!templateId) return NextResponse.json({ error: "缺少模板 ID" }, { status: 400 });

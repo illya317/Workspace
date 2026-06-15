@@ -17,6 +17,7 @@
   "blocks": [
     {
       "type": "abnormal_handling",
+      "section_slot": "abnormal",
       "section_suffix": "auto",
       "section_role": "abnormal",
       "section_anchor": true,

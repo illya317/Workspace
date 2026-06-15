@@ -17,6 +17,7 @@
   "blocks": [
     {
       "type": "standard_text",
+      "section_slot": "standard",
       "section_suffix": "auto",
       "section_role": "standard",
       "section_anchor": true,

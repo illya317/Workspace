@@ -129,7 +129,7 @@ function paramString(params: Params, name: string) {
 function applyBlockParams(block: Record<string, unknown>, params: Params) {
   const overrideKeys = [
     "temperature_range", "humidity_limit", "room_rows", "devices", "materials", "standards", "items", "field_prefix",
-    "section_suffix", "section_role", "section_ref", "section_anchor", "has_value", "auto_judgment",
+    "section_suffix", "section_slot", "section_role", "section_ref", "section_anchor", "has_value", "auto_judgment",
     "conclusion_name", "unit", "order", "module_order",
   ];
   return Object.fromEntries(Object.entries({ ...block, ...Object.fromEntries(
@@ -140,8 +140,6 @@ function applyBlockParams(block: Record<string, unknown>, params: Params) {
 function mapBlock(value: unknown, params: Params = {}): QcLayoutBlock | null {
   const raw = applyBlockParams(asRecord(value), params);
   const type = asString(raw.type, "table");
-  const rawSectionSuffix = asString(raw.section_suffix || raw.sectionSuffix);
-  const sectionSuffix = type === "reference_standard_table" && asString(params.pre_method_materials_variant) === "none" && rawSectionSuffix === "4" ? "3" : rawSectionSuffix || undefined;
   const rows = asArray(raw.rows).map((row) => asArray(asRecord(row).cells).map((cell) => mapCell(cell, params)));
   if (type === "table" && rows.length === 0) return null;
   return {
@@ -149,7 +147,8 @@ function mapBlock(value: unknown, params: Params = {}): QcLayoutBlock | null {
     label: asString(raw.label) || undefined,
     title: asString(raw.title || raw.text) || undefined,
     text: asString(raw.text || raw.fixed_text) || undefined,
-    sectionSuffix,
+    sectionSuffix: asString(raw.section_suffix || raw.sectionSuffix) || undefined,
+    sectionSlot: asString(raw.section_slot || raw.sectionSlot) || undefined,
     sectionRole: asString(raw.section_role || raw.sectionRole) || undefined,
     sectionRef: asString(raw.section_ref || raw.sectionRef) || undefined,
     sectionAnchor: asBoolean(raw.section_anchor ?? raw.sectionAnchor),
