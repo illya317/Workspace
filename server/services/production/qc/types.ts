@@ -3,6 +3,10 @@ export interface QcSourceStatus {
   configRoot: string;
   available: boolean;
   message?: string;
+  revision?: string;
+  dirty?: boolean;
+  changedFileCount?: number;
+  changedFiles?: string[];
 }
 
 export interface QcProductStageSummary {

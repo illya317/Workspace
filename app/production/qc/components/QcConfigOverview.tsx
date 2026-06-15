@@ -15,14 +15,33 @@ function Metric({ label, value }: { label: string; value: number | string }) {
 }
 
 function SourceStatus({ overview }: { overview: QcConfigOverview }) {
-  const tone = overview.source.available
-    ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-    : "border-amber-200 bg-amber-50 text-amber-800";
+  const hasUncommittedChanges = overview.source.dirty;
+  const tone = !overview.source.available || hasUncommittedChanges
+    ? "border-amber-200 bg-amber-50 text-amber-800"
+    : "border-emerald-200 bg-emerald-50 text-emerald-800";
+  const title = !overview.source.available
+    ? "未连接配置源"
+    : hasUncommittedChanges
+      ? "pharma-ops 配置源有未提交改动"
+      : "已连接 pharma-ops 配置";
 
   return (
     <div className={`rounded-lg border px-4 py-3 text-sm ${tone}`}>
-      <div className="font-medium">{overview.source.available ? "已连接 pharma-ops 配置" : "未连接配置源"}</div>
+      <div className="font-medium">{title}</div>
       <div className="mt-1 break-all text-xs opacity-80">{overview.source.configRoot}</div>
+      {overview.source.revision && (
+        <div className="mt-1 text-xs opacity-80">
+          revision {overview.source.revision}
+          {typeof overview.source.changedFileCount === "number" && ` · ${overview.source.changedFileCount} 个未提交文件`}
+        </div>
+      )}
+      {!!overview.source.changedFiles?.length && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {overview.source.changedFiles.slice(0, 6).map((file) => (
+            <span key={file} className="rounded bg-white/70 px-2 py-0.5 text-xs">{file}</span>
+          ))}
+        </div>
+      )}
       {overview.source.message && <div className="mt-1 text-xs">{overview.source.message}</div>}
     </div>
   );

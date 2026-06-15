@@ -23,7 +23,7 @@
 当前已接入：
 
 1. `server/services/production/qc/` 从 `PHARMA_OPS_ROOT` 或相邻目录读取 pharma-ops 配置。
-2. `/api/production/qc/config` 返回产品、record templates、methods、layout mapping 的只读概览。
+2. `/api/production/qc/config` 返回产品、record templates、methods、layout mapping 的只读概览，并暴露配置源 revision/dirty 状态。
 3. `/production/qc/batches` 展示产品、阶段和检测项映射概览。
 4. `/production/qc/templates` 展示记录模板、方法字段和布局映射概览。
 
