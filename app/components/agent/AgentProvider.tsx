@@ -1,13 +1,18 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { useAgentSession } from "./useAgentSession";
 import AgentFloatingButton from "./AgentFloatingButton";
 import { coreMoods, preloadImages } from "./avatarAssets";
 import AgentPanel from "./AgentPanel";
 import AgentConfirmModal from "./AgentConfirmModal";
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
+const PUBLIC_PATHS = new Set(["/", "/login"]);
+
 export default function AgentProvider() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const {
     messages, mood, loading, drawerMsg, setDrawerMsg,
@@ -16,22 +21,49 @@ export default function AgentProvider() {
   } = useAgentSession();
   const [hints, setHints] = useState<string[]>([]);
   const [hintsLoaded, setHintsLoaded] = useState(false);
+  const [enabled, setEnabled] = useState(false);
+
+  const normalizedPath = pathname?.startsWith(BASE_PATH)
+    ? pathname.slice(BASE_PATH.length) || "/"
+    : pathname || "/";
+  const isPublicPath = PUBLIC_PATHS.has(normalizedPath);
 
   useEffect(() => {
-    if (!isOpen) return;
+    setIsOpen(false);
+    setEnabled(false);
+    if (isPublicPath) return;
+
+    let cancelled = false;
+    fetch(`${BASE_PATH}/api/agent/capabilities`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => {
+        if (cancelled) return;
+        setEnabled(Array.isArray(d?.capabilities));
+      })
+      .catch(() => {
+        if (!cancelled) setEnabled(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [isPublicPath, pathname]);
+
+  useEffect(() => {
+    if (!enabled || !isOpen) return;
     preloadImages(coreMoods);
     setHintsLoaded(false);
-    fetch("/workspace/api/agent/capabilities")
+    fetch(`${BASE_PATH}/api/agent/capabilities`)
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
         setHints(d?.capabilities?.map((c: { label: string }) => c.label) ?? []);
         setHintsLoaded(true);
       })
       .catch(() => { setHints([]); setHintsLoaded(true); });
-  }, [isOpen]);
+  }, [enabled, isOpen]);
 
   const toggle = useCallback(() => setIsOpen((v) => !v), []);
   const close = useCallback(() => setIsOpen(false), []);
+
+  if (!enabled) return null;
 
   return (
     <>
