@@ -34,11 +34,14 @@ These paths are excluded by deployment sync. A new machine should restore or cre
 `WORKSPACE_CONFIG_DIR`, configure `.env` to point at it, and avoid creating a project-root
 `data` symlink.
 
-The production deploy script syncs this runtime/config directory separately from source code:
-`LOCAL_WORKSPACE_CONFIG_DIR` defaults to `$WORKSPACE_CONFIG_DIR`, then `$HOME/.workspace`, and is
-rsynced to `REMOTE_WORKSPACE_CONFIG_DIR`, which defaults to a sibling `.workspace` directory next
-to `REMOTE_DIR`. During deploy, the remote `.env` is normalized so `DATABASE_URL` and
-`WORKSPACE_CONFIG_DIR` point at the remote runtime directory instead of the developer machine path.
+The production deploy script syncs this runtime/config directory separately from source code, with
+server data treated as the source of truth. `LOCAL_WORKSPACE_CONFIG_DIR` defaults to
+`$WORKSPACE_CONFIG_DIR`, then `$HOME/.workspace`, and is rsynced to `REMOTE_WORKSPACE_CONFIG_DIR`,
+which defaults to a sibling `.workspace` directory next to `REMOTE_DIR`; `data/` is excluded from
+that upload. During deploy, the remote `.env` is normalized so `DATABASE_URL` and
+`WORKSPACE_CONFIG_DIR` point at the remote runtime directory. The script then backs up local
+`data/` to `LOCAL_WORKSPACE_BACKUP_DIR` and pulls `REMOTE_WORKSPACE_CONFIG_DIR/data/` back down to
+local, so production data is preserved on the server and mirrored locally after each deploy.
 
 ## Required Variables
 

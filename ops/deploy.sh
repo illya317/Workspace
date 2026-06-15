@@ -6,6 +6,7 @@ source ops/server.env.sh
 
 LOCKFILE=".deploying"
 LOCAL_WORKSPACE_CONFIG_DIR="${LOCAL_WORKSPACE_CONFIG_DIR:-${WORKSPACE_CONFIG_DIR:-$HOME/.workspace}}"
+LOCAL_WORKSPACE_BACKUP_DIR_CONFIGURED="${LOCAL_WORKSPACE_BACKUP_DIR:-}"
 REMOTE_WORKSPACE_CONFIG_DIR="${REMOTE_WORKSPACE_CONFIG_DIR:-$(dirname "$REMOTE_DIR")/.workspace}"
 REMOTE_WORKSPACE_BACKUP_DIR="${REMOTE_WORKSPACE_BACKUP_DIR:-$REMOTE_WORKSPACE_CONFIG_DIR.backups}"
 
@@ -15,6 +16,7 @@ if [ ! -d "$LOCAL_WORKSPACE_CONFIG_DIR" ]; then
 fi
 
 LOCAL_WORKSPACE_CONFIG_DIR="$(cd "$LOCAL_WORKSPACE_CONFIG_DIR" && pwd -P)"
+LOCAL_WORKSPACE_BACKUP_DIR="${LOCAL_WORKSPACE_BACKUP_DIR_CONFIGURED:-$(dirname "$LOCAL_WORKSPACE_CONFIG_DIR")/.workspace.backups}"
 
 if [ -f "$LOCKFILE" ]; then
   echo "[错误] 检测到 $LOCKFILE，可能另一个部署正在进行。"
@@ -99,13 +101,11 @@ ssh_cmd "
     mkdir -p '$REMOTE_WORKSPACE_BACKUP_DIR'
     TS=\$(date +%Y%m%d%H%M%S)
     [ -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env' ] && cp '$REMOTE_WORKSPACE_CONFIG_DIR/.env' '$REMOTE_WORKSPACE_BACKUP_DIR/.env.'\$TS || true
-    [ -f '$REMOTE_WORKSPACE_CONFIG_DIR/data/dev.db' ] && cp '$REMOTE_WORKSPACE_CONFIG_DIR/data/dev.db' '$REMOTE_WORKSPACE_BACKUP_DIR/dev.db.'\$TS || true
-    [ -f '$REMOTE_WORKSPACE_CONFIG_DIR/data/qc-batches.json' ] && cp '$REMOTE_WORKSPACE_CONFIG_DIR/data/qc-batches.json' '$REMOTE_WORKSPACE_BACKUP_DIR/qc-batches.json.'\$TS || true
-    [ -f '$REMOTE_WORKSPACE_CONFIG_DIR/data/qc-template-feedback.json' ] && cp '$REMOTE_WORKSPACE_CONFIG_DIR/data/qc-template-feedback.json' '$REMOTE_WORKSPACE_BACKUP_DIR/qc-template-feedback.json.'\$TS || true
   fi
-  mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR'
+  mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR/data'
 "
 rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+  --exclude='data/' \
   --exclude='.DS_Store' \
   "$LOCAL_WORKSPACE_CONFIG_DIR/" "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/"
 ssh_cmd "
@@ -138,6 +138,16 @@ env_path.write_text(text)
 PY
   fi
 "
+echo "==> 拉取服务器 data 到本地..."
+LOCAL_DATA_DIR="$LOCAL_WORKSPACE_CONFIG_DIR/data"
+if [ -d "$LOCAL_DATA_DIR" ]; then
+  TS="$(date +%Y%m%d%H%M%S)"
+  mkdir -p "$LOCAL_WORKSPACE_BACKUP_DIR"
+  cp -R "$LOCAL_DATA_DIR" "$LOCAL_WORKSPACE_BACKUP_DIR/data.$TS"
+fi
+mkdir -p "$LOCAL_DATA_DIR"
+rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+  "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/data/" "$LOCAL_DATA_DIR/"
 
 echo ""
 echo "==> 服务器构建并重启服务..."
