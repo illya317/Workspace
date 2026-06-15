@@ -97,11 +97,23 @@ export interface QcTemplateTestItem {
   methodGroups: QcTemplateMethodGroup[];
 }
 
+export interface QcTemplatePrecheckFile {
+  name: string;
+  code: string;
+}
+
+export interface QcTemplatePrecheckItem {
+  name: string;
+}
+
 export interface QcTemplateStage {
   key: string;
   label: string;
   precheckItemCount: number;
   documentCount: number;
+  precheckInfo: Record<string, string>;
+  precheckFiles: QcTemplatePrecheckFile[];
+  precheckItems: QcTemplatePrecheckItem[];
   tests: QcTemplateTestItem[];
 }
 
@@ -113,4 +125,32 @@ export interface QcTemplateDetail {
   stages: QcTemplateStage[];
   methodFileCount: number;
   layoutAssignmentCount: number;
+}
+
+export type QcBatchStatus = "draft" | "submitted";
+
+export interface QcBatchSummary {
+  id: number;
+  batchNumber: string;
+  productKey: string;
+  productName: string;
+  inspector: string;
+  status: QcBatchStatus;
+  createdAt: string;
+  updatedAt: string;
+  fields: Record<string, string>;
+}
+
+export interface QcBatchList {
+  batches: QcBatchSummary[];
+  counts: {
+    total: number;
+    draft: number;
+    submitted: number;
+  };
+}
+
+export interface QcBatchCreateInput {
+  productKey: string;
+  batchNumber: string;
 }

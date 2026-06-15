@@ -158,11 +158,22 @@ function toStage(
 ): QcTemplateStage {
   const stage = asRecord(raw);
   const precheck = asRecord(stage["检验前确认"]);
+  const precheckInfo = Object.fromEntries(
+    Object.entries(asRecord(precheck["顶部信息"])).map(([key, value]) => [key, asString(value)]),
+  );
+  const precheckFiles = asArray(precheck["文件清单"]).map((file) => {
+    const data = asRecord(file);
+    return { name: asString(data["名称"]), code: asString(data["编码"]) };
+  });
+  const precheckItems = asArray(precheck["确认项"]).map((item) => ({ name: asString(asRecord(item)["名称"]) }));
   return {
     key,
     label: asString(stage["显示名"], key),
-    precheckItemCount: asArray(precheck["确认项"]).length,
-    documentCount: asArray(precheck["文件清单"]).length,
+    precheckItemCount: precheckItems.length,
+    documentCount: precheckFiles.length,
+    precheckInfo,
+    precheckFiles,
+    precheckItems,
     tests: asArray(stage["检测项"]).map((test) => toTestItem(templateId, key, test, methods, layouts)),
   };
 }

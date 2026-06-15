@@ -68,6 +68,12 @@
 | `/api/finance/cost/*` | DELETE | `finance.cost.delete` |
 | `/api/production/qc/config` | GET | `production.qc.access` |
 | `/api/production/qc/templates/[templateId]` | GET | `production.qc.templates.access` |
+| `/api/production/qc/batches` | GET | `production.qc.batches.access` |
+| `/api/production/qc/batches` | POST | `production.qc.batches.write` |
+| `/api/production/qc/batches/[batchId]` | GET | `production.qc.batches.access` |
+| `/api/production/qc/batches/[batchId]` | PATCH | `production.qc.batches.write` |
+| `/api/production/qc/batches/[batchId]` | DELETE | `production.qc.batches.delete` |
+| `/api/production/qc/batches/[batchId]/submit` | POST | `production.qc.batches.write` |
 | `/api/inventory/*` | GET/POST/PUT/DELETE | `410 Gone` |
 | `/api/contracts*` | GET | `administration.contract.access` |
 | `/api/contracts*` | POST/PUT | `administration.contract.write` |

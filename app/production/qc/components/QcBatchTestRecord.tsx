@@ -1,0 +1,94 @@
+import Link from "next/link";
+import type { QcBatchSummary, QcTemplateStage, QcTemplateTestItem } from "@/server/services/production/qc";
+
+interface Props {
+  batch: QcBatchSummary;
+  productName: string;
+  stage: QcTemplateStage;
+  test: QcTemplateTestItem;
+}
+
+export default function QcBatchTestRecord({ batch, productName, stage, test }: Props) {
+  return (
+    <section className="bg-white px-4 py-7 shadow-sm">
+      <div className="mx-auto max-w-5xl">
+        <nav className="mb-5 flex flex-wrap gap-2 text-xs">
+          <Link href={`/production/qc/batches/${batch.id}`} className="rounded bg-blue-100 px-3 py-2 font-medium text-blue-800">
+            返回批次主页
+          </Link>
+          <Link href={`/production/qc/batches/${batch.id}/${stage.key}`} className="rounded bg-slate-100 px-3 py-2 text-slate-700">
+            检验前确认
+          </Link>
+          {stage.tests.map((item) => (
+            <Link
+              key={item.englishName}
+              href={`/production/qc/batches/${batch.id}/${stage.key}/${item.englishName}`}
+              className={`rounded px-3 py-2 ${item.englishName === test.englishName ? "bg-slate-200 font-semibold text-slate-950" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
+            >
+              {item.sequence} {item.name}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="mb-5 text-center">
+          <h1 className="text-base font-semibold text-slate-950">{productName}{stage.label} - {test.name}</h1>
+          <p className="mt-1 text-xs text-slate-500">
+            批号 {batch.batchNumber} · {test.methodName || "未配置方法"} · {test.layout?.templateId || "未映射组件"}
+          </p>
+        </div>
+
+        <table className="mb-5 w-full border-collapse text-sm text-slate-950">
+          <tbody>
+            <tr>
+              <td className="w-32 border border-slate-950 px-3 py-2 text-center">标准规定</td>
+              <td className="border border-slate-950 px-3 py-2">{test.standardText || "未配置"}</td>
+            </tr>
+            <tr>
+              <td className="border border-slate-950 px-3 py-2 text-center">结论</td>
+              <td className="border border-slate-950 px-3 py-2">
+                {test.conclusionName || test.name}{test.hasNumericConclusion ? "（含数值）" : ""}
+              </td>
+            </tr>
+            <tr>
+              <td className="border border-slate-950 px-3 py-2 text-center">组件映射</td>
+              <td className="border border-slate-950 px-3 py-2">
+                {test.layout?.templateId || "未映射"}
+                {test.layout?.familyId ? ` · ${test.layout.familyId}` : ""}
+                {test.layout?.reusedFrom ? ` · 复用 ${test.layout.reusedFrom}` : ""}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div className="mb-3 text-sm font-semibold text-slate-950">实验数据</div>
+        {test.methodGroups.length === 0 ? (
+          <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">该方法暂未配置字段。</div>
+        ) : (
+          <div className="space-y-4">
+            {test.methodGroups.map((group) => (
+              <table key={group.name} className="w-full border-collapse text-sm text-slate-950">
+                <tbody>
+                  <tr>
+                    <td colSpan={4} className="border border-slate-950 bg-slate-50 px-3 py-2 font-semibold">{group.name}</td>
+                  </tr>
+                  {group.fields.map((field) => (
+                    <tr key={`${group.name}-${field.name}`}>
+                      <td className="w-1/4 border border-slate-950 px-3 py-2">{field.name}</td>
+                      <td className="w-1/4 border border-slate-950 px-3 py-2">{field.unit || "-"}</td>
+                      <td className="w-1/4 border border-slate-950 px-3 py-2">{field.attr || field.type || "-"}</td>
+                      <td className="w-1/4 border border-slate-950 px-3 py-2">{field.formula || "_____"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-8 text-center">
+          <button className="rounded-md bg-blue-600 px-8 py-2 text-sm font-semibold text-white">保存</button>
+        </div>
+      </div>
+    </section>
+  );
+}
