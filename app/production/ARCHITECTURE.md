@@ -41,6 +41,8 @@
 10. `/api/production/qc/template-feedback` 提供模板反馈读写接口。
 11. `/api/production/qc/batches*` 提供 JSON 批次台账读写接口。
 
+QC 配置概览和模板详情展开会读取并组合 YAML/JSON、layout templates 和方法字段，服务端使用 5 分钟缓存降低模板工作台二次访问延迟；模板反馈列表保持实时读取。
+
 后续迁移目标：
 
 1. 把通用检测项目页面逐步替换为每类组件的正式纸质表格体验。

@@ -1,6 +1,7 @@
 import "server-only";
 import path from "path";
 import { readdir, readFile } from "fs/promises";
+import { unstable_cache } from "next/cache";
 import { parse as parseYaml } from "yaml";
 import { resolvePharmaOpsRoot } from "./source";
 import type {
@@ -138,7 +139,7 @@ async function loadLayoutMapping(configRoot: string): Promise<QcLayoutMappingSum
   return summarizeLayoutMapping(raw);
 }
 
-export async function getQcConfigOverview(): Promise<QcConfigOverview> {
+async function getQcConfigOverviewUncached(): Promise<QcConfigOverview> {
   const source = await resolvePharmaOpsRoot();
   if (!source.available) {
     return { source, products: [], recordTemplates: [], methods: [], layoutMapping: summarizeLayoutMapping({}) };
@@ -153,3 +154,9 @@ export async function getQcConfigOverview(): Promise<QcConfigOverview> {
 
   return { source, products, recordTemplates, methods, layoutMapping };
 }
+
+export const getQcConfigOverview = unstable_cache(
+  getQcConfigOverviewUncached,
+  ["production-qc-config-overview"],
+  { revalidate: 300, tags: ["production-qc-config"] },
+);
