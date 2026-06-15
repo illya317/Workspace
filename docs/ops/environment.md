@@ -35,6 +35,17 @@ These paths are excluded by deployment sync. A new machine should restore or cre
 `WORKSPACE_CONFIG_DIR`, configure `.env` to point at it, and avoid creating a project-root
 `data` symlink.
 
+Run the runtime package check before deploying or after restoring a new machine:
+
+```bash
+npm run workspace:check
+```
+
+The check validates the external `.workspace` directory, confirms `DATABASE_URL` is an absolute
+SQLite path pointing at `data/dev.db`, verifies the database contains WeCom-linked users for the
+production target, and compares `ops/server.env.sh` with `ops/deploy-targets.json` so a stale local
+deploy target is caught before code is synced.
+
 The production deploy script syncs this runtime/config directory separately from source code, with
 server data treated as the source of truth. `LOCAL_WORKSPACE_CONFIG_DIR` defaults to
 `$WORKSPACE_CONFIG_DIR`, then `$HOME/.workspace`, and is rsynced to `REMOTE_WORKSPACE_CONFIG_DIR`,

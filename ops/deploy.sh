@@ -70,6 +70,9 @@ fi
 echo "==> 类型检查..."
 npx tsc --noEmit
 
+echo "==> 运行态配置检查..."
+node scripts/check/check-workspace-runtime.js --target "${DEPLOY_TARGET:-production}"
+
 LOCAL_PKG_HASH="$(local_pkg_hash)"
 REMOTE_PKG_HASH="$(remote_pkg_hash)"
 if [ "$LOCAL_PKG_HASH" != "$REMOTE_PKG_HASH" ]; then

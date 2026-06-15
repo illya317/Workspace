@@ -18,6 +18,7 @@
     "db:validate": "prisma validate --schema=./prisma",
     "db:format": "prisma format --schema=./prisma",
     "env:check": "node scripts/check/check-env.js",
+    "workspace:check": "node scripts/check/check-workspace-runtime.js",
     "schema:check": "node scripts/check/check-schema-governance.js",
     "api:check": "node scripts/check/check-api-routes.js",
     "docs:check": "node scripts/check/check-architecture-docs.js",
