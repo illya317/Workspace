@@ -1,0 +1,78 @@
+{
+  "schema_version": 2,
+  "template_id": "parents/related_substances_hplc_full",
+  "title": "有关物质 HPLC 完整表（前置+计算）",
+  "section_no": "",
+  "category": "assay",
+  "subcomponent": false,
+  "status": "pilot",
+  "params": {
+    "pre_method_equipment_variant": "include",
+    "pre_method_materials_variant": "include",
+    "pre_method_reference_variant": "include"
+  },
+  "includes": [
+    {
+      "template_id": "operation/pre_method_standard",
+      "module_order": 10,
+      "params": {
+        "inspection_date_key": "layout/hplc_content/inspection_date",
+        "completion_date_key": "layout/hplc_content/complete_date",
+        "judgment_date_key": "layout/hplc_content/judgment_date",
+        "humidity_limit": "≤75%",
+        "note": "（天平室≤70%）",
+        "room_rows": 3,
+        "devices": [
+          {
+            "name": "电子天平",
+            "status": "“已清洁”"
+          },
+          {
+            "name": "高效液相色谱仪",
+            "status": "“已清洁”"
+          }
+        ],
+        "materials": [
+          {
+            "name": "流动相"
+          },
+          {
+            "name": "色谱柱"
+          }
+        ],
+        "standards": [
+          {
+            "name": "对照品"
+          }
+        ],
+        "pre_method_equipment_variant": "include"
+      }
+    },
+    {
+      "template_id": "operation/related_substances_hplc_operation",
+      "module_order": 20,
+      "order": 135
+    },
+    {
+      "template_id": "common/post_method",
+      "module_order": 30,
+      "params": {
+        "field_prefix": "layout/related_substances/post",
+        "field_key": "layout/related_substances/raw_data_attachments",
+        "conclusion_name": "有关物质",
+        "has_value": false,
+        "auto_judgment": false
+      }
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "氢氯噻嗪片",
+      "stage": "成品",
+      "section_no": "2.3.1-2.3.5.2",
+      "md": "schema/md_canonical/氢氯噻嗪片.md"
+    }
+  ],
+  "blocks": [],
+  "order": 50
+}

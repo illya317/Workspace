@@ -1,0 +1,49 @@
+{
+  "schema_version": 2,
+  "template_id": "microbiology/microbial_count_observation_results",
+  "title": "观察结果",
+  "section_no": "",
+  "category": "microbiology",
+  "subcomponent": true,
+  "status": "pilot",
+  "includes": [
+    {
+      "template_id": "microbiology/aerobic_count_observation",
+      "module_order": 31,
+      "params": {
+        "section_suffix": "1",
+        "order": 181,
+        "section_ref": "cultivation"
+      }
+    },
+    {
+      "template_id": "microbiology/mold_yeast_count_observation",
+      "module_order": 32,
+      "params": {
+        "section_suffix": "2",
+        "order": 191,
+        "section_ref": "cultivation"
+      }
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "微生物限度 观察结果",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "title": "观察结果",
+      "section_suffix": "2.4",
+      "section_ref": "detection",
+      "section_role": "cultivation",
+      "section_anchor": true,
+      "module_order": 30.5,
+      "order": 180
+    }
+  ],
+  "order": 180
+}

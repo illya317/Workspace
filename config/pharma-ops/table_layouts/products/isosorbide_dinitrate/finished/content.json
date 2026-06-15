@@ -1,0 +1,1025 @@
+{
+  "schema_version": 1,
+  "layout_key": "products/isosorbide_dinitrate/finished/content",
+  "status": "needs_review",
+  "source": {
+    "kind": "docx_fingerprint",
+    "product": "硝酸异山梨酯片",
+    "product_key": "isosorbide_dinitrate",
+    "stage": "成品",
+    "stage_key": "finished",
+    "test_seq": "2.6",
+    "test_name": "含量",
+    "test_name_en": "content",
+    "method": "HPLC",
+    "fingerprint_key": "成品/2.6 ",
+    "pdf_preview": "docs/coverage/audit/pdf_previews/R01-SOP073502 硝酸异山梨酯片批检验记录10.pdf"
+  },
+  "stats": {
+    "tables": 1,
+    "dates": 3,
+    "choices": 5,
+    "notes": 1,
+    "lines": 11
+  },
+  "blocks": [
+    {
+      "type": "table",
+      "label": "表格 1",
+      "logical_rows": 18,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.6  检测项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.6  检测项目"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "含量",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含量"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检验日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验日期"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r0_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "完成日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "完成日期"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r1_c1_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "判定日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "判定日期"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r1_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.6.1 实验环境：温度：10℃～30℃，湿度≤75%（天平室≤70%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.6.1 实验环境：温度：10℃～30℃，湿度≤75%"
+                },
+                {
+                  "type": "note",
+                  "text": "（天平室≤70%）"
+                }
+              ],
+              "colspan": 29,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.6.2 仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.6.2 仪器、设备"
+                }
+              ],
+              "colspan": 29,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "仪器、设备"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备编号"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备状态",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备状态"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "校验有效期至",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "校验有效期至"
+                }
+              ],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否确认",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否确认"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r7_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r8_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "高效液相色谱仪",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "高效液相色谱仪"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r9_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.6.3 试验材料",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.6.3 试验材料"
+                }
+              ],
+              "colspan": 29,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号/编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号/编号"
+                }
+              ],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否在有效期内",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否在有效期内"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "流动相",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "流动相"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r12_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "色谱柱",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "色谱柱"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r13_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.6.4标准品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.6.4标准品"
+                }
+              ],
+              "colspan": 29,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号"
+                }
+              ],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "硝酸异山梨酯对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "硝酸异山梨酯对照品"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.6.5 操作方法    照高效液相色谱法测定(通则0512)。色谱条件：C18×     mm×4.6mm；以甲醇：水（54：46）为流动相；检测波长：     nm（230nm）；流速：1.0ml/min ；进样体积20μl。    系统适用性要求：理论板数按硝酸异山梨酯峰计算不低于5000，硝酸异山梨酯峰与相邻杂质峰之间的分离度应符合要求。对照品溶液制备：精密称取硝酸异山梨酯对照品①        mg、②        mg（10mg）置     ml（100ml）量瓶中，加甲醇适量使溶解（不超过5ml），加流动相稀释至刻度，摇匀，制成每1ml含0.1mg的溶液，作为对照品溶液。供试品溶液制备：称取本品20片，研细，精密称取①        mg、②        mg( 约相当于硝酸异山梨酯5mg)，置     ml（50ml）量瓶中，加流动相适量，振摇15分钟，使硝酸异山梨酯溶解，用流动相稀释至刻度，摇匀，滤过，作为供试品溶液。测定法：精密量取上述两种溶液     μl（20μl），分别注入液相色谱仪，记录色谱图；按外标法",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.6.5 操作方法"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r17_c0_p0_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "照高效液相色谱法测定(通则0512)。色谱条件：C18×"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r17_c0_p1_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "mm×4.6mm；以甲醇：水（54：46）为流动相；检测波长："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r17_c0_p2_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "nm（230nm）；流速：1.0ml/min ；进样体积20μl。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r17_c0_p3_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "系统适用性要求：理论板数按硝酸异山梨酯峰计算不低于5000，硝酸异山梨酯峰与相邻杂质峰之间的分离度应符合要求。对照品溶液制备：精密称取硝酸异山梨酯对照品①"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r17_c0_p4_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg、②"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r17_c0_p5_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（10mg）置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r17_c0_p6_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中，加甲醇适量使溶解（不超过5ml），加流动相稀释至刻度，摇匀，制成每1ml含0.1mg的溶液，作为对照品溶液。供试品溶液制备：称取本品20片，研细，精密称取①"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r17_c0_p7_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg、②"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r17_c0_p8_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg( 约相当于硝酸异山梨酯5mg)，置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r17_c0_p9_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（50ml）量瓶中，加流动相适量，振摇15分钟，使硝酸异山梨酯溶解，用流动相稀释至刻度，摇匀，滤过，作为供试品溶液。测定法：精密量取上述两种溶液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/isosorbide_dinitrate/finished/content/t0_r17_c0_p10_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "μl（20μl），分别注入液相色谱仪，记录色谱图；按外标法"
+                }
+              ],
+              "colspan": 29,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

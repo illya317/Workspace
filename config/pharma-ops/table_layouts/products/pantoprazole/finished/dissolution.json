@@ -1,0 +1,1364 @@
+{
+  "schema_version": 1,
+  "layout_key": "products/pantoprazole/finished/dissolution",
+  "status": "needs_review",
+  "source": {
+    "kind": "docx_fingerprint",
+    "product": "泮托拉唑钠肠溶片",
+    "product_key": "pantoprazole",
+    "stage": "成品",
+    "stage_key": "finished",
+    "test_seq": "2.6",
+    "test_name": "释放度",
+    "test_name_en": "dissolution",
+    "method": "释放度-泮托拉唑UV",
+    "fingerprint_key": "成品/2.6 ",
+    "pdf_preview": "docs/coverage/audit/pdf_previews/R01-SOP073531泮托拉唑钠肠溶片批检验记录09.pdf"
+  },
+  "stats": {
+    "tables": 1,
+    "dates": 3,
+    "choices": 11,
+    "notes": 1,
+    "lines": 31
+  },
+  "blocks": [
+    {
+      "type": "table",
+      "label": "表格 1",
+      "logical_rows": 20,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.6  检测项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.6  检测项目"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "释放度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "释放度"
+                }
+              ],
+              "colspan": 15,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检验日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验日期"
+                }
+              ],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r0_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "完成日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "完成日期"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r1_c1_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 15,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "判定日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "判定日期"
+                }
+              ],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r1_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.6.1 实验环境：温度：10℃～30℃，湿度≤75%（天平室≤70%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.6.1 实验环境：温度：10℃～30℃，湿度≤75%"
+                },
+                {
+                  "type": "note",
+                  "text": "（天平室≤70%）"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.6.2 仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.6.2 仪器、设备"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "仪器、设备"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备编号"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备状态",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备状态"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "校验有效期至",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "校验有效期至"
+                }
+              ],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否确认",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否确认"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r8_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "溶出试验仪",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "溶出试验仪"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r9_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "紫外可见分光光度计",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "紫外可见分光光度计"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r10_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.6.3试验材料",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.6.3试验材料"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号/编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号/编号"
+                }
+              ],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否在有效期内",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否在有效期内"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "0.1mol/L盐酸溶液",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "0.1mol/L盐酸溶液"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r13_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "0.2mol/L磷酸钠溶液",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "0.2mol/L磷酸钠溶液"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r14_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.6.4 标准品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.6.4 标准品"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 25,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "泮托拉唑对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "泮托拉唑对照品"
+                }
+              ],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 25,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.6.5操作方法      对照品溶液制备： 取泮托拉唑钠对照品，精密称定      mg（约15mg））至      ml（100ml）量瓶中（临用新制），加磷酸盐缓冲液[磷酸盐缓冲液(取0.1mol/L盐酸溶液和0.2mol/L磷酸钠溶液,按3:1混合均匀，用盐酸调节PH6.8）溶解并定量稀释刻度，摇匀。再精密吸取      ml（5ml）至      ml（50ml）量瓶中，加溶出介质稀释制成每1ml约含15μg溶液，作为对照品溶液。    样品溶液制备：弃去上述2.3.5项下各杯中酸液，照溶出度与释放度测定法（通则0931第一法）    （篮）法，立即加入温度为37℃±0.5℃的磷酸缓冲液      ml（900ml）为溶出介剂，转速为       rpm/min（100rpm/min）依法操作，经30分钟，取溶液滤过，精密量取续滤液      ml（10ml）置_____ml（25ml）量瓶中，加溶出介质稀释制成每1ml约含15μg溶液， 作为供试品溶液。测定法：取上述两种溶液，照通则(0401)法测定，在      nm(288nm±2nm)的波长处分别测定吸收度，计算出每片的释放量，结果乘以0.9458，计算每片的释放量。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.6.5操作方法"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r18_c0_p0_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "对照品溶液制备： 取泮托拉唑钠对照品，精密称定"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r18_c0_p1_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（约15mg））至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r18_c0_p2_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中（临用新制），加磷酸盐缓冲液[磷酸盐缓冲液(取0.1mol/L盐酸溶液和0.2mol/L磷酸钠溶液,按3:1混合均匀，用盐酸调节PH6.8）溶解并定量稀释刻度，摇匀。再精密吸取"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r18_c0_p3_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（5ml）至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r18_c0_p4_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（50ml）量瓶中，加溶出介质稀释制成每1ml约含15μg溶液，作为对照品溶液。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r18_c0_p5_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "样品溶液制备：弃去上述2.3.5项下各杯中酸液，照溶出度与释放度测定法（通则0931第一法）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r18_c0_p6_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "（篮）法，立即加入温度为37℃±0.5℃的磷酸缓冲液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r18_c0_p7_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（900ml）为溶出介剂，转速为"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r18_c0_p8_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "rpm/min（100rpm/min）依法操作，经30分钟，取溶液滤过，精密量取续滤液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r18_c0_p9_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml）置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r18_c0_p10_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（25ml）量瓶中，加溶出介质稀释制成每1ml约含15μg溶液， 作为供试品溶液。测定法：取上述两种溶液，照通则(0401)法测定，在"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r18_c0_p11_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "nm(288nm±2nm)的波长处分别测定吸收度，计算出每片的释放量，结果乘以0.9458，计算每片的释放量。"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "测定与计算：测定结果与计算过程见待包装品（二）2.4.5.1项。释放度结果样1：          %样2：          %样3：          %样4：          %样5：          %样6：          %2.6.6 标准规定  内控标准：不低于标示量78%。                                2.6.7 实验结果异常处理                                                  □是       □否实验室异常情况编号_______________________________________________2.6.8 清场将检验用具及废弃物分类。                                           □是        □否关闭电源。                                                         □是        □否清洁设备及房间。                                                   □是        □否检查仪器、设备，填写《仪器使用记录》。                             □是        □否更换仪器、设备状态标识。                                           □是        □否2.6.9 结论 批号_____________泮托拉唑钠肠溶片（释放度）检测过程___________(符合/不符合)各项规定，结果___________(符合/不符合)标准规定。检验者/日期：                         复核者/日期：___________________________",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "测定与计算：测定结果与计算过程见待包装品（二）2.4.5.1项。释放度结果样1："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%样2："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p1_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%样3："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p2_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%样4："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p3_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%样5："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p4_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%样6："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p5_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%2.6.6 标准规定  内控标准：不低于标示量78%。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p6_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.6.7 实验结果异常处理"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p7_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p8_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "实验室异常情况编号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p9_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.6.8 清场将检验用具及废弃物分类。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p10_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p11_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "关闭电源。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p12_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p13_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "清洁设备及房间。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p14_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p15_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "检查仪器、设备，填写《仪器使用记录》。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p16_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p17_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "更换仪器、设备状态标识。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p18_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p19_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "2.6.9 结论 批号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p20_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "泮托拉唑钠肠溶片（释放度）检测过程"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p21_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)各项规定，结果"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p22_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)标准规定。检验者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p23_line",
+                  "width": "175px"
+                },
+                {
+                  "type": "text",
+                  "text": "复核者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/pantoprazole/finished/dissolution/t0_r19_c0_p24_line",
+                  "width": "180px"
+                }
+              ],
+              "colspan": 49,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/identification_hplc_prep_method_text",
+  "title": "鉴别HPLC制备比对操作说明",
+  "category": "operation",
+  "status": "pilot",
+  "order": 40,
+  "blocks": [
+    {
+      "type": "structured_operation_method",
+      "params_path": "identification_operation_params",
+      "template_name": "identification_structured",
+      "profile": "hplc_prep",
+      "profile_segments": {
+        "hplc_prep": [
+          {
+            "label": "化学反应",
+            "template": "[取{chemical_sample}{FIELD:mg（{chemical_sample_default}）}，加{chemical_reagents}，{chemical_process}，{chemical_expected}。]"
+          },
+          {
+            "label": "色谱条件",
+            "template": "[用{column}为填充剂[；色谱柱：{column_spec}]；流动相：{mobile_phase}[；柱温：{column_temp}][；检测波长：{wavelength}][；进样体积：{injection_volume}]。]"
+          },
+          {
+            "label": "供试品溶液制备",
+            "template": "[取{sample_source}，精密称取____{sample_unit}，置____量瓶中，加{sample_solvent}溶解并稀释，制成{sample_concentration}，作为供试品溶液。]"
+          },
+          {
+            "label": "对照品溶液制备",
+            "template": "[精密称取{reference_name}对照品____{reference_unit}，置____量瓶中，加{reference_solvent}溶解并稀释，制成{reference_concentration}，作为对照品溶液。]"
+          },
+          {
+            "label": "测定法",
+            "template": "[供试品溶液、对照品溶液按{solution_basis}制备，测定{compare_source}。][照{compare_source}，供试品溶液主峰的保留时间应与对照品溶液主峰的保留时间一致。]"
+          }
+        ]
+      },
+      "className": "section-body layout-operation-text-block layout-structured-operation-method",
+      "module_order": 20,
+      "order": 136
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "HPLC制备比对鉴别操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ]
+}

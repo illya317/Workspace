@@ -1,0 +1,130 @@
+{
+  "schema_version": 2,
+  "template_id": "microbiology/pre_test_confirmations",
+  "title": "微生物限度检验前确认项",
+  "section_no": "",
+  "category": "microbiology",
+  "subcomponent": true,
+  "status": "pilot",
+  "includes": [],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "微生物限度 进入人员/设备/检验用具确认",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "table",
+      "label": "微生物限度检验前确认项",
+      "rows": [
+        {
+          "cells": [
+            {
+              "align": "left",
+              "width": "72%",
+              "parts": [
+                {
+                  "type": "section_heading",
+                  "section_suffix": "4",
+                  "text": "进入人员",
+                  "bold": true
+                },
+                {
+                  "type": "br"
+                },
+                {
+                  "type": "text",
+                  "text": "人员、物品进入洁净区按《实验室洁净区进出标准操作规程》（SOP071028）进行。"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/microbiology/cleanroom_entry_confirmed",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "align": "left",
+              "parts": [
+                {
+                  "type": "section_heading",
+                  "section_suffix": "5",
+                  "text": "仪器、设备",
+                  "bold": true
+                },
+                {
+                  "type": "br"
+                },
+                {
+                  "type": "text",
+                  "text": "是否在校验有效期内"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/microbiology/equipment_valid_confirmed",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "align": "left",
+              "parts": [
+                {
+                  "type": "section_heading",
+                  "section_suffix": "6",
+                  "text": "检验用具",
+                  "bold": true
+                },
+                {
+                  "type": "br"
+                },
+                {
+                  "type": "text",
+                  "text": "物品是否齐全"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/microbiology/tools_complete_confirmed",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "order": 130
+    }
+  ],
+  "order": 130
+}

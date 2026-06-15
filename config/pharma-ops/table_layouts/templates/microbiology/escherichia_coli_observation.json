@@ -1,0 +1,636 @@
+{
+  "schema_version": 2,
+  "template_id": "microbiology/escherichia_coli_observation",
+  "title": "大肠埃希菌观察结果",
+  "section_no": "",
+  "category": "microbiology",
+  "subcomponent": true,
+  "status": "pilot",
+  "includes": [],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "微生物限度 控制菌观察结果",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "title": "观察结果",
+      "order": 170,
+      "section_suffix": "1.7",
+      "section_ref": "detection"
+    },
+    {
+      "type": "table",
+      "label": "大肠埃希菌观察结果",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "检查过程",
+              "width": "25%"
+            },
+            {
+              "text": "阳性对照",
+              "width": "25%"
+            },
+            {
+              "text": "阴性对照",
+              "width": "25%"
+            },
+            {
+              "text": "供试品",
+              "width": "25%"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "胰酪大豆胨液体培养基"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/sample_tsb_volume",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "100",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "ml，"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/tsb_culture_temperature",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "30～35",
+                  "recommended_range": {
+                    "min": 30,
+                    "max": 35
+                  },
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "℃培养"
+                },
+                {
+                  "type": "duration_hours",
+                  "field_key": "layout/microbiology/ecoli/tsb_culture_hours",
+                  "start_key": "layout/microbiology/ecoli/tsb_start_date",
+                  "end_key": "layout/microbiology/ecoli/tsb_end_date",
+                  "initial_chars": 4,
+                  "recommended_range": {
+                    "min": 18,
+                    "max": 24
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "h"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "胰酪大豆胨液体培养基+1:10供试液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/positive_sample_volume",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "10",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "ml+对照菌"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/positive_bacteria_volume",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "1",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "ml，≤100cfu"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "胰酪大豆胨液体培养基+稀释液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/negative_diluent_volume",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "10",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "ml"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "胰酪大豆胨液体培养基+1:10供试液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/sample_solution_volume",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "10",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "ml"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "自"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/microbiology/ecoli/tsb_start_date",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "至"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/microbiology/ecoli/tsb_end_date",
+                  "readOnlyDisplay": true
+                }
+              ]
+            },
+            {
+              "text": "浑浊有菌生长"
+            },
+            {
+              "text": "澄明无菌生长"
+            },
+            {
+              "text": "澄明无菌生长"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "观察胰酪大豆胨液体培养基",
+              "align": "left"
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/tsb_observation_positive",
+                  "underline": false,
+                  "initial_chars": 12,
+                  "multiline": true,
+                  "rows": 2
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/tsb_observation_negative",
+                  "underline": false,
+                  "initial_chars": 12,
+                  "multiline": true,
+                  "rows": 2
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/tsb_observation_sample",
+                  "underline": false,
+                  "initial_chars": 12,
+                  "multiline": true,
+                  "rows": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "麦康凯液体培养基"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/macconkey_broth_volume",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "100",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "ml，"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/macconkey_temperature",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "42～44",
+                  "recommended_range": {
+                    "min": 42,
+                    "max": 44
+                  },
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "℃培养"
+                },
+                {
+                  "type": "duration_hours",
+                  "field_key": "layout/microbiology/ecoli/macconkey_hours",
+                  "start_key": "layout/microbiology/ecoli/macconkey_start_date",
+                  "end_key": "layout/microbiology/ecoli/macconkey_end_date",
+                  "initial_chars": 4,
+                  "recommended_range": {
+                    "min": 24,
+                    "max": 48
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "h"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "麦康凯液体培养基"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/macconkey_broth_volume",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "100",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "ml加上述培养液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/macconkey_inoculum_volume",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "1",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "ml"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "麦康凯液体培养基"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/macconkey_broth_volume",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "100",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "ml加上述培养液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/macconkey_inoculum_volume",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "1",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "ml"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "麦康凯液体培养基"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/macconkey_broth_volume",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "100",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "ml加上述培养液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/macconkey_inoculum_volume",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "1",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "ml"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "自"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/microbiology/ecoli/macconkey_start_date",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "至"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/microbiology/ecoli/macconkey_end_date",
+                  "readOnlyDisplay": true
+                }
+              ]
+            },
+            {
+              "text": "浑浊有菌生长"
+            },
+            {
+              "text": "澄明无菌生长"
+            },
+            {
+              "text": "澄明无菌生长"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "观察麦康凯液体培养基",
+              "align": "left"
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/macconkey_observation_positive",
+                  "underline": false,
+                  "initial_chars": 12,
+                  "multiline": true,
+                  "rows": 2
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/macconkey_observation_negative",
+                  "underline": false,
+                  "initial_chars": 12,
+                  "multiline": true,
+                  "rows": 2
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/macconkey_observation_sample",
+                  "underline": false,
+                  "initial_chars": 12,
+                  "multiline": true,
+                  "rows": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "取麦康凯液体培养物划线接种于麦康凯琼脂培养基平板上，"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/agar_temperature",
+                  "underline": false,
+                  "initial_chars": 4,
+                  "placeholder": "30～35",
+                  "recommended_range": {
+                    "min": 30,
+                    "max": 35
+                  },
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "℃培养"
+                },
+                {
+                  "type": "duration_hours",
+                  "field_key": "layout/microbiology/ecoli/agar_hours",
+                  "start_key": "layout/microbiology/ecoli/agar_start_date",
+                  "end_key": "layout/microbiology/ecoli/agar_end_date",
+                  "initial_chars": 4,
+                  "recommended_range": {
+                    "min": 18,
+                    "max": 72
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "h"
+                }
+              ]
+            },
+            {
+              "text": "应为鲜桃红色，菌落边缘整齐，表面光滑"
+            },
+            {
+              "text": "无菌落生长"
+            },
+            {
+              "text": "无菌落生长"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "自"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/microbiology/ecoli/agar_start_date",
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "至"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/microbiology/ecoli/agar_end_date",
+                  "readOnlyDisplay": true
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/agar_observation_positive",
+                  "underline": false,
+                  "initial_chars": 12,
+                  "multiline": true,
+                  "rows": 3
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/agar_observation_negative",
+                  "underline": false,
+                  "initial_chars": 12,
+                  "multiline": true,
+                  "rows": 2
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/ecoli/agar_observation_sample",
+                  "underline": false,
+                  "initial_chars": 12,
+                  "multiline": true,
+                  "rows": 2
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "结论"
+            },
+            {
+              "colspan": 2,
+              "text": "供试品中是否检出大肠埃希菌"
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "供试品结果",
+                  "input_type": "select",
+                  "options": [
+                    "未检出",
+                    "检出"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "colspan": 4,
+              "text": "备注：“+”表示有菌生长；“-”表示无菌生长。"
+            }
+          ]
+        }
+      ],
+      "order": 171
+    }
+  ],
+  "order": 171
+}

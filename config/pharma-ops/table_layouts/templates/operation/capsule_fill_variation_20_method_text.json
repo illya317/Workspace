@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/capsule_fill_variation_20_method_text",
+  "title": "20粒装量差异操作说明",
+  "category": "operation",
+  "status": "pilot",
+  "order": 37,
+  "blocks": [
+    {
+      "type": "operation_text",
+      "fixed_text": true,
+      "text": "照通则（0103）法测定。取本品20粒，精密称定总重量，再分别精密称定每一粒重量，倾出内容物，分别精密称定囊壳重量，求得每粒内容物的装量与平均装量。",
+      "className": "section-body layout-operation-text-block",
+      "module_order": 20,
+      "order": 131
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "胶囊剂",
+      "section_no": "20粒装量差异操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ]
+}

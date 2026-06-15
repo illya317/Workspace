@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "template_id": "parents/variation_20_full",
+  "title": "重量/装量差异通用表",
+  "section_no": "",
+  "category": "weighing",
+  "subcomponent": false,
+  "status": "pilot",
+  "params": {
+    "title": "重量/装量差异通用表",
+    "conclusion_name": "重量/装量差异",
+    "variation_kind": "weight",
+    "sample_unit": "片",
+    "sample_count": 20,
+    "has_value": false,
+    "auto_judgment": false
+  },
+  "includes": [
+    {
+      "template_id": "operation/pre_method_standard",
+      "module_order": 10,
+      "params": {
+        "inspection_date_key": "layout/variation_20/inspection_date",
+        "completion_date_key": "layout/variation_20/complete_date",
+        "judgment_date_key": "layout/variation_20/judgment_date",
+        "humidity_limit": "≤70%",
+        "room_rows": 1,
+        "devices": [
+          {
+            "name": "电子天平",
+            "status": "“已清洁”"
+          }
+        ],
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "none"
+      }
+    },
+    {
+      "template_id": "operation/variation_20_operation",
+      "module_order": 20,
+      "order": 130
+    },
+    {
+      "template_id": "common/post_method",
+      "module_order": 30,
+      "params": {
+        "field_prefix": "layout/variation_20/post"
+      }
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "重量差异/装量差异",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [],
+  "order": 80
+}

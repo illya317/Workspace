@@ -1,0 +1,1797 @@
+{
+  "schema_version": 1,
+  "layout_key": "products/hydrochlorothiazide/finished/content_uniformity",
+  "status": "needs_review",
+  "source": {
+    "kind": "docx_fingerprint",
+    "product": "氢氯噻嗪片",
+    "product_key": "hydrochlorothiazide",
+    "stage": "成品",
+    "stage_key": "finished",
+    "test_seq": "2.5",
+    "test_name": "含量均匀度",
+    "test_name_en": "content_uniformity",
+    "method": "含量均匀度",
+    "fingerprint_key": "成品/2.5 ",
+    "pdf_preview": "docs/coverage/audit/pdf_previews/R01-SOP073501氢氯噻嗪片批检验记录09.pdf"
+  },
+  "stats": {
+    "tables": 3,
+    "dates": 3,
+    "choices": 11,
+    "notes": 2,
+    "lines": 39
+  },
+  "blocks": [
+    {
+      "type": "table",
+      "label": "表格 1",
+      "logical_rows": 19,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.5  检测项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.5  检测项目"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "含量均匀度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含量均匀度"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检验日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验日期"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r0_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "完成日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "完成日期"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r1_c1_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "判定日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "判定日期"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r1_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.5.1 实验环境：温度：10℃～30℃，湿度≤75%（天平室≤70%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.5.1 实验环境：温度：10℃～30℃，湿度≤75%"
+                },
+                {
+                  "type": "note",
+                  "text": "（天平室≤70%）"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.5.2 仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.5.2 仪器、设备"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "仪器、设备"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备编号"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备状态",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备状态"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "校验有效期至",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "校验有效期至"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否确认",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否确认"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r7_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "高效液相色谱仪",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "高效液相色谱仪"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r8_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.5.3 试验材料",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.5.3 试验材料"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号/编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号/编号"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否在有效期内",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否在有效期内"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "含量流动相",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含量流动相"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r11_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "甲醇：乙腈（1:1）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "甲醇：乙腈（1:1）"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r12_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "色谱柱",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "色谱柱"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r13_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.5.4标准品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.5.4标准品"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "氢氯噻嗪对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "氢氯噻嗪对照品"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "氯噻嗪对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "氯噻嗪对照品"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.5.5 操作方法    照高效液相色谱法测定(通则0512)。色谱条件：十八烷基硅烷键合硅胶为填充剂 C18×     mm×4.6mm； 流动相：0.1mol/L磷酸二氢钠—乙腈（9：1）（用磷酸调节pH值至3.0±0.1），检测波长：271nm，流速：1.5ml/min ；柱温：30℃；进样体积10μl。系统适用性要求：系统适用性试验溶液色谱图中，氢氯噻嗪峰与氯噻嗪峰的分离度应大于2.0。系统适用性溶液：取氢氯噻嗪对照品       mg（约5mg）与氯噻嗪对照品       mg（约5mg）置同一     ml（100ml）量瓶中，加流动相溶解并稀释制成每1ml中各含0.05mg的溶液。对照品溶液制备：精密称取氢氯噻嗪对照品       mg（约10mg）置     ml（100ml）量瓶中，加流动相适量振摇使溶解，并稀释至刻度，摇匀。再精密吸取     ml（5 ml）置     ml（10ml）量瓶中，加流动相稀释制成每1ml中含50μg的溶液，作为对照品溶液。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.5.5 操作方法"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r18_c0_p0_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "照高效液相色谱法测定(通则0512)。色谱条件：十八烷基硅烷键合硅胶为填充剂 C18×"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r18_c0_p1_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "mm×4.6mm； 流动相：0.1mol/L磷酸二氢钠—乙腈（9：1）"
+                },
+                {
+                  "type": "note",
+                  "text": "（用磷酸调节pH值至3.0±0.1）"
+                },
+                {
+                  "type": "text",
+                  "text": "，检测波长：271nm，流速：1.5ml/min ；柱温：30℃；进样体积10μl。系统适用性要求：系统适用性试验溶液色谱图中，氢氯噻嗪峰与氯噻嗪峰的分离度应大于2.0。系统适用性溶液：取氢氯噻嗪对照品"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r18_c0_p3_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（约5mg）与氯噻嗪对照品"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r18_c0_p4_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（约5mg）置同一"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r18_c0_p5_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中，加流动相溶解并稀释制成每1ml中各含0.05mg的溶液。对照品溶液制备：精密称取氢氯噻嗪对照品"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r18_c0_p6_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（约10mg）置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r18_c0_p7_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中，加流动相适量振摇使溶解，并稀释至刻度，摇匀。再精密吸取"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r18_c0_p8_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（5 ml）置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t0_r18_c0_p9_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml）量瓶中，加流动相稀释制成每1ml中含50μg的溶液，作为对照品溶液。"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "label": "表格 2",
+      "logical_rows": 13,
+      "logical_cols": 3,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "供试品溶液制备：取本品1片， 置     ml（50ml）量瓶中，加流动相     ml（10ml），放置30分钟，加甲醇：乙腈（1:1）     ml（5ml） 超声处理使氢氯噻嗪溶解，放冷，加流动相稀释至刻度，摇匀，滤过，再精密吸取续滤液     ml（2ml）至     ml（20ml）量瓶中，加流动相至刻度，摇匀，作为供试品溶液。测定法：取续滤液     μl（10μl）注入液相色谱仪，照含量项下方法测定。应符合规定（通则0941）检验数据及计算过程见待包装品（二）2.3.5.2 项下。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品溶液制备：取本品1片， 置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r0_c0_p0_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（50ml）量瓶中，加流动相"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r0_c0_p1_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml），放置30分钟，加甲醇：乙腈（1:1）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r0_c0_p2_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（5ml） 超声处理使氢氯噻嗪溶解，放冷，加流动相稀释至刻度，摇匀，滤过，再精密吸取续滤液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r0_c0_p3_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（2ml）至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r0_c0_p4_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（20ml）量瓶中，加流动相至刻度，摇匀，作为供试品溶液。测定法：取续滤液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r0_c0_p5_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "μl（10μl）注入液相色谱仪，照含量项下方法测定。应符合规定（通则0941）检验数据及计算过程见待包装品（二）2.3.5.2 项下。"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样品含量（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样品含量（%）"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "平均含量（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "平均含量（%）"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "A＋2.2S ≤13.0",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "A＋2.2S ≤13.0"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样1：           %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样1："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r2_c0_p0_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "X=        %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "X="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r2_c1_p0_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "A＋2.2S＝",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "A＋2.2S＝"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样2：           %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样2："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r3_c0_p0_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样3：           %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样3："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r4_c0_p0_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样4：           %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样4："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r5_c0_p0_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样5：           %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样5："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r6_c0_p0_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样6：           %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样6："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r7_c0_p0_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样7：           %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样7："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r8_c0_p0_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样8：           %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样8："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r9_c0_p0_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样9：           %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样9："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r10_c0_p0_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样10：          %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样10："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r11_c0_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.5.6 标准规定内控标准：A＋2.2S ≤13.0 。                   2.5.7 实验结果异常处理                                                  □是       □否实验室异常情况编号_______________________________________________2.5.8 清场将检验用具及废弃物分类。                                           □是        □否关闭电源。                                                         □是        □否清洁设备及房间。                                                   □是        □否检查仪器、设备，填写《仪器使用记录》。                             □是        □否更换仪器、设备状态标识。                                           □是        □否",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.5.6 标准规定内控标准：A＋2.2S ≤13.0 。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p0_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.5.7 实验结果异常处理"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p1_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p2_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "实验室异常情况编号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p3_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.5.8 清场将检验用具及废弃物分类。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p4_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p5_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "关闭电源。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p6_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p7_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "清洁设备及房间。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p8_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p9_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "检查仪器、设备，填写《仪器使用记录》。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p10_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p11_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "更换仪器、设备状态标识。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p12_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t1_r12_c0_p13_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "label": "表格 3",
+      "logical_rows": 1,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.5.9 结论批号_____________氢氯噻嗪片（含量均匀度）检测过程___________(符合/不符合)各项规定，结果___________(符合/不符合)标准规定。检验者/日期：                         复核者/日期：___________________________",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.5.9 结论批号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t2_r0_c0_p0_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "氢氯噻嗪片（含量均匀度）检测过程"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t2_r0_c0_p1_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)各项规定，结果"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t2_r0_c0_p2_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)标准规定。检验者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t2_r0_c0_p3_line",
+                  "width": "175px"
+                },
+                {
+                  "type": "text",
+                  "text": "复核者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/hydrochlorothiazide/finished/content_uniformity/t2_r0_c0_p4_line",
+                  "width": "180px"
+                }
+              ],
+              "colspan": 36,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

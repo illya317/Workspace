@@ -1,0 +1,35 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/friability_0923_method_text",
+  "title": "脆碎度通则0923操作说明",
+  "section_no": "",
+  "category": "operation",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "脆碎度操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "section_suffix": "auto",
+      "section_role": "operation",
+      "section_anchor": true,
+      "title": "操作方法",
+      "order": 130
+    },
+    {
+      "type": "operation_text",
+      "fixed_text": true,
+      "text": "照通则（0923）法测定。取供试品适量，用吹风机吹去片剂脱落的粉末，精密称定{FIELD:g（6.5g）}，置圆筒中，转动{FIELD:次（100次）}。取出，同法除去粉末，精密称定。",
+      "className": "section-body layout-operation-text-block",
+      "module_order": 15,
+      "order": 131
+    }
+  ],
+  "order": 130
+}

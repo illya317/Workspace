@@ -1,0 +1,86 @@
+{
+  "schema_version": 2,
+  "template_id": "parents/hplc_content_full",
+  "title": "含量通用表",
+  "section_no": "",
+  "category": "assay",
+  "subcomponent": false,
+  "status": "pilot",
+  "params": {
+    "title": "含量通用表",
+    "hplc_weighing_variant": "theoretical",
+    "hplc_attachment_variant": "none",
+    "hplc_conclusion_variant": "include",
+    "pre_method_equipment_variant": "include",
+    "pre_method_materials_variant": "include",
+    "pre_method_reference_variant": "include",
+    "conclusion_name": "含量",
+    "has_value": true,
+    "unit": "%",
+    "auto_judgment": false
+  },
+  "includes": [
+    {
+      "template_id": "operation/pre_method_standard",
+      "module_order": 10,
+      "params": {
+        "inspection_date_key": "layout/hplc_content/inspection_date",
+        "completion_date_key": "layout/hplc_content/complete_date",
+        "judgment_date_key": "layout/hplc_content/judgment_date",
+        "humidity_limit": "≤75%",
+        "note": "（天平室≤70%）",
+        "room_rows": 3,
+        "devices": [
+          {
+            "name": "电子天平",
+            "status": "“已清洁”"
+          },
+          {
+            "name": "高效液相色谱仪",
+            "status": "“已清洁”"
+          }
+        ],
+        "materials": [
+          {
+            "name": "流动相"
+          },
+          {
+            "name": "色谱柱"
+          }
+        ],
+        "standards": [
+          {
+            "name": "对照品"
+          }
+        ],
+        "pre_method_equipment_variant": "include"
+      }
+    },
+    {
+      "template_id": "operation/hplc_content_operation",
+      "module_order": 20,
+      "order": 135
+    },
+    {
+      "template_id": "common/post_method",
+      "module_order": 30,
+      "params": {
+        "field_prefix": "layout/hplc_content/post",
+        "field_key": "layout/hplc_content/raw_data_attachments",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false
+      }
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "含量",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [],
+  "order": 40
+}

@@ -1,0 +1,4310 @@
+{
+  "schema_version": 1,
+  "description": "Runtime mapping from MD/YAML product layout keys to reusable template JSON. Legacy config/table_layouts/products/** files are reference samples only.",
+  "assignments": {
+    "products/allopurinol/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "别嘌醇片#2.1",
+      "params": {}
+    },
+    "products/allopurinol/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "别嘌醇片#2.1",
+      "params": {}
+    },
+    "products/allopurinol/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "别嘌醇片#2.1",
+      "params": {}
+    },
+    "products/atenolol/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "阿替洛尔片#2.1",
+      "params": {}
+    },
+    "products/atenolol/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "阿替洛尔片#2.1",
+      "params": {}
+    },
+    "products/atenolol/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "阿替洛尔片#2.1",
+      "params": {}
+    },
+    "products/berberine_tannate/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "鞣酸小檗碱片#2.1",
+      "params": {}
+    },
+    "products/berberine_tannate/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "鞣酸小檗碱片#2.1",
+      "params": {}
+    },
+    "products/berberine_tannate/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "鞣酸小檗碱片#2.1",
+      "params": {}
+    },
+    "products/clarithromycin/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "克拉霉素 胶囊#2.1",
+      "params": {}
+    },
+    "products/clarithromycin/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "克拉霉素 胶囊#2.1",
+      "params": {}
+    },
+    "products/clarithromycin/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "克拉霉素 胶囊#2.1",
+      "params": {}
+    },
+    "products/compound_rutin/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "复方芦丁片#2.1",
+      "params": {}
+    },
+    "products/compound_rutin/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "复方芦丁片#2.1",
+      "params": {}
+    },
+    "products/compound_rutin/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "复方芦丁片#2.1",
+      "params": {}
+    },
+    "products/diammonium_glycyrrhizinate/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "甘草酸二铵胶囊#2.1",
+      "params": {}
+    },
+    "products/diammonium_glycyrrhizinate/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "甘草酸二铵胶囊#2.1",
+      "params": {}
+    },
+    "products/diammonium_glycyrrhizinate/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "甘草酸二铵胶囊#2.1",
+      "params": {}
+    },
+    "products/hydrochlorothiazide/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "氢氯噻嗪片#2.1",
+      "params": {}
+    },
+    "products/hydrochlorothiazide/finished/content_uniformity": {
+      "template_id": "parents/content_uniformity_hplc_full",
+      "status": "pilot",
+      "source_ref": "氢氯噻嗪片.md#2.5",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "content_uniformity_conclusion_variant": "include",
+        "content_uniformity_attachment_variant": "none",
+        "content_uniformity_calculation_heading_variant": "inline",
+        "content_uniformity_operation_method_variant": "hplc_content_uniformity_direct_0512"
+      }
+    },
+    "products/hydrochlorothiazide/finished/related_substances": {
+      "template_id": "parents/related_substances_hplc_full",
+      "status": "pilot",
+      "source_ref": "氢氯噻嗪片.md#2.3.5.2",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "related_conclusion_variant": "include",
+        "related_attachment_variant": "raw",
+        "related_peak_calculation_variant": "hplc_0512_peak_area",
+        "related_system_rows": [
+          {
+            "text": "氢氯噻嗪峰与氯噻嗪峰的分离度应大于2.5。",
+            "field": "系统适用性-是否符合",
+            "options": [
+              "是",
+              "否"
+            ]
+          }
+        ],
+        "related_peak_rows": [
+          {
+            "group": "对照溶液",
+            "item": "对照溶液峰面积",
+            "field": "对照溶液峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "其他单个最大峰面积",
+            "field": "供试品单杂峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "总杂质峰面积",
+            "field": "供试品总杂峰面积"
+          }
+        ],
+        "related_result_rows": [
+          {
+            "label": "单大%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品单杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "单杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          },
+          {
+            "label": "总和%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品总杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          }
+        ],
+        "related_operation_method_variant": "hplc_related_substances_full_gradient_0512",
+        "related_gradient_table_variant": "hplc_0512_linear_gradient",
+        "related_gradient_rows": [
+          [
+            "0",
+            "100",
+            "0"
+          ],
+          [
+            "22.5",
+            "55",
+            "45"
+          ],
+          [
+            "45",
+            "55",
+            "45"
+          ],
+          [
+            "52.5",
+            "100",
+            "0"
+          ],
+          [
+            "75",
+            "100",
+            "0"
+          ]
+        ],
+        "related_weighing_variant": "named_weighing",
+        "related_weighing_rows": [
+          {
+            "name": "氢氯噻嗪对照品（mg）",
+            "content": "",
+            "unit": "mg",
+            "mode": "blank"
+          },
+          {
+            "name": "氯噻嗪对照品（mg）",
+            "content": "",
+            "unit": "mg",
+            "mode": "blank"
+          },
+          {
+            "name": "供试品（g）",
+            "content": "/",
+            "unit": "g",
+            "mode": "blank"
+          }
+        ],
+        "system_suitability_text": "氢氯噻嗪峰与氯噻嗪峰的分离度应大于2.5。"
+      }
+    },
+    "products/hydrochlorothiazide/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "氢氯噻嗪片#2.1",
+      "params": {}
+    },
+    "products/hydrochlorothiazide/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "pilot",
+      "source_ref": "氢氯噻嗪片.md#2.3.5.1-2.3.5.2",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_system_solution_prep_0512"
+      }
+    },
+    "products/hydrochlorothiazide/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "pilot",
+      "source_ref": "氢氯噻嗪片.md#2.2.1-2.2.3",
+      "params": {}
+    },
+    "products/hydrochlorothiazide/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "氢氯噻嗪片#2.1",
+      "params": {}
+    },
+    "products/hydrochlorothiazide/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "pilot",
+      "source_ref": "氢氯噻嗪片.md#2.4.5.1-2.4.5.2",
+      "params": {
+        "title": "HPLC 含量（20片片重+测定）",
+        "hplc_weighing_variant": "20_tablets_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_system_solution_prep_0512"
+      }
+    },
+    "products/hydrochlorothiazide/packaging/content_uniformity": {
+      "template_id": "parents/content_uniformity_hplc_full",
+      "status": "pilot",
+      "source_ref": "氢氯噻嗪片.md#2.3.5.2",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "content_uniformity_conclusion_variant": "include",
+        "content_uniformity_attachment_variant": "raw",
+        "content_uniformity_calculation_heading_variant": "show",
+        "content_uniformity_operation_method_variant": "hplc_content_uniformity_direct_0512"
+      }
+    },
+    "products/isosorbide_dinitrate/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "硝酸异山梨酯片#2.1",
+      "params": {}
+    },
+    "products/isosorbide_dinitrate/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "硝酸异山梨酯片#2.1",
+      "params": {}
+    },
+    "products/isosorbide_dinitrate/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "硝酸异山梨酯片#2.1",
+      "params": {}
+    },
+    "products/methimazole/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "甲巯咪唑片#2.1",
+      "params": {}
+    },
+    "products/methimazole/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "甲巯咪唑片#2.1",
+      "params": {}
+    },
+    "products/methimazole/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "甲巯咪唑片#2.1",
+      "params": {}
+    },
+    "products/pantoprazole/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "泮托拉唑钠肠溶片#2.1",
+      "params": {}
+    },
+    "products/pantoprazole/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "泮托拉唑钠肠溶片#2.1",
+      "params": {}
+    },
+    "products/pantoprazole/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "泮托拉唑钠肠溶片#2.1",
+      "params": {}
+    },
+    "products/simvastatin/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "辛伐他汀片#2.1",
+      "params": {}
+    },
+    "products/simvastatin/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "辛伐他汀片#2.1",
+      "params": {}
+    },
+    "products/simvastatin/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "辛伐他汀片#2.1",
+      "params": {}
+    },
+    "products/spironolactone/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "螺内酯片#2.1",
+      "params": {}
+    },
+    "products/spironolactone/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "螺内酯片#2.1",
+      "params": {}
+    },
+    "products/spironolactone/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "螺内酯片#2.1",
+      "params": {}
+    },
+    "products/terazosin/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.1",
+      "params": {}
+    },
+    "products/terazosin/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.1",
+      "params": {}
+    },
+    "products/terazosin/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.1",
+      "params": {}
+    },
+    "products/verapamil/finished/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "盐酸维拉帕米片#2.1",
+      "params": {}
+    },
+    "products/verapamil/intermediate/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "盐酸维拉帕米片#2.1",
+      "params": {}
+    },
+    "products/verapamil/packaging/appearance": {
+      "template_id": "parents/appearance_basic",
+      "status": "pilot",
+      "source_ref": "盐酸维拉帕米片#2.1",
+      "params": {}
+    },
+    "products/allopurinol/finished/friability": {
+      "template_id": "parents/friability_full",
+      "status": "pilot",
+      "source_ref": "脆碎度模板化试点",
+      "params": {}
+    },
+    "products/atenolol/finished/friability": {
+      "template_id": "parents/friability_full",
+      "status": "pilot",
+      "source_ref": "脆碎度模板化试点",
+      "params": {}
+    },
+    "products/berberine_tannate/finished/friability": {
+      "template_id": "parents/friability_full",
+      "status": "pilot",
+      "source_ref": "脆碎度模板化试点",
+      "params": {}
+    },
+    "products/compound_rutin/finished/friability": {
+      "template_id": "parents/friability_full",
+      "status": "pilot",
+      "source_ref": "脆碎度模板化试点",
+      "params": {}
+    },
+    "products/hydrochlorothiazide/finished/friability": {
+      "template_id": "parents/friability_full",
+      "status": "pilot",
+      "source_ref": "脆碎度模板化试点",
+      "params": {}
+    },
+    "products/isosorbide_dinitrate/finished/friability": {
+      "template_id": "parents/friability_full",
+      "status": "pilot",
+      "source_ref": "脆碎度模板化试点",
+      "params": {}
+    },
+    "products/methimazole/finished/friability": {
+      "template_id": "parents/friability_full",
+      "status": "pilot",
+      "source_ref": "脆碎度模板化试点",
+      "params": {}
+    },
+    "products/spironolactone/finished/friability": {
+      "template_id": "parents/friability_full",
+      "status": "pilot",
+      "source_ref": "脆碎度模板化试点",
+      "params": {}
+    },
+    "products/allopurinol/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/atenolol/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/azithromycin/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {
+        "microbial_count_process_variant": "membrane_filter",
+        "diluent_name": "pH7.0无菌氯化钠-蛋白胨缓冲液"
+      }
+    },
+    "products/berberine_tannate/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/clarithromycin/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/compound_rutin/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/diammonium_glycyrrhizinate/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/hydrochlorothiazide/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/isosorbide_dinitrate/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/levofloxacin/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {
+        "microbial_count_process_variant": "membrane_filter_manganese",
+        "diluent_name": "pH7.0无菌氯化钠-蛋白胨缓冲液",
+        "manganese_solution_name": "0.1%硫酸锰溶液"
+      }
+    },
+    "products/methimazole/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/pantoprazole/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/simvastatin/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/spironolactone/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/terazosin/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/verapamil/finished/microbial_limit": {
+      "template_id": "parents/microbiology_limit_full",
+      "status": "pilot",
+      "source_ref": "微生物限度模板化试点",
+      "params": {}
+    },
+    "products/allopurinol/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "别嘌醇片#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/allopurinol/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "别嘌醇片#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "uv_absorbance_theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_content_0401"
+      }
+    },
+    "products/allopurinol/packaging/weight_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "mapped_from_family",
+      "source_ref": "别嘌醇片#2.2",
+      "family_id": "weighing.weight_variation_20",
+      "params": {
+        "title": "20片重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "片",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "weight_variation_20",
+        "variation_table_variant": "tablet_weight_20"
+      }
+    },
+    "products/allopurinol/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "别嘌醇片#2.3",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_sample_only_structured_0931_0401"
+      }
+    },
+    "products/allopurinol/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "别嘌醇片#2.4",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "uv_absorbance_20_tablets",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_content_0401"
+      }
+    },
+    "products/allopurinol/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "别嘌醇片#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "identification_operation_method_variant": "uv_ir"
+      }
+    },
+    "products/allopurinol/finished/related_substances": {
+      "template_id": "parents/related_substances_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "别嘌醇片#2.3",
+      "family_id": "assay.related_substances_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "related_conclusion_variant": "include",
+        "related_attachment_variant": "raw",
+        "related_operation_method_variant": "hplc_related_substances_multi_impurity_gradient_0512",
+        "related_gradient_table_variant": "hplc_0512_linear_gradient",
+        "related_gradient_rows": [
+          [
+            "0",
+            "85",
+            "15"
+          ],
+          [
+            "15",
+            "75",
+            "25"
+          ],
+          [
+            "30",
+            "55",
+            "45"
+          ],
+          [
+            "40",
+            "55",
+            "45"
+          ],
+          [
+            "45",
+            "85",
+            "15"
+          ],
+          [
+            "55",
+            "85",
+            "15"
+          ]
+        ],
+        "related_weighing_variant": "multi_reference_sample",
+        "related_measurement_variant": "system_suitability_peak_area",
+        "related_multi_calculation_variant": "multi_component"
+      }
+    },
+    "products/allopurinol/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "reused_packaging",
+      "source_ref": "别嘌醇片#2.4 -> 待包装品（二）2.3.4项下",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_sample_only_structured_0931_0401"
+      },
+      "reuse_from": "products/allopurinol/packaging/dissolution",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/allopurinol/finished/weight_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "reused_packaging",
+      "source_ref": "别嘌醇片#2.6 -> 待包装品（二）2.2.3项下",
+      "family_id": "weighing.weight_variation_20",
+      "params": {
+        "title": "20片重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "片",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "weight_variation_20",
+        "variation_table_variant": "tablet_weight_20"
+      },
+      "reuse_from": "products/allopurinol/packaging/weight_variation",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/allopurinol/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "reused_packaging",
+      "source_ref": "别嘌醇片#2.7 -> 待包装品（二）2.3.4.1项下",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "uv_absorbance_20_tablets",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_content_0401"
+      },
+      "reuse_from": "products/allopurinol/packaging/content",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/atenolol/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿替洛尔片#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/atenolol/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿替洛尔片#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_0512"
+      }
+    },
+    "products/atenolol/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿替洛尔片#2.2",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_full_structured_0931_0401"
+      }
+    },
+    "products/atenolol/packaging/weight_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿替洛尔片#2.3",
+      "family_id": "weighing.weight_variation_20",
+      "params": {
+        "title": "20片重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "片",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "weight_variation_20",
+        "variation_table_variant": "tablet_weight_20"
+      }
+    },
+    "products/atenolol/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿替洛尔片#2.4",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_0512"
+      }
+    },
+    "products/atenolol/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿替洛尔片#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "none",
+        "identification_operation_method_variant": "uv_ir"
+      }
+    },
+    "products/atenolol/finished/related_substances": {
+      "template_id": "parents/related_substances_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿替洛尔片#2.3",
+      "family_id": "assay.related_substances_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "related_conclusion_variant": "include",
+        "related_attachment_variant": "raw",
+        "related_peak_calculation_variant": "hplc_0512_peak_area",
+        "related_peak_rows": [
+          {
+            "group": "对照溶液",
+            "item": "对照溶液峰面积",
+            "field": "对照溶液峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "总杂质峰面积",
+            "field": "供试品总杂峰面积"
+          }
+        ],
+        "related_result_rows": [
+          {
+            "label": "总杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品总杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          }
+        ],
+        "related_operation_method_variant": "hplc_related_substances_0512",
+        "related_weighing_variant": "named_weighing",
+        "related_weighing_rows": [
+          {
+            "name": "供试品（mg）",
+            "content": "/",
+            "unit": "mg"
+          }
+        ]
+      }
+    },
+    "products/atenolol/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿替洛尔片#2.4",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "none",
+        "dissolution_operation_method_variant": "uv_cross_reference_structured_0931_0401"
+      }
+    },
+    "products/atenolol/finished/weight_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "reused_packaging",
+      "source_ref": "阿替洛尔片#2.5 -> 待包装品（二）2.3.3项下",
+      "family_id": "weighing.weight_variation_20",
+      "params": {
+        "title": "20片重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "片",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "weight_variation_20",
+        "variation_table_variant": "tablet_weight_20"
+      },
+      "reuse_from": "products/atenolol/packaging/weight_variation",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/atenolol/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿替洛尔片#2.7",
+      "family_id": "assay.hplc_content_simple",
+      "params": {
+        "title": "HPLC 含量简表",
+        "hplc_weighing_variant": "none",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_0512"
+      }
+    },
+    "products/azithromycin/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿奇霉素胶囊#2.1",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/azithromycin/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿奇霉素胶囊#2.2",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/azithromycin/packaging/fill_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿奇霉素胶囊#2.1",
+      "family_id": "weighing.fill_variation_20",
+      "params": {
+        "title": "20粒装量差异",
+        "conclusion_name": "装量差异",
+        "variation_kind": "fill",
+        "sample_unit": "粒",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "capsule_fill_variation_20",
+        "variation_table_variant": "capsule_fill_20"
+      }
+    },
+    "products/azithromycin/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿奇霉素胶囊#2.2",
+      "family_id": "assay.dissolution_hplc",
+      "params": {
+        "title": "溶出度 HPLC 测定",
+        "dissolution_method_variant": "hplc_inline",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "hplc_structured_0931_0512"
+      }
+    },
+    "products/azithromycin/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿奇霉素胶囊#2.3",
+      "family_id": "assay.hplc_content_simple",
+      "params": {
+        "title": "HPLC 含量简表",
+        "hplc_weighing_variant": "none",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_system_solution_prep_0512"
+      }
+    },
+    "products/azithromycin/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿奇霉素胶囊#2.1",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "none",
+        "identification_operation_method_variant": "hplc_prep"
+      }
+    },
+    "products/azithromycin/finished/related_substances": {
+      "template_id": "parents/related_substances_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿奇霉素胶囊#2.2",
+      "family_id": "assay.related_substances_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "related_conclusion_variant": "include",
+        "related_attachment_variant": "raw",
+        "related_peak_calculation_variant": "hplc_0512_peak_area",
+        "related_system_rows": [
+          {
+            "text": "系统适用性溶液色谱图中，各峰之间的分离度均应大于1.2。",
+            "field": "系统适用性分离度",
+            "options": [
+              "是",
+              "否"
+            ]
+          },
+          {
+            "text": "灵敏度溶液色谱峰信噪比应大于10。",
+            "field": "灵敏度信噪比",
+            "options": [
+              "是",
+              "否"
+            ]
+          }
+        ],
+        "related_peak_rows": [
+          {
+            "group": "对照品保留时间",
+            "item": "TR=",
+            "key": "layout/related_substances/azithromycin/TR"
+          },
+          {
+            "group": "对照品保留时间",
+            "item": "TQ=",
+            "key": "layout/related_substances/azithromycin/TQ"
+          },
+          {
+            "group": "对照品保留时间",
+            "item": "TJ=",
+            "key": "layout/related_substances/azithromycin/TJ"
+          },
+          {
+            "group": "对照品保留时间",
+            "item": "TI=",
+            "key": "layout/related_substances/azithromycin/TI"
+          },
+          {
+            "group": "对照品保留时间",
+            "item": "TS=",
+            "key": "layout/related_substances/azithromycin/TS"
+          },
+          {
+            "group": "对照品保留时间",
+            "item": "TA=",
+            "key": "layout/related_substances/azithromycin/TA"
+          },
+          {
+            "group": "对照品保留时间",
+            "item": "TH=",
+            "key": "layout/related_substances/azithromycin/TH"
+          },
+          {
+            "group": "对照品保留时间",
+            "item": "TB=",
+            "key": "layout/related_substances/azithromycin/TB"
+          },
+          {
+            "group": "对照",
+            "item": "Ar对=",
+            "field": "对照溶液主峰面积"
+          },
+          {
+            "group": "对照",
+            "item": "Ar对灵=",
+            "key": "layout/related_substances/azithromycin/sensitivity_ar"
+          },
+          {
+            "group": "供试品",
+            "item": "ArH=",
+            "field": "杂质H峰面积"
+          },
+          {
+            "group": "供试品",
+            "item": "ArQ=",
+            "field": "杂质Q峰面积"
+          },
+          {
+            "group": "供试品",
+            "item": "ArB=",
+            "field": "杂质B峰面积"
+          },
+          {
+            "group": "供试品",
+            "item": "Ar单=",
+            "field": "其他单个最大杂质峰面积"
+          },
+          {
+            "group": "供试品",
+            "item": "Ar总（校）=",
+            "field": "各杂质校正峰面积和"
+          }
+        ],
+        "related_result_rows": [
+          {
+            "label": "杂H%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "杂质H峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "杂质H",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "% 应≤1.0%（对照）"
+              }
+            ]
+          },
+          {
+            "label": "杂Q%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "杂质Q峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "杂质Q",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "% 应≤1.0%（对照）"
+              }
+            ]
+          },
+          {
+            "label": "杂B%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "杂质B峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "杂质B",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "% 应≤2.0%（对照）"
+              }
+            ]
+          },
+          {
+            "label": "单（杂）%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "其他单个最大杂质峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "其他单杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "% 应≤1.0%（对照）"
+              }
+            ]
+          },
+          {
+            "label": "总杂（校）%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "各杂质校正峰面积和"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "% 应≤4.0%（对照）"
+              }
+            ]
+          }
+        ],
+        "related_operation_method_variant": "hplc_related_substances_full_gradient_0512",
+        "related_gradient_table_variant": "hplc_0512_linear_gradient",
+        "related_gradient_rows": [
+          [
+            "0",
+            "75",
+            "25"
+          ],
+          [
+            "35",
+            "95",
+            "5"
+          ],
+          [
+            "64",
+            "95",
+            "5"
+          ],
+          [
+            "65",
+            "75",
+            "25"
+          ],
+          [
+            "71",
+            "75",
+            "25"
+          ]
+        ],
+        "related_weighing_variant": "named_weighing",
+        "related_weighing_rows": [
+          {
+            "name": "阿奇霉素系统适用性对照品",
+            "content": "",
+            "unit": "mg",
+            "mode": "blank"
+          },
+          {
+            "name": "杂质A 对照品（mg）",
+            "content": "",
+            "unit": "mg",
+            "mode": "blank"
+          },
+          {
+            "name": "杂质S 对照品（mg）",
+            "content": "",
+            "unit": "mg",
+            "mode": "blank"
+          },
+          {
+            "name": "供试品（g）",
+            "content": "/",
+            "unit": "g",
+            "mode": "blank"
+          }
+        ]
+      }
+    },
+    "products/azithromycin/finished/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "阿奇霉素胶囊#2.3",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/azithromycin/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "reused_packaging",
+      "source_ref": "阿奇霉素胶囊#2.4 -> 待包装品（二）2.2.5项下",
+      "family_id": "assay.dissolution_hplc",
+      "params": {
+        "title": "溶出度 HPLC 测定",
+        "dissolution_method_variant": "hplc_inline",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "hplc_structured_0931_0512"
+      },
+      "reuse_from": "products/azithromycin/packaging/dissolution",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/azithromycin/finished/fill_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "reused_packaging",
+      "source_ref": "阿奇霉素胶囊#2.5 -> 待包装品（二）2.1.3项下",
+      "family_id": "weighing.fill_variation_20",
+      "params": {
+        "title": "20粒装量差异",
+        "conclusion_name": "装量差异",
+        "variation_kind": "fill",
+        "sample_unit": "粒",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "capsule_fill_variation_20",
+        "variation_table_variant": "capsule_fill_20"
+      },
+      "reuse_from": "products/azithromycin/packaging/fill_variation",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/azithromycin/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "reused_packaging",
+      "source_ref": "阿奇霉素胶囊#2.6 -> 待包装品（二）2.2.5.2项下",
+      "family_id": "assay.hplc_content_simple",
+      "params": {
+        "title": "HPLC 含量简表",
+        "hplc_weighing_variant": "none",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_system_solution_prep_0512"
+      },
+      "reuse_from": "products/azithromycin/packaging/content",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/berberine_tannate/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "鞣酸小檗碱片#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/berberine_tannate/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "鞣酸小檗碱片#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_content_0401"
+      }
+    },
+    "products/berberine_tannate/packaging/weight_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "mapped_from_family",
+      "source_ref": "鞣酸小檗碱片#2.2",
+      "family_id": "weighing.weight_variation_20",
+      "params": {
+        "title": "20片重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "片",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "weight_variation_20",
+        "variation_table_variant": "tablet_weight_20"
+      }
+    },
+    "products/berberine_tannate/packaging/disintegration": {
+      "template_id": "parents/disintegration_full",
+      "status": "mapped_from_family",
+      "source_ref": "鞣酸小檗碱片#2.3",
+      "family_id": "physical.disintegration",
+      "params": {}
+    },
+    "products/berberine_tannate/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "鞣酸小檗碱片#2.4",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_content_0401"
+      }
+    },
+    "products/berberine_tannate/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "鞣酸小檗碱片#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "identification_operation_method_variant": "chemical_reaction"
+      }
+    },
+    "products/berberine_tannate/finished/weight_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "reused_packaging",
+      "source_ref": "鞣酸小檗碱片#2.4 -> 待包装品（二）2.2.3项下",
+      "family_id": "weighing.weight_variation_20",
+      "params": {
+        "title": "20片重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "片",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "weight_variation_20",
+        "variation_table_variant": "tablet_weight_20"
+      },
+      "reuse_from": "products/berberine_tannate/packaging/weight_variation",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/berberine_tannate/finished/disintegration": {
+      "template_id": "parents/disintegration_full",
+      "status": "mapped_from_family",
+      "source_ref": "鞣酸小檗碱片#2.5",
+      "family_id": "physical.disintegration",
+      "params": {}
+    },
+    "products/berberine_tannate/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "reused_packaging",
+      "source_ref": "鞣酸小檗碱片#2.6 -> 待包装品（二）2.4.5.1.2项下",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_content_0401"
+      },
+      "reuse_from": "products/berberine_tannate/packaging/content",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/clarithromycin/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "克拉霉素 胶囊#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/clarithromycin/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "克拉霉素 胶囊#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/clarithromycin/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "克拉霉素 胶囊#2.2",
+      "family_id": "assay.dissolution_hplc",
+      "params": {
+        "title": "溶出度 HPLC 测定",
+        "dissolution_method_variant": "hplc_inline",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "hplc_structured_0931_0512"
+      }
+    },
+    "products/clarithromycin/packaging/fill_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "mapped_from_family",
+      "source_ref": "克拉霉素 胶囊#2.3",
+      "family_id": "weighing.fill_variation_20",
+      "params": {
+        "title": "20粒装量差异",
+        "conclusion_name": "装量差异",
+        "variation_kind": "fill",
+        "sample_unit": "粒",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "capsule_fill_variation_20",
+        "variation_table_variant": "capsule_fill_20"
+      }
+    },
+    "products/clarithromycin/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "克拉霉素 胶囊#2.4",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/clarithromycin/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "克拉霉素 胶囊#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "none",
+        "identification_operation_method_variant": "retention_time"
+      }
+    },
+    "products/clarithromycin/finished/related_substances": {
+      "template_id": "parents/related_substances_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "克拉霉素 胶囊#2.3",
+      "family_id": "assay.related_substances_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "related_conclusion_variant": "include",
+        "related_attachment_variant": "raw",
+        "related_peak_calculation_variant": "hplc_0512_peak_area",
+        "related_peak_rows": [
+          {
+            "group": "对照溶液",
+            "item": "对照溶液峰面积",
+            "field": "对照溶液峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "单个最大杂质峰面积",
+            "field": "供试品单杂峰面积"
+          }
+        ],
+        "related_result_rows": [
+          {
+            "label": "单杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品单杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "单杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          }
+        ],
+        "related_operation_method_variant": "hplc_related_substances_solution_prep_0512",
+        "related_weighing_variant": "named_weighing",
+        "related_weighing_rows": [
+          {
+            "name": "供试品（mg）",
+            "content": "/",
+            "unit": "mg"
+          }
+        ]
+      }
+    },
+    "products/clarithromycin/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "reused_packaging",
+      "source_ref": "克拉霉素 胶囊#2.4 -> 待包装品（二）2.2.5项下",
+      "family_id": "assay.dissolution_hplc",
+      "params": {
+        "title": "溶出度 HPLC 测定",
+        "dissolution_method_variant": "hplc_inline",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "hplc_structured_0931_0512"
+      },
+      "reuse_from": "products/clarithromycin/packaging/dissolution",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/clarithromycin/finished/fill_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "reused_packaging",
+      "source_ref": "克拉霉素 胶囊#2.5 -> 待包装品（二）2.3.3项下",
+      "family_id": "weighing.fill_variation_20",
+      "params": {
+        "title": "20粒装量差异",
+        "conclusion_name": "装量差异",
+        "variation_kind": "fill",
+        "sample_unit": "粒",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "capsule_fill_variation_20",
+        "variation_table_variant": "capsule_fill_20"
+      },
+      "reuse_from": "products/clarithromycin/packaging/fill_variation",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/clarithromycin/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "克拉霉素 胶囊#2.6",
+      "family_id": "assay.hplc_content_simple",
+      "params": {
+        "title": "HPLC 含量简表",
+        "hplc_weighing_variant": "none",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/compound_rutin/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "复方芦丁片#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/compound_rutin/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "复方芦丁片#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_titration_compound_content"
+      }
+    },
+    "products/compound_rutin/packaging/weight_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "mapped_from_family",
+      "source_ref": "复方芦丁片#2.2",
+      "family_id": "weighing.weight_variation_20",
+      "params": {
+        "title": "20片重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "片",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "weight_variation_20",
+        "variation_table_variant": "tablet_weight_20"
+      }
+    },
+    "products/compound_rutin/packaging/disintegration": {
+      "template_id": "parents/disintegration_full",
+      "status": "mapped_from_family",
+      "source_ref": "复方芦丁片#2.3",
+      "family_id": "physical.disintegration",
+      "params": {}
+    },
+    "products/compound_rutin/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "复方芦丁片#2.4",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_titration_compound_content"
+      }
+    },
+    "products/compound_rutin/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "复方芦丁片#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "identification_operation_method_variant": "chemical_reaction"
+      }
+    },
+    "products/compound_rutin/finished/weight_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "reused_packaging",
+      "source_ref": "复方芦丁片#2.4 -> 待包装品（二）2.2.3项下",
+      "family_id": "weighing.weight_variation_20",
+      "params": {
+        "title": "20片重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "片",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "weight_variation_20",
+        "variation_table_variant": "tablet_weight_20"
+      },
+      "reuse_from": "products/compound_rutin/packaging/weight_variation",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/compound_rutin/finished/disintegration": {
+      "template_id": "parents/disintegration_full",
+      "status": "mapped_from_family",
+      "source_ref": "复方芦丁片#2.5",
+      "family_id": "physical.disintegration",
+      "params": {}
+    },
+    "products/compound_rutin/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "reused_packaging",
+      "source_ref": "复方芦丁片#2.6 -> 待包装品（二）2.4.5.1.2项下",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_titration_compound_content"
+      },
+      "reuse_from": "products/compound_rutin/packaging/content",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/diammonium_glycyrrhizinate/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "甘草酸二铵胶囊#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/diammonium_glycyrrhizinate/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "甘草酸二铵胶囊#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_content_0401"
+      }
+    },
+    "products/diammonium_glycyrrhizinate/packaging/weight_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "mapped_from_family",
+      "source_ref": "甘草酸二铵胶囊#2.2",
+      "family_id": "weighing.weight_variation_20",
+      "params": {
+        "title": "20粒重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "粒",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "capsule_weight_variation_20",
+        "variation_table_variant": "capsule_weight_20"
+      }
+    },
+    "products/diammonium_glycyrrhizinate/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "甘草酸二铵胶囊#2.3",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_dual_wavelength_structured_0931_0401"
+      }
+    },
+    "products/diammonium_glycyrrhizinate/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "甘草酸二铵胶囊#2.4",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "uv_content_0401"
+      }
+    },
+    "products/diammonium_glycyrrhizinate/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "甘草酸二铵胶囊#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "identification_operation_method_variant": "uv_ir"
+      }
+    },
+    "products/diammonium_glycyrrhizinate/finished/weight_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "reused_packaging",
+      "source_ref": "甘草酸二铵胶囊#2.3 -> 待包装品（二）同项目项下",
+      "family_id": "weighing.weight_variation_20",
+      "params": {
+        "title": "20粒重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "粒",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "capsule_weight_variation_20",
+        "variation_table_variant": "capsule_weight_20"
+      },
+      "reuse_from": "products/diammonium_glycyrrhizinate/packaging/weight_variation",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/diammonium_glycyrrhizinate/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "reused_packaging",
+      "source_ref": "甘草酸二铵胶囊#2.4 -> 待包装品（二）2.3.4项下",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_dual_wavelength_structured_0931_0401"
+      },
+      "reuse_from": "products/diammonium_glycyrrhizinate/packaging/dissolution",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/diammonium_glycyrrhizinate/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "reused_packaging",
+      "source_ref": "甘草酸二铵胶囊#2.5 -> 待包装品（二）2.4.4.1项下",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "uv_content_0401"
+      },
+      "reuse_from": "products/diammonium_glycyrrhizinate/packaging/content",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/hydrochlorothiazide/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "氢氯噻嗪片#2.2",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_full_structured_0931_0401"
+      }
+    },
+    "products/hydrochlorothiazide/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "氢氯噻嗪片#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "none",
+        "identification_operation_method_variant": "tlc"
+      }
+    },
+    "products/hydrochlorothiazide/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "reused_packaging",
+      "source_ref": "氢氯噻嗪片#2.4 -> 待包装品（二）2.2.5项下",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_full_structured_0931_0401"
+      },
+      "reuse_from": "products/hydrochlorothiazide/packaging/dissolution",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/hydrochlorothiazide/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "reused_packaging",
+      "source_ref": "氢氯噻嗪片#2.7 -> 待包装品（二）2.4.5.2项下",
+      "params": {
+        "title": "HPLC 含量（20片片重+测定）",
+        "hplc_weighing_variant": "20_tablets_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_system_solution_prep_0512"
+      },
+      "reuse_from": "products/hydrochlorothiazide/packaging/content",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/isosorbide_dinitrate/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "硝酸异山梨酯片#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/isosorbide_dinitrate/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "硝酸异山梨酯片#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "none",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/isosorbide_dinitrate/packaging/content_uniformity": {
+      "template_id": "parents/content_uniformity_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "硝酸异山梨酯片#2.2",
+      "family_id": "assay.content_uniformity_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "content_uniformity_conclusion_variant": "include",
+        "content_uniformity_attachment_variant": "raw",
+        "content_uniformity_calculation_heading_variant": "show",
+        "content_uniformity_operation_method_variant": "hplc_content_uniformity_direct_0512"
+      }
+    },
+    "products/isosorbide_dinitrate/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "硝酸异山梨酯片#2.3",
+      "family_id": "assay.dissolution_hplc",
+      "params": {
+        "title": "溶出度 HPLC 测定",
+        "dissolution_method_variant": "hplc_inline",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "hplc_structured_0931_0512"
+      }
+    },
+    "products/isosorbide_dinitrate/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "硝酸异山梨酯片#2.4",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/isosorbide_dinitrate/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "硝酸异山梨酯片#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "include",
+        "identification_operation_method_variant": "retention_time"
+      }
+    },
+    "products/isosorbide_dinitrate/finished/content_uniformity": {
+      "template_id": "parents/content_uniformity_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "硝酸异山梨酯片#2.3",
+      "family_id": "assay.content_uniformity_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "content_uniformity_conclusion_variant": "include",
+        "content_uniformity_attachment_variant": "none",
+        "content_uniformity_calculation_heading_variant": "inline",
+        "content_uniformity_operation_method_variant": "hplc_content_uniformity_direct_0512"
+      }
+    },
+    "products/isosorbide_dinitrate/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "硝酸异山梨酯片#2.4",
+      "family_id": "assay.dissolution_hplc",
+      "params": {
+        "title": "溶出度 HPLC 测定",
+        "dissolution_method_variant": "hplc_inline",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "none",
+        "dissolution_operation_method_variant": "hplc_cross_reference_structured_0931_0512"
+      }
+    },
+    "products/isosorbide_dinitrate/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "硝酸异山梨酯片#2.6",
+      "family_id": "assay.hplc_content_simple",
+      "params": {
+        "title": "HPLC 含量简表",
+        "hplc_weighing_variant": "none",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/levofloxacin/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸左氧氟沙星胶囊#2.1",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/levofloxacin/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸左氧氟沙星胶囊#2.2",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/levofloxacin/packaging/fill_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸左氧氟沙星胶囊#2.1",
+      "family_id": "weighing.fill_variation_20",
+      "params": {
+        "title": "20粒装量差异",
+        "conclusion_name": "装量差异",
+        "variation_kind": "fill",
+        "sample_unit": "粒",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "capsule_fill_variation_20",
+        "variation_table_variant": "capsule_fill_20"
+      }
+    },
+    "products/levofloxacin/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸左氧氟沙星胶囊#2.2",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_full_structured_0931_0401"
+      }
+    },
+    "products/levofloxacin/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸左氧氟沙星胶囊#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_system_solution_prep_0512"
+      }
+    },
+    "products/levofloxacin/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸左氧氟沙星胶囊#2.1",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "identification_operation_method_variant": "hplc_prep"
+      }
+    },
+    "products/levofloxacin/finished/related_substances": {
+      "template_id": "parents/related_substances_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸左氧氟沙星胶囊#2.2",
+      "family_id": "assay.related_substances_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "related_conclusion_variant": "include",
+        "related_attachment_variant": "raw",
+        "related_peak_calculation_variant": "hplc_0512_peak_area",
+        "related_system_rows": [
+          {
+            "text": "左氧氟沙星峰与杂质E峰和左氧氟沙星峰与环丙沙星峰的分离度应分别大于2.0与2.5。",
+            "parts": [
+              {
+                "type": "field",
+                "field": "系统适用性分离度-杂质E"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "系统适用性分离度-环丙沙星"
+              }
+            ],
+            "options": [
+              "是",
+              "否"
+            ]
+          }
+        ],
+        "related_peak_rows": [
+          {
+            "group": "对照品",
+            "item": "杂质A峰面积（238nm）",
+            "field": "杂质A对照品峰面积"
+          },
+          {
+            "group": "对照溶液",
+            "item": "对照溶液峰面积（294nm）",
+            "field": "对照溶液主峰面积"
+          },
+          {
+            "group": "供试品",
+            "item": "杂质A峰面积（238nm）",
+            "field": "杂质A峰面积"
+          },
+          {
+            "group": "供试品",
+            "item": "其他单个最大峰面积（294nm）",
+            "field": "其他单个最大杂质峰面积"
+          },
+          {
+            "group": "供试品",
+            "item": "总杂质峰面积和（294nm）",
+            "field": "其他各杂质峰面积和"
+          }
+        ],
+        "related_result_rows": [
+          {
+            "label": "杂质A%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "杂质A峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "杂质A对照品峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "杂质A",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          },
+          {
+            "label": "其他单杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "其他单个最大杂质峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液主峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "其他单杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          },
+          {
+            "label": "总杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "其他各杂质峰面积和"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液主峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          }
+        ],
+        "related_operation_method_variant": "hplc_related_substances_full_gradient_0512",
+        "related_gradient_table_variant": "hplc_0512_linear_gradient",
+        "related_gradient_rows": [
+          [
+            "0",
+            "100",
+            "0"
+          ],
+          [
+            "18",
+            "100",
+            "0"
+          ],
+          [
+            "25",
+            "70",
+            "30"
+          ],
+          [
+            "39",
+            "70",
+            "30"
+          ],
+          [
+            "40",
+            "100",
+            "0"
+          ],
+          [
+            "50",
+            "100",
+            "0"
+          ]
+        ],
+        "related_weighing_variant": "named_weighing",
+        "related_weighing_rows": [
+          {
+            "name": "杂质A 对照品（mg）",
+            "content": "",
+            "unit": "mg",
+            "mode": "blank"
+          },
+          {
+            "name": "供试品（g）",
+            "content": "/",
+            "unit": "g",
+            "mode": "blank"
+          }
+        ]
+      }
+    },
+    "products/levofloxacin/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "reused_packaging",
+      "source_ref": "盐酸左氧氟沙星胶囊#2.3 -> 待包装品（二）2.2.5项下",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_full_structured_0931_0401"
+      },
+      "reuse_from": "products/levofloxacin/packaging/dissolution",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/levofloxacin/finished/fill_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "reused_packaging",
+      "source_ref": "盐酸左氧氟沙星胶囊#2.4 -> 待包装品（二）2.1.3项下",
+      "family_id": "weighing.fill_variation_20",
+      "params": {
+        "title": "20粒装量差异",
+        "conclusion_name": "装量差异",
+        "variation_kind": "fill",
+        "sample_unit": "粒",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "capsule_fill_variation_20",
+        "variation_table_variant": "capsule_fill_20"
+      },
+      "reuse_from": "products/levofloxacin/packaging/fill_variation",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/levofloxacin/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "reused_packaging",
+      "source_ref": "盐酸左氧氟沙星胶囊#2.5 -> 待包装品（二）2.3.5.2项下",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_system_solution_prep_0512"
+      },
+      "reuse_from": "products/levofloxacin/packaging/content",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/methimazole/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "甲巯咪唑片#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/methimazole/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "甲巯咪唑片#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "titration_content"
+      }
+    },
+    "products/methimazole/packaging/disintegration": {
+      "template_id": "parents/disintegration_full",
+      "status": "mapped_from_family",
+      "source_ref": "甲巯咪唑片#2.2",
+      "family_id": "physical.disintegration",
+      "params": {}
+    },
+    "products/methimazole/packaging/content_uniformity": {
+      "template_id": "parents/content_uniformity_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "甲巯咪唑片#2.3",
+      "family_id": "assay.content_uniformity_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "include",
+        "content_uniformity_conclusion_variant": "include",
+        "content_uniformity_attachment_variant": "raw",
+        "content_uniformity_calculation_heading_variant": "show",
+        "content_uniformity_operation_method_variant": "uv_content_uniformity_0401"
+      }
+    },
+    "products/methimazole/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "甲巯咪唑片#2.4",
+      "family_id": "assay.hplc_content_simple",
+      "params": {
+        "title": "HPLC 含量简表",
+        "hplc_weighing_variant": "none",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "titration_content"
+      }
+    },
+    "products/methimazole/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "甲巯咪唑片#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "identification_operation_method_variant": "uv_ir"
+      }
+    },
+    "products/methimazole/finished/content_uniformity": {
+      "template_id": "parents/content_uniformity_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "甲巯咪唑片#2.4",
+      "family_id": "assay.content_uniformity_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "include",
+        "content_uniformity_conclusion_variant": "include",
+        "content_uniformity_attachment_variant": "none",
+        "content_uniformity_calculation_heading_variant": "inline",
+        "content_uniformity_operation_method_variant": "uv_content_uniformity_0401"
+      }
+    },
+    "products/methimazole/finished/disintegration": {
+      "template_id": "parents/disintegration_full",
+      "status": "mapped_from_family",
+      "source_ref": "甲巯咪唑片#2.5",
+      "family_id": "physical.disintegration",
+      "params": {}
+    },
+    "products/methimazole/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "reused_packaging",
+      "source_ref": "甲巯咪唑片#2.6 -> 待包装品（二）2.3.4.2项下",
+      "family_id": "assay.hplc_content_simple",
+      "params": {
+        "title": "HPLC 含量简表",
+        "hplc_weighing_variant": "none",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "titration_content"
+      },
+      "reuse_from": "products/methimazole/packaging/content",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/pantoprazole/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "泮托拉唑钠肠溶片#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/pantoprazole/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "泮托拉唑钠肠溶片#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_content_0401"
+      }
+    },
+    "products/pantoprazole/packaging/weight_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "mapped_from_family",
+      "source_ref": "泮托拉唑钠肠溶片#2.2",
+      "family_id": "weighing.weight_variation_20",
+      "params": {
+        "title": "20片重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "片",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "weight_variation_20",
+        "variation_table_variant": "tablet_weight_20"
+      }
+    },
+    "products/pantoprazole/packaging/酸中释放度": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "泮托拉唑钠肠溶片#2.3",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "酸中释放度",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "酸中释放度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "acid_release_uv"
+      }
+    },
+    "products/pantoprazole/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "泮托拉唑钠肠溶片#2.4",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "释放度",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "释放度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "buffer_release_uv"
+      }
+    },
+    "products/pantoprazole/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "泮托拉唑钠肠溶片#2.5",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_content_0401"
+      }
+    },
+    "products/pantoprazole/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "泮托拉唑钠肠溶片#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "identification_operation_method_variant": "uv_ir"
+      }
+    },
+    "products/pantoprazole/finished/weight_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "reused_packaging",
+      "source_ref": "泮托拉唑钠肠溶片#2.3 -> 待包装品（二）2.2.3项下",
+      "family_id": "weighing.weight_variation_20",
+      "params": {
+        "title": "20片重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "片",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "weight_variation_20",
+        "variation_table_variant": "tablet_weight_20"
+      },
+      "reuse_from": "products/pantoprazole/packaging/weight_variation",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/pantoprazole/finished/related_substances": {
+      "template_id": "parents/related_substances_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "泮托拉唑钠肠溶片#2.4",
+      "family_id": "assay.related_substances_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "related_conclusion_variant": "include",
+        "related_attachment_variant": "raw",
+        "related_peak_calculation_variant": "hplc_0512_peak_area",
+        "related_peak_rows": [
+          {
+            "group": "对照溶液",
+            "item": "对照溶液峰面积",
+            "field": "对照溶液峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "总杂质峰面积",
+            "field": "供试品总杂峰面积"
+          }
+        ],
+        "related_result_rows": [
+          {
+            "label": "总杂%=",
+            "parts": [
+              {
+                "type": "text",
+                "text": "主成份峰相对保留时间0.24以上各杂质峰的和 "
+              },
+              {
+                "type": "field",
+                "field": "供试品总杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          }
+        ],
+        "related_operation_method_variant": "hplc_related_substances_solution_prep_0512",
+        "related_weighing_variant": "named_weighing",
+        "related_weighing_show_content": false,
+        "related_weighing_rows": [
+          {
+            "name": "供试品（g）",
+            "unit": "mg"
+          }
+        ]
+      }
+    },
+    "products/pantoprazole/finished/酸中释放度": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "泮托拉唑钠肠溶片#2.5",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "酸中释放度",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "酸中释放度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "none",
+        "dissolution_operation_method_variant": "acid_release_uv_cross_reference"
+      }
+    },
+    "products/pantoprazole/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "泮托拉唑钠肠溶片#2.6",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "释放度",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "释放度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "none",
+        "dissolution_operation_method_variant": "buffer_release_uv_cross_reference"
+      }
+    },
+    "products/pantoprazole/finished/耐酸力": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "泮托拉唑钠肠溶片#2.7",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "耐酸力",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "耐酸力",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "acid_resistance_uv"
+      }
+    },
+    "products/pantoprazole/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "reused_packaging",
+      "source_ref": "泮托拉唑钠肠溶片#2.8 -> 待包装品（二）2.5.4.2项下",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "uv_content_0401"
+      },
+      "reuse_from": "products/pantoprazole/packaging/content",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/simvastatin/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "辛伐他汀片#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/simvastatin/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "辛伐他汀片#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_0512"
+      }
+    },
+    "products/simvastatin/packaging/content_uniformity": {
+      "template_id": "parents/content_uniformity_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "辛伐他汀片#2.2",
+      "family_id": "assay.content_uniformity_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "content_uniformity_conclusion_variant": "include",
+        "content_uniformity_attachment_variant": "raw",
+        "content_uniformity_calculation_heading_variant": "show",
+        "content_uniformity_operation_method_variant": "hplc_content_uniformity_reference_assay"
+      }
+    },
+    "products/simvastatin/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "辛伐他汀片#2.3",
+      "family_id": "assay.dissolution_hplc",
+      "params": {
+        "title": "溶出度 HPLC 测定",
+        "dissolution_method_variant": "hplc_inline",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "hplc_structured_0931_0512"
+      }
+    },
+    "products/simvastatin/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "辛伐他汀片#2.4",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_0512"
+      }
+    },
+    "products/simvastatin/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "辛伐他汀片#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "identification_operation_method_variant": "uv_ir"
+      }
+    },
+    "products/simvastatin/finished/content_uniformity": {
+      "template_id": "parents/content_uniformity_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "辛伐他汀片#2.3",
+      "family_id": "assay.content_uniformity_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "content_uniformity_conclusion_variant": "include",
+        "content_uniformity_attachment_variant": "none",
+        "content_uniformity_calculation_heading_variant": "inline",
+        "content_uniformity_operation_method_variant": "hplc_content_uniformity_reference_assay"
+      }
+    },
+    "products/simvastatin/finished/related_substances": {
+      "template_id": "parents/related_substances_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "辛伐他汀片#2.4",
+      "family_id": "assay.related_substances_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "related_conclusion_variant": "include",
+        "related_attachment_variant": "raw",
+        "related_peak_calculation_variant": "hplc_0512_peak_area",
+        "related_system_rows": [
+          {
+            "text": "辛伐他汀酸峰与洛伐他汀峰之间的分离度应不小于1.5，洛伐他汀峰与辛伐他汀峰之间的分离度应不小于4.0。",
+            "parts": [
+              {
+                "type": "field",
+                "field": "系统适用性分离度-辛伐他汀酸洛伐他汀"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "系统适用性分离度-洛伐他汀辛伐他汀"
+              }
+            ],
+            "options": [
+              "是",
+              "否"
+            ]
+          }
+        ],
+        "related_peak_rows": [
+          {
+            "group": "样",
+            "item": "m=",
+            "key": "layout/related_substances/simvastatin/sample_weight",
+            "unit": "g"
+          },
+          {
+            "group": "辛伐他汀对照品",
+            "item": "含量：",
+            "key": "layout/related_substances/simvastatin/simvastatin_content"
+          },
+          {
+            "group": "洛伐他汀对照品",
+            "item": "含量：",
+            "key": "layout/related_substances/simvastatin/lovastatin_content"
+          },
+          {
+            "group": "酸溶液",
+            "item": "m=",
+            "key": "layout/related_substances/simvastatin/acid_solution_weight"
+          },
+          {
+            "group": "系统适用性",
+            "item": "辛伐他汀对照品 m=",
+            "key": "layout/related_substances/simvastatin/system_simvastatin_weight"
+          },
+          {
+            "group": "系统适用性",
+            "item": "洛伐他汀对照品 m=",
+            "key": "layout/related_substances/simvastatin/system_lovastatin_weight"
+          },
+          {
+            "group": "对照溶液",
+            "item": "对照溶液峰面积",
+            "field": "对照溶液峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "其他单个最大峰面积",
+            "field": "供试品单个最大杂质峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "总杂质峰面积",
+            "field": "供试品总杂质峰面积"
+          }
+        ],
+        "related_result_rows": [
+          {
+            "label": "单杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品单个最大杂质峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "单杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          },
+          {
+            "label": "总杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品总杂质峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          }
+        ],
+        "related_operation_method_variant": "hplc_related_substances_full_gradient_0512",
+        "related_gradient_table_variant": "hplc_0512_linear_gradient",
+        "related_gradient_rows": [
+          [
+            "0",
+            "100",
+            "0"
+          ],
+          [
+            "4.5",
+            "100",
+            "0"
+          ],
+          [
+            "4.6",
+            "95",
+            "5"
+          ],
+          [
+            "8.0",
+            "25",
+            "75"
+          ],
+          [
+            "11.5",
+            "25",
+            "75"
+          ],
+          [
+            "11.6",
+            "100",
+            "0"
+          ],
+          [
+            "13",
+            "100",
+            "0"
+          ]
+        ]
+      }
+    },
+    "products/simvastatin/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "辛伐他汀片#2.5",
+      "family_id": "assay.dissolution_hplc",
+      "params": {
+        "title": "溶出度 HPLC 测定",
+        "dissolution_method_variant": "hplc_inline",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "none",
+        "dissolution_operation_method_variant": "hplc_cross_reference_structured_0931_0512"
+      }
+    },
+    "products/simvastatin/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "辛伐他汀片#2.6",
+      "family_id": "assay.hplc_content_simple",
+      "params": {
+        "title": "HPLC 含量简表",
+        "hplc_weighing_variant": "none",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_cross_reference_0512"
+      }
+    },
+    "products/spironolactone/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "螺内酯片#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/spironolactone/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "螺内酯片#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "show",
+        "hplc_operation_method_variant": "hplc_content_0512"
+      }
+    },
+    "products/spironolactone/packaging/content_uniformity": {
+      "template_id": "parents/content_uniformity_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "螺内酯片#2.2",
+      "family_id": "assay.content_uniformity_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "content_uniformity_conclusion_variant": "include",
+        "content_uniformity_attachment_variant": "raw",
+        "content_uniformity_calculation_heading_variant": "show",
+        "content_uniformity_operation_method_variant": "hplc_content_uniformity_reference_assay"
+      }
+    },
+    "products/spironolactone/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "螺内酯片#2.3",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_full_structured_0931_0401"
+      }
+    },
+    "products/spironolactone/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "螺内酯片#2.4",
+      "family_id": "assay.hplc_content_simple",
+      "params": {
+        "title": "HPLC 含量简表",
+        "hplc_weighing_variant": "none",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_0512"
+      }
+    },
+    "products/spironolactone/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "螺内酯片#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "none",
+        "identification_operation_method_variant": "retention_time"
+      }
+    },
+    "products/spironolactone/finished/related_substances": {
+      "template_id": "parents/related_substances_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "螺内酯片#2.3",
+      "family_id": "assay.related_substances_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "related_conclusion_variant": "include",
+        "related_attachment_variant": "raw",
+        "related_peak_calculation_variant": "hplc_0512_peak_area",
+        "related_system_rows": [
+          {
+            "text": "螺内酯峰与相邻杂质峰的分离度应符合要求。",
+            "field": "系统适用性分离度",
+            "options": [
+              "是",
+              "否"
+            ]
+          },
+          {
+            "text": "灵敏度溶液色谱峰信噪比应符合要求。",
+            "field": "灵敏度信噪比",
+            "options": [
+              "是",
+              "否"
+            ]
+          }
+        ],
+        "related_peak_rows": [
+          {
+            "group": "对照溶液",
+            "item": "对照溶液1峰面积（254nm）",
+            "field": "对照溶液1峰面积254nm"
+          },
+          {
+            "group": "对照溶液",
+            "item": "对照溶液2峰面积（254nm）",
+            "field": "对照溶液2峰面积254nm"
+          },
+          {
+            "group": "对照品",
+            "item": "坎利酮对照峰面积（283nm）",
+            "field": "坎利酮对照峰面积283nm"
+          },
+          {
+            "group": "供试品",
+            "item": "杂质峰面积和（254nm）",
+            "field": "供试品杂质峰面积和254nm"
+          },
+          {
+            "group": "供试品",
+            "item": "坎利酮峰面积（283nm）",
+            "field": "供试品坎利酮峰面积283nm"
+          }
+        ],
+        "related_result_rows": [
+          {
+            "label": "254nm杂质%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品杂质峰面积和254nm"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "254nm杂质",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          },
+          {
+            "label": "283nm坎利酮%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品坎利酮峰面积283nm"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "283nm坎利酮",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          },
+          {
+            "label": "总杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          }
+        ],
+        "related_operation_method_variant": "hplc_related_substances_full_gradient_0512",
+        "related_weighing_variant": "named_weighing",
+        "related_weighing_rows": [
+          {
+            "name": "坎利酮对照品（mg）",
+            "content": "",
+            "unit": "mg"
+          },
+          {
+            "name": "供试品（g）",
+            "content": "/",
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "products/spironolactone/finished/content_uniformity": {
+      "template_id": "parents/content_uniformity_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "螺内酯片#2.4",
+      "family_id": "assay.content_uniformity_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "content_uniformity_conclusion_variant": "include",
+        "content_uniformity_attachment_variant": "none",
+        "content_uniformity_calculation_heading_variant": "inline",
+        "content_uniformity_operation_method_variant": "hplc_content_uniformity_reference_assay"
+      }
+    },
+    "products/spironolactone/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "螺内酯片#2.5",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "none",
+        "dissolution_operation_method_variant": "uv_cross_reference_structured_0931_0401"
+      }
+    },
+    "products/spironolactone/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "螺内酯片#2.7",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "none",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/terazosin/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/terazosin/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/terazosin/packaging/content_uniformity": {
+      "template_id": "parents/content_uniformity_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.2",
+      "family_id": "assay.content_uniformity_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "content_uniformity_conclusion_variant": "include",
+        "content_uniformity_attachment_variant": "raw",
+        "content_uniformity_calculation_heading_variant": "inline",
+        "content_uniformity_operation_method_variant": "hplc_content_uniformity_direct_0512"
+      }
+    },
+    "products/terazosin/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.3",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_full_structured_0931_0401"
+      }
+    },
+    "products/terazosin/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.4",
+      "family_id": "assay.hplc_content_simple",
+      "params": {
+        "title": "HPLC 含量简表",
+        "hplc_weighing_variant": "none",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/terazosin/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "identification_operation_method_variant": "uv_ir"
+      }
+    },
+    "products/terazosin/finished/related_substances": {
+      "template_id": "parents/related_substances_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.3",
+      "family_id": "assay.related_substances_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "related_conclusion_variant": "include",
+        "related_attachment_variant": "raw",
+        "related_peak_calculation_variant": "hplc_0512_peak_area",
+        "related_system_rows": [
+          {
+            "text": "特拉唑嗪峰与相邻杂质峰的分离度应符合要求。",
+            "key": "layout/related_substances/terazosin/system_suitability",
+            "options": [
+              "是",
+              "否"
+            ]
+          }
+        ],
+        "related_peak_rows": [
+          {
+            "group": "对照溶液",
+            "item": "对照溶液峰面积",
+            "field": "对照溶液峰面积"
+          },
+          {
+            "group": "供试品",
+            "item": "单个最大杂质峰面积",
+            "field": "供试品单杂峰面积"
+          },
+          {
+            "group": "供试品",
+            "item": "总杂质峰面积",
+            "field": "供试品总杂峰面积"
+          }
+        ],
+        "related_result_rows": [
+          {
+            "label": "单杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品单杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×0.5 = "
+              },
+              {
+                "type": "field",
+                "field": "单杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          },
+          {
+            "label": "总杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品总杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×0.5 = "
+              },
+              {
+                "type": "field",
+                "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          }
+        ],
+        "related_operation_method_variant": "hplc_related_substances_solution_prep_0512",
+        "related_weighing_variant": "named_weighing",
+        "related_weighing_show_content": false,
+        "related_weighing_rows": [
+          {
+            "name": "供试品（g）",
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "products/terazosin/finished/content_uniformity": {
+      "template_id": "parents/content_uniformity_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.4",
+      "family_id": "assay.content_uniformity_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "content_uniformity_conclusion_variant": "include",
+        "content_uniformity_attachment_variant": "none",
+        "content_uniformity_calculation_heading_variant": "inline",
+        "content_uniformity_operation_method_variant": "hplc_content_uniformity_reference_assay"
+      }
+    },
+    "products/terazosin/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "reused_packaging",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.5 -> 待包装品（二）2.3.5项下",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_full_structured_0931_0401"
+      },
+      "reuse_from": "products/terazosin/packaging/dissolution",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/terazosin/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "reused_packaging",
+      "source_ref": "盐酸特拉唑嗪 胶囊#2.6 -> 待包装品（二）2.4.5.2项下",
+      "family_id": "assay.hplc_content_simple",
+      "params": {
+        "title": "HPLC 含量简表",
+        "hplc_weighing_variant": "none",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      },
+      "reuse_from": "products/terazosin/packaging/content",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/verapamil/intermediate/moisture": {
+      "template_id": "parents/moisture_two_sample_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸维拉帕米片#2.2",
+      "family_id": "weighing.moisture_two_sample",
+      "params": {}
+    },
+    "products/verapamil/intermediate/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸维拉帕米片#2.3",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/verapamil/packaging/fill_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸维拉帕米片#2.2",
+      "family_id": "weighing.fill_variation_20",
+      "params": {
+        "title": "20片重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "片",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "weight_variation_20",
+        "variation_table_variant": "tablet_weight_20"
+      }
+    },
+    "products/verapamil/packaging/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸维拉帕米片#2.3",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_full_structured_0931_0401"
+      }
+    },
+    "products/verapamil/packaging/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸维拉帕米片#2.4",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      }
+    },
+    "products/verapamil/finished/identification": {
+      "template_id": "parents/identification_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸维拉帕米片#2.2",
+      "family_id": "identification.mixed",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "identification_operation_method_variant": "retention_time"
+      }
+    },
+    "products/verapamil/finished/related_substances": {
+      "template_id": "parents/related_substances_hplc_full",
+      "status": "mapped_from_family",
+      "source_ref": "盐酸维拉帕米片#2.3",
+      "family_id": "assay.related_substances_hplc",
+      "params": {
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "none",
+        "related_conclusion_variant": "include",
+        "related_attachment_variant": "raw",
+        "related_peak_calculation_variant": "hplc_0512_peak_area",
+        "related_peak_rows": [
+          {
+            "group": "对照溶液",
+            "item": "对照溶液峰面积",
+            "field": "对照溶液峰面积"
+          },
+          {
+            "group": "供试品溶液",
+            "item": "总杂质峰面积",
+            "field": "供试品总杂峰面积"
+          }
+        ],
+        "related_result_rows": [
+          {
+            "label": "总杂%=",
+            "parts": [
+              {
+                "type": "field",
+                "field": "供试品总杂峰面积"
+              },
+              {
+                "type": "text",
+                "text": " / "
+              },
+              {
+                "type": "field",
+                "field": "对照溶液峰面积"
+              },
+              {
+                "type": "text",
+                "text": " ×100% = "
+              },
+              {
+                "type": "field",
+                "field": "总杂",
+                "readonly_display": true
+              },
+              {
+                "type": "text",
+                "text": "%"
+              }
+            ]
+          }
+        ],
+        "related_operation_method_variant": "hplc_related_substances_solution_prep_0512",
+        "related_weighing_variant": "named_weighing",
+        "related_weighing_rows": [
+          {
+            "name": "供试品（g）",
+            "content": "/",
+            "unit": "g"
+          }
+        ]
+      }
+    },
+    "products/verapamil/finished/dissolution": {
+      "template_id": "parents/dissolution_full",
+      "status": "reused_packaging",
+      "source_ref": "盐酸维拉帕米片#2.4 -> 待包装品（二）2.3.5项下",
+      "family_id": "assay.dissolution_uv",
+      "params": {
+        "title": "溶出度 UV 测定",
+        "dissolution_method_variant": "uv",
+        "conclusion_name": "溶出度",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "dissolution_conclusion_variant": "include",
+        "dissolution_attachment_variant": "raw",
+        "dissolution_operation_method_variant": "uv_full_structured_0931_0401"
+      },
+      "reuse_from": "products/verapamil/packaging/dissolution",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/verapamil/finished/fill_variation": {
+      "template_id": "parents/variation_20_full",
+      "status": "reused_packaging",
+      "source_ref": "盐酸维拉帕米片#2.5 -> 待包装品（二）2.2.3项下",
+      "family_id": "weighing.fill_variation_20",
+      "params": {
+        "title": "20片重量差异",
+        "conclusion_name": "重量差异",
+        "variation_kind": "weight",
+        "sample_unit": "片",
+        "sample_count": 20,
+        "has_value": false,
+        "auto_judgment": false,
+        "variation_operation_method_variant": "weight_variation_20",
+        "variation_table_variant": "tablet_weight_20"
+      },
+      "reuse_from": "products/verapamil/packaging/fill_variation",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    },
+    "products/verapamil/finished/content": {
+      "template_id": "parents/hplc_content_full",
+      "status": "reused_packaging",
+      "source_ref": "盐酸维拉帕米片#2.6 -> 待包装品（二）2.4.5.2项下",
+      "family_id": "assay.hplc_content_full",
+      "params": {
+        "title": "HPLC 含量（称重+测定）",
+        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_attachment_variant": "raw",
+        "hplc_conclusion_variant": "include",
+        "conclusion_name": "含量",
+        "has_value": true,
+        "unit": "%",
+        "auto_judgment": false,
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "include",
+        "pre_method_reference_variant": "include",
+        "hplc_measurement_heading_variant": "inline",
+        "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
+      },
+      "reuse_from": "products/verapamil/packaging/content",
+      "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
+    }
+  }
+}

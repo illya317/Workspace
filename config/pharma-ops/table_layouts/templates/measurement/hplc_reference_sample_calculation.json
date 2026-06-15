@@ -1,0 +1,499 @@
+{
+  "schema_version": 2,
+  "template_id": "measurement/hplc_reference_sample_calculation",
+  "title": "HPLC 含量测定与计算",
+  "section_no": "2.3.5.2",
+  "category": "measurement",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "氢氯噻嗪片",
+      "stage": "中间体",
+      "section_no": "2.3.5.2",
+      "md": "schema/md_canonical/氢氯噻嗪片.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "text": "测定与计算",
+      "order": 150,
+      "section_ref": "operation",
+      "section_suffix": "2"
+    },
+    {
+      "type": "table",
+      "label": "对照品计算",
+      "rows": [
+        {
+          "cells": [
+            {
+              "colspan": 5,
+              "text": "对照品计算"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "header": true,
+              "text": "名称"
+            },
+            {
+              "header": true,
+              "text": "峰面积（Ar）"
+            },
+            {
+              "header": true,
+              "text": "Ar/mg"
+            },
+            {
+              "header": true,
+              "text": "平均（Ar/mg）"
+            },
+            {
+              "header": true,
+              "text": "RSD≤2.0%"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "rowspan": 3,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "对照1："
+                },
+                {
+                  "type": "field",
+                  "field": "对照1-净重"
+                },
+                {
+                  "type": "text",
+                  "text": " mg"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "对照1-峰面积"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/reference_1_ar_per_mg"
+                }
+              ]
+            },
+            {
+              "rowspan": 6,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "对照平均峰面积"
+                }
+              ]
+            },
+            {
+              "rowspan": 6,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "对照RSD",
+                  "recommended_range": {
+                    "max": 2.0
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/reference_1_ar_2"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/reference_1_ar_per_mg_2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/reference_1_ar_3"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/reference_1_ar_per_mg_3"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "rowspan": 3,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "对照2："
+                },
+                {
+                  "type": "field",
+                  "field": "对照2-净重"
+                },
+                {
+                  "type": "text",
+                  "text": " mg"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "对照2-峰面积"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/reference_2_ar_per_mg"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/reference_2_ar_2"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/reference_2_ar_per_mg_2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/reference_2_ar_3"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/reference_2_ar_per_mg_3"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "order": 150
+    },
+    {
+      "type": "table",
+      "label": "供试品计算",
+      "rows": [
+        {
+          "cells": [
+            {
+              "colspan": 7,
+              "text": "供试品计算"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "rowspan": 2,
+              "text": "计算公式"
+            },
+            {
+              "colspan": 6,
+              "text": "含量（Cx）=（CR×Ax）/AR"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "colspan": 6,
+              "text": "含量（%）=[（A样×2×对照%×片重×1000）/（m样×A对×25）]×100%"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "header": true,
+              "text": "名称"
+            },
+            {
+              "header": true,
+              "text": "峰面积（Ar）"
+            },
+            {
+              "header": true,
+              "text": "平均（Ar）"
+            },
+            {
+              "header": true,
+              "text": "RD≤2.0%"
+            },
+            {
+              "header": true,
+              "text": "含量（%）"
+            },
+            {
+              "header": true,
+              "text": "平均（%）"
+            },
+            {
+              "header": true,
+              "text": "RD≤2.0%"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "rowspan": 2,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品样1："
+                },
+                {
+                  "type": "field",
+                  "field": "样1-净重"
+                },
+                {
+                  "type": "text",
+                  "text": " mg"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "样1-峰面积"
+                }
+              ]
+            },
+            {
+              "rowspan": 2,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "样1-平均峰面积"
+                }
+              ]
+            },
+            {
+              "rowspan": 2,
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/sample_1_rd",
+                  "recommended_range": {
+                    "max": 2.0
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ]
+            },
+            {
+              "rowspan": 2,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "样1-含量"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ]
+            },
+            {
+              "rowspan": 4,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "平均含量"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ]
+            },
+            {
+              "rowspan": 4,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "RD",
+                  "recommended_range": {
+                    "max": 2.0
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/sample_1_ar_2"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "rowspan": 2,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品样2："
+                },
+                {
+                  "type": "field",
+                  "field": "样2-净重"
+                },
+                {
+                  "type": "text",
+                  "text": " mg"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "样2-峰面积"
+                }
+              ]
+            },
+            {
+              "rowspan": 2,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "样2-平均峰面积"
+                }
+              ]
+            },
+            {
+              "rowspan": 2,
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/sample_2_rd",
+                  "recommended_range": {
+                    "max": 2.0
+                  }
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ]
+            },
+            {
+              "rowspan": 2,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "样2-含量"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/hplc/sample_2_ar_2"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "order": 150
+    }
+  ],
+  "order": 150
+}

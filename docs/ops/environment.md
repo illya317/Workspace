@@ -70,11 +70,25 @@ Production example:
 WECHAT_REDIRECT_ORIGIN=https://fh-bio.cn
 ```
 
+### `WORKSPACE_QC_CONFIG_ROOT`
+
+Optional absolute path to a Workspace QC config snapshot. By default Workspace reads the
+committed snapshot at `config/pharma-ops`, which contains the copied YAML/JSON config from
+`pharma-ops/config`.
+
+Set this only when temporarily testing another config snapshot:
+
+```bash
+WORKSPACE_QC_CONFIG_ROOT=/home/ubuntu/workspace/config/pharma-ops
+```
+
 ### `PHARMA_OPS_ROOT`
 
-Optional absolute path to the `pharma-ops` checkout. Workspace reads `config/products.yaml`,
-`config/record_templates/*.yaml`, `config/methods/*.yaml`, and
-`config/table_layouts/layout_mapping.json` from this directory during the QC migration.
+Optional absolute path to the `pharma-ops` checkout. This is now a fallback for the QC migration:
+Workspace first tries `WORKSPACE_QC_CONFIG_ROOT`, then the committed snapshot at
+`config/pharma-ops`, and only then external `pharma-ops` directories. When used, Workspace reads
+`config/products.yaml`, `config/record_templates/*.yaml`, `config/methods/*.yaml`, and
+`config/table_layouts/*.json` from this directory.
 
 If omitted, Workspace tries nearby deployment shapes such as `../pharma-ops`,
 `../../pharma-ops`, and `../../../pharma-ops` relative to the current process cwd.

@@ -1,0 +1,957 @@
+{
+  "schema_version": 1,
+  "layout_key": "products/compound_rutin/finished/friability",
+  "status": "needs_review",
+  "source": {
+    "kind": "docx_fingerprint",
+    "product": "复方芦丁片",
+    "product_key": "compound_rutin",
+    "stage": "成品",
+    "stage_key": "finished",
+    "test_seq": "2.3",
+    "test_name": "脆碎度",
+    "test_name_en": "friability",
+    "method": "脆碎度",
+    "fingerprint_key": "成品/2.3 ",
+    "pdf_preview": "docs/coverage/audit/pdf_previews/R01-SOP073506 复方芦丁片批检验记录09.pdf"
+  },
+  "stats": {
+    "tables": 1,
+    "dates": 3,
+    "choices": 2,
+    "notes": 1,
+    "lines": 40
+  },
+  "blocks": [
+    {
+      "type": "table",
+      "label": "表格 1",
+      "logical_rows": 10,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.3  检测项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3  检测项目"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "脆碎度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "脆碎度"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检验日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验日期"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r0_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "完成日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "完成日期"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r1_c1_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "判定日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "判定日期"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r1_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.1 实验环境：温度：10℃～30℃，湿度≤75%（天平室≤70%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.1 实验环境：温度：10℃～30℃，湿度≤75%"
+                },
+                {
+                  "type": "note",
+                  "text": "（天平室≤70%）"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.2 仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.2 仪器、设备"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "仪器、设备"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备编号"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备状态",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备状态"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "校验有效期至",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "校验有效期至"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否确认",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否确认"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r7_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "片剂脆碎度测定仪",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "片剂脆碎度测定仪"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r8_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.3操作方法 取供试品适量，照通则(0923)法测定，用吹风机吹去片剂脱落的粉末，精密称定_________g（约6.5g），置圆筒中，转动100次。取出，同法除去粉末，精密称定_________g。   计算第一次测试测试前称重（g）                   -               =                   g测试后称重（g）                   -               =                   g减失重量（%）（          -            ）/         ×100% =           %（片面）目测      有□ 无□ 断裂、龟裂及粉碎的片。第二次测试测试前称重（g）                   -               =                   g测试后称重（g）                   -               =                   g减失重量（%）（          -            ）/         ×100% =           %第三次测试测试前称重（g）                   -               =                   g测试后称重（g）                   -               =                   g减失重量（%）（          -            ）/         ×100% =           %三次减失量平均（        % +          %+          %）/ 3 =            % 2.3.4 标准规定本次试验一般仅作一次。      内控标准：①减失重量不得过0.9%；且不得检出断裂、龟裂及粉碎的片。              ②如减失重量超过0.9%时，应复测2次，3次的平均平均减失重量不得过0.9%，并不",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.3操作方法 取供试品适量，照通则(0923)法测定，用吹风机吹去片剂脱落的粉末，精密称定"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p0_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "g（约6.5g），置圆筒中，转动100次。取出，同法除去粉末，精密称定"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p1_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "g。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p2_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "计算第一次测试测试前称重（g）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p3_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p4_line",
+                  "width": "105px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p5_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "g测试后称重（g）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p6_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p7_line",
+                  "width": "105px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p8_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "g减失重量（%）（"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p9_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p10_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "）/"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p11_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "×100% ="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p12_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%（片面）目测"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p13_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "有□ 无□ 断裂、龟裂及粉碎的片。第二次测试测试前称重（g）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p14_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p15_line",
+                  "width": "105px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p16_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "g测试后称重（g）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p17_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p18_line",
+                  "width": "105px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p19_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "g减失重量（%）（"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p20_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p21_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "）/"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p22_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "×100% ="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p23_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%第三次测试测试前称重（g）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p24_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p25_line",
+                  "width": "105px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p26_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "g测试后称重（g）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p27_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p28_line",
+                  "width": "105px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p29_line",
+                  "width": "133px"
+                },
+                {
+                  "type": "text",
+                  "text": "g减失重量（%）（"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p30_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p31_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "）/"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p32_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "×100% ="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p33_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%三次减失量平均（"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p34_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "% +"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p35_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%+"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p36_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%）/ 3 ="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p37_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "% 2.3.4 标准规定本次试验一般仅作一次。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p38_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "内控标准：①减失重量不得过0.9%；且不得检出断裂、龟裂及粉碎的片。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/finished/friability/t0_r9_c0_p39_line",
+                  "width": "98px"
+                },
+                {
+                  "type": "text",
+                  "text": "②如减失重量超过0.9%时，应复测2次，3次的平均平均减失重量不得过0.9%，并不"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": 2,
+  "template_id": "measurement/hplc_0512_linear_gradient_table",
+  "title": "HPLC 0512 线性梯度表",
+  "category": "measurement",
+  "method_code": "0512",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "高效液相色谱法（通则0512）线性梯度洗脱",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "hplc_gradient_table",
+      "label": "线性梯度洗脱",
+      "rows_param": "related_gradient_rows",
+      "order": 137
+    }
+  ],
+  "order": 137
+}

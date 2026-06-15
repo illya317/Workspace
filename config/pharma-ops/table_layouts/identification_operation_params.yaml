@@ -1,0 +1,190 @@
+schema_version: 1
+template_id: identification_operation_methods
+description: 鉴别操作方法结构化参数。JSON 负责标准句式，YAML 只保存样品、试剂、波长、预期现象等差异参数。
+products:
+  clarithromycin:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: retention_time
+          reference_section: 含量测定项下记录的色谱图
+  isosorbide_dinitrate:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: retention_time
+          reference_section: 含量测定项下记录的色谱图
+  spironolactone:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: retention_time
+          reference_section: 含量测定项下记录的色谱图
+  verapamil:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: retention_time
+          reference_section: 含量测定项下记录的色谱图
+  hydrochlorothiazide:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: tlc
+          sample: 本品细粉适量____
+          sample_solvent: 丙酮____
+          reference_name: 氢氯噻嗪
+          reference_solvent: 丙酮
+          reference_concentration: 0.1%的溶液
+          plate: 硅胶GF254薄层板
+          developing_solvent: 乙酸乙酯
+          spot_volume: 5μl
+          inspection_light: 紫外灯____
+          expected: 位置和颜色应与对照品溶液主斑点一致
+  azithromycin:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: hplc_prep
+          sample_source: 本品内容物适量研细
+          sample_unit: mg
+          sample_solvent: 乙醇
+          sample_concentration: 每1ml中约含5mg的溶液
+          reference_name: 阿奇霉素
+          reference_unit: mg
+          reference_solvent: 乙醇2ml
+          reference_concentration: 每1ml中约含5mg的溶液
+          compare_source: 含量测定项下记录的色谱图
+  levofloxacin:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: hplc_prep
+          chemical_sample: 本品内容物适量
+          chemical_sample_unit: mg
+          chemical_sample_default: 左氧氟沙星10mg
+          chemical_reagents: 丙二酸{FIELD:mg（10mg）}与醋酐{FIELD:ml（0.5ml）}
+          chemical_process: 水浴中加热5～10分钟
+          chemical_expected: 溶液显红棕色
+          column: 十八烷基硅烷键合硅胶
+          column_spec: C18×____mm×4.6mm
+          mobile_phase: 硫酸铜D-苯丙氨酸溶液-甲醇（82:18）
+          column_temp: 40℃
+          wavelength: 294nm
+          injection_volume: 20μl
+          solution_basis: 标准操作规程
+          compare_source: 供试品溶液主峰保留时间
+  diammonium_glycyrrhizinate:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: uv_absorption
+          solution_source: 含量测定项下的溶液
+          wavelength: 252nm±2nm
+          absorption_type: 最大吸收
+  methimazole:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: uv_absorption
+          solution_source: 含量均匀度项下的供试品溶液
+          wavelength: 252nm±2nm
+          absorption_type: 最大吸收
+  atenolol:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: uv_retention
+          sample_source: 本品适量研细
+          sample_solvent: 无水乙醇
+          sample_concentration: 每1ml中约含阿替洛尔10μg的溶液
+          wavelengths: ____、____与____
+          compare_source: 含量测定项下记录的色谱图
+  simvastatin:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: uv_retention
+          sample_source: 含量项下细粉适量
+          sample_solvent: 规定溶剂
+          sample_concentration: 每1ml中约含辛伐他汀10μg的溶液
+          wavelengths: 231nm±2nm、238nm±2nm与247nm±2nm
+          compare_source: 含量测定项下记录的色谱图
+  pantoprazole:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: uv_chemical
+          chemical_sample: 本品除去薄膜衣并研细
+          chemical_reagents: 水、稀盐酸与硅钨酸试液
+          chemical_expected: 产生白色絮状沉淀
+          solution_source: 含量测定项下的溶液
+          max_wavelength: 292nm±2nm
+          min_wavelength: 250nm±2nm
+  terazosin:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: uv_chemical
+          compare_source: 含量测定项下所记录的色谱图
+          solution_source: 本品细粉约相当于特拉唑嗪4mg，加盐酸溶液（9→1000）溶解并稀释、滤过后的滤液
+          max_wavelength: 246nm±2nm
+          chemical_sample: 本品细粉约相当于特拉唑嗪20mg
+          chemical_reagents: 水、稀硝酸、硝酸银试液、氨试液
+          chemical_expected: 生成白色沉淀；沉淀加氨试液溶解，再加稀硝酸复现沉淀
+  berberine_tannate:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: chemical_reaction
+          step1_sample: 本品____
+          step1_reagents: 水____和稀盐酸____
+          step1_process: 振摇1分钟后滤过，取滤液照标准方法试验
+          step1_expected: 应符合规定
+  compound_rutin:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: chemical_reaction
+          step1_sample: 本品细粉{FIELD:g（0.1g）}
+          step1_reagents: 氢氧化钠试液{FIELD:ml（5ml）}
+          step1_expected: 溶液显规定颜色
+          step2_sample: 本品细粉{FIELD:g（0.1g）}
+          step2_reagents: 乙醇{FIELD:ml（15ml）}，微热使芦丁溶解后分成二份；一份加盐酸{FIELD:ml（1ml）}与金属锌{FIELD:粒（3粒）}，另一份加三氯化铁试液{FIELD:滴（1滴）}
+          step2_expected: 分别显规定颜色
+          step3_sample: 本品细粉{FIELD:mg（维生素C20mg）}
+          step3_reagents: 水{FIELD:ml（5ml）}、碱性酒石酸铜试液{FIELD:ml（1ml）}
+          step3_process: 使维生素C溶解后滤过并加热
+          step3_expected: 产生规定沉淀
+  allopurinol:
+    finished:
+      identification:
+        操作方法模板: identification_structured
+        操作方法参数:
+          profile: allopurinol_bpc
+          step1_sample: 本品细粉{FIELD:g（别嘌醇0.1g）}
+          step1_reagents: 5%氢氧化钠{FIELD:ml（10ml）}、滤液{FIELD:ml（5ml）}、碱性碘化汞钾试液{FIELD:ml（1ml）}
+          step1_process: 搅拌溶解、滤过、加热至沸后放置
+          step1_expected: 生成黄色沉淀
+          uv_solution_source: 含量测定项下的溶液
+          max_wavelength: 250nm±2nm
+          min_wavelength: 231nm±2nm
+          absorbance_ratio: 0.52～0.60
+          step3_sample: 本品细粉{FIELD:g（别嘌醇0.2g）}
+          step3_reagents: 氢氧化钠试液{FIELD:ml（40ml）}
+          step3_expected: 按标准反应应符合规定

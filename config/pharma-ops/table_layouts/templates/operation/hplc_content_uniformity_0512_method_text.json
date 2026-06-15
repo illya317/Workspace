@@ -1,0 +1,83 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/hplc_content_uniformity_0512_method_text",
+  "title": "HPLC含量均匀度通则0512操作说明",
+  "category": "operation",
+  "method_code": "0512",
+  "status": "pilot",
+  "order": 35,
+  "blocks": [
+    {
+      "type": "structured_operation_method",
+      "params_path": "content_uniformity_operation_params",
+      "template_name": "content_uniformity_0941",
+      "profile": "hplc_direct",
+      "profile_segments": {
+        "hplc_direct": [
+          {
+            "label": "方法",
+            "template": "{method_intro}。"
+          },
+          {
+            "label": "色谱条件与系统适用性试验",
+            "template": "[色谱条件、系统适用性要求见{conditions_reference}。][用{column}为填充剂[；色谱柱：{column_spec}]；流动相：{mobile_phase}；检测波长：{wavelength}[；流速：{flow_rate}][；柱温：{column_temp}][；进样体积：{injection_volume}]。系统适用性应符合规定[，{plate_requirement}][，{separation_requirement}][，{system_chromatogram_requirement}]。]"
+          },
+          {
+            "label": "系统适用性溶液",
+            "template": "[取{system_solution_components}，加{system_solution_solvent}溶解并稀释，制成{system_solution_concentration}，作为系统适用性溶液。]"
+          },
+          {
+            "label": "对照品溶液制备",
+            "template": "精密称取{reference_name}对照品____{reference_unit}，置____{reference_flask_unit}量瓶中，加{reference_solvent}溶解并稀释至刻度，摇匀[，{reference_postprocess}]，制成{reference_concentration}，作为对照品溶液。"
+          },
+          {
+            "label": "供试品溶液制备",
+            "template": "取{sample_source}，置____{sample_flask_unit}量瓶中，加{sample_solvent}溶解并稀释至刻度，摇匀[，{sample_postprocess}]，作为供试品溶液。"
+          },
+          {
+            "label": "测定法",
+            "template": "取{measurement_solutions}[各{measurement_volume}]，注入液相色谱仪，照含量项下方法测定，按外标法以峰面积计算{calculation_target}。"
+          },
+          {
+            "label": "数据来源",
+            "source": "data_reference"
+          }
+        ],
+        "hplc_standard_operation": [
+          {
+            "label": "方法",
+            "template": "{method_intro}。"
+          },
+          {
+            "label": "操作方法",
+            "template": "色谱条件与系统适用性试验、对照品溶液、供试品溶液制备及测定法按{operation_basis}执行；照含量项下方法测定，计算{calculation_target}。"
+          }
+        ],
+        "hplc_reference_assay": [
+          {
+            "label": "方法",
+            "template": "照含量均匀度检查法（通则0941）测定。"
+          },
+          {
+            "label": "操作方法",
+            "template": "色谱条件、对照品溶液制备、供试品溶液制备和测定法同{reference_section}；按外标法以峰面积计算{calculation_target}。"
+          },
+          {
+            "label": "数据来源",
+            "source": "data_reference"
+          }
+        ]
+      },
+      "className": "section-body layout-operation-text-block layout-structured-operation-method",
+      "module_order": 15,
+      "order": 136
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "HPLC含量均匀度通则0512操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ]
+}

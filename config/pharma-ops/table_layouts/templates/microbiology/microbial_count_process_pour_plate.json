@@ -1,0 +1,396 @@
+{
+  "schema_version": 2,
+  "template_id": "microbiology/microbial_count_process_pour_plate",
+  "title": "微生物限度检查过程 - 平皿倾注法",
+  "section_no": "",
+  "category": "microbiology",
+  "subcomponent": true,
+  "status": "pilot",
+  "includes": [],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "微生物限度 微生物限度检查 平皿倾注法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "paragraph",
+      "className": "layout-paragraph layout-operation-text",
+      "parts": [
+        {
+          "type": "section_heading",
+          "section_suffix": "2.1",
+          "section_ref": "detection",
+          "text": "供试品制备：",
+          "bold": true
+        },
+        {
+          "type": "text",
+          "text": "取本品"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/sample_weight",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 4,
+          "default": "10",
+          "placeholder": "10"
+        },
+        {
+          "type": "text",
+          "text": "g，加入"
+        },
+        {
+          "type": "param",
+          "name": "diluent_name",
+          "default": "pH7.0无菌氯化钠-蛋白胨缓冲液"
+        },
+        {
+          "type": "text",
+          "text": ""
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/sample_solution_volume",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 5,
+          "default": "100",
+          "placeholder": "100"
+        },
+        {
+          "type": "text",
+          "text": "ml中，混合均匀，作为1:10供试液。取四份1:10的供试液"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/dilution_1_10_plate_volume",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 3,
+          "default": "1",
+          "placeholder": "1"
+        },
+        {
+          "type": "text",
+          "text": "ml，取四份1:100的供试液"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/dilution_1_100_plate_volume",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 3,
+          "default": "1",
+          "placeholder": "1"
+        },
+        {
+          "type": "text",
+          "text": "ml（取1:10供试液"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/dilution_1_100_source_volume",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 3,
+          "default": "1",
+          "placeholder": "1"
+        },
+        {
+          "type": "text",
+          "text": "ml，置"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/dilution_1_100_diluent_volume",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 3,
+          "default": "9",
+          "placeholder": "9"
+        },
+        {
+          "type": "text",
+          "text": "ml"
+        },
+        {
+          "type": "param",
+          "name": "diluent_name",
+          "default": "pH7.0无菌氯化钠-蛋白胨缓冲液"
+        },
+        {
+          "type": "text",
+          "text": "中，作为1:100供试液。）；取四份1:1000供试液"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/dilution_1_1000_plate_volume",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 3,
+          "default": "1",
+          "placeholder": "1"
+        },
+        {
+          "type": "text",
+          "text": "ml（取1:100供试液"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/dilution_1_1000_source_volume",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 3,
+          "default": "1",
+          "placeholder": "1"
+        },
+        {
+          "type": "text",
+          "text": "ml，置"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/dilution_1_1000_diluent_volume",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 3,
+          "default": "9",
+          "placeholder": "9"
+        },
+        {
+          "type": "text",
+          "text": "ml"
+        },
+        {
+          "type": "param",
+          "name": "diluent_name",
+          "default": "pH7.0无菌氯化钠-蛋白胨缓冲液"
+        },
+        {
+          "type": "text",
+          "text": "中，作为1:1000供试液。）加至无菌平皿内，各两份分别倒入不超过"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/pour_medium_max_temperature",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 4,
+          "default": "45",
+          "placeholder": "45",
+          "recommended_range": {
+            "max": 45
+          }
+        },
+        {
+          "type": "text",
+          "text": "℃保湿的胰酪大豆胨琼脂培养基和沙氏葡萄糖琼脂培养基约"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/agar_medium_volume",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 4,
+          "default": "20",
+          "placeholder": "20"
+        },
+        {
+          "type": "text",
+          "text": "ml，混匀。每稀释级每种培养基制备2个培养皿作为平行样。"
+        }
+      ],
+      "order": 177
+    },
+    {
+      "type": "paragraph",
+      "className": "layout-paragraph layout-operation-text",
+      "parts": [
+        {
+          "type": "section_heading",
+          "section_suffix": "2.2",
+          "section_ref": "detection",
+          "text": "阴性对照：",
+          "bold": true
+        },
+        {
+          "type": "text",
+          "text": "取两份"
+        },
+        {
+          "type": "param",
+          "name": "diluent_name",
+          "default": "pH7.0无菌氯化钠-蛋白胨缓冲液"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/negative_control_volume",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 3,
+          "default": "1",
+          "placeholder": "1"
+        },
+        {
+          "type": "text",
+          "text": "ml，加至无菌平皿内，各一份分别倒入不超过"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/negative_control_medium_max_temperature",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 4,
+          "default": "45",
+          "placeholder": "45",
+          "recommended_range": {
+            "max": 45
+          }
+        },
+        {
+          "type": "text",
+          "text": "℃保湿的胰酪大豆胨琼脂培养基和沙氏葡萄糖琼脂培养基约"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/negative_control_medium_volume",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 4,
+          "default": "20",
+          "placeholder": "20"
+        },
+        {
+          "type": "text",
+          "text": "ml，混匀。"
+        }
+      ],
+      "order": 178
+    },
+    {
+      "type": "paragraph",
+      "className": "layout-paragraph layout-operation-text",
+      "parts": [
+        {
+          "type": "section_heading",
+          "section_suffix": "2.3",
+          "section_ref": "detection",
+          "text": "培养：",
+          "bold": true
+        },
+        {
+          "type": "text",
+          "text": "待上述培养基凝固后，将胰酪大豆胨琼脂培养基倒置于"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/aerobic_temperature",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 4,
+          "default": "35",
+          "placeholder": "30～35",
+          "recommended_range": {
+            "min": 30,
+            "max": 35
+          }
+        },
+        {
+          "type": "text",
+          "text": "℃生化培养箱内培养"
+        },
+        {
+          "type": "duration_days",
+          "start_key": "layout/microbiology/count/aerobic_start_date",
+          "end_key": "layout/microbiology/count/aerobic_end_date",
+          "initial_chars": 3,
+          "recommended_range": {
+            "min": 5,
+            "max": 5
+          },
+          "field_key": "layout/microbiology/count/aerobic_days"
+        },
+        {
+          "type": "text",
+          "text": "天（自"
+        },
+        {
+          "type": "date",
+          "field_key": "layout/microbiology/count/aerobic_start_date",
+          "with_time": true
+        },
+        {
+          "type": "text",
+          "text": "至"
+        },
+        {
+          "type": "date",
+          "field_key": "layout/microbiology/count/aerobic_end_date",
+          "default_offset_days": 5,
+          "with_time": true
+        },
+        {
+          "type": "text",
+          "text": "），将沙氏葡萄糖琼脂培养基倒置于"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/count/mold_yeast_temperature",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 4,
+          "default": "25",
+          "placeholder": "20～25",
+          "recommended_range": {
+            "min": 20,
+            "max": 25
+          }
+        },
+        {
+          "type": "text",
+          "text": "℃生化培养箱内培养"
+        },
+        {
+          "type": "duration_days",
+          "start_key": "layout/microbiology/count/mold_yeast_start_date",
+          "end_key": "layout/microbiology/count/mold_yeast_end_date",
+          "initial_chars": 3,
+          "recommended_range": {
+            "min": 7,
+            "max": 7
+          },
+          "field_key": "layout/microbiology/count/mold_yeast_days"
+        },
+        {
+          "type": "text",
+          "text": "天（自"
+        },
+        {
+          "type": "date",
+          "field_key": "layout/microbiology/count/mold_yeast_start_date",
+          "with_time": true
+        },
+        {
+          "type": "text",
+          "text": "至"
+        },
+        {
+          "type": "date",
+          "field_key": "layout/microbiology/count/mold_yeast_end_date",
+          "default_offset_days": 7,
+          "with_time": true
+        },
+        {
+          "type": "text",
+          "text": "）。"
+        }
+      ],
+      "order": 179
+    }
+  ],
+  "order": 175
+}

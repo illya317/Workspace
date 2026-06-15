@@ -1,0 +1,1227 @@
+{
+  "schema_version": 1,
+  "layout_key": "products/atenolol/finished/dissolution",
+  "status": "needs_review",
+  "source": {
+    "kind": "docx_fingerprint",
+    "product": "阿替洛尔片",
+    "product_key": "atenolol",
+    "stage": "成品",
+    "stage_key": "finished",
+    "test_seq": "2.4",
+    "test_name": "溶出度",
+    "test_name_en": "dissolution",
+    "method": "溶出度-阿替洛尔UV",
+    "fingerprint_key": "成品/2.4 ",
+    "pdf_preview": "docs/coverage/audit/pdf_previews/R01-SOP073516 阿替洛尔片批检验记录09.pdf"
+  },
+  "stats": {
+    "tables": 1,
+    "dates": 3,
+    "choices": 10,
+    "notes": 2,
+    "lines": 30
+  },
+  "blocks": [
+    {
+      "type": "table",
+      "label": "表格 1",
+      "logical_rows": 19,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.4  检测项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.4  检测项目"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "溶出度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "溶出度"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检验日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验日期"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年     月     日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r0_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "完成日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "完成日期"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r1_c1_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "判定日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "判定日期"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年     月     日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r1_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.4.1 实验环境：温度：10℃～30℃，湿度≤75%（天平室≤70%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.4.1 实验环境：温度：10℃～30℃，湿度≤75%"
+                },
+                {
+                  "type": "note",
+                  "text": "（天平室≤70%）"
+                }
+              ],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.4.2 仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.4.2 仪器、设备"
+                }
+              ],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "仪器、设备"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备编号"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备状态",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备状态"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "校验有效期至",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "校验有效期至"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否确认",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否确认"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r7_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "溶出试验仪",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "溶出试验仪"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r8_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "双光束紫外可见分光光度计",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "双光束紫外可见分光光度计"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r9_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.4.3试验材料",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.4.3试验材料"
+                }
+              ],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号/编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号/编号"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否在有效期内",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否在有效期内"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "盐酸溶液（9→1000）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "盐酸溶液（9→1000）"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r12_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.4.4 标准品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.4.4 标准品"
+                }
+              ],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "阿替洛尔对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "阿替洛尔对照品"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.4.5 操作方法    对照品溶液制备：取阿替洛尔对照品，精密称定      mg（约10mg））置      ml（100ml）量瓶中，加溶出介质振摇使溶解并定量稀释刻度，摇匀。再精密吸取      ml（5ml）至      ml（50ml）量瓶中，加溶出介质稀释制成每1ml约含10μg溶液，作为对照品溶液。供试品溶液制备：取本品      片（6片），照溶出度与释放度测定法（通则0931第二法）    （桨）法，以盐酸溶液（9→1000）1000ml为溶出介质，转速       rpm/min（50rpm/min），依法操作，经45分钟，取溶液滤过，精密量取续滤液      ml（10ml）置      ml（25ml）量瓶中，加溶出介质稀释制成每1ml约含10μg溶液，作为供试品溶液。 测定法：取上述溶液，照紫外-可见分光光度法(通则0401)，在     nm（224nm±2nm）的波长处测定吸光度；计算每片的溶出量。  测定与计算：",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.4.5 操作方法"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r16_c0_p0_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "对照品溶液制备：取阿替洛尔对照品，精密称定"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r16_c0_p1_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（约10mg））置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r16_c0_p2_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中，加溶出介质振摇使溶解并定量稀释刻度，摇匀。再精密吸取"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r16_c0_p3_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（5ml）至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r16_c0_p4_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（50ml）量瓶中，加溶出介质稀释制成每1ml约含10μg溶液，作为对照品溶液。供试品溶液制备：取本品"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r16_c0_p5_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "片（6片），照溶出度与释放度测定法（通则0931第二法）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r16_c0_p6_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "（桨）法，以盐酸溶液（9→1000）1000ml为溶出介质，转速"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r16_c0_p7_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "rpm/min（50rpm/min），依法操作，经45分钟，取溶液滤过，精密量取续滤液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r16_c0_p8_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml）置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r16_c0_p9_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（25ml）量瓶中，加溶出介质稀释制成每1ml约含10μg溶液，作为供试品溶液。 测定法：取上述溶液，照紫外-可见分光光度法(通则0401)，在"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r16_c0_p10_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "nm"
+                },
+                {
+                  "type": "note",
+                  "text": "（224nm±2nm）"
+                },
+                {
+                  "type": "text",
+                  "text": "的波长处测定吸光度；计算每片的溶出量。  测定与计算："
+                }
+              ],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "测定结果与计算过程见待包装品（二）2.2.5.项。供试品溶出度结果样1：          %样2：          %样3：          %样4：          %样5：          %样6：          %2.4.6 标准规定  内控标准：不低于标示量75%；                                                             2.4.7 实验结果异常处理                                                  □是       □否实验室异常情况编号_______________________________________________2.4.8 清场将检验用具及废弃物分类。                                           □是        □否关闭电源。                                                         □是        □否清洁设备及房间。                                                   □是        □否检查仪器、设备，填写《仪器使用记录》。                             □是        □否更换仪器、设备状态标识。                                           □是        □否2.4.9 结论 批号_____________阿替洛尔片（溶出度）检测过程___________(符合/不符合)各项规定，结果___________(符合/不符合)标准规定。检验者/日期：___________________________复核者/日期：___________________________",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "测定结果与计算过程见待包装品（二）2.2.5.项。供试品溶出度结果样1："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%样2："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p1_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%样3："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p2_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%样4："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p3_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%样5："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p4_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%样6："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p5_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "%2.4.6 标准规定  内控标准：不低于标示量75%；"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p6_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.4.7 实验结果异常处理"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p7_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p8_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "实验室异常情况编号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p9_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.4.8 清场将检验用具及废弃物分类。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p10_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p11_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "关闭电源。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p12_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p13_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "清洁设备及房间。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p14_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p15_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "检查仪器、设备，填写《仪器使用记录》。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p16_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p17_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "更换仪器、设备状态标识。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p18_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p19_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "2.4.9 结论 批号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p20_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "阿替洛尔片（溶出度）检测过程"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p21_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)各项规定，结果"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p22_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)标准规定。检验者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p23_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "复核者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/atenolol/finished/dissolution/t0_r17_c0_p24_line",
+                  "width": "180px"
+                }
+              ],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

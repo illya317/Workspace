@@ -33,15 +33,27 @@ async function readGitMetadata(root: string): Promise<Pick<QcSourceStatus, "gitA
 
 export async function resolvePharmaOpsRoot() {
   const cwd = process.cwd();
-  const candidates = [
+  const localRoots = [
+    cwd,
+    // Production runs from .next/standalone while rsync keeps repo files two levels up.
+    path.resolve(cwd, "..", ".."),
+  ];
+  const localSnapshots = localRoots.map((root) => ({ root, configRoot: path.join(root, "config", "pharma-ops") }));
+  const externalRoots = [
     process.env.PHARMA_OPS_ROOT,
     path.resolve(cwd, "..", "pharma-ops"),
     path.resolve(cwd, "..", "..", "pharma-ops"),
     path.resolve(cwd, "..", "..", "..", "pharma-ops"),
   ].filter(Boolean) as string[];
+  const candidates = [
+    ...(process.env.WORKSPACE_QC_CONFIG_ROOT
+      ? [{ root: path.dirname(process.env.WORKSPACE_QC_CONFIG_ROOT), configRoot: process.env.WORKSPACE_QC_CONFIG_ROOT }]
+      : []),
+    ...localSnapshots,
+    ...externalRoots.map((root) => ({ root, configRoot: path.join(root, "config") })),
+  ].filter((candidate, index, all) => all.findIndex((item) => item.configRoot === candidate.configRoot) === index);
 
-  for (const root of candidates) {
-    const configRoot = path.join(root, "config");
+  for (const { root, configRoot } of candidates) {
     try {
       await access(configRoot);
       return { root, configRoot, available: true, ...(await readGitMetadata(root)) };
@@ -50,11 +62,11 @@ export async function resolvePharmaOpsRoot() {
     }
   }
 
-  const root = candidates[0] ?? path.resolve(cwd, "..", "pharma-ops");
+  const root = localSnapshots[0]?.root ?? cwd;
   return {
     root,
-    configRoot: path.join(root, "config"),
+    configRoot: localSnapshots[0]?.configRoot ?? path.join(root, "config", "pharma-ops"),
     available: false,
-    message: "未找到 pharma-ops/config，请设置 PHARMA_OPS_ROOT。",
+    message: "未找到 config/pharma-ops，请设置 WORKSPACE_QC_CONFIG_ROOT 或 PHARMA_OPS_ROOT。",
   };
 }

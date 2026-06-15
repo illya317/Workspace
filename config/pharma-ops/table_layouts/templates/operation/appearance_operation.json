@@ -1,0 +1,75 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/appearance_operation",
+  "title": "操作方式",
+  "section_no": "",
+  "category": "operation",
+  "subcomponent": true,
+  "status": "pilot",
+  "includes": [],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "性状 操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "text": "操作方法",
+      "module_order": 20,
+      "order": 110,
+      "section_suffix": "auto",
+      "section_role": "operation",
+      "section_anchor": true
+    },
+    {
+      "type": "include",
+      "template_id": "operation/appearance_visual_method_text",
+      "variant_param": "appearance_operation_method_variant",
+      "default_variant": "visual",
+      "slot_label": "操作方法卡槽",
+      "module_order": 20,
+      "order": 111,
+      "variants": {
+        "visual": {
+          "template_id": "operation/appearance_visual_method_text",
+          "title": "目测法操作说明"
+        }
+      }
+    },
+    {
+      "type": "paragraph",
+      "className": "section-body layout-section-body",
+      "parts": [
+        {
+          "type": "test_value",
+          "path": "standard",
+          "default": "应符合标准规定。"
+        }
+      ],
+      "module_order": 30,
+      "order": 171
+    },
+    {
+      "type": "paragraph",
+      "className": "section-body layout-section-body",
+      "parts": [
+        {
+          "type": "text",
+          "text": "实验室异常情况编号"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/appearance/abnormal_no",
+          "width": "12em",
+          "underline": true
+        }
+      ],
+      "module_order": 40,
+      "order": 181
+    }
+  ],
+  "order": 110
+}

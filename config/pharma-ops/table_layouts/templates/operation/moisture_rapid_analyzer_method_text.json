@@ -1,0 +1,36 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/moisture_rapid_analyzer_method_text",
+  "title": "快速水分测定法操作说明",
+  "category": "operation",
+  "status": "pilot",
+  "order": 35,
+  "blocks": [
+    {
+      "type": "title",
+      "text": "操作方法",
+      "order": 140,
+      "section_suffix": "auto",
+      "section_role": "operation",
+      "section_anchor": true
+    },
+    {
+      "type": "paragraph",
+      "className": "section-body layout-section-body layout-operation-text",
+      "parts": [
+        {
+          "type": "text",
+          "text": "称取本品约 1.0g，均匀铺置水分测定仪托盘上，测定。"
+        }
+      ],
+      "order": 140
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "水分操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ]
+}

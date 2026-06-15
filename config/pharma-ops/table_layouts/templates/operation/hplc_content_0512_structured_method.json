@@ -1,0 +1,129 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/hplc_content_0512_structured_method",
+  "title": "HPLC含量结构化操作方法",
+  "category": "operation",
+  "method_code": "0512",
+  "status": "pilot",
+  "order": 36,
+  "blocks": [
+    {
+      "type": "structured_operation_method",
+      "params_path": "content_operation_params",
+      "template_name": "hplc_content_0512",
+      "profile": "external_standard",
+      "profile_segments": {
+        "external_standard": [
+          {
+            "label": "方法",
+            "template": "照高效液相色谱法（通则0512）测定。"
+          },
+          {
+            "label": "色谱条件与系统适用性试验",
+            "template": "用{column}为填充剂[；色谱柱：{column_spec}]；流动相：{mobile_phase}；检测波长：{wavelength}[；流速：{flow_rate}][；柱温：{column_temp}][；进样体积：{injection_volume}]。系统适用性应符合规定[，{plate_requirement}][，{separation_requirement}][，{tailing_requirement}][，{system_chromatogram_requirement}]。"
+          },
+          {
+            "label": "溶液制备",
+            "template": "对照品溶液、供试品溶液按{solution_basis}制备。"
+          },
+          {
+            "label": "测定法",
+            "template": "精密量取{injection_solutions}，分别注入液相色谱仪，记录色谱图；按外标法以峰面积计算。"
+          },
+          {
+            "label": "数据来源",
+            "source": "data_reference"
+          }
+        ],
+        "full_solution_prep": [
+          {
+            "label": "方法",
+            "template": "照高效液相色谱法（通则0512）测定。"
+          },
+          {
+            "label": "色谱条件与系统适用性试验",
+            "template": "用{column}为填充剂[；色谱柱：{column_spec}]；流动相：{mobile_phase}；检测波长：{wavelength}[；流速：{flow_rate}][；柱温：{column_temp}][；进样体积：{injection_volume}]。系统适用性应符合规定[，{plate_requirement}][，{separation_requirement}][，{tailing_requirement}][，{system_chromatogram_requirement}]。"
+          },
+          {
+            "label": "对照品溶液制备",
+            "template": "精密称取{reference_name}对照品①____{reference_unit}、②____{reference_unit}，置____{reference_flask_unit}量瓶中，加{reference_solvent}溶解并稀释至刻度，摇匀[，{reference_postprocess}]，制成{reference_concentration}，作为对照品溶液。"
+          },
+          {
+            "label": "供试品溶液制备",
+            "template": "取{sample_source}，精密称取①____{sample_unit}、②____{sample_unit}[（约相当于{sample_equivalent}）]，置____{sample_flask_unit}量瓶中，加{sample_solvent}溶解并稀释至刻度，摇匀[，{sample_postprocess}]，作为供试品溶液。"
+          },
+          {
+            "label": "测定法",
+            "template": "精密量取{measurement_solutions}[各{measurement_volume}]，分别注入液相色谱仪，记录色谱图；按外标法以峰面积计算。"
+          },
+          {
+            "label": "数据来源",
+            "source": "data_reference"
+          }
+        ],
+        "system_solution_prep": [
+          {
+            "label": "方法",
+            "template": "照高效液相色谱法（通则0512）测定。"
+          },
+          {
+            "label": "色谱条件",
+            "template": "用{column}为填充剂[；色谱柱：{column_spec}]；流动相：{mobile_phase}；检测波长：{wavelength}[；流速：{flow_rate}][；柱温：{column_temp}][；进样体积：{injection_volume}]。"
+          },
+          {
+            "label": "系统适用性要求",
+            "template": "系统适用性应符合规定[，{plate_requirement}][，{separation_requirement}][，{tailing_requirement}][，{system_chromatogram_requirement}]。"
+          },
+          {
+            "label": "系统适用性溶液",
+            "template": "[取{system_solution_components}，加{system_solution_solvent}溶解并稀释，制成{system_solution_concentration}，作为系统适用性溶液。][系统适用性溶液按{system_solution_basis}制备。]"
+          },
+          {
+            "label": "对照品溶液制备",
+            "template": "[精密称取{reference_name}对照品①____{reference_unit}、②____{reference_unit}，置____{reference_flask_unit}量瓶中，加{reference_solvent}溶解并稀释至刻度，摇匀[，{reference_postprocess}]，制成{reference_concentration}，作为对照品溶液。][对照品溶液按{reference_solution_basis}制备。]"
+          },
+          {
+            "label": "供试品溶液制备",
+            "template": "[取{sample_source}，精密称取①____{sample_unit}、②____{sample_unit}[（约相当于{sample_equivalent}）]，置____{sample_flask_unit}量瓶中，加{sample_solvent}溶解并稀释至刻度，摇匀[，{sample_postprocess}]，作为供试品溶液。][供试品溶液按{sample_solution_basis}制备。]"
+          },
+          {
+            "label": "测定法",
+            "template": "精密量取{measurement_solutions}[各{measurement_volume}]，分别注入液相色谱仪，记录色谱图；按外标法以峰面积计算。"
+          },
+          {
+            "label": "数据来源",
+            "source": "data_reference"
+          }
+        ],
+        "cross_reference": [
+          {
+            "label": "方法",
+            "template": "照高效液相色谱法（通则0512）测定。"
+          },
+          {
+            "label": "操作方法",
+            "template": "色谱条件与系统适用性试验、对照品溶液制备、供试品溶液制备和测定法同{reference_section}。"
+          },
+          {
+            "label": "测定法",
+            "template": "精密量取{injection_solutions}，分别注入液相色谱仪，记录色谱图；按外标法以峰面积计算。"
+          },
+          {
+            "label": "数据来源",
+            "template": "{data_reference}"
+          }
+        ]
+      },
+      "className": "section-body layout-operation-text-block layout-structured-operation-method",
+      "module_order": 15,
+      "order": 136
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "HPLC含量结构化操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ]
+}

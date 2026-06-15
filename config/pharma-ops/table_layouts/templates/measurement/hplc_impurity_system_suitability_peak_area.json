@@ -1,0 +1,195 @@
+{
+  "schema_version": 2,
+  "template_id": "measurement/hplc_impurity_system_suitability_peak_area",
+  "title": "HPLC 有关物质系统适用性与峰面积测定",
+  "section_no": "",
+  "category": "measurement",
+  "method_code": "0512",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "高效液相色谱法（通则0512）有关物质测定",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "text": "测定",
+      "section_ref": "operation",
+      "section_suffix": "2",
+      "order": 150
+    },
+    {
+      "type": "table",
+      "label": "系统适用性",
+      "rows": [
+        {
+          "cells": [
+            {
+              "rowspan": 3,
+              "text": "系统适用性"
+            },
+            {
+              "header": true,
+              "text": "项目"
+            },
+            {
+              "header": true,
+              "text": "结果"
+            },
+            {
+              "header": true,
+              "text": "是否符合规定"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "杂质B峰与杂质C峰分离度应不小于1.5。"
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "系统适用性-1",
+                  "recommended_range": {
+                    "min": 1.5
+                  }
+                }
+              ]
+            },
+            {
+              "rowspan": 2,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "系统适用性-是否符合",
+                  "readonly_display": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "别嘌醇色谱峰的拖尾因子不得大于1.5。"
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "系统适用性-2",
+                  "recommended_range": {
+                    "max": 1.5
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "order": 151
+    },
+    {
+      "type": "table",
+      "label": "对照品峰面积",
+      "rows": [
+        {
+          "cells": [
+            {
+              "header": true,
+              "text": "名称"
+            },
+            {
+              "header": true,
+              "text": "Ar1"
+            },
+            {
+              "header": true,
+              "text": "Ar2"
+            },
+            {
+              "header": true,
+              "text": "Ar3"
+            },
+            {
+              "header": true,
+              "text": "Ar"
+            },
+            {
+              "header": true,
+              "text": "RSD≤2.0%"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {"text": "杂质A"},
+            {"parts": [{"type": "field", "field": "Ar1", "occurrence": 1}]},
+            {"parts": [{"type": "field", "field": "Ar2", "occurrence": 1}]},
+            {"parts": [{"type": "field", "field": "Ar3", "occurrence": 1}]},
+            {"parts": [{"type": "field", "field": "Ar", "occurrence": 1, "readonly_display": true}]},
+            {"parts": [{"type": "field", "field": "RSD", "occurrence": 1, "readonly_display": true}]}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "杂质C"},
+            {"parts": [{"type": "field", "field": "Ar1", "occurrence": 3}]},
+            {"parts": [{"type": "field", "field": "Ar2", "occurrence": 3}]},
+            {"parts": [{"type": "field", "field": "Ar3", "occurrence": 3}]},
+            {"parts": [{"type": "field", "field": "Ar", "occurrence": 3, "readonly_display": true}]},
+            {"parts": [{"type": "field", "field": "RSD", "occurrence": 3, "readonly_display": true}]}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "杂质B"},
+            {"parts": [{"type": "field", "field": "Ar1", "occurrence": 2}]},
+            {"parts": [{"type": "field", "field": "Ar2", "occurrence": 2}]},
+            {"parts": [{"type": "field", "field": "Ar3", "occurrence": 2}]},
+            {"parts": [{"type": "field", "field": "Ar", "occurrence": 2, "readonly_display": true}]},
+            {"parts": [{"type": "field", "field": "RSD", "occurrence": 2, "readonly_display": true}]}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "主成分对照品"},
+            {"parts": [{"type": "field", "field": "Ar1", "occurrence": 6}]},
+            {"parts": [{"type": "field", "field": "Ar2", "occurrence": 6}]},
+            {"parts": [{"type": "field", "field": "Ar3", "occurrence": 6}]},
+            {"parts": [{"type": "field", "field": "Ar", "occurrence": 6, "readonly_display": true}]},
+            {"parts": [{"type": "field", "field": "RSD", "occurrence": 6, "readonly_display": true}]}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "杂质D"},
+            {"parts": [{"type": "field", "field": "Ar1", "occurrence": 4}]},
+            {"parts": [{"type": "field", "field": "Ar2", "occurrence": 4}]},
+            {"parts": [{"type": "field", "field": "Ar3", "occurrence": 4}]},
+            {"parts": [{"type": "field", "field": "Ar", "occurrence": 4, "readonly_display": true}]},
+            {"parts": [{"type": "field", "field": "RSD", "occurrence": 4, "readonly_display": true}]}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "杂质E"},
+            {"parts": [{"type": "field", "field": "Ar1", "occurrence": 5}]},
+            {"parts": [{"type": "field", "field": "Ar2", "occurrence": 5}]},
+            {"parts": [{"type": "field", "field": "Ar3", "occurrence": 5}]},
+            {"parts": [{"type": "field", "field": "Ar", "occurrence": 5, "readonly_display": true}]},
+            {"parts": [{"type": "field", "field": "RSD", "occurrence": 5, "readonly_display": true}]}
+          ]
+        }
+      ],
+      "order": 152
+    }
+  ],
+  "order": 150
+}

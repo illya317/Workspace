@@ -1,0 +1,1430 @@
+{
+  "schema_version": 1,
+  "layout_key": "products/azithromycin/finished/moisture",
+  "status": "needs_review",
+  "source": {
+    "kind": "docx_fingerprint",
+    "product": "阿奇霉素胶囊",
+    "product_key": "azithromycin",
+    "stage": "成品",
+    "stage_key": "finished",
+    "test_seq": "2.3",
+    "test_name": "水分",
+    "test_name_en": "moisture",
+    "method": "水分",
+    "fingerprint_key": "成品/2.3 ",
+    "pdf_preview": "docs/coverage/audit/pdf_previews/R01-SOP073526阿奇霉素胶囊批检验记录09.pdf"
+  },
+  "stats": {
+    "tables": 1,
+    "dates": 3,
+    "choices": 11,
+    "notes": 0,
+    "lines": 14
+  },
+  "blocks": [
+    {
+      "type": "table",
+      "label": "表格 1",
+      "logical_rows": 20,
+      "logical_cols": 9,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.3  检测项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3  检测项目"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "水分",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "水分"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检验日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验日期"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r0_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "完成日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "完成日期"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r1_c1_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "判定日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "判定日期"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r1_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.1 实验环境：温度：10℃～30℃，湿度≤70%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.1 实验环境：温度：10℃～30℃，湿度≤70%"
+                }
+              ],
+              "colspan": 27,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.2 仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.2 仪器、设备"
+                }
+              ],
+              "colspan": 27,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "仪器、设备"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备编号"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备状态",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备状态"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "校验有效期至",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "校验有效期至"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否确认",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否确认"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r6_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "水份测定仪",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "水份测定仪"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r7_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.3 操作方法  照水分测定法（通则0832第一法1）测定。2.3.3.1标定 精密称取纯化水约10～30mg，精密称定，注入水分测定仪中，仪器自动标定。连续标定3次，以平均值作为费休氏液校正值。校正结果如下：(计算公式：f=m/v)。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.3 操作方法  照水分测定法（通则0832第一法1）测定。2.3.3.1标定 精密称取纯化水约10～30mg，精密称定，注入水分测定仪中，仪器自动标定。连续标定3次，以平均值作为费休氏液校正值。校正结果如下：(计算公式：f=m/v)。"
+                }
+              ],
+              "colspan": 27,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "序号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "序号"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "水+取样针（mg）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "水+取样针（mg）"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "取样针（mg）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "取样针（mg）"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "水（mg）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "水（mg）"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "V（ml）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "V（ml）"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "f",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "f"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "平均值（mg/ml）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "平均值（mg/ml）"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "标定值的平均值±1.0%)",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "标定值的平均值±1.0%)"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "标定结果符合规定",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "标定结果符合规定"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "1",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "1"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是  □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r10_c8_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是  □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r11_c8_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "3",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "3"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是  □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r12_c8_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.3.2供试品水分测定取10ml干燥量瓶，分别编号，精密称取供试品（约相当于阿奇霉素0.25g），分别置上述10ml量瓶中；精密称取量瓶与供试品重量，分别迅速加至水分测定仪滴定杯中，仪器自动测定，再精密称取空瓶重量，计算供试品重量。记录每次测定结果，计算3次结果平均值。[计算公式：水分=（v×f/1000m）×100%]测定与计算",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.3.2供试品水分测定取10ml干燥量瓶，分别编号，精密称取供试品（约相当于阿奇霉素0.25g），分别置上述10ml量瓶中；精密称取量瓶与供试品重量，分别迅速加至水分测定仪滴定杯中，仪器自动测定，再精密称取空瓶重量，计算供试品重量。记录每次测定结果，计算3次结果平均值。[计算公式：水分=（v×f/1000m）×100%]测定与计算"
+                }
+              ],
+              "colspan": 27,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "序号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "序号"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "样+量瓶（g）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样+量瓶（g）"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "量瓶（g）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "量瓶（g）"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "样（g）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样（g）"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "V（ml）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "V（ml）"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "水分（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "水分（%）"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "平均值（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "平均值（%）"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "RD（%）(应≤8.0%)",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "RD（%）(应≤8.0%)"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "1",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "1"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "3",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "3"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.4 判定标准内控标准：水分含量应不高于5.5%。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.4 判定标准内控标准：水分含量应不高于5.5%。"
+                }
+              ],
+              "colspan": 27,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.5实验结果异常处理                                                   □是        □否 实验室异常情况编号_______________________________________________                                                                                  2.3.6 清场将检验用具及废弃物分类。                                            □是        □否关闭电源。                                                          □是        □否清洁设备及房间。                                                    □是        □否检查仪器、设备，填写《仪器使用记录》。                               □是        □否更换仪器、设备状态标识。                                            □是        □否2.3.7 结论批号_____________阿奇霉素胶囊（水分）检测过程___________(符合/不符合)各项规定，结果显示其水分为_________%，___________(符合/不符合)各项规定。检验者/日期：                         复核者/日期：___________________________",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.5实验结果异常处理"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p0_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p1_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": " 实验室异常情况编号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p2_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p3_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.3.6 清场将检验用具及废弃物分类。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p4_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p5_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "关闭电源。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p6_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p7_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "清洁设备及房间。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p8_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p9_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "检查仪器、设备，填写《仪器使用记录》。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p10_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p11_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "更换仪器、设备状态标识。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p12_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p13_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "2.3.7 结论批号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p14_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "阿奇霉素胶囊（水分）检测过程"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p15_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)各项规定，结果显示其水分为"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p16_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "%，"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p17_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)各项规定。检验者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p18_line",
+                  "width": "175px"
+                },
+                {
+                  "type": "text",
+                  "text": "复核者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/finished/moisture/t0_r19_c0_p19_line",
+                  "width": "180px"
+                }
+              ],
+              "colspan": 28,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

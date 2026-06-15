@@ -1,0 +1,146 @@
+order:
+  - allopurinol
+  - compound_rutin
+  - berberine_tannate
+  - methimazole
+  - isosorbide_dinitrate
+  - diammonium_glycyrrhizinate
+  - clarithromycin
+  - atenolol
+  - azithromycin
+  - verapamil
+  - levofloxacin
+  - spironolactone
+  - simvastatin
+  - terazosin
+  - pantoprazole
+  - hydrochlorothiazide
+
+products:
+  allopurinol:
+    sample_batch: P6-BASELINE-001
+    manual_status: accepted_baseline
+    focus:
+      - 保存、刷新回填、日期初始化和结论回归。
+      - 水分、溶出度、含量三类自动计算。
+      - 作为后续通用组件修改后的回归样板。
+
+  compound_rutin:
+    sample_batch: P6-RUTIN-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - 芦丁 UV、维生素 C 滴定和双成分结论。
+      - 样品含量当前为人工录入，公式需业务确认后再自动化。
+      - 三个含量页不能退回单一 HPLC 或单一滴定结构。
+
+  berberine_tannate:
+    sample_batch: P6-BER-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - UV 对照法、重铬酸钾基准物和 10.69 换算系数。
+      - 中间体、待包装品、成品三个含量项字段链路。
+      - 成品微生物清场和退出洁净区文本不应混入结论签名。
+
+  methimazole:
+    sample_batch: P6-MMI-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - 滴定含量、含量均匀度和成品鉴别清场。
+      - 含量均匀度的 A+2.2S 判定。
+      - 保存回填后结论保持按输入实时重算。
+
+  isosorbide_dinitrate:
+    sample_batch: P6-ISDN-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - HPLC 含量、溶出度和含量均匀度。
+      - 微生物限度独立页面的保存、批号、签名回填。
+      - 成品退出段和清场文本边界。
+
+  diammonium_glycyrrhizinate:
+    sample_batch: P6-DAG-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - 252nm/261nm 双波长、烟酰胺对照品和 1.898 换算。
+      - 含量与溶出度两个专用 UV 方法。
+      - 成品引用待包装品计算过程时的录入口径。
+
+  clarithromycin:
+    sample_batch: P6-CLA-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - HPLC 溶出峰面积法。
+      - 18 倍稀释系数和 85.0% 溶出阈值。
+      - 有关物质和含量页的标准品、峰面积字段。
+
+  atenolol:
+    sample_batch: P6-ATE-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - 224nm UV 溶出。
+      - 有关物质总杂和 HPLC 含量。
+      - 成品引用待包装品计算过程时的保存回填。
+
+  azithromycin:
+    sample_batch: P6-AZI-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - HPLC 溶出峰面积法。
+      - 阿奇霉素有关物质限度和 80.0% 溶出阈值。
+      - 系统适用性、杂质和对照品字段是否可录入。
+
+  verapamil:
+    sample_batch: P6-VER-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - 双波长溶出 △A。
+      - 有关物质总杂和 HPLC 含量。
+      - 成品引用待包装品计算过程时的保存回填。
+
+  levofloxacin:
+    sample_batch: P6-LEV-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - 294nm UV 溶出。
+      - 238nm/294nm 有关物质百分比录入。
+      - HPLC 含量与成品引用待包装品计算过程。
+
+  spironolactone:
+    sample_batch: P6-SPI-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - 83.0% 溶出阈值。
+      - 254nm/283nm 双波长有关物质。
+      - 含量均匀度 A+2.2S 判定。
+
+  simvastatin:
+    sample_batch: P6-SIM-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - HPLC 溶出公式。
+      - 有关物质单杂、总杂比例口径。
+      - 含量均匀度 A+2.2S 判定。
+
+  terazosin:
+    sample_batch: P6-TER-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - 500ml、100rpm、30min UV 溶出条件。
+      - 0.914 换算和有关物质 0.5% 折算。
+      - 成品引用待包装品计算过程。
+
+  pantoprazole:
+    sample_batch: P6-PAN-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - 酸中释放度、释放度和耐酸力。
+      - 0.9458 换算。
+      - 8.0%、78.0%、92.0% 三类阈值。
+
+  hydrochlorothiazide:
+    sample_batch: P6-HCTZ-001
+    manual_status: ready_for_user_acceptance
+    focus:
+      - HPLC 含量。
+      - 溶出度、有关物质和含量均匀度表格。
+      - 成品引用待包装品计算过程和保存回填。

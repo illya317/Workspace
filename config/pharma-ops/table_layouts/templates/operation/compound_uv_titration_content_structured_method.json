@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/compound_uv_titration_content_structured_method",
+  "title": "复方含量 UV+滴定结构化操作方法",
+  "category": "operation",
+  "method_codes": ["0401", "titration"],
+  "status": "pilot",
+  "order": 35,
+  "blocks": [
+    {
+      "type": "structured_operation_method",
+      "params_path": "content_operation_params",
+      "template_name": "uv_titration_compound_content",
+      "profile": "rutin_vitamin_c",
+      "profile_segments": {
+        "rutin_vitamin_c": [
+          {
+            "label": "芦丁含量",
+            "template": "精密称取芦丁对照品①____mg、②____mg，分别置____量瓶中，加60%乙醇适量，置热水浴（70～80℃）中加热并振摇5分钟，放冷，加60%乙醇稀释至刻度，摇匀。精密量取____，置另一____量瓶中，加0.02mol/L醋酸液____，加60%乙醇稀释至刻度，摇匀，作为对照品溶液。"
+          },
+          {
+            "label": "供试品溶液制备",
+            "template": "取本品研细，精密称取①____g、②____g，分别置____量瓶中，加60%乙醇适量，置热水浴（70～80℃）中加热并振摇5分钟，放冷，加60%乙醇稀释至刻度，摇匀，用干燥滤纸滤过，弃去初滤液。精密量取续滤液____，置另一____量瓶中，加0.02mol/L醋酸液____，加60%乙醇稀释至刻度，摇匀，作为供试品溶液。"
+          },
+          {
+            "label": "测定法",
+            "template": "取对照品溶液与供试品溶液，照紫外-可见分光光度法（通则0401），在____nm（{rutin_wavelength}）的波长处分别测定吸光度，计算供试品中无水芦丁的含量并乘以{rutin_factor}。"
+          },
+          {
+            "label": "数据来源",
+            "source": "rutin_data_reference"
+          },
+          {
+            "label": "维生素C含量",
+            "template": "取本品研细，精密称取①____g、②____g，分别置____量瓶中，加新沸过的冷水____与稀醋酸____的混合液____振摇使维生素C溶解，再用混合液稀释至刻度，摇匀，用干燥滤纸迅速滤过，弃去初滤液。精密量取续滤液____，加淀粉指示液____，立即用碘滴定液____滴定，至溶液显蓝色并持续{endpoint_time}不褪。"
+          },
+          {
+            "label": "计算",
+            "template": "每1ml的碘滴定液相当于{vitamin_c_equivalent}的{vitamin_c_formula}。"
+          },
+          {
+            "label": "数据来源",
+            "source": "vitamin_c_data_reference"
+          }
+        ]
+      },
+      "className": "section-body layout-operation-text-block layout-structured-operation-method",
+      "module_order": 15,
+      "order": 136
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "复方含量 UV+滴定结构化操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ]
+}

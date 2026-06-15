@@ -1,0 +1,131 @@
+methods:
+  HPLC:
+    称重:
+    - name: 对照含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 平均片重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 对照1-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 对照1-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 对照1-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 对照1-毛重 - 对照1-皮重
+    - name: 对照2-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 对照2-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 对照2-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 对照2-毛重 - 对照2-皮重
+    - name: 样1-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 样1-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 样1-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 样1-毛重 - 样1-皮重
+    - name: 样2-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 样2-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 样2-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 样2-毛重 - 样2-皮重
+    色谱:
+    - name: 色谱柱
+      type: text
+      attr: prefilled
+    - name: 对照1-峰面积
+      type: number
+      attr: fillable
+    - name: 对照2-峰面积
+      type: number
+      attr: fillable
+    - name: 对照平均峰面积
+      type: number
+      attr: fillable
+    - name: 对照RSD
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 样1-峰面积
+      type: number
+      attr: fillable
+    - name: 样1-平均峰面积
+      type: number
+      attr: fillable
+    - name: 样1-含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 样2-峰面积
+      type: number
+      attr: fillable
+    - name: 样2-平均峰面积
+      type: number
+      attr: fillable
+    - name: 样2-含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 平均含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: RD
+      unit: '%'
+      type: number
+      attr: fillable
+  含量均匀度:
+    extends: HPLC
+    extra:
+    - repeat:
+        count: 10
+        fields:
+        - name: 样{序号}-OD
+          type: number
+          attr: fillable
+        - name: 样{序号}-含量
+          unit: '%'
+          type: number
+          attr: fillable
+    - name: 平均含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: S
+      type: number
+      attr: fillable
+    - name: A_2.2S
+      type: number
+      attr: fillable

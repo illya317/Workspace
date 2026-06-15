@@ -1,0 +1,1698 @@
+{
+  "schema_version": 1,
+  "layout_key": "products/simvastatin/packaging/dissolution",
+  "status": "needs_review",
+  "source": {
+    "kind": "docx_fingerprint",
+    "product": "辛伐他汀片",
+    "product_key": "simvastatin",
+    "stage": "待包装品",
+    "stage_key": "packaging",
+    "test_seq": "2.3",
+    "test_name": "溶出度",
+    "test_name_en": "dissolution",
+    "method": "溶出度-辛伐他汀HPLC",
+    "fingerprint_key": "待包装品/2.3 ",
+    "pdf_preview": "docs/coverage/audit/pdf_previews/R01-SOP073525 辛伐他汀片批检验记录09.pdf"
+  },
+  "stats": {
+    "tables": 2,
+    "dates": 3,
+    "choices": 10,
+    "notes": 1,
+    "lines": 32
+  },
+  "blocks": [
+    {
+      "type": "table",
+      "label": "表格 1",
+      "logical_rows": 19,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.3  检测项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3  检测项目"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "溶出度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "溶出度"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检验日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验日期"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年     月     日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r0_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "完成日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "完成日期"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r1_c1_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "判定日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "判定日期"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年     月     日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r1_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.1 实验环境：温度：10℃～30℃，湿度≤75%（天平室≤70%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.1 实验环境：温度：10℃～30℃，湿度≤75%"
+                },
+                {
+                  "type": "note",
+                  "text": "（天平室≤70%）"
+                }
+              ],
+              "colspan": 17,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.2 仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.2 仪器、设备"
+                }
+              ],
+              "colspan": 17,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "仪器、设备"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备编号"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备状态",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备状态"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "校验有效期至",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "校验有效期至"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否确认",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否确认"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r7_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "溶出试验仪",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "溶出试验仪"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r8_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "高效液相色谱仪",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "高效液相色谱仪"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r9_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.3试验材料",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.3试验材料"
+                }
+              ],
+              "colspan": 17,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号/编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号/编号"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否在有效期内",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否在有效期内"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "溶出介质",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "溶出介质"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r12_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.4 标准品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.4 标准品"
+                }
+              ],
+              "colspan": 17,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "辛伐他汀对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "辛伐他汀对照品"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.5 操作方法对照品溶液制备：精密称定辛伐他汀对照品      mg（约12mg））置      ml（100ml）量瓶中，加溶出介质使溶解并稀释至刻度，再精密吸取      ml（5ml）至      ml（50ml）量瓶中用溶出介质定量稀释成每1ml约含辛伐他汀12μg，作为对照品溶液。  供试品溶液制备：取本品      片（6片），照溶出度与释放度测定法（通则0931第二法）     （桨）法，以含0.5%十二烷基硫酸钠的0.01mol/L磷酸二氢钠缓冲液（用50%氢氧化钠溶液调节pH值至7.0）                      ml（900ml）为溶出介质，转速       rpm/min（50rpm/min），依法操作，经30分钟时，取溶液10ml滤过，作为供试品溶液。测定法：照含量测定项下的色谱条件，取供试品溶液和对照品溶液各      μl（20μl）， 分别注入液相色谱仪，记录色谱图，按外标法以峰面积计算每片的溶出量。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.5 操作方法对照品溶液制备：精密称定辛伐他汀对照品"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r16_c0_p0_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（约12mg））置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r16_c0_p1_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中，加溶出介质使溶解并稀释至刻度，再精密吸取"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r16_c0_p2_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（5ml）至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r16_c0_p3_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（50ml）量瓶中用溶出介质定量稀释成每1ml约含辛伐他汀12μg，作为对照品溶液。  供试品溶液制备：取本品"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r16_c0_p4_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "片（6片），照溶出度与释放度测定法（通则0931第二法）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r16_c0_p5_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "（桨）法，以含0.5%十二烷基硫酸钠的0.01mol/L磷酸二氢钠缓冲液（用50%氢氧化钠溶液调节pH值至7.0）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r16_c0_p6_line",
+                  "width": "154px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（900ml）为溶出介质，转速"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r16_c0_p7_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "rpm/min（50rpm/min），依法操作，经30分钟时，取溶液10ml滤过，作为供试品溶液。测定法：照含量测定项下的色谱条件，取供试品溶液和对照品溶液各"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t0_r16_c0_p8_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "μl（20μl）， 分别注入液相色谱仪，记录色谱图，按外标法以峰面积计算每片的溶出量。"
+                }
+              ],
+              "colspan": 17,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "测定与计算",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "测定与计算"
+                }
+              ],
+              "colspan": 17,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "对照品计算",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "对照品计算"
+                }
+              ],
+              "colspan": 17,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "label": "表格 2",
+      "logical_rows": 12,
+      "logical_cols": 6,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "含量对照：_______%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含量对照："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r0_c0_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "m=           -              =            mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r0_c1_p0_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r0_c1_p1_line",
+                  "width": "98px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r0_c1_p2_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "峰面积（Ar）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "峰面积（Ar）"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "Ar1",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "Ar1"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "Ar2",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "Ar2"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "平均（Ar）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "平均（Ar）"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "RD≤2.0%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "RD≤2.0%"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "供试品计算",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品计算"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "计算公式",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "计算公式"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "含量（CX）=（CR×AX）/AR",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含量（CX）=（CR×AX）/AR"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "含量（%）=[（A样×m对×9×对照%）/（A对×10×10）]×100%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含量（%）=[（A样×m对×9×对照%）/（A对×10×10）]×100%"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "供试品峰面积",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品峰面积"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "AR1：",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "AR1："
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "AR2：",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "AR2："
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "AR3：",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "AR3："
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "AR4：",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "AR4："
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "AR5：",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "AR5："
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "AR6：",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "AR6："
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "供试品溶出量（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品溶出量（%）"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "CX1：       %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "CX1："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r9_c0_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "CX2：       %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "CX2："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r9_c1_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "CX3：       %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "CX3："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r9_c2_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "CX4：       %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "CX4："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r9_c3_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "CX5：       %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "CX5："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r9_c4_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "CX6：       %",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "CX6："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r9_c5_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.6 标准规定  内控标准：不低于标示量83%。                                                              2.3.7实验结果异常处理                                                  □是       □否实验室异常情况编号_______________________________________________2.3.8 清场将检验用具及废弃物分类。                                           □是        □否关闭电源。                                                         □是        □否清洁设备及房间。                                                   □是        □否检查仪器、设备，填写《仪器使用记录》。                             □是        □否更换仪器、设备状态标识。                                           □是        □否2.3.9结论 批号_____________辛伐他汀片待包装品（溶出度）检测过程___________(符合/不符合)各项规定，结果___________(符合/不符合)标准规定。检验者/日期：                         复核者/日期：___________________________",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.6 标准规定  内控标准：不低于标示量83%。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p0_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.3.7实验结果异常处理"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p1_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p2_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "实验室异常情况编号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p3_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.3.8 清场将检验用具及废弃物分类。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p4_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p5_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "关闭电源。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p6_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p7_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "清洁设备及房间。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p8_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p9_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "检查仪器、设备，填写《仪器使用记录》。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p10_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p11_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "更换仪器、设备状态标识。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p12_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p13_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "2.3.9结论 批号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p14_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "辛伐他汀片待包装品（溶出度）检测过程"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p15_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)各项规定，结果"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p16_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)标准规定。检验者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p17_line",
+                  "width": "175px"
+                },
+                {
+                  "type": "text",
+                  "text": "复核者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/simvastatin/packaging/dissolution/t1_r10_c0_p18_line",
+                  "width": "180px"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.10原始数据、图谱见数据图谱粘贴页。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.10原始数据、图谱见数据图谱粘贴页。"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

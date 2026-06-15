@@ -1,0 +1,34 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/identification_retention_time_method_text",
+  "title": "鉴别保留时间比对操作说明",
+  "category": "operation",
+  "status": "pilot",
+  "order": 36,
+  "blocks": [
+    {
+      "type": "structured_operation_method",
+      "params_path": "identification_operation_params",
+      "template_name": "identification_structured",
+      "profile": "retention_time",
+      "profile_segments": {
+        "retention_time": [
+          {
+            "label": "测定法",
+            "template": "在{reference_section}中，供试品溶液主峰的保留时间应与对照品溶液主峰的保留时间一致。"
+          }
+        ]
+      },
+      "className": "section-body layout-operation-text-block layout-structured-operation-method",
+      "module_order": 20,
+      "order": 136
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "保留时间比对鉴别操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ]
+}

@@ -1,0 +1,3423 @@
+{
+  "schema_version": 1,
+  "layout_key": "products/clarithromycin/finished/microbial_limit",
+  "status": "needs_review",
+  "source": {
+    "kind": "docx_fingerprint",
+    "product": "克拉霉素 胶囊",
+    "product_key": "clarithromycin",
+    "stage": "成品",
+    "stage_key": "finished",
+    "test_seq": "2.7",
+    "test_name": "微生物限度检查",
+    "test_name_en": "microbial_limit",
+    "method": "微生物限度-计数法",
+    "fingerprint_key": "成品/2.7 ",
+    "pdf_preview": "docs/coverage/audit/pdf_previews/R01-SOP073513 克拉霉素 胶囊批检验记录09.pdf"
+  },
+  "stats": {
+    "tables": 1,
+    "dates": 19,
+    "choices": 33,
+    "notes": 18,
+    "lines": 105
+  },
+  "blocks": [
+    {
+      "type": "table",
+      "label": "表格 1",
+      "logical_rows": 43,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.7  检测项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.7  检测项目"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "微生物限度检查",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "微生物限度检查"
+                }
+              ],
+              "colspan": 20,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "包装情况",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "包装情况"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "铝塑",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "铝塑"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检品数量",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检品数量"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "请验部门",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "请验部门"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "固体制剂车间",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "固体制剂车间"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检验日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验日期"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r2_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "完成日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "完成日期"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r3_c1_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "判定日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "判定日期"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r3_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "检验依据",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验依据"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "《中国药典》2025年版四部、《克拉霉素胶囊质量标准》（MQS075013）《微生物限度检验标准操作规程》（SOP073613）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "《中国药典》2025年版四部、《克拉霉素胶囊质量标准》（MQS075013）《微生物限度检验标准操作规程》（SOP073613）"
+                }
+              ],
+              "colspan": 20,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.7.1 检验前确认2.7.2文件",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.7.1 检验前确认2.7.2文件"
+                }
+              ],
+              "colspan": 22,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "文件名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "文件名称"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "文件编码",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "文件编码"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否在实验现场",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否在实验现场"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "《克拉霉素胶囊质量标准》",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "《克拉霉素胶囊质量标准》"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "MQS075013",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "MQS075013"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r7_c2_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "《微生物限度检验标准操作规程》",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "《微生物限度检验标准操作规程》"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "SOP073613",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "SOP073613"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r8_c2_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "《培养基使用标准操作规程》",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "《培养基使用标准操作规程》"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "SOP071007",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "SOP071007"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r9_c2_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "《检定用菌毒种使用标准操作规程》",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "《检定用菌毒种使用标准操作规程》"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "SOP071004",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "SOP071004"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r10_c2_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "《LDZX-50KBS型立式压力蒸汽灭菌器使用、维护保养标准操作规程》",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "《LDZX-50KBS型立式压力蒸汽灭菌器使用、维护保养标准操作规程》"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "SOP072111",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "SOP072111"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r11_c2_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "《ZSP-S500型生化培养箱使用与维护标准操作规程》",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "《ZSP-S500型生化培养箱使用与维护标准操作规程》"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "SOP072083",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "SOP072083"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r12_c2_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "《ZSP-S250型生化培养箱使用与维护标准操作规程》",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "《ZSP-S250型生化培养箱使用与维护标准操作规程》"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "SOP072125",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "SOP072125"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r13_c2_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "《BHC-1100ⅡA2生物安全柜使用与保养维护标准操作规程》",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "《BHC-1100ⅡA2生物安全柜使用与保养维护标准操作规程》"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "SOP072044",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "SOP072044"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r14_c2_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.7.3 实验环境：温度（18～26℃），湿度（45～65%）空气洁净级别：不同的级别之间房间的静压差≥10Pa、洁净区与非洁净区静压差≥10Pa。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.7.3 实验环境：温度"
+                },
+                {
+                  "type": "note",
+                  "text": "（18～26℃）"
+                },
+                {
+                  "type": "text",
+                  "text": "，湿度"
+                },
+                {
+                  "type": "note",
+                  "text": "（45～65%）"
+                },
+                {
+                  "type": "text",
+                  "text": "空气洁净级别：不同的级别之间房间的静压差≥10Pa、洁净区与非洁净区静压差≥10Pa。"
+                }
+              ],
+              "colspan": 22,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.7.4 仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.7.4 仪器、设备"
+                }
+              ],
+              "colspan": 22,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "仪器、设备"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备编号"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备状态",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备状态"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "校验有效期至",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "校验有效期至"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否确认",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否确认"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "立式压力蒸汽灭菌器",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "立式压力蒸汽灭菌器"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r20_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "生化培养箱",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "生化培养箱"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r21_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "生化培养箱",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "生化培养箱"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r22_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "生化培养箱",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "生化培养箱"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r23_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "净化台",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "净化台"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r24_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "集菌仪",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "集菌仪"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r25_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "生物安全柜",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "生物安全柜"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r26_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r27_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.7.5 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》（SOP071028）进行。                                                                           □是    □否",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.7.5 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》（SOP071028）进行。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r28_c0_p0_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r28_c0_p1_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 21,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.7.6 仪器、设备是否在校验有效期内                                         □是    □否2.7.7 检验用具物品是否齐全                                                 □是    □否",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.7.6 仪器、设备是否在校验有效期内"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r29_c0_p0_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r29_c0_p1_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "2.7.7 检验用具物品是否齐全"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r29_c0_p2_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r29_c0_p3_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 21,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.7.8 试验材料",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.7.8 试验材料"
+                }
+              ],
+              "colspan": 21,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "规格",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "规格"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否在有效期内",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否在有效期内"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "胰酪大豆胨液体培养基",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "胰酪大豆胨液体培养基"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "ml/瓶",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "ml/瓶"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r32_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "麦康凯液体培养基",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "麦康凯液体培养基"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "ml/瓶",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "ml/瓶"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r33_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "麦康凯琼脂培养基",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "麦康凯琼脂培养基"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "ml/瓶",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "ml/瓶"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r34_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "胰酪大豆胨琼脂培养基",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "胰酪大豆胨琼脂培养基"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "ml/瓶",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "ml/瓶"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r35_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "沙氏葡萄糖琼脂培养基",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "沙氏葡萄糖琼脂培养基"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "ml/瓶",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "ml/瓶"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r36_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "pH7.0无菌氯化钠-蛋白胨缓冲液",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "pH7.0无菌氯化钠-蛋白胨缓冲液"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "/",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "/"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r37_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.7.9 标准品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.7.9 标准品"
+                }
+              ],
+              "colspan": 21,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "代次",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "代次"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否在有效期内",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否在有效期内"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "大肠埃希菌",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "大肠埃希菌"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "第   代",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "第"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r40_c2_p0_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "代"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r40_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.7.10 大肠埃希菌2.7.10.1菌液制备：取大肠埃希菌新鲜培养物   （1白金耳）白金耳至    ml（10ml）             （胰酪大豆胨液体培养基）培养基中,在     ℃（30～35℃）培养      小时（18～24小时）作为菌液。吸取上述菌液    ml（1ml）至0.9%无菌氯化钠溶液    ml（9ml）中（即为1：10），吸取上述菌液    ml（1ml）至0.9%无菌氯化钠溶液    ml（9ml）中（即为1：102），吸取上述菌液    ml（1ml）至0.9%无菌氯化钠溶液    ml（9ml）中（即为1：103），吸取上述菌液    ml（1ml）至0.9%无菌氯化钠溶液    ml（9ml）中（即为1：104），吸取上述菌液    ml（1ml）至0.9%无菌氯化钠溶液    ml（9ml）中（即为1：105），吸取上述菌液    ml（1ml）至0.9%无菌氯化钠溶液    ml（9ml）中（即为1：106），吸取上述菌液    ml（1ml）至0.9%无菌氯化钠溶液    ml（9ml）中（即为1：107），制成每1ml含菌数小于100cfu的菌液。取      （1：107）稀释级别的菌液     ml（1ml）置无菌平皿中，注入20ml温度不超过45℃的溶化的胰酪大豆胨琼脂培养基，混匀，凝固，倒置至     ℃（30～35℃）培养     小时（48小时），计数。平皿1   cfu，平皿2   cfu，平均菌落数   cfu/皿（应不大于100cfu/ml）。2.7.10.2试验准备：取____ml（20ml）pH7.0无菌氯化钠－蛋白胨缓冲液，润湿滤膜2张。2.7.10.3供试品制备：称取本品____g（10g），加pH7.0无菌氯化钠－蛋白胨缓冲液至____ml（100ml，混匀，作为1：10的供试液；取一份1：10的供试液____ml（10ml）, 以500转/分钟，离心5分钟，弃去上清液,留底部集菌液约8ml，用缓冲液补至____ml（10ml），滤过，每管用pH7.0无菌氯化钠－蛋白胨缓冲液____ml（500ml）冲洗，过滤，取出滤膜，接入____ml（100ml）胰酪大豆胨液体培养基中，作为供试品。2.7.10.4阳性对照制备：取上述一份1：10的供试液____ml（10ml）, 以500转/分钟，离心5分钟，弃去上清液,留底部集菌液约8ml，用缓冲液补至____ml（10ml），滤过，用pH7.0无菌氯化钠－蛋白胨缓冲液（加入小于100cfu大肠埃希菌）____ml（500ml）冲洗，过滤，取出滤膜，接入____ml（100ml）胰酪大豆胨液体培养基中，作为阳性对照。2.7.10.5阴性对照试验：取稀释液____ml（10ml）至100ml胰酪大豆胨液体培养基中，作为阴性对照。2.7.10.6培养：取上述三种溶液分别在   ℃（30～35℃）培养   小时（18～24小时）（自     年       月       日        时至       年       月         日      时）。取上述培养物         ml（1ml），接种至       ml（100ml）麦康凯液体培养基中，       ℃（42～44℃）培养        小时（24～48小时）（自            年          月        日         时至         年       月         日      时）。取麦康凯液体培养物划线接种于麦康凯琼脂培养基平板上，        ℃（30～35℃）培养       小时（18～72小时）（自         年        月         日         时至          年       月         日       时）。若麦康凯琼脂培养基平板上有菌落生长，应进行分离、纯化及适宜的鉴定试验，确证是否为大肠埃希菌；若麦康凯琼脂培养基平板上没有菌落生长，或虽有菌落生长但鉴定结果为阴性，判供试品未检出大肠埃希菌。2.7.10.7 试验成立条件：阳性对照呈阳性，阴性对照呈阴性。2.7.10.8观察结果检 查 过 程阳 性 对 照阴 性 对 照供 试 品胰酪大豆胨液体培养基     ml   ℃培养    h    胰酪大豆胨液体培养基+供试液滤膜+对照菌≤100cfu胰酪大豆胨液体培养基+稀释液    ml 胰酪大豆胨液体培养基+供试液滤膜自     年    月    日至     年    月    日浑浊有菌生长澄明无菌生长澄明无菌生长 观察胰酪大豆胨液体培养基麦康凯液体培养基   ml    ℃培养    h    麦康凯液体培养基   ml加上述培养液   ml麦康凯液体培养基   ml加上述培养液    ml麦康凯液体培养基____ml加上述培养液    ml自     年    月    日至     年    月    日浑浊有菌生长澄明无菌生长澄明无菌生长观察麦康凯液体培养基取麦康凯液体培养物划线接种于麦康凯琼脂培养基平板上   ℃培养    h 应为鲜桃红色，菌落边缘整齐，表面光滑无菌落生长无菌落生长自    年    月    日至    年    月    日结论供试品中是否检出大肠埃希菌□是   □否备注：“+”表示有菌生长；“-”表示无菌生长。2.7.11 微生物检查2.7.11.1试验准备：取____ml（40ml）pH7.0无菌氯化钠－蛋白胨缓冲液，分别润湿滤膜4张。2.7.11.2供试品制备：称取本品____g（10g），加pH7.0无菌氯化钠－蛋白胨缓冲液至____ml（100ml，混匀，作为1：10的供试液；取四份1：10的供试液____ml（10ml）, 以500转/分钟，离心5分钟，弃去上清液,留底部集菌液约8ml，分别用缓冲液补至____ml（10ml），滤过，每管用pH7.0无菌氯化钠－蛋白胨缓冲液____ml（500ml）冲洗，过滤，取出滤膜，菌面分别朝上，两份接入胰酪大豆胨琼脂培养基（TSA）作为需氧菌样品，两份接入沙氏葡萄糖琼脂培养基（SDA）中作为霉菌和酵母菌样品。2.7.11.3阴性对照：取滤膜4张，用____ml（40ml）pH7.0无菌氯化钠－蛋白胨缓冲液分别过滤，取出滤膜，菌面分别朝上，两份接入胰酪大豆胨琼脂培养基（TSA）作为需氧菌阴性对照，两份接入沙氏葡萄糖琼脂培养基（SDA）中作为霉菌和酵母菌阴性对照。2.7.11.4 培养：2.7.11.4.1 需氧菌样品在          ℃（30～35℃）培养5天（自          年        月       日        时至        年       月         日      时），观察。2.7.11.4.2 霉菌和酵母菌样品在       ℃（20～25℃）培养7天（自        年        月       日        时至        年       月         日      时），观察。2.7.11.5 观察结果",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.7.10 大肠埃希菌2.7.10.1菌液制备：取大肠埃希菌新鲜培养物"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p0_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "（1白金耳）白金耳至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p1_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p2_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "（胰酪大豆胨液体培养基）培养基中,在"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p3_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "℃"
+                },
+                {
+                  "type": "note",
+                  "text": "（30～35℃）"
+                },
+                {
+                  "type": "text",
+                  "text": "培养"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p5_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "小时"
+                },
+                {
+                  "type": "note",
+                  "text": "（18～24小时）"
+                },
+                {
+                  "type": "text",
+                  "text": "作为菌液。吸取上述菌液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p7_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（1ml）至0.9%无菌氯化钠溶液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p8_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（9ml）中（即为1：10），吸取上述菌液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p9_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（1ml）至0.9%无菌氯化钠溶液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p10_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（9ml）中（即为1：102），吸取上述菌液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p11_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（1ml）至0.9%无菌氯化钠溶液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p12_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（9ml）中（即为1：103），吸取上述菌液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p13_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（1ml）至0.9%无菌氯化钠溶液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p14_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（9ml）中（即为1：104），吸取上述菌液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p15_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（1ml）至0.9%无菌氯化钠溶液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p16_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（9ml）中（即为1：105），吸取上述菌液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p17_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（1ml）至0.9%无菌氯化钠溶液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p18_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（9ml）中（即为1：106），吸取上述菌液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p19_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（1ml）至0.9%无菌氯化钠溶液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p20_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（9ml）中（即为1：107），制成每1ml含菌数小于100cfu的菌液。取"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p21_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "（1：107）稀释级别的菌液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p22_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（1ml）置无菌平皿中，注入20ml温度不超过45℃的溶化的胰酪大豆胨琼脂培养基，混匀，凝固，倒置至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p23_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "℃"
+                },
+                {
+                  "type": "note",
+                  "text": "（30～35℃）"
+                },
+                {
+                  "type": "text",
+                  "text": "培养"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p25_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "小时"
+                },
+                {
+                  "type": "note",
+                  "text": "（48小时）"
+                },
+                {
+                  "type": "text",
+                  "text": "，计数。平皿1"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p27_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "cfu，平皿2"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p28_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "cfu，平均菌落数"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p29_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "cfu/皿（应不大于100cfu/ml）。2.7.10.2试验准备：取"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p30_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（20ml）pH7.0无菌氯化钠－蛋白胨缓冲液，润湿滤膜2张。2.7.10.3供试品制备：称取本品"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p31_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "g（10g），加pH7.0无菌氯化钠－蛋白胨缓冲液至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p32_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml，混匀，作为1：10的供试液；取一份1：10的供试液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p33_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml）, 以500转/分钟，离心5分钟，弃去上清液,留底部集菌液约8ml，用缓冲液补至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p34_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml），滤过，每管用pH7.0无菌氯化钠－蛋白胨缓冲液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p35_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（500ml）冲洗，过滤，取出滤膜，接入"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p36_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）胰酪大豆胨液体培养基中，作为供试品。2.7.10.4阳性对照制备：取上述一份1：10的供试液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p37_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml）, 以500转/分钟，离心5分钟，弃去上清液,留底部集菌液约8ml，用缓冲液补至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p38_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml），滤过，用pH7.0无菌氯化钠－蛋白胨缓冲液（加入小于100cfu大肠埃希菌）"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p39_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（500ml）冲洗，过滤，取出滤膜，接入"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p40_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）胰酪大豆胨液体培养基中，作为阳性对照。2.7.10.5阴性对照试验：取稀释液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p41_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml）至100ml胰酪大豆胨液体培养基中，作为阴性对照。2.7.10.6培养：取上述三种溶液分别在"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p42_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "℃"
+                },
+                {
+                  "type": "note",
+                  "text": "（30～35℃）"
+                },
+                {
+                  "type": "text",
+                  "text": "培养"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p44_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "小时"
+                },
+                {
+                  "type": "note",
+                  "text": "（18～24小时）"
+                },
+                {
+                  "type": "text",
+                  "text": "（自"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p46_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p47_date",
+                  "with_time": true
+                },
+                {
+                  "type": "text",
+                  "text": "至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p48_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p49_date",
+                  "with_time": true
+                },
+                {
+                  "type": "text",
+                  "text": "）。取上述培养物"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p50_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（1ml），接种至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p51_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）麦康凯液体培养基中，"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p52_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "℃"
+                },
+                {
+                  "type": "note",
+                  "text": "（42～44℃）"
+                },
+                {
+                  "type": "text",
+                  "text": "培养"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p54_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "小时"
+                },
+                {
+                  "type": "note",
+                  "text": "（24～48小时）"
+                },
+                {
+                  "type": "text",
+                  "text": "（自"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p56_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p57_date",
+                  "with_time": true
+                },
+                {
+                  "type": "text",
+                  "text": "至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p58_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p59_date",
+                  "with_time": true
+                },
+                {
+                  "type": "text",
+                  "text": "）。取麦康凯液体培养物划线接种于麦康凯琼脂培养基平板上，"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p60_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "℃"
+                },
+                {
+                  "type": "note",
+                  "text": "（30～35℃）"
+                },
+                {
+                  "type": "text",
+                  "text": "培养"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p62_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "小时"
+                },
+                {
+                  "type": "note",
+                  "text": "（18～72小时）"
+                },
+                {
+                  "type": "text",
+                  "text": "（自"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p64_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p65_date",
+                  "with_time": true
+                },
+                {
+                  "type": "text",
+                  "text": "至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p66_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p67_date",
+                  "with_time": true
+                },
+                {
+                  "type": "text",
+                  "text": "）。若麦康凯琼脂培养基平板上有菌落生长，应进行分离、纯化及适宜的鉴定试验，确证是否为大肠埃希菌；若麦康凯琼脂培养基平板上没有菌落生长，或虽有菌落生长但鉴定结果为阴性，判供试品未检出大肠埃希菌。2.7.10.7 试验成立条件：阳性对照呈阳性，阴性对照呈阴性。2.7.10.8观察结果检 查 过 程阳 性 对 照阴 性 对 照供 试 品胰酪大豆胨液体培养基"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p68_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p69_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "℃培养"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p70_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "h"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p71_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "胰酪大豆胨液体培养基+供试液滤膜+对照菌≤100cfu胰酪大豆胨液体培养基+稀释液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p72_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml 胰酪大豆胨液体培养基+供试液滤膜自"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p73_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p74_date",
+                  "with_time": false
+                },
+                {
+                  "type": "text",
+                  "text": "至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p75_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p76_date",
+                  "with_time": false
+                },
+                {
+                  "type": "text",
+                  "text": "浑浊有菌生长澄明无菌生长澄明无菌生长 观察胰酪大豆胨液体培养基麦康凯液体培养基"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p77_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p78_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "℃培养"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p79_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "h"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p80_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "麦康凯液体培养基"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p81_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml加上述培养液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p82_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml麦康凯液体培养基"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p83_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml加上述培养液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p84_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml麦康凯液体培养基"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p85_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml加上述培养液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p86_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml自"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p87_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p88_date",
+                  "with_time": false
+                },
+                {
+                  "type": "text",
+                  "text": "至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p89_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p90_date",
+                  "with_time": false
+                },
+                {
+                  "type": "text",
+                  "text": "浑浊有菌生长澄明无菌生长澄明无菌生长观察麦康凯液体培养基取麦康凯液体培养物划线接种于麦康凯琼脂培养基平板上"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p91_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "℃培养"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p92_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "h 应为鲜桃红色，菌落边缘整齐，表面光滑无菌落生长无菌落生长自"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p93_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p94_date",
+                  "with_time": false
+                },
+                {
+                  "type": "text",
+                  "text": "至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p95_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p96_date",
+                  "with_time": false
+                },
+                {
+                  "type": "text",
+                  "text": "结论供试品中是否检出大肠埃希菌"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p97_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "备注：“+”表示有菌生长；“-”表示无菌生长。2.7.11 微生物检查2.7.11.1试验准备：取"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p98_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（40ml）pH7.0无菌氯化钠－蛋白胨缓冲液，分别润湿滤膜4张。2.7.11.2供试品制备：称取本品"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p99_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "g（10g），加pH7.0无菌氯化钠－蛋白胨缓冲液至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p100_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml，混匀，作为1：10的供试液；取四份1：10的供试液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p101_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml）, 以500转/分钟，离心5分钟，弃去上清液,留底部集菌液约8ml，分别用缓冲液补至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p102_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml），滤过，每管用pH7.0无菌氯化钠－蛋白胨缓冲液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p103_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（500ml）冲洗，过滤，取出滤膜，菌面分别朝上，两份接入胰酪大豆胨琼脂培养基（TSA）作为需氧菌样品，两份接入沙氏葡萄糖琼脂培养基（SDA）中作为霉菌和酵母菌样品。2.7.11.3阴性对照：取滤膜4张，用"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p104_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（40ml）pH7.0无菌氯化钠－蛋白胨缓冲液分别过滤，取出滤膜，菌面分别朝上，两份接入胰酪大豆胨琼脂培养基（TSA）作为需氧菌阴性对照，两份接入沙氏葡萄糖琼脂培养基（SDA）中作为霉菌和酵母菌阴性对照。2.7.11.4 培养：2.7.11.4.1 需氧菌样品在"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p105_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "℃"
+                },
+                {
+                  "type": "note",
+                  "text": "（30～35℃）"
+                },
+                {
+                  "type": "text",
+                  "text": "培养5天（自"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p107_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p108_date",
+                  "with_time": true
+                },
+                {
+                  "type": "text",
+                  "text": "至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p109_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p110_date",
+                  "with_time": true
+                },
+                {
+                  "type": "text",
+                  "text": "），观察。2.7.11.4.2 霉菌和酵母菌样品在"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p111_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "℃"
+                },
+                {
+                  "type": "note",
+                  "text": "（20～25℃）"
+                },
+                {
+                  "type": "text",
+                  "text": "培养7天（自"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p113_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p114_date",
+                  "with_time": true
+                },
+                {
+                  "type": "text",
+                  "text": "至"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p115_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "date",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r41_c0_p116_date",
+                  "with_time": true
+                },
+                {
+                  "type": "text",
+                  "text": "），观察。2.7.11.5 观察结果"
+                }
+              ],
+              "colspan": 21,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.7.11.5.1需氧菌观察记录菌别培养基皿数稀释度             观察天数（天）12345需氧菌总数（    ℃）胰酪大豆胨琼脂培养基甲1：10乙阴性对照甲乙                  选择                  总数2.7.11.5.2霉菌和酵母菌观察记录菌别培养基皿数稀释度             观察天数（天）1234567霉菌和酵母菌总数（    ℃）沙氏葡萄糖琼脂培养基甲1：10乙阴性对照甲乙                 选择                  总数2.7.12 标准规定内控标准：①每1g供试品中，大肠埃希菌不得检出。②每1g供试品中，需氧菌总数不得过103cfu，霉菌和酵母菌总数不得过102cfu。2.7.13 实验结果异常处理                                                  □是    □否实验室异常情况编号____________________________________________2.7.14 清场更换仪器、设备状态标识。                                             □是     □否将检验用具及废弃物分类。                                             □是     □否关闭电源。                                                           □是     □否清洁设备及房间。                                                     □是     □否检查仪器、设备，填写《仪器使用记录》。                               □是     □否",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.7.11.5.1需氧菌观察记录菌别培养基皿数稀释度"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p0_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "观察天数"
+                },
+                {
+                  "type": "note",
+                  "text": "（天）"
+                },
+                {
+                  "type": "text",
+                  "text": "12345需氧菌总数"
+                },
+                {
+                  "type": "note",
+                  "text": "（    ℃）"
+                },
+                {
+                  "type": "text",
+                  "text": "胰酪大豆胨琼脂培养基甲1：10乙阴性对照甲乙"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p3_line",
+                  "width": "126px"
+                },
+                {
+                  "type": "text",
+                  "text": "选择"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p4_line",
+                  "width": "126px"
+                },
+                {
+                  "type": "text",
+                  "text": "总数2.7.11.5.2霉菌和酵母菌观察记录菌别培养基皿数稀释度"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p5_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "观察天数"
+                },
+                {
+                  "type": "note",
+                  "text": "（天）"
+                },
+                {
+                  "type": "text",
+                  "text": "1234567霉菌和酵母菌总数"
+                },
+                {
+                  "type": "note",
+                  "text": "（    ℃）"
+                },
+                {
+                  "type": "text",
+                  "text": "沙氏葡萄糖琼脂培养基甲1：10乙阴性对照甲乙"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p8_line",
+                  "width": "119px"
+                },
+                {
+                  "type": "text",
+                  "text": "选择"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p9_line",
+                  "width": "126px"
+                },
+                {
+                  "type": "text",
+                  "text": "总数2.7.12 标准规定内控标准：①每1g供试品中，大肠埃希菌不得检出。②每1g供试品中，需氧菌总数不得过103cfu，霉菌和酵母菌总数不得过102cfu。2.7.13 实验结果异常处理"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p10_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p11_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "实验室异常情况编号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p12_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.7.14 清场更换仪器、设备状态标识。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p13_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p14_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "将检验用具及废弃物分类。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p15_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p16_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "关闭电源。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p17_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p18_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "清洁设备及房间。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p19_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p20_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "检查仪器、设备，填写《仪器使用记录》。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p21_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/clarithromycin/finished/microbial_limit/t0_r42_c0_p22_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 21,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

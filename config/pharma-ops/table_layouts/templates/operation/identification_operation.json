@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/identification_operation",
+  "title": "操作方式",
+  "section_no": "",
+  "category": "operation",
+  "subcomponent": true,
+  "status": "pilot",
+  "includes": [],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "鉴别 操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "section_suffix": "auto",
+      "section_role": "operation",
+      "section_anchor": true,
+      "title": "操作方法",
+      "module_order": 20,
+      "order": 135
+    },
+    {
+      "type": "include",
+      "template_id": "",
+      "variant_param": "identification_operation_method_variant",
+      "slot_label": "操作方法卡槽",
+      "module_order": 20,
+      "order": 136,
+      "variants": {
+        "retention_time": {
+          "template_id": "operation/identification_retention_time_method_text",
+          "title": "鉴别保留时间比对操作说明"
+        },
+        "tlc": {
+          "template_id": "operation/identification_tlc_method_text",
+          "title": "鉴别TLC操作说明"
+        },
+        "uv_ir": {
+          "template_id": "operation/identification_uv_ir_method_text",
+          "title": "鉴别UV/IR操作说明"
+        },
+        "chemical_reaction": {
+          "template_id": "operation/identification_chemical_reaction_method_text",
+          "title": "鉴别化学反应操作说明"
+        },
+        "hplc_prep": {
+          "template_id": "operation/identification_hplc_prep_method_text",
+          "title": "鉴别HPLC制备比对操作说明"
+        }
+      }
+    }
+  ],
+  "order": 135
+}

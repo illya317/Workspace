@@ -1,0 +1,114 @@
+{
+  "schema_version": 2,
+  "template_id": "microbiology/reference_strain_table",
+  "title": "微生物限度标准菌株",
+  "section_no": "",
+  "category": "microbiology",
+  "subcomponent": true,
+  "status": "pilot",
+  "includes": [],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "微生物限度 标准品",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "table",
+      "label": "微生物限度标准菌株",
+      "rows": [
+        {
+          "cells": [
+            {
+              "colspan": 5,
+              "align": "left",
+              "parts": [
+                {
+                  "type": "section_heading",
+                  "text": "标准品",
+                  "bold": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "名称"
+            },
+            {
+              "text": "批号"
+            },
+            {
+              "text": "代次"
+            },
+            {
+              "text": "来源"
+            },
+            {
+              "text": "是否在有效期内"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "大肠埃希菌"
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/reference_strain/ecoli_batch",
+                  "underline": false,
+                  "initial_chars": 8
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/reference_strain/ecoli_generation",
+                  "underline": false,
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " 代"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/reference_strain/ecoli_source",
+                  "underline": false,
+                  "initial_chars": 8
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/microbiology/reference_strain/ecoli_valid",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "order": 145
+    }
+  ],
+  "order": 145
+}

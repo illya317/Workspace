@@ -1,0 +1,470 @@
+methods:
+  UV-BPC中间体含量:
+    称重:
+    - name: 投料量
+      unit: Kg
+      type: number
+      attr: fillable
+    - name: 批量
+      unit: 万片
+      type: number
+      attr: fillable
+    - name: 理论片重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 投料量 * 1000 / (批量 * 10)
+      note: 投料量(Kg)/[批量(万片)×10]
+    - name: 样1-毛重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样1-皮重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样1-净重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 样1-毛重 - 样1-皮重
+    - name: 样2-毛重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样2-皮重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样2-净重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 样2-毛重 - 样2-皮重
+    测定:
+    - name: 规格
+      unit: mg
+      type: number
+      attr: prefilled
+    - name: 波长
+      unit: nm
+      type: number
+      attr: fillable
+    - name: 空白OD
+      type: number
+      attr: fillable
+    - name: 样1-毛重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样1-皮重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样1-净重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 样1-毛重 - 样1-皮重
+    - name: 样2-毛重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样2-皮重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样2-净重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 样2-毛重 - 样2-皮重
+    - name: 常数K1
+      type: number
+      attr: prefilled
+      default: 571
+      note: 品种专属常数
+    - name: 常数K2
+      type: number
+      attr: prefilled
+      default: 0.1
+      note: 品种专属常数(稀释倍数等)
+    - name: 样1-OD
+      type: number
+      attr: fillable
+    - name: 样2-OD
+      type: number
+      attr: fillable
+    - name: 样1-含量
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: (样1-OD - 空白OD) * 100 * 理论片重 * 100 / (样1-净重 * 常数K1 * 常数K2)
+    - name: 样2-含量
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: (样2-OD - 空白OD) * 100 * 理论片重 * 100 / (样2-净重 * 常数K1 * 常数K2)
+    - name: 平均含量
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: (样1-含量 + 样2-含量) / 2
+    - name: RD
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: ABS(样1-含量 - 样2-含量) / 平均含量 * 100
+    - name: 结论-结果
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: 平均含量
+      note: 结论处自动填入平均含量
+  UV-甘草酸二铵含量:
+    称重:
+    - name: 对照含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 对照1-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 对照1-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 对照1-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 对照1-毛重 - 对照1-皮重
+    - name: 对照2-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 对照2-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 对照2-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 对照2-毛重 - 对照2-皮重
+    - name: 平均粒重
+      unit: g/粒
+      type: number
+      attr: fillable
+    - name: 样1-毛重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样1-皮重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样1-净重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 样1-毛重 - 样1-皮重
+    - name: 样2-毛重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样2-皮重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样2-净重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 样2-毛重 - 样2-皮重
+    测定与计算:
+    - name: 样品波长
+      type: text
+      attr: prefilled
+      default: 252nm±2nm
+    - name: 对照波长
+      type: text
+      attr: prefilled
+      default: 261nm±2nm
+    - name: 样品空白OD
+      type: number
+      attr: fillable
+    - name: 空白溶剂OD
+      type: number
+      attr: fillable
+    - name: 对照1-OD
+      type: number
+      attr: fillable
+    - name: 对照2-OD
+      type: number
+      attr: fillable
+    - name: 对照1-OD/mg
+      type: number
+      attr: calculated
+      formula: (对照1-OD - 空白溶剂OD) / 对照1-净重
+    - name: 对照2-OD/mg
+      type: number
+      attr: calculated
+      formula: (对照2-OD - 空白溶剂OD) / 对照2-净重
+    - name: 平均-OD/mg
+      type: number
+      attr: calculated
+      formula: (对照1-OD/mg + 对照2-OD/mg) / 2
+    - name: 对照RD
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: ABS(对照1-OD/mg - 对照2-OD/mg) / 平均-OD/mg * 100
+    - name: 换算系数
+      type: number
+      attr: prefilled
+      default: 1.898
+    - name: 样1-OD
+      type: number
+      attr: fillable
+    - name: 样2-OD
+      type: number
+      attr: fillable
+    - name: 样1-含量
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: (样1-OD - 样品空白OD) * 对照含量 * 25 * 换算系数 * 平均粒重 * 100 / (平均-OD/mg * 10 * 50 * 样1-净重)
+    - name: 样2-含量
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: (样2-OD - 样品空白OD) * 对照含量 * 25 * 换算系数 * 平均粒重 * 100 / (平均-OD/mg * 10 * 50 * 样2-净重)
+    - name: 平均含量
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: (样1-含量 + 样2-含量) / 2
+    - name: RD
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: ABS(样1-含量 - 样2-含量) / 平均含量 * 100
+  UV-BPC含量:
+    称重:
+    - name: 20片总毛重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 20片总皮重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 20片总净重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 20片总毛重 - 20片总皮重
+    - name: 平均片重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 20片总净重 / 20
+    测定:
+    - name: 规格
+      unit: mg
+      type: number
+      attr: prefilled
+    - name: 波长
+      unit: nm
+      type: number
+      attr: fillable
+    - name: 空白OD
+      type: number
+      attr: fillable
+    - name: 样1-毛重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样1-皮重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样1-净重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 样1-毛重 - 样1-皮重
+    - name: 样2-毛重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样2-皮重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样2-净重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 样2-毛重 - 样2-皮重
+    - name: 常数K1
+      type: number
+      attr: prefilled
+      default: 571
+      note: 品种专属常数
+    - name: 常数K2
+      type: number
+      attr: prefilled
+      default: 0.1
+      note: 品种专属常数(稀释倍数等)
+    - name: 样1-OD
+      type: number
+      attr: fillable
+    - name: 样2-OD
+      type: number
+      attr: fillable
+    - name: 样1-含量
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: (样1-OD - 空白OD) * 100 * 平均片重 * 100 / (样1-净重 * 常数K1 * 常数K2)
+    - name: 样2-含量
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: (样2-OD - 空白OD) * 100 * 平均片重 * 100 / (样2-净重 * 常数K1 * 常数K2)
+    - name: 平均含量
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: (样1-含量 + 样2-含量) / 2
+    - name: RD
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: ABS(样1-含量 - 样2-含量) / 平均含量 * 100
+    - name: 结论-结果
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: 平均含量
+      note: 结论处自动填入平均含量
+  UV-对照法:
+    称重:
+    - name: 对照含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 对照1-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 对照1-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 对照1-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 对照1-毛重 - 对照1-皮重
+    - name: 对照2-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 对照2-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 对照2-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 对照2-毛重 - 对照2-皮重
+    - name: 平均片重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样1-毛重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样1-皮重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样1-净重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 样1-毛重 - 样1-皮重
+    - name: 样2-毛重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样2-皮重
+      unit: g
+      type: number
+      attr: fillable
+    - name: 样2-净重
+      unit: g
+      type: number
+      attr: calculated
+      formula: 样2-毛重 - 样2-皮重
+    测定:
+    - name: 规格
+      unit: mg
+      type: number
+      attr: prefilled
+    - name: 波长
+      unit: nm
+      type: number
+      attr: fillable
+    - name: 空白OD
+      type: number
+      attr: fillable
+    - name: 空白溶剂OD
+      type: number
+      attr: fillable
+    - name: 对照1-OD
+      type: number
+      attr: fillable
+    - name: 对照2-OD
+      type: number
+      attr: fillable
+    - name: 平均-OD/mg
+      type: number
+      attr: calculated
+      formula: (对照1-OD/对照1-净重 + 对照2-OD/对照2-净重) / 2
+    - name: 样1-OD
+      type: number
+      attr: fillable
+    - name: 样2-OD
+      type: number
+      attr: fillable
+    - name: 样1-含量
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: (样1-OD - 空白OD) / 平均-OD/mg * 对照含量 / 100 / (样1-净重 * 1000 / 平均片重 / 规格)
+        * 100
+      note: 通用公式，品种特殊系数需调整
+    - name: 样2-含量
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: (样2-OD - 空白OD) / 平均-OD/mg * 对照含量 / 100 / (样2-净重 * 1000 / 平均片重 / 规格)
+        * 100
+      note: 通用公式，品种特殊系数需调整
+    - name: 平均含量
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: (样1-含量 + 样2-含量) / 2
+    - name: RD
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: ABS(样1-含量 - 样2-含量) / 平均含量 * 100

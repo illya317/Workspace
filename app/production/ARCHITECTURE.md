@@ -22,14 +22,14 @@
 
 ## pharma-ops 迁移原则
 
-第一阶段做 Workspace 入口、权限、YAML/JSON 配置适配、批次台账和记录页面；pharma-ops 的 YAML、JSON 仍是只读真源，不在 Workspace 中复制后分叉维护。MD 暂不接入。
+第一阶段做 Workspace 入口、权限、YAML/JSON 配置适配、批次台账和记录页面。当前为避免外部 `pharma-ops` 持续更新影响 Workspace 迁移，已把 `pharma-ops/config` 的 YAML/JSON 复制为仓库内快照 `config/pharma-ops/`，Workspace 默认优先读取该快照；外部 `PHARMA_OPS_ROOT` 仅作为 fallback。MD 暂不接入。
 
 迁移期批次数据先落在 `WORKSPACE_CONFIG_DIR/data/qc-batches.json`，模板反馈先落在
 `WORKSPACE_CONFIG_DIR/data/qc-template-feedback.json`，后续再进入 Prisma 表和审计模型。
 
 当前已接入：
 
-1. `server/services/production/qc/` 从 `PHARMA_OPS_ROOT` 或相邻目录读取 pharma-ops 配置。
+1. `server/services/production/qc/` 默认从 `config/pharma-ops/` 读取 pharma-ops 配置快照，找不到时再从 `WORKSPACE_QC_CONFIG_ROOT`、`PHARMA_OPS_ROOT` 或相邻目录读取外部配置。
 2. `/api/production/qc/config` 返回产品、record templates、methods、layout mapping 的只读概览，并暴露配置源 revision/dirty 状态。
 3. `/production/qc/batches` 提供批次创建、批次台账、草稿/提交状态和记录入口。
 4. `/production/qc/batches/[batchId]` 展示批次检验记录阶段入口。

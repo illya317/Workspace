@@ -1,0 +1,56 @@
+{
+  "schema_version": 2,
+  "template_id": "microbiology/equipment_limit_test",
+  "title": "微生物限度仪器设备",
+  "section_no": "",
+  "category": "microbiology",
+  "subcomponent": true,
+  "status": "pilot",
+  "includes": [],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "微生物限度 仪器、设备",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "equipment_table",
+      "title": "仪器、设备",
+      "field_prefix": "layout/microbiology/equipment",
+      "devices": [
+        {
+          "name": "立式压力蒸汽灭菌器",
+          "status": "已清洁"
+        },
+        {
+          "name": "生化培养箱",
+          "status": "已清洁"
+        },
+        {
+          "name": "生化培养箱",
+          "status": "已清洁"
+        },
+        {
+          "name": "生化培养箱",
+          "status": "已清洁"
+        },
+        {
+          "name": "生物安全柜",
+          "status": "已清洁"
+        },
+        {
+          "name": "净化台",
+          "status": "已清洁"
+        },
+        {
+          "name": "电子天平",
+          "status": "已清洁"
+        }
+      ],
+      "order": 40
+    }
+  ],
+  "order": 40
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/identification_chemical_reaction_method_text",
+  "title": "鉴别化学反应操作说明",
+  "category": "operation",
+  "status": "pilot",
+  "order": 39,
+  "blocks": [
+    {
+      "type": "structured_operation_method",
+      "params_path": "identification_operation_params",
+      "template_name": "identification_structured",
+      "profile": "chemical_reaction",
+      "profile_segments": {
+        "chemical_reaction": [
+          {
+            "label": "反应①",
+            "template": "[取{step1_sample}，加{step1_reagents}[，{step1_process}]，{step1_expected}。]"
+          },
+          {
+            "label": "反应②",
+            "template": "[取{step2_sample}，加{step2_reagents}[，{step2_process}]，{step2_expected}。]"
+          },
+          {
+            "label": "反应③",
+            "template": "[取{step3_sample}，加{step3_reagents}[，{step3_process}]，{step3_expected}。]"
+          }
+        ]
+      },
+      "className": "section-body layout-operation-text-block layout-structured-operation-method",
+      "module_order": 20,
+      "order": 136
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "化学反应鉴别操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ]
+}

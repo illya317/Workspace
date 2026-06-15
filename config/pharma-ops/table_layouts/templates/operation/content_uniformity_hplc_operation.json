@@ -1,0 +1,76 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/content_uniformity_hplc_operation",
+  "title": "操作方式",
+  "section_no": "",
+  "category": "operation",
+  "subcomponent": true,
+  "status": "pilot",
+  "includes": [
+    {
+      "template_id": "calculation/content_uniformity_10_sample",
+      "module_order": 20,
+      "variant_param": "content_uniformity_calculation_heading_variant",
+      "default_variant": "show",
+      "params": {
+        "section_ref": "operation",
+        "section_suffix": "2"
+      },
+      "variants": {
+        "show": {
+          "template_id": "calculation/content_uniformity_10_sample",
+          "title": "测定与计算"
+        },
+        "inline": {
+          "template_id": "calculation/content_uniformity_10_sample",
+          "title": "测定与计算（内嵌）",
+          "params": {
+            "skip_heading": true
+          }
+        }
+      }
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "含量均匀度 操作方法/测定与计算",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "section_suffix": "auto",
+      "section_role": "operation",
+      "section_anchor": true,
+      "title": "操作方法",
+      "module_order": 15,
+      "order": 135
+    },
+    {
+      "type": "include",
+      "template_id": "operation/hplc_content_uniformity_0512_method_text",
+      "variant_param": "content_uniformity_operation_method_variant",
+      "default_variant": "hplc_content_uniformity_direct_0512",
+      "slot_label": "操作方法卡槽",
+      "module_order": 15,
+      "order": 136,
+      "variants": {
+        "hplc_content_uniformity_direct_0512": {
+          "template_id": "operation/hplc_content_uniformity_0512_method_text",
+          "title": "HPLC含量均匀度直接制备法操作说明"
+        },
+        "hplc_content_uniformity_reference_assay": {
+          "template_id": "operation/hplc_content_uniformity_reference_assay_method_text",
+          "title": "HPLC含量均匀度引用含量项操作说明"
+        },
+        "uv_content_uniformity_0401": {
+          "template_id": "operation/uv_content_uniformity_0401_method_text",
+          "title": "UV含量均匀度通则0401操作说明"
+        }
+      }
+    }
+  ],
+  "order": 135
+}

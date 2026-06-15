@@ -1,0 +1,970 @@
+methods:
+  溶出度:
+  - name: 溶出介质
+    type: text
+    attr: prefilled
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: fillable
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: fillable
+  - name: 温度
+    unit: ℃
+    type: number
+    attr: prefilled
+    default: 37
+  - name: 取样时间
+    unit: min
+    type: number
+    attr: fillable
+  - name: 检测波长
+    unit: nm
+    type: number
+    attr: fillable
+  - name: 空白OD
+    type: number
+    attr: fillable
+  - name: 空白溶剂OD
+    type: number
+    attr: fillable
+  - name: 对照OD
+    type: number
+    attr: fillable
+  - name: 公式常数A
+    type: number
+    attr: prefilled
+    default: 571
+    note: 品种专属常数
+  - name: 公式常数B
+    type: number
+    attr: prefilled
+    default: 0.1
+    note: 品种专属常数，如稀释倍数等
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-OD
+        type: number
+        attr: fillable
+      - name: 样{序号}-溶出度
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: (样{序号}-OD - 空白OD) * 100 * 100 / (公式常数A * 公式常数B)
+  - name: 平均溶出度
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-溶出度 + 样2-溶出度 + 样3-溶出度 + 样4-溶出度 + 样5-溶出度 + 样6-溶出度) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均溶出度
+    note: 结论处自动填入平均溶出度
+  酸中释放度-泮托拉唑UV:
+  - name: 释放介质
+    type: text
+    attr: prefilled
+    default: 0.1mol/L盐酸溶液
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: prefilled
+    default: 900
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: prefilled
+    default: 100
+  - name: 温度
+    unit: ℃
+    type: number
+    attr: prefilled
+    default: 37
+  - name: 取样时间
+    unit: min
+    type: number
+    attr: prefilled
+    default: 120
+  - name: 检测波长
+    type: text
+    attr: prefilled
+    default: 288nm±2nm
+  - name: 对照含量
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 对照毛重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照皮重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照净重
+    unit: mg
+    type: number
+    attr: calculated
+    formula: 对照毛重 - 对照皮重
+  - name: 空白OD
+    type: number
+    attr: fillable
+  - name: 空白溶剂OD
+    type: number
+    attr: fillable
+  - name: 对照OD
+    type: number
+    attr: fillable
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-OD
+        type: number
+        attr: fillable
+      - name: 样{序号}-释放度
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: (样{序号}-OD - 空白OD) * 对照净重 * 对照含量 * 0.9458 * 9 / ((对照OD - 空白OD) * 4 * 40)
+  - name: 平均释放度
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-释放度 + 样2-释放度 + 样3-释放度 + 样4-释放度 + 样5-释放度 + 样6-释放度) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均释放度
+    note: 结论处自动填入平均释放度
+  释放度-泮托拉唑UV:
+  - name: 释放介质
+    type: text
+    attr: prefilled
+    default: 磷酸盐缓冲液（pH6.8）
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: prefilled
+    default: 900
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: prefilled
+    default: 100
+  - name: 温度
+    unit: ℃
+    type: number
+    attr: prefilled
+    default: 37
+  - name: 取样时间
+    unit: min
+    type: number
+    attr: prefilled
+    default: 30
+  - name: 检测波长
+    type: text
+    attr: prefilled
+    default: 288nm±2nm
+  - name: 对照含量
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 对照毛重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照皮重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照净重
+    unit: mg
+    type: number
+    attr: calculated
+    formula: 对照毛重 - 对照皮重
+  - name: 空白OD
+    type: number
+    attr: fillable
+  - name: 空白溶剂OD
+    type: number
+    attr: fillable
+  - name: 对照OD
+    type: number
+    attr: fillable
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-OD
+        type: number
+        attr: fillable
+      - name: 样{序号}-释放度
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: (样{序号}-OD - 空白OD) * 对照净重 * 对照含量 * 0.9458 * 9 / ((对照OD - 空白OD) * 4 * 40)
+  - name: 平均释放度
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-释放度 + 样2-释放度 + 样3-释放度 + 样4-释放度 + 样5-释放度 + 样6-释放度) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均释放度
+    note: 结论处自动填入平均释放度
+  耐酸力-泮托拉唑UV:
+  - name: 酸处理介质
+    type: text
+    attr: prefilled
+    default: 0.1mol/L盐酸溶液
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: prefilled
+    default: 900
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: prefilled
+    default: 100
+  - name: 酸处理时间
+    unit: min
+    type: number
+    attr: prefilled
+    default: 120
+  - name: 检测波长
+    type: text
+    attr: prefilled
+    default: 292nm±2nm
+  - name: 外观确认
+    type: select
+    options:
+    - 符合
+    - 不符合
+    attr: fillable
+  - name: 对照含量
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 对照毛重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照皮重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照净重
+    unit: mg
+    type: number
+    attr: calculated
+    formula: 对照毛重 - 对照皮重
+  - name: 空白OD
+    type: number
+    attr: fillable
+  - name: 空白溶剂OD
+    type: number
+    attr: fillable
+  - name: 对照OD
+    type: number
+    attr: fillable
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-OD
+        type: number
+        attr: fillable
+      - name: 样{序号}-耐酸力
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: (样{序号}-OD - 空白OD) * 对照净重 * 对照含量 * 0.9458 * 4 / ((对照OD - 空白OD) * 40)
+  - name: 平均耐酸力
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-耐酸力 + 样2-耐酸力 + 样3-耐酸力 + 样4-耐酸力 + 样5-耐酸力 + 样6-耐酸力) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均耐酸力
+    note: 结论处自动填入平均耐酸力
+  溶出度-HPLC:
+  - name: 溶出介质
+    type: text
+    attr: prefilled
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: fillable
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: fillable
+  - name: 温度
+    unit: ℃
+    type: number
+    attr: prefilled
+    default: 37
+  - name: 取样时间
+    unit: min
+    type: number
+    attr: fillable
+  - name: 对照含量
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 对照毛重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照皮重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照净重
+    unit: mg
+    type: number
+    attr: calculated
+    formula: 对照毛重 - 对照皮重
+  - name: 对照1-峰面积
+    type: number
+    attr: fillable
+  - name: 对照2-峰面积
+    type: number
+    attr: fillable
+  - name: 对照平均峰面积
+    type: number
+    attr: fillable
+  - name: 对照RSD
+    unit: '%'
+    type: number
+    attr: fillable
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-峰面积
+        type: number
+        attr: fillable
+      - name: 样{序号}-溶出度
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: 样{序号}-峰面积 * 对照净重 * 18 * 对照含量 / (对照平均峰面积 * 0.25 * 1000)
+  - name: 平均溶出度
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-溶出度 + 样2-溶出度 + 样3-溶出度 + 样4-溶出度 + 样5-溶出度 + 样6-溶出度) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均溶出度
+    note: 结论处自动填入平均溶出度
+  溶出度-辛伐他汀HPLC:
+  - name: 溶出介质
+    type: text
+    attr: prefilled
+    default: 含0.5%十二烷基硫酸钠的0.01mol/L磷酸二氢钠缓冲液（pH7.0）
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: prefilled
+    default: 900
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: prefilled
+    default: 50
+  - name: 温度
+    unit: ℃
+    type: number
+    attr: prefilled
+    default: 37
+  - name: 取样时间
+    unit: min
+    type: number
+    attr: prefilled
+    default: 30
+  - name: 对照含量
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 对照毛重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照皮重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照净重
+    unit: mg
+    type: number
+    attr: calculated
+    formula: 对照毛重 - 对照皮重
+  - name: 对照1-峰面积
+    type: number
+    attr: fillable
+  - name: 对照2-峰面积
+    type: number
+    attr: fillable
+  - name: 对照平均峰面积
+    type: number
+    attr: fillable
+  - name: 对照RSD
+    unit: '%'
+    type: number
+    attr: fillable
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-峰面积
+        type: number
+        attr: fillable
+      - name: 样{序号}-溶出度
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: 样{序号}-峰面积 * 对照净重 * 9 * 对照含量 / (对照平均峰面积 * 10 * 10)
+  - name: 平均溶出度
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-溶出度 + 样2-溶出度 + 样3-溶出度 + 样4-溶出度 + 样5-溶出度 + 样6-溶出度) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均溶出度
+    note: 结论处自动填入平均溶出度
+  溶出度-特拉唑嗪UV:
+  - name: 溶出介质
+    type: text
+    attr: prefilled
+    default: 盐酸溶液(9→1000)
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: prefilled
+    default: 500
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: prefilled
+    default: 100
+  - name: 温度
+    unit: ℃
+    type: number
+    attr: prefilled
+    default: 37
+  - name: 取样时间
+    unit: min
+    type: number
+    attr: prefilled
+    default: 30
+  - name: 检测波长
+    type: text
+    attr: prefilled
+    default: 246nm±2nm
+  - name: 对照含量
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 对照毛重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照皮重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照净重
+    unit: mg
+    type: number
+    attr: calculated
+    formula: 对照毛重 - 对照皮重
+  - name: 空白溶剂OD
+    type: number
+    attr: fillable
+  - name: 空白胶囊OD
+    type: number
+    attr: fillable
+  - name: 对照OD
+    type: number
+    attr: fillable
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-OD
+        type: number
+        attr: fillable
+      - name: 样{序号}-溶出度
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: (样{序号}-OD - 空白胶囊OD) * 0.914 * 对照净重 * 对照含量 / (对照OD * 5 * 2)
+  - name: 平均溶出度
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-溶出度 + 样2-溶出度 + 样3-溶出度 + 样4-溶出度 + 样5-溶出度 + 样6-溶出度) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均溶出度
+    note: 结论处自动填入平均溶出度
+  溶出度-甘草酸二铵UV:
+  - name: 溶出介质
+    type: text
+    attr: prefilled
+    default: 水
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: fillable
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: fillable
+  - name: 温度
+    unit: ℃
+    type: number
+    attr: prefilled
+    default: 37
+  - name: 取样时间
+    unit: min
+    type: number
+    attr: fillable
+  - name: 样品波长
+    type: text
+    attr: prefilled
+    default: 252nm±2nm
+  - name: 对照波长
+    type: text
+    attr: prefilled
+    default: 261nm±2nm
+  - name: 对照含量
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 对照毛重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照皮重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照净重
+    unit: mg
+    type: number
+    attr: calculated
+    formula: 对照毛重 - 对照皮重
+  - name: 空白OD
+    type: number
+    attr: fillable
+  - name: 空白溶剂OD
+    type: number
+    attr: fillable
+  - name: 对照OD
+    type: number
+    attr: fillable
+  - name: 换算系数
+    type: number
+    attr: prefilled
+    default: 1.898
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-OD
+        type: number
+        attr: fillable
+      - name: 样{序号}-溶出度
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: (样{序号}-OD - 空白OD) * 换算系数 * 对照含量 * 对照净重 * 100 / ((对照OD - 空白OD) * 25)
+  - name: 平均溶出度
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-溶出度 + 样2-溶出度 + 样3-溶出度 + 样4-溶出度 + 样5-溶出度 + 样6-溶出度) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均溶出度
+    note: 结论处自动填入平均溶出度
+  溶出度-UV-BPC:
+  - name: 溶出介质
+    type: text
+    attr: prefilled
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: fillable
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: fillable
+  - name: 温度
+    unit: ℃
+    type: number
+    attr: prefilled
+    default: 37
+  - name: 取样时间
+    unit: min
+    type: number
+    attr: fillable
+  - name: 检测波长
+    unit: nm
+    type: number
+    attr: fillable
+  - name: 空白OD
+    type: number
+    attr: fillable
+  - name: 空白溶剂OD
+    type: number
+    attr: fillable
+  - name: 公式常数A
+    type: number
+    attr: prefilled
+    default: 571
+    note: 品种专属常数
+  - name: 公式常数B
+    type: number
+    attr: prefilled
+    default: 0.1
+    note: 品种专属常数，如稀释倍数等
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-OD
+        type: number
+        attr: fillable
+      - name: 样{序号}-溶出度
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: (样{序号}-OD - 空白OD) * 100 * 100 / (公式常数A * 公式常数B)
+  - name: 平均溶出度
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-溶出度 + 样2-溶出度 + 样3-溶出度 + 样4-溶出度 + 样5-溶出度 + 样6-溶出度) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均溶出度
+    note: 结论处自动填入平均溶出度
+  溶出度-双波长UV:
+  - name: 溶出介质
+    type: text
+    attr: prefilled
+    default: 盐酸溶液(9→1000)
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: fillable
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: fillable
+  - name: 温度
+    unit: ℃
+    type: number
+    attr: prefilled
+    default: 37
+  - name: 取样时间
+    unit: min
+    type: number
+    attr: prefilled
+    default: 45
+  - name: 对照含量
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 对照毛重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照皮重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照净重
+    unit: mg
+    type: number
+    attr: calculated
+    formula: 对照毛重 - 对照皮重
+  - name: 空白278nmOD
+    type: number
+    attr: fillable
+  - name: 空白300nmOD
+    type: number
+    attr: fillable
+  - name: 对照278nmOD
+    type: number
+    attr: fillable
+  - name: 对照300nmOD
+    type: number
+    attr: fillable
+  - name: 对照△A
+    type: number
+    attr: calculated
+    formula: 对照278nmOD - 对照300nmOD
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-OD
+        type: number
+        attr: fillable
+        note: 双波长吸光度差值△A
+      - name: 样{序号}-溶出度
+        unit: '%'
+        type: number
+        attr: fillable
+  - name: 平均溶出度
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-溶出度 + 样2-溶出度 + 样3-溶出度 + 样4-溶出度 + 样5-溶出度 + 样6-溶出度) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均溶出度
+    note: 结论处自动填入平均溶出度
+  溶出度-螺内酯UV:
+  - name: 溶出介质
+    type: text
+    attr: prefilled
+    default: 0.1%十二烷基硫酸钠的0.1mol/L盐酸溶液
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: fillable
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: prefilled
+    default: 75
+  - name: 温度
+    unit: ℃
+    type: number
+    attr: prefilled
+    default: 37
+  - name: 取样时间
+    unit: min
+    type: number
+    attr: prefilled
+    default: 60
+  - name: 检测波长
+    type: text
+    attr: prefilled
+  - name: 对照含量
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 对照毛重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照皮重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照净重
+    unit: mg
+    type: number
+    attr: calculated
+    formula: 对照毛重 - 对照皮重
+  - name: 空白OD
+    type: number
+    attr: fillable
+  - name: 空白溶剂OD
+    type: number
+    attr: fillable
+  - name: 对照OD
+    type: number
+    attr: fillable
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-OD
+        type: number
+        attr: fillable
+      - name: 样{序号}-溶出度
+        unit: '%'
+        type: number
+        attr: fillable
+  - name: 平均溶出度
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-溶出度 + 样2-溶出度 + 样3-溶出度 + 样4-溶出度 + 样5-溶出度 + 样6-溶出度) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均溶出度
+    note: 结论处自动填入平均溶出度
+  溶出度-阿替洛尔UV:
+  - name: 溶出介质
+    type: text
+    attr: prefilled
+    default: 盐酸溶液（9→1000）
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: prefilled
+    default: 1000
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: prefilled
+    default: 50
+  - name: 温度
+    unit: ℃
+    type: number
+    attr: prefilled
+    default: 37
+  - name: 取样时间
+    unit: min
+    type: number
+    attr: prefilled
+    default: 45
+  - name: 检测波长
+    type: text
+    attr: prefilled
+    default: 224nm±2nm
+  - name: 对照含量
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 对照毛重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照皮重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照净重
+    unit: mg
+    type: number
+    attr: calculated
+    formula: 对照毛重 - 对照皮重
+  - name: 空白OD
+    type: number
+    attr: fillable
+  - name: 空白溶剂OD
+    type: number
+    attr: fillable
+  - name: 对照OD
+    type: number
+    attr: fillable
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-OD
+        type: number
+        attr: fillable
+      - name: 样{序号}-溶出度
+        unit: '%'
+        type: number
+        attr: fillable
+  - name: 平均溶出度
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-溶出度 + 样2-溶出度 + 样3-溶出度 + 样4-溶出度 + 样5-溶出度 + 样6-溶出度) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均溶出度
+    note: 结论处自动填入平均溶出度
+  溶出度-左氧氟沙星UV:
+  - name: 溶出介质
+    type: text
+    attr: prefilled
+    default: 0.1mol/L盐酸溶液
+  - name: 介质体积
+    unit: ml
+    type: number
+    attr: fillable
+  - name: 转速
+    unit: rpm
+    type: number
+    attr: fillable
+  - name: 温度
+    unit: ℃
+    type: number
+    attr: prefilled
+    default: 37
+  - name: 取样时间
+    unit: min
+    type: number
+    attr: prefilled
+    default: 30
+  - name: 检测波长
+    type: text
+    attr: prefilled
+    default: 294nm±2nm
+  - name: 对照含量
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 对照毛重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照皮重
+    unit: mg
+    type: number
+    attr: fillable
+  - name: 对照净重
+    unit: mg
+    type: number
+    attr: calculated
+    formula: 对照毛重 - 对照皮重
+  - name: 空白OD
+    type: number
+    attr: fillable
+  - name: 对照OD
+    type: number
+    attr: fillable
+  - repeat:
+      count: 6
+      fields:
+      - name: 样{序号}-OD
+        type: number
+        attr: fillable
+      - name: 样{序号}-溶出度
+        unit: '%'
+        type: number
+        attr: fillable
+  - name: 平均溶出度
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (样1-溶出度 + 样2-溶出度 + 样3-溶出度 + 样4-溶出度 + 样5-溶出度 + 样6-溶出度) / 6
+  - name: 结论-结果
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 平均溶出度
+    note: 结论处自动填入平均溶出度

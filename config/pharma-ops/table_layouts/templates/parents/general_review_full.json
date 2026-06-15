@@ -1,0 +1,50 @@
+{
+  "schema_version": 2,
+  "template_id": "parents/general_review_full",
+  "title": "通用待复核项目",
+  "section_no": "",
+  "category": "general",
+  "subcomponent": false,
+  "status": "needs_review",
+  "includes": [
+    {
+      "template_id": "operation/pre_method_standard",
+      "module_order": 10,
+      "params": {
+        "humidity_limit": "≤75%",
+        "note": "（按项目复核）",
+        "room_rows": 1,
+        "devices": [
+          {
+            "name": "仪器、设备",
+            "status": "“已清洁”"
+          }
+        ],
+        "pre_method_equipment_variant": "include",
+        "pre_method_materials_variant": "none",
+        "pre_method_reference_variant": "none"
+      }
+    },
+    {
+      "template_id": "common/conclusion",
+      "module_order": 99,
+      "params": {
+        "section_suffix": "auto",
+        "section_role": "conclusion",
+        "section_anchor": true,
+        "conclusion_name": "检测项目",
+        "has_value": false,
+        "auto_judgment": false
+      }
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "待复核",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [],
+  "order": 900
+}

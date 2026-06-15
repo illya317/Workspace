@@ -1,0 +1,374 @@
+{
+  "schema_version": 2,
+  "template_id": "weighing/hplc_impurity_multi_reference_sample_weighing",
+  "title": "HPLC 有关物质多对照称样",
+  "section_no": "",
+  "category": "weighing",
+  "method_code": "0512",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "高效液相色谱法（通则0512）有关物质多对照称样",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "text": "称样",
+      "section_ref": "operation",
+      "section_suffix": "1",
+      "order": 140
+    },
+    {
+      "type": "table",
+      "label": "多对照称样",
+      "rows": [
+        {
+          "cells": [
+            {
+              "header": true,
+              "text": "对照品名称"
+            },
+            {
+              "header": true,
+              "text": "含量（%）"
+            },
+            {
+              "header": true,
+              "text": "称样"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "杂质A对照品（mg）"
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "杂质A-含量"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "field",
+                  "field": "杂质A-毛重"
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "杂质A-皮重"
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "杂质A-净重"
+                },
+                {
+                  "type": "text",
+                  "text": " mg"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "杂质B对照品（mg）"
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "杂质B-含量"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "field",
+                  "field": "杂质B-毛重"
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "杂质B-皮重"
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "杂质B-净重"
+                },
+                {
+                  "type": "text",
+                  "text": " mg"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "杂质C对照品（mg）"
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "杂质C-含量"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "field",
+                  "field": "杂质C-毛重"
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "杂质C-皮重"
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "杂质C-净重"
+                },
+                {
+                  "type": "text",
+                  "text": " mg"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "杂质D对照品（mg）"
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "杂质D-含量"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "field",
+                  "field": "杂质D-毛重"
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "杂质D-皮重"
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "杂质D-净重"
+                },
+                {
+                  "type": "text",
+                  "text": " mg"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "杂质E对照品（mg）"
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "杂质E-含量"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "field",
+                  "field": "杂质E-毛重"
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "杂质E-皮重"
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "杂质E-净重"
+                },
+                {
+                  "type": "text",
+                  "text": " mg"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "主成分对照品（mg）"
+            },
+            {
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "别嘌醇对照-含量"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "field",
+                  "field": "别嘌醇对照-毛重"
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "别嘌醇对照-皮重"
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "别嘌醇对照-净重"
+                },
+                {
+                  "type": "text",
+                  "text": " mg"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "供试品（mg）"
+            },
+            {
+              "text": "/"
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "field",
+                  "field": "供试品-毛重"
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "供试品-皮重"
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "供试品-净重"
+                },
+                {
+                  "type": "text",
+                  "text": " mg"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "order": 141
+    }
+  ],
+  "order": 140
+}

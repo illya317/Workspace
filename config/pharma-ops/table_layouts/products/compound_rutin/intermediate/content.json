@@ -1,0 +1,3094 @@
+{
+  "schema_version": 1,
+  "layout_key": "products/compound_rutin/intermediate/content",
+  "status": "needs_review",
+  "source": {
+    "kind": "docx_fingerprint",
+    "product": "复方芦丁片",
+    "product_key": "compound_rutin",
+    "stage": "中间体",
+    "stage_key": "intermediate",
+    "test_seq": "2.3",
+    "test_name": "含量",
+    "test_name_en": "content",
+    "method": "复方芦丁含量",
+    "fingerprint_key": "中间体/2.3 ",
+    "pdf_preview": "docs/coverage/audit/pdf_previews/R01-SOP073506 复方芦丁片批检验记录09.pdf"
+  },
+  "stats": {
+    "tables": 1,
+    "dates": 3,
+    "choices": 15,
+    "notes": 4,
+    "lines": 59
+  },
+  "blocks": [
+    {
+      "type": "table",
+      "label": "表格 1",
+      "logical_rows": 54,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.3 检测项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3 检测项目"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "含 量",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含 量"
+                }
+              ],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检验日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验日期"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r0_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "完成日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "完成日期"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r1_c1_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 13,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "判定日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "判定日期"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r1_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.1 实验环境：温度：10℃～30℃，湿度≤75%（天平室≤70%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.1 实验环境：温度：10℃～30℃，湿度≤75%"
+                },
+                {
+                  "type": "note",
+                  "text": "（天平室≤70%）"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.2 仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.2 仪器、设备"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "仪器、设备"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备编号"
+                }
+              ],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备状态",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备状态"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "校验有效期至",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "校验有效期至"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否确认",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否确认"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r8_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r9_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "紫外可见分光光度计",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "紫外可见分光光度计"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r10_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "数显恒温水浴锅",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "数显恒温水浴锅"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r11_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.3 试验材料",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.3 试验材料"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号/编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号/编号"
+                }
+              ],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否在有效期内",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否在有效期内"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "60%乙醇",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "60%乙醇"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是     □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r14_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "0.02mol/L的醋酸液",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "0.02mol/L的醋酸液"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是     □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r15_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "稀醋酸",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "稀醋酸"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是     □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r16_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "淀粉指示液",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "淀粉指示液"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是     □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r17_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "0.05mol/L碘滴定液",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "0.05mol/L碘滴定液"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是     □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r18_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.4 标准品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.4 标准品"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号"
+                }
+              ],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 21,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "芦丁对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "芦丁对照品"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 16,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 21,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.5 操作方法 2.3.5.1芦丁含量对照品溶液制备：精密称取芦丁对照品①       mg②       mg（约12.5mg）分别置       ml（100mL）量瓶中，加60%乙醇适量，置热水浴（70～80℃）中，加热并振摇5分钟，放冷，加60%乙醇稀释至刻度，摇匀。精密量取      ml（5ml），置另一      ml（50ml）量瓶中，加0.02mol/L醋酸液      ml（1ml),加60%乙醇稀释至刻度，摇匀，作为对照品溶液。供试品溶液制备： 取本品研细，精密称取①         g②        g(约相当于芦丁25mg)分别置                  ml（100mL）  量瓶中，加60%乙醇适量，置热水浴（70～80℃）中，加热并振摇5分钟，放冷，加60%乙醇稀释至刻度，摇匀，用干燥滤纸滤过，弃去初滤液， 精密量取续滤液     ml（5ml），置另一    ml（100ml）量瓶中,加0.02mol/L醋酸液      ml（1ml），加60%乙醇稀释至刻度，摇匀，作为供试品溶液。测定法：取对照品溶液与供试品溶液，照紫外-可见分光光度法(通则0401)，在      nm（362.5±3nm）的波长处分别测定吸光度，计算出供试品中无水芦丁的含量与1.089相乘。2.3.5.1.1 称重",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.5 操作方法 2.3.5.1芦丁含量对照品溶液制备：精密称取芦丁对照品①"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg②"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p1_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（约12.5mg）分别置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p2_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100mL）量瓶中，加60%乙醇适量，置热水浴"
+                },
+                {
+                  "type": "note",
+                  "text": "（70～80℃）"
+                },
+                {
+                  "type": "text",
+                  "text": "中，加热并振摇5分钟，放冷，加60%乙醇稀释至刻度，摇匀。精密量取"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p4_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（5ml），置另一"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p5_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（50ml）量瓶中，加0.02mol/L醋酸液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p6_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（1ml),加60%乙醇稀释至刻度，摇匀，作为对照品溶液。供试品溶液制备： 取本品研细，精密称取①"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p7_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "g②"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p8_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g(约相当于芦丁25mg)分别置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p9_line",
+                  "width": "126px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100mL）  量瓶中，加60%乙醇适量，置热水浴"
+                },
+                {
+                  "type": "note",
+                  "text": "（70～80℃）"
+                },
+                {
+                  "type": "text",
+                  "text": "中，加热并振摇5分钟，放冷，加60%乙醇稀释至刻度，摇匀，用干燥滤纸滤过，弃去初滤液， 精密量取续滤液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p11_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（5ml），置另一"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p12_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中,加0.02mol/L醋酸液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p13_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（1ml），加60%乙醇稀释至刻度，摇匀，作为供试品溶液。测定法：取对照品溶液与供试品溶液，照紫外-可见分光光度法(通则0401)，在"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r22_c0_p14_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "nm"
+                },
+                {
+                  "type": "note",
+                  "text": "（362.5±3nm）"
+                },
+                {
+                  "type": "text",
+                  "text": "的波长处分别测定吸光度，计算出供试品中无水芦丁的含量与1.089相乘。2.3.5.1.1 称重"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "对照含量 ______%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "对照含量 "
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r23_c0_p0_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "对照称样（mg）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "对照称样（mg）"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "对照1",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "对照1"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "m1=          -            =              mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m1="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r23_c3_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r23_c3_p1_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r23_c3_p2_line",
+                  "width": "98px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 27,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "对照2",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "对照2"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "m2=          -            =              mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m2="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r24_c3_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r24_c3_p1_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r24_c3_p2_line",
+                  "width": "98px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 27,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样品称样（g）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样品称样（g）"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "理论片重（g）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "理论片重（g）"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "投料量（Kg）/[批量（万片）×10]=         g/片",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "投料量（Kg）/[批量（万片）×10]="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r25_c2_p0_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "g/片"
+                }
+              ],
+              "colspan": 35,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "样1",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样1"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "-            =             g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r26_c2_p0_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r26_c2_p1_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 35,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "样2",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样2"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "-            =             g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r27_c2_p0_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r27_c2_p1_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 35,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.5.1.2 测定与计算",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.5.1.2 测定与计算"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "对照品计算",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "对照品计算"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "吸光度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "吸光度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "波长：_______nm",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "波长："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r30_c1_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "nm"
+                }
+              ],
+              "colspan": 43,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "空白OD:",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "空白OD:"
+                }
+              ],
+              "colspan": 24,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "空白溶剂OD:",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "空白溶剂OD:"
+                }
+              ],
+              "colspan": 19,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "对照",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "对照"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "OD/mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "OD/mg"
+                }
+              ],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "平均（OD/mg）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "平均（OD/mg）"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "RD≤1.0%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "RD≤1.0%"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "对照1：      mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "对照1："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r33_c1_p0_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "OD1：",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "OD1："
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "对照2：      mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "对照2："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r34_c1_p0_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "OD2：",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "OD2："
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "供试品计算",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品计算"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "计算公式",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "计算公式"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "含量=CX×A×OD",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含量=CX×A×OD"
+                }
+              ],
+              "colspan": 43,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "含量（%）=[（OD样-OD空白）×对照%×1.089×2×片重/m××20]×100%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含量（%）=[（OD样-OD空白）×对照%×1.089×2×片重/m××20]×100%"
+                }
+              ],
+              "colspan": 43,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "称重",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "称重"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "样品OD",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样品OD"
+                }
+              ],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "含量（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含量（%）"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "平均（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "平均（%）"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "RD≤2.0%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "RD≤2.0%"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "供试品样1",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品样1"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "供试品样2",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品样2"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.5.2维生素C含量   取本品研细，精密称取①         g②        g（约相当于维生素C 0.2g），分别置       ml（100ml）的量瓶中，加新沸过的冷水      ml（100ml）与稀醋酸     ml（10ml）的混合液    ml（40ml）振摇使维生素C溶解，再用混合液稀释至刻度，摇匀，用干燥滤纸迅速滤过，弃去初滤液，",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.5.2维生素C含量"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r41_c0_p0_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "取本品研细，精密称取①"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r41_c0_p1_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "g②"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r41_c0_p2_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g（约相当于维生素C 0.2g），分别置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r41_c0_p3_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）的量瓶中，加新沸过的冷水"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r41_c0_p4_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）与稀醋酸"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r41_c0_p5_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml）的混合液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r41_c0_p6_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（40ml）振摇使维生素C溶解，再用混合液稀释至刻度，摇匀，用干燥滤纸迅速滤过，弃去初滤液，"
+                }
+              ],
+              "colspan": 46,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "精密量取续滤液     ml（50ml），加淀粉指示液      ml（10ml），立即用碘滴定液        mol/L（0.05mol/L）滴定，至溶液显蓝色并持续30秒不褪，每1ml的碘滴定液相当于8.806mg的C6H8O6。2.3.5.2.1 称重与测定计算",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "精密量取续滤液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r42_c0_p0_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（50ml），加淀粉指示液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r42_c0_p1_line",
+                  "width": "42px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml），立即用碘滴定液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r42_c0_p2_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "mol/L（0.05mol/L）滴定，至溶液显蓝色并持续30秒不褪，每1ml的碘滴定液相当于8.806mg的C6H8O6。2.3.5.2.1 称重与测定计算"
+                }
+              ],
+              "colspan": 47,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "样品称样（g）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样品称样（g）"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "理论片重（g）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "理论片重（g）"
+                }
+              ],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "投料量（Kg）/[批量（万片）×10]=         g/片",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "投料量（Kg）/[批量（万片）×10]="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r43_c2_p0_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "g/片"
+                }
+              ],
+              "colspan": 33,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "样1",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样1"
+                }
+              ],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "-            =             g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r44_c2_p0_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r44_c2_p1_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 33,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "样2",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样2"
+                }
+              ],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "-            =             g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r45_c2_p0_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r45_c2_p1_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 33,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "供试品计算",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品计算"
+                }
+              ],
+              "colspan": 47,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "计算公式",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "计算公式"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "含量=[（C×V×0.008806×片重）/（m×0.5×0.05×0.05）]×100%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含量=[（C×V×0.008806×片重）/（m×0.5×0.05×0.05）]×100%"
+                }
+              ],
+              "colspan": 42,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "滴定液",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "滴定液"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "C=            mol/L",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "C="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r48_c1_p0_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "mol/L"
+                }
+              ],
+              "colspan": 42,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "称重",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "称重"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "消耗碘滴定液ml",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "消耗碘滴定液ml"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "含量（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含量（%）"
+                }
+              ],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "平均（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "平均（%）"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "RD≤0.8%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "RD≤0.8%"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "供试品样1",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品样1"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "供试品样2",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品样2"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 11,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.6标准规定 内控标准： 1：含芦丁（C27H30O16·3H2O）应为标示量的93.0%～107.0%；2：含维生素C（C6H8O6）应为标示量的93.0%～107.0%。2.3.7 实验结果异常处理                                                  实验室异常情况编号_______________________________________________   □是       □否2.3.8 清场将检验用具及废弃物分类。                                           □是        □否关闭电源。                                                         □是        □否清洁设备及房间。                                                   □是        □否检查仪器、设备，填写《仪器使用记录》。                             □是        □否更换仪器、设备状态标识。                                           □是        □否2.3.9 结论批号_____________复方芦丁片中间体（含量）检测过程___________(符合/不符合)各项规定，结果芦丁___________%，维生素C___________%，___________(符合/不符合)标准规定。检验者/日期：                         复核者/日期：__________________________",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.6标准规定 内控标准： 1：含芦丁（C27H30O16·3H2O）应为标示量的93.0%～107.0%；2：含维生素C（C6H8O6）应为标示量的93.0%～107.0%。2.3.7 实验结果异常处理"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p0_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "实验室异常情况编号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p1_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p2_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p3_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "2.3.8 清场将检验用具及废弃物分类。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p4_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p5_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "关闭电源。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p6_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p7_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "清洁设备及房间。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p8_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p9_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "检查仪器、设备，填写《仪器使用记录》。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p10_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p11_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "更换仪器、设备状态标识。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p12_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p13_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "2.3.9 结论批号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p14_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "复方芦丁片中间体（含量）检测过程"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p15_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)各项规定，结果芦丁"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p16_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%，维生素C"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p17_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "%，"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p18_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)标准规定。检验者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p19_line",
+                  "width": "175px"
+                },
+                {
+                  "type": "text",
+                  "text": "复核者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/intermediate/content/t0_r52_c0_p20_line",
+                  "width": "180px"
+                }
+              ],
+              "colspan": 47,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.10原始数据、图谱、中间体检验报告单见数据图谱粘贴页。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.10原始数据、图谱、中间体检验报告单见数据图谱粘贴页。"
+                }
+              ],
+              "colspan": 47,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

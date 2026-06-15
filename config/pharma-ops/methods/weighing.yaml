@@ -1,0 +1,130 @@
+methods:
+  重量差异:
+  - name: 20片总毛重
+    unit: g
+    type: number
+    attr: fillable
+  - name: 20片总皮重
+    unit: g
+    type: number
+    attr: fillable
+  - name: 20片总净重
+    unit: g
+    type: number
+    attr: calculated
+    formula: 20片总毛重 - 20片总皮重
+  - name: 平均片重
+    unit: g
+    type: number
+    attr: calculated
+    formula: 20片总净重 / 20
+  - name: 重量差异限度
+    unit: '%'
+    type: number
+    attr: prefilled
+    default: 7.5
+  - repeat:
+      count: 20
+      fields:
+      - name: 片{序号}-重
+        unit: g
+        type: number
+        attr: fillable
+      - name: 片{序号}-偏差
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: ABS(片{序号}-重 - 平均片重) / 平均片重 * 100
+      - name: 片{序号}-结果
+        type: select
+        options:
+        - 符合
+        - 不符合
+        attr: calculated
+        rule: 片{序号}-偏差 <= 重量差异限度
+  装量差异:
+  - name: 20粒总毛重
+    unit: g
+    type: number
+    attr: fillable
+  - name: 20粒总皮重
+    unit: g
+    type: number
+    attr: fillable
+  - name: 20粒总净重
+    unit: g
+    type: number
+    attr: calculated
+    formula: 20粒总毛重 - 20粒总皮重
+  - name: 装量上限
+    unit: '%'
+    type: number
+    attr: prefilled
+  - name: 装量下限
+    unit: '%'
+    type: number
+    attr: prefilled
+  - repeat:
+      count: 20
+      fields:
+      - name: 粒{序号}-毛重
+        unit: g
+        type: number
+        attr: fillable
+      - name: 粒{序号}-皮重
+        unit: g
+        type: number
+        attr: fillable
+      - name: 粒{序号}-装量
+        unit: g
+        type: number
+        attr: calculated
+        formula: 粒{序号}-毛重 - 粒{序号}-皮重
+      - name: 粒{序号}-结果
+        type: select
+        options:
+        - 符合
+        - 不符合
+        attr: fillable
+  脆碎度:
+  - name: 取样量
+    unit: g
+    type: number
+    attr: fillable
+    value: 6.5
+  - name: 转数
+    type: number
+    attr: prefilled
+    value: 100
+  - repeat:
+      count: 3
+      fields:
+      - name: 测试{序号}-前重
+        unit: g
+        type: number
+        attr: fillable
+      - name: 测试{序号}-后重
+        unit: g
+        type: number
+        attr: fillable
+      - name: 测试{序号}-减失
+        unit: g
+        type: number
+        attr: calculated
+        formula: 测试{序号}-前重 - 测试{序号}-后重
+      - name: 测试{序号}-减失率
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: 测试{序号}-减失 / 测试{序号}-前重 * 100
+  - name: 平均减失率
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: (测试1-减失率 + 测试2-减失率 + 测试3-减失率) / 3
+  - name: 目测断裂龟裂
+    type: checkbox
+    options:
+    - 有
+    - 无
+    attr: fillable

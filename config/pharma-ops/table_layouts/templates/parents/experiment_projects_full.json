@@ -1,0 +1,119 @@
+{
+  "schema_version": 2,
+  "template_id": "parents/experiment_projects_full",
+  "title": "实验项目",
+  "section_no": "2",
+  "category": "overview",
+  "subcomponent": false,
+  "status": "pilot",
+  "level": 1,
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "2",
+      "md": "config/table_layouts/preview_context.yaml"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "include",
+      "template_id": "parents/appearance_basic",
+      "order": 10,
+      "params": {
+        "group_order": 10,
+        "preview_test_name_en": "appearance"
+      }
+    },
+    {
+      "type": "include",
+      "template_id": "parents/identification_full",
+      "order": 20,
+      "params": {
+        "group_order": 20,
+        "preview_test_name_en": "identification"
+      }
+    },
+    {
+      "type": "include",
+      "template_id": "parents/moisture_two_sample_full",
+      "order": 30,
+      "params": {
+        "group_order": 30,
+        "preview_test_name_en": "moisture"
+      }
+    },
+    {
+      "type": "include",
+      "template_id": "parents/hplc_content_full",
+      "order": 40,
+      "params": {
+        "group_order": 40,
+        "preview_test_name_en": "content"
+      }
+    },
+    {
+      "type": "include",
+      "template_id": "parents/related_substances_hplc_full",
+      "order": 50,
+      "params": {
+        "group_order": 50,
+        "preview_test_name_en": "related_substances"
+      }
+    },
+    {
+      "type": "include",
+      "template_id": "parents/dissolution_full",
+      "order": 60,
+      "params": {
+        "group_order": 60,
+        "preview_test_name_en": "dissolution"
+      }
+    },
+    {
+      "type": "include",
+      "template_id": "parents/content_uniformity_hplc_full",
+      "order": 70,
+      "params": {
+        "group_order": 70,
+        "preview_test_name_en": "content_uniformity"
+      }
+    },
+    {
+      "type": "include",
+      "template_id": "parents/variation_20_full",
+      "order": 80,
+      "params": {
+        "group_order": 80,
+        "preview_test_name_en": "variation"
+      }
+    },
+    {
+      "type": "include",
+      "template_id": "parents/friability_full",
+      "order": 90,
+      "params": {
+        "group_order": 90,
+        "preview_test_name_en": "friability"
+      }
+    },
+    {
+      "type": "include",
+      "template_id": "parents/disintegration_full",
+      "order": 100,
+      "params": {
+        "group_order": 100,
+        "preview_test_name_en": "disintegration"
+      }
+    },
+    {
+      "type": "include",
+      "template_id": "parents/microbiology_limit_full",
+      "order": 990,
+      "params": {
+        "group_order": 990,
+        "preview_test_name_en": "microbial_limit"
+      }
+    }
+  ],
+  "order": 2
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "template_id": "microbiology/cleanroom_exit",
+  "title": "微生物洁净区退出",
+  "section_no": "",
+  "category": "microbiology",
+  "subcomponent": true,
+  "status": "pilot",
+  "includes": [],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "微生物限度 退出",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "microbiology_cleanroom_exit",
+      "section_suffix": "auto",
+      "section_role": "cleanroom_exit",
+      "section_anchor": true,
+      "field_key": "layout/microbiology/cleanroom_exit_confirmed",
+      "text": "人员、物品退出洁净区按《实验室洁净区进出标准操作规程》（SOP071028）进行。",
+      "order": 240
+    }
+  ],
+  "order": 240
+}

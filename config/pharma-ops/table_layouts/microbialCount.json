@@ -1,0 +1,364 @@
+{
+  "rows": [
+    [
+      {
+        "text": "项目",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "数值",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "80%"
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "培养基",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "TSB",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "培养温度 (℃)",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "37",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "培养天数 (天)",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "3",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "稀释度",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "1:10\n1:100\n1:1000",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "皿数",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "86.18",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "菌落数1",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "34.25",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "菌落数2",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "32.60",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "平均菌落数",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "35.53",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "需氧菌总数 (cfu/g)",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "79.29",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "培养基",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "TSB",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "培养温度 (℃)",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "37",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "培养天数 (天)",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "3",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "皿数",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "86.18",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "菌落数1",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "34.25",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "菌落数2",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "32.60",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "平均菌落数",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "35.53",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ],
+    [
+      {
+        "text": "霉菌酵母菌总数 (cfu/g)",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": "20%"
+      },
+      {
+        "text": "26.08",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      },
+      {
+        "text": "",
+        "rowspan": 1,
+        "colspan": 1,
+        "width": ""
+      }
+    ]
+  ]
+}

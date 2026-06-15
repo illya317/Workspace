@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "template_id": "common/environment_table",
+  "title": "实验环境表",
+  "section_no": "",
+  "category": "common",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "实验环境",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "environment_table",
+      "title": "实验环境",
+      "temperature_range": "10℃～30℃",
+      "humidity_limit": "≤75%",
+      "room_rows": 1,
+      "field_prefix": "layout/common/environment",
+      "order": 100,
+      "section_suffix": "1"
+    }
+  ],
+  "order": 100
+}

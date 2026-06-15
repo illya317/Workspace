@@ -1,0 +1,121 @@
+methods:
+  复方芦丁含量:
+    芦丁含量-称重:
+      render_as: genericFieldsTable
+      fields:
+      - name: 芦丁对照品含量
+        unit: '%'
+        type: number
+        attr: fillable
+      - name: 芦丁对照1称样
+        unit: mg
+        type: number
+        attr: fillable
+      - name: 芦丁对照2称样
+        unit: mg
+        type: number
+        attr: fillable
+      - name: 平均片重
+        unit: g
+        type: number
+        attr: fillable
+      - name: 芦丁样1称样
+        unit: g
+        type: number
+        attr: fillable
+      - name: 芦丁样2称样
+        unit: g
+        type: number
+        attr: fillable
+    芦丁含量-测定与计算:
+      render_as: genericFieldsTable
+      fields:
+      - name: 芦丁测定波长
+        unit: nm
+        type: number
+        attr: fillable
+      - name: 空白OD
+        type: number
+        attr: fillable
+      - name: 空白溶剂OD
+        type: number
+        attr: fillable
+      - name: 芦丁对照1OD
+        type: number
+        attr: fillable
+      - name: 芦丁对照2OD
+        type: number
+        attr: fillable
+      - name: 芦丁平均OD每mg
+        type: number
+        attr: fillable
+        note: 依据 MD 对照品计算表录入
+      - name: 芦丁样1OD
+        type: number
+        attr: fillable
+      - name: 芦丁样1含量
+        unit: '%'
+        type: number
+        attr: fillable
+        note: 复方芦丁专属公式，先人工录入
+      - name: 芦丁样2OD
+        type: number
+        attr: fillable
+      - name: 芦丁样2含量
+        unit: '%'
+        type: number
+        attr: fillable
+        note: 复方芦丁专属公式，先人工录入
+      - name: 芦丁平均含量
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: (芦丁样1含量 + 芦丁样2含量) / 2
+      - name: 芦丁RD
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: ABS(芦丁样1含量 - 芦丁样2含量) / 芦丁平均含量 * 100
+    维生素C含量-称重与滴定:
+      render_as: genericFieldsTable
+      fields:
+      - name: 维C样1称样
+        unit: g
+        type: number
+        attr: fillable
+      - name: 维C样2称样
+        unit: g
+        type: number
+        attr: fillable
+      - name: 碘滴定液浓度
+        unit: mol/L
+        type: number
+        attr: fillable
+      - name: 维C样1消耗体积
+        unit: ml
+        type: number
+        attr: fillable
+      - name: 维C样1含量
+        unit: '%'
+        type: number
+        attr: fillable
+        note: 复方芦丁专属公式，先人工录入
+      - name: 维C样2消耗体积
+        unit: ml
+        type: number
+        attr: fillable
+      - name: 维C样2含量
+        unit: '%'
+        type: number
+        attr: fillable
+        note: 复方芦丁专属公式，先人工录入
+      - name: 维C平均含量
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: (维C样1含量 + 维C样2含量) / 2
+      - name: 维CRD
+        unit: '%'
+        type: number
+        attr: calculated
+        formula: ABS(维C样1含量 - 维C样2含量) / 维C平均含量 * 100

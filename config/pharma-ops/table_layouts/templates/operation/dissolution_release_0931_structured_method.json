@@ -1,0 +1,217 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/dissolution_release_0931_structured_method",
+  "title": "溶出/释放度结构化操作方法",
+  "category": "operation",
+  "method_codes": ["0931", "0401"],
+  "status": "pilot",
+  "order": 35,
+  "blocks": [
+    {
+      "type": "structured_operation_method",
+      "params_path": "dissolution_operation_params",
+      "template_name": "dissolution_release_0931",
+      "profile": "uv_full",
+      "profile_segments": {
+        "uv_sample_only": [
+          {
+            "label": "方法",
+            "template": "照溶出度与释放度测定法（通则0931{apparatus_method}）测定。"
+          },
+          {
+            "label": "样品溶液制备",
+            "template": "取本品{sample_count}，照溶出度与释放度测定法（通则0931{apparatus_method}）{apparatus}法，以{medium}{medium_volume}为溶出介质，转速{rotation_speed}，依法操作。经{duration}，{sampling_text}，作为供试品溶液。"
+          },
+          {
+            "label": "测定法",
+            "template": "取上述溶液，照紫外-可见分光光度法（通则0401），在{wavelength}波长处测定吸光度，{calculation_basis}计算每{unit_name}溶出量。"
+          }
+        ],
+        "uv_cross_reference": [
+          {
+            "label": "数据引用",
+            "template": "样品溶液制备和测定法同{reference_section}。"
+          },
+          {
+            "label": "操作条件",
+            "template": "取本品{sample_count}，以{medium}{medium_volume}为溶出介质，{apparatus}法转速{rotation_speed}，依法操作{duration}，在{wavelength}波长处测定吸光度，{calculation_basis}计算每{unit_name}溶出量{result_multiplier_text}。"
+          },
+          {
+            "label": "数据来源",
+            "source": "data_reference"
+          }
+        ],
+        "uv_full": [
+          {
+            "label": "方法",
+            "template": "照溶出度与释放度测定法（通则0931{apparatus_method}）测定。"
+          },
+          {
+            "label": "对照品溶液制备",
+            "template": "取{reference_name}，精密称定____置____量瓶中，加{reference_solvent}使溶解并定量稀释至刻度，摇匀；再精密吸取____至____量瓶中，加{reference_diluent}稀释制成每1ml约含{reference_concentration}的溶液，作为对照品溶液。"
+          },
+          {
+            "label": "供试品溶液制备",
+            "template": "取本品{sample_count}，照溶出度与释放度测定法（通则0931{apparatus_method}）{apparatus}法，以{medium}{medium_volume}为溶出介质，转速{rotation_speed}，依法操作，经{duration}{sample_processing}，作为供试品溶液。"
+          },
+          {
+            "label": "测定法",
+            "template": "取上述两种溶液，照紫外-可见分光光度法（通则0401），在{wavelength}波长处测定吸光度，{measurement_extra}计算每{unit_name}溶出量{result_multiplier_text}。"
+          }
+        ],
+        "uv_dual_wavelength_full": [
+          {
+            "label": "方法",
+            "template": "照紫外-可见分光光度法（通则0401）测定。"
+          },
+          {
+            "label": "供试品溶液制备",
+            "template": "取本品{sample_count}，照溶出度与释放度测定法（通则0931{apparatus_method}）{apparatus}法，以{medium}{medium_volume}为溶出介质，转速{rotation_speed}，依法操作，经{duration}，{sample_processing}，作为供试品溶液。"
+          },
+          {
+            "label": "对照品溶液制备",
+            "template": "另取{reference_name}，精密称定____置____量瓶中，加{reference_solvent}使溶解并定量稀释至刻度，摇匀；再精密吸取____置____量瓶中，加{reference_diluent}稀释制成每1ml约含{reference_concentration}的溶液，作为对照品溶液。"
+          },
+          {
+            "label": "测定法",
+            "template": "照含量测定项下的方法，供试品溶液在{sample_wavelength}波长处、对照品溶液在{reference_wavelength}波长处测定吸光度，计算每{unit_name}溶出量{result_multiplier_text}。"
+          }
+        ],
+        "uv_dual_wavelength_cross_reference": [
+          {
+            "label": "数据引用",
+            "template": "供试品溶液制备、对照品溶液制备和测定法同{reference_section}。"
+          },
+          {
+            "label": "操作条件",
+            "template": "取本品{sample_count}，以{medium}{medium_volume}为溶出介质，{apparatus}法转速{rotation_speed}，依法操作{duration}；供试品溶液在{sample_wavelength}波长处、对照品溶液在{reference_wavelength}波长处测定吸光度，计算每{unit_name}溶出量{result_multiplier_text}。"
+          },
+          {
+            "label": "数据来源",
+            "source": "data_reference"
+          }
+        ],
+        "hplc_full": [
+          {
+            "label": "方法",
+            "template": "照溶出度与释放度测定法（通则0931{apparatus_method}）和高效液相色谱法（通则0512）测定。"
+          },
+          {
+            "label": "溶出条件",
+            "template": "取本品{sample_count}，以{medium}{medium_volume}为溶出介质，{apparatus}法转速{rotation_speed}，依法操作，经{duration}，{sample_processing}，作为供试品溶液。"
+          },
+          {
+            "label": "对照品溶液制备",
+            "template": "取{reference_name}，精密称定____置____量瓶中，加{reference_solvent}使溶解并定量稀释至刻度，摇匀；再精密吸取____置____量瓶中，加{reference_diluent}稀释制成每1ml约含{reference_concentration}的溶液，作为对照品溶液。"
+          },
+          {
+            "label": "测定法",
+            "template": "照含量项下的方法，精密量取{measurement_solutions}{injection_volume_text}，分别注入液相色谱仪，记录色谱图；按外标法以峰面积计算每{unit_name}溶出量{result_multiplier_text}。"
+          }
+        ],
+        "hplc_cross_reference": [
+          {
+            "label": "数据引用",
+            "template": "对照品溶液制备、供试品溶液制备和测定法同{reference_section}。"
+          },
+          {
+            "label": "测定法",
+            "template": "照含量项下的方法，精密量取{measurement_solutions}{injection_volume_text}，分别注入液相色谱仪，记录色谱图；按外标法以峰面积计算每{unit_name}溶出量{result_multiplier_text}。"
+          },
+          {
+            "label": "数据来源",
+            "source": "data_reference"
+          }
+        ],
+        "acid_release_uv": [
+          {
+            "label": "对照品溶液制备",
+            "template": "取{reference_name}，精密称定后用{reference_solvent}溶解并定量稀释，再以溶出介质稀释制成每1ml约含{reference_concentration}的对照品溶液。"
+          },
+          {
+            "label": "样品溶液制备",
+            "template": "取本品____片（{sample_count}），照溶出度与释放度测定法（通则0931第一法）篮法，以{medium}{medium_volume}为溶出介质，转速{rotation_speed}，依法操作，经{duration}取溶液滤过，续滤液定量稀释作为供试品溶液。"
+          },
+          {
+            "label": "测定法",
+            "template": "分别取上述两种溶液，照紫外-可见分光光度法（通则0401），在{wavelength}波长处测定吸光度，计算每片酸中释放量。"
+          }
+        ],
+        "acid_release_cross_reference": [
+          {
+            "label": "数据引用",
+            "template": "对照品溶液制备、样品溶液制备和测定法同{reference_section}。"
+          },
+          {
+            "label": "操作条件",
+            "template": "以{medium}{medium_volume}为溶出介质，篮法转速{rotation_speed}，依法操作{duration}，在{wavelength}波长处测定吸光度，计算每片酸中释放量。"
+          },
+          {
+            "label": "数据来源",
+            "source": "data_reference"
+          }
+        ],
+        "buffer_release_uv": [
+          {
+            "label": "方法",
+            "template": "照溶出度与释放度测定法（通则0931第一法）测定。"
+          },
+          {
+            "label": "对照品溶液制备",
+            "template": "取{reference_name}，用{reference_solvent}溶解并定量稀释，再以溶出介质稀释制成每1ml约含{reference_concentration}的对照品溶液。"
+          },
+          {
+            "label": "样品溶液制备",
+            "template": "弃去酸中释放度项下各杯中酸液，立即加入{buffer_medium}{medium_volume}，篮法转速{rotation_speed}，依法操作{duration}，取溶液滤过并定量稀释作为供试品溶液。"
+          },
+          {
+            "label": "测定法",
+            "template": "取上述两种溶液，照紫外-可见分光光度法（通则0401），在{wavelength}波长处测定吸光度，计算每片释放量{result_multiplier_text}。"
+          }
+        ],
+        "buffer_release_cross_reference": [
+          {
+            "label": "数据引用",
+            "template": "对照品溶液制备、样品溶液制备和测定法同{reference_section}。"
+          },
+          {
+            "label": "操作条件",
+            "template": "弃去酸中释放度项下各杯中酸液，立即加入{buffer_medium}{medium_volume}，篮法转速{rotation_speed}，依法操作{duration}，在{wavelength}波长处测定吸光度，计算每片释放量{result_multiplier_text}。"
+          },
+          {
+            "label": "数据来源",
+            "source": "data_reference"
+          }
+        ],
+        "acid_resistance_uv": [
+          {
+            "label": "方法",
+            "template": "照紫外-可见分光光度法（通则0401）测定。"
+          },
+          {
+            "label": "对照品溶液制备",
+            "template": "取{reference_name}，用{reference_solvent}溶解并稀释，制成每1ml中约含{reference_concentration}的对照品溶液。"
+          },
+          {
+            "label": "样品溶液制备",
+            "template": "取本品____片（{sample_count}），照溶出度与释放度测定法（通则0931第一法）篮法，以{medium}{medium_volume}为溶出介质，转速{rotation_speed}，依法操作{duration}，供试品片均不得有裂缝或崩解现象。取出药片，以水冲洗片剂表面的酸液，用乙醇研细、定量转移、稀释并滤过，续滤液稀释作为供试品溶液。"
+          },
+          {
+            "label": "测定法",
+            "template": "同含量测定法测定并计算每片含量。"
+          }
+        ]
+      },
+      "className": "section-body layout-operation-text-block layout-structured-operation-method",
+      "module_order": 15,
+      "order": 136
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "泮托拉唑钠肠溶片",
+      "section_no": "酸中释放度/释放度/耐酸力操作方法",
+      "md": "schema/md_canonical/泮托拉唑钠肠溶片.md"
+    }
+  ]
+}

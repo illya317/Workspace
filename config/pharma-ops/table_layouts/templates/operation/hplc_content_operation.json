@@ -1,0 +1,153 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/hplc_content_operation",
+  "title": "操作方式",
+  "section_no": "",
+  "category": "operation",
+  "subcomponent": true,
+  "status": "pilot",
+  "includes": [
+    {
+      "template_id": "weighing/hplc_reference_sample_theoretical",
+      "module_order": 20,
+      "variant_param": "hplc_weighing_variant",
+      "default_variant": "theoretical",
+      "variants": {
+        "none": {
+          "skip": true,
+          "title": "不包含称重"
+        },
+        "theoretical": {
+          "template_id": "weighing/hplc_reference_sample_theoretical",
+          "title": "理论片重称重"
+        },
+        "theoretical_inline": {
+          "template_id": "weighing/hplc_reference_sample_theoretical",
+          "title": "理论片重称重（内嵌）",
+          "params": {
+            "skip_heading": true
+          }
+        },
+        "20_tablets": {
+          "template_id": "weighing/hplc_reference_sample_20_tablets",
+          "title": "20片片重称重"
+        },
+        "20_tablets_inline": {
+          "template_id": "weighing/hplc_reference_sample_20_tablets",
+          "title": "20片片重称重（内嵌）",
+          "params": {
+            "skip_heading": true
+          }
+        },
+        "uv_absorbance_theoretical": {
+          "template_id": "weighing/uv_absorbance_sample_theoretical",
+          "title": "UV吸收系数法样品称重（理论片重）"
+        },
+        "uv_absorbance_theoretical_inline": {
+          "template_id": "weighing/uv_absorbance_sample_theoretical",
+          "title": "UV吸收系数法样品称重（理论片重，内嵌）",
+          "params": {
+            "skip_heading": true
+          }
+        },
+        "uv_absorbance_20_tablets": {
+          "template_id": "weighing/uv_absorbance_sample_20_tablets",
+          "title": "UV吸收系数法样品称重（20片片重）"
+        },
+        "uv_absorbance_20_tablets_inline": {
+          "template_id": "weighing/uv_absorbance_sample_20_tablets",
+          "title": "UV吸收系数法样品称重（20片片重，内嵌）",
+          "params": {
+            "skip_heading": true
+          }
+        }
+      }
+    },
+    {
+      "template_id": "measurement/hplc_reference_sample_calculation",
+      "module_order": 30,
+      "variant_param": "hplc_measurement_heading_variant",
+      "default_variant": "show",
+      "variants": {
+        "show": {
+          "template_id": "measurement/hplc_reference_sample_calculation",
+          "title": "测定与计算"
+        },
+        "inline": {
+          "template_id": "measurement/hplc_reference_sample_calculation",
+          "title": "测定与计算（内嵌）",
+          "params": {
+            "skip_heading": true
+          }
+        }
+      }
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "含量 操作方法/称重/测定与计算",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "section_suffix": "auto",
+      "section_role": "operation",
+      "section_anchor": true,
+      "title": "操作方法",
+      "module_order": 15,
+      "order": 135
+    },
+    {
+      "type": "include",
+      "template_id": "operation/hplc_content_0512_structured_method",
+      "variant_param": "hplc_operation_method_variant",
+      "default_variant": "hplc_content_0512",
+      "slot_label": "操作方法卡槽",
+      "module_order": 15,
+      "order": 136,
+      "variants": {
+        "hplc_content_0512": {
+          "template_id": "operation/hplc_content_0512_structured_method",
+          "title": "HPLC含量结构化外标法操作说明"
+        },
+        "uv_content_0401": {
+          "template_id": "operation/uv_content_0401_structured_method",
+          "title": "UV含量结构化通则0401操作说明"
+        },
+        "uv_titration_compound_content": {
+          "template_id": "operation/compound_uv_titration_content_structured_method",
+          "title": "复方含量UV+滴定结构化操作说明"
+        },
+        "titration_content": {
+          "template_id": "operation/titration_content_structured_method",
+          "title": "滴定含量结构化操作说明"
+        },
+        "hplc_content_full_solution_prep_0512": {
+          "template_id": "operation/hplc_content_0512_structured_method",
+          "title": "HPLC含量结构化完整溶液制备法操作说明",
+          "params": {
+            "profile": "full_solution_prep"
+          }
+        },
+        "hplc_content_system_solution_prep_0512": {
+          "template_id": "operation/hplc_content_0512_structured_method",
+          "title": "HPLC含量结构化系统适用性溶液法操作说明",
+          "params": {
+            "profile": "system_solution_prep"
+          }
+        },
+        "hplc_content_cross_reference_0512": {
+          "template_id": "operation/hplc_content_0512_structured_method",
+          "title": "HPLC含量结构化引用待包装品操作说明",
+          "params": {
+            "profile": "cross_reference"
+          }
+        }
+      }
+    }
+  ],
+  "order": 135
+}

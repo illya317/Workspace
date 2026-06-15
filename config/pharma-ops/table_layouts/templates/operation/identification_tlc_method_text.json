@@ -1,0 +1,46 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/identification_tlc_method_text",
+  "title": "鉴别TLC操作说明",
+  "category": "operation",
+  "status": "pilot",
+  "order": 37,
+  "blocks": [
+    {
+      "type": "structured_operation_method",
+      "params_path": "identification_operation_params",
+      "template_name": "identification_structured",
+      "profile": "tlc",
+      "profile_segments": {
+        "tlc": [
+          {
+            "label": "供试品溶液制备",
+            "template": "取{sample}，加{sample_solvent}振摇使溶解，滤过，取续滤液作为供试品溶液。"
+          },
+          {
+            "label": "对照品溶液制备",
+            "template": "取{reference_name}对照品，置____，加{reference_solvent}溶解并稀释制成{reference_concentration}，作为对照品溶液。"
+          },
+          {
+            "label": "色谱条件",
+            "template": "采用{plate}，以{developing_solvent}为展开剂。"
+          },
+          {
+            "label": "测定法",
+            "template": "取上述两种溶液各{spot_volume}，分别点于同一薄层板上，展开，晾干，置{inspection_light}下检视，供试品溶液所显示斑点的{expected}。"
+          }
+        ]
+      },
+      "className": "section-body layout-operation-text-block layout-structured-operation-method",
+      "module_order": 20,
+      "order": 136
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "TLC鉴别操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ]
+}

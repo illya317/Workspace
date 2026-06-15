@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "template_id": "common/materials_table",
+  "title": "试验材料表",
+  "section_no": "",
+  "category": "common",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "试验材料",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "materials_table",
+      "title": "试验材料",
+      "materials": [
+        {
+          "name": "试验材料"
+        }
+      ],
+      "field_prefix": "layout/common/materials",
+      "order": 120,
+      "section_suffix": "3"
+    }
+  ],
+  "order": 120
+}

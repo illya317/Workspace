@@ -1,0 +1,32 @@
+{
+  "schema_version": 2,
+  "template_id": "common/equipment_table",
+  "title": "仪器设备表",
+  "section_no": "",
+  "category": "common",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "仪器、设备",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "equipment_table",
+      "title": "仪器、设备",
+      "devices": [
+        {
+          "name": "仪器、设备",
+          "status": "“已清洁”"
+        }
+      ],
+      "field_prefix": "layout/common/equipment",
+      "order": 110,
+      "section_suffix": "2"
+    }
+  ],
+  "order": 110
+}

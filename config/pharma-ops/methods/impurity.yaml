@@ -1,0 +1,413 @@
+methods:
+  有关物质-BPC:
+    称样:
+    - name: 杂质A-含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 杂质A-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 杂质A-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 杂质A-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 杂质A-毛重 - 杂质A-皮重
+    - name: 杂质B-含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 杂质B-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 杂质B-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 杂质B-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 杂质B-毛重 - 杂质B-皮重
+    - name: 杂质C-含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 杂质C-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 杂质C-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 杂质C-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 杂质C-毛重 - 杂质C-皮重
+    - name: 杂质D-含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 杂质D-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 杂质D-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 杂质D-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 杂质D-毛重 - 杂质D-皮重
+    - name: 杂质E-含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 杂质E-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 杂质E-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 杂质E-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 杂质E-毛重 - 杂质E-皮重
+    - name: 别嘌醇对照-含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 别嘌醇对照-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 别嘌醇对照-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 别嘌醇对照-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 别嘌醇对照-毛重 - 别嘌醇对照-皮重
+    - name: 供试品-毛重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 供试品-皮重
+      unit: mg
+      type: number
+      attr: fillable
+    - name: 供试品-净重
+      unit: mg
+      type: number
+      attr: calculated
+      formula: 供试品-毛重 - 供试品-皮重
+    测定:
+    - name: 系统适用性-1
+      type: number
+      attr: fillable
+      note: 杂质B峰与杂质C峰分离度应不小于1.5
+    - name: 系统适用性-2
+      type: number
+      attr: fillable
+      note: 别嘌醇色谱峰的拖尾因子不得大于1.5
+    - name: 系统适用性-是否符合
+      type: select
+      options:
+      - 符合
+      - 不符合
+      attr: calculated
+      rule: 系统适用性-1 >= 1.5 && 系统适用性-2 <= 1.5
+    - repeat:
+        count: 6
+        rowLabels:
+        - 杂质A
+        - 杂质B
+        - 杂质C
+        - 杂质D
+        - 杂质E
+        - 别嘌醇
+        fields:
+        - name: Ar1
+          type: number
+          attr: fillable
+        - name: Ar2
+          type: number
+          attr: fillable
+        - name: Ar3
+          type: number
+          attr: fillable
+        - name: Ar
+          type: number
+          attr: calculated
+          formula: (Ar1 + Ar2 + Ar3) / 3
+        - name: RSD
+          type: number
+          attr: calculated
+          formula: SQRT((Ar1-Ar)^2 + (Ar2-Ar)^2 + (Ar3-Ar)^2) / Ar * 100
+          note: ≤2.0%
+    - name: 测定是否符合规定
+      type: select
+      options:
+      - 符合
+      - 不符合
+      attr: calculated
+      rule: 系统适用性-是否符合 == 符合 && ALL(RSD) <= 2.0
+      note: 系统适用性OK+全部RSD≤2%
+    计算:
+    - name: 杂质A
+      unit: '%'
+      type: number
+      attr: fillable
+      note: 品种专属公式
+    - name: 杂质B
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 杂质C
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 杂质D
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 杂质E
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 单杂
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 总杂
+      unit: '%'
+      type: number
+      attr: fillable
+  有关物质:
+    extends: HPLC
+    extra:
+    - name: 对照溶液峰面积
+      type: number
+      attr: fillable
+    - name: 供试品单杂峰面积
+      type: number
+      attr: fillable
+    - name: 供试品总杂峰面积
+      type: number
+      attr: fillable
+    - name: 单杂
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: 供试品单杂峰面积 / 对照溶液峰面积 * 100
+    - name: 总杂
+      unit: '%'
+      type: number
+      attr: calculated
+      formula: 供试品总杂峰面积 / 对照溶液峰面积 * 100
+  有关物质-阿奇霉素:
+  - name: 系统适用性分离度
+    type: number
+    attr: fillable
+  - name: 灵敏度信噪比
+    type: number
+    attr: fillable
+  - name: 对照溶液主峰面积
+    type: number
+    attr: fillable
+  - name: 杂质B峰面积
+    type: number
+    attr: fillable
+  - name: 杂质H峰面积
+    type: number
+    attr: fillable
+  - name: 杂质Q峰面积
+    type: number
+    attr: fillable
+  - name: 其他单个最大杂质峰面积
+    type: number
+    attr: fillable
+  - name: 各杂质校正峰面积和
+    type: number
+    attr: fillable
+  - name: 对照折算系数
+    type: number
+    attr: prefilled
+    default: 0.5
+  - name: 杂质B
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 杂质B峰面积 / 对照溶液主峰面积 * 对照折算系数
+  - name: 杂质H
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 杂质H峰面积 * 0.1 / 对照溶液主峰面积 * 对照折算系数
+  - name: 杂质Q
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 杂质Q峰面积 * 0.4 / 对照溶液主峰面积 * 对照折算系数
+  - name: 其他单杂
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 其他单个最大杂质峰面积 / 对照溶液主峰面积 * 对照折算系数
+  - name: 总杂
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 各杂质校正峰面积和 / 对照溶液主峰面积 * 对照折算系数
+  有关物质-维拉帕米:
+  - name: 系统适用性理论板数
+    type: number
+    attr: fillable
+  - name: 供试品称样
+    unit: g
+    type: number
+    attr: fillable
+  - name: 对照溶液峰面积
+    type: number
+    attr: fillable
+  - name: 供试品总杂峰面积
+    type: number
+    attr: fillable
+  - name: 总杂
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 供试品总杂峰面积 / 对照溶液峰面积
+  有关物质-螺内酯:
+  - name: 系统适用性分离度
+    type: number
+    attr: fillable
+  - name: 灵敏度信噪比
+    type: number
+    attr: fillable
+  - name: 对照溶液1峰面积254nm
+    type: number
+    attr: fillable
+  - name: 对照溶液2峰面积254nm
+    type: number
+    attr: fillable
+  - name: 坎利酮对照峰面积283nm
+    type: number
+    attr: fillable
+  - name: 供试品杂质峰面积和254nm
+    type: number
+    attr: fillable
+  - name: 供试品坎利酮峰面积283nm
+    type: number
+    attr: fillable
+  - name: 254nm杂质
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 283nm坎利酮
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 总杂
+    unit: '%'
+    type: number
+    attr: fillable
+  有关物质-辛伐他汀:
+  - name: 系统适用性分离度-辛伐他汀酸洛伐他汀
+    type: number
+    attr: fillable
+  - name: 系统适用性分离度-洛伐他汀辛伐他汀
+    type: number
+    attr: fillable
+  - name: 对照溶液峰面积
+    type: number
+    attr: fillable
+  - name: 供试品单个最大杂质峰面积
+    type: number
+    attr: fillable
+  - name: 供试品总杂质峰面积
+    type: number
+    attr: fillable
+  - name: 单杂
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 供试品单个最大杂质峰面积 / 对照溶液峰面积
+  - name: 总杂
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 供试品总杂质峰面积 / 对照溶液峰面积
+  有关物质-特拉唑嗪:
+  - name: 供试品称样
+    unit: g
+    type: number
+    attr: fillable
+  - name: 对照溶液峰面积
+    type: number
+    attr: fillable
+  - name: 供试品单杂峰面积
+    type: number
+    attr: fillable
+  - name: 供试品总杂峰面积
+    type: number
+    attr: fillable
+  - name: 单杂
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 供试品单杂峰面积 / 对照溶液峰面积 * 0.5
+  - name: 总杂
+    unit: '%'
+    type: number
+    attr: calculated
+    formula: 供试品总杂峰面积 / 对照溶液峰面积 * 0.5
+  有关物质-左氧氟沙星:
+  - name: 系统适用性分离度-杂质E
+    type: number
+    attr: fillable
+  - name: 系统适用性分离度-环丙沙星
+    type: number
+    attr: fillable
+  - name: 杂质A峰面积
+    type: number
+    attr: fillable
+  - name: 杂质A对照品峰面积
+    type: number
+    attr: fillable
+  - name: 对照溶液主峰面积
+    type: number
+    attr: fillable
+  - name: 其他单个最大杂质峰面积
+    type: number
+    attr: fillable
+  - name: 其他各杂质峰面积和
+    type: number
+    attr: fillable
+  - name: 杂质A
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 其他单杂
+    unit: '%'
+    type: number
+    attr: fillable
+  - name: 总杂
+    unit: '%'
+    type: number
+    attr: fillable

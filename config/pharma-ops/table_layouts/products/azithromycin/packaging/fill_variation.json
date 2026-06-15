@@ -1,0 +1,1215 @@
+{
+  "schema_version": 1,
+  "layout_key": "products/azithromycin/packaging/fill_variation",
+  "status": "needs_review",
+  "source": {
+    "kind": "docx_fingerprint",
+    "product": "阿奇霉素胶囊",
+    "product_key": "azithromycin",
+    "stage": "待包装品",
+    "stage_key": "packaging",
+    "test_seq": "2.1",
+    "test_name": "装量差异",
+    "test_name_en": "fill_variation",
+    "method": "装量差异",
+    "fingerprint_key": "待包装品/2.1 ",
+    "pdf_preview": "docs/coverage/audit/pdf_previews/R01-SOP073526阿奇霉素胶囊批检验记录09.pdf"
+  },
+  "stats": {
+    "tables": 1,
+    "dates": 3,
+    "choices": 7,
+    "notes": 0,
+    "lines": 34
+  },
+  "blocks": [
+    {
+      "type": "table",
+      "label": "表格 1",
+      "logical_rows": 15,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.1  检测项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.1  检测项目"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "装量差异",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "装量差异"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检验日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验日期"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r0_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "完成日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "完成日期"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r1_c1_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "判定日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "判定日期"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r1_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.1.1 实验环境：温度：10℃～30℃，湿度≤70%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.1.1 实验环境：温度：10℃～30℃，湿度≤70%"
+                }
+              ],
+              "colspan": 20,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.1.2 仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.1.2 仪器、设备"
+                }
+              ],
+              "colspan": 20,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "仪器、设备"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备编号"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备状态",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备状态"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "校验有效期至",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "校验有效期至"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否确认",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否确认"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r6_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.1.3 操作方法  照通则（0103）法测定。取本品20粒，精密称定总重量，再分别精密称定每一粒重量，倾出内容物，分别精密称定囊壳重量，求得每粒内容物的装量与平均装量。 每粒装量与平均装量相比较。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.1.3 操作方法  照通则（0103）法测定。取本品20粒，精密称定总重量，再分别精密称定每一粒重量，倾出内容物，分别精密称定囊壳重量，求得每粒内容物的装量与平均装量。 每粒装量与平均装量相比较。"
+                }
+              ],
+              "colspan": 20,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "20粒总重（g）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "20粒总重（g）"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "-           =            g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r8_c1_p0_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r8_c1_p1_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "粒重±7.0%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "粒重±7.0%"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "上限：         g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "上限："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r8_c3_p0_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "平均粒重（g）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "平均粒重（g）"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "÷          =            g/粒",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "÷"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r9_c1_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r9_c1_p1_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "g/粒"
+                }
+              ],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "下限：         g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "下限："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r9_c3_p0_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "平均粒重（g）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "平均粒重（g）"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "1：        g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "1："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r10_c1_p0_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "2：        g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r10_c2_p0_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "3：        g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "3："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r10_c3_p0_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "4：        g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "4："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r10_c4_p0_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "5：         g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "5："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r10_c5_p0_line",
+                  "width": "63px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "6：        g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "6："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r11_c1_p0_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "7：        g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "7："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r11_c2_p0_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "8：        g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "8："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r11_c3_p0_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "9：        g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "9："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r11_c4_p0_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "10：        g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "10："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r11_c5_p0_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "11：       g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "11："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r12_c1_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "12：       g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "12："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r12_c2_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "13：       g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "13："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r12_c3_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "14：       g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "14："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r12_c4_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "15：        g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "15："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r12_c5_p0_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "16：       g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "16："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r13_c1_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "17：       g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "17："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r13_c2_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "18：       g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "18："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r13_c3_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "19：       g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "19："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r13_c4_p0_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "20：        g",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "20："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r13_c5_p0_line",
+                  "width": "56px"
+                },
+                {
+                  "type": "text",
+                  "text": "g"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.1.4 标准规定内控标准：差异限度应为平均粒重的±7.0%以内，如有超出装量差异限度的不得多于2粒，并不得有一粒超出限度一倍。2.1.5 实验结果异常处理                                                  □是       □否       实验室异常情况编号_______________________________________________2.1.6 清场将检验用具及废弃物分类。                                           □是        □否关闭电源。                                                         □是        □否清洁设备及房间。                                                   □是        □否检查仪器、设备，填写《仪器使用记录》。                              □是        □否更换仪器、设备状态标识。                                           □是        □否",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.1.4 标准规定内控标准：差异限度应为平均粒重的±7.0%以内，如有超出装量差异限度的不得多于2粒，并不得有一粒超出限度一倍。2.1.5 实验结果异常处理"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p0_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p1_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p2_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "实验室异常情况编号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p3_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.1.6 清场将检验用具及废弃物分类。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p4_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p5_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "关闭电源。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p6_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p7_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "清洁设备及房间。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p8_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p9_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "检查仪器、设备，填写《仪器使用记录》。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p10_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p11_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "更换仪器、设备状态标识。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p12_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/azithromycin/packaging/fill_variation/t0_r14_c0_p13_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 20,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

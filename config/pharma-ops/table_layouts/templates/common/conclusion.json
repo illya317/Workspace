@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "template_id": "common/conclusion",
+  "title": "结论通用模板",
+  "section_no": "",
+  "category": "conclusion",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "结论",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "conclusion",
+      "section_suffix": "auto",
+      "section_role": "conclusion",
+      "section_anchor": true,
+      "has_value": false,
+      "auto_judgment": false,
+      "order": 199
+    }
+  ],
+  "order": 199
+}

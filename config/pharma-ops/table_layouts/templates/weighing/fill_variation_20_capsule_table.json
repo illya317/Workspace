@@ -1,0 +1,916 @@
+{
+  "schema_version": 2,
+  "template_id": "weighing/fill_variation_20_capsule_table",
+  "title": "20粒装量差异称重表",
+  "section_no": "",
+  "category": "weighing",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "胶囊剂",
+      "section_no": "20粒装量差异操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "table",
+      "label": "20粒装量差异",
+      "order": 132,
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "20粒总重（g）"
+            },
+            {
+              "colspan": 3,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "20粒总毛重",
+                  "initial_chars": 7
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "20粒总皮重",
+                  "initial_chars": 7
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "20粒总净重",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "rowspan": 3,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "装量"
+                },
+                {
+                  "type": "br"
+                },
+                {
+                  "type": "text",
+                  "text": "±"
+                },
+                {
+                  "type": "field",
+                  "field": "装量差异限度",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ]
+            },
+            {
+              "text": "上限："
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/fill_variation_20/upper_limit",
+                  "initial_chars": 7
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "20粒囊壳重（g）"
+            },
+            {
+              "colspan": 3,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "20粒囊壳总重",
+                  "initial_chars": 7
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "text": "下限："
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/fill_variation_20/lower_limit",
+                  "initial_chars": 7
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "平均装量（g）"
+            },
+            {
+              "colspan": 3,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "("
+                },
+                {
+                  "type": "field",
+                  "field": "20粒总净重",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "20粒囊壳总重",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": ") ÷ 20 = "
+                },
+                {
+                  "type": "field",
+                  "field": "平均装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g/粒"
+                }
+              ]
+            },
+            {
+              "text": ""
+            },
+            {
+              "text": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "rowspan": 4,
+              "text": "每粒装量（g）"
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "1:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒1-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒1-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒1-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒2-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒2-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒2-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "3:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒3-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒3-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒3-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "4:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒4-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒4-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒4-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "5:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒5-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒5-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒5-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ],
+              "colspan": 2
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "6:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒6-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒6-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒6-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "7:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒7-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒7-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒7-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "8:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒8-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒8-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒8-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "9:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒9-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒9-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒9-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "10:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒10-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒10-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒10-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ],
+              "colspan": 2
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "11:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒11-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒11-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒11-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "12:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒12-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒12-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒12-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "13:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒13-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒13-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒13-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "14:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒14-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒14-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒14-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "15:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒15-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒15-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒15-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ],
+              "colspan": 2
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "16:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒16-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒16-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒16-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "17:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒17-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒17-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒17-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "18:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒18-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒18-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒18-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "19:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒19-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒19-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒19-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "20:"
+                },
+                {
+                  "type": "field",
+                  "field": "粒20-总重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "粒20-囊壳重",
+                  "initial_chars": 4
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "粒20-装量",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ],
+              "colspan": 2
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "order": 78
+}

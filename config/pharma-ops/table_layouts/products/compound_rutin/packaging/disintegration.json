@@ -1,0 +1,629 @@
+{
+  "schema_version": 1,
+  "layout_key": "products/compound_rutin/packaging/disintegration",
+  "status": "needs_review",
+  "source": {
+    "kind": "docx_fingerprint",
+    "product": "复方芦丁片",
+    "product_key": "compound_rutin",
+    "stage": "待包装品",
+    "stage_key": "packaging",
+    "test_seq": "2.3",
+    "test_name": "崩解时限",
+    "test_name_en": "disintegration",
+    "method": "崩解时限",
+    "fingerprint_key": "待包装品/2.3 ",
+    "pdf_preview": "docs/coverage/audit/pdf_previews/R01-SOP073506 复方芦丁片批检验记录09.pdf"
+  },
+  "stats": {
+    "tables": 1,
+    "dates": 3,
+    "choices": 7,
+    "notes": 0,
+    "lines": 17
+  },
+  "blocks": [
+    {
+      "type": "table",
+      "label": "表格 1",
+      "logical_rows": 8,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.3  检测项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3  检测项目"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "崩解时限",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "崩解时限"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检验日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验日期"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r0_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "完成日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "完成日期"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r1_c1_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "判定日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "判定日期"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r1_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.1 实验环境：温度：10℃～30℃，湿度≤75%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.1 实验环境：温度：10℃～30℃，湿度≤75%"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.2 仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.2 仪器、设备"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "仪器、设备"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备编号"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备状态",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备状态"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "校验有效期至",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "校验有效期至"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否确认",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否确认"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "六管崩解仪",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "六管崩解仪"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r6_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.3 操作方法 取本品     片（6片），分别置于含有       ml（1000ml）37℃±1℃的水中，照崩解时限检查法（通则0921），崩解时限为     分钟。2.3.4 标准规定内控标准：应在13分钟内全部崩解。                  2.3.5 实验结果异常处理                                                  □是       □否实验室异常情况编号_______________________________________________2.3.6 清场将检验用具及废弃物分类。                                           □是        □否关闭电源。                                                         □是        □否清洁设备及房间。                                                   □是        □否检查仪器、设备，填写《仪器使用记录》。                             □是        □否更换仪器、设备状态标识。                                           □是        □否2.3.7 结论批号_____________复方芦丁片待包装品（崩解）检测过程___________(符合/不符合)各项规定，结果为___________分钟，___________(符合/不符合)标准规定。检验者/日期：___________________________复核者/日期：__________________________",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.3 操作方法 取本品"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p0_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "片（6片），分别置于含有"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p1_line",
+                  "width": "49px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（1000ml）37℃±1℃的水中，照崩解时限检查法（通则0921），崩解时限为"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p2_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "分钟。2.3.4 标准规定内控标准：应在13分钟内全部崩解。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p3_line",
+                  "width": "126px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.3.5 实验结果异常处理"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p4_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p5_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "实验室异常情况编号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p6_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.3.6 清场将检验用具及废弃物分类。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p7_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p8_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "关闭电源。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p9_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p10_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "清洁设备及房间。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p11_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p12_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "检查仪器、设备，填写《仪器使用记录》。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p13_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p14_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "更换仪器、设备状态标识。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p15_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p16_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "2.3.7 结论批号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p17_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "复方芦丁片待包装品（崩解）检测过程"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p18_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)各项规定，结果为"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p19_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "分钟，"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p20_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)标准规定。检验者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p21_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "复核者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/compound_rutin/packaging/disintegration/t0_r7_c0_p22_line",
+                  "width": "180px"
+                }
+              ],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

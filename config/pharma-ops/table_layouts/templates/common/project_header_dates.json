@@ -1,0 +1,26 @@
+{
+  "schema_version": 2,
+  "template_id": "common/project_header_dates",
+  "title": "通用项目日期表头",
+  "section_no": "",
+  "category": "common",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "检测项目表头",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "project_header",
+      "inspection_date_key": "layout/common/inspection_date",
+      "completion_date_key": "layout/common/completion_date",
+      "judgment_date_key": "layout/common/judgment_date",
+      "order": 1
+    }
+  ],
+  "order": 1
+}

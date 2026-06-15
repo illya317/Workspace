@@ -1,0 +1,89 @@
+methods:
+  鉴别-BPC:
+  - name: UV-最大吸收波长
+    unit: nm
+    type: number
+    attr: fillable
+    note: 250nm±2nm
+  - name: UV-最大吸收值
+    type: number
+    attr: fillable
+  - name: UV-最小吸收波长
+    unit: nm
+    type: number
+    attr: fillable
+    note: 231nm±2nm
+  - name: UV-最小吸收值
+    type: number
+    attr: fillable
+  - name: UV-吸光度比值
+    type: number
+    attr: calculated
+    formula: UV-最小吸收值 / UV-最大吸收值
+  - name: UV-结果
+    type: select
+    options:
+    - 符合
+    - 不符合
+    attr: calculated
+    rule: UV-吸光度比值 >= 0.52 && UV-吸光度比值 <= 0.60
+  - name: IR-图谱比对
+    type: select
+    options:
+    - 一致
+    - 不一致
+    attr: fillable
+  鉴别:
+    化学鉴别:
+    - name: 步骤描述
+      type: text
+      attr: prefilled
+    - name: 现象
+      type: text
+      attr: fillable
+    - name: 结果
+      type: select
+      options:
+      - 符合
+      - 不符合
+      attr: fillable
+    UV鉴别:
+    - name: 步骤描述
+      type: text
+      attr: prefilled
+    - name: 最大吸收波长
+      unit: nm
+      type: number
+      attr: fillable
+    - name: 最小吸收波长
+      unit: nm
+      type: number
+      attr: fillable
+    - name: 吸光度比值
+      type: number
+      attr: fillable
+      note: 如0.52～0.60
+    - name: 结果
+      type: select
+      options:
+      - 符合
+      - 不符合
+      attr: fillable
+    HPLC鉴别:
+    - name: 步骤描述
+      type: text
+      attr: prefilled
+    - name: 对照品主峰保留时间
+      unit: min
+      type: number
+      attr: fillable
+    - name: 供试品主峰保留时间
+      unit: min
+      type: number
+      attr: fillable
+    - name: 结果
+      type: select
+      options:
+      - 符合
+      - 不符合
+      attr: fillable

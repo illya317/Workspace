@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "template_id": "common/reference_standard_table",
+  "title": "标准品表",
+  "section_no": "",
+  "category": "common",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "标准品",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "reference_standard_table",
+      "title": "标准品",
+      "standards": [
+        {
+          "name": "对照品"
+        }
+      ],
+      "field_prefix": "layout/common/reference_standards",
+      "order": 130,
+      "section_suffix": "4"
+    }
+  ],
+  "order": 130
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/titration_content_structured_method",
+  "title": "滴定含量结构化操作方法",
+  "category": "operation",
+  "method_code": "titration",
+  "status": "pilot",
+  "order": 35,
+  "blocks": [
+    {
+      "type": "structured_operation_method",
+      "params_path": "content_operation_params",
+      "template_name": "titration_content",
+      "profile": "back_titration",
+      "profile_segments": {
+        "back_titration": [
+          {
+            "label": "供试品溶液制备",
+            "template": "取本品研细，精密称取①____g、②____g（{sample_equivalent}），分别置____ml（{flask_volume}）的量瓶中，加水____ml（{water_volume}），振摇{shake_time}使甲巯咪唑溶解，用水稀释至刻度，摇匀，滤过。"
+          },
+          {
+            "label": "测定法",
+            "template": "精密量取续滤液____ml（{aliquot_volume}），先自滴定管中加入氢氧化钠滴定液（0.1mol/L）____ml（{initial_naoh_volume}），摇匀后，滴加0.1mol/L硝酸银溶液____ml（{silver_nitrate_volume}），随加随振摇，再加溴麝香草酚蓝指示液____ml（{indicator_volume}），继续用氢氧化钠滴定液（0.1mol/L）滴定至溶液显蓝绿色。"
+          },
+          {
+            "label": "计算",
+            "template": "每1ml的氢氧化钠滴定液（0.1mol/L）相当于{equivalent_mass}的{formula}。"
+          },
+          {
+            "label": "数据来源",
+            "source": "data_reference"
+          }
+        ]
+      },
+      "className": "section-body layout-operation-text-block layout-structured-operation-method",
+      "module_order": 15,
+      "order": 136
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "滴定含量结构化操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ]
+}

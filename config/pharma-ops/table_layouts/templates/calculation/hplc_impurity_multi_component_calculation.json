@@ -1,0 +1,100 @@
+{
+  "schema_version": 2,
+  "template_id": "calculation/hplc_impurity_multi_component_calculation",
+  "title": "HPLC 有关物质多杂质计算",
+  "section_no": "",
+  "category": "calculation",
+  "method_code": "0512",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "高效液相色谱法（通则0512）有关物质多杂质计算",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "text": "计算",
+      "section_ref": "operation",
+      "section_suffix": "3",
+      "order": 160
+    },
+    {
+      "type": "table",
+      "label": "多杂质计算",
+      "rows": [
+        {
+          "cells": [
+            {"header": true, "text": "供试品"},
+            {"header": true, "text": "杂质A"},
+            {"header": true, "text": "杂质B"},
+            {"header": true, "text": "杂质C"},
+            {"header": true, "text": "杂质D"},
+            {"header": true, "text": "杂质E"},
+            {"header": true, "text": "单（未知）"},
+            {"header": true, "text": "总（未知）"}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "Ar"},
+            {"parts": [{"type": "field", "field": "Ar", "occurrence": 1, "readonly_display": true}]},
+            {"parts": [{"type": "field", "field": "Ar", "occurrence": 2, "readonly_display": true}]},
+            {"parts": [{"type": "field", "field": "Ar", "occurrence": 3, "readonly_display": true}]},
+            {"parts": [{"type": "field", "field": "Ar", "occurrence": 4, "readonly_display": true}]},
+            {"parts": [{"type": "field", "field": "Ar", "occurrence": 5, "readonly_display": true}]},
+            {"parts": [{"type": "line", "key": "layout/related_substances/unknown_single_ar", "underline": false, "initial_chars": 6}]},
+            {"parts": [{"type": "line", "key": "layout/related_substances/unknown_total_ar", "underline": false, "initial_chars": 6}]}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "杂质A（%）"},
+            {"colspan": 7, "parts": [{"type": "field", "field": "杂质A", "readonly_display": true}]}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "杂质B（%）"},
+            {"colspan": 7, "parts": [{"type": "field", "field": "杂质B", "readonly_display": true}]}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "杂质C（%）"},
+            {"colspan": 7, "parts": [{"type": "field", "field": "杂质C", "readonly_display": true}]}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "杂质D（%）"},
+            {"colspan": 7, "parts": [{"type": "field", "field": "杂质D", "readonly_display": true}]}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "杂质E（%）"},
+            {"colspan": 7, "parts": [{"type": "field", "field": "杂质E", "readonly_display": true}]}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "单杂（%）"},
+            {"colspan": 7, "parts": [{"type": "field", "field": "单杂", "readonly_display": true}]}
+          ]
+        },
+        {
+          "cells": [
+            {"text": "总杂（%）"},
+            {"colspan": 7, "parts": [{"type": "field", "field": "总杂", "readonly_display": true}]}
+          ]
+        }
+      ],
+      "order": 161
+    }
+  ],
+  "order": 160
+}

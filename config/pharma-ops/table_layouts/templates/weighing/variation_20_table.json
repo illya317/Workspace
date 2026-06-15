@@ -1,0 +1,516 @@
+{
+  "schema_version": 2,
+  "template_id": "weighing/variation_20_table",
+  "title": "20片重量差异称重表",
+  "section_no": "",
+  "category": "weighing",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "片剂",
+      "section_no": "重量差异操作方法",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "table",
+      "label": "20片重量差异",
+      "order": 132,
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "20片总重（g）"
+            },
+            {
+              "colspan": 3,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "20片总毛重",
+                  "initial_chars": 7
+                },
+                {
+                  "type": "text",
+                  "text": " - "
+                },
+                {
+                  "type": "field",
+                  "field": "20片总皮重",
+                  "initial_chars": 7
+                },
+                {
+                  "type": "text",
+                  "text": " = "
+                },
+                {
+                  "type": "field",
+                  "field": "20片总净重",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "rowspan": 2,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "片重"
+                },
+                {
+                  "type": "br"
+                },
+                {
+                  "type": "text",
+                  "text": "±"
+                },
+                {
+                  "type": "field",
+                  "field": "重量差异限度",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ]
+            },
+            {
+              "text": "上限："
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/variation_20/upper_limit",
+                  "initial_chars": 7
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "平均片重（g）"
+            },
+            {
+              "colspan": 3,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "20片总净重",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " ÷ 20 = "
+                },
+                {
+                  "type": "field",
+                  "field": "平均片重",
+                  "readonly_display": true
+                },
+                {
+                  "type": "text",
+                  "text": " g/片"
+                }
+              ]
+            },
+            {
+              "text": "下限："
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/variation_20/lower_limit",
+                  "initial_chars": 7
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "rowspan": 4,
+              "text": "每片片重（g）"
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "1:"
+                },
+                {
+                  "type": "field",
+                  "field": "片1-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2:"
+                },
+                {
+                  "type": "field",
+                  "field": "片2-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "3:"
+                },
+                {
+                  "type": "field",
+                  "field": "片3-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "4:"
+                },
+                {
+                  "type": "field",
+                  "field": "片4-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "colspan": 2,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "5:"
+                },
+                {
+                  "type": "field",
+                  "field": "片5-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "6:"
+                },
+                {
+                  "type": "field",
+                  "field": "片6-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "7:"
+                },
+                {
+                  "type": "field",
+                  "field": "片7-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "8:"
+                },
+                {
+                  "type": "field",
+                  "field": "片8-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "9:"
+                },
+                {
+                  "type": "field",
+                  "field": "片9-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "colspan": 2,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "10:"
+                },
+                {
+                  "type": "field",
+                  "field": "片10-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "11:"
+                },
+                {
+                  "type": "field",
+                  "field": "片11-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "12:"
+                },
+                {
+                  "type": "field",
+                  "field": "片12-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "13:"
+                },
+                {
+                  "type": "field",
+                  "field": "片13-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "14:"
+                },
+                {
+                  "type": "field",
+                  "field": "片14-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "colspan": 2,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "15:"
+                },
+                {
+                  "type": "field",
+                  "field": "片15-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "16:"
+                },
+                {
+                  "type": "field",
+                  "field": "片16-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "17:"
+                },
+                {
+                  "type": "field",
+                  "field": "片17-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "18:"
+                },
+                {
+                  "type": "field",
+                  "field": "片18-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "19:"
+                },
+                {
+                  "type": "field",
+                  "field": "片19-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            },
+            {
+              "colspan": 2,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "20:"
+                },
+                {
+                  "type": "field",
+                  "field": "片20-重",
+                  "initial_chars": 5
+                },
+                {
+                  "type": "text",
+                  "text": " g"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "order": 76
+}

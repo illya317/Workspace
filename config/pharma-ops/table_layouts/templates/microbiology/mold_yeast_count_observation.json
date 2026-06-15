@@ -1,0 +1,773 @@
+{
+  "schema_version": 2,
+  "template_id": "microbiology/mold_yeast_count_observation",
+  "title": "霉菌和酵母菌观察记录",
+  "section_no": "",
+  "category": "microbiology",
+  "subcomponent": true,
+  "status": "pilot",
+  "includes": [],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "微生物限度 霉菌和酵母菌观察记录",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "title": "霉菌和酵母菌观察记录",
+      "order": 191
+    },
+    {
+      "type": "table",
+      "label": "霉菌和酵母菌观察记录",
+      "rows": [
+        {
+          "cells": [
+            {
+              "text": "菌别"
+            },
+            {
+              "text": "培养基"
+            },
+            {
+              "text": "皿数"
+            },
+            {
+              "text": "稀释度"
+            },
+            {
+              "text": "1"
+            },
+            {
+              "text": "2"
+            },
+            {
+              "text": "3"
+            },
+            {
+              "text": "4"
+            },
+            {
+              "text": "5"
+            },
+            {
+              "text": "6"
+            },
+            {
+              "text": "7"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "rowspan": 6,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "霉菌和酵母菌总数"
+                },
+                {
+                  "type": "br"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/count/mold_yeast_temperature",
+                  "input_type": "number",
+                  "underline": true,
+                  "initial_chars": 4,
+                  "default": "",
+                  "placeholder": "20～25",
+                  "recommended_range": {
+                    "min": 20,
+                    "max": 25
+                  },
+                  "readOnlyDisplay": true
+                },
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ]
+            },
+            {
+              "rowspan": 6,
+              "text": "沙氏葡萄糖琼脂培养基"
+            },
+            {
+              "text": "甲"
+            },
+            {
+              "rowspan": 2,
+              "text": "1:10"
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_a_day1",
+                  "input_type": "number",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_a_day2",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_a_day3",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_a_day4",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_a_day5",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_a_day6",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_a_day7",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "乙"
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_b_day1",
+                  "input_type": "number",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_b_day2",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_b_day3",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_b_day4",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_b_day5",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_b_day6",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_10_b_day7",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "甲"
+            },
+            {
+              "rowspan": 2,
+              "text": "1:100"
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_a_day1",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_a_day2",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_a_day3",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_a_day4",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_a_day5",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_a_day6",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_a_day7",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "乙"
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_b_day1",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_b_day2",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_b_day3",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_b_day4",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_b_day5",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_b_day6",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_100_b_day7",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "甲"
+            },
+            {
+              "rowspan": 2,
+              "text": "1:1000"
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_a_day1",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_a_day2",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_a_day3",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_a_day4",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_a_day5",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_a_day6",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_a_day7",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "乙"
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_b_day1",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_b_day2",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_b_day3",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_b_day4",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_b_day5",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_b_day6",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/1_1000_b_day7",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "colspan": 2,
+              "text": "阴性对照",
+              "rowspan": 2
+            },
+            {
+              "text": "甲"
+            },
+            {
+              "text": ""
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_a_day1",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_a_day2",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_a_day3",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_a_day4",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_a_day5",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_a_day6",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_a_day7",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "text": "乙"
+            },
+            {
+              "text": ""
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_b_day1",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_b_day2",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_b_day3",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_b_day4",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_b_day5",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_b_day6",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            },
+            {
+              "parts": [
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/negative_b_day7",
+                  "underline": false,
+                  "initial_chars": 4
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "colspan": 11,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "选择 "
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/selected_count_source",
+                  "underline": false,
+                  "initial_chars": 6
+                },
+                {
+                  "type": "text",
+                  "text": " 总数 "
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/microbiology/mold_yeast/selected_total_count",
+                  "underline": false,
+                  "initial_chars": 6
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "order": 192
+    }
+  ],
+  "order": 192
+}

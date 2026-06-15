@@ -1,0 +1,3392 @@
+{
+  "schema_version": 1,
+  "layout_key": "products/allopurinol/finished/related_substances",
+  "status": "needs_review",
+  "source": {
+    "kind": "docx_fingerprint",
+    "product": "别嘌醇片",
+    "product_key": "allopurinol",
+    "stage": "成品",
+    "stage_key": "finished",
+    "test_seq": "2.3",
+    "test_name": "有关物质",
+    "test_name_en": "related_substances",
+    "method": "有关物质-BPC",
+    "fingerprint_key": "成品/2.3 ",
+    "pdf_preview": "docs/coverage/audit/pdf_previews/R01-SOP073523别嘌醇片批检验记录10.pdf"
+  },
+  "stats": {
+    "tables": 3,
+    "dates": 3,
+    "choices": 14,
+    "notes": 1,
+    "lines": 61
+  },
+  "blocks": [
+    {
+      "type": "table",
+      "label": "表格 1",
+      "logical_rows": 38,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "2.3  检测项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3  检测项目"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "有关物质",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "有关物质"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "检验日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "检验日期"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r0_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "完成日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "完成日期"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r1_c1_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "判定日期",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "判定日期"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "年    月    日",
+              "parts": [
+                {
+                  "type": "date",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r1_c3_p0_date",
+                  "with_time": false
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.1 实验环境：温度：10℃～30℃，湿度≤75%（天平室≤70%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.1 实验环境：温度：10℃～30℃，湿度≤75%"
+                },
+                {
+                  "type": "note",
+                  "text": "（天平室≤70%）"
+                }
+              ],
+              "colspan": 23,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "房间名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间名称"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "房间编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "房间编号"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "温度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "温度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "℃",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "℃"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "湿度",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "湿度"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.2 仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.2 仪器、设备"
+                }
+              ],
+              "colspan": 23,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "仪器、设备",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "仪器、设备"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备编号"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "设备状态",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "设备状态"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "校验有效期至",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "校验有效期至"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否确认",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否确认"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "电子天平",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "电子天平"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r7_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "高效液相色谱仪",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "高效液相色谱仪"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "“已清洁”",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "“已清洁”"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r8_c4_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.3 试验材料",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.3 试验材料"
+                }
+              ],
+              "colspan": 23,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号/编号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号/编号"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否在有效期内",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否在有效期内"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "0.1mol/L氢氧化钠溶液",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "0.1mol/L氢氧化钠溶液"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是     □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r11_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "甲醇：水（10:90）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "甲醇：水（10:90）"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是     □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r12_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "流动相A相",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "流动相A相"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是     □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r13_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "色谱柱",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "色谱柱"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是     □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r14_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.4标准品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.4标准品"
+                }
+              ],
+              "colspan": 23,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "批号",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "批号"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "来源",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "来源"
+                }
+              ],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "别嘌醇杂质A对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "别嘌醇杂质A对照品"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "别嘌醇杂质B对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "别嘌醇杂质B对照品"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "别嘌醇杂质C对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "别嘌醇杂质C对照品"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "别嘌醇杂质D对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "别嘌醇杂质D对照品"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "别嘌醇杂质E对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "别嘌醇杂质E对照品"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "别嘌醇对照品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "别嘌醇对照品"
+                }
+              ],
+              "colspan": 5,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 10,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.5 操作方法   照高效液相色谱法（通则0512）试验供试品溶液：临用新制  精密称取细粉适量     mg（约相当于别嘌醇15mg），置     ml（100ml）量瓶中，加0.1mol/L氢氧化钠溶液     ml（5ml）使溶解，用稀释剂[甲醇-水（10:90）]稀释至刻度，摇匀，滤过，取续滤液作为供试品溶液；    对照品溶液：另取别嘌醇杂质A     mg（5mg）置     ml（100ml）量瓶中；杂质B     mg（5mg）置     ml（100ml）量瓶中；杂质C     mg（5mg）置     ml（100ml）量瓶中；杂质D     mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.5 操作方法"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r23_c0_p0_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "照高效液相色谱法（通则0512）试验供试品溶液：临用新制  精密称取细粉适量"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r23_c0_p1_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（约相当于别嘌醇15mg），置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r23_c0_p2_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中，加0.1mol/L氢氧化钠溶液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r23_c0_p3_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（5ml）使溶解，用稀释剂[甲醇-水（10:90）]稀释至刻度，摇匀，滤过，取续滤液作为供试品溶液；"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r23_c0_p4_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "对照品溶液：另取别嘌醇杂质A"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r23_c0_p5_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（5mg）置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r23_c0_p6_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中；杂质B"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r23_c0_p7_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（5mg）置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r23_c0_p8_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中；杂质C"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r23_c0_p9_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（5mg）置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r23_c0_p10_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中；杂质D"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r23_c0_p11_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 23,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "（5mg）置     ml（100ml）量瓶中；杂质E     mg（5mg）置     ml（100ml）量瓶中；别嘌醇对照品     mg（5mg）置     ml（100ml）量瓶中；分别加0.1mol/L氢氧化钠溶液     ml（5ml）使溶解，用溶剂[甲醇-1.25g/L磷酸二氢钾溶液（10:90）]稀释至刻度，作为对照品溶液母液。分别精密量取杂质A母液     ml（6ml）、杂质B母液     ml（3ml）、杂质C母液     ml（3ml）、杂质D母液     ml（3ml）、杂质E母液     ml（3ml）、别嘌醇母液     ml（3ml）置同一     ml（100ml）量瓶中，用稀释剂[甲醇-水（10:90）]稀释至刻度，作为对照品贮备液。再精密量取贮备液     ml（10ml）置     ml（100ml）量瓶中，用稀释剂[甲醇-水（10:90）]稀释至刻度制成每1ml中约含别嘌醇杂质A0.3μg，杂质B、杂质C、杂质D、杂质E、别嘌醇各0.15μg的混合溶液，作为对照品溶液。    色谱条件与系统适应性试验：用十八烷基硅烷键合硅胶为填充剂（4.6mm×250mm，5μm）；流动相A为1.25g/L磷酸二氢钾溶液（用磷酸调节PH至2.0），流动相B为甲醇，按下表进行线性梯度洗脱；流速为每分钟0.5ml；柱温为30℃；检测波长为220nm。取对照品溶液40μl注入液相色谱仪，记录色谱图，别嘌醇色谱峰的保留时间约为10分钟，洗脱顺序为杂质A、杂质C、杂质B、别嘌醇、杂质D、杂质E；杂质B与杂质C的分离度不得小于1.5，别嘌醇色谱峰的拖尾因子不得大于1.5。再精密量取供试品溶液与对照品溶液各40μl，分别注入液相色谱仪，记录色谱图。供试品溶液中如有与杂质A、杂质B、杂质C、杂质D、杂质E保留时间一致的峰，其含量按外标法以峰面积计算。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "（5mg）置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p0_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中；杂质E"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p1_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（5mg）置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p2_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中；别嘌醇对照品"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p3_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg（5mg）置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p4_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中；分别加0.1mol/L氢氧化钠溶液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p5_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（5ml）使溶解，用溶剂[甲醇-1.25g/L磷酸二氢钾溶液（10:90）]稀释至刻度，作为对照品溶液母液。分别精密量取杂质A母液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p6_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（6ml）、杂质B母液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p7_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（3ml）、杂质C母液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p8_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（3ml）、杂质D母液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p9_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（3ml）、杂质E母液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p10_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（3ml）、别嘌醇母液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p11_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（3ml）置同一"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p12_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中，用稀释剂[甲醇-水（10:90）]稀释至刻度，作为对照品贮备液。再精密量取贮备液"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p13_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（10ml）置"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p14_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "ml（100ml）量瓶中，用稀释剂[甲醇-水（10:90）]稀释至刻度制成每1ml中约含别嘌醇杂质A0.3μg，杂质B、杂质C、杂质D、杂质E、别嘌醇各0.15μg的混合溶液，作为对照品溶液。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r24_c0_p15_line",
+                  "width": "36px"
+                },
+                {
+                  "type": "text",
+                  "text": "色谱条件与系统适应性试验：用十八烷基硅烷键合硅胶为填充剂（4.6mm×250mm，5μm）；流动相A为1.25g/L磷酸二氢钾溶液（用磷酸调节PH至2.0），流动相B为甲醇，按下表进行线性梯度洗脱；流速为每分钟0.5ml；柱温为30℃；检测波长为220nm。取对照品溶液40μl注入液相色谱仪，记录色谱图，别嘌醇色谱峰的保留时间约为10分钟，洗脱顺序为杂质A、杂质C、杂质B、别嘌醇、杂质D、杂质E；杂质B与杂质C的分离度不得小于1.5，别嘌醇色谱峰的拖尾因子不得大于1.5。再精密量取供试品溶液与对照品溶液各40μl，分别注入液相色谱仪，记录色谱图。供试品溶液中如有与杂质A、杂质B、杂质C、杂质D、杂质E保留时间一致的峰，其含量按外标法以峰面积计算。"
+                }
+              ],
+              "colspan": 22,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "时间（分钟）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "时间（分钟）"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "流动相A（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "流动相A（%）"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "流动相B（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "流动相B（%）"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "0",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "0"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "85",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "85"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "15",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "15"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "15",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "15"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "75",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "75"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "25",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "25"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "30",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "30"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "55",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "55"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "45",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "45"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "40",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "40"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "55",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "55"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "45",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "45"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "45",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "45"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "85",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "85"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "15",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "15"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "55",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "55"
+                }
+              ],
+              "colspan": 7,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "85",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "85"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "15",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "15"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.5.1称样",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.5.1称样"
+                }
+              ],
+              "colspan": 22,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "对照品名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "对照品名称"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "含量（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "含量（%）"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "称样",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "称样"
+                }
+              ],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质A对照品（mg）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质A对照品（mg）"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "m=          -            =              mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r34_c2_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r34_c2_p1_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r34_c2_p2_line",
+                  "width": "98px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质B对照品（mg）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质B对照品（mg）"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "m=          -            =              mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r35_c2_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r35_c2_p1_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r35_c2_p2_line",
+                  "width": "98px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质C对照品（mg）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质C对照品（mg）"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "m=          -            =              mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r36_c2_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r36_c2_p1_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r36_c2_p2_line",
+                  "width": "98px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质D对照品（mg）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质D对照品（mg）"
+                }
+              ],
+              "colspan": 6,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "m=          -            =              mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r37_c2_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r37_c2_p1_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t0_r37_c2_p2_line",
+                  "width": "98px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 12,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "label": "表格 2",
+      "logical_rows": 22,
+      "logical_cols": 8,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "杂质E对照品（mg）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质E对照品（mg）"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "m=          -            =              mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t1_r0_c2_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t1_r0_c2_p1_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t1_r0_c2_p2_line",
+                  "width": "98px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "别嘌醇对照品（mg）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "别嘌醇对照品（mg）"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "m=          -            =              mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t1_r1_c2_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t1_r1_c2_p1_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t1_r1_c2_p2_line",
+                  "width": "98px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "供试品（mg）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品（mg）"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "/",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "/"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "m=          -            =              mg",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "m="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t1_r2_c2_p0_line",
+                  "width": "70px"
+                },
+                {
+                  "type": "text",
+                  "text": "-"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t1_r2_c2_p1_line",
+                  "width": "84px"
+                },
+                {
+                  "type": "text",
+                  "text": "="
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t1_r2_c2_p2_line",
+                  "width": "98px"
+                },
+                {
+                  "type": "text",
+                  "text": "mg"
+                }
+              ],
+              "colspan": 8,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.5.2测定",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.5.2测定"
+                }
+              ],
+              "colspan": 15,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "系统适用性",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "系统适用性"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "项目",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "项目"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "结果",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "结果"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "是否符合规定",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "是否符合规定"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "杂质B峰与杂质C峰分离度应不小于1.5。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质B峰与杂质C峰分离度应不小于1.5。"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t1_r5_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "别嘌醇色谱峰的拖尾因子不得大于1.5。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "别嘌醇色谱峰的拖尾因子不得大于1.5。"
+                }
+              ],
+              "colspan": 9,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "□是    □否",
+              "parts": [
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t1_r6_c3_p0_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "名称",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "名称"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "Ar1",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "Ar1"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "Ar2",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "Ar2"
+                }
+              ],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "Ar3",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "Ar3"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "Ar",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "Ar"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "RSD≤2.0%",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "RSD≤2.0%"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质A",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质A"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质C",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质C"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质B",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质B"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "别嘌醇",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "别嘌醇"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质D",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质D"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质E",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质E"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 4,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.5.3计算",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.5.3计算"
+                }
+              ],
+              "colspan": 15,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "供试品",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "供试品"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "杂质A",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质A"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "杂质B",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质B"
+                }
+              ],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "杂质C",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质C"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "杂质D",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质D"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "杂质E",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质E"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "单（未知）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "单（未知）"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "总（未知）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "总（未知）"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "Ar",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "Ar"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 3,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质A（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质A（%）"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质B（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质B（%）"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质C（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质C（%）"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质D（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质D（%）"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "杂质E（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "杂质E（%）"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 14,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "label": "表格 3",
+      "logical_rows": 4,
+      "logical_cols": 2,
+      "has_merge": true,
+      "rows": [
+        {
+          "cells": [
+            {
+              "raw_text": "单杂（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "单杂（%）"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "总杂（%）",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "总杂（%）"
+                }
+              ],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            },
+            {
+              "raw_text": "",
+              "parts": [],
+              "colspan": 1,
+              "rowspan": 1,
+              "is_empty": true,
+              "className": "empty"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.6 标准规定内控标准：供试品溶液中如有与杂质A、杂质B、杂质C、杂质D、杂质E保留时间一致的峰，其含量按外标法以峰面积计算，分别不得过0.20%、0.10%、0.10%、0.10%、0.10%；供试品溶液色谱图中如有其它杂质峰，按外标法以别嘌醇峰面积计算，其它单个杂质不得过0.10%；其它杂质总量不得过0.30%。2.3.7 实验结果异常处理                                                 □是        □否  实验室异常情况编号_______________________________________________2.3.8 清场将检验用具及废弃物分类。                                           □是        □否关闭电源。                                                         □是        □否清洁设备及房间。                                                   □是        □否检查仪器、设备，填写《仪器使用记录》。                             □是        □否更换仪器、设备状态标识。                                           □是        □否2.3.9 结论批号_____________别嘌醇片（有关物质）检测过程___________(符合/不符合)各项规定，结果___________(符合/不符合)标准规定。检验者/日期：                        复核者/日期：__________________________",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.6 标准规定内控标准：供试品溶液中如有与杂质A、杂质B、杂质C、杂质D、杂质E保留时间一致的峰，其含量按外标法以峰面积计算，分别不得过0.20%、0.10%、0.10%、0.10%、0.10%；供试品溶液色谱图中如有其它杂质峰，按外标法以别嘌醇峰面积计算，其它单个杂质不得过0.10%；其它杂质总量不得过0.30%。2.3.7 实验结果异常处理"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p0_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p1_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "  实验室异常情况编号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p2_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "text",
+                  "text": "2.3.8 清场将检验用具及废弃物分类。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p3_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p4_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "关闭电源。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p5_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p6_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "清洁设备及房间。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p7_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p8_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "检查仪器、设备，填写《仪器使用记录》。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p9_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p10_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "更换仪器、设备状态标识。"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p11_line",
+                  "width": "180px"
+                },
+                {
+                  "type": "radio",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p12_choice",
+                  "options": [
+                    "是",
+                    "否"
+                  ]
+                },
+                {
+                  "type": "text",
+                  "text": "2.3.9 结论批号"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p13_line",
+                  "width": "91px"
+                },
+                {
+                  "type": "text",
+                  "text": "别嘌醇片（有关物质）检测过程"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p14_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)各项规定，结果"
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p15_line",
+                  "width": "77px"
+                },
+                {
+                  "type": "text",
+                  "text": "(符合/不符合)标准规定。检验者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p16_line",
+                  "width": "168px"
+                },
+                {
+                  "type": "text",
+                  "text": "复核者/日期："
+                },
+                {
+                  "type": "line",
+                  "field_key": "layout/allopurinol/finished/related_substances/t2_r2_c0_p17_line",
+                  "width": "180px"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "raw_text": "2.3.10 原始数据、图谱见数据图谱粘贴页。",
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "2.3.10 原始数据、图谱见数据图谱粘贴页。"
+                }
+              ],
+              "colspan": 2,
+              "rowspan": 1,
+              "is_empty": false,
+              "className": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

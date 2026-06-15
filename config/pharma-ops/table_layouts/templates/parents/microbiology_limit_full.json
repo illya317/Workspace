@@ -1,0 +1,44 @@
+{
+  "schema_version": 2,
+  "template_id": "parents/microbiology_limit_full",
+  "title": "微生物限度检查总表",
+  "section_no": "",
+  "category": "microbiology",
+  "subcomponent": false,
+  "status": "pilot",
+  "includes": [
+    {
+      "template_id": "operation/pre_method_microbiology_limit",
+      "module_order": 10,
+      "order": 1
+    },
+    {
+      "template_id": "microbiology/detection_limit_test",
+      "module_order": 20,
+      "order": 149
+    },
+    {
+      "template_id": "common/post_method",
+      "module_order": 30,
+      "params": {
+        "field_prefix": "layout/microbiology/post",
+        "post_cleanroom_exit_variant": "include",
+        "conclusion_name": "微生物限度",
+        "has_value": false,
+        "process_key": "微生物限度检测过程",
+        "result_key": "微生物限度结论",
+        "auto_judgment": false
+      },
+      "order": 210
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "微生物限度检查",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [],
+  "order": 990
+}
