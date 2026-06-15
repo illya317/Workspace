@@ -580,20 +580,28 @@
                   "text": "选择 "
                 },
                 {
-                  "type": "line",
+                  "type": "select",
                   "field_key": "layout/microbiology/aerobic/selected_count_source",
                   "underline": false,
-                  "initial_chars": 6
+                  "initial_chars": 6,
+                  "options": [
+                    "1:10",
+                    "1:100",
+                    "1:1000"
+                  ],
+                  "width": "7rem"
                 },
                 {
                   "type": "text",
                   "text": " 总数 "
                 },
                 {
-                  "type": "line",
+                  "type": "microbial_selected_total",
                   "field_key": "layout/microbiology/aerobic/selected_total_count",
                   "underline": false,
-                  "initial_chars": 6
+                  "initial_chars": 6,
+                  "width": "7rem",
+                  "readonly_display": true
                 }
               ]
             }

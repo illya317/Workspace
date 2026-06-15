@@ -22,7 +22,7 @@ methods:
     - name: 稀释倍数
       type: number
       attr: fillable
-      note: 与稀释度对应，1:10 填 10，1:100 填 100，1:1000 填 1000
+      note: 与稀释度对应；观察记录总数按所选稀释度最后观察日甲、乙平均值回填
     - name: 皿数
       type: number
       attr: fillable
@@ -40,7 +40,7 @@ methods:
       unit: cfu/g
       type: number
       attr: calculated
-      formula: 平均菌落数 * 稀释倍数
+      formula: 平均菌落数
     霉菌酵母菌:
     - name: 培养基
       type: text
@@ -53,10 +53,17 @@ methods:
       unit: 天
       type: number
       attr: fillable
+    - name: 稀释度
+      type: select
+      options:
+      - '1:10'
+      - 1:100
+      - 1:1000
+      attr: fillable
     - name: 稀释倍数
       type: number
       attr: fillable
-      note: 与稀释度对应，1:10 填 10，1:100 填 100，1:1000 填 1000
+      note: 与稀释度对应；观察记录总数按所选稀释度最后观察日甲、乙平均值回填
     - name: 皿数
       type: number
       attr: fillable
@@ -74,7 +81,7 @@ methods:
       unit: cfu/g
       type: number
       attr: calculated
-      formula: 平均菌落数 * 稀释倍数
+      formula: 平均菌落数
   微生物限度-控制菌:
     大肠埃希菌:
     - name: 阳性对照

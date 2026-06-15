@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcTemplateMethodField, QcTemplateTestItem } from "@/server/services/production/qc";
 import { QcPaperChoiceInput, QcPaperLineInput, QcPaperSelectInput, qcRangeError, qcRangeLabel } from "./QcPaperInputs";
 import { QcPaperDateInput } from "./QcPaperDateInput";
+import { MicrobialSelectedTotalPart } from "./QcMicrobialComputedParts";
 import type { QcFieldValues } from "./useQcFormulaEngine";
 
 export interface LayoutRenderContext {
@@ -117,6 +118,7 @@ export function Part({ part, context }: { part: QcLayoutPart; context: LayoutRen
   if (part.type === "br") return <br />;
   if (part.type === "duration_days") return <DurationPart part={part} context={context} unit="days" />;
   if (part.type === "duration_hours") return <DurationPart part={part} context={context} unit="hours" />;
+  if (part.type === "microbial_selected_total") return <MicrobialSelectedTotalPart part={part} context={context} />;
   if (part.type === "test_value") return <span>{testValue(part, test)}</span>;
   if (part.type === "section_heading") {
     const text = sectionHeadingText(part, context);
