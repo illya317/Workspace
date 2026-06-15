@@ -1,6 +1,7 @@
 import "server-only";
 import path from "path";
 import { readFile } from "fs/promises";
+import { mapCustomLayoutBlock } from "./layout-custom-blocks";
 import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcRecommendedRange, QcTemplateLayoutAssignment } from "./types";
 
 type Params = Record<string, unknown>;
@@ -9,17 +10,13 @@ function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
-function asArray(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : [];
-}
+function asArray(value: unknown): unknown[] { return Array.isArray(value) ? value : []; }
 
 function asString(value: unknown, fallback = "") {
   return typeof value === "string" || typeof value === "number" ? String(value) : fallback;
 }
 
-function asBoolean(value: unknown) {
-  return typeof value === "boolean" ? value : undefined;
-}
+function asBoolean(value: unknown) { return typeof value === "boolean" ? value : undefined; }
 
 function asNumber(value: unknown, fallback = 1) {
   const num = Number(value);
@@ -141,6 +138,8 @@ function applyBlockParams(block: Record<string, unknown>, params: Params) {
 function mapBlock(value: unknown, params: Params = {}): QcLayoutBlock | null {
   const raw = applyBlockParams(asRecord(value), params);
   const type = asString(raw.type, "table");
+  const custom = mapCustomLayoutBlock(raw, params);
+  if (custom) return custom;
   const rows = asArray(raw.rows).map((row) => asArray(asRecord(row).cells).map((cell) => mapCell(cell, params)));
   if (type === "table" && rows.length === 0) return null;
   return {
@@ -226,8 +225,8 @@ async function expandTemplate(configRoot: string, templateId: string, params: Pa
       continue;
     }
 
-    const variantKey = asString(item.variant_param);
-    const variantValue = variantKey ? asString(mergedParams[variantKey], asString(item.default_variant)) : "";
+    const variantKeys = [asString(item.variant_param), ...asArray(item.variant_param_aliases).map((alias) => asString(alias))].filter(Boolean);
+    const variantValue = variantKeys.map((key) => asString(mergedParams[key])).find(Boolean) || (variantKeys.length ? asString(item.default_variant) : "");
     const variant = asRecord(asRecord(item.variants)[variantValue]);
     if (variant.skip === true) continue;
     const childId = asString(variant.template_id || item.template_id);

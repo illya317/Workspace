@@ -199,7 +199,6 @@ methods:
       type: number
       attr: fillable
   有关物质:
-    extends: HPLC
     extra:
     - name: 对照溶液峰面积
       type: number
