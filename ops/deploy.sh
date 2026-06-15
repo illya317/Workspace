@@ -14,10 +14,35 @@ fi
 
 touch "$LOCKFILE"
 
-TMPKEY=$(mktemp)
-printf '%s\n' "$KEY_CONTENT" > "$TMPKEY"
-chmod 600 "$TMPKEY"
-trap 'rm -f "$LOCKFILE" "$TMPKEY"' EXIT
+TMPKEY=""
+if [ -n "${KEY_CONTENT:-}" ]; then
+  TMPKEY=$(mktemp)
+  printf '%s\n' "$KEY_CONTENT" > "$TMPKEY"
+  chmod 600 "$TMPKEY"
+  SSH_KEY="$TMPKEY"
+elif [ -n "${KEY:-}" ]; then
+  SSH_KEY="$KEY"
+else
+  echo "[错误] ops/server.env.sh 必须配置 KEY_CONTENT 或 KEY"
+  exit 1
+fi
+trap 'rm -f "$LOCKFILE" ${TMPKEY:+"$TMPKEY"}' EXIT
+
+ssh_cmd() {
+  ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new "$SERVER" "$@"
+}
+
+local_pkg_hash() {
+  cat package.json package-lock.json | shasum -a 256 | awk '{print $1}'
+}
+
+remote_pkg_hash() {
+  ssh_cmd "
+    cd $REMOTE_DIR 2>/dev/null || exit 0
+    [ -f package.json ] && [ -f package-lock.json ] || exit 0
+    cat package.json package-lock.json | sha256sum | awk '{print \\\$1}'
+  " 2>/dev/null || true
+}
 
 if [ "$(git branch --show-current)" != "main" ]; then
   echo "[错误] 必须在 main 分支部署，当前分支：$(git branch --show-current)"
@@ -33,35 +58,53 @@ fi
 echo "==> 类型检查..."
 npx tsc --noEmit
 
-echo "==> 本地构建..."
-npm run build 2>&1 | tail -5
+LOCAL_PKG_HASH="$(local_pkg_hash)"
+REMOTE_PKG_HASH="$(remote_pkg_hash)"
+if [ "$LOCAL_PKG_HASH" != "$REMOTE_PKG_HASH" ]; then
+  NEED_NPM_CI=1
+  echo "==> 检测到依赖清单变化，本次会执行 npm ci"
+else
+  NEED_NPM_CI=0
+  echo "==> 依赖清单未变化，跳过 npm ci"
+fi
 
-echo "==> 准备 standalone..."
-cp -r public .next/standalone/ 2>/dev/null || true
-cp -r .next/static .next/standalone/.next/ 2>/dev/null || true
-
-echo "==> 同步 standalone 到服务器..."
-ssh -i "$TMPKEY" "$SERVER" "mkdir -p $DEPLOY_DIR"
-rsync -avz -e "ssh -i $TMPKEY" \
-  --exclude='*.map' \
-  .next/standalone/ "$SERVER:$DEPLOY_DIR/"
+echo "==> 同步源码到服务器..."
+ssh_cmd "mkdir -p $REMOTE_DIR"
+rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+  --exclude='.git/' \
+  --exclude='node_modules/' \
+  --exclude='.next/' \
+  --exclude='.env' \
+  --exclude='.env.*' \
+  --exclude='data/dev.db' \
+  --exclude='public/company/' \
+  --exclude='.DS_Store' \
+  ./ "$SERVER:$REMOTE_DIR/"
 
 echo ""
-echo "==> 重启服务..."
-ssh -i "$TMPKEY" "$SERVER" "
-  cd $DEPLOY_DIR
-  echo '==> 安装依赖（重建 native 模块）...'
-  npm install 2>&1 | tail -3
-
-  sed -i \"s|file:.*/data/dev.db|file:$REMOTE_DIR/data/dev.db|\" .env 2>/dev/null || true
-  pm2 restart $PM2_NAME --update-env 2>/dev/null || pm2 start server.js --name $PM2_NAME --cwd $DEPLOY_DIR --env production
-
-  # Auto-scan library if LIBRARY_ROOT is configured
-  if grep -q 'LIBRARY_ROOT=' .env 2>/dev/null; then
-    echo '==> 扫描资料库...'
-    npm run db:scan:library 2>&1 | tail -5
+echo "==> 服务器构建并重启服务..."
+ssh_cmd "
+  set -e
+  cd $REMOTE_DIR
+  if [ '$NEED_NPM_CI' = '1' ] || [ ! -d node_modules ]; then
+    echo '==> 安装依赖...'
+    npm ci
+  else
+    echo '==> 跳过 npm ci，复用服务器 node_modules'
   fi
 
+  npm run build
+
+  rm -rf .next/standalone/.next/static
+  cp -r .next/static .next/standalone/.next/static
+  rm -rf .next/standalone/public
+  cp -r public .next/standalone/public
+  rm -rf .next/standalone/data
+  cp -r data .next/standalone/data
+
+  pm2 delete $PM2_NAME 2>/dev/null || true
+  cd .next/standalone
+  pm2 start server.js --name $PM2_NAME --cwd $REMOTE_DIR/.next/standalone
   pm2 save
   pm2 status
 "

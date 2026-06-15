@@ -29,6 +29,40 @@ npm run dev
 
 ## 腾讯云 CloudBase 部署
 
+> 当前生产环境使用腾讯云 CVM + Nginx + PM2，不走 CloudBase 云托管。CloudBase 段落保留为历史部署参考。
+
+## 当前生产部署（CVM + PM2）
+
+部署入口：
+
+```bash
+./deploy.sh
+```
+
+脚本读取 `ops/server.env.sh`，该文件不提交仓库。需要配置：
+
+| 变量 | 说明 |
+|------|------|
+| `SERVER` | SSH 目标，例如 `ubuntu@<server-ip>` |
+| `REMOTE_DIR` | 服务器源码目录，例如 `/home/ubuntu/workspace` |
+| `PM2_NAME` | PM2 进程名，例如 `workspace` |
+| `KEY_CONTENT` / `KEY` | SSH 私钥内容或本地私钥路径，二选一 |
+
+部署流程：
+
+1. 本地确认在 `main` 分支且工作区干净。
+2. 本地运行 `npx tsc --noEmit`。
+3. 比较本地和服务器的 `package.json` + `package-lock.json` 内容哈希。
+4. rsync 同步源码到 `REMOTE_DIR`，排除 `.env`、`data/dev.db`、`public/company/`、`node_modules/`、`.next/` 等运行态文件。
+5. 服务器端构建：
+   - 依赖清单变化或服务器没有 `node_modules` 时运行 `npm ci`。
+   - 依赖清单未变化时跳过 `npm ci`，复用服务器 `node_modules`。
+   - 运行 `npm run build`。
+6. 复制 `.next/static`、`public`、`data` 到 standalone 输出目录。
+7. 使用 PM2 重新启动 `server.js` 并保存进程列表。
+
+这套策略保持服务器环境构建，避免 macOS/Linux native 依赖差异；同时避免每次部署都重装依赖，减少 CPU 峰值和部署时间。
+
 ### 前置条件
 
 - 腾讯云账号
