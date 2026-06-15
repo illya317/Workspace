@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createToken } from "@/lib/auth/token";
+import { createToken, SESSION_MAX_AGE_SECONDS } from "@/lib/auth/token";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
@@ -28,7 +28,7 @@ export async function GET(request: Request) {
     httpOnly: true,
     secure: false,
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7,
+    maxAge: SESSION_MAX_AGE_SECONDS,
     path: "/",
   });
   return response;

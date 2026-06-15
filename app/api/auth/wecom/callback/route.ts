@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createToken } from "@/lib/auth";
+import { SESSION_MAX_AGE_SECONDS } from "@/lib/auth/token";
 import { getWecomUserByCode, getWecomUserDetail } from "@/server/auth/wecom";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
@@ -55,7 +56,7 @@ export async function GET(request: Request) {
     const { userId: wxUserId, userTicket } = await getWecomUserByCode(code);
     const user = await prisma.user.findUnique({
       where: { wxUserId },
-      select: { id: true, name: true, wxUserId: true, canLogin: true },
+      select: { id: true, name: true, wxUserId: true, canLogin: true, sessionVersion: true },
     });
 
     if (!user) {
@@ -75,21 +76,19 @@ export async function GET(request: Request) {
       }
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        sessionVersion: { increment: 1 },
-        ...(avatar ? { avatar } : {}),
-      },
-      select: { sessionVersion: true },
-    });
+    if (avatar) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { avatar },
+      });
+    }
 
     const token = await createToken({
       userId: user.id,
       wxUserId: user.wxUserId ?? "",
       name: user.name,
       departmentId: 0,
-      sessionVersion: updatedUser.sessionVersion,
+      sessionVersion: user.sessionVersion,
     });
 
     const response = NextResponse.redirect(new URL(`${getRequestOrigin(request)}${BASE_PATH}/portal`));
@@ -97,7 +96,7 @@ export async function GET(request: Request) {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: SESSION_MAX_AGE_SECONDS,
       path: "/",
     });
     response.cookies.set("wecom_oauth_state", "", {

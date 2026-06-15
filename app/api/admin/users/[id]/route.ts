@@ -87,7 +87,10 @@ export async function POST(
 
   await prisma.user.update({
     where: { id: parseInt(id) },
-    data: { password: bcrypt.hashSync(newPassword, 10) },
+    data: {
+      password: bcrypt.hashSync(newPassword, 10),
+      sessionVersion: { increment: 1 },
+    },
   });
 
   return NextResponse.json({ success: true, password: newPassword });

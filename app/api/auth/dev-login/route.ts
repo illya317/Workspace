@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { createToken, getPermissionContext } from "@/lib/auth";
+import { SESSION_MAX_AGE_SECONDS } from "@/lib/auth/token";
 import { checkBruteForce, recordAttempt } from "@/lib/security";
 import { LoginSchema, parseJson } from "@/lib/schemas";
 import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { username },
-    select: { id: true, name: true, username: true, wxUserId: true, password: true, apiKey: true, canLogin: true, erpnextUserId: true, erpnextUsername: true },
+    select: { id: true, name: true, username: true, wxUserId: true, password: true, apiKey: true, canLogin: true, sessionVersion: true, erpnextUserId: true, erpnextUsername: true },
   });
 
   if (!user || !user.password || !bcrypt.compareSync(password, user.password)) {
@@ -62,18 +63,12 @@ export async function POST(request: Request) {
 
   await recordAttempt(username, ip, true);
 
-  const updatedUser = await prisma.user.update({
-    where: { id: user.id },
-    data: { sessionVersion: { increment: 1 } },
-    select: { sessionVersion: true },
-  });
-
   const token = await createToken({
     userId: user.id,
     wxUserId: user.wxUserId ?? "",
     name: user.name,
     departmentId: 0,
-    sessionVersion: updatedUser.sessionVersion,
+    sessionVersion: user.sessionVersion,
   });
 
   const ctx = await getPermissionContext(user.id);
@@ -101,7 +96,7 @@ export async function POST(request: Request) {
       erpnextUsername: user.erpnextUsername,
     },
   });
-  response.cookies.set("token", token, { httpOnly: true, secure: false, sameSite: "lax", maxAge: 60 * 60 * 24 * 7, path: "/" });
+  response.cookies.set("token", token, { httpOnly: true, secure: false, sameSite: "lax", maxAge: SESSION_MAX_AGE_SECONDS, path: "/" });
   return response;
 }
 

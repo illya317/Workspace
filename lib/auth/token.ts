@@ -8,6 +8,9 @@ const secret = new TextEncoder().encode(
   secretRaw || "weekly-report-secret-key-2026-dev-only",
 );
 
+export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
+const SESSION_EXPIRATION = "30d";
+
 export async function createToken(payload: {
   userId: number;
   wxUserId: string;
@@ -18,7 +21,7 @@ export async function createToken(payload: {
 }) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
-    .setExpirationTime("7d")
+    .setExpirationTime(SESSION_EXPIRATION)
     .setIssuedAt()
     .sign(secret);
 }
