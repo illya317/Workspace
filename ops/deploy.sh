@@ -101,7 +101,11 @@ ssh_cmd "
   rm -rf .next/standalone/public
   cp -r public .next/standalone/public
   rm -rf .next/standalone/data
-  cp -r data .next/standalone/data
+  if [ -d data ]; then
+    cp -r data .next/standalone/data
+  else
+    mkdir -p .next/standalone/data
+  fi
 
   pm2 delete $PM2_NAME 2>/dev/null || true
   cd .next/standalone
