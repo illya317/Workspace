@@ -13,7 +13,31 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
 - **数据库**: Prisma ORM + SQLite (`data/dev.db`)
 - **认证**: JWT Cookie + API Key (个人)
-- **部署**: `npm run build` → `./deploy.sh` (普通) / `./deploy.sh --push-db` (schema变更)
+- **部署**: `./deploy.sh`（CVM + PM2；脚本内会类型检查、同步源码、同步运行态配置、远端构建并重启）
+
+## 部署与运行态同步
+
+- 部署必须在 `main` 分支且工作区干净；先 commit，再运行 `./deploy.sh`。
+- 源码同步只同步仓库内容，排除 `.env`、`data/`、`public/company`、`public/assets/agent/avatar/`、`node_modules/`、`.next/` 等运行态路径。
+- 运行态配置来自本机 `LOCAL_WORKSPACE_CONFIG_DIR`，默认 `$WORKSPACE_CONFIG_DIR`，其次 `$HOME/.workspace`；当前机器实际入口是 `/Users/koito/.workspace`，指向桌面 `.workspace`。
+- 部署时 `.env`、品牌资源、agent 头像会同步到服务器 `REMOTE_WORKSPACE_CONFIG_DIR`，默认 `/home/ubuntu/.workspace`。远端 `.env` 会自动改写 `DATABASE_URL` 和 `WORKSPACE_CONFIG_DIR` 为服务器路径。
+- `data/` 以服务器为准：本地 `data/` 不上传覆盖服务器。部署时会先备份本地 `.workspace/data/`，再从服务器 `.workspace/data/` 拉回本地。
+- 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL`、`WORKSPACE_CONFIG_DIR` 直接指向外部 data。
+- `.env` 可以软链到外部 `.workspace/.env`；`public/company` 和 `public/assets/agent/avatar` 开发时可软链到 `.workspace/assets/...`，生产 standalone 打包时脚本用 `cp -rL` 复制真实文件。
+
+更新源码/发布流程：
+
+```bash
+git status --short
+npm run lint -- --max-warnings=0
+npx tsc --noEmit
+npm run build
+git add <files>
+git commit -m "<message>"
+./deploy.sh
+```
+
+新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `/Users/koito/Desktop/workspace/.workspace/AGENTS.md`。
 
 ## 项目地图
 
