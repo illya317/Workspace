@@ -5,6 +5,16 @@ cd "$(dirname "$0")/.."
 source ops/server.env.sh
 
 LOCKFILE=".deploying"
+LOCAL_WORKSPACE_CONFIG_DIR="${LOCAL_WORKSPACE_CONFIG_DIR:-${WORKSPACE_CONFIG_DIR:-$HOME/.workspace}}"
+REMOTE_WORKSPACE_CONFIG_DIR="${REMOTE_WORKSPACE_CONFIG_DIR:-$(dirname "$REMOTE_DIR")/.workspace}"
+REMOTE_WORKSPACE_BACKUP_DIR="${REMOTE_WORKSPACE_BACKUP_DIR:-$REMOTE_WORKSPACE_CONFIG_DIR.backups}"
+
+if [ ! -d "$LOCAL_WORKSPACE_CONFIG_DIR" ]; then
+  echo "[错误] 本地运行态配置目录不存在：$LOCAL_WORKSPACE_CONFIG_DIR"
+  exit 1
+fi
+
+LOCAL_WORKSPACE_CONFIG_DIR="$(cd "$LOCAL_WORKSPACE_CONFIG_DIR" && pwd -P)"
 
 if [ -f "$LOCKFILE" ]; then
   echo "[错误] 检测到 $LOCKFILE，可能另一个部署正在进行。"
@@ -82,6 +92,53 @@ rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
   --exclude='.DS_Store' \
   ./ "$SERVER:$REMOTE_DIR/"
 
+echo "==> 同步运行态配置到服务器..."
+ssh_cmd "
+  set -e
+  if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR' ]; then
+    mkdir -p '$REMOTE_WORKSPACE_BACKUP_DIR'
+    TS=\$(date +%Y%m%d%H%M%S)
+    [ -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env' ] && cp '$REMOTE_WORKSPACE_CONFIG_DIR/.env' '$REMOTE_WORKSPACE_BACKUP_DIR/.env.'\$TS || true
+    [ -f '$REMOTE_WORKSPACE_CONFIG_DIR/data/dev.db' ] && cp '$REMOTE_WORKSPACE_CONFIG_DIR/data/dev.db' '$REMOTE_WORKSPACE_BACKUP_DIR/dev.db.'\$TS || true
+    [ -f '$REMOTE_WORKSPACE_CONFIG_DIR/data/qc-batches.json' ] && cp '$REMOTE_WORKSPACE_CONFIG_DIR/data/qc-batches.json' '$REMOTE_WORKSPACE_BACKUP_DIR/qc-batches.json.'\$TS || true
+    [ -f '$REMOTE_WORKSPACE_CONFIG_DIR/data/qc-template-feedback.json' ] && cp '$REMOTE_WORKSPACE_CONFIG_DIR/data/qc-template-feedback.json' '$REMOTE_WORKSPACE_BACKUP_DIR/qc-template-feedback.json.'\$TS || true
+  fi
+  mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR'
+"
+rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+  --exclude='.DS_Store' \
+  "$LOCAL_WORKSPACE_CONFIG_DIR/" "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/"
+ssh_cmd "
+  set -e
+  cd '$REMOTE_DIR'
+  ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/.env' .env
+  mkdir -p public
+  if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' ]; then
+    rm -rf public/company
+    ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' public/company
+  fi
+  if [ -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env' ]; then
+    python3 - <<'PY'
+from pathlib import Path
+import re
+
+env_path = Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env')
+text = env_path.read_text()
+replacements = {
+    'DATABASE_URL': '\"file:$REMOTE_WORKSPACE_CONFIG_DIR/data/dev.db\"',
+    'WORKSPACE_CONFIG_DIR': '$REMOTE_WORKSPACE_CONFIG_DIR',
+}
+for key, value in replacements.items():
+    line = f'{key}={value}'
+    if re.search(rf'^{key}=.*$', text, flags=re.M):
+        text = re.sub(rf'^{key}=.*$', line, text, flags=re.M)
+    else:
+        text = text.rstrip() + '\\n' + line + '\\n'
+env_path.write_text(text)
+PY
+  fi
+"
+
 echo ""
 echo "==> 服务器构建并重启服务..."
 ssh_cmd "
@@ -99,7 +156,7 @@ ssh_cmd "
   rm -rf .next/standalone/.next/static
   cp -r .next/static .next/standalone/.next/static
   rm -rf .next/standalone/public
-  cp -r public .next/standalone/public
+  cp -rL public .next/standalone/public
   rm -rf .next/standalone/data
   if [ -d data ]; then
     cp -r data .next/standalone/data
