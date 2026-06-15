@@ -106,8 +106,14 @@ export function QcPaperChoiceInput({ fieldKey, options = ["是", "否"], type = 
             name={type === "radio" ? fieldKey : undefined}
             data-field-key={fieldKey}
             value={option}
-            className="h-4 w-4 appearance-none border border-slate-950 bg-white align-middle checked:bg-slate-950"
+            className="peer sr-only"
           />
+          <span
+            aria-hidden="true"
+            className="inline-flex h-4 w-4 items-center justify-center border border-slate-950 bg-white text-[13px] font-semibold leading-none text-transparent peer-checked:text-slate-950"
+          >
+            ✓
+          </span>
           <span>{option}</span>
         </label>
       ))}
