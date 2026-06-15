@@ -1,8 +1,11 @@
 import { requireResourceAccess } from "@/server/auth/guard";
+import { getQcConfigOverview } from "@/server/services/production/qc";
+import QcConfigOverviewPanel from "../components/QcConfigOverview";
 import QcModuleShell from "../components/QcModuleShell";
 
 export default async function QcBatchesPage() {
   const user = await requireResourceAccess("production.qc.batches");
+  const overview = await getQcConfigOverview();
 
   return (
     <QcModuleShell
@@ -27,6 +30,8 @@ export default async function QcBatchesPage() {
           items: ["检验者", "复核者", "操作审计"],
         },
       ]}
-    />
+    >
+      <QcConfigOverviewPanel overview={overview} mode="batches" />
+    </QcModuleShell>
   );
 }

@@ -18,11 +18,18 @@
 
 ## pharma-ops 迁移原则
 
-第一阶段只做 Workspace 入口、权限和页面骨架；pharma-ops 的 YAML、JSON、MD 仍是只读真源，不在 Workspace 中复制后分叉维护。
+第一阶段只做 Workspace 入口、权限、只读配置适配和页面概览；pharma-ops 的 YAML、JSON 仍是只读真源，不在 Workspace 中复制后分叉维护。MD 暂不接入。
+
+当前已接入：
+
+1. `server/services/production/qc/` 从 `PHARMA_OPS_ROOT` 或相邻目录读取 pharma-ops 配置。
+2. `/api/production/qc/config` 返回产品、record templates、methods、layout mapping 的只读概览。
+3. `/production/qc/batches` 展示产品、阶段和检测项映射概览。
+4. `/production/qc/templates` 展示记录模板、方法字段和布局映射概览。
 
 后续迁移目标：
 
-1. `server/services/production/qc/` 读取 pharma-ops 配置并输出 record-structure DTO。
+1. 输出更细的 record-structure DTO，承接单个产品/阶段的检验记录渲染。
 2. `prisma/models/production-qc.prisma` 承接批次记录、字段值和审计。
 3. `app/api/production/qc/*` 按权限动作暴露批次、记录、模板建议 API。
 4. `app/production/qc/*` 逐步替换 Flask/Jinja 页面。

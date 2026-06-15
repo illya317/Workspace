@@ -1,8 +1,11 @@
 import { requireResourceAccess } from "@/server/auth/guard";
+import { getQcConfigOverview } from "@/server/services/production/qc";
+import QcConfigOverviewPanel from "../components/QcConfigOverview";
 import QcModuleShell from "../components/QcModuleShell";
 
 export default async function QcTemplatesPage() {
   const user = await requireResourceAccess("production.qc.templates");
+  const overview = await getQcConfigOverview();
 
   return (
     <QcModuleShell
@@ -27,6 +30,8 @@ export default async function QcTemplatesPage() {
           items: ["布局预览", "草稿保存", "正式发布审核"],
         },
       ]}
-    />
+    >
+      <QcConfigOverviewPanel overview={overview} mode="templates" />
+    </QcModuleShell>
   );
 }

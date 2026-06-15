@@ -1,6 +1,7 @@
 import AppShell from "@/app/components/AppShell";
 import Link from "next/link";
 import type { SessionUser } from "@/lib/types";
+import type { ReactNode } from "react";
 
 interface QcPanel {
   title: string;
@@ -14,6 +15,7 @@ interface Props {
   description: string;
   activeResourceKey: string;
   panels: QcPanel[];
+  children?: ReactNode;
 }
 
 const navLinks = [
@@ -21,7 +23,7 @@ const navLinks = [
   { label: "检验模板", href: "/production/qc/templates", resourceKey: "production.qc.templates" },
 ];
 
-export default function QcModuleShell({ user, title, description, activeResourceKey, panels }: Props) {
+export default function QcModuleShell({ user, title, description, activeResourceKey, panels, children }: Props) {
   const visibleNavLinks = navLinks
     .filter((link) => user.visibleResourceKeys?.includes(link.resourceKey));
 
@@ -70,6 +72,8 @@ export default function QcModuleShell({ user, title, description, activeResource
             </article>
           ))}
         </section>
+
+        {children}
       </main>
     </AppShell>
   );

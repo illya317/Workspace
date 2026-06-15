@@ -47,6 +47,7 @@ const ALLOWED_API_ROOTS = new Set([
   "my-targets",
   "position-descriptions",
   "positions",
+  "production",
   "projects",
   "reports",
   "user",

@@ -70,6 +70,20 @@ Production example:
 WECHAT_REDIRECT_ORIGIN=https://fh-bio.cn
 ```
 
+### `PHARMA_OPS_ROOT`
+
+Optional absolute path to the `pharma-ops` checkout. Workspace reads `config/products.yaml`,
+`config/record_templates/*.yaml`, `config/methods/*.yaml`, and
+`config/table_layouts/layout_mapping.json` from this directory during the QC migration.
+
+If omitted, Workspace tries nearby deployment shapes such as `../pharma-ops`,
+`../../pharma-ops`, and `../../../pharma-ops` relative to the current process cwd.
+
+Production example:
+```
+PHARMA_OPS_ROOT=/home/ubuntu/pharma-ops
+```
+
 ## Check Script
 
 ```bash

@@ -118,6 +118,7 @@ const KNOWN_PREFIXES = [
   "my-targets",
   "position-descriptions",
   "employments",
+  "production",
 ];
 
 let errors = 0;
