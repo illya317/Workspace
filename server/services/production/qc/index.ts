@@ -26,6 +26,7 @@ export type {
   QcTemplateFeedbackContext,
   QcTemplateFeedbackItem,
   QcTemplateFeedbackList,
+  QcTemplateMethodField,
   QcTemplateStage,
   QcTemplateTestItem,
   QcRecordTemplateSummary,

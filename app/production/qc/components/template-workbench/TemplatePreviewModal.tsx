@@ -1,6 +1,7 @@
 "use client";
 
 import type { QcTemplateStage, QcTemplateTestItem } from "@/server/services/production/qc";
+import QcMethodFieldTable from "../QcMethodFieldTable";
 import { numerals, selectionTitle, type WorkbenchSelection } from "./types";
 
 interface Props {
@@ -115,21 +116,7 @@ function TestPreview({ test }: { test: QcTemplateTestItem }) {
           <tr><td className="border border-slate-950 px-3 py-2 text-center font-semibold">组件映射</td><td className="border border-slate-950 px-3 py-2">{test.layout?.templateId || "未映射"}</td></tr>
         </tbody>
       </table>
-      {test.methodGroups.map((group) => (
-        <table key={group.name} className="w-full border-collapse">
-          <tbody>
-            <tr><td colSpan={4} className="border border-slate-950 px-3 py-2 font-semibold">{group.name}</td></tr>
-            {group.fields.map((field) => (
-              <tr key={`${group.name}-${field.name}`}>
-                <td className="w-1/4 border border-slate-950 px-3 py-2">{field.name}</td>
-                <td className="w-1/4 border border-slate-950 px-3 py-2">{field.unit || "-"}</td>
-                <td className="w-1/4 border border-slate-950 px-3 py-2">{field.attr || field.type || "-"}</td>
-                <td className="w-1/4 border border-slate-950 px-3 py-2">{field.formula || "_____"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ))}
+      <QcMethodFieldTable test={test} compact />
     </div>
   );
 }
@@ -143,7 +130,7 @@ export default function TemplatePreviewModal({ selection, onClose }: Props) {
         <button onClick={onClose} className="rounded-md bg-slate-100 px-3 py-2 text-slate-700 hover:bg-slate-200" aria-label="关闭预览">×</button>
       </div>
       <div className="h-[calc(100vh-4rem)] overflow-auto px-6 py-7">
-        <div className="mx-auto min-h-[720px] max-w-5xl bg-white px-10 py-8 shadow-sm">
+        <div className="mx-auto min-h-[720px] max-w-5xl bg-white px-10 py-8 shadow-sm" style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif" }}>
           <PaperHeader selection={selection} />
           {selection.kind === "precheck" && <PrecheckPreview stage={selection.stage} />}
           {selection.kind === "experiment" && <ExperimentPreview tests={selection.stage.tests} />}

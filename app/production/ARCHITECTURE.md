@@ -33,9 +33,9 @@
 2. `/api/production/qc/config` 返回产品、record templates、methods、layout mapping 的只读概览，并暴露配置源 revision/dirty 状态。
 3. `/production/qc/batches` 提供批次创建、批次台账、草稿/提交状态和记录入口。
 4. `/production/qc/batches/[batchId]` 展示批次检验记录阶段入口。
-5. `/production/qc/batches/[batchId]/[stageKey]` 展示 YAML 驱动的检验前确认表。
-6. `/production/qc/batches/[batchId]/[stageKey]/[testName]` 展示 YAML 方法字段驱动的检测项目记录。
-7. `/production/qc/templates` 展示组件映射/方法字段反馈工作台，包含产品筛选、阶段折叠、布局预览和反馈弹窗。
+5. `/production/qc/batches/[batchId]/[stageKey]` 展示 YAML 驱动的检验前确认表，纸面区域使用仿宋系字体。
+6. `/production/qc/batches/[batchId]/[stageKey]/[testName]` 展示 YAML 方法字段驱动的检测项目记录，支持填写字段和 `formula` 只读计算字段的前端轻量计算。
+7. `/production/qc/templates` 展示组件映射/方法字段反馈工作台，包含产品筛选、阶段折叠、仿宋纸面布局预览和反馈弹窗。
 8. `/production/qc/templates/[templateId]` 展示单个 record template 的阶段、检测项、方法字段和组件布局映射。
 9. `/api/production/qc/templates/[templateId]` 返回同一份只读 record-structure DTO，供后续编辑器复用。
 10. `/api/production/qc/template-feedback` 提供模板反馈读写接口。
@@ -46,7 +46,8 @@
 1. 把通用检测项目页面逐步替换为每类组件的正式纸质表格体验。
 2. `prisma/models/production-qc.prisma` 承接批次记录、字段值和审计。
 3. 模板反馈进入可查询、可审核的建议流。
-4. `app/production/qc/*` 逐步替换 Flask/Jinja 页面。
+4. 把 pharma-ops 的完整公式引擎、规则字段和布局 renderer 迁移为 Workspace 原生实现。
+5. `app/production/qc/*` 逐步替换 Flask/Jinja 页面。
 
 ## 权限标准
 
