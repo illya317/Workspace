@@ -27,13 +27,13 @@ fi
 touch "$LOCKFILE"
 
 TMPKEY=""
-if [ -n "${KEY_CONTENT:-}" ]; then
+if [ -n "${KEY:-}" ]; then
+  SSH_KEY="$KEY"
+elif [ -n "${KEY_CONTENT:-}" ]; then
   TMPKEY=$(mktemp)
   printf '%s\n' "$KEY_CONTENT" > "$TMPKEY"
   chmod 600 "$TMPKEY"
   SSH_KEY="$TMPKEY"
-elif [ -n "${KEY:-}" ]; then
-  SSH_KEY="$KEY"
 else
   echo "[错误] ops/server.env.sh 必须配置 KEY_CONTENT 或 KEY"
   exit 1
