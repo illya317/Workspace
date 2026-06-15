@@ -1,6 +1,7 @@
 "use client";
 
 import type { QcTemplateMethodField, QcTemplateTestItem } from "@/server/services/production/qc";
+import { QcPaperChoiceInput } from "./QcPaperInputs";
 import { useQcFormulaEngine, type QcFieldValues } from "./useQcFormulaEngine";
 
 interface Props {
@@ -20,6 +21,40 @@ function FieldInput({
   onChange: (value: string) => void;
 }) {
   const calculated = field.attr === "calculated" || !!field.formula || !!field.rule;
+  if (field.type === "radio" || field.type === "checkbox") {
+    return (
+      <div className="flex min-h-9 items-center justify-center gap-2">
+        <QcPaperChoiceInput
+          fieldKey={field.fieldKey}
+          options={field.options}
+          type={field.type}
+          disabled={calculated || field.attr === "prefilled"}
+          value={value}
+          onChange={onChange}
+        />
+        {field.unit && <span className="text-xs text-slate-700">{field.unit}</span>}
+      </div>
+    );
+  }
+  if (field.type === "select") {
+    return (
+      <div className="flex min-h-9 items-center justify-center gap-2">
+        <select
+          data-field-key={field.fieldKey}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          disabled={calculated || field.attr === "prefilled"}
+          className="h-8 min-w-24 border-0 border-b border-slate-950 bg-transparent px-2 text-center text-sm outline-none disabled:opacity-100"
+        >
+          <option value=""> </option>
+          {field.options?.map((option) => (
+            <option key={`${field.fieldKey}-${option}`} value={option}>{option}</option>
+          ))}
+        </select>
+        {field.unit && <span className="text-xs text-slate-700">{field.unit}</span>}
+      </div>
+    );
+  }
   return (
     <div className="flex min-h-9 items-center justify-center gap-2">
       <input

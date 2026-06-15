@@ -70,7 +70,7 @@ export interface QcTemplateLayoutAssignment {
   params: Record<string, unknown>;
 }
 
-export type QcLayoutPartType = "text" | "note" | "line" | "date" | "radio" | "checkbox" | "field" | "br" | "param";
+export type QcLayoutPartType = "text" | "note" | "line" | "date" | "radio" | "checkbox" | "select" | "field" | "br" | "param";
 
 export interface QcLayoutPart {
   type: QcLayoutPartType | string;
@@ -80,6 +80,7 @@ export interface QcLayoutPart {
   name?: string;
   options?: string[];
   width?: string;
+  underline?: boolean;
   withTime?: boolean;
   inputType?: string;
   defaultValue?: string;

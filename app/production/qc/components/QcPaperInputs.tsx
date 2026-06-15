@@ -27,6 +27,10 @@ function inputWidth(part: QcLayoutPart): CSSProperties {
   return { width: part.width || "4em" };
 }
 
+function underlineClass(part: QcLayoutPart) {
+  return part.underline === false ? "border-b-0" : "border-b border-slate-950";
+}
+
 export function QcPaperLineInput({
   part,
   readOnly,
@@ -48,9 +52,42 @@ export function QcPaperLineInput({
       {...valueProps}
       readOnly={readOnly || part.readonlyDisplay}
       type={part.inputType || "text"}
-      className="mx-1 inline-block h-5 min-w-[3em] border-0 border-b border-slate-950 bg-transparent px-1 text-center align-baseline outline-none read-only:border-b-0"
+      className={`mx-1 inline-block h-5 min-w-[3em] border-0 bg-transparent px-1 text-center align-baseline outline-none read-only:border-b-0 ${underlineClass(part)}`}
       style={inputWidth(part)}
     />
+  );
+}
+
+export function QcPaperSelectInput({
+  part,
+  options = [],
+  readOnly,
+  value,
+  onChange,
+}: {
+  part: QcLayoutPart;
+  options?: string[];
+  readOnly?: boolean;
+  value?: string;
+  onChange?: (value: string) => void;
+}) {
+  return (
+    <select
+      aria-label={part.fieldKey || part.field || part.name || "选择项"}
+      data-field-key={part.fieldKey || part.field || part.name}
+      value={value ?? part.defaultValue ?? ""}
+      onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange?.(event.target.value)}
+      disabled={readOnly || part.readonlyDisplay}
+      className={`mx-1 inline-block h-7 min-w-[4em] border-0 bg-transparent px-1 text-center align-baseline outline-none disabled:opacity-100 ${underlineClass(part)}`}
+      style={inputWidth(part)}
+    >
+      <option value=""> </option>
+      {options.map((option) => (
+        <option key={`${part.fieldKey || part.field || part.name}-${option}`} value={option}>
+          {option}
+        </option>
+      ))}
+    </select>
   );
 }
 
@@ -126,12 +163,14 @@ export function QcPaperChoiceInput({
   fieldKey,
   options = ["是", "否"],
   type = "radio",
+  disabled,
   value,
   onChange,
 }: {
   fieldKey?: string;
   options?: string[];
   type?: "radio" | "checkbox";
+  disabled?: boolean;
   value?: string;
   onChange?: (value: string) => void;
 }) {
@@ -153,6 +192,7 @@ export function QcPaperChoiceInput({
               name={type === "radio" ? fieldKey : undefined}
               data-field-key={fieldKey}
               value={option}
+              disabled={disabled}
               {...choiceProps}
               className="peer sr-only"
             />

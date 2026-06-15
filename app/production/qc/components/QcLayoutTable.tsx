@@ -2,7 +2,7 @@
 
 import type { CSSProperties } from "react";
 import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcTemplateMethodField, QcTemplateTestItem } from "@/server/services/production/qc";
-import { QcPaperChoiceInput, QcPaperDateInput, QcPaperLineInput } from "./QcPaperInputs";
+import { QcPaperChoiceInput, QcPaperDateInput, QcPaperLineInput, QcPaperSelectInput } from "./QcPaperInputs";
 import type { QcFieldValues } from "./useQcFormulaEngine";
 
 export interface LayoutRenderContext {
@@ -32,11 +32,36 @@ function resolvePartField(
 export function Part({ part, context }: { part: QcLayoutPart; context: LayoutRenderContext }) {
   const { test, values, onFieldChange, fieldByName, fieldByKey } = context;
   if (part.type === "br") return <br />;
-  if (part.type === "line" || part.type === "field") {
+  if (part.type === "line" || part.type === "field" || part.type === "select") {
     const { key, field } = resolvePartField(part, fieldByName, fieldByKey);
+    const mergedPart = { ...part, fieldKey: key, defaultValue: defaultValueForPart(part, test) || field?.defaultValue };
+    const fieldType = part.type === "select" ? "select" : field?.type;
+    if (fieldType === "radio" || fieldType === "checkbox") {
+      return (
+        <QcPaperChoiceInput
+          fieldKey={key}
+          options={part.options?.length ? part.options : field?.options}
+          type={fieldType}
+          disabled={part.readonlyDisplay || field?.attr === "calculated"}
+          value={values[key]}
+          onChange={(value) => onFieldChange(key, value)}
+        />
+      );
+    }
+    if (fieldType === "select") {
+      return (
+        <QcPaperSelectInput
+          part={mergedPart}
+          options={part.options?.length ? part.options : field?.options}
+          readOnly={part.readonlyDisplay || field?.attr === "calculated"}
+          value={values[key]}
+          onChange={(value) => onFieldChange(key, value)}
+        />
+      );
+    }
     return (
       <QcPaperLineInput
-        part={{ ...part, fieldKey: key, defaultValue: defaultValueForPart(part, test) || field?.defaultValue }}
+        part={mergedPart}
         readOnly={part.readonlyDisplay || field?.attr === "calculated"}
         value={values[key]}
         onChange={(value) => onFieldChange(key, value)}
@@ -49,7 +74,7 @@ export function Part({ part, context }: { part: QcLayoutPart; context: LayoutRen
   }
   if (part.type === "radio" || part.type === "checkbox") {
     const { key, field } = resolvePartField(part, fieldByName, fieldByKey);
-    return <QcPaperChoiceInput fieldKey={key} options={part.options?.length ? part.options : field?.options} type={part.type} value={values[key]} onChange={(value) => onFieldChange(key, value)} />;
+    return <QcPaperChoiceInput fieldKey={key} options={part.options?.length ? part.options : field?.options} type={part.type} disabled={part.readonlyDisplay || field?.attr === "calculated"} value={values[key]} onChange={(value) => onFieldChange(key, value)} />;
   }
   if (part.type === "param") return <span>{part.defaultValue || part.name}</span>;
   if (part.type === "note") return <span className="text-slate-700">{part.text}</span>;

@@ -61,6 +61,7 @@ function mapPart(value: unknown, params: Params = {}): QcLayoutPart {
     name: name || undefined,
     options: asArray(part.options).map((option) => asString(option)).filter(Boolean),
     width: asString(part.width) || widthFromChars(part.initial_chars || part.initialChars),
+    underline: asBoolean(part.underline),
     withTime: asBoolean(part.with_time ?? part.withTime),
     inputType: asString(part.input_type || part.inputType) || undefined,
     defaultValue: paramValue || asString(part.default ?? part.default_value ?? part.placeholder) || undefined,
