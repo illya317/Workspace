@@ -1,0 +1,24 @@
+meta:
+  generated_by: scripts/audit_docx_detail_sections.py
+  docx_inventory: docs/coverage/audit/docx_inventory.json
+  gaps: docs/coverage/audit/gaps.yaml
+  excluded_templates:
+  - '*_auto.yaml'
+  note: Candidates are evidence from DOCX-derived table text; they do not mutate YAML.
+summary:
+  md_gaps:
+    total: 0
+    docx_found: 0
+    docx_missing: 0
+    by_product: {}
+    by_section: {}
+    by_evidence_status: {}
+  template_needs_review:
+    total: 0
+    docx_found: 0
+    docx_missing: 0
+    by_product: {}
+    by_section: {}
+    by_evidence_status: {}
+md_gap_candidates: []
+template_review_candidates: []

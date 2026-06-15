@@ -1,0 +1,37 @@
+summary:
+  methods: 39
+  raw_fields: 572
+  raw_formulas: 133
+  raw_rules: 4
+  products: 16
+  tests: 225
+  runtime_fields: 5309
+  runtime_formulas: 1144
+  runtime_rules: 475
+  method_files: 10
+  method_sources: 39
+  md_mapping_products: 16
+  md_mapping_gaps: 1
+  field_key_duplicate_issues: 0
+  issues: 1
+  blockers: 0
+  warnings: 1
+md_mapping:
+  products: 16
+  gaps: 1
+  gap_types:
+    unknown: 1
+issue_type_counts:
+  unknown: 1
+issues:
+- scope: md_mapping
+  product_key: ''
+  product_name: 硝酸异山梨酯片
+  route: finished
+  issue_type: unknown
+  severity: warning
+  evidence: '{"gap_type": "missing_method_mapping", "line_no": 614, "md_file": "硝酸异山梨酯片.md",
+    "part": "三", "product": "硝酸异山梨酯片", "review_reason": "MD part=三 有 ''性 状'' 但 products.yaml
+    无此检测项", "seq": "2.1", "stage": "finished", "test_nam…'
+  expected: schema/md_canonical, config/products.yaml, and config/record_templates
+    should agree

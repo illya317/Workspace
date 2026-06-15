@@ -1,0 +1,10 @@
+generated_by: scripts/audit_layout_template_review_matrix.py
+matrix_path: /Users/koito/Project/pharma-ops/docs/coverage/manual/layout_template_review_matrix.yaml
+summary:
+  parent_template_candidates: 19
+  candidate_groups: 29
+  legacy_product_layouts: 224
+  samples: 93
+  blockers: 0
+  warnings: 0
+issues: []

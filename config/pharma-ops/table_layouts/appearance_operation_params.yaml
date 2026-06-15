@@ -54,7 +54,7 @@ products:
       appearance:
         操作方法模板: appearance_visual
         操作方法参数:
-          operation_prefix: 取本品置于光线充足的地方，目测，取本品为
+          operation_prefix: 取本品置于光线充足的地方，目测，本品为
     packaging:
       appearance:
         操作方法模板: appearance_visual
@@ -86,7 +86,7 @@ products:
       appearance:
         操作方法模板: appearance_visual
         操作方法参数:
-          operation_prefix: 取本品置于光线充足的地方，目测，取本品为
+          operation_prefix: 取本品置于光线充足的地方，目测，本品为
     packaging:
       appearance:
         操作方法模板: appearance_visual
@@ -150,7 +150,7 @@ products:
       appearance:
         操作方法模板: appearance_visual
         操作方法参数:
-          operation_prefix: 取本品置光线充足的地方，目测，本品为
+          operation_prefix: 取本品置于光线充足的地方，目测，本品为
     packaging:
       appearance:
         操作方法模板: appearance_visual
@@ -198,7 +198,7 @@ products:
       appearance:
         操作方法模板: appearance_visual
         操作方法参数:
-          operation_prefix: 取本品置于光线充足的地方，目测，取本品为
+          operation_prefix: 取本品置于光线充足的地方，目测，本品为
     packaging:
       appearance:
         操作方法模板: appearance_visual

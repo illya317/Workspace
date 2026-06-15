@@ -1,0 +1,87 @@
+meta:
+  generated_by: scripts/audit_md_quality.py
+  phase: Phase -1
+  note: 只检查清洗质量，不审计细则完整性
+  md_count: 16
+grades:
+  克拉霉素 胶囊.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  别嘌醇片.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  复方芦丁片.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  氢氯噻嗪片.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  泮托拉唑钠肠溶片.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  甘草酸二铵胶囊.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  甲巯咪唑片.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  盐酸左氧氟沙星胶囊.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  盐酸特拉唑嗪 胶囊.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  盐酸维拉帕米片.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  硝酸异山梨酯片.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  螺内酯片.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  辛伐他汀片.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  阿奇霉素胶囊.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  阿替洛尔片.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+  鞣酸小檗碱片.md:
+    grade: no_critical_md_cleanup_issue
+    catalog_ok: true
+    template_ok: true
+    issue_count: 0
+issues: []

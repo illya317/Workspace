@@ -1,0 +1,881 @@
+meta:
+  generated_by: scripts/md_to_record_template.py
+  phase: Phase 4
+  description: 人工确认清单 — 逐项检查后改 status 为 confirmed/rejected
+  total_items: 102
+items:
+- product: 克拉霉素 胶囊
+  product_key: clarithromycin
+  stage: packaging
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 克拉霉素 胶囊
+  product_key: clarithromycin
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 克拉霉素 胶囊
+  product_key: clarithromycin
+  stage: finished
+  test: 有关物质
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 克拉霉素 胶囊
+  product_key: clarithromycin
+  stage: finished
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 克拉霉素 胶囊
+  product_key: clarithromycin
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 别嘌醇片
+  product_key: allopurinol
+  stage: packaging
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 别嘌醇片
+  product_key: allopurinol
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 别嘌醇片
+  product_key: allopurinol
+  stage: finished
+  test: 鉴别
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  status: pending
+- product: 别嘌醇片
+  product_key: allopurinol
+  stage: finished
+  test: 有关物质
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 别嘌醇片
+  product_key: allopurinol
+  stage: finished
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 清场段落缺失
+  status: pending
+- product: 别嘌醇片
+  product_key: allopurinol
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 复方芦丁片
+  product_key: compound_rutin
+  stage: finished
+  test: 脆碎度
+  reasons:
+  - 结论含数值未解析到
+  - 清场段落缺失
+  status: pending
+- product: 复方芦丁片
+  product_key: compound_rutin
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 结论含数值未解析到
+  status: pending
+- product: 氢氯噻嗪片
+  product_key: hydrochlorothiazide
+  stage: intermediate
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 氢氯噻嗪片
+  product_key: hydrochlorothiazide
+  stage: packaging
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 氢氯噻嗪片
+  product_key: hydrochlorothiazide
+  stage: packaging
+  test: 含量均匀度
+  reasons:
+  - 结论含数值未解析到
+  - 清场段落缺失
+  status: pending
+- product: 氢氯噻嗪片
+  product_key: hydrochlorothiazide
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 氢氯噻嗪片
+  product_key: hydrochlorothiazide
+  stage: finished
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 氢氯噻嗪片
+  product_key: hydrochlorothiazide
+  stage: finished
+  test: 含量均匀度
+  reasons:
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 氢氯噻嗪片
+  product_key: hydrochlorothiazide
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 泮托拉唑钠肠溶片
+  product_key: pantoprazole
+  stage: packaging
+  test: 酸中释放度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 泮托拉唑钠肠溶片
+  product_key: pantoprazole
+  stage: packaging
+  test: 释放度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 泮托拉唑钠肠溶片
+  product_key: pantoprazole
+  stage: finished
+  test: 鉴别
+  reasons:
+  - 结论含数值未解析到
+  status: pending
+- product: 泮托拉唑钠肠溶片
+  product_key: pantoprazole
+  stage: finished
+  test: 酸中释放度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 泮托拉唑钠肠溶片
+  product_key: pantoprazole
+  stage: finished
+  test: 释放度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 泮托拉唑钠肠溶片
+  product_key: pantoprazole
+  stage: finished
+  test: 耐酸力
+  reasons:
+  - 方法无法自动确定
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 泮托拉唑钠肠溶片
+  product_key: pantoprazole
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 甘草酸二铵胶囊
+  product_key: diammonium_glycyrrhizinate
+  stage: packaging
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 甘草酸二铵胶囊
+  product_key: diammonium_glycyrrhizinate
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 甘草酸二铵胶囊
+  product_key: diammonium_glycyrrhizinate
+  stage: finished
+  test: 重量差异
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 甘草酸二铵胶囊
+  product_key: diammonium_glycyrrhizinate
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 甲巯咪唑片
+  product_key: methimazole
+  stage: intermediate
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 甲巯咪唑片
+  product_key: methimazole
+  stage: packaging
+  test: 含量均匀度
+  reasons:
+  - 结论含数值未解析到
+  status: pending
+- product: 甲巯咪唑片
+  product_key: methimazole
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  - 方法推断为HPLC但无明确液相/色谱关键词
+  status: pending
+- product: 甲巯咪唑片
+  product_key: methimazole
+  stage: finished
+  test: 鉴别
+  reasons:
+  - 结论含数值未解析到
+  status: pending
+- product: 甲巯咪唑片
+  product_key: methimazole
+  stage: finished
+  test: 含量均匀度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 甲巯咪唑片
+  product_key: methimazole
+  stage: finished
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 清场段落缺失
+  status: pending
+- product: 甲巯咪唑片
+  product_key: methimazole
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸左氧氟沙星胶囊
+  product_key: levofloxacin
+  stage: intermediate
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸左氧氟沙星胶囊
+  product_key: levofloxacin
+  stage: packaging
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸左氧氟沙星胶囊
+  product_key: levofloxacin
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸左氧氟沙星胶囊
+  product_key: levofloxacin
+  stage: finished
+  test: 鉴别
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  status: pending
+- product: 盐酸左氧氟沙星胶囊
+  product_key: levofloxacin
+  stage: finished
+  test: 有关物质
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸左氧氟沙星胶囊
+  product_key: levofloxacin
+  stage: finished
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸左氧氟沙星胶囊
+  product_key: levofloxacin
+  stage: finished
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸左氧氟沙星胶囊
+  product_key: levofloxacin
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 结论含数值未解析到
+  status: pending
+- product: 盐酸特拉唑嗪 胶囊
+  product_key: terazosin
+  stage: packaging
+  test: 含量均匀度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸特拉唑嗪 胶囊
+  product_key: terazosin
+  stage: packaging
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸特拉唑嗪 胶囊
+  product_key: terazosin
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸特拉唑嗪 胶囊
+  product_key: terazosin
+  stage: finished
+  test: 鉴别
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  status: pending
+- product: 盐酸特拉唑嗪 胶囊
+  product_key: terazosin
+  stage: finished
+  test: 有关物质
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸特拉唑嗪 胶囊
+  product_key: terazosin
+  stage: finished
+  test: 含量均匀度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸特拉唑嗪 胶囊
+  product_key: terazosin
+  stage: finished
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸维拉帕米片
+  product_key: verapamil
+  stage: intermediate
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸维拉帕米片
+  product_key: verapamil
+  stage: packaging
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸维拉帕米片
+  product_key: verapamil
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸维拉帕米片
+  product_key: verapamil
+  stage: finished
+  test: 鉴别
+  reasons:
+  - 结论含数值未解析到
+  status: pending
+- product: 盐酸维拉帕米片
+  product_key: verapamil
+  stage: finished
+  test: 有关物质
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸维拉帕米片
+  product_key: verapamil
+  stage: finished
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 盐酸维拉帕米片
+  product_key: verapamil
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 硝酸异山梨酯片
+  product_key: isosorbide_dinitrate
+  stage: intermediate
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  status: pending
+- product: 硝酸异山梨酯片
+  product_key: isosorbide_dinitrate
+  stage: packaging
+  test: 溶出度
+  reasons:
+  - 清场段落缺失
+  status: pending
+- product: 硝酸异山梨酯片
+  product_key: isosorbide_dinitrate
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 硝酸异山梨酯片
+  product_key: isosorbide_dinitrate
+  stage: finished
+  test: 鉴别
+  reasons:
+  - 结论含数值未解析到
+  status: pending
+- product: 硝酸异山梨酯片
+  product_key: isosorbide_dinitrate
+  stage: finished
+  test: 含量均匀度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 硝酸异山梨酯片
+  product_key: isosorbide_dinitrate
+  stage: finished
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 硝酸异山梨酯片
+  product_key: isosorbide_dinitrate
+  stage: finished
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 硝酸异山梨酯片
+  product_key: isosorbide_dinitrate
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 标准规定缺失
+  status: pending
+- product: 螺内酯片
+  product_key: spironolactone
+  stage: intermediate
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 清场段落缺失
+  status: pending
+- product: 螺内酯片
+  product_key: spironolactone
+  stage: packaging
+  test: 含量均匀度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 螺内酯片
+  product_key: spironolactone
+  stage: packaging
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 螺内酯片
+  product_key: spironolactone
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 螺内酯片
+  product_key: spironolactone
+  stage: finished
+  test: 有关物质
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 螺内酯片
+  product_key: spironolactone
+  stage: finished
+  test: 含量均匀度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 螺内酯片
+  product_key: spironolactone
+  stage: finished
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 螺内酯片
+  product_key: spironolactone
+  stage: finished
+  test: 脆碎度
+  reasons:
+  - 结论含数值未解析到
+  - 清场段落缺失
+  status: pending
+- product: 辛伐他汀片
+  product_key: simvastatin
+  stage: intermediate
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 辛伐他汀片
+  product_key: simvastatin
+  stage: packaging
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 辛伐他汀片
+  product_key: simvastatin
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 辛伐他汀片
+  product_key: simvastatin
+  stage: finished
+  test: 鉴别
+  reasons:
+  - 结论含数值未解析到
+  status: pending
+- product: 辛伐他汀片
+  product_key: simvastatin
+  stage: finished
+  test: 含量均匀度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 辛伐他汀片
+  product_key: simvastatin
+  stage: finished
+  test: 有关物质
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 辛伐他汀片
+  product_key: simvastatin
+  stage: finished
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 辛伐他汀片
+  product_key: simvastatin
+  stage: finished
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 辛伐他汀片
+  product_key: simvastatin
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 阿奇霉素胶囊
+  product_key: azithromycin
+  stage: intermediate
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 阿奇霉素胶囊
+  product_key: azithromycin
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 清场段落缺失
+  status: pending
+- product: 阿奇霉素胶囊
+  product_key: azithromycin
+  stage: finished
+  test: 有关物质
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 阿奇霉素胶囊
+  product_key: azithromycin
+  stage: finished
+  test: 水分
+  reasons:
+  - 含数值但缺判定规则
+  - 标准规定缺失
+  status: pending
+- product: 阿奇霉素胶囊
+  product_key: azithromycin
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 阿替洛尔片
+  product_key: atenolol
+  stage: packaging
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 阿替洛尔片
+  product_key: atenolol
+  stage: packaging
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 阿替洛尔片
+  product_key: atenolol
+  stage: finished
+  test: 鉴别
+  reasons:
+  - 结论含数值未解析到
+  status: pending
+- product: 阿替洛尔片
+  product_key: atenolol
+  stage: finished
+  test: 有关物质
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 阿替洛尔片
+  product_key: atenolol
+  stage: finished
+  test: 溶出度
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 阿替洛尔片
+  product_key: atenolol
+  stage: finished
+  test: 脆碎度
+  reasons:
+  - 结论含数值未解析到
+  - 清场段落缺失
+  status: pending
+- product: 阿替洛尔片
+  product_key: atenolol
+  stage: finished
+  test: 含量
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 阿替洛尔片
+  product_key: atenolol
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 结论含数值未解析到
+  - 标准规定缺失
+  - 清场段落缺失
+  status: pending
+- product: 鞣酸小檗碱片
+  product_key: berberine_tannate
+  stage: packaging
+  test: 含量
+  reasons:
+  - 含数值但缺判定规则
+  status: pending
+- product: 鞣酸小檗碱片
+  product_key: berberine_tannate
+  stage: finished
+  test: 脆碎度
+  reasons:
+  - 结论含数值未解析到
+  - 清场段落缺失
+  status: pending
+- product: 鞣酸小檗碱片
+  product_key: berberine_tannate
+  stage: finished
+  test: 含量
+  reasons:
+  - 含数值但缺判定规则
+  status: pending
+- product: 鞣酸小檗碱片
+  product_key: berberine_tannate
+  stage: finished
+  test: 微生物限度检查
+  reasons:
+  - 结论含数值未解析到
+  status: pending
