@@ -31,7 +31,6 @@ export const MODULE_LIFECYCLE_BY_RESOURCE: Partial<Record<string, ModuleLifecycl
   "finance.treasury": "erpnext-owned",
   "finance.import": "legacy-fallback",
   production: "workspace-owned",
-  "production.inventory": "legacy-fallback",
   "production.qc": "workspace-owned",
   "production.qc.batches": "workspace-owned",
   "production.qc.templates": "workspace-owned",

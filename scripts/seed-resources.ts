@@ -51,12 +51,7 @@ async function main() {
   await upsertResource("finance.schedules", "附注明细", "finance", "admin", undefined, "inherit", 8);
 
   await upsertResource("production", "生产管理", undefined, "admin", undefined, "inherit", 4);
-  await upsertResource("production.inventory", "库存管理", "production", "admin", undefined, "inherit", 0);
-  await upsertResource("production.inventory.raw", "原辅料", "production.inventory", "admin", undefined, "inherit", 0);
-  await upsertResource("production.inventory.packaging", "包装材料", "production.inventory", "admin", undefined, "inherit", 1);
-  await upsertResource("production.inventory.finished", "成品", "production.inventory", "admin", undefined, "inherit", 2);
-  await upsertResource("production.inventory.report", "库存报表", "production.inventory", "admin", undefined, "inherit", 3);
-  await upsertResource("production.qc", "质量检验", "production", "admin", undefined, "inherit", 1);
+  await upsertResource("production.qc", "质量检验", "production", "admin", undefined, "inherit", 0);
   await upsertResource("production.qc.batches", "批次检验", "production.qc", "admin", undefined, "inherit", 0);
   await upsertResource("production.qc.templates", "检验模板", "production.qc", "admin", undefined, "inherit", 1);
 
@@ -84,13 +79,6 @@ async function main() {
   await upsertResource("system.agent", "智能体", "system", "access", undefined, "inherit", 1);
   await upsertResource("system.api", "API接入", "system", "access", undefined, "inherit", 2);
   await upsertResource("system.erpnext", "ERPNext 连接", "system", "admin", undefined, "inherit", 3);
-
-  // Repair orphaned production.inventory children (from old buggy seed)
-  await p.$executeRawUnsafe(`
-    UPDATE Resource SET parentId = (SELECT id FROM Resource WHERE key = 'production.inventory')
-    WHERE key IN ('production.inventory.raw', 'production.inventory.packaging', 'production.inventory.finished', 'production.inventory.report')
-      AND parentId IS NULL
-  `);
 
   console.log("✅ Resources seeded");
   const all = await p.resource.findMany({ orderBy: { key: "asc" }, select: { key: true, name: true } });

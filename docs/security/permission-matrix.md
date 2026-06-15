@@ -14,7 +14,6 @@
 | `finance.analysis` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access |
 | `finance.cost` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
 | `finance.import` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access (preview), write (confirm) |
-| `production.inventory` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
 | `administration.contract` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
 | `work` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
 | `system` | `manageableResourceKeys` | admin |
@@ -39,7 +38,7 @@
 | `/administration` | `requireResourceAccess("administration")` | redirect `/portal` |
 | `/contracts` | `requireResourceAccess("administration.contract")` | redirect `/portal` |
 | `/production` | `requireResourceAccess("production")` | redirect `/portal` |
-| `/inventory` | `requireResourceAccess("production.inventory")` | redirect `/portal` |
+| `/inventory` | 旧库存入口已关闭 | redirect `/production` |
 | `/reports` | `requireResourceAccess("work")` | redirect `/portal` |
 | `/docs` | `requireResourceAccess("docs")` | redirect `/portal` |
 
@@ -67,8 +66,7 @@
 | `/api/finance/cost/*` | GET | `finance.cost.access` |
 | `/api/finance/cost/*` | POST/PUT | `finance.cost.write` |
 | `/api/finance/cost/*` | DELETE | `finance.cost.delete` |
-| `/api/inventory/*` | GET | `production.inventory.access` |
-| `/api/inventory/*` | POST/PUT | `production.inventory.write` |
+| `/api/inventory/*` | GET/POST/PUT/DELETE | `410 Gone` |
 | `/api/contracts*` | GET | `administration.contract.access` |
 | `/api/contracts*` | POST/PUT | `administration.contract.write` |
 | `/api/contracts*` | DELETE | `administration.contract.delete` |

@@ -1,38 +1,4 @@
-import { NextResponse } from "next/server";
-import { withInventoryAccess } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
-import { handleCreate } from "@/lib/crud-inventory";
-import { Prisma } from "@/generated/prisma/client";
+import { inventoryApiGone } from "../disabled";
 
-export const GET = withInventoryAccess(async (request: Request) => {
-  const { searchParams } = new URL(request.url);
-  const keyword = searchParams.get("keyword") || "";
-  const status = searchParams.get("status") || "";
-
-  const where: Prisma.StockFinishedGoodsWhereInput = {};
-  if (status) where.stockType = status;
-
-  let items = await prisma.stockFinishedGoods.findMany({ where, orderBy: { code: "asc" } });
-  if (keyword) {
-    const k = keyword.toLowerCase();
-    items = items.filter((i) => i.code.toLowerCase().includes(k) || i.name.toLowerCase().includes(k));
-  }
-  return NextResponse.json({ items });
-});
-
-export const POST = withInventoryAccess(async (request: Request, _user) => {
-  const body = await request.json();
-  const { code, name, packagingSpec, unit, stockType } = body;
-  if (!code || !name) return NextResponse.json({ error: "成品编码和名称为必填" }, { status: 400 });
-
-  const existing = await prisma.stockFinishedGoods.findUnique({ where: { code } });
-  if (existing) return NextResponse.json({ error: "成品编码已存在" }, { status: 400 });
-
-  return handleCreate(request, {
-    entityType: "StockFinishedGoods",
-    modelKey: "stockFinishedGoods",
-  }, async () => ({
-    code, name, packagingSpec: packagingSpec || null, unit: unit || "件",
-    stockType: stockType || "正常库存",
-  }));
-});
+export const GET = inventoryApiGone;
+export const POST = inventoryApiGone;

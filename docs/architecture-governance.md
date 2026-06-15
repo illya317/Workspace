@@ -140,7 +140,7 @@ API route 只做：
 - HR：`/api/hr/*`
 - 财务：`/api/finance/*`
 - 财务成本：`/api/finance/cost/*`
-- 库存：`/api/inventory/*`
+- 库存：`/api/inventory/*` 已关闭，仅返回 `410 Gone`
 - 合同：`/api/contracts/*`
 
 未来绩效、采购、生产也必须各自有独立领域入口，不要塞进 HR 或 Finance。

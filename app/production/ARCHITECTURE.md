@@ -8,14 +8,13 @@
 | 质量检验中转 | `/production/qc` | `production.qc.access` |
 | 批次检验 | `/production/qc/batches` | `production.qc.batches.access` |
 | 检验模板 | `/production/qc/templates` | `production.qc.templates.access` |
-| 库存管理 | `/inventory` | `production.inventory.access` |
 
 ## 模块边界
 
-生产管理目前包含两条线：
+生产管理目前只保留 QC / 批检验迁移线：
 
-- QC / 批检验迁移线：逐步承接 pharma-ops 的批次检验、检验记录、组件映射、方法字段和表格模板。
-- 库存轻台账线：保留现有原辅料、包材、成品库存管理，状态为历史 fallback。
+- 逐步承接 pharma-ops 的批次检验、检验记录、组件映射、方法字段和表格模板。
+- 旧库存轻台账不再作为生产管理入口开放，`/inventory` 会回到 `/production`，`/api/inventory/*` 返回 `410 Gone`。
 
 ## pharma-ops 迁移原则
 
@@ -35,6 +34,5 @@
 | `production.qc` | QC 根资源，承接质量检验能力 |
 | `production.qc.batches` | 批次检验、记录填写、提交复核 |
 | `production.qc.templates` | 组件映射建议、方法字段、表格模板 |
-| `production.inventory` | 库存轻台账 |
 
 页面入口使用 `requireResourceAccess(resourceKey)`；未来 API 查询使用 `access`，保存/提交使用 `write`，删除使用 `delete`，正式模板发布使用 `admin`。
