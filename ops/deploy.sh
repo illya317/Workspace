@@ -89,6 +89,7 @@ rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
   --exclude='.env' \
   --exclude='.env.*' \
   --exclude='data/' \
+  --exclude='public/assets/agent/avatar/' \
   --exclude='public/company' \
   --exclude='public/company/' \
   --exclude='.DS_Store' \
@@ -116,6 +117,11 @@ ssh_cmd "
   if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' ]; then
     rm -rf public/company
     ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' public/company
+  fi
+  if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/agent/avatar' ]; then
+    mkdir -p public/assets/agent
+    rm -rf public/assets/agent/avatar
+    ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/assets/agent/avatar' public/assets/agent/avatar
   fi
   if [ -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env' ]; then
     python3 - <<'PY'

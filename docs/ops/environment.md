@@ -29,6 +29,7 @@ builds.
 | QC batch store | `$WORKSPACE_CONFIG_DIR/data/qc-batches.json` via `WORKSPACE_CONFIG_DIR` |
 | QC feedback store | `$WORKSPACE_CONFIG_DIR/data/qc-template-feedback.json` via `WORKSPACE_CONFIG_DIR` |
 | `public/company` | `$WORKSPACE_CONFIG_DIR/assets/brand/company` |
+| `public/assets/agent/avatar` | `$WORKSPACE_CONFIG_DIR/assets/agent/avatar` |
 
 These paths are excluded by deployment sync. A new machine should restore or create
 `WORKSPACE_CONFIG_DIR`, configure `.env` to point at it, and avoid creating a project-root
