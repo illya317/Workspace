@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "related_substances_numbered_rules": {
+    "azithromycin_related_substances": [
+      {
+        "type": "named_peak_multiple",
+        "name": "杂质B",
+        "comparison": "对照品溶液主峰面积",
+        "multiple": 4,
+        "limit": 2.0
+      },
+      {
+        "type": "corrected_named_peaks_multiple",
+        "names": ["杂质H", "杂质Q"],
+        "correction_factors": [0.1, 0.4],
+        "comparison": "对照溶液主峰面积",
+        "multiple": 2,
+        "limit": 1.0
+      },
+      {
+        "type": "other_single_peak_multiple",
+        "comparison": "对照溶液主峰面积",
+        "multiple": 2,
+        "limit": 1.0
+      },
+      {
+        "type": "total_corrected_peak_multiple",
+        "comparison": "对照溶液主峰面积",
+        "multiple": 8,
+        "limit": 4.0
+      }
+    ],
+    "levofloxacin_related_substances": [
+      {
+        "type": "external_standard_limit",
+        "name": "杂质A",
+        "detection": "238nm",
+        "subject": "标示量",
+        "limit": 0.3
+      },
+      {
+        "type": "peak_area_multiple_limit",
+        "label": "其他单个杂质（294nm检测）峰面积",
+        "comparison": "对照溶液主峰面积",
+        "multiple": 1.5,
+        "limit": 0.3
+      },
+      {
+        "type": "peak_area_multiple_limit",
+        "label": "其他各杂质（294nm检测）峰面积的和",
+        "comparison": "对照溶液主峰面积",
+        "multiple": 3.5,
+        "limit": 0.7
+      }
+    ],
+    "spironolactone_related_substances": [
+      {
+        "type": "peak_area_multiple_limit",
+        "label": "254nm各杂质峰面积的和",
+        "comparison": "对照溶液（1）主峰面积",
+        "multiple": 1,
+        "limit": 1.0
+      },
+      {
+        "type": "named_external_standard_limit",
+        "detection": "283nm",
+        "name": "坎利酮杂质",
+        "subject": "螺内酯标示量",
+        "limit": 1.0
+      },
+      {
+        "type": "multi_wavelength_total_limit",
+        "wavelengths": ["254nm", "283nm"],
+        "limit": 1.0
+      }
+    ]
+  }
+}

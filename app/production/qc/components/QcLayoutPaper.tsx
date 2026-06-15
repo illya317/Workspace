@@ -92,15 +92,32 @@ function ProjectHeader({ block, test }: { block: QcLayoutBlock; test?: Props["te
 
 function EnvironmentTable({ block }: { block: NumberedBlock }) {
   const prefix = block.fieldPrefix || "layout/environment";
+  const rowCount = block.roomRows || 1;
+  const cell = (rawText: string, width: string, parts: QcLayoutPart[] = []): QcLayoutCell => ({
+    rawText,
+    parts,
+    colspan: 1,
+    rowspan: 1,
+    isEmpty: false,
+    align: "center",
+    width,
+  });
+  const rows = Array.from({ length: rowCount }, (_, index) => {
+    const rowNo = index + 1;
+    return [
+      cell("房间名称", "12%"),
+      cell("", "13%", [{ type: "line", fieldKey: `${prefix}/room_name_${rowNo}`, width: "6.5rem" }]),
+      cell("房间编号", "12%"),
+      cell("", "13%", [{ type: "line", fieldKey: `${prefix}/room_no_${rowNo}`, width: "6.5rem" }]),
+      cell("温度", "10%"),
+      cell("", "15%", [{ type: "line", fieldKey: `${prefix}/temperature_${rowNo}`, width: "4.5rem" }, { type: "text", text: "℃" }]),
+      cell("湿度", "10%"),
+      cell("", "15%", [{ type: "line", fieldKey: `${prefix}/humidity_${rowNo}`, width: "4.5rem" }, { type: "text", text: "%" }]),
+    ];
+  });
   return <TableBlock block={{ ...block, rows: [
     [{ rawText: `${block.displaySection ? `${block.displaySection} ` : ""}${block.title || "实验环境"}：温度：${block.temperatureRange || "10℃～30℃"}，湿度${block.humidityLimit || "≤75%"}`, parts: [], colspan: 8, rowspan: 1, isEmpty: false, bold: true, align: "left" }],
-    ["房间名称", "", "房间编号", "", "温度", "℃", "湿度", "%"].map((text, index) => ({
-      rawText: text,
-      parts: text ? [] : [{ type: "line", fieldKey: `${prefix}/field_${index}`, width: "7rem" }],
-      colspan: 1,
-      rowspan: 1,
-      isEmpty: false,
-    })),
+    ...rows,
   ] }} />;
 }
 
