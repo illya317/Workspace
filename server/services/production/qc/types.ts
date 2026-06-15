@@ -127,6 +127,34 @@ export interface QcTemplateDetail {
   layoutAssignmentCount: number;
 }
 
+export type QcTemplateFeedbackItemType = "precheck" | "experiment" | "test";
+
+export interface QcTemplateFeedbackContext {
+  productKey: string;
+  productName: string;
+  stageKey?: string;
+  stageLabel?: string;
+  itemType: QcTemplateFeedbackItemType;
+  sequence?: string;
+  testName?: string;
+  testNameEn?: string;
+  methodName?: string;
+  layoutKey?: string;
+  templateId?: string;
+}
+
+export interface QcTemplateFeedbackItem {
+  key: string;
+  context: QcTemplateFeedbackContext;
+  note: string;
+  updatedAt: string;
+}
+
+export interface QcTemplateFeedbackList {
+  items: QcTemplateFeedbackItem[];
+  keys: string[];
+}
+
 export type QcBatchStatus = "draft" | "submitted";
 
 export interface QcBatchSummary {

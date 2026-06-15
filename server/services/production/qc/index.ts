@@ -8,6 +8,12 @@ export {
   submitQcBatch,
   updateQcBatch,
 } from "./batches";
+export {
+  getQcTemplateFeedback,
+  listQcTemplateFeedback,
+  qcTemplateFeedbackKey,
+  saveQcTemplateFeedback,
+} from "./template-feedback";
 export type {
   QcBatchCreateInput,
   QcBatchList,
@@ -17,6 +23,9 @@ export type {
   QcMethodSummary,
   QcProductSummary,
   QcTemplateDetail,
+  QcTemplateFeedbackContext,
+  QcTemplateFeedbackItem,
+  QcTemplateFeedbackList,
   QcTemplateStage,
   QcTemplateTestItem,
   QcRecordTemplateSummary,

@@ -68,6 +68,8 @@
 | `/api/finance/cost/*` | DELETE | `finance.cost.delete` |
 | `/api/production/qc/config` | GET | `production.qc.access` |
 | `/api/production/qc/templates/[templateId]` | GET | `production.qc.templates.access` |
+| `/api/production/qc/template-feedback` | GET | `production.qc.templates.access` |
+| `/api/production/qc/template-feedback` | POST | `production.qc.templates.write` |
 | `/api/production/qc/batches` | GET | `production.qc.batches.access` |
 | `/api/production/qc/batches` | POST | `production.qc.batches.write` |
 | `/api/production/qc/batches/[batchId]` | GET | `production.qc.batches.access` |
