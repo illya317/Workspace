@@ -77,6 +77,9 @@ rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
   --exclude='.env' \
   --exclude='.env.*' \
   --exclude='data/dev.db' \
+  --exclude='data/qc-batches.json' \
+  --exclude='data/qc-template-feedback.json' \
+  --exclude='public/company' \
   --exclude='public/company/' \
   --exclude='.DS_Store' \
   ./ "$SERVER:$REMOTE_DIR/"

@@ -53,7 +53,7 @@ npm run dev
 1. 本地确认在 `main` 分支且工作区干净。
 2. 本地运行 `npx tsc --noEmit`。
 3. 比较本地和服务器的 `package.json` + `package-lock.json` 内容哈希。
-4. rsync 同步源码到 `REMOTE_DIR`，排除 `.env`、`data/dev.db`、`public/company/`、`node_modules/`、`.next/` 等运行态文件。
+4. rsync 同步源码到 `REMOTE_DIR`，排除 `.env`、`data/dev.db`、`data/qc-*.json`、`public/company`、`node_modules/`、`.next/` 等运行态文件。
 5. 服务器端构建：
    - 依赖清单变化或服务器没有 `node_modules` 时运行 `npm ci`。
    - 依赖清单未变化时跳过 `npm ci`，复用服务器 `node_modules`。

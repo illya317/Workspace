@@ -15,6 +15,23 @@
 3. **Run `npm run env:check` before committing** to verify local `.env` is healthy. This is also enforced by the pre-commit hook.
 4. **Production secrets belong in the deployment platform** (not in the repo).
 
+## Local Runtime State
+
+Local files that are useful for one workstation but should not be committed live under
+`WORKSPACE_CONFIG_DIR` (currently `/Users/koito/Desktop/workspace/.workspace`) and are symlinked
+back into the repo when the local Next.js/Prisma tooling expects the historical paths.
+
+| Repo path | Local source of truth |
+|-----------|-----------------------|
+| `.env` | `$WORKSPACE_CONFIG_DIR/.env` |
+| `data/dev.db` | `$WORKSPACE_CONFIG_DIR/data/dev.db` |
+| `data/qc-batches.json` | `$WORKSPACE_CONFIG_DIR/data/qc-batches.json` |
+| `data/qc-template-feedback.json` | `$WORKSPACE_CONFIG_DIR/data/qc-template-feedback.json` |
+| `public/company` | `$WORKSPACE_CONFIG_DIR/assets/brand/company` |
+
+These paths are excluded by deployment sync. A new machine should restore or create
+`WORKSPACE_CONFIG_DIR`, then recreate the symlinks before local development or manual deployment.
+
 ## Required Variables
 
 ### `NEXTAUTH_SECRET`
