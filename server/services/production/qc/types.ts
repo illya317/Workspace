@@ -126,6 +126,8 @@ export interface QcLayoutBlock {
   rows?: QcLayoutCell[][];
   parts?: QcLayoutPart[];
   devices?: Array<{ name: string; status?: string }>;
+  materials?: Array<{ name: string }>;
+  standards?: Array<{ name: string }>;
   items?: string[];
   temperatureRange?: string;
   humidityLimit?: string;

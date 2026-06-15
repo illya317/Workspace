@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcTemplateTestItem } from "@/server/services/production/qc";
 import { QcPaperChoiceInput, QcPaperLineInput, QcPaperSelectInput } from "./QcPaperInputs";
 import { Part, TableBlock, type LayoutRenderContext } from "./QcLayoutTable";
+import QcConfirmationTable from "./QcConfirmationTable";
 import { useQcFormulaEngine, type QcFieldValues } from "./useQcFormulaEngine";
 
 interface Props {
@@ -153,6 +154,8 @@ function RenderBlock({ block, context }: {
   if (block.type === "project_header") return <ProjectHeader block={block} context={context} />;
   if (block.type === "environment_table") return <EnvironmentTable block={block} context={context} />;
   if (block.type === "equipment_table") return <EquipmentTable block={block} context={context} />;
+  if (block.type === "materials_table") return <QcConfirmationTable block={block} context={context} fallback="试验材料" items={block.materials || []} prefix={block.fieldPrefix || "layout/common/materials"} nameHeader="试验材料" />;
+  if (block.type === "reference_standard_table") return <QcConfirmationTable block={block} context={context} fallback="标准品" items={block.standards || []} prefix={block.fieldPrefix || "layout/common/reference_standards"} nameHeader="标准品" />;
   if (block.type === "title") return <Heading block={block} fallback="操作方法" />;
   if (block.type === "operation_text") return <p className="mb-5 [text-indent:2em] text-[15px] leading-8 text-slate-950">{block.text}</p>;
   if (block.type === "paragraph") return <p className="mb-3 text-[15px] leading-8 text-slate-950">{block.parts?.map((part, index) => <Part key={index} part={part} context={context} />)}</p>;

@@ -128,7 +128,7 @@ function paramString(params: Params, name: string) {
 
 function applyBlockParams(block: Record<string, unknown>, params: Params) {
   const overrideKeys = [
-    "temperature_range", "humidity_limit", "room_rows", "devices", "items", "field_prefix",
+    "temperature_range", "humidity_limit", "room_rows", "devices", "materials", "standards", "items", "field_prefix",
     "section_suffix", "section_role", "section_ref", "section_anchor", "has_value", "auto_judgment",
     "conclusion_name", "unit", "order", "module_order",
   ];
@@ -140,6 +140,8 @@ function applyBlockParams(block: Record<string, unknown>, params: Params) {
 function mapBlock(value: unknown, params: Params = {}): QcLayoutBlock | null {
   const raw = applyBlockParams(asRecord(value), params);
   const type = asString(raw.type, "table");
+  const rawSectionSuffix = asString(raw.section_suffix || raw.sectionSuffix);
+  const sectionSuffix = type === "reference_standard_table" && asString(params.pre_method_materials_variant) === "none" && rawSectionSuffix === "4" ? "3" : rawSectionSuffix || undefined;
   const rows = asArray(raw.rows).map((row) => asArray(asRecord(row).cells).map((cell) => mapCell(cell, params)));
   if (type === "table" && rows.length === 0) return null;
   return {
@@ -147,7 +149,7 @@ function mapBlock(value: unknown, params: Params = {}): QcLayoutBlock | null {
     label: asString(raw.label) || undefined,
     title: asString(raw.title || raw.text) || undefined,
     text: asString(raw.text || raw.fixed_text) || undefined,
-    sectionSuffix: asString(raw.section_suffix || raw.sectionSuffix) || undefined,
+    sectionSuffix,
     sectionRole: asString(raw.section_role || raw.sectionRole) || undefined,
     sectionRef: asString(raw.section_ref || raw.sectionRef) || undefined,
     sectionAnchor: asBoolean(raw.section_anchor ?? raw.sectionAnchor),
@@ -158,6 +160,8 @@ function mapBlock(value: unknown, params: Params = {}): QcLayoutBlock | null {
       const data = asRecord(device);
       return { name: asString(data.name, "仪器、设备"), status: asString(data.status) || undefined };
     }),
+    materials: asArray(raw.materials).map((material) => ({ name: asString(asRecord(material).name || material, "试验材料") })),
+    standards: asArray(raw.standards).map((standard) => ({ name: asString(asRecord(standard).name || standard, "对照品") })),
     items: asArray(raw.items).map((item) => asString(asRecord(item).text || asRecord(item).name || item)).filter(Boolean),
     temperatureRange: paramString(raw, "temperature_range"),
     humidityLimit: paramString(raw, "humidity_limit"),
