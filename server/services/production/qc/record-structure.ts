@@ -2,6 +2,7 @@ import "server-only";
 import path from "path";
 import { readdir, readFile } from "fs/promises";
 import { parse as parseYaml } from "yaml";
+import { loadQcLayoutBlocks } from "./layout-blocks";
 import { resolvePharmaOpsRoot } from "./source";
 import type {
   QcTemplateDetail,
@@ -198,6 +199,9 @@ export async function getQcTemplateDetail(templateId: string): Promise<QcTemplat
   const template = asRecord(rawTemplate);
   const stages = Object.entries(asRecord(template["阶段"]))
     .map(([key, stage]) => toStage(templateId, key, stage, methods, layouts));
+  await Promise.all(stages.flatMap((stage) => stage.tests.map(async (test) => {
+    test.layoutBlocks = await loadQcLayoutBlocks(source.configRoot, test.layout?.key);
+  })));
 
   return {
     source,

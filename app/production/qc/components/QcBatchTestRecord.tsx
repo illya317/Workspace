@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { QcBatchSummary, QcTemplateStage, QcTemplateTestItem } from "@/server/services/production/qc";
+import QcLayoutPaper from "./QcLayoutPaper";
 import QcMethodFieldTable from "./QcMethodFieldTable";
 
 interface Props {
@@ -61,8 +62,8 @@ export default function QcBatchTestRecord({ batch, productName, stage, test }: P
           </tbody>
         </table>
 
-        <div className="mb-3 text-sm font-semibold text-slate-950">实验数据</div>
-        <QcMethodFieldTable test={test} />
+        <div className="mb-3 text-sm font-semibold text-slate-950">实验记录</div>
+        {test.layoutBlocks?.length ? <QcLayoutPaper blocks={test.layoutBlocks} /> : <QcMethodFieldTable test={test} />}
 
         <div className="mt-8 text-center">
           <button className="rounded-md bg-blue-600 px-8 py-2 text-sm font-semibold text-white">保存</button>

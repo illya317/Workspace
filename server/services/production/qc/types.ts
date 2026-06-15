@@ -70,6 +70,32 @@ export interface QcTemplateLayoutAssignment {
   params: Record<string, unknown>;
 }
 
+export type QcLayoutPartType = "text" | "note" | "line" | "date" | "radio" | "checkbox";
+
+export interface QcLayoutPart {
+  type: QcLayoutPartType | string;
+  text?: string;
+  fieldKey?: string;
+  options?: string[];
+  width?: string;
+  withTime?: boolean;
+}
+
+export interface QcLayoutCell {
+  rawText: string;
+  parts: QcLayoutPart[];
+  colspan: number;
+  rowspan: number;
+  isEmpty: boolean;
+  className?: string;
+}
+
+export interface QcLayoutBlock {
+  type: "table" | string;
+  label?: string;
+  rows: QcLayoutCell[][];
+}
+
 export interface QcTemplateMethodField {
   name: string;
   group: string;
@@ -93,6 +119,7 @@ export interface QcTemplateTestItem {
   conclusionName?: string;
   hasNumericConclusion: boolean;
   layout?: QcTemplateLayoutAssignment;
+  layoutBlocks?: QcLayoutBlock[];
   methodFile?: string;
   methodGroups: QcTemplateMethodGroup[];
 }
