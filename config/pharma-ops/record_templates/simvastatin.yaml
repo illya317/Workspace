@@ -175,7 +175,7 @@
       附加说明参数:
         items:
         - 图谱
-      方法: 含量均匀度
+      方法: 含量均匀度简表
       结论判定:
         value_field: A_2.2S
         unit: ''
@@ -355,7 +355,7 @@
         - 流动相
         - 溶剂Ⅰ
         - 色谱柱
-      方法: 含量均匀度
+      方法: 含量均匀度简表
       标准品模板: standard_reference_list
       标准品参数:
         items:
@@ -469,7 +469,7 @@
       清场模板: standard_cleanup
       结论名称: 含量
       结论含数值: true
-      方法: HPLC
+      方法: HPLC简表
       结论判定:
         value_field: 平均含量
         unit: '%'

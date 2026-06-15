@@ -450,7 +450,7 @@
         items:
         - 流动相
         - 色谱柱
-      方法: HPLC
+      方法: HPLC简表
       结论判定:
         value_field: 平均含量
         unit: '%'

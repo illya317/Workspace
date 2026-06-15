@@ -1,4 +1,47 @@
 methods:
+  HPLC简表:
+    色谱:
+    - name: 对照1-峰面积
+      type: number
+      attr: fillable
+    - name: 对照2-峰面积
+      type: number
+      attr: fillable
+    - name: 对照平均峰面积
+      type: number
+      attr: fillable
+    - name: 对照RSD
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 样1-峰面积
+      type: number
+      attr: fillable
+    - name: 样1-平均峰面积
+      type: number
+      attr: fillable
+    - name: 样1-含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 样2-峰面积
+      type: number
+      attr: fillable
+    - name: 样2-平均峰面积
+      type: number
+      attr: fillable
+    - name: 样2-含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: 平均含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: RD
+      unit: '%'
+      type: number
+      attr: fillable
   HPLC:
     称重:
     - name: 对照含量
@@ -104,6 +147,25 @@ methods:
       attr: fillable
     - name: RD
       unit: '%'
+      type: number
+      attr: fillable
+  含量均匀度简表:
+    测定:
+    - repeat:
+        count: 10
+        fields:
+        - name: 样{序号}-含量
+          unit: '%'
+          type: number
+          attr: fillable
+    - name: 平均含量
+      unit: '%'
+      type: number
+      attr: fillable
+    - name: S
+      type: number
+      attr: fillable
+    - name: A_2.2S
       type: number
       attr: fillable
   含量均匀度:

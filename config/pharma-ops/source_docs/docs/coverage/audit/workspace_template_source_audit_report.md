@@ -1,8 +1,8 @@
 # Workspace QC 模板-真源 MD 审计报告
 
-生成时间：2026-06-15T16:23:40.861Z
+生成时间：2026-06-15T16:29:13.396Z
 产品数：16
-问题信号数：810
+问题信号数：594
 
 ## 别嘌醇片 (allopurinol)
 
@@ -28,7 +28,7 @@
 
 ### 成品
 - 2.3 有关物质 [parents/related_substances_hplc_full]：计算字段未见 JSON 回填：单杂；公式引用输入未见 JSON 字段：单杂 <= 供试品单杂峰面积
-- 2.7 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.7.5.1 missing before 2.7.5.2；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.7 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.7.5.1 missing before 2.7.5.2
 - 2.8 微生物限度检查 [parents/microbiology_limit_full]：JSON 渲染标题不连续：2.8.2→7，2.8.9.1.1 missing before 2.8.9.1.7，2.8.9.2.1 missing before 2.8.9.2.4；JSON 缺 MD 标题：2.8.3 仪器、设备 (heading)；2.8.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)；2.8.5 仪器、设备 (heading)；2.8.6 检验用具 (heading)；2.8.9.1.1 菌液制备 (heading)；2.8.9.1.2 供试品制备 (heading)；2.8.9.1.3 阳性对照试验 (heading)；2.8.9.1.4 阴性对照试验 (heading)；2.8.9.1.5 培养 (heading)；2.8.9.1.6 试验成立条件 (heading)；2.8.9.2.1 供试品制备 (heading)；2.8.9.2.2 阴性对照 (heading)；2.8.9.2.3 培养 (heading)；计算字段未见 JSON 回填：平均菌落数，需氧菌总数，平均菌落数，霉菌酵母菌总数；公式引用输入未见 JSON 字段：平均菌落数 <= 菌落数1，平均菌落数 <= 菌落数2
 
 ## 阿奇霉素胶囊 (azithromycin)
@@ -37,11 +37,11 @@
 
 ### 待包装品
 - 2.2 溶出度 [parents/dissolution_full]：JSON 渲染标题不连续：2.2.5.1 missing before 2.2.5.2
-- 2.3 含量 [parents/hplc_content_full]：MD 子标题不连续：2.3.5.1 missing before 2.3.5.2；JSON 渲染标题不连续：2.3.5.1 missing before 2.3.5.2；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.3 含量 [parents/hplc_content_full]：MD 子标题不连续：2.3.5.1 missing before 2.3.5.2；JSON 渲染标题不连续：2.3.5.1 missing before 2.3.5.2
 
 ### 成品
 - 2.4 溶出度 [parents/dissolution_full]：JSON 渲染标题不连续：2.4.5.1 missing before 2.4.5.2
-- 2.6 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.6.5.1 missing before 2.6.5.2；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.6 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.6.5.1 missing before 2.6.5.2
 - 2.7 微生物限度检查 [parents/microbiology_limit_full]：MD 子标题不连续：2.7.12→14；JSON 渲染标题不连续：2.7.2→7，2.7.9.1.1 missing before 2.7.9.1.7，2.7.9.2.1 missing before 2.7.9.2.4；JSON 缺 MD 标题：2.7.3 仪器、设备 (heading)；2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)；2.7.5 仪器、设备 (heading)；2.7.6 检验用具 (heading)；2.7.9.1.1 菌液制备 (heading)；2.7.9.1.2 试验准备 (heading)；2.7.9.1.3 供试品制备 (heading)；2.7.9.1.4 阳性对照制备 (heading)；2.7.9.1.5 阴性对照试验 (heading)；2.7.9.1.6 培养 (heading)；2.7.9.1.8 观察结果 (heading)；2.7.9.2.1 试验准备 (heading)；2.7.9.2.2 供试品制备 (heading)；2.7.9.2.3 阴性对照 (heading)；2.7.9.2.5 观察结果 (heading)；2.7.9.2.5.1 需氧菌观察记录 (heading)；2.7.9.2.5.2 霉菌和酵母菌观察记录 (heading)；计算字段未见 JSON 回填：平均菌落数，需氧菌总数，平均菌落数，霉菌酵母菌总数；公式引用输入未见 JSON 字段：平均菌落数 <= 菌落数1，平均菌落数 <= 菌落数2
 
 ## 鞣酸小檗碱片 (berberine_tannate)
@@ -69,7 +69,7 @@
 ### 成品
 - 2.3 有关物质 [parents/related_substances_hplc_full]：计算字段未见 JSON 回填：总杂；公式引用输入未见 JSON 字段：总杂 <= 供试品总杂峰面积
 - 2.4 溶出度 [parents/dissolution_full]：JSON 渲染标题不连续：2.4.5.1 missing before 2.4.5.2
-- 2.6 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.6.5.1 missing before 2.6.5.2；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.6 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.6.5.1 missing before 2.6.5.2
 - 2.7 微生物限度检查 [parents/microbiology_limit_full]：JSON 渲染标题不连续：2.7.2→7，2.7.9.1.1 missing before 2.7.9.1.7，2.7.9.2.1 missing before 2.7.9.2.4；JSON 缺 MD 标题：2.7.3 仪器、设备 (heading)；2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)；2.7.5 仪器、设备 (heading)；2.7.6 检验用具 (heading)；2.7.9.1.1 菌液制备 (heading)；2.7.9.1.2 试验准备 (heading)；2.7.9.1.3 供试品制备 (heading)；2.7.9.1.4 阳性对照制备 (heading)；2.7.9.1.5 阴性对照试验 (heading)；2.7.9.1.6 培养 (heading)；2.7.9.1.8 观察结果 (heading)；2.7.9.2.1 试验准备 (heading)；2.7.9.2.2 供试品制备 (heading)；2.7.9.2.3 阴性对照 (heading)；2.7.9.2.5 观察结果 (heading)；2.7.9.2.5.1 需氧菌观察记录 (heading)；2.7.9.2.5.2 霉菌和酵母菌观察记录 (heading)；计算字段未见 JSON 回填：平均菌落数，需氧菌总数，平均菌落数，霉菌酵母菌总数；公式引用输入未见 JSON 字段：平均菌落数 <= 菌落数1，平均菌落数 <= 菌落数2
 
 ## 复方芦丁片 (compound_rutin)
@@ -104,12 +104,12 @@
 - 2.3 含量 [parents/hplc_content_full]：MD 子标题不连续：2.3.5.1 missing before 2.3.5.2
 
 ### 待包装品
-- 2.3 含量均匀度 [parents/content_uniformity_hplc_full]：MD 子标题不连续：2.3.5.1 missing before 2.3.5.2；JSON 渲染标题不连续：2.3.5.1 missing before 2.3.5.2；计算字段未见 JSON 回填：对照1-净重，对照2-净重，样1-净重，样2-净重；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.3 含量均匀度 [parents/content_uniformity_hplc_full]：MD 子标题不连续：2.3.5.1 missing before 2.3.5.2；JSON 渲染标题不连续：2.3.5.1 missing before 2.3.5.2
 - 2.4 含量 [parents/hplc_content_full]：MD 子标题不连续：2.4.5.1 missing before 2.4.5.2
 
 ### 成品
 - 2.3 有关物质 [parents/related_substances_hplc_full]：MD 子标题不连续：2.3.5.1 missing before 2.3.5.2
-- 2.5 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.5.5.1 missing before 2.5.5.2；计算字段未见 JSON 回填：对照1-净重，对照2-净重，样1-净重，样2-净重；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.5 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.5.5.1 missing before 2.5.5.2
 - 2.8 微生物限度检查 [parents/microbiology_limit_full]：MD 子标题不连续：2.8.5→7，2.8.12→14；JSON 渲染标题不连续：2.8.2→7，2.8.9.1.1 missing before 2.8.9.1.7，2.8.9.2.1 missing before 2.8.9.2.4；JSON 缺 MD 标题：2.8.3 仪器、设备 (heading)；2.8.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)；2.8.5 仪器、设备是否在校验有效期内 (inline)；2.8.9.1.1 菌液制备 (heading)；2.8.9.1.2 供试品制备 (heading)；2.8.9.1.3 阳性对照试验 (heading)；2.8.9.1.4 阴性对照试验 (heading)；2.8.9.1.5 培养 (heading)；2.8.9.1.6 试验成立条件 (heading)；2.8.9.2.1 供试品制备 (heading)；2.8.9.2.2 阴性对照 (heading)；2.8.9.2.3 培养 (heading)；计算字段未见 JSON 回填：平均菌落数，需氧菌总数，平均菌落数，霉菌酵母菌总数；公式引用输入未见 JSON 字段：平均菌落数 <= 菌落数1，平均菌落数 <= 菌落数2
 
 ## 硝酸异山梨酯片 (isosorbide_dinitrate)
@@ -118,13 +118,13 @@
 - 2.3 含量 [parents/hplc_content_full]：MD 子标题不连续：2.3.5.1 missing before 2.3.5.2
 
 ### 待包装品
-- 2.2 含量均匀度 [parents/content_uniformity_hplc_full]：MD 子标题不连续：2.2.5.1 missing before 2.2.5.2；JSON 渲染标题不连续：2.2.5.1 missing before 2.2.5.2；计算字段未见 JSON 回填：对照1-净重，对照2-净重，样1-净重，样2-净重；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.2 含量均匀度 [parents/content_uniformity_hplc_full]：MD 子标题不连续：2.2.5.1 missing before 2.2.5.2；JSON 渲染标题不连续：2.2.5.1 missing before 2.2.5.2
 - 2.3 溶出度 [parents/dissolution_full]：MD 子标题不连续：2.3.7→9；JSON 渲染标题不连续：2.3.5.1 missing before 2.3.5.2
 
 ### 成品
-- 2.3 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.3.5.1 missing before 2.3.5.2；计算字段未见 JSON 回填：对照1-净重，对照2-净重，样1-净重，样2-净重；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.3 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.3.5.1 missing before 2.3.5.2
 - 2.4 溶出度 [parents/dissolution_full]：JSON 渲染标题不连续：2.4.5.1 missing before 2.4.5.2
-- 2.6 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.6.5.1 missing before 2.6.5.2；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.6 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.6.5.1 missing before 2.6.5.2
 - 2.7 微生物限度检查 [parents/microbiology_limit_full]：MD 子标题不连续：2.7.5→7；JSON 渲染标题不连续：2.7.2→7，2.7.9.1.1 missing before 2.7.9.1.7，2.7.9.2.1 missing before 2.7.9.2.4；JSON 缺 MD 标题：2.7.3 仪器、设备 (heading)；2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)；2.7.5 仪器、设备是否在校验有效期内 (inline)；2.7.9.1.1 菌液制备 (heading)；2.7.9.1.2 供试品制备 (heading)；2.7.9.1.3 阳性对照试验 (heading)；2.7.9.1.4 阴性对照试验 (heading)；2.7.9.1.5 培养 (heading)；2.7.9.1.6 试验成立条件 (heading)；2.7.9.2.1 供试品制备 (heading)；2.7.9.2.2 阴性对照 (heading)；2.7.9.2.3 培养 (heading)；计算字段未见 JSON 回填：平均菌落数，需氧菌总数，平均菌落数，霉菌酵母菌总数；公式引用输入未见 JSON 字段：平均菌落数 <= 菌落数1，平均菌落数 <= 菌落数2
 
 ## 盐酸左氧氟沙星胶囊 (levofloxacin)
@@ -144,12 +144,12 @@
 - 2.3 含量 [parents/hplc_content_full]：MD 子标题不连续：2.3.4→6；JSON 缺 MD 标题：2.3.9 结论 (heading)
 
 ### 待包装品
-- 2.3 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.3.4.1 missing before 2.3.4.2；JSON 缺 MD 标题：2.3.4.1 称重 (heading)；2.3.4.2.1 对照品计算 (inline)；2.3.4.2.2 供试品计算 (inline)；计算字段未见 JSON 回填：对照1-净重，对照2-净重，样1-净重，样2-净重；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.3 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.3.4.1 missing before 2.3.4.2；JSON 缺 MD 标题：2.3.4.1 称重 (heading)；2.3.4.2.1 对照品计算 (inline)；2.3.4.2.2 供试品计算 (inline)
 - 2.4 含量 [parents/hplc_content_full]：MD 子标题不连续：2.4.3→5；JSON 渲染标题不连续：2.4.4.1 missing before 2.4.4.2；JSON 缺 MD 标题：2.4.9 结论 (heading)
 
 ### 成品
 - 2.2 鉴别 [parents/identification_full]：MD 子标题不连续：2.2.7→9；JSON 缺 MD 标题：2.2.4.1 取本品 片（2片），加热乙醇 ml（10ml），研磨 分钟（10分钟），滤过，滤液置水浴上蒸干，加水 ml（5ml）溶解，量取 ml（1ml）置10ml试管中，加氢氧化钠试液 ml（1ml），摇匀，滴加亚硝基铁氰化钠试液 滴（3滴），即显_____色（黄色）； 分钟（1～5分钟）后，转为______（黄绿色或绿色）；再加醋酸_____ml（1ml），即呈_____（蓝色）。 (heading)；2.2.4.2 取含量均匀度项下的供试品溶液，照紫外-可见分光光度法（通则0401）测定，在_____nm（252mn±2nm）的波长处有最大吸收。 (heading)；2.2.9 原始数据 (heading)
-- 2.4 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.4.4.1 missing before 2.4.4.2；计算字段未见 JSON 回填：对照1-净重，对照2-净重，样1-净重，样2-净重；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.4 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.4.4.1 missing before 2.4.4.2
 - 2.6 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.6.4.1 missing before 2.6.4.2
 - 2.7 微生物限度检查 [parents/microbiology_limit_full]：MD 子标题不连续：2.7.12→14；JSON 渲染标题不连续：2.7.2→7，2.7.9.1.1 missing before 2.7.9.1.7，2.7.9.2.1 missing before 2.7.9.2.4；JSON 缺 MD 标题：2.7.3 仪器、设备 (heading)；2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)；2.7.5 仪器、设备 (heading)；2.7.6 检验用具 (heading)；2.7.9.1.1 菌液制备 (heading)；2.7.9.1.2 供试品制备 (heading)；2.7.9.1.3 阳性对照试验 (heading)；2.7.9.1.4 阴性对照试验 (heading)；2.7.9.1.5 培养 (heading)；2.7.9.1.6 试验成立条件 (heading)；2.7.9.2.1 供试品制备 (heading)；2.7.9.2.2 阴性对照 (heading)；2.7.9.2.3 培养 (heading)；计算字段未见 JSON 回填：平均菌落数，需氧菌总数，平均菌落数，霉菌酵母菌总数；公式引用输入未见 JSON 字段：平均菌落数 <= 菌落数1，平均菌落数 <= 菌落数2
 
@@ -172,15 +172,15 @@
 ### 中间体
 
 ### 待包装品
-- 2.2 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.2.5.1 missing before 2.2.5.2；JSON 缺 MD 标题：2.2.5.1 称重 (heading)；计算字段未见 JSON 回填：对照1-净重，对照2-净重，样1-净重，样2-净重；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.2 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.2.5.1 missing before 2.2.5.2；JSON 缺 MD 标题：2.2.5.1 称重 (heading)
 - 2.3 溶出度 [parents/dissolution_full]：JSON 渲染标题不连续：2.3.5.1 missing before 2.3.5.2
 
 ### 成品
 - 2.2 鉴别 [parents/identification_full]：JSON 缺 MD 标题：2.2.5.1 在含量测定项下记录的色谱图中，供试品溶液主峰的保留时间与对照品溶液主峰的保留时间 （一致）。 (heading)；2.2.5.2 取含量项下细粉 mg(约相当于辛伐他汀10mg)置 ml(100ml)量瓶中，加溶剂Ⅰ适量,振摇使辛伐他汀溶解并稀释至刻度，摇匀，滤过，再精密量取续滤液 ml（5ml）置 ml（50ml）量瓶中制成1ml中约含辛伐他汀10μg的溶液，照紫外-分光光度法（通则0401）测定，在_____nm（231±2nm）、 nm（238±2nm）与 nm（247±2nm）的波长处有最大吸收。 (heading)；2.2.9 结论 (heading)；2.2.10 原始数据 (heading)
-- 2.3 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.3.5.1 missing before 2.3.5.2；计算字段未见 JSON 回填：对照1-净重，对照2-净重，样1-净重，样2-净重；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.3 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.3.5.1 missing before 2.3.5.2
 - 2.4 有关物质 [parents/related_substances_hplc_full]：JSON 渲染标题不连续：2.4.5.1 missing before 2.4.5.2
 - 2.5 溶出度 [parents/dissolution_full]：JSON 渲染标题不连续：2.5.5.1 missing before 2.5.5.2
-- 2.6 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.6.5.1 missing before 2.6.5.2；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.6 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.6.5.1 missing before 2.6.5.2
 - 2.7 微生物限度检查 [parents/microbiology_limit_full]：MD 子标题不连续：2.7.3→5，2.7.5→7，2.7.12→14；JSON 渲染标题不连续：2.7.2→7，2.7.9.1.1 missing before 2.7.9.1.7，2.7.9.2.1 missing before 2.7.9.2.4；JSON 缺 MD 标题：2.7.3 仪器、设备 (heading)；2.7.5 仪器、设备是否在校验有效期内 (inline)；2.7.9.1.1 菌液制备 (heading)；2.7.9.1.2 供试品制备 (heading)；2.7.9.1.3 阳性对照试验 (heading)；2.7.9.1.4 阴性对照试验 (heading)；2.7.9.1.5 培养 (heading)；2.7.9.1.6 试验成立条件 (heading)；2.7.9.2.1 供试品制备 (heading)；2.7.9.2.2 阴性对照 (heading)；2.7.9.2.3 培养 (heading)；计算字段未见 JSON 回填：平均菌落数，需氧菌总数，平均菌落数，霉菌酵母菌总数；公式引用输入未见 JSON 字段：平均菌落数 <= 菌落数1，平均菌落数 <= 菌落数2
 
 ## 螺内酯片 (spironolactone)
@@ -188,13 +188,13 @@
 ### 中间体
 
 ### 待包装品
-- 2.2 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.2.5.1 missing before 2.2.5.2；JSON 缺 MD 标题：2.2.5.1 对照称样 (heading)；计算字段未见 JSON 回填：对照1-净重，对照2-净重，样1-净重，样2-净重；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.2 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.2.5.1 missing before 2.2.5.2；JSON 缺 MD 标题：2.2.5.1 对照称样 (heading)
 - 2.3 溶出度 [parents/dissolution_full]：MD 子标题不连续：2.3.3→5，2.3.7→9；JSON 缺 MD 标题：2.3.10 原始数据 (heading)
-- 2.4 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.4.5.1 missing before 2.4.5.2；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.4 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.4.5.1 missing before 2.4.5.2
 
 ### 成品
 - 2.3 有关物质 [parents/related_substances_hplc_full]：MD 子标题不连续：2.3.5.1 missing before 2.3.5.2
-- 2.4 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.4.5.1 missing before 2.4.5.2；计算字段未见 JSON 回填：对照1-净重，对照2-净重，样1-净重，样2-净重；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.4 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.4.5.1 missing before 2.4.5.2
 - 2.8 微生物限度检查 [parents/microbiology_limit_full]：MD 子标题不连续：2.8.5→7，2.8.12→14，2.8.9.1.1 missing before 2.8.9.1.2；JSON 渲染标题不连续：2.8.2→7，2.8.9.1.1 missing before 2.8.9.1.7，2.8.9.2.1 missing before 2.8.9.2.4；JSON 缺 MD 标题：2.8.3 仪器、设备 (heading)；2.8.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)；2.8.5 仪器、设备是否在校验有效期内 (inline)；2.8.9.1.2 供试品制备 (heading)；2.8.9.1.3 阳性对照试验 (heading)；2.8.9.1.4 阴性对照试验 (heading)；2.8.9.1.5 培养 (heading)；2.8.9.1.6 试验成立条件 (heading)；2.8.9.2.1 供试品制备 (heading)；2.8.9.2.2 阴性对照 (heading)；2.8.9.2.3 培养 (heading)；计算字段未见 JSON 回填：平均菌落数，需氧菌总数，平均菌落数，霉菌酵母菌总数；公式引用输入未见 JSON 字段：平均菌落数 <= 菌落数1，平均菌落数 <= 菌落数2
 
 ## 盐酸特拉唑嗪 胶囊 (terazosin)
@@ -202,13 +202,13 @@
 ### 中间体
 
 ### 待包装品
-- 2.2 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.2.5.1 missing before 2.2.5.2；计算字段未见 JSON 回填：对照1-净重，对照2-净重，样1-净重，样2-净重；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
-- 2.4 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.4.5.1 missing before 2.4.5.2；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.2 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.2.5.1 missing before 2.2.5.2
+- 2.4 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.4.5.1 missing before 2.4.5.2
 
 ### 成品
 - 2.2 鉴别 [parents/identification_full]：JSON 缺 MD 标题：2.2.9 原始数据 (heading)
-- 2.4 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.4.5.1 missing before 2.4.5.2；计算字段未见 JSON 回填：对照1-净重，对照2-净重，样1-净重，样2-净重；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
-- 2.6 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.6.5.1 missing before 2.6.5.2；公式引用输入未见 JSON 字段：对照1-净重 <= 对照1-毛重，对照1-净重 <= 对照1-皮重，对照2-净重 <= 对照2-毛重，对照2-净重 <= 对照2-皮重，样1-净重 <= 样1-毛重，样1-净重 <= 样1-皮重，样2-净重 <= 样2-毛重，样2-净重 <= 样2-皮重
+- 2.4 含量均匀度 [parents/content_uniformity_hplc_full]：JSON 渲染标题不连续：2.4.5.1 missing before 2.4.5.2
+- 2.6 含量 [parents/hplc_content_full]：JSON 渲染标题不连续：2.6.5.1 missing before 2.6.5.2
 - 2.7 微生物限度检查 [parents/microbiology_limit_full]：JSON 渲染标题不连续：2.7.2→7，2.7.9.1.1 missing before 2.7.9.1.7，2.7.9.2.1 missing before 2.7.9.2.4；JSON 缺 MD 标题：2.7.3 仪器、设备 (heading)；2.7.4 进入人员、物品进入洁净区按《实验室洁净区进出标准操作规程》 (inline)；2.7.5 仪器、设备 (heading)；2.7.6 检验用具 (heading)；2.7.9.1.1 菌液制备 (heading)；2.7.9.1.2 供试品制备 (heading)；2.7.9.1.3 阳性对照试验 (heading)；2.7.9.1.4 阴性对照试验 (heading)；2.7.9.1.5 培养 (heading)；2.7.9.1.6 试验成立条件 (heading)；2.7.9.2.1 供试品制备 (heading)；2.7.9.2.2 阴性对照 (heading)；2.7.9.2.3 培养 (heading)
 
 ## 盐酸维拉帕米片 (verapamil)
