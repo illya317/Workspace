@@ -27,20 +27,43 @@ const EMPTY_TEST: QcTemplateTestItem = {
   methodGroups: [],
 };
 
-function numberBlocks(blocks: QcLayoutBlock[], sequence?: string): NumberedBlock[] {
+function joinSectionSuffix(base?: string, suffix?: string) {
+  if (!base) return suffix || "";
+  if (!suffix || suffix === "auto") return base;
+  return `${base}.${suffix}`;
+}
+
+function numberBlocks(blocks: QcLayoutBlock[], sequence?: string): { blocks: NumberedBlock[]; sectionAliases: Record<string, string> } {
   let maxSuffix = 0;
-  return blocks.map((block) => {
+  const sectionAliases: Record<string, string> = {};
+  for (const block of blocks) {
+    const role = block.sectionRole;
+    const suffix = block.sectionSuffix;
+    if (role && (block.sectionAnchor || !suffix || suffix === "auto")) {
+      sectionAliases[role] ||= suffix && suffix !== "auto" ? suffix : String(maxSuffix + 1);
+      const aliasNumber = Number(String(sectionAliases[role]).split(".")[0]);
+      if (Number.isFinite(aliasNumber)) maxSuffix = Math.max(maxSuffix, aliasNumber);
+      continue;
+    }
+    if (!block.sectionRef && suffix && /^\d+$/.test(suffix)) maxSuffix = Math.max(maxSuffix, Number(suffix));
+  }
+  return { sectionAliases, blocks: blocks.map((block) => {
     const suffix = block.sectionSuffix;
     let displaySection: string | undefined;
-    if (suffix && /^\d+$/.test(suffix)) {
-      maxSuffix = Math.max(maxSuffix, Number(suffix));
+    if (block.sectionRef) {
+      const nestedSuffix = joinSectionSuffix(sectionAliases[block.sectionRef], suffix);
+      displaySection = nestedSuffix ? sequence ? `${sequence}.${nestedSuffix}` : nestedSuffix : undefined;
+    } else if (block.sectionRole && (suffix === "auto" || block.sectionAnchor)) {
+      const alias = sectionAliases[block.sectionRole];
+      displaySection = alias ? sequence ? `${sequence}.${alias}` : alias : undefined;
+    } else if (suffix && /^\d+(?:\.\d+)*$/.test(suffix)) {
       displaySection = sequence ? `${sequence}.${suffix}` : suffix;
     } else if (suffix === "auto" || block.sectionAnchor) {
-      maxSuffix += 1;
-      displaySection = sequence ? `${sequence}.${maxSuffix}` : String(maxSuffix);
+      const next = String(maxSuffix + 1);
+      displaySection = sequence ? `${sequence}.${next}` : next;
     }
     return { ...block, displaySection };
-  });
+  }) };
 }
 
 function Heading({ block, fallback }: { block: NumberedBlock; fallback: string }) {
@@ -134,6 +157,22 @@ function RenderBlock({ block, context }: {
   if (block.type === "operation_text") return <p className="mb-5 [text-indent:2em] text-[15px] leading-8 text-slate-950">{block.text}</p>;
   if (block.type === "paragraph") return <p className="mb-3 text-[15px] leading-8 text-slate-950">{block.parts?.map((part, index) => <Part key={index} part={part} context={context} />)}</p>;
   if (block.type === "standard_text") return <PostSection block={block} title="标准规定">{test?.standardText || "YAML 未配置标准规定"}</PostSection>;
+  if (block.type === "attachment_upload") {
+    const key = block.fieldKey || "layout/raw_data/attachments";
+    return (
+      <PostSection block={block} title="原始数据">
+        <span>{block.text}</span>
+        <button type="button" className="ml-4 rounded border border-slate-400 px-3 py-1 text-sm" onClick={() => onFieldChange(key, values[key] || "待上传")}>
+          {block.buttonText || "上传"}
+        </button>
+        <input type="hidden" data-field-key={key} value={values[key] || ""} readOnly />
+      </PostSection>
+    );
+  }
+  if (block.type === "microbiology_cleanroom_exit") {
+    const key = block.fieldKey || "layout/microbiology/cleanroom_exit_confirmed";
+    return <PostSection block={block} title="清场"><span>{block.text}</span><span className="ml-8"><QcPaperChoiceInput fieldKey={key} value={values[key]} onChange={(value) => onFieldChange(key, value)} /></span></PostSection>;
+  }
   if (block.type === "abnormal_handling") return <PostSection block={block} title="实验结果异常处理"><QcPaperChoiceInput fieldKey={`${block.fieldPrefix || "layout/abnormal"}/occurred`} value={values[`${block.fieldPrefix || "layout/abnormal"}/occurred`]} onChange={(value) => onFieldChange(`${block.fieldPrefix || "layout/abnormal"}/occurred`, value)} /> <span className="ml-8">实验室异常情况编号</span><QcPaperLineInput part={{ type: "line", fieldKey: `${block.fieldPrefix || "layout/abnormal"}/code`, width: "14rem" }} value={values[`${block.fieldPrefix || "layout/abnormal"}/code`]} onChange={(value) => onFieldChange(`${block.fieldPrefix || "layout/abnormal"}/code`, value)} /></PostSection>;
   if (block.type === "cleanup_checklist") return <PostSection block={block} title="清场">{(test?.cleanupItems?.length ? test.cleanupItems : block.items || ["YAML 未配置清场项目"]).map((item, index) => {
     const key = `${block.fieldPrefix || "layout/cleanup"}/item_${index + 1}`;
@@ -153,14 +192,16 @@ export default function QcLayoutPaper({ blocks, compact, test, values: controlle
   const form = useQcFormulaEngine(engineTest);
   const values = controlledValues || form.values;
   const setValue = onFieldChange || form.setValue;
+  const numbered = numberBlocks(blocks, test?.sequence);
   const context: LayoutRenderContext = {
     test,
     values,
     onFieldChange: setValue,
     fieldByName: form.fieldByName,
     fieldByKey: form.fieldByKey,
+    sectionAliases: numbered.sectionAliases,
   };
-  const numberedBlocks = numberBlocks(blocks, test?.sequence);
+  const numberedBlocks = numbered.blocks;
   return (
     <div
       className={`${compact ? "max-h-[78vh] overflow-y-auto overflow-x-hidden pr-2" : ""} min-w-[1120px]`}

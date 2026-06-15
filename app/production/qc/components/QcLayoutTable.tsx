@@ -1,8 +1,10 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { useEffect } from "react";
 import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcTemplateMethodField, QcTemplateTestItem } from "@/server/services/production/qc";
-import { QcPaperChoiceInput, QcPaperDateInput, QcPaperLineInput, QcPaperSelectInput } from "./QcPaperInputs";
+import { QcPaperChoiceInput, QcPaperLineInput, QcPaperSelectInput, qcRangeError, qcRangeLabel } from "./QcPaperInputs";
+import { QcPaperDateInput } from "./QcPaperDateInput";
 import type { QcFieldValues } from "./useQcFormulaEngine";
 
 export interface LayoutRenderContext {
@@ -11,6 +13,7 @@ export interface LayoutRenderContext {
   onFieldChange: (key: string, value: string) => void;
   fieldByName: Map<string, QcTemplateMethodField>;
   fieldByKey: Map<string, QcTemplateMethodField>;
+  sectionAliases?: Record<string, string>;
 }
 
 function defaultValueForPart(part: QcLayoutPart, test?: QcTemplateTestItem) {
@@ -21,21 +24,108 @@ function defaultValueForPart(part: QcLayoutPart, test?: QcTemplateTestItem) {
 
 function resolvePartField(
   part: QcLayoutPart,
+  test: QcTemplateTestItem | undefined,
   fieldByName: Map<string, QcTemplateMethodField>,
   fieldByKey: Map<string, QcTemplateMethodField>,
 ) {
-  const field = part.field ? fieldByName.get(part.field) : undefined;
+  const occurrence = Math.max(1, part.occurrence || 1);
+  const fields = test?.methodGroups.flatMap((group) => group.fields) || [];
+  const matches = part.field ? fields.filter((candidate) => candidate.name === part.field) : [];
+  const field = part.field && occurrence > 1 ? matches[occurrence - 1] : part.field ? fieldByName.get(part.field) : undefined;
   const key = part.fieldKey || field?.fieldKey || part.field || part.name || "";
   return { key, field: fieldByKey.get(key) || field };
+}
+
+function parseDateValue(value?: string) {
+  const parts = String(value || "").slice(0, 10).split("-");
+  if (parts.length !== 3) return undefined;
+  const [year, month, day] = parts.map((part) => Number(part));
+  if (![year, month, day].every(Number.isFinite)) return undefined;
+  return Date.UTC(year, month - 1, day);
+}
+
+function parseDateHourValue(dateValue?: string, hourValue?: string) {
+  const date = parseDateValue(dateValue);
+  const hour = Number(String(hourValue || "").replace(/\D/g, ""));
+  if (date == null || !Number.isFinite(hour) || hour < 0 || hour > 23) return undefined;
+  return date + hour * 60 * 60 * 1000;
+}
+
+function durationValue(part: QcLayoutPart, values: QcFieldValues, unit: "days" | "hours") {
+  const startKey = part.startKey;
+  const endKey = part.endKey;
+  if (!startKey || !endKey) return "";
+  if (unit === "days") {
+    const start = parseDateValue(values[startKey]);
+    const end = parseDateValue(values[endKey]);
+    return start == null || end == null ? "" : String(Math.max(0, Math.round((end - start) / 86400000)));
+  }
+  const start = parseDateHourValue(values[startKey], values[part.startHourKey || `${startKey}_hour`]);
+  const end = parseDateHourValue(values[endKey], values[part.endHourKey || `${endKey}_hour`]);
+  return start == null || end == null ? "" : String(Math.max(0, Math.round((end - start) / 3600000)));
+}
+
+function DurationPart({ part, context, unit }: { part: QcLayoutPart; context: LayoutRenderContext; unit: "days" | "hours" }) {
+  const key = part.fieldKey || part.field || part.name || "";
+  const computed = durationValue(part, context.values, unit);
+  const value = computed || context.values[key] || "";
+  const error = qcRangeError(part, value);
+  useEffect(() => {
+    if (key && computed && context.values[key] !== computed) context.onFieldChange(key, computed);
+  }, [computed, context, key]);
+  return (
+    <span
+      data-field-key={key}
+      title={error}
+      className={`mx-1 inline-block min-w-[3em] text-center align-baseline ${error ? "text-red-700" : ""} ${value ? "" : "text-slate-400"}`}
+      style={{ width: part.width || "4em" }}
+    >
+      {value || part.placeholder || qcRangeLabel(part)}
+    </span>
+  );
+}
+
+function stripPlaceholder(text: string) {
+  return text.replace(/\s*[＿_]{2,}\s*[。.]?/g, "");
+}
+
+function testValue(part: QcLayoutPart, test?: QcTemplateTestItem) {
+  const path = part.path || part.field || "";
+  let value = "";
+  if (path === "standard") value = test?.standardText || "";
+  else if (path === "name") value = test?.name || "";
+  else if (path === "method") value = test?.methodName || "";
+  if (!value) value = part.defaultValue || "";
+  return part.stripPlaceholder ? stripPlaceholder(value) : value;
+}
+
+function joinSectionSuffix(base?: string, suffix?: string) {
+  if (!base) return suffix || "";
+  if (!suffix || suffix === "auto") return base;
+  return `${base}.${suffix}`;
+}
+
+function sectionHeadingText(part: QcLayoutPart, context: LayoutRenderContext) {
+  const aliases = context.sectionAliases || {};
+  const suffix = part.sectionRef ? joinSectionSuffix(aliases[part.sectionRef], part.sectionSuffix) : part.sectionSuffix;
+  const section = context.test?.sequence && suffix ? `${context.test.sequence}.${suffix}` : suffix;
+  return section ? `${section} ${part.text || ""}` : part.text;
 }
 
 export function Part({ part, context }: { part: QcLayoutPart; context: LayoutRenderContext }) {
   const { test, values, onFieldChange, fieldByName, fieldByKey } = context;
   if (part.type === "br") return <br />;
+  if (part.type === "duration_days") return <DurationPart part={part} context={context} unit="days" />;
+  if (part.type === "duration_hours") return <DurationPart part={part} context={context} unit="hours" />;
+  if (part.type === "test_value") return <span>{testValue(part, test)}</span>;
+  if (part.type === "section_heading") {
+    const text = sectionHeadingText(part, context);
+    return part.bold ? <strong>{text}</strong> : <span>{text}</span>;
+  }
   if (part.type === "line" || part.type === "field" || part.type === "select") {
-    const { key, field } = resolvePartField(part, fieldByName, fieldByKey);
+    const { key, field } = resolvePartField(part, test, fieldByName, fieldByKey);
     const mergedPart = { ...part, fieldKey: key, defaultValue: defaultValueForPart(part, test) || field?.defaultValue };
-    const fieldType = part.type === "select" ? "select" : field?.type;
+    const fieldType = part.type === "select" ? "select" : part.inputType || field?.type;
     if (fieldType === "radio" || fieldType === "checkbox") {
       return (
         <QcPaperChoiceInput
@@ -48,7 +138,7 @@ export function Part({ part, context }: { part: QcLayoutPart; context: LayoutRen
         />
       );
     }
-    if (fieldType === "select") {
+    if (fieldType === "select" || (!!part.options?.length && fieldType !== "radio" && fieldType !== "checkbox")) {
       return (
         <QcPaperSelectInput
           part={mergedPart}
@@ -70,15 +160,15 @@ export function Part({ part, context }: { part: QcLayoutPart; context: LayoutRen
   }
   if (part.type === "date") {
     const key = part.fieldKey || part.field || part.name || "date";
-    return <QcPaperDateInput part={{ ...part, fieldKey: key }} value={values[key]} onChange={(value) => onFieldChange(key, value)} />;
+    return <QcPaperDateInput part={{ ...part, fieldKey: key }} value={values[key]} onChange={(value) => onFieldChange(key, value)} readOnly={part.readonlyDisplay} />;
   }
   if (part.type === "radio" || part.type === "checkbox") {
-    const { key, field } = resolvePartField(part, fieldByName, fieldByKey);
+    const { key, field } = resolvePartField(part, test, fieldByName, fieldByKey);
     return <QcPaperChoiceInput fieldKey={key} options={part.options?.length ? part.options : field?.options} type={part.type} disabled={part.readonlyDisplay || field?.attr === "calculated"} value={values[key]} onChange={(value) => onFieldChange(key, value)} />;
   }
   if (part.type === "param") return <span>{part.defaultValue || part.name}</span>;
-  if (part.type === "note") return <span className="text-slate-700">{part.text}</span>;
-  return <span>{part.text}</span>;
+  if (part.type === "note" || part.type === "hint") return <span className="text-slate-700">{part.text}</span>;
+  return part.bold ? <strong>{part.text}</strong> : <span>{part.text}</span>;
 }
 
 function CellContent({ cell, context }: { cell: QcLayoutCell; context: LayoutRenderContext }) {

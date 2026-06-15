@@ -1,34 +1,41 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties, type ChangeEvent } from "react";
+import type { CSSProperties, ChangeEvent } from "react";
 import type { QcLayoutPart } from "@/server/services/production/qc";
-
-function todayValue() {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
-function normalizeDateParts(year: string, month: string, day: string) {
-  const fallback = todayValue().split("-");
-  const normalizedYear = (year.replace(/\D/g, "").slice(0, 4) || fallback[0]).padStart(4, "0");
-  const rawMonth = Number(month.replace(/\D/g, "").slice(0, 2) || fallback[1]);
-  const rawDay = Number(day.replace(/\D/g, "").slice(0, 2) || fallback[2]);
-  return {
-    year: normalizedYear,
-    month: String(Math.min(12, Math.max(1, rawMonth))).padStart(2, "0"),
-    day: String(Math.min(31, Math.max(1, rawDay))).padStart(2, "0"),
-  };
-}
 
 function inputWidth(part: QcLayoutPart): CSSProperties {
   return { width: part.width || "4em" };
 }
 
+export function qcRangeLabel(part: QcLayoutPart) {
+  const range = part.recommendedRange;
+  if (!range) return "";
+  if (range.min != null && range.max != null) return range.min === range.max ? String(range.min) : `${range.min}～${range.max}`;
+  if (range.min != null) return `≥${range.min}`;
+  if (range.max != null) return `≤${range.max}`;
+  return "";
+}
+
+export function qcRangeError(part: QcLayoutPart, value?: string) {
+  const range = part.recommendedRange;
+  if (!range || value == null || String(value).trim() === "") return undefined;
+  const match = String(value).replace(/,/g, "").match(/-?\d+(?:\.\d+)?/);
+  if (!match) return undefined;
+  const num = Number(match[0]);
+  if (!Number.isFinite(num)) return undefined;
+  if ((range.min != null && num < range.min) || (range.max != null && num > range.max)) {
+    return `超出推荐范围 ${qcRangeLabel(part)}`;
+  }
+  return undefined;
+}
+
 function underlineClass(part: QcLayoutPart) {
   return part.underline === false ? "border-b-0" : "border-b border-slate-950";
+}
+
+function textInputType(part: QcLayoutPart) {
+  if (part.inputType === "date") return "date";
+  return "text";
 }
 
 export function QcPaperLineInput({
@@ -42,17 +49,37 @@ export function QcPaperLineInput({
   value?: string;
   onChange?: (value: string) => void;
 }) {
+  const currentValue = value ?? part.defaultValue ?? "";
+  const error = qcRangeError(part, currentValue);
   const valueProps = onChange
-    ? { value: value ?? part.defaultValue ?? "", onChange: (event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value) }
+    ? { value: currentValue, onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event.target.value) }
     : { defaultValue: part.defaultValue };
+  if (part.multiline || part.inputType === "textarea") {
+    return (
+      <textarea
+        aria-label={part.fieldKey || part.field || part.name || "填写项"}
+        data-field-key={part.fieldKey || part.field || part.name}
+        {...valueProps}
+        placeholder={part.placeholder}
+        readOnly={readOnly || part.readonlyDisplay}
+        rows={part.rows || 2}
+        title={error}
+        className={`mx-1 inline-block min-w-[8em] resize-y border-0 bg-transparent px-1 text-center align-middle outline-none read-only:border-b-0 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+        style={inputWidth(part)}
+      />
+    );
+  }
   return (
     <input
       aria-label={part.fieldKey || part.field || part.name || "填写项"}
       data-field-key={part.fieldKey || part.field || part.name}
       {...valueProps}
+      placeholder={part.placeholder}
       readOnly={readOnly || part.readonlyDisplay}
-      type={part.inputType || "text"}
-      className={`mx-1 inline-block h-5 min-w-[3em] border-0 bg-transparent px-1 text-center align-baseline outline-none read-only:border-b-0 ${underlineClass(part)}`}
+      inputMode={part.inputType === "number" ? "decimal" : undefined}
+      type={textInputType(part)}
+      title={error}
+      className={`mx-1 inline-block h-5 min-w-[3em] border-0 bg-transparent px-1 text-center align-baseline outline-none read-only:border-b-0 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
       style={inputWidth(part)}
     />
   );
@@ -71,6 +98,7 @@ export function QcPaperSelectInput({
   value?: string;
   onChange?: (value: string) => void;
 }) {
+  const error = qcRangeError(part, value ?? part.defaultValue);
   return (
     <select
       aria-label={part.fieldKey || part.field || part.name || "选择项"}
@@ -78,7 +106,8 @@ export function QcPaperSelectInput({
       value={value ?? part.defaultValue ?? ""}
       onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange?.(event.target.value)}
       disabled={readOnly || part.readonlyDisplay}
-      className={`mx-1 inline-block h-7 min-w-[4em] border-0 bg-transparent px-1 text-center align-baseline outline-none disabled:opacity-100 ${underlineClass(part)}`}
+      title={error}
+      className={`mx-1 inline-block h-7 min-w-[4em] border-0 bg-transparent px-1 text-center align-baseline outline-none disabled:opacity-100 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
       style={inputWidth(part)}
     >
       <option value=""> </option>
@@ -88,74 +117,6 @@ export function QcPaperSelectInput({
         </option>
       ))}
     </select>
-  );
-}
-
-function DatePartInput({
-  label,
-  maxLength,
-  value,
-  width,
-  onChange,
-  onBlur,
-}: {
-  label: string;
-  maxLength: number;
-  value: string;
-  width: string;
-  onChange: (value: string) => void;
-  onBlur: () => void;
-}) {
-  return (
-    <input
-      aria-label={label}
-      inputMode="numeric"
-      maxLength={maxLength}
-      value={value}
-      onChange={(event) => onChange(event.target.value.replace(/\D/g, "").slice(0, maxLength))}
-      onBlur={onBlur}
-      className="border-0 bg-transparent p-0 text-center outline-none"
-      style={{ width, font: "inherit" }}
-    />
-  );
-}
-
-export function QcPaperDateInput({
-  part,
-  value,
-  onChange,
-}: {
-  part: QcLayoutPart;
-  value?: string;
-  onChange?: (value: string) => void;
-}) {
-  const initialValue = value || part.defaultValue || todayValue();
-  const initial = useMemo(() => normalizeDateParts(...initialValue.split("-") as [string, string, string]), [initialValue]);
-  const [date, setDate] = useState(initial);
-
-  function commit(normalize = false) {
-    if (!normalize) return;
-    setDate((current) => {
-      const next = normalizeDateParts(current.year, current.month, current.day);
-      onChange?.(`${next.year}-${next.month}-${next.day}`);
-      return next;
-    });
-  }
-
-  const dateValue = `${date.year}-${date.month}-${date.day}`;
-  const key = part.fieldKey || "date";
-  return (
-    <span className="inline-flex items-center gap-1 whitespace-nowrap align-baseline">
-      <DatePartInput label="年" maxLength={4} value={date.year} width="4ch" onChange={(year) => setDate((current) => ({ ...current, year }))} onBlur={() => commit(true)} />
-      <span>年</span>
-      <DatePartInput label="月" maxLength={2} value={date.month} width="2ch" onChange={(month) => setDate((current) => ({ ...current, month }))} onBlur={() => commit(true)} />
-      <span>月</span>
-      <DatePartInput label="日" maxLength={2} value={date.day} width="2ch" onChange={(day) => setDate((current) => ({ ...current, day }))} onBlur={() => commit(true)} />
-      <span>日</span>
-      <input type="hidden" data-field-key={key} value={dateValue} readOnly />
-      {part.withTime && <QcPaperLineInput part={{ ...part, fieldKey: `${key}_hour`, width: "2em", inputType: "text" }} />}
-      {part.withTime && <span>时</span>}
-    </span>
   );
 }
 

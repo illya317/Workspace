@@ -10,11 +10,7 @@ export interface QcSourceStatus {
   changedFiles?: string[];
 }
 
-export interface QcProductStageSummary {
-  key: string;
-  label: string;
-  itemCount: number;
-}
+export interface QcProductStageSummary { key: string; label: string; itemCount: number }
 
 export interface QcProductSummary {
   name: string;
@@ -70,21 +66,38 @@ export interface QcTemplateLayoutAssignment {
   params: Record<string, unknown>;
 }
 
-export type QcLayoutPartType = "text" | "note" | "line" | "date" | "radio" | "checkbox" | "select" | "field" | "br" | "param";
+export interface QcRecommendedRange { min?: number | null; max?: number | null }
+
+export type QcLayoutPartType = "text" | "hint" | "note" | "line" | "date" | "duration_days" | "duration_hours" | "radio" | "checkbox" | "select" | "field" | "br" | "param" | "section_heading" | "test_value";
 
 export interface QcLayoutPart {
   type: QcLayoutPartType | string;
   text?: string;
+  sectionRef?: string;
+  sectionSuffix?: string;
   fieldKey?: string;
   field?: string;
   name?: string;
   options?: string[];
   width?: string;
   underline?: boolean;
+  placeholder?: string;
+  multiline?: boolean;
+  rows?: number;
   withTime?: boolean;
   inputType?: string;
   defaultValue?: string;
+  defaultOffsetDays?: number;
   readonlyDisplay?: boolean;
+  occurrence?: number;
+  startKey?: string;
+  endKey?: string;
+  startHourKey?: string;
+  endHourKey?: string;
+  recommendedRange?: QcRecommendedRange;
+  path?: string;
+  stripPlaceholder?: boolean;
+  bold?: boolean;
 }
 
 export interface QcLayoutCell {
@@ -107,6 +120,7 @@ export interface QcLayoutBlock {
   text?: string;
   sectionSuffix?: string;
   sectionRole?: string;
+  sectionRef?: string;
   sectionAnchor?: boolean;
   fieldPrefix?: string;
   rows?: QcLayoutCell[][];
@@ -120,6 +134,8 @@ export interface QcLayoutBlock {
   autoJudgment?: boolean;
   conclusionName?: string;
   unit?: string;
+  fieldKey?: string;
+  buttonText?: string;
   order?: number;
   moduleOrder?: number;
 }
@@ -158,14 +174,9 @@ export interface QcTemplateTestItem {
   methodGroups: QcTemplateMethodGroup[];
 }
 
-export interface QcTemplatePrecheckFile {
-  name: string;
-  code: string;
-}
+export interface QcTemplatePrecheckFile { name: string; code: string }
 
-export interface QcTemplatePrecheckItem {
-  name: string;
-}
+export interface QcTemplatePrecheckItem { name: string }
 
 export interface QcTemplateStage {
   key: string;
@@ -243,7 +254,4 @@ export interface QcBatchList {
   };
 }
 
-export interface QcBatchCreateInput {
-  productKey: string;
-  batchNumber: string;
-}
+export interface QcBatchCreateInput { productKey: string; batchNumber: string }

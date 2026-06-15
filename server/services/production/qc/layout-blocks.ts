@@ -1,7 +1,7 @@
 import "server-only";
 import path from "path";
 import { readFile } from "fs/promises";
-import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcTemplateLayoutAssignment } from "./types";
+import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcRecommendedRange, QcTemplateLayoutAssignment } from "./types";
 
 type Params = Record<string, unknown>;
 
@@ -24,6 +24,26 @@ function asBoolean(value: unknown) {
 function asNumber(value: unknown, fallback = 1) {
   const num = Number(value);
   return Number.isFinite(num) && num > 0 ? num : fallback;
+}
+
+function maybeNumber(value: unknown) {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : undefined;
+}
+
+function maybePositiveNumber(value: unknown) {
+  const num = Number(value);
+  return Number.isFinite(num) && num > 0 ? num : undefined;
+}
+
+function asRange(value: unknown): QcRecommendedRange | undefined {
+  if (Array.isArray(value)) {
+    return { min: maybeNumber(value[0]) ?? null, max: maybeNumber(value[1]) ?? null };
+  }
+  const range = asRecord(value);
+  const min = maybeNumber(range.min);
+  const max = maybeNumber(range.max);
+  return min === undefined && max === undefined ? undefined : { min: min ?? null, max: max ?? null };
 }
 
 function normalizeKey(key: string) {
@@ -56,16 +76,31 @@ function mapPart(value: unknown, params: Params = {}): QcLayoutPart {
   return {
     type,
     text: formatText(asString(part.text), params) || undefined,
+    sectionRef: asString(part.section_ref || part.sectionRef) || undefined,
+    sectionSuffix: asString(part.section_suffix || part.sectionSuffix) || undefined,
     fieldKey: asString(part.field_key || part.fieldKey || part.key) || undefined,
     field: asString(part.field) || undefined,
     name: name || undefined,
     options: asArray(part.options).map((option) => asString(option)).filter(Boolean),
     width: asString(part.width) || widthFromChars(part.initial_chars || part.initialChars),
     underline: asBoolean(part.underline),
+    placeholder: asString(part.placeholder ?? part.hint) || undefined,
+    multiline: asBoolean(part.multiline ?? part.multiLine),
+    rows: maybePositiveNumber(part.rows ?? part.min_rows ?? part.minRows),
     withTime: asBoolean(part.with_time ?? part.withTime),
     inputType: asString(part.input_type || part.inputType) || undefined,
-    defaultValue: paramValue || asString(part.default ?? part.default_value ?? part.placeholder) || undefined,
+    defaultValue: paramValue || asString(part.default ?? part.default_value) || undefined,
+    defaultOffsetDays: maybeNumber(part.default_offset_days ?? part.defaultOffsetDays),
     readonlyDisplay: asBoolean(part.readonly_display ?? part.readOnlyDisplay),
+    occurrence: maybePositiveNumber(part.occurrence ?? part.field_occurrence ?? part.fieldOccurrence),
+    startKey: asString(part.start_key || part.start_date_key || part.from_key || part.startKey) || undefined,
+    endKey: asString(part.end_key || part.end_date_key || part.to_key || part.endKey) || undefined,
+    startHourKey: asString(part.start_hour_key || part.startHourKey) || undefined,
+    endHourKey: asString(part.end_hour_key || part.endHourKey) || undefined,
+    recommendedRange: asRange(part.recommended_range ?? part.recommendedRange ?? part.expected_range ?? part.expectedRange),
+    path: asString(part.path) || undefined,
+    stripPlaceholder: asBoolean(part.strip_placeholder ?? part.stripPlaceholder),
+    bold: asBoolean(part.bold),
   };
 }
 
@@ -94,7 +129,7 @@ function paramString(params: Params, name: string) {
 function applyBlockParams(block: Record<string, unknown>, params: Params) {
   const overrideKeys = [
     "temperature_range", "humidity_limit", "room_rows", "devices", "items", "field_prefix",
-    "section_suffix", "section_role", "section_anchor", "has_value", "auto_judgment",
+    "section_suffix", "section_role", "section_ref", "section_anchor", "has_value", "auto_judgment",
     "conclusion_name", "unit", "order", "module_order",
   ];
   return Object.fromEntries(Object.entries({ ...block, ...Object.fromEntries(
@@ -114,6 +149,7 @@ function mapBlock(value: unknown, params: Params = {}): QcLayoutBlock | null {
     text: asString(raw.text || raw.fixed_text) || undefined,
     sectionSuffix: asString(raw.section_suffix || raw.sectionSuffix) || undefined,
     sectionRole: asString(raw.section_role || raw.sectionRole) || undefined,
+    sectionRef: asString(raw.section_ref || raw.sectionRef) || undefined,
     sectionAnchor: asBoolean(raw.section_anchor ?? raw.sectionAnchor),
     fieldPrefix: asString(raw.field_prefix || raw.fieldPrefix) || undefined,
     rows: rows.length ? rows : undefined,
@@ -130,6 +166,8 @@ function mapBlock(value: unknown, params: Params = {}): QcLayoutBlock | null {
     autoJudgment: asBoolean(raw.auto_judgment ?? raw.autoJudgment),
     conclusionName: asString(raw.conclusion_name || raw.conclusionName) || undefined,
     unit: asString(raw.unit) || undefined,
+    fieldKey: asString(raw.field_key || raw.fieldKey || raw.key) || undefined,
+    buttonText: asString(raw.button_text || raw.buttonText) || undefined,
     order: Number(raw.order) || undefined,
     moduleOrder: Number(raw.module_order || raw.moduleOrder) || undefined,
   };
