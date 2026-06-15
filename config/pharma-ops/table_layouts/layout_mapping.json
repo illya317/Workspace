@@ -295,7 +295,7 @@
       "source_ref": "氢氯噻嗪片.md#2.3.5.1-2.3.5.2",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -327,7 +327,7 @@
       "source_ref": "氢氯噻嗪片.md#2.4.5.1-2.4.5.2",
       "params": {
         "title": "HPLC 含量（20片片重+测定）",
-        "hplc_weighing_variant": "20_tablets_inline",
+        "hplc_weighing_variant": "20_tablets",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -858,7 +858,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -916,7 +916,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -1065,7 +1065,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_0512"
       }
     },
@@ -1083,7 +1083,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -1093,7 +1093,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       }
     },
@@ -1663,7 +1663,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -1721,7 +1721,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "none",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -1872,7 +1872,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       }
     },
@@ -2092,7 +2092,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "uv_content_0401"
       }
     },
@@ -2166,7 +2166,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "uv_content_0401"
       },
       "reuse_from": "products/diammonium_glycyrrhizinate/packaging/content",
@@ -2232,7 +2232,7 @@
       "source_ref": "氢氯噻嗪片#2.7 -> 待包装品（二）2.4.5.2项下",
       "params": {
         "title": "HPLC 含量（20片片重+测定）",
-        "hplc_weighing_variant": "20_tablets_inline",
+        "hplc_weighing_variant": "20_tablets",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -2262,7 +2262,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "none",
         "hplc_conclusion_variant": "none",
         "conclusion_name": "含量",
@@ -2318,7 +2318,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -2328,7 +2328,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       }
     },
@@ -2396,7 +2396,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       }
     },
@@ -2414,7 +2414,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -2424,7 +2424,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       }
     },
@@ -2472,7 +2472,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -2482,7 +2482,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_system_solution_prep_0512"
       }
     },
@@ -2751,7 +2751,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -2761,7 +2761,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_system_solution_prep_0512"
       },
       "reuse_from": "products/levofloxacin/packaging/content",
@@ -2834,7 +2834,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "titration_content"
       }
     },
@@ -2889,7 +2889,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "titration_content"
       },
       "reuse_from": "products/methimazole/packaging/content",
@@ -3520,7 +3520,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_cross_reference_0512"
       }
     },
@@ -3604,7 +3604,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_0512"
       }
     },
@@ -3795,7 +3795,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "none",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -3805,7 +3805,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       }
     },
@@ -3823,7 +3823,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -3833,7 +3833,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       }
     },
@@ -3889,7 +3889,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       }
     },
@@ -4071,7 +4071,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       },
       "reuse_from": "products/terazosin/packaging/content",
@@ -4091,7 +4091,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -4101,7 +4101,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       }
     },
@@ -4149,7 +4149,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -4159,7 +4159,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       }
     },
@@ -4290,7 +4290,7 @@
       "family_id": "assay.hplc_content_full",
       "params": {
         "title": "HPLC 含量（称重+测定）",
-        "hplc_weighing_variant": "theoretical_inline",
+        "hplc_weighing_variant": "theoretical",
         "hplc_attachment_variant": "raw",
         "hplc_conclusion_variant": "include",
         "conclusion_name": "含量",
@@ -4300,7 +4300,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       },
       "reuse_from": "products/verapamil/packaging/content",
