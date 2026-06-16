@@ -134,7 +134,6 @@ async function toStage(
     precheckFiles,
     precheckItems,
     asRecord(precheck["环境确认"]),
-    tests,
   );
   return {
     key,

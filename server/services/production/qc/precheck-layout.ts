@@ -1,7 +1,6 @@
 import type {
   QcLayoutBlock,
   QcLayoutCell,
-  QcTemplateTestItem,
   QcTemplatePrecheckFile,
   QcTemplatePrecheckItem,
 } from "./types";
@@ -55,7 +54,7 @@ function precheckConfirmationBlocks(
   files: QcTemplatePrecheckFile[],
   items: QcTemplatePrecheckItem[],
   envOptions: string[],
-) {
+): QcLayoutBlock[] {
   const section = block.sectionSuffix || "1";
   const fileSection = block.fileSectionSuffix || `${section}.1`;
   const fileTitle = block.fileTitle || "文件";
@@ -103,7 +102,6 @@ export async function buildPrecheckLayoutBlocks(
   files: QcTemplatePrecheckFile[],
   items: QcTemplatePrecheckItem[],
   environment: Record<string, unknown>,
-  tests: QcTemplateTestItem[] = [],
 ): Promise<QcLayoutBlock[]> {
   const basis = basisText(precheckInfo, files);
   const environmentOptions = Object.entries(environment)
@@ -124,24 +122,7 @@ export async function buildPrecheckLayoutBlocks(
       basis_text: basis,
     },
   }) ?? [];
-  const experimentBlocks = await loadQcLayoutBlocks(configRoot, {
-    key: "parents/experiment_projects_full",
-    templateId: "parents/experiment_projects_full",
-    status: "pilot",
-    params: {
-      tests: tests.map((test) => ({
-        sequence: test.sequence,
-        name: test.name,
-        methodName: test.methodName,
-        templateId: test.layout?.templateId || "",
-      })),
-    },
-  }) ?? [];
-
-  return [
-    ...precheckBlocks.flatMap((block) => (
+  return precheckBlocks.flatMap((block): QcLayoutBlock[] => (
       block.type === "precheck_confirmation" ? precheckConfirmationBlocks(block, files, items, envOptions) : [block]
-    )),
-    ...experimentBlocks,
-  ];
+    ));
 }

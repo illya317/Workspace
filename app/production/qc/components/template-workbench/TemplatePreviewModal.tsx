@@ -3,7 +3,7 @@
 import type { QcLayoutBlock, QcTemplateTestItem } from "@/server/services/production/qc";
 import QcLayoutPaper from "../QcLayoutPaper";
 import QcMethodFieldTable from "../QcMethodFieldTable";
-import { selectionTitle, type WorkbenchSelection } from "./types";
+import { numerals, selectionTitle, type WorkbenchSelection } from "./types";
 
 interface Props {
   selection: WorkbenchSelection | null;
@@ -36,11 +36,22 @@ function TestPreview({ test }: { test: QcTemplateTestItem }) {
   );
 }
 
+function ExperimentPreview({ tests }: { tests: QcTemplateTestItem[] }) {
+  return (
+    <div className="space-y-5 text-slate-950">
+      {tests.map((test) => (
+        <div key={test.englishName || test.sequence}>
+          {test.layoutBlocks?.length ? <QcLayoutPaper blocks={test.layoutBlocks} compact test={test} /> : <QcMethodFieldTable test={test} compact />}
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function TemplatePreviewModal({ selection, onClose }: Props) {
   if (!selection) return null;
   const fullBlocks = selection.stage.precheckLayoutBlocks ?? [];
   const precheckBlocks = fullSectionBlocks(fullBlocks, "1");
-  const experimentBlocks = fullSectionBlocks(fullBlocks, "2");
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/55">
       <div className="h-full overflow-auto px-3 py-7 md:px-6">
@@ -55,8 +66,15 @@ export default function TemplatePreviewModal({ selection, onClose }: Props) {
               ×
             </button>
           </div>
-          {selection.kind === "precheck" && <QcLayoutPaper blocks={precheckBlocks} compact />}
-          {selection.kind === "experiment" && <QcLayoutPaper blocks={experimentBlocks} compact />}
+          {selection.kind === "precheck" && (
+            <>
+              <h3 className="mb-5 text-center text-lg font-semibold text-slate-950">
+                {numerals[selection.stageIndex] ?? selection.stageIndex + 1}、{selection.template.productName}{selection.stage.label}
+              </h3>
+              <QcLayoutPaper blocks={precheckBlocks} compact />
+            </>
+          )}
+          {selection.kind === "experiment" && <ExperimentPreview tests={selection.stage.tests} />}
           {selection.kind === "test" && selection.test && <TestPreview test={selection.test} />}
         </div>
       </div>

@@ -8,29 +8,16 @@
   "level": 1,
   "blocks": [
     {
-      "type": "title",
-      "text_path": "stage_title",
-      "className": "stage-title"
-    },
-    {
       "type": "table",
       "label": "stage_header",
       "className": "layout-stage-header",
       "rows": [
         {
           "cells": [
-            {"text": "批号", "className": "label-cell"},
-            {"parts": [{"type": "line", "key": "batch_number", "width": "8em"}]},
-            {"text": "包装情况", "className": "label-cell"},
-            {"text_path": "packaging"}
-          ]
-        },
-        {
-          "cells": [
             {"text": "检品名称", "className": "label-cell"},
             {"text_path": "sample_name"},
-            {"text": "检品数量", "className": "label-cell"},
-            {"parts": [{"type": "line", "key": "pre_check/quantity", "width": "4em"}]}
+            {"text": "包装情况", "className": "label-cell"},
+            {"text_path": "packaging"}
           ]
         },
         {
