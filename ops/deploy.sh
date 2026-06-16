@@ -52,7 +52,7 @@ remote_pkg_hash() {
   ssh_cmd "
     cd $REMOTE_DIR 2>/dev/null || exit 0
     [ -f package.json ] && [ -f package-lock.json ] || exit 0
-    cat package.json package-lock.json | sha256sum | awk '{print \\\$1}'
+    cat package.json package-lock.json | sha256sum | awk '{print \$1}'
   " 2>/dev/null || true
 }
 
@@ -234,7 +234,7 @@ ssh_cmd "
   cd $REMOTE_DIR
   if [ '$NEED_NPM_CI' = '1' ] || [ ! -d node_modules ]; then
     echo '==> 安装依赖...'
-    npm ci
+    npm ci --no-audit --fund=false --loglevel=error
   else
     echo '==> 跳过 npm ci，复用服务器 node_modules'
   fi
