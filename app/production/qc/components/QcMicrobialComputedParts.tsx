@@ -33,7 +33,7 @@ function microbialSelectedTotalValue(part: QcLayoutPart, values: QcFieldValues) 
   if (!prefix || prefix === key) return "";
   const dilution = dilutionSegment(values[`${prefix}/selected_count_source`]);
   if (!dilution) return "";
-  const lastDay = prefix.includes("/mold_yeast/") ? 7 : 5;
+  const lastDay = part.summaryDay || (prefix.includes("/mold_yeast/") ? 7 : 5);
   const a = parsePlateCount(values[`${prefix}/${dilution}_a_day${lastDay}`]);
   const b = parsePlateCount(values[`${prefix}/${dilution}_b_day${lastDay}`]);
   return a == null || b == null ? "" : formatPlateAverage((a + b) / 2);

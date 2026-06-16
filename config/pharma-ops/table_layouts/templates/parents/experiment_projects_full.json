@@ -20,6 +20,12 @@
       "title": "实验项目",
       "section_no": "2",
       "order": 1
+    },
+    {
+      "type": "experiment_projects_table",
+      "tests_param": "tests",
+      "section_no": "2",
+      "order": 2
     }
   ],
   "order": 2

@@ -26,11 +26,13 @@ function patchPart(part) {
     };
   }
   if (part.field_key?.endsWith("/selected_total_count")) {
+    const summaryDay = part.field_key.includes("/mold_yeast/") ? 7 : 5;
     return {
       ...part,
       type: "microbial_selected_total",
       width: "7rem",
       underline: false,
+      summary_day: summaryDay,
       readonly_display: true,
     };
   }

@@ -1,6 +1,7 @@
 import type {
   QcLayoutBlock,
   QcLayoutCell,
+  QcTemplateTestItem,
   QcTemplatePrecheckFile,
   QcTemplatePrecheckItem,
 } from "./types";
@@ -102,6 +103,7 @@ export async function buildPrecheckLayoutBlocks(
   files: QcTemplatePrecheckFile[],
   items: QcTemplatePrecheckItem[],
   environment: Record<string, unknown>,
+  tests: QcTemplateTestItem[] = [],
 ): Promise<QcLayoutBlock[]> {
   const basis = basisText(precheckInfo, files);
   const environmentOptions = Object.entries(environment)
@@ -126,7 +128,14 @@ export async function buildPrecheckLayoutBlocks(
     key: "parents/experiment_projects_full",
     templateId: "parents/experiment_projects_full",
     status: "pilot",
-    params: {},
+    params: {
+      tests: tests.map((test) => ({
+        sequence: test.sequence,
+        name: test.name,
+        methodName: test.methodName,
+        templateId: test.layout?.templateId || "",
+      })),
+    },
   }) ?? [];
 
   return [

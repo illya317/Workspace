@@ -95,6 +95,7 @@ function mapPart(value: unknown, params: Params = {}): QcLayoutPart {
     startHourKey: asString(part.start_hour_key || part.startHourKey) || undefined,
     endHourKey: asString(part.end_hour_key || part.endHourKey) || undefined,
     recommendedRange: asRange(part.recommended_range ?? part.recommendedRange ?? part.expected_range ?? part.expectedRange),
+    summaryDay: maybePositiveNumber(part.summary_day ?? part.summaryDay),
     path: asString(part.path) || undefined,
     stripPlaceholder: asBoolean(part.strip_placeholder ?? part.stripPlaceholder),
     bold: asBoolean(part.bold),
@@ -130,23 +131,22 @@ function applyBlockParams(block: Record<string, unknown>, params: Params) {
     "section_suffix", "section_slot", "section_role", "section_ref", "section_anchor", "has_value", "auto_judgment",
     "conclusion_name", "unit", "order", "module_order",
   ];
-  return Object.fromEntries(Object.entries({ ...block, ...Object.fromEntries(
-    overrideKeys.flatMap((key) => params[key] !== undefined ? [[key, params[key]]] : []),
-  ) }).map(([key, value]) => [key, substitute(value, params)]));
+  const overrides = Object.fromEntries(overrideKeys.flatMap((key) => params[key] !== undefined ? [[key, params[key]]] : []));
+  return Object.fromEntries(Object.entries({ ...block, ...overrides }).map(([key, value]) => [key, substitute(value, params)]));
 }
 
 function mapBlock(value: unknown, params: Params = {}): QcLayoutBlock | null {
-  const raw = applyBlockParams(asRecord(value), params);
-  const type = asString(raw.type, "table");
+  const raw = applyBlockParams(asRecord(value), params), type = asString(raw.type, "table");
   const custom = mapCustomLayoutBlock(raw, params);
   if (custom) return custom;
   const rows = asArray(raw.rows).map((row) => asArray(asRecord(row).cells).map((cell) => mapCell(cell, params)));
   if (type === "table" && rows.length === 0) return null;
+  const textPath = asString(raw.text_path || raw.textPath), resolvedText = textPath ? paramString(params, textPath) || "" : asString(raw.text || raw.fixed_text), resolvedTitle = asString(raw.title) || (type === "title" ? resolvedText : "");
   return {
     type,
     label: asString(raw.label) || undefined,
-    title: asString(raw.title || raw.text) || undefined,
-    text: asString(raw.text || raw.fixed_text) || undefined,
+    title: resolvedTitle || undefined,
+    text: resolvedText || undefined,
     sectionSuffix: asString(raw.section_suffix || raw.sectionSuffix || raw.section_no || raw.sectionNo) || undefined,
     sectionSlot: asString(raw.section_slot || raw.sectionSlot) || undefined,
     sectionRole: asString(raw.section_role || raw.sectionRole) || undefined,

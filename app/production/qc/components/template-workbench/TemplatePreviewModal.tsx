@@ -3,7 +3,7 @@
 import type { QcLayoutBlock, QcTemplateTestItem } from "@/server/services/production/qc";
 import QcLayoutPaper from "../QcLayoutPaper";
 import QcMethodFieldTable from "../QcMethodFieldTable";
-import { numerals, selectionTitle, type WorkbenchSelection } from "./types";
+import { selectionTitle, type WorkbenchSelection } from "./types";
 
 interface Props {
   selection: WorkbenchSelection | null;
@@ -55,14 +55,7 @@ export default function TemplatePreviewModal({ selection, onClose }: Props) {
               ×
             </button>
           </div>
-          {selection.kind === "precheck" && (
-            <>
-              <h3 className="mb-5 text-center text-lg font-semibold text-slate-950">
-                {numerals[selection.stageIndex] ?? selection.stageIndex + 1}、{selection.template.productName}{selection.stage.label}
-              </h3>
-              <QcLayoutPaper blocks={precheckBlocks} compact />
-            </>
-          )}
+          {selection.kind === "precheck" && <QcLayoutPaper blocks={precheckBlocks} compact />}
           {selection.kind === "experiment" && <QcLayoutPaper blocks={experimentBlocks} compact />}
           {selection.kind === "test" && selection.test && <TestPreview test={selection.test} />}
         </div>

@@ -601,6 +601,7 @@
                   "underline": false,
                   "initial_chars": 6,
                   "width": "7rem",
+                  "summary_day": 5,
                   "readonly_display": true
                 }
               ]

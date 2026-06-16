@@ -125,6 +125,7 @@ async function toStage(
     return { name: asString(data["名称"]), code: asString(data["编码"]) };
   });
   const precheckItems = asArray(precheck["确认项"]).map((item) => ({ name: asString(asRecord(item)["名称"]) }));
+  const tests = asArray(stage["检测项"]).map((test) => toTestItem(templateId, key, test, methods, layouts));
   const precheckLayoutBlocks = await buildPrecheckLayoutBlocks(
     configRoot,
     productName,
@@ -133,6 +134,7 @@ async function toStage(
     precheckFiles,
     precheckItems,
     asRecord(precheck["环境确认"]),
+    tests,
   );
   return {
     key,
@@ -143,7 +145,7 @@ async function toStage(
     precheckFiles,
     precheckItems,
     precheckLayoutBlocks,
-    tests: asArray(stage["检测项"]).map((test) => toTestItem(templateId, key, test, methods, layouts)),
+    tests,
   };
 }
 

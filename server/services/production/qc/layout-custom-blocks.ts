@@ -102,6 +102,30 @@ function relatedWeighing(raw: Record<string, unknown>, params: Params): QcLayout
   return { type: "table", label: asString(raw.label), rows, order: Number(raw.order) || undefined };
 }
 
+function experimentProjectsTable(raw: Record<string, unknown>, params: Params): QcLayoutBlock | null {
+  const sourceRows = asArray(params[asString(raw.tests_param || raw.testsParam, "tests")]);
+  if (!sourceRows.length) return null;
+  const rows: QcLayoutCell[][] = [
+    [cell("序号"), cell("项目"), cell("方法"), cell("组件")],
+    ...sourceRows.map((row) => {
+      const item = asRecord(row);
+      return [
+        cell(asString(item.sequence)),
+        cell(asString(item.name)),
+        cell(asString(item.methodName || item.method_name)),
+        cell(asString(item.templateId || item.template_id)),
+      ];
+    }),
+  ];
+  return {
+    type: "table",
+    label: asString(raw.label, "experiment-projects"),
+    sectionSuffix: asString(raw.section_suffix || raw.sectionSuffix || raw.section_no || raw.sectionNo) || undefined,
+    rows,
+    order: Number(raw.order) || undefined,
+  };
+}
+
 function sectionedOperationSteps(raw: Record<string, unknown>, params: Params): QcLayoutBlock | null {
   const scope = paramScope(raw, params);
   const steps = asArray(scope[asString(raw.steps_param || raw.stepsParam, "identification_steps")]);
@@ -132,6 +156,7 @@ export function mapCustomLayoutBlock(raw: Record<string, unknown>, params: Param
   if (type === "structured_operation_method" || type === "related_substances_operation_method") return structuredOperation(raw, params);
   if (type === "related_substances_peak_area_calculation") return relatedPeakCalculation(raw, params);
   if (type === "related_substances_weighing_table") return relatedWeighing(raw, params);
+  if (type === "experiment_projects_table") return experimentProjectsTable(raw, params);
   if (type === "sectioned_operation_steps") return sectionedOperationSteps(raw, params);
   return null;
 }

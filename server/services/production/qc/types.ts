@@ -94,7 +94,7 @@ export interface QcLayoutPart {
   endKey?: string;
   startHourKey?: string;
   endHourKey?: string;
-  recommendedRange?: QcRecommendedRange;
+  recommendedRange?: QcRecommendedRange; summaryDay?: number;
   path?: string;
   stripPlaceholder?: boolean;
   bold?: boolean;
