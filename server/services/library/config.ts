@@ -12,7 +12,7 @@ import path from "path";
 
 function expandTilde(input: string): string {
   if (input.startsWith("~/")) {
-    return path.join(os.homedir(), input.slice(2));
+    return path.join(/*turbopackIgnore: true*/ os.homedir(), input.slice(2));
   }
   return input;
 }
@@ -40,13 +40,13 @@ export function safeResolve(relativePath: string, root?: string): string | null 
   if (!base) return null;
 
   // 空路径直接返回 base（用于 scan 验证 root 自身）
-  if (!relativePath) return path.resolve(base);
+  if (!relativePath) return path.resolve(/*turbopackIgnore: true*/ base);
 
   // 规范化：去除 .. 和多余的 /
-  const resolved = path.resolve(base, relativePath);
+  const resolved = path.resolve(/*turbopackIgnore: true*/ base, relativePath);
 
   // 确保解析后的路径仍在 root 内
-  const normalizedRoot = path.resolve(base) + path.sep;
+  const normalizedRoot = path.resolve(/*turbopackIgnore: true*/ base) + path.sep;
   const normalizedResolved = resolved + (resolved.endsWith(path.sep) ? path.sep : "");
 
   if (!normalizedResolved.startsWith(normalizedRoot)) return null;
