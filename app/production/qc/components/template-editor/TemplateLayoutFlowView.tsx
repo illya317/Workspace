@@ -816,7 +816,11 @@ export default function TemplateLayoutFlowView({ draft, stage, test }: Props) {
       setEditingField(null);
       return;
     }
-    if (editingField.target.synthetic?.kind === "blockFieldOverride") {
+    const overrideKey =
+      editingField.target.synthetic?.kind === "blockFieldOverride"
+        ? editingField.target.synthetic.overrideKey
+        : null;
+    if (overrideKey) {
       setBlocks((current) =>
         current.map((block, blockIndex) =>
           blockIndex !== editingField.target.blockIndex
@@ -825,7 +829,7 @@ export default function TemplateLayoutFlowView({ draft, stage, test }: Props) {
                 ...block,
                 fieldKeyOverrides: {
                   ...(block.fieldKeyOverrides || {}),
-                  [editingField.target.synthetic.overrideKey]: fieldKeyValue,
+                  [overrideKey]: fieldKeyValue,
                 },
               },
         ),
