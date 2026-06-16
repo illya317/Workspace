@@ -199,13 +199,14 @@ export function TableBlock({ block, className = "", context }: { block: QcLayout
           <tr key={rowIndex}>
             {row.map((cell, cellIndex) => {
               const Tag = cell.header ? "th" : "td";
+              const textAlign = (cell.align || "center") as CSSProperties["textAlign"];
               return (
                 <Tag
                   key={`${rowIndex}-${cellIndex}`}
                   colSpan={cell.colspan}
                   rowSpan={cell.rowspan}
                   className={`border border-slate-950 px-2 py-1.5 align-middle ${cell.bold || cell.header ? "font-semibold" : "font-normal"} ${cell.isEmpty ? "text-transparent" : ""} ${cell.className || ""}`}
-                  style={{ textAlign: cell.align as CSSProperties["textAlign"], width: cell.width }}
+                  style={{ textAlign, width: cell.width }}
                 >
                   <CellContent cell={cell} context={context} />
                 </Tag>
