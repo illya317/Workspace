@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { QcTemplateDetail } from "@/server/services/production/qc";
 import TemplateFeedbackModal from "./template-workbench/TemplateFeedbackModal";
@@ -63,7 +64,12 @@ export default function QcTemplateWorkbench({ templates, feedbackKeys }: Props) 
         </div>
       </aside>
       <div className="min-w-0 space-y-5">
-        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索产品、阶段、项目" className="h-10 w-full rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-emerald-600" />
+        <div className="flex flex-wrap gap-3">
+          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索产品、阶段、项目" className="h-10 min-w-[260px] flex-1 rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-emerald-600" />
+          <Link href="/production/qc/templates/new" className="flex h-10 items-center rounded-md border border-emerald-600 bg-emerald-50 px-4 text-sm font-semibold text-emerald-800 hover:bg-emerald-100">
+            新建模板
+          </Link>
+        </div>
         {visibleTemplates.map((template) => (
           <article key={template.id} className="space-y-3">
             <div className="flex items-start justify-between">
