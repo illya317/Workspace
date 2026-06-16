@@ -40,8 +40,8 @@ export function qcRangeError(part: QcLayoutPart, value?: string) {
   return undefined;
 }
 
-function underlineClass(part: QcLayoutPart) {
-  return part.underline === false ? "border-b-0" : "border-b border-slate-950";
+function underlineClass(_part: QcLayoutPart) {
+  return "border-b-0";
 }
 
 function textInputType(part: QcLayoutPart) {
