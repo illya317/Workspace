@@ -18,8 +18,21 @@ export interface QcTemplateEditorTarget {
   sequence?: string;
 }
 
+export interface QcTemplateEditorTestDraft {
+  id: string;
+  name: string;
+  englishName: string;
+  methodName: string;
+  templateId?: string;
+  sequence?: string;
+  defaultOrder?: number;
+  order: number;
+  source: "yaml" | "draft";
+}
+
 export interface QcTemplateEditorLayoutDraft {
   blocks: QcLayoutBlock[];
+  tests?: QcTemplateEditorTestDraft[];
 }
 
 export interface QcTemplateEditorMethodDraft {
@@ -38,7 +51,9 @@ export interface QcTemplateEditorDraft extends QcTemplateEditorTarget {
 export interface QcTemplateModuleLibraryItem {
   id: string;
   title: string;
+  displayName: string;
   category: string;
+  categoryLabel: string;
   templateId: string;
   status?: string;
   subcomponent?: boolean;

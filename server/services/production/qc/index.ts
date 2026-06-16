@@ -49,5 +49,6 @@ export type {
   QcTemplateEditorNodeType,
   QcTemplateEditorPreview,
   QcTemplateEditorTarget,
+  QcTemplateEditorTestDraft,
   QcTemplateModuleLibraryItem,
 } from "./template-editor-types";

@@ -3,6 +3,7 @@ import path from "path";
 import { mkdir, readdir, readFile, writeFile } from "fs/promises";
 import { qcRuntimeDataPath } from "./runtime-data-path";
 import { loadQcLayoutBlocks } from "./layout-blocks";
+import { qcTemplateCategoryLabel, qcTemplateDisplayName } from "./template-editor-labels";
 import { getQcTemplateDetail } from "./record-structure";
 import { resolvePharmaOpsRoot } from "./source";
 import type { QcLayoutBlock, QcLayoutCell, QcTemplateDetail, QcTemplateMethodField, QcTemplateMethodGroup, QcTemplateStage, QcTemplateTestItem } from "./types";
@@ -141,12 +142,16 @@ async function listTemplateLibrary(): Promise<QcTemplateModuleLibraryItem[]> {
       const data = asRecord(JSON.parse(await readFile(filePath, "utf8")));
       const id = `${prefix}${entry.name.replace(/\.json$/, "")}`;
       const templateId = asString(data.template_id, id);
+      const category = asString(data.category, prefix.split("/")[0] || "custom");
+      const title = asString(data.title, id);
       const blocks = await loadQcLayoutBlocks(source.configRoot, { key: id, templateId, status: asString(data.status), params: {} }).catch(() => []);
       items.push({
         id,
         templateId,
-        title: asString(data.title, id),
-        category: asString(data.category, prefix.split("/")[0] || "custom"),
+        title,
+        displayName: qcTemplateDisplayName(id, title),
+        category,
+        categoryLabel: qcTemplateCategoryLabel(category),
         status: asString(data.status) || undefined,
         subcomponent: data.subcomponent === true,
         blocks: blocks?.length ? blocks : undefined,
@@ -214,7 +219,7 @@ function normalizeDraft(raw: unknown, author?: DraftAuthor): QcTemplateEditorDra
   const normalized: QcTemplateEditorDraft = {
     ...draft,
     draftId: draft.draftId || qcTemplateDraftId(draft),
-    layoutDraft: { blocks: Array.isArray(draft.layoutDraft?.blocks) ? draft.layoutDraft.blocks : [] },
+    layoutDraft: { blocks: Array.isArray(draft.layoutDraft?.blocks) ? draft.layoutDraft.blocks : [], tests: Array.isArray(draft.layoutDraft?.tests) ? draft.layoutDraft.tests : undefined },
     methodDraft: { methodGroups: Array.isArray(draft.methodDraft?.methodGroups) ? draft.methodDraft.methodGroups : [] },
     updatedBy: author?.userName || draft.updatedBy || "unknown",
     updatedAt: new Date().toISOString(),

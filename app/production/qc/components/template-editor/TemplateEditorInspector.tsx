@@ -8,6 +8,7 @@ import type {
 } from "@/server/services/production/qc";
 import { addColumn, addRow, blockLabel, clone, encodeParts, parseParts, simpleTable } from "./editor-utils";
 import TemplateEditorFieldPanel from "./TemplateEditorFieldPanel";
+import TemplateModulePicker from "./TemplateModulePicker";
 
 interface CellSelection { row: number; cell: number }
 
@@ -108,14 +109,8 @@ export default function TemplateEditorInspector({
           <button onClick={() => addBlock({ type: "title", title: "新一级标题", sectionSuffix: "auto", sectionSlot: "auto", sectionRole: `custom_${Date.now()}`, sectionAnchor: true })} className="h-9 rounded-md border border-slate-300 text-sm text-slate-700 hover:bg-slate-50">一级标题</button>
           <button onClick={() => addBlock({ type: "title", title: "新次级标题", sectionRef: block?.sectionRole, sectionSuffix: "1" })} className="h-9 rounded-md border border-slate-300 text-sm text-slate-700 hover:bg-slate-50">次级标题</button>
           <button onClick={() => addBlock(simpleTable())} className="h-9 rounded-md border border-slate-300 text-sm text-slate-700 hover:bg-slate-50">表格</button>
-          <select onChange={(event) => {
-            if (event.target.value) addModuleTemplate(event.target.value);
-            event.currentTarget.value = "";
-          }} className="h-9 rounded-md border border-slate-300 px-2 text-sm text-slate-700">
-            <option value="">模板模块</option>
-            {moduleLibrary.slice(0, 80).map((item) => <option key={item.id} value={item.id}>{item.category} / {item.title}</option>)}
-          </select>
         </div>
+        <TemplateModulePicker moduleLibrary={moduleLibrary} onAdd={addModuleTemplate} actionLabel="添加模块" />
       </section>
 
       <section className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
