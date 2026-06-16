@@ -1,4 +1,20 @@
 main:
+  api_trigger:
+    - name: deploy-prod
+      docker:
+        image: ubuntu:24.04
+      imports:
+        - https://cnb.cool/illya317/env/-/blob/main/workspace-prod.yml
+      env:
+        RUN_LOCAL_CHECKS: "0"
+      stages:
+        - name: install-deploy-tools
+          script: |
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates
+        - name: deploy-to-server
+          script: |
+            bash ./ops/deploy-ci.sh
   push:
     - name: deploy-prod
       docker:

@@ -9,6 +9,12 @@ PM2_NAME="${PM2_NAME:-workspace}"
 REMOTE_WORKSPACE_CONFIG_DIR="${REMOTE_WORKSPACE_CONFIG_DIR:-}"
 HEALTHCHECK_URL="${HEALTHCHECK_URL:-}"
 RUN_LOCAL_CHECKS="${RUN_LOCAL_CHECKS:-1}"
+ENV_CONTENT="${ENV_CONTENT:-}"
+if [ -n "$ENV_CONTENT" ]; then
+  ENV_CONTENT_B64="$(printf '%s' "$ENV_CONTENT" | base64 | tr -d '\n')"
+else
+  ENV_CONTENT_B64=""
+fi
 
 if [ -z "$SERVER" ]; then
   echo "[错误] 缺少 SERVER 环境变量，例如 ubuntu@1.2.3.4"
@@ -87,11 +93,25 @@ run_local_checks() {
 }
 
 prepare_remote_runtime() {
+  echo "==> 准备服务器运行态配置..."
   ssh_cmd "
     set -e
     mkdir -p '$REMOTE_DIR'
-    test -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR'
+    if [ ! -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env' ]; then
+      if [ -f '$REMOTE_DIR/.env' ]; then
+        cp '$REMOTE_DIR/.env' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+      elif [ -n '$ENV_CONTENT_B64' ]; then
+        printf '%s' '$ENV_CONTENT_B64' | base64 -d > '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+      else
+        echo '[错误] 服务器缺少运行态 .env，且未提供 ENV_CONTENT'
+        exit 1
+      fi
+    fi
     mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR/data'
+    if [ ! -f '$REMOTE_WORKSPACE_CONFIG_DIR/data/dev.db' ] && [ -d '$REMOTE_DIR/data' ]; then
+      rsync -a '$REMOTE_DIR/data/' '$REMOTE_WORKSPACE_CONFIG_DIR/data/'
+    fi
 
     cd '$REMOTE_DIR'
     ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/.env' .env
