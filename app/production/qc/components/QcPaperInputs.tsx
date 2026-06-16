@@ -12,8 +12,8 @@ function visualLength(value: string) {
 function fitContentWidth(value?: string, fallback = "1.5rem"): CSSProperties {
   const displayValue = String(value || "");
   if (!displayValue) return { width: fallback, minWidth: fallback };
-  const width = `${Math.min(24, Math.max(2, visualLength(displayValue) + 0.5))}ch`;
-  return { width, minWidth: "2ch", maxWidth: "24rem" };
+  const contentCh = Math.min(48, Math.max(3, visualLength(displayValue) + 2));
+  return { width: `calc(${contentCh}ch + 0.75rem)`, minWidth: "3ch", maxWidth: "100%" };
 }
 
 function inputWidth(part: QcLayoutPart, inTable?: boolean, value?: string): CSSProperties {
