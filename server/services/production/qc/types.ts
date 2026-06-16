@@ -124,6 +124,7 @@ export interface QcLayoutBlock {
   sectionRef?: string;
   sectionAnchor?: boolean;
   fieldPrefix?: string; fileSectionSuffix?: string; fileTitle?: string;
+  sourceTemplateId?: string;
   rows?: QcLayoutCell[][];
   parts?: QcLayoutPart[];
   devices?: Array<{ name: string; status?: string }>;
@@ -153,6 +154,7 @@ export interface QcTemplateMethodField {
   rule?: string;
   options?: string[];
   defaultValue?: string;
+  recommendedValue?: string;
 }
 
 export interface QcTemplateMethodGroup {
@@ -249,11 +251,7 @@ export interface QcBatchSummary {
 
 export interface QcBatchList {
   batches: QcBatchSummary[];
-  counts: {
-    total: number;
-    draft: number;
-    submitted: number;
-  };
+  counts: { total: number; draft: number; submitted: number };
 }
 
 export interface QcBatchCreateInput { productKey: string; batchNumber: string }

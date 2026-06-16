@@ -77,7 +77,12 @@ export default function QcTemplateWorkbench({ templates, feedbackKeys }: Props) 
                 <h2 className="text-sm font-semibold text-slate-900">{template.productName}</h2>
                 <div className="mt-1 text-xs text-slate-500">{template.id}</div>
               </div>
-              <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">{itemCount(template)} 个实验项目</span>
+              <div className="flex items-center gap-2">
+                <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">{itemCount(template)} 个实验项目</span>
+                <Link href={`/production/qc/templates/${template.id}/edit`} className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                  编辑
+                </Link>
+              </div>
             </div>
             {template.stages.map((stage, index) => (
               <StageRows
