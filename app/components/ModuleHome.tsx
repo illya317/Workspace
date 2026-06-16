@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { SessionUser } from "@/lib/types";
 import { getSubModules, getEmptyMessage, type ModuleDef } from "@/app/lib/module-nav";
 import { MODULE_LIFECYCLE_BY_RESOURCE, MODULE_LIFECYCLE_LABELS } from "@/app/lib/module-lifecycle";
@@ -51,7 +51,6 @@ interface Props {
 
 /** L1 模块首页，图标风格与 L0 Portal 一致 */
 export default function ModuleHome({ module, user }: Props) {
-  const router = useRouter();
   const children = getSubModules(user, module.key);
 
   return (
@@ -69,9 +68,9 @@ export default function ModuleHome({ module, user }: Props) {
             const [bgCls, textCls] = colorCls.split(" ");
             const lifecycleStatus = child.lifecycleStatus || MODULE_LIFECYCLE_BY_RESOURCE[child.resourceKey];
             return (
-              <button
+              <Link
                 key={child.key}
-                onClick={() => router.push(child.href)}
+                href={child.href}
                 className="group flex flex-col items-center rounded-xl bg-white p-6 shadow-sm transition-all hover:shadow-md hover:ring-2 hover:ring-emerald-400"
               >
                 <div className={`mb-3 flex h-14 w-14 items-center justify-center rounded-full ${bgCls} ${textCls}`}>
@@ -86,7 +85,7 @@ export default function ModuleHome({ module, user }: Props) {
                   )}
                 </div>
                 <p className="mt-1 text-xs text-gray-500">{child.desc}</p>
-              </button>
+              </Link>
             );
           })}
         </div>
