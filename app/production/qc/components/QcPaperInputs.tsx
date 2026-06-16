@@ -15,7 +15,7 @@ function fitContentWidth(value?: string, fallback = "1.5rem"): CSSProperties {
 }
 
 function inputWidth(part: QcLayoutPart, inTable?: boolean, value?: string): CSSProperties {
-  if (part.underline === true && part.width) return { width: part.width, minWidth: inTable ? part.width : "4.5em" };
+  if (part.width) return { width: part.width, minWidth: inTable ? part.width : "4.5em" };
   if (part.underline === true) return { width: inTable ? "3.5rem" : "5.5em", minWidth: inTable ? "3rem" : "4.5em" };
   return fitContentWidth(value);
 }
@@ -50,7 +50,7 @@ export function qcRangeError(part: QcLayoutPart, value?: string) {
 }
 
 function underlineClass(_part: QcLayoutPart) {
-  return _part.underline === true ? "border-b border-slate-950" : "border-b-0";
+  return _part.underline === false ? "border-b-0" : "border-b border-slate-950";
 }
 
 function textInputType(part: QcLayoutPart) {

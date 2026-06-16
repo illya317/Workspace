@@ -67,10 +67,7 @@ function Heading({ block, fallback }: { block: NumberedBlock; fallback: string }
   return <h3 className="mb-2 mt-5 text-[17px] font-semibold leading-7 text-slate-950">{block.displaySection ? `${block.displaySection} ` : ""}{block.title || fallback}</h3>;
 }
 
-function ProjectHeader({ block, context }: {
-  block: QcLayoutBlock;
-  context: LayoutRenderContext;
-}) {
+function ProjectHeader({ block, context }: { block: QcLayoutBlock; context: LayoutRenderContext }) {
   const { test } = context;
   return (
     <TableBlock block={{ ...block, rows: [
@@ -80,10 +77,7 @@ function ProjectHeader({ block, context }: {
   );
 }
 
-function EnvironmentTable({ block, context }: {
-  block: NumberedBlock;
-  context: LayoutRenderContext;
-}) {
+function EnvironmentTable({ block, context }: { block: NumberedBlock; context: LayoutRenderContext }) {
   const prefix = block.fieldPrefix || "layout/environment";
   const rowCount = block.roomRows || 1;
   const cell = (rawText: string, width: string, parts: QcLayoutPart[] = []): QcLayoutCell => ({
@@ -103,9 +97,9 @@ function EnvironmentTable({ block, context }: {
       cell("房间编号", "12%"),
       cell("", "13%", [{ type: "line", fieldKey: `${prefix}/room_no_${rowNo}`, width: "6.5rem" }]),
       cell("温度", "10%"),
-      cell("", "15%", [{ type: "line", fieldKey: `${prefix}/temperature_${rowNo}`, width: "3.4rem", underline: false }, { type: "text", text: "℃" }]),
+      cell("", "15%", [{ type: "line", fieldKey: `${prefix}/temperature_${rowNo}`, width: "3.4rem", underline: true }, { type: "text", text: "℃" }]),
       cell("湿度", "10%"),
-      cell("", "15%", [{ type: "line", fieldKey: `${prefix}/humidity_${rowNo}`, width: "3.4rem", underline: false }, { type: "text", text: "%" }]),
+      cell("", "15%", [{ type: "line", fieldKey: `${prefix}/humidity_${rowNo}`, width: "3.4rem", underline: true }, { type: "text", text: "%" }]),
     ];
   });
   return <TableBlock block={{ ...block, rows: [

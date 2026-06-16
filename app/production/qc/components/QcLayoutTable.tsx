@@ -6,7 +6,6 @@ import { QcPaperChoiceInput, QcPaperLineInput, QcPaperSelectInput, qcRangeError,
 import { QcPaperDateInput } from "./QcPaperDateInput";
 import { MicrobialSelectedTotalPart } from "./QcMicrobialComputedParts";
 import type { QcFieldValues } from "./useQcFormulaEngine";
-
 export interface LayoutRenderContext {
   test?: QcTemplateTestItem;
   values: QcFieldValues;
