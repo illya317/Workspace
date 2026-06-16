@@ -4,7 +4,6 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  outputFileTracingRoot: process.cwd(),
   images: {
     unoptimized: true,
   },
