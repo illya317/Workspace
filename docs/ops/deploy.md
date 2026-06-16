@@ -39,6 +39,12 @@ npm run dev
 ./deploy.sh
 ```
 
+云效/远端 CI 入口：
+
+```bash
+./ops/deploy-ci.sh
+```
+
 脚本读取 `ops/server.env.sh`，该文件不提交仓库。需要配置：
 
 | 变量 | 说明 |
@@ -62,6 +68,61 @@ npm run dev
 7. 使用 PM2 重新启动 `server.js` 并保存进程列表。
 
 这套策略保持服务器环境构建，避免 macOS/Linux native 依赖差异；同时避免每次部署都重装依赖，减少 CPU 峰值和部署时间。
+
+## 云效自动部署（Codeup / Flow）
+
+`ops/deploy-ci.sh` 是给云效或其他远端 CI 机器使用的部署脚本。它和本机 `./deploy.sh` 的区别是：
+
+- 不读取本机 `.workspace`，只依赖 CI 环境变量和服务器上已有的运行态目录。
+- 不把服务器 `data/` 反向拉回 CI 机器。
+- 仍然通过 SSH + rsync 同步源码，在服务器执行 `npm run build`，最后用 PM2 重启。
+
+建议在云效流水线里配置这些变量：
+
+| 变量 | 说明 |
+|------|------|
+| `SERVER` | SSH 目标，例如 `ubuntu@111.229.86.81` |
+| `REMOTE_DIR` | 服务器源码目录，例如 `/home/ubuntu/workspace` |
+| `PM2_NAME` | PM2 进程名，当前为 `workspace` |
+| `KEY_CONTENT` | SSH 私钥内容，推荐使用加密变量 |
+| `REMOTE_WORKSPACE_CONFIG_DIR` | 服务器运行态目录，默认 `$(dirname REMOTE_DIR)/.workspace` |
+| `HEALTHCHECK_URL` | 可选，部署后在服务器本机执行的健康检查地址，例如 `http://127.0.0.1:3000/` |
+| `RUN_LOCAL_CHECKS` | 可选，默认 `1`；设为 `0` 时跳过 CI 机上的静态检查 |
+
+当前仓库已提供一份云效 YAML 样例：
+
+```bash
+ops/yunxiao.pipeline.yml
+```
+
+说明：
+
+1. 代码源连接由云效服务连接提供，YAML 内引用该连接。
+2. 私密变量推荐放在云效通用变量组或流水线 UI 变量里，不要直接写进 YAML。
+3. 如果通过 OpenAPI 创建流水线，建议采用“两步法”：
+   - 先用 `ops/yunxiao.pipeline.yml` 创建流水线本体；
+   - 再用流水线关联 API 给该流水线绑定变量组。
+
+流水线命令最小示例：
+
+```bash
+chmod +x ops/deploy-ci.sh
+./ops/deploy-ci.sh
+```
+
+推荐触发方式：
+
+1. `main` 分支 push 自动触发。
+2. 先执行 `ops/deploy-ci.sh` 里的静态检查。
+3. 再同步源码并在服务器远端构建。
+4. 最后健康检查。
+
+如果你想把 CI/CD 分成两个阶段，也可以：
+
+1. CI 阶段只跑检查，不部署。
+2. CD 阶段调用 `./ops/deploy-ci.sh`。
+
+当前项目由于生产数据库和品牌资源都在服务器外部运行态目录里，**更适合把“构建 + 部署”放在同一个远端部署 job 里**，避免额外的制品打包和运行态拼装步骤。
 
 ### 前置条件
 

@@ -3,8 +3,8 @@
 import { useState } from "react";
 import type { QcTemplateEditorData } from "@/server/services/production/qc";
 import TemplateEditorModeNav from "./template-editor/TemplateEditorModeNav";
-import TemplateEditorPreviewPane from "./template-editor/TemplateEditorPreviewPane";
 import TemplateLayoutStageCard from "./template-editor/TemplateLayoutStageCard";
+import TemplatePreviewModal from "./template-editor/TemplatePreviewModal";
 import { useTemplateEditorDrafts } from "./template-editor/useTemplateEditorDrafts";
 
 interface Props {
@@ -15,6 +15,7 @@ export default function QcTemplateLayoutEditorClient({ data }: Props) {
   const editor = useTemplateEditorDrafts(data);
   const [activeStageKey, setActiveStageKey] = useState(data.detail.stages[0]?.key || "");
   const [selectedBlockIndex, setSelectedBlockIndex] = useState(0);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const activeStage = data.detail.stages.find((stage) => stage.key === activeStageKey) || data.detail.stages[0];
   const previewDraft = activeStage ? editor.layoutDraftForStage(activeStage) : null;
 
@@ -39,38 +40,37 @@ export default function QcTemplateLayoutEditorClient({ data }: Props) {
         <div className="text-sm text-slate-600">{data.detail.stages.length} 个阶段 · {data.moduleLibrary.length} 个模块模板 · {data.drafts.length} 个已保存草稿</div>
         <div className="flex items-center gap-3">
           {editor.savedAt && <span className="text-xs text-slate-500">已保存：{editor.savedAt}</span>}
+          <button onClick={() => setPreviewOpen(true)} disabled={!previewDraft} className="h-9 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50">
+            预览
+          </button>
           <button onClick={editor.saveLayoutDrafts} disabled={editor.saving} className="h-9 rounded-md border border-emerald-600 bg-emerald-50 px-4 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 disabled:opacity-60">
             {editor.saving ? "保存中" : "保存版面草稿"}
           </button>
         </div>
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(560px,1.05fr)]">
-        <div className="space-y-4">
-          {data.detail.stages.map((stage) => (
-            <TemplateLayoutStageCard
-              key={stage.key}
-              templateId={data.detail.id}
-              stage={stage}
-              tests={editor.testsByStage[stage.key] || []}
-              moduleLibrary={data.moduleLibrary}
-              active={stage.key === activeStage?.key}
-              onFocusStage={(nextStage) => {
-                setActiveStageKey(nextStage.key);
-                setSelectedBlockIndex(0);
-              }}
-              onAddTest={editor.addTest}
-              onMoveTest={editor.moveTest}
-              onUpdateTest={editor.updateTest}
-            />
-          ))}
-        </div>
-        {previewDraft && (
-          <div className="min-w-0 xl:sticky xl:top-20 xl:self-start">
-            <TemplateEditorPreviewPane draft={previewDraft} selectedBlockIndex={selectedBlockIndex} errors={[]} onSelectBlock={setSelectedBlockIndex} />
-          </div>
-        )}
+      <div className="space-y-4">
+        {data.detail.stages.map((stage) => (
+          <TemplateLayoutStageCard
+            key={stage.key}
+            templateId={data.detail.id}
+            stage={stage}
+            tests={editor.testsByStage[stage.key] || []}
+            moduleLibrary={data.moduleLibrary}
+            active={stage.key === activeStage?.key}
+            onFocusStage={(nextStage) => {
+              setActiveStageKey(nextStage.key);
+              setSelectedBlockIndex(0);
+            }}
+            onAddTest={editor.addTest}
+            onMoveTest={editor.moveTest}
+            onUpdateTest={editor.updateTest}
+          />
+        ))}
       </div>
+      {previewDraft && (
+        <TemplatePreviewModal draft={previewDraft} open={previewOpen} selectedBlockIndex={selectedBlockIndex} errors={[]} onSelectBlock={setSelectedBlockIndex} onClose={() => setPreviewOpen(false)} />
+      )}
     </section>
   );
 }

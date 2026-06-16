@@ -17,7 +17,10 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## 部署与运行态同步
 
+- 仓库默认远端 `origin` 使用 Codeup：`git@codeup.aliyun.com:6a30d9d908f52788b1331bb3/illya317/Workspace.git`。日常 `git pull` / `git push` 默认走这个地址。
 - 部署必须在 `main` 分支且工作区干净；先 commit，再运行 `./deploy.sh`。
+- 云效/远端 CI 自动部署使用 `./ops/deploy-ci.sh`，只同步源码并在服务器远端构建，不依赖本机 `.workspace`，也不会把服务器 `data/` 拉回 CI 机器。
+- 云效 YAML 流水线样例在 `ops/yunxiao.pipeline.yml`；私密部署参数不要写入 YAML，优先通过云效变量组或流水线 UI 变量注入。
 - 源码同步只同步仓库内容，排除 `.env`、`data/`、`public/company`、`public/assets/agent/avatar/`、`node_modules/`、`.next/` 等运行态路径。
 - 运行态配置来自本机 `LOCAL_WORKSPACE_CONFIG_DIR`，默认 `$WORKSPACE_CONFIG_DIR`，其次 `$HOME/.workspace`；当前机器实际入口是 `/Users/koito/.workspace`，指向桌面 `.workspace`。
 - 部署时 `.env`、品牌资源、agent 头像会同步到服务器 `REMOTE_WORKSPACE_CONFIG_DIR`，默认 `/home/ubuntu/.workspace`。远端 `.env` 会自动改写 `DATABASE_URL` 和 `WORKSPACE_CONFIG_DIR` 为服务器路径。

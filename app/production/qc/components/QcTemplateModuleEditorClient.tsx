@@ -4,8 +4,8 @@ import { useMemo, useState } from "react";
 import type { QcTemplateEditorData, QcTemplateEditorDraft } from "@/server/services/production/qc";
 import TemplateEditorInspector from "./template-editor/TemplateEditorInspector";
 import TemplateEditorModeNav from "./template-editor/TemplateEditorModeNav";
-import TemplateEditorPreviewPane from "./template-editor/TemplateEditorPreviewPane";
 import TemplateModulePicker from "./template-editor/TemplateModulePicker";
+import TemplatePreviewModal from "./template-editor/TemplatePreviewModal";
 import { moduleDisplayName } from "./template-editor/editor-utils";
 import { moduleDraftFromItem } from "./template-editor/module-draft-utils";
 
@@ -21,6 +21,7 @@ export default function QcTemplateModuleEditorClient({ data }: Props) {
   const [moduleId, setModuleId] = useState(modules[0]?.id || "");
   const [selectedBlockIndex, setSelectedBlockIndex] = useState(0);
   const [selectedCell, setSelectedCell] = useState<CellSelection | undefined>();
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<string>();
   const [saveError, setSaveError] = useState<string>();
@@ -87,6 +88,9 @@ export default function QcTemplateModuleEditorClient({ data }: Props) {
           </div>
           <div className="flex items-center justify-end gap-3">
             {savedAt && <span className="text-xs text-slate-500">已保存：{savedAt}</span>}
+            <button onClick={() => setPreviewOpen(true)} className="h-9 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+              预览
+            </button>
             <button onClick={saveDraft} disabled={saving} className="h-9 rounded-md border border-emerald-600 bg-emerald-50 px-4 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 disabled:opacity-60">
               {saving ? "保存中" : "保存模块草稿"}
             </button>
@@ -94,11 +98,7 @@ export default function QcTemplateModuleEditorClient({ data }: Props) {
         </div>
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <TemplateEditorPreviewPane draft={draft} selectedBlockIndex={selectedBlockIndex} errors={[]} onSelectBlock={(index) => {
-          setSelectedBlockIndex(index);
-          setSelectedCell(undefined);
-        }} />
+      <div>
         <TemplateEditorInspector
           draft={draft}
           selectedBlockIndex={selectedBlockIndex}
@@ -114,6 +114,10 @@ export default function QcTemplateModuleEditorClient({ data }: Props) {
           savedAt={savedAt}
         />
       </div>
+      <TemplatePreviewModal draft={draft} open={previewOpen} selectedBlockIndex={selectedBlockIndex} errors={[]} onSelectBlock={(index) => {
+        setSelectedBlockIndex(index);
+        setSelectedCell(undefined);
+      }} onClose={() => setPreviewOpen(false)} />
     </section>
   );
 }

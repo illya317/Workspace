@@ -152,4 +152,14 @@ Verifies:
 
 ## CI / Server
 
-Configure `NEXTAUTH_SECRET` and `DATABASE_URL` directly in the deployment platform's environment variable settings. Do not copy `.env` files to servers.
+Current production uses SSH deploys to a CVM host. The source of truth for production secrets is the
+remote runtime directory, typically `$REMOTE_WORKSPACE_CONFIG_DIR/.env`; deploy scripts symlink that
+file into the repo and normalize `DATABASE_URL` / `WORKSPACE_CONFIG_DIR` to server paths before the
+remote build starts.
+
+For managed platforms or containers, prefer native platform env vars instead of copying `.env`
+files. In other words:
+
+- CVM + PM2 + SSH deploy: keep `.env` in the remote `.workspace` runtime directory.
+- Managed CI/CD or container platforms: inject `NEXTAUTH_SECRET`, `DATABASE_URL`, and related
+  secrets through the platform settings.
