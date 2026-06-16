@@ -21,7 +21,7 @@ interface DraftStore { drafts: QcTemplateEditorDraft[] }
 interface DraftAuthor { userId: number; userName: string }
 
 const FORMULA_FUNCTIONS = ["SUM", "AVG", "SUBTRACT", "DIVIDE", "ABS", "ROUND", "SD_SAMPLE", "RSD", "RD"];
-const VALID_NODE_TYPES = new Set<QcTemplateEditorNodeType>(["precheck", "experiment", "test"]);
+const VALID_NODE_TYPES = new Set<QcTemplateEditorNodeType>(["precheck", "experiment", "test", "module"]);
 
 function dataPath() {
   return qcRuntimeDataPath("qc-template-drafts.json");
@@ -195,7 +195,7 @@ function allFields(groups: QcTemplateMethodGroup[]) {
   return groups.flatMap((group) => group.fields);
 }
 
-function validateBlocks(blocks: QcLayoutBlock[], groups: QcTemplateMethodGroup[]) {
+function validateBlocks(blocks: QcLayoutBlock[], groups: QcTemplateMethodGroup[], allowUnknownFields = false) {
   const errors: string[] = [];
   const fieldNames = new Set(allFields(groups).map((field) => field.name));
   const roles = new Set(blocks.map((block) => block.sectionRole).filter(Boolean));
@@ -206,7 +206,7 @@ function validateBlocks(blocks: QcLayoutBlock[], groups: QcTemplateMethodGroup[]
       if (cell.colspan <= 0 || cell.rowspan <= 0) errors.push(`模块 ${blockIndex + 1} 第 ${rowIndex + 1} 行第 ${cellIndex + 1} 格合并参数不合法`);
       cell.parts.forEach((part) => {
         if (part.type === "select" && !part.options?.length) errors.push(`模块 ${blockIndex + 1} 第 ${rowIndex + 1} 行第 ${cellIndex + 1} 格下拉框缺少选项`);
-        if ((part.type === "field" || part.type === "line") && part.field && !fieldNames.has(part.field)) errors.push(`字段不存在：${part.field}`);
+        if (!allowUnknownFields && (part.type === "field" || part.type === "line") && part.field && !fieldNames.has(part.field)) errors.push(`字段不存在：${part.field}`);
       });
     }));
   });
@@ -224,7 +224,7 @@ function normalizeDraft(raw: unknown, author?: DraftAuthor): QcTemplateEditorDra
     updatedBy: author?.userName || draft.updatedBy || "unknown",
     updatedAt: new Date().toISOString(),
   };
-  const errors = validateBlocks(normalized.layoutDraft.blocks, normalized.methodDraft.methodGroups);
+  const errors = validateBlocks(normalized.layoutDraft.blocks, normalized.methodDraft.methodGroups, normalized.nodeType === "module");
   if (errors.length) throw new Error(errors.join("；"));
   return normalized;
 }
@@ -241,7 +241,7 @@ export async function saveQcTemplateEditorDraft(raw: unknown, author: DraftAutho
 
 export function previewQcTemplateEditorDraft(raw: unknown): QcTemplateEditorPreview {
   const draft = normalizeDraft(raw);
-  const errors = validateBlocks(draft.layoutDraft.blocks, draft.methodDraft.methodGroups);
+  const errors = validateBlocks(draft.layoutDraft.blocks, draft.methodDraft.methodGroups, draft.nodeType === "module");
   return {
     target: draft,
     blocks: draft.layoutDraft.blocks,

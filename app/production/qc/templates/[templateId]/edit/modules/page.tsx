@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { requireResourceAccess } from "@/server/auth/guard";
 import { getQcTemplateEditorData } from "@/server/services/production/qc";
 import QcModuleShell from "../../../../components/QcModuleShell";
-import QcTemplateEditorClient from "../../../../components/QcTemplateEditorClient";
+import QcTemplateModuleEditorClient from "../../../../components/QcTemplateModuleEditorClient";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -26,7 +26,7 @@ export default async function QcTemplateModuleEditPage({ params }: Props) {
       description="以草稿方式编辑模块表格、单元格、字段和公式；生产端仍使用已发布 JSON/YAML。"
       activeResourceKey="production.qc.templates"
     >
-      <QcTemplateEditorClient data={data} />
+      <QcTemplateModuleEditorClient data={data} />
     </QcModuleShell>
   );
 }

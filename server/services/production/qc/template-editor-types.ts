@@ -5,7 +5,7 @@ import type {
   QcTemplateMethodGroup,
 } from "./types";
 
-export type QcTemplateEditorNodeType = "precheck" | "experiment" | "test";
+export type QcTemplateEditorNodeType = "precheck" | "experiment" | "test" | "module";
 
 export interface QcTemplateEditorTarget {
   productKey: string;

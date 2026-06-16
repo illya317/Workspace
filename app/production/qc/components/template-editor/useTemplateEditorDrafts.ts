@@ -52,7 +52,7 @@ function errorsForDraft(draft: QcTemplateEditorDraft) {
       cell.parts.forEach((part) => {
         if (part.type === "select" && !part.options?.length) errors.push(`第 ${rowIndex + 1} 行第 ${cellIndex + 1} 格下拉框缺少选项`);
         const field = partField(part);
-        if (field && !fields.has(field)) errors.push(`字段不存在：${field}`);
+        if (draft.nodeType !== "module" && field && !fields.has(field)) errors.push(`字段不存在：${field}`);
       });
     }));
   });
@@ -71,6 +71,7 @@ export function useTemplateEditorDrafts(data: QcTemplateEditorData) {
     const id = draftId(targetFromNode(data.detail, stage, "experiment"));
     return drafts.get(id) || initialDraft(data.detail, stage, "experiment");
   };
+  const layoutDraftForStage = (stage: QcTemplateStage) => experimentDraftForStage(stage);
   const draft = useMemo(() => {
     if (!selection) return null;
     return drafts.get(selectedId) || initialDraft(data.detail, selection.stage, selection.nodeType, selection.test);
@@ -160,5 +161,5 @@ export function useTemplateEditorDrafts(data: QcTemplateEditorData) {
     await persistDrafts(data.detail.stages.map((stage) => experimentDraftForStage(stage)));
   }
 
-  return { draft, selectedId, selection, testsByStage, errors: draft ? errorsForDraft(draft) : [], saving, savedAt, saveError, updateDraft, selectNode, selectTestDraft, addTest, updateTest, moveTest, saveDraft, saveLayoutDrafts };
+  return { draft, selectedId, selection, testsByStage, errors: draft ? errorsForDraft(draft) : [], saving, savedAt, saveError, layoutDraftForStage, updateDraft, selectNode, selectTestDraft, addTest, updateTest, moveTest, saveDraft, saveLayoutDrafts };
 }

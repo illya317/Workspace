@@ -18,13 +18,15 @@ interface Props {
   onAddTest: (stage: QcTemplateStage, input: NewTestInput) => void;
   onMoveTest: (stage: QcTemplateStage, testId: string, direction: -1 | 1) => void;
   onUpdateTest: (stage: QcTemplateStage, testId: string, patch: Partial<QcTemplateEditorTestDraft>) => void;
+  active?: boolean;
+  onFocusStage?: (stage: QcTemplateStage) => void;
 }
 
 function initialKey(stage: QcTemplateStage, tests: QcTemplateEditorTestDraft[]) {
   return `custom_${stage.tests.length + tests.filter((test) => test.source === "draft").length + 1}`;
 }
 
-export default function TemplateLayoutStageCard({ templateId, stage, tests, moduleLibrary, onAddTest, onMoveTest, onUpdateTest }: Props) {
+export default function TemplateLayoutStageCard({ templateId, stage, tests, moduleLibrary, onAddTest, onMoveTest, onUpdateTest, active = false, onFocusStage }: Props) {
   const moduleOptions = useMemo(() => moduleLibrary.filter((item) => item.id.startsWith("parents/") || item.blocks?.length), [moduleLibrary]);
   const [adding, setAdding] = useState(false);
   const [name, setName] = useState("新检测项");
@@ -46,10 +48,10 @@ export default function TemplateLayoutStageCard({ templateId, stage, tests, modu
   }
 
   return (
-    <section className="overflow-hidden rounded-lg border border-slate-200 bg-white">
+    <section className={`overflow-hidden rounded-lg border bg-white ${active ? "border-emerald-500 shadow-sm" : "border-slate-200"}`} onFocus={() => onFocusStage?.(stage)}>
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
         <div>
-          <h2 className="text-base font-semibold text-slate-900">{stage.label}</h2>
+          <button onClick={() => onFocusStage?.(stage)} className="text-left text-base font-semibold text-slate-900 hover:text-emerald-800">{stage.label}</button>
           <p className="mt-1 text-xs text-slate-500">{stage.documentCount} 份文件 · {stage.precheckItemCount} 个确认项 · {tests.length} 个检测项</p>
         </div>
         <button onClick={startAdd} className="rounded-md border border-emerald-600 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100">

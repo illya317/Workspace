@@ -12,9 +12,10 @@ interface Props {
 }
 
 function previewTest(draft: QcTemplateEditorDraft): QcTemplateTestItem {
+  const fallbackName = draft.nodeType === "module" ? "模块预览" : draft.nodeType === "precheck" ? "检验前确认" : "实验项目";
   return {
-    sequence: draft.nodeType === "precheck" ? "1" : draft.sequence || "2",
-    name: draft.testName || (draft.nodeType === "precheck" ? "检验前确认" : "实验项目"),
+    sequence: draft.nodeType === "precheck" ? "1" : draft.nodeType === "module" ? "" : draft.sequence || "2",
+    name: draft.testName || fallbackName,
     englishName: draft.testNameEn || draft.nodeType,
     methodName: "",
     hasNumericConclusion: false,

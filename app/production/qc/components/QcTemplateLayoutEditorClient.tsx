@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import type { QcTemplateEditorData } from "@/server/services/production/qc";
 import TemplateEditorModeNav from "./template-editor/TemplateEditorModeNav";
+import TemplateEditorPreviewPane from "./template-editor/TemplateEditorPreviewPane";
 import TemplateLayoutStageCard from "./template-editor/TemplateLayoutStageCard";
 import { useTemplateEditorDrafts } from "./template-editor/useTemplateEditorDrafts";
 
@@ -11,6 +13,10 @@ interface Props {
 
 export default function QcTemplateLayoutEditorClient({ data }: Props) {
   const editor = useTemplateEditorDrafts(data);
+  const [activeStageKey, setActiveStageKey] = useState(data.detail.stages[0]?.key || "");
+  const [selectedBlockIndex, setSelectedBlockIndex] = useState(0);
+  const activeStage = data.detail.stages.find((stage) => stage.key === activeStageKey) || data.detail.stages[0];
+  const previewDraft = activeStage ? editor.layoutDraftForStage(activeStage) : null;
 
   return (
     <section className="space-y-4">
@@ -39,19 +45,31 @@ export default function QcTemplateLayoutEditorClient({ data }: Props) {
         </div>
       </div>
 
-      <div className="space-y-4">
-        {data.detail.stages.map((stage) => (
-          <TemplateLayoutStageCard
-            key={stage.key}
-            templateId={data.detail.id}
-            stage={stage}
-            tests={editor.testsByStage[stage.key] || []}
-            moduleLibrary={data.moduleLibrary}
-            onAddTest={editor.addTest}
-            onMoveTest={editor.moveTest}
-            onUpdateTest={editor.updateTest}
-          />
-        ))}
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,0.95fr)_minmax(560px,1.05fr)]">
+        <div className="space-y-4">
+          {data.detail.stages.map((stage) => (
+            <TemplateLayoutStageCard
+              key={stage.key}
+              templateId={data.detail.id}
+              stage={stage}
+              tests={editor.testsByStage[stage.key] || []}
+              moduleLibrary={data.moduleLibrary}
+              active={stage.key === activeStage?.key}
+              onFocusStage={(nextStage) => {
+                setActiveStageKey(nextStage.key);
+                setSelectedBlockIndex(0);
+              }}
+              onAddTest={editor.addTest}
+              onMoveTest={editor.moveTest}
+              onUpdateTest={editor.updateTest}
+            />
+          ))}
+        </div>
+        {previewDraft && (
+          <div className="min-w-0 xl:sticky xl:top-20 xl:self-start">
+            <TemplateEditorPreviewPane draft={previewDraft} selectedBlockIndex={selectedBlockIndex} errors={[]} onSelectBlock={setSelectedBlockIndex} />
+          </div>
+        )}
       </div>
     </section>
   );
