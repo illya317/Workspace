@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import { requireResourceAccess } from "@/server/auth/guard";
 import { getQcTemplateEditorData } from "@/server/services/production/qc";
-import QcModuleShell from "../../../components/QcModuleShell";
-import QcTemplateLayoutEditorClient from "../../../components/QcTemplateLayoutEditorClient";
+import QcModuleShell from "../../../../components/QcModuleShell";
+import QcTemplateEditorClient from "../../../../components/QcTemplateEditorClient";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -11,7 +11,7 @@ interface Props {
   params: Promise<{ templateId: string }>;
 }
 
-export default async function QcTemplateEditPage({ params }: Props) {
+export default async function QcTemplateModuleEditPage({ params }: Props) {
   const [{ templateId }, user] = await Promise.all([
     params,
     requireResourceAccess("production.qc.templates"),
@@ -22,11 +22,11 @@ export default async function QcTemplateEditPage({ params }: Props) {
   return (
     <QcModuleShell
       user={user}
-      title={`${data.detail.productName} · 版面编辑`}
-      description="以草稿方式维护阶段、检测项顺序和模块映射；生产端仍使用已发布 JSON/YAML。"
+      title={`${data.detail.productName} · 模块编辑`}
+      description="以草稿方式编辑模块表格、单元格、字段和公式；生产端仍使用已发布 JSON/YAML。"
       activeResourceKey="production.qc.templates"
     >
-      <QcTemplateLayoutEditorClient data={data} />
+      <QcTemplateEditorClient data={data} />
     </QcModuleShell>
   );
 }

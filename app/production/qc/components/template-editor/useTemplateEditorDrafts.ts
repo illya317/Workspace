@@ -123,14 +123,19 @@ export function useTemplateEditorDrafts(data: QcTemplateEditorData) {
     setSelection({ stage, nodeType: "test", test: item });
   }
 
-  async function saveDraft() {
-    if (!draft) return;
+  function updateTest(stage: QcTemplateStage, testId: string, patch: Partial<QcTemplateEditorTestDraft>) {
+    const tests = testsByStage[stage.key] || [];
+    const ordered = orderedTestDrafts(tests.map((test) => test.id === testId ? { ...test, ...patch } : test));
+    updateExperimentTests(stage, ordered);
+    const selected = selection?.test && ordered.find((test) => test.englishName === selection.test?.englishName);
+    if (selected) selectNode(stage, "test", testItemFromDraft(stage, selected, data.moduleLibrary));
+  }
+
+  async function persistDrafts(items: QcTemplateEditorDraft[]) {
     setSaving(true);
     setSaveError(undefined);
     try {
-      const queue = new Map<string, QcTemplateEditorDraft>();
-      if (selection) queue.set(experimentDraftForStage(selection.stage).draftId, experimentDraftForStage(selection.stage));
-      queue.set(draft.draftId, draft);
+      const queue = new Map(items.map((item) => [item.draftId, item]));
       for (const item of queue.values()) {
         const response = await fetch(`/api/production/qc/template-editor/drafts/${encodeURIComponent(item.draftId)}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ draft: item }) });
         const payload = await response.json().catch(() => null) as { data?: QcTemplateEditorDraft; error?: string } | null;
@@ -145,5 +150,15 @@ export function useTemplateEditorDrafts(data: QcTemplateEditorData) {
     }
   }
 
-  return { draft, selectedId, selection, testsByStage, errors: draft ? errorsForDraft(draft) : [], saving, savedAt, saveError, updateDraft, selectNode, selectTestDraft, addTest, moveTest, saveDraft };
+  async function saveDraft() {
+    if (!draft) return;
+    const items = selection ? [experimentDraftForStage(selection.stage), draft] : [draft];
+    await persistDrafts(items);
+  }
+
+  async function saveLayoutDrafts() {
+    await persistDrafts(data.detail.stages.map((stage) => experimentDraftForStage(stage)));
+  }
+
+  return { draft, selectedId, selection, testsByStage, errors: draft ? errorsForDraft(draft) : [], saving, savedAt, saveError, updateDraft, selectNode, selectTestDraft, addTest, updateTest, moveTest, saveDraft, saveLayoutDrafts };
 }

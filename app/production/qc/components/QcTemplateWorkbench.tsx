@@ -79,8 +79,11 @@ export default function QcTemplateWorkbench({ templates, feedbackKeys }: Props) 
               </div>
               <div className="flex items-center gap-2">
                 <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">{itemCount(template)} 个实验项目</span>
-                <Link href={`/production/qc/templates/${template.id}/edit`} className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-                  编辑
+                <Link href={`/production/qc/templates/${template.id}/edit`} className="rounded-md border border-emerald-600 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100">
+                  版面
+                </Link>
+                <Link href={`/production/qc/templates/${template.id}/edit/modules`} className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+                  模块
                 </Link>
               </div>
             </div>

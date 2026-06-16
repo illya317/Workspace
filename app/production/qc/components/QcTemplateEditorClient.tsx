@@ -8,6 +8,7 @@ import type {
   QcTemplateTestItem,
 } from "@/server/services/production/qc";
 import TemplateEditorInspector from "./template-editor/TemplateEditorInspector";
+import TemplateEditorModeNav from "./template-editor/TemplateEditorModeNav";
 import TemplateEditorPreviewPane from "./template-editor/TemplateEditorPreviewPane";
 import TemplateEditorStructureTree from "./template-editor/TemplateEditorStructureTree";
 import type { NewTestInput } from "./template-editor/editor-utils";
@@ -52,11 +53,12 @@ export default function QcTemplateEditorClient({ data }: Props) {
       <div className="rounded-lg border border-slate-200 bg-white p-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold text-emerald-700">模板编辑器 V1</p>
+            <p className="text-xs font-semibold text-emerald-700">模块编辑器</p>
             <h2 className="mt-2 text-lg font-semibold text-slate-900">{data.detail.productName}</h2>
-            <p className="mt-1 text-sm text-slate-500">草稿预览模式，不覆盖生产 JSON/YAML。</p>
+            <p className="mt-1 text-sm text-slate-500">维护模块里的表格结构、单元格、字段和公式；检测项顺序和模块选择在版面编辑器处理。</p>
           </div>
-          <div className="text-right text-xs text-slate-500">
+          <div className="space-y-2 text-right text-xs text-slate-500">
+            <TemplateEditorModeNav templateId={data.detail.id} active="module" />
             <div>{data.detail.fileName}</div>
             <div>{data.moduleLibrary.length} 个模块模板 · {data.drafts.length} 个已保存草稿</div>
           </div>
@@ -90,6 +92,7 @@ export default function QcTemplateEditorClient({ data }: Props) {
               }}
               onAddTest={addTest}
               onMoveTest={editor.moveTest}
+              layoutActions={false}
             />
           </div>
         </>

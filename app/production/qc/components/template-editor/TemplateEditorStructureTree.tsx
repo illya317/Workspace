@@ -22,6 +22,7 @@ interface Props {
   onSelectTest: (stage: QcTemplateStage, test: QcTemplateEditorTestDraft) => void;
   onAddTest: (stage: QcTemplateStage, input: NewTestInput) => void;
   onMoveTest: (stage: QcTemplateStage, testId: string, direction: -1 | 1) => void;
+  layoutActions?: boolean;
 }
 
 function nodeClass(active: boolean, inset = false) {
@@ -34,7 +35,7 @@ function initialKey(stage: QcTemplateStage) {
   return `custom_${stage.tests.length + 1}`;
 }
 
-export default function TemplateEditorStructureTree({ detail, selectedId, testsByStage, moduleLibrary, onClose, onSelect, onSelectTest, onAddTest, onMoveTest }: Props) {
+export default function TemplateEditorStructureTree({ detail, selectedId, testsByStage, moduleLibrary, onClose, onSelect, onSelectTest, onAddTest, onMoveTest, layoutActions = true }: Props) {
   const templateOptions = useMemo(() => moduleLibrary.filter((item) => item.id.startsWith("parents/") || item.blocks?.length).slice(0, 120), [moduleLibrary]);
   const [addingStageKey, setAddingStageKey] = useState("");
   const [name, setName] = useState("新检测项");
@@ -84,12 +85,14 @@ export default function TemplateEditorStructureTree({ detail, selectedId, testsB
                 </button>
               );
             })}
-            <div className="ml-4">
-              <button onClick={() => startAdd(stage)} className="w-full rounded-md border border-dashed border-emerald-300 bg-emerald-50/60 px-3 py-2 text-left text-xs font-semibold text-emerald-800 hover:bg-emerald-50">
-                + 检测项
-              </button>
-            </div>
-            {addingStageKey === stage.key && (
+            {layoutActions && (
+              <div className="ml-4">
+                <button onClick={() => startAdd(stage)} className="w-full rounded-md border border-dashed border-emerald-300 bg-emerald-50/60 px-3 py-2 text-left text-xs font-semibold text-emerald-800 hover:bg-emerald-50">
+                  + 检测项
+                </button>
+              </div>
+            )}
+            {layoutActions && addingStageKey === stage.key && (
               <div className="ml-4 space-y-2 rounded-md border border-emerald-200 bg-emerald-50/40 p-2">
                 <input value={name} onChange={(event) => setName(event.target.value)} className="h-8 w-full rounded border border-slate-300 px-2 text-xs" placeholder="项目名称" />
                 <input value={methodName} onChange={(event) => setMethodName(event.target.value)} className="h-8 w-full rounded border border-slate-300 px-2 text-xs" placeholder="方法，例如 HPLC" />
@@ -110,10 +113,12 @@ export default function TemplateEditorStructureTree({ detail, selectedId, testsB
                     <span className="mt-1 block truncate text-xs font-normal opacity-70">{test.methodName || "未配置"} · {test.templateId || "未映射组件"}</span>
                     <span className="mt-1 block text-[11px] font-normal opacity-70">默认 {test.defaultOrder || "-"} · 当前 {test.order}{test.source === "draft" ? " · 新增" : ""}</span>
                   </button>
-                  <div className="grid w-10 shrink-0 gap-1">
-                    <button disabled={index === 0} onClick={() => onMoveTest(stage, test.id, -1)} className="rounded border border-slate-200 text-xs text-slate-600 disabled:opacity-30">↑</button>
-                    <button disabled={index === tests.length - 1} onClick={() => onMoveTest(stage, test.id, 1)} className="rounded border border-slate-200 text-xs text-slate-600 disabled:opacity-30">↓</button>
-                  </div>
+                  {layoutActions && (
+                    <div className="grid w-10 shrink-0 gap-1">
+                      <button disabled={index === 0} onClick={() => onMoveTest(stage, test.id, -1)} className="rounded border border-slate-200 text-xs text-slate-600 disabled:opacity-30">↑</button>
+                      <button disabled={index === tests.length - 1} onClick={() => onMoveTest(stage, test.id, 1)} className="rounded border border-slate-200 text-xs text-slate-600 disabled:opacity-30">↓</button>
+                    </div>
+                  )}
                 </div>
               );
             })}

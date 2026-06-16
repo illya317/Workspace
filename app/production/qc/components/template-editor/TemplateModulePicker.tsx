@@ -11,13 +11,14 @@ interface Props {
   onAdd?: (templateId: string) => void;
   actionLabel?: string;
   compact?: boolean;
+  allowEmpty?: boolean;
 }
 
 function sorted(items: QcTemplateModuleLibraryItem[]) {
   return items.slice().sort((a, b) => moduleCategoryLabel(a).localeCompare(moduleCategoryLabel(b), "zh-Hans-CN") || moduleDisplayName(a).localeCompare(moduleDisplayName(b), "zh-Hans-CN"));
 }
 
-export default function TemplateModulePicker({ moduleLibrary, value, onChange, onAdd, actionLabel = "添加", compact = false }: Props) {
+export default function TemplateModulePicker({ moduleLibrary, value, onChange, onAdd, actionLabel = "添加", compact = false, allowEmpty = false }: Props) {
   const modules = useMemo(() => sorted(moduleLibrary.filter((item) => item.blocks?.length || item.id.startsWith("parents/"))), [moduleLibrary]);
   const categories = useMemo(() => Array.from(new Set(modules.map((item) => item.category))).map((category) => {
     const sample = modules.find((item) => item.category === category);
@@ -28,7 +29,7 @@ export default function TemplateModulePicker({ moduleLibrary, value, onChange, o
   const selectedCategory = selected?.category;
   const [category, setCategory] = useState(selected?.category || categories[0]?.category || "");
   const filtered = modules.filter((item) => item.category === category);
-  const selectedId = selected?.id && selected.category === category ? selected.id : filtered[0]?.id || "";
+  const selectedId = selected?.id && selected.category === category ? selected.id : allowEmpty ? "" : filtered[0]?.id || "";
   const selectedItem = modules.find((item) => item.id === selectedId);
 
   useEffect(() => {
@@ -42,7 +43,10 @@ export default function TemplateModulePicker({ moduleLibrary, value, onChange, o
   function chooseCategory(nextCategory: string) {
     setCategory(nextCategory);
     const first = modules.find((item) => item.category === nextCategory);
-    if (first) {
+    if (allowEmpty) {
+      setLocalId("");
+      onChange?.("");
+    } else if (first) {
       setLocalId(first.id);
       onChange?.(first.id);
     }
@@ -60,6 +64,7 @@ export default function TemplateModulePicker({ moduleLibrary, value, onChange, o
       </select>
       <div className={onAdd ? "grid grid-cols-[minmax(0,1fr)_auto] gap-2" : ""}>
         <select value={selectedId} onChange={(event) => chooseModule(event.target.value)} className="h-9 w-full rounded-md border border-slate-300 bg-white px-2 text-sm text-slate-700">
+          {allowEmpty && <option value="">未选择模块</option>}
           {filtered.map((item) => <option key={item.id} value={item.id}>{moduleDisplayName(item)}</option>)}
         </select>
         {onAdd && (
