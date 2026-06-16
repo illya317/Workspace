@@ -1,12 +1,10 @@
 "use client";
-
 import { useEffect, type CSSProperties } from "react";
 import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcTemplateMethodField, QcTemplateTestItem } from "@/server/services/production/qc";
 import { QcPaperChoiceInput, QcPaperLineInput, QcPaperSelectInput, qcRangeError, qcRangeLabel } from "./QcPaperInputs";
 import { QcPaperDateInput } from "./QcPaperDateInput";
 import { MicrobialSelectedTotalPart } from "./QcMicrobialComputedParts";
 import type { QcFieldValues } from "./useQcFormulaEngine";
-
 const TABLE_BODY_TEXT_CLASS = "text-[15px] leading-8 text-slate-950";
 const TABLE_HEADING_TEXT_CLASS = "text-[17px] font-semibold leading-7 text-slate-950";
 export interface LayoutRenderContext {
@@ -18,7 +16,6 @@ export interface LayoutRenderContext {
   sectionAliases?: Record<string, string>;
   inTable?: boolean;
 }
-
 function defaultValueForPart(part: QcLayoutPart, test?: QcTemplateTestItem) {
   if (part.defaultValue) return part.defaultValue;
   if (part.field === "重量差异限度") return test?.standardText?.match(/±\s*([\d.]+)\s*%/)?.[1];
@@ -38,7 +35,6 @@ function resolvePartField(
   const key = part.fieldKey || field?.fieldKey || part.field || part.name || "";
   return { key, field: fieldByKey.get(key) || field };
 }
-
 function parseDateValue(value?: string) {
   const parts = String(value || "").slice(0, 10).split("-");
   if (parts.length !== 3) return undefined;
