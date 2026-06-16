@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import type { QcTemplateEditorData, QcTemplateEditorDraft } from "@/server/services/production/qc";
 import TemplateEditorInspector from "./template-editor/TemplateEditorInspector";
 import TemplateEditorModeNav from "./template-editor/TemplateEditorModeNav";
+import TemplateBlockOverview from "./template-editor/TemplateBlockOverview";
 import TemplateModulePicker from "./template-editor/TemplateModulePicker";
 import TemplatePreviewModal from "./template-editor/TemplatePreviewModal";
 import { moduleDisplayName } from "./template-editor/editor-utils";
@@ -75,18 +76,29 @@ export default function QcTemplateModuleEditorClient({ data }: Props) {
         {saveError && <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{saveError}</div>}
       </div>
 
-      <div className="sticky top-2 z-20 rounded-lg border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur">
-        <div className="grid gap-3 lg:grid-cols-[minmax(260px,420px)_minmax(0,1fr)_auto] lg:items-end">
-          <TemplateModulePicker moduleLibrary={modules} value={moduleId} onChange={(nextId) => {
-            setModuleId(nextId);
-            setSelectedBlockIndex(0);
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="space-y-4">
+          <section className="sticky top-2 z-20 rounded-lg border border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur">
+            <div className="grid gap-3 lg:grid-cols-[minmax(260px,420px)_minmax(0,1fr)] lg:items-end">
+              <TemplateModulePicker moduleLibrary={modules} value={moduleId} onChange={(nextId) => {
+                setModuleId(nextId);
+                setSelectedBlockIndex(0);
+                setSelectedCell(undefined);
+              }} compact />
+              <div className="min-w-0 text-xs text-slate-500">
+                <div className="font-semibold text-slate-700">{moduleDisplayName(selectedModule)}</div>
+                <div className="mt-1 truncate">{selectedModule.id}</div>
+              </div>
+            </div>
+          </section>
+          <TemplateBlockOverview draft={draft} selectedBlockIndex={selectedBlockIndex} onSelectBlock={(index) => {
+            setSelectedBlockIndex(index);
             setSelectedCell(undefined);
-          }} compact />
-          <div className="min-w-0 text-xs text-slate-500">
-            <div className="font-semibold text-slate-700">{moduleDisplayName(selectedModule)}</div>
-            <div className="mt-1 truncate">{selectedModule.id}</div>
-          </div>
-          <div className="flex items-center justify-end gap-3">
+          }} />
+        </div>
+
+        <div className="space-y-3 xl:sticky xl:top-2 xl:self-start">
+          <div className="flex items-center justify-end gap-3 rounded-lg border border-slate-200 bg-white p-3">
             {savedAt && <span className="text-xs text-slate-500">已保存：{savedAt}</span>}
             <button onClick={() => setPreviewOpen(true)} className="h-9 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50">
               预览
@@ -95,24 +107,21 @@ export default function QcTemplateModuleEditorClient({ data }: Props) {
               {saving ? "保存中" : "保存模块草稿"}
             </button>
           </div>
+          <TemplateEditorInspector
+            draft={draft}
+            selectedBlockIndex={selectedBlockIndex}
+            selectedCell={selectedCell}
+            moduleLibrary={data.moduleLibrary}
+            fieldGroups={data.fieldGroups}
+            formulaFunctions={data.formulaFunctions}
+            onSelectBlock={setSelectedBlockIndex}
+            onSelectCell={setSelectedCell}
+            onChange={updateDraft}
+            onSave={saveDraft}
+            saving={saving}
+            savedAt={savedAt}
+          />
         </div>
-      </div>
-
-      <div>
-        <TemplateEditorInspector
-          draft={draft}
-          selectedBlockIndex={selectedBlockIndex}
-          selectedCell={selectedCell}
-          moduleLibrary={data.moduleLibrary}
-          fieldGroups={data.fieldGroups}
-          formulaFunctions={data.formulaFunctions}
-          onSelectBlock={setSelectedBlockIndex}
-          onSelectCell={setSelectedCell}
-          onChange={updateDraft}
-          onSave={saveDraft}
-          saving={saving}
-          savedAt={savedAt}
-        />
       </div>
       <TemplatePreviewModal draft={draft} open={previewOpen} selectedBlockIndex={selectedBlockIndex} errors={[]} onSelectBlock={(index) => {
         setSelectedBlockIndex(index);
