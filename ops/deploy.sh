@@ -250,7 +250,7 @@ echo "==> rsync: $(command -v rsync)"
 if [ "$RUN_LOCAL_CHECKS" = "1" ]; then
   run_local_checks
 else
-  echo "==> 跳过本地静态检查（RUN_LOCAL_CHECKS=$RUN_LOCAL_CHECKS）"
+  echo "==> 跳过本地静态检查（RUN_LOCAL_CHECKS=${RUN_LOCAL_CHECKS}）"
 fi
 
 LOCAL_PKG_HASH="$(local_pkg_hash)"
