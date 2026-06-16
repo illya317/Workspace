@@ -93,9 +93,9 @@ function EnvironmentTable({ block, context }: { block: NumberedBlock; context: L
     const rowNo = index + 1;
     return [
       cell("房间名称", "12%"),
-      cell("", "13%", [{ type: "line", fieldKey: `${prefix}/room_name_${rowNo}`, width: "6.5rem" }]),
+      cell("", "13%", [{ type: "line", fieldKey: `${prefix}/room_name_${rowNo}`, width: "6.5rem", underline: true }]),
       cell("房间编号", "12%"),
-      cell("", "13%", [{ type: "line", fieldKey: `${prefix}/room_no_${rowNo}`, width: "6.5rem" }]),
+      cell("", "13%", [{ type: "line", fieldKey: `${prefix}/room_no_${rowNo}`, width: "6.5rem", underline: true }]),
       cell("温度", "10%"),
       cell("", "15%", [{ type: "line", fieldKey: `${prefix}/temperature_${rowNo}`, width: "3.4rem", underline: true }, { type: "text", text: "℃" }]),
       cell("湿度", "10%"),
@@ -128,9 +128,9 @@ function EquipmentTable({ block, context }: {
     ["仪器、设备", "设备编号", "设备状态", "校验有效期至", "是否确认"].map((text) => cell(text)),
     ...devices.map((device, index) => [
       cell(device.name),
-      cell("", [{ type: "line", fieldKey: `${prefix}/device_no_${index + 1}`, width: "8rem" }]),
+      cell("", [{ type: "line", fieldKey: `${prefix}/device_no_${index + 1}`, width: "8rem", underline: true }]),
       cell(statusText(device.status)),
-      cell("", [{ type: "line", fieldKey: `${prefix}/valid_until_${index + 1}`, width: "8rem" }]),
+      cell("", [{ type: "line", fieldKey: `${prefix}/valid_until_${index + 1}`, width: "8rem", underline: true }]),
       cell("", [{ type: "radio", fieldKey: `${prefix}/confirmed_${index + 1}`, options: ["是", "否"] }]),
     ]),
   ] }} context={context} />;
