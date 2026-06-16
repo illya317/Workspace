@@ -193,6 +193,14 @@ deploy_remote_app() {
   ssh_cmd "
     set -e
     cd '$REMOTE_DIR'
+    while pgrep -af '/node_modules/.bin/next build|next build' >/dev/null 2>&1; do
+      echo '==> 检测到已有 next build 在运行，等待其结束...'
+      sleep 5
+    done
+    if [ -f .next/lock ]; then
+      echo '==> 清理遗留的 .next/lock'
+      rm -f .next/lock
+    fi
     if [ '$NEED_NPM_CI' = '1' ] || [ ! -d node_modules ]; then
       echo '==> 安装依赖...'
       npm ci --no-audit --fund=false --loglevel=error
