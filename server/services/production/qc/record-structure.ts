@@ -1,6 +1,6 @@
 import "server-only";
 import path from "path";
-import { readFile } from "fs/promises";
+import { readdir, readFile } from "fs/promises";
 import { parse as parseYaml } from "yaml";
 import { loadQcLayoutBlocks } from "./layout-blocks";
 import { buildPrecheckLayoutBlocks } from "./precheck-layout";
@@ -17,6 +17,7 @@ import type {
 
 type MethodIndex = Awaited<ReturnType<typeof loadQcMethods>>;
 type LayoutAssignments = Record<string, Record<string, unknown>>;
+type OperationParamIndex = Record<string, Record<string, unknown>>;
 
 const TEMPLATE_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
@@ -41,6 +42,26 @@ async function loadLayoutAssignments(configRoot: string): Promise<LayoutAssignme
   const filePath = path.join(configRoot, "table_layouts", "layout_mapping.json");
   const raw = JSON.parse(await readFile(filePath, "utf8"));
   return asRecord(asRecord(raw).assignments) as LayoutAssignments;
+}
+
+async function loadOperationParams(configRoot: string): Promise<OperationParamIndex> {
+  const root = path.join(configRoot, "table_layouts");
+  const files = (await readdir(root)).filter((file) => file.endsWith("_operation_params.yaml"));
+  const index: OperationParamIndex = {};
+  for (const file of files) {
+    const paramKey = file.replace(/\.yaml$/, "");
+    const data = asRecord(await readYamlFile(path.join(root, file)));
+    for (const [product, stages] of Object.entries(asRecord(data.products))) {
+      for (const [stage, tests] of Object.entries(asRecord(stages))) {
+        for (const [test, entry] of Object.entries(asRecord(tests))) {
+          const params = asRecord(asRecord(entry)["操作方法参数"]);
+          const key = `products/${product}/${stage}/${test}`;
+          if (Object.keys(params).length) index[key] = { ...index[key], [paramKey]: params };
+        }
+      }
+    }
+  }
+  return index;
 }
 
 function resolveLayout(key: string, assignments: LayoutAssignments, seen = new Set<string>()): QcTemplateLayoutAssignment | undefined {
@@ -68,6 +89,7 @@ function toTestItem(
   raw: unknown,
   methods: MethodIndex,
   layouts: LayoutAssignments,
+  operationParams: OperationParamIndex,
 ): QcTemplateTestItem {
   const test = asRecord(raw);
   const methodName = asString(test["方法"]);
@@ -90,6 +112,8 @@ function toTestItem(
       }],
     }]
     : method.groups;
+  const layoutKey = `products/${templateId}/${stageKey}/${englishName}`;
+  const layout = resolveLayout(layoutKey, layouts);
   return {
     sequence: asString(test["序号"]),
     name: asString(test["名称"]),
@@ -100,7 +124,7 @@ function toTestItem(
     conclusionFieldKey: conclusionRule ? conclusionFieldKey : undefined,
     hasNumericConclusion: test["结论含数值"] === true,
     cleanupItems: cleanupItems(test),
-    layout: resolveLayout(`products/${templateId}/${stageKey}/${englishName}`, layouts),
+    layout: layout ? { ...layout, params: { ...operationParams[layoutKey], ...layout.params } } : undefined,
     methodFile: method.fileName,
     methodGroups: groupsWithConclusion,
   };
@@ -114,6 +138,7 @@ async function toStage(
   raw: unknown,
   methods: MethodIndex,
   layouts: LayoutAssignments,
+  operationParams: OperationParamIndex,
 ): Promise<QcTemplateStage> {
   const stage = asRecord(raw);
   const precheck = asRecord(stage["检验前确认"]);
@@ -125,7 +150,7 @@ async function toStage(
     return { name: asString(data["名称"]), code: asString(data["编码"]) };
   });
   const precheckItems = asArray(precheck["确认项"]).map((item) => ({ name: asString(asRecord(item)["名称"]) }));
-  const tests = asArray(stage["检测项"]).map((test) => toTestItem(templateId, key, test, methods, layouts));
+  const tests = asArray(stage["检测项"]).map((test) => toTestItem(templateId, key, test, methods, layouts, operationParams));
   const precheckLayoutBlocks = await buildPrecheckLayoutBlocks(
     configRoot,
     productName,
@@ -160,14 +185,15 @@ export async function getQcTemplateDetail(templateId: string): Promise<QcTemplat
 
   const fileName = `${templateId}.yaml`;
   const templatePath = path.join(source.configRoot, "record_templates", fileName);
-  const [rawTemplate, methods, layouts] = await Promise.all([
+  const [rawTemplate, methods, layouts, operationParams] = await Promise.all([
     readYamlFile(templatePath),
     loadQcMethods(source.configRoot),
     loadLayoutAssignments(source.configRoot),
+    loadOperationParams(source.configRoot),
   ]);
   const template = asRecord(rawTemplate);
   const stages = Object.entries(asRecord(template["阶段"]))
-    .map(([key, stage]) => toStage(source.configRoot, templateId, asString(template["产品名称"], templateId), key, stage, methods, layouts));
+    .map(([key, stage]) => toStage(source.configRoot, templateId, asString(template["产品名称"], templateId), key, stage, methods, layouts, operationParams));
   const resolvedStages = await Promise.all(stages);
   await Promise.all(resolvedStages.flatMap((stage) => stage.tests.map(async (test) => {
     test.layoutBlocks = await loadQcLayoutBlocks(source.configRoot, test.layout);

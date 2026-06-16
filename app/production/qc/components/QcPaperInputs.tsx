@@ -4,7 +4,7 @@ import type { CSSProperties, ChangeEvent } from "react";
 import type { QcLayoutPart } from "@/server/services/production/qc";
 
 function inputWidth(part: QcLayoutPart, inTable?: boolean): CSSProperties {
-  if (part.width) return { width: part.width, minWidth: "4.5em" };
+  if (part.width) return { width: part.width, minWidth: inTable ? part.width : "4.5em" };
   if (inTable) return { width: "clamp(6rem, 72%, 10rem)", minWidth: "5rem" };
   return { width: "5.5em" };
 }

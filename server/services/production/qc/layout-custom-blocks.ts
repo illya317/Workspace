@@ -28,6 +28,24 @@ function formatText(text: string, params: Params) {
     });
 }
 
+function fieldPart(label: string): QcLayoutPart {
+  const match = label.match(/^(.+?)（(.+)）$/);
+  return { type: "line", field: match?.[1] || label, placeholder: match?.[2], width: "6.5rem" };
+}
+
+function textParts(template: string, params: Params): QcLayoutPart[] {
+  const text = formatText(template, params);
+  const parts: QcLayoutPart[] = [];
+  let cursor = 0;
+  for (const match of text.matchAll(/\{FIELD:([^}]+)\}/g)) {
+    if (match.index && match.index > cursor) parts.push({ type: "text", text: text.slice(cursor, match.index) });
+    parts.push(fieldPart(match[1]));
+    cursor = match.index + match[0].length;
+  }
+  if (cursor < text.length) parts.push({ type: "text", text: text.slice(cursor) });
+  return parts;
+}
+
 function part(raw: unknown): QcLayoutPart {
   const data = asRecord(raw);
   return {
@@ -52,12 +70,19 @@ function structuredOperation(raw: Record<string, unknown>, params: Params): QcLa
   const scope = paramScope(raw, params);
   const profile = asString(scope.profile, asString(raw.profile));
   const segments = asArray(asRecord(raw.profile_segments || raw.profileSegments)[profile]);
-  const text = segments.map((segment) => {
+  const parts = segments.flatMap((segment, index) => {
     const item = asRecord(segment);
-    const value = item.source ? asString(scope[asString(item.source)]) : formatText(asString(item.template), scope);
-    return value ? `${asString(item.label)}：${value}` : "";
-  }).filter(Boolean).join(" ");
-  return text ? { type: "paragraph", parts: [{ type: "text", text }], order: Number(raw.order) || undefined, moduleOrder: Number(raw.module_order || raw.moduleOrder) || undefined } : null;
+    const template = item.source ? asString(scope[asString(item.source)]) : asString(item.template);
+    const valueParts = textParts(template, scope);
+    if (!valueParts.length) return [];
+    const label = asString(item.label);
+    return [
+      ...(index ? [{ type: "text", text: " " } as QcLayoutPart] : []),
+      ...(label ? [{ type: "text", text: `${label}：` } as QcLayoutPart] : []),
+      ...valueParts,
+    ];
+  });
+  return parts.length ? { type: "paragraph", parts, order: Number(raw.order) || undefined, moduleOrder: Number(raw.module_order || raw.moduleOrder) || undefined } : null;
 }
 
 function relatedPeakCalculation(raw: Record<string, unknown>, params: Params): QcLayoutBlock {

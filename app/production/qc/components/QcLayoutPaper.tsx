@@ -103,9 +103,9 @@ function EnvironmentTable({ block, context }: {
       cell("房间编号", "12%"),
       cell("", "13%", [{ type: "line", fieldKey: `${prefix}/room_no_${rowNo}`, width: "6.5rem" }]),
       cell("温度", "10%"),
-      cell("", "15%", [{ type: "line", fieldKey: `${prefix}/temperature_${rowNo}`, width: "4.5rem" }, { type: "text", text: "℃" }]),
+      cell("", "15%", [{ type: "line", fieldKey: `${prefix}/temperature_${rowNo}`, width: "3.4rem", underline: false }, { type: "text", text: "℃" }]),
       cell("湿度", "10%"),
-      cell("", "15%", [{ type: "line", fieldKey: `${prefix}/humidity_${rowNo}`, width: "4.5rem" }, { type: "text", text: "%" }]),
+      cell("", "15%", [{ type: "line", fieldKey: `${prefix}/humidity_${rowNo}`, width: "3.4rem", underline: false }, { type: "text", text: "%" }]),
     ];
   });
   return <TableBlock block={{ ...block, rows: [
