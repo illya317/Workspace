@@ -3,6 +3,8 @@ main:
     - name: ci-check
       docker:
         image: node:22-bookworm
+      env:
+        NEXTAUTH_SECRET: "cnb-ci-nextauth-secret-please-change-length-32"
       stages:
         - name: install-deps
           script: |
