@@ -6,6 +6,7 @@ main:
       imports:
         - https://cnb.cool/illya317/env/-/blob/main/workspace-prod.yml
       env:
+        HEALTHCHECK_URL: "http://127.0.0.1:3000/workspace/login"
         RUN_LOCAL_CHECKS: "0"
       stages:
         - name: install-deploy-tools
@@ -22,6 +23,7 @@ main:
       imports:
         - https://cnb.cool/illya317/env/-/blob/main/workspace-prod.yml
       env:
+        HEALTHCHECK_URL: "http://127.0.0.1:3000/workspace/login"
         RUN_LOCAL_CHECKS: "0"
       stages:
         - name: install-deploy-tools
