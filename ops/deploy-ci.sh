@@ -42,6 +42,14 @@ ssh_cmd() {
   ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new "$SERVER" "$@"
 }
 
+require_local_cmd() {
+  local cmd="$1"
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "[错误] 当前 CI 容器缺少命令: $cmd"
+    exit 1
+  fi
+}
+
 hash_cmd() {
   if command -v shasum >/dev/null 2>&1; then
     shasum -a 256
@@ -205,6 +213,12 @@ if [ "$RUN_LOCAL_CHECKS" = "1" ] && ! command -v npm >/dev/null 2>&1; then
   RUN_LOCAL_CHECKS=0
 fi
 
+echo "==> 校验 CI 基础命令..."
+require_local_cmd ssh
+require_local_cmd rsync
+echo "==> ssh: $(command -v ssh)"
+echo "==> rsync: $(command -v rsync)"
+
 if [ "$RUN_LOCAL_CHECKS" = "1" ]; then
   run_local_checks
 else
@@ -222,8 +236,10 @@ else
 fi
 
 echo "==> 同步源码到服务器..."
-ssh_cmd "mkdir -p '$REMOTE_DIR'"
-rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+echo "==> 验证服务器连接..."
+ssh_cmd "echo CONNECTED && whoami && mkdir -p '$REMOTE_DIR'"
+echo "==> 开始 rsync..."
+rsync -avz --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
   --exclude='.git/' \
   --exclude='node_modules/' \
   --exclude='.next/' \
