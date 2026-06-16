@@ -3,15 +3,13 @@ main:
     - name: ci-check
       docker:
         image: node:22-bookworm
-      env:
-        NEXTAUTH_SECRET: "cnb-ci-nextauth-secret-please-change-length-32"
       stages:
         - name: install-deps
           script: |
             npm ci --no-audit --fund=false --loglevel=error
         - name: validate
           script: |
-            npm run ci
+            npm run ci:cnb
 
   api_trigger:
     - name: deploy-prod

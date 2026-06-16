@@ -1,5 +1,5 @@
 #!/bin/sh
-# Pre-commit hook: block commit if env / lint / type-check / build fails
+# Pre-commit hook: keep local-only checks fast and leave heavy build work to CNB CI
 
 echo "→ Running env check..."
 npm run env:check || {
@@ -40,12 +40,6 @@ npm run lint -- --max-warnings=0 || {
 echo "→ Running type check..."
 npx tsc --noEmit || {
   echo "✗ Type check failed. Commit aborted."
-  exit 1
-}
-
-echo "→ Running build..."
-npm run build || {
-  echo "✗ Build failed. Commit aborted."
   exit 1
 }
 
