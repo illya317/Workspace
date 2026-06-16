@@ -1,5 +1,5 @@
 #!/bin/sh
-# Pre-commit hook: keep local-only checks fast and leave heavy build work to CNB CI
+# Pre-commit hook: keep local checks fast and leave the full suite to pre-push
 
 echo "→ Running env check..."
 npm run env:check || {
