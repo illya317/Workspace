@@ -74,29 +74,29 @@
               "parts": [
                 {
                   "type": "field",
-                  "field": "对照1-峰面积"
+                  "field": "对照1-峰面积1"
                 }
               ]
             },
             {
-              "parts": [
-                {
-                  "type": "line",
-                  "field_key": "layout/hplc/reference_1_ar_per_mg"
-                }
-              ]
-            },
-            {
-              "rowspan": 6,
               "parts": [
                 {
                   "type": "field",
-                  "field": "对照平均峰面积"
+                  "field": "对照1-单位峰面积1"
                 }
               ]
             },
             {
-              "rowspan": 6,
+              "rowspan": 5,
+              "parts": [
+                {
+                  "type": "field",
+                  "field": "对照平均单位峰面积"
+                }
+              ]
+            },
+            {
+              "rowspan": 5,
               "parts": [
                 {
                   "type": "field",
@@ -118,16 +118,16 @@
             {
               "parts": [
                 {
-                  "type": "line",
-                  "field_key": "layout/hplc/reference_1_ar_2"
+                  "type": "field",
+                  "field": "对照1-峰面积2"
                 }
               ]
             },
             {
               "parts": [
                 {
-                  "type": "line",
-                  "field_key": "layout/hplc/reference_1_ar_per_mg_2"
+                  "type": "field",
+                  "field": "对照1-单位峰面积2"
                 }
               ]
             }
@@ -138,16 +138,16 @@
             {
               "parts": [
                 {
-                  "type": "line",
-                  "field_key": "layout/hplc/reference_1_ar_3"
+                  "type": "field",
+                  "field": "对照1-峰面积3"
                 }
               ]
             },
             {
               "parts": [
                 {
-                  "type": "line",
-                  "field_key": "layout/hplc/reference_1_ar_per_mg_3"
+                  "type": "field",
+                  "field": "对照1-单位峰面积3"
                 }
               ]
             }
@@ -156,7 +156,7 @@
         {
           "cells": [
             {
-              "rowspan": 3,
+              "rowspan": 2,
               "parts": [
                 {
                   "type": "text",
@@ -176,15 +176,15 @@
               "parts": [
                 {
                   "type": "field",
-                  "field": "对照2-峰面积"
+                  "field": "对照2-峰面积1"
                 }
               ]
             },
             {
               "parts": [
                 {
-                  "type": "line",
-                  "field_key": "layout/hplc/reference_2_ar_per_mg"
+                  "type": "field",
+                  "field": "对照2-单位峰面积1"
                 }
               ]
             }
@@ -195,36 +195,16 @@
             {
               "parts": [
                 {
-                  "type": "line",
-                  "field_key": "layout/hplc/reference_2_ar_2"
+                  "type": "field",
+                  "field": "对照2-峰面积2"
                 }
               ]
             },
             {
               "parts": [
                 {
-                  "type": "line",
-                  "field_key": "layout/hplc/reference_2_ar_per_mg_2"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "cells": [
-            {
-              "parts": [
-                {
-                  "type": "line",
-                  "field_key": "layout/hplc/reference_2_ar_3"
-                }
-              ]
-            },
-            {
-              "parts": [
-                {
-                  "type": "line",
-                  "field_key": "layout/hplc/reference_2_ar_per_mg_3"
+                  "type": "field",
+                  "field": "对照2-单位峰面积2"
                 }
               ]
             }
@@ -320,7 +300,7 @@
               "parts": [
                 {
                   "type": "field",
-                  "field": "样1-峰面积"
+                  "field": "样1-峰面积1"
                 }
               ]
             },
@@ -337,8 +317,8 @@
               "rowspan": 2,
               "parts": [
                 {
-                  "type": "line",
-                  "field_key": "layout/hplc/sample_1_rd",
+                  "type": "field",
+                  "field": "样1-RD",
                   "recommended_range": {
                     "max": 2
                   }
@@ -398,8 +378,8 @@
             {
               "parts": [
                 {
-                  "type": "line",
-                  "field_key": "layout/hplc/sample_1_ar_2"
+                  "type": "field",
+                  "field": "样1-峰面积2"
                 }
               ]
             }
@@ -428,7 +408,7 @@
               "parts": [
                 {
                   "type": "field",
-                  "field": "样2-峰面积"
+                  "field": "样2-峰面积1"
                 }
               ]
             },
@@ -445,8 +425,8 @@
               "rowspan": 2,
               "parts": [
                 {
-                  "type": "line",
-                  "field_key": "layout/hplc/sample_2_rd",
+                  "type": "field",
+                  "field": "样2-RD",
                   "recommended_range": {
                     "max": 2
                   }
@@ -477,8 +457,8 @@
             {
               "parts": [
                 {
-                  "type": "line",
-                  "field_key": "layout/hplc/sample_2_ar_2"
+                  "type": "field",
+                  "field": "样2-峰面积2"
                 }
               ]
             }

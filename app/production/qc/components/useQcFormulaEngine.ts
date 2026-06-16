@@ -50,6 +50,15 @@ function normalizeExpression(expr: string) {
     .trim();
 }
 
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function replaceFieldRef(expr: string, name: string, value: string) {
+  const tokenBoundary = "[\\u4e00-\\u9fffA-Za-z0-9_-]";
+  return expr.replace(new RegExp(`(?<!${tokenBoundary})${escapeRegex(name)}(?!${tokenBoundary})`, "g"), value);
+}
+
 function evaluateFormula(
   formula: string,
   field: QcTemplateMethodField,
@@ -77,7 +86,7 @@ function evaluateFormula(
     const raw = values[ref.fieldKey];
     if (raw == null || raw === "") return null;
     const numeric = Number(raw);
-    expr = expr.split(ref.name).join(Number.isFinite(numeric) ? String(numeric) : JSON.stringify(raw));
+    expr = replaceFieldRef(expr, ref.name, Number.isFinite(numeric) ? String(numeric) : JSON.stringify(raw));
   }
 
   expr = normalizeExpression(expr);
