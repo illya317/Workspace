@@ -102,10 +102,36 @@ function relatedWeighing(raw: Record<string, unknown>, params: Params): QcLayout
   return { type: "table", label: asString(raw.label), rows, order: Number(raw.order) || undefined };
 }
 
+function sectionedOperationSteps(raw: Record<string, unknown>, params: Params): QcLayoutBlock | null {
+  const scope = paramScope(raw, params);
+  const steps = asArray(scope[asString(raw.steps_param || raw.stepsParam, "identification_steps")]);
+  const parts: QcLayoutPart[] = [];
+  let lastSectionSuffix = "";
+  for (const step of steps) {
+    const item = asRecord(step);
+    const sectionSuffix = asString(item.section_suffix || item.sectionSuffix);
+    const title = asString(item.title || item.text);
+    const body = asString(item.body);
+    if (!sectionSuffix || !title) continue;
+    lastSectionSuffix = sectionSuffix;
+    if (parts.length) parts.push({ type: "br" });
+    parts.push({ type: "section_heading", text: title, sectionSuffix, bold: true });
+    if (body) parts.push({ type: "br" }, { type: "text", text: body });
+  }
+  return parts.length ? {
+    type: "paragraph",
+    sectionSuffix: lastSectionSuffix,
+    parts,
+    order: Number(raw.order) || undefined,
+    moduleOrder: Number(raw.module_order || raw.moduleOrder) || undefined,
+  } : null;
+}
+
 export function mapCustomLayoutBlock(raw: Record<string, unknown>, params: Params): QcLayoutBlock | null {
   const type = asString(raw.type);
   if (type === "structured_operation_method" || type === "related_substances_operation_method") return structuredOperation(raw, params);
   if (type === "related_substances_peak_area_calculation") return relatedPeakCalculation(raw, params);
   if (type === "related_substances_weighing_table") return relatedWeighing(raw, params);
+  if (type === "sectioned_operation_steps") return sectionedOperationSteps(raw, params);
   return null;
 }

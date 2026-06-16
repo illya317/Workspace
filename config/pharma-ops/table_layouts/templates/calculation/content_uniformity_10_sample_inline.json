@@ -1,44 +1,51 @@
 {
   "schema_version": 2,
-  "template_id": "weighing/hplc_reference_sample_theoretical",
-  "title": "HPLC 对照与样品称重（理论片重）",
-  "section_no": "2.3.5.1",
-  "category": "weighing",
+  "template_id": "calculation/content_uniformity_10_sample_inline",
+  "title": "含量均匀度 10 片计算（内嵌无标题）",
+  "section_no": "",
+  "category": "calculation",
   "subcomponent": true,
   "status": "pilot",
   "source_refs": [
     {
       "product": "氢氯噻嗪片",
-      "stage": "中间体",
-      "section_no": "2.3.5.1",
+      "stage": "待包装品",
+      "section_no": "2.3.5.2",
       "md": "schema/md_canonical/氢氯噻嗪片.md"
     }
   ],
   "blocks": [
     {
-      "type": "title",
-      "text": "称重",
-      "order": 140,
-      "section_ref": "operation",
-      "section_suffix": "{hplc_weighing_section_suffix}"
-    },
-    {
       "type": "table",
-      "label": "HPLC称重",
+      "label": "含量均匀度",
       "rows": [
         {
           "cells": [
             {
-              "rowspan": 2,
+              "header": true,
+              "text": "样品含量（%）"
+            },
+            {
+              "header": true,
+              "text": "平均含量（%）"
+            },
+            {
+              "header": true,
+              "text": "A＋2.2S ≤13.0"
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
               "parts": [
                 {
                   "type": "text",
-                  "text": "对照含量"
+                  "text": "样 1："
                 },
                 {
                   "type": "field",
-                  "field": "对照含量",
-                  "width": "5em"
+                  "field": "样1-含量"
                 },
                 {
                   "type": "text",
@@ -47,44 +54,32 @@
               ]
             },
             {
-              "rowspan": 2,
-              "text": "对照称样（mg）"
-            },
-            {
-              "text": "对照 1"
-            },
-            {
+              "rowspan": 10,
               "parts": [
                 {
                   "type": "text",
-                  "text": "m1="
+                  "text": "X="
                 },
                 {
                   "type": "field",
-                  "field": "对照1-毛重",
-                  "width": "5em"
+                  "field": "平均含量"
                 },
                 {
                   "type": "text",
-                  "text": " - "
+                  "text": "%"
+                }
+              ]
+            },
+            {
+              "rowspan": 10,
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "A＋2.2S="
                 },
                 {
                   "type": "field",
-                  "field": "对照1-皮重",
-                  "width": "5em"
-                },
-                {
-                  "type": "text",
-                  "text": " = "
-                },
-                {
-                  "type": "field",
-                  "field": "对照1-净重",
-                  "width": "5em"
-                },
-                {
-                  "type": "text",
-                  "text": " mg"
+                  "field": "A_2.2S"
                 }
               ]
             }
@@ -93,40 +88,18 @@
         {
           "cells": [
             {
-              "text": "对照 2"
-            },
-            {
               "parts": [
                 {
                   "type": "text",
-                  "text": "m2="
+                  "text": "样 2："
                 },
                 {
                   "type": "field",
-                  "field": "对照2-毛重",
-                  "width": "5em"
+                  "field": "样2-含量"
                 },
                 {
                   "type": "text",
-                  "text": " - "
-                },
-                {
-                  "type": "field",
-                  "field": "对照2-皮重",
-                  "width": "5em"
-                },
-                {
-                  "type": "text",
-                  "text": " = "
-                },
-                {
-                  "type": "field",
-                  "field": "对照2-净重",
-                  "width": "5em"
-                },
-                {
-                  "type": "text",
-                  "text": " mg"
+                  "text": "%"
                 }
               ]
             }
@@ -135,27 +108,18 @@
         {
           "cells": [
             {
-              "rowspan": 3,
-              "text": "样品称样（mg）"
-            },
-            {
-              "text": "理论片重（g）"
-            },
-            {
-              "colspan": 2,
               "parts": [
                 {
                   "type": "text",
-                  "text": "投料量（Kg）/[批量（万片）×10]="
+                  "text": "样 3："
                 },
                 {
                   "type": "field",
-                  "field": "平均片重",
-                  "width": "5em"
+                  "field": "样3-含量"
                 },
                 {
                   "type": "text",
-                  "text": " g/片"
+                  "text": "%"
                 }
               ]
             }
@@ -164,37 +128,18 @@
         {
           "cells": [
             {
-              "text": "样 1"
-            },
-            {
-              "colspan": 2,
               "parts": [
                 {
-                  "type": "field",
-                  "field": "样1-毛重",
-                  "width": "5em"
-                },
-                {
                   "type": "text",
-                  "text": " - "
+                  "text": "样 4："
                 },
                 {
                   "type": "field",
-                  "field": "样1-皮重",
-                  "width": "5em"
+                  "field": "样4-含量"
                 },
                 {
                   "type": "text",
-                  "text": " = "
-                },
-                {
-                  "type": "field",
-                  "field": "样1-净重",
-                  "width": "5em"
-                },
-                {
-                  "type": "text",
-                  "text": " mg"
+                  "text": "%"
                 }
               ]
             }
@@ -203,48 +148,126 @@
         {
           "cells": [
             {
-              "text": "样 2"
-            },
-            {
-              "colspan": 2,
               "parts": [
                 {
-                  "type": "field",
-                  "field": "样2-毛重",
-                  "width": "5em"
-                },
-                {
                   "type": "text",
-                  "text": " - "
+                  "text": "样 5："
                 },
                 {
                   "type": "field",
-                  "field": "样2-皮重",
-                  "width": "5em"
+                  "field": "样5-含量"
                 },
                 {
                   "type": "text",
-                  "text": " = "
+                  "text": "%"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样 6："
                 },
                 {
                   "type": "field",
-                  "field": "样2-净重",
-                  "width": "5em"
+                  "field": "样6-含量"
                 },
                 {
                   "type": "text",
-                  "text": " mg"
+                  "text": "%"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样 7："
+                },
+                {
+                  "type": "field",
+                  "field": "样7-含量"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样 8："
+                },
+                {
+                  "type": "field",
+                  "field": "样8-含量"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样 9："
+                },
+                {
+                  "type": "field",
+                  "field": "样9-含量"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "cells": [
+            {
+              "parts": [
+                {
+                  "type": "text",
+                  "text": "样 10："
+                },
+                {
+                  "type": "field",
+                  "field": "样10-含量"
+                },
+                {
+                  "type": "text",
+                  "text": "%"
                 }
               ]
             }
           ]
         }
       ],
-      "order": 140
+      "order": 150
     }
   ],
-  "order": 140,
-  "params": {
-    "hplc_weighing_section_suffix": "1"
-  }
+  "order": 150
 }

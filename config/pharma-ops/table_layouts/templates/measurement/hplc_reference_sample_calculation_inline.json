@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "template_id": "measurement/hplc_reference_sample_calculation",
-  "title": "HPLC 含量测定与计算",
+  "template_id": "measurement/hplc_reference_sample_calculation_inline",
+  "title": "HPLC 含量测定与计算（内嵌无标题）",
   "section_no": "2.3.5.2",
   "category": "measurement",
   "subcomponent": true,
@@ -15,13 +15,6 @@
     }
   ],
   "blocks": [
-    {
-      "type": "title",
-      "text": "测定与计算",
-      "order": 150,
-      "section_ref": "operation",
-      "section_suffix": "{hplc_measurement_section_suffix}"
-    },
     {
       "type": "table",
       "label": "对照品计算",
@@ -495,8 +488,5 @@
       "order": 150
     }
   ],
-  "order": 150,
-  "params": {
-    "hplc_measurement_section_suffix": "2"
-  }
+  "order": 150
 }

@@ -547,7 +547,16 @@
       "source_ref": "微生物限度模板化试点",
       "params": {
         "microbial_count_process_variant": "membrane_filter",
-        "diluent_name": "pH7.0无菌氯化钠-蛋白胨缓冲液"
+        "diluent_name": "pH7.0无菌氯化钠-蛋白胨缓冲液",
+        "ecoli_observation_suffix": "1.8",
+        "microbial_count_observation_suffix": "2.5",
+        "microbial_count_observation_role": "count_observation",
+        "ecoli_condition_suffix": "1.7",
+        "ecoli_cultivation_suffix": "1.6",
+        "ecoli_negative_suffix": "1.5",
+        "ecoli_filter_prep_variant": "include",
+        "ecoli_sample_suffix": "1.3",
+        "ecoli_positive_suffix": "1.4"
       }
     },
     "products/berberine_tannate/finished/microbial_limit": {
@@ -560,7 +569,19 @@
       "template_id": "parents/microbiology_limit_full",
       "status": "pilot",
       "source_ref": "微生物限度模板化试点",
-      "params": {}
+      "params": {
+        "microbial_count_process_variant": "membrane_filter",
+        "ecoli_observation_suffix": "1.8",
+        "microbial_count_observation_suffix": "2.5",
+        "microbial_count_observation_role": "count_observation",
+        "diluent_name": "pH7.0无菌氯化钠-蛋白胨缓冲液",
+        "ecoli_condition_suffix": "1.7",
+        "ecoli_cultivation_suffix": "1.6",
+        "ecoli_negative_suffix": "1.5",
+        "ecoli_filter_prep_variant": "include",
+        "ecoli_sample_suffix": "1.3",
+        "ecoli_positive_suffix": "1.4"
+      }
     },
     "products/compound_rutin/finished/microbial_limit": {
       "template_id": "parents/microbiology_limit_full",
@@ -593,7 +614,16 @@
       "params": {
         "microbial_count_process_variant": "membrane_filter_manganese",
         "diluent_name": "pH7.0无菌氯化钠-蛋白胨缓冲液",
-        "manganese_solution_name": "0.1%硫酸锰溶液"
+        "manganese_solution_name": "0.1%硫酸锰溶液",
+        "ecoli_observation_suffix": "1.8",
+        "microbial_count_observation_suffix": "2.5",
+        "microbial_count_observation_role": "count_observation",
+        "ecoli_condition_suffix": "1.7",
+        "ecoli_cultivation_suffix": "1.6",
+        "ecoli_negative_suffix": "1.5",
+        "ecoli_filter_prep_variant": "include",
+        "ecoli_sample_suffix": "1.3",
+        "ecoli_positive_suffix": "1.4"
       }
     },
     "products/methimazole/finished/microbial_limit": {
@@ -713,7 +743,7 @@
         "auto_judgment": false,
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
-        "pre_method_reference_variant": "none",
+        "pre_method_reference_variant": "include",
         "hplc_measurement_heading_variant": "uv_absorbance",
         "hplc_operation_method_variant": "uv_content_0401"
       }
@@ -727,7 +757,22 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
-        "identification_operation_method_variant": "uv_ir"
+        "identification_operation_method_variant": "sectioned_steps",
+        "identification_attachment_variant": "raw",
+        "identification_steps": [
+          {
+            "section_suffix": "4.1",
+            "title": "取本品细粉 g（约相当于别嘌醇0.1g），加5%氢氧化钠 ml（10ml），搅拌使别嘌醇溶解，滤过，取滤液 ml（5ml），加碱性碘化汞钾试液 ml（1ml），加热至沸，放置后生成 （黄色）沉淀。"
+          },
+          {
+            "section_suffix": "4.2",
+            "title": "取含量测定项下的溶液，照紫外-可见分光光度法（通则0401）测定，在225nm～255nm波长处进行扫描，在 nm（250nm±2nm）的波长处有最大吸收 ，在 nm（231nm±2nm）的波长处有最小吸收 。在231nm与250nm波长处的吸光度比值为 （应为0.52～0.60）。"
+          },
+          {
+            "section_suffix": "4.3",
+            "title": "取本品细粉 g（约相当于别嘌醇0.2g），加氢氧化钠试液 mL（40mL），研磨使溶解，滤过，滤液加稀盐酸酸化至析出结晶，滤过，结晶用无水乙醇洗涤后，用无水乙醚洗涤，"
+          }
+        ]
       }
     },
     "products/allopurinol/finished/related_substances": {
@@ -939,7 +984,8 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "none",
-        "identification_operation_method_variant": "uv_ir"
+        "identification_operation_method_variant": "uv_ir",
+        "identification_attachment_variant": "raw"
       }
     },
     "products/atenolol/finished/related_substances": {
@@ -1199,7 +1245,8 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "none",
-        "identification_operation_method_variant": "hplc_prep"
+        "identification_operation_method_variant": "hplc_prep",
+        "identification_attachment_variant": "raw"
       }
     },
     "products/azithromycin/finished/related_substances": {
@@ -1574,7 +1621,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "show",
+        "hplc_measurement_heading_variant": "inline",
         "hplc_operation_method_variant": "hplc_content_system_solution_prep_0512"
       },
       "reuse_from": "products/azithromycin/packaging/content",
@@ -1605,7 +1652,9 @@
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
         "hplc_measurement_heading_variant": "uv_absorbance",
-        "hplc_operation_method_variant": "uv_content_0401"
+        "hplc_operation_method_variant": "uv_content_0401",
+        "hplc_weighing_section_suffix": "1.1",
+        "hplc_measurement_section_suffix": "1.2"
       }
     },
     "products/berberine_tannate/packaging/weight_variation": {
@@ -1650,7 +1699,9 @@
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
         "hplc_measurement_heading_variant": "uv_absorbance",
-        "hplc_operation_method_variant": "uv_content_0401"
+        "hplc_operation_method_variant": "uv_content_0401",
+        "hplc_weighing_section_suffix": "1.1",
+        "hplc_measurement_section_suffix": "1.2"
       }
     },
     "products/berberine_tannate/finished/identification": {
@@ -1662,7 +1713,21 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
-        "identification_operation_method_variant": "chemical_reaction"
+        "identification_operation_method_variant": "sectioned_steps",
+        "identification_steps": [
+          {
+            "section_suffix": "4.1",
+            "title": "取滤液______ml（1ml），滴加三氯化铁试液_____ml（0.5ml），溶液即呈_______________（褐绿色）。"
+          },
+          {
+            "section_suffix": "4.2",
+            "title": "取滤液______ml（1ml），滴加碘化钾试液_____ml（0.5ml），即生成_________________（黄色沉淀）。"
+          },
+          {
+            "section_suffix": "4.3",
+            "title": "取滤液______ml（2ml），加盐酸_____ml（2ml），滴加1%过氧化氢试液_____ml（0.5ml），放置，溶液呈_______________（红色）。"
+          }
+        ]
       }
     },
     "products/berberine_tannate/finished/weight_variation": {
@@ -2001,7 +2066,15 @@
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
         "hplc_measurement_heading_variant": "show",
-        "hplc_operation_method_variant": "uv_titration_compound_content"
+        "hplc_operation_method_variant": "uv_titration_compound_content",
+        "hplc_weighing_section_suffix": "1.1",
+        "hplc_measurement_section_suffix": "1.2",
+        "layout_section_steps": [
+          {
+            "section_suffix": "5.1",
+            "title": "芦丁含量对照品溶液制备"
+          }
+        ]
       }
     },
     "products/compound_rutin/packaging/weight_variation": {
@@ -2046,7 +2119,23 @@
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
         "hplc_measurement_heading_variant": "show",
-        "hplc_operation_method_variant": "uv_titration_compound_content"
+        "hplc_operation_method_variant": "uv_titration_compound_content",
+        "hplc_weighing_section_suffix": "1.1",
+        "hplc_measurement_section_suffix": "1.2",
+        "layout_section_steps": [
+          {
+            "section_suffix": "5.1",
+            "title": "芦丁含量对照品溶液制备"
+          },
+          {
+            "section_suffix": "5.2",
+            "title": "维生素C含量取本品研细，精密称取① g② g（约相当于维生素C 0.2g），分别置 ml（100ml） 的量瓶中，加新沸过的冷水 ml（100ml）与稀醋酸 ml（10ml）的混合液 ml（40ml）振摇使溶解，再用混合液稀释至刻度，摇匀，用干燥滤纸迅速滤过，弃去初滤液，精密量取续滤液 ml（50ml），加淀粉指示液 ml（10ml），立即用碘滴定液 mol/L（0.05mol/L）滴定，至溶液显蓝色并持续30秒不褪，每1ml的碘滴定液相当于8.806mg的C6H8O6。"
+          },
+          {
+            "section_suffix": "5.2.1",
+            "title": "称重"
+          }
+        ]
       }
     },
     "products/compound_rutin/finished/identification": {
@@ -2058,7 +2147,17 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
-        "identification_operation_method_variant": "chemical_reaction"
+        "identification_operation_method_variant": "sectioned_steps",
+        "identification_steps": [
+          {
+            "section_suffix": "4.1",
+            "title": "①取本品细粉 g（0.1g），加氢氧化钠试液 ml（5ml），溶液显 。②取本品细粉 g（0.1g），加乙醇 ml（15ml），微热使芦丁溶解，溶液分成二份；一份中加盐酸 ml（1ml）与金属锌 粒（3粒），渐显 ；另一份中加三氯化铁试液 滴（1滴)，显 。"
+          },
+          {
+            "section_suffix": "4.2",
+            "title": "取本品细粉 mg（约相当于维生素20mg），加水 ml（5ml）使维生素C溶解后，滤过，滤液中加碱性酒石酸铜试液 ml（1ml），加热，即产生 。"
+          }
+        ]
       }
     },
     "products/compound_rutin/finished/weight_variation": {
@@ -2135,7 +2234,8 @@
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
         "hplc_measurement_heading_variant": "uv_absorbance",
-        "hplc_operation_method_variant": "uv_content_0401"
+        "hplc_operation_method_variant": "uv_content_0401",
+        "pre_method_reference_section_suffix": "3"
       }
     },
     "products/diammonium_glycyrrhizinate/packaging/weight_variation": {
@@ -2172,7 +2272,8 @@
         "pre_method_reference_variant": "include",
         "dissolution_conclusion_variant": "include",
         "dissolution_attachment_variant": "raw",
-        "dissolution_operation_method_variant": "uv_dual_wavelength_structured_0931_0401"
+        "dissolution_operation_method_variant": "uv_dual_wavelength_structured_0931_0401",
+        "pre_method_reference_section_suffix": "3"
       }
     },
     "products/diammonium_glycyrrhizinate/packaging/content": {
@@ -2193,7 +2294,12 @@
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
         "hplc_measurement_heading_variant": "uv_absorbance",
-        "hplc_operation_method_variant": "uv_content_0401"
+        "hplc_operation_method_variant": "uv_content_0401",
+        "post_standard_variant": "none",
+        "post_abnormal_section_suffix": "7",
+        "post_cleanup_section_suffix": "8",
+        "post_conclusion_section_suffix": "9",
+        "pre_method_reference_section_suffix": "3"
       }
     },
     "products/diammonium_glycyrrhizinate/finished/identification": {
@@ -2205,7 +2311,22 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
-        "identification_operation_method_variant": "uv_ir"
+        "identification_operation_method_variant": "sectioned_steps",
+        "identification_attachment_variant": "raw",
+        "identification_steps": [
+          {
+            "section_suffix": "4.1",
+            "title": "取本品的内容物适量 g(约相当于甘草酸二铵0.5 g)，加80%乙醇 mL（25ml），加热使甘草酸二铵溶解，滤过，滤液蒸干，残渣加稀盐酸 ml（4 ml）与水 ml（6ml）煮沸 min(10分钟)，放冷，滤过，滤液备用。取沉淀用水洗涤至洗液呈中性，置105℃干燥 小时(1小时)，加乙醇 ml(10ml)使溶解，取乙醇溶液 ml(1ml)，加10%2.6-二叔丁基对苯甲酚乙醇溶液 ml(0.5ml)和20%氢氧化钠溶液 ml(1ml)，置水浴上加热 (30分钟)分钟液面出现 。"
+          },
+          {
+            "section_suffix": "4.2",
+            "title": "取鉴别(1)项下的滤液 ml(1ml)，加间苯二酚 mg(10mg)和盐酸 滴(5滴)，煮沸 分钟(1 分钟)，放冷，加苯 ml(3ml)，振摇，苯层即显 。"
+          },
+          {
+            "section_suffix": "4.3",
+            "title": "取含量测定下的溶液，照紫外可见分光光度法(通则0401)测定，在 nm(252nm±2nm)的波长处有最大吸收。"
+          }
+        ]
       }
     },
     "products/diammonium_glycyrrhizinate/finished/weight_variation": {
@@ -2222,7 +2343,11 @@
         "has_value": false,
         "auto_judgment": false,
         "variation_operation_method_variant": "capsule_weight_variation_20",
-        "variation_table_variant": "capsule_weight_20"
+        "variation_table_variant": "capsule_weight_20",
+        "post_standard_section_suffix": "6",
+        "post_abnormal_section_suffix": "7",
+        "post_cleanup_section_suffix": "8",
+        "post_conclusion_section_suffix": "9"
       },
       "reuse_from": "products/diammonium_glycyrrhizinate/packaging/weight_variation",
       "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
@@ -2244,7 +2369,8 @@
         "pre_method_reference_variant": "include",
         "dissolution_conclusion_variant": "include",
         "dissolution_attachment_variant": "raw",
-        "dissolution_operation_method_variant": "uv_dual_wavelength_structured_0931_0401"
+        "dissolution_operation_method_variant": "uv_dual_wavelength_structured_0931_0401",
+        "pre_method_reference_section_suffix": "3"
       },
       "reuse_from": "products/diammonium_glycyrrhizinate/packaging/dissolution",
       "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
@@ -2267,7 +2393,8 @@
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
         "hplc_measurement_heading_variant": "uv_absorbance",
-        "hplc_operation_method_variant": "uv_content_0401"
+        "hplc_operation_method_variant": "uv_content_0401",
+        "pre_method_reference_section_suffix": "3"
       },
       "reuse_from": "products/diammonium_glycyrrhizinate/packaging/content",
       "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
@@ -2441,7 +2568,8 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
-        "identification_operation_method_variant": "retention_time"
+        "identification_operation_method_variant": "retention_time",
+        "pre_method_reference_section_suffix": "3"
       }
     },
     "products/isosorbide_dinitrate/finished/content_uniformity": {
@@ -2582,7 +2710,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_system_solution_prep_0512"
       }
     },
@@ -2595,7 +2723,18 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "identification_operation_method_variant": "hplc_prep"
+        "identification_operation_method_variant": "sectioned_steps",
+        "identification_attachment_variant": "raw",
+        "identification_steps": [
+          {
+            "section_suffix": "5.1",
+            "title": "取本品的内容物适量 mg （约相当于左氧氟沙星10mg），置干燥具塞试管中，加丙二酸 mg（约10mg）与醋酐 ml（0.5ml），在水浴中加热 5～10分钟，溶液显 （红棕色）。"
+          },
+          {
+            "section_suffix": "5.2",
+            "title": "色谱条件"
+          }
+        ]
       }
     },
     "products/levofloxacin/finished/related_substances": {
@@ -2922,7 +3061,11 @@
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
         "hplc_measurement_heading_variant": "show",
-        "hplc_operation_method_variant": "titration_content"
+        "hplc_operation_method_variant": "titration_content",
+        "post_standard_section_suffix": "6",
+        "post_abnormal_section_suffix": "7",
+        "post_cleanup_section_suffix": "8",
+        "post_conclusion_section_suffix": "9"
       }
     },
     "products/methimazole/packaging/disintegration": {
@@ -2944,7 +3087,22 @@
         "content_uniformity_conclusion_variant": "include",
         "content_uniformity_attachment_variant": "raw",
         "content_uniformity_calculation_heading_variant": "show",
-        "content_uniformity_operation_method_variant": "uv_content_uniformity_0401"
+        "content_uniformity_operation_method_variant": "uv_content_uniformity_0401",
+        "layout_section_steps": [
+          {
+            "section_suffix": "4.1",
+            "title": "称重"
+          },
+          {
+            "section_suffix": "4.2.1",
+            "title": "对照品计算"
+          },
+          {
+            "section_suffix": "4.2.2",
+            "title": "供试品计算"
+          }
+        ],
+        "pre_method_reference_section_suffix": "3"
       }
     },
     "products/methimazole/packaging/content": {
@@ -2965,7 +3123,11 @@
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
         "hplc_measurement_heading_variant": "inline",
-        "hplc_operation_method_variant": "titration_content"
+        "hplc_operation_method_variant": "titration_content",
+        "post_standard_section_suffix": "6",
+        "post_abnormal_section_suffix": "7",
+        "post_cleanup_section_suffix": "8",
+        "post_conclusion_section_suffix": "9"
       }
     },
     "products/methimazole/finished/identification": {
@@ -2977,7 +3139,18 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
-        "identification_operation_method_variant": "uv_ir"
+        "identification_operation_method_variant": "sectioned_steps",
+        "identification_attachment_variant": "raw",
+        "identification_steps": [
+          {
+            "section_suffix": "4.1",
+            "title": "取本品 片（2片），加热乙醇 ml（10ml），研磨 分钟（10分钟），滤过，滤液置水浴上蒸干，加水 ml（5ml）溶解，量取 ml（1ml）置10ml试管中，加氢氧化钠试液 ml（1ml），摇匀，滴加亚硝基铁氰化钠试液 滴（3滴），即显_____色（黄色）； 分钟（1～5分钟）后，转为______（黄绿色或绿色）；再加醋酸_____ml（1ml），即呈_____（蓝色）。"
+          },
+          {
+            "section_suffix": "4.2",
+            "title": "取含量均匀度项下的供试品溶液，照紫外-可见分光光度法（通则0401）测定，在_____nm（252mn±2nm）的波长处有最大吸收。"
+          }
+        ]
       }
     },
     "products/methimazole/finished/content_uniformity": {
@@ -2992,7 +3165,8 @@
         "content_uniformity_conclusion_variant": "include",
         "content_uniformity_attachment_variant": "none",
         "content_uniformity_calculation_heading_variant": "inline",
-        "content_uniformity_operation_method_variant": "uv_content_uniformity_0401"
+        "content_uniformity_operation_method_variant": "uv_content_uniformity_0401",
+        "pre_method_reference_section_suffix": "3"
       }
     },
     "products/methimazole/finished/disintegration": {
@@ -3050,7 +3224,8 @@
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
         "hplc_measurement_heading_variant": "uv_absorbance",
-        "hplc_operation_method_variant": "uv_content_0401"
+        "hplc_operation_method_variant": "uv_content_0401",
+        "pre_method_reference_section_suffix": "3"
       }
     },
     "products/pantoprazole/packaging/weight_variation": {
@@ -3128,7 +3303,8 @@
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
         "hplc_measurement_heading_variant": "uv_absorbance",
-        "hplc_operation_method_variant": "uv_content_0401"
+        "hplc_operation_method_variant": "uv_content_0401",
+        "pre_method_reference_section_suffix": "3"
       }
     },
     "products/pantoprazole/finished/identification": {
@@ -3140,7 +3316,18 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
-        "identification_operation_method_variant": "uv_ir"
+        "identification_operation_method_variant": "sectioned_steps",
+        "identification_attachment_variant": "raw",
+        "identification_steps": [
+          {
+            "section_suffix": "4.1",
+            "title": "取本品，除去薄膜衣，研细，取细粉 (约相当于泮托拉唑10mg)，加水 ml（20ml），振摇使泮托拉唑钠溶解，滤过，取滤液 ml（2ml），加稀盐酸 滴（5滴），滴加硅钨酸试液，即产生 。"
+          },
+          {
+            "section_suffix": "4.2",
+            "title": "取含量测定项下的溶液，照分光光度法（通则0401）在 nm（292nm±2nm）的波长处有最大吸收，在 nm（250nm±2nm）的波长处有最小吸收。"
+          }
+        ]
       }
     },
     "products/pantoprazole/finished/weight_variation": {
@@ -3346,7 +3533,8 @@
         "pre_method_materials_variant": "none",
         "pre_method_reference_variant": "include",
         "hplc_measurement_heading_variant": "uv_absorbance",
-        "hplc_operation_method_variant": "uv_content_0401"
+        "hplc_operation_method_variant": "uv_content_0401",
+        "pre_method_reference_section_suffix": "3"
       },
       "reuse_from": "products/pantoprazole/packaging/content",
       "reuse_reason": "MD 明确写“检验数据/计算过程见待包装品（二）x.x 项下”；成品完全复刻待包装品布局。"
@@ -3391,7 +3579,13 @@
         "content_uniformity_conclusion_variant": "include",
         "content_uniformity_attachment_variant": "raw",
         "content_uniformity_calculation_heading_variant": "show",
-        "content_uniformity_operation_method_variant": "hplc_content_uniformity_reference_assay"
+        "content_uniformity_operation_method_variant": "hplc_content_uniformity_reference_assay",
+        "layout_section_steps": [
+          {
+            "section_suffix": "5.1",
+            "title": "称重"
+          }
+        ]
       }
     },
     "products/simvastatin/packaging/dissolution": {
@@ -3444,7 +3638,18 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "identification_operation_method_variant": "uv_ir"
+        "identification_operation_method_variant": "sectioned_steps",
+        "identification_attachment_variant": "raw",
+        "identification_steps": [
+          {
+            "section_suffix": "5.1",
+            "title": "在含量测定项下记录的色谱图中，供试品溶液主峰的保留时间与对照品溶液主峰的保留时间 （一致）。"
+          },
+          {
+            "section_suffix": "5.2",
+            "title": "取含量项下细粉 mg(约相当于辛伐他汀10mg)置 ml(100ml)量瓶中，加溶剂Ⅰ适量,振摇使辛伐他汀溶解并稀释至刻度，摇匀，滤过，再精密量取续滤液 ml（5ml）置 ml（50ml）量瓶中制成1ml中约含辛伐他汀10μg的溶液，照紫外-分光光度法（通则0401）测定，在_____nm（231±2nm）、 nm（238±2nm）与 nm（247±2nm）的波长处有最大吸收。"
+          }
+        ]
       }
     },
     "products/simvastatin/finished/content_uniformity": {
@@ -3473,7 +3678,7 @@
         "pre_method_reference_variant": "include",
         "related_conclusion_variant": "include",
         "related_attachment_variant": "raw",
-        "related_peak_calculation_variant": "hplc_0512_peak_area",
+        "related_peak_calculation_variant": "hplc_0512_peak_area_inline",
         "related_system_rows": [
           {
             "text": "辛伐他汀酸峰与洛伐他汀峰之间的分离度应不小于1.5，洛伐他汀峰与辛伐他汀峰之间的分离度应不小于4.0。",
@@ -3739,7 +3944,13 @@
         "content_uniformity_conclusion_variant": "include",
         "content_uniformity_attachment_variant": "raw",
         "content_uniformity_calculation_heading_variant": "show",
-        "content_uniformity_operation_method_variant": "hplc_content_uniformity_reference_assay"
+        "content_uniformity_operation_method_variant": "hplc_content_uniformity_reference_assay",
+        "layout_section_steps": [
+          {
+            "section_suffix": "5.1",
+            "title": "对照称样"
+          }
+        ]
       }
     },
     "products/spironolactone/packaging/dissolution": {
@@ -3759,7 +3970,9 @@
         "pre_method_reference_variant": "none",
         "dissolution_conclusion_variant": "include",
         "dissolution_attachment_variant": "raw",
-        "dissolution_operation_method_variant": "uv_full_structured_0931_0401"
+        "dissolution_operation_method_variant": "uv_full_structured_0931_0401",
+        "post_conclusion_section_suffix": "9",
+        "post_attachment_section_suffix": "10"
       }
     },
     "products/spironolactone/packaging/content": {
@@ -4038,7 +4251,7 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "hplc_measurement_heading_variant": "inline",
+        "hplc_measurement_heading_variant": "show",
         "hplc_operation_method_variant": "hplc_content_full_solution_prep_0512"
       }
     },
@@ -4107,7 +4320,8 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "include",
-        "identification_operation_method_variant": "uv_ir"
+        "identification_operation_method_variant": "uv_ir",
+        "identification_attachment_variant": "raw"
       }
     },
     "products/terazosin/finished/related_substances": {
@@ -4377,7 +4591,22 @@
         "pre_method_equipment_variant": "include",
         "pre_method_materials_variant": "include",
         "pre_method_reference_variant": "none",
-        "identification_operation_method_variant": "retention_time"
+        "identification_operation_method_variant": "sectioned_steps",
+        "identification_attachment_variant": "raw",
+        "identification_steps": [
+          {
+            "section_suffix": "4.1",
+            "title": "取本品的细粉适量 g（约相当于盐酸维拉帕米1g）加水至20ml使溶解，取2ml加硫氰酸铬铵试液 滴（5滴），即生成 （淡红色的沉淀）。"
+          },
+          {
+            "section_suffix": "4.2",
+            "title": "取本品内容物 g（约相当于盐酸维拉帕米0.1g）置 ml（20ml）量瓶中，加水5ml，振摇使溶解，并用水稀释至刻度，滤过；取续滤液 ml（5ml）置10ml试管中，加稀硝酸 滴（3～5滴）使成酸性，加硝酸银试液 ml（0.5ml），即生成 （白色凝乳状沉淀）；离心，分离，取沉淀加氨试液 ml即 （溶解），再加稀硝酸 ml（0.5ml）酸化后 （沉淀复生成）。"
+          },
+          {
+            "section_suffix": "4.3",
+            "title": "在含量测定项下记录的色谱图中，供试品溶液主峰的保留时间应与对照品溶液主峰的保留时间 （一致）。"
+          }
+        ]
       }
     },
     "products/verapamil/finished/related_substances": {

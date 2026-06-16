@@ -13,7 +13,7 @@
       "params": {
         "section_suffix": "1",
         "order": 181,
-        "section_ref": "cultivation"
+        "section_ref": "{{microbial_count_observation_role}}"
       }
     },
     {
@@ -22,7 +22,7 @@
       "params": {
         "section_suffix": "2",
         "order": 191,
-        "section_ref": "cultivation"
+        "section_ref": "{{microbial_count_observation_role}}"
       }
     }
   ],
@@ -37,13 +37,17 @@
     {
       "type": "title",
       "title": "观察结果",
-      "section_suffix": "2.4",
+      "section_suffix": "{{microbial_count_observation_suffix}}",
       "section_ref": "detection",
-      "section_role": "cultivation",
+      "section_role": "{{microbial_count_observation_role}}",
       "section_anchor": true,
       "module_order": 30.5,
       "order": 180
     }
   ],
-  "order": 180
+  "order": 180,
+  "params": {
+    "microbial_count_observation_suffix": "2.4",
+    "microbial_count_observation_role": "cultivation"
+  }
 }

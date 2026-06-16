@@ -34,16 +34,16 @@
         "note": "，空气洁净级别及压差应符合规定",
         "room_rows": 2,
         "field_prefix": "layout/microbiology/environment",
-        "section_suffix": "3",
-        "order": 120
+        "section_suffix": "2",
+        "order": 110
       }
     },
     {
       "type": "include",
       "template_id": "microbiology/equipment_limit_test",
       "params": {
-        "section_suffix": "2",
-        "order": 110
+        "section_suffix": "3",
+        "order": 120
       }
     },
     {

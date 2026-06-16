@@ -12,20 +12,25 @@
       "module_order": 20,
       "variant_param": "content_uniformity_calculation_heading_variant",
       "default_variant": "show",
-      "params": {
-        "section_ref": "operation",
-        "section_suffix": "2"
-      },
       "variants": {
         "show": {
           "template_id": "calculation/content_uniformity_10_sample",
-          "title": "测定与计算"
+          "title": "测定与计算",
+          "params": {
+            "section_ref": "operation",
+            "section_suffix": "2"
+          }
         },
         "inline": {
-          "template_id": "calculation/content_uniformity_10_sample",
-          "title": "测定与计算（内嵌）"
+          "template_id": "calculation/content_uniformity_10_sample_inline",
+          "title": "测定与计算（内嵌无标题）"
         }
       }
+    },
+    {
+      "template_id": "operation/sectioned_steps",
+      "module_order": 20,
+      "order": 137
     }
   ],
   "source_refs": [

@@ -22,8 +22,8 @@
           "title": "HPLC测定"
         },
         "hplc_inline": {
-          "template_id": "measurement/hplc_reference_sample_calculation",
-          "title": "HPLC测定（内嵌）"
+          "template_id": "measurement/hplc_reference_sample_calculation_inline",
+          "title": "HPLC测定（内嵌无标题）"
         }
       }
     }

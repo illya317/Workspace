@@ -13,7 +13,7 @@
       "variant_param": "post_standard_variant",
       "default_variant": "include",
       "params": {
-        "section_suffix": "auto",
+        "section_suffix": "{post_standard_section_suffix}",
         "section_role": "standard",
         "section_anchor": true,
         "order": 170
@@ -35,7 +35,7 @@
       "variant_param": "post_abnormal_variant",
       "default_variant": "include",
       "params": {
-        "section_suffix": "auto",
+        "section_suffix": "{post_abnormal_section_suffix}",
         "section_role": "abnormal",
         "section_anchor": true,
         "order": 180
@@ -57,7 +57,7 @@
       "variant_param": "post_cleanup_variant",
       "default_variant": "include",
       "params": {
-        "section_suffix": "auto",
+        "section_suffix": "{post_cleanup_section_suffix}",
         "section_role": "cleanup",
         "section_anchor": true,
         "order": 190
@@ -79,7 +79,7 @@
       "variant_param": "post_cleanroom_exit_variant",
       "default_variant": "none",
       "params": {
-        "section_suffix": "auto",
+        "section_suffix": "{post_cleanroom_exit_section_suffix}",
         "section_role": "cleanroom_exit",
         "section_anchor": true,
         "order": 195
@@ -101,7 +101,7 @@
       "variant_param": "post_conclusion_variant",
       "default_variant": "include",
       "params": {
-        "section_suffix": "auto",
+        "section_suffix": "{post_conclusion_section_suffix}",
         "section_role": "conclusion",
         "section_anchor": true,
         "order": 199
@@ -115,7 +115,15 @@
           "template_id": "common/conclusion",
           "title": "结论"
         }
-      }
+      },
+      "variant_param_aliases": [
+        "hplc_conclusion_variant",
+        "related_conclusion_variant",
+        "dissolution_conclusion_variant",
+        "content_uniformity_conclusion_variant",
+        "identification_conclusion_variant",
+        "variation_conclusion_variant"
+      ]
     },
     {
       "template_id": "common/raw_data_attachments",
@@ -123,7 +131,7 @@
       "variant_param": "post_attachment_variant",
       "default_variant": "none",
       "params": {
-        "section_suffix": "auto",
+        "section_suffix": "{post_attachment_section_suffix}",
         "section_role": "raw_data",
         "section_anchor": true,
         "order": 260
@@ -161,6 +169,12 @@
     "post_abnormal_variant": "include",
     "post_cleanup_variant": "include",
     "post_cleanroom_exit_variant": "none",
-    "post_conclusion_variant": "include"
+    "post_conclusion_variant": "include",
+    "post_standard_section_suffix": "auto",
+    "post_abnormal_section_suffix": "auto",
+    "post_cleanup_section_suffix": "auto",
+    "post_cleanroom_exit_section_suffix": "auto",
+    "post_conclusion_section_suffix": "auto",
+    "post_attachment_section_suffix": "auto"
   }
 }

@@ -20,7 +20,7 @@
       "text": "称重",
       "order": 140,
       "section_ref": "operation",
-      "section_suffix": "1"
+      "section_suffix": "{hplc_weighing_section_suffix}"
     },
     {
       "type": "table",
@@ -152,5 +152,8 @@
       ]
     }
   ],
-  "order": 41
+  "order": 41,
+  "params": {
+    "hplc_weighing_section_suffix": "1"
+  }
 }

@@ -9,7 +9,11 @@
   "params": {
     "pre_method_equipment_variant": "include",
     "pre_method_materials_variant": "none",
-    "pre_method_reference_variant": "none"
+    "pre_method_reference_variant": "none",
+    "pre_method_environment_section_suffix": "1",
+    "pre_method_equipment_section_suffix": "2",
+    "pre_method_materials_section_suffix": "3",
+    "pre_method_reference_section_suffix": "4"
   },
   "includes": [
     {
@@ -23,7 +27,7 @@
       "template_id": "common/environment_table",
       "module_order": 100,
       "params": {
-        "section_suffix": "1",
+        "section_suffix": "{pre_method_environment_section_suffix}",
         "order": 100
       }
     },
@@ -33,7 +37,7 @@
       "variant_param": "pre_method_equipment_variant",
       "default_variant": "include",
       "params": {
-        "section_suffix": "2",
+        "section_suffix": "{pre_method_equipment_section_suffix}",
         "order": 110
       },
       "variants": {
@@ -53,7 +57,7 @@
       "variant_param": "pre_method_materials_variant",
       "default_variant": "none",
       "params": {
-        "section_suffix": "3",
+        "section_suffix": "{pre_method_materials_section_suffix}",
         "order": 120
       },
       "variants": {
@@ -73,7 +77,7 @@
       "variant_param": "pre_method_reference_variant",
       "default_variant": "none",
       "params": {
-        "section_suffix": "4",
+        "section_suffix": "{pre_method_reference_section_suffix}",
         "order": 130
       },
       "variants": {

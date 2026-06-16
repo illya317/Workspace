@@ -1,0 +1,24 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/identification_sectioned_steps",
+  "title": "鉴别分节操作步骤",
+  "category": "operation",
+  "subcomponent": true,
+  "status": "pilot",
+  "blocks": [
+    {
+      "type": "sectioned_operation_steps",
+      "steps_param": "identification_steps",
+      "className": "section-body layout-operation-text-block",
+      "module_order": 20,
+      "order": 136
+    }
+  ],
+  "source_refs": [
+    {
+      "product": "all",
+      "section_no": "鉴别 操作方法分节步骤",
+      "md": "schema/md_canonical/*.md"
+    }
+  ]
+}

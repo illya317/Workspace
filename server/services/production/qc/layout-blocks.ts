@@ -199,10 +199,11 @@ async function readJson(filePath: string) {
   return raw ? JSON.parse(raw) as unknown : undefined;
 }
 
-function sorted(items: Array<{ order?: unknown; module_order?: unknown; moduleOrder?: unknown }>) {
+function sorted(items: Array<{ order?: unknown; module_order?: unknown; moduleOrder?: unknown; params?: unknown }>) {
+  const entryOrder = (item: typeof items[number], key: "order" | "module_order" | "moduleOrder") => Number(item[key] ?? asRecord(item.params)[key] ?? 0);
   return items.sort((a, b) => (
-    Number(a.module_order ?? a.moduleOrder ?? 0) - Number(b.module_order ?? b.moduleOrder ?? 0)
-    || Number(a.order ?? 0) - Number(b.order ?? 0)
+    (entryOrder(a, "module_order") || entryOrder(a, "moduleOrder")) - (entryOrder(b, "module_order") || entryOrder(b, "moduleOrder"))
+    || entryOrder(a, "order") - entryOrder(b, "order")
   ));
 }
 
@@ -227,11 +228,12 @@ async function expandTemplate(configRoot: string, templateId: string, params: Pa
 
     const variantKeys = [asString(item.variant_param), ...asArray(item.variant_param_aliases).map((alias) => asString(alias))].filter(Boolean);
     const variantValue = variantKeys.map((key) => asString(mergedParams[key])).find(Boolean) || (variantKeys.length ? asString(item.default_variant) : "");
-    const variant = asRecord(asRecord(item.variants)[variantValue]);
+    const variantRaw = asRecord(item.variants)[variantValue];
+    const variant = typeof variantRaw === "string" ? { template_id: variantRaw } : asRecord(variantRaw);
     if (variant.skip === true) continue;
     const childId = asString(variant.template_id || item.template_id);
     if (!childId) continue;
-    const childParams = { ...mergedParams, ...asRecord(item.params), ...asRecord(variant.params) };
+    const childParams = { ...asRecord(item.params), ...mergedParams, ...asRecord(variant.params) };
     blocks.push(...await expandTemplate(configRoot, childId, childParams, new Set(seen)));
   }
 

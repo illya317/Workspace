@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "template_id": "operation/sectioned_steps",
+  "title": "补充分节标题",
+  "category": "operation",
+  "subcomponent": true,
+  "status": "pilot",
+  "blocks": [
+    {
+      "type": "sectioned_operation_steps",
+      "steps_param": "layout_section_steps",
+      "module_order": 20,
+      "order": 137
+    }
+  ]
+}

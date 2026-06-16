@@ -1,18 +1,11 @@
 {
   "schema_version": 2,
-  "template_id": "measurement/uv_absorbance_calculation",
-  "title": "UV 含量测定与计算",
+  "template_id": "measurement/uv_absorbance_calculation_inline",
+  "title": "UV 含量测定与计算（内嵌无标题）",
   "category": "measurement",
   "subcomponent": true,
   "status": "pilot",
   "blocks": [
-    {
-      "type": "title",
-      "text": "测定与计算",
-      "order": 150,
-      "section_ref": "operation",
-      "section_suffix": "{hplc_measurement_section_suffix}"
-    },
     {
       "type": "table",
       "label": "UV含量测定与计算",
@@ -276,8 +269,5 @@
       "md": "schema/md_canonical/*.md"
     }
   ],
-  "order": 151,
-  "params": {
-    "hplc_measurement_section_suffix": "2"
-  }
+  "order": 151
 }

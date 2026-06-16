@@ -367,12 +367,29 @@
       "order": 151
     },
     {
+      "type": "include",
+      "template_id": "microbiology/escherichia_coli_filter_prep",
+      "variant_param": "ecoli_filter_prep_variant",
+      "default_variant": "none",
+      "order": 151,
+      "variants": {
+        "none": {
+          "skip": true,
+          "title": "不包含试验准备"
+        },
+        "include": {
+          "template_id": "microbiology/escherichia_coli_filter_prep",
+          "title": "大肠埃希菌试验准备"
+        }
+      }
+    },
+    {
       "type": "paragraph",
       "className": "layout-paragraph layout-operation-text",
       "parts": [
         {
           "type": "section_heading",
-          "section_suffix": "1.2",
+          "section_suffix": "{{ecoli_sample_suffix}}",
           "text": "供试品制备：",
           "bold": true,
           "section_ref": "detection"
@@ -438,7 +455,7 @@
       "parts": [
         {
           "type": "section_heading",
-          "section_suffix": "1.3",
+          "section_suffix": "{{ecoli_positive_suffix}}",
           "text": "阳性对照试验：",
           "bold": true,
           "section_ref": "detection"
@@ -492,7 +509,7 @@
       "parts": [
         {
           "type": "section_heading",
-          "section_suffix": "1.4",
+          "section_suffix": "{{ecoli_negative_suffix}}",
           "text": "阴性对照试验：",
           "bold": true,
           "section_ref": "detection"
@@ -534,7 +551,7 @@
       "parts": [
         {
           "type": "section_heading",
-          "section_suffix": "1.5",
+          "section_suffix": "{{ecoli_cultivation_suffix}}",
           "text": "培养：",
           "bold": true,
           "section_ref": "detection"
@@ -746,7 +763,7 @@
       "parts": [
         {
           "type": "section_heading",
-          "section_suffix": "1.6",
+          "section_suffix": "{{ecoli_condition_suffix}}",
           "text": "试验成立条件：",
           "bold": true,
           "section_ref": "detection"
@@ -759,5 +776,12 @@
       "order": 157
     }
   ],
-  "order": 150
+  "order": 150,
+  "params": {
+    "ecoli_condition_suffix": "1.6",
+    "ecoli_cultivation_suffix": "1.5",
+    "ecoli_negative_suffix": "1.4",
+    "ecoli_sample_suffix": "1.2",
+    "ecoli_positive_suffix": "1.3"
+  }
 }

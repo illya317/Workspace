@@ -3,14 +3,19 @@
 import type { CSSProperties, ChangeEvent } from "react";
 import type { QcLayoutPart } from "@/server/services/production/qc";
 
-function inputWidth(part: QcLayoutPart): CSSProperties {
-  return { width: part.width || "5.5em", minWidth: part.width ? "4.5em" : undefined };
+function inputWidth(part: QcLayoutPart, inTable?: boolean): CSSProperties {
+  if (part.width) return { width: part.width, minWidth: "4.5em" };
+  if (inTable) return { width: "clamp(6rem, 72%, 10rem)", minWidth: "5rem" };
+  return { width: "5.5em" };
 }
 
-function selectWidth(part: QcLayoutPart, options: string[], value?: string): CSSProperties {
+function selectWidth(part: QcLayoutPart, options: string[], value?: string, inTable?: boolean): CSSProperties {
   if (part.width) return { width: part.width, backgroundImage: "none" };
   const longest = Math.max(2, value?.length || 0, ...options.map((option) => option.length));
-  return { width: `${Math.min(7, Math.max(3.2, longest * 1.15 + 1.2))}em`, backgroundImage: "none" };
+  const width = inTable
+    ? Math.min(9, Math.max(4.2, longest * 1.15 + 1.2))
+    : Math.min(7, Math.max(3.2, longest * 1.15 + 1.2));
+  return { width: `${width}em`, backgroundImage: "none" };
 }
 
 export function qcRangeLabel(part: QcLayoutPart) {
@@ -49,14 +54,18 @@ export function QcPaperLineInput({
   readOnly,
   value,
   onChange,
+  inTable,
 }: {
   part: QcLayoutPart;
   readOnly?: boolean;
   value?: string;
   onChange?: (value: string) => void;
+  inTable?: boolean;
 }) {
   const currentValue = value ?? part.defaultValue ?? "";
   const error = qcRangeError(part, currentValue);
+  const baseClass = inTable ? "mx-0" : "mx-1";
+  const readonlyClass = readOnly || part.readonlyDisplay ? "cursor-default text-slate-900" : "";
   const valueProps = onChange
     ? { value: currentValue, onChange: (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onChange(event.target.value) }
     : { defaultValue: part.defaultValue };
@@ -70,8 +79,8 @@ export function QcPaperLineInput({
         readOnly={readOnly || part.readonlyDisplay}
         rows={part.rows || 2}
         title={error}
-        className={`mx-1 inline-block min-w-[8em] resize-y border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none read-only:border-b-0 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
-        style={inputWidth(part)}
+        className={`${baseClass} inline-block min-w-[8em] resize-y border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+        style={inputWidth(part, inTable)}
       />
     );
   }
@@ -85,8 +94,8 @@ export function QcPaperLineInput({
       inputMode={part.inputType === "number" ? "decimal" : undefined}
       type={textInputType(part)}
       title={error}
-      className={`mx-1 inline-block h-7 min-w-[4.5em] border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none read-only:border-b-0 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
-      style={inputWidth(part)}
+      className={`${baseClass} inline-block h-7 min-w-[4.5em] border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+      style={inputWidth(part, inTable)}
     />
   );
 }
@@ -97,12 +106,14 @@ export function QcPaperSelectInput({
   readOnly,
   value,
   onChange,
+  inTable,
 }: {
   part: QcLayoutPart;
   options?: string[];
   readOnly?: boolean;
   value?: string;
   onChange?: (value: string) => void;
+  inTable?: boolean;
 }) {
   const error = qcRangeError(part, value ?? part.defaultValue);
   return (
@@ -113,8 +124,8 @@ export function QcPaperSelectInput({
       onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange?.(event.target.value)}
       disabled={readOnly || part.readonlyDisplay}
       title={error}
-      className={`mx-1 inline-block h-7 appearance-none border-0 bg-transparent px-0.5 text-center align-middle leading-7 outline-none disabled:opacity-100 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
-      style={selectWidth(part, options, value ?? part.defaultValue)}
+      className={`${inTable ? "mx-0" : "mx-1"} inline-block h-7 appearance-none border-0 bg-transparent px-0.5 text-center align-middle leading-7 outline-none disabled:opacity-100 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+      style={selectWidth(part, options, value ?? part.defaultValue, inTable)}
     >
       <option value=""> </option>
       {options.map((option) => (

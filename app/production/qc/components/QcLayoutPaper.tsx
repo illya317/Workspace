@@ -49,15 +49,15 @@ function numberBlocks(blocks: QcLayoutBlock[], sequence?: string): { blocks: Num
       const nestedSuffix = joinSectionSuffix(sectionAliases[block.sectionRef], suffix);
       displaySection = nestedSuffix ? sequence ? `${sequence}.${nestedSuffix}` : nestedSuffix : undefined;
       if (nestedSuffix && role && (block.sectionAnchor || block.sectionSlot)) sectionAliases[role] = nestedSuffix;
-    } else if (block.sectionSlot || suffix === "auto" || block.sectionAnchor) {
-      const alias = String(nextTopLevel++);
-      if (role) sectionAliases[role] = alias;
-      displaySection = sequence ? `${sequence}.${alias}` : alias;
     } else if (isNumericSection(suffix)) {
       displaySection = sequence ? `${sequence}.${suffix}` : suffix;
       const topLevel = Number(suffix.split(".")[0]);
       if (Number.isFinite(topLevel)) nextTopLevel = Math.max(nextTopLevel, topLevel + 1);
       if (role) sectionAliases[role] = suffix;
+    } else if (block.sectionSlot || suffix === "auto" || block.sectionAnchor) {
+      const alias = String(nextTopLevel++);
+      if (role) sectionAliases[role] = alias;
+      displaySection = sequence ? `${sequence}.${alias}` : alias;
     }
     return { ...block, displaySection };
   }) };

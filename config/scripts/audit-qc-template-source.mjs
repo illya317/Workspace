@@ -121,6 +121,20 @@ function numericGaps(sections) {
   return gaps;
 }
 
+function sectionCoveredBySourceGap(section, gaps) {
+  const parts = section.split(".");
+  const parent = parts.slice(0, -1).join(".");
+  const leaf = Number(parts.at(-1));
+  if (!Number.isFinite(leaf)) return false;
+  return gaps.some((gap) => {
+    const skipped = gap.match(/^(.+)\.(\d+)→(\d+)$/);
+    if (skipped) return skipped[1] === parent && leaf === Number(skipped[3]);
+    const missingFirst = gap.match(/^(.+)\.1 missing before .+\.(\d+)$/);
+    if (missingFirst) return missingFirst[1] === parent && leaf === 1;
+    return false;
+  });
+}
+
 function keyValid(key) {
   const clean = path.posix.normalize(key.replace(/\\/g, "/").replace(/\.json$/, ""));
   if (!clean || clean.startsWith("../") || clean === ".." || path.isAbsolute(clean)) throw new Error(`Invalid key: ${key}`);
@@ -133,7 +147,11 @@ async function loadTemplate(id, params = {}, seen = new Set()) {
   seen.add(clean);
   const data = rec(await readJson(path.join(configRoot, "table_layouts/templates", `${clean}.json`)));
   const merged = { ...rec(data.params), ...params };
-  const entries = [...arr(data.includes), ...arr(data.blocks)].sort((a, b) => Number(rec(a).module_order ?? rec(a).moduleOrder ?? 0) - Number(rec(b).module_order ?? rec(b).moduleOrder ?? 0) || Number(rec(a).order ?? 0) - Number(rec(b).order ?? 0));
+  const entryOrder = (item, key) => Number(rec(item)[key] ?? rec(rec(item).params)[key] ?? 0);
+  const entries = [...arr(data.includes), ...arr(data.blocks)].sort((a, b) => (
+    (entryOrder(a, "module_order") || entryOrder(a, "moduleOrder")) - (entryOrder(b, "module_order") || entryOrder(b, "moduleOrder"))
+    || entryOrder(a, "order") - entryOrder(b, "order")
+  ));
   const blocks = [];
   for (const entry of entries) {
     const item = rec(entry);
@@ -143,16 +161,17 @@ async function loadTemplate(id, params = {}, seen = new Set()) {
     }
     const variantKeys = [str(item.variant_param), ...arr(item.variant_param_aliases).map((alias) => str(alias))].filter(Boolean);
     const variantValue = variantKeys.map((key) => str(merged[key])).find(Boolean) || (variantKeys.length ? str(item.default_variant) : "");
-    const variant = rec(rec(item.variants)[variantValue]);
+    const variantRaw = rec(item.variants)[variantValue];
+    const variant = typeof variantRaw === "string" ? { template_id: variantRaw } : rec(variantRaw);
     if (variant.skip === true) continue;
     const childId = str(variant.template_id || item.template_id);
-    if (childId) blocks.push(...await loadTemplate(childId, { ...merged, ...rec(item.params), ...rec(variant.params) }, new Set(seen)));
+    if (childId) blocks.push(...await loadTemplate(childId, { ...rec(item.params), ...merged, ...rec(variant.params) }, new Set(seen)));
   }
   return blocks.filter(Boolean);
 }
 
 function substitute(value, params) {
-  if (typeof value === "string") return value.replace(/\{\{\s*([\w.-]+)\s*\}|\{\s*([\w.-]+)\s*\}/g, (match, a, b) => {
+  if (typeof value === "string") return value.replace(/\{\{\s*([\w.-]+)\s*\}\}|\{\s*([\w.-]+)\s*\}/g, (match, a, b) => {
     const param = params[a || b];
     return param === undefined || typeof param === "object" ? match : String(param);
   });
@@ -223,6 +242,23 @@ function mapCustomBlock(raw, params) {
   if (type === "related_substances_weighing_table") {
     return { type: "table", title: str(raw.label), rows: arr(params[str(raw.rows_param)]).map((row, index) => [{ parts: [{ type: "text", text: str(rec(row).name) }] }, { parts: [{ type: "field", field: str(rec(row).field || `称样${index + 1}-毛重`) }] }]), order: Number(raw.order) || undefined };
   }
+  if (type === "sectioned_operation_steps") {
+    const scope = raw.params_path ? { ...params, ...rec(params[str(raw.params_path)]) } : params;
+    const steps = arr(scope[str(raw.steps_param, "identification_steps")]);
+    const parts = [];
+    let lastSectionSuffix = "";
+    for (const step of steps) {
+      const item = rec(step);
+      const sectionSuffix = str(item.section_suffix || item.sectionSuffix);
+      const title = str(item.title || item.text);
+      if (sectionSuffix && title) {
+        lastSectionSuffix = sectionSuffix;
+        parts.push({ type: "section_heading", text: title, sectionSuffix, bold: true });
+      }
+      if (item.body) parts.push({ type: "text", text: str(item.body) });
+    }
+    return parts.length ? { type: "paragraph", sectionSuffix: lastSectionSuffix, parts, order: Number(raw.order) || undefined } : null;
+  }
   return null;
 }
 
@@ -235,23 +271,30 @@ function joinSectionSuffix(base, suffix) {
 function numberBlocks(blocks, sequence) {
   let nextTopLevel = 1;
   const aliases = {};
-  return blocks.map((block) => {
+  const numbered = blocks.map((block) => {
     let displaySection;
     if (block.sectionRef) {
       const nested = joinSectionSuffix(aliases[block.sectionRef], block.sectionSuffix);
       displaySection = nested ? `${sequence}.${nested}` : undefined;
       if (nested && block.sectionRole && (block.sectionAnchor || block.sectionSlot)) aliases[block.sectionRole] = nested;
-    } else if (block.sectionSlot || block.sectionSuffix === "auto" || block.sectionAnchor) {
-      const alias = String(nextTopLevel++);
-      if (block.sectionRole) aliases[block.sectionRole] = alias;
-      displaySection = `${sequence}.${alias}`;
     } else if (/^\d+(?:\.\d+)*$/.test(block.sectionSuffix)) {
       displaySection = `${sequence}.${block.sectionSuffix}`;
       nextTopLevel = Math.max(nextTopLevel, Number(block.sectionSuffix.split(".")[0]) + 1);
       if (block.sectionRole) aliases[block.sectionRole] = block.sectionSuffix;
+    } else if (block.sectionSlot || block.sectionSuffix === "auto" || block.sectionAnchor) {
+      const alias = String(nextTopLevel++);
+      if (block.sectionRole) aliases[block.sectionRole] = alias;
+      displaySection = `${sequence}.${alias}`;
     }
     return { ...block, displaySection };
   });
+  return { blocks: numbered, aliases };
+}
+
+function resolvePartSection(part, sequence, aliases) {
+  if (!part.sectionSuffix) return "";
+  const nested = part.sectionRef ? joinSectionSuffix(aliases[part.sectionRef], part.sectionSuffix) : part.sectionSuffix;
+  return nested ? `${sequence}.${nested}` : "";
 }
 
 function blockTitle(block) {
@@ -369,8 +412,11 @@ async function main() {
         const layoutBlob = JSON.stringify(blocks);
         const parts = collectParts(blocks);
         const rendered = [
-          ...numbered.filter((block) => block.displaySection).map((block) => ({ section: block.displaySection, title: blockTitle(block), type: block.type })),
-          ...parts.filter((part) => part.type === "section_heading" && part.sectionSuffix).map((part) => ({ section: `${sequence}.${part.sectionSuffix}`, title: part.text || "", type: "section_heading" })),
+          ...numbered.blocks.filter((block) => block.displaySection).map((block) => ({ section: block.displaySection, title: blockTitle(block), type: block.type })),
+          ...parts
+            .filter((part) => part.type === "section_heading" && part.sectionSuffix)
+            .map((part) => ({ section: resolvePartSection(part, sequence, numbered.aliases), title: part.text || "", type: "section_heading" }))
+            .filter((part) => part.section),
         ];
         const partFields = new Set(parts.flatMap((part) => [part.field, part.fieldKey].filter(Boolean)));
         const microbialComputed = methodName.startsWith("微生物限度") && layoutBlob.includes("microbial_selected_total");
@@ -396,9 +442,20 @@ async function main() {
         }
         const expectedChildren = arr(mdTest?.children).filter((child) => child.section.startsWith(`${sequence}.`));
         const renderedBySection = new Map(rendered.map((item) => [item.section, item]));
+        const sourceHeadingGaps = numericGaps(expectedChildren.map((child) => child.section));
+        const normalizedRenderedTitles = new Set(rendered.map((item) => normalizeTitle(item.title)));
+        const acceptableNumberDifferences = [];
         const missingHeadings = expectedChildren
           .filter((child) => !renderedBySection.has(child.section))
-          .filter(() => !(stageKey === "finished" && allowedFinishedBorrow.has(name)))
+          .filter((child) => {
+            if (stageKey === "finished" && allowedFinishedBorrow.has(name)) return false;
+            const sameTitleExists = normalizedRenderedTitles.has(normalizeTitle(child.title));
+            if (sameTitleExists && sectionCoveredBySourceGap(child.section, sourceHeadingGaps)) {
+              acceptableNumberDifferences.push(`${child.section} ${child.title} (${child.source})`);
+              return false;
+            }
+            return true;
+          })
           .map((child) => `${child.section} ${child.title} (${child.source})`);
         tests.push({
           sequence,
@@ -407,8 +464,9 @@ async function main() {
           templateId,
           mdTitle: mdTest?.title || "",
           titleMismatch: mdTest && normalizeTitle(mdTest.title) && normalizeTitle(name) !== normalizeTitle(mdTest.title),
-          sourceHeadingGaps: numericGaps(expectedChildren.map((child) => child.section)),
+          sourceHeadingGaps,
           renderedHeadingGaps: numericGaps(rendered.map((item) => item.section)),
+          acceptableNumberDifferences,
           missingHeadings,
           missingFormulaDom,
           missingFormulaInputs: [...new Set(missingFormulaInputs)],
@@ -465,6 +523,7 @@ function markdown(report) {
         if (test.titleMismatch) issues.push(`标题差异：YAML=${test.name} / MD=${test.mdTitle}`);
         if (test.sourceHeadingGaps.length) issues.push(`MD 子标题不连续：${test.sourceHeadingGaps.join("，")}`);
         if (test.renderedHeadingGaps.length) issues.push(`JSON 渲染标题不连续：${test.renderedHeadingGaps.join("，")}`);
+        if (test.acceptableNumberDifferences?.length) issues.push(`可接受编号纠正：${test.acceptableNumberDifferences.join("；")}`);
         if (test.missingHeadings.length) issues.push(`JSON 缺 MD 标题：${test.missingHeadings.join("；")}`);
         if (test.missingFormulaDom.length) issues.push(`计算字段未见 JSON 回填：${test.missingFormulaDom.join("，")}`);
         if (test.missingFormulaInputs.length) issues.push(`公式引用输入未见 JSON 字段：${test.missingFormulaInputs.join("，")}`);

@@ -1,0 +1,59 @@
+{
+  "schema_version": 2,
+  "template_id": "microbiology/escherichia_coli_filter_prep",
+  "title": "大肠埃希菌试验准备",
+  "section_no": "",
+  "category": "microbiology",
+  "subcomponent": true,
+  "status": "pilot",
+  "source_refs": [
+    {
+      "product": "阿奇霉素胶囊/克拉霉素胶囊/盐酸左氧氟沙星胶囊",
+      "section_no": "微生物限度 大肠埃希菌 试验准备",
+      "md": "schema/md_canonical/*.md"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "paragraph",
+      "className": "layout-paragraph layout-operation-text",
+      "parts": [
+        {
+          "type": "section_heading",
+          "section_suffix": "1.2",
+          "section_ref": "detection",
+          "text": "试验准备：",
+          "bold": true
+        },
+        {
+          "type": "text",
+          "text": "取"
+        },
+        {
+          "type": "line",
+          "field_key": "layout/microbiology/ecoli/filter_prewet_volume",
+          "input_type": "number",
+          "underline": true,
+          "initial_chars": 4,
+          "default": "20",
+          "placeholder": "20"
+        },
+        {
+          "type": "text",
+          "text": "ml"
+        },
+        {
+          "type": "param",
+          "name": "diluent_name",
+          "default": "pH7.0无菌氯化钠-蛋白胨缓冲液"
+        },
+        {
+          "type": "text",
+          "text": "，润湿滤膜2张。"
+        }
+      ],
+      "order": 151
+    }
+  ],
+  "order": 151
+}

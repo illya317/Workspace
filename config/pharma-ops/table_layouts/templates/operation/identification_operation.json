@@ -51,6 +51,10 @@
         "hplc_prep": {
           "template_id": "operation/identification_hplc_prep_method_text",
           "title": "鉴别HPLC制备比对操作说明"
+        },
+        "sectioned_steps": {
+          "template_id": "operation/identification_sectioned_steps",
+          "title": "鉴别分节操作步骤"
         }
       }
     }

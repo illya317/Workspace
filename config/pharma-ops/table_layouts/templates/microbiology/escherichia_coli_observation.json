@@ -19,7 +19,7 @@
       "type": "title",
       "title": "观察结果",
       "order": 170,
-      "section_suffix": "1.7",
+      "section_suffix": "{{ecoli_observation_suffix}}",
       "section_ref": "detection"
     },
     {
@@ -632,5 +632,8 @@
       "order": 171
     }
   ],
-  "order": 171
+  "order": 171,
+  "params": {
+    "ecoli_observation_suffix": "1.7"
+  }
 }

@@ -1,7 +1,6 @@
 "use client";
 
-import type { CSSProperties } from "react";
-import { useEffect } from "react";
+import { useEffect, type CSSProperties } from "react";
 import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcTemplateMethodField, QcTemplateTestItem } from "@/server/services/production/qc";
 import { QcPaperChoiceInput, QcPaperLineInput, QcPaperSelectInput, qcRangeError, qcRangeLabel } from "./QcPaperInputs";
 import { QcPaperDateInput } from "./QcPaperDateInput";
@@ -15,6 +14,7 @@ export interface LayoutRenderContext {
   fieldByName: Map<string, QcTemplateMethodField>;
   fieldByKey: Map<string, QcTemplateMethodField>;
   sectionAliases?: Record<string, string>;
+  inTable?: boolean;
 }
 
 function defaultValueForPart(part: QcLayoutPart, test?: QcTemplateTestItem) {
@@ -100,6 +100,13 @@ function testValue(part: QcLayoutPart, test?: QcTemplateTestItem) {
   return part.stripPlaceholder ? stripPlaceholder(value) : value;
 }
 
+function isCompactFormCell(cell: QcLayoutCell) {
+  const isFormPart = (part: QcLayoutPart) => ["line", "field", "select", "date", "duration_days", "duration_hours", "radio", "checkbox", "microbial_selected_total"].includes(part.type);
+  if (!cell.parts.some(isFormPart)) return false;
+  const textLength = cell.parts.filter((part) => !isFormPart(part)).map((part) => part.text || part.defaultValue || part.name || "").join("").trim().length;
+  return !cell.rawText?.trim() && textLength <= 12;
+}
+
 function joinSectionSuffix(base?: string, suffix?: string) {
   if (!base) return suffix || "";
   if (!suffix || suffix === "auto") return base;
@@ -148,6 +155,7 @@ export function Part({ part, context }: { part: QcLayoutPart; context: LayoutRen
           readOnly={part.readonlyDisplay || field?.attr === "calculated"}
           value={values[key]}
           onChange={(value) => onFieldChange(key, value)}
+          inTable={context.inTable}
         />
       );
     }
@@ -157,6 +165,7 @@ export function Part({ part, context }: { part: QcLayoutPart; context: LayoutRen
         readOnly={part.readonlyDisplay || field?.attr === "calculated"}
         value={values[key]}
         onChange={(value) => onFieldChange(key, value)}
+        inTable={context.inTable}
       />
     );
   }
@@ -175,7 +184,10 @@ export function Part({ part, context }: { part: QcLayoutPart; context: LayoutRen
 
 function CellContent({ cell, context }: { cell: QcLayoutCell; context: LayoutRenderContext }) {
   if (cell.parts.length === 0) return cell.rawText ? <span>{cell.rawText}</span> : <span>&nbsp;</span>;
-  return <>{cell.parts.map((part, index) => <Part key={`${part.fieldKey || part.field || part.text || part.type}-${index}`} part={part} context={context} />)}</>;
+  const cellContext = { ...context, inTable: true };
+  const content = cell.parts.map((part, index) => <Part key={`${part.fieldKey || part.field || part.text || part.type}-${index}`} part={part} context={cellContext} />);
+  if (!isCompactFormCell(cell)) return <>{content}</>;
+  return <span className={`flex min-h-8 w-full flex-wrap items-baseline ${cell.align === "left" ? "justify-start" : cell.align === "right" ? "justify-end" : "justify-center"} gap-x-1.5 gap-y-1`}>{content}</span>;
 }
 
 export function TableBlock({ block, className = "", context }: { block: QcLayoutBlock; className?: string; context: LayoutRenderContext }) {
@@ -192,7 +204,7 @@ export function TableBlock({ block, className = "", context }: { block: QcLayout
                   key={`${rowIndex}-${cellIndex}`}
                   colSpan={cell.colspan}
                   rowSpan={cell.rowspan}
-                  className={`border border-slate-950 px-2 py-1.5 align-middle ${cell.bold || cell.header ? "font-semibold" : "font-normal"} ${cell.isEmpty ? "text-transparent" : ""}`}
+                  className={`border border-slate-950 px-2 py-1.5 align-middle ${cell.bold || cell.header ? "font-semibold" : "font-normal"} ${cell.isEmpty ? "text-transparent" : ""} ${cell.className || ""}`}
                   style={{ textAlign: cell.align as CSSProperties["textAlign"], width: cell.width }}
                 >
                   <CellContent cell={cell} context={context} />

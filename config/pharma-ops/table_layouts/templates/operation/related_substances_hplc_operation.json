@@ -159,6 +159,10 @@
         "hplc_0512_peak_area": {
           "template_id": "calculation/hplc_related_substances_peak_area_calculation",
           "title": "HPLC 有关物质峰面积计算"
+        },
+        "hplc_0512_peak_area_inline": {
+          "template_id": "calculation/hplc_related_substances_peak_area_calculation_inline",
+          "title": "HPLC 有关物质峰面积计算（内嵌无标题）"
         }
       }
     }
