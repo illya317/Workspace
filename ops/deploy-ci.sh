@@ -42,8 +42,16 @@ ssh_cmd() {
   ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new "$SERVER" "$@"
 }
 
+hash_cmd() {
+  if command -v shasum >/dev/null 2>&1; then
+    shasum -a 256
+  else
+    sha256sum
+  fi
+}
+
 local_pkg_hash() {
-  cat package.json package-lock.json | shasum -a 256 | awk '{print $1}'
+  cat package.json package-lock.json | hash_cmd | awk '{print $1}'
 }
 
 remote_pkg_hash() {
@@ -191,6 +199,11 @@ run_healthcheck() {
   echo "==> 健康检查..."
   ssh_cmd "curl -fsS '$HEALTHCHECK_URL' >/dev/null"
 }
+
+if [ "$RUN_LOCAL_CHECKS" = "1" ] && ! command -v npm >/dev/null 2>&1; then
+  echo "==> 当前 CI 容器未提供 npm，自动跳过本地静态检查"
+  RUN_LOCAL_CHECKS=0
+fi
 
 if [ "$RUN_LOCAL_CHECKS" = "1" ]; then
   run_local_checks
