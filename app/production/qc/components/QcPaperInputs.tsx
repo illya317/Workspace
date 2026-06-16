@@ -15,14 +15,17 @@ function fitContentWidth(value?: string, fallback = "1.5rem"): CSSProperties {
 }
 
 function inputWidth(part: QcLayoutPart, inTable?: boolean, value?: string): CSSProperties {
+  const current = String(value || "");
+  if (part.underline === true && current) return fitContentWidth(current);
   if (part.underline === true && part.width) return { width: part.width, minWidth: inTable ? part.width : "4.5em" };
   if (part.underline === true) return { width: inTable ? "3.5rem" : "5.5em", minWidth: inTable ? "3rem" : "4.5em" };
   return fitContentWidth(value);
 }
 
 function selectWidth(part: QcLayoutPart, _options: string[], value?: string, inTable?: boolean): CSSProperties {
-  if (part.underline === true && part.width) return { width: part.width, backgroundImage: "none" };
   const current = value || part.defaultValue || "";
+  if (part.underline === true && current) return { ...fitContentWidth(current), backgroundImage: "none" };
+  if (part.underline === true && part.width) return { width: part.width, backgroundImage: "none" };
   const fallback = inTable ? "2.5rem" : "3rem";
   return { ...fitContentWidth(current, fallback), backgroundImage: "none" };
 }
