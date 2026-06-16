@@ -41,7 +41,7 @@ export function qcRangeError(part: QcLayoutPart, value?: string) {
 }
 
 function underlineClass(_part: QcLayoutPart) {
-  return "border-b-0";
+  return _part.underline === true ? "border-b border-slate-950" : "border-b-0";
 }
 
 function textInputType(part: QcLayoutPart) {
