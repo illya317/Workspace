@@ -55,6 +55,7 @@ export default function QcTemplateEditorClient({ data }: Props) {
   const [selection, setSelection] = useState<EditorSelection | null>(initialNode);
   const [selectedBlockIndex, setSelectedBlockIndex] = useState(0);
   const [selectedCell, setSelectedCell] = useState<CellSelection | undefined>();
+  const [structureOpen, setStructureOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<string>();
   const [saveError, setSaveError] = useState<string>();
@@ -66,12 +67,17 @@ export default function QcTemplateEditorClient({ data }: Props) {
     return drafts.get(selectedId) || initialDraft(data.detail, selection.stage, selection.nodeType, selection.test);
   }, [data.detail, drafts, selectedId, selection]);
   const errors = draft ? errorsForDraft(draft) : [];
+  const currentNodeLabel = selection ? selection.test
+    ? `${selection.stage.label} · ${selection.test.sequence} ${selection.test.name}`
+    : `${selection.stage.label} · ${selection.nodeType === "precheck" ? "检验前确认" : "实验项目"}`
+    : "未选择";
 
   function selectNode(stage: QcTemplateStage, nodeType: QcTemplateEditorNodeType, test?: QcTemplateTestItem) {
     setSelection({ stage, nodeType, test });
     setSelectedBlockIndex(0);
     setSelectedCell(undefined);
     setSaveError(undefined);
+    setStructureOpen(false);
   }
 
   function updateDraft(nextDraft: QcTemplateEditorDraft) {
@@ -124,8 +130,23 @@ export default function QcTemplateEditorClient({ data }: Props) {
         {saveError && <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{saveError}</div>}
       </div>
 
-      <div className="grid gap-5 xl:grid-cols-[280px_minmax(0,1fr)_360px]">
-        <TemplateEditorStructureTree detail={data.detail} selectedId={selectedId} onSelect={selectNode} />
+      <div className="sticky top-2 z-20 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white/95 px-3 py-2 shadow-sm backdrop-blur">
+        <button onClick={() => setStructureOpen(true)} className="rounded-md border border-emerald-600 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100">
+          结构
+        </button>
+        <div className="min-w-0 flex-1 truncate text-sm text-slate-600">{currentNodeLabel}</div>
+      </div>
+
+      {structureOpen && (
+        <>
+          <button aria-label="关闭结构树" className="fixed inset-0 z-30 cursor-default bg-slate-900/10" onClick={() => setStructureOpen(false)} />
+          <div className="fixed left-4 top-24 z-40 w-[min(360px,calc(100vw-2rem))]">
+            <TemplateEditorStructureTree detail={data.detail} selectedId={selectedId} onClose={() => setStructureOpen(false)} onSelect={selectNode} />
+          </div>
+        </>
+      )}
+
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
         <TemplateEditorPreviewPane draft={draft} selectedBlockIndex={selectedBlockIndex} errors={errors} onSelectBlock={(index) => {
           setSelectedBlockIndex(index);
           setSelectedCell(undefined);

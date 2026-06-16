@@ -11,6 +11,7 @@ import { draftId, targetFromNode } from "./editor-utils";
 interface Props {
   detail: QcTemplateDetail;
   selectedId: string;
+  onClose?: () => void;
   onSelect: (stage: QcTemplateStage, nodeType: QcTemplateEditorNodeType, test?: QcTemplateTestItem) => void;
 }
 
@@ -20,12 +21,19 @@ function nodeClass(active: boolean, inset = false) {
   }`;
 }
 
-export default function TemplateEditorStructureTree({ detail, selectedId, onSelect }: Props) {
+export default function TemplateEditorStructureTree({ detail, selectedId, onClose, onSelect }: Props) {
   return (
-    <aside className="rounded-lg border border-slate-200 bg-white p-3">
-      <div className="mb-3 px-1">
-        <h2 className="text-sm font-semibold text-slate-700">结构树</h2>
-        <p className="mt-1 text-xs text-slate-500">只维护层级和顺序，标题编号自动计算。</p>
+    <aside className="max-h-[calc(100vh-7rem)] overflow-y-auto rounded-lg border border-slate-200 bg-white p-3 shadow-xl">
+      <div className="mb-3 flex items-start justify-between gap-3 px-1">
+        <div>
+          <h2 className="text-sm font-semibold text-slate-700">结构树</h2>
+          <p className="mt-1 text-xs text-slate-500">只维护层级和顺序，标题编号自动计算。</p>
+        </div>
+        {onClose && (
+          <button onClick={onClose} className="rounded-md border border-slate-200 px-2 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+            隐藏
+          </button>
+        )}
       </div>
       <div className="space-y-3">
         {detail.stages.map((stage) => (
