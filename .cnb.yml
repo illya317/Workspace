@@ -3,6 +3,8 @@ main:
     - name: deploy-prod
       docker:
         image: ubuntu:24.04
+      imports:
+        - https://cnb.cool/illya317/env/-/blob/main/workspace-prod.yml
       env:
         RUN_LOCAL_CHECKS: "0"
       stages:
