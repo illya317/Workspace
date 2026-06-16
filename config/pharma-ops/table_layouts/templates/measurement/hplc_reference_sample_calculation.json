@@ -23,17 +23,16 @@
       "section_suffix": "{hplc_measurement_section_suffix}"
     },
     {
+      "type": "title",
+      "title": "对照品计算",
+      "order": 150,
+      "section_ref": "operation",
+      "section_suffix": "{hplc_measurement_section_suffix}.1"
+    },
+    {
       "type": "table",
       "label": "对照品计算",
       "rows": [
-        {
-          "cells": [
-            {
-              "colspan": 5,
-              "text": "对照品计算"
-            }
-          ]
-        },
         {
           "cells": [
             {
@@ -218,20 +217,19 @@
           ]
         }
       ],
-      "order": 150
+      "order": 151
+    },
+    {
+      "type": "title",
+      "title": "供试品计算",
+      "order": 152,
+      "section_ref": "operation",
+      "section_suffix": "{hplc_measurement_section_suffix}.2"
     },
     {
       "type": "table",
       "label": "供试品计算",
       "rows": [
-        {
-          "cells": [
-            {
-              "colspan": 7,
-              "text": "供试品计算"
-            }
-          ]
-        },
         {
           "cells": [
             {
@@ -472,7 +470,7 @@
           ]
         }
       ],
-      "order": 150
+      "order": 153
     }
   ],
   "order": 150,
