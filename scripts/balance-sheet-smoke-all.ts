@@ -20,6 +20,7 @@
 import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../generated/prisma/client";
+import { requireDatabasePath } from "./lib/database-url.js";
 import { computeBalanceSheetDiff } from "../server/services/finance/statements/balance-sheet-diff";
 
 interface PeriodRow {
@@ -60,7 +61,7 @@ function row(label: string, w: number, right = false): string {
 
 async function main() {
   const verbose = process.argv.includes("--verbose");
-  const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: "data/dev.db" }) });
+  const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: requireDatabasePath() }) });
   try {
     const periods = await listLatestPeriods(p);
     if (periods.length === 0) {

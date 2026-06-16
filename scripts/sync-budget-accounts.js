@@ -1,8 +1,9 @@
 const Database = require('better-sqlite3');
 const xlsx = require('xlsx');
 const path = require('path');
+const { requireDatabasePath } = require('./lib/database-url.js');
 
-const DB_PATH = process.env.DATABASE_URL?.replace('file:', '') || './data/dev.db';
+const DB_PATH = requireDatabasePath();
 
 function readDeptBudgetAccounts() {
   const filePath = path.join(process.cwd(), 'prisma/seed-data/预算/部门费用预算数据.xlsx');

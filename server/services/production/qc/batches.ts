@@ -2,6 +2,7 @@ import "server-only";
 import path from "path";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { getQcTemplateDetail } from "./record-structure";
+import { qcRuntimeDataPath } from "./runtime-data-path";
 import type { QcBatchCreateInput, QcBatchList, QcBatchSummary, QcBatchStatus } from "./types";
 
 interface QcBatchStore {
@@ -10,10 +11,7 @@ interface QcBatchStore {
 }
 
 function dataPath() {
-  const root = process.env.WORKSPACE_CONFIG_DIR
-    ? path.join(process.env.WORKSPACE_CONFIG_DIR, "data")
-    : path.join(process.cwd(), "data");
-  return path.join(root, "qc-batches.json");
+  return qcRuntimeDataPath("qc-batches.json");
 }
 
 function emptyStore(): QcBatchStore {

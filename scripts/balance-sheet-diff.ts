@@ -20,6 +20,7 @@ import * as fs from "fs";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../generated/prisma/client";
 import { computeBalanceSheetDiff } from "../server/services/finance/statements/balance-sheet-diff";
+import { requireDatabasePath } from "./lib/database-url.js";
 
 function parseArgs(argv: string[]): {
   companyCode: string;
@@ -202,7 +203,7 @@ function printTextReport(
 
 async function main() {
   const opts = parseArgs(process.argv);
-  const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: "data/dev.db" }) });
+  const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: requireDatabasePath() }) });
   try {
     const result = await computeBalanceSheetDiff({
       companyCode: opts.companyCode,

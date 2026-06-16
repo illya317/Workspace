@@ -1,7 +1,8 @@
 const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
+const { requireDatabasePath } = require('../lib/database-url.js');
 async function createPrisma() {
   const { PrismaClient } = await import('../../generated/prisma/client');
-  const dbPath = process.env.DATABASE_URL?.replace('file:', '') || '../../prisma/dev.db';
+  const dbPath = requireDatabasePath();
     const adapter = new PrismaBetterSqlite3({ url: dbPath });
   return new PrismaClient({ adapter });
 }

@@ -189,6 +189,44 @@ rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
   "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/data/" "$LOCAL_DATA_DIR/"
 fi
 
+echo "==> 校验服务器运行态环境..."
+ssh_cmd "
+  set -e
+  cd '$REMOTE_DIR'
+  test -f .env
+  grep -q '^WORKSPACE_CONFIG_DIR=' .env
+  grep -q '^DATABASE_URL=' .env
+  python3 - <<'PY'
+from pathlib import Path
+import os
+import re
+import sys
+
+env = {}
+for line in Path('.env').read_text().splitlines():
+    if not line or line.lstrip().startswith('#') or '=' not in line:
+        continue
+    key, value = line.split('=', 1)
+    env[key] = value.strip().strip('\"').strip(\"'\")
+
+workspace = env.get('WORKSPACE_CONFIG_DIR', '')
+database = env.get('DATABASE_URL', '')
+if not workspace:
+    sys.exit('WORKSPACE_CONFIG_DIR missing from remote .env')
+if not os.path.isabs(workspace):
+    sys.exit(f'WORKSPACE_CONFIG_DIR must be absolute: {workspace}')
+if not database.startswith('file:'):
+    sys.exit('DATABASE_URL must use file: for production SQLite')
+db_path = database[5:].strip('\"').strip(\"'\")
+if not os.path.isabs(db_path):
+    sys.exit(f'DATABASE_URL must be absolute: {db_path}')
+expected_prefix = os.path.join(workspace, 'data') + os.sep
+if not db_path.startswith(expected_prefix):
+    sys.exit(f'DATABASE_URL must live under WORKSPACE_CONFIG_DIR/data: {db_path}')
+print('Remote runtime env check passed.')
+PY
+"
+
 echo ""
 echo "==> 服务器构建并重启服务..."
 ssh_cmd "
@@ -207,12 +245,10 @@ ssh_cmd "
   cp -r .next/static .next/standalone/.next/static
   rm -rf .next/standalone/public
   cp -rL public .next/standalone/public
+  cp .env .next/standalone/.env
   rm -rf .next/standalone/data
-  if [ -d data ]; then
-    cp -r data .next/standalone/data
-  else
-    mkdir -p .next/standalone/data
-  fi
+  grep -q '^WORKSPACE_CONFIG_DIR=' .next/standalone/.env
+  grep -q '^DATABASE_URL=' .next/standalone/.env
 
   pm2 delete $PM2_NAME 2>/dev/null || true
   cd .next/standalone

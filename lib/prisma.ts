@@ -12,8 +12,19 @@ function expandTilde(input: string): string {
 }
 
 function getDbPath(): string {
-  const raw = process.env.DATABASE_URL?.replace("file:", "") ?? "./prisma/dev.db";
-  return expandTilde(raw);
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is required and must be an absolute file: path");
+  }
+  if (!databaseUrl.startsWith("file:")) {
+    throw new Error("DATABASE_URL must use file: for this SQLite deployment");
+  }
+  const raw = databaseUrl.slice("file:".length).replace(/^"|"$/g, "");
+  const dbPath = expandTilde(raw);
+  if (!path.isAbsolute(dbPath)) {
+    throw new Error(`DATABASE_URL must be absolute; relative SQLite paths split data by cwd: ${raw}`);
+  }
+  return dbPath;
 }
 
 const REQUIRED_DELEGATES = ["financeBalanceSnapshot", "financeBalanceSnapshotRow", "agentProposal"] as const;

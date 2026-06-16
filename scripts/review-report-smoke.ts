@@ -16,11 +16,12 @@
 import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../generated/prisma/client";
+import { requireDatabasePath } from "./lib/database-url.js";
 import { generateReview, confirmReview } from "../server/services/finance/statements/reviews/service";
 import { getOrCreateDraft, saveWorkpaper } from "../server/services/finance/statements/workpapers/service";
 import { generateReviewBasedReport } from "../server/services/finance/statements/reports/review-based";
 
-const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: "data/dev.db" }) });
+const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: requireDatabasePath() }) });
 
 const CO = "02"; const YR = 2099; const MO = 12;
 

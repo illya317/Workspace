@@ -18,12 +18,13 @@
 import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../generated/prisma/client";
+import { requireDatabasePath } from "./lib/database-url.js";
 import {
   getOrCreateDraft,
   saveWorkpaper,
 } from "../server/services/finance/statements/workpapers/service";
 
-const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: "data/dev.db" }) });
+const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: requireDatabasePath() }) });
 
 const TEST = { companyCode: "02", year: 2099, month: 11, reportType: "incomeStatement" as const };
 

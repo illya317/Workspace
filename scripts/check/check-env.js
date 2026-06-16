@@ -20,6 +20,7 @@ const ENV_FILE = path.join(ROOT, ".env");
 const REQUIRED_IN_EXAMPLE = [
   "NEXTAUTH_SECRET",
   "DATABASE_URL",
+  "WORKSPACE_CONFIG_DIR",
 ];
 
 const OPTIONAL_IN_EXAMPLE = [
@@ -36,6 +37,49 @@ function fail(message) {
 
 function ok(message) {
   console.log(`✓ ${message}`);
+}
+
+function parseEnvFile(content) {
+  return new Map(
+    Array.from(content.matchAll(/^[ \t]*([A-Z_][A-Z0-9_]*)[ \t]*=[ \t]*(.+)$/gm)).map((m) => [
+      m[1],
+      m[2].replace(/^["']|["']$/g, "").trim(),
+    ])
+  );
+}
+
+function validateDatabaseEnv(envVars, sourceLabel) {
+  const workspaceDir = envVars.get("WORKSPACE_CONFIG_DIR");
+  const databaseUrl = envVars.get("DATABASE_URL");
+  if (!workspaceDir) {
+    fail(`WORKSPACE_CONFIG_DIR in ${sourceLabel} is missing.`);
+    return;
+  }
+  if (!path.isAbsolute(workspaceDir)) {
+    fail(`WORKSPACE_CONFIG_DIR in ${sourceLabel} must be absolute: ${workspaceDir}`);
+  } else {
+    ok(`WORKSPACE_CONFIG_DIR in ${sourceLabel} is absolute`);
+  }
+  if (!databaseUrl) {
+    fail(`DATABASE_URL in ${sourceLabel} is missing.`);
+    return;
+  }
+  if (!databaseUrl.startsWith("file:")) {
+    fail(`DATABASE_URL in ${sourceLabel} must use file: for this SQLite deployment`);
+    return;
+  }
+  const databasePath = databaseUrl.slice("file:".length).replace(/^["']|["']$/g, "").trim();
+  if (!path.isAbsolute(databasePath)) {
+    fail(`DATABASE_URL in ${sourceLabel} must be absolute; relative SQLite paths split data by cwd: ${databasePath}`);
+    return;
+  }
+  ok(`DATABASE_URL in ${sourceLabel} is absolute`);
+  const expectedPrefix = path.join(workspaceDir || "", "data") + path.sep;
+  if (workspaceDir && path.isAbsolute(workspaceDir) && !databasePath.startsWith(expectedPrefix)) {
+    fail(`DATABASE_URL in ${sourceLabel} must live under WORKSPACE_CONFIG_DIR/data: ${databasePath}`);
+  } else if (workspaceDir && path.isAbsolute(workspaceDir)) {
+    ok("DATABASE_URL points under WORKSPACE_CONFIG_DIR/data");
+  }
 }
 
 // ── 1. .env.example must exist ───────────────────────────────────────
@@ -99,12 +143,7 @@ if (isCI) {
     fail(".env is missing locally. Copy .env.example to .env and fill in real values.");
   } else {
     const envContent = fs.readFileSync(ENV_FILE, "utf-8");
-    const envVars = new Map(
-      Array.from(envContent.matchAll(/^[ \t]*([A-Z_][A-Z0-9_]*)[ \t]*=[ \t]*(.+)$/gm)).map((m) => [
-        m[1],
-        m[2].replace(/^["']|["']$/g, "").trim(),
-      ])
-    );
+    const envVars = parseEnvFile(envContent);
 
     const secret = envVars.get("NEXTAUTH_SECRET");
     if (!secret || secret.includes("replace-with") || secret.length < 16) {
@@ -112,6 +151,7 @@ if (isCI) {
     } else {
       ok("NEXTAUTH_SECRET is present in .env");
     }
+    validateDatabaseEnv(envVars, ".env");
   }
 }
 

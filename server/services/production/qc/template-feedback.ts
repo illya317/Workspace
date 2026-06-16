@@ -1,6 +1,7 @@
 import "server-only";
 import path from "path";
 import { mkdir, readFile, writeFile } from "fs/promises";
+import { qcRuntimeDataPath } from "./runtime-data-path";
 import type {
   QcTemplateFeedbackContext,
   QcTemplateFeedbackItem,
@@ -17,10 +18,7 @@ interface FeedbackAuthor {
 }
 
 function dataPath() {
-  const root = process.env.WORKSPACE_CONFIG_DIR
-    ? path.join(process.env.WORKSPACE_CONFIG_DIR, "data")
-    : path.join(process.cwd(), "data");
-  return path.join(root, "qc-template-feedback.json");
+  return qcRuntimeDataPath("qc-template-feedback.json");
 }
 
 function normalizePart(value: unknown) {
