@@ -100,7 +100,13 @@ function sameSelection(left?: TableSelection, right?: TableSelection | null) {
       && leftRange.colStart === rightRange.colStart
       && leftRange.colEnd === rightRange.colEnd;
   }
-  return left.start === right.start && left.end === right.end;
+  if (left.type === "row" && right.type === "row") {
+    return left.start === right.start && left.end === right.end;
+  }
+  if (left.type === "column" && right.type === "column") {
+    return left.start === right.start && left.end === right.end;
+  }
+  return false;
 }
 
 function selectionToRange(selection: TableSelection, rowCount: number, columnCount: number): CellRange {
