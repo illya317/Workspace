@@ -3,23 +3,28 @@
 import type { CSSProperties, ChangeEvent } from "react";
 import type { QcLayoutPart } from "@/server/services/production/qc";
 
-function inputWidth(part: QcLayoutPart, inTable?: boolean, value?: string): CSSProperties {
-  if (part.width) return { width: part.width, minWidth: inTable ? part.width : "4.5em" };
-  if (inTable) {
-    const displayValue = String(value || part.placeholder || "");
-    const width = displayValue ? `${Math.min(14, Math.max(2, displayValue.length + 0.5))}ch` : "2.5rem";
-    return { width, minWidth: displayValue ? "2ch" : "2.5rem", maxWidth: "14rem" };
-  }
-  return { width: "5.5em" };
+function visualLength(value: string) {
+  return Array.from(value).reduce((total, char) => total + (char.charCodeAt(0) > 255 ? 2 : 1), 0);
 }
 
-function selectWidth(part: QcLayoutPart, options: string[], value?: string, inTable?: boolean): CSSProperties {
-  if (part.width) return { width: part.width, backgroundImage: "none" };
-  const longest = Math.max(2, value?.length || 0, ...options.map((option) => option.length));
-  const width = inTable
-    ? Math.min(9, Math.max(4.2, longest * 1.15 + 1.2))
-    : Math.min(7, Math.max(3.2, longest * 1.15 + 1.2));
-  return { width: `${width}em`, backgroundImage: "none" };
+function fitContentWidth(value?: string, fallback = "1.5rem"): CSSProperties {
+  const displayValue = String(value || "");
+  if (!displayValue) return { width: fallback, minWidth: fallback };
+  const width = `${Math.min(24, Math.max(2, visualLength(displayValue) + 0.5))}ch`;
+  return { width, minWidth: "2ch", maxWidth: "24rem" };
+}
+
+function inputWidth(part: QcLayoutPart, inTable?: boolean, value?: string): CSSProperties {
+  if (part.underline === true && part.width) return { width: part.width, minWidth: inTable ? part.width : "4.5em" };
+  if (part.underline === true) return { width: inTable ? "3.5rem" : "5.5em", minWidth: inTable ? "3rem" : "4.5em" };
+  return fitContentWidth(value);
+}
+
+function selectWidth(part: QcLayoutPart, _options: string[], value?: string, inTable?: boolean): CSSProperties {
+  if (part.underline === true && part.width) return { width: part.width, backgroundImage: "none" };
+  const current = value || part.defaultValue || "";
+  const fallback = inTable ? "2.5rem" : "3rem";
+  return { ...fitContentWidth(current, fallback), backgroundImage: "none" };
 }
 
 export function qcRangeLabel(part: QcLayoutPart) {
