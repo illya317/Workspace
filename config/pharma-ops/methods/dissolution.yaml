@@ -343,11 +343,13 @@ methods:
     attr: fillable
   - name: 对照平均峰面积
     type: number
-    attr: fillable
+    attr: calculated
+    formula: (对照1-峰面积 + 对照2-峰面积) / 2
   - name: 对照RSD
     unit: '%'
     type: number
-    attr: fillable
+    attr: calculated
+    formula: SQRT(((对照1-峰面积 - 对照平均峰面积)^2 + (对照2-峰面积 - 对照平均峰面积)^2) / 1) / 对照平均峰面积 * 100
   - repeat:
       count: 6
       fields:
@@ -420,11 +422,13 @@ methods:
     attr: fillable
   - name: 对照平均峰面积
     type: number
-    attr: fillable
+    attr: calculated
+    formula: (对照1-峰面积 + 对照2-峰面积) / 2
   - name: 对照RSD
     unit: '%'
     type: number
-    attr: fillable
+    attr: calculated
+    formula: SQRT(((对照1-峰面积 - 对照平均峰面积)^2 + (对照2-峰面积 - 对照平均峰面积)^2) / 1) / 对照平均峰面积 * 100
   - repeat:
       count: 6
       fields:
