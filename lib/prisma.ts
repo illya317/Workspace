@@ -12,7 +12,9 @@ function expandTilde(input: string): string {
 }
 
 function getDbPath(): string {
-  const databaseUrl = process.env.DATABASE_URL?.trim();
+  const databaseUrl =
+    process.env.DATABASE_URL?.trim() ||
+    (process.env.CI ? `file:${path.resolve(process.cwd(), ".cache/prisma/ci-dev.db")}` : "");
   if (!databaseUrl) {
     throw new Error("DATABASE_URL is required and must be an absolute file: path");
   }
