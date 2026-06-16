@@ -20,8 +20,7 @@ interface LayoutSelection {
 
 function firstSelection(data: QcTemplateEditorData): LayoutSelection {
   const stage = data.detail.stages[0];
-  const test = stage?.tests[0];
-  return { stageKey: stage?.key || "", nodeType: test ? "test" : "precheck", testId: test?.englishName };
+  return { stageKey: stage?.key || "", nodeType: "precheck" };
 }
 
 export default function QcTemplateLayoutEditorClient({ data }: Props) {
@@ -29,19 +28,22 @@ export default function QcTemplateLayoutEditorClient({ data }: Props) {
   const [selection, setSelection] = useState<LayoutSelection>(() => firstSelection(data));
   const [selectedBlockIndex, setSelectedBlockIndex] = useState(0);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [outlineOpen, setOutlineOpen] = useState(true);
   const activeStage = data.detail.stages.find((stage) => stage.key === selection.stageKey) || data.detail.stages[0];
   const activeTests = activeStage ? editor.testsByStage[activeStage.key] || [] : [];
   const activeTest = selection.nodeType === "test" ? activeTests.find((test) => test.id === selection.testId || test.englishName === selection.testId) : undefined;
-  const previewDraft = activeStage ? editor.layoutDraftForStage(activeStage) : null;
+  const previewDraft = editor.draft;
   const activeKey = activeStage ? selection.nodeType === "test" && activeTest ? `${activeStage.key}:test:${activeTest.id}` : `${activeStage.key}:precheck` : "";
 
   function selectPrecheck(stage: QcTemplateStage) {
     setSelection({ stageKey: stage.key, nodeType: "precheck" });
+    editor.selectNode(stage, "precheck");
     setSelectedBlockIndex(0);
   }
 
   function selectTest(stage: QcTemplateStage, test: QcTemplateEditorTestDraft) {
     setSelection({ stageKey: stage.key, nodeType: "test", testId: test.id });
+    editor.selectTestDraft(stage, test);
     setSelectedBlockIndex(0);
   }
 
@@ -62,29 +64,41 @@ export default function QcTemplateLayoutEditorClient({ data }: Props) {
         {editor.saveError && <div className="mt-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">{editor.saveError}</div>}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3">
-        <div className="text-sm text-slate-600">{data.detail.stages.length} 个阶段 · {data.moduleLibrary.length} 个模块模板 · {data.drafts.length} 个已保存草稿</div>
-        {editor.savedAt && <span className="text-xs text-slate-500">已保存：{editor.savedAt}</span>}
-      </div>
+      <div className={`grid min-h-[calc(100vh-15rem)] items-start gap-5 transition-[grid-template-columns] duration-200 ${outlineOpen ? "grid-cols-[360px_minmax(0,1fr)]" : "grid-cols-[0_minmax(0,1fr)]"}`}>
+        <div className={`min-w-0 overflow-hidden transition duration-200 ${outlineOpen ? "opacity-100" : "pointer-events-none opacity-0"}`}>
+          <div className="sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.14)]">
+            <TemplateLayoutOutline
+              detail={data.detail}
+              testsByStage={editor.testsByStage}
+              inspectionCatalog={data.inspectionCatalog}
+              moduleLibrary={data.moduleLibrary}
+              activeKey={activeKey}
+              onSelectPrecheck={selectPrecheck}
+              onSelectTest={selectTest}
+              onAddTest={editor.addTest}
+              onReorderTest={editor.reorderTest}
+              onDeleteTest={editor.removeTest}
+            />
+          </div>
+        </div>
 
-      <div className="grid gap-5 xl:grid-cols-[360px_minmax(0,1fr)]">
-        <TemplateLayoutOutline detail={data.detail} testsByStage={editor.testsByStage} activeKey={activeKey} onSelectPrecheck={selectPrecheck} onSelectTest={selectTest} />
-        {activeStage && (
-          <TemplateLayoutDetailPanel
-            templateId={data.detail.id}
-            stage={activeStage}
-            test={activeTest}
-            tests={activeTests}
-            moduleLibrary={data.moduleLibrary}
-            saving={editor.saving}
-            savedAt={editor.savedAt}
-            onAddTest={editor.addTest}
-            onMoveTest={editor.moveTest}
-            onUpdateTest={editor.updateTest}
-            onPreview={() => setPreviewOpen(true)}
-            onSave={editor.saveLayoutDrafts}
-          />
-        )}
+        <div className="min-w-0">
+          {activeStage && (
+            <TemplateLayoutDetailPanel
+              templateId={data.detail.id}
+              stage={activeStage}
+              draft={editor.draft}
+              test={activeTest}
+              saving={editor.saving}
+              savedAt={editor.savedAt}
+              outlineOpen={outlineOpen}
+              onToggleOutline={() => setOutlineOpen((open) => !open)}
+              summaryText={`${data.detail.stages.length} 个阶段 · ${data.moduleLibrary.length} 个模块模板 · ${data.drafts.length} 个已保存草稿`}
+              onPreview={() => setPreviewOpen(true)}
+              onSave={editor.saveLayoutDrafts}
+            />
+          )}
+        </div>
       </div>
       {previewDraft && (
         <TemplatePreviewModal draft={previewDraft} open={previewOpen} selectedBlockIndex={selectedBlockIndex} errors={[]} onSelectBlock={setSelectedBlockIndex} onClose={() => setPreviewOpen(false)} />

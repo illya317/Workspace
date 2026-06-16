@@ -53,11 +53,16 @@ export function targetFromNode(detail: QcTemplateDetail, stage: QcTemplateStage,
   };
 }
 
-export function orderedTestDrafts(tests: QcTemplateEditorTestDraft[]) {
-  return tests
-    .slice()
-    .sort((a, b) => (a.order || a.defaultOrder || 0) - (b.order || b.defaultOrder || 0))
-    .map((test, index) => ({ ...test, order: index + 1, sequence: `2.${index + 1}` }));
+export function orderedTestDrafts(
+  tests: QcTemplateEditorTestDraft[],
+  options?: { preserveInputOrder?: boolean },
+) {
+  const source = options?.preserveInputOrder
+    ? tests.slice()
+    : tests
+        .slice()
+        .sort((a, b) => (a.order || a.defaultOrder || 0) - (b.order || b.defaultOrder || 0));
+  return source.map((test, index) => ({ ...test, order: index + 1, sequence: `2.${index + 1}` }));
 }
 
 export function testDraftsFromStage(stage: QcTemplateStage): QcTemplateEditorTestDraft[] {
@@ -193,15 +198,27 @@ export function addColumn(block: QcLayoutBlock) {
   return { ...block, rows: rows.map((row) => [...row, emptyCell()]) };
 }
 
-export function simpleTable(): QcLayoutBlock {
+export function buildTableBlock(rowCount = 2, columnCount = 2): QcLayoutBlock {
+  const safeRows = Math.max(1, rowCount);
+  const safeCols = Math.max(1, columnCount);
+  const width = `${100 / safeCols}%`;
   return {
     type: "table",
     title: "新表格",
     sectionSuffix: "auto",
     sectionSlot: "auto",
-    rows: [
-      [emptyCell("项目"), emptyCell("结果")],
-      [emptyCell(), emptyCell()],
-    ],
+    columnWidths: Array.from({ length: safeCols }, () => width),
+    rowHeights: Array.from({ length: safeRows }, () => "68px"),
+    rows: Array.from({ length: safeRows }, (_, rowIndex) => (
+      Array.from({ length: safeCols }, (_, columnIndex) => (
+        rowIndex === 0
+          ? emptyCell(columnIndex === 0 ? "项目" : `列${columnIndex + 1}`)
+          : emptyCell()
+      ))
+    )),
   };
+}
+
+export function simpleTable(): QcLayoutBlock {
+  return buildTableBlock(2, 2);
 }

@@ -1,13 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import type {
   QcLayoutBlock,
   QcTemplateEditorDraft,
-  QcTemplateEditorFieldGroup,
   QcTemplateModuleLibraryItem,
 } from "@/server/services/production/qc";
-import { addColumn, addRow, blockLabel, clone, encodeParts, parseParts, simpleTable } from "./editor-utils";
-import TemplateEditorFieldPanel from "./TemplateEditorFieldPanel";
+import { blockLabel, buildTableBlock, clone, encodeParts, parseParts } from "./editor-utils";
 import TemplateModulePicker from "./TemplateModulePicker";
 
 interface CellSelection { row: number; cell: number }
@@ -17,14 +16,9 @@ interface Props {
   selectedBlockIndex: number;
   selectedCell?: CellSelection;
   moduleLibrary: QcTemplateModuleLibraryItem[];
-  fieldGroups: QcTemplateEditorFieldGroup[];
-  formulaFunctions: string[];
   onSelectBlock: (index: number) => void;
   onSelectCell: (selection?: CellSelection) => void;
   onChange: (draft: QcTemplateEditorDraft) => void;
-  onSave: () => void;
-  saving: boolean;
-  savedAt?: string;
 }
 
 function updateBlock(draft: QcTemplateEditorDraft, index: number, block: QcLayoutBlock) {
@@ -38,18 +32,16 @@ export default function TemplateEditorInspector({
   selectedBlockIndex,
   selectedCell,
   moduleLibrary,
-  fieldGroups,
-  formulaFunctions,
   onSelectBlock,
   onSelectCell,
   onChange,
-  onSave,
-  saving,
-  savedAt,
 }: Props) {
   const block = draft.layoutDraft.blocks[selectedBlockIndex];
   const cell = selectedCell && block?.rows?.[selectedCell.row]?.[selectedCell.cell];
   const cellText = cell ? encodeParts(cell.parts, cell.rawText) : "";
+  const blockCount = draft.layoutDraft.blocks.length;
+  const [newTableRows, setNewTableRows] = useState(4);
+  const [newTableCols, setNewTableCols] = useState(4);
 
   function setBlock(patch: Partial<QcLayoutBlock>) {
     if (!block) return;
@@ -90,47 +82,87 @@ export default function TemplateEditorInspector({
 
   return (
     <aside className="space-y-4">
-      <section className="rounded-lg border border-slate-200 bg-white p-4">
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h2 className="text-sm font-semibold text-slate-900">草稿</h2>
-            <p className="mt-1 text-xs text-slate-500">{draft.draftId}</p>
-          </div>
-          <button onClick={onSave} disabled={saving} className="h-9 rounded-md border border-emerald-600 bg-emerald-50 px-3 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 disabled:opacity-60">
-            {saving ? "保存中" : "保存草稿"}
-          </button>
-        </div>
-        {savedAt && <div className="mt-2 text-xs text-slate-500">已保存：{savedAt}</div>}
-      </section>
-
       <section className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">添加模块</h2>
+        <h2 className="text-sm font-semibold text-slate-900">结构操作</h2>
         <div className="grid grid-cols-2 gap-2">
           <button onClick={() => addBlock({ type: "title", title: "新一级标题", sectionSuffix: "auto", sectionSlot: "auto", sectionRole: `custom_${Date.now()}`, sectionAnchor: true })} className="h-9 rounded-md border border-slate-300 text-sm text-slate-700 hover:bg-slate-50">一级标题</button>
           <button onClick={() => addBlock({ type: "title", title: "新次级标题", sectionRef: block?.sectionRole, sectionSuffix: "1" })} className="h-9 rounded-md border border-slate-300 text-sm text-slate-700 hover:bg-slate-50">次级标题</button>
-          <button onClick={() => addBlock(simpleTable())} className="h-9 rounded-md border border-slate-300 text-sm text-slate-700 hover:bg-slate-50">表格</button>
+        </div>
+        <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <div className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">新建表格</div>
+          <div className="grid grid-cols-[1fr_auto_1fr_auto] items-center gap-2">
+            <input
+              type="number"
+              min={1}
+              value={newTableRows}
+              onChange={(event) => setNewTableRows(Math.max(1, Number(event.target.value) || 1))}
+              className="h-9 rounded-md border border-slate-300 px-2 text-sm"
+            />
+            <span className="text-center text-sm font-semibold text-slate-500">x</span>
+            <input
+              type="number"
+              min={1}
+              value={newTableCols}
+              onChange={(event) => setNewTableCols(Math.max(1, Number(event.target.value) || 1))}
+              className="h-9 rounded-md border border-slate-300 px-2 text-sm"
+            />
+            <button
+              onClick={() => addBlock(buildTableBlock(newTableRows, newTableCols))}
+              className="h-9 rounded-md border border-emerald-600 bg-white px-3 text-sm font-semibold text-emerald-800 hover:bg-emerald-50"
+            >
+              添加表格
+            </button>
+          </div>
         </div>
         <TemplateModulePicker moduleLibrary={moduleLibrary} onAdd={addModuleTemplate} actionLabel="添加模块" />
       </section>
 
       <section className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
-        <h2 className="text-sm font-semibold text-slate-900">模块属性</h2>
+        <h2 className="text-sm font-semibold text-slate-900">当前结构块</h2>
         {block ? (
           <>
-            <select value={selectedBlockIndex} onChange={(event) => onSelectBlock(Number(event.target.value))} className="h-9 w-full rounded-md border border-slate-300 px-2 text-sm">
-              {draft.layoutDraft.blocks.map((item, index) => <option key={`${item.type}-${index}`} value={index}>{index + 1}. {blockLabel(item, index)}</option>)}
-            </select>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">块导航</div>
+                <div className="text-xs text-slate-500">
+                  {selectedBlockIndex + 1} / {blockCount}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => onSelectBlock(Math.max(0, selectedBlockIndex - 1))}
+                  disabled={selectedBlockIndex === 0}
+                  className="h-9 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                >
+                  上一个
+                </button>
+                <select
+                  value={selectedBlockIndex}
+                  onChange={(event) => onSelectBlock(Number(event.target.value))}
+                  className="h-9 min-w-0 flex-1 rounded-md border border-slate-300 px-2 text-sm"
+                >
+                  {draft.layoutDraft.blocks.map((item, index) => (
+                    <option key={`${item.type}-${index}`} value={index}>
+                      {index + 1}. {blockLabel(item, index)}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => onSelectBlock(Math.min(blockCount - 1, selectedBlockIndex + 1))}
+                  disabled={selectedBlockIndex >= blockCount - 1}
+                  className="h-9 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                >
+                  下一个
+                </button>
+              </div>
+            </div>
             <input value={block.title || ""} onChange={(event) => setBlock({ title: event.target.value })} className="h-9 w-full rounded-md border border-slate-300 px-2 text-sm" placeholder="标题" />
             <div className="grid grid-cols-2 gap-2">
               <input value={block.sectionSuffix || ""} onChange={(event) => setBlock({ sectionSuffix: event.target.value })} className="h-9 rounded-md border border-slate-300 px-2 text-sm" placeholder="sectionSuffix" />
               <input value={block.sectionRef || ""} onChange={(event) => setBlock({ sectionRef: event.target.value })} className="h-9 rounded-md border border-slate-300 px-2 text-sm" placeholder="sectionRef" />
             </div>
-            {block.type === "table" && (
-              <div className="grid grid-cols-2 gap-2">
-                <button onClick={() => setBlock(addRow(block))} className="h-9 rounded-md border border-slate-300 text-sm text-slate-700 hover:bg-slate-50">加行</button>
-                <button onClick={() => setBlock(addColumn(block))} className="h-9 rounded-md border border-slate-300 text-sm text-slate-700 hover:bg-slate-50">加列</button>
-              </div>
-            )}
             <button onClick={removeBlock} className="h-9 w-full rounded-md border border-red-200 bg-red-50 text-sm font-semibold text-red-700 hover:bg-red-100">删除模块</button>
           </>
         ) : <div className="text-sm text-slate-500">请选择或添加模块。</div>}
@@ -153,7 +185,6 @@ export default function TemplateEditorInspector({
           {cell && (
             <div className="space-y-2">
               <textarea value={cellText} onChange={(event) => setCell({ rawText: event.target.value, parts: parseParts(event.target.value) })} className="min-h-20 w-full rounded-md border border-slate-300 px-2 py-1 text-sm" />
-              <div className="text-xs text-slate-500">字段写法：m=[字段:字段1]-[字段:字段2]=[字段:字段3]mg</div>
               <div className="grid grid-cols-2 gap-2">
                 <select value={cell.align || "center"} onChange={(event) => setCell({ align: event.target.value })} className="h-9 rounded-md border border-slate-300 px-2 text-sm">
                   <option value="center">居中</option><option value="left">左对齐</option><option value="right">右对齐</option>
@@ -168,8 +199,6 @@ export default function TemplateEditorInspector({
           )}
         </section>
       )}
-
-      <TemplateEditorFieldPanel methodGroups={draft.methodDraft.methodGroups} fieldGroups={fieldGroups} formulaFunctions={formulaFunctions} onChange={(methodGroups) => onChange({ ...draft, methodDraft: { methodGroups } })} />
     </aside>
   );
 }

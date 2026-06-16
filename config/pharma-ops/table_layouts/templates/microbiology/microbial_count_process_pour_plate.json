@@ -49,10 +49,6 @@
           "default": "pH7.0无菌氯化钠-蛋白胨缓冲液"
         },
         {
-          "type": "text",
-          "text": ""
-        },
-        {
           "type": "line",
           "field_key": "layout/microbiology/count/sample_solution_volume",
           "input_type": "number",

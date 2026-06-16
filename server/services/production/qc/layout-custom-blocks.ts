@@ -28,6 +28,10 @@ function formatText(text: string, params: Params) {
     });
 }
 
+function formatTemplateKeepParams(text: string, params: Params) {
+  return text.replace(/\[([^\]]*\{([\w.-]+)\}[^\]]*)\]/g, (match, body, key) => params[key] == null || params[key] === "" ? "" : body);
+}
+
 function fieldPart(label: string): QcLayoutPart {
   const match = label.match(/^(.+?)（(.+)）$/);
   return { type: "line", field: match?.[1] || label, placeholder: match?.[2], width: "6.5rem", underline: true };
@@ -39,14 +43,22 @@ function blankPart(fieldKey: string, blank: string): QcLayoutPart {
 }
 
 function textParts(template: string, params: Params, keyPrefix = "layout/operation"): QcLayoutPart[] {
-  const text = formatText(template, params);
+  const text = formatTemplateKeepParams(template, params);
   const parts: QcLayoutPart[] = [];
   let cursor = 0;
   let blankIndex = 0;
-  for (const match of text.matchAll(/\{FIELD:([^}]+)\}|[_＿]{2,}/g)) {
+  for (const match of text.matchAll(/\{FIELD:([^}]+)\}|\{\{\s*([\w.-]+)\s*\}\}|\{\s*([\w.-]+)\s*\}|[_＿]{2,}/g)) {
     if (match.index && match.index > cursor) parts.push({ type: "text", text: text.slice(cursor, match.index) });
     if (match[1]) {
       parts.push(fieldPart(match[1]));
+    } else if (match[2] || match[3]) {
+      const key = match[2] || match[3];
+      const value = params[key];
+      parts.push({
+        type: "param",
+        name: key,
+        defaultValue: value == null || typeof value === "object" ? undefined : String(value),
+      });
     } else {
       blankIndex += 1;
       parts.push(blankPart(`${keyPrefix}/blank_${blankIndex}`, match[0]));
@@ -81,18 +93,17 @@ function structuredOperation(raw: Record<string, unknown>, params: Params): QcLa
   const scope = paramScope(raw, params);
   const profile = asString(scope.profile, asString(raw.profile));
   const segments = asArray(asRecord(raw.profile_segments || raw.profileSegments)[profile]);
-  const parts = segments.flatMap((segment, index) => {
+  const parts: QcLayoutPart[] = [];
+  segments.forEach((segment, index) => {
     const item = asRecord(segment);
     const template = item.source ? asString(scope[asString(item.source)]) : asString(item.template);
     const keyPrefix = `layout/operation/${asString(item.label, `segment_${index + 1}`)}`;
     const valueParts = textParts(template, scope, keyPrefix);
-    if (!valueParts.length) return [];
+    if (!valueParts.length) return;
     const label = asString(item.label);
-    return [
-      ...(index ? [{ type: "text", text: " " } as QcLayoutPart] : []),
-      ...(label ? [{ type: "text", text: `${label}：` } as QcLayoutPart] : []),
-      ...valueParts,
-    ];
+    if (parts.length) parts.push({ type: "text", text: " " });
+    if (label) parts.push({ type: "text", text: `${label}：` });
+    parts.push(...valueParts);
   });
   return parts.length ? { type: "paragraph", parts, order: Number(raw.order) || undefined, moduleOrder: Number(raw.module_order || raw.moduleOrder) || undefined } : null;
 }

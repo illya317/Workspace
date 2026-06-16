@@ -5,9 +5,11 @@ import type { QcTemplateEditorData, QcTemplateEditorDraft } from "@/server/servi
 import TemplateEditorInspector from "./template-editor/TemplateEditorInspector";
 import TemplateEditorModeNav from "./template-editor/TemplateEditorModeNav";
 import TemplateBlockOverview from "./template-editor/TemplateBlockOverview";
+import TemplateFormulaLabPanel from "./template-editor/TemplateFormulaLabPanel";
 import TemplateModulePicker from "./template-editor/TemplateModulePicker";
 import TemplatePreviewModal from "./template-editor/TemplatePreviewModal";
-import { moduleDisplayName } from "./template-editor/editor-utils";
+import TemplateTableCanvas from "./template-editor/TemplateTableCanvas";
+import { clone, moduleDisplayName } from "./template-editor/editor-utils";
 import { moduleDraftFromItem } from "./template-editor/module-draft-utils";
 
 interface Props {
@@ -15,6 +17,13 @@ interface Props {
 }
 
 interface CellSelection { row: number; cell: number }
+type ModuleWorkbenchMode = "table" | "formula";
+
+function tabClass(active: boolean) {
+  return `rounded-md border px-3 py-2 text-sm font-semibold ${
+    active ? "border-emerald-600 bg-emerald-50 text-emerald-800" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+  }`;
+}
 
 export default function QcTemplateModuleEditorClient({ data }: Props) {
   const modules = useMemo(() => data.moduleLibrary.filter((item) => item.blocks?.length || item.id.startsWith("parents/")), [data.moduleLibrary]);
@@ -23,6 +32,7 @@ export default function QcTemplateModuleEditorClient({ data }: Props) {
   const [selectedBlockIndex, setSelectedBlockIndex] = useState(0);
   const [selectedCell, setSelectedCell] = useState<CellSelection | undefined>();
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [mode, setMode] = useState<ModuleWorkbenchMode>("table");
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<string>();
   const [saveError, setSaveError] = useState<string>();
@@ -66,7 +76,6 @@ export default function QcTemplateModuleEditorClient({ data }: Props) {
           <div>
             <p className="text-xs font-semibold text-emerald-700">模块编辑器</p>
             <h2 className="mt-2 text-lg font-semibold text-slate-900">{moduleDisplayName(selectedModule)}</h2>
-            <p className="mt-1 text-sm text-slate-500">先选择模块，再维护这个模块内部的表格结构、单元格、字段和公式。</p>
           </div>
           <div className="space-y-2 text-right">
             <TemplateEditorModeNav templateId={data.detail.id} active="module" />
@@ -91,13 +100,28 @@ export default function QcTemplateModuleEditorClient({ data }: Props) {
               </div>
             </div>
           </section>
-          <TemplateBlockOverview draft={draft} selectedBlockIndex={selectedBlockIndex} onSelectBlock={(index) => {
-            setSelectedBlockIndex(index);
-            setSelectedCell(undefined);
-          }} />
+          {mode === "table" ? (
+            <TemplateTableCanvas
+              block={draft.layoutDraft.blocks[selectedBlockIndex]}
+              blockIndex={selectedBlockIndex}
+              selectedCell={selectedCell}
+              onSelectCell={setSelectedCell}
+              onChange={(nextBlock) => {
+                const nextDraft = clone(draft);
+                nextDraft.layoutDraft.blocks[selectedBlockIndex] = nextBlock;
+                updateDraft(nextDraft);
+              }}
+            />
+          ) : (
+            <TemplateBlockOverview module={selectedModule} draft={draft} selectedBlockIndex={selectedBlockIndex} />
+          )}
         </div>
 
         <div className="space-y-3 xl:sticky xl:top-2 xl:self-start">
+          <div className="flex flex-wrap gap-2 rounded-lg border border-slate-200 bg-white p-3">
+            <button onClick={() => setMode("table")} className={tabClass(mode === "table")}>表格设计</button>
+            <button onClick={() => setMode("formula")} className={tabClass(mode === "formula")}>字段公式</button>
+          </div>
           <div className="flex items-center justify-end gap-3 rounded-lg border border-slate-200 bg-white p-3">
             {savedAt && <span className="text-xs text-slate-500">已保存：{savedAt}</span>}
             <button onClick={() => setPreviewOpen(true)} className="h-9 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50">
@@ -107,20 +131,27 @@ export default function QcTemplateModuleEditorClient({ data }: Props) {
               {saving ? "保存中" : "保存模块草稿"}
             </button>
           </div>
-          <TemplateEditorInspector
-            draft={draft}
-            selectedBlockIndex={selectedBlockIndex}
-            selectedCell={selectedCell}
-            moduleLibrary={data.moduleLibrary}
-            fieldGroups={data.fieldGroups}
-            formulaFunctions={data.formulaFunctions}
-            onSelectBlock={setSelectedBlockIndex}
-            onSelectCell={setSelectedCell}
-            onChange={updateDraft}
-            onSave={saveDraft}
-            saving={saving}
-            savedAt={savedAt}
-          />
+          {mode === "table" ? (
+            <TemplateEditorInspector
+              draft={draft}
+              selectedBlockIndex={selectedBlockIndex}
+              selectedCell={selectedCell}
+              moduleLibrary={data.moduleLibrary}
+              onSelectBlock={(index) => {
+                setSelectedBlockIndex(index);
+                setSelectedCell(undefined);
+              }}
+              onSelectCell={setSelectedCell}
+              onChange={updateDraft}
+            />
+          ) : (
+            <TemplateFormulaLabPanel
+              draft={draft}
+              fieldGroups={data.fieldGroups}
+              formulaFunctions={data.formulaFunctions}
+              onChange={updateDraft}
+            />
+          )}
         </div>
       </div>
       <TemplatePreviewModal draft={draft} open={previewOpen} selectedBlockIndex={selectedBlockIndex} errors={[]} onSelectBlock={(index) => {

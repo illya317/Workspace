@@ -108,14 +108,9 @@ export default function QcTemplateEditorClient({ data }: Props) {
           selectedBlockIndex={selectedBlockIndex}
           selectedCell={selectedCell}
           moduleLibrary={data.moduleLibrary}
-          fieldGroups={data.fieldGroups}
-          formulaFunctions={data.formulaFunctions}
           onSelectBlock={setSelectedBlockIndex}
           onSelectCell={setSelectedCell}
           onChange={editor.updateDraft}
-          onSave={editor.saveDraft}
-          saving={editor.saving}
-          savedAt={editor.savedAt}
         />
       </div>
     </section>

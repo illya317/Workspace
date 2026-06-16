@@ -110,6 +110,21 @@ export function useTemplateEditorDrafts(data: QcTemplateEditorData) {
     if (selected) selectNode(stage, "test", testItemFromDraft(stage, selected, data.moduleLibrary));
   }
 
+  function reorderTest(stage: QcTemplateStage, testId: string, targetIndex: number) {
+    const tests = testsByStage[stage.key] || [];
+    const sourceIndex = tests.findIndex((test) => test.id === testId);
+    if (sourceIndex < 0) return;
+    const safeTarget = Math.max(0, Math.min(targetIndex, tests.length - 1));
+    if (sourceIndex === safeTarget) return;
+    const reordered = tests.slice();
+    const [moved] = reordered.splice(sourceIndex, 1);
+    reordered.splice(safeTarget, 0, moved);
+    const ordered = orderedTestDrafts(reordered, { preserveInputOrder: true });
+    updateExperimentTests(stage, ordered);
+    const selected = selection?.test && ordered.find((test) => test.englishName === selection.test?.englishName);
+    if (selected) selectNode(stage, "test", testItemFromDraft(stage, selected, data.moduleLibrary));
+  }
+
   function addTest(stage: QcTemplateStage, input: NewTestInput) {
     const tests = testsByStage[stage.key] || [], key = uniqueTestKey(tests, input.englishName);
     const created: QcTemplateEditorTestDraft = { id: key, name: input.name.trim() || "新检测项", englishName: key, methodName: input.methodName.trim() || "未配置", templateId: input.templateId, order: tests.length + 1, source: "draft" };
@@ -130,6 +145,29 @@ export function useTemplateEditorDrafts(data: QcTemplateEditorData) {
     updateExperimentTests(stage, ordered);
     const selected = selection?.test && ordered.find((test) => test.englishName === selection.test?.englishName);
     if (selected) selectNode(stage, "test", testItemFromDraft(stage, selected, data.moduleLibrary));
+  }
+
+  function removeTest(stage: QcTemplateStage, testId: string) {
+    const tests = testsByStage[stage.key] || [];
+    const removing = tests.find((test) => test.id === testId);
+    if (!removing) return;
+    const ordered = orderedTestDrafts(tests.filter((test) => test.id !== testId));
+    setDrafts((current) => {
+      const next = new Map(current);
+      const draftKey = draftId({
+        productKey: data.detail.id,
+        stageKey: stage.key,
+        nodeType: "test",
+        testNameEn: removing.englishName,
+      });
+      next.delete(draftKey);
+      const experimentDraft = current.get(draftId(targetFromNode(data.detail, stage, "experiment"))) || initialDraft(data.detail, stage, "experiment");
+      next.set(experimentDraft.draftId, withExperimentTests(experimentDraft, ordered));
+      return next;
+    });
+    if (selection?.stage.key === stage.key && selection.nodeType === "test" && selection.test?.englishName === removing.englishName) {
+      setSelection({ stage, nodeType: "experiment" });
+    }
   }
 
   async function persistDrafts(items: QcTemplateEditorDraft[]) {
@@ -161,5 +199,5 @@ export function useTemplateEditorDrafts(data: QcTemplateEditorData) {
     await persistDrafts(data.detail.stages.map((stage) => experimentDraftForStage(stage)));
   }
 
-  return { draft, selectedId, selection, testsByStage, errors: draft ? errorsForDraft(draft) : [], saving, savedAt, saveError, layoutDraftForStage, updateDraft, selectNode, selectTestDraft, addTest, updateTest, moveTest, saveDraft, saveLayoutDrafts };
+  return { draft, selectedId, selection, testsByStage, errors: draft ? errorsForDraft(draft) : [], saving, savedAt, saveError, layoutDraftForStage, updateDraft, selectNode, selectTestDraft, addTest, updateTest, moveTest, reorderTest, removeTest, saveDraft, saveLayoutDrafts };
 }

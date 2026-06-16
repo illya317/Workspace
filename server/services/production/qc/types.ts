@@ -124,8 +124,16 @@ export interface QcLayoutBlock {
   sectionRef?: string;
   sectionAnchor?: boolean;
   fieldPrefix?: string; fileSectionSuffix?: string; fileTitle?: string;
+  inspectionDateKey?: string;
+  completionDateKey?: string;
+  judgmentDateKey?: string;
+  packagingKey?: string;
+  sampleQuantityKey?: string;
+  fieldKeyOverrides?: Record<string, string>;
   sourceTemplateId?: string;
   rows?: QcLayoutCell[][];
+  columnWidths?: string[];
+  rowHeights?: string[];
   parts?: QcLayoutPart[];
   devices?: Array<{ name: string; status?: string }>;
   materials?: Array<{ name: string }>; standards?: Array<{ name: string }>;

@@ -60,6 +60,21 @@ export interface QcTemplateModuleLibraryItem {
   blocks?: QcLayoutBlock[];
 }
 
+export interface QcTemplateInspectionTemplateOption {
+  id: string;
+  displayName: string;
+  templateId: string;
+}
+
+export interface QcTemplateInspectionCatalogItem {
+  key: string;
+  label: string;
+  englishName: string;
+  methodName: string;
+  matchKeys: string[];
+  templates: QcTemplateInspectionTemplateOption[];
+}
+
 export interface QcTemplateEditorFieldGroup {
   label: string;
   fields: QcTemplateMethodField[];
@@ -69,6 +84,7 @@ export interface QcTemplateEditorData {
   detail: QcTemplateDetail;
   drafts: QcTemplateEditorDraft[];
   moduleLibrary: QcTemplateModuleLibraryItem[];
+  inspectionCatalog: QcTemplateInspectionCatalogItem[];
   fieldGroups: QcTemplateEditorFieldGroup[];
   formulaFunctions: string[];
 }

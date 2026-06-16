@@ -11,6 +11,7 @@ import type {
   QcTemplateEditorData,
   QcTemplateEditorDraft,
   QcTemplateEditorFieldGroup,
+  QcTemplateInspectionCatalogItem,
   QcTemplateEditorNodeType,
   QcTemplateEditorPreview,
   QcTemplateEditorTarget,
@@ -22,6 +23,26 @@ interface DraftAuthor { userId: number; userName: string }
 
 const FORMULA_FUNCTIONS = ["SUM", "AVG", "SUBTRACT", "DIVIDE", "ABS", "ROUND", "SD_SAMPLE", "RSD", "RD"];
 const VALID_NODE_TYPES = new Set<QcTemplateEditorNodeType>(["precheck", "experiment", "test", "module"]);
+const STANDARD_INSPECTION_ITEMS: Array<{
+  key: string;
+  label: string;
+  englishName: string;
+  methodName: string;
+  matchKeys: string[];
+  templateIds: string[];
+}> = [
+  { key: "appearance", label: "性状", englishName: "appearance", methodName: "目测", matchKeys: ["appearance"], templateIds: ["parents/appearance_basic"] },
+  { key: "moisture", label: "水分", englishName: "moisture", methodName: "水分", matchKeys: ["moisture"], templateIds: ["parents/moisture_two_sample_full"] },
+  { key: "content", label: "含量", englishName: "content", methodName: "HPLC", matchKeys: ["content"], templateIds: ["parents/hplc_content_full"] },
+  { key: "identification", label: "鉴别", englishName: "identification", methodName: "鉴别", matchKeys: ["identification"], templateIds: ["parents/identification_full"] },
+  { key: "related_substances", label: "有关物质", englishName: "related_substances", methodName: "HPLC", matchKeys: ["related_substances"], templateIds: ["parents/related_substances_hplc_full"] },
+  { key: "dissolution", label: "溶出度", englishName: "dissolution", methodName: "溶出度", matchKeys: ["dissolution"], templateIds: ["parents/dissolution_full"] },
+  { key: "content_uniformity", label: "含量均匀度", englishName: "content_uniformity", methodName: "HPLC", matchKeys: ["content_uniformity"], templateIds: ["parents/content_uniformity_hplc_full"] },
+  { key: "friability", label: "脆碎度", englishName: "friability", methodName: "脆碎度", matchKeys: ["friability"], templateIds: ["parents/friability_full"] },
+  { key: "disintegration", label: "崩解时限", englishName: "disintegration", methodName: "崩解时限", matchKeys: ["disintegration"], templateIds: ["parents/disintegration_full"] },
+  { key: "microbial_limit", label: "微生物限度检查", englishName: "microbial_limit", methodName: "微生物", matchKeys: ["microbial_limit"], templateIds: ["parents/microbiology_limit_full"] },
+  { key: "variation", label: "重量/装量差异", englishName: "weight_variation", methodName: "重量/装量差异", matchKeys: ["weight_variation", "fill_variation"], templateIds: ["parents/variation_20_full"] },
+];
 
 function dataPath() {
   return qcRuntimeDataPath("qc-template-drafts.json");
@@ -60,6 +81,12 @@ async function writeStore(store: DraftStore) {
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function firstAvailableModule(moduleLibrary: QcTemplateModuleLibraryItem[], ids: string[]) {
+  return ids
+    .map((id) => moduleLibrary.find((item) => item.id === id || item.templateId === id))
+    .find(Boolean);
 }
 
 function targetFromDetail(detail: QcTemplateDetail, stage: QcTemplateStage, nodeType: QcTemplateEditorNodeType, test?: QcTemplateTestItem): QcTemplateEditorTarget {
@@ -180,12 +207,54 @@ function fieldGroups(detail: QcTemplateDetail): QcTemplateEditorFieldGroup[] {
   ];
 }
 
+function inspectionCatalog(detail: QcTemplateDetail, moduleLibrary: QcTemplateModuleLibraryItem[]): QcTemplateInspectionCatalogItem[] {
+  const knownKeys = new Set(STANDARD_INSPECTION_ITEMS.flatMap((item) => item.matchKeys));
+  const items = STANDARD_INSPECTION_ITEMS.map((item) => ({
+    key: item.key,
+    label: item.label,
+    englishName: item.englishName,
+    methodName: item.methodName,
+    matchKeys: item.matchKeys,
+    templates: item.templateIds
+      .map((templateId) => firstAvailableModule(moduleLibrary, [templateId]))
+      .filter((candidate): candidate is QcTemplateModuleLibraryItem => Boolean(candidate))
+      .map((candidate) => ({
+        id: candidate.id,
+        displayName: candidate.displayName,
+        templateId: candidate.templateId,
+      })),
+  })).filter((item) => item.templates.length > 0);
+
+  const extras = new Map<string, QcTemplateInspectionCatalogItem>();
+  detail.stages.forEach((stage) => {
+    stage.tests.forEach((test) => {
+      if (!test.englishName || knownKeys.has(test.englishName)) return;
+      const template = test.layout?.templateId ? firstAvailableModule(moduleLibrary, [test.layout.templateId]) : undefined;
+      extras.set(test.englishName, {
+        key: normalizePart(test.englishName) || normalizePart(test.name) || `extra_${extras.size + 1}`,
+        label: test.name,
+        englishName: test.englishName,
+        methodName: test.methodName || test.name,
+        matchKeys: [test.englishName],
+        templates: template ? [{
+          id: template.id,
+          displayName: template.displayName,
+          templateId: template.templateId,
+        }] : [],
+      });
+    });
+  });
+
+  return [...items, ...extras.values()];
+}
+
 export async function getQcTemplateEditorData(templateId: string): Promise<QcTemplateEditorData> {
   const [detail, store, moduleLibrary] = await Promise.all([getQcTemplateDetail(templateId), readStore(), listTemplateLibrary()]);
   return {
     detail,
     drafts: store.drafts.filter((draft) => draft.productKey === detail.id),
     moduleLibrary,
+    inspectionCatalog: inspectionCatalog(detail, moduleLibrary),
     fieldGroups: fieldGroups(detail),
     formulaFunctions: FORMULA_FUNCTIONS,
   };

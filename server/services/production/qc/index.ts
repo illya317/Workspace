@@ -50,5 +50,7 @@ export type {
   QcTemplateEditorPreview,
   QcTemplateEditorTarget,
   QcTemplateEditorTestDraft,
+  QcTemplateInspectionCatalogItem,
+  QcTemplateInspectionTemplateOption,
   QcTemplateModuleLibraryItem,
 } from "./template-editor-types";

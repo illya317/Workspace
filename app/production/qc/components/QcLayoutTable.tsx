@@ -192,9 +192,14 @@ export function TableBlock({ block, className = "", context }: { block: QcLayout
   if (!block.rows?.length) return null;
   return (
     <table className={`mb-4 w-full table-fixed border-collapse ${TABLE_BODY_TEXT_CLASS} ${className}`}>
+      {block.columnWidths?.length ? (
+        <colgroup>
+          {block.columnWidths.map((width, index) => <col key={`${width}-${index}`} style={{ width }} />)}
+        </colgroup>
+      ) : null}
       <tbody>
         {block.rows.map((row, rowIndex) => (
-          <tr key={rowIndex}>
+          <tr key={rowIndex} style={block.rowHeights?.[rowIndex] ? { height: block.rowHeights[rowIndex] } : undefined}>
             {row.map((cell, cellIndex) => {
               const Tag = cell.header ? "th" : "td";
               const textAlign = (cell.align || "center") as CSSProperties["textAlign"];

@@ -1,12 +1,12 @@
 "use client";
 
-import type { QcLayoutBlock, QcTemplateEditorDraft } from "@/server/services/production/qc";
-import { blockLabel } from "./editor-utils";
+import type { QcLayoutBlock, QcTemplateEditorDraft, QcTemplateModuleLibraryItem } from "@/server/services/production/qc";
+import { blockLabel, moduleCategoryLabel, moduleDisplayName } from "./editor-utils";
 
 interface Props {
+  module: QcTemplateModuleLibraryItem;
   draft: QcTemplateEditorDraft;
   selectedBlockIndex: number;
-  onSelectBlock: (index: number) => void;
 }
 
 function blockTone(block: QcLayoutBlock) {
@@ -16,27 +16,64 @@ function blockTone(block: QcLayoutBlock) {
   return block.type;
 }
 
-export default function TemplateBlockOverview({ draft, selectedBlockIndex, onSelectBlock }: Props) {
+export default function TemplateBlockOverview({ module, draft, selectedBlockIndex }: Props) {
+  const blocks = draft.layoutDraft.blocks;
+  const selectedBlock = blocks[selectedBlockIndex];
+  const tableCount = blocks.filter((block) => block.type === "table").length;
+  const titleCount = blocks.filter((block) => block.type === "title").length;
+  const paragraphCount = blocks.filter((block) => block.type === "paragraph").length;
+
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-4">
-      <div className="mb-3 flex items-center justify-between gap-3">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-slate-900">模块界面</h2>
-          <p className="mt-1 text-xs text-slate-500">{draft.layoutDraft.blocks.length} 个结构块</p>
+          <h2 className="text-sm font-semibold text-slate-900">当前模块</h2>
+          <p className="mt-1 text-xs text-slate-500">左下只保留当前选中的模块，结构块切换放到右侧操作区。</p>
         </div>
       </div>
-      <div className="grid gap-2">
-        {draft.layoutDraft.blocks.map((block, index) => (
-          <button
-            key={`${block.type}-${index}`}
-            onClick={() => onSelectBlock(index)}
-            className={`rounded-md border px-3 py-2 text-left text-sm ${selectedBlockIndex === index ? "border-emerald-600 bg-emerald-50 text-emerald-800" : "border-slate-200 text-slate-700 hover:bg-slate-50"}`}
-          >
-            <span className="block truncate font-semibold">{index + 1}. {blockLabel(block, index)}</span>
-            <span className="mt-1 block text-xs opacity-70">{blockTone(block)}</span>
-          </button>
-        ))}
-        {draft.layoutDraft.blocks.length === 0 && (
+
+      <div className="space-y-3">
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                {moduleCategoryLabel(module)}
+              </div>
+              <div className="mt-2 text-2xl font-semibold text-slate-900">{moduleDisplayName(module)}</div>
+              <div className="mt-2 break-all text-sm text-slate-500">{module.templateId}</div>
+            </div>
+            <div className="grid min-w-[240px] grid-cols-3 gap-2 text-center">
+              <div className="rounded-xl border border-white/80 bg-white/80 px-3 py-3">
+                <div className="text-xl font-semibold text-slate-900">{blocks.length}</div>
+                <div className="mt-1 text-xs text-slate-500">结构块</div>
+              </div>
+              <div className="rounded-xl border border-white/80 bg-white/80 px-3 py-3">
+                <div className="text-xl font-semibold text-slate-900">{tableCount}</div>
+                <div className="mt-1 text-xs text-slate-500">表格</div>
+              </div>
+              <div className="rounded-xl border border-white/80 bg-white/80 px-3 py-3">
+                <div className="text-xl font-semibold text-slate-900">{titleCount + paragraphCount}</div>
+                <div className="mt-1 text-xs text-slate-500">标题/段落</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {selectedBlock ? (
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">当前编辑块</div>
+                <div className="mt-2 text-lg font-semibold text-slate-900">
+                  {selectedBlockIndex + 1}. {blockLabel(selectedBlock, selectedBlockIndex)}
+                </div>
+              </div>
+              <div className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+                {blockTone(selectedBlock)}
+              </div>
+            </div>
+          </div>
+        ) : (
           <div className="rounded-md border border-slate-200 px-3 py-8 text-center text-sm text-slate-500">
             暂无结构块，可从右侧操作菜单添加标题或表格。
           </div>
