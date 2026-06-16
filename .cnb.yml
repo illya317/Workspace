@@ -1,0 +1,15 @@
+main:
+  push:
+    - name: deploy-prod
+      docker:
+        image: ubuntu:24.04
+      env:
+        RUN_LOCAL_CHECKS: "0"
+      stages:
+        - name: install-deploy-tools
+          script: |
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates
+        - name: deploy-to-server
+          script: |
+            bash ./ops/deploy-ci.sh
