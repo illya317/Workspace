@@ -30,16 +30,27 @@ function formatText(text: string, params: Params) {
 
 function fieldPart(label: string): QcLayoutPart {
   const match = label.match(/^(.+?)（(.+)）$/);
-  return { type: "line", field: match?.[1] || label, placeholder: match?.[2], width: "6.5rem" };
+  return { type: "line", field: match?.[1] || label, placeholder: match?.[2], width: "6.5rem", underline: true };
 }
 
-function textParts(template: string, params: Params): QcLayoutPart[] {
+function blankPart(fieldKey: string, blank: string): QcLayoutPart {
+  const width = `${Math.max(3.5, Math.min(12, blank.length * 0.9))}em`;
+  return { type: "line", fieldKey, width, underline: true };
+}
+
+function textParts(template: string, params: Params, keyPrefix = "layout/operation"): QcLayoutPart[] {
   const text = formatText(template, params);
   const parts: QcLayoutPart[] = [];
   let cursor = 0;
-  for (const match of text.matchAll(/\{FIELD:([^}]+)\}/g)) {
+  let blankIndex = 0;
+  for (const match of text.matchAll(/\{FIELD:([^}]+)\}|[_＿]{2,}/g)) {
     if (match.index && match.index > cursor) parts.push({ type: "text", text: text.slice(cursor, match.index) });
-    parts.push(fieldPart(match[1]));
+    if (match[1]) {
+      parts.push(fieldPart(match[1]));
+    } else {
+      blankIndex += 1;
+      parts.push(blankPart(`${keyPrefix}/blank_${blankIndex}`, match[0]));
+    }
     cursor = match.index + match[0].length;
   }
   if (cursor < text.length) parts.push({ type: "text", text: text.slice(cursor) });
@@ -73,7 +84,8 @@ function structuredOperation(raw: Record<string, unknown>, params: Params): QcLa
   const parts = segments.flatMap((segment, index) => {
     const item = asRecord(segment);
     const template = item.source ? asString(scope[asString(item.source)]) : asString(item.template);
-    const valueParts = textParts(template, scope);
+    const keyPrefix = `layout/operation/${asString(item.label, `segment_${index + 1}`)}`;
+    const valueParts = textParts(template, scope, keyPrefix);
     if (!valueParts.length) return [];
     const label = asString(item.label);
     return [

@@ -6,6 +6,9 @@ import { QcPaperChoiceInput, QcPaperLineInput, QcPaperSelectInput, qcRangeError,
 import { QcPaperDateInput } from "./QcPaperDateInput";
 import { MicrobialSelectedTotalPart } from "./QcMicrobialComputedParts";
 import type { QcFieldValues } from "./useQcFormulaEngine";
+
+const TABLE_BODY_TEXT_CLASS = "text-[15px] leading-8 text-slate-950";
+const TABLE_HEADING_TEXT_CLASS = "text-[17px] font-semibold leading-7 text-slate-950";
 export interface LayoutRenderContext {
   test?: QcTemplateTestItem;
   values: QcFieldValues;
@@ -192,19 +195,20 @@ function CellContent({ cell, context }: { cell: QcLayoutCell; context: LayoutRen
 export function TableBlock({ block, className = "", context }: { block: QcLayoutBlock; className?: string; context: LayoutRenderContext }) {
   if (!block.rows?.length) return null;
   return (
-    <table className={`mb-4 w-full table-fixed border-collapse text-[15px] leading-7 text-slate-950 ${className}`}>
+    <table className={`mb-4 w-full table-fixed border-collapse ${TABLE_BODY_TEXT_CLASS} ${className}`}>
       <tbody>
         {block.rows.map((row, rowIndex) => (
           <tr key={rowIndex}>
             {row.map((cell, cellIndex) => {
               const Tag = cell.header ? "th" : "td";
               const textAlign = (cell.align || "center") as CSSProperties["textAlign"];
+              const textClass = cell.bold && !cell.header ? TABLE_HEADING_TEXT_CLASS : "";
               return (
                 <Tag
                   key={`${rowIndex}-${cellIndex}`}
                   colSpan={cell.colspan}
                   rowSpan={cell.rowspan}
-                  className={`border border-slate-950 px-2 py-1.5 align-middle ${cell.bold || cell.header ? "font-semibold" : "font-normal"} ${cell.isEmpty ? "text-transparent" : ""} ${cell.className || ""}`}
+                  className={`border border-slate-950 px-2 py-1.5 align-middle ${cell.bold || cell.header ? "font-semibold" : "font-normal"} ${textClass} ${cell.isEmpty ? "text-transparent" : ""} ${cell.className || ""}`}
                   style={{ textAlign, width: cell.width }}
                 >
                   <CellContent cell={cell} context={context} />

@@ -28,6 +28,9 @@ const EMPTY_TEST: QcTemplateTestItem = {
   methodGroups: [],
 };
 
+const BODY_TEXT_CLASS = "text-[15px] leading-8 text-slate-950";
+const HEADING_TEXT_CLASS = "text-[17px] font-semibold leading-7 text-slate-950";
+
 function joinSectionSuffix(base?: string, suffix?: string) {
   if (!base) return suffix || "";
   if (!suffix || suffix === "auto") return base;
@@ -64,7 +67,7 @@ function numberBlocks(blocks: QcLayoutBlock[], sequence?: string): { blocks: Num
 }
 
 function Heading({ block, fallback }: { block: NumberedBlock; fallback: string }) {
-  return <h3 className="mb-2 mt-5 text-[17px] font-semibold leading-7 text-slate-950">{block.displaySection ? `${block.displaySection} ` : ""}{block.title || fallback}</h3>;
+  return <h3 className={`mb-2 mt-5 ${HEADING_TEXT_CLASS}`}>{block.displaySection ? `${block.displaySection} ` : ""}{block.title || fallback}</h3>;
 }
 
 function ProjectHeader({ block, context }: { block: QcLayoutBlock; context: LayoutRenderContext }) {
@@ -140,7 +143,7 @@ function PostSection({ block, title, children }: { block: NumberedBlock; title: 
   return (
     <section className="mb-4">
       <Heading block={block} fallback={title} />
-      <div className="text-[15px] leading-7 text-slate-950">{children}</div>
+      <div className={BODY_TEXT_CLASS}>{children}</div>
     </section>
   );
 }
@@ -156,8 +159,8 @@ function RenderBlock({ block, context }: {
   if (block.type === "materials_table") return <QcConfirmationTable block={block} context={context} fallback="试验材料" items={block.materials || []} prefix={block.fieldPrefix || "layout/common/materials"} nameHeader="试验材料" />;
   if (block.type === "reference_standard_table") return <QcConfirmationTable block={block} context={context} fallback="标准品" items={block.standards || []} prefix={block.fieldPrefix || "layout/common/reference_standards"} nameHeader="标准品" />;
   if (block.type === "title") return <Heading block={block} fallback="操作方法" />;
-  if (block.type === "operation_text") return <p className="mb-5 [text-indent:2em] text-[15px] leading-8 text-slate-950">{block.text}</p>;
-  if (block.type === "paragraph") return <p className="mb-3 text-[15px] leading-8 text-slate-950">{block.parts?.map((part, index) => <Part key={index} part={part} context={context} />)}</p>;
+  if (block.type === "operation_text") return <p className={`mb-5 [text-indent:2em] ${BODY_TEXT_CLASS}`}>{block.text}</p>;
+  if (block.type === "paragraph") return <p className={`mb-3 ${BODY_TEXT_CLASS}`}>{block.parts?.map((part, index) => <Part key={index} part={part} context={context} />)}</p>;
   if (block.type === "standard_text") return <PostSection block={block} title="标准规定">{test?.standardText || "YAML 未配置标准规定"}</PostSection>;
   if (block.type === "attachment_upload") {
     const key = block.fieldKey || "layout/raw_data/attachments";
@@ -187,7 +190,7 @@ function RenderBlock({ block, context }: {
     return <PostSection block={block} title="结论">批号<QcPaperLineInput part={{ type: "line", fieldKey: "batch_number", width: "8rem" }} value={values.batch_number} onChange={(value) => onFieldChange("batch_number", value)} />{test?.name || "本品"}（{block.conclusionName || test?.conclusionName || test?.name || "结论"}）检测过程<QcPaperSelectInput part={{ type: "select", fieldKey: processKey, underline: false }} options={["符合", "不符合"]} value={values[processKey]} onChange={(value) => onFieldChange(processKey, value)} />各项规定，结果{block.hasValue || test?.hasNumericConclusion ? <>为<Part part={{ type: "field", field: "结论-结果", readonlyDisplay: true }} context={context} />{valueUnit}，</> : null}<QcPaperSelectInput part={{ type: "select", fieldKey: resultKey, underline: false }} options={["符合", "不符合"]} value={values[resultKey]} onChange={(value) => onFieldChange(resultKey, value)} />标准规定。</PostSection>;
   }
   if (block.type === "table") return <TableBlock block={block} context={context} />;
-  return block.text ? <p className="mb-3 text-[15px] leading-8 text-slate-950">{block.text}</p> : null;
+  return block.text ? <p className={`mb-3 ${BODY_TEXT_CLASS}`}>{block.text}</p> : null;
 }
 
 export default function QcLayoutPaper({ blocks, compact: _compact, test, values: controlledValues, onFieldChange }: Props) {

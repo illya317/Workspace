@@ -3,6 +3,8 @@
 import type { CSSProperties, ChangeEvent } from "react";
 import type { QcLayoutPart } from "@/server/services/production/qc";
 
+const PAPER_INPUT_TEXT_CLASS = "text-[15px]";
+
 function visualLength(value: string) {
   return Array.from(value).reduce((total, char) => total + (char.charCodeAt(0) > 255 ? 2 : 1), 0);
 }
@@ -91,7 +93,7 @@ export function QcPaperLineInput({
         readOnly={readOnly || part.readonlyDisplay}
         rows={part.rows || 2}
         title={error}
-        className={`${baseClass} inline-block min-w-[8em] resize-y border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-[8em] resize-y border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
         style={inputWidth(part, inTable, currentValue)}
       />
     );
@@ -106,7 +108,7 @@ export function QcPaperLineInput({
       inputMode={part.inputType === "number" ? "decimal" : undefined}
       type={textInputType(part)}
       title={error}
-      className={`${baseClass} inline-block h-7 min-w-[4.5em] border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
       style={inputWidth(part, inTable, currentValue)}
     />
   );
@@ -136,7 +138,7 @@ export function QcPaperSelectInput({
       onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange?.(event.target.value)}
       disabled={readOnly || part.readonlyDisplay}
       title={error}
-      className={`${inTable ? "mx-0" : "mx-1"} inline-block h-7 appearance-none border-0 bg-transparent px-0.5 text-center align-middle leading-7 outline-none disabled:opacity-100 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+      className={`${inTable ? "mx-0" : "mx-1"} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 appearance-none border-0 bg-transparent px-0.5 text-center align-middle leading-7 outline-none disabled:opacity-100 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
       style={selectWidth(part, options, value ?? part.defaultValue, inTable)}
     >
       <option value=""> </option>
