@@ -193,13 +193,13 @@ deploy_remote_app() {
   ssh_cmd "
     set -e
     cd '$REMOTE_DIR'
-    while pgrep -af '/node_modules/.bin/next build|next build' >/dev/null 2>&1; do
-      echo '==> 检测到已有 next build 在运行，等待其结束...'
-      sleep 5
-    done
     if [ -f .next/lock ]; then
-      echo '==> 清理遗留的 .next/lock'
-      rm -f .next/lock
+      echo '[错误] 检测到服务器已有 Next 构建锁 (.next/lock)，为避免重复构建，本次部署已停止。请先登录服务器确认是否存在残留 next build，必要时清理锁后再重试。'
+      exit 1
+    fi
+    if pgrep -x node -f '$REMOTE_DIR/node_modules/.bin/next build' >/dev/null 2>&1; then
+      echo '[错误] 检测到服务器已有 next build 进程在运行，本次部署已停止。请等待远端构建完成，或登录服务器处理后再重试。'
+      exit 1
     fi
     if [ '$NEED_NPM_CI' = '1' ] || [ ! -d node_modules ]; then
       echo '==> 安装依赖...'
