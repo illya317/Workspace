@@ -74,8 +74,8 @@ function ProjectHeader({ block, context }: {
   const { test } = context;
   return (
     <TableBlock block={{ ...block, rows: [
-      [{ rawText: `${test?.sequence || ""}  检测项目`, parts: [], colspan: 1, rowspan: 1, isEmpty: false, bold: true, align: "left" }, { rawText: test?.name || "项目名称", parts: [], colspan: 1, rowspan: 1, isEmpty: false, bold: true }, { rawText: "检验日期", parts: [], colspan: 1, rowspan: 1, isEmpty: false }, { rawText: "", parts: [{ type: "date", fieldKey: "layout/common/inspection_date" }], colspan: 1, rowspan: 1, isEmpty: false }],
-      [{ rawText: "完成日期", parts: [], colspan: 1, rowspan: 1, isEmpty: false }, { rawText: "", parts: [{ type: "date", fieldKey: "layout/common/complete_date" }], colspan: 1, rowspan: 1, isEmpty: false }, { rawText: "判定日期", parts: [], colspan: 1, rowspan: 1, isEmpty: false }, { rawText: "", parts: [{ type: "date", fieldKey: "layout/common/judgment_date" }], colspan: 1, rowspan: 1, isEmpty: false }],
+      [{ rawText: `${test?.sequence || ""}  检测项目`, parts: [], colspan: 1, rowspan: 1, isEmpty: false, bold: true, align: "left" }, { rawText: test?.name || "项目名称", parts: [], colspan: 1, rowspan: 1, isEmpty: false, bold: true, align: "center" }, { rawText: "检验日期", parts: [], colspan: 1, rowspan: 1, isEmpty: false, align: "center" }, { rawText: "", parts: [{ type: "date", fieldKey: "layout/common/inspection_date" }], colspan: 1, rowspan: 1, isEmpty: false, align: "center" }],
+      [{ rawText: "完成日期", parts: [], colspan: 1, rowspan: 1, isEmpty: false, align: "center" }, { rawText: "", parts: [{ type: "date", fieldKey: "layout/common/complete_date" }], colspan: 1, rowspan: 1, isEmpty: false, align: "center" }, { rawText: "判定日期", parts: [], colspan: 1, rowspan: 1, isEmpty: false, align: "center" }, { rawText: "", parts: [{ type: "date", fieldKey: "layout/common/judgment_date" }], colspan: 1, rowspan: 1, isEmpty: false, align: "center" }],
     ] }} context={context} />
   );
 }
@@ -119,16 +119,25 @@ function EquipmentTable({ block, context }: {
   context: LayoutRenderContext;
 }) {
   const prefix = block.fieldPrefix || "layout/equipment";
-  const devices = block.devices?.length ? block.devices : [{ name: "仪器、设备", status: "“已清洁”" }];
+  const cell = (rawText: string, parts: QcLayoutPart[] = []): QcLayoutCell => ({
+    rawText,
+    parts,
+    colspan: 1,
+    rowspan: 1,
+    isEmpty: false,
+    align: "center",
+  });
+  const statusText = (status?: string) => (status || "已清洁").replace(/^["“]+|["”]+$/g, "");
+  const devices = block.devices?.length ? block.devices : [{ name: "仪器、设备", status: "已清洁" }];
   return <TableBlock block={{ ...block, rows: [
     [{ rawText: `${block.displaySection ? `${block.displaySection} ` : ""}${block.title || "仪器、设备"}`, parts: [], colspan: 5, rowspan: 1, isEmpty: false, bold: true, align: "left" }],
-    ["仪器、设备", "设备编号", "设备状态", "校验有效期至", "是否确认"].map((text) => ({ rawText: text, parts: [], colspan: 1, rowspan: 1, isEmpty: false })),
+    ["仪器、设备", "设备编号", "设备状态", "校验有效期至", "是否确认"].map((text) => cell(text)),
     ...devices.map((device, index) => [
-      { rawText: device.name, parts: [], colspan: 1, rowspan: 1, isEmpty: false },
-      { rawText: "", parts: [{ type: "line", fieldKey: `${prefix}/device_no_${index + 1}`, width: "8rem" }], colspan: 1, rowspan: 1, isEmpty: false },
-      { rawText: device.status || "“已清洁”", parts: [], colspan: 1, rowspan: 1, isEmpty: false },
-      { rawText: "", parts: [{ type: "line", fieldKey: `${prefix}/valid_until_${index + 1}`, width: "8rem" }], colspan: 1, rowspan: 1, isEmpty: false },
-      { rawText: "", parts: [{ type: "radio", fieldKey: `${prefix}/confirmed_${index + 1}`, options: ["是", "否"] }], colspan: 1, rowspan: 1, isEmpty: false },
+      cell(device.name),
+      cell("", [{ type: "line", fieldKey: `${prefix}/device_no_${index + 1}`, width: "8rem" }]),
+      cell(statusText(device.status)),
+      cell("", [{ type: "line", fieldKey: `${prefix}/valid_until_${index + 1}`, width: "8rem" }]),
+      cell("", [{ type: "radio", fieldKey: `${prefix}/confirmed_${index + 1}`, options: ["是", "否"] }]),
     ]),
   ] }} context={context} />;
 }
