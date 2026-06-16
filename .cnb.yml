@@ -26,4 +26,4 @@ main:
             DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates
         - name: deploy-to-server
           script: |
-            bash ./ops/deploy-ci.sh
+            bash ./ops/deploy.sh
