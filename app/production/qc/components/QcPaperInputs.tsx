@@ -3,9 +3,13 @@
 import type { CSSProperties, ChangeEvent } from "react";
 import type { QcLayoutPart } from "@/server/services/production/qc";
 
-function inputWidth(part: QcLayoutPart, inTable?: boolean): CSSProperties {
+function inputWidth(part: QcLayoutPart, inTable?: boolean, value?: string): CSSProperties {
   if (part.width) return { width: part.width, minWidth: inTable ? part.width : "4.5em" };
-  if (inTable) return { width: "3.5rem", minWidth: "3rem" };
+  if (inTable) {
+    const displayValue = String(value || part.placeholder || "");
+    const width = displayValue ? `${Math.min(14, Math.max(2, displayValue.length + 0.5))}ch` : "2.5rem";
+    return { width, minWidth: displayValue ? "2ch" : "2.5rem", maxWidth: "14rem" };
+  }
   return { width: "5.5em" };
 }
 
@@ -80,7 +84,7 @@ export function QcPaperLineInput({
         rows={part.rows || 2}
         title={error}
         className={`${baseClass} inline-block min-w-[8em] resize-y border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
-        style={inputWidth(part, inTable)}
+        style={inputWidth(part, inTable, currentValue)}
       />
     );
   }
@@ -95,7 +99,7 @@ export function QcPaperLineInput({
       type={textInputType(part)}
       title={error}
       className={`${baseClass} inline-block h-7 min-w-[4.5em] border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
-      style={inputWidth(part, inTable)}
+      style={inputWidth(part, inTable, currentValue)}
     />
   );
 }

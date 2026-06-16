@@ -187,7 +187,7 @@ function CellContent({ cell, context }: { cell: QcLayoutCell; context: LayoutRen
   const cellContext = { ...context, inTable: true };
   const content = cell.parts.map((part, index) => <Part key={`${part.fieldKey || part.field || part.text || part.type}-${index}`} part={part} context={cellContext} />);
   if (!isCompactFormCell(cell)) return <>{content}</>;
-  return <span className={`flex min-h-8 w-full flex-wrap items-baseline ${cell.align === "left" ? "justify-start" : cell.align === "right" ? "justify-end" : "justify-center"} gap-x-1.5 gap-y-1`}>{content}</span>;
+  return <span className={`flex min-h-8 w-full flex-wrap items-baseline ${cell.align === "left" ? "justify-start" : cell.align === "right" ? "justify-end" : "justify-center"} gap-x-0.5 gap-y-1`}>{content}</span>;
 }
 
 export function TableBlock({ block, className = "", context }: { block: QcLayoutBlock; className?: string; context: LayoutRenderContext }) {
