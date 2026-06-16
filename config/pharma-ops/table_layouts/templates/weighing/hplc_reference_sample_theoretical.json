@@ -30,6 +30,7 @@
           "cells": [
             {
               "rowspan": 2,
+              "width": "12%",
               "parts": [
                 {
                   "type": "text",
@@ -48,12 +49,15 @@
             },
             {
               "rowspan": 2,
+              "width": "18%",
               "text": "对照称样（mg）"
             },
             {
+              "width": "15%",
               "text": "对照 1"
             },
             {
+              "width": "55%",
               "parts": [
                 {
                   "type": "text",
