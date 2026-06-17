@@ -89,16 +89,22 @@ function TemplateRow({
 }
 
 function stageFeedbackSummary(
-  template: QcTemplateDetail,
-  stage: QcTemplateStage,
-  index: number,
+  templateDetail: QcTemplateDetail,
+  stageDetail: QcTemplateStage,
+  stageIndex: number,
   feedbackStates: Record<string, QcTemplateFeedbackState>,
 ) {
-  const selection = (kind: PreviewKind, test?: QcTemplateTestItem): WorkbenchSelection => ({ template, stage, stageIndex: index, kind, test });
+  const selection = (kind: PreviewKind, test?: QcTemplateTestItem): WorkbenchSelection => ({
+    template: templateDetail,
+    stage: stageDetail,
+    stageIndex,
+    kind,
+    test,
+  });
   const states = [
     feedbackStates[feedbackKey(feedbackContext(selection("precheck")))],
     feedbackStates[feedbackKey(feedbackContext(selection("experiment")))],
-    ...stage.tests.map((test) => feedbackStates[feedbackKey(feedbackContext(selection("test", test)))]),
+    ...stageDetail.tests.map((test) => feedbackStates[feedbackKey(feedbackContext(selection("test", test)))]),
   ].filter(Boolean);
   const open = states.filter((state) => state === "open").length;
   const resolved = states.filter((state) => state === "resolved").length;
@@ -137,7 +143,13 @@ export default function StageRows({
   const summary = stageFeedbackSummary(template, stage, index, feedbackStates);
 
   function select(kind: PreviewKind, test?: QcTemplateTestItem): WorkbenchSelection {
-    return { template, stage, stageIndex: index, kind, test };
+    return {
+      template,
+      stage,
+      stageIndex: index,
+      kind,
+      test,
+    };
   }
 
   function feedback(selection: WorkbenchSelection) {
