@@ -6,6 +6,7 @@ import InlineFeedbackMarkerButton from "./InlineFeedbackMarkerButton";
 import {
   anchorId,
   editorStyle,
+  entriesForAnchor,
   findAnchorElement,
   HIDE_DELAY_MS,
   inlineEntriesFromItems,
@@ -30,6 +31,7 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
   const editorOpenRef = useRef(false);
   const [anchor, setAnchor] = useState<InlineAnchor | null>(null);
   const [savedEntries, setSavedEntries] = useState<InlineEntry[]>([]);
+  const [anchorEntries, setAnchorEntries] = useState<InlineEntry[]>([]);
   const [savedMarkers, setSavedMarkers] = useState<InlineAnchor[]>([]);
   const [popoverHovered, setPopoverHovered] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -75,7 +77,7 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
   }
 
   useEffect(() => {
-    setAnchor(null); setEditorOpen(false); setNote(""); setError("");
+    setAnchor(null); setEditorOpen(false); setNote(""); setError(""); setAnchorEntries([]);
     setSavedEntries([]); setSavedMarkers([]);
     clearHoverTimer(); clearHideTimer();
   }, [contextKey]);
@@ -122,6 +124,7 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
     setLoading(true);
     try {
       const entries = await refreshInlineEntries();
+      setAnchorEntries(entriesForAnchor(entries.allEntries, nextAnchor));
       setNote(entries.currentUserEntries.find((entry) => entry.id === anchorId(nextAnchor))?.note || "");
       setAnchor(nextAnchor);
     } catch {
@@ -191,6 +194,7 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
         <InlineFeedbackEditor
           anchor={anchor}
           selection={selection}
+          entries={anchorEntries}
           note={note}
           loading={loading}
           saving={saving}

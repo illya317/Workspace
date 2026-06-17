@@ -19,9 +19,13 @@ export interface InlineEntry {
     badgeKind?: string;
   };
   note: string;
+  userName?: string;
+  resolved?: boolean;
 }
 
 export interface InlineFeedbackItem {
+  userName?: string;
+  inlineResolved?: Record<string, boolean>;
   inlineEntries?: InlineEntry[];
 }
 
@@ -84,7 +88,16 @@ export function findAnchorElement(anchorLike: Omit<InlineAnchor, "rect">): Inlin
 }
 
 export function inlineEntriesFromItems(items?: InlineFeedbackItem[]) {
-  return (items || []).flatMap((item) => item.inlineEntries || []);
+  return (items || []).flatMap((item) => (item.inlineEntries || []).map((entry) => ({
+    ...entry,
+    userName: item.userName,
+    resolved: item.inlineResolved?.[entry.id] ?? false,
+  })));
+}
+
+export function entriesForAnchor(entries: InlineEntry[], anchor: Omit<InlineAnchor, "rect">) {
+  const id = anchorId(anchor);
+  return entries.filter((entry) => anchorId(entry.target) === id);
 }
 
 export function markersFromEntries(entries: InlineEntry[]) {

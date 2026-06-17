@@ -1,11 +1,12 @@
 "use client";
 
 import { selectionTitle, type WorkbenchSelection } from "./types";
-import type { InlineAnchor } from "./inline-feedback-utils";
+import type { InlineAnchor, InlineEntry } from "./inline-feedback-utils";
 
 export default function InlineFeedbackEditor({
   anchor,
   selection,
+  entries,
   note,
   loading,
   saving,
@@ -18,6 +19,7 @@ export default function InlineFeedbackEditor({
 }: {
   anchor: InlineAnchor;
   selection: WorkbenchSelection;
+  entries: InlineEntry[];
   note: string;
   loading: boolean;
   saving: boolean;
@@ -49,6 +51,20 @@ export default function InlineFeedbackEditor({
       <div className="mb-2 rounded-md border border-slate-200 bg-slate-50 px-2 py-2 text-[12px] text-slate-600">
         {selectionTitle(selection)}
       </div>
+      {entries.length > 0 ? (
+        <div className="mb-2 max-h-32 space-y-2 overflow-y-auto rounded-md border border-amber-200 bg-amber-50 px-2 py-2">
+          {entries.map((entry, index) => (
+            <div key={`${entry.id}-${index}`} className="text-xs leading-5 text-slate-700">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-semibold text-amber-800">{entry.userName || "未知"}</span>
+                {entry.resolved ? <span className="text-[11px] text-emerald-700">已解决</span> : null}
+              </div>
+              <div className="whitespace-pre-wrap">{entry.note}</div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+      <div className="mb-1 text-xs font-semibold text-slate-500">我的反馈</div>
       <textarea
         value={note}
         onChange={(event) => onNoteChange(event.target.value)}
