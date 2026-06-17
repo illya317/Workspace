@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRWrite } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 const RESOLVERS: Record<string, string> = {
   Employee: "employee", Employment: "employment", Company: "company",
@@ -17,6 +19,7 @@ export async function POST(request: Request) {
   const { historyId } = await request.json();
   if (!historyId) return NextResponse.json({ error: "缺少 historyId" }, { status: 400 });
 
+  const { prisma } = await import("@/lib/prisma");
   const snapshot = await prisma.editHistory.findUnique({ where: { id: historyId } });
   if (!snapshot) return NextResponse.json({ error: "版本不存在" }, { status: 404 });
 
