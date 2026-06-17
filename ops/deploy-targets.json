@@ -4,7 +4,7 @@
     "serverHost": "111.229.86.81",
     "remoteDir": "/home/ubuntu/workspace",
     "pm2Name": "workspace",
-    "workspaceConfigDir": "/home/ubuntu/workspace",
+    "workspaceConfigDir": "/home/ubuntu/workspace/.workspace",
     "requiresWecomUserIds": true
   }
 }

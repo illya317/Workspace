@@ -57,6 +57,10 @@ next-env.d.ts
 /public/company/
 /public/company
 
+# Agent avatar assets live in the external .workspace runtime.
+/public/assets/agent/avatar/
+/public/assets/agent/avatar
+
 # Deployment lock file
 .deploying
 

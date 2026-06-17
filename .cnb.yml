@@ -30,12 +30,22 @@ main:
       imports:
         - https://cnb.cool/illya317/env/-/blob/main/workspace-prod.yml
       env:
-        RUN_LOCAL_CHECKS: "1"
+        RUN_LOCAL_CHECKS: "0"
       stages:
         - name: install-deploy-tools
           script: |
             apt-get update
             DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates python3
+        - name: install-node-deps
+          script: |
+            npm ci --no-audit --fund=false --loglevel=error
+        - name: validate-deploy-input
+          script: |
+            npm run db:validate
+            npm run api:check
+            npm run schema:check
+            npm run company:check
+            npx tsc --noEmit
         - name: deploy-to-server
           script: |
             bash ./ops/deploy.sh

@@ -108,6 +108,7 @@ function resolveWorkspaceDir(serverEnv, repoEnv) {
     serverEnv.get("LOCAL_WORKSPACE_CONFIG_DIR"),
     process.env.WORKSPACE_CONFIG_DIR,
     repoEnv.get("WORKSPACE_CONFIG_DIR"),
+    path.join(ROOT, "..", ".workspace"),
     path.join(process.env.HOME || "", ".workspace"),
   ].filter(Boolean);
 

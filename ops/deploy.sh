@@ -29,11 +29,11 @@ if [ -z "$REMOTE_DIR" ]; then
 fi
 
 if [ -z "$REMOTE_WORKSPACE_CONFIG_DIR" ]; then
-  REMOTE_WORKSPACE_CONFIG_DIR="$(dirname "$REMOTE_DIR")/.workspace"
+  REMOTE_WORKSPACE_CONFIG_DIR="$REMOTE_DIR/.workspace"
 fi
 
 if [ -z "$REMOTE_BACKUP_DIR" ]; then
-  REMOTE_BACKUP_DIR="$(dirname "$REMOTE_DIR")/workspace-runtime-backups"
+  REMOTE_BACKUP_DIR="$REMOTE_DIR/.workspace.backups"
 fi
 
 TMPKEY=""
@@ -68,6 +68,17 @@ hash_cmd() {
   else
     sha256sum
   fi
+}
+
+copy_runtime_package() {
+  local pkg="$1"
+  if [ ! -e "node_modules/$pkg" ]; then
+    echo "[错误] 构建产物缺少运行时依赖: node_modules/$pkg"
+    exit 1
+  fi
+  rm -rf ".next/standalone/node_modules/$pkg"
+  mkdir -p ".next/standalone/node_modules/$(dirname "$pkg")"
+  cp -R "node_modules/$pkg" ".next/standalone/node_modules/$pkg"
 }
 
 run_local_checks() {
@@ -110,6 +121,17 @@ build_artifact() {
   cp -rL public .next/standalone/public
   rm -rf .next/standalone/data
   rm -f .next/standalone/.env
+
+  # Next standalone tracing can leave native/runtime packages as partial shells.
+  # Keep the SQLite adapter stack complete so production does not depend on
+  # bundler internals for database access.
+  for pkg in better-sqlite3 @prisma/adapter-better-sqlite3 @prisma/client .prisma dotenv; do
+    copy_runtime_package "$pkg"
+  done
+
+  test -f .next/standalone/node_modules/better-sqlite3/lib/index.js
+  test -f .next/standalone/node_modules/@prisma/client/default.js
+  test -d .next/standalone/node_modules/.prisma/client
 
   ARTIFACT_PATH=".next/workspace-standalone.tgz"
   rm -f "$ARTIFACT_PATH"
@@ -231,25 +253,25 @@ deploy_remote_artifact() {
   ssh_cmd "
     set -e
     mkdir -p '$REMOTE_DIR/releases'
-    find '$REMOTE_DIR' -mindepth 1 -maxdepth 1 ! -name releases -exec rm -rf {} +
+    find '$REMOTE_DIR' -mindepth 1 -maxdepth 1 ! -name releases ! -name .workspace ! -name .workspace.backups -exec rm -rf {} +
     release_dir='$REMOTE_DIR/releases/$release_id'
     rm -rf \"\$release_dir\"
     mkdir -p \"\$release_dir\"
     tar -xzf '$remote_tar' -C \"\$release_dir\"
     rm -f '$remote_tar'
 
-    ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/.env' \"\$release_dir/.env\"
+    ln -sfn '../../.workspace/.env' \"\$release_dir/.env\"
     rm -rf \"\$release_dir/data\"
 
     if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' ]; then
       rm -rf \"\$release_dir/public/company\"
-      ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' \"\$release_dir/public/company\"
+      ln -sfn '../../../.workspace/assets/brand/company' \"\$release_dir/public/company\"
     fi
 
     if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/agent/avatar' ]; then
       mkdir -p \"\$release_dir/public/assets/agent\"
       rm -rf \"\$release_dir/public/assets/agent/avatar\"
-      ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/assets/agent/avatar' \"\$release_dir/public/assets/agent/avatar\"
+      ln -sfn '../../../../../.workspace/assets/agent/avatar' \"\$release_dir/public/assets/agent/avatar\"
     fi
 
     grep -q '^WORKSPACE_CONFIG_DIR=' \"\$release_dir/.env\"
@@ -257,7 +279,11 @@ deploy_remote_artifact() {
 
     pm2 delete '$PM2_NAME' 2>/dev/null || true
     cd \"\$release_dir\"
-    pm2 start server.js --name '$PM2_NAME' --cwd \"\$release_dir\"
+    set -a
+    . \"\$release_dir/.env\"
+    set +a
+    export NODE_ENV=production
+    pm2 start server.js --name '$PM2_NAME' --cwd \"\$release_dir\" --update-env
     pm2 save
     ln -sfn \"\$release_dir\" '$REMOTE_DIR/current'
     find '$REMOTE_DIR/releases' -mindepth 1 -maxdepth 1 -type d | sort -r | tail -n +6 | xargs -r rm -rf

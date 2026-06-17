@@ -21,7 +21,7 @@ variables:
   - key: PM2_NAME
     value: workspace
   - key: REMOTE_WORKSPACE_CONFIG_DIR
-    value: /home/ubuntu/.workspace
+    value: /home/ubuntu/workspace/.workspace
   - key: RUN_LOCAL_CHECKS
     value: "1"
 

@@ -14,6 +14,7 @@ usage() {
   --assets      同时拉取 assets/，默认只拉 data/
   --no-delete   不删除本地多余文件，默认按服务器镜像清理 data/
   --no-check    同步后不运行 npm run workspace:check
+  --no-public   不刷新本地 public 里的 logo/avatar 预览资产
 EOF
 }
 
@@ -21,6 +22,7 @@ DRY_RUN=0
 INCLUDE_ASSETS=0
 DELETE_REMOTE_REMOVED=1
 RUN_WORKSPACE_CHECK="${RUN_WORKSPACE_CHECK:-1}"
+SYNC_PUBLIC_ASSETS=1
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -28,6 +30,7 @@ while [ "$#" -gt 0 ]; do
     --assets) INCLUDE_ASSETS=1 ;;
     --no-delete) DELETE_REMOTE_REMOVED=0 ;;
     --no-check) RUN_WORKSPACE_CHECK=0 ;;
+    --no-public) SYNC_PUBLIC_ASSETS=0 ;;
     -h|--help) usage; exit 0 ;;
     *) echo "[错误] 未知参数: $1"; usage; exit 1 ;;
   esac
@@ -46,11 +49,12 @@ target_value() {
 TARGET_HOST="$(target_value serverHost)"
 TARGET_REMOTE_DIR="$(target_value remoteDir)"
 TARGET_WORKSPACE_CONFIG_DIR="$(target_value workspaceConfigDir)"
+DEFAULT_LOCAL_WORKSPACE_CONFIG_DIR="$(cd .. && pwd -P)/.workspace"
 
 SERVER="${SERVER:-}"
 REMOTE_DIR="${REMOTE_DIR:-$TARGET_REMOTE_DIR}"
 REMOTE_WORKSPACE_CONFIG_DIR="${REMOTE_WORKSPACE_CONFIG_DIR:-$TARGET_WORKSPACE_CONFIG_DIR}"
-LOCAL_WORKSPACE_CONFIG_DIR="${LOCAL_WORKSPACE_CONFIG_DIR:-${WORKSPACE_CONFIG_DIR:-$HOME/.workspace}}"
+LOCAL_WORKSPACE_CONFIG_DIR="${LOCAL_WORKSPACE_CONFIG_DIR:-${WORKSPACE_CONFIG_DIR:-$DEFAULT_LOCAL_WORKSPACE_CONFIG_DIR}}"
 
 if [ -z "$SERVER" ]; then
   echo "[错误] 缺少 SERVER。请配置 ops/server.env.sh 或环境变量 SERVER。"
@@ -63,7 +67,7 @@ if [ -z "$REMOTE_DIR" ]; then
 fi
 
 if [ -z "$REMOTE_WORKSPACE_CONFIG_DIR" ]; then
-  REMOTE_WORKSPACE_CONFIG_DIR="$(dirname "$REMOTE_DIR")/.workspace"
+  REMOTE_WORKSPACE_CONFIG_DIR="$REMOTE_DIR/.workspace"
 fi
 
 if [ ! -d "$LOCAL_WORKSPACE_CONFIG_DIR" ]; then
@@ -104,8 +108,17 @@ ssh_cmd() {
   ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new "$SERVER" "$@"
 }
 
+relative_link_target() {
+  python3 - "$1" "$2" <<'PY'
+import os
+import sys
+
+print(os.path.relpath(sys.argv[1], os.path.dirname(sys.argv[2])))
+PY
+}
+
 rsync_ssh=(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new)
-rsync_flags=(-az --info=stats2,progress2)
+rsync_flags=(-az --stats --progress)
 if [ "$DELETE_REMOTE_REMOVED" = "1" ]; then
   rsync_flags+=(--delete)
 fi
@@ -143,6 +156,14 @@ if [ "$INCLUDE_ASSETS" = "1" ]; then
   rsync "${rsync_flags[@]}" -e "${rsync_ssh[*]}" \
     "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/assets/" \
     "$LOCAL_WORKSPACE_CONFIG_DIR/assets/"
+fi
+
+if [ "$DRY_RUN" = "0" ] && [ "$SYNC_PUBLIC_ASSETS" = "1" ]; then
+  echo "==> 链接本地 public 预览资产..."
+  rm -rf public/company public/assets/agent/avatar
+  mkdir -p public/assets/agent
+  ln -s "$(relative_link_target "$LOCAL_WORKSPACE_CONFIG_DIR/assets/brand/company" public/company)" public/company
+  ln -s "$(relative_link_target "$LOCAL_WORKSPACE_CONFIG_DIR/assets/agent/avatar" public/assets/agent/avatar)" public/assets/agent/avatar
 fi
 
 if [ "$DRY_RUN" = "0" ] && [ "$RUN_WORKSPACE_CHECK" = "1" ]; then
