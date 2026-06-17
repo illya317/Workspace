@@ -9,7 +9,21 @@ import AgentPanel from "./AgentPanel";
 import AgentConfirmModal from "./AgentConfirmModal";
 import { stripAgentBasePath, withAgentBasePath } from "./paths";
 
-const PUBLIC_PATHS = new Set(["/", "/login"]);
+const PUBLIC_PATHS = new Set(["/login"]);
+
+function canUseAgentFromUser(data: unknown): boolean {
+  const user = (data as { user?: {
+    visibleResourceKeys?: string[];
+    visibleWriteResourceKeys?: string[];
+    manageableResourceKeys?: string[];
+  } } | null)?.user;
+  const keys = [
+    ...(user?.visibleResourceKeys ?? []),
+    ...(user?.visibleWriteResourceKeys ?? []),
+    ...(user?.manageableResourceKeys ?? []),
+  ];
+  return keys.includes("system.agent");
+}
 
 export default function AgentProvider() {
   const pathname = usePathname();
@@ -33,10 +47,14 @@ export default function AgentProvider() {
 
     let cancelled = false;
     fetch(withAgentBasePath("/api/agent/capabilities"))
-      .then((r) => r.ok ? r.json() : null)
+      .then(async (r) => {
+        if (r.ok) return r.json();
+        const me = await fetch(withAgentBasePath("/api/auth/me"));
+        return me.ok ? me.json() : null;
+      })
       .then((d) => {
         if (cancelled) return;
-        setEnabled(Array.isArray(d?.capabilities));
+        setEnabled(Array.isArray(d?.capabilities) || canUseAgentFromUser(d));
       })
       .catch(() => {
         if (!cancelled) setEnabled(false);
