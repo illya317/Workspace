@@ -112,12 +112,23 @@ echo "==> 生产服务器: $SERVER"
 echo "==> 本地配置: $LOCAL_CONFIG_ROOT"
 echo "==> 远端配置: $REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops"
 
+if [ "$DRY_RUN" = "0" ]; then
+  echo "==> 生成本地 QC 模板缓存..."
+  WORKSPACE_CONFIG_DIR="$LOCAL_WORKSPACE_CONFIG_DIR" npm run qc:cache:build
+fi
+
 ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new "$SERVER" \
-  "mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops'"
+  "mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops' '$REMOTE_WORKSPACE_CONFIG_DIR/cache/production/qc'"
 
 rsync "${rsync_flags[@]}" -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
   "$LOCAL_CONFIG_ROOT/" \
   "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops/"
+
+if [ "$DRY_RUN" = "0" ] && [ -d "$LOCAL_WORKSPACE_CONFIG_DIR/cache/production/qc" ]; then
+  rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+    "$LOCAL_WORKSPACE_CONFIG_DIR/cache/production/qc/" \
+    "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/cache/production/qc/"
+fi
 
 if [ "$DRY_RUN" = "0" ]; then
   ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new "$SERVER" "

@@ -1,5 +1,9 @@
-export { getQcConfigOverview } from "./overview";
-export { getQcTemplateDetail } from "./record-structure";
+export {
+  buildQcTemplateCache,
+  getQcConfigOverviewCached as getQcConfigOverview,
+  getQcTemplateDetail,
+  getQcTemplateSummaries,
+} from "./template-cache";
 export {
   createQcBatch,
   deleteQcBatch,

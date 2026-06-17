@@ -206,7 +206,7 @@ async function toStage(
   };
 }
 
-export async function getQcTemplateDetail(templateId: string): Promise<QcTemplateDetail> {
+export async function getQcTemplateDetailFromConfig(templateId: string): Promise<QcTemplateDetail> {
   if (!TEMPLATE_ID_PATTERN.test(templateId)) {
     throw new Error("Invalid QC template id");
   }

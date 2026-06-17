@@ -1,7 +1,7 @@
 import "server-only";
 import path from "path";
 import { mkdir, readFile, writeFile } from "fs/promises";
-import { getQcTemplateDetail } from "./record-structure";
+import { getQcTemplateDetail } from "./template-cache";
 import { qcRuntimeDataPath } from "./runtime-data-path";
 import type { QcBatchCreateInput, QcBatchList, QcBatchSummary, QcBatchStatus } from "./types";
 

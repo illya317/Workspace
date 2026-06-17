@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import type { QcTemplateDetail, QcTemplateFeedbackState } from "@/server/services/production/qc";
 import TemplateFeedbackModal from "./template-workbench/TemplateFeedbackModal";
 import TemplatePreviewModal from "./template-workbench/TemplatePreviewModal";
@@ -25,8 +25,11 @@ export default function QcTemplateWorkbench({ templates, feedbackStates }: Props
   const [query, setQuery] = useState("");
   const [activeProduct, setActiveProduct] = useState("all");
   const [preview, setPreview] = useState<WorkbenchSelection | null>(null);
+  const [previewLoading, setPreviewLoading] = useState("");
+  const [previewError, setPreviewError] = useState("");
   const [feedback, setFeedback] = useState<FeedbackTarget | null>(null);
   const [knownFeedbackStates, setKnownFeedbackStates] = useState(feedbackStates);
+  const detailCache = useRef(new Map<string, QcTemplateDetail>());
   const firstStageKey = templates[0]?.stages[0] ? `${templates[0].id}:${templates[0].stages[0].key}` : "";
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set(firstStageKey ? [firstStageKey] : []));
   const keyword = query.trim().toLowerCase();
@@ -55,6 +58,34 @@ export default function QcTemplateWorkbench({ templates, feedbackStates }: Props
     });
   }
 
+  async function loadTemplateDetail(templateId: string) {
+    const cached = detailCache.current.get(templateId);
+    if (cached) return cached;
+    const response = await fetch(`/workspace/api/production/qc/templates/${encodeURIComponent(templateId)}`);
+    if (!response.ok) throw new Error("模板详情加载失败");
+    const body = await response.json() as { data?: QcTemplateDetail };
+    if (!body.data) throw new Error("模板详情为空");
+    detailCache.current.set(templateId, body.data);
+    return body.data;
+  }
+
+  async function openPreview(selection: WorkbenchSelection) {
+    const loadingKey = `${selection.template.id}:${selection.stage.key}:${selection.kind}:${selection.test?.englishName || ""}`;
+    setPreviewLoading(loadingKey);
+    setPreviewError("");
+    try {
+      const detail = await loadTemplateDetail(selection.template.id);
+      const stage = detail.stages.find((item) => item.key === selection.stage.key) || detail.stages[selection.stageIndex];
+      const test = selection.test && stage?.tests.find((item) => item.englishName === selection.test?.englishName);
+      if (!stage) throw new Error("模板阶段不存在");
+      setPreview({ template: detail, stage, stageIndex: selection.stageIndex, kind: selection.kind, test });
+    } catch (error) {
+      setPreviewError(error instanceof Error ? error.message : "模板详情加载失败");
+    } finally {
+      setPreviewLoading("");
+    }
+  }
+
   return (
     <section className="grid gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
       <aside className="rounded-lg border border-slate-200 bg-white p-3">
@@ -74,6 +105,7 @@ export default function QcTemplateWorkbench({ templates, feedbackStates }: Props
         <div className="flex flex-wrap gap-3">
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索产品、阶段、项目" className="h-10 min-w-[260px] flex-1 rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-emerald-600" />
         </div>
+        {previewError && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{previewError}</div>}
         {visibleTemplates.map((template) => (
           <article key={template.id} className="space-y-3">
             <div className="flex items-start justify-between">
@@ -94,8 +126,9 @@ export default function QcTemplateWorkbench({ templates, feedbackStates }: Props
                 keyword={keyword}
                 expanded={expandedStages.has(`${template.id}:${stage.key}`)}
                 feedbackStates={knownFeedbackStates}
+                previewLoadingKey={previewLoading}
                 onToggle={() => toggleStage(template.id, stage.key)}
-                onPreview={setPreview}
+                onPreview={(selection) => { void openPreview(selection); }}
                 onFeedback={setFeedback}
               />
             ))}

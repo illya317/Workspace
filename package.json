@@ -30,6 +30,7 @@
     "workspace:check": "node scripts/check/check-workspace-runtime.js",
     "workspace:pull": "bash ops/sync-runtime-from-server.sh",
     "workspace:push-config": "bash ops/sync-config-to-server.sh",
+    "qc:cache:build": "npx tsx scripts/build-qc-template-cache.ts",
     "schema:check": "node scripts/check/check-schema-governance.js",
     "api:check": "node scripts/check/check-api-routes.js",
     "docs:check": "node scripts/check/check-architecture-docs.js",

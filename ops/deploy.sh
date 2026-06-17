@@ -297,6 +297,19 @@ deploy_remote_artifact() {
     set +a
     export NODE_ENV=production
     pm2 start server.js --name '$PM2_NAME' --cwd \"\$release_dir\" --update-env
+    qc_cache_ready=0
+    for i in \$(seq 1 20); do
+      if curl -fsS -X POST -H \"x-qc-cache-warmup: \$NEXTAUTH_SECRET\" 'http://127.0.0.1:3000/workspace/api/production/qc/cache' >/dev/null; then
+        qc_cache_ready=1
+        break
+      fi
+      sleep 1
+    done
+    if [ \"\$qc_cache_ready\" != \"1\" ]; then
+      echo '[错误] QC 模板缓存预热失败'
+      pm2 logs '$PM2_NAME' --lines 80 --nostream || true
+      exit 1
+    fi
     pm2 save
     ln -sfn \"\$release_dir\" '$REMOTE_DIR/current'
     find '$REMOTE_DIR/releases' -mindepth 1 -maxdepth 1 -type d | sort -r | tail -n +6 | xargs -r rm -rf

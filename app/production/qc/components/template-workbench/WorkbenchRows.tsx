@@ -18,6 +18,7 @@ interface StageRowsProps {
   keyword: string;
   expanded: boolean;
   feedbackStates: Record<string, QcTemplateFeedbackState>;
+  previewLoadingKey?: string;
   onToggle: () => void;
   onPreview: (selection: WorkbenchSelection) => void;
   onFeedback: (target: FeedbackTarget) => void;
@@ -60,6 +61,7 @@ function TemplateRow({
   description,
   inset,
   feedbackState,
+  previewLoading,
   onPreview,
   onFeedback,
 }: {
@@ -68,6 +70,7 @@ function TemplateRow({
   description: string;
   inset?: boolean;
   feedbackState?: QcTemplateFeedbackState;
+  previewLoading?: boolean;
   onPreview: () => void;
   onFeedback: () => void;
 }) {
@@ -82,7 +85,7 @@ function TemplateRow({
       </div>
       <div className="flex shrink-0 gap-2">
         <ActionButton state={feedbackState} onClick={onFeedback}>反馈</ActionButton>
-        <ActionButton onClick={onPreview}>预览</ActionButton>
+        <ActionButton onClick={onPreview}>{previewLoading ? "加载中" : "预览"}</ActionButton>
       </div>
     </div>
   );
@@ -134,6 +137,7 @@ export default function StageRows({
   keyword,
   expanded,
   feedbackStates,
+  previewLoadingKey,
   onToggle,
   onPreview,
   onFeedback,
@@ -161,6 +165,10 @@ export default function StageRows({
     return feedbackStates[feedbackKey(feedbackContext(selection))];
   }
 
+  function previewKey(selection: WorkbenchSelection) {
+    return `${selection.template.id}:${selection.stage.key}:${selection.kind}:${selection.test?.englishName || ""}`;
+  }
+
   return (
     <section className="overflow-hidden rounded-lg border border-slate-200 bg-white">
       <button onClick={onToggle} className="flex w-full items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-3 text-left">
@@ -177,6 +185,7 @@ export default function StageRows({
             title="检验前确认"
             description="L1 模块 · YAML 文件清单 / 确认项 / 环境确认"
             feedbackState={feedbackState(select("precheck"))}
+            previewLoading={previewLoadingKey === previewKey(select("precheck"))}
             onPreview={() => onPreview(select("precheck"))}
             onFeedback={() => feedback(select("precheck"))}
           />
@@ -185,6 +194,7 @@ export default function StageRows({
             title="实验项目"
             description={`L1 模块 · ${stage.tests.length} 个项目`}
             feedbackState={feedbackState(select("experiment"))}
+            previewLoading={previewLoadingKey === previewKey(select("experiment"))}
             onPreview={() => onPreview(select("experiment"))}
             onFeedback={() => feedback(select("experiment"))}
           />
@@ -196,6 +206,7 @@ export default function StageRows({
               description={`${test.methodName || "未配置方法"} · ${test.layout?.templateId || "未映射组件"}`}
               inset
               feedbackState={feedbackState(select("test", test))}
+              previewLoading={previewLoadingKey === previewKey(select("test", test))}
               onPreview={() => onPreview(select("test", test))}
               onFeedback={() => feedback(select("test", test))}
             />

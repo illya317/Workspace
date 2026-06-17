@@ -90,3 +90,6 @@ __pycache__/
 
 # Runtime pharma-ops JSON config lives in ../.workspace/config/pharma-ops.
 /config/pharma-ops/**/*.json
+
+# Generated runtime caches
+/cache/

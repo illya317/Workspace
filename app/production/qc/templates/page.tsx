@@ -1,5 +1,5 @@
 import { requireResourceAccess } from "@/server/auth/guard";
-import { getQcConfigOverview, getQcTemplateDetail, listQcTemplateFeedback } from "@/server/services/production/qc";
+import { getQcTemplateSummaries, listQcTemplateFeedback } from "@/server/services/production/qc";
 import QcModuleShell from "../components/QcModuleShell";
 import QcTemplateWorkbench from "../components/QcTemplateWorkbench";
 
@@ -8,11 +8,10 @@ export const revalidate = 0;
 
 export default async function QcTemplatesPage() {
   const user = await requireResourceAccess("production.qc.templates");
-  const [overview, feedback] = await Promise.all([
-    getQcConfigOverview(),
+  const [templates, feedback] = await Promise.all([
+    getQcTemplateSummaries(),
     listQcTemplateFeedback(),
   ]);
-  const templates = await Promise.all(overview.recordTemplates.map((template) => getQcTemplateDetail(template.id)));
 
   return (
     <QcModuleShell
