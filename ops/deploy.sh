@@ -30,9 +30,15 @@ fi
 
 if [ -z "$REMOTE_WORKSPACE_CONFIG_DIR" ]; then
   REMOTE_WORKSPACE_CONFIG_DIR="$REMOTE_DIR/.workspace"
+elif [ "$REMOTE_WORKSPACE_CONFIG_DIR" != "$REMOTE_DIR/.workspace" ]; then
+  echo "[警告] REMOTE_WORKSPACE_CONFIG_DIR 已统一为 $REMOTE_DIR/.workspace，忽略旧值: $REMOTE_WORKSPACE_CONFIG_DIR"
+  REMOTE_WORKSPACE_CONFIG_DIR="$REMOTE_DIR/.workspace"
 fi
 
 if [ -z "$REMOTE_BACKUP_DIR" ]; then
+  REMOTE_BACKUP_DIR="$REMOTE_DIR/.workspace.backups"
+elif [ "$REMOTE_BACKUP_DIR" != "$REMOTE_DIR/.workspace.backups" ]; then
+  echo "[警告] REMOTE_BACKUP_DIR 已统一为 $REMOTE_DIR/.workspace.backups，忽略旧值: $REMOTE_BACKUP_DIR"
   REMOTE_BACKUP_DIR="$REMOTE_DIR/.workspace.backups"
 fi
 
