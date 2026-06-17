@@ -87,3 +87,6 @@ prisma/dev.db
 # Python
 __pycache__/
 *.swp
+
+# Runtime pharma-ops JSON config lives in ../.workspace/config/pharma-ops.
+/config/pharma-ops/**/*.json

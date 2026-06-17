@@ -33,6 +33,10 @@ async function readGitMetadata(root: string): Promise<Pick<QcSourceStatus, "gitA
 
 export async function resolvePharmaOpsRoot() {
   const cwd = process.cwd();
+  const workspaceConfigDir = process.env.WORKSPACE_CONFIG_DIR?.trim() || undefined;
+  const workspaceConfigRoot = workspaceConfigDir
+    ? path.join(workspaceConfigDir, "config", "pharma-ops")
+    : undefined;
   const localRoots = [
     cwd,
     // Production runs from .next/standalone while rsync keeps repo files two levels up.
@@ -48,6 +52,9 @@ export async function resolvePharmaOpsRoot() {
   const candidates = [
     ...(process.env.WORKSPACE_QC_CONFIG_ROOT
       ? [{ root: path.dirname(process.env.WORKSPACE_QC_CONFIG_ROOT), configRoot: process.env.WORKSPACE_QC_CONFIG_ROOT }]
+      : []),
+    ...(workspaceConfigDir && workspaceConfigRoot
+      ? [{ root: workspaceConfigDir, configRoot: workspaceConfigRoot }]
       : []),
     ...localSnapshots,
     ...externalRoots.map((root) => ({ root, configRoot: path.join(root, "config") })),
@@ -65,8 +72,8 @@ export async function resolvePharmaOpsRoot() {
   const root = localSnapshots[0]?.root ?? cwd;
   return {
     root,
-    configRoot: localSnapshots[0]?.configRoot ?? path.join(root, "config", "pharma-ops"),
+    configRoot: workspaceConfigRoot ?? localSnapshots[0]?.configRoot ?? path.join(root, "config", "pharma-ops"),
     available: false,
-    message: "未找到 config/pharma-ops，请设置 WORKSPACE_QC_CONFIG_ROOT 或 PHARMA_OPS_ROOT。",
+    message: "未找到 pharma-ops 配置，请检查 WORKSPACE_CONFIG_DIR/config/pharma-ops 或设置 WORKSPACE_QC_CONFIG_ROOT。",
   };
 }
