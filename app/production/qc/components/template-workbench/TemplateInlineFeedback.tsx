@@ -8,6 +8,8 @@ import {
   editorStyle,
   findAnchorElement,
   HIDE_DELAY_MS,
+  inlineEntriesFromItems,
+  markersFromEntries,
   markerStyle,
   readAnchor,
   type FeedbackResponse,
@@ -50,16 +52,18 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
     try {
       const response = await fetch(`/workspace/api/production/qc/template-feedback?key=${encodeURIComponent(contextKey)}`);
       const body = await response.json() as FeedbackResponse;
-      setSavedEntries(body.data?.inlineEntries || []);
-      return body.data?.inlineEntries || [];
+      const allEntries = inlineEntriesFromItems(body.items);
+      const currentUserEntries = body.data?.inlineEntries || [];
+      setSavedEntries(allEntries);
+      return { allEntries, currentUserEntries };
     } catch {
       setSavedEntries([]);
-      return [];
+      return { allEntries: [], currentUserEntries: [] };
     }
   }, [contextKey]);
 
   function syncSavedMarkers(entries: InlineEntry[]) {
-    setSavedMarkers(entries.map((entry) => findAnchorElement(entry.target)).filter((value): value is InlineAnchor => Boolean(value)));
+    setSavedMarkers(markersFromEntries(entries));
   }
 
   function isSavedAnchor(candidate: Omit<InlineAnchor, "rect"> | null) {
@@ -71,7 +75,8 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
   }
 
   useEffect(() => {
-    setAnchor(null); setEditorOpen(false); setNote(""); setError(""); setSavedEntries([]); setSavedMarkers([]);
+    setAnchor(null); setEditorOpen(false); setNote(""); setError("");
+    setSavedEntries([]); setSavedMarkers([]);
     clearHoverTimer(); clearHideTimer();
   }, [contextKey]);
 
@@ -117,7 +122,7 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
     setLoading(true);
     try {
       const entries = await refreshInlineEntries();
-      setNote(entries.find((entry) => entry.id === anchorId(nextAnchor))?.note || "");
+      setNote(entries.currentUserEntries.find((entry) => entry.id === anchorId(nextAnchor))?.note || "");
       setAnchor(nextAnchor);
     } catch {
       setError("读取反馈失败");
@@ -139,9 +144,7 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
       });
       const body = await response.json() as FeedbackResponse;
       if (!response.ok) throw new Error(body.error || "保存失败");
-      const nextEntries = body.data?.inlineEntries || [];
-      setSavedEntries(nextEntries);
-      syncSavedMarkers(nextEntries);
+      await refreshInlineEntries();
       onSaved?.(body.keys || []);
       setEditorOpen(false);
       setAnchor(null);

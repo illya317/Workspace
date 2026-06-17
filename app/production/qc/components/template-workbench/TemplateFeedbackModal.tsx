@@ -21,23 +21,51 @@ interface Props {
 }
 
 interface FeedbackResponse {
+  data?: QcTemplateFeedbackItem;
   items?: QcTemplateFeedbackItem[];
+  list?: { states?: Record<string, QcTemplateFeedbackState> };
   error?: string;
 }
 
 const SECTION_LABELS: Array<[FeedbackFieldKey, string]> = FEEDBACK_FIELDS.map((field) => [field.key, field.label]);
 
-function feedbackContent(item: QcTemplateFeedbackItem) {
-  const sectionLines = SECTION_LABELS
-    .map(([key, label]) => {
+interface FeedbackRow {
+  id: string;
+  item: QcTemplateFeedbackItem;
+  targetType: "section" | "inline";
+  targetId: string;
+  content: string;
+  resolved: boolean;
+}
+
+function isRowResolved(item: QcTemplateFeedbackItem, targetType: "section" | "inline", targetId: string) {
+  if (targetType === "section") return item.sectionResolved?.[targetId as FeedbackFieldKey] ?? item.resolved === true;
+  return item.inlineResolved?.[targetId] ?? item.resolved === true;
+}
+
+function feedbackRows(items: QcTemplateFeedbackItem[]): FeedbackRow[] {
+  return items.flatMap((item) => {
+    const sectionRows = SECTION_LABELS.flatMap(([key, label]) => {
       const value = item.sections?.[key]?.trim();
-      return value ? `${label}：${value}` : "";
-    })
-    .filter(Boolean);
-  const inlineLines = (item.inlineEntries || [])
-    .map((entry) => `${entry.target.label}：${entry.note}`)
-    .filter(Boolean);
-  return [...sectionLines, ...inlineLines].join("\n") || item.note || "无内容";
+      return value ? [{
+        id: `${item.key}:section:${key}`,
+        item,
+        targetType: "section" as const,
+        targetId: key,
+        content: `${label}：${value}`,
+        resolved: isRowResolved(item, "section", key),
+      }] : [];
+    });
+    const inlineRows = (item.inlineEntries || []).map((entry) => ({
+      id: `${item.key}:inline:${entry.id}`,
+      item,
+      targetType: "inline" as const,
+      targetId: entry.id,
+      content: `${entry.target.label}：${entry.note}`,
+      resolved: isRowResolved(item, "inline", entry.id),
+    }));
+    return [...sectionRows, ...inlineRows];
+  });
 }
 
 export default function TemplateFeedbackModal({ target, onClose, onSaved }: Props) {
@@ -46,6 +74,7 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
   const [resolvingKey, setResolvingKey] = useState("");
   const [error, setError] = useState("");
   const key = useMemo(() => target ? feedbackKey(target.context) : "", [target]);
+  const rows = useMemo(() => feedbackRows(items), [items]);
 
   useEffect(() => {
     if (!target) return;
@@ -63,18 +92,23 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
 
   if (!target) return null;
 
-  async function setResolved(item: QcTemplateFeedbackItem, resolved: boolean) {
-    setResolvingKey(item.key);
+  async function setResolved(row: FeedbackRow, resolved: boolean) {
+    setResolvingKey(row.id);
     setError("");
     try {
       const response = await fetch("/workspace/api/production/qc/template-feedback", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ key: item.key, resolved }),
+        body: JSON.stringify({
+          key: row.item.key,
+          resolved,
+          targetType: row.targetType,
+          targetId: row.targetId,
+        }),
       });
-      const body = await response.json() as FeedbackResponse & { list?: { states?: Record<string, QcTemplateFeedbackState> } };
+      const body = await response.json() as FeedbackResponse;
       if (!response.ok) throw new Error(body.error || "更新失败");
-      setItems((current) => current.map((entry) => entry.key === item.key ? { ...entry, resolved } : entry));
+      if (body.data) setItems((current) => current.map((entry) => entry.key === body.data?.key ? body.data : entry));
       if (body.list?.states) onSaved(body.list.states);
     } catch (err) {
       setError(err instanceof Error ? err.message : "更新失败");
@@ -97,7 +131,7 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
           <section className="space-y-2">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-slate-900">全部反馈</h3>
-              <span className="text-xs text-slate-500">{loading ? "读取中" : `${items.length} 条`}</span>
+              <span className="text-xs text-slate-500">{loading ? "读取中" : `${rows.length} 条`}</span>
             </div>
             <div className="overflow-hidden rounded-lg border border-slate-200">
               <div className="grid grid-cols-[120px_minmax(0,1fr)_120px] bg-slate-50 text-xs font-semibold text-slate-500">
@@ -105,18 +139,18 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
                 <div className="border-r border-slate-200 px-3 py-2">反馈内容</div>
                 <div className="px-3 py-2 text-center">已解决</div>
               </div>
-              {items.length === 0 ? (
+              {rows.length === 0 ? (
                 <div className="px-3 py-6 text-center text-sm text-slate-500">暂无反馈。</div>
-              ) : items.map((item) => (
-                <div key={item.key} className="grid grid-cols-[120px_minmax(0,1fr)_120px] border-t border-slate-200 text-sm">
-                  <div className="border-r border-slate-200 px-3 py-3 font-medium text-slate-800">{item.userName || "未知"}</div>
-                  <div className="whitespace-pre-wrap border-r border-slate-200 px-3 py-3 leading-6 text-slate-700">{feedbackContent(item)}</div>
+              ) : rows.map((row) => (
+                <div key={row.id} className="grid grid-cols-[120px_minmax(0,1fr)_120px] border-t border-slate-200 text-sm">
+                  <div className="border-r border-slate-200 px-3 py-3 font-medium text-slate-800">{row.item.userName || "未知"}</div>
+                  <div className="whitespace-pre-wrap border-r border-slate-200 px-3 py-3 leading-6 text-slate-700">{row.content}</div>
                   <label className="flex items-center justify-center gap-2 px-3 py-3 text-slate-700">
                     <input
                       type="checkbox"
-                      checked={item.resolved === true}
-                      disabled={resolvingKey === item.key}
-                      onChange={(event) => setResolved(item, event.target.checked)}
+                      checked={row.resolved}
+                      disabled={resolvingKey === row.id}
+                      onChange={(event) => setResolved(row, event.target.checked)}
                       className="h-4 w-4 accent-emerald-600"
                     />
                     <span>已解决</span>

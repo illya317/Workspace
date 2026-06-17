@@ -56,6 +56,8 @@ export interface QcTemplateFeedbackItem {
   note: string;
   sections?: QcTemplateFeedbackSections;
   inlineEntries?: QcTemplateInlineFeedbackEntry[];
+  sectionResolved?: Partial<Record<QcTemplateFeedbackSectionKey, boolean>>;
+  inlineResolved?: Record<string, boolean>;
   resolved?: boolean;
   resolvedAt?: string;
   resolvedBy?: string;

@@ -21,8 +21,13 @@ export interface InlineEntry {
   note: string;
 }
 
+export interface InlineFeedbackItem {
+  inlineEntries?: InlineEntry[];
+}
+
 export interface FeedbackResponse {
   data?: { inlineEntries?: InlineEntry[] } | null;
+  items?: InlineFeedbackItem[];
   keys?: string[];
   error?: string;
 }
@@ -76,6 +81,22 @@ export function findAnchorElement(anchorLike: Omit<InlineAnchor, "rect">): Inlin
     if (anchor && anchorId(anchor) === anchorId(anchorLike)) return anchor;
   }
   return null;
+}
+
+export function inlineEntriesFromItems(items?: InlineFeedbackItem[]) {
+  return (items || []).flatMap((item) => item.inlineEntries || []);
+}
+
+export function markersFromEntries(entries: InlineEntry[]) {
+  const seen = new Set<string>();
+  return entries.flatMap((entry) => {
+    const marker = findAnchorElement(entry.target);
+    if (!marker) return [];
+    const id = anchorId(marker);
+    if (seen.has(id)) return [];
+    seen.add(id);
+    return [marker];
+  });
 }
 
 export function markerStyle(rect: DOMRect) {

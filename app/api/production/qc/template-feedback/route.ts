@@ -56,6 +56,9 @@ export const PATCH = withAuth(async (request, user) => {
     const item = await updateQcTemplateFeedbackResolved(key, data.resolved === true, {
       userId: user.userId,
       userName: user.name,
+    }, {
+      type: data.targetType === "section" || data.targetType === "inline" ? data.targetType : undefined,
+      id: String(data.targetId ?? "").trim() || undefined,
     });
     return NextResponse.json({ data: item, list: await listQcTemplateFeedback() });
   } catch (error) {

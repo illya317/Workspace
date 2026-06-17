@@ -1,5 +1,7 @@
 import "server-only";
 import {
+  allFeedbackLinesResolved,
+  FEEDBACK_SECTION_LABELS,
   feedbackStates,
   hydrateItem,
   inlineEntryId,
@@ -16,7 +18,6 @@ import {
 import type {
   QcTemplateFeedbackContext,
   QcTemplateFeedbackItem,
-  QcTemplateInlineFeedbackEntry,
   QcTemplateFeedbackList,
 } from "./types";
 
@@ -24,6 +25,8 @@ interface FeedbackAuthor {
   userId: number;
   userName: string;
 }
+
+interface ResolveTarget { type?: "section" | "inline"; id?: string }
 
 export function qcTemplateFeedbackKey(context: QcTemplateFeedbackContext) {
   return [
@@ -78,6 +81,11 @@ export async function saveQcTemplateFeedback(
   const store = await readStore();
   const index = store.items.findIndex((item) => item.key === key);
   const legacyIndex = store.items.findIndex((item) => !item.contextKey && item.key === contextKey);
+  const existing = hydrateItem(index >= 0 ? store.items[index] : legacyIndex >= 0 ? store.items[legacyIndex] : {
+    key, contextKey, context, userId: author.userId, userName: author.userName,
+    note: "", sections: normalizeSections(null), inlineEntries: [],
+    updatedAt: new Date().toISOString(),
+  } as QcTemplateFeedbackItem);
 
   const hasContent = Object.values(sections).some(Boolean);
   if (!hasContent) {
@@ -91,6 +99,14 @@ export async function saveQcTemplateFeedback(
     return null;
   }
 
+  const sectionResolved = { ...(existing.sectionResolved || {}) };
+  for (const [sectionKey] of FEEDBACK_SECTION_LABELS) {
+    const nextValue = sections[sectionKey];
+    const previousValue = existing.sections?.[sectionKey];
+    if (!nextValue) delete sectionResolved[sectionKey];
+    else if (nextValue !== previousValue) sectionResolved[sectionKey] = false;
+  }
+
   const item: QcTemplateFeedbackItem = {
     key,
     contextKey,
@@ -99,11 +115,15 @@ export async function saveQcTemplateFeedback(
     userName: author.userName,
     note,
     sections,
+    inlineEntries: existing.inlineEntries || [],
+    sectionResolved,
+    inlineResolved: existing.inlineResolved || {},
     resolved: false,
     resolvedAt: undefined,
     resolvedBy: undefined,
     updatedAt: new Date().toISOString(),
   };
+  item.resolved = allFeedbackLinesResolved(item);
   if (index >= 0) store.items[index] = item;
   else if (legacyIndex >= 0) store.items[legacyIndex] = item;
   else store.items.push(item);
@@ -131,25 +151,20 @@ export async function saveQcTemplateInlineFeedback(
   const index = store.items.findIndex((item) => item.key === key);
   const legacyIndex = store.items.findIndex((item) => !item.contextKey && item.key === contextKey);
   const existing = hydrateItem(index >= 0 ? store.items[index] : legacyIndex >= 0 ? store.items[legacyIndex] : {
-    key,
-    contextKey,
-    context,
-    userId: author.userId,
-    userName: author.userName,
-    note: "",
-    sections: normalizeSections(null),
-    inlineEntries: [],
+    key, contextKey, context, userId: author.userId, userName: author.userName,
+    note: "", sections: normalizeSections(null), inlineEntries: [],
     updatedAt: new Date().toISOString(),
   } as QcTemplateFeedbackItem);
   const entryId = inlineEntryId(target);
   const nextEntries = [...(existing.inlineEntries || [])];
   const entryIndex = nextEntries.findIndex((entry) => entry.id === entryId);
+  const previousNote = entryIndex >= 0 ? nextEntries[entryIndex].note : "";
 
   if (!note) {
     if (entryIndex >= 0) nextEntries.splice(entryIndex, 1);
   } else {
     const now = new Date().toISOString();
-    const nextEntry: QcTemplateInlineFeedbackEntry = {
+    const nextEntry = {
       id: entryId,
       target,
       note,
@@ -168,6 +183,10 @@ export async function saveQcTemplateInlineFeedback(
     return null;
   }
 
+  const inlineResolved = { ...(existing.inlineResolved || {}) };
+  if (!note) delete inlineResolved[entryId];
+  else if (entryIndex < 0 || previousNote !== note) inlineResolved[entryId] = false;
+
   const item: QcTemplateFeedbackItem = {
     ...existing,
     key,
@@ -176,11 +195,13 @@ export async function saveQcTemplateInlineFeedback(
     userId: author.userId,
     userName: author.userName,
     inlineEntries: nextEntries,
+    inlineResolved,
     resolved: false,
     resolvedAt: undefined,
     resolvedBy: undefined,
     updatedAt: new Date().toISOString(),
   };
+  item.resolved = allFeedbackLinesResolved(item);
 
   if (index >= 0) store.items[index] = item;
   else if (legacyIndex >= 0) store.items[legacyIndex] = item;
@@ -193,18 +214,34 @@ export async function updateQcTemplateFeedbackResolved(
   key: string,
   resolved: boolean,
   author: FeedbackAuthor,
+  target?: ResolveTarget,
 ): Promise<QcTemplateFeedbackItem> {
   const store = await readStore();
   const index = store.items.findIndex((item) => item.key === key);
   if (index < 0) throw new Error("反馈不存在");
   const existing = hydrateItem(store.items[index]);
+  const sectionResolved = { ...(existing.sectionResolved || {}) };
+  const inlineResolved = { ...(existing.inlineResolved || {}) };
+  if (target?.type === "section" && target.id) {
+    sectionResolved[target.id as keyof typeof sectionResolved] = resolved;
+  } else if (target?.type === "inline" && target.id) {
+    inlineResolved[target.id] = resolved;
+  } else {
+    for (const [sectionKey] of FEEDBACK_SECTION_LABELS) {
+      if (existing.sections?.[sectionKey]?.trim()) sectionResolved[sectionKey] = resolved;
+    }
+    for (const entry of existing.inlineEntries || []) inlineResolved[entry.id] = resolved;
+  }
   const item: QcTemplateFeedbackItem = {
     ...existing,
-    resolved,
-    resolvedAt: resolved ? new Date().toISOString() : undefined,
-    resolvedBy: resolved ? author.userName : undefined,
+    sectionResolved,
+    inlineResolved,
+    resolved: false,
     updatedAt: new Date().toISOString(),
   };
+  item.resolved = allFeedbackLinesResolved(item);
+  item.resolvedAt = item.resolved ? new Date().toISOString() : undefined;
+  item.resolvedBy = item.resolved ? author.userName : undefined;
   store.items[index] = item;
   await writeStore(store);
   return item;

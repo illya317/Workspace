@@ -5,6 +5,7 @@ import { qcRuntimeDataPath } from "./runtime-data-path";
 import type {
   QcTemplateFeedbackContext,
   QcTemplateFeedbackItem,
+  QcTemplateFeedbackSectionKey,
   QcTemplateFeedbackSections,
   QcTemplateFeedbackState,
   QcTemplateInlineFeedbackEntry,
@@ -119,18 +120,19 @@ export function normalizeSections(rawSections: unknown, rawNote?: unknown): QcTe
 }
 
 export function sectionsToNote(sections: QcTemplateFeedbackSections) {
-  const labels: Array<[keyof QcTemplateFeedbackSections, string]> = [
-    ["descriptionText", "描述文字"],
-    ["tableLayout", "表格布局"],
-    ["formulaCalculation", "公式计算"],
-    ["autoFilledText", "文字自动填写"],
-    ["other", "其他"],
-  ];
-  return labels
+  return FEEDBACK_SECTION_LABELS
     .map(([key, label]) => sections[key] ? `${label}：${sections[key]}` : "")
     .filter(Boolean)
     .join("\n\n");
 }
+
+export const FEEDBACK_SECTION_LABELS: Array<[QcTemplateFeedbackSectionKey, string]> = [
+  ["descriptionText", "描述文字"],
+  ["tableLayout", "表格布局"],
+  ["formulaCalculation", "公式计算"],
+  ["autoFilledText", "文字自动填写"],
+  ["other", "其他"],
+];
 
 export function hydrateItem(item: QcTemplateFeedbackItem): QcTemplateFeedbackItem {
   const sections = normalizeSections(item.sections, item.note);
@@ -147,6 +149,27 @@ export function itemContextKey(item: QcTemplateFeedbackItem) {
   return item.contextKey || item.key;
 }
 
+export function isFeedbackLineResolved(item: QcTemplateFeedbackItem, type: "section" | "inline", id: string) {
+  if (type === "section") return item.sectionResolved?.[id as QcTemplateFeedbackSectionKey] ?? item.resolved === true;
+  return item.inlineResolved?.[id] ?? item.resolved === true;
+}
+
+export function hasOpenFeedbackLine(item: QcTemplateFeedbackItem) {
+  const hydrated = hydrateItem(item);
+  for (const [key] of FEEDBACK_SECTION_LABELS) {
+    if (hydrated.sections?.[key]?.trim() && !isFeedbackLineResolved(hydrated, "section", key)) return true;
+  }
+  return (hydrated.inlineEntries || []).some((entry) => !isFeedbackLineResolved(hydrated, "inline", entry.id));
+}
+
+export function allFeedbackLinesResolved(item: QcTemplateFeedbackItem) {
+  const hydrated = hydrateItem(item);
+  const hasSection = FEEDBACK_SECTION_LABELS.some(([key]) => Boolean(hydrated.sections?.[key]?.trim()));
+  const hasInline = (hydrated.inlineEntries || []).length > 0;
+  if (!hasSection && !hasInline) return hydrated.resolved === true;
+  return !hasOpenFeedbackLine(hydrated);
+}
+
 export function feedbackStates(items: QcTemplateFeedbackItem[]) {
   const grouped = new Map<string, QcTemplateFeedbackItem[]>();
   for (const item of items) {
@@ -155,7 +178,7 @@ export function feedbackStates(items: QcTemplateFeedbackItem[]) {
   }
   const states: Record<string, QcTemplateFeedbackState> = {};
   for (const [key, entries] of grouped.entries()) {
-    states[key] = entries.some((entry) => !entry.resolved) ? "open" : "resolved";
+    states[key] = entries.some(hasOpenFeedbackLine) ? "open" : "resolved";
   }
   return states;
 }
