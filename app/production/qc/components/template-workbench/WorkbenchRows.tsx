@@ -91,15 +91,15 @@ function TemplateRow({
 function stageFeedbackSummary(
   templateDetail: QcTemplateDetail,
   stageDetail: QcTemplateStage,
-  stageIndex: number,
+  stageIndexValue: number,
   feedbackStates: Record<string, QcTemplateFeedbackState>,
 ) {
-  const selection = (kind: PreviewKind, test?: QcTemplateTestItem): WorkbenchSelection => ({
+  const selection = (previewKind: PreviewKind, testItem?: QcTemplateTestItem): WorkbenchSelection => ({
     template: templateDetail,
     stage: stageDetail,
-    stageIndex,
-    kind,
-    test,
+    stageIndex: stageIndexValue,
+    kind: previewKind,
+    test: testItem,
   });
   const states = [
     feedbackStates[feedbackKey(feedbackContext(selection("precheck")))],
@@ -142,13 +142,13 @@ export default function StageRows({
   if (keyword && tests.length === 0 && !stage.label.toLowerCase().includes(keyword)) return null;
   const summary = stageFeedbackSummary(template, stage, index, feedbackStates);
 
-  function select(kind: PreviewKind, test?: QcTemplateTestItem): WorkbenchSelection {
+  function select(previewKind: PreviewKind, testItem?: QcTemplateTestItem): WorkbenchSelection {
     return {
       template,
       stage,
       stageIndex: index,
-      kind,
-      test,
+      kind: previewKind,
+      test: testItem,
     };
   }
 
