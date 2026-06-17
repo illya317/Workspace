@@ -13,18 +13,16 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
 - **数据库**: Prisma ORM + SQLite (`data/dev.db`)
 - **认证**: JWT Cookie + API Key (个人)
-- **部署**: `./deploy.sh`（CVM + PM2；脚本内会类型检查、同步源码、同步运行态配置、远端构建并重启）
+- **部署**: push 到 CNB（CNB/Linux CI 构建 standalone 产物；CVM + PM2 只解包产物并重启）
 
 ## 部署与运行态同步
 
-- 仓库默认远端 `origin` 使用 Codeup：`git@codeup.aliyun.com:6a30d9d908f52788b1331bb3/illya317/Workspace.git`。日常 `git pull` / `git push` 默认走这个地址。
-- 部署必须在 `main` 分支且工作区干净；先 commit，再运行 `./deploy.sh`。
-- 云效/远端 CI 自动部署使用 `./ops/deploy-ci.sh`，只同步源码并在服务器远端构建，不依赖本机 `.workspace`，也不会把服务器 `data/` 拉回 CI 机器。
+- 仓库默认远端 `origin` 使用 CNB：`https://cnb.cool/illya317/Workspace.git`。日常发布走 `git push origin main`。
+- 本地不直连服务器部署；部署必须在 `main` 分支先 commit，再 push 到 CNB，由 `.cnb.yml` 触发云构建和发布。
+- CNB/远端 CI 自动部署使用 `./ops/deploy.sh`，在 CI 容器里完成检查与构建，然后只把 `.next/standalone` 产物包上传到服务器；服务器不执行 `npm ci` / `npm run build`。
 - 云效 YAML 流水线样例在 `ops/yunxiao.pipeline.yml`；私密部署参数不要写入 YAML，优先通过云效变量组或流水线 UI 变量注入。
-- 源码同步只同步仓库内容，排除 `.env`、`data/`、`public/company`、`public/assets/agent/avatar/`、`node_modules/`、`.next/` 等运行态路径。
-- 运行态配置来自本机 `LOCAL_WORKSPACE_CONFIG_DIR`，默认 `$WORKSPACE_CONFIG_DIR`，其次 `$HOME/.workspace`；当前机器实际入口是 `/Users/koito/.workspace`，指向桌面 `.workspace`。
-- 部署时 `.env`、品牌资源、agent 头像会同步到服务器 `REMOTE_WORKSPACE_CONFIG_DIR`，默认 `/home/ubuntu/.workspace`。远端 `.env` 会自动改写 `DATABASE_URL` 和 `WORKSPACE_CONFIG_DIR` 为服务器路径。
-- `data/` 以服务器为准：本地 `data/` 不上传覆盖服务器。部署时会先备份本地 `.workspace/data/`，再从服务器 `.workspace/data/` 拉回本地。
+- 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、`data/`、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先备份该目录。
+- `data/` 以服务器为准：本地 `data/` 不上传覆盖服务器。
 - 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL`、`WORKSPACE_CONFIG_DIR` 直接指向外部 data。
 - `.env` 可以软链到外部 `.workspace/.env`；`public/company` 和 `public/assets/agent/avatar` 开发时可软链到 `.workspace/assets/...`，生产 standalone 打包时脚本用 `cp -rL` 复制真实文件。
 
@@ -32,12 +30,9 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ```bash
 git status --short
-npm run lint -- --max-warnings=0
-npx tsc --noEmit
-npm run build
 git add <files>
 git commit -m "<message>"
-./deploy.sh
+git push origin main
 ```
 
 新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `/Users/koito/Desktop/workspace/.workspace/AGENTS.md`。

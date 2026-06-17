@@ -9,7 +9,9 @@ PM2_NAME="${PM2_NAME:-workspace}"
 REMOTE_WORKSPACE_CONFIG_DIR="${REMOTE_WORKSPACE_CONFIG_DIR:-}"
 HEALTHCHECK_URL="${HEALTHCHECK_URL:-}"
 RUN_LOCAL_CHECKS="${RUN_LOCAL_CHECKS:-1}"
+ALLOW_NON_LINUX_BUILD="${ALLOW_NON_LINUX_BUILD:-0}"
 ENV_CONTENT="${ENV_CONTENT:-}"
+REMOTE_BACKUP_DIR="${REMOTE_BACKUP_DIR:-}"
 if [ -n "$ENV_CONTENT" ]; then
   ENV_CONTENT_B64="$(printf '%s' "$ENV_CONTENT" | base64 | tr -d '\n')"
 else
@@ -28,6 +30,10 @@ fi
 
 if [ -z "$REMOTE_WORKSPACE_CONFIG_DIR" ]; then
   REMOTE_WORKSPACE_CONFIG_DIR="$(dirname "$REMOTE_DIR")/.workspace"
+fi
+
+if [ -z "$REMOTE_BACKUP_DIR" ]; then
+  REMOTE_BACKUP_DIR="$(dirname "$REMOTE_DIR")/workspace-runtime-backups"
 fi
 
 TMPKEY=""
@@ -64,18 +70,6 @@ hash_cmd() {
   fi
 }
 
-local_pkg_hash() {
-  cat package.json package-lock.json | hash_cmd | awk '{print $1}'
-}
-
-remote_pkg_hash() {
-  ssh_cmd "
-    cd '$REMOTE_DIR' 2>/dev/null || exit 0
-    [ -f package.json ] && [ -f package-lock.json ] || exit 0
-    cat package.json package-lock.json | sha256sum | awk '{print \$1}'
-  " 2>/dev/null || true
-}
-
 run_local_checks() {
   echo "==> 安装 CI 依赖..."
   npm ci --no-audit --fund=false --loglevel=error
@@ -92,11 +86,44 @@ run_local_checks() {
   npx tsc --noEmit
 }
 
+ensure_build_deps() {
+  if [ ! -d node_modules ]; then
+    echo "==> 当前构建环境缺少 node_modules，安装依赖..."
+    npm ci --no-audit --fund=false --loglevel=error
+  fi
+}
+
+build_artifact() {
+  if [ "$(uname -s)" != "Linux" ] && [ "$ALLOW_NON_LINUX_BUILD" != "1" ]; then
+    echo "[错误] 当前部署脚本会上传本机 standalone 产物。请在 CNB/Linux CI 中运行；如确认要从当前机器构建，设置 ALLOW_NON_LINUX_BUILD=1。"
+    exit 1
+  fi
+
+  ensure_build_deps
+
+  echo "==> 在当前 CI/CNB 环境构建 Next standalone 产物..."
+  npm run build
+
+  rm -rf .next/standalone/.next/static
+  cp -r .next/static .next/standalone/.next/static
+  rm -rf .next/standalone/public
+  cp -rL public .next/standalone/public
+  rm -rf .next/standalone/data
+  rm -f .next/standalone/.env
+
+  ARTIFACT_PATH=".next/workspace-standalone.tgz"
+  rm -f "$ARTIFACT_PATH"
+  tar -C .next/standalone -czf "$ARTIFACT_PATH" .
+  ARTIFACT_SHA="$(hash_cmd < "$ARTIFACT_PATH" | awk '{print $1}')"
+  echo "==> 产物: $ARTIFACT_PATH ($ARTIFACT_SHA)"
+}
+
 prepare_remote_runtime() {
   echo "==> 准备服务器运行态配置..."
   ssh_cmd "
     set -e
     mkdir -p '$REMOTE_DIR'
+    mkdir -p '$REMOTE_DIR/releases'
     mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR'
     if [ ! -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env' ]; then
       if [ -f '$REMOTE_DIR/.env' ]; then
@@ -111,21 +138,6 @@ prepare_remote_runtime() {
     mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR/data'
     if [ ! -f '$REMOTE_WORKSPACE_CONFIG_DIR/data/dev.db' ] && [ -d '$REMOTE_DIR/data' ]; then
       rsync -a '$REMOTE_DIR/data/' '$REMOTE_WORKSPACE_CONFIG_DIR/data/'
-    fi
-
-    cd '$REMOTE_DIR'
-    ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/.env' .env
-    mkdir -p public
-
-    if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' ]; then
-      rm -rf public/company
-      ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' public/company
-    fi
-
-    if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/agent/avatar' ]; then
-      mkdir -p public/assets/agent
-      rm -rf public/assets/agent/avatar
-      ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/assets/agent/avatar' public/assets/agent/avatar
     fi
 
     python3 - <<'PY'
@@ -153,17 +165,16 @@ validate_remote_runtime() {
   echo "==> 校验服务器运行态配置..."
   ssh_cmd "
     set -e
-    cd '$REMOTE_DIR'
-    test -f .env
-    grep -q '^WORKSPACE_CONFIG_DIR=' .env
-    grep -q '^DATABASE_URL=' .env
+    test -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    grep -q '^WORKSPACE_CONFIG_DIR=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    grep -q '^DATABASE_URL=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     python3 - <<'PY'
 from pathlib import Path
 import os
 import sys
 
 env = {}
-for line in Path('.env').read_text().splitlines():
+for line in Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env').read_text().splitlines():
     if not line or line.lstrip().startswith('#') or '=' not in line:
         continue
     key, value = line.split('=', 1)
@@ -188,41 +199,68 @@ PY
   "
 }
 
-deploy_remote_app() {
-  echo "==> 服务器构建并重启服务..."
+backup_remote_runtime() {
+  echo "==> 备份服务器运行态配置和数据..."
   ssh_cmd "
     set -e
-    cd '$REMOTE_DIR'
-    if [ -f .next/lock ]; then
-      echo '[错误] 检测到服务器已有 Next 构建锁 (.next/lock)，为避免重复构建，本次部署已停止。请先登录服务器确认是否存在残留 next build，必要时清理锁后再重试。'
-      exit 1
-    fi
-    if pgrep -x node -f '$REMOTE_DIR/node_modules/.bin/next build' >/dev/null 2>&1; then
-      echo '[错误] 检测到服务器已有 next build 进程在运行，本次部署已停止。请等待远端构建完成，或登录服务器处理后再重试。'
-      exit 1
-    fi
-    if [ '$NEED_NPM_CI' = '1' ] || [ ! -d node_modules ]; then
-      echo '==> 安装依赖...'
-      npm ci --no-audit --fund=false --loglevel=error
+    mkdir -p '$REMOTE_BACKUP_DIR'
+    if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR' ]; then
+      stamp=\$(date +%Y%m%d%H%M%S)
+      backup='$REMOTE_BACKUP_DIR/workspace-runtime-'\$stamp'.tgz'
+      parent=\$(dirname '$REMOTE_WORKSPACE_CONFIG_DIR')
+      base=\$(basename '$REMOTE_WORKSPACE_CONFIG_DIR')
+      tar -C \"\$parent\" -czf \"\$backup\" \"\$base\"
+      ls -lh \"\$backup\"
     else
-      echo '==> 跳过 npm ci，复用服务器 node_modules'
+      echo '[警告] 运行态目录不存在，跳过备份: $REMOTE_WORKSPACE_CONFIG_DIR'
+    fi
+  "
+}
+
+deploy_remote_artifact() {
+  local release_id
+  local remote_tar
+  release_id="$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD 2>/dev/null || echo manual)"
+  remote_tar="$REMOTE_WORKSPACE_CONFIG_DIR/deploy-workspace-standalone-$release_id.tgz"
+
+  echo "==> 上传 CNB 构建产物到服务器..."
+  rsync -avz -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+    "$ARTIFACT_PATH" "$SERVER:$remote_tar"
+
+  echo "==> 服务器解包产物并重启服务..."
+  ssh_cmd "
+    set -e
+    mkdir -p '$REMOTE_DIR/releases'
+    find '$REMOTE_DIR' -mindepth 1 -maxdepth 1 ! -name releases -exec rm -rf {} +
+    release_dir='$REMOTE_DIR/releases/$release_id'
+    rm -rf \"\$release_dir\"
+    mkdir -p \"\$release_dir\"
+    tar -xzf '$remote_tar' -C \"\$release_dir\"
+    rm -f '$remote_tar'
+
+    ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/.env' \"\$release_dir/.env\"
+    rm -rf \"\$release_dir/data\"
+
+    if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' ]; then
+      rm -rf \"\$release_dir/public/company\"
+      ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' \"\$release_dir/public/company\"
     fi
 
-    npm run build
+    if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/agent/avatar' ]; then
+      mkdir -p \"\$release_dir/public/assets/agent\"
+      rm -rf \"\$release_dir/public/assets/agent/avatar\"
+      ln -sfn '$REMOTE_WORKSPACE_CONFIG_DIR/assets/agent/avatar' \"\$release_dir/public/assets/agent/avatar\"
+    fi
 
-    rm -rf .next/standalone/.next/static
-    cp -r .next/static .next/standalone/.next/static
-    rm -rf .next/standalone/public
-    cp -rL public .next/standalone/public
-    cp .env .next/standalone/.env
-    rm -rf .next/standalone/data
-    grep -q '^WORKSPACE_CONFIG_DIR=' .next/standalone/.env
-    grep -q '^DATABASE_URL=' .next/standalone/.env
+    grep -q '^WORKSPACE_CONFIG_DIR=' \"\$release_dir/.env\"
+    grep -q '^DATABASE_URL=' \"\$release_dir/.env\"
 
     pm2 delete '$PM2_NAME' 2>/dev/null || true
-    cd .next/standalone
-    pm2 start server.js --name '$PM2_NAME' --cwd '$REMOTE_DIR/.next/standalone'
+    cd \"\$release_dir\"
+    pm2 start server.js --name '$PM2_NAME' --cwd \"\$release_dir\"
     pm2 save
+    ln -sfn \"\$release_dir\" '$REMOTE_DIR/current'
+    find '$REMOTE_DIR/releases' -mindepth 1 -maxdepth 1 -type d | sort -r | tail -n +6 | xargs -r rm -rf
     pm2 status
   "
 }
@@ -244,6 +282,7 @@ fi
 echo "==> 校验 CI 基础命令..."
 require_local_cmd ssh
 require_local_cmd rsync
+require_local_cmd tar
 echo "==> ssh: $(command -v ssh)"
 echo "==> rsync: $(command -v rsync)"
 
@@ -253,37 +292,16 @@ else
   echo "==> 跳过本地静态检查（RUN_LOCAL_CHECKS=${RUN_LOCAL_CHECKS}）"
 fi
 
-LOCAL_PKG_HASH="$(local_pkg_hash)"
-REMOTE_PKG_HASH="$(remote_pkg_hash)"
-if [ "$LOCAL_PKG_HASH" != "$REMOTE_PKG_HASH" ]; then
-  NEED_NPM_CI=1
-  echo "==> 检测到依赖清单变化，本次会执行 npm ci"
-else
-  NEED_NPM_CI=0
-  echo "==> 依赖清单未变化，跳过 npm ci"
-fi
+build_artifact
 
-echo "==> 同步源码到服务器..."
 echo "==> 验证服务器连接..."
 ssh_cmd "echo CONNECTED && whoami && mkdir -p '$REMOTE_DIR'"
-echo "==> 开始 rsync..."
-rsync -avz --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
-  --exclude='.git/' \
-  --exclude='node_modules/' \
-  --exclude='.next/' \
-  --exclude='.env' \
-  --exclude='.env.*' \
-  --exclude='data/' \
-  --exclude='public/assets/agent/avatar/' \
-  --exclude='public/company' \
-  --exclude='public/company/' \
-  --exclude='.DS_Store' \
-  ./ "$SERVER:$REMOTE_DIR/"
 
 prepare_remote_runtime
 validate_remote_runtime
-deploy_remote_app
+backup_remote_runtime
+deploy_remote_artifact
 run_healthcheck
 
 echo ""
-echo "==> CI 部署完成"
+echo "==> CNB 产物部署完成"

@@ -41,4 +41,4 @@ stages:
             workspace: workspace_repo
             with:
               run: |
-                bash ./ops/deploy-ci.sh
+                bash ./ops/deploy.sh

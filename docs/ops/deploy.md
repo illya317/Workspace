@@ -33,49 +33,47 @@ npm run dev
 
 ## 当前生产部署（CVM + PM2）
 
-部署入口：
+本地不直连服务器部署。发布入口是 push 到 CNB：
 
 ```bash
-./deploy.sh
+git push origin main
 ```
 
-云效/远端 CI 入口：
+CNB/远端 CI 内部入口：
 
 ```bash
-./ops/deploy-ci.sh
+./ops/deploy.sh
 ```
 
-脚本读取 `ops/server.env.sh`，该文件不提交仓库。需要配置：
+部署脚本只读取 CNB imports/CI 环境变量，不读取本机 `ops/server.env.sh`。需要在 CNB 环境里配置：
 
 | 变量 | 说明 |
 |------|------|
 | `SERVER` | SSH 目标，例如 `ubuntu@<server-ip>` |
 | `REMOTE_DIR` | 服务器源码目录，例如 `/home/ubuntu/workspace` |
 | `PM2_NAME` | PM2 进程名，例如 `workspace` |
-| `KEY_CONTENT` / `KEY` | SSH 私钥内容或本地私钥路径，二选一 |
+| `KEY_CONTENT` / `KEY` | SSH 私钥内容或 CI 内部私钥路径，二选一 |
 
 部署流程：
 
-1. 本地确认在 `main` 分支且工作区干净。
-2. 本地运行 `npx tsc --noEmit`。
-3. 比较本地和服务器的 `package.json` + `package-lock.json` 内容哈希。
-4. rsync 同步源码到 `REMOTE_DIR`，排除 `.env`、`data/dev.db`、`data/qc-*.json`、`public/company`、`node_modules/`、`.next/` 等运行态文件。
-5. 服务器端构建：
-   - 依赖清单变化或服务器没有 `node_modules` 时运行 `npm ci`。
-   - 依赖清单未变化时跳过 `npm ci`，复用服务器 `node_modules`。
-   - 运行 `npm run build`。
-6. 复制 `.next/static`、`public`、`data` 到 standalone 输出目录。
-7. 使用 PM2 重新启动 `server.js` 并保存进程列表。
+1. 本地只提交并 push 到 CNB。
+2. CNB/Linux 容器执行 `npm ci`、静态检查和 `npm run build`。
+3. CNB 将 `.next/standalone`、`.next/static`、`public` 打包为 standalone 产物。
+4. CNB 通过 SSH 上传产物到服务器，服务器解包到 `REMOTE_DIR/releases/<release>`。
+5. 服务器把 `.env`、数据库、品牌资源、Agent 头像等运行态资源继续指向 `$REMOTE_WORKSPACE_CONFIG_DIR`。
+6. 服务器在切换 release 前备份 `$REMOTE_WORKSPACE_CONFIG_DIR` 到 `workspace-runtime-backups/`。
+7. 服务器清空 `REMOTE_DIR` 里的旧源码、旧 `.next`、旧 `node_modules` 等杂物，只保留 `releases/` 和 `current`。
+8. 使用 PM2 重新启动 `server.js` 并保存进程列表。
 
-这套策略保持服务器环境构建，避免 macOS/Linux native 依赖差异；同时避免每次部署都重装依赖，减少 CPU 峰值和部署时间。
+这套策略把构建 CPU 放在 CNB/CI 容器里，CVM 只负责运行指定版本，避免生产服务器在部署时执行 `npm ci` 或 `npm run build`。
 
-## 云效自动部署（Codeup / Flow）
+## CNB / 云效自动部署
 
-`ops/deploy-ci.sh` 是给云效或其他远端 CI 机器使用的部署脚本。它和本机 `./deploy.sh` 的区别是：
+`ops/deploy.sh` 是给 CNB、云效或其他远端 Linux CI 机器使用的部署脚本：
 
 - 不读取本机 `.workspace`，只依赖 CI 环境变量和服务器上已有的运行态目录。
 - 不把服务器 `data/` 反向拉回 CI 机器。
-- 仍然通过 SSH + rsync 同步源码，在服务器执行 `npm run build`，最后用 PM2 重启。
+- 在 CI 机器构建 standalone 产物，通过 SSH + rsync 上传到服务器，最后用 PM2 重启。
 
 建议在云效流水线里配置这些变量：
 
@@ -89,7 +87,11 @@ npm run dev
 | `HEALTHCHECK_URL` | 可选，部署后在服务器本机执行的健康检查地址，例如 `http://127.0.0.1:3000/` |
 | `RUN_LOCAL_CHECKS` | 可选，默认 `1`；设为 `0` 时跳过 CI 机上的静态检查 |
 
-当前仓库已提供一份云效 YAML 样例：
+当前仓库已提供 CNB 配置和一份云效 YAML 样例：
+
+```bash
+.cnb.yml
+```
 
 ```bash
 ops/yunxiao.pipeline.yml
@@ -103,26 +105,26 @@ ops/yunxiao.pipeline.yml
    - 先用 `ops/yunxiao.pipeline.yml` 创建流水线本体；
    - 再用流水线关联 API 给该流水线绑定变量组。
 
-流水线命令最小示例：
+流水线命令最小示例，必须在 CNB/CI 容器内执行：
 
 ```bash
-chmod +x ops/deploy-ci.sh
-./ops/deploy-ci.sh
+chmod +x ops/deploy.sh
+./ops/deploy.sh
 ```
 
 推荐触发方式：
 
 1. `main` 分支 push 自动触发。
-2. 先执行 `ops/deploy-ci.sh` 里的静态检查。
-3. 再同步源码并在服务器远端构建。
+2. 先执行 `ops/deploy.sh` 里的静态检查。
+3. 再在 CI 容器构建 standalone 产物并上传服务器。
 4. 最后健康检查。
 
 如果你想把 CI/CD 分成两个阶段，也可以：
 
 1. CI 阶段只跑检查，不部署。
-2. CD 阶段调用 `./ops/deploy-ci.sh`。
+2. CD 阶段调用 `./ops/deploy.sh`。
 
-当前项目由于生产数据库和品牌资源都在服务器外部运行态目录里，**更适合把“构建 + 部署”放在同一个远端部署 job 里**，避免额外的制品打包和运行态拼装步骤。
+当前项目由于生产数据库和品牌资源都在服务器外部运行态目录里，构建产物不得覆盖服务器运行态目录；部署脚本会在解包后重新挂载这些运行态资源。
 
 ### 前置条件
 

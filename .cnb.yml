@@ -1,4 +1,21 @@
 main:
+  push:
+    - name: deploy-prod
+      docker:
+        image: node:22-bookworm
+      imports:
+        - https://cnb.cool/illya317/env/-/blob/main/workspace-prod.yml
+      env:
+        RUN_LOCAL_CHECKS: "1"
+      stages:
+        - name: install-deploy-tools
+          script: |
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates python3
+        - name: deploy-to-server
+          script: |
+            bash ./ops/deploy.sh
+
   api_trigger_ci:
     - name: ci-check
       docker:
@@ -14,16 +31,16 @@ main:
   api_trigger:
     - name: deploy-prod
       docker:
-        image: ubuntu:24.04
+        image: node:22-bookworm
       imports:
         - https://cnb.cool/illya317/env/-/blob/main/workspace-prod.yml
       env:
-        RUN_LOCAL_CHECKS: "0"
+        RUN_LOCAL_CHECKS: "1"
       stages:
         - name: install-deploy-tools
           script: |
             apt-get update
-            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates
+            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates python3
         - name: deploy-to-server
           script: |
             bash ./ops/deploy.sh
