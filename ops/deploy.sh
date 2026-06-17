@@ -125,13 +125,17 @@ build_artifact() {
   # Next standalone tracing can leave native/runtime packages as partial shells.
   # Keep the SQLite adapter stack complete so production does not depend on
   # bundler internals for database access.
-  for pkg in better-sqlite3 @prisma/adapter-better-sqlite3 @prisma/client .prisma dotenv; do
+  for pkg in better-sqlite3 @prisma/adapter-better-sqlite3 @prisma/client dotenv; do
     copy_runtime_package "$pkg"
   done
 
+  rm -rf .next/standalone/generated/prisma
+  mkdir -p .next/standalone/generated
+  cp -R generated/prisma .next/standalone/generated/prisma
+
   test -f .next/standalone/node_modules/better-sqlite3/lib/index.js
   test -f .next/standalone/node_modules/@prisma/client/default.js
-  test -d .next/standalone/node_modules/.prisma/client
+  test -f .next/standalone/generated/prisma/client.ts
 
   ARTIFACT_PATH=".next/workspace-standalone.tgz"
   rm -f "$ARTIFACT_PATH"
