@@ -1,6 +1,6 @@
 # Table Layout Templates
 
-`products/**/*.json` 是从旧 DOCX 指纹生成的归类/取样参考，不作为长期逐个维护入口。
+`templates/**/*.json` 与 `layout_mapping.json` 是当前唯一维护入口。
 
 目标结构是子模板 + 父模板 include：
 

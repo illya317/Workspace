@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "template_id": "common/precheck_confirm_table",
+  "title": "检验前确认项表",
+  "section_no": "",
+  "category": "common",
+  "subcomponent": true,
+  "status": "pilot",
+  "blocks": [
+    {
+      "type": "precheck_confirm_table",
+      "label": "precheck-confirm",
+      "items_param": "precheck_items",
+      "env_options_param": "precheck_env_options",
+      "field_prefix": "pre_check",
+      "section_base": "1",
+      "environment_title": "实验环境",
+      "order": 20
+    }
+  ],
+  "order": 20
+}

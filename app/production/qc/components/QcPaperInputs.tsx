@@ -13,21 +13,38 @@ function fitContentWidth(value?: string, fallback = "1.5rem"): CSSProperties {
   const displayValue = String(value || "");
   if (!displayValue) return { width: fallback, minWidth: fallback };
   const contentCh = Math.min(48, Math.max(3, visualLength(displayValue) + 2));
-  return { width: `calc(${contentCh}ch + 0.75rem)`, minWidth: "3ch", maxWidth: "100%" };
+  return { width: `calc(${contentCh}ch + 0.75rem)`, minWidth: fallback, maxWidth: "100%" };
+}
+
+function underlineBaseWidth(part: QcLayoutPart) {
+  return part.width || "3rem";
+}
+
+function looksNumericValue(value?: string) {
+  const text = String(value || "").trim();
+  if (!text) return false;
+  return /^[-+]?[\d.,]+$/.test(text);
+}
+
+function inputAlignClass(part: QcLayoutPart, value?: string) {
+  if (part.underline === true && looksNumericValue(value)) return "text-right tabular-nums";
+  return "text-center tabular-nums";
+}
+
+function inputPaddingClass(part: QcLayoutPart, value?: string) {
+  if (part.underline === true && looksNumericValue(value)) return "pl-0.5 pr-0";
+  return "px-1";
 }
 
 function inputWidth(part: QcLayoutPart, inTable?: boolean, value?: string): CSSProperties {
   const current = String(value || "");
-  if (part.underline === true && current) return fitContentWidth(current);
-  if (part.underline === true && part.width) return { width: part.width, minWidth: inTable ? part.width : "4.5em" };
-  if (part.underline === true) return { width: inTable ? "3.5rem" : "5.5em", minWidth: inTable ? "3rem" : "4.5em" };
+  if (part.underline === true) return fitContentWidth(current, underlineBaseWidth(part));
   return fitContentWidth(value);
 }
 
 function selectWidth(part: QcLayoutPart, _options: string[], value?: string, inTable?: boolean): CSSProperties {
   const current = value || part.defaultValue || "";
-  if (part.underline === true && current) return { ...fitContentWidth(current), backgroundImage: "none" };
-  if (part.underline === true && part.width) return { width: part.width, backgroundImage: "none" };
+  if (part.underline === true) return { ...fitContentWidth(current, underlineBaseWidth(part)), backgroundImage: "none" };
   const fallback = inTable ? "2.5rem" : "3rem";
   return { ...fitContentWidth(current, fallback), backgroundImage: "none" };
 }
@@ -93,7 +110,7 @@ export function QcPaperLineInput({
         readOnly={readOnly || part.readonlyDisplay}
         rows={part.rows || 2}
         title={error}
-        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-[8em] resize-y border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-[8em] resize-y border-0 bg-transparent ${inputPaddingClass(part, currentValue)} ${inputAlignClass(part, currentValue)} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
         style={inputWidth(part, inTable, currentValue)}
       />
     );
@@ -108,7 +125,7 @@ export function QcPaperLineInput({
       inputMode={part.inputType === "number" ? "decimal" : undefined}
       type={textInputType(part)}
       title={error}
-      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent px-1 text-center align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass(part, currentValue)} ${inputAlignClass(part, currentValue)} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
       style={inputWidth(part, inTable, currentValue)}
     />
   );
@@ -138,7 +155,7 @@ export function QcPaperSelectInput({
       onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange?.(event.target.value)}
       disabled={readOnly || part.readonlyDisplay}
       title={error}
-      className={`${inTable ? "mx-0" : "mx-1"} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 appearance-none border-0 bg-transparent px-0.5 text-center align-middle leading-7 outline-none disabled:opacity-100 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+      className={`${inTable ? "mx-0" : "mx-1"} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 appearance-none border-0 bg-transparent px-0.5 text-center tabular-nums align-middle leading-7 outline-none disabled:opacity-100 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
       style={selectWidth(part, options, value ?? part.defaultValue, inTable)}
     >
       <option value=""> </option>

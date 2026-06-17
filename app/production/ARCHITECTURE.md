@@ -34,7 +34,7 @@
 3. `/production/qc/batches` 提供批次创建、批次台账、草稿/提交状态和记录入口。
 4. `/production/qc/batches/[batchId]` 展示批次检验记录阶段入口。
 5. `/production/qc/batches/[batchId]/[stageKey]` 展示 YAML 驱动的检验前确认表，纸面区域使用仿宋系字体。
-6. `/production/qc/batches/[batchId]/[stageKey]/[testName]` 优先展开 `layout_mapping.template_id` 指向的 `table_layouts/templates` 组件，支持 include/variant/params、标题段落、项目表头、实验环境、仪器设备、后置标准/异常/清场/结论和常规 table；模板不可用时再 fallback 到 `table_layouts/products` 的 DOCX 指纹 blocks，最后 fallback 到 YAML 方法字段表，并支持 `formula` 只读计算字段的前端轻量计算。
+6. `/production/qc/batches/[batchId]/[stageKey]/[testName]` 展开 `layout_mapping.template_id` 指向的 `table_layouts/templates` 组件，支持 include/variant/params、标题段落、项目表头、实验环境、仪器设备、后置标准/异常/清场/结论和常规 table；模板不可用时 fallback 到 YAML 方法字段表，并支持 `formula` 只读计算字段的前端轻量计算。
 7. `/production/qc/templates` 展示组件映射/方法字段反馈工作台，包含产品筛选、阶段折叠、仿宋纸面布局预览、模板展开 layout blocks 预览和反馈弹窗。
 8. `/production/qc/templates/[templateId]` 展示单个 record template 的阶段、检测项、方法字段和组件布局映射。
 9. `/api/production/qc/templates/[templateId]` 返回同一份只读 record-structure DTO，供后续编辑器复用。

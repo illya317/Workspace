@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@/server/services/production/qc";
 
 interface Props {
@@ -126,17 +125,7 @@ export default function QcTemplateDetailPanel({ detail }: Props) {
       </div>
 
       <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 text-xs text-slate-500">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <span>{detail.fileName} · {detail.source.configRoot}</span>
-          <div className="flex gap-2">
-            <Link href={`/production/qc/templates/${detail.id}/edit`} className="rounded-md border border-emerald-600 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100">
-              版面编辑
-            </Link>
-            <Link href={`/production/qc/templates/${detail.id}/edit/modules`} className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-              模块编辑
-            </Link>
-          </div>
-        </div>
+        <span>{detail.fileName} · {detail.source.configRoot}</span>
       </div>
 
       {detail.stages.map((stage) => <StageSection key={stage.key} stage={stage} />)}

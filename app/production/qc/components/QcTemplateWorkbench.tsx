@@ -1,6 +1,4 @@
 "use client";
-
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { QcTemplateDetail } from "@/server/services/production/qc";
 import TemplateFeedbackModal from "./template-workbench/TemplateFeedbackModal";
@@ -66,9 +64,6 @@ export default function QcTemplateWorkbench({ templates, feedbackKeys }: Props) 
       <div className="min-w-0 space-y-5">
         <div className="flex flex-wrap gap-3">
           <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索产品、阶段、项目" className="h-10 min-w-[260px] flex-1 rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-emerald-600" />
-          <Link href="/production/qc/templates/new" className="flex h-10 items-center rounded-md border border-emerald-600 bg-emerald-50 px-4 text-sm font-semibold text-emerald-800 hover:bg-emerald-100">
-            新建模板
-          </Link>
         </div>
         {visibleTemplates.map((template) => (
           <article key={template.id} className="space-y-3">
@@ -79,12 +74,6 @@ export default function QcTemplateWorkbench({ templates, feedbackKeys }: Props) 
               </div>
               <div className="flex items-center gap-2">
                 <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">{itemCount(template)} 个实验项目</span>
-                <Link href={`/production/qc/templates/${template.id}/edit`} className="rounded-md border border-emerald-600 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100">
-                  版面
-                </Link>
-                <Link href={`/production/qc/templates/${template.id}/edit/modules`} className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
-                  模块
-                </Link>
               </div>
             </div>
             {template.stages.map((stage, index) => (
@@ -105,7 +94,7 @@ export default function QcTemplateWorkbench({ templates, feedbackKeys }: Props) 
         ))}
         {visibleTemplates.length === 0 && <div className="rounded-lg border border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-500">没有匹配的模板。</div>}
       </div>
-      <TemplatePreviewModal selection={preview} onClose={() => setPreview(null)} />
+      <TemplatePreviewModal selection={preview} onClose={() => setPreview(null)} onSaved={setKnownFeedbackKeys} />
       <TemplateFeedbackModal target={feedback} onClose={() => setFeedback(null)} onSaved={setKnownFeedbackKeys} />
     </section>
   );

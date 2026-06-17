@@ -768,6 +768,34 @@
                   "initial_chars": 6,
                   "width": "7rem",
                   "summary_day": 7,
+                  "advanced_formula_text": "所选稀释级别第7天平均菌落数 = (平皿A第7天 + 平皿B第7天) / 2",
+                  "advanced_formula_value_field_key": "layout/microbiology/mold_yeast/selected_count_source",
+                  "advanced_formula_text_map": {
+                    "1:10": "1:10 第7天平均菌落数 = (1:10 平皿A第7天 + 1:10 平皿B第7天) / 2",
+                    "1:100": "1:100 第7天平均菌落数 = (1:100 平皿A第7天 + 1:100 平皿B第7天) / 2",
+                    "1:1000": "1:1000 第7天平均菌落数 = (1:1000 平皿A第7天 + 1:1000 平皿B第7天) / 2"
+                  },
+                  "advanced_dependency_field_keys": [
+                    "layout/microbiology/mold_yeast/selected_count_source"
+                  ],
+                  "advanced_dependency_value_field_key": "layout/microbiology/mold_yeast/selected_count_source",
+                  "advanced_dependency_field_key_map": {
+                    "1:10": [
+                      "layout/microbiology/mold_yeast/selected_count_source",
+                      "layout/microbiology/mold_yeast/1_10_a_day7",
+                      "layout/microbiology/mold_yeast/1_10_b_day7"
+                    ],
+                    "1:100": [
+                      "layout/microbiology/mold_yeast/selected_count_source",
+                      "layout/microbiology/mold_yeast/1_100_a_day7",
+                      "layout/microbiology/mold_yeast/1_100_b_day7"
+                    ],
+                    "1:1000": [
+                      "layout/microbiology/mold_yeast/selected_count_source",
+                      "layout/microbiology/mold_yeast/1_1000_a_day7",
+                      "layout/microbiology/mold_yeast/1_1000_b_day7"
+                    ]
+                  },
                   "readonly_display": true
                 }
               ]

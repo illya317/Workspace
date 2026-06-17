@@ -95,6 +95,12 @@ export interface QcLayoutPart {
   startHourKey?: string;
   endHourKey?: string;
   recommendedRange?: QcRecommendedRange; summaryDay?: number;
+  advancedFormulaText?: string;
+  advancedFormulaTextMap?: Record<string, string>;
+  advancedFormulaValueFieldKey?: string;
+  advancedDependencyFieldKeys?: string[];
+  advancedDependencyFieldKeyMap?: Record<string, string[]>;
+  advancedDependencyValueFieldKey?: string;
   path?: string;
   stripPlaceholder?: boolean;
   bold?: boolean;
@@ -199,6 +205,7 @@ export interface QcTemplateStage {
   precheckFiles: QcTemplatePrecheckFile[];
   precheckItems: QcTemplatePrecheckItem[];
   precheckLayoutBlocks?: QcLayoutBlock[];
+  experimentLayoutBlocks?: QcLayoutBlock[];
   tests: QcTemplateTestItem[];
 }
 
@@ -228,6 +235,39 @@ export interface QcTemplateFeedbackContext {
   templateId?: string;
 }
 
+export type QcTemplateFeedbackSectionKey =
+  | "descriptionText"
+  | "tableLayout"
+  | "formulaCalculation"
+  | "autoFilledText"
+  | "other";
+
+export interface QcTemplateFeedbackSections {
+  descriptionText: string;
+  tableLayout: string;
+  formulaCalculation: string;
+  autoFilledText: string;
+  other: string;
+}
+
+export type QcTemplateInlineFeedbackTargetKind = "heading" | "field";
+
+export interface QcTemplateInlineFeedbackTarget {
+  kind: QcTemplateInlineFeedbackTargetKind;
+  key: string;
+  label: string;
+  section?: string;
+  badgeKind?: string;
+}
+
+export interface QcTemplateInlineFeedbackEntry {
+  id: string;
+  target: QcTemplateInlineFeedbackTarget;
+  note: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface QcTemplateFeedbackItem {
   key: string;
   contextKey: string;
@@ -235,6 +275,8 @@ export interface QcTemplateFeedbackItem {
   userId: number;
   userName: string;
   note: string;
+  sections?: QcTemplateFeedbackSections;
+  inlineEntries?: QcTemplateInlineFeedbackEntry[];
   updatedAt: string;
 }
 

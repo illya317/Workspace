@@ -33,6 +33,22 @@ function maybePositiveNumber(value: unknown) {
   return Number.isFinite(num) && num > 0 ? num : undefined;
 }
 
+function stringRecord(value: unknown): Record<string, string> | undefined {
+  const record = asRecord(value);
+  const entries = Object.entries(record)
+    .map(([key, val]) => [key, asString(val)] as const)
+    .filter(([, val]) => !!val);
+  return entries.length ? Object.fromEntries(entries) : undefined;
+}
+
+function stringArrayRecord(value: unknown): Record<string, string[]> | undefined {
+  const record = asRecord(value);
+  const entries = Object.entries(record)
+    .map(([key, val]) => [key, asArray(val).map((item) => asString(item)).filter(Boolean)] as const)
+    .filter(([, val]) => val.length > 0);
+  return entries.length ? Object.fromEntries(entries) : undefined;
+}
+
 function asRange(value: unknown): QcRecommendedRange | undefined {
   if (Array.isArray(value)) {
     return { min: maybeNumber(value[0]) ?? null, max: maybeNumber(value[1]) ?? null };
@@ -96,6 +112,12 @@ function mapPart(value: unknown, params: Params = {}): QcLayoutPart {
     endHourKey: asString(part.end_hour_key || part.endHourKey) || undefined,
     recommendedRange: asRange(part.recommended_range ?? part.recommendedRange ?? part.expected_range ?? part.expectedRange),
     summaryDay: maybePositiveNumber(part.summary_day ?? part.summaryDay),
+    advancedFormulaText: asString(part.advanced_formula_text ?? part.advancedFormulaText) || undefined,
+    advancedFormulaTextMap: stringRecord(part.advanced_formula_text_map ?? part.advancedFormulaTextMap),
+    advancedFormulaValueFieldKey: asString(part.advanced_formula_value_field_key ?? part.advancedFormulaValueFieldKey) || undefined,
+    advancedDependencyFieldKeys: asArray(part.advanced_dependency_field_keys ?? part.advancedDependencyFieldKeys).map((item) => asString(item)).filter(Boolean),
+    advancedDependencyFieldKeyMap: stringArrayRecord(part.advanced_dependency_field_key_map ?? part.advancedDependencyFieldKeyMap),
+    advancedDependencyValueFieldKey: asString(part.advanced_dependency_value_field_key ?? part.advancedDependencyValueFieldKey) || undefined,
     path: asString(part.path) || undefined,
     stripPlaceholder: asBoolean(part.strip_placeholder ?? part.stripPlaceholder),
     bold: asBoolean(part.bold),
@@ -246,14 +268,6 @@ async function expandTemplate(configRoot: string, templateId: string, params: Pa
   return blocks;
 }
 
-async function loadProductBlocks(configRoot: string, key?: string) {
-  if (!key) return undefined;
-  const layoutRoot = path.resolve(configRoot, "table_layouts");
-  const data = asRecord(await readJson(safeFile(layoutRoot, key)));
-  const blocks = asArray(data.blocks).map((block) => mapBlock(block)).filter((block): block is QcLayoutBlock => !!block);
-  return blocks.length ? blocks : undefined;
-}
-
 export async function loadQcLayoutBlocks(
   configRoot: string,
   layout?: QcTemplateLayoutAssignment,
@@ -261,5 +275,5 @@ export async function loadQcLayoutBlocks(
   if (!layout) return undefined;
   const templateBlocks = layout.templateId ? await expandTemplate(configRoot, layout.templateId, layout.params).catch(() => []) : [];
   if (templateBlocks.length) return templateBlocks;
-  return loadProductBlocks(configRoot, layout.key);
+  return undefined;
 }

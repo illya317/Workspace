@@ -145,7 +145,7 @@ products:
           column: 十八烷基硅烷键合硅胶
           column_spec: C18×____mm×4.6mm
           mobile_phase: 磷酸盐缓冲液-乙腈（45:55）
-          wavelength: ____
+          wavelength: 210nm
           system_chromatogram_requirement: 阿奇霉素系统适用性对照品色谱图应与标准图谱一致
           reference_name: 阿奇霉素
           reference_unit: mg
@@ -158,7 +158,7 @@ products:
           sample_solvent: 乙腈
           sample_postprocess: 滤过，取续滤液
           measurement_solutions: 上述两种溶液
-          measurement_volume: ____
+          measurement_volume: 50μl
     packaging:
       content:
         操作方法模板: hplc_content_0512

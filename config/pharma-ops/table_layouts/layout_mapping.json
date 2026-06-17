@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "description": "Runtime mapping from MD/YAML product layout keys to reusable template JSON. Legacy config/table_layouts/products/** files are reference samples only.",
+  "description": "Runtime mapping from MD/YAML product layout keys to reusable template JSON. This mapping and templates/** are the only maintained layout source.",
   "assignments": {
     "products/allopurinol/finished/appearance": {
       "template_id": "parents/appearance_basic",
@@ -1260,7 +1260,7 @@
         "pre_method_reference_variant": "include",
         "related_conclusion_variant": "include",
         "related_attachment_variant": "raw",
-        "related_peak_calculation_variant": "hplc_0512_peak_area",
+        "related_peak_calculation_variant": "hplc_0512_peak_area_azithromycin",
         "related_system_rows": [
           {
             "text": "系统适用性溶液色谱图中，各峰之间的分离度均应大于1.2。",

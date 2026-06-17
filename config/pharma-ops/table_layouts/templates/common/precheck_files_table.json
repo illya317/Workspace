@@ -1,0 +1,21 @@
+{
+  "schema_version": 2,
+  "template_id": "common/precheck_files_table",
+  "title": "检验前确认文件表",
+  "section_no": "",
+  "category": "common",
+  "subcomponent": true,
+  "status": "pilot",
+  "blocks": [
+    {
+      "type": "precheck_files_table",
+      "label": "precheck-files",
+      "files_param": "precheck_files",
+      "field_prefix": "pre_check",
+      "section_suffix": "1.1",
+      "file_title": "文件",
+      "order": 10
+    }
+  ],
+  "order": 10
+}

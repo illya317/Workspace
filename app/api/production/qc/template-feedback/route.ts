@@ -4,6 +4,7 @@ import { checkPermission } from "@/server/rbac/check";
 import {
   getQcTemplateFeedback,
   listQcTemplateFeedback,
+  saveQcTemplateInlineFeedback,
   saveQcTemplateFeedback,
 } from "@/server/services/production/qc";
 
@@ -20,10 +21,13 @@ export const POST = withAuth(async (request, user) => {
   }
   const data = body as Record<string, unknown>;
   try {
-    const item = await saveQcTemplateFeedback(data.context, data.note, {
+    const author = {
       userId: user.userId,
       userName: user.name,
-    });
+    };
+    const item = data.inlineEntry
+      ? await saveQcTemplateInlineFeedback(data.context, data.inlineEntry, author)
+      : await saveQcTemplateFeedback(data.context, data.sections ?? data.note, author);
     return NextResponse.json({ data: item, keys: (await listQcTemplateFeedback()).keys });
   } catch (error) {
     const message = error instanceof Error ? error.message : "保存反馈失败";

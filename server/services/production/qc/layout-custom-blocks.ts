@@ -42,35 +42,72 @@ function blankPart(fieldKey: string, blank: string): QcLayoutPart {
   return { type: "line", fieldKey, width, underline: true };
 }
 
-function textParts(template: string, params: Params, keyPrefix = "layout/operation"): QcLayoutPart[] {
-  const text = formatTemplateKeepParams(template, params);
+const INLINE_TOKEN_RE = /\{FIELD:([^}]+)\}|\{\{\s*([\w.-]+)\s*\}\}|\{\s*([\w.-]+)\s*\}|[_＿]{2,}/g;
+
+function literalPart(text: string, mode: "text" | "param", name?: string): QcLayoutPart | null {
+  if (!text) return null;
+  return mode === "param"
+    ? { type: "param", name, defaultValue: text }
+    : { type: "text", text };
+}
+
+function inlineParts(
+  text: string,
+  params: Params,
+  keyPrefix: string,
+  literalMode: "text" | "param" = "text",
+  paramName?: string,
+): QcLayoutPart[] {
   const parts: QcLayoutPart[] = [];
   let cursor = 0;
   let blankIndex = 0;
-  for (const match of text.matchAll(/\{FIELD:([^}]+)\}|\{\{\s*([\w.-]+)\s*\}\}|\{\s*([\w.-]+)\s*\}|[_＿]{2,}/g)) {
-    if (match.index && match.index > cursor) parts.push({ type: "text", text: text.slice(cursor, match.index) });
+  for (const match of text.matchAll(INLINE_TOKEN_RE)) {
+    if (match.index && match.index > cursor) {
+      const literal = literalPart(text.slice(cursor, match.index), literalMode, paramName);
+      if (literal) parts.push(literal);
+    }
     if (match[1]) {
       parts.push(fieldPart(match[1]));
     } else if (match[2] || match[3]) {
       const key = match[2] || match[3];
       const value = params[key];
-      parts.push({
-        type: "param",
-        name: key,
-        defaultValue: value == null || typeof value === "object" ? undefined : String(value),
-      });
+      if (value == null || typeof value === "object") {
+        parts.push({ type: "param", name: key });
+      } else {
+        parts.push(...inlineParts(String(value), params, `${keyPrefix}/${key}`, "param", key));
+      }
     } else {
       blankIndex += 1;
       parts.push(blankPart(`${keyPrefix}/blank_${blankIndex}`, match[0]));
     }
     cursor = match.index + match[0].length;
   }
-  if (cursor < text.length) parts.push({ type: "text", text: text.slice(cursor) });
+  if (cursor < text.length) {
+    const literal = literalPart(text.slice(cursor), literalMode, paramName);
+    if (literal) parts.push(literal);
+  }
   return parts;
+}
+
+function textParts(template: string, params: Params, keyPrefix = "layout/operation"): QcLayoutPart[] {
+  const text = formatTemplateKeepParams(template, params);
+  return inlineParts(text, params, keyPrefix, "text");
 }
 
 function part(raw: unknown): QcLayoutPart {
   const data = asRecord(raw);
+  const stringRecord = (value: unknown): Record<string, string> | undefined => {
+    const record = asRecord(value);
+    const entries = Object.entries(record).map(([key, val]) => [key, asString(val)] as const).filter(([, val]) => !!val);
+    return entries.length ? Object.fromEntries(entries) : undefined;
+  };
+  const stringArrayRecord = (value: unknown): Record<string, string[]> | undefined => {
+    const record = asRecord(value);
+    const entries = Object.entries(record)
+      .map(([key, val]) => [key, asArray(val).map((item) => asString(item)).filter(Boolean)] as const)
+      .filter(([, val]) => val.length > 0);
+    return entries.length ? Object.fromEntries(entries) : undefined;
+  };
   return {
     type: asString(data.type, "text"),
     text: asString(data.text) || undefined,
@@ -78,6 +115,12 @@ function part(raw: unknown): QcLayoutPart {
     fieldKey: asString(data.field_key || data.fieldKey || data.key) || undefined,
     options: asArray(data.options).map((item) => asString(item)).filter(Boolean),
     readonlyDisplay: data.readonly_display === true || data.readOnlyDisplay === true,
+    advancedFormulaText: asString(data.advanced_formula_text || data.advancedFormulaText) || undefined,
+    advancedFormulaTextMap: stringRecord(data.advanced_formula_text_map || data.advancedFormulaTextMap),
+    advancedFormulaValueFieldKey: asString(data.advanced_formula_value_field_key || data.advancedFormulaValueFieldKey) || undefined,
+    advancedDependencyFieldKeys: asArray(data.advanced_dependency_field_keys || data.advancedDependencyFieldKeys).map((item) => asString(item)).filter(Boolean),
+    advancedDependencyFieldKeyMap: stringArrayRecord(data.advanced_dependency_field_key_map || data.advancedDependencyFieldKeyMap),
+    advancedDependencyValueFieldKey: asString(data.advanced_dependency_value_field_key || data.advancedDependencyValueFieldKey) || undefined,
   };
 }
 
@@ -174,6 +217,64 @@ function experimentProjectsTable(raw: Record<string, unknown>, params: Params): 
   };
 }
 
+function precheckFilesTable(raw: Record<string, unknown>, params: Params): QcLayoutBlock {
+  const scope = paramScope(raw, params);
+  const files = asArray(scope[asString(raw.files_param || raw.filesParam, "precheck_files")]);
+  const section = asString(raw.section_suffix || raw.sectionSuffix || raw.section_no || raw.sectionNo, "1.1");
+  const title = asString(raw.file_title || raw.fileTitle || raw.title, "文件");
+  const fieldPrefix = asString(raw.field_prefix || raw.fieldPrefix, "pre_check");
+  const rows: QcLayoutCell[][] = [
+    [cell(`${section} ${title}`, [], 3)],
+    [cell("文件名称"), cell("文件编码"), cell("是否在实验现场")],
+    ...files.map((file, index) => {
+      const item = asRecord(file);
+      return [
+        cell(asString(item.name || item["名称"])),
+        cell(asString(item.code || item["编码"])),
+        cell("", [{ type: "radio", fieldKey: `${fieldPrefix}/file_${index + 1}`, options: ["是", "否"] }]),
+      ];
+    }),
+  ];
+  return {
+    type: "table",
+    label: asString(raw.label, "precheck-files"),
+    rows,
+    order: Number(raw.order) || undefined,
+    moduleOrder: Number(raw.module_order || raw.moduleOrder) || undefined,
+  };
+}
+
+function precheckConfirmTable(raw: Record<string, unknown>, params: Params): QcLayoutBlock {
+  const scope = paramScope(raw, params);
+  const items = asArray(scope[asString(raw.items_param || raw.itemsParam, "precheck_items")]);
+  const envOptions = asArray(scope[asString(raw.env_options_param || raw.envOptionsParam, "precheck_env_options")])
+    .map((option) => asString(option))
+    .filter(Boolean);
+  const sectionBase = asString(raw.section_base || raw.sectionBase || raw.section_suffix || raw.sectionSuffix || raw.section_no || raw.sectionNo, "1");
+  const envTitle = asString(raw.environment_title || raw.environmentTitle, "实验环境");
+  const fieldPrefix = asString(raw.field_prefix || raw.fieldPrefix, "pre_check");
+  const rows: QcLayoutCell[][] = [
+    ...items.map((item, index) => {
+      const data = asRecord(item);
+      return [
+        cell(`${sectionBase}.${index + 2} ${asString(data.name || data["名称"])}`, [], 1),
+        cell("", [{ type: "radio", fieldKey: `${fieldPrefix}/confirm_${index + 1}`, options: ["是", "否"] }], 1),
+      ];
+    }),
+    [
+      cell(`${sectionBase}.${items.length + 2} ${envTitle}`, [], 1),
+      cell("", [{ type: "radio", fieldKey: `${fieldPrefix}/env`, options: envOptions.length ? envOptions : ["符合要求", "不符合要求"] }], 1),
+    ],
+  ];
+  return {
+    type: "table",
+    label: asString(raw.label, "precheck-confirm"),
+    rows,
+    order: Number(raw.order) || undefined,
+    moduleOrder: Number(raw.module_order || raw.moduleOrder) || undefined,
+  };
+}
+
 function sectionedOperationSteps(raw: Record<string, unknown>, params: Params): QcLayoutBlock | null {
   const scope = paramScope(raw, params);
   const steps = asArray(scope[asString(raw.steps_param || raw.stepsParam, "identification_steps")]);
@@ -205,6 +306,8 @@ export function mapCustomLayoutBlock(raw: Record<string, unknown>, params: Param
   if (type === "related_substances_peak_area_calculation") return relatedPeakCalculation(raw, params);
   if (type === "related_substances_weighing_table") return relatedWeighing(raw, params);
   if (type === "experiment_projects_table") return experimentProjectsTable(raw, params);
+  if (type === "precheck_files_table") return precheckFilesTable(raw, params);
+  if (type === "precheck_confirm_table") return precheckConfirmTable(raw, params);
   if (type === "sectioned_operation_steps") return sectionedOperationSteps(raw, params);
   return null;
 }

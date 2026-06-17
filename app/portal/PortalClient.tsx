@@ -21,18 +21,6 @@ export default function PortalClient({ user }: { user: SessionUser }) {
         </svg>
       ),
     },
-    {
-      key: "ops",
-      label: "生产系统",
-      desc: "药物 QC 与生产管理",
-      href: "/ops/",
-      color: "amber" as const,
-      icon: (
-        <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 20h16M5 20V7a2 2 0 114 0v5l4-3v3l5-3v11M9 16h2m3 0h2" />
-        </svg>
-      ),
-    },
   ];
 
   const colorMap: Record<string, { bg: string; text: string; ring: string }> = {

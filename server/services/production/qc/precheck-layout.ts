@@ -1,34 +1,9 @@
 import type {
   QcLayoutBlock,
-  QcLayoutCell,
   QcTemplatePrecheckFile,
   QcTemplatePrecheckItem,
 } from "./types";
 import { loadQcLayoutBlocks } from "./layout-blocks";
-
-function textCell(rawText: string, options: Partial<QcLayoutCell> = {}): QcLayoutCell {
-  return {
-    rawText,
-    parts: [],
-    colspan: 1,
-    rowspan: 1,
-    isEmpty: false,
-    align: "center",
-    ...options,
-  };
-}
-
-function partCell(parts: QcLayoutCell["parts"], options: Partial<QcLayoutCell> = {}): QcLayoutCell {
-  return {
-    rawText: "",
-    parts,
-    colspan: 1,
-    rowspan: 1,
-    isEmpty: false,
-    align: "center",
-    ...options,
-  };
-}
 
 function fileNameText(name: string) {
   const trimmed = name.trim();
@@ -47,51 +22,6 @@ function basisText(precheckInfo: Record<string, string>, files: QcTemplatePreche
   const explicit = precheckInfo["检验依据"]?.trim();
   if (explicit) return explicit;
   return files.slice(0, 2).map(fileWithCodeText).filter(Boolean).join("、");
-}
-
-function precheckConfirmationBlocks(
-  block: QcLayoutBlock,
-  files: QcTemplatePrecheckFile[],
-  items: QcTemplatePrecheckItem[],
-  envOptions: string[],
-): QcLayoutBlock[] {
-  const section = block.sectionSuffix || "1";
-  const fileSection = block.fileSectionSuffix || `${section}.1`;
-  const fileTitle = block.fileTitle || "文件";
-  return [
-    { type: "title", title: block.title || "检验前确认", sectionSuffix: section },
-    {
-      type: "table",
-      label: "precheck-files",
-      rows: [
-        [textCell(`${fileSection} ${fileTitle}`, { colspan: 3, bold: true, align: "left" })],
-        [
-          textCell("文件名称", { width: "55%" }),
-          textCell("文件编码", { width: "25%" }),
-          textCell("是否在实验现场", { width: "20%" }),
-        ],
-        ...files.map((file, index) => [
-          textCell(fileNameText(file.name)),
-          textCell(file.code),
-          partCell([{ type: "radio", fieldKey: `pre_check/file_${index + 1}`, options: ["是", "否"] }]),
-        ]),
-      ],
-    },
-    {
-      type: "table",
-      label: "precheck-confirm",
-      rows: [
-        ...items.map((item, index) => [
-          textCell(`${section}.${index + 2} ${item.name}`, { bold: true, align: "left" }),
-          partCell([{ type: "radio", fieldKey: `pre_check/confirm_${index + 1}`, options: ["是", "否"] }]),
-        ]),
-        [
-          textCell(`${section}.${items.length + 2} 实验环境`, { bold: true, align: "left" }),
-          partCell([{ type: "radio", fieldKey: "pre_check/env", options: envOptions }]),
-        ],
-      ],
-    },
-  ];
 }
 
 export async function buildPrecheckLayoutBlocks(
@@ -120,9 +50,10 @@ export async function buildPrecheckLayoutBlocks(
       sample_quantity: "",
       request_department: precheckInfo["请验部门"] || "",
       basis_text: basis,
+      precheck_files: files.map((file) => ({ name: fileNameText(file.name), code: file.code.trim() })),
+      precheck_items: items.map((item) => ({ name: item.name.trim() })),
+      precheck_env_options: envOptions,
     },
   }) ?? [];
-  return precheckBlocks.flatMap((block): QcLayoutBlock[] => (
-      block.type === "precheck_confirmation" ? precheckConfirmationBlocks(block, files, items, envOptions) : [block]
-    ));
+  return precheckBlocks;
 }

@@ -124,7 +124,7 @@ export const MODULES: ModuleDef[] = [
   { key: "production", label: "生产管理", desc: "批次检验、检验模板", href: "/production", icon: icons.production, color: "cyan", resourceKey: "production",
     children: [
       { key: "qcBatches", label: "批次检验", desc: "批次创建、检验记录填写、提交复核", href: "/production/qc/batches", resourceKey: "production.qc.batches" },
-      { key: "qcTemplates", label: "检验模板", desc: "组件映射建议、方法字段、模板草稿", href: "/production/qc/templates", resourceKey: "production.qc.templates" },
+      { key: "qcTemplates", label: "检验模板", desc: "模板结构浏览、版式预览、反馈收集", href: "/production/qc/templates", resourceKey: "production.qc.templates" },
     ],
   },
   { key: "external", label: "外部关系", desc: "客户、投资人、供应商", href: "/external", icon: icons.customers, color: "orange", resourceKey: "external",

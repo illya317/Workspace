@@ -12,15 +12,9 @@ export {
   getQcTemplateFeedback,
   listQcTemplateFeedback,
   qcTemplateFeedbackKey,
+  saveQcTemplateInlineFeedback,
   saveQcTemplateFeedback,
 } from "./template-feedback";
-export {
-  getInitialQcTemplateEditorDraft,
-  getQcTemplateEditorData,
-  previewQcTemplateEditorDraft,
-  qcTemplateDraftId,
-  saveQcTemplateEditorDraft,
-} from "./template-editor";
 export type {
   QcBatchCreateInput,
   QcBatchList,
@@ -35,22 +29,15 @@ export type {
   QcTemplateDetail,
   QcTemplateFeedbackContext,
   QcTemplateFeedbackItem,
+  QcTemplateInlineFeedbackEntry,
+  QcTemplateInlineFeedbackTarget,
+  QcTemplateInlineFeedbackTargetKind,
   QcTemplateFeedbackList,
+  QcTemplateFeedbackSectionKey,
+  QcTemplateFeedbackSections,
   QcTemplateMethodField,
   QcTemplateMethodGroup,
   QcTemplateStage,
   QcTemplateTestItem,
   QcRecordTemplateSummary,
 } from "./types";
-export type {
-  QcTemplateEditorData,
-  QcTemplateEditorDraft,
-  QcTemplateEditorFieldGroup,
-  QcTemplateEditorNodeType,
-  QcTemplateEditorPreview,
-  QcTemplateEditorTarget,
-  QcTemplateEditorTestDraft,
-  QcTemplateInspectionCatalogItem,
-  QcTemplateInspectionTemplateOption,
-  QcTemplateModuleLibraryItem,
-} from "./template-editor-types";

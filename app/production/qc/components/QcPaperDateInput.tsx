@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { QcLayoutPart } from "@/server/services/production/qc";
-import { QcPaperLineInput } from "./QcPaperInputs";
 
 function todayValue() {
   const date = new Date();
@@ -60,7 +59,7 @@ function DatePartInput({
       onChange={(event) => onChange(event.target.value.replace(/\D/g, "").slice(0, maxLength))}
       onBlur={onBlur}
       readOnly={readOnly}
-      className="border-0 bg-transparent p-0 text-center outline-none"
+      className="border-0 bg-transparent p-0 text-center tabular-nums outline-none"
       style={{ width, font: "inherit" }}
     />
   );
@@ -69,28 +68,30 @@ function DatePartInput({
 export function QcPaperDateInput({
   part,
   value,
+  hourValue,
   onChange,
+  onHourChange,
   readOnly,
 }: {
   part: QcLayoutPart;
   value?: string;
+  hourValue?: string;
   onChange?: (value: string) => void;
+  onHourChange?: (value: string) => void;
   readOnly?: boolean;
 }) {
-  const initialValue = value || part.defaultValue || offsetDateValue(part.defaultOffsetDays) || todayValue();
-  const initial = useMemo(() => normalizeDateParts(...initialValue.split("-") as [string, string, string]), [initialValue]);
-  const [date, setDate] = useState(initial);
+  const fallbackValue = part.defaultValue || offsetDateValue(part.defaultOffsetDays) || todayValue();
+  const [date, setDate] = useState(() => normalizeDateParts(...(value || fallbackValue).split("-") as [string, string, string]));
   useEffect(() => {
-    if (!value && (part.defaultValue || part.defaultOffsetDays != null)) onChange?.(initialValue);
-  }, [initialValue, onChange, part.defaultOffsetDays, part.defaultValue, value]);
+    if (!value) return;
+    setDate(normalizeDateParts(...value.split("-") as [string, string, string]));
+  }, [value]);
 
   function commit(normalize = false) {
     if (!normalize) return;
-    setDate((current) => {
-      const next = normalizeDateParts(current.year, current.month, current.day);
-      onChange?.(`${next.year}-${next.month}-${next.day}`);
-      return next;
-    });
+    const next = normalizeDateParts(date.year, date.month, date.day);
+    setDate(next);
+    onChange?.(`${next.year}-${next.month}-${next.day}`);
   }
 
   const dateValue = `${date.year}-${date.month}-${date.day}`;
@@ -105,7 +106,22 @@ export function QcPaperDateInput({
       <DatePartInput label="日" maxLength={2} value={date.day} width="2ch" onChange={(day) => setDate((current) => ({ ...current, day }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
       <span>日</span>
       <input type="hidden" data-field-key={key} value={dateValue} readOnly />
-      {part.withTime && <QcPaperLineInput part={{ ...part, fieldKey: `${key}_hour`, width: "2em", inputType: "text", placeholder: undefined }} readOnly={isReadOnly} />}
+      {part.withTime && (
+        <DatePartInput
+          label="时"
+          maxLength={2}
+          value={String(hourValue || "")}
+          width="2ch"
+          onChange={(hour) => onHourChange?.(hour)}
+          onBlur={() => {
+            const normalized = String(hourValue || "").replace(/\D/g, "").slice(0, 2);
+            if (!normalized) return;
+            const hour = String(Math.min(23, Math.max(0, Number(normalized)))).padStart(2, "0");
+            onHourChange?.(hour);
+          }}
+          readOnly={isReadOnly}
+        />
+      )}
       {part.withTime && <span>时</span>}
     </span>
   );

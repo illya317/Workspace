@@ -18,7 +18,7 @@ export default async function QcTemplatesPage() {
     <QcModuleShell
       user={user}
       title="检验模板"
-      description="承接组件映射、方法字段和表格布局，先用于收集模板建议，后续扩展为自助搭建模板。"
+      description="查看各产品检验模板结构，支持预览版式并提交反馈。"
       activeResourceKey="production.qc.templates"
     >
       <QcTemplateWorkbench templates={templates} feedbackKeys={feedback.keys} />

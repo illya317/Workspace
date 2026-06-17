@@ -10,17 +10,24 @@
     {
       "template_id": "common/stage_header",
       "order": 0
-    }
-  ],
-  "blocks": [
+    },
     {
-      "type": "precheck_confirmation",
-      "section_no": "1",
-      "title": "检验前确认",
-      "file_section_no": "1.1",
-      "file_title": "文件",
+      "template_id": "common/precheck_files_table",
+      "params": {
+        "section_suffix": "1.1",
+        "file_title": "文件"
+      },
       "order": 10
+    },
+    {
+      "template_id": "common/precheck_confirm_table",
+      "params": {
+        "section_base": "1",
+        "environment_title": "实验环境"
+      },
+      "order": 20
     }
   ],
+  "blocks": [],
   "order": 1
 }

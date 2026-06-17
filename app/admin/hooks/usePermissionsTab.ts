@@ -63,7 +63,7 @@ export function usePermissionsTab(
       if (selectedResource) params.set("resourceKey", selectedResource);
 
       const res = await fetch(
-        `/api/admin/permission-grants?${params.toString()}`
+        `/workspace/api/admin/permission-grants?${params.toString()}`
       );
       if (res.ok) {
         const data = await res.json();

@@ -124,7 +124,17 @@ function toTestItem(
     conclusionFieldKey: conclusionRule ? conclusionFieldKey : undefined,
     hasNumericConclusion: test["结论含数值"] === true,
     cleanupItems: cleanupItems(test),
-    layout: layout ? { ...layout, params: { ...operationParams[layoutKey], ...layout.params } } : undefined,
+    layout: layout ? {
+      ...layout,
+      params: {
+        test_sequence: asString(test["序号"]),
+        test_name: asString(test["名称"]),
+        test_english_name: englishName,
+        test_method_name: methodName,
+        ...operationParams[layoutKey],
+        ...layout.params,
+      },
+    } : undefined,
     methodFile: method.fileName,
     methodGroups: groupsWithConclusion,
   };
@@ -160,6 +170,19 @@ async function toStage(
     precheckItems,
     asRecord(precheck["环境确认"]),
   );
+  const experimentLayoutBlocks = await loadQcLayoutBlocks(configRoot, {
+    key: `parents/experiment_projects_full:${templateId}:${key}`,
+    templateId: "parents/experiment_projects_full",
+    status: "pilot",
+    params: {
+      tests: tests.map((test) => ({
+        sequence: test.sequence,
+        name: test.name,
+        methodName: test.methodName,
+        templateId: test.layout?.templateId || "",
+      })),
+    },
+  });
   return {
     key,
     label: asString(stage["显示名"], key),
@@ -169,6 +192,7 @@ async function toStage(
     precheckFiles,
     precheckItems,
     precheckLayoutBlocks,
+    experimentLayoutBlocks: experimentLayoutBlocks ?? [],
     tests,
   };
 }
