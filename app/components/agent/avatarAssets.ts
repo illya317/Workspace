@@ -10,10 +10,11 @@ export type AgentExpression =
   | "talking" | "questioning" | "surprised" | "disappointed" | "wink" | "sleeping";
 
 const BASE = "/workspace/assets/agent/avatar";
+const MAIN_AVATAR = `${BASE}/01_main-front.webp`;
 
 /** 7 个核心 mood → 图片路径 */
 export const moodAvatar: Record<AgentMood, string> = {
-  idle: `${BASE}/10_status-idle.webp`,
+  idle: MAIN_AVATAR,
   listening: `${BASE}/23_expr-listening-v2.webp`,
   thinking: `${BASE}/26_expr-loading-v2.webp`,
   success: `${BASE}/21_status-success.webp`,
@@ -23,11 +24,11 @@ export const moodAvatar: Record<AgentMood, string> = {
 };
 
 /** 浮窗主图（默认按钮） */
-export const mainAvatar = `${BASE}/01_main-front.webp`;
+export const mainAvatar = MAIN_AVATAR;
 
 /** 姿态映射（拖动/展开/收起） */
 export const poseAvatar: Record<AgentPose, string> = {
-  front: `${BASE}/01_main-front.webp`,
+  front: MAIN_AVATAR,
   side: `${BASE}/02_turn-side.webp`,
   back: `${BASE}/03_turn-back.webp`,
   "45front": `${BASE}/14_turn-45front.webp`,
