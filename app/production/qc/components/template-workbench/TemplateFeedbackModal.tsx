@@ -1,68 +1,61 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { QcTemplateFeedbackItem, QcTemplateFeedbackState } from "@/server/services/production/qc";
 import { feedbackKey, selectionTitle, type FeedbackTarget } from "./types";
 
 const FEEDBACK_FIELDS = [
-  { key: "descriptionText", label: "描述文字", placeholder: "描述文字哪里不对，缺什么，或表达不清。" },
-  { key: "tableLayout", label: "表格布局", placeholder: "表格结构、列宽、合并单元格、对齐等问题。" },
-  { key: "formulaCalculation", label: "公式计算", placeholder: "公式逻辑、取值来源、联动计算的问题。" },
-  { key: "autoFilledText", label: "文字自动填写", placeholder: "自动带出的标准文字、方法文字、结论文字问题。" },
-  { key: "other", label: "其他", placeholder: "其他补充意见。" },
+  { key: "descriptionText", label: "描述文字" },
+  { key: "tableLayout", label: "表格布局" },
+  { key: "formulaCalculation", label: "公式计算" },
+  { key: "autoFilledText", label: "文字自动填写" },
+  { key: "other", label: "其他" },
 ] as const;
 
 type FeedbackFieldKey = typeof FEEDBACK_FIELDS[number]["key"];
 
-type FeedbackSections = Record<FeedbackFieldKey, string>;
-
-const EMPTY_SECTIONS: FeedbackSections = {
-  descriptionText: "",
-  tableLayout: "",
-  formulaCalculation: "",
-  autoFilledText: "",
-  other: "",
-};
-
 interface Props {
   target: FeedbackTarget | null;
   onClose: () => void;
-  onSaved: (keys: string[]) => void;
+  onSaved: (states: Record<string, QcTemplateFeedbackState>) => void;
 }
 
 interface FeedbackResponse {
-  data?: { note?: string; sections?: Partial<FeedbackSections> } | null;
-  keys?: string[];
+  items?: QcTemplateFeedbackItem[];
   error?: string;
 }
 
-export default function TemplateFeedbackModal({ target, onClose, onSaved }: Props) {
-  const [sections, setSections] = useState<FeedbackSections>(EMPTY_SECTIONS);
-  const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const dirtyRef = useRef(false);
-  const key = useMemo(() => target ? feedbackKey(target.context) : "", [target]);
+const SECTION_LABELS: Array<[FeedbackFieldKey, string]> = FEEDBACK_FIELDS.map((field) => [field.key, field.label]);
 
-  function applySections(next?: Partial<FeedbackSections> | null, legacyNote = "") {
-    setSections({
-      descriptionText: next?.descriptionText ?? "",
-      tableLayout: next?.tableLayout ?? "",
-      formulaCalculation: next?.formulaCalculation ?? "",
-      autoFilledText: next?.autoFilledText ?? "",
-      other: next?.other ?? legacyNote ?? "",
-    });
-  }
+function feedbackContent(item: QcTemplateFeedbackItem) {
+  const sectionLines = SECTION_LABELS
+    .map(([key, label]) => {
+      const value = item.sections?.[key]?.trim();
+      return value ? `${label}：${value}` : "";
+    })
+    .filter(Boolean);
+  const inlineLines = (item.inlineEntries || [])
+    .map((entry) => `${entry.target.label}：${entry.note}`)
+    .filter(Boolean);
+  return [...sectionLines, ...inlineLines].join("\n") || item.note || "无内容";
+}
+
+export default function TemplateFeedbackModal({ target, onClose, onSaved }: Props) {
+  const [items, setItems] = useState<QcTemplateFeedbackItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [resolvingKey, setResolvingKey] = useState("");
+  const [error, setError] = useState("");
+  const key = useMemo(() => target ? feedbackKey(target.context) : "", [target]);
 
   useEffect(() => {
     if (!target) return;
     setError("");
-    dirtyRef.current = false;
-    setSections(EMPTY_SECTIONS);
+    setItems([]);
     setLoading(true);
     fetch(`/workspace/api/production/qc/template-feedback?key=${encodeURIComponent(key)}`)
       .then((res) => res.json() as Promise<FeedbackResponse>)
       .then((body) => {
-        if (!dirtyRef.current) applySections(body.data?.sections, body.data?.note ?? "");
+        setItems(body.items ?? []);
       })
       .catch(() => setError("读取反馈失败"))
       .finally(() => setLoading(false));
@@ -70,64 +63,69 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
 
   if (!target) return null;
 
-  async function save() {
-    if (!target) return;
-    setSaving(true);
+  async function setResolved(item: QcTemplateFeedbackItem, resolved: boolean) {
+    setResolvingKey(item.key);
     setError("");
     try {
       const response = await fetch("/workspace/api/production/qc/template-feedback", {
-        method: "POST",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ context: target.context, sections }),
+        body: JSON.stringify({ key: item.key, resolved }),
       });
-      const body = await response.json() as FeedbackResponse;
-      if (!response.ok) throw new Error(body.error || "保存失败");
-      onSaved(body.keys ?? []);
-      onClose();
+      const body = await response.json() as FeedbackResponse & { list?: { states?: Record<string, QcTemplateFeedbackState> } };
+      if (!response.ok) throw new Error(body.error || "更新失败");
+      setItems((current) => current.map((entry) => entry.key === item.key ? { ...entry, resolved } : entry));
+      if (body.list?.states) onSaved(body.list.states);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "保存失败");
+      setError(err instanceof Error ? err.message : "更新失败");
     } finally {
-      setSaving(false);
+      setResolvingKey("");
     }
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 px-4">
-      <div className="w-full max-w-2xl overflow-hidden rounded-lg bg-white shadow-xl">
+      <div className="max-h-[88vh] w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
           <h2 className="text-base font-semibold text-slate-950">反馈</h2>
           <button onClick={onClose} className="rounded-md bg-slate-100 px-3 py-2 text-slate-700 hover:bg-slate-200" aria-label="关闭反馈">×</button>
         </div>
-        <div className="space-y-3 px-5 py-4">
+        <div className="max-h-[calc(88vh-82px)] space-y-4 overflow-y-auto px-5 py-4">
           <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-3 text-sm text-slate-700">
             {selectionTitle(target)}
           </div>
-          <div className="space-y-4">
-            {FEEDBACK_FIELDS.map((field) => (
-              <div key={field.key} className="space-y-1.5">
-                <label className="text-sm font-semibold text-slate-800">{field.label}</label>
-                <textarea
-                  value={sections[field.key]}
-                  onChange={(event) => {
-                    dirtyRef.current = true;
-                    setSections((current) => ({ ...current, [field.key]: event.target.value }));
-                  }}
-                  rows={3}
-                  placeholder={field.placeholder}
-                  className="w-full resize-y rounded-md border border-slate-300 px-3 py-3 text-sm outline-none focus:border-emerald-500"
-                />
+          <section className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-slate-900">全部反馈</h3>
+              <span className="text-xs text-slate-500">{loading ? "读取中" : `${items.length} 条`}</span>
+            </div>
+            <div className="overflow-hidden rounded-lg border border-slate-200">
+              <div className="grid grid-cols-[120px_minmax(0,1fr)_120px] bg-slate-50 text-xs font-semibold text-slate-500">
+                <div className="border-r border-slate-200 px-3 py-2">反馈人</div>
+                <div className="border-r border-slate-200 px-3 py-2">反馈内容</div>
+                <div className="px-3 py-2 text-center">已解决</div>
               </div>
-            ))}
-          </div>
+              {items.length === 0 ? (
+                <div className="px-3 py-6 text-center text-sm text-slate-500">暂无反馈。</div>
+              ) : items.map((item) => (
+                <div key={item.key} className="grid grid-cols-[120px_minmax(0,1fr)_120px] border-t border-slate-200 text-sm">
+                  <div className="border-r border-slate-200 px-3 py-3 font-medium text-slate-800">{item.userName || "未知"}</div>
+                  <div className="whitespace-pre-wrap border-r border-slate-200 px-3 py-3 leading-6 text-slate-700">{feedbackContent(item)}</div>
+                  <label className="flex items-center justify-center gap-2 px-3 py-3 text-slate-700">
+                    <input
+                      type="checkbox"
+                      checked={item.resolved === true}
+                      disabled={resolvingKey === item.key}
+                      onChange={(event) => setResolved(item, event.target.checked)}
+                      className="h-4 w-4 accent-emerald-600"
+                    />
+                    <span>已解决</span>
+                  </label>
+                </div>
+              ))}
+            </div>
+          </section>
           {error && <div className="text-sm font-medium text-red-600">{error}</div>}
-        </div>
-        <div className="flex justify-end gap-2 border-t border-slate-200 px-5 py-4">
-          <button onClick={onClose} className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
-            取消
-          </button>
-          <button onClick={save} disabled={saving} className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:opacity-50">
-            {saving ? "保存中" : "保存反馈"}
-          </button>
         </div>
       </div>
     </div>

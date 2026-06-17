@@ -28,7 +28,9 @@ function scopePrefix(fieldKey: string) {
 
 function constantRuleResult(rule: string) {
   const compact = rule.replace(/\s/g, "");
+  if (compact.includes("标准规定") || compact.includes("各项规定")) return null;
   if (/[<>=!&|+\-*/%^]/.test(compact)) return null;
+  if (compact !== "符合" && compact !== "不符合") return null;
   if (compact.includes("不符合")) return false;
   if (compact.includes("符合")) return true;
   return null;

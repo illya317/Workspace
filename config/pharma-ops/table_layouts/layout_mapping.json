@@ -191,7 +191,12 @@
               {
                 "type": "field",
                 "field": "单杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "单杂 = 供试品单杂峰面积 / 对照溶液峰面积 × 100",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品单杂峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -221,7 +226,12 @@
               {
                 "type": "field",
                 "field": "总杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "总杂 = 供试品总杂峰面积 / 对照溶液峰面积 × 100",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品总杂峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -1040,7 +1050,12 @@
               {
                 "type": "field",
                 "field": "总杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "总杂 = 供试品总杂峰面积 / 对照溶液峰面积 × 100",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品总杂峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -1070,7 +1085,12 @@
               {
                 "type": "field",
                 "field": "单杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "单杂 = 供试品单杂峰面积 / 对照溶液峰面积 × 100",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品单杂峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -1371,7 +1391,12 @@
               {
                 "type": "field",
                 "field": "杂质H",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "杂质H = 杂质H峰面积 × 0.1 / 对照溶液主峰面积 × 0.5",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液主峰面积",
+                  "finished/related_substances/s0/杂质H峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -1393,7 +1418,12 @@
               {
                 "type": "field",
                 "field": "杂质Q",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "杂质Q = 杂质Q峰面积 × 0.4 / 对照溶液主峰面积 × 0.5",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液主峰面积",
+                  "finished/related_substances/s0/杂质Q峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -1415,7 +1445,12 @@
               {
                 "type": "field",
                 "field": "杂质B",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "杂质B = 杂质B峰面积 / 对照溶液主峰面积 × 0.5",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液主峰面积",
+                  "finished/related_substances/s0/杂质B峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -1437,7 +1472,12 @@
               {
                 "type": "field",
                 "field": "其他单杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "其他单杂 = 其他单个最大杂质峰面积 / 对照溶液主峰面积 × 0.5",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液主峰面积",
+                  "finished/related_substances/s0/其他单个最大杂质峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -1459,41 +1499,16 @@
               {
                 "type": "field",
                 "field": "总杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "总杂 = 各杂质校正峰面积和 / 对照溶液主峰面积 × 0.5",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液主峰面积",
+                  "finished/related_substances/s0/各杂质校正峰面积和"
+                ]
               },
               {
                 "type": "text",
                 "text": "% 应≤4.0%（对照）"
-              }
-            ]
-          },
-          {
-            "label": "单杂%=",
-            "parts": [
-              {
-                "type": "field",
-                "field": "供试品单杂峰面积"
-              },
-              {
-                "type": "text",
-                "text": " / "
-              },
-              {
-                "type": "field",
-                "field": "对照溶液峰面积"
-              },
-              {
-                "type": "text",
-                "text": " ×100% = "
-              },
-              {
-                "type": "field",
-                "field": "单杂",
-                "readonly_display": true
-              },
-              {
-                "type": "text",
-                "text": "%"
               }
             ]
           }
@@ -1929,7 +1944,12 @@
               {
                 "type": "field",
                 "field": "单杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "单杂 = 供试品单杂峰面积 / 对照溶液峰面积 × 100",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品单杂峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -1959,7 +1979,12 @@
               {
                 "type": "field",
                 "field": "总杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "总杂 = 供试品总杂峰面积 / 对照溶液峰面积 × 100",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品总杂峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -2822,7 +2847,12 @@
               {
                 "type": "field",
                 "field": "杂质A",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "杂质A = 杂质A峰面积 / 杂质A对照品峰面积 ×100%",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/杂质A峰面积",
+                  "finished/related_substances/s0/杂质A对照品峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -2852,7 +2882,12 @@
               {
                 "type": "field",
                 "field": "其他单杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "其他单杂 = 其他单个最大杂质峰面积 / 对照溶液主峰面积 ×100%",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/其他单个最大杂质峰面积",
+                  "finished/related_substances/s0/对照溶液主峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -2882,37 +2917,12 @@
               {
                 "type": "field",
                 "field": "总杂",
-                "readonly_display": true
-              },
-              {
-                "type": "text",
-                "text": "%"
-              }
-            ]
-          },
-          {
-            "label": "单杂%=",
-            "parts": [
-              {
-                "type": "field",
-                "field": "供试品单杂峰面积"
-              },
-              {
-                "type": "text",
-                "text": " / "
-              },
-              {
-                "type": "field",
-                "field": "对照溶液峰面积"
-              },
-              {
-                "type": "text",
-                "text": " ×100% = "
-              },
-              {
-                "type": "field",
-                "field": "单杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "总杂 = 其他各杂质峰面积和 / 对照溶液主峰面积 ×100%",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/其他各杂质峰面积和",
+                  "finished/related_substances/s0/对照溶液主峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -3405,7 +3415,12 @@
               {
                 "type": "field",
                 "field": "总杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "总杂 = 供试品总杂峰面积 / 对照溶液峰面积 × 100",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品总杂峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -3435,7 +3450,12 @@
               {
                 "type": "field",
                 "field": "单杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "单杂 = 供试品单杂峰面积 / 对照溶液峰面积 × 100",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品单杂峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -3783,7 +3803,12 @@
               {
                 "type": "field",
                 "field": "单杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "单杂 = 供试品单个最大杂质峰面积 / 对照溶液峰面积",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品单个最大杂质峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -3813,7 +3838,12 @@
               {
                 "type": "field",
                 "field": "总杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "总杂 = 供试品总杂质峰面积 / 对照溶液峰面积",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品总杂质峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -4080,7 +4110,11 @@
               {
                 "type": "field",
                 "field": "254nm杂质",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "254nm杂质 = 供试品杂质峰面积和254nm ×100%",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/供试品杂质峰面积和254nm"
+                ]
               },
               {
                 "type": "text",
@@ -4102,7 +4136,11 @@
               {
                 "type": "field",
                 "field": "283nm坎利酮",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "283nm坎利酮 = 供试品坎利酮峰面积283nm ×100%",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/供试品坎利酮峰面积283nm"
+                ]
               },
               {
                 "type": "text",
@@ -4116,37 +4154,12 @@
               {
                 "type": "field",
                 "field": "总杂",
-                "readonly_display": true
-              },
-              {
-                "type": "text",
-                "text": "%"
-              }
-            ]
-          },
-          {
-            "label": "单杂%=",
-            "parts": [
-              {
-                "type": "field",
-                "field": "供试品单杂峰面积"
-              },
-              {
-                "type": "text",
-                "text": " / "
-              },
-              {
-                "type": "field",
-                "field": "对照溶液峰面积"
-              },
-              {
-                "type": "text",
-                "text": " ×100% = "
-              },
-              {
-                "type": "field",
-                "field": "单杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "总杂 = 254nm杂质 + 283nm坎利酮",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/254nm杂质",
+                  "finished/related_substances/s0/283nm坎利酮"
+                ]
               },
               {
                 "type": "text",
@@ -4386,7 +4399,12 @@
               {
                 "type": "field",
                 "field": "单杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "单杂 = 供试品单杂峰面积 / 对照溶液峰面积 × 0.5",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品单杂峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -4416,7 +4434,12 @@
               {
                 "type": "field",
                 "field": "总杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "总杂 = 供试品总杂峰面积 / 对照溶液峰面积 × 0.5",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品总杂峰面积"
+                ]
               },
               {
                 "type": "text",
@@ -4661,37 +4684,12 @@
               {
                 "type": "field",
                 "field": "总杂",
-                "readonly_display": true
-              },
-              {
-                "type": "text",
-                "text": "%"
-              }
-            ]
-          },
-          {
-            "label": "单杂%=",
-            "parts": [
-              {
-                "type": "field",
-                "field": "供试品单杂峰面积"
-              },
-              {
-                "type": "text",
-                "text": " / "
-              },
-              {
-                "type": "field",
-                "field": "对照溶液峰面积"
-              },
-              {
-                "type": "text",
-                "text": " ×100% = "
-              },
-              {
-                "type": "field",
-                "field": "单杂",
-                "readonly_display": true
+                "readonly_display": true,
+                "advanced_formula_text": "总杂 = 供试品总杂峰面积 / 对照溶液峰面积",
+                "advanced_dependency_field_keys": [
+                  "finished/related_substances/s0/对照溶液峰面积",
+                  "finished/related_substances/s0/供试品总杂峰面积"
+                ]
               },
               {
                 "type": "text",

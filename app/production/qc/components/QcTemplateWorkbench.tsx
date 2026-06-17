@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
-import type { QcTemplateDetail } from "@/server/services/production/qc";
+import type { QcTemplateDetail, QcTemplateFeedbackState } from "@/server/services/production/qc";
 import TemplateFeedbackModal from "./template-workbench/TemplateFeedbackModal";
 import TemplatePreviewModal from "./template-workbench/TemplatePreviewModal";
 import StageRows, { testMatches } from "./template-workbench/WorkbenchRows";
@@ -8,7 +8,7 @@ import type { FeedbackTarget, WorkbenchSelection } from "./template-workbench/ty
 
 interface Props {
   templates: QcTemplateDetail[];
-  feedbackKeys: string[];
+  feedbackStates: Record<string, QcTemplateFeedbackState>;
 }
 
 function templateMatches(template: QcTemplateDetail, keyword: string) {
@@ -21,16 +21,15 @@ function itemCount(template: QcTemplateDetail) {
   return template.stages.reduce((sum, stage) => sum + stage.tests.length, 0);
 }
 
-export default function QcTemplateWorkbench({ templates, feedbackKeys }: Props) {
+export default function QcTemplateWorkbench({ templates, feedbackStates }: Props) {
   const [query, setQuery] = useState("");
   const [activeProduct, setActiveProduct] = useState("all");
   const [preview, setPreview] = useState<WorkbenchSelection | null>(null);
   const [feedback, setFeedback] = useState<FeedbackTarget | null>(null);
-  const [knownFeedbackKeys, setKnownFeedbackKeys] = useState(feedbackKeys);
+  const [knownFeedbackStates, setKnownFeedbackStates] = useState(feedbackStates);
   const firstStageKey = templates[0]?.stages[0] ? `${templates[0].id}:${templates[0].stages[0].key}` : "";
   const [expandedStages, setExpandedStages] = useState<Set<string>>(new Set(firstStageKey ? [firstStageKey] : []));
   const keyword = query.trim().toLowerCase();
-  const feedbackSet = useMemo(() => new Set(knownFeedbackKeys), [knownFeedbackKeys]);
   const visibleTemplates = useMemo(() => templates.filter((template) => {
     const productOk = activeProduct === "all" || template.id === activeProduct;
     return productOk && templateMatches(template, keyword);
@@ -42,6 +41,16 @@ export default function QcTemplateWorkbench({ templates, feedbackKeys }: Props) 
       const next = new Set(current);
       if (next.has(key)) next.delete(key);
       else next.add(key);
+      return next;
+    });
+  }
+
+  function markFeedbackKeysOpen(keys: string[]) {
+    setKnownFeedbackStates((current) => {
+      const next = { ...current };
+      for (const key of keys) {
+        if (!next[key]) next[key] = "open";
+      }
       return next;
     });
   }
@@ -84,7 +93,7 @@ export default function QcTemplateWorkbench({ templates, feedbackKeys }: Props) 
                 index={index}
                 keyword={keyword}
                 expanded={expandedStages.has(`${template.id}:${stage.key}`)}
-                feedbackSet={feedbackSet}
+                feedbackStates={knownFeedbackStates}
                 onToggle={() => toggleStage(template.id, stage.key)}
                 onPreview={setPreview}
                 onFeedback={setFeedback}
@@ -94,8 +103,8 @@ export default function QcTemplateWorkbench({ templates, feedbackKeys }: Props) 
         ))}
         {visibleTemplates.length === 0 && <div className="rounded-lg border border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-500">没有匹配的模板。</div>}
       </div>
-      <TemplatePreviewModal selection={preview} onClose={() => setPreview(null)} onSaved={setKnownFeedbackKeys} />
-      <TemplateFeedbackModal target={feedback} onClose={() => setFeedback(null)} onSaved={setKnownFeedbackKeys} />
+      <TemplatePreviewModal selection={preview} onClose={() => setPreview(null)} onSaved={markFeedbackKeysOpen} />
+      <TemplateFeedbackModal target={feedback} onClose={() => setFeedback(null)} onSaved={setKnownFeedbackStates} />
     </section>
   );
 }

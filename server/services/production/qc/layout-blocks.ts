@@ -2,84 +2,28 @@ import "server-only";
 import path from "path";
 import { readFile } from "fs/promises";
 import { mapCustomLayoutBlock } from "./layout-custom-blocks";
-import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcRecommendedRange, QcTemplateLayoutAssignment } from "./types";
+import {
+  asArray,
+  asBoolean,
+  asNumber,
+  asRange,
+  asRecord,
+  asString,
+  formatText,
+  maybeNumber,
+  maybePositiveNumber,
+  normalizeKey,
+  paramString,
+  safeFile,
+  stringArrayRecord,
+  stringRecord,
+  substitute,
+  widthFromChars,
+  type LayoutParams,
+} from "./layout-block-utils";
+import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcTemplateLayoutAssignment } from "./types";
 
-type Params = Record<string, unknown>;
-
-function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
-}
-
-function asArray(value: unknown): unknown[] { return Array.isArray(value) ? value : []; }
-
-function asString(value: unknown, fallback = "") {
-  return typeof value === "string" || typeof value === "number" ? String(value) : fallback;
-}
-
-function asBoolean(value: unknown) { return typeof value === "boolean" ? value : undefined; }
-
-function asNumber(value: unknown, fallback = 1) {
-  const num = Number(value);
-  return Number.isFinite(num) && num > 0 ? num : fallback;
-}
-
-function maybeNumber(value: unknown) {
-  const num = Number(value);
-  return Number.isFinite(num) ? num : undefined;
-}
-
-function maybePositiveNumber(value: unknown) {
-  const num = Number(value);
-  return Number.isFinite(num) && num > 0 ? num : undefined;
-}
-
-function stringRecord(value: unknown): Record<string, string> | undefined {
-  const record = asRecord(value);
-  const entries = Object.entries(record)
-    .map(([key, val]) => [key, asString(val)] as const)
-    .filter(([, val]) => !!val);
-  return entries.length ? Object.fromEntries(entries) : undefined;
-}
-
-function stringArrayRecord(value: unknown): Record<string, string[]> | undefined {
-  const record = asRecord(value);
-  const entries = Object.entries(record)
-    .map(([key, val]) => [key, asArray(val).map((item) => asString(item)).filter(Boolean)] as const)
-    .filter(([, val]) => val.length > 0);
-  return entries.length ? Object.fromEntries(entries) : undefined;
-}
-
-function asRange(value: unknown): QcRecommendedRange | undefined {
-  if (Array.isArray(value)) {
-    return { min: maybeNumber(value[0]) ?? null, max: maybeNumber(value[1]) ?? null };
-  }
-  const range = asRecord(value);
-  const min = maybeNumber(range.min);
-  const max = maybeNumber(range.max);
-  return min === undefined && max === undefined ? undefined : { min: min ?? null, max: max ?? null };
-}
-
-function normalizeKey(key: string) {
-  const clean = path.posix.normalize(key.replace(/\\/g, "/").replace(/\.json$/, ""));
-  if (!clean || clean.startsWith("../") || clean === ".." || path.isAbsolute(clean)) {
-    throw new Error("Invalid QC layout key");
-  }
-  return clean;
-}
-
-function safeFile(root: string, key: string) {
-  const filePath = path.resolve(root, `${normalizeKey(key)}.json`);
-  if (filePath !== root && !filePath.startsWith(`${root}${path.sep}`)) {
-    throw new Error("Invalid QC layout key");
-  }
-  return filePath;
-}
-
-function widthFromChars(value: unknown) {
-  const chars = Number(value);
-  if (!Number.isFinite(chars) || chars <= 0) return undefined;
-  return `${Math.max(2.5, chars * 0.62)}rem`;
-}
+type Params = LayoutParams;
 
 function mapPart(value: unknown, params: Params = {}): QcLayoutPart {
   const part = asRecord(value);
@@ -142,11 +86,6 @@ function mapCell(value: unknown, params: Params = {}): QcLayoutCell {
   };
 }
 
-function paramString(params: Params, name: string) {
-  const value = params[name];
-  return typeof value === "string" || typeof value === "number" ? String(value) : undefined;
-}
-
 function applyBlockParams(block: Record<string, unknown>, params: Params) {
   const overrideKeys = [
     "temperature_range", "humidity_limit", "room_rows", "devices", "materials", "standards", "items", "field_prefix",
@@ -203,23 +142,6 @@ function mapBlock(value: unknown, params: Params = {}): QcLayoutBlock | null {
     order: Number(raw.order) || undefined,
     moduleOrder: Number(raw.module_order || raw.moduleOrder) || undefined,
   };
-}
-
-function substitute(value: unknown, params: Params): unknown {
-  if (typeof value === "string") return formatText(value, params);
-  if (Array.isArray(value)) return value.map((item) => substitute(item, params));
-  if (value && typeof value === "object") {
-    return Object.fromEntries(Object.entries(value).map(([key, val]) => [key, substitute(val, params)]));
-  }
-  return value;
-}
-
-function formatText(text: string, params: Params) {
-  return text.replace(/\{\{\s*([\w.-]+)\s*\}\}|\{\s*([\w.-]+)\s*\}/g, (match, a, b) => {
-    const key = a || b;
-    const value = params[key];
-    return value === undefined || typeof value === "object" ? match : String(value);
-  });
 }
 
 async function readJson(filePath: string) {

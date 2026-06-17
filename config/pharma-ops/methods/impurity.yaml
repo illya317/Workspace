@@ -244,35 +244,31 @@ methods:
   - name: 各杂质校正峰面积和
     type: number
     attr: fillable
-  - name: 对照折算系数
-    type: number
-    attr: prefilled
-    default: 0.5
   - name: 杂质B
     unit: '%'
     type: number
     attr: calculated
-    formula: 杂质B峰面积 / 对照溶液主峰面积 * 对照折算系数
+    formula: 杂质B峰面积 / 对照溶液主峰面积 * 0.5
   - name: 杂质H
     unit: '%'
     type: number
     attr: calculated
-    formula: 杂质H峰面积 * 0.1 / 对照溶液主峰面积 * 对照折算系数
+    formula: 杂质H峰面积 * 0.1 / 对照溶液主峰面积 * 0.5
   - name: 杂质Q
     unit: '%'
     type: number
     attr: calculated
-    formula: 杂质Q峰面积 * 0.4 / 对照溶液主峰面积 * 对照折算系数
+    formula: 杂质Q峰面积 * 0.4 / 对照溶液主峰面积 * 0.5
   - name: 其他单杂
     unit: '%'
     type: number
     attr: calculated
-    formula: 其他单个最大杂质峰面积 / 对照溶液主峰面积 * 对照折算系数
+    formula: 其他单个最大杂质峰面积 / 对照溶液主峰面积 * 0.5
   - name: 总杂
     unit: '%'
     type: number
     attr: calculated
-    formula: 各杂质校正峰面积和 / 对照溶液主峰面积 * 对照折算系数
+    formula: 各杂质校正峰面积和 / 对照溶液主峰面积 * 0.5
   有关物质-维拉帕米:
   - name: 系统适用性理论板数
     type: number

@@ -1,113 +1,18 @@
+import {
+  asArray,
+  asRecord,
+  asString,
+  stringArrayRecord,
+  stringRecord,
+  type LayoutParams,
+} from "./layout-block-utils";
+import { paramScope, textParts } from "./layout-inline-parts";
 import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart } from "./types";
 
-type Params = Record<string, unknown>;
-
-function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
-}
-
-function asArray(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : [];
-}
-
-function asString(value: unknown, fallback = "") {
-  return typeof value === "string" || typeof value === "number" ? String(value) : fallback;
-}
-
-function paramScope(raw: Record<string, unknown>, params: Params) {
-  const path = asString(raw.params_path || raw.paramsPath);
-  return path ? { ...params, ...asRecord(params[path]) } : params;
-}
-
-function formatText(text: string, params: Params) {
-  return text
-    .replace(/\[([^\]]*\{([\w.-]+)\}[^\]]*)\]/g, (match, body, key) => params[key] == null || params[key] === "" ? "" : body)
-    .replace(/\{\{\s*([\w.-]+)\s*\}\}|\{\s*([\w.-]+)\s*\}/g, (match, a, b) => {
-      const value = params[a || b];
-      return value === undefined || typeof value === "object" ? match : String(value);
-    });
-}
-
-function formatTemplateKeepParams(text: string, params: Params) {
-  return text.replace(/\[([^\]]*\{([\w.-]+)\}[^\]]*)\]/g, (match, body, key) => params[key] == null || params[key] === "" ? "" : body);
-}
-
-function fieldPart(label: string): QcLayoutPart {
-  const match = label.match(/^(.+?)（(.+)）$/);
-  return { type: "line", field: match?.[1] || label, placeholder: match?.[2], width: "6.5rem", underline: true };
-}
-
-function blankPart(fieldKey: string, blank: string): QcLayoutPart {
-  const width = `${Math.max(3.5, Math.min(12, blank.length * 0.9))}em`;
-  return { type: "line", fieldKey, width, underline: true };
-}
-
-const INLINE_TOKEN_RE = /\{FIELD:([^}]+)\}|\{\{\s*([\w.-]+)\s*\}\}|\{\s*([\w.-]+)\s*\}|[_＿]{2,}/g;
-
-function literalPart(text: string, mode: "text" | "param", name?: string): QcLayoutPart | null {
-  if (!text) return null;
-  return mode === "param"
-    ? { type: "param", name, defaultValue: text }
-    : { type: "text", text };
-}
-
-function inlineParts(
-  text: string,
-  params: Params,
-  keyPrefix: string,
-  literalMode: "text" | "param" = "text",
-  paramName?: string,
-): QcLayoutPart[] {
-  const parts: QcLayoutPart[] = [];
-  let cursor = 0;
-  let blankIndex = 0;
-  for (const match of text.matchAll(INLINE_TOKEN_RE)) {
-    if (match.index && match.index > cursor) {
-      const literal = literalPart(text.slice(cursor, match.index), literalMode, paramName);
-      if (literal) parts.push(literal);
-    }
-    if (match[1]) {
-      parts.push(fieldPart(match[1]));
-    } else if (match[2] || match[3]) {
-      const key = match[2] || match[3];
-      const value = params[key];
-      if (value == null || typeof value === "object") {
-        parts.push({ type: "param", name: key });
-      } else {
-        parts.push(...inlineParts(String(value), params, `${keyPrefix}/${key}`, "param", key));
-      }
-    } else {
-      blankIndex += 1;
-      parts.push(blankPart(`${keyPrefix}/blank_${blankIndex}`, match[0]));
-    }
-    cursor = match.index + match[0].length;
-  }
-  if (cursor < text.length) {
-    const literal = literalPart(text.slice(cursor), literalMode, paramName);
-    if (literal) parts.push(literal);
-  }
-  return parts;
-}
-
-function textParts(template: string, params: Params, keyPrefix = "layout/operation"): QcLayoutPart[] {
-  const text = formatTemplateKeepParams(template, params);
-  return inlineParts(text, params, keyPrefix, "text");
-}
+type Params = LayoutParams;
 
 function part(raw: unknown): QcLayoutPart {
   const data = asRecord(raw);
-  const stringRecord = (value: unknown): Record<string, string> | undefined => {
-    const record = asRecord(value);
-    const entries = Object.entries(record).map(([key, val]) => [key, asString(val)] as const).filter(([, val]) => !!val);
-    return entries.length ? Object.fromEntries(entries) : undefined;
-  };
-  const stringArrayRecord = (value: unknown): Record<string, string[]> | undefined => {
-    const record = asRecord(value);
-    const entries = Object.entries(record)
-      .map(([key, val]) => [key, asArray(val).map((item) => asString(item)).filter(Boolean)] as const)
-      .filter(([, val]) => val.length > 0);
-    return entries.length ? Object.fromEntries(entries) : undefined;
-  };
   return {
     type: asString(data.type, "text"),
     text: asString(data.text) || undefined,

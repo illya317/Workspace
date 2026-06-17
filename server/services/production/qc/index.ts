@@ -10,10 +10,12 @@ export {
 } from "./batches";
 export {
   getQcTemplateFeedback,
+  listQcTemplateFeedbackByContext,
   listQcTemplateFeedback,
   qcTemplateFeedbackKey,
   saveQcTemplateInlineFeedback,
   saveQcTemplateFeedback,
+  updateQcTemplateFeedbackResolved,
 } from "./template-feedback";
 export type {
   QcBatchCreateInput,
@@ -29,6 +31,7 @@ export type {
   QcTemplateDetail,
   QcTemplateFeedbackContext,
   QcTemplateFeedbackItem,
+  QcTemplateFeedbackState,
   QcTemplateInlineFeedbackEntry,
   QcTemplateInlineFeedbackTarget,
   QcTemplateInlineFeedbackTargetKind,

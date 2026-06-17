@@ -82,7 +82,7 @@ export default function TemplatePreviewModal({ selection, onClose, onSaved }: Pr
               onClick={() => setAdvancedMode((current) => !current)}
               className={`justify-self-center rounded-md border px-4 py-2 text-sm font-semibold ${advancedMode ? "border-red-200 bg-red-50 text-red-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`}
             >
-              {advancedMode ? "预览模式" : "开发模式"}
+              {advancedMode ? "开发模式" : "预览模式"}
             </button>
             <button
               onClick={onClose}

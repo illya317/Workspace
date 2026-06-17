@@ -21,7 +21,7 @@ export default async function QcTemplatesPage() {
       description="查看各产品检验模板结构，支持预览版式并提交反馈。"
       activeResourceKey="production.qc.templates"
     >
-      <QcTemplateWorkbench templates={templates} feedbackKeys={feedback.keys} />
+      <QcTemplateWorkbench templates={templates} feedbackStates={feedback.states} />
     </QcModuleShell>
   );
 }

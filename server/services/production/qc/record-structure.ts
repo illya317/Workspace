@@ -33,6 +33,14 @@ function asString(value: unknown, fallback = "") {
   return typeof value === "string" || typeof value === "number" ? String(value) : fallback;
 }
 
+function isComputableConclusionRule(rule: string) {
+  const compact = rule.replace(/\s/g, "");
+  if (!compact) return false;
+  if (compact.includes("标准规定") || compact.includes("各项规定")) return false;
+  if (compact === "符合" || compact === "不符合") return false;
+  return /[<>=!&|+\-*/%^]/.test(compact);
+}
+
 async function readYamlFile(filePath: string): Promise<unknown> {
   const text = await readFile(filePath, "utf8");
   return parseYaml(text, { uniqueKeys: false });
@@ -98,7 +106,8 @@ function toTestItem(
   const conclusion = asRecord(test["结论判定"]);
   const conclusionRule = asString(conclusion.rule);
   const conclusionFieldKey = `${stageKey}/${englishName || "test"}/conclusion/result`;
-  const groupsWithConclusion: QcTemplateMethodGroup[] = conclusionRule
+  const shouldAutoJudgeConclusion = isComputableConclusionRule(conclusionRule);
+  const groupsWithConclusion: QcTemplateMethodGroup[] = shouldAutoJudgeConclusion
     ? [...method.groups, {
       name: "结论",
       fields: [{
@@ -121,7 +130,7 @@ function toTestItem(
     methodName,
     standardText: summarizeStandard(test),
     conclusionName: asString(test["结论名称"]) || undefined,
-    conclusionFieldKey: conclusionRule ? conclusionFieldKey : undefined,
+    conclusionFieldKey,
     hasNumericConclusion: test["结论含数值"] === true,
     cleanupItems: cleanupItems(test),
     layout: layout ? {

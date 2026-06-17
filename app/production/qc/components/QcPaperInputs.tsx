@@ -1,5 +1,4 @@
 "use client";
-
 import type { CSSProperties, ChangeEvent } from "react";
 import type { QcLayoutPart } from "@/server/services/production/qc";
 
