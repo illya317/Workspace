@@ -4,12 +4,13 @@
  */
 
 import type { AgentMood } from "./types";
+import { withAgentBasePath } from "./paths";
 
 export type AgentPose = "front" | "side" | "back" | "45front" | "45back";
 export type AgentExpression =
   | "talking" | "questioning" | "surprised" | "disappointed" | "wink" | "sleeping";
 
-const BASE = "/workspace/assets/agent/avatar";
+const BASE = withAgentBasePath("/assets/agent/avatar");
 const MAIN_AVATAR = `${BASE}/01_main-front.webp`;
 
 /** 7 个核心 mood → 图片路径 */

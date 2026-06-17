@@ -7,8 +7,8 @@ import AgentFloatingButton from "./AgentFloatingButton";
 import { coreMoods, preloadImages } from "./avatarAssets";
 import AgentPanel from "./AgentPanel";
 import AgentConfirmModal from "./AgentConfirmModal";
+import { stripAgentBasePath, withAgentBasePath } from "./paths";
 
-const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 const PUBLIC_PATHS = new Set(["/", "/login"]);
 
 export default function AgentProvider() {
@@ -23,9 +23,7 @@ export default function AgentProvider() {
   const [hintsLoaded, setHintsLoaded] = useState(false);
   const [enabled, setEnabled] = useState(false);
 
-  const normalizedPath = pathname?.startsWith(BASE_PATH)
-    ? pathname.slice(BASE_PATH.length) || "/"
-    : pathname || "/";
+  const normalizedPath = stripAgentBasePath(pathname);
   const isPublicPath = PUBLIC_PATHS.has(normalizedPath);
 
   useEffect(() => {
@@ -34,7 +32,7 @@ export default function AgentProvider() {
     if (isPublicPath) return;
 
     let cancelled = false;
-    fetch(`${BASE_PATH}/api/agent/capabilities`)
+    fetch(withAgentBasePath("/api/agent/capabilities"))
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
         if (cancelled) return;
@@ -51,7 +49,7 @@ export default function AgentProvider() {
     if (!enabled || !isOpen) return;
     preloadImages(coreMoods);
     setHintsLoaded(false);
-    fetch(`${BASE_PATH}/api/agent/capabilities`)
+    fetch(withAgentBasePath("/api/agent/capabilities"))
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
         setHints(d?.capabilities?.map((c: { label: string }) => c.label) ?? []);

@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import type { AgentMood, AgentMessage } from "./types";
+import { withAgentBasePath } from "./paths";
 
 let _msgId = 0;
 function nextMsgId(): string { return `msg-${Date.now()}-${++_msgId}`; }
@@ -116,7 +117,7 @@ export function useAgentSession() {
       .map((m) => ({ role: m.role as "user" | "agent", content: m.content }));
 
     try {
-      const res = await fetch("/workspace/api/agent", {
+      const res = await fetch(withAgentBasePath("/api/agent"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text.trim(), history }),
@@ -124,7 +125,7 @@ export function useAgentSession() {
       });
 
       if (!res.ok) {
-        if (res.status === 401) { window.location.href = "/login"; return; }
+        if (res.status === 401) { window.location.href = withAgentBasePath("/login"); return; }
         const err = await res.json().catch(() => ({ error: "Request failed" }));
         const errMsg = makeMessage("system", err.error || "请求失败");
         const errMessages = [...beforeMessages, errMsg];
@@ -176,7 +177,7 @@ export function useAgentSession() {
   const confirmProposal = useCallback(async () => {
     const p = pendingRef.current;
     if (!p) return;
-    const res = await fetch(`/workspace/api/agent/proposals/${p.proposal.id}/confirm`, { method: "POST" });
+    const res = await fetch(withAgentBasePath(`/api/agent/proposals/${p.proposal.id}/confirm`), { method: "POST" });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: "确认失败" }));
       throw new Error(err.error || "确认失败");
@@ -191,7 +192,7 @@ export function useAgentSession() {
   const cancelProposal = useCallback(async () => {
     const p = pendingRef.current;
     if (!p) return;
-    fetch(`/workspace/api/agent/proposals/${p.proposal.id}/cancel`, { method: "POST" }).catch(() => {});
+    fetch(withAgentBasePath(`/api/agent/proposals/${p.proposal.id}/cancel`), { method: "POST" }).catch(() => {});
     addMessage("system", "已取消变更");
     setPendingProposal(null);
     setMood("idle");
