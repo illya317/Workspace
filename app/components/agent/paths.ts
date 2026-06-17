@@ -1,6 +1,10 @@
 "use client";
 
-export const agentBasePath = "/workspace";
+const rawBasePath = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
+
+export const agentBasePath = rawBasePath === "/"
+  ? ""
+  : rawBasePath.replace(/\/$/, "");
 
 export function withAgentBasePath(path: string): string {
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
