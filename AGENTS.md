@@ -13,20 +13,21 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
 - **数据库**: Prisma ORM + SQLite (`data/dev.db`)
 - **认证**: JWT Cookie + API Key (个人)
-- **部署**: push 到 CNB（CNB/Linux CI 构建 standalone 产物；CVM + PM2 只解包产物并重启）
+- **部署**: CNB API/CLI 触发发布（CNB/Linux CI 构建 standalone 产物；CVM + PM2 只解包产物并重启）
 
 ## 部署与运行态同步
 
-- 仓库默认远端 `origin` 使用 CNB：`https://cnb.cool/illya317/Workspace.git`。日常发布走 `git push origin main`。
-- 本地不直连服务器部署；部署必须在 `main` 分支先 commit，再 push 到 CNB，由 `.cnb.yml` 触发云构建和发布。
-- CNB/远端 CI 自动部署使用 `./ops/deploy.sh`，在 CI 容器里完成检查与构建，然后只把 `.next/standalone` 产物包上传到服务器；服务器不执行 `npm ci` / `npm run build`。
+- 仓库默认远端 `origin` 使用 CNB：`https://cnb.cool/illya317/Workspace.git`。
+- `git push origin main` 只触发 CNB CI 检查，不发布生产；不要依赖 push 自动部署。
+- 本地不直连服务器部署；正式发布必须先 commit 并 push 到 CNB，再用 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`。
+- CNB/API 部署使用 `./ops/deploy.sh`，在 CNB/Linux CI 容器里完成检查与构建，然后只把 `.next/standalone` 产物包上传到服务器；服务器不执行 `npm ci` / `npm run build`。
 - 云效 YAML 流水线样例在 `ops/yunxiao.pipeline.yml`；私密部署参数不要写入 YAML，优先通过云效变量组或流水线 UI 变量注入。
 - 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、`data/`、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先备份该目录。
 - `data/` 以服务器为准：本地 `data/` 不上传覆盖服务器。
 - 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL`、`WORKSPACE_CONFIG_DIR` 直接指向外部 data。
 - `.env` 可以软链到外部 `.workspace/.env`；`public/company` 和 `public/assets/agent/avatar` 开发时可软链到 `.workspace/assets/...`，生产 standalone 打包时脚本用 `cp -rL` 复制真实文件。
 
-更新源码/发布流程：
+更新源码流程：
 
 ```bash
 git status --short
@@ -34,6 +35,28 @@ git add <files>
 git commit -m "<message>"
 git push origin main
 ```
+
+生产发布流程：
+
+```bash
+sha="$(git rev-parse HEAD)"
+cnb build start-build \
+  --repo illya317/workspace \
+  --branch main \
+  --sha "$sha" \
+  --event api_trigger \
+  --title "deploy ${sha:0:8}" \
+  --sync false \
+  --verbose
+```
+
+部署后用返回的 `sn` 查询状态：
+
+```bash
+cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
+```
+
+如果部署失败，用同一个 `sn` 和 pipeline/stage id 拉取失败 stage 日志；不要再额外 push 一次制造第二条部署记录。
 
 新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `/Users/koito/Desktop/workspace/.workspace/AGENTS.md`。
 

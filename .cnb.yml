@@ -1,20 +1,15 @@
 main:
   push:
-    - name: deploy-prod
+    - name: ci-check
       docker:
         image: node:22-bookworm
-      imports:
-        - https://cnb.cool/illya317/env/-/blob/main/workspace-prod.yml
-      env:
-        RUN_LOCAL_CHECKS: "1"
       stages:
-        - name: install-deploy-tools
+        - name: install-deps
           script: |
-            apt-get update
-            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates python3
-        - name: deploy-to-server
+            npm ci --no-audit --fund=false --loglevel=error
+        - name: validate
           script: |
-            bash ./ops/deploy.sh
+            npm run ci:cnb
 
   api_trigger_ci:
     - name: ci-check
