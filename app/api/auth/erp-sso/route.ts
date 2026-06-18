@@ -1,7 +1,9 @@
 import { SignJWT } from "jose";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { RES } from "@/lib/permissions";
 import { authenticate } from "@/server/auth/authenticate";
+import { checkPermission } from "@/server/rbac/check";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +84,9 @@ export async function GET(request: Request) {
   });
 
   if (!user?.canLogin) return redirectToLogin(request);
+  if (!(await checkPermission(user.id, RES.system.erpnext, "access"))) {
+    return NextResponse.json({ error: "无权限访问 ERPNext" }, { status: 403 });
+  }
 
   try {
     const requestUrl = new URL(request.url);

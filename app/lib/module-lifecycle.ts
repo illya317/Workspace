@@ -45,4 +45,5 @@ export const MODULE_LIFECYCLE_BY_RESOURCE: Partial<Record<string, ModuleLifecycl
   "system.api": "workspace-owned",
   library: "workspace-owned",
   "system.agent": "workspace-owned",
+  "system.erpnext": "erpnext-owned",
 };
