@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { handleCreate } from "@/lib/crud";
+import { isValidDateValue } from "@/lib/hr-field-validation";
 
 
 const CONFIG = { entityType: "EmployeeProject", modelKey: "employeeProject" as const };
+const DATE_FIELDS = ["startDate", "endDate"];
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -32,6 +34,7 @@ export async function GET(request: Request) {
   const mapped = entries.map((e) => ({
     id: e.id,
     employeeId: e.employeeId,
+    employeeNumber: e.employee?.employeeId || "",
     employeeName: e.employee?.name || "",
     projectId: e.projectId,
     projectName: e.project?.name || "",
@@ -61,8 +64,13 @@ export async function POST(request: Request) {
   return handleCreate(request, CONFIG, async (body) => {
     const { employeeId, projectId, role, startDate, endDate } = body;
     if (!employeeId || !projectId) return null;
+    for (const field of DATE_FIELDS) if (!isValidDateValue(body[field])) return null;
     const employee = await prisma.employee.findUnique({ where: { employeeId: String(employeeId) }, select: { id: true } });
     if (!employee) return null;
-    return { employeeId: employee.id, projectId: Number(projectId), role: role ? String(role) : null, startDate: startDate ? String(startDate) : null, endDate: endDate ? String(endDate) : null };
+    const projectNumber = Number(projectId);
+    if (!Number.isInteger(projectNumber)) return null;
+    const project = await prisma.project.findUnique({ where: { id: projectNumber }, select: { id: true } });
+    if (!project) return null;
+    return { employeeId: employee.id, projectId: projectNumber, role: role ? String(role) : null, startDate: startDate ? String(startDate) : null, endDate: endDate ? String(endDate) : null };
   });
 }

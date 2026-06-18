@@ -55,19 +55,16 @@ export const EDPCreateSchema = z.object({
   isPrimary: z.union([z.boolean(), z.string()]).optional().nullable(),
   startDate: z.string().optional().nullable(),
   endDate: z.string().optional().nullable(),
-  personnelType: z.string().optional().nullable(),
-  rank: z.string().optional().nullable(),
-  title: z.string().optional().nullable(),
   reportTo: z.string().optional().nullable(),
-  reportTo2: z.string().optional().nullable(),
   workPercent: z.string().optional().nullable(),
-  isResearch: z.union([z.boolean(), z.string()]).optional().nullable(),
 });
 
 export const ProjectCreateSchema = z.object({
   name: z.string().min(1, "名称不能为空"),
   type: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
+  startDate: z.string().optional().nullable(),
+  endDate: z.string().optional().nullable(),
 });
 
 export const ContractCreateSchema = z.object({

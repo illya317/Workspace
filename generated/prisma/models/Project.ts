@@ -43,6 +43,7 @@ export type ProjectMinAggregateOutputType = {
   name: string | null
   type: string | null
   description: string | null
+  startDate: Date | null
   endDate: Date | null
   editedBy: number | null
   editedAt: Date | null
@@ -56,6 +57,7 @@ export type ProjectMaxAggregateOutputType = {
   name: string | null
   type: string | null
   description: string | null
+  startDate: Date | null
   endDate: Date | null
   editedBy: number | null
   editedAt: Date | null
@@ -69,6 +71,7 @@ export type ProjectCountAggregateOutputType = {
   name: number
   type: number
   description: number
+  startDate: number
   endDate: number
   editedBy: number
   editedAt: number
@@ -96,6 +99,7 @@ export type ProjectMinAggregateInputType = {
   name?: true
   type?: true
   description?: true
+  startDate?: true
   endDate?: true
   editedBy?: true
   editedAt?: true
@@ -109,6 +113,7 @@ export type ProjectMaxAggregateInputType = {
   name?: true
   type?: true
   description?: true
+  startDate?: true
   endDate?: true
   editedBy?: true
   editedAt?: true
@@ -122,6 +127,7 @@ export type ProjectCountAggregateInputType = {
   name?: true
   type?: true
   description?: true
+  startDate?: true
   endDate?: true
   editedBy?: true
   editedAt?: true
@@ -222,6 +228,7 @@ export type ProjectGroupByOutputType = {
   name: string
   type: string
   description: string | null
+  startDate: Date | null
   endDate: Date | null
   editedBy: number | null
   editedAt: Date | null
@@ -258,6 +265,7 @@ export type ProjectWhereInput = {
   name?: Prisma.StringFilter<"Project"> | string
   type?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
+  startDate?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   editedBy?: Prisma.IntNullableFilter<"Project"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
@@ -273,6 +281,7 @@ export type ProjectOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -291,6 +300,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Project"> | string
   type?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
+  startDate?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   editedBy?: Prisma.IntNullableFilter<"Project"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
@@ -306,6 +316,7 @@ export type ProjectOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -327,6 +338,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Project"> | string
   type?: Prisma.StringWithAggregatesFilter<"Project"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  startDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
   endDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"Project"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
@@ -339,6 +351,7 @@ export type ProjectCreateInput = {
   name: string
   type?: string
   description?: string | null
+  startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -354,6 +367,7 @@ export type ProjectUncheckedCreateInput = {
   name: string
   type?: string
   description?: string | null
+  startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -368,6 +382,7 @@ export type ProjectUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -383,6 +398,7 @@ export type ProjectUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -398,6 +414,7 @@ export type ProjectCreateManyInput = {
   name: string
   type?: string
   description?: string | null
+  startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -410,6 +427,7 @@ export type ProjectUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -423,6 +441,7 @@ export type ProjectUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -436,6 +455,7 @@ export type ProjectCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -455,6 +475,7 @@ export type ProjectMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -468,6 +489,7 @@ export type ProjectMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -519,6 +541,7 @@ export type ProjectCreateWithoutEmployeesInput = {
   name: string
   type?: string
   description?: string | null
+  startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -533,6 +556,7 @@ export type ProjectUncheckedCreateWithoutEmployeesInput = {
   name: string
   type?: string
   description?: string | null
+  startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -562,6 +586,7 @@ export type ProjectUpdateWithoutEmployeesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -576,6 +601,7 @@ export type ProjectUncheckedUpdateWithoutEmployeesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -589,6 +615,7 @@ export type ProjectCreateWithoutWorkAssigneesInput = {
   name: string
   type?: string
   description?: string | null
+  startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -603,6 +630,7 @@ export type ProjectUncheckedCreateWithoutWorkAssigneesInput = {
   name: string
   type?: string
   description?: string | null
+  startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -632,6 +660,7 @@ export type ProjectUpdateWithoutWorkAssigneesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -646,6 +675,7 @@ export type ProjectUncheckedUpdateWithoutWorkAssigneesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -700,6 +730,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name?: boolean
   type?: boolean
   description?: boolean
+  startDate?: boolean
   endDate?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -716,6 +747,7 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   type?: boolean
   description?: boolean
+  startDate?: boolean
   endDate?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -729,6 +761,7 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   type?: boolean
   description?: boolean
+  startDate?: boolean
   endDate?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -742,6 +775,7 @@ export type ProjectSelectScalar = {
   name?: boolean
   type?: boolean
   description?: boolean
+  startDate?: boolean
   endDate?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -750,7 +784,7 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "description" | "endDate" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "description" | "startDate" | "endDate" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employees?: boolean | Prisma.Project$employeesArgs<ExtArgs>
   workAssignees?: boolean | Prisma.Project$workAssigneesArgs<ExtArgs>
@@ -770,6 +804,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     name: string
     type: string
     description: string | null
+    startDate: Date | null
     endDate: Date | null
     editedBy: number | null
     editedAt: Date | null
@@ -1205,6 +1240,7 @@ export interface ProjectFieldRefs {
   readonly name: Prisma.FieldRef<"Project", 'String'>
   readonly type: Prisma.FieldRef<"Project", 'String'>
   readonly description: Prisma.FieldRef<"Project", 'String'>
+  readonly startDate: Prisma.FieldRef<"Project", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"Project", 'DateTime'>
   readonly editedBy: Prisma.FieldRef<"Project", 'Int'>
   readonly editedAt: Prisma.FieldRef<"Project", 'DateTime'>

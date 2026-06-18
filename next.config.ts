@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
+const workspaceRoot = path.dirname(projectRoot);
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -16,8 +17,9 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: process.env.ALLOWED_DEV_ORIGINS
     ? process.env.ALLOWED_DEV_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean)
     : [],
+  outputFileTracingRoot: workspaceRoot,
   turbopack: {
-    root: projectRoot,
+    root: workspaceRoot,
   },
 };
 

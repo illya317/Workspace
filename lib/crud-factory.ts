@@ -5,6 +5,9 @@ import { snapshotHistory } from "@/lib/history";
 
 type PrismaModelKey = keyof typeof prisma;
 export type AccessChecker = (userId: number) => Promise<boolean>;
+type BeforeUpdateResult =
+  | { field: string; value: unknown }
+  | { error: string; status?: number };
 
 export interface CrudFactoryConfig {
   entityType: string;
@@ -13,7 +16,7 @@ export interface CrudFactoryConfig {
   writeCheck?: AccessChecker;
   deleteCheck?: AccessChecker;
   allowedFields?: string[];
-  onBeforeUpdate?: (field: string, value: unknown) => Promise<{ field: string; value: unknown } | null>;
+  onBeforeUpdate?: (field: string, value: unknown, id?: number) => Promise<BeforeUpdateResult | null>;
 }
 
 function pickWriteCheck(config: CrudFactoryConfig, fallback: AccessChecker): AccessChecker {
@@ -35,12 +38,16 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
       if (!(await writeCheck(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
       const { id } = await params;
+      const recordId = parseInt(id);
       const body = await request.json();
       let { field, value } = body as { field: string; value: unknown };
 
       if (config.onBeforeUpdate) {
-        const result = await config.onBeforeUpdate(field, value);
+        const result = await config.onBeforeUpdate(field, value, recordId);
         if (!result) return NextResponse.json({ error: "非法字段" }, { status: 400 });
+        if ("error" in result) {
+          return NextResponse.json({ error: result.error }, { status: result.status || 400 });
+        }
         field = result.field;
         value = result.value;
       }
@@ -50,10 +57,10 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
 
       const model = prisma[config.modelKey] as unknown as { update: (args: { where: { id: number }; data: Record<string, unknown> }) => Promise<unknown> };
       await model.update({
-        where: { id: parseInt(id) },
+        where: { id: recordId },
         data: { [field]: value ?? null, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
       });
-      await snapshotHistory(config.entityType, parseInt(id), payload.userId);
+      await snapshotHistory(config.entityType, recordId, payload.userId);
 
       return NextResponse.json({ success: true });
     },

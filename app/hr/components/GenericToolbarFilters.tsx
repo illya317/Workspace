@@ -1,5 +1,6 @@
 "use client";
 
+import OptionPicker from "./OptionPicker";
 import type { FilterConfig } from "../types";
 
 interface GenericToolbarFiltersProps {
@@ -23,28 +24,26 @@ export default function GenericToolbarFilters({
     <>
       {filters?.map((f) =>
         f.type === "boolean" ? (
-          <select
+          <OptionPicker
             key={f.key}
             value={(filterValues[f.key] as string) ?? ""}
-            onChange={(e) => onFilterChange(f.key, e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">{f.label}</option>
-            <option value="true">是</option>
-            <option value="false">否</option>
-          </select>
+            onChange={(value) => onFilterChange(f.key, value ?? "")}
+            options={[
+              { label: "是", value: "true" },
+              { label: "否", value: "false" },
+            ]}
+            placeholder={f.label}
+            buttonClassName="rounded-md border border-gray-300 px-3 py-2 text-left text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
+          />
         ) : f.type === "select" && f.options ? (
-          <select
+          <OptionPicker
             key={f.key}
             value={(filterValues[f.key] as string) ?? ""}
-            onChange={(e) => onFilterChange(f.key, e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">{f.label}</option>
-            {f.options.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+            onChange={(value) => onFilterChange(f.key, value ?? "")}
+            options={f.options}
+            placeholder={f.label}
+            buttonClassName="rounded-md border border-gray-300 px-3 py-2 text-left text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
+          />
         ) : (
           <input
             key={f.key}

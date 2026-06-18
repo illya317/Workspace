@@ -15,7 +15,29 @@ export interface PositionListItem {
   departmentName: string | null;
   positionDescriptionId: number | null;
   positionDescriptionName: string | null;
+  positionDescriptionCode: string | null;
+  positionDescriptionDepartmentName: string | null;
+  positionDescriptionDetails: Record<string, unknown> | null;
+  reportTo: string | null;
+  summary: string | null;
+  positionPurpose: string | null;
+  headcountPlan: number | null;
+  version: string | null;
+  effectiveDate: string | null;
+  sourceFile: string | null;
   headcount: number;
+}
+
+function parsePositionDetails(details: string | null): Record<string, unknown> | null {
+  if (!details) return null;
+  try {
+    const parsed = JSON.parse(details);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown>
+      : null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getPositionList(
@@ -28,7 +50,22 @@ export async function getPositionList(
       include: {
         _count: { select: { edps: true } },
         department: { select: { id: true, name: true } },
-        positionDescription: { select: { id: true, name: true, details: true } },
+        positionDescription: {
+          select: {
+            id: true,
+            code: true,
+            name: true,
+            departmentName: true,
+            reportTo: true,
+            summary: true,
+            positionPurpose: true,
+            headcount: true,
+            version: true,
+            effectiveDate: true,
+            sourceFile: true,
+            details: true,
+          },
+        },
       },
       orderBy: { id: "asc" },
     }),
@@ -37,11 +74,9 @@ export async function getPositionList(
 
   let result = positions.map((p) => {
     let codeRaw: string | null = null;
+    const positionDescriptionDetails = parsePositionDetails(p.positionDescription?.details || null);
     if (p.positionDescription?.details) {
-      try {
-        const details = JSON.parse(p.positionDescription.details);
-        codeRaw = details.code_raw || null;
-      } catch {}
+      codeRaw = typeof positionDescriptionDetails?.code_raw === "string" ? positionDescriptionDetails.code_raw : null;
     }
     return {
       id: p.id,
@@ -54,6 +89,16 @@ export async function getPositionList(
       departmentName: p.department?.name || null,
       positionDescriptionId: p.positionDescriptionId,
       positionDescriptionName: p.positionDescription?.name || null,
+      positionDescriptionCode: p.positionDescription?.code || null,
+      positionDescriptionDepartmentName: p.positionDescription?.departmentName || null,
+      positionDescriptionDetails,
+      reportTo: p.positionDescription?.reportTo || null,
+      summary: p.positionDescription?.summary || null,
+      positionPurpose: p.positionDescription?.positionPurpose || null,
+      headcountPlan: p.positionDescription?.headcount || null,
+      version: p.positionDescription?.version || null,
+      effectiveDate: p.positionDescription?.effectiveDate || null,
+      sourceFile: p.positionDescription?.sourceFile || null,
       headcount: p._count.edps,
     };
   });
@@ -68,13 +113,21 @@ export async function getPositionList(
 
 export async function updatePosition(
   id: number,
-  body: { code?: string; name?: string; alias?: string | null },
+  body: {
+    code?: string;
+    name?: string;
+    alias?: string | null;
+    departmentId?: number | string | null;
+    positionDescriptionId?: number | string | null;
+  },
   userId: number
 ) {
-  const data: Prisma.PositionUpdateInput = {};
+  const data: Prisma.PositionUncheckedUpdateInput = {};
   if (body.code !== undefined) data.code = body.code;
   if (body.name !== undefined) data.name = body.name;
   if (body.alias !== undefined) data.alias = body.alias || null;
+  if (body.departmentId !== undefined) data.departmentId = body.departmentId ? Number(body.departmentId) : null;
+  if (body.positionDescriptionId !== undefined) data.positionDescriptionId = body.positionDescriptionId ? Number(body.positionDescriptionId) : null;
   data.editedBy = userId;
   data.editedAt = new Date();
   data.version = { increment: 1 };

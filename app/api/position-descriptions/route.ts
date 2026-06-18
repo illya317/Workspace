@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkHRAccess } from "@/lib/auth";
+import { authenticate, checkHRAccess, checkHRWrite } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/generated/prisma/client";
 import { getManagementGroupByCode } from "@/server/services/hr/company-directory";
+import { snapshotHistory } from "@/lib/history";
 import { getInitials } from "@/lib/search";
 
 export async function GET(request: Request) {
@@ -90,4 +92,75 @@ export async function GET(request: Request) {
   }
 
   return NextResponse.json({ positionDescriptions: result, total: result.length });
+}
+
+export async function PUT(request: Request) {
+  const payload = await authenticate(request);
+  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  if (!(await checkHRWrite(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+
+  const body = await request.json();
+  const {
+    id,
+    code,
+    name,
+    departmentName,
+    reportTo,
+    positionPurpose,
+    summary,
+    headcount,
+    version,
+    effectiveDate,
+    sourceFile,
+    details,
+  } = body;
+
+  if (!id) return NextResponse.json({ error: "缺少id" }, { status: 400 });
+  if (!code || !name) return NextResponse.json({ error: "说明书编码和名称不能为空" }, { status: 400 });
+
+  const headcountValue = headcount === null || headcount === undefined || headcount === "" ? null : Number(headcount);
+  if (headcountValue === null || !Number.isInteger(headcountValue) || headcountValue < 1) {
+    return NextResponse.json({ error: "编制必须是正整数" }, { status: 400 });
+  }
+
+  let detailsText: string | null = null;
+  if (details !== undefined && details !== null && details !== "") {
+    try {
+      const parsed = typeof details === "string" ? JSON.parse(details) : details;
+      detailsText = JSON.stringify(parsed);
+    } catch {
+      return NextResponse.json({ error: "说明书 JSON 不是合法格式" }, { status: 400 });
+    }
+  }
+
+  try {
+    const updated = await prisma.positionDescription.update({
+      where: { id: Number(id) },
+      data: {
+        code: String(code).trim(),
+        name: String(name).trim(),
+        departmentName: departmentName || null,
+        reportTo: reportTo || null,
+        positionPurpose: positionPurpose || null,
+        summary: summary || null,
+        headcount: headcountValue,
+        version: version || null,
+        effectiveDate: effectiveDate || null,
+        sourceFile: sourceFile || "",
+        details: detailsText,
+        editedBy: payload.userId,
+        editedAt: new Date(),
+      },
+    });
+    await snapshotHistory("PositionDescription", Number(id), payload.userId);
+    return NextResponse.json({ success: true, positionDescription: updated });
+  } catch (e: unknown) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+      return NextResponse.json({ error: "说明书编码已存在" }, { status: 409 });
+    }
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
+      return NextResponse.json({ error: "岗位说明书不存在" }, { status: 404 });
+    }
+    throw e;
+  }
 }

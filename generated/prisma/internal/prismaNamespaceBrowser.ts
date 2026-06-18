@@ -91,6 +91,7 @@ export const ModelName = {
   Company: 'Company',
   CompanyRelation: 'CompanyRelation',
   Department: 'Department',
+  DepartmentDescription: 'DepartmentDescription',
   Position: 'Position',
   EDP: 'EDP',
   Project: 'Project',
@@ -865,6 +866,9 @@ export const EmploymentScalarFieldEnum = {
   leaveReason: 'leaveReason',
   officeLocation: 'officeLocation',
   attendanceType: 'attendanceType',
+  personnelType: 'personnelType',
+  rank: 'rank',
+  title: 'title',
   contracts: 'contracts',
   editedBy: 'editedBy',
   editedAt: 'editedAt',
@@ -929,6 +933,23 @@ export const DepartmentScalarFieldEnum = {
 export type DepartmentScalarFieldEnum = (typeof DepartmentScalarFieldEnum)[keyof typeof DepartmentScalarFieldEnum]
 
 
+export const DepartmentDescriptionScalarFieldEnum = {
+  id: 'id',
+  departmentId: 'departmentId',
+  code: 'code',
+  name: 'name',
+  sourceFile: 'sourceFile',
+  codeRaw: 'codeRaw',
+  details: 'details',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DepartmentDescriptionScalarFieldEnum = (typeof DepartmentDescriptionScalarFieldEnum)[keyof typeof DepartmentDescriptionScalarFieldEnum]
+
+
 export const PositionScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -953,13 +974,8 @@ export const EDPScalarFieldEnum = {
   isPrimary: 'isPrimary',
   startDate: 'startDate',
   endDate: 'endDate',
-  personnelType: 'personnelType',
-  rank: 'rank',
-  title: 'title',
   reportTo: 'reportTo',
-  reportTo2: 'reportTo2',
   workPercent: 'workPercent',
-  isResearch: 'isResearch',
   editedBy: 'editedBy',
   editedAt: 'editedAt',
   version: 'version'
@@ -973,6 +989,7 @@ export const ProjectScalarFieldEnum = {
   name: 'name',
   type: 'type',
   description: 'description',
+  startDate: 'startDate',
   endDate: 'endDate',
   editedBy: 'editedBy',
   editedAt: 'editedAt',

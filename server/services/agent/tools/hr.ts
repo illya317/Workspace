@@ -4,6 +4,7 @@
  */
 import type { SessionUser } from "@/lib/types";
 import type { AgentTool } from "./registry";
+import { normalizeHrSchoolValue } from "@/lib/hr-school-options";
 import { queryRawEmployees } from "@/server/services/hr/roster";
 
 export const searchEmployeesTool: AgentTool = {
@@ -76,6 +77,10 @@ export const updateEmployeeDraftTool: AgentTool = {
     if (!allowedFields.includes(field)) {
       return { type: "error", message: `字段"${field}"不支持修改。支持：${allowedFields.join("、")}` };
     }
+    const normalizedNewValue = field === "school" ? normalizeHrSchoolValue(newValue) : null;
+    if (normalizedNewValue && !normalizedNewValue.ok) {
+      return { type: "error", message: normalizedNewValue.error };
+    }
 
     // 查当前值：优先用工号，否则按姓名搜索
     const { prisma } = await import("@/lib/prisma");
@@ -101,7 +106,8 @@ export const updateEmployeeDraftTool: AgentTool = {
     const actualId = (emp as Record<string, unknown>).employeeId || employeeId;
 
     const oldValue = (emp as Record<string, unknown>)[field];
-    const diff = { employeeId: actualId, name: emp.name, field, oldValue, newValue };
+    const finalNewValue = normalizedNewValue?.ok ? normalizedNewValue.value : newValue;
+    const diff = { employeeId: actualId, name: emp.name, field, oldValue, newValue: finalNewValue };
 
     // 创建 proposal（不写库）
     const { createProposal } = await import("@/server/services/agent/proposals");
@@ -109,13 +115,13 @@ export const updateEmployeeDraftTool: AgentTool = {
       actionKey: "hr.updateEmployee",
       targetType: "Employee",
       targetId: actualId as string,
-      payload: { employeeId: actualId, field, value: newValue },
+      payload: { employeeId: actualId, field, value: finalNewValue },
       diff,
     });
 
     return {
       type: "proposal",
-      message: `待确认：将 ${emp.name}（${actualId}）的${field}从"${oldValue ?? "无"}"改为"${newValue}"`,
+      message: `待确认：将 ${emp.name}（${actualId}）的${field}从"${oldValue ?? "无"}"改为"${finalNewValue ?? "无"}"`,
       proposal: { id: result.proposalId, actionKey: "hr.updateEmployee", targetType: "Employee", targetId: actualId as string, diff },
     };
   },
@@ -147,6 +153,11 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
     if (!allowedFields.includes(filterField) || !allowedFields.includes(updateField)) {
       return { type: "error", message: `字段不支持。允许：${allowedFields.join("、")}` };
     }
+    const normalizedUpdateValue = updateField === "school" ? normalizeHrSchoolValue(updateValue) : null;
+    if (normalizedUpdateValue && !normalizedUpdateValue.ok) {
+      return { type: "error", message: normalizedUpdateValue.error };
+    }
+    const finalUpdateValue = normalizedUpdateValue?.ok ? normalizedUpdateValue.value : updateValue;
 
     const { prisma } = await import("@/lib/prisma");
     // SQLite adapter 对 not: { contains } 支持不佳，走 JS 过滤
@@ -174,7 +185,7 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
     }
 
     const employeeIds = all.map((e) => e.employeeId);
-    const diff = { filterField, filterOp, filterValue, updateField, updateValue, count: all.length, sample: all.slice(0, 5).map((e) => ({ name: e.name, employeeId: e.employeeId, oldValue: (e as Record<string, unknown>)[updateField] })) };
+    const diff = { filterField, filterOp, filterValue, updateField, updateValue: finalUpdateValue, count: all.length, sample: all.slice(0, 5).map((e) => ({ name: e.name, employeeId: e.employeeId, oldValue: (e as Record<string, unknown>)[updateField] })) };
 
     // 创建 proposal
     const { createProposal } = await import("@/server/services/agent/proposals");
@@ -182,13 +193,13 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
       actionKey: "hr.batchUpdateEmployee",
       targetType: "Employee",
       targetId: employeeIds.join(","),
-      payload: { employeeIds, field: updateField, value: updateValue },
+      payload: { employeeIds, field: updateField, value: finalUpdateValue },
       diff,
     });
 
     return {
       type: "proposal",
-      message: `待确认：将 ${all.length} 名员工的${updateField}批量改为"${updateValue}"（条件：${filterField} 不包含 "${filterValue}"）`,
+      message: `待确认：将 ${all.length} 名员工的${updateField}批量改为"${finalUpdateValue ?? "无"}"（条件：${filterField} 不包含 "${filterValue}"）`,
       proposal: { id: result.proposalId, actionKey: "hr.batchUpdateEmployee", targetType: "Employee", targetId: `${all.length}名员工`, diff },
     };
   },

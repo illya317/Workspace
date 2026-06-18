@@ -1,155 +1,122 @@
 import "server-only";
 import path from "path";
 import { readdir, readFile } from "fs/promises";
-import { parse as parseYaml } from "yaml";
 import { resolvePharmaOpsRoot } from "./source";
 import type {
   QcConfigOverview,
-  QcLayoutAssignmentSample,
   QcLayoutMappingSummary,
   QcMethodSummary,
   QcProductSummary,
-  QcProductStageSummary,
   QcRecordTemplateSummary,
 } from "./types";
-
-async function readYamlFile(filePath: string): Promise<unknown> {
-  const text = await readFile(filePath, "utf8");
-  return parseYaml(text, { uniqueKeys: false });
-}
-
-async function listFiles(dir: string, ext: string) {
-  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
-  return entries
-    .filter((entry) => entry.isFile() && entry.name.endsWith(ext))
-    .map((entry) => path.join(dir, entry.name))
-    .sort();
-}
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
 }
 
-function countProductItems(stages: unknown): QcProductStageSummary[] {
-  if (!Array.isArray(stages)) return [];
-  return stages.map((stage) => {
-    const data = asRecord(stage);
-    const part = String(data.part ?? "");
-    const items = Array.isArray(data.items) ? data.items : [];
-    return { key: part, label: part, itemCount: items.length };
-  });
+function asArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
 }
 
-async function loadProducts(configRoot: string): Promise<QcProductSummary[]> {
-  const raw = asRecord(await readYamlFile(path.join(configRoot, "products.yaml")).catch(() => ({})));
-  return Object.entries(raw).map(([name, stages]) => {
-    const stageSummaries = countProductItems(stages);
-    return {
-      name,
-      stageCount: stageSummaries.length,
-      itemCount: stageSummaries.reduce((sum, stage) => sum + stage.itemCount, 0),
-      stages: stageSummaries,
-    };
-  });
+function values(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : Object.values(asRecord(value));
 }
 
-function summarizeTemplate(filePath: string, raw: unknown): QcRecordTemplateSummary {
-  const data = asRecord(raw);
-  const stages = asRecord(data["阶段"]);
-  const stageValues = Object.entries(stages);
-  const itemCount = stageValues.reduce((sum, [, stage]) => {
-    const tests = asRecord(stage)["检测项"];
-    return sum + (Array.isArray(tests) ? tests.length : 0);
-  }, 0);
+function asString(value: unknown, fallback = "") {
+  return typeof value === "string" || typeof value === "number" ? String(value) : fallback;
+}
 
+async function readJson(filePath: string): Promise<unknown> {
+  return JSON.parse(await readFile(filePath, "utf8")) as unknown;
+}
+
+function emptyLayoutMapping(): QcLayoutMappingSummary {
   return {
-    id: path.basename(filePath, ".yaml"),
-    fileName: path.basename(filePath),
-    productName: String(data["产品名称"] ?? path.basename(filePath, ".yaml")),
-    stageCount: stageValues.length,
-    itemCount,
+    schemaVersion: 1,
+    assignmentCount: 0,
+    statusCounts: { embedded_json: 0 },
+    samples: [],
   };
 }
 
-async function loadRecordTemplates(configRoot: string): Promise<QcRecordTemplateSummary[]> {
-  const files = await listFiles(path.join(configRoot, "record_templates"), ".yaml");
-  const templates = await Promise.all(files.map(async (file) => summarizeTemplate(file, await readYamlFile(file))));
-  return templates.sort((a, b) => a.productName.localeCompare(b.productName, "zh-Hans-CN"));
+async function listJsonFiles(dir: string) {
+  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+  return entries
+    .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
+    .map((entry) => path.join(dir, entry.name))
+    .sort();
 }
 
-function countFields(value: unknown): number {
-  if (Array.isArray(value)) {
-    return value.reduce((sum, item) => sum + countFields(item), 0);
-  }
-  const data = asRecord(value);
-  let total = typeof data.name === "string" ? 1 : 0;
-  const repeat = asRecord(data.repeat);
-  if (Array.isArray(repeat.fields)) total += countFields(repeat.fields);
-  for (const child of Object.values(data)) {
-    if (Array.isArray(child)) total += countFields(child);
-  }
-  return total;
-}
-
-async function loadMethods(configRoot: string): Promise<QcMethodSummary[]> {
-  const files = await listFiles(path.join(configRoot, "methods"), ".yaml");
-  return Promise.all(files.map(async (file) => {
-    const methods = asRecord(asRecord(await readYamlFile(file)).methods);
+function productSummary(product: Record<string, unknown>): QcProductSummary {
+  const stages = asRecord(product.stages);
+  const stageSummaries = Object.entries(stages).map(([key, rawStage]) => {
+    const stage = asRecord(rawStage);
     return {
-      id: path.basename(file, ".yaml"),
+      key,
+      label: asString(stage.label, key),
+      itemCount: asArray(stage.tests).length,
+    };
+  });
+  return {
+    name: asString(product.name || product.productName || product.key),
+    stageCount: stageSummaries.length,
+    itemCount: stageSummaries.reduce((sum, stage) => sum + stage.itemCount, 0),
+    stages: stageSummaries,
+  };
+}
+
+function recordTemplateSummary(filePath: string, record: Record<string, unknown>): QcRecordTemplateSummary {
+  const product = asRecord(record.product);
+  const stages = Object.values(asRecord(record.stages));
+  return {
+    id: asString(product.key, path.basename(filePath, ".json")),
+    fileName: path.basename(filePath),
+    productName: asString(product.name, path.basename(filePath, ".json")),
+    stageCount: stages.length,
+    itemCount: stages.reduce<number>((sum, stage) => sum + asArray(asRecord(stage).tests).length, 0),
+  };
+}
+
+function countMethodFields(method: Record<string, unknown>) {
+  return asArray(method.method_groups)
+    .reduce<number>((sum, group) => sum + asArray(asRecord(group).fields).length, 0);
+}
+
+async function loadMethodSummaries(configRoot: string): Promise<QcMethodSummary[]> {
+  const files = await listJsonFiles(path.join(configRoot, "dedicated_methods"));
+  return Promise.all(files.map(async (file) => {
+    const method = asRecord(await readJson(file));
+    return {
+      id: asString(method.method_key, path.basename(file, ".json")),
       fileName: path.basename(file),
-      methodCount: Object.keys(methods).length,
-      fieldCount: countFields(methods),
+      methodCount: 1,
+      fieldCount: countMethodFields(method),
     };
   }));
-}
-
-function summarizeLayoutMapping(raw: unknown): QcLayoutMappingSummary {
-  const data = asRecord(raw);
-  const assignments = asRecord(data.assignments);
-  const statusCounts: Record<string, number> = {};
-  const samples: QcLayoutAssignmentSample[] = [];
-
-  for (const [key, assignmentRaw] of Object.entries(assignments)) {
-    const assignment = asRecord(assignmentRaw);
-    const status = String(assignment.status ?? "unknown");
-    statusCounts[status] = (statusCounts[status] ?? 0) + 1;
-    if (samples.length < 8) {
-      samples.push({
-        key,
-        templateId: String(assignment.template_id ?? ""),
-        status,
-        sourceRef: typeof assignment.source_ref === "string" ? assignment.source_ref : undefined,
-      });
-    }
-  }
-
-  return {
-    schemaVersion: typeof data.schema_version === "number" ? data.schema_version : undefined,
-    assignmentCount: Object.keys(assignments).length,
-    statusCounts,
-    samples,
-  };
-}
-
-async function loadLayoutMapping(configRoot: string): Promise<QcLayoutMappingSummary> {
-  const filePath = path.join(configRoot, "table_layouts", "layout_mapping.json");
-  const raw = JSON.parse(await readFile(filePath, "utf8"));
-  return summarizeLayoutMapping(raw);
 }
 
 export async function getQcConfigOverview(): Promise<QcConfigOverview> {
   const source = await resolvePharmaOpsRoot();
   if (!source.available) {
-    return { source, products: [], recordTemplates: [], methods: [], layoutMapping: summarizeLayoutMapping({}) };
+    return { source, products: [], recordTemplates: [], methods: [], layoutMapping: emptyLayoutMapping() };
   }
 
-  const [products, recordTemplates, methods, layoutMapping] = await Promise.all([
-    loadProducts(source.configRoot),
-    loadRecordTemplates(source.configRoot),
-    loadMethods(source.configRoot),
-    loadLayoutMapping(source.configRoot),
+  const [aggregate, recordFiles, methods] = await Promise.all([
+    readJson(path.join(source.configRoot, "product_stage_tests.json")).then(asRecord),
+    listJsonFiles(path.join(source.configRoot, "records")),
+    loadMethodSummaries(source.configRoot),
   ]);
+  const products = values(aggregate.products).map((product) => productSummary(asRecord(product)));
+  const records = await Promise.all(recordFiles.map(async (file) => recordTemplateSummary(file, asRecord(await readJson(file)))));
+  const layoutMapping = emptyLayoutMapping();
+  layoutMapping.assignmentCount = products.reduce((sum, product) => sum + product.itemCount, 0);
+  layoutMapping.statusCounts.embedded_json = layoutMapping.assignmentCount;
 
-  return { source, products, recordTemplates, methods, layoutMapping };
+  return {
+    source,
+    products: products.sort((a, b) => a.name.localeCompare(b.name, "zh-Hans-CN")),
+    recordTemplates: records.sort((a, b) => a.productName.localeCompare(b.productName, "zh-Hans-CN")),
+    methods,
+    layoutMapping,
+  };
 }

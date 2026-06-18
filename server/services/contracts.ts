@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import { matchEmployee, getInitials } from "@/lib/search";
+import { snapshotHistory } from "@/lib/history";
 
 interface RawContract {
   company?: unknown;
   isPrimary?: unknown;
   isInsuredHere?: unknown;
+  insuranceStatus?: unknown;
   legalRelation?: unknown;
   contractType?: unknown;
   employmentForm?: unknown;
@@ -29,6 +31,7 @@ export interface ContractRow {
   company: string;
   isPrimary: boolean;
   isInsuredHere: boolean;
+  insuranceStatus: string | null;
   legalRelation: string;
   contractType: string;
   employmentForm: string;
@@ -55,6 +58,73 @@ export function parseContracts(json: string | null): Record<string, unknown>[] {
   }
 }
 
+export function clearPrimaryContractFlags(
+  contracts: Record<string, unknown>[],
+  keepIndex?: number,
+) {
+  let changed = false;
+  const next = contracts.map((contract, index) => {
+    if (index === keepIndex) return contract;
+    if (contract.isPrimary !== true) return contract;
+    changed = true;
+    return { ...contract, isPrimary: false };
+  });
+  return { contracts: next, changed };
+}
+
+function normalizedString(value: unknown) {
+  if (value === null || value === undefined || value === "") return null;
+  return String(value);
+}
+
+export function normalizeContractRecord(contract: Record<string, unknown>) {
+  const next = { ...contract };
+  if (!next.insuranceStatus && typeof next.isInsuredHere === "boolean") {
+    next.insuranceStatus = next.isInsuredHere ? "已参保" : "未参保";
+  }
+  delete next.isInsuredHere;
+  const endDate = normalizedString(next.endDate);
+  const permanentContractDate = normalizedString(next.permanentContractDate);
+  const periodEndDates = [
+    normalizedString(next.firstContractEndDate),
+    normalizedString(next.secondContractEndDate),
+    normalizedString(next.thirdContractEndDate),
+  ].filter(Boolean);
+
+  if (endDate && (permanentContractDate || periodEndDates.includes(endDate))) {
+    next.endDate = null;
+  }
+
+  return next;
+}
+
+export async function clearPrimaryContractsForEmployee(
+  employeeId: number,
+  editorId: number,
+  exceptEmploymentId?: number,
+) {
+  const employments = await prisma.employment.findMany({
+    where: { employeeId, id: exceptEmploymentId ? { not: exceptEmploymentId } : undefined },
+    select: { id: true, contracts: true },
+  });
+
+  for (const employment of employments) {
+    const parsed = parseContracts(employment.contracts).map(normalizeContractRecord);
+    const result = clearPrimaryContractFlags(parsed);
+    if (!result.changed) continue;
+    await prisma.employment.update({
+      where: { id: employment.id },
+      data: {
+        contracts: JSON.stringify(result.contracts),
+        editedBy: editorId,
+        editedAt: new Date(),
+        version: { increment: 1 },
+      },
+    });
+    await snapshotHistory("Employment", employment.id, editorId);
+  }
+}
+
 export function buildContractRows(
   employments: Array<{
     id: number;
@@ -65,7 +135,7 @@ export function buildContractRows(
   const rows: ContractRow[] = [];
 
   for (const emp of employments) {
-    const list = parseContracts(emp.contracts);
+    const list = parseContracts(emp.contracts).map(normalizeContractRecord);
     for (let i = 0; i < list.length; i++) {
       const c = list[i] as RawContract;
       rows.push({
@@ -75,7 +145,8 @@ export function buildContractRows(
         employeeName: emp.employee?.name || "",
         company: String(c.company || ""),
         isPrimary: Boolean(c.isPrimary ?? false),
-        isInsuredHere: Boolean(c.isInsuredHere ?? false),
+        isInsuredHere: c.insuranceStatus === "已参保",
+        insuranceStatus: c.insuranceStatus == null ? null : String(c.insuranceStatus),
         legalRelation: String(c.legalRelation || ""),
         contractType: String(c.contractType || ""),
         employmentForm: String(c.employmentForm || ""),
@@ -192,8 +263,13 @@ export async function addContract(
     return { success: false, error: "该员工无雇佣记录", status: 404 };
   }
 
-  const rawContracts = parseContracts(emp.contracts);
-  rawContracts.push(contractData);
+  const rawContracts = parseContracts(emp.contracts).map(normalizeContractRecord);
+  if (contractData.isPrimary === true) {
+    const result = clearPrimaryContractFlags(rawContracts);
+    rawContracts.splice(0, rawContracts.length, ...result.contracts);
+    await clearPrimaryContractsForEmployee(emp.employeeId, editorId, emp.id);
+  }
+  rawContracts.push(normalizeContractRecord(contractData));
 
   await prisma.employment.update({
     where: { id: emp.id },
@@ -204,6 +280,7 @@ export async function addContract(
       version: { increment: 1 },
     },
   });
+  await snapshotHistory("Employment", emp.id, editorId);
 
   return { success: true };
 }

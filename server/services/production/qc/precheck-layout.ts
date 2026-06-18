@@ -21,7 +21,7 @@ function fileWithCodeText(file: QcTemplatePrecheckFile) {
 function basisText(precheckInfo: Record<string, string>, files: QcTemplatePrecheckFile[]) {
   const explicit = precheckInfo["检验依据"]?.trim();
   if (explicit) return explicit;
-  return files.slice(0, 2).map(fileWithCodeText).filter(Boolean).join("、");
+  return files.slice(0, 2).map(fileWithCodeText).filter(Boolean).join("、\n");
 }
 
 export async function buildPrecheckLayoutBlocks(

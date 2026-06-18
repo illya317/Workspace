@@ -37,11 +37,11 @@ export async function PUT(request: Request) {
   if (!(await checkHRWrite(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const body = await request.json();
-  const { id, code, name, alias } = body;
+  const { id, code, name, alias, departmentId, positionDescriptionId } = body;
   if (!id) return NextResponse.json({ error: "缺少id" }, { status: 400 });
 
   try {
-    const updated = await updatePosition(id, { code, name, alias }, payload.userId);
+    const updated = await updatePosition(id, { code, name, alias, departmentId, positionDescriptionId }, payload.userId);
     return NextResponse.json({ success: true, position: updated });
   } catch (e: unknown) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {

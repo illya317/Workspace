@@ -803,6 +803,9 @@
 | leaveReason | String? | - |  |
 | officeLocation | String? | - |  |
 | attendanceType | String? | - |  |
+| personnelType | String? | - |  |
+| rank | String? | - |  |
+| title | String? | - |  |
 | contracts | String? | - |  |
 | editedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |
@@ -903,13 +906,8 @@
 | isPrimary | Boolean | @default(false) |  |
 | startDate | String? | - |  |
 | endDate | String? | - |  |
-| personnelType | String? | - |  |
-| rank | String? | - |  |
-| title | String? | - |  |
 | reportTo | String? | - |  |
-| reportTo2 | String? | - |  |
 | workPercent | String? | - |  |
-| isResearch | Boolean? | - |  |
 | editedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |
 | version | Int | @default(1) |  |

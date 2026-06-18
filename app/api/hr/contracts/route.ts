@@ -1,6 +1,15 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess, checkHRWrite } from "@/lib/auth";
 import { getContracts, addContract } from "@/server/services/contracts";
+import { isValidCompanyName, isValidDateValue, validateContractOption } from "@/lib/hr-field-validation";
+
+const DATE_FIELDS = [
+  "firstContractStartDate", "firstContractEndDate",
+  "secondContractStartDate", "secondContractEndDate",
+  "thirdContractStartDate", "thirdContractEndDate",
+  "permanentContractDate", "confidentialityDate",
+  "nonCompeteDate", "endDate",
+];
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -24,6 +33,19 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as Record<string, unknown>;
   const { employeeId, ...contractData } = body;
+  for (const field of DATE_FIELDS) {
+    if (!isValidDateValue(contractData[field])) {
+      return NextResponse.json({ error: "日期格式无效" }, { status: 400 });
+    }
+  }
+  if (!(await isValidCompanyName(contractData.company))) {
+    return NextResponse.json({ error: "公司不存在" }, { status: 400 });
+  }
+  for (const field of ["legalRelation", "contractType", "employmentForm", "insuranceStatus"]) {
+    if (!validateContractOption(field, contractData[field])) {
+      return NextResponse.json({ error: "字段值不在允许范围内" }, { status: 400 });
+    }
+  }
 
   const result = await addContract(employeeId, contractData, payload.userId);
 

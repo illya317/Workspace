@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { formatHrMajorItems } from "@/lib/hr-field-options";
 
 interface PositionDescDetail {
   id: number; code: string; name: string;
@@ -23,6 +24,37 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function Pair({ label, value }: { label: string; value: unknown }) {
   if (value === null || value === undefined || value === "") return null;
   return <div className="mb-1.5 text-sm"><strong className="text-gray-700">{label}：</strong><span className="text-gray-600">{String(value)}</span></div>;
+}
+
+function formatWorkEnvironments(value: unknown) {
+  if (!Array.isArray(value)) return "";
+  return value
+    .map((item) => {
+      if (!item || typeof item !== "object" || Array.isArray(item)) return "";
+      const record = item as Record<string, unknown>;
+      const area = String(record.area || "").trim();
+      const factors = Array.isArray(record.factors)
+        ? record.factors.map((factor) => String(factor || "").trim()).filter(Boolean)
+        : [];
+      if (!area) return "";
+      return factors.length ? `${area}（${factors.join("、")}）` : area;
+    })
+    .filter(Boolean)
+    .join("；");
+}
+
+function formatExperienceRequirements(value: unknown) {
+  if (!Array.isArray(value)) return "";
+  return value
+    .map((item) => {
+      if (!item || typeof item !== "object" || Array.isArray(item)) return "";
+      const record = item as Record<string, unknown>;
+      const years = String(record.years || "").trim();
+      const requirement = String(record.requirement || "").trim();
+      return [years, requirement].filter(Boolean).join(" ");
+    })
+    .filter(Boolean)
+    .join("；");
 }
 
 export default function GmpDetailClient({ code }: { code: string }) {
@@ -99,18 +131,18 @@ export default function GmpDetailClient({ code }: { code: string }) {
         </Section>
       )}
 
-      {!!(d.education || d.major || d.experience || d.training) && (
+      {!!(d.education || formatHrMajorItems(d.major) || formatExperienceRequirements(d.experienceRequirements) || d.training) && (
         <Section title="任职资格">
           <Pair label="教育水平" value={d.education} />
-          <Pair label="专业要求" value={d.major} />
-          <Pair label="工作经验" value={d.experience} />
+          <Pair label="专业要求" value={formatHrMajorItems(d.major)} />
+          <Pair label="工作经验" value={formatExperienceRequirements(d.experienceRequirements)} />
           <Pair label="培训经历" value={d.training} />
         </Section>
       )}
 
-      {!!(d.workingConditions || d.workSchedule) && (
+      {!!(formatWorkEnvironments(d.workEnvironments) || d.workSchedule) && (
         <Section title="工作条件">
-          <Pair label="工作环境" value={d.workingConditions} />
+          <Pair label="工作环境" value={formatWorkEnvironments(d.workEnvironments)} />
           <Pair label="工作时间" value={d.workSchedule} />
         </Section>
       )}

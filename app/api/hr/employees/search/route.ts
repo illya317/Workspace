@@ -3,6 +3,16 @@ import { authenticate, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { matchEmployee } from "@/lib/search";
 
+function formatAlias(value: string | null) {
+  if (!value) return "";
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.map((item) => String(item)).join("、") : value;
+  } catch {
+    return value;
+  }
+}
+
 export async function GET(request: Request) {
   const payload = await authenticate(request);
   if (!payload) {
@@ -60,7 +70,7 @@ export async function GET(request: Request) {
         rowId: e.id,
         employeeId: e.employeeId,
         name: e.name,
-        alias: e.alias || "",
+        alias: formatAlias(e.alias),
         dept1: "",
         position: "",
         userId: e.user?.id ?? null,
@@ -76,7 +86,7 @@ export async function GET(request: Request) {
           rowId: e.id,
           employeeId: e.employeeId,
           name: e.name,
-          alias: e.alias || "",
+          alias: formatAlias(e.alias),
           dept1: deptName,
           position: posName,
           userId: e.user?.id ?? null,

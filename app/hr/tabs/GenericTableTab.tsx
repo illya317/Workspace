@@ -65,6 +65,13 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
       initVal = item.gender === true ? "男" : item.gender === false ? "女" : "";
     } else if (field.type === "fk") {
       initVal = getVal(item, field.key + "Name") ?? getVal(item, config.fkFields?.[field.key]?.displayField ?? field.key) ?? "";
+    } else if (config.entityType === "Employee" && field.key === "alias") {
+      try {
+        const parsed = JSON.parse(String(item.alias || ""));
+        initVal = Array.isArray(parsed) ? parsed.map((entry) => String(entry)).join("、") : item.alias ?? "";
+      } catch {
+        initVal = item.alias ?? "";
+      }
     } else {
       initVal = item[field.key] ?? "";
     }

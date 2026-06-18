@@ -257,6 +257,11 @@ export type CompanyRelation = Prisma.CompanyRelationModel
  */
 export type Department = Prisma.DepartmentModel
 /**
+ * Model DepartmentDescription
+ * 部门职责说明书（原始 JSON 导入，details 为 JSON blob）
+ */
+export type DepartmentDescription = Prisma.DepartmentDescriptionModel
+/**
  * Model Position
  * 岗位定义
  */

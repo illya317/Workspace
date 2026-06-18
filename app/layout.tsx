@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import AgentProvider from "@/app/components/agent/AgentProvider";
+import ConfirmProvider from "@/app/components/ConfirmProvider";
 
 export const metadata: Metadata = {
   title: process.env.NEXT_PUBLIC_APP_NAME || "工作台",
@@ -15,8 +16,10 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
-        {children}
-        <AgentProvider />
+        <ConfirmProvider>
+          {children}
+          <AgentProvider />
+        </ConfirmProvider>
       </body>
     </html>
   );

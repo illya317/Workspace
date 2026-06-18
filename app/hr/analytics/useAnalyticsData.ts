@@ -63,13 +63,8 @@ export interface EDP {
   isPrimary: boolean;
   startDate: string | null;
   endDate: string | null;
-  personnelType: string | null;
-  rank: string | null;
-  title: string | null;
   reportTo: string | null;
-  reportTo2: string | null;
   workPercent: number | null;
-  isResearch: boolean | null;
 }
 
 export interface Employment {
@@ -82,7 +77,9 @@ export interface Employment {
   leaveDate: string | null;
   leaveReason: string | null;
   officeLocation: string | null;
-  attendanceType: string | null;
+  personnelType: string | null;
+  rank: string | null;
+  title: string | null;
   contracts: Contract[];
 }
 
@@ -94,6 +91,7 @@ export interface Contract {
   company: string;
   isPrimary: boolean;
   isInsuredHere: boolean;
+  insuranceStatus: string | null;
   legalRelation: string;
   contractType: string;
   employmentForm: string;

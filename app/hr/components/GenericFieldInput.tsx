@@ -3,7 +3,15 @@
 import { useState, useEffect } from "react";
 import FKInput from "./FKInput";
 import { AutoSizeInput } from "./AutoSizeInput";
+import CalendarDateInput from "./CalendarDateInput";
+import EthnicityPicker from "./EthnicityPicker";
+import MajorPicker from "./MajorPicker";
+import OptionPicker from "./OptionPicker";
+import ProfessionalTitlePicker from "./ProfessionalTitlePicker";
+import RankPicker from "./RankPicker";
+import SchoolPicker from "./SchoolPicker";
 import type { FieldConfig, SelectOption } from "../types";
+import { formatPhoneNumber, normalizeChineseIdNumber, normalizePhoneValue } from "@/lib/hr-identity";
 
 interface GenericFieldInputProps {
   field: FieldConfig;
@@ -68,6 +76,36 @@ export default function GenericFieldInput({
     );
   }
 
+  if (field.type === "major") {
+    return (
+      <MajorPicker
+        value={value}
+        onChange={onChange}
+        buttonClassName={`w-full rounded border border-emerald-400 bg-white px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+      />
+    );
+  }
+
+  if (field.type === "school") {
+    return (
+      <SchoolPicker
+        value={value}
+        onChange={onChange}
+        buttonClassName={`w-full rounded border border-emerald-400 bg-white px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+      />
+    );
+  }
+
+  if (field.type === "professionalTitle") {
+    return (
+      <ProfessionalTitlePicker
+        value={value}
+        onChange={onChange}
+        buttonClassName={`w-full rounded border border-emerald-400 bg-white px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+      />
+    );
+  }
+
   if (field.key === "gender") {
     const selected =
       value === true || value === "男"
@@ -76,32 +114,47 @@ export default function GenericFieldInput({
           ? "女"
           : "男";
     return (
-      <select
+      <OptionPicker
         value={selected}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={onKeyDown}
-        className={`rounded border border-emerald-400 px-2 py-1.5 text-sm focus:outline-none ${className || ""}`}
-      >
-        <option value="男">男</option>
-        <option value="女">女</option>
-      </select>
+        options={[
+          { label: "男", value: "男" },
+          { label: "女", value: "女" },
+        ]}
+        onChange={(next) => onChange(next)}
+        buttonClassName={`rounded border border-emerald-400 px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+      />
     );
   }
 
   if (field.type === "select" && selectOptions.length > 0) {
+    if (field.key === "ethnicity") {
+      return (
+        <EthnicityPicker
+          value={value}
+          onChange={onChange}
+          buttonClassName={`rounded border border-emerald-400 px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+        />
+      );
+    }
+
+    if (field.key === "rank") {
+      return (
+        <RankPicker
+          value={value}
+          options={selectOptions.map((option) => option.value)}
+          onChange={onChange}
+          buttonClassName={`rounded border border-emerald-400 px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+        />
+      );
+    }
+
     return (
-      <select
+      <OptionPicker
         value={String(value ?? "")}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={onKeyDown}
-        className={`rounded border border-emerald-400 px-2 py-1.5 text-sm focus:outline-none ${className || ""}`}
-      >
-        {selectOptions.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+        options={selectOptions}
+        onChange={(next) => onChange(next ?? "")}
+        buttonClassName={`rounded border border-emerald-400 px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+      />
     );
   }
 
@@ -140,10 +193,45 @@ export default function GenericFieldInput({
     );
   }
 
-  const inputType =
-    field.type === "number" ? "number" : field.type === "date" ? "date" : "text";
+  const inputType = field.type === "number" ? "number" : "text";
+
+  if (field.type === "date") {
+    return (
+      <CalendarDateInput
+        ref={inputRef}
+        value={String(value ?? "")}
+        onChange={(next) => onChange(next ?? "")}
+        onKeyDown={onKeyDown}
+        className={`rounded border border-emerald-400 px-2 py-1.5 text-sm focus:outline-none ${className || ""}`}
+      />
+    );
+  }
 
   if (mode === "edit") {
+    if (field.type === "phone") {
+      return (
+        <AutoSizeInput
+          ref={inputRef}
+          type="tel"
+          value={formatPhoneNumber(value)}
+          onChange={(e) => onChange(normalizePhoneValue(e.target.value))}
+          onKeyDown={onKeyDown}
+        />
+      );
+    }
+
+    if (field.type === "chineseId") {
+      return (
+        <AutoSizeInput
+          ref={inputRef}
+          type="text"
+          value={normalizeChineseIdNumber(value) ?? ""}
+          onChange={(e) => onChange(normalizeChineseIdNumber(e.target.value)?.slice(0, 18) ?? null)}
+          onKeyDown={onKeyDown}
+        />
+      );
+    }
+
     return (
       <AutoSizeInput
         ref={inputRef}
@@ -158,8 +246,12 @@ export default function GenericFieldInput({
   return (
     <AutoSizeInput
       type={inputType}
-      value={(value as string) ?? ""}
-      onChange={(e) => onChange(e.target.value)}
+      value={field.type === "phone" ? formatPhoneNumber(value) : field.type === "chineseId" ? normalizeChineseIdNumber(value) ?? "" : (value as string) ?? ""}
+      onChange={(e) => {
+        if (field.type === "phone") onChange(normalizePhoneValue(e.target.value));
+        else if (field.type === "chineseId") onChange(normalizeChineseIdNumber(e.target.value)?.slice(0, 18) ?? null);
+        else onChange(e.target.value);
+      }}
       className={className}
     />
   );

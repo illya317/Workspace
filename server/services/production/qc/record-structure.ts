@@ -1,23 +1,15 @@
 import "server-only";
 import path from "path";
-import { readdir, readFile } from "fs/promises";
-import { parse as parseYaml } from "yaml";
-import { loadQcLayoutBlocks } from "./layout-blocks";
-import { buildPrecheckLayoutBlocks } from "./precheck-layout";
-import { buildQcMethodGroups, loadQcMethods } from "./method-fields";
+import { readFile } from "fs/promises";
 import { resolvePharmaOpsRoot } from "./source";
-import { cleanupItems, summarizeStandard } from "./test-metadata";
 import type {
+  QcLayoutBlock,
   QcTemplateDetail,
-  QcTemplateLayoutAssignment,
+  QcTemplateMethodField,
   QcTemplateMethodGroup,
   QcTemplateStage,
   QcTemplateTestItem,
 } from "./types";
-
-type MethodIndex = Awaited<ReturnType<typeof loadQcMethods>>;
-type LayoutAssignments = Record<string, Record<string, unknown>>;
-type OperationParamIndex = Record<string, Record<string, unknown>>;
 
 const TEMPLATE_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
@@ -29,180 +21,154 @@ function asArray(value: unknown): unknown[] {
   return Array.isArray(value) ? value : [];
 }
 
+function values(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : Object.values(asRecord(value));
+}
+
 function asString(value: unknown, fallback = "") {
   return typeof value === "string" || typeof value === "number" ? String(value) : fallback;
 }
 
-function isComputableConclusionRule(rule: string) {
-  const compact = rule.replace(/\s/g, "");
-  if (!compact) return false;
-  if (compact.includes("标准规定") || compact.includes("各项规定")) return false;
-  if (compact === "符合" || compact === "不符合") return false;
-  return /[<>=!&|+\-*/%^]/.test(compact);
+function asBoolean(value: unknown) {
+  return value === true;
 }
 
-async function readYamlFile(filePath: string): Promise<unknown> {
-  const text = await readFile(filePath, "utf8");
-  return parseYaml(text, { uniqueKeys: false });
+function sourceRef(value: unknown) {
+  const source = asRecord(value);
+  if (!Object.keys(source).length) return undefined;
+  return {
+    type: asString(source.type) || undefined,
+    fieldKey: asString(source.field_key || source.fieldKey) || undefined,
+  };
 }
 
-async function loadLayoutAssignments(configRoot: string): Promise<LayoutAssignments> {
-  const filePath = path.join(configRoot, "table_layouts", "layout_mapping.json");
-  const raw = JSON.parse(await readFile(filePath, "utf8"));
-  return asRecord(asRecord(raw).assignments) as LayoutAssignments;
+async function readJson(filePath: string): Promise<unknown> {
+  return JSON.parse(await readFile(filePath, "utf8")) as unknown;
 }
 
-async function loadOperationParams(configRoot: string): Promise<OperationParamIndex> {
-  const root = path.join(configRoot, "table_layouts");
-  const files = (await readdir(root)).filter((file) => file.endsWith("_operation_params.yaml"));
-  const index: OperationParamIndex = {};
-  for (const file of files) {
-    const paramKey = file.replace(/\.yaml$/, "");
-    const data = asRecord(await readYamlFile(path.join(root, file)));
-    for (const [product, stages] of Object.entries(asRecord(data.products))) {
-      for (const [stage, tests] of Object.entries(asRecord(stages))) {
-        for (const [test, entry] of Object.entries(asRecord(tests))) {
-          const params = asRecord(asRecord(entry)["操作方法参数"]);
-          const key = `products/${product}/${stage}/${test}`;
-          if (Object.keys(params).length) index[key] = { ...index[key], [paramKey]: params };
-        }
-      }
-    }
+function standardText(recordConfig: Record<string, unknown>) {
+  const template = asString(recordConfig.standard_template);
+  const params = asRecord(recordConfig.standard_params);
+  if (template === "variation_difference_limit") {
+    const basis = asString(params.basis, "平均片重");
+    const limit = asString(params.limit, "7.0");
+    const differenceName = asString(params.difference_name, "重量差异");
+    const maxOver = asString(params.max_over, "2");
+    const unit = asString(params.unit, "片");
+    const oneUnit = asString(params.one_unit, `一${unit}`);
+    return `差异限度应为${basis}的±${limit}%以内，如有超出${differenceName}限度的不得多于${maxOver}${unit}，并不得有${oneUnit}超出限度一倍。`;
   }
-  return index;
+  if (template === "moisture_s_limit") return `水分不得过${asString(params.limit)}%。`;
+  if (template === "appearance_description") return asString(params.description);
+  if (template === "plain_text") return asString(params.text);
+  if (template === "dissolution_release_limit") return `限度为标示量的${asString(params.limit)}%。`;
+  if (template === "content_assay_range") {
+    return `${asString(params.subject, "含量")}${asString(params.phrase, "应为")} ${asString(params.lower)}%～${asString(params.upper)}%。`;
+  }
+  const values = Object.entries(params).map(([key, value]) => `${key}=${String(value)}`);
+  return values.length ? `${template} (${values.join(", ")})` : template || undefined;
 }
 
-function resolveLayout(key: string, assignments: LayoutAssignments, seen = new Set<string>()): QcTemplateLayoutAssignment | undefined {
-  const own = assignments[key];
-  if (!own || seen.has(key)) return undefined;
-  seen.add(key);
-  const reusedFrom = asString(own.reuse_from) || undefined;
-  const reused = reusedFrom ? resolveLayout(reusedFrom, assignments, seen) : undefined;
-  const params = asRecord(own.params);
+function cleanupItems(recordConfig: Record<string, unknown>) {
+  if (asString(recordConfig.cleanup_template) !== "standard_cleanup") return [];
+  return [
+    "关闭电源",
+    "清洁设备及房间",
+    "检查仪器、设备，填写《仪器使用记录》",
+    "更换仪器、设备状态标识",
+  ];
+}
 
+function methodField(rawField: unknown): QcTemplateMethodField {
+  const field = asRecord(rawField);
   return {
-    key,
-    templateId: asString(own.template_id, reused?.templateId ?? ""),
-    status: asString(own.status, reused?.status ?? "unknown"),
-    sourceRef: asString(own.source_ref) || reused?.sourceRef,
-    familyId: asString(own.family_id) || reused?.familyId,
-    reusedFrom,
-    params: Object.keys(params).length ? params : reused?.params ?? {},
+    name: asString(field.name),
+    fieldKey: asString(field.field_key || field.fieldKey),
+    group: asString(field.group),
+    type: asString(field.type) || undefined,
+    attr: asString(field.attr) || undefined,
+    unit: asString(field.unit) || undefined,
+    formula: asString(field.formula) || undefined,
+    rule: asString(field.rule) || undefined,
+    referenceFieldKey: asString(field.reference_field_key || field.referenceFieldKey) || undefined,
+    valueSource: sourceRef(field.value_source || field.valueSource),
+    options: asArray(field.options).map((option) => asString(option)).filter(Boolean),
+    defaultValue: asString(field.default_value ?? field.defaultValue) || undefined,
+    recommendedValue: asString(field.suggested_value ?? field.recommendedValue) || undefined,
   };
 }
 
-function toTestItem(
-  templateId: string,
-  stageKey: string,
-  raw: unknown,
-  methods: MethodIndex,
-  layouts: LayoutAssignments,
-  operationParams: OperationParamIndex,
-): QcTemplateTestItem {
-  const test = asRecord(raw);
-  const methodName = asString(test["方法"]);
-  const englishName = asString(test["英文名"]);
-  const method = buildQcMethodGroups(methodName, methods, stageKey, englishName || `t${asString(test["序号"], "0")}`);
-  const conclusion = asRecord(test["结论判定"]);
-  const conclusionRule = asString(conclusion.rule);
-  const conclusionFieldKey = `${stageKey}/${englishName || "test"}/conclusion/result`;
-  const shouldAutoJudgeConclusion = isComputableConclusionRule(conclusionRule);
-  const groupsWithConclusion: QcTemplateMethodGroup[] = shouldAutoJudgeConclusion
-    ? [...method.groups, {
-      name: "结论",
-      fields: [{
-        name: "result",
-        fieldKey: conclusionFieldKey,
-        group: "结论",
-        type: "select",
-        attr: "calculated",
-        rule: conclusionRule,
-        options: ["符合", "不符合"],
-      }],
-    }]
-    : method.groups;
-  const layoutKey = `products/${templateId}/${stageKey}/${englishName}`;
-  const layout = resolveLayout(layoutKey, layouts);
+function methodGroup(rawGroup: unknown): QcTemplateMethodGroup {
+  const group = asRecord(rawGroup);
   return {
-    sequence: asString(test["序号"]),
-    name: asString(test["名称"]),
-    englishName,
-    methodName,
-    standardText: summarizeStandard(test),
-    conclusionName: asString(test["结论名称"]) || undefined,
-    conclusionFieldKey,
-    hasNumericConclusion: test["结论含数值"] === true,
-    cleanupItems: cleanupItems(test),
-    layout: layout ? {
-      ...layout,
-      params: {
-        test_sequence: asString(test["序号"]),
-        test_name: asString(test["名称"]),
-        test_english_name: englishName,
-        test_method_name: methodName,
-        ...operationParams[layoutKey],
-        ...layout.params,
-      },
+    name: asString(group.name),
+    fields: asArray(group.fields).map(methodField),
+  };
+}
+
+function toTestItem(test: Record<string, unknown>): QcTemplateTestItem {
+  const recordConfig = asRecord(test.record_config);
+  const copiedFrom = asRecord(test.copied_from || test.copiedFrom);
+  return {
+    sequence: asString(test.sequence),
+    name: asString(test.name),
+    englishName: asString(test.key),
+    methodName: asString(test.method),
+    standardText: standardText(recordConfig),
+    conclusionName: asString(recordConfig.conclusion_name) || undefined,
+    hasNumericConclusion: asBoolean(recordConfig.has_numeric_conclusion),
+    cleanupItems: cleanupItems(recordConfig),
+    layout: undefined,
+    layoutBlocks: asArray(test.layout_blocks) as QcLayoutBlock[],
+    methodFile: asString(test.method_ref || test.method_file) || undefined,
+    methodGroups: asArray(test.method_groups).map(methodGroup),
+    copyFromPackaging: asBoolean(test.copy_from_packaging ?? test.copyFromPackaging),
+    copiedFrom: Object.keys(copiedFrom).length ? {
+      stage: asString(copiedFrom.stage) || undefined,
+      sequence: asString(copiedFrom.sequence) || undefined,
+      key: asString(copiedFrom.key) || undefined,
+      name: asString(copiedFrom.name) || undefined,
     } : undefined,
-    methodFile: method.fileName,
-    methodGroups: groupsWithConclusion,
+    packagingReferencePhrases: asArray(test.packaging_reference_phrases ?? test.packagingReferencePhrases).map((phrase) => asString(phrase)).filter(Boolean),
   };
 }
 
-async function toStage(
-  configRoot: string,
-  templateId: string,
-  productName: string,
-  key: string,
-  raw: unknown,
-  methods: MethodIndex,
-  layouts: LayoutAssignments,
-  operationParams: OperationParamIndex,
-): Promise<QcTemplateStage> {
-  const stage = asRecord(raw);
-  const precheck = asRecord(stage["检验前确认"]);
-  const precheckInfo = Object.fromEntries(
-    Object.entries(asRecord(precheck["顶部信息"])).map(([key, value]) => [key, asString(value)]),
-  );
-  const precheckFiles = asArray(precheck["文件清单"]).map((file) => {
+function precheckFiles(precheck: Record<string, unknown>) {
+  return asArray(precheck["文件清单"]).map((file) => {
     const data = asRecord(file);
     return { name: asString(data["名称"]), code: asString(data["编码"]) };
   });
-  const precheckItems = asArray(precheck["确认项"]).map((item) => ({ name: asString(asRecord(item)["名称"]) }));
-  const tests = asArray(stage["检测项"]).map((test) => toTestItem(templateId, key, test, methods, layouts, operationParams));
-  const precheckLayoutBlocks = await buildPrecheckLayoutBlocks(
-    configRoot,
-    productName,
-    asString(stage["显示名"], key),
-    precheckInfo,
-    precheckFiles,
-    precheckItems,
-    asRecord(precheck["环境确认"]),
-  );
-  const experimentLayoutBlocks = await loadQcLayoutBlocks(configRoot, {
-    key: `parents/experiment_projects_full:${templateId}:${key}`,
-    templateId: "parents/experiment_projects_full",
-    status: "pilot",
-    params: {
-      tests: tests.map((test) => ({
-        sequence: test.sequence,
-        name: test.name,
-        methodName: test.methodName,
-        templateId: test.layout?.templateId || "",
-      })),
-    },
-  });
+}
+
+function precheckItems(precheck: Record<string, unknown>) {
+  return asArray(precheck["确认项"]).map((item) => ({ name: asString(asRecord(item)["名称"]) }));
+}
+
+async function fullStage(configRoot: string, productKey: string, stageKey: string) {
+  return asRecord(await readJson(path.join(configRoot, "full", `${productKey}_${stageKey}_full.json`)).catch(() => ({})));
+}
+
+async function toStage(configRoot: string, productKey: string, rawStage: unknown): Promise<QcTemplateStage> {
+  const stage = asRecord(rawStage);
+  const stageKey = asString(stage.key);
+  const full = await fullStage(configRoot, productKey, stageKey);
+  const precheck = asRecord(asRecord(await readJson(path.join(configRoot, "records", `${productKey}.json`)).catch(() => ({}))).stages);
+  const stageRecord = asRecord(precheck[stageKey]);
+  const precheckRaw = asRecord(stageRecord.precheck);
+  const info = Object.fromEntries(Object.entries(asRecord(precheckRaw["顶部信息"])).map(([key, value]) => [key, asString(value)]));
+  const files = precheckFiles(precheckRaw);
+  const items = precheckItems(precheckRaw);
   return {
-    key,
-    label: asString(stage["显示名"], key),
-    precheckItemCount: precheckItems.length,
-    documentCount: precheckFiles.length,
-    precheckInfo,
-    precheckFiles,
-    precheckItems,
-    precheckLayoutBlocks,
-    experimentLayoutBlocks: experimentLayoutBlocks ?? [],
-    tests,
+    key: stageKey,
+    label: asString(stage.label, stageKey),
+    precheckItemCount: items.length,
+    documentCount: files.length,
+    precheckInfo: info,
+    precheckFiles: files,
+    precheckItems: items,
+    precheckLayoutBlocks: asArray(asRecord(full.precheck_full).layout_blocks) as QcLayoutBlock[],
+    experimentLayoutBlocks: asArray(asRecord(full.experiment_projects_full).layout_blocks) as QcLayoutBlock[],
+    tests: asArray(stage.tests).map((test) => toTestItem(asRecord(test))),
   };
 }
 
@@ -213,32 +179,24 @@ export async function getQcTemplateDetailFromConfig(templateId: string): Promise
 
   const source = await resolvePharmaOpsRoot();
   if (!source.available) {
-    return { source, id: templateId, fileName: `${templateId}.yaml`, productName: templateId, stages: [], methodFileCount: 0, layoutAssignmentCount: 0 };
+    return { source, id: templateId, fileName: `${templateId}.json`, productName: templateId, stages: [], methodFileCount: 0, layoutAssignmentCount: 0 };
   }
 
-  const fileName = `${templateId}.yaml`;
-  const templatePath = path.join(source.configRoot, "record_templates", fileName);
-  const [rawTemplate, methods, layouts, operationParams] = await Promise.all([
-    readYamlFile(templatePath),
-    loadQcMethods(source.configRoot),
-    loadLayoutAssignments(source.configRoot),
-    loadOperationParams(source.configRoot),
-  ]);
-  const template = asRecord(rawTemplate);
-  const stages = Object.entries(asRecord(template["阶段"]))
-    .map(([key, stage]) => toStage(source.configRoot, templateId, asString(template["产品名称"], templateId), key, stage, methods, layouts, operationParams));
-  const resolvedStages = await Promise.all(stages);
-  await Promise.all(resolvedStages.flatMap((stage) => stage.tests.map(async (test) => {
-    test.layoutBlocks = await loadQcLayoutBlocks(source.configRoot, test.layout);
-  })));
+  const aggregate = asRecord(await readJson(path.join(source.configRoot, "product_stage_tests.json")));
+  const product = asRecord(values(aggregate.products).find((item) => asString(asRecord(item).key) === templateId));
+  if (!Object.keys(product).length) {
+    throw new Error("QC product template not found");
+  }
+  const stages = await Promise.all(Object.values(asRecord(product.stages)).map((stage) => toStage(source.configRoot, templateId, stage)));
+  const methodRefs = new Set(stages.flatMap((stage) => stage.tests.map((test) => test.methodFile).filter(Boolean)));
 
   return {
     source,
     id: templateId,
-    fileName,
-    productName: asString(template["产品名称"], templateId),
-    stages: resolvedStages,
-    methodFileCount: new Set(Object.values(methods).map((method) => method.fileName)).size,
-    layoutAssignmentCount: Object.keys(layouts).length,
+    fileName: `${templateId}.json`,
+    productName: asString(product.name, templateId),
+    stages,
+    methodFileCount: methodRefs.size,
+    layoutAssignmentCount: stages.reduce((sum, stage) => sum + stage.tests.length, 0),
   };
 }

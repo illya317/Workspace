@@ -3,6 +3,8 @@
 import { useState, useMemo } from "react";
 import LocalAutocompleteInput from "./LocalAutocompleteInput";
 import FilterSearchInput from "./FilterSearchInput";
+import CalendarDateInput from "./CalendarDateInput";
+import OptionPicker from "./OptionPicker";
 import type { FieldConfig, FKFieldConfig } from "../types";
 
 interface FilterCondition {
@@ -113,32 +115,31 @@ export default function FilterModal({ open, fields, fkFields, items, onClose, on
             const options = c.field ? fieldOptions[c.field] || [] : [];
             return (
               <div key={i} className="flex items-center gap-2">
-                <select
+                <OptionPicker
                   value={c.field}
-                  onChange={(e) => updateCondition(i, { field: e.target.value, value: "" })}
-                  className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                >
-                  <option value="">选择字段</option>
-                  {usableFields.map((f) => (
-                    <option key={f.key} value={f.key}>{f.label}</option>
-                  ))}
-                </select>
+                  onChange={(value) => updateCondition(i, { field: value ?? "", value: "" })}
+                  options={usableFields.map((field) => ({ label: field.label, value: field.key }))}
+                  placeholder="选择字段"
+                  buttonClassName="w-full rounded-lg border border-gray-300 px-3 py-2 text-left text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="flex-1"
+                />
 
                 {inputType === "boolean" ? (
-                  <select
+                  <OptionPicker
                     value={c.value}
-                    onChange={(e) => updateCondition(i, { value: e.target.value })}
-                    className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                  >
-                    <option value="">请选择</option>
-                    <option value="true">是</option>
-                    <option value="false">否</option>
-                  </select>
+                    onChange={(value) => updateCondition(i, { value: value ?? "" })}
+                    options={[
+                      { label: "是", value: "true" },
+                      { label: "否", value: "false" },
+                    ]}
+                    placeholder="请选择"
+                    buttonClassName="w-full rounded-lg border border-gray-300 px-3 py-2 text-left text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className="flex-1"
+                  />
                 ) : inputType === "date" ? (
-                  <input
-                    type="date"
+                  <CalendarDateInput
                     value={c.value}
-                    onChange={(e) => updateCondition(i, { value: e.target.value })}
+                    onChange={(value) => updateCondition(i, { value: value ?? "" })}
                     className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                   />
                 ) : entityInfo ? (

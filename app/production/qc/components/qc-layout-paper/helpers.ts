@@ -104,6 +104,9 @@ export function collectAdvancedPartMetadata(blocks: QcLayoutBlock[], test?: QcTe
 }
 
 export function reusedPackagingSource(test?: QcTemplateTestItem) {
+  if (test?.copyFromPackaging && test.copiedFrom?.stage === "packaging" && test.copiedFrom.key) {
+    return { stageKey: "packaging", testName: test.copiedFrom.key, sourceRef: `packaging/${test.copiedFrom.sequence || test.copiedFrom.key}` };
+  }
   const reusedFrom = test?.layout?.reusedFrom || "";
   const layoutKey = test?.layout?.key || "";
   const sourceMatch = reusedFrom.match(/^products\/([^/]+)\/packaging\/([^/]+)$/);

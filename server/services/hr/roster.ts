@@ -32,6 +32,16 @@ export async function getVisibleFields(_userId: number, _isAdmin: boolean): Prom
   return ROSTER_FIELDS.map((f) => f.key);
 }
 
+function formatAlias(value: string | null) {
+  if (!value) return "";
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.map((item) => String(item)).join("、") : value;
+  } catch {
+    return value;
+  }
+}
+
 export async function queryRawEmployees(keyword: string) {
   let employees = await prisma.employee.findMany({ orderBy: { employeeId: "asc" } });
   if (keyword) employees = employees.filter((e) => matchAnyField(e, keyword, "Employee"));
@@ -108,7 +118,7 @@ export async function buildRosterRows(dept: string, keyword: string): Promise<Ro
       id: emp.id,
       employeeId: emp.employeeId,
       name: emp.name,
-      alias: emp.alias,
+      alias: formatAlias(emp.alias),
       company: companyName,
       center: "",
       dept1: defEP?.department?.name ?? "",

@@ -424,6 +424,7 @@ export const ModelName = {
   Company: 'Company',
   CompanyRelation: 'CompanyRelation',
   Department: 'Department',
+  DepartmentDescription: 'DepartmentDescription',
   Position: 'Position',
   EDP: 'EDP',
   Project: 'Project',
@@ -468,7 +469,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "project" | "employeeProject" | "positionDescription" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
+    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentDescription" | "position" | "eDP" | "project" | "employeeProject" | "positionDescription" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -3432,6 +3433,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    DepartmentDescription: {
+      payload: Prisma.$DepartmentDescriptionPayload<ExtArgs>
+      fields: Prisma.DepartmentDescriptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DepartmentDescriptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentDescriptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DepartmentDescriptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentDescriptionPayload>
+        }
+        findFirst: {
+          args: Prisma.DepartmentDescriptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentDescriptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DepartmentDescriptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentDescriptionPayload>
+        }
+        findMany: {
+          args: Prisma.DepartmentDescriptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentDescriptionPayload>[]
+        }
+        create: {
+          args: Prisma.DepartmentDescriptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentDescriptionPayload>
+        }
+        createMany: {
+          args: Prisma.DepartmentDescriptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DepartmentDescriptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentDescriptionPayload>[]
+        }
+        delete: {
+          args: Prisma.DepartmentDescriptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentDescriptionPayload>
+        }
+        update: {
+          args: Prisma.DepartmentDescriptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentDescriptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.DepartmentDescriptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DepartmentDescriptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DepartmentDescriptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentDescriptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.DepartmentDescriptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentDescriptionPayload>
+        }
+        aggregate: {
+          args: Prisma.DepartmentDescriptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDepartmentDescription>
+        }
+        groupBy: {
+          args: Prisma.DepartmentDescriptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DepartmentDescriptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DepartmentDescriptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DepartmentDescriptionCountAggregateOutputType> | number
+        }
+      }
+    }
     Position: {
       payload: Prisma.$PositionPayload<ExtArgs>
       fields: Prisma.PositionFieldRefs
@@ -6344,6 +6419,9 @@ export const EmploymentScalarFieldEnum = {
   leaveReason: 'leaveReason',
   officeLocation: 'officeLocation',
   attendanceType: 'attendanceType',
+  personnelType: 'personnelType',
+  rank: 'rank',
+  title: 'title',
   contracts: 'contracts',
   editedBy: 'editedBy',
   editedAt: 'editedAt',
@@ -6408,6 +6486,23 @@ export const DepartmentScalarFieldEnum = {
 export type DepartmentScalarFieldEnum = (typeof DepartmentScalarFieldEnum)[keyof typeof DepartmentScalarFieldEnum]
 
 
+export const DepartmentDescriptionScalarFieldEnum = {
+  id: 'id',
+  departmentId: 'departmentId',
+  code: 'code',
+  name: 'name',
+  sourceFile: 'sourceFile',
+  codeRaw: 'codeRaw',
+  details: 'details',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DepartmentDescriptionScalarFieldEnum = (typeof DepartmentDescriptionScalarFieldEnum)[keyof typeof DepartmentDescriptionScalarFieldEnum]
+
+
 export const PositionScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -6432,13 +6527,8 @@ export const EDPScalarFieldEnum = {
   isPrimary: 'isPrimary',
   startDate: 'startDate',
   endDate: 'endDate',
-  personnelType: 'personnelType',
-  rank: 'rank',
-  title: 'title',
   reportTo: 'reportTo',
-  reportTo2: 'reportTo2',
   workPercent: 'workPercent',
-  isResearch: 'isResearch',
   editedBy: 'editedBy',
   editedAt: 'editedAt',
   version: 'version'
@@ -6452,6 +6542,7 @@ export const ProjectScalarFieldEnum = {
   name: 'name',
   type: 'type',
   description: 'description',
+  startDate: 'startDate',
   endDate: 'endDate',
   editedBy: 'editedBy',
   editedAt: 'editedAt',
@@ -7083,6 +7174,7 @@ export type GlobalOmitConfig = {
   company?: Prisma.CompanyOmit
   companyRelation?: Prisma.CompanyRelationOmit
   department?: Prisma.DepartmentOmit
+  departmentDescription?: Prisma.DepartmentDescriptionOmit
   position?: Prisma.PositionOmit
   eDP?: Prisma.EDPOmit
   project?: Prisma.ProjectOmit

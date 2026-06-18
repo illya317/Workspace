@@ -7,14 +7,12 @@ import UserMenu from "@/app/components/UserMenu";
 
 import EmployeeTab from "./tabs/EmployeeTab";
 import EmploymentTab from "./tabs/EmploymentTab";
-import CompanyTab from "./tabs/CompanyTab";
-import CompanyRelationTab from "./tabs/CompanyRelationTab";
-import DepartmentTab from "./tabs/DepartmentTab";
-import PositionTab from "./tabs/PositionTab";
+import DepartmentPositionTab from "./tabs/DepartmentPositionTab";
 import EDPTab from "./tabs/EDPTab";
 import ProjectTab from "./tabs/ProjectTab";
 import EmployeeProjectTab from "./tabs/EmployeeProjectTab";
 import ContractTab from "./tabs/ContractTab";
+import EmployeeDirectory from "./profile/EmployeeDirectory";
 
 import type { SessionUser } from "@/lib/types";
 import type { HRUser } from "./types";
@@ -23,22 +21,26 @@ type HRTab =
   | "employee"
   | "employment"
   | "contract"
-  | "company"
-  | "company-relation"
   | "department"
   | "position"
-  | "edp"
   | "project"
+  | "edp"
   | "employee-project";
 
-const tabs: { key: HRTab; label: string }[] = [
+type HRView = "employee" | "department-position" | "project" | "bulk";
+
+const views: { key: HRView; label: string }[] = [
+  { key: "employee", label: "员工资料" },
+  { key: "department-position", label: "部门岗位" },
+  { key: "project", label: "项目" },
+  { key: "bulk", label: "员工信息表" },
+];
+
+const bulkTabs: { key: HRTab; label: string }[] = [
   { key: "employee", label: "员工信息" },
   { key: "employment", label: "雇佣关系" },
   { key: "contract", label: "合同" },
-  { key: "department", label: "部门" },
-  { key: "position", label: "岗位" },
-  { key: "edp", label: "EDP" },
-  { key: "project", label: "项目" },
+  { key: "edp", label: "部门岗位" },
   { key: "employee-project", label: "项目员工" },
 ];
 
@@ -59,6 +61,7 @@ function hasKey(user: SessionUser, key: string) {
 
 export default function HRClient({ user, hideShell }: { user: SessionUser; hideShell?: boolean }) {
   const router = useRouter();
+  const [activeView, setActiveView] = useState<HRView>("employee");
   const [activeTab, setActiveTab] = useState<HRTab>("employee");
   const hrUser = toHRUser(user);
 
@@ -82,35 +85,58 @@ export default function HRClient({ user, hideShell }: { user: SessionUser; hideS
         </nav>
       )}
 
-      <main className="mx-auto max-w-5xl px-4 py-6">
-        <div className="mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 pb-1">
-          {tabs.map((t) => (
+      <main className="mx-auto max-w-7xl px-4 py-6">
+        <div className="mb-5 flex gap-2 overflow-x-auto border-b border-gray-200 pb-1">
+          {views.map((view) => (
             <button
-              key={t.key}
-              onClick={() => setActiveTab(t.key)}
+              key={view.key}
+              onClick={() => setActiveView(view.key)}
               className={`whitespace-nowrap rounded-t-lg px-4 py-2 text-sm font-medium transition-colors ${
-                activeTab === t.key
+                activeView === view.key
                   ? "border-b-2 border-emerald-500 text-emerald-600"
                   : "text-gray-500 hover:text-gray-700"
               }`}
             >
-              {t.label}
+              {view.label}
             </button>
           ))}
         </div>
 
-        <>
-          {activeTab === "employee" && <EmployeeTab user={hrUser} />}
-          {activeTab === "employment" && <EmploymentTab user={hrUser} />}
-          {activeTab === "company" && <CompanyTab user={hrUser} />}
-          {activeTab === "company-relation" && <CompanyRelationTab user={hrUser} />}
-          {activeTab === "department" && <DepartmentTab user={hrUser} />}
-          {activeTab === "position" && <PositionTab user={hrUser} />}
-          {activeTab === "edp" && <EDPTab user={hrUser} />}
-          {activeTab === "project" && <ProjectTab user={hrUser} />}
-          {activeTab === "contract" && <ContractTab user={hrUser} />}
-          {activeTab === "employee-project" && <EmployeeProjectTab user={hrUser} />}
-        </>
+        {activeView === "employee" && <EmployeeDirectory user={hrUser} />}
+
+        {activeView === "department-position" && <DepartmentPositionTab user={hrUser} />}
+        {activeView === "project" && <ProjectTab user={hrUser} />}
+
+        {activeView === "bulk" && (
+          <>
+            <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              员工信息表保留原有多人表格编辑方式，适合集中修员工相关数据；日常单人维护建议从“员工资料”进入详情页。
+            </div>
+            <div className="mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 pb-1">
+              {bulkTabs.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setActiveTab(t.key)}
+                  className={`whitespace-nowrap rounded-t-lg px-4 py-2 text-sm font-medium transition-colors ${
+                    activeTab === t.key
+                      ? "border-b-2 border-emerald-500 text-emerald-600"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            <>
+              {activeTab === "employee" && <EmployeeTab user={hrUser} />}
+              {activeTab === "employment" && <EmploymentTab user={hrUser} />}
+              {activeTab === "edp" && <EDPTab user={hrUser} />}
+              {activeTab === "contract" && <ContractTab user={hrUser} />}
+              {activeTab === "employee-project" && <EmployeeProjectTab user={hrUser} />}
+            </>
+          </>
+        )}
       </main>
     </div>
   );

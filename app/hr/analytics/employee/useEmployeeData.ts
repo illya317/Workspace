@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import type { Employee, Employment, EDP } from "../useAnalyticsData";
+import type { Employee, Employment } from "../useAnalyticsData";
 import type { DimKey } from "./constants";
 import { DIM_ORDER } from "./constants";
 
@@ -18,7 +18,7 @@ export interface CrossMatrixData {
 export function useEmployeeData(
   employees: Employee[],
   employments: Employment[],
-  edps: EDP[],
+  edps: unknown[],
   crossRow: DimKey,
   crossCol: DimKey,
 ) {
@@ -37,13 +37,7 @@ export function useEmployeeData(
       if (em.isActive && activeEmps.has(em.employeeId)) empActiveEmployment.set(em.employeeId, em);
     }
 
-    // 员工的主岗 EDP（isPrimary && 未结束）
-    const empPrimaryEdp = new Map<number, EDP>();
-    for (const ed of edps) {
-      if (ed.isPrimary && !ed.endDate && activeEmps.has(ed.employeeId)) {
-        empPrimaryEdp.set(ed.employeeId, ed);
-      }
-    }
+    void edps;
 
     const now = new Date();
     const result: Array<Record<string, string>> = [];
@@ -52,7 +46,6 @@ export function useEmployeeData(
       const emp = activeEmps.get(eid);
       if (!emp) continue;
       const em = empActiveEmployment.get(eid);
-      const edp = empPrimaryEdp.get(eid);
 
       const row: Record<string, string> = {};
 
@@ -89,11 +82,11 @@ export function useEmployeeData(
         row.tenure = "未知";
       }
 
-      // 职级（从主岗 EDP）
-      row.rank = edp?.rank || "未知";
+      // 职级（从雇佣关系）
+      row.rank = em?.rank || "未知";
 
-      // 人员类型（从主岗 EDP）
-      row.personnelType = edp?.personnelType || "未知";
+      // 人员类型（从雇佣关系）
+      row.personnelType = em?.personnelType || "未知";
 
       result.push(row);
     }

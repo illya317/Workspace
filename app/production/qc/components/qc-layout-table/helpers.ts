@@ -10,17 +10,39 @@ export function defaultValueForPart(part: QcLayoutPart, test?: QcTemplateTestIte
 
 function scopePrefix(fieldKey: string) {
   const parts = fieldKey.split("/");
-  return parts.length >= 2 ? `${parts[0]}/${parts[1]}/` : `${fieldKey}/`;
+  return parts.length >= 2 ? `${parts[0]}/${parts[1]}/` : "";
 }
 
 export function isReferenceFormula(field: QcTemplateMethodField | undefined, test?: QcTemplateTestItem) {
-  if (!field || field.attr !== "calculated" || !field.formula) return false;
+  return !!referenceFormulaSourceKey(field, test);
+}
+
+export function referenceFormulaSourceKey(field: QcTemplateMethodField | undefined, test?: QcTemplateTestItem) {
+  if (!field || field.attr !== "calculated" || !field.formula) return "";
   const expr = field.formula.replace(/\s+/g, "").replace(/（/g, "(").replace(/）/g, ")");
-  if (!expr) return false;
-  if (/[<>=!&|+\-*/%^(),"'.0-9]/.test(expr) || expr.includes("ALL(") || expr.includes("Math.")) return false;
+  if (!expr) return "";
+  if (/[<>=!&|+\-*/%^(),"'.0-9]/.test(expr) || expr.includes("ALL(") || expr.includes("Math.")) return "";
   const fields = test?.methodGroups.flatMap((group) => group.fields) || [];
   const prefix = scopePrefix(field.fieldKey);
-  return fields.some((candidate) => candidate.fieldKey !== field.fieldKey && candidate.fieldKey.startsWith(prefix) && candidate.name === expr);
+  const source = fields.find((candidate) => candidate.fieldKey !== field.fieldKey && candidate.fieldKey.startsWith(prefix) && candidate.name === expr);
+  return source?.fieldKey || "";
+}
+
+type ReferenceLikePart = QcLayoutPart & {
+  referenceFieldKey?: string;
+  reference_field_key?: string;
+  valueSource?: { type?: string; fieldKey?: string; field_key?: string };
+  value_source?: { type?: string; fieldKey?: string; field_key?: string };
+};
+
+function configuredReferenceSourceKey(value: ReferenceLikePart | QcTemplateMethodField | undefined) {
+  if (!value) return "";
+  const source = value.valueSource || value.value_source;
+  return value.referenceFieldKey || value.reference_field_key || source?.fieldKey || source?.field_key || "";
+}
+
+export function referenceSourceKeyForPart(part: QcLayoutPart, field?: QcTemplateMethodField, test?: QcTemplateTestItem) {
+  return configuredReferenceSourceKey(part as ReferenceLikePart) || configuredReferenceSourceKey(field) || referenceFormulaSourceKey(field, test) || "";
 }
 
 export function advancedLabelForField(kind: "formulaInput" | "formulaOutput" | "reference" | "input", fieldType?: string) {
@@ -87,7 +109,16 @@ export function resolveAdvancedDependencyKeys(part: QcLayoutPart) {
 export function isReadonlyReferencePart(part: QcLayoutPart, field?: QcTemplateMethodField) {
   if (!part.readonlyDisplay) return false;
   if (!(part.fieldKey || field?.fieldKey || part.field || part.name)) return false;
-  return field?.attr !== "calculated";
+  const partValueSource = (part as ReferenceLikePart).valueSource || (part as ReferenceLikePart).value_source;
+  const valueSource = field?.valueSource || field?.value_source;
+  return !!(
+    (part as ReferenceLikePart).referenceFieldKey
+    || (part as ReferenceLikePart).reference_field_key
+    || partValueSource?.type === "field_ref"
+    || field?.referenceFieldKey
+    || field?.reference_field_key
+    || valueSource?.type === "field_ref"
+  );
 }
 
 export function hasAdvancedFormulaMetadata(part: QcLayoutPart) {

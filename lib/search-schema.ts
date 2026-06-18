@@ -1,4 +1,4 @@
-import { getInitials } from "./search";
+import { getInitials, getPinyinText } from "./search";
 
 /**
  * 各模型的搜索字段（Prisma v7 无 dmmf，硬编码）。
@@ -16,8 +16,19 @@ const SEARCH_FIELDS: Record<string, string[]> = {
   Position: ["code", "name", "alias"],
 };
 
-/** 建议走拼音首字母搜索的字段 */
+/** 建议走拼音搜索的字段 */
 const PINYIN_FIELDS = new Set(["name", "alias"]);
+
+function aliasSearchText(value: unknown): string {
+  if (!value) return "";
+  const text = String(value);
+  try {
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed.map((item) => String(item)).join(" ") : text;
+  } catch {
+    return text;
+  }
+}
 
 export function matchAnyField(
   record: Record<string, unknown>,
@@ -30,10 +41,12 @@ export function matchAnyField(
   const query = keyword.toLowerCase();
 
   for (const f of fields) {
-    const val = String(record[f] ?? "").toLowerCase();
+    const rawValue = f === "alias" ? aliasSearchText(record[f]) : record[f];
+    const val = String(rawValue ?? "").toLowerCase();
     if (val.includes(query)) return true;
     if (PINYIN_FIELDS.has(f)) {
       if (getInitials(val).includes(query)) return true;
+      if (getPinyinText(val).includes(query)) return true;
     }
   }
   return false;

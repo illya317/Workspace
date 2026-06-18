@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import { withHRAccess, withHRWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { matchAnyField } from "@/lib/search-schema";
-import { snapshotHistory } from "@/lib/history";
 import { resolveFkValues, fkDisplay } from "@/lib/resolve-fk";
-import { EmployeeCreateSchema, parseJson } from "@/lib/schemas";
+import { createEmployeeWithAccount } from "@/server/services/hr/employee-create";
 
 export const GET = withHRAccess(async (request: Request, _user) => {
   const { searchParams } = new URL(request.url);
@@ -12,7 +11,18 @@ export const GET = withHRAccess(async (request: Request, _user) => {
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
 
-  let employees = await prisma.employee.findMany({ orderBy: { id: "asc" } });
+  let employees = await prisma.employee.findMany({
+    include: {
+      positions: {
+        include: {
+          department: true,
+          position: { include: { department: true } },
+        },
+        orderBy: [{ isPrimary: "desc" }, { id: "asc" }],
+      },
+    },
+    orderBy: { id: "asc" },
+  });
   if (keyword) employees = employees.filter((e) => matchAnyField(e, keyword, "Employee"));
 
   const total = employees.length;
@@ -22,22 +32,23 @@ export const GET = withHRAccess(async (request: Request, _user) => {
   // FK 显示名填充（关联账号等）
   const fkMap = await resolveFkValues(paged as unknown as Record<string, unknown>[]);
   for (const emp of paged) {
+    const primaryPosition = emp.positions[0];
     (emp as Record<string, unknown>).userIdName = fkDisplay("userId", String(emp.userId ?? ""), fkMap);
+    (emp as Record<string, unknown>).positionName = primaryPosition?.position?.name ?? null;
+    (emp as Record<string, unknown>).directDepartmentName =
+      primaryPosition?.position?.department?.name ?? primaryPosition?.department?.name ?? null;
   }
 
   return NextResponse.json({ employees: paged, total });
 });
 
 export const POST = withHRWrite(async (request: Request, user) => {
-  const parsed = await parseJson(request, EmployeeCreateSchema);
-  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const body = await request.json().catch(() => null);
+  const name = typeof body === "object" && body ? String((body as { name?: unknown }).name || "") : "";
+  const result = await createEmployeeWithAccount(name, user.userId);
+  if (!result.ok) {
+    return NextResponse.json({ error: result.error }, { status: result.status });
+  }
 
-  const { employeeId, name } = parsed.data;
-  const existing = await prisma.employee.findUnique({ where: { employeeId } });
-  if (existing) return NextResponse.json({ error: "员工编号已存在" }, { status: 400 });
-
-  const created = await prisma.employee.create({ data: { employeeId, name } });
-  await snapshotHistory("Employee", created.id, user.userId);
-
-  return NextResponse.json({ success: true, employee: created });
+  return NextResponse.json({ success: true, employee: result.employee, user: result.user });
 });

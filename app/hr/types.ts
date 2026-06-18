@@ -48,7 +48,7 @@ export interface RosterEmployee {
 
 // ─── Generic Tab Types ──────────────────────────────────────
 
-export type FieldType = "text" | "number" | "boolean" | "date" | "fk" | "textarea" | "select";
+export type FieldType = "text" | "number" | "boolean" | "date" | "fk" | "textarea" | "select" | "major" | "school" | "professionalTitle" | "phone" | "chineseId";
 
 export interface SelectOption {
   label: string;

@@ -52,13 +52,8 @@ export type EDPMinAggregateOutputType = {
   isPrimary: boolean | null
   startDate: string | null
   endDate: string | null
-  personnelType: string | null
-  rank: string | null
-  title: string | null
   reportTo: string | null
-  reportTo2: string | null
   workPercent: string | null
-  isResearch: boolean | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -72,13 +67,8 @@ export type EDPMaxAggregateOutputType = {
   isPrimary: boolean | null
   startDate: string | null
   endDate: string | null
-  personnelType: string | null
-  rank: string | null
-  title: string | null
   reportTo: string | null
-  reportTo2: string | null
   workPercent: string | null
-  isResearch: boolean | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -92,13 +82,8 @@ export type EDPCountAggregateOutputType = {
   isPrimary: number
   startDate: number
   endDate: number
-  personnelType: number
-  rank: number
-  title: number
   reportTo: number
-  reportTo2: number
   workPercent: number
-  isResearch: number
   editedBy: number
   editedAt: number
   version: number
@@ -132,13 +117,8 @@ export type EDPMinAggregateInputType = {
   isPrimary?: true
   startDate?: true
   endDate?: true
-  personnelType?: true
-  rank?: true
-  title?: true
   reportTo?: true
-  reportTo2?: true
   workPercent?: true
-  isResearch?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -152,13 +132,8 @@ export type EDPMaxAggregateInputType = {
   isPrimary?: true
   startDate?: true
   endDate?: true
-  personnelType?: true
-  rank?: true
-  title?: true
   reportTo?: true
-  reportTo2?: true
   workPercent?: true
-  isResearch?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -172,13 +147,8 @@ export type EDPCountAggregateInputType = {
   isPrimary?: true
   startDate?: true
   endDate?: true
-  personnelType?: true
-  rank?: true
-  title?: true
   reportTo?: true
-  reportTo2?: true
   workPercent?: true
-  isResearch?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -279,13 +249,8 @@ export type EDPGroupByOutputType = {
   isPrimary: boolean
   startDate: string | null
   endDate: string | null
-  personnelType: string | null
-  rank: string | null
-  title: string | null
   reportTo: string | null
-  reportTo2: string | null
   workPercent: string | null
-  isResearch: boolean | null
   editedBy: number | null
   editedAt: Date | null
   version: number
@@ -322,13 +287,8 @@ export type EDPWhereInput = {
   isPrimary?: Prisma.BoolFilter<"EDP"> | boolean
   startDate?: Prisma.StringNullableFilter<"EDP"> | string | null
   endDate?: Prisma.StringNullableFilter<"EDP"> | string | null
-  personnelType?: Prisma.StringNullableFilter<"EDP"> | string | null
-  rank?: Prisma.StringNullableFilter<"EDP"> | string | null
-  title?: Prisma.StringNullableFilter<"EDP"> | string | null
   reportTo?: Prisma.StringNullableFilter<"EDP"> | string | null
-  reportTo2?: Prisma.StringNullableFilter<"EDP"> | string | null
   workPercent?: Prisma.StringNullableFilter<"EDP"> | string | null
-  isResearch?: Prisma.BoolNullableFilter<"EDP"> | boolean | null
   editedBy?: Prisma.IntNullableFilter<"EDP"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"EDP"> | Date | string | null
   version?: Prisma.IntFilter<"EDP"> | number
@@ -345,13 +305,8 @@ export type EDPOrderByWithRelationInput = {
   isPrimary?: Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  personnelType?: Prisma.SortOrderInput | Prisma.SortOrder
-  rank?: Prisma.SortOrderInput | Prisma.SortOrder
-  title?: Prisma.SortOrderInput | Prisma.SortOrder
   reportTo?: Prisma.SortOrderInput | Prisma.SortOrder
-  reportTo2?: Prisma.SortOrderInput | Prisma.SortOrder
   workPercent?: Prisma.SortOrderInput | Prisma.SortOrder
-  isResearch?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -371,13 +326,8 @@ export type EDPWhereUniqueInput = Prisma.AtLeast<{
   isPrimary?: Prisma.BoolFilter<"EDP"> | boolean
   startDate?: Prisma.StringNullableFilter<"EDP"> | string | null
   endDate?: Prisma.StringNullableFilter<"EDP"> | string | null
-  personnelType?: Prisma.StringNullableFilter<"EDP"> | string | null
-  rank?: Prisma.StringNullableFilter<"EDP"> | string | null
-  title?: Prisma.StringNullableFilter<"EDP"> | string | null
   reportTo?: Prisma.StringNullableFilter<"EDP"> | string | null
-  reportTo2?: Prisma.StringNullableFilter<"EDP"> | string | null
   workPercent?: Prisma.StringNullableFilter<"EDP"> | string | null
-  isResearch?: Prisma.BoolNullableFilter<"EDP"> | boolean | null
   editedBy?: Prisma.IntNullableFilter<"EDP"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"EDP"> | Date | string | null
   version?: Prisma.IntFilter<"EDP"> | number
@@ -394,13 +344,8 @@ export type EDPOrderByWithAggregationInput = {
   isPrimary?: Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  personnelType?: Prisma.SortOrderInput | Prisma.SortOrder
-  rank?: Prisma.SortOrderInput | Prisma.SortOrder
-  title?: Prisma.SortOrderInput | Prisma.SortOrder
   reportTo?: Prisma.SortOrderInput | Prisma.SortOrder
-  reportTo2?: Prisma.SortOrderInput | Prisma.SortOrder
   workPercent?: Prisma.SortOrderInput | Prisma.SortOrder
-  isResearch?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -422,13 +367,8 @@ export type EDPScalarWhereWithAggregatesInput = {
   isPrimary?: Prisma.BoolWithAggregatesFilter<"EDP"> | boolean
   startDate?: Prisma.StringNullableWithAggregatesFilter<"EDP"> | string | null
   endDate?: Prisma.StringNullableWithAggregatesFilter<"EDP"> | string | null
-  personnelType?: Prisma.StringNullableWithAggregatesFilter<"EDP"> | string | null
-  rank?: Prisma.StringNullableWithAggregatesFilter<"EDP"> | string | null
-  title?: Prisma.StringNullableWithAggregatesFilter<"EDP"> | string | null
   reportTo?: Prisma.StringNullableWithAggregatesFilter<"EDP"> | string | null
-  reportTo2?: Prisma.StringNullableWithAggregatesFilter<"EDP"> | string | null
   workPercent?: Prisma.StringNullableWithAggregatesFilter<"EDP"> | string | null
-  isResearch?: Prisma.BoolNullableWithAggregatesFilter<"EDP"> | boolean | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"EDP"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"EDP"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"EDP"> | number
@@ -438,13 +378,8 @@ export type EDPCreateInput = {
   isPrimary?: boolean
   startDate?: string | null
   endDate?: string | null
-  personnelType?: string | null
-  rank?: string | null
-  title?: string | null
   reportTo?: string | null
-  reportTo2?: string | null
   workPercent?: string | null
-  isResearch?: boolean | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -461,13 +396,8 @@ export type EDPUncheckedCreateInput = {
   isPrimary?: boolean
   startDate?: string | null
   endDate?: string | null
-  personnelType?: string | null
-  rank?: string | null
-  title?: string | null
   reportTo?: string | null
-  reportTo2?: string | null
   workPercent?: string | null
-  isResearch?: boolean | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -477,13 +407,8 @@ export type EDPUpdateInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -500,13 +425,8 @@ export type EDPUncheckedUpdateInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -520,13 +440,8 @@ export type EDPCreateManyInput = {
   isPrimary?: boolean
   startDate?: string | null
   endDate?: string | null
-  personnelType?: string | null
-  rank?: string | null
-  title?: string | null
   reportTo?: string | null
-  reportTo2?: string | null
   workPercent?: string | null
-  isResearch?: boolean | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -536,13 +451,8 @@ export type EDPUpdateManyMutationInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -556,13 +466,8 @@ export type EDPUncheckedUpdateManyInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -586,13 +491,8 @@ export type EDPCountOrderByAggregateInput = {
   isPrimary?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
-  personnelType?: Prisma.SortOrder
-  rank?: Prisma.SortOrder
-  title?: Prisma.SortOrder
   reportTo?: Prisma.SortOrder
-  reportTo2?: Prisma.SortOrder
   workPercent?: Prisma.SortOrder
-  isResearch?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -615,13 +515,8 @@ export type EDPMaxOrderByAggregateInput = {
   isPrimary?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
-  personnelType?: Prisma.SortOrder
-  rank?: Prisma.SortOrder
-  title?: Prisma.SortOrder
   reportTo?: Prisma.SortOrder
-  reportTo2?: Prisma.SortOrder
   workPercent?: Prisma.SortOrder
-  isResearch?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -635,13 +530,8 @@ export type EDPMinOrderByAggregateInput = {
   isPrimary?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
-  personnelType?: Prisma.SortOrder
-  rank?: Prisma.SortOrder
-  title?: Prisma.SortOrder
   reportTo?: Prisma.SortOrder
-  reportTo2?: Prisma.SortOrder
   workPercent?: Prisma.SortOrder
-  isResearch?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -786,13 +676,8 @@ export type EDPCreateWithoutEmployeeInput = {
   isPrimary?: boolean
   startDate?: string | null
   endDate?: string | null
-  personnelType?: string | null
-  rank?: string | null
-  title?: string | null
   reportTo?: string | null
-  reportTo2?: string | null
   workPercent?: string | null
-  isResearch?: boolean | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -807,13 +692,8 @@ export type EDPUncheckedCreateWithoutEmployeeInput = {
   isPrimary?: boolean
   startDate?: string | null
   endDate?: string | null
-  personnelType?: string | null
-  rank?: string | null
-  title?: string | null
   reportTo?: string | null
-  reportTo2?: string | null
   workPercent?: string | null
-  isResearch?: boolean | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -855,13 +735,8 @@ export type EDPScalarWhereInput = {
   isPrimary?: Prisma.BoolFilter<"EDP"> | boolean
   startDate?: Prisma.StringNullableFilter<"EDP"> | string | null
   endDate?: Prisma.StringNullableFilter<"EDP"> | string | null
-  personnelType?: Prisma.StringNullableFilter<"EDP"> | string | null
-  rank?: Prisma.StringNullableFilter<"EDP"> | string | null
-  title?: Prisma.StringNullableFilter<"EDP"> | string | null
   reportTo?: Prisma.StringNullableFilter<"EDP"> | string | null
-  reportTo2?: Prisma.StringNullableFilter<"EDP"> | string | null
   workPercent?: Prisma.StringNullableFilter<"EDP"> | string | null
-  isResearch?: Prisma.BoolNullableFilter<"EDP"> | boolean | null
   editedBy?: Prisma.IntNullableFilter<"EDP"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"EDP"> | Date | string | null
   version?: Prisma.IntFilter<"EDP"> | number
@@ -871,13 +746,8 @@ export type EDPCreateWithoutDepartmentInput = {
   isPrimary?: boolean
   startDate?: string | null
   endDate?: string | null
-  personnelType?: string | null
-  rank?: string | null
-  title?: string | null
   reportTo?: string | null
-  reportTo2?: string | null
   workPercent?: string | null
-  isResearch?: boolean | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -892,13 +762,8 @@ export type EDPUncheckedCreateWithoutDepartmentInput = {
   isPrimary?: boolean
   startDate?: string | null
   endDate?: string | null
-  personnelType?: string | null
-  rank?: string | null
-  title?: string | null
   reportTo?: string | null
-  reportTo2?: string | null
   workPercent?: string | null
-  isResearch?: boolean | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -933,13 +798,8 @@ export type EDPCreateWithoutPositionInput = {
   isPrimary?: boolean
   startDate?: string | null
   endDate?: string | null
-  personnelType?: string | null
-  rank?: string | null
-  title?: string | null
   reportTo?: string | null
-  reportTo2?: string | null
   workPercent?: string | null
-  isResearch?: boolean | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -954,13 +814,8 @@ export type EDPUncheckedCreateWithoutPositionInput = {
   isPrimary?: boolean
   startDate?: string | null
   endDate?: string | null
-  personnelType?: string | null
-  rank?: string | null
-  title?: string | null
   reportTo?: string | null
-  reportTo2?: string | null
   workPercent?: string | null
-  isResearch?: boolean | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -998,13 +853,8 @@ export type EDPCreateManyEmployeeInput = {
   isPrimary?: boolean
   startDate?: string | null
   endDate?: string | null
-  personnelType?: string | null
-  rank?: string | null
-  title?: string | null
   reportTo?: string | null
-  reportTo2?: string | null
   workPercent?: string | null
-  isResearch?: boolean | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1014,13 +864,8 @@ export type EDPUpdateWithoutEmployeeInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1035,13 +880,8 @@ export type EDPUncheckedUpdateWithoutEmployeeInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1054,13 +894,8 @@ export type EDPUncheckedUpdateManyWithoutEmployeeInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1073,13 +908,8 @@ export type EDPCreateManyDepartmentInput = {
   isPrimary?: boolean
   startDate?: string | null
   endDate?: string | null
-  personnelType?: string | null
-  rank?: string | null
-  title?: string | null
   reportTo?: string | null
-  reportTo2?: string | null
   workPercent?: string | null
-  isResearch?: boolean | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1089,13 +919,8 @@ export type EDPUpdateWithoutDepartmentInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1110,13 +935,8 @@ export type EDPUncheckedUpdateWithoutDepartmentInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1129,13 +949,8 @@ export type EDPUncheckedUpdateManyWithoutDepartmentInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1148,13 +963,8 @@ export type EDPCreateManyPositionInput = {
   isPrimary?: boolean
   startDate?: string | null
   endDate?: string | null
-  personnelType?: string | null
-  rank?: string | null
-  title?: string | null
   reportTo?: string | null
-  reportTo2?: string | null
   workPercent?: string | null
-  isResearch?: boolean | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1164,13 +974,8 @@ export type EDPUpdateWithoutPositionInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1185,13 +990,8 @@ export type EDPUncheckedUpdateWithoutPositionInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1204,13 +1004,8 @@ export type EDPUncheckedUpdateManyWithoutPositionInput = {
   isPrimary?: Prisma.BoolFieldUpdateOperationsInput | boolean
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   reportTo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reportTo2?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   workPercent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isResearch?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1226,13 +1021,8 @@ export type EDPSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = ru
   isPrimary?: boolean
   startDate?: boolean
   endDate?: boolean
-  personnelType?: boolean
-  rank?: boolean
-  title?: boolean
   reportTo?: boolean
-  reportTo2?: boolean
   workPercent?: boolean
-  isResearch?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1249,13 +1039,8 @@ export type EDPSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extension
   isPrimary?: boolean
   startDate?: boolean
   endDate?: boolean
-  personnelType?: boolean
-  rank?: boolean
-  title?: boolean
   reportTo?: boolean
-  reportTo2?: boolean
   workPercent?: boolean
-  isResearch?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1272,13 +1057,8 @@ export type EDPSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extension
   isPrimary?: boolean
   startDate?: boolean
   endDate?: boolean
-  personnelType?: boolean
-  rank?: boolean
-  title?: boolean
   reportTo?: boolean
-  reportTo2?: boolean
   workPercent?: boolean
-  isResearch?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1295,19 +1075,14 @@ export type EDPSelectScalar = {
   isPrimary?: boolean
   startDate?: boolean
   endDate?: boolean
-  personnelType?: boolean
-  rank?: boolean
-  title?: boolean
   reportTo?: boolean
-  reportTo2?: boolean
   workPercent?: boolean
-  isResearch?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
 }
 
-export type EDPOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "departmentId" | "positionId" | "isPrimary" | "startDate" | "endDate" | "personnelType" | "rank" | "title" | "reportTo" | "reportTo2" | "workPercent" | "isResearch" | "editedBy" | "editedAt" | "version", ExtArgs["result"]["eDP"]>
+export type EDPOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "departmentId" | "positionId" | "isPrimary" | "startDate" | "endDate" | "reportTo" | "workPercent" | "editedBy" | "editedAt" | "version", ExtArgs["result"]["eDP"]>
 export type EDPInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   position?: boolean | Prisma.EDP$positionArgs<ExtArgs>
   department?: boolean | Prisma.EDP$departmentArgs<ExtArgs>
@@ -1339,13 +1114,8 @@ export type $EDPPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
     isPrimary: boolean
     startDate: string | null
     endDate: string | null
-    personnelType: string | null
-    rank: string | null
-    title: string | null
     reportTo: string | null
-    reportTo2: string | null
     workPercent: string | null
-    isResearch: boolean | null
     editedBy: number | null
     editedAt: Date | null
     version: number
@@ -1782,13 +1552,8 @@ export interface EDPFieldRefs {
   readonly isPrimary: Prisma.FieldRef<"EDP", 'Boolean'>
   readonly startDate: Prisma.FieldRef<"EDP", 'String'>
   readonly endDate: Prisma.FieldRef<"EDP", 'String'>
-  readonly personnelType: Prisma.FieldRef<"EDP", 'String'>
-  readonly rank: Prisma.FieldRef<"EDP", 'String'>
-  readonly title: Prisma.FieldRef<"EDP", 'String'>
   readonly reportTo: Prisma.FieldRef<"EDP", 'String'>
-  readonly reportTo2: Prisma.FieldRef<"EDP", 'String'>
   readonly workPercent: Prisma.FieldRef<"EDP", 'String'>
-  readonly isResearch: Prisma.FieldRef<"EDP", 'Boolean'>
   readonly editedBy: Prisma.FieldRef<"EDP", 'Int'>
   readonly editedAt: Prisma.FieldRef<"EDP", 'DateTime'>
   readonly version: Prisma.FieldRef<"EDP", 'Int'>

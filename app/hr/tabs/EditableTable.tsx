@@ -1,6 +1,7 @@
 "use client";
 
 import type { TabConfig, FieldConfig } from "../types";
+import { formatHrMajorItems } from "@/lib/hr-field-options";
 
 export function getVal(obj: unknown, path: string): unknown {
   return path.split(".").reduce<unknown>((o, k) => {
@@ -12,6 +13,19 @@ export function getVal(obj: unknown, path: string): unknown {
 }
 
 function renderCell(item: Record<string, unknown>, field: FieldConfig, config: TabConfig): string {
+  if (config.entityType === "Employee" && field.key === "alias") {
+    const value = item.alias;
+    if (!value) return "-";
+    try {
+      const parsed = JSON.parse(String(value));
+      return Array.isArray(parsed) ? parsed.map((entry) => String(entry)).join("、") || "-" : String(value);
+    } catch {
+      return String(value);
+    }
+  }
+  if (config.entityType === "Employee" && field.key === "major") {
+    return formatHrMajorItems(item.major) || "-";
+  }
   if (field.key === "gender") return item.gender === true ? "男" : item.gender === false ? "女" : "-";
   if (field.key === "level") {
     const map: Record<number, string> = { 1: "事业部", 2: "部门", 3: "子部门" };

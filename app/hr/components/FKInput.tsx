@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { workspacePath } from "@/app/lib/api-path";
 import { AutoSizeInput } from "./AutoSizeInput";
 import type { FKOption } from "../types";
 
@@ -24,6 +25,7 @@ export default function FKInput({
   const [keyword, setKeyword] = useState("");
   const [options, setOptions] = useState<FKOption[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [searching, setSearching] = useState(false);
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -35,6 +37,8 @@ export default function FKInput({
     function handleClickOutside(e: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setShowDropdown(false);
+        setSearching(false);
+        setKeyword("");
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -48,7 +52,7 @@ export default function FKInput({
     }
     setLoading(true);
     try {
-      const res = await fetch(`/workspace/api/hr/autocomplete?entity=${entity}&keyword=${encodeURIComponent(q)}`);
+      const res = await fetch(workspacePath(`/api/hr/autocomplete?entity=${entity}&keyword=${encodeURIComponent(q)}`));
       if (res.ok) {
         const data = await res.json();
         setOptions(data.items || []);
@@ -70,18 +74,12 @@ export default function FKInput({
   function handleSelect(opt: FKOption) {
     onChange(opt);
     setKeyword("");
+    setSearching(false);
     setOptions([]);
     setShowDropdown(false);
   }
 
-  function handleClear(e: React.MouseEvent) {
-    e.stopPropagation();
-    onChange(null);
-    setKeyword("");
-    setOptions([]);
-  }
-
-  const display = value ? selectedName : keyword;
+  const display = searching ? keyword : selectedName;
 
   return (
     <div ref={containerRef} className="relative inline-block">
@@ -91,34 +89,21 @@ export default function FKInput({
           type="text"
           value={display}
           onChange={(e) => {
-            if (value) {
-              onChange(null);
-              setKeyword(e.target.value);
-              if (debounceRef.current) clearTimeout(debounceRef.current);
-              debounceRef.current = setTimeout(() => search(e.target.value), 250);
-              setShowDropdown(true);
-            } else {
-              handleInputChange(e.target.value);
-            }
+            setSearching(true);
+            handleInputChange(e.target.value);
           }}
           onFocus={() => {
-            if (!value) setShowDropdown(true);
+            setSearching(true);
+            setKeyword("");
+            setOptions([]);
+            setShowDropdown(true);
           }}
           disabled={disabled}
-          placeholder={value ? undefined : placeholder}
+          placeholder={selectedName || placeholder}
           className="disabled:bg-gray-100"
         />
-        {value && (
-          <button
-            onClick={handleClear}
-            className="text-gray-400 hover:text-red-500 text-xs"
-            type="button"
-          >
-            ×
-          </button>
-        )}
       </div>
-      {showDropdown && !value && (
+      {showDropdown && searching && (
         <div className="absolute z-50 mt-1 max-h-48 min-w-[160px] overflow-auto rounded border border-gray-200 bg-white shadow-lg">
           {loading ? (
             <div className="px-3 py-2 text-xs text-gray-400">搜索中...</div>

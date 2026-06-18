@@ -78,7 +78,9 @@ export function RenderBlock({ block, context }: { block: NumberedBlock; context:
   if (block.type === "materials_table") return <QcConfirmationTable block={block} context={context} fallback="试验材料" items={block.materials || []} prefix={block.fieldPrefix || "layout/common/materials"} nameHeader="试验材料" />;
   if (block.type === "reference_standard_table") return <QcConfirmationTable block={block} context={context} fallback="标准品" items={block.standards || []} prefix={block.fieldPrefix || "layout/common/reference_standards"} nameHeader="标准品" />;
   if (block.type === "title") return <Heading block={block} fallback="操作方法" />;
-  if (block.type === "operation_text") return <p className={`mb-5 [text-indent:2em] ${BODY_TEXT_CLASS}`}>{block.text}</p>;
+  if (block.type === "operation_text") {
+    return <p className={`mb-5 [text-indent:2em] ${BODY_TEXT_CLASS}`}>{block.parts?.length ? block.parts.map((part, index) => <Part key={index} part={part} context={context} />) : block.text}</p>;
+  }
   if (block.type === "paragraph") return <p className={`mb-3 ${BODY_TEXT_CLASS}`}>{block.parts?.map((part, index) => <Part key={index} part={part} context={context} />)}</p>;
   if (block.type === "standard_text") return <PostSection block={block} title="标准规定">{test?.standardText || "YAML 未配置标准规定"}</PostSection>;
   if (block.type === "attachment_upload") return renderAttachment(block, context);

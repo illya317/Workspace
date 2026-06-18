@@ -13,6 +13,7 @@ import {
   highlightedInputKey,
   isReadonlyReferencePart,
   isReferenceFormula,
+  referenceSourceKeyForPart,
   referenceDisplayValue,
   referenceFormulaText,
   resolveAdvancedDependencyKeys,
@@ -93,12 +94,21 @@ function renderAdvancedField({ part, key, field, fieldType, sourceKey, hasLayout
   context: LayoutRenderContext;
   advancedDependencyKeys: Set<string>;
 }) {
-  const isReferenceOutput = !!sourceKey || (!hasLayoutFormula && (isReferenceFormula(field, context.test) || isReadonlyReferencePart(part, field)));
-  const isFormulaOutput = (hasLayoutFormula || field?.attr === "calculated") && !isReferenceOutput;
+  const resolvedSourceKey = sourceKey || referenceSourceKeyForPart(part, field, context.test);
+  const isDuplicateReadonlyDisplay = !!key && part.readonlyDisplay && context.firstPartByKey?.has(key) && context.firstPartByKey.get(key) !== part;
+  const isReferenceOutput = !!resolvedSourceKey || (!hasLayoutFormula && (isReferenceFormula(field, context.test) || isReadonlyReferencePart(part, field)));
+  const effectiveReferenceOutput = isReferenceOutput || isDuplicateReadonlyDisplay;
+  const isFormulaOutput = (hasLayoutFormula || field?.attr === "calculated") && !effectiveReferenceOutput;
   const isFormulaInput = !!key && context.formulaInputKeys?.has(key);
-  const kind = isReferenceOutput ? "reference" : isFormulaOutput ? "formulaOutput" : isFormulaInput ? "formulaInput" : "input";
+  const kind = effectiveReferenceOutput ? "reference" : isFormulaOutput ? "formulaOutput" : isFormulaInput ? "formulaInput" : "input";
   const badgeFieldKey = key || part.field || part.name;
-  const formulaText = sourceKey ? referenceFormulaText(sourceKey) : isReferenceOutput || isFormulaOutput || part.advancedFormulaText || part.advancedFormulaTextMap ? resolveAdvancedFormulaText(part, context.values, field) : undefined;
+  const formulaText = resolvedSourceKey
+    ? referenceFormulaText(resolvedSourceKey)
+    : isDuplicateReadonlyDisplay
+      ? referenceFormulaText(key)
+      : effectiveReferenceOutput || isFormulaOutput || part.advancedFormulaText || part.advancedFormulaTextMap
+        ? resolveAdvancedFormulaText(part, context.values, field)
+        : undefined;
   return (
     <AdvancedFieldBadge
       label={advancedLabelForField(kind, fieldType)}
@@ -116,11 +126,12 @@ function renderAdvancedField({ part, key, field, fieldType, sourceKey, hasLayout
 
 function renderDatePart(part: QcLayoutPart, context: LayoutRenderContext, advancedDependencyKeys: Set<string>) {
   const key = part.fieldKey || part.field || part.name || "date";
-  const sourceKey = context.referenceSourceKeyFor?.(key);
+  const contextSourceKey = context.referenceSourceKeyFor?.(key);
   if (context.advancedMode) {
     const field = context.fieldByKey.get(key);
+    const sourceKey = contextSourceKey || referenceSourceKeyForPart(part, field, context.test);
     const isReferenceOutput = !!sourceKey || isReadonlyReferencePart(part, field);
     return <AdvancedFieldBadge label={isReferenceOutput ? "ref" : "date"} kind={isReferenceOutput ? "reference" : "date"} title={key} formulaText={referenceFormulaText(sourceKey)} highlighted={highlightedInputKey(context.activeAdvancedOutputKey, context.formulaDependencies, key, advancedDependencyKeys)} fieldKey={isReferenceOutput ? key : undefined} anchorKey={key} active={isReferenceOutput && context.activeAdvancedOutputKey === key} onToggle={isReferenceOutput ? context.onAdvancedOutputHover : undefined} />;
   }
-  return <QcPaperDateInput part={{ ...part, fieldKey: key }} value={sourceKey ? context.values[sourceKey] : context.values[key]} hourValue={sourceKey ? context.values[`${sourceKey}_hour`] : context.values[`${key}_hour`]} onChange={(value) => context.onFieldChange(key, value)} onHourChange={(value) => context.onFieldChange(`${key}_hour`, value)} readOnly={!!sourceKey || part.readonlyDisplay} />;
+  return <QcPaperDateInput part={{ ...part, fieldKey: key }} value={contextSourceKey ? context.values[contextSourceKey] : context.values[key]} hourValue={contextSourceKey ? context.values[`${contextSourceKey}_hour`] : context.values[`${key}_hour`]} onChange={(value) => context.onFieldChange(key, value)} onHourChange={(value) => context.onFieldChange(`${key}_hour`, value)} readOnly={!!contextSourceKey || part.readonlyDisplay} />;
 }

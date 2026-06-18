@@ -3,8 +3,12 @@ import { NextResponse } from "next/server";
 
 const CONFIG = { entityType: "EDP", modelKey: "eDP" as const };
 import { authenticate, checkHRAccess, checkHRWrite } from "@/lib/auth";
+import { formatDepartmentPath } from "@/lib/hr-department-path";
 import { prisma } from "@/lib/prisma";
 import { EDPCreateSchema, parseJson } from "@/lib/schemas";
+import { isValidDateValue, parseWorkPercent } from "@/lib/hr-field-validation";
+
+const DATE_FIELDS = ["startDate", "endDate"];
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -29,7 +33,10 @@ export async function GET(request: Request) {
 
   const eps = await prisma.eDP.findMany({
     where: { employeeId: { in: employeeIds } },
-    include: { department: true, position: true },
+    include: {
+      department: { include: { parent: { include: { parent: true } } } },
+      position: true,
+    },
     orderBy: [{ id: "asc" }],
   });
 
@@ -40,19 +47,14 @@ export async function GET(request: Request) {
       employeeId: ep.employeeId,
       employeeName: emp?.name || "",
       departmentId: ep.departmentId,
-      departmentName: ep.department?.name || "",
+      departmentName: formatDepartmentPath(ep.department) || ep.department?.name || "",
       positionId: ep.positionId,
       positionName: ep.position?.name || "",
       isPrimary: ep.isPrimary,
       startDate: ep.startDate,
       endDate: ep.endDate,
-      personnelType: ep.personnelType,
-      rank: ep.rank,
-      title: ep.title,
       reportTo: ep.reportTo,
-      reportTo2: ep.reportTo2,
       workPercent: ep.workPercent,
-      isResearch: ep.isResearch,
     };
   });
 
@@ -79,7 +81,20 @@ export async function POST(request: Request) {
 
   const parsed = await parseJson(request, EDPCreateSchema);
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
-  return handleCreate(request, CONFIG, () => parsed.data);
+  for (const field of DATE_FIELDS) {
+    if (!isValidDateValue(parsed.data[field as keyof typeof parsed.data])) {
+      return NextResponse.json({ error: "日期格式无效" }, { status: 400 });
+    }
+  }
+  const workPercent = parseWorkPercent(parsed.data.workPercent);
+  if (Number.isNaN(workPercent) || (workPercent !== null && (workPercent < 0 || workPercent > 1))) {
+    return NextResponse.json({ error: "工作占比必须在 0 到 1 之间" }, { status: 400 });
+  }
+  return handleCreate(request, CONFIG, async () => {
+    const positionId = parsed.data.positionId ?? null;
+    const position = positionId
+      ? await prisma.position.findUnique({ where: { id: positionId }, select: { departmentId: true } })
+      : null;
+    return { ...parsed.data, departmentId: position?.departmentId ?? null };
+  });
 }
-
-

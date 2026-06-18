@@ -1,11 +1,21 @@
-import { handleCreate } from "@/lib/crud";
 import { NextResponse } from "next/server";
 
-const CONFIG = { entityType: "Project", modelKey: "project" as const };
 import { authenticate, checkHRAccess, checkHRWrite } from "@/lib/auth";
+import { snapshotHistory } from "@/lib/history";
 import { prisma } from "@/lib/prisma";
 import { matchAnyField } from "@/lib/search-schema";
+import { isValidDateValue } from "@/lib/hr-field-validation";
 import { ProjectCreateSchema, parseJson } from "@/lib/schemas";
+
+function formatDate(value: Date | string | null | undefined) {
+  if (!value) return null;
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  return String(value).slice(0, 10);
+}
+
+function parseDate(value: string | null | undefined) {
+  return value ? new Date(`${value}T00:00:00`) : null;
+}
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -30,7 +40,8 @@ export async function GET(request: Request) {
     name: p.name,
     type: p.type,
     description: p.description,
-    endDate: p.endDate,
+    startDate: formatDate(p.startDate),
+    endDate: formatDate(p.endDate),
     employeeCount: p._count.employees,
   }));
 
@@ -53,5 +64,20 @@ export async function POST(request: Request) {
 
   const parsed = await parseJson(request, ProjectCreateSchema);
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
-  return handleCreate(request, CONFIG, () => parsed.data);
+  if (!isValidDateValue(parsed.data.startDate) || !isValidDateValue(parsed.data.endDate)) {
+    return NextResponse.json({ error: "日期格式错误" }, { status: 400 });
+  }
+  const record = await prisma.project.create({
+    data: {
+      name: parsed.data.name,
+      type: parsed.data.type || "project",
+      description: parsed.data.description || null,
+      startDate: parseDate(parsed.data.startDate),
+      endDate: parseDate(parsed.data.endDate),
+      editedBy: payload.userId,
+    },
+  });
+  await snapshotHistory("Project", record.id, payload.userId);
+
+  return NextResponse.json({ success: true, record });
 }

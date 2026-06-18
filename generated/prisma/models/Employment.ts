@@ -50,6 +50,9 @@ export type EmploymentMinAggregateOutputType = {
   leaveReason: string | null
   officeLocation: string | null
   attendanceType: string | null
+  personnelType: string | null
+  rank: string | null
+  title: string | null
   contracts: string | null
   editedBy: number | null
   editedAt: Date | null
@@ -66,6 +69,9 @@ export type EmploymentMaxAggregateOutputType = {
   leaveReason: string | null
   officeLocation: string | null
   attendanceType: string | null
+  personnelType: string | null
+  rank: string | null
+  title: string | null
   contracts: string | null
   editedBy: number | null
   editedAt: Date | null
@@ -82,6 +88,9 @@ export type EmploymentCountAggregateOutputType = {
   leaveReason: number
   officeLocation: number
   attendanceType: number
+  personnelType: number
+  rank: number
+  title: number
   contracts: number
   editedBy: number
   editedAt: number
@@ -114,6 +123,9 @@ export type EmploymentMinAggregateInputType = {
   leaveReason?: true
   officeLocation?: true
   attendanceType?: true
+  personnelType?: true
+  rank?: true
+  title?: true
   contracts?: true
   editedBy?: true
   editedAt?: true
@@ -130,6 +142,9 @@ export type EmploymentMaxAggregateInputType = {
   leaveReason?: true
   officeLocation?: true
   attendanceType?: true
+  personnelType?: true
+  rank?: true
+  title?: true
   contracts?: true
   editedBy?: true
   editedAt?: true
@@ -146,6 +161,9 @@ export type EmploymentCountAggregateInputType = {
   leaveReason?: true
   officeLocation?: true
   attendanceType?: true
+  personnelType?: true
+  rank?: true
+  title?: true
   contracts?: true
   editedBy?: true
   editedAt?: true
@@ -249,6 +267,9 @@ export type EmploymentGroupByOutputType = {
   leaveReason: string | null
   officeLocation: string | null
   attendanceType: string | null
+  personnelType: string | null
+  rank: string | null
+  title: string | null
   contracts: string | null
   editedBy: number | null
   editedAt: Date | null
@@ -288,6 +309,9 @@ export type EmploymentWhereInput = {
   leaveReason?: Prisma.StringNullableFilter<"Employment"> | string | null
   officeLocation?: Prisma.StringNullableFilter<"Employment"> | string | null
   attendanceType?: Prisma.StringNullableFilter<"Employment"> | string | null
+  personnelType?: Prisma.StringNullableFilter<"Employment"> | string | null
+  rank?: Prisma.StringNullableFilter<"Employment"> | string | null
+  title?: Prisma.StringNullableFilter<"Employment"> | string | null
   contracts?: Prisma.StringNullableFilter<"Employment"> | string | null
   editedBy?: Prisma.IntNullableFilter<"Employment"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Employment"> | Date | string | null
@@ -305,6 +329,9 @@ export type EmploymentOrderByWithRelationInput = {
   leaveReason?: Prisma.SortOrderInput | Prisma.SortOrder
   officeLocation?: Prisma.SortOrderInput | Prisma.SortOrder
   attendanceType?: Prisma.SortOrderInput | Prisma.SortOrder
+  personnelType?: Prisma.SortOrderInput | Prisma.SortOrder
+  rank?: Prisma.SortOrderInput | Prisma.SortOrder
+  title?: Prisma.SortOrderInput | Prisma.SortOrder
   contracts?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -325,6 +352,9 @@ export type EmploymentWhereUniqueInput = Prisma.AtLeast<{
   leaveReason?: Prisma.StringNullableFilter<"Employment"> | string | null
   officeLocation?: Prisma.StringNullableFilter<"Employment"> | string | null
   attendanceType?: Prisma.StringNullableFilter<"Employment"> | string | null
+  personnelType?: Prisma.StringNullableFilter<"Employment"> | string | null
+  rank?: Prisma.StringNullableFilter<"Employment"> | string | null
+  title?: Prisma.StringNullableFilter<"Employment"> | string | null
   contracts?: Prisma.StringNullableFilter<"Employment"> | string | null
   editedBy?: Prisma.IntNullableFilter<"Employment"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Employment"> | Date | string | null
@@ -342,6 +372,9 @@ export type EmploymentOrderByWithAggregationInput = {
   leaveReason?: Prisma.SortOrderInput | Prisma.SortOrder
   officeLocation?: Prisma.SortOrderInput | Prisma.SortOrder
   attendanceType?: Prisma.SortOrderInput | Prisma.SortOrder
+  personnelType?: Prisma.SortOrderInput | Prisma.SortOrder
+  rank?: Prisma.SortOrderInput | Prisma.SortOrder
+  title?: Prisma.SortOrderInput | Prisma.SortOrder
   contracts?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -366,6 +399,9 @@ export type EmploymentScalarWhereWithAggregatesInput = {
   leaveReason?: Prisma.StringNullableWithAggregatesFilter<"Employment"> | string | null
   officeLocation?: Prisma.StringNullableWithAggregatesFilter<"Employment"> | string | null
   attendanceType?: Prisma.StringNullableWithAggregatesFilter<"Employment"> | string | null
+  personnelType?: Prisma.StringNullableWithAggregatesFilter<"Employment"> | string | null
+  rank?: Prisma.StringNullableWithAggregatesFilter<"Employment"> | string | null
+  title?: Prisma.StringNullableWithAggregatesFilter<"Employment"> | string | null
   contracts?: Prisma.StringNullableWithAggregatesFilter<"Employment"> | string | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"Employment"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Employment"> | Date | string | null
@@ -380,6 +416,9 @@ export type EmploymentCreateInput = {
   leaveReason?: string | null
   officeLocation?: string | null
   attendanceType?: string | null
+  personnelType?: string | null
+  rank?: string | null
+  title?: string | null
   contracts?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -397,6 +436,9 @@ export type EmploymentUncheckedCreateInput = {
   leaveReason?: string | null
   officeLocation?: string | null
   attendanceType?: string | null
+  personnelType?: string | null
+  rank?: string | null
+  title?: string | null
   contracts?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -411,6 +453,9 @@ export type EmploymentUpdateInput = {
   leaveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   officeLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendanceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contracts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -428,6 +473,9 @@ export type EmploymentUncheckedUpdateInput = {
   leaveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   officeLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendanceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contracts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -444,6 +492,9 @@ export type EmploymentCreateManyInput = {
   leaveReason?: string | null
   officeLocation?: string | null
   attendanceType?: string | null
+  personnelType?: string | null
+  rank?: string | null
+  title?: string | null
   contracts?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -458,6 +509,9 @@ export type EmploymentUpdateManyMutationInput = {
   leaveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   officeLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendanceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contracts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -474,6 +528,9 @@ export type EmploymentUncheckedUpdateManyInput = {
   leaveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   officeLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendanceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contracts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -500,6 +557,9 @@ export type EmploymentCountOrderByAggregateInput = {
   leaveReason?: Prisma.SortOrder
   officeLocation?: Prisma.SortOrder
   attendanceType?: Prisma.SortOrder
+  personnelType?: Prisma.SortOrder
+  rank?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   contracts?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -523,6 +583,9 @@ export type EmploymentMaxOrderByAggregateInput = {
   leaveReason?: Prisma.SortOrder
   officeLocation?: Prisma.SortOrder
   attendanceType?: Prisma.SortOrder
+  personnelType?: Prisma.SortOrder
+  rank?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   contracts?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -539,6 +602,9 @@ export type EmploymentMinOrderByAggregateInput = {
   leaveReason?: Prisma.SortOrder
   officeLocation?: Prisma.SortOrder
   attendanceType?: Prisma.SortOrder
+  personnelType?: Prisma.SortOrder
+  rank?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   contracts?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -602,6 +668,9 @@ export type EmploymentCreateWithoutEmployeeInput = {
   leaveReason?: string | null
   officeLocation?: string | null
   attendanceType?: string | null
+  personnelType?: string | null
+  rank?: string | null
+  title?: string | null
   contracts?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -617,6 +686,9 @@ export type EmploymentUncheckedCreateWithoutEmployeeInput = {
   leaveReason?: string | null
   officeLocation?: string | null
   attendanceType?: string | null
+  personnelType?: string | null
+  rank?: string | null
+  title?: string | null
   contracts?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -661,6 +733,9 @@ export type EmploymentScalarWhereInput = {
   leaveReason?: Prisma.StringNullableFilter<"Employment"> | string | null
   officeLocation?: Prisma.StringNullableFilter<"Employment"> | string | null
   attendanceType?: Prisma.StringNullableFilter<"Employment"> | string | null
+  personnelType?: Prisma.StringNullableFilter<"Employment"> | string | null
+  rank?: Prisma.StringNullableFilter<"Employment"> | string | null
+  title?: Prisma.StringNullableFilter<"Employment"> | string | null
   contracts?: Prisma.StringNullableFilter<"Employment"> | string | null
   editedBy?: Prisma.IntNullableFilter<"Employment"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Employment"> | Date | string | null
@@ -676,6 +751,9 @@ export type EmploymentCreateManyEmployeeInput = {
   leaveReason?: string | null
   officeLocation?: string | null
   attendanceType?: string | null
+  personnelType?: string | null
+  rank?: string | null
+  title?: string | null
   contracts?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -690,6 +768,9 @@ export type EmploymentUpdateWithoutEmployeeInput = {
   leaveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   officeLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendanceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contracts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -705,6 +786,9 @@ export type EmploymentUncheckedUpdateWithoutEmployeeInput = {
   leaveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   officeLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendanceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contracts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -720,6 +804,9 @@ export type EmploymentUncheckedUpdateManyWithoutEmployeeInput = {
   leaveReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   officeLocation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   attendanceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  personnelType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rank?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contracts?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -738,6 +825,9 @@ export type EmploymentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   leaveReason?: boolean
   officeLocation?: boolean
   attendanceType?: boolean
+  personnelType?: boolean
+  rank?: boolean
+  title?: boolean
   contracts?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -755,6 +845,9 @@ export type EmploymentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   leaveReason?: boolean
   officeLocation?: boolean
   attendanceType?: boolean
+  personnelType?: boolean
+  rank?: boolean
+  title?: boolean
   contracts?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -772,6 +865,9 @@ export type EmploymentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   leaveReason?: boolean
   officeLocation?: boolean
   attendanceType?: boolean
+  personnelType?: boolean
+  rank?: boolean
+  title?: boolean
   contracts?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -789,13 +885,16 @@ export type EmploymentSelectScalar = {
   leaveReason?: boolean
   officeLocation?: boolean
   attendanceType?: boolean
+  personnelType?: boolean
+  rank?: boolean
+  title?: boolean
   contracts?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
 }
 
-export type EmploymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "isActive" | "currentCompany" | "joinDate" | "leaveDate" | "leaveReason" | "officeLocation" | "attendanceType" | "contracts" | "editedBy" | "editedAt" | "version", ExtArgs["result"]["employment"]>
+export type EmploymentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "isActive" | "currentCompany" | "joinDate" | "leaveDate" | "leaveReason" | "officeLocation" | "attendanceType" | "personnelType" | "rank" | "title" | "contracts" | "editedBy" | "editedAt" | "version", ExtArgs["result"]["employment"]>
 export type EmploymentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }
@@ -821,6 +920,9 @@ export type $EmploymentPayload<ExtArgs extends runtime.Types.Extensions.Internal
     leaveReason: string | null
     officeLocation: string | null
     attendanceType: string | null
+    personnelType: string | null
+    rank: string | null
+    title: string | null
     contracts: string | null
     editedBy: number | null
     editedAt: Date | null
@@ -1258,6 +1360,9 @@ export interface EmploymentFieldRefs {
   readonly leaveReason: Prisma.FieldRef<"Employment", 'String'>
   readonly officeLocation: Prisma.FieldRef<"Employment", 'String'>
   readonly attendanceType: Prisma.FieldRef<"Employment", 'String'>
+  readonly personnelType: Prisma.FieldRef<"Employment", 'String'>
+  readonly rank: Prisma.FieldRef<"Employment", 'String'>
+  readonly title: Prisma.FieldRef<"Employment", 'String'>
   readonly contracts: Prisma.FieldRef<"Employment", 'String'>
   readonly editedBy: Prisma.FieldRef<"Employment", 'Int'>
   readonly editedAt: Prisma.FieldRef<"Employment", 'DateTime'>

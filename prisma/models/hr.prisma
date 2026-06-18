@@ -43,6 +43,9 @@ model Employment {
   leaveReason    String?
   officeLocation String?
   attendanceType String?
+  personnelType  String?
+  rank           String?
+  title          String?
   contracts      String?
   editedBy       Int?
   editedAt       DateTime?
@@ -109,6 +112,7 @@ model Department {
   manager       User?                    @relation("DepartmentManager", fields: [managerUserId], references: [id])
   parent        Department?              @relation("DeptHierarchy", fields: [parentId], references: [id])
   children      Department[]             @relation("DeptHierarchy")
+  descriptions  DepartmentDescription[]
   resourceRoles DepartmentResourceRole[]
   workAssignees DepartmentWorkAssignee[]
   edps          EDP[]
@@ -116,6 +120,25 @@ model Department {
 
   @@index([code])
   @@index([name])
+}
+
+/// 部门职责说明书（原始 JSON 导入，details 为 JSON blob）
+model DepartmentDescription {
+  id           Int        @id @default(autoincrement())
+  departmentId Int
+  code         String
+  name         String
+  sourceFile   String
+  codeRaw      String?
+  details      String?
+  editedBy     Int?
+  editedAt     DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now()) @updatedAt
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@index([departmentId])
+  @@index([code])
 }
 
 /// 岗位定义
@@ -150,13 +173,8 @@ model EDP {
   isPrimary     Boolean     @default(false)
   startDate     String?
   endDate       String?
-  personnelType String?
-  rank          String?
-  title         String?
   reportTo      String?
-  reportTo2     String?
   workPercent   String?
-  isResearch    Boolean?
   editedBy      Int?
   editedAt      DateTime?
   version       Int         @default(1)
@@ -176,6 +194,7 @@ model Project {
   name          String
   type          String                @default("project")
   description   String?
+  startDate     DateTime?
   endDate       DateTime?
   editedBy      Int?
   editedAt      DateTime?

@@ -89,6 +89,10 @@ export interface QcLayoutPart {
   defaultValue?: string;
   defaultOffsetDays?: number;
   readonlyDisplay?: boolean;
+  referenceFieldKey?: string;
+  reference_field_key?: string;
+  valueSource?: { type?: string; fieldKey?: string; field_key?: string };
+  value_source?: { type?: string; fieldKey?: string; field_key?: string };
   occurrence?: number;
   startKey?: string;
   endKey?: string;
@@ -137,6 +141,7 @@ export interface QcLayoutBlock {
   sampleQuantityKey?: string;
   fieldKeyOverrides?: Record<string, string>;
   sourceTemplateId?: string;
+  compactTable?: boolean;
   rows?: QcLayoutCell[][];
   columnWidths?: string[];
   rowHeights?: string[];
@@ -166,6 +171,10 @@ export interface QcTemplateMethodField {
   unit?: string;
   formula?: string;
   rule?: string;
+  referenceFieldKey?: string;
+  reference_field_key?: string;
+  valueSource?: { type?: string; fieldKey?: string; field_key?: string };
+  value_source?: { type?: string; fieldKey?: string; field_key?: string };
   options?: string[];
   defaultValue?: string;
   recommendedValue?: string;
@@ -190,6 +199,14 @@ export interface QcTemplateTestItem {
   layoutBlocks?: QcLayoutBlock[];
   methodFile?: string;
   methodGroups: QcTemplateMethodGroup[];
+  copyFromPackaging?: boolean;
+  copiedFrom?: {
+    stage?: string;
+    sequence?: string;
+    key?: string;
+    name?: string;
+  };
+  packagingReferencePhrases?: string[];
 }
 
 export interface QcTemplatePrecheckFile { name: string; code: string }
