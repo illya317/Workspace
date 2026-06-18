@@ -130,10 +130,10 @@ Optional ERP path to open after SSO succeeds.
 
 Default:
 ```
-WORKSPACE_ERP_REDIRECT_TO=/erp/app
+WORKSPACE_ERP_REDIRECT_TO=/erp/desk
 ```
 
-Use `/erp/app` when ERP is reverse-proxied below `/erp`; use `/app` only when accessing the Frappe
+Use `/erp/desk` when ERP is reverse-proxied below `/erp`; use `/desk` only when accessing the Frappe
 container directly without that prefix.
 
 ### `WORKSPACE_ERP_SSO_SECRET`

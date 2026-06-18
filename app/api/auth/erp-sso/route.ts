@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 const DEFAULT_ERP_SSO_URL = "/erp/api/method/my_erp.api.workspace_sso.login";
-const DEFAULT_ERP_REDIRECT_TO = "/erp/app";
+const DEFAULT_ERP_REDIRECT_TO = "/erp/desk";
 
 function getRequestOrigin(request: Request) {
   const forwardedHost = request.headers.get("x-forwarded-host");
