@@ -28,8 +28,12 @@ main:
       docker:
         image: node:22-bookworm
       imports:
-        - https://cnb.cool/illya317/env/-/blob/main/workspace-prod.yml
+        - https://cnb.cool/illya317/env/-/blob/main/server-prod.yml
       env:
+        REMOTE_DIR: "/home/ubuntu/workspace"
+        PM2_NAME: "workspace"
+        REMOTE_WORKSPACE_CONFIG_DIR: "/home/ubuntu/workspace/.workspace"
+        HEALTHCHECK_URL: "http://127.0.0.1:3000/"
         RUN_LOCAL_CHECKS: "0"
       stages:
         - name: install-deploy-tools
