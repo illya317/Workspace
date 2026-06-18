@@ -124,6 +124,18 @@ Use the browser-facing URL or reverse-proxy path, not the server-only Docker add
 `User.erpnextUserId` or `User.erpnextUsername` field must point to an enabled ERP `User.name`;
 otherwise the SSO route returns `ERPNEXT_USER_NOT_BOUND`.
 
+### `WORKSPACE_ERP_REDIRECT_TO`
+
+Optional ERP path to open after SSO succeeds.
+
+Default:
+```
+WORKSPACE_ERP_REDIRECT_TO=/erp/app
+```
+
+Use `/erp/app` when ERP is reverse-proxied below `/erp`; use `/app` only when accessing the Frappe
+container directly without that prefix.
+
 ### `WORKSPACE_ERP_SSO_SECRET`
 
 Server-side secret used to sign the short-lived ERP SSO token. It must match the ERP site config

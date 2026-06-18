@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 const DEFAULT_ERP_SSO_URL = "/erp/api/method/my_erp.api.workspace_sso.login";
+const DEFAULT_ERP_REDIRECT_TO = "/erp/app";
 
 function getRequestOrigin(request: Request) {
   const forwardedHost = request.headers.get("x-forwarded-host");
@@ -24,8 +25,9 @@ function redirectToLogin(request: Request) {
 }
 
 function safeErpRedirect(value: string | null) {
-  const redirectTo = (value || "/app").trim();
-  if (!redirectTo.startsWith("/") || redirectTo.startsWith("//")) return "/app";
+  const fallback = process.env.WORKSPACE_ERP_REDIRECT_TO || DEFAULT_ERP_REDIRECT_TO;
+  const redirectTo = (value || fallback).trim();
+  if (!redirectTo.startsWith("/") || redirectTo.startsWith("//")) return fallback;
   return redirectTo;
 }
 
