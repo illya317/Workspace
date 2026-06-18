@@ -5,6 +5,14 @@ import { SESSION_MAX_AGE_SECONDS } from "@/lib/auth/token";
 import { getWecomUserByCode, getWecomUserDetail } from "@/server/auth/wecom";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
+const POST_LOGIN_NEXT_COOKIE = "post_login_next";
+const EXPIRED_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  expires: new Date(0),
+  path: "/",
+};
 
 function readCookie(request: Request, name: string) {
   const cookie = request.headers.get("cookie");
@@ -28,17 +36,22 @@ function getRequestOrigin(request: Request) {
   return `${url.protocol}//${url.host}`;
 }
 
+function safeNextPath(value: string | null) {
+  const next = value?.trim();
+  if (!next || !next.startsWith(`${BASE_PATH}/`) || next.startsWith("//")) return null;
+  return next;
+}
+
+function clearOauthCookies(response: NextResponse) {
+  response.cookies.set("wecom_oauth_state", "", EXPIRED_COOKIE_OPTIONS);
+  response.cookies.set(POST_LOGIN_NEXT_COOKIE, "", EXPIRED_COOKIE_OPTIONS);
+}
+
 function redirectToLogin(request: Request, error: string) {
   const url = new URL(`${getRequestOrigin(request)}${BASE_PATH}/login`);
   url.searchParams.set("wecom_error", error);
   const response = NextResponse.redirect(url);
-  response.cookies.set("wecom_oauth_state", "", {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    expires: new Date(0),
-    path: "/",
-  });
+  clearOauthCookies(response);
   return response;
 }
 
@@ -59,12 +72,8 @@ export async function GET(request: Request) {
       select: { id: true, name: true, wxUserId: true, canLogin: true, sessionVersion: true },
     });
 
-    if (!user) {
-      return redirectToLogin(request, `企业微信账号 ${wxUserId} 尚未绑定`);
-    }
-    if (!user.canLogin) {
-      return redirectToLogin(request, "账号已被停用，请联系管理员");
-    }
+    if (!user) return redirectToLogin(request, `企业微信账号 ${wxUserId} 尚未绑定`);
+    if (!user.canLogin) return redirectToLogin(request, "账号已被停用，请联系管理员");
 
     let avatar: string | undefined;
     if (userTicket) {
@@ -76,12 +85,7 @@ export async function GET(request: Request) {
       }
     }
 
-    if (avatar) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { avatar },
-      });
-    }
+    if (avatar) await prisma.user.update({ where: { id: user.id }, data: { avatar } });
 
     const token = await createToken({
       userId: user.id,
@@ -91,7 +95,8 @@ export async function GET(request: Request) {
       sessionVersion: user.sessionVersion,
     });
 
-    const response = NextResponse.redirect(new URL(`${getRequestOrigin(request)}${BASE_PATH}/portal`));
+    const nextPath = safeNextPath(readCookie(request, POST_LOGIN_NEXT_COOKIE)) || `${BASE_PATH}/portal`;
+    const response = NextResponse.redirect(new URL(nextPath, getRequestOrigin(request)));
     response.cookies.set("token", token, {
       httpOnly: true,
       secure: false,
@@ -99,13 +104,7 @@ export async function GET(request: Request) {
       maxAge: SESSION_MAX_AGE_SECONDS,
       path: "/",
     });
-    response.cookies.set("wecom_oauth_state", "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      expires: new Date(0),
-      path: "/",
-    });
+    clearOauthCookies(response);
     return response;
   } catch (error) {
     console.error("WeCom login failed", error);

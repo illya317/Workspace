@@ -1,10 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
+
+function getSafeNextPath() {
+  const next = new URLSearchParams(window.location.search).get("next");
+  if (next && next.startsWith(`${BASE_PATH}/`) && !next.startsWith("//")) return next;
+  return `${BASE_PATH}/portal`;
+}
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -12,7 +17,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [kickedAlert, setKickedAlert] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     // 检查 kicked cookie 或 URL 参数
@@ -51,7 +55,7 @@ export default function LoginPage() {
     });
 
     if (res.ok) {
-      router.push("/portal");
+      window.location.href = getSafeNextPath();
     } else {
       const data = await res.json().catch(() => ({}));
       setError(data.error || "登录失败");
@@ -60,7 +64,12 @@ export default function LoginPage() {
   };
 
   const handleWecomLogin = () => {
-    window.location.href = `${BASE_PATH}/api/auth/wecom/start`;
+    const url = new URL(`${BASE_PATH}/api/auth/wecom/start`, window.location.origin);
+    const next = getSafeNextPath();
+    if (next !== `${BASE_PATH}/portal`) {
+      url.searchParams.set("next", next);
+    }
+    window.location.href = url.toString();
   };
 
   return (

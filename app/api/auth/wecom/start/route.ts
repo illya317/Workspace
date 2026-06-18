@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { buildWecomWebLoginUrl } from "@/server/auth/wecom";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
+const POST_LOGIN_NEXT_COOKIE = "post_login_next";
 
 function getRequestOrigin(request: Request) {
   const forwardedHost = request.headers.get("x-forwarded-host");
@@ -15,8 +16,16 @@ function getRequestOrigin(request: Request) {
   return `${url.protocol}//${url.host}`;
 }
 
+function safeNextPath(value: string | null) {
+  const next = value?.trim();
+  if (!next || !next.startsWith(`${BASE_PATH}/`) || next.startsWith("//")) return null;
+  return next;
+}
+
 export async function GET(request: Request) {
   try {
+    const requestUrl = new URL(request.url);
+    const nextPath = safeNextPath(requestUrl.searchParams.get("next"));
     const state = randomBytes(24).toString("hex");
     const origin = process.env.WECHAT_REDIRECT_ORIGIN || getRequestOrigin(request);
     const redirectUri = `${origin}${BASE_PATH}/api/auth/wecom/callback`;
@@ -30,6 +39,15 @@ export async function GET(request: Request) {
       maxAge: 60 * 5,
       path: "/",
     });
+    if (nextPath) {
+      response.cookies.set(POST_LOGIN_NEXT_COOKIE, nextPath, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 5,
+        path: "/",
+      });
+    }
     return response;
   } catch (error) {
     const loginUrl = new URL(`${BASE_PATH}/login`, request.url);

@@ -117,7 +117,7 @@ Optional ERPNext SSO bridge URL. Workspace redirects logged-in users here from
 
 Default:
 ```
-WORKSPACE_ERP_SSO_URL=/erp/api/method/my_erp.api.workspace_sso.login
+WORKSPACE_ERP_SSO_URL=https://erp.fh-bio.cn/api/method/my_erp.api.workspace_sso.login
 ```
 
 Use the browser-facing URL or reverse-proxy path, not the server-only Docker address. The Workspace
@@ -130,11 +130,11 @@ Optional ERP path to open after SSO succeeds.
 
 Default:
 ```
-WORKSPACE_ERP_REDIRECT_TO=/erp/desk
+WORKSPACE_ERP_REDIRECT_TO=/desk
 ```
 
-Use `/erp/desk` when ERP is reverse-proxied below `/erp`; use `/desk` only when accessing the Frappe
-container directly without that prefix.
+Use `/desk` when ERP is exposed from its own root domain such as `https://erp.fh-bio.cn`; only use
+`/erp/desk` for legacy reverse proxies that mount ERP below `/erp`.
 
 ### `WORKSPACE_ERP_SSO_SECRET`
 

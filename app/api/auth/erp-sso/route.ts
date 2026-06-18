@@ -8,8 +8,8 @@ import { checkPermission } from "@/server/rbac/check";
 export const dynamic = "force-dynamic";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
-const DEFAULT_ERP_SSO_URL = "/erp/api/method/my_erp.api.workspace_sso.login";
-const DEFAULT_ERP_REDIRECT_TO = "/erp/desk";
+const DEFAULT_ERP_SSO_URL = "https://erp.fh-bio.cn/api/method/my_erp.api.workspace_sso.login";
+const DEFAULT_ERP_REDIRECT_TO = "/desk";
 
 function getRequestOrigin(request: Request) {
   const forwardedHost = request.headers.get("x-forwarded-host");
@@ -21,7 +21,13 @@ function getRequestOrigin(request: Request) {
 }
 
 function redirectToLogin(request: Request) {
-  return NextResponse.redirect(new URL(`${getRequestOrigin(request)}${BASE_PATH}/login`));
+  const requestUrl = new URL(request.url);
+  const nextPath = requestUrl.pathname.startsWith(`${BASE_PATH}/`) || requestUrl.pathname === BASE_PATH
+    ? `${requestUrl.pathname}${requestUrl.search}`
+    : `${BASE_PATH}${requestUrl.pathname}${requestUrl.search}`;
+  const loginUrl = new URL(`${getRequestOrigin(request)}${BASE_PATH}/login`);
+  loginUrl.searchParams.set("next", nextPath);
+  return NextResponse.redirect(loginUrl);
 }
 
 function safeErpRedirect(value: string | null) {
