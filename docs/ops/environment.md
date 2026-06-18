@@ -110,6 +110,38 @@ Production example:
 WECHAT_REDIRECT_ORIGIN=https://fh-bio.cn
 ```
 
+### `WORKSPACE_ERP_SSO_URL`
+
+Optional ERPNext SSO bridge URL. Workspace redirects logged-in users here from
+`/api/auth/erp-sso` with a short-lived signed token when they click the ERP portal card.
+
+Default:
+```
+WORKSPACE_ERP_SSO_URL=/erp/api/method/my_erp.api.workspace_sso.login
+```
+
+Use the browser-facing URL or reverse-proxy path, not the server-only Docker address. The Workspace
+`User.erpnextUserId` or `User.erpnextUsername` field must point to an enabled ERP `User.name`;
+otherwise the SSO route returns `ERPNEXT_USER_NOT_BOUND`.
+
+### `WORKSPACE_ERP_SSO_SECRET`
+
+Server-side secret used to sign the short-lived ERP SSO token. It must match the ERP site config
+`workspace_sso_secret`.
+
+Generate:
+```bash
+openssl rand -base64 32
+```
+
+### `WORKSPACE_ERP_SSO_ISSUER` / `WORKSPACE_ERP_SSO_AUDIENCE`
+
+Optional token claim values. Defaults are:
+```
+WORKSPACE_ERP_SSO_ISSUER=workspace
+WORKSPACE_ERP_SSO_AUDIENCE=erp
+```
+
 ### `WORKSPACE_QC_CONFIG_ROOT`
 
 Optional absolute path to a Workspace QC config snapshot. By default Workspace reads the

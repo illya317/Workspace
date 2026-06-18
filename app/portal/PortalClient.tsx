@@ -5,6 +5,8 @@ import Image from "next/image";
 import { SessionUser } from "@/lib/types";
 import { getAccessibleModules } from "@/app/lib/module-nav";
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
+
 export default function PortalClient({ user }: { user: SessionUser }) {
   const router = useRouter();
   const entries = getAccessibleModules(user);
@@ -13,7 +15,7 @@ export default function PortalClient({ user }: { user: SessionUser }) {
       key: "erp",
       label: "ERP",
       desc: "企业资源计划系统",
-      href: "/erp/",
+      href: `${BASE_PATH}/api/auth/erp-sso`,
       color: "blue" as const,
       icon: (
         <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
