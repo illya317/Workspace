@@ -16,7 +16,7 @@ main:
       docker:
         image: node:22-bookworm
       imports:
-        - https://cnb.cool/illya317/env/-/blob/main/server-prod.yml
+        - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
       env:
         REMOTE_DIR: "/home/ubuntu/workspace"
         PM2_NAME: "workspace"
