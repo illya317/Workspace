@@ -21,7 +21,7 @@ main:
         REMOTE_DIR: "/home/ubuntu/workspace"
         PM2_NAME: "workspace"
         REMOTE_WORKSPACE_CONFIG_DIR: "/home/ubuntu/workspace/.workspace"
-        HEALTHCHECK_URL: "http://127.0.0.1:3000/"
+        HEALTHCHECK_URL: "http://127.0.0.1:3000/workspace/login"
         RUN_LOCAL_CHECKS: "0"
       stages:
         - name: install-deploy-tools
