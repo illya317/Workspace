@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { workspacePath } from "@/app/lib/api-path";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 
@@ -84,7 +85,9 @@ export default function ProjectInfoTab({ user: _user }: { user: User }) {
       endDate: editEnd || null,
     };
 
-    const url = editId ? `/api/hr/employee-projects/${editId}` : "/api/hr/employee-projects";
+    const url = workspacePath(
+      editId ? `/api/hr/employee-projects/${editId}` : "/api/hr/employee-projects"
+    );
     const method = editId ? "PUT" : "POST";
 
     // PUT doesn't need employeeId/projectId (they're immutable)

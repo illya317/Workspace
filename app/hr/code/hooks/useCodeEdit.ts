@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { workspacePath } from "@/app/lib/api-path";
 import { buildFullCode } from "../useCodeHelpers";
 import type { CodeItem } from "../types";
 import { type HRUser as User, hrCanEdit } from "@/app/hr/types";
@@ -30,6 +31,7 @@ export function useCodeEdit({
   const [newCode, setNewCode] = useState("");
   const [newName, setNewName] = useState("");
   const [saving, setSaving] = useState(false);
+  const resolvedApiPath = workspacePath(apiPath);
 
   function startEditRow(item: CodeItem) {
     if (!hrCanEdit(user)) return;
@@ -53,7 +55,7 @@ export function useCodeEdit({
       return;
     }
 
-    const putRes = await fetch(apiPath, {
+    const putRes = await fetch(resolvedApiPath, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -101,7 +103,7 @@ export function useCodeEdit({
     if (departmentCode) {
       body.departmentCode = departmentCode;
     }
-    const res = await fetch(apiPath, {
+    const res = await fetch(resolvedApiPath, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

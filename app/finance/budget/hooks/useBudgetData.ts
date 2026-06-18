@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { workspacePath } from "@/app/lib/api-path";
 import { DeptBudgetItem, RdBudgetItem } from "../BudgetTab";
 
 interface BudgetData {
@@ -39,8 +40,8 @@ export function useBudgetData(year: number, companyCode?: string) {
   useEffect(() => {
     setLoading(true);
     const url = activeVersionId
-      ? `/api/finance/budget?year=${year}&versionId=${activeVersionId}`
-      : `/api/finance/budget?year=${year}${companyCode ? `&companyCode=${companyCode}` : ""}`;
+      ? workspacePath(`/api/finance/budget?year=${year}&versionId=${activeVersionId}`)
+      : workspacePath(`/api/finance/budget?year=${year}${companyCode ? `&companyCode=${companyCode}` : ""}`);
 
     fetch(url)
       .then((r) => r.json())

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { workspacePath } from "@/app/lib/api-path";
 import { matchText } from "@/lib/search";
 
 // ─── Types ────────────────────────────────────────────────
@@ -114,8 +115,8 @@ export function useSearch<T = unknown>(config: SearchConfig<T>): SearchState<T> 
       setError(null);
       try {
         const apiPath = target === "employee"
-          ? `/api/hr/employees/search?q=${encodeURIComponent(q)}`
-          : `/api/hr/autocomplete?entity=${target}&keyword=${encodeURIComponent(q)}`;
+          ? workspacePath(`/api/hr/employees/search?q=${encodeURIComponent(q)}`)
+          : workspacePath(`/api/hr/autocomplete?entity=${target}&keyword=${encodeURIComponent(q)}`);
 
         const res = await fetch(apiPath);
         if (!res.ok) { setResults([]); return; }

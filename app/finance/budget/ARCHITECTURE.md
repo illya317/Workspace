@@ -8,7 +8,7 @@
 
 由 `FinanceShell` 统一包裹。
 
-生命周期状态：`workspace-analysis`。预算事实来源以 Workspace 版本表、Excel 导入和外部会计系统数据为准；Workspace 保留预算版本、导入兼容、管理层预算分析和差异解释。
+生命周期状态：`workspace-owned`。预算事实来源以 Workspace 版本表、Excel 导入和本地数据库为准；不再通过 ERP/ERPNext API 取数。
 
 ## 页面结构
 

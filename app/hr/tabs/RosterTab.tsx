@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { workspacePath } from "@/app/lib/api-path";
 import HRToolbar from "@/app/components/HRToolbar";
 import SearchBox from "@/app/components/SearchBox";
 import Toast from "@/app/components/Toast";
@@ -57,7 +58,7 @@ export default function RosterTab({ user: _user, selectedCompany }: { user: User
     if (keyword) params.set("keyword", keyword);
     params.set("status", rosterFilter);
     params.set("export", "1");
-    const url = `/api/hr/roster?${params.toString()}`;
+    const url = workspacePath(`/api/hr/roster?${params.toString()}`);
     window.open(url, "_blank");
   }
 

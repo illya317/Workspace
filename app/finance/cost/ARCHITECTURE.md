@@ -2,7 +2,7 @@
 
 ## 1. 数据分层
 
-生命周期状态：`workspace-analysis`。成本模块保留历史 Excel 导入、成本分析展示和管理层口径；标准生产成本、库存成本和业务单据事实以后按外部系统或 Workspace 自有生产模块再定。
+生命周期状态：`workspace-owned`。成本模块使用 Workspace 本地资料、历史 Excel 导入和本地数据库表；不再通过 ERP/ERPNext API 取数。标准生产成本、库存成本和业务单据事实后续按 Workspace 自有生产模块口径扩展。
 
 ### raw JSON
 - 位置：`/Users/koito/Desktop/.财务数据库/成本分析飞书实验版/json/raw`

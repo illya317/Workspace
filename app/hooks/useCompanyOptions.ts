@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { workspacePath } from "@/app/lib/api-path";
 
 export interface CompanyOption {
   value: string;
@@ -11,7 +12,9 @@ const cache = new Map<boolean, CompanyOption[]>();
 const inflight = new Map<boolean, Promise<CompanyOption[]>>();
 
 async function fetchCompanies(activeOnly: boolean): Promise<CompanyOption[]> {
-  const url = activeOnly ? "/api/hr/companies?active=1" : "/api/hr/companies";
+  const url = activeOnly
+    ? workspacePath("/api/hr/companies?active=1")
+    : workspacePath("/api/hr/companies");
   const res = await fetch(url);
   const data = await res.json();
   const companies = (data.companies || []) as Array<{ code: string; name: string }>;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import { workspacePath } from "@/app/lib/api-path";
 import type { TabConfig } from "../types";
 
 export interface TabItem {
@@ -45,6 +46,7 @@ export interface GenericTabState {
 }
 
 export function useGenericTab(config: TabConfig): GenericTabState {
+  const apiPath = workspacePath(config.apiPath);
   const [items, setItems] = useState<TabItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
@@ -101,7 +103,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
           params.set(key, value);
         }
       }
-      const res = await fetch(`${config.apiPath}?${params.toString()}`);
+      const res = await fetch(`${apiPath}?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
         const list = config.listGetter ? config.listGetter(data) : data.items || data;
@@ -120,7 +122,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     } finally {
       setLoading(false);
     }
-  }, [config, searchKeyword, page, pageSize, filters]);
+  }, [config, apiPath, searchKeyword, page, pageSize, filters]);
 
   useEffect(() => {
     load();
@@ -162,7 +164,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     setSaving(true);
     try {
       const { id, field } = editingCell;
-      const res = await fetch(`${config.apiPath}/${id}`, {
+      const res = await fetch(`${apiPath}/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ field, value: editValue ?? null }),
@@ -182,13 +184,13 @@ export function useGenericTab(config: TabConfig): GenericTabState {
       setSaving(false);
     }
     return false;
-  }, [editingCell, editValue, config.apiPath]);
+  }, [editingCell, editValue, apiPath]);
 
   const submitCreate = useCallback(async () => {
     setSaving(true);
     try {
       const body = config.buildCreateBody ? config.buildCreateBody(createForm) : createForm;
-      const res = await fetch(config.apiPath, {
+      const res = await fetch(apiPath, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -203,7 +205,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
       setSaving(false);
     }
     return false;
-  }, [config, createForm, load]);
+  }, [config, createForm, apiPath, load]);
 
 
   return {

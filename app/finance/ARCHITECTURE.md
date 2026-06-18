@@ -35,7 +35,7 @@
 
 ### 生命周期标记
 
-`finance.ledger` 为 `legacy-fallback`；`finance.statement`、`finance.analysis`、`finance.budget`、`finance.cost` 为 `workspace-analysis`；`finance.tax`、`finance.treasury` 为 `external-system`；`finance.import` 仅保留为历史 fallback 和特殊清洗入口。
+财务模块当前全部按 `workspace-owned` 管理。数据来源为 Workspace 本地资料、Excel 导入和本地数据库表；不再通过 ERP/ERPNext API 取数。
 
 ### 总账会计 (`/finance/ledger`)
 
@@ -100,9 +100,9 @@ budget/page.tsx
 
 1. 各 Tab 组件独立管理自身状态，通过 API 加载数据
 2. 财务数据以 `Period`（会计期间）为核心维度
-3. 年度余额表来自会计软件，导入后存为 `FinanceBalanceSnapshot`（批次）+ `FinanceBalanceSnapshotRow`（明细）
+3. 年度余额表作为本地导入资料，导入后存为 `FinanceBalanceSnapshot`（批次）+ `FinanceBalanceSnapshotRow`（明细）
 4. 月度余额 `FinanceAccountBalance` 由系统从 active baseline snapshot + 已过账序时账凭证逐月滚动计算
-5. 上传后续年度余额表做校准时，系统比较"基准+序时账滚动结果"和会计软件年度余额表，只做校准对比，不覆盖月度余额
+5. 上传后续年度余额表做校准时，系统比较"基准+序时账滚动结果"和后续导入余额表，只做校准对比，不覆盖月度余额
 
 ## 余额表口径
 
@@ -110,14 +110,14 @@ budget/page.tsx
 
 | 层 | 表 | 来源 | 用途 |
 |---|---|---|---|
-| 年度余额批次 | `FinanceBalanceSnapshot` | 一次外部会计软件导入 = 一行 | 追溯哪次导入、哪个文件、谁导入 |
+| 年度余额批次 | `FinanceBalanceSnapshot` | 一次本地资料导入 = 一行 | 追溯哪次导入、哪个文件、谁导入 |
 | 年度余额明细 | `FinanceBalanceSnapshotRow` | 导入时每个科目的原始行 | 保存 `accountCode`/`accountName` 快照，审计可追溯到 Excel 原始行 |
 | 月度余额结果 | `FinanceAccountBalance` | 系统计算 | 按月展示、报表取数 |
 
 计算规则：
 
 1. 导入 2024 年度余额表后，**只写入 `FinanceBalanceSnapshot` + `FinanceBalanceSnapshotRow`**，`snapshotType="baseline"`, `isActive=true`。
-2. 后续年度余额表（2025+）导入时默认 `snapshotType="reconcile"`, `isActive=false`，仅用于校准核对。
+2. 后续年度余额表（2025+）导入时默认 `snapshotType="reconcile"`, `isActive=false`，仅用于本地校准核对。
 3. 点击余额表"重新计算"时，系统从 active baseline snapshot 的 closing balance 开始，叠加已过账凭证逐月滚动到 `FinanceAccountBalance`。
 4. `FinanceAccountBalance` 是 `FinanceBalanceSnapshotRow` 的 materialized 缓存/展示层，不是数据源头。
 5. 换基准年份：将某个 reconcile snapshot 改为 `snapshotType="baseline"` + `isActive=true`（同 companyCode+year 下只有一个 active），然后重算受影响月份。

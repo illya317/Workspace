@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { workspacePath } from "@/app/lib/api-path";
 import { useToast } from "@/app/hooks/useToast";
 import { useCodeData } from "./hooks/useCodeData";
 import { useCodeTable } from "./hooks/useCodeTable";
@@ -77,7 +78,7 @@ export function useCodeTab({
       return;
     }
     const res = await fetch(
-      `/api/admin/position-codes?positionCode=${encodeURIComponent(item.code)}`
+      workspacePath(`/api/admin/position-codes?positionCode=${encodeURIComponent(item.code)}`)
     );
     if (res.ok) {
       const data = await res.json();

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
+import { workspacePath } from "@/app/lib/api-path";
 import type { Employee, CodeItem } from "../types";
 
 export function useCodeData({
@@ -19,6 +20,7 @@ export function useCodeData({
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
   const [companies, setCompanies] = useState<Array<{ code: string; name: string; managementGroup: string; codePoolCode: string | null }>>([]);
+  const resolvedApiPath = workspacePath(apiPath);
 
   useEffect(() => {
     fetch("/workspace/api/hr/companies?active=1")
@@ -81,11 +83,11 @@ export function useCodeData({
     const params = new URLSearchParams();
     if (codesParam) params.set("companys", codesParam);
     if (departmentCode) params.set("departmentCode", departmentCode);
-    const url = params.toString() ? `${apiPath}?${params.toString()}` : apiPath;
+    const url = params.toString() ? `${resolvedApiPath}?${params.toString()}` : resolvedApiPath;
     const [codesRes, empRes] = await Promise.all([
       fetch(url),
       fetch(
-        `/api/hr/roster?company=${encodeURIComponent(selectedCompany || "")}`
+        workspacePath(`/api/hr/roster?company=${encodeURIComponent(selectedCompany || "")}`)
       ),
     ]);
     if (codesRes.ok) {
@@ -97,7 +99,7 @@ export function useCodeData({
       setEmployees(data.employees || []);
     }
     setLoading(false);
-  }, [apiPath, selectedCompany, departmentCode, companies]);
+  }, [resolvedApiPath, selectedCompany, departmentCode, companies]);
 
   useEffect(() => {
     load();
