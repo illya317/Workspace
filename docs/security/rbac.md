@@ -32,7 +32,6 @@ system              admin   系统管理
   system.audit      admin   审计日志
   system.agent      access  智能体
   system.api        access  API接入
-  system.erpnext    admin   ERPNext连接
 
 people              admin   人事管理
   people.roster     admin   人事基础资料
@@ -108,20 +107,6 @@ legal               access  法务
 网页登录和企业微信登录允许多端共存；登录不会递增 `sessionVersion`。改密码、管理员重置密码或账号停用会让旧会话失效。JWT 和 Cookie 默认有效期为 30 天。
 
 ## system.admin 与业务权限
-
-## Workspace 与 ERPNext 权限边界
-
-Workspace 不复制 ERPNext Role、DocType Permission 或 User Permission 管理界面。
-
-| 层级 | 负责系统 | 判断方式 |
-|---|---|---|
-| 页面入口 | Workspace | `visibleResourceKeys` + `requireResourceAccess(resourceKey)` |
-| 本地 API 动作 | Workspace | `checkPermission(userId, resourceKey, action)` |
-| 授权后台入口 | Workspace | `manageableResourceKeys.length > 0` |
-| ERPNext 标准操作 | ERPNext | ERPNext 自身角色、DocPerm、Workflow |
-| ERPNext snapshot 数据范围 | ERPNext + Workspace service | Workspace 用户绑定 ERPNext 用户后，按 ERPNext 用户权限过滤 snapshot |
-
-`system.erpnext` 只管理 connector、同步任务、同步日志和用户绑定状态；`system.admin` 不能绕过 ERPNext 业务数据权限。
 
 ### systemAdminBusinessBypass 开关
 

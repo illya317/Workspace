@@ -33,9 +33,9 @@
 | 司库管理 | 银行账户、资金日报、收付款、现金流（规划中） |
 | 数据导入与治理 | 科目/凭证/余额/预算/成本导入，校验与异常 |
 
-### ERPNext 生命周期标记
+### 生命周期标记
 
-`finance.ledger` 为 `legacy-fallback`；`finance.statement`、`finance.analysis`、`finance.budget`、`finance.cost` 为 `hybrid-analysis`；`finance.tax`、`finance.treasury` 为 `erpnext-owned`；`finance.import` 仅保留为历史 fallback 和特殊清洗入口。
+`finance.ledger` 为 `legacy-fallback`；`finance.statement`、`finance.analysis`、`finance.budget`、`finance.cost` 为 `workspace-analysis`；`finance.tax`、`finance.treasury` 为 `external-system`；`finance.import` 仅保留为历史 fallback 和特殊清洗入口。
 
 ### 总账会计 (`/finance/ledger`)
 

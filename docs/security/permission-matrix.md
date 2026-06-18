@@ -17,7 +17,6 @@
 | `administration.contract` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
 | `work` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
 | `system` | `manageableResourceKeys` | admin |
-| `system.erpnext` | `manageableResourceKeys` | admin |
 
 ## 页面 Guard
 

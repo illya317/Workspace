@@ -5642,8 +5642,6 @@ export const UserScalarFieldEnum = {
   canLogin: 'canLogin',
   apiKey: 'apiKey',
   employeeId: 'employeeId',
-  erpnextUserId: 'erpnextUserId',
-  erpnextUsername: 'erpnextUsername',
   createdAt: 'createdAt',
   sessionVersion: 'sessionVersion'
 } as const

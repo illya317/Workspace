@@ -52,7 +52,7 @@ page.tsx
 - 页面入口：`/inventory` 直接回到 `/production`
 - API：`410 Gone`
 
-## ERPNext 生命周期标记
+## 生命周期标记
 
 状态：已关闭。现有库存主数据和操作记录仅作为历史数据保留；后续不继续扩展 FIFO/LIFO/移动加权、MRP、BOM、生产工单、WIP、质量检验等完整 ERP 库存/生产能力。
 

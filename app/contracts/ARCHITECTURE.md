@@ -53,6 +53,6 @@ page.tsx
 
 合同数据关联 Employee 和 Company，通过 employeeId + companyId 外键关联。
 
-## ERPNext 生命周期标记
+## 生命周期标记
 
-状态：`workspace-owned`。当前合同台账是行政/人事轻流程，不作为 ERPNext 采购、销售、应收应付合同单据引擎使用。
+状态：`workspace-owned`。当前合同台账是行政/人事轻流程，不作为采购、销售、应收应付合同单据引擎使用。

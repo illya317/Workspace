@@ -47,8 +47,6 @@ export type UserMinAggregateOutputType = {
   canLogin: boolean | null
   apiKey: string | null
   employeeId: string | null
-  erpnextUserId: string | null
-  erpnextUsername: string | null
   createdAt: Date | null
   sessionVersion: number | null
 }
@@ -64,8 +62,6 @@ export type UserMaxAggregateOutputType = {
   canLogin: boolean | null
   apiKey: string | null
   employeeId: string | null
-  erpnextUserId: string | null
-  erpnextUsername: string | null
   createdAt: Date | null
   sessionVersion: number | null
 }
@@ -81,8 +77,6 @@ export type UserCountAggregateOutputType = {
   canLogin: number
   apiKey: number
   employeeId: number
-  erpnextUserId: number
-  erpnextUsername: number
   createdAt: number
   sessionVersion: number
   _all: number
@@ -110,8 +104,6 @@ export type UserMinAggregateInputType = {
   canLogin?: true
   apiKey?: true
   employeeId?: true
-  erpnextUserId?: true
-  erpnextUsername?: true
   createdAt?: true
   sessionVersion?: true
 }
@@ -127,8 +119,6 @@ export type UserMaxAggregateInputType = {
   canLogin?: true
   apiKey?: true
   employeeId?: true
-  erpnextUserId?: true
-  erpnextUsername?: true
   createdAt?: true
   sessionVersion?: true
 }
@@ -144,8 +134,6 @@ export type UserCountAggregateInputType = {
   canLogin?: true
   apiKey?: true
   employeeId?: true
-  erpnextUserId?: true
-  erpnextUsername?: true
   createdAt?: true
   sessionVersion?: true
   _all?: true
@@ -248,8 +236,6 @@ export type UserGroupByOutputType = {
   canLogin: boolean
   apiKey: string | null
   employeeId: string | null
-  erpnextUserId: string | null
-  erpnextUsername: string | null
   createdAt: Date
   sessionVersion: number
   _count: UserCountAggregateOutputType | null
@@ -288,8 +274,6 @@ export type UserWhereInput = {
   canLogin?: Prisma.BoolFilter<"User"> | boolean
   apiKey?: Prisma.StringNullableFilter<"User"> | string | null
   employeeId?: Prisma.StringNullableFilter<"User"> | string | null
-  erpnextUserId?: Prisma.StringNullableFilter<"User"> | string | null
-  erpnextUsername?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   sessionVersion?: Prisma.IntFilter<"User"> | number
   editedContracts?: Prisma.ContractListRelationFilter
@@ -328,8 +312,6 @@ export type UserOrderByWithRelationInput = {
   canLogin?: Prisma.SortOrder
   apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
-  erpnextUserId?: Prisma.SortOrderInput | Prisma.SortOrder
-  erpnextUsername?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sessionVersion?: Prisma.SortOrder
   editedContracts?: Prisma.ContractOrderByRelationAggregateInput
@@ -371,8 +353,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   routineItems?: Prisma.StringNullableFilter<"User"> | string | null
   canLogin?: Prisma.BoolFilter<"User"> | boolean
   employeeId?: Prisma.StringNullableFilter<"User"> | string | null
-  erpnextUserId?: Prisma.StringNullableFilter<"User"> | string | null
-  erpnextUsername?: Prisma.StringNullableFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   sessionVersion?: Prisma.IntFilter<"User"> | number
   editedContracts?: Prisma.ContractListRelationFilter
@@ -411,8 +391,6 @@ export type UserOrderByWithAggregationInput = {
   canLogin?: Prisma.SortOrder
   apiKey?: Prisma.SortOrderInput | Prisma.SortOrder
   employeeId?: Prisma.SortOrderInput | Prisma.SortOrder
-  erpnextUserId?: Prisma.SortOrderInput | Prisma.SortOrder
-  erpnextUsername?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sessionVersion?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -436,8 +414,6 @@ export type UserScalarWhereWithAggregatesInput = {
   canLogin?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   apiKey?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   employeeId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
-  erpnextUserId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
-  erpnextUsername?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   sessionVersion?: Prisma.IntWithAggregatesFilter<"User"> | number
 }
@@ -452,8 +428,6 @@ export type UserCreateInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -492,8 +466,6 @@ export type UserUncheckedCreateInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -531,8 +503,6 @@ export type UserUpdateInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -571,8 +541,6 @@ export type UserUncheckedUpdateInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -611,8 +579,6 @@ export type UserCreateManyInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
 }
@@ -627,8 +593,6 @@ export type UserUpdateManyMutationInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
 }
@@ -644,8 +608,6 @@ export type UserUncheckedUpdateManyInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
 }
@@ -661,8 +623,6 @@ export type UserCountOrderByAggregateInput = {
   canLogin?: Prisma.SortOrder
   apiKey?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
-  erpnextUserId?: Prisma.SortOrder
-  erpnextUsername?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sessionVersion?: Prisma.SortOrder
 }
@@ -683,8 +643,6 @@ export type UserMaxOrderByAggregateInput = {
   canLogin?: Prisma.SortOrder
   apiKey?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
-  erpnextUserId?: Prisma.SortOrder
-  erpnextUsername?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sessionVersion?: Prisma.SortOrder
 }
@@ -700,8 +658,6 @@ export type UserMinOrderByAggregateInput = {
   canLogin?: Prisma.SortOrder
   apiKey?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
-  erpnextUserId?: Prisma.SortOrder
-  erpnextUsername?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   sessionVersion?: Prisma.SortOrder
 }
@@ -1095,8 +1051,6 @@ export type UserCreateWithoutResourceRolesInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -1134,8 +1088,6 @@ export type UserUncheckedCreateWithoutResourceRolesInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -1188,8 +1140,6 @@ export type UserUpdateWithoutResourceRolesInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -1227,8 +1177,6 @@ export type UserUncheckedUpdateWithoutResourceRolesInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -1265,8 +1213,6 @@ export type UserCreateWithoutEditedContractsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
@@ -1304,8 +1250,6 @@ export type UserUncheckedCreateWithoutEditedContractsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
@@ -1358,8 +1302,6 @@ export type UserUpdateWithoutEditedContractsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
@@ -1397,8 +1339,6 @@ export type UserUncheckedUpdateWithoutEditedContractsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
@@ -1435,8 +1375,6 @@ export type UserCreateWithoutEditedFinanceAccountsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -1474,8 +1412,6 @@ export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -1528,8 +1464,6 @@ export type UserUpdateWithoutEditedFinanceAccountsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -1567,8 +1501,6 @@ export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -1605,8 +1537,6 @@ export type UserCreateWithoutEditedFinanceVouchersInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -1644,8 +1574,6 @@ export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -1698,8 +1626,6 @@ export type UserUpdateWithoutEditedFinanceVouchersInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -1737,8 +1663,6 @@ export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -1775,8 +1699,6 @@ export type UserCreateWithoutLedgerImportsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -1814,8 +1736,6 @@ export type UserUncheckedCreateWithoutLedgerImportsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -1868,8 +1788,6 @@ export type UserUpdateWithoutLedgerImportsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -1907,8 +1825,6 @@ export type UserUncheckedUpdateWithoutLedgerImportsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -1945,8 +1861,6 @@ export type UserCreateWithoutSnapshotImportsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -1984,8 +1898,6 @@ export type UserUncheckedCreateWithoutSnapshotImportsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -2027,8 +1939,6 @@ export type UserCreateWithoutSnapshotEditsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -2066,8 +1976,6 @@ export type UserUncheckedCreateWithoutSnapshotEditsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -2120,8 +2028,6 @@ export type UserUpdateWithoutSnapshotImportsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -2159,8 +2065,6 @@ export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -2208,8 +2112,6 @@ export type UserUpdateWithoutSnapshotEditsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -2247,8 +2149,6 @@ export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -2285,8 +2185,6 @@ export type UserCreateWithoutConfirmedReclassRulesInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -2324,8 +2222,6 @@ export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -2378,8 +2274,6 @@ export type UserUpdateWithoutConfirmedReclassRulesInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -2417,8 +2311,6 @@ export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -2455,8 +2347,6 @@ export type UserCreateWithoutReviewedReclassResultsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -2494,8 +2384,6 @@ export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -2548,8 +2436,6 @@ export type UserUpdateWithoutReviewedReclassResultsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -2587,8 +2473,6 @@ export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -2625,8 +2509,6 @@ export type UserCreateWithoutEditedWorkpapersInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -2664,8 +2546,6 @@ export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -2718,8 +2598,6 @@ export type UserUpdateWithoutEditedWorkpapersInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -2757,8 +2635,6 @@ export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -2795,8 +2671,6 @@ export type UserCreateWithoutEditedReviewsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -2834,8 +2708,6 @@ export type UserUncheckedCreateWithoutEditedReviewsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -2877,8 +2749,6 @@ export type UserCreateWithoutReviewedReviewsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -2916,8 +2786,6 @@ export type UserUncheckedCreateWithoutReviewedReviewsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -2970,8 +2838,6 @@ export type UserUpdateWithoutEditedReviewsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -3009,8 +2875,6 @@ export type UserUncheckedUpdateWithoutEditedReviewsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -3058,8 +2922,6 @@ export type UserUpdateWithoutReviewedReviewsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -3097,8 +2959,6 @@ export type UserUncheckedUpdateWithoutReviewedReviewsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -3135,8 +2995,6 @@ export type UserCreateWithoutEmployeesInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -3174,8 +3032,6 @@ export type UserUncheckedCreateWithoutEmployeesInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -3228,8 +3084,6 @@ export type UserUpdateWithoutEmployeesInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -3267,8 +3121,6 @@ export type UserUncheckedUpdateWithoutEmployeesInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -3305,8 +3157,6 @@ export type UserCreateWithoutManagedDepartmentsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -3344,8 +3194,6 @@ export type UserUncheckedCreateWithoutManagedDepartmentsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -3398,8 +3246,6 @@ export type UserUpdateWithoutManagedDepartmentsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -3437,8 +3283,6 @@ export type UserUncheckedUpdateWithoutManagedDepartmentsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -3475,8 +3319,6 @@ export type UserCreateWithoutEditHistoriesInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -3514,8 +3356,6 @@ export type UserUncheckedCreateWithoutEditHistoriesInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -3568,8 +3408,6 @@ export type UserUpdateWithoutEditHistoriesInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -3607,8 +3445,6 @@ export type UserUncheckedUpdateWithoutEditHistoriesInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -3645,8 +3481,6 @@ export type UserCreateWithoutEditedStockRawMaterialsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -3684,8 +3518,6 @@ export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -3738,8 +3570,6 @@ export type UserUpdateWithoutEditedStockRawMaterialsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -3777,8 +3607,6 @@ export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -3815,8 +3643,6 @@ export type UserCreateWithoutEditedStockPackagingsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -3854,8 +3680,6 @@ export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -3908,8 +3732,6 @@ export type UserUpdateWithoutEditedStockPackagingsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -3947,8 +3769,6 @@ export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -3985,8 +3805,6 @@ export type UserCreateWithoutEditedStockFinishedGoodsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -4024,8 +3842,6 @@ export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -4078,8 +3894,6 @@ export type UserUpdateWithoutEditedStockFinishedGoodsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -4117,8 +3931,6 @@ export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -4155,8 +3967,6 @@ export type UserCreateWithoutStockOperationsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -4194,8 +4004,6 @@ export type UserUncheckedCreateWithoutStockOperationsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -4248,8 +4056,6 @@ export type UserUpdateWithoutStockOperationsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -4287,8 +4093,6 @@ export type UserUncheckedUpdateWithoutStockOperationsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -4325,8 +4129,6 @@ export type UserCreateWithoutEditedLibraryDocumentsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -4364,8 +4166,6 @@ export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -4418,8 +4218,6 @@ export type UserUpdateWithoutEditedLibraryDocumentsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -4457,8 +4255,6 @@ export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -4495,8 +4291,6 @@ export type UserCreateWithoutReportsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -4534,8 +4328,6 @@ export type UserUncheckedCreateWithoutReportsInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -4588,8 +4380,6 @@ export type UserUpdateWithoutReportsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -4627,8 +4417,6 @@ export type UserUncheckedUpdateWithoutReportsInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -4665,8 +4453,6 @@ export type UserCreateWithoutDepartmentAssigneesInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -4704,8 +4490,6 @@ export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -4758,8 +4542,6 @@ export type UserUpdateWithoutDepartmentAssigneesInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -4797,8 +4579,6 @@ export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -4835,8 +4615,6 @@ export type UserCreateWithoutProjectAssigneesInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
@@ -4874,8 +4652,6 @@ export type UserUncheckedCreateWithoutProjectAssigneesInput = {
   canLogin?: boolean
   apiKey?: string | null
   employeeId?: string | null
-  erpnextUserId?: string | null
-  erpnextUsername?: string | null
   createdAt?: Date | string
   sessionVersion?: number
   editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
@@ -4928,8 +4704,6 @@ export type UserUpdateWithoutProjectAssigneesInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
@@ -4967,8 +4741,6 @@ export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
   apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  erpnextUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
   editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
@@ -5235,8 +5007,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   canLogin?: boolean
   apiKey?: boolean
   employeeId?: boolean
-  erpnextUserId?: boolean
-  erpnextUsername?: boolean
   createdAt?: boolean
   sessionVersion?: boolean
   editedContracts?: boolean | Prisma.User$editedContractsArgs<ExtArgs>
@@ -5276,8 +5046,6 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   canLogin?: boolean
   apiKey?: boolean
   employeeId?: boolean
-  erpnextUserId?: boolean
-  erpnextUsername?: boolean
   createdAt?: boolean
   sessionVersion?: boolean
 }, ExtArgs["result"]["user"]>
@@ -5293,8 +5061,6 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   canLogin?: boolean
   apiKey?: boolean
   employeeId?: boolean
-  erpnextUserId?: boolean
-  erpnextUsername?: boolean
   createdAt?: boolean
   sessionVersion?: boolean
 }, ExtArgs["result"]["user"]>
@@ -5310,13 +5076,11 @@ export type UserSelectScalar = {
   canLogin?: boolean
   apiKey?: boolean
   employeeId?: boolean
-  erpnextUserId?: boolean
-  erpnextUsername?: boolean
   createdAt?: boolean
   sessionVersion?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "wxUserId" | "username" | "password" | "name" | "avatar" | "routineItems" | "canLogin" | "apiKey" | "employeeId" | "erpnextUserId" | "erpnextUsername" | "createdAt" | "sessionVersion", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "wxUserId" | "username" | "password" | "name" | "avatar" | "routineItems" | "canLogin" | "apiKey" | "employeeId" | "createdAt" | "sessionVersion", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editedContracts?: boolean | Prisma.User$editedContractsArgs<ExtArgs>
   managedDepartments?: boolean | Prisma.User$managedDepartmentsArgs<ExtArgs>
@@ -5384,14 +5148,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     canLogin: boolean
     apiKey: string | null
     employeeId: string | null
-    /**
-     * 绑定的 ERPNext 用户 ID。Workspace 只用它做 ERPNext snapshot 权限过滤，不管理 ERPNext 角色。
-     */
-    erpnextUserId: string | null
-    /**
-     * 绑定的 ERPNext 用户名/邮箱，用于展示和同步日志追溯。
-     */
-    erpnextUsername: string | null
     createdAt: Date
     sessionVersion: number
   }, ExtArgs["result"]["user"]>
@@ -5850,8 +5606,6 @@ export interface UserFieldRefs {
   readonly canLogin: Prisma.FieldRef<"User", 'Boolean'>
   readonly apiKey: Prisma.FieldRef<"User", 'String'>
   readonly employeeId: Prisma.FieldRef<"User", 'String'>
-  readonly erpnextUserId: Prisma.FieldRef<"User", 'String'>
-  readonly erpnextUsername: Prisma.FieldRef<"User", 'String'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly sessionVersion: Prisma.FieldRef<"User", 'Int'>
 }

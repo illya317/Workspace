@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
   const user = await prisma.user.findUnique({
     where: { username },
-    select: { id: true, name: true, username: true, wxUserId: true, password: true, apiKey: true, canLogin: true, sessionVersion: true, erpnextUserId: true, erpnextUsername: true },
+    select: { id: true, name: true, username: true, wxUserId: true, password: true, apiKey: true, canLogin: true, sessionVersion: true },
   });
 
   if (!user || !user.password || !bcrypt.compareSync(password, user.password)) {
@@ -92,8 +92,6 @@ export async function POST(request: Request) {
       visibleResourceKeys: [...visibleAccess],
       visibleWriteResourceKeys: [...visibleWrite],
       manageableResourceKeys: [...manageableKeys],
-      erpnextUserId: user.erpnextUserId,
-      erpnextUsername: user.erpnextUsername,
     },
   });
   response.cookies.set("token", token, { httpOnly: true, secure: false, sameSite: "lax", maxAge: SESSION_MAX_AGE_SECONDS, path: "/" });

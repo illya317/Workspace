@@ -46,6 +46,6 @@ model Supplier { ... }
 
 骨架已搭好，Client 组件预留了 state + toolbar 占位，待接 API/service。
 
-## ERPNext 生命周期标记
+## 生命周期标记
 
-投资人关系为 `workspace-owned`；客户和供应商为 `hybrid-analysis`，后续 Customer/Supplier 事实优先来自 ERPNext，Workspace 做跟进记录、评级、资料归档和分析。
+投资人关系为 `workspace-owned`；客户和供应商为 `workspace-analysis`。外部事实来源仍可来自 CRM、合同台账、用友或人工导入，Workspace 负责跟进记录、评级、资料归档和分析。

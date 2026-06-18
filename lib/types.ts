@@ -14,8 +14,6 @@ export interface SessionUser {
   /** Visible resources for "write" role (DB-driven). */
   visibleWriteResourceKeys?: string[];
   manageableResourceKeys?: string[];
-  erpnextUserId?: string | null;
-  erpnextUsername?: string | null;
   isActiveEmployee?: boolean;
   employeeId?: string | null;
   company?: string | null;

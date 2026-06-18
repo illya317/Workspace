@@ -109,11 +109,11 @@
 - 如果要借鉴 ERPNext，最值得的是 **字段级权限** 和 **数据范围权限**
 - 动作层不需要扩展到 14 层，除非引入状态机或审批流
 
-## 7. 集成后的最终决策
+## 7. 当前决策
 
-Workspace 不镜像 ERPNext 的 DocType 权限，也不在后台维护 ERPNext 角色。ERPNext 有的标准 ERP 能力，Workspace 标记为 `erpnext-owned` 或 `legacy-fallback`，后续逐步隐藏/删除；Workspace 保留分析、校对、AI、工作协同、资料库等增强层。
+Workspace 不集成 ERPNext，也不维护 ERPNext 角色、连接器或用户绑定。本文仅作为权限设计对比资料保留；后续模块生命周期使用 `workspace-owned`、`workspace-analysis`、`external-system`、`legacy-fallback` 等不绑定具体 ERP 产品的标记。
 
-高风险写回（凭证、付款、发票、采购单、销售单、库存出入库、结账、成本核算）第一阶段不做。可预留的低风险写回只包括项目备注、附件索引、分析标签、内部评级等不改变 ERP 主流程的元数据。
+高风险写回（凭证、付款、发票、采购单、销售单、库存出入库、结账、成本核算）不通过 ERPNext 路线推进。若未来需要对接外部系统，按独立 connector 和审批边界重新设计。
 
 ---
 

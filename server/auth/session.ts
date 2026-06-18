@@ -25,8 +25,6 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
       apiKey: true,
       canLogin: true,
       sessionVersion: true,
-      erpnextUserId: true,
-      erpnextUsername: true,
     },
   });
   if (!userWithPerms) return null;

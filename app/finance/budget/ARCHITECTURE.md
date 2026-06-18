@@ -8,7 +8,7 @@
 
 由 `FinanceShell` 统一包裹。
 
-生命周期状态：`hybrid-analysis`。ERPNext Budget / Cost Center 是后续标准事实来源；Workspace 保留预算版本、导入兼容、管理层预算分析和差异解释。
+生命周期状态：`workspace-analysis`。预算事实来源以 Workspace 版本表、Excel 导入和外部会计系统数据为准；Workspace 保留预算版本、导入兼容、管理层预算分析和差异解释。
 
 ## 页面结构
 
