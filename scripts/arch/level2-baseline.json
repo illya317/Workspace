@@ -228,8 +228,6 @@
     "GET /api/admin/department-admins",
     "GET /api/admin/edit-history",
     "GET /api/admin/projects",
-    "GET /api/auth/me",
-    "GET /api/auth/wecom/start",
     "GET /api/departments",
     "GET /api/employee-positions",
     "GET /api/employee-projects",

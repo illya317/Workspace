@@ -1,6 +1,5 @@
-import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
-import { buildWecomWebLoginUrl } from "@/server/auth/wecom";
+import { createWecomLoginStart } from "@workspace/platform/server/account";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 const POST_LOGIN_NEXT_COOKIE = "post_login_next";
@@ -26,13 +25,11 @@ export async function GET(request: Request) {
   try {
     const requestUrl = new URL(request.url);
     const nextPath = safeNextPath(requestUrl.searchParams.get("next"));
-    const state = randomBytes(24).toString("hex");
     const origin = process.env.WECHAT_REDIRECT_ORIGIN || getRequestOrigin(request);
-    const redirectUri = `${origin}${BASE_PATH}/api/auth/wecom/callback`;
-    const authorizeUrl = buildWecomWebLoginUrl(redirectUri, state);
+    const login = createWecomLoginStart(origin, BASE_PATH);
 
-    const response = NextResponse.redirect(authorizeUrl);
-    response.cookies.set("wecom_oauth_state", state, {
+    const response = NextResponse.redirect(login.authorizeUrl);
+    response.cookies.set("wecom_oauth_state", login.state, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",

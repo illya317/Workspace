@@ -1,15 +1,19 @@
+import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
 
 import {
+  buildWecomWebLoginUrl,
   getWecomUserByCode,
   getWecomUserDetail,
 } from "../../../server/auth/wecom";
+import { getCurrentUser } from "../../../server/auth/session";
 import {
   createToken,
   ensureGrantCache,
   getManageableResourceKeys,
   getPermissionContext,
   getVisibleResourceKeys,
+  isKicked,
 } from "./auth";
 import { prisma } from "./prisma";
 import { checkBruteForce, recordAttempt } from "./security";
@@ -43,6 +47,34 @@ export type WecomLoginResult =
 export type DevUserLoginResult =
   | { success: true; token: string; message: string }
   | { success: false; status: number; error: string };
+
+type CurrentUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
+
+export type CurrentSessionResult =
+  | { status: "authenticated"; user: CurrentUser }
+  | { status: "kicked" }
+  | { status: "unauthenticated" };
+
+export type WecomLoginStart = {
+  authorizeUrl: string;
+  state: string;
+};
+
+export async function getCurrentSessionStatus(request: Request): Promise<CurrentSessionResult> {
+  const user = await getCurrentUser();
+  if (user) return { status: "authenticated", user };
+  if (await isKicked(request)) return { status: "kicked" };
+  return { status: "unauthenticated" };
+}
+
+export function createWecomLoginStart(origin: string, basePath: string): WecomLoginStart {
+  const state = randomBytes(24).toString("hex");
+  const redirectUri = `${origin}${basePath}/api/auth/wecom/callback`;
+  return {
+    authorizeUrl: buildWecomWebLoginUrl(redirectUri, state),
+    state,
+  };
+}
 
 export async function changeUserPassword(
   userId: number,
