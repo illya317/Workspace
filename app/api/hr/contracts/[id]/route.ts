@@ -1,6 +1,16 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { authenticate, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
 import { deleteContract, updateContractField } from "@workspace/hr/server";
+
+const paramsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+const updateContractFieldSchema = z.object({
+  field: z.string().min(1),
+  value: z.unknown().optional(),
+}).passthrough();
 
 export async function PUT(
   request: Request,
@@ -10,12 +20,14 @@ export async function PUT(
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
   if (!(await checkHRWrite(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
-  const { id } = await params;
-  const contractId = parseInt(id);
+  const parsedParams = paramsSchema.safeParse(await params);
+  if (!parsedParams.success) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
 
-  const body = await request.json();
-  const { field, value } = body;
-  const result = await updateContractField(contractId, field, value, payload.userId);
+  const body = await request.json().catch(() => null);
+  const parsedBody = updateContractFieldSchema.safeParse(body);
+  if (!parsedBody.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  const { field, value } = parsedBody.data;
+  const result = await updateContractField(parsedParams.data.id, field, value, payload.userId);
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
   return NextResponse.json(result.data);
 }
@@ -28,9 +40,9 @@ export async function DELETE(
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
   if (!(await checkHRDelete(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
-  const { id } = await params;
-  const contractId = parseInt(id);
-  const result = await deleteContract(contractId, payload.userId);
+  const parsedParams = paramsSchema.safeParse(await params);
+  if (!parsedParams.success) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
+  const result = await deleteContract(parsedParams.data.id, payload.userId);
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
   return NextResponse.json(result.data);
 }
