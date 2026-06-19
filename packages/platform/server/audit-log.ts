@@ -1,5 +1,5 @@
-import { Prisma, prisma } from "@workspace/platform/server/prisma";
-import { fkDisplay, resolveFkValues } from "@workspace/platform/server/resolve-fk";
+import { Prisma, prisma } from "./prisma";
+import { fkDisplay, resolveFkValues } from "./resolve-fk";
 
 const RESOLVERS: Record<string, { model: string; field: string; fallback: string }> = {
   Employee: { model: "employee", field: "name", fallback: "未知员工" },
@@ -20,19 +20,21 @@ async function resolveRecordNames(entityType: string, ids: number[]): Promise<Re
       where: { id: { in: ids } },
       include: { employee: { select: { name: true } } },
     });
-    for (const e of edps) map[String(e.id)] = e.employee?.name || String(e.id);
+    for (const edp of edps) map[String(edp.id)] = edp.employee?.name || String(edp.id);
   } else if (entityType === "EmployeeProject") {
-    const eps = await prisma.employeeProject.findMany({
+    const employeeProjects = await prisma.employeeProject.findMany({
       where: { id: { in: ids } },
       include: { employee: { select: { name: true } }, project: { select: { name: true } } },
     });
-    for (const e of eps) map[String(e.id)] = `${e.employee?.name || "?"} / ${e.project?.name || "?"}`;
+    for (const employeeProject of employeeProjects) {
+      map[String(employeeProject.id)] = `${employeeProject.employee?.name || "?"} / ${employeeProject.project?.name || "?"}`;
+    }
   } else if (entityType === "Employment") {
-    const emps = await prisma.employment.findMany({
+    const employments = await prisma.employment.findMany({
       where: { id: { in: ids } },
       include: { employee: { select: { name: true } } },
     });
-    for (const e of emps) map[String(e.id)] = e.employee?.name || String(e.id);
+    for (const employment of employments) map[String(employment.id)] = employment.employee?.name || String(employment.id);
   }
   return map;
 }
@@ -55,20 +57,20 @@ export async function getAuditLogDates(entityType: string) {
     orderBy: { createdAt: "desc" },
     take: 2000,
   });
-  return [...new Set(rows.map((r) => r.createdAt.toISOString().slice(0, 10)))];
+  return [...new Set(rows.map((row) => row.createdAt.toISOString().slice(0, 10)))];
 }
 
 export async function getAuditLogEntries(
   entityType: string,
   date: string | undefined,
   page: number,
-  pageSize: number
+  pageSize: number,
 ) {
   const pageWhere: Prisma.EditHistoryWhereInput = { entityType, tag: null };
   if (date) {
     pageWhere.createdAt = {
-      gte: new Date(date + "T00:00:00+08:00"),
-      lte: new Date(date + "T23:59:59+08:00"),
+      gte: new Date(`${date}T00:00:00+08:00`),
+      lte: new Date(`${date}T23:59:59+08:00`),
     };
   }
 
@@ -81,7 +83,7 @@ export async function getAuditLogEntries(
   });
   const total = await prisma.editHistory.count({ where: pageWhere });
 
-  const recordIds = [...new Set(pageVersions.map((v) => parseInt(v.entityId)))];
+  const recordIds = [...new Set(pageVersions.map((version) => parseInt(version.entityId)))];
   const recordIdStrs = recordIds.map(String);
 
   const allVersions = await prisma.editHistory.findMany({
@@ -93,13 +95,13 @@ export async function getAuditLogEntries(
   type VersionWithEditor = Prisma.EditHistoryGetPayload<{ include: { editor: { select: { name: true } } } }>;
   const prevMap = new Map<number, VersionWithEditor>();
   const groupMap = new Map<string, VersionWithEditor[]>();
-  for (const v of allVersions) {
-    const k = `${v.entityType}:${v.entityId}`;
-    if (!groupMap.has(k)) groupMap.set(k, []);
-    groupMap.get(k)!.push(v);
+  for (const version of allVersions) {
+    const key = `${version.entityType}:${version.entityId}`;
+    if (!groupMap.has(key)) groupMap.set(key, []);
+    groupMap.get(key)!.push(version);
   }
   for (const [, group] of groupMap) {
-    for (let i = 1; i < group.length; i++) prevMap.set(group[i].id, group[i - 1]);
+    for (let index = 1; index < group.length; index += 1) prevMap.set(group[index].id, group[index - 1]);
   }
 
   const recordMap = await resolveRecordNames(entityType, recordIds);
@@ -107,40 +109,51 @@ export async function getAuditLogEntries(
   if (resolver) {
     const unresolved = recordIds.filter((id) => !recordMap[String(id)]);
     if (unresolved.length > 0) {
-      type ModelDelegate = { findMany: (args: { where: { id: { in: number[] } }; select: Record<string, boolean> }) => Promise<Array<{ id: unknown; [key: string]: unknown }>> };
+      type ModelDelegate = {
+        findMany: (args: {
+          where: { id: { in: number[] } };
+          select: Record<string, boolean>;
+        }) => Promise<Array<{ id: unknown; [key: string]: unknown }>>;
+      };
       const records = await ((prisma as unknown as Record<string, ModelDelegate>)[resolver.model]).findMany({
         where: { id: { in: unresolved } },
         select: { id: true, [resolver.field]: true },
       });
-      for (const r of records) recordMap[String(r.id)] = String(r[resolver.field] ?? resolver.fallback);
+      for (const record of records) recordMap[String(record.id)] = String(record[resolver.field] ?? resolver.fallback);
     }
   }
   for (const id of recordIds) if (!recordMap[String(id)]) recordMap[String(id)] = String(id);
 
-  const AUDIT_FIELDS = new Set(["editedBy", "editedAt", "version", "editor", "createdAt", "updatedAt", "id"]);
+  const auditFields = new Set(["editedBy", "editedAt", "version", "editor", "createdAt", "updatedAt", "id"]);
 
-  const allSnapshots = pageVersions.map((v) => { try { return JSON.parse(v.dataJson); } catch { return {}; } });
+  const allSnapshots = pageVersions.map((version) => {
+    try {
+      return JSON.parse(version.dataJson);
+    } catch {
+      return {};
+    }
+  });
   const fkMap = await resolveFkValues(allSnapshots);
 
-  const editedIds = new Set(pageVersions.map((v) => `${v.entityType}:${v.entityId}`));
-  const displayV0s = allVersions.filter((v) => v.tag && editedIds.has(`${v.entityType}:${v.entityId}`));
+  const editedIds = new Set(pageVersions.map((version) => `${version.entityType}:${version.entityId}`));
+  const displayV0s = allVersions.filter((version) => version.tag && editedIds.has(`${version.entityType}:${version.entityId}`));
 
   const entries: AuditLogEntry[] = [...pageVersions, ...displayV0s]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .map((v) => {
-      const prev = prevMap.get(v.id) || null;
+    .sort((left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime())
+    .map((version) => {
+      const previous = prevMap.get(version.id) || null;
       const changes: Array<{ field: string; from?: string; to: string }> = [];
       try {
-        const currData = JSON.parse(v.dataJson);
-        const prevData = prev ? JSON.parse(prev.dataJson) : null;
-        const keys = new Set([...Object.keys(currData), ...(prevData ? Object.keys(prevData) : [])]);
+        const currentData = JSON.parse(version.dataJson);
+        const previousData = previous ? JSON.parse(previous.dataJson) : null;
+        const keys = new Set([...Object.keys(currentData), ...(previousData ? Object.keys(previousData) : [])]);
         for (const key of keys) {
-          if (AUDIT_FIELDS.has(key)) continue;
-          const curr = currData[key];
-          const old = prevData?.[key];
-          if (JSON.stringify(old) !== JSON.stringify(curr)) {
+          if (auditFields.has(key)) continue;
+          const current = currentData[key];
+          const old = previousData?.[key];
+          if (JSON.stringify(old) !== JSON.stringify(current)) {
             const fromRaw = old != null ? (typeof old === "object" ? JSON.stringify(old) : String(old)) : "";
-            const toRaw = curr != null ? (typeof curr === "object" ? JSON.stringify(curr) : String(curr)) : "";
+            const toRaw = current != null ? (typeof current === "object" ? JSON.stringify(current) : String(current)) : "";
             changes.push({
               field: key,
               from: fromRaw ? fkDisplay(key, fromRaw, fkMap) : "(空)",
@@ -148,15 +161,18 @@ export async function getAuditLogEntries(
             });
           }
         }
-      } catch {}
+      } catch {
+        // Malformed snapshots are ignored rather than blocking audit browsing.
+      }
 
       return {
-        id: v.id, entityId: v.entityId,
-        entityName: recordMap[v.entityId] || v.entityId,
-        version: v.version,
-        editorName: v.editor?.name || `用户#${v.editedBy}`,
-        createdAt: v.createdAt,
-        tag: v.tag || null,
+        id: version.id,
+        entityId: version.entityId,
+        entityName: recordMap[version.entityId] || version.entityId,
+        version: version.version,
+        editorName: version.editor?.name || `用户#${version.editedBy}`,
+        createdAt: version.createdAt,
+        tag: version.tag || null,
         changes,
       };
     });

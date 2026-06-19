@@ -1,6 +1,5 @@
-import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/generated/prisma/client";
-import { getCodePoolCode } from "@workspace/hr/server/company-directory";
+import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { getCodePoolCode } from "./company-directory";
 
 async function buildFullCode(code: string, company: string): Promise<string> {
   const normalized = await getCodePoolCode(company);
@@ -19,12 +18,12 @@ export async function getPositionCodes(opts: {
   const { positionCode } = opts;
 
   if (positionCode) {
-    const pos = await prisma.position.findFirst({ where: { code: positionCode } });
-    if (!pos) return { departments: [] };
-    const dept = pos.departmentId
-      ? await prisma.department.findUnique({ where: { id: pos.departmentId }, select: { name: true } })
+    const position = await prisma.position.findFirst({ where: { code: positionCode } });
+    if (!position) return { departments: [] };
+    const department = position.departmentId
+      ? await prisma.department.findUnique({ where: { id: position.departmentId }, select: { name: true } })
       : null;
-    return { departments: dept ? [dept.name] : [] };
+    return { departments: department ? [department.name] : [] };
   }
 
   const codes = opts.companys
@@ -35,13 +34,13 @@ export async function getPositionCodes(opts: {
 
   let positionIds: number[] | undefined;
   if (opts.departmentCode) {
-    const dept = await prisma.department.findFirst({ where: { code: opts.departmentCode } });
-    if (dept) {
+    const department = await prisma.department.findFirst({ where: { code: opts.departmentCode } });
+    if (department) {
       const positions = await prisma.position.findMany({
-        where: { departmentId: dept.id },
+        where: { departmentId: department.id },
         select: { id: true },
       });
-      positionIds = positions.map((p) => p.id);
+      positionIds = positions.map((position) => position.id);
     }
     if (!positionIds || positionIds.length === 0) {
       return { codes: [] };
@@ -50,19 +49,19 @@ export async function getPositionCodes(opts: {
 
   const where: Prisma.PositionWhereInput = {};
   if (codes.length > 0) {
-    where.OR = codes.map((cc: string) => ({ code: { startsWith: cc } }));
+    where.OR = codes.map((companyCode: string) => ({ code: { startsWith: companyCode } }));
   }
   if (positionIds) {
     where.id = { in: positionIds };
   }
   const result = await prisma.position.findMany({ where, orderBy: { code: "asc" } });
-  const filtered = result.filter((r) => /^\d{5}$/.test(r.code));
-  return { codes: filtered.map((r) => ({ code: r.code, name: r.name })) };
+  const filtered = result.filter((position) => /^\d{5}$/.test(position.code));
+  return { codes: filtered.map((position) => ({ code: position.code, name: position.name })) };
 }
 
 export async function upsertPositionCode(
   body: { code: string; name: string; company?: string; originalCode?: string; departmentCode?: string },
-  userId: number
+  userId: number,
 ) {
   const { code, name, company, originalCode, departmentCode } = body;
   const finalCode = await buildFullCode(code, company || "");
@@ -71,9 +70,9 @@ export async function upsertPositionCode(
     if (originalCode && originalCode !== finalCode) {
       const existing = await tx.position.findFirst({ where: { code: finalCode } });
       if (existing) throw new Error("编号已存在");
-      const oldPos = await tx.position.findFirst({ where: { code: originalCode } });
-      if (oldPos) {
-        const maxVer = await tx.editHistory.findFirst({
+      const oldPosition = await tx.position.findFirst({ where: { code: originalCode } });
+      if (oldPosition) {
+        const maxVersion = await tx.editHistory.findFirst({
           where: { entityType: "Position", entityId: originalCode },
           orderBy: { version: "desc" },
           select: { version: true },
@@ -82,8 +81,8 @@ export async function upsertPositionCode(
           data: {
             entityType: "Position",
             entityId: originalCode,
-            version: (maxVer?.version || 0) + 1,
-            dataJson: JSON.stringify(oldPos),
+            version: (maxVersion?.version || 0) + 1,
+            dataJson: JSON.stringify(oldPosition),
             editedBy: userId,
           },
         });
@@ -93,9 +92,9 @@ export async function upsertPositionCode(
         data: { code: finalCode, name, editedBy: userId, editedAt: new Date(), version: { increment: 1 } },
       });
     } else {
-      const oldPos = await tx.position.findFirst({ where: { code: finalCode } });
-      if (oldPos) {
-        const maxVer = await tx.editHistory.findFirst({
+      const oldPosition = await tx.position.findFirst({ where: { code: finalCode } });
+      if (oldPosition) {
+        const maxVersion = await tx.editHistory.findFirst({
           where: { entityType: "Position", entityId: finalCode },
           orderBy: { version: "desc" },
           select: { version: true },
@@ -104,8 +103,8 @@ export async function upsertPositionCode(
           data: {
             entityType: "Position",
             entityId: finalCode,
-            version: (maxVer?.version || 0) + 1,
-            dataJson: JSON.stringify(oldPos),
+            version: (maxVersion?.version || 0) + 1,
+            dataJson: JSON.stringify(oldPosition),
             editedBy: userId,
           },
         });
@@ -113,10 +112,10 @@ export async function upsertPositionCode(
       const data: Prisma.PositionUpdateInput = { name, editedBy: userId, editedAt: new Date(), version: { increment: 1 } };
       const create: Prisma.PositionCreateInput = { code: finalCode, name };
       if (departmentCode) {
-        const dept = await tx.department.findFirst({ where: { code: departmentCode } });
-        if (dept) {
-          data.department = { connect: { id: dept.id } };
-          create.department = { connect: { id: dept.id } };
+        const department = await tx.department.findFirst({ where: { code: departmentCode } });
+        if (department) {
+          data.department = { connect: { id: department.id } };
+          create.department = { connect: { id: department.id } };
         }
       }
       await tx.position.upsert({
@@ -130,12 +129,12 @@ export async function upsertPositionCode(
 }
 
 export async function deletePositionCode(code: string) {
-  const pos = await prisma.position.findFirst({ where: { code } });
-  if (!pos) throw new Error("岗位不存在");
-  const epCount = await prisma.eDP.count({ where: { positionId: pos.id } });
+  const position = await prisma.position.findFirst({ where: { code } });
+  if (!position) throw new Error("岗位不存在");
+  const epCount = await prisma.eDP.count({ where: { positionId: position.id } });
   if (epCount > 0) {
     throw new Error(`该岗位下有 ${epCount} 名员工，无法删除`);
   }
-  await prisma.position.delete({ where: { id: pos.id } });
+  await prisma.position.delete({ where: { id: position.id } });
   return { success: true };
 }

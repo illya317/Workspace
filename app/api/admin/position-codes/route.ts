@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@/lib/auth";
-import { getPositionCodes, upsertPositionCode, deletePositionCode } from "@/server/services/admin/position-codes";
+import { getPositionCodes, upsertPositionCode, deletePositionCode } from "@workspace/hr/server/position-codes";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);

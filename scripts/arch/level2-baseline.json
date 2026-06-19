@@ -3,9 +3,7 @@
   "appHookImplementationFiles": [],
   "domainUiCandidatesWithoutCore": [],
   "legacyServiceFiles": [
-    "server/services/admin/audit-log.ts",
     "server/services/admin/permission-subjects.ts",
-    "server/services/admin/position-codes.ts",
     "server/services/agent/capabilities.ts",
     "server/services/agent/model/deepseek.ts",
     "server/services/agent/model/noop.ts",
