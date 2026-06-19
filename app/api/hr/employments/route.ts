@@ -1,6 +1,18 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { authenticate, checkHRAccess } from "@workspace/platform/server/auth";
 import { createEmployment, listEmployments } from "@workspace/hr/server";
+
+const employmentsQuerySchema = z.object({
+  keyword: z.string().catch(""),
+  isActive: z.string().nullable().optional(),
+  page: z.coerce.number().int().min(1).catch(1),
+  pageSize: z.coerce.number().int().min(1).max(500).catch(50),
+}).passthrough();
+
+const createEmploymentSchema = z.object({
+  employeeId: z.unknown(),
+}).passthrough();
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -8,13 +20,15 @@ export async function GET(request: Request) {
   if (!(await checkHRAccess(payload.userId, "access", "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { searchParams } = new URL(request.url);
-  const keyword = searchParams.get("keyword") || "";
-  const isActive = searchParams.get("isActive");
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
+  const parsedQuery = employmentsQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+  if (!parsedQuery.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  const { keyword, isActive = null, page, pageSize } = parsedQuery.data;
   return NextResponse.json(await listEmployments({ keyword, isActive, page, pageSize }));
 }
 
 export async function POST(request: Request) {
+  const body = await request.clone().json().catch(() => null);
+  const parsedBody = createEmploymentSchema.safeParse(body);
+  if (!parsedBody.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
   return createEmployment(request);
 }
