@@ -24,6 +24,16 @@ export async function parseJson<T>(
   return { ok: true, data: result.data };
 }
 
+const compatibilityProxyBodySchema = z.object({}).passthrough();
+
+export async function validateCompatibilityProxyBody(request: Request): Promise<ParsedJson<Record<string, unknown>>> {
+  if (!["POST", "PUT", "PATCH"].includes(request.method.toUpperCase())) {
+    return { ok: true, data: {} };
+  }
+
+  return parseJson(request.clone(), compatibilityProxyBodySchema);
+}
+
 export function isValidDateValue(value: unknown) {
   if (value === null || value === undefined || value === "") return true;
   if (typeof value !== "string") return false;

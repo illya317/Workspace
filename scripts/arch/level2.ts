@@ -155,6 +155,7 @@ const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
   { name: "tabs", regex: /tabs?|tabbar/i },
   { name: "date", regex: /date(input|picker|field)|calendar/i },
 ];
+const API_VALIDATION_SIGNAL_REGEX = /\b(safeParse|parse)\s*\(|\bz\s*\.|\bparseJson\s*\(|\bvalidateCompatibilityProxyBody\s*\(/;
 
 function toRelative(filePath: string) {
   return path.relative(ROOT, filePath).replace(/\\/g, "/");
@@ -460,7 +461,7 @@ function findApiRouteMethods(files: SourceInfo[]) {
         resourceKey: contract?.resourceKey ?? null,
         action: contract?.action ?? null,
         hasAuthorizeSignal: /\bauthorize\s*\(/.test(file.text),
-        hasValidationSignal: /\b(safeParse|parse)\s*\(|\bz\s*\./.test(file.text),
+        hasValidationSignal: API_VALIDATION_SIGNAL_REGEX.test(file.text),
         hasServiceSignal: hasServiceSignal(file),
         hasCompatibilityProxySignal: compatibilityProxySignal,
         hasGoneRouteSignal: goneRouteSignal,
