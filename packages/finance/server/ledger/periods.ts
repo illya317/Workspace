@@ -22,6 +22,12 @@ export type InitializeFinanceDefaultsInput = {
   companyCode: string;
 };
 
+export type LookupFinancePeriodInput = {
+  companyCode: string;
+  year: number;
+  month: number;
+};
+
 const defaultAccounts = [
   { code: "1001", name: "库存现金", category: "asset", balanceDirection: "debit", sortOrder: 1 },
   { code: "1002", name: "银行存款", category: "asset", balanceDirection: "debit", sortOrder: 2 },
@@ -92,6 +98,15 @@ export async function updateFinancePeriod(id: number, input: UpdateFinancePeriod
 export async function deleteFinancePeriod(id: number) {
   await prisma.financePeriod.delete({ where: { id } });
   return { success: true };
+}
+
+export async function lookupFinancePeriodId(input: LookupFinancePeriodInput) {
+  const period = await prisma.financePeriod.findFirst({
+    where: { companyCode: input.companyCode, year: input.year, month: input.month },
+    select: { id: true },
+  });
+
+  return { periodId: period?.id ?? null };
 }
 
 export async function initializeFinanceDefaults(input: InitializeFinanceDefaultsInput, userId: number) {
