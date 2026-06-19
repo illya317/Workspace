@@ -1,14 +1,23 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { withLibraryAccess, withLibraryWrite } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
 import { getRequest, updateRequest, deleteRequest } from "@workspace/library/server/due-diligence";
 import { getMaxConfidentialityLevel } from "@workspace/library/server/permissions";
 
+const paramsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+const updateRequestSchema = z.object({
+  title: z.string().optional(),
+  status: z.enum(["draft", "reviewing", "approved", "cancelled"]).optional(),
+  defaultConfidentialityLevel: z.coerce.number().int().min(0).max(4).optional(),
+});
+
 async function parseId(ctx?: RouteContext) {
-  const { id } = await ctx!.params;
-  const num = parseInt(id, 10);
-  if (isNaN(num)) return null;
-  return num;
+  const parsedParams = paramsSchema.safeParse(await ctx!.params);
+  return parsedParams.success ? parsedParams.data.id : null;
 }
 
 export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
@@ -20,39 +29,29 @@ export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
   return NextResponse.json(req);
 });
 
-const VALID_STATUSES = ["draft", "reviewing", "approved", "cancelled"];
-
 export const PATCH = withLibraryWrite(async (request: Request, _user, ctx?: RouteContext) => {
   const id = await parseId(ctx);
   if (id === null) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
-  let body: unknown;
+  let body: z.infer<typeof updateRequestSchema>;
   try {
-    body = await request.json();
+    const parsedBody = updateRequestSchema.safeParse(await request.json());
+    if (!parsedBody.success) {
+      return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    }
+    body = parsedBody.data;
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
-  if (typeof body !== "object" || body === null) {
-    return NextResponse.json({ error: "Body must be an object" }, { status: 400 });
-  }
-  const b = body as Record<string, unknown>;
   const data: Record<string, unknown> = {};
-  if (b.title !== undefined) {
-    if (typeof b.title !== "string") return NextResponse.json({ error: "title must be a string" }, { status: 400 });
-    data.title = b.title.trim();
+  if (body.title !== undefined) {
+    data.title = body.title.trim();
   }
-  if (b.status !== undefined) {
-    if (!VALID_STATUSES.includes(b.status as string)) {
-      return NextResponse.json({ error: `status must be one of: ${VALID_STATUSES.join(", ")}` }, { status: 400 });
-    }
-    data.status = b.status;
+  if (body.status !== undefined) {
+    data.status = body.status;
   }
-  if (b.defaultConfidentialityLevel !== undefined) {
-    const level = Number(b.defaultConfidentialityLevel);
-    if (!Number.isInteger(level) || level < 0 || level > 4) {
-      return NextResponse.json({ error: "defaultConfidentialityLevel must be an integer 0..4" }, { status: 400 });
-    }
-    data.defaultConfidentialityLevel = level;
+  if (body.defaultConfidentialityLevel !== undefined) {
+    data.defaultConfidentialityLevel = body.defaultConfidentialityLevel;
   }
 
   const updated = await updateRequest(id, data);

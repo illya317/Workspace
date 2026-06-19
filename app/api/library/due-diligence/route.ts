@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { withLibraryAccess, withLibraryWrite } from "@/lib/with-auth";
 import { listRequests, createRequest } from "@workspace/library/server/due-diligence";
+
+const createRequestSchema = z.object({
+  title: z.string().trim().min(1),
+  partyName: z.string().trim().min(1),
+});
 
 export const GET = withLibraryAccess(async () => {
   const requests = await listRequests();
@@ -8,25 +14,19 @@ export const GET = withLibraryAccess(async () => {
 });
 
 export const POST = withLibraryWrite(async (request: Request) => {
-  let body: unknown;
+  let body: z.infer<typeof createRequestSchema>;
   try {
-    body = await request.json();
+    const parsedBody = createRequestSchema.safeParse(await request.json());
+    if (!parsedBody.success) {
+      return NextResponse.json({ error: "title and partyName are required" }, { status: 400 });
+    }
+    body = parsedBody.data;
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
-  if (typeof body !== "object" || body === null) {
-    return NextResponse.json({ error: "Body must be an object" }, { status: 400 });
-  }
-  const b = body as Record<string, unknown>;
-  if (typeof b.title !== "string" || !b.title.trim()) {
-    return NextResponse.json({ error: "title is required" }, { status: 400 });
-  }
-  if (typeof b.partyName !== "string" || !b.partyName.trim()) {
-    return NextResponse.json({ error: "partyName is required" }, { status: 400 });
-  }
 
   const req = await createRequest(
-    { title: b.title.trim(), partyName: b.partyName.trim() },
+    { title: body.title, partyName: body.partyName },
     0,
   );
   return NextResponse.json(req, { status: 201 });

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { withLibraryAccess } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
 import { getDocument, updateDocumentMetadata, archiveDocument } from "@workspace/library/server/metadata";
@@ -9,6 +10,15 @@ import {
   checkLibraryAdmin,
   checkLibraryDelete,
 } from "@workspace/library/server/permissions";
+
+const paramsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+async function parseId(ctx?: RouteContext) {
+  const parsedParams = paramsSchema.safeParse(await ctx!.params);
+  return parsedParams.success ? parsedParams.data.id : null;
+}
 
 async function checkDocAccess(docId: number, userId: number) {
   const doc = await getDocument(docId);
@@ -21,9 +31,8 @@ async function checkDocAccess(docId: number, userId: number) {
 }
 
 export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
-  const { id } = await ctx!.params;
-  const docId = parseInt(id, 10);
-  if (isNaN(docId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  const docId = await parseId(ctx);
+  if (docId === null) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
   const check = await checkDocAccess(docId, user.userId);
   if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status });
@@ -32,9 +41,8 @@ export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
 });
 
 export const PATCH = withLibraryAccess(async (request, user, ctx?: RouteContext) => {
-  const { id } = await ctx!.params;
-  const docId = parseInt(id, 10);
-  if (isNaN(docId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  const docId = await parseId(ctx);
+  if (docId === null) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
   const check = await checkDocAccess(docId, user.userId);
   if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status });
@@ -70,9 +78,8 @@ export const PATCH = withLibraryAccess(async (request, user, ctx?: RouteContext)
 });
 
 export const DELETE = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
-  const { id } = await ctx!.params;
-  const docId = parseInt(id, 10);
-  if (isNaN(docId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  const docId = await parseId(ctx);
+  if (docId === null) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
   const check = await checkDocAccess(docId, user.userId);
   if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status });
