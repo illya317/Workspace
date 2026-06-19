@@ -206,6 +206,7 @@ Level 1/1.5 额外硬约束：
 Level 2 结构智能层：
 
 - Level 2 不新增平行 hard gate；`npm run arch:gate` 仍是唯一 CI 架构门禁。
+- Level 2 当前由三件套组成：`scripts/arch/level2.ts` 做 AST/pattern scan，`packages/platform/module-registry.ts` 做模块注册锁，`packages/platform/api-registry.ts` 做 API Contract。任何新增检测或 contract 来源必须并入这三个入口或唯一 gate，不得另起旁路。
 - `npm run arch:level2` 生成确定性的结构报告，用于发现 UI pattern 重复、API route contract 覆盖缺口、API route 模板漂移、旧 service 迁移债和 app 层 JSX 存量。
 - API Contract 的单一来源是 `packages/platform/api-registry.ts`，它从 `packages/platform/module-registry.ts` 的 `apiGuards` 和 `apiRoutes` 派生，不允许业务包维护第二套 API 清单。
 - `apiGuards` 表示需要资源权限的 protected API；`apiRoutes` 表示显式 route contract，可标记为 `protected`、`public`、`dev` 或 `disabled`，用于登录/OAuth、开发入口、禁用兼容 API 等非资源权限入口。
@@ -234,6 +235,8 @@ Level 2 任务拆解规则：
 验证: npm run arch:gate; npm run typecheck:quick
 风险: medium
 ```
+
+Feature/Data/Ops agent 的执行细则、baseline 权限和验证矩阵见 `docs/level2-agent-execution.md`。这份文档是任务包落地说明，不改变 `arch:gate` 的单一权威地位。
 
 `app/` 层规则：
 
