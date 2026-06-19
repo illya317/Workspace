@@ -12,18 +12,22 @@ import {
   createBudgetVersion,
   getActiveVersion,
 } from "@workspace/finance/server/budget/budget-version";
+import {
+  budgetQuerySchema,
+  createBudgetImportSchema,
+} from "@workspace/finance/server/budget/schemas";
 
 export const GET = withFinanceBudgetAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
-  const year = parseInt(searchParams.get("year") || "2026");
-  const companyCode = searchParams.get("companyCode") || undefined;
-  const versionIdParam = searchParams.get("versionId");
+  const parsed = budgetQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+  const { year, companyCode } = parsed.data;
 
   let versionId: number | null = null;
 
-  if (versionIdParam) {
+  if (parsed.data.versionId) {
     // 用户明确指定了版本，严格按版本查询
-    versionId = parseInt(versionIdParam);
+    versionId = parsed.data.versionId;
   } else {
     // 未指定版本，查找 active version
     const active = await getActiveVersion(year, companyCode);
@@ -50,20 +54,20 @@ export const GET = withFinanceBudgetAccess(async (request: Request) => {
 });
 
 export const POST = withFinanceBudgetWrite(async (request: Request) => {
-  const { year, companyCode } = await request.json();
-  if (!year || isNaN(parseInt(year))) {
-    return NextResponse.json({ error: "year 为必填" }, { status: 400 });
-  }
+  const body = await request.json().catch(() => null);
+  const parsed = createBudgetImportSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: "year 为必填" }, { status: 400 });
+  const { year, companyCode } = parsed.data;
 
   const version = await createBudgetVersion({
-    year: parseInt(year),
+    year,
     companyCode,
     name: `导入于 ${new Date().toLocaleDateString("zh-CN")}`,
     type: "all",
   });
 
-  const deptCount = await importDeptBudgetToDb(parseInt(year), companyCode, version.id);
-  const rdCount = await importRdBudgetToDb(parseInt(year), companyCode, version.id);
+  const deptCount = await importDeptBudgetToDb(year, companyCode, version.id);
+  const rdCount = await importRdBudgetToDb(year, companyCode, version.id);
 
   return NextResponse.json({ success: true, version, deptCount, rdCount });
 });
