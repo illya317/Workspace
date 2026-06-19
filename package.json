@@ -21,8 +21,9 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
-    "arch:check": "node scripts/check/check-architecture-governance.js && npm run module-nav:check && node scripts/check/check-resource-registry.js && node scripts/check/check-module-page-gates.js && node scripts/check/check-package-boundaries.js && npm run level1:check",
-    "level1:check": "npm run lint:deps && npm run module-check && npm run auth:check",
+    "arch:scan": "tsx scripts/arch/scan.ts",
+    "arch:check": "npm run arch:scan && node scripts/check/check-architecture-governance.js && npm run module-nav:check && node scripts/check/check-resource-registry.js && node scripts/check/check-module-page-gates.js && node scripts/check/check-package-boundaries.js && npm run level1:check",
+    "level1:check": "npm run arch:scan && npm run lint:deps && npm run module-check && npm run auth:check",
     "module-check": "node scripts/check/check-module-definitions.js",
     "auth:check": "node scripts/check/check-authorize-usage.js",
     "module-nav:check": "node scripts/check/check-module-nav-gates.js && node scripts/check/check-module-nav-gates.js --fixtures",
@@ -87,6 +88,8 @@
     "prisma": "^7.8.0",
     "prisma-docs-generator": "^0.8.0",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
+    "tsx": "^4.21.0",
     "typescript": "^5",
     "xlsx": "^0.18.5"
   }

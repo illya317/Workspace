@@ -16,8 +16,9 @@
   - L1 模块资源：`maxRoleKey: "admin"`（业务动作上线后改）
   - 子页面/子功能按需加子资源
 - [ ] 新增的子资源必须设 `parentKey` 指向正确的父资源
-- [ ] `packages/<domain>/module.ts` 导出 `moduleDef` / `resourceDefs` / `routes`
-- [ ] `packages/platform/modules.tsx` 聚合模块注册；`app/lib/module-nav.tsx` 只作为兼容出口
+- [ ] `packages/platform/module-registry.ts` 注册模块，不能只在业务包本地定义
+- [ ] `packages/<domain>/module.ts` 导出来自 registry 的 `moduleDefinition` / `resourceDefs` / `routes`
+- [ ] `packages/platform/modules.tsx` 只消费 registry；`app/lib/module-nav.tsx` 只作为兼容出口
 
 ## 3. 页面
 
@@ -36,7 +37,7 @@
 
 - [ ] `app/api/<domain>/route.ts` — 四件事：认证、参数校验、调 package service、返回 DTO
 - [ ] GET → 至少 `access`；POST/PUT → `write`；DELETE → `delete`
-- [ ] 用 `with*Access` wrapper（`lib/with-auth.ts`）或内联 `authenticate() + checkPermission()`
+- [ ] 权限入口必须使用 `server/auth/authorize.ts` 的 `authorize()`，或委托给已经使用 `authorize()` 的 Platform wrapper
 - [ ] API route 不超过 120 行，超了拆 service
 - [ ] 复杂查询、导入、计算必须在 service 层
 
@@ -57,6 +58,7 @@
 npx tsc --noEmit          # 类型检查
 npm run lint -- --max-warnings=0  # Lint
 npm run build             # 构建
+npm run arch:scan         # Level 1.5 AST 硬扫描
 npm run arch:check        # 架构约束（组件/API/Service 行数红线）
 npm run size:check        # 文件大小检查
 ```

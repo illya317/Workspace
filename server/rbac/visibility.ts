@@ -8,7 +8,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { checkPermissionWithContext } from "./check";
-import type { PermissionContext } from "./context";
+import type { PermissionContext } from "./types";
 
 interface ResNode {
   id: number;

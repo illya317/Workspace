@@ -1,22 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
 import { checkPermission } from "./check";
-
-export interface PermissionContext {
-  userId: number;
-  isAdmin: boolean;
-  positionIds: number[];
-  departmentIds: number[];
-  /** Preloaded grants for fast in-memory checks. Populated on demand. */
-  _grantCache?: GrantCache;
-}
-
-interface GrantCache {
-  /** resourceId → Set<roleKey> */
-  userGrants: Map<number, Set<string>>;
-  positionGrants: Map<number, Set<string>>;
-  departmentGrants: Map<number, Set<string>>;
-}
+import type { PermissionContext } from "./types";
 
 export async function getPermissionContext(userId: number): Promise<PermissionContext> {
   const [positionIds, departmentIds, isAdmin] = await Promise.all([

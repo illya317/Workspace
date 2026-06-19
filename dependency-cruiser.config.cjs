@@ -8,12 +8,15 @@ module.exports = {
       to: { path: "^packages/(platform|administration|finance|hr|library|production|work)" },
     },
     {
-      name: "platform-must-not-import-domain-implementation",
+      name: "no-circular-dependencies",
       severity: "error",
-      from: {
-        path: "^packages/platform",
-        pathNot: "^packages/platform/modules\\.tsx$",
-      },
+      from: {},
+      to: { circular: true },
+    },
+    {
+      name: "platform-must-not-import-domain-packages",
+      severity: "error",
+      from: { path: "^packages/platform" },
       to: { path: "^packages/(administration|finance|hr|library|production|work)" },
     },
     {
@@ -56,7 +59,7 @@ module.exports = {
   options: {
     doNotFollow: { path: "node_modules" },
     exclude: {
-      path: "(^|/)node_modules/|(^|/)\\.next/|(^|/)tmp/",
+      path: "(^|/)node_modules/|(^|/)\\.next/|(^|/)tmp/|(^|/)generated/",
     },
     tsPreCompilationDeps: true,
     tsConfig: {

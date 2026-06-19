@@ -14,10 +14,34 @@ const DOMAIN_PACKAGES = [
 ];
 
 const errors = [];
+const moduleRegistryPath = path.join(ROOT, "packages/platform/module-registry.ts");
 const platformModulesPath = path.join(ROOT, "packages/platform/modules.tsx");
 const platformModules = fs.existsSync(platformModulesPath)
   ? fs.readFileSync(platformModulesPath, "utf8")
   : "";
+const moduleRegistry = fs.existsSync(moduleRegistryPath)
+  ? fs.readFileSync(moduleRegistryPath, "utf8")
+  : "";
+
+if (!moduleRegistry) {
+  errors.push("packages/platform/module-registry.ts is missing");
+} else {
+  if (!/\bregisteredModuleDefinitions\b/.test(moduleRegistry)) {
+    errors.push("packages/platform/module-registry.ts must export registeredModuleDefinitions");
+  }
+  if (!/\bgetRegisteredModuleDefinition\b/.test(moduleRegistry)) {
+    errors.push("packages/platform/module-registry.ts must export getRegisteredModuleDefinition()");
+  }
+}
+
+const moduleKeyCounts = new Map();
+for (const match of moduleRegistry.matchAll(/moduleDef:\s*{[\s\S]*?\bkey:\s*"([^"]+)"/g)) {
+  const key = match[1];
+  moduleKeyCounts.set(key, (moduleKeyCounts.get(key) || 0) + 1);
+}
+for (const [key, count] of moduleKeyCounts.entries()) {
+  if (count > 1) errors.push(`duplicate module key in module-registry.ts: ${key}`);
+}
 
 for (const packageName of DOMAIN_PACKAGES) {
   const packageDir = path.join(ROOT, "packages", packageName);
@@ -33,6 +57,9 @@ for (const packageName of DOMAIN_PACKAGES) {
   const moduleText = fs.readFileSync(modulePath, "utf8");
   if (!/\bexport\s+const\s+moduleDefinition\b/.test(moduleText)) {
     errors.push(`packages/${packageName}/module.ts must export const moduleDefinition`);
+  }
+  if (!moduleText.includes(`getRegisteredModuleDefinition("@workspace/${packageName}")`)) {
+    errors.push(`packages/${packageName}/module.ts must get moduleDefinition from packages/platform/module-registry.ts`);
   }
 
   if (!fs.existsSync(indexPath) || !/\bmoduleDefinition\b/.test(fs.readFileSync(indexPath, "utf8"))) {
@@ -51,8 +78,12 @@ for (const packageName of DOMAIN_PACKAGES) {
     }
   }
 
-  if (!platformModules.includes(`@workspace/${packageName}`)) {
-    errors.push(`@workspace/${packageName} must be registered in packages/platform/modules.tsx`);
+  if (!moduleRegistry.includes(`packageName: "@workspace/${packageName}"`)) {
+    errors.push(`@workspace/${packageName} must be registered in packages/platform/module-registry.ts`);
+  }
+
+  if (platformModules.includes(`@workspace/${packageName}`)) {
+    errors.push(`packages/platform/modules.tsx must not import @workspace/${packageName}; use module-registry.ts only`);
   }
 }
 

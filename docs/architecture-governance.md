@@ -114,6 +114,8 @@ Level 1 起，权限入口统一为 `server/auth/authorize.ts` 的 `authorize()`
 - 新增 API route 必须有认证/授权 gate、明确代理到兼容 route、显式转调 package service，或是文档化的 public/disabled handler。
 - 新增 API route 不得新增裸 `checkPermission()` 或裸 `prisma.`。当前历史债由 `scripts/check/level1-api-baseline.json` 锁定，只能减少，不能新增。
 
+Level 1.5 额外执行 `npm run arch:scan`。这个扫描不是 advisory：命中即 `exit 1`。它会阻断 `checkPermission`、`hasAccess`、`canAccess`、`roleCheck`、`rbacCheck` 等替代权限入口，阻断 `if (user.role)` 一类角色分支，阻断 `authorize()`/RBAC service 外新增 RBAC 表直查，并阻断业务包通过 `@/server/*` 或相对路径绕过边界。已有历史债只允许出现在 `scripts/arch/level15-baseline.json`，迁移删除文件时必须同时删 baseline 项；新增违规不能把 baseline 当白名单扩写。
+
 权限动作：
 
 | HTTP 方法 | 权限动作 |
@@ -173,17 +175,24 @@ app/* route shell
 - 业务包需要写审计快照时应通过 `@workspace/platform/server/history`，不要直接 import app-root `@/lib/history`。
 - 业务包需要解析 FK 快照展示名时应通过 `@workspace/platform/server/resolve-fk`，不要直接 import app-root `@/lib/resolve-fk`。
 - API route 只做认证、权限、参数校验、调用 service、返回 DTO；复杂业务逻辑必须进入领域 service 或业务包。
-- `app/lib/module-nav.tsx` 只是兼容出口，模块真实注册来源是 `packages/platform/modules.tsx` 和各业务包。
+- `app/lib/module-nav.tsx` 只是兼容出口，模块真实注册来源是 `packages/platform/module-registry.ts`。`packages/platform/modules.tsx` 只消费 registry 并生成运行时聚合，不直接 import domain 包。
 - 模块注册的 `href` 和 `routes` 只写不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止把 `@workspace/*` package 名或 `/workspace` basePath 写入 URL。
 
 这些规则由 `npm run arch:check` 中的 module registry、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
 
-Level 1 额外硬约束：
+Level 1/1.5 额外硬约束：
 
-- `npm run lint:deps` 使用 `dependency-cruiser.config.cjs` 检查包级 DAG。`packages/platform/modules.tsx` 是业务包注册聚合点的唯一例外；Platform 其他文件禁止 import 业务包实现。
-- `npm run module-check` 要求每个业务包导出 `moduleDefinition`，并在 `packages/platform/modules.tsx` 注册。
+- `npm run arch:scan` 使用 TypeScript AST 做硬扫描，阻断 UI 库 import、app 层新增 UI、权限绕过、RBAC 表直查、业务包 server alias 绕过和跨业务包 import。
+- `npm run lint:deps` 使用 `dependency-cruiser.config.cjs` 检查包级 DAG 和循环依赖。Core 不能 import Platform/Apps，Platform 不能 import domain package，domain package 不能互相 import，生成目录不参与依赖图。
+- `npm run module-check` 要求每个业务包通过 `packages/platform/module-registry.ts` 注册并导出来自 registry 的 `moduleDefinition`；未注册、重复 key、从业务包反向聚合到 Platform 都会失败。
 - ESLint 禁止 `antd`、`@mui/*`、`react-bootstrap` 等 UI 库 import。需要新基础 UI 时先补 `packages/core/ui`。
 - 业务包之间禁止直接互相 import；跨模块能力必须进入 Platform service/registry，或通过明确稳定的 package contract 暴露。
+
+`app/` 层规则：
+
+- `app/<route>/page.tsx`、`layout.tsx` 等只做认证、预取和挂载 package component，不写业务渲染、筛选、表格、表单或弹窗。
+- `app/api/*/route.ts` 只做认证、权限、参数校验、调用 package service、返回 DTO。
+- `app/components`、`app/hooks` 和旧 `lib` 只能作为兼容 re-export 或少量 Next 必须入口。新增真实实现必须进入 Core、Platform 或 domain package。
 
 ## 9. Agent 交付要求
 

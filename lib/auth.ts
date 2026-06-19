@@ -69,7 +69,7 @@ export {
 
 // RBAC permission context
 export { getPermissionContext } from "@/server/rbac/context";
-export type { PermissionContext } from "@/server/rbac/context";
+export type { PermissionContext } from "@/server/rbac/types";
 
 // RBAC core checks
 export {

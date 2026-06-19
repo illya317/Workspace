@@ -98,7 +98,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 
 1. 在 `lib/permissions.ts` 或后续 Platform 资源入口注册资源 key，动作只用 `access / write / delete / admin`。
 2. 在 seed 中注册资源树，设置 `parentId / maxRoleKey / sortOrder`。
-3. 在 `packages/<domain>/module.ts` 导出模块注册信息，并由 `packages/platform/modules.tsx` 聚合。
+3. 在 `packages/platform/module-registry.ts` 注册模块，并让 `packages/<domain>/module.ts` 导出 registry 中的 `moduleDefinition`。
 4. 创建 `app/<domain>/ARCHITECTURE.md`，写清楚数据来源、事实字段、计算字段、权限、页面。
 5. 如需新表，创建 `prisma/models/<domain>.prisma`，同步 migration/seed，并更新数据库文档。
 6. 在 `packages/<domain>/server/` 写业务逻辑；`server/services/<domain>/` 只用于尚未迁移的存量代码。API route 只做认证、权限、参数校验、调用 service、返回 DTO。
@@ -113,7 +113,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 | 步骤 | 内容 |
 |------|------|
 | 1. RBAC | `lib/permissions.ts` + seed 注册资源树 |
-| 2. 导航 | `packages/<domain>/module.ts` 注册，`packages/platform/modules.tsx` 聚合，配 `resourceKey` |
+| 2. 导航 | `packages/platform/module-registry.ts` 注册，`packages/<domain>/module.ts` 导出 `moduleDefinition`，配 `resourceKey` |
 | 3. 数据库 | `prisma/models/<domain>.prisma` + migration + seed |
 | 4. 页面 | facade server component + 子目录 `layout.tsx` 路由门禁 |
 | 5. API | 认证 -> 权限 -> 参数校验 -> 调 package service -> 返回 DTO |

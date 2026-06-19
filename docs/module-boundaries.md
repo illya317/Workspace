@@ -37,7 +37,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/core/routing` 已接收 Workspace base path 拼接 helper，app 旧路径仅作兼容 re-export。
 - `packages/core/search` 已接收通用拼音首字母、全拼和文本匹配 helper；员工语义匹配仍留在 HR/兼容层。
 - `packages/production/types` 已接收生产 QC 模板、布局、批次和模板反馈领域类型。
-- `packages/platform/modules.tsx` 聚合平台模块和业务模块；业务模块注册本身由各 domain package 的 `module.ts` 暴露，例如 Work、Administration、Library。
+- `packages/platform/module-registry.ts` 是模块注册锁。`registeredModuleDefinitions` 是唯一有效注册源；`packages/platform/modules.tsx` 只消费 registry 并导出运行时聚合，不直接 import domain package。
 - `packages/platform/module-nav.tsx` 生成 `MODULES`、`getAccessibleModules`、`getSubModules`。
 - `packages/platform/resources.ts` 从各 package `resourceDefs` 派生 `RESOURCE_DEFS`、`RESOURCE_KEYS` 和 `RESOURCE_MAX_ROLE`，`lib/permissions.ts` 与 `scripts/seed-resources.ts` 复用这个出口。
 - `packages/platform/module-lifecycle.ts` 从模块注册的 `lifecycleStatus` 派生资源生命周期提示；`app/lib/module-lifecycle.ts` 保留兼容 re-export。
@@ -53,7 +53,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/platform/ui` 已接收登录后的 Portal、L1 模块首页、AppShell、跨页 NavLink、用户菜单、设置页和审计日志 UI；AppShell 必须复用 Core `PageShell`。`app/portal/PortalClient.tsx` 与 `app/components/{AppShell,AuditLogEntry,AuditLogModal,ModuleHome,NavLink,UserMenu}.tsx` 保留兼容 re-export。
 - `packages/administration` 已接收合同台账的 module、UI、server、types，`app/contracts/page.tsx` 和 `app/api/contracts/*` 只保留 Next 壳。
 - `packages/library` 已接收资料库 module、UI、server、types，`app/library/page.tsx` 和 `app/api/library/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。
-- 每个业务包的 `module.ts` 必须导出 `moduleDefinition`，同时保留领域兼容别名（例如 `financePackage`）。`npm run module-check` 会校验业务包导出和 `packages/platform/modules.tsx` 注册。
+- 每个业务包的 `module.ts` 必须导出 `moduleDefinition`，同时保留领域兼容别名（例如 `financePackage`）。`moduleDefinition` 必须来自 `packages/platform/module-registry.ts` 的 `getRegisteredModuleDefinition("@workspace/<domain>")`；`npm run module-check` 会校验业务包导出、registry 注册和重复 module key。
 - `packages/platform/ui/docs` 已接收文档中心和接入指南 UI；`app/docs/*` 与 `app/api-guide/page.tsx` 只保留鉴权/参数/挂载壳。
 - `app/lib/module-nav.tsx` 是兼容出口，现有页面暂时继续从这里导入。
 - `app/components/ConfirmModal.tsx`、`ConfirmProvider.tsx`、`DetailModal.tsx`、`FilterBar.tsx`、`FilterToolbar.tsx`、`Toast.tsx`、`SelectField.tsx`、`StatusBadge.tsx`、`StatusToggle.tsx`、`NumberCell.tsx`、`AmountCell.tsx`、`ColumnToggle.tsx`、`TabBar.tsx`、`DataTable.tsx`、`FilterField.tsx`、`EditToolbar.tsx` 和 `app/hooks/useToast.ts` 已降级为兼容 re-export。
@@ -98,14 +98,21 @@ app/* route shell
   -> platform contracts only when needed
 ```
 
-`npm run arch:check` 会执行模块入口、资源注册、package 边界和 Level 1 检查，防止 Core 反向依赖平台或业务包，防止业务包之间直接互相引用，也防止 `packages/*` 反向 import `app/*` 路由壳或 app-root `lib/server/generated` runtime alias。它还会检查疑似重复基础组件文件名是否基于 Core/Platform 基建；新增例外必须写入脚本 allowlist。
+`npm run arch:check` 会先执行 Level 1.5 AST 扫描，再执行模块入口、资源注册、package 边界和 Level 1 检查，防止 Core 反向依赖平台或业务包，防止 Platform 直接 import 业务包实现，防止业务包之间直接互相引用，也防止 `packages/*` 反向 import `app/*` 路由壳或 app-root `lib/server/generated` runtime alias。它还会检查疑似重复基础组件文件名是否基于 Core/Platform 基建；新增例外必须写入脚本 allowlist。
 
-Level 1 单独命令：
+Level 1/1.5 单独命令：
 
-- `npm run lint:deps`：dependency-cruiser DAG。`packages/platform/modules.tsx` 是平台聚合业务包注册的唯一例外。
-- `npm run module-check`：业务包必须导出 `moduleDefinition` 并注册到 Platform。
+- `npm run arch:scan`：AST 硬扫描。新增 UI 库 import、新增 app 层 UI、替代权限函数、`if (user.role)`、新增 RBAC 表直查、业务包 `@/server/*` alias 绕过、跨业务包 import 都会 `exit 1`。历史债由 `scripts/arch/level15-baseline.json` 锁定，只能减少。
+- `npm run lint:deps`：dependency-cruiser DAG 和循环依赖检查。Core 不能 import Platform/Apps，Platform 不能 import domain package，domain package 不能互相 import。
+- `npm run module-check`：业务包必须导出来自 `packages/platform/module-registry.ts` 的 `moduleDefinition`，registry 里不能缺失或重复 module key。
 - `npm run auth:check`：`authorize()` 必须存在，核心 auth helper 必须委托它；新增 API 不得新增裸 `checkPermission()` 或裸 Prisma。历史 route 债务由 `scripts/check/level1-api-baseline.json` 锁定，只能减少不能增加。
-- `npm run level1:check`：汇总以上三项，CI 和 `arch:check` 都会执行。
+- `npm run level1:check`：汇总 `arch:scan`、依赖图、模块锁、package 边界和 auth/API 检查，CI 和 `arch:check` 都会执行。
+
+`app/` 层是 routing only：
+
+- 页面 route 可以做鉴权、必要预取和挂载 package component。
+- API route 可以做认证、权限、参数校验、调用 package service 和返回 DTO。
+- 新增 UI layout、filter、modal、form、table、toolbar、business rendering 都必须进入 `packages/platform/ui` 或对应 `packages/<domain>/ui`；旧 app UI 文件只作为 baseline 债务迁移，不能作为新增范式。
 
 ## 后续拆分顺序
 

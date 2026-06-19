@@ -4,7 +4,7 @@ import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
 import { getResourceAncestors } from "./resource";
 import { isRoleAllowedForResource } from "./maxRole";
 import { isSystemAdminBypassEnabled } from "./bypass";
-import type { PermissionContext } from "./context";
+import type { PermissionContext } from "./types";
 
 function resolveRoleKeys(roleKey: string): string[] {
   const normalized = normalizeRoleKey(roleKey);
