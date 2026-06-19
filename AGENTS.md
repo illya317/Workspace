@@ -19,6 +19,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **并行协作提醒**: 原 Project / EmployeeProject 已定向剥离到 Work 业务包，相关边界见 `docs/agent-coordination-work-split.md`；其他 agent 不要继续在 HR 中新增 Project / EmployeeProject 能力，也不要新增 `packages/project`。
 - **核心原则**: DB 存事实，Service 算结果，API 返回 DTO，UI 展示结果，文档解释边界，CI 拦住越界。
 - **Level 1/1.5 硬门禁**: `npm run arch:gate` 是唯一架构入口，会串行执行 AST 扫描、dependency-cruiser DAG、`moduleDefinition` 注册校验、`authorize()`/API 结构校验和包边界检查，任一失败立即退出。新增代码绕过 Core UI、跨业务包 import、缺模块注册、API 新增裸 `checkPermission` 或裸 Prisma，都会失败。Level 1.5 的历史债由 `scripts/arch/level15-baseline.json` 锁定，只能随迁移减少，不能新增。
+- **Level 2 结构智能**: `npm run arch:level2` 输出只读结构报告，覆盖 UI pattern 重复、API Contract 覆盖、旧 service 迁移债和 app 层 JSX 存量。它不替代 `arch:gate`，也不单独进入 CI hard gate；需要升级成硬约束时必须并入单一 `arch:gate`。
 - **部署**: 本地不直连服务器部署；生产发布必须先 commit/push 到 CNB，再用 CNB API/CLI 触发 `api_trigger`。细节见 `docs/ops/deploy.md`。
 
 ## QC 开发模式字段速记

@@ -21,6 +21,7 @@
     "test:e2e:ui": "playwright test --ui",
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
     "arch:gate": "tsx scripts/arch/gate.ts",
+    "arch:level2": "tsx scripts/arch/level2.ts",
     "orchestrator:route": "tsx orchestrator/router.ts",
     "orchestrator:check": "tsx scripts/orchestrator-check.ts",
     "db:check": "node scripts/check/check-db.js",

@@ -1,0 +1,410 @@
+import fs from "node:fs";
+import path from "node:path";
+import ts from "typescript";
+
+import { apiContracts, findApiContract, type ApiMethod } from "../../packages/platform/api-registry";
+import { registeredModuleDefinitions } from "../../packages/platform/module-registry";
+
+type ImportRecord = {
+  kind: "static" | "dynamic";
+  specifier: string;
+};
+
+type SourceInfo = {
+  absPath: string;
+  relPath: string;
+  text: string;
+  sourceFile: ts.SourceFile;
+  imports: ImportRecord[];
+  hasJsx: boolean;
+};
+
+type UiPatternCandidate = {
+  file: string;
+  packageName: string;
+  layer: "core" | "platform" | "domain" | "unknown";
+  patterns: string[];
+  importsCoreUi: boolean;
+  importsPlatformUi: boolean;
+};
+
+type ApiRouteMethod = {
+  file: string;
+  path: string;
+  method: ApiMethod;
+  contractKey: string | null;
+  ownerPackage: string | null;
+  resourceKey: string | null;
+  action: string | null;
+  hasAuthorizeSignal: boolean;
+  hasValidationSignal: boolean;
+  hasServiceSignal: boolean;
+  hasDirectPrismaSignal: boolean;
+};
+
+type Level2Report = {
+  level: "2";
+  mode: "structure-intelligence";
+  generatedAt: string;
+  summary: {
+    filesScanned: number;
+    moduleDefinitions: number;
+    apiContracts: number;
+    apiRouteMethods: number;
+    uncontractedApiRouteMethods: number;
+    uiPatternCandidates: number;
+    uiPatternCandidatesWithoutCore: number;
+    legacyServiceFiles: number;
+  };
+  registries: {
+    modules: Array<{
+      packageName: string;
+      layer: string;
+      moduleKey: string | null;
+      routeCount: number;
+      apiGuardCount: number;
+    }>;
+    apiContractsByOwner: Record<string, number>;
+  };
+  patterns: {
+    uiPatternCandidates: UiPatternCandidate[];
+    apiRouteMethods: ApiRouteMethod[];
+  };
+  drift: {
+    appJsxFiles: string[];
+    uncontractedApiRouteMethods: ApiRouteMethod[];
+    apiRoutesWithDirectPrismaSignal: ApiRouteMethod[];
+    legacyServiceFiles: string[];
+    domainUiCandidatesWithoutCore: UiPatternCandidate[];
+  };
+};
+
+const ROOT = path.resolve(__dirname, "../..");
+const HTTP_METHODS: ApiMethod[] = ["GET", "POST", "PUT", "PATCH", "DELETE"];
+const HTTP_METHOD_SET = new Set<string>(HTTP_METHODS);
+const SCAN_ROOTS = ["app", "packages", "server", "lib"];
+const SKIPPED_DIRS = new Set([
+  ".git",
+  ".next",
+  ".turbo",
+  "coverage",
+  "generated",
+  "node_modules",
+  "out",
+  "tmp",
+]);
+const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
+  { name: "table", regex: /table/i },
+  { name: "filter", regex: /filter/i },
+  { name: "modal", regex: /modal|dialog/i },
+  { name: "form", regex: /form/i },
+  { name: "toolbar", regex: /toolbar/i },
+  { name: "shell", regex: /shell/i },
+  { name: "select", regex: /select|dropdown|picker|combobox/i },
+  { name: "search", regex: /search/i },
+  { name: "pagination", regex: /pagination|pager/i },
+  { name: "tabs", regex: /tabs?|tabbar/i },
+  { name: "date", regex: /date(input|picker|field)|calendar/i },
+];
+
+function toRelative(filePath: string) {
+  return path.relative(ROOT, filePath).replace(/\\/g, "/");
+}
+
+function walk(dir: string, files: string[] = []) {
+  if (!fs.existsSync(dir)) return files;
+
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith(".") || SKIPPED_DIRS.has(entry.name)) continue;
+    const fullPath = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      walk(fullPath, files);
+      continue;
+    }
+
+    if (/\.(ts|tsx)$/.test(entry.name)) {
+      files.push(fullPath);
+    }
+  }
+
+  return files;
+}
+
+function hasJsx(sourceFile: ts.SourceFile) {
+  let found = false;
+  const visit = (node: ts.Node) => {
+    if (
+      ts.isJsxElement(node) ||
+      ts.isJsxSelfClosingElement(node) ||
+      ts.isJsxFragment(node)
+    ) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+function collectImports(sourceFile: ts.SourceFile) {
+  const imports: ImportRecord[] = [];
+
+  const visit = (node: ts.Node) => {
+    if (
+      (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
+      node.moduleSpecifier &&
+      ts.isStringLiteral(node.moduleSpecifier)
+    ) {
+      imports.push({ kind: "static", specifier: node.moduleSpecifier.text });
+    }
+
+    if (
+      ts.isCallExpression(node) &&
+      node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+      node.arguments[0] &&
+      ts.isStringLiteralLike(node.arguments[0])
+    ) {
+      imports.push({ kind: "dynamic", specifier: node.arguments[0].text });
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return imports.sort((left, right) => left.specifier.localeCompare(right.specifier));
+}
+
+function readSourceInfo(absPath: string): SourceInfo {
+  const text = fs.readFileSync(absPath, "utf8");
+  const sourceFile = ts.createSourceFile(
+    absPath,
+    text,
+    ts.ScriptTarget.Latest,
+    true,
+    absPath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+  );
+  return {
+    absPath,
+    relPath: toRelative(absPath),
+    text,
+    sourceFile,
+    imports: collectImports(sourceFile),
+    hasJsx: hasJsx(sourceFile),
+  };
+}
+
+function getPackageName(relPath: string) {
+  const parts = relPath.split("/");
+  return parts[0] === "packages" && parts[1] ? parts[1] : "app-root";
+}
+
+function getLayer(packageName: string): UiPatternCandidate["layer"] {
+  if (packageName === "core") return "core";
+  if (packageName === "platform") return "platform";
+  if (packageName === "app-root") return "unknown";
+  return "domain";
+}
+
+function importsCoreUi(imports: ImportRecord[]) {
+  return imports.some((item) => item.specifier === "@workspace/core" || item.specifier.startsWith("@workspace/core/"));
+}
+
+function importsPlatformUi(imports: ImportRecord[]) {
+  return imports.some((item) => item.specifier === "@workspace/platform" || item.specifier.startsWith("@workspace/platform/"));
+}
+
+function findUiPatternCandidates(files: SourceInfo[]) {
+  const candidates: UiPatternCandidate[] = [];
+
+  for (const file of files) {
+    if (!file.relPath.startsWith("packages/") || !file.relPath.endsWith(".tsx")) continue;
+    if (file.relPath.startsWith("packages/core/ui/")) continue;
+
+    const name = path.basename(file.relPath, path.extname(file.relPath));
+    const patterns = UI_PATTERN_RULES
+      .filter((rule) => rule.regex.test(name))
+      .map((rule) => rule.name)
+      .sort();
+
+    if (patterns.length === 0) continue;
+
+    const packageName = getPackageName(file.relPath);
+    candidates.push({
+      file: file.relPath,
+      packageName,
+      layer: getLayer(packageName),
+      patterns,
+      importsCoreUi: importsCoreUi(file.imports),
+      importsPlatformUi: importsPlatformUi(file.imports),
+    });
+  }
+
+  return candidates.sort((left, right) => left.file.localeCompare(right.file));
+}
+
+function hasExportModifier(node: ts.Node) {
+  const modifiers = ts.canHaveModifiers(node) ? ts.getModifiers(node) : undefined;
+  return Boolean(modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword));
+}
+
+function isApiMethod(value: string): value is ApiMethod {
+  return HTTP_METHOD_SET.has(value);
+}
+
+function getExportedHttpMethods(sourceFile: ts.SourceFile) {
+  const methods = new Set<ApiMethod>();
+
+  const visit = (node: ts.Node) => {
+    if (ts.isFunctionDeclaration(node) && node.name && hasExportModifier(node) && isApiMethod(node.name.text)) {
+      methods.add(node.name.text);
+    }
+
+    if (ts.isVariableStatement(node) && hasExportModifier(node)) {
+      for (const declaration of node.declarationList.declarations) {
+        if (ts.isIdentifier(declaration.name) && isApiMethod(declaration.name.text)) {
+          methods.add(declaration.name.text);
+        }
+      }
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return [...methods].sort((left, right) => HTTP_METHODS.indexOf(left) - HTTP_METHODS.indexOf(right));
+}
+
+function routePathFromFile(relPath: string) {
+  return relPath
+    .replace(/^app\/api/, "/api")
+    .replace(/\/route\.ts$/, "")
+    .replace(/\/\[\.\.\.[^\]]+\]/g, "/:catchall")
+    .replace(/\/\[[^\]]+\]/g, "/:param");
+}
+
+function hasServiceSignal(file: SourceInfo) {
+  return file.imports.some((item) => {
+    if (item.specifier.startsWith("@/server/services")) return true;
+    if (item.specifier.startsWith("@workspace/") && item.specifier.includes("/server")) return true;
+    return item.specifier.startsWith("./") || item.specifier.startsWith("../");
+  });
+}
+
+function findApiRouteMethods(files: SourceInfo[]) {
+  const routeMethods: ApiRouteMethod[] = [];
+
+  for (const file of files) {
+    if (!/^app\/api\/.*\/route\.ts$/.test(file.relPath)) continue;
+
+    const apiPath = routePathFromFile(file.relPath);
+    for (const method of getExportedHttpMethods(file.sourceFile)) {
+      const contract = findApiContract(method, apiPath);
+      routeMethods.push({
+        file: file.relPath,
+        path: apiPath,
+        method,
+        contractKey: contract?.key ?? null,
+        ownerPackage: contract?.ownerPackage ?? null,
+        resourceKey: contract?.resourceKey ?? null,
+        action: contract?.action ?? null,
+        hasAuthorizeSignal: /\bauthorize\s*\(/.test(file.text),
+        hasValidationSignal: /\b(safeParse|parse)\s*\(|\bz\s*\./.test(file.text),
+        hasServiceSignal: hasServiceSignal(file),
+        hasDirectPrismaSignal: /\bprisma\s*\./.test(file.text),
+      });
+    }
+  }
+
+  return routeMethods.sort((left, right) => `${left.path}:${left.method}`.localeCompare(`${right.path}:${right.method}`));
+}
+
+function countByOwner() {
+  const result: Record<string, number> = {};
+  for (const contract of apiContracts) {
+    result[contract.ownerPackage] = (result[contract.ownerPackage] ?? 0) + 1;
+  }
+  return Object.fromEntries(Object.entries(result).sort(([left], [right]) => left.localeCompare(right)));
+}
+
+function findAppJsxFiles(files: SourceInfo[]) {
+  return files
+    .filter((file) => file.relPath.startsWith("app/"))
+    .filter((file) => !file.relPath.startsWith("app/api/"))
+    .filter((file) => file.relPath.endsWith(".tsx"))
+    .filter((file) => file.hasJsx)
+    .map((file) => file.relPath)
+    .sort();
+}
+
+function findLegacyServiceFiles(files: SourceInfo[]) {
+  return files
+    .filter((file) => file.relPath.startsWith("server/services/"))
+    .map((file) => file.relPath)
+    .sort();
+}
+
+export function createLevel2Report(): Level2Report {
+  const sourceFiles = SCAN_ROOTS
+    .flatMap((rootName) => walk(path.join(ROOT, rootName)))
+    .sort()
+    .map(readSourceInfo);
+
+  const uiPatternCandidates = findUiPatternCandidates(sourceFiles);
+  const apiRouteMethods = findApiRouteMethods(sourceFiles);
+  const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
+  const domainUiCandidatesWithoutCore = uiPatternCandidates
+    .filter((candidate) => candidate.layer === "domain")
+    .filter((candidate) => !candidate.importsCoreUi);
+  const legacyServiceFiles = findLegacyServiceFiles(sourceFiles);
+
+  return {
+    level: "2",
+    mode: "structure-intelligence",
+    generatedAt: new Date(0).toISOString(),
+    summary: {
+      filesScanned: sourceFiles.length,
+      moduleDefinitions: registeredModuleDefinitions.length,
+      apiContracts: apiContracts.length,
+      apiRouteMethods: apiRouteMethods.length,
+      uncontractedApiRouteMethods: uncontractedApiRouteMethods.length,
+      uiPatternCandidates: uiPatternCandidates.length,
+      uiPatternCandidatesWithoutCore: domainUiCandidatesWithoutCore.length,
+      legacyServiceFiles: legacyServiceFiles.length,
+    },
+    registries: {
+      modules: registeredModuleDefinitions
+        .map((definition) => ({
+          packageName: definition.packageName,
+          layer: definition.layer,
+          moduleKey: definition.moduleDef?.key ?? null,
+          routeCount: definition.routes?.length ?? 0,
+          apiGuardCount: definition.apiGuards?.length ?? 0,
+        }))
+        .sort((left, right) => left.packageName.localeCompare(right.packageName)),
+      apiContractsByOwner: countByOwner(),
+    },
+    patterns: {
+      uiPatternCandidates,
+      apiRouteMethods,
+    },
+    drift: {
+      appJsxFiles: findAppJsxFiles(sourceFiles),
+      uncontractedApiRouteMethods,
+      apiRoutesWithDirectPrismaSignal: apiRouteMethods.filter((route) => route.hasDirectPrismaSignal),
+      legacyServiceFiles,
+      domainUiCandidatesWithoutCore,
+    },
+  };
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  try {
+    console.log(JSON.stringify(createLevel2Report(), null, 2));
+  } catch (error) {
+    console.error("Level 2 structure intelligence report failed.");
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+}

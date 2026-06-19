@@ -189,6 +189,14 @@ Level 1/1.5 额外硬约束：
 - ESLint 禁止 `antd`、`@mui/*`、`react-bootstrap` 等 UI 库 import。需要新基础 UI 时先补 `packages/core/ui`。
 - 业务包之间禁止直接互相 import；跨模块能力必须进入 Platform service/registry，或通过明确稳定的 package contract 暴露。
 
+Level 2 结构智能层：
+
+- Level 2 不新增平行 hard gate；`npm run arch:gate` 仍是唯一 CI 架构门禁。
+- `npm run arch:level2` 生成确定性的结构报告，用于发现 UI pattern 重复、API route contract 覆盖缺口、旧 service 迁移债和 app 层 JSX 存量。
+- API Contract 的单一来源是 `packages/platform/api-registry.ts`，它从 `packages/platform/module-registry.ts` 的 `apiGuards` 派生，不允许业务包维护第二套 API 权限清单。
+- Level 2 报告只读、不自动修复、不直接失败 CI。把某个发现升级为硬约束前，必须先进入 `scripts/arch/gate.ts` 所属的单 gate 系统，禁止在 CI 里新增旁路检查。
+- Feature/Data/Ops agent 使用 Level 2 报告拆迁移任务时，只能改对应业务文件；Architecture agent 才能修改 `scripts/arch/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts` 和相关治理文档。
+
 `app/` 层规则：
 
 - `app/<route>/page.tsx`、`layout.tsx` 等只做认证、预取和挂载 package component，不写业务渲染、筛选、表格、表单或弹窗。

@@ -1,3 +1,15 @@
+export {
+  apiContracts,
+  assertApiContractRegistered,
+  findApiContract,
+  getApiContracts,
+} from "./api-registry";
+export type {
+  ApiAction,
+  ApiContract,
+  ApiContractSource,
+  ApiMethod,
+} from "./api-registry";
 export { workspacePackages } from "./modules";
 export {
   getResourceDef,
