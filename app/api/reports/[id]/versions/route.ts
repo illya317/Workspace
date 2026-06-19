@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { authenticate } from "@/lib/auth";
+import { z } from "zod";
+import { authenticate } from "@workspace/platform/server/auth";
+import { getReportAccessMetadata, listReportHistory } from "@workspace/work/server";
+
+const paramsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
 
 export async function GET(
   request: Request,
@@ -11,24 +16,20 @@ export async function GET(
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const { id } = await params;
-  const reportId = parseInt(id);
+  const parsedParams = paramsSchema.safeParse(await params);
+  if (!parsedParams.success) {
+    return NextResponse.json({ error: "报告 ID 无效" }, { status: 400 });
+  }
 
-  const report = await prisma.report.findUnique({
-    where: { id: reportId },
-    select: { userId: true },
-  });
-
+  const reportId = parsedParams.data.id;
+  const report = await getReportAccessMetadata(reportId);
   const canAccess = report && report.userId === payload.userId;
 
   if (!canAccess) {
     return NextResponse.json({ error: "无权访问" }, { status: 403 });
   }
 
-  const history = await prisma.reportHistory.findMany({
-    where: { reportId },
-    orderBy: { version: "desc" },
-  });
+  const history = await listReportHistory(reportId);
 
   return NextResponse.json({ history });
 }

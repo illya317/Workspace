@@ -1,6 +1,12 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { authenticate } from "@/lib/auth";
+import { z } from "zod";
+import { authenticate } from "@workspace/platform/server/auth";
+import { getReportAccessMetadata, getReportVersion } from "@workspace/work/server";
+
+const paramsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+  version: z.coerce.number().int().min(0),
+});
 
 export async function GET(
   request: Request,
@@ -11,69 +17,23 @@ export async function GET(
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const { id, version } = await params;
-  const reportId = parseInt(id);
-  const versionNum = parseInt(version);
+  const parsedParams = paramsSchema.safeParse(await params);
+  if (!parsedParams.success) {
+    return NextResponse.json({ error: "报告版本参数无效" }, { status: 400 });
+  }
 
-  const report = await prisma.report.findUnique({
-    where: { id: reportId },
-    select: { userId: true },
-  });
-
+  const { id: reportId, version: versionNum } = parsedParams.data;
+  const report = await getReportAccessMetadata(reportId);
   const canAccess = report && report.userId === payload.userId;
 
   if (!canAccess) {
     return NextResponse.json({ error: "无权访问" }, { status: 403 });
   }
 
-  if (versionNum === 0) {
-    const current = await prisma.report.findUnique({
-      where: { id: reportId },
-      include: {
-        items: {
-          orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
-        },
-        user: {
-          select: { name: true },
-        },
-      },
-    });
-    return NextResponse.json({ report: current });
-  }
-
-  const snapshot = await prisma.reportHistory.findUnique({
-    where: {
-      reportId_version: {
-        reportId,
-        version: versionNum,
-      },
-    },
-  });
-
-  if (!snapshot) {
+  const versionedReport = await getReportVersion(reportId, versionNum);
+  if (!versionedReport) {
     return NextResponse.json({ error: "版本不存在" }, { status: 404 });
   }
 
-  const items = JSON.parse(snapshot.itemsJson) as Array<{
-    category: string;
-    plan: string;
-    completion?: string;
-    nextGoal?: string;
-    sortOrder: number;
-  }>;
-
-  return NextResponse.json({
-    report: {
-      id: reportId,
-      taskName: snapshot.taskName,
-      notes: snapshot.notes,
-      version: snapshot.version,
-      createdAt: snapshot.createdAt,
-      items: items.map((i) => ({
-        ...i,
-        completion: i.completion || "",
-        nextGoal: i.nextGoal || "",
-      })),
-    },
-  });
+  return NextResponse.json({ report: versionedReport });
 }

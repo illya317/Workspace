@@ -1,12 +1,6 @@
 {
   "uncontractedApiRouteMethods": [],
-  "apiRouteMethodsWithDirectPrismaSignal": [
-    "DELETE /api/works/:param",
-    "GET /api/reports/:param/versions",
-    "GET /api/reports/:param/versions/:param",
-    "PUT /api/reports/:param",
-    "PUT /api/works/:param"
-  ],
+  "apiRouteMethodsWithDirectPrismaSignal": [],
   "apiRouteMethodsWithoutValidationSignal": [
     "DELETE /api/admin/company-codes",
     "DELETE /api/admin/company-codes/:param",
@@ -39,7 +33,6 @@
     "DELETE /api/projects/:param",
     "DELETE /api/work/plan-members/:param",
     "DELETE /api/work/plans/:param",
-    "DELETE /api/works/:param",
     "PATCH /api/library/documents/:param",
     "PATCH /api/library/due-diligence/:param",
     "PATCH /api/library/due-diligence/:param/questions/:param/materials",
@@ -118,18 +111,10 @@
     "PUT /api/positions",
     "PUT /api/positions/:param",
     "PUT /api/projects/:param",
-    "PUT /api/reports/:param",
     "PUT /api/work/plan-members/:param",
-    "PUT /api/work/plans/:param",
-    "PUT /api/works/:param"
+    "PUT /api/work/plans/:param"
   ],
-  "apiRouteMethodsWithoutServiceSignal": [
-    "DELETE /api/works/:param",
-    "GET /api/reports/:param/versions",
-    "GET /api/reports/:param/versions/:param",
-    "PUT /api/reports/:param",
-    "PUT /api/works/:param"
-  ],
+  "apiRouteMethodsWithoutServiceSignal": [],
   "appHookImplementationFiles": [],
   "domainUiCandidatesWithoutCore": [],
   "legacyServiceFiles": [],

@@ -1,4 +1,4 @@
-import { prisma } from "@workspace/platform/server/prisma";
+import { Prisma, prisma } from "@workspace/platform/server/prisma";
 
 export function parseParticipants(input?: string): string[] {
   if (!input) return [];
@@ -54,4 +54,53 @@ export async function createWorkItem(opts: {
     },
     include: { participants: true },
   });
+}
+
+export async function getWorkItemAccessMetadata(workId: number) {
+  return prisma.workItem.findUnique({
+    where: { id: workId },
+    select: {
+      targetType: true,
+      targetId: true,
+    },
+  });
+}
+
+export async function updateWorkItem(
+  workId: number,
+  opts: {
+    category?: string;
+    content?: string;
+    importance?: number;
+    urgency?: number;
+    participants?: string[];
+    sortOrder?: number;
+    isArchived?: boolean;
+  },
+) {
+  const data: Prisma.WorkItemUpdateInput = {
+    ...(opts.category !== undefined && { category: opts.category }),
+    ...(opts.content !== undefined && { content: opts.content }),
+    ...(opts.importance !== undefined && { importance: opts.importance }),
+    ...(opts.urgency !== undefined && { urgency: opts.urgency }),
+    ...(opts.sortOrder !== undefined && { sortOrder: opts.sortOrder }),
+    ...(opts.isArchived !== undefined && { isArchived: opts.isArchived }),
+  };
+
+  if (opts.participants !== undefined) {
+    data.participants = {
+      deleteMany: {},
+      create: opts.participants.map((name) => ({ name })),
+    };
+  }
+
+  return prisma.workItem.update({
+    where: { id: workId },
+    data,
+    include: { participants: true },
+  });
+}
+
+export async function deleteWorkItem(workId: number) {
+  await prisma.workItem.delete({ where: { id: workId } });
 }

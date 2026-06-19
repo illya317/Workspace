@@ -1,7 +1,30 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { authenticate, checkPermission } from "@/lib/auth";
+import { z } from "zod";
+import { authenticate, authorize } from "@workspace/platform/server/auth";
 import { canSubmitToTarget } from "@/lib/access";
+import {
+  getReportAccessMetadata,
+  updateReportWithHistory,
+} from "@workspace/work/server";
+
+const paramsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+const reportItemSchema = z.object({
+  category: z.string().min(1),
+  plan: z.string().min(1),
+  completion: z.string().optional(),
+  nextGoal: z.string().optional(),
+  sortOrder: z.number().int().optional(),
+  workId: z.number().int().positive().optional(),
+});
+
+const updateReportSchema = z.object({
+  taskName: z.string().min(1),
+  notes: z.string().optional(),
+  items: z.array(reportItemSchema).min(1),
+});
 
 export async function PUT(
   request: Request,
@@ -12,13 +35,13 @@ export async function PUT(
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const { id } = await params;
-  const reportId = parseInt(id);
+  const parsedParams = paramsSchema.safeParse(await params);
+  if (!parsedParams.success) {
+    return NextResponse.json({ error: "报告 ID 无效" }, { status: 400 });
+  }
 
-  const existing = await prisma.report.findUnique({
-    where: { id: reportId },
-  });
-
+  const reportId = parsedParams.data.id;
+  const existing = await getReportAccessMetadata(reportId);
   if (!existing) {
     return NextResponse.json(
       { error: "无权修改此报告" },
@@ -29,15 +52,12 @@ export async function PUT(
   const userId = payload.userId;
 
   async function canEdit(report: NonNullable<typeof existing>) {
-    // 管理员直接放行
-    if (await checkPermission(userId, "system", "admin")) return true;
+    if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
 
-    // 如果有 targetType + targetId，检查用户是否有提交（编辑）权限
     if (report.targetType && report.targetId != null) {
       return canSubmitToTarget(userId, report.targetType, report.targetId);
     }
 
-    // 无 targetType/targetId 则只有所有者能编辑
     return report.userId === userId;
   }
 
@@ -49,70 +69,18 @@ export async function PUT(
     );
   }
 
-  const body = await request.json();
-  const { taskName, notes, items } = body as {
-    taskName: string;
-    notes?: string;
-    items: Array<{
-      category: string;
-      plan: string;
-      completion?: string;
-      nextGoal?: string;
-      sortOrder?: number;
-      workId?: number;
-    }>;
-  };
-
-  if (!taskName || !items || items.length === 0) {
+  const parsedBody = updateReportSchema.safeParse(await request.json());
+  if (!parsedBody.success) {
     return NextResponse.json(
       { error: "请填写任务名称和至少一条工作项" },
       { status: 400 }
     );
   }
 
-  const currentItems = await prisma.reportItem.findMany({
-    where: { reportId },
-    orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
-  });
-
-  await prisma.$transaction([
-    prisma.reportHistory.create({
-      data: {
-        reportId,
-        version: existing.version,
-        taskName: existing.taskName,
-        notes: existing.notes,
-        itemsJson: JSON.stringify(currentItems),
-      },
-    }),
-    prisma.reportItem.deleteMany({ where: { reportId } }),
-    prisma.report.update({
-      where: { id: reportId },
-      data: {
-        taskName,
-        notes: notes || null,
-        version: { increment: 1 },
-        items: {
-          create: items.map((item, index) => ({
-            category: item.category,
-            workItemId: item.workId ?? null,
-            plan: item.plan,
-            completion: item.completion || null,
-            nextGoal: item.nextGoal || null,
-            sortOrder: item.sortOrder ?? index,
-          })),
-        },
-      },
-    }),
-  ]);
-
-  const updated = await prisma.report.findUnique({
-    where: { id: reportId },
-    include: {
-      items: {
-        orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
-      },
-    },
+  const updated = await updateReportWithHistory(reportId, {
+    taskName: parsedBody.data.taskName,
+    notes: parsedBody.data.notes || null,
+    items: parsedBody.data.items,
   });
 
   return NextResponse.json({ report: updated });

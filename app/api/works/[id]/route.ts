@@ -1,41 +1,53 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { authenticate } from "@/lib/auth";
+import { z } from "zod";
+import { authenticate } from "@workspace/platform/server/auth";
 import { canEditWorkTask } from "@/lib/access";
+import {
+  deleteWorkItem,
+  getWorkItemAccessMetadata,
+  parseParticipants,
+  updateWorkItem,
+} from "@workspace/work/server";
 
-function parseParticipants(input?: string): string[] {
-  if (!input) return [];
-  return input.split(/,|，/).map((n) => n.trim()).filter(Boolean);
-}
+const paramsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+const updateWorkItemSchema = z.object({
+  category: z.string().optional(),
+  content: z.string().optional(),
+  importance: z.number().int().optional(),
+  urgency: z.number().int().optional(),
+  participants: z.string().optional(),
+  sortOrder: z.number().int().optional(),
+  isArchived: z.boolean().optional(),
+});
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 
-  const { id } = await params;
-  const workId = parseInt(id);
-  const existing = await prisma.workItem.findUnique({ where: { id: workId } });
+  const parsedParams = paramsSchema.safeParse(await params);
+  if (!parsedParams.success) {
+    return NextResponse.json({ error: "工作项 ID 无效" }, { status: 400 });
+  }
+
+  const workId = parsedParams.data.id;
+  const existing = await getWorkItemAccessMetadata(workId);
   if (!existing) return NextResponse.json({ error: "工作项不存在" }, { status: 404 });
 
   const allowed = await canEditWorkTask(payload.userId, existing.targetType, existing.targetId ?? 0);
   if (!allowed) return NextResponse.json({ error: "无权限编辑工作清单" }, { status: 403 });
 
-  const body = await request.json();
-  const { category, content, importance, urgency, participants, sortOrder, isArchived } = body;
-  const updateData: Record<string, unknown> = {
-    ...(category !== undefined && { category }),
-    ...(content !== undefined && { content }),
-    ...(importance !== undefined && { importance }),
-    ...(urgency !== undefined && { urgency }),
-    ...(sortOrder !== undefined && { sortOrder }),
-    ...(isArchived !== undefined && { isArchived }),
-  };
-  if (participants !== undefined) {
-    updateData.participants = { deleteMany: {}, create: parseParticipants(participants).map((name) => ({ name })) };
+  const parsedBody = updateWorkItemSchema.safeParse(await request.json());
+  if (!parsedBody.success) {
+    return NextResponse.json({ error: "工作项参数无效" }, { status: 400 });
   }
 
-  const work = await prisma.workItem.update({
-    where: { id: workId }, data: updateData, include: { participants: true },
+  const { participants, ...data } = parsedBody.data;
+  const work = await updateWorkItem(workId, {
+    ...data,
+    ...(participants !== undefined && { participants: parseParticipants(participants) }),
   });
   return NextResponse.json({ work });
 }
@@ -44,14 +56,18 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 
-  const { id } = await params;
-  const workId = parseInt(id);
-  const existing = await prisma.workItem.findUnique({ where: { id: workId } });
+  const parsedParams = paramsSchema.safeParse(await params);
+  if (!parsedParams.success) {
+    return NextResponse.json({ error: "工作项 ID 无效" }, { status: 400 });
+  }
+
+  const workId = parsedParams.data.id;
+  const existing = await getWorkItemAccessMetadata(workId);
   if (!existing) return NextResponse.json({ error: "工作项不存在" }, { status: 404 });
 
   const allowed = await canEditWorkTask(payload.userId, existing.targetType, existing.targetId ?? 0);
   if (!allowed) return NextResponse.json({ error: "无权限删除工作清单" }, { status: 403 });
 
-  await prisma.workItem.delete({ where: { id: workId } });
+  await deleteWorkItem(workId);
   return NextResponse.json({ success: true });
 }

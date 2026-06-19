@@ -104,6 +104,130 @@ export async function createReport(data: CreateReportInput) {
   });
 }
 
+export async function getReportAccessMetadata(reportId: number) {
+  return prisma.report.findUnique({
+    where: { id: reportId },
+    select: {
+      userId: true,
+      targetType: true,
+      targetId: true,
+    },
+  });
+}
+
+export async function updateReportWithHistory(
+  reportId: number,
+  data: {
+    taskName: string;
+    notes?: string | null;
+    items: ReportItemInput[];
+  },
+) {
+  const existing = await prisma.report.findUnique({
+    where: { id: reportId },
+  });
+  if (!existing) return null;
+
+  const currentItems = await prisma.reportItem.findMany({
+    where: { reportId },
+    orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
+  });
+
+  await prisma.$transaction([
+    prisma.reportHistory.create({
+      data: {
+        reportId,
+        version: existing.version,
+        taskName: existing.taskName,
+        notes: existing.notes,
+        itemsJson: JSON.stringify(currentItems),
+      },
+    }),
+    prisma.reportItem.deleteMany({ where: { reportId } }),
+    prisma.report.update({
+      where: { id: reportId },
+      data: {
+        taskName: data.taskName,
+        notes: data.notes || null,
+        version: { increment: 1 },
+        items: {
+          create: data.items.map((item, index) => ({
+            category: item.category,
+            workItemId: item.workId ?? null,
+            plan: item.plan,
+            completion: item.completion || null,
+            nextGoal: item.nextGoal || null,
+            sortOrder: item.sortOrder ?? index,
+          })),
+        },
+      },
+    }),
+  ]);
+
+  return prisma.report.findUnique({
+    where: { id: reportId },
+    include: {
+      items: {
+        orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
+      },
+    },
+  });
+}
+
+export async function listReportHistory(reportId: number) {
+  return prisma.reportHistory.findMany({
+    where: { reportId },
+    orderBy: { version: "desc" },
+  });
+}
+
+export async function getReportVersion(reportId: number, version: number) {
+  if (version === 0) {
+    return prisma.report.findUnique({
+      where: { id: reportId },
+      include: {
+        items: {
+          orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
+        },
+        user: {
+          select: { name: true },
+        },
+      },
+    });
+  }
+
+  const snapshot = await prisma.reportHistory.findUnique({
+    where: {
+      reportId_version: {
+        reportId,
+        version,
+      },
+    },
+  });
+  if (!snapshot) return null;
+
+  const items = JSON.parse(snapshot.itemsJson) as Array<{
+    category: string;
+    plan: string;
+    completion?: string;
+    nextGoal?: string;
+    sortOrder: number;
+  }>;
+
+  return {
+    id: reportId,
+    taskName: snapshot.taskName,
+    notes: snapshot.notes,
+    version: snapshot.version,
+    createdAt: snapshot.createdAt,
+    items: items.map((item) => ({
+      ...item,
+      completion: item.completion || "",
+      nextGoal: item.nextGoal || "",
+    })),
+  };
+}
+
 export function isDuplicateReportError(error: unknown): boolean {
   if (!error || typeof error !== "object") return false;
   return "code" in error && (error as Record<string, unknown>).code === "P2002";
