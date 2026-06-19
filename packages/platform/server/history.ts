@@ -64,3 +64,22 @@ export async function snapshotHistory(entityType: string, entityId: number, user
     },
   });
 }
+
+export async function getEditHistorySnapshot(
+  entityType: string,
+  entityId: string,
+  version: number,
+) {
+  return prisma.editHistory.findFirst({
+    where: { entityType, entityId, version },
+  });
+}
+
+export async function listEditHistoryVersions(entityType: string, entityId: string) {
+  return prisma.editHistory.findMany({
+    where: { entityType, entityId },
+    orderBy: { version: "desc" },
+    select: { version: true, createdAt: true, editor: { select: { name: true } } },
+    take: 50,
+  });
+}
