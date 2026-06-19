@@ -1,6 +1,19 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@/lib/auth";
+import { z } from "zod";
+import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
 import { getPositionCodes, upsertPositionCode, deletePositionCode } from "@workspace/hr/server/position-codes";
+
+const upsertPositionCodeSchema = z.object({
+  code: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  company: z.string().optional(),
+  originalCode: z.string().optional(),
+  departmentCode: z.string().optional(),
+});
+
+const deletePositionCodeQuerySchema = z.object({
+  code: z.string().trim().min(1),
+});
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -22,10 +35,10 @@ export async function PUT(request: Request) {
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
   if (!(await checkHRWrite(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
-  const body = await request.json();
-  if (!body.code || !body.name) return NextResponse.json({ error: "缺少参数" }, { status: 400 });
+  const parsedBody = upsertPositionCodeSchema.safeParse(await request.json());
+  if (!parsedBody.success) return NextResponse.json({ error: "缺少参数" }, { status: 400 });
 
-  const result = await upsertPositionCode(body, payload.userId);
+  const result = await upsertPositionCode(parsedBody.data, payload.userId);
   return NextResponse.json(result);
 }
 
@@ -35,9 +48,9 @@ export async function DELETE(request: Request) {
   if (!(await checkHRDelete(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { searchParams } = new URL(request.url);
-  const code = searchParams.get("code");
-  if (!code) return NextResponse.json({ error: "缺少code" }, { status: 400 });
+  const parsedQuery = deletePositionCodeQuerySchema.safeParse({ code: searchParams.get("code") });
+  if (!parsedQuery.success) return NextResponse.json({ error: "缺少code" }, { status: 400 });
 
-  const result = await deletePositionCode(code);
+  const result = await deletePositionCode(parsedQuery.data.code);
   return NextResponse.json(result);
 }

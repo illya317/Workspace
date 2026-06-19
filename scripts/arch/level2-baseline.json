@@ -2,7 +2,6 @@
   "uncontractedApiRouteMethods": [],
   "apiRouteMethodsWithDirectPrismaSignal": [],
   "apiRouteMethodsWithoutValidationSignal": [
-    "DELETE /api/admin/position-codes",
     "DELETE /api/departments/:param",
     "DELETE /api/employee-positions/:param",
     "DELETE /api/employee-projects/:param",
@@ -74,7 +73,6 @@
     "POST /api/works",
     "PUT /api/admin/employee-permissions",
     "PUT /api/admin/permission-grants",
-    "PUT /api/admin/position-codes",
     "PUT /api/admin/user-permissions",
     "PUT /api/departments/:param",
     "PUT /api/employee-positions/:param",
