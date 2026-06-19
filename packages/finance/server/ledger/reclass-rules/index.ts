@@ -6,6 +6,7 @@
  */
 
 export { scanCandidates } from "./candidates";
+export { deleteReclassRule, upsertReclassRule } from "./mutations";
 export type {
   ScanCandidatesParams,
   RuleCandidate,

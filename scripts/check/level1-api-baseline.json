@@ -33,8 +33,6 @@
     "app/api/auth/gateway-check/route.ts",
     "app/api/auth/wecom/callback/route.ts",
     "app/api/dev-login-bypass/route.ts",
-    "app/api/finance/reclass-rules/[id]/route.ts",
-    "app/api/finance/reclass-rules/route.ts",
     "app/api/finance/reports/route.ts",
     "app/api/finance/statement-config/route.ts",
     "app/api/finance/statement-mappings/route.ts",
