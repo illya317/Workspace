@@ -34,7 +34,7 @@ export const HR_EDUCATIONS = ["博士", "硕士", "本科", "大专", "其他"];
 export const HR_POLITICS = ["党员", "共青团员", "民主党派", "无党派人士", "群众"];
 
 export const HR_ATTENDANCE_TYPES = ["全日制", "非全日制"];
-export const HR_OFFICE_LOCATIONS = ["上海", "北京", "盐城", "加拿大"];
+export const HR_OFFICE_LOCATIONS = ["上海", "北京", "盐城", "境外"];
 export const HR_LEGAL_RELATIONS = ["劳动关系", "劳务关系", "服务关系", "治理关系"];
 export const HR_CONTRACT_TYPES = ["劳动合同", "劳务协议", "返聘协议", "顾问协议", "董事协议"];
 export const HR_EMPLOYMENT_FORMS = ["全日制", "非全日制"];
