@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import { evaluatePR, isBlockingDecision } from "../orchestrator/decision";
+import { evaluatePR } from "../orchestrator/decision";
 import { uniqueFiles } from "../orchestrator/pr-classifier";
 
 type ParsedArgs = {
@@ -52,7 +52,6 @@ function main() {
   });
 
   process.stdout.write(`${JSON.stringify(decision, null, 2)}\n`);
-  if (isBlockingDecision(decision)) process.exit(1);
 }
 
 if (require.main === module) {

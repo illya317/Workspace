@@ -11,8 +11,8 @@ label:
     architect: architecture
 
 classification:
-  mixed_pr_policy: block
-  unknown_path_policy: block
+  mixed_pr_policy: route_to_architecture
+  unknown_path_policy: route_to_architecture
   precedence:
     - architecture
     - data
@@ -74,7 +74,14 @@ risk:
     - packages/*/import/**
     - server/services/**
 
-decision:
-  approve: "single low-risk route with matching agent label"
-  review: "single valid route with medium/high risk"
-  block: "missing or invalid agent label, unknown route, mixed route, or label/classification mismatch"
+flow:
+  - "PR"
+  - "Orchestrator: emits target/risk/review_required only"
+  - "Reviewer: evaluates correctness, architecture violations, permissions, security, and duplication"
+  - "CI Gate"
+  - "Merge"
+
+output:
+  target: "feature | architecture | data | ops"
+  risk: "low | medium | high"
+  review_required: "boolean"
