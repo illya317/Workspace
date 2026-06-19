@@ -1,98 +1,55 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
-import { computeBalancesForPeriod } from "@workspace/finance/server/ledger/balances";
-import { parsePositiveInt, parseYear, parseMonth, parsePageParams } from "@/lib/validation";
-import { matchText } from "@/lib/search";
+import {
+  listFinanceBalances,
+  recomputeFinanceBalances,
+} from "@workspace/finance/server/ledger/balance-api";
+
+const balancesQuerySchema = z.object({
+  periodId: z.coerce.number().int().positive().optional(),
+  companyCode: z.string().optional(),
+  year: z.coerce.number().int().min(2020).max(2099).optional(),
+  month: z.coerce.number().int().min(1).max(12).optional(),
+  page: z.coerce.number().int().positive().default(1),
+  pageSize: z.coerce.number().int().positive().max(200).default(50),
+  keyword: z.string().optional(),
+});
+
+const recomputeBalancesSchema = z.object({
+  periodId: z.coerce.number().int().positive(),
+});
 
 /** GET 查询余额 */
 export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
-  const periodId = searchParams.get("periodId");
-
-  let targetPeriodId: number | null = null;
-
-  if (periodId) {
-    targetPeriodId = parsePositiveInt(periodId, 0);
-    if (targetPeriodId === 0) return NextResponse.json({ error: "periodId 无效" }, { status: 400 });
-  } else {
-    const companyCode = searchParams.get("companyCode");
-    const yearNum = parseYear(searchParams.get("year"));
-    const monthNum = parseMonth(searchParams.get("month"));
-    if (!companyCode || yearNum === null || monthNum === null) {
-      return NextResponse.json({ error: "periodId 或 companyCode+year+month 为必填" }, { status: 400 });
-    }
-    const period = await prisma.financePeriod.findFirst({
-      where: { companyCode, year: yearNum, month: monthNum },
-    });
-    if (!period) return NextResponse.json({ balances: [] });
-    targetPeriodId = period.id;
-  }
-
-  const { page, pageSize } = parsePageParams(searchParams);
-  const keyword = searchParams.get("keyword") || "";
-  const skip = (page - 1) * pageSize;
-
-  const where = { periodId: targetPeriodId! };
-  const hasKeyword = !!keyword;
-
-  if (hasKeyword) {
-    const all = await prisma.financeAccountBalance.findMany({
-      where,
-      include: { account: true },
-      orderBy: { account: { code: "asc" } },
-    });
-    const filtered = all.filter(
-      (b) => matchText(b.account.code, keyword) || matchText(b.account.name, keyword),
-    );
-    const total = filtered.length;
-    return NextResponse.json({
-      data: filtered.slice(skip, skip + pageSize),
-      total, page, pageSize,
-      totalPages: Math.ceil(total / pageSize),
-      balances: filtered.slice(skip, skip + pageSize),
-    });
-  }
-
-  const [balances, total] = await Promise.all([
-    prisma.financeAccountBalance.findMany({
-      where,
-      include: { account: true },
-      orderBy: { account: { code: "asc" } },
-      skip,
-      take: pageSize,
-    }),
-    prisma.financeAccountBalance.count({ where }),
-  ]);
-
-  const totalPages = Math.ceil(total / pageSize);
-
-  return NextResponse.json({
-    data: balances,
-    total,
-    page,
-    pageSize,
-    totalPages,
-    balances,
-    periodId: targetPeriodId,
+  const parsed = balancesQuerySchema.safeParse({
+    periodId: searchParams.get("periodId") || undefined,
+    companyCode: searchParams.get("companyCode") || undefined,
+    year: searchParams.get("year") || undefined,
+    month: searchParams.get("month") || undefined,
+    page: searchParams.get("page") || undefined,
+    pageSize: searchParams.get("pageSize") || undefined,
+    keyword: searchParams.get("keyword") || undefined,
   });
+  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+
+  const { periodId, companyCode, year, month } = parsed.data;
+  if (!periodId && (!companyCode || year === undefined || month === undefined)) {
+    return NextResponse.json({ error: "periodId 或 companyCode+year+month 为必填" }, { status: 400 });
+  }
+
+  return NextResponse.json(await listFinanceBalances(parsed.data));
 });
 
 /** POST 重新计算指定期间的余额 */
 export const POST = withFinanceLedgerWrite(async (request: Request) => {
-  const body = await request.json();
-  const periodId = parsePositiveInt(body.periodId, 0);
-  if (periodId === 0) return NextResponse.json({ error: "periodId 为必填且为有效数字" }, { status: 400 });
+  const parsed = recomputeBalancesSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: "periodId 为必填且为有效数字" }, { status: 400 });
 
-  const period = await prisma.financePeriod.findUnique({ where: { id: periodId } });
-  if (!period) return NextResponse.json({ error: "期间不存在" }, { status: 404 });
-  if (period.isClosed) return NextResponse.json({ error: "期间已结账，不能重新计算" }, { status: 400 });
+  const result = await recomputeFinanceBalances(parsed.data);
+  if (!result.success) return NextResponse.json({ error: result.error }, { status: result.status });
 
-  try {
-    const result = await computeBalancesForPeriod(period.id);
-    return NextResponse.json({ success: true, count: result.count });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "计算失败";
-    return NextResponse.json({ error: message }, { status: 400 });
-  }
+  return NextResponse.json(result);
 });
