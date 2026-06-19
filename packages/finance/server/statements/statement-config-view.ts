@@ -36,6 +36,23 @@ export interface StatementConfigView {
   month: number | null;
 }
 
+export interface SaveStatementConfigLineInput {
+  lineCode: string;
+  prefixes?: unknown[];
+  subtractPrefixes?: unknown[];
+  reclassSource?: boolean;
+  reclassTarget?: boolean;
+  label?: string;
+  section?: string;
+  enabled?: boolean;
+}
+
+export interface SaveStatementConfigLinesInput {
+  companyCode: string;
+  year: number;
+  lines: SaveStatementConfigLineInput[];
+}
+
 // ─── Main ──────────────────────────────────────────────────
 
 export async function getStatementConfigView(
@@ -90,6 +107,32 @@ export async function getStatementConfigView(
   );
 
   return { lineConfigs, accountTree: tree, mappingPreview, month: period.month };
+}
+
+export async function saveStatementConfigLines(input: SaveStatementConfigLinesInput) {
+  for (const line of input.lines) {
+    await prisma.financeStatementLineConfig.update({
+      where: {
+        companyCode_year_reportType_lineCode: {
+          companyCode: input.companyCode,
+          year: input.year,
+          reportType: "balanceSheet",
+          lineCode: line.lineCode,
+        },
+      },
+      data: {
+        prefixesJson: JSON.stringify(line.prefixes || []),
+        subtractPrefixesJson: JSON.stringify(line.subtractPrefixes || []),
+        reclassSource: line.reclassSource ?? undefined,
+        reclassTarget: line.reclassTarget ?? undefined,
+        label: line.label ?? undefined,
+        section: line.section ?? undefined,
+        enabled: line.enabled ?? undefined,
+      },
+    });
+  }
+
+  return { success: true, updated: input.lines.length };
 }
 
 // ─── Mapping resolution ────────────────────────────────────

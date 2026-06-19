@@ -1,22 +1,52 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
 import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
-import { getStatementConfigView } from "@workspace/finance/server/statements/statement-config-view";
+import {
+  getStatementConfigView,
+  saveStatementConfigLines,
+} from "@workspace/finance/server/statements/statement-config-view";
+
+const statementConfigQuerySchema = z.object({
+  companyCode: z.string().min(1),
+  year: z.coerce.number().int(),
+  type: z.literal("balance").default("balance"),
+});
+
+const statementConfigLineSchema = z.object({
+  lineCode: z.string().min(1),
+  prefixes: z.array(z.unknown()).optional(),
+  subtractPrefixes: z.array(z.unknown()).optional(),
+  reclassSource: z.boolean().optional(),
+  reclassTarget: z.boolean().optional(),
+  label: z.string().optional(),
+  section: z.string().optional(),
+  enabled: z.boolean().optional(),
+});
+
+const saveStatementConfigSchema = z.object({
+  companyCode: z.string().min(1),
+  year: z.coerce.number().int(),
+  lines: z.array(statementConfigLineSchema),
+});
 
 // GET: 报表配置视图（lineConfigs + accountTree + mappingPreview）
 // 权限：finance.statement access
 export const GET = withFinanceReportAccess(async (request) => {
   const { searchParams } = new URL(request.url);
   const companyCode = searchParams.get("companyCode");
-  const year = parseInt(searchParams.get("year") || "", 10);
+  const year = searchParams.get("year");
   if (!companyCode || !year)
     return NextResponse.json({ error: "companyCode, year 为必填" }, { status: 400 });
 
   const type = searchParams.get("type") || "balance";
-  if (type !== "balance")
+  const parsed = statementConfigQuerySchema.safeParse({ companyCode, year, type });
+  if (!parsed.success && type !== "balance")
     return NextResponse.json({ error: "statement-config 暂只支持 balance" }, { status: 400 });
+  if (!parsed.success)
+    return NextResponse.json({ error: "companyCode, year 为必填" }, { status: 400 });
 
-  const view = await getStatementConfigView(companyCode, year, type);
+  const view = await getStatementConfigView(parsed.data.companyCode, parsed.data.year, parsed.data.type);
   return NextResponse.json(view);
 });
 
@@ -27,28 +57,11 @@ export const PUT = withFinanceReportWrite(async (request) => {
   if (!body || !Array.isArray(body.lines))
     return NextResponse.json({ error: "lines 数组为必填" }, { status: 400 });
 
-  const { companyCode, year, lines } = body;
-  if (!companyCode || !year)
+  const parsed = saveStatementConfigSchema.safeParse(body);
+  if (!parsed.success && (!body.companyCode || !body.year))
     return NextResponse.json({ error: "companyCode, year 为必填" }, { status: 400 });
+  if (!parsed.success)
+    return NextResponse.json({ error: "参数无效" }, { status: 400 });
 
-  for (const line of lines) {
-    await prisma.financeStatementLineConfig.update({
-      where: {
-        companyCode_year_reportType_lineCode: {
-          companyCode, year, reportType: "balanceSheet", lineCode: line.lineCode,
-        },
-      },
-      data: {
-        prefixesJson: JSON.stringify(line.prefixes || []),
-        subtractPrefixesJson: JSON.stringify(line.subtractPrefixes || []),
-        reclassSource: line.reclassSource ?? undefined,
-        reclassTarget: line.reclassTarget ?? undefined,
-        label: line.label ?? undefined,
-        section: line.section ?? undefined,
-        enabled: line.enabled ?? undefined,
-      },
-    });
-  }
-
-  return NextResponse.json({ success: true, updated: lines.length });
+  return NextResponse.json(await saveStatementConfigLines(parsed.data));
 });
