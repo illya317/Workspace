@@ -1,7 +1,19 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkPermission } from "@/lib/auth";
-import { getManageableResourceKeys } from "@workspace/platform/server/auth";
+import { z } from "zod";
+import { authenticate, checkPermission, getManageableResourceKeys } from "@workspace/platform/server/auth";
 import { getEmployeesWithPermissions, syncUserGrants } from "@workspace/hr/server/employee-permissions";
+
+const grantSchema = z.object({
+  resourceKey: z.string().trim().min(1),
+  roleKey: z.string().trim().min(1),
+  value: z.boolean(),
+});
+
+const syncUserGrantsSchema = z.object({
+  employeeId: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+  grants: z.array(grantSchema).optional(),
+});
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -46,14 +58,19 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
-  const body = await request.json();
-  const { employeeId, name, grants } = body as {
-    employeeId: string;
-    name: string;
-    grants?: { resourceKey: string; roleKey: string; value: boolean }[];
-  };
+  const parsedBody = syncUserGrantsSchema.safeParse(await request.json());
+  if (!parsedBody.success) {
+    return NextResponse.json(
+      { error: "参数错误: 需要 employeeId, name, grants" },
+      { status: 400 }
+    );
+  }
 
-  const result = await syncUserGrants(employeeId, name, grants);
+  const result = await syncUserGrants(
+    parsedBody.data.employeeId,
+    parsedBody.data.name,
+    parsedBody.data.grants
+  );
 
   if (!result.success) {
     return NextResponse.json(

@@ -1,11 +1,23 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkPermission } from "@/lib/auth";
+import { z } from "zod";
+import { authenticate, checkPermission } from "@workspace/platform/server/auth";
 import {
   getManageableResourceKeys,
   canManageResourceGrant,
 } from "@workspace/platform/server/auth";
 import { getPermissionGrantData } from "@workspace/hr/server/permission-subjects";
 import type { SubjectType } from "@workspace/platform/server/auth";
+
+const subjectTypeSchema = z.enum(["user", "department", "position"]);
+
+const permissionGrantSchema = z.object({
+  subjectType: subjectTypeSchema,
+  subjectId: z.coerce.number().int().positive(),
+  resourceKey: z.string().trim().min(1),
+  roleKey: z.string().trim().min(1),
+  value: z.boolean(),
+  scopeId: z.string().nullable().optional(),
+});
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -53,12 +65,12 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const body = await request.json();
-  const { subjectType, subjectId, resourceKey, roleKey, value, scopeId } = body;
-
-  if (!subjectType || !subjectId || !resourceKey || !roleKey || typeof value !== "boolean") {
+  const parsedBody = permissionGrantSchema.safeParse(await request.json());
+  if (!parsedBody.success) {
     return NextResponse.json({ error: "参数错误: 需要 subjectType, subjectId, resourceKey, roleKey, value" }, { status: 400 });
   }
+
+  const { subjectType, subjectId, resourceKey, roleKey, value, scopeId } = parsedBody.data;
 
   // Only system.admin can grant/revoke admin role
   if (roleKey === "admin") {

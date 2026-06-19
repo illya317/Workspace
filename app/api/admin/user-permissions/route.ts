@@ -1,6 +1,14 @@
 import { NextResponse } from "next/server";
-import { authenticate } from "@/lib/auth";
+import { z } from "zod";
+import { authenticate } from "@workspace/platform/server/auth";
 import { canManageResourceGrant, setGrant } from "@workspace/platform/server/auth";
+
+const userPermissionSchema = z.object({
+  userId: z.coerce.number().int().positive(),
+  resourceKey: z.string().trim().min(1),
+  roleKey: z.string().trim().min(1),
+  value: z.boolean(),
+});
 
 export async function PUT(request: Request) {
   const payload = await authenticate(request);
@@ -8,16 +16,15 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const body = await request.json();
-  const { userId, resourceKey, roleKey, value } = body;
-
-  if (!userId || !resourceKey || !roleKey || typeof value !== "boolean") {
+  const parsedBody = userPermissionSchema.safeParse(await request.json());
+  if (!parsedBody.success) {
     return NextResponse.json(
       { error: "参数错误: 需要 userId, resourceKey, roleKey, value" },
       { status: 400 }
     );
   }
 
+  const { userId, resourceKey, roleKey, value } = parsedBody.data;
   const canManage = await canManageResourceGrant(payload.userId, resourceKey, roleKey);
   if (!canManage) {
     return NextResponse.json({ error: "无权限管理该资源权限" }, { status: 403 });
