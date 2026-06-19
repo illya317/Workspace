@@ -1,30 +1,22 @@
 import { NextResponse } from "next/server";
-import { createToken, SESSION_MAX_AGE_SECONDS } from "@/lib/auth/token";
-import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+import { SESSION_MAX_AGE_SECONDS } from "@workspace/platform/server/auth";
+import { loginWithDevUserId } from "@workspace/platform/server/account";
+
+const devLoginQuerySchema = z.object({
+  userId: z.coerce.number().int().positive().default(2),
+});
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const userId = parseInt(searchParams.get("userId") || "2");
+  const parsed = devLoginQuerySchema.safeParse(Object.fromEntries(searchParams));
+  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true, name: true, sessionVersion: true },
-  });
+  const login = await loginWithDevUserId(parsed.data.userId);
+  if (!login.success) return NextResponse.json({ error: login.error }, { status: login.status });
 
-  if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  const token = await createToken({
-    userId: user.id,
-    wxUserId: "",
-    name: user.name,
-    departmentId: 0,
-    sessionVersion: user.sessionVersion,
-  });
-
-  const response = NextResponse.json({ success: true, message: `已登录为 ${user.name}` });
-  response.cookies.set("token", token, {
+  const response = NextResponse.json({ success: true, message: login.message });
+  response.cookies.set("token", login.token, {
     httpOnly: true,
     secure: false,
     sameSite: "lax",

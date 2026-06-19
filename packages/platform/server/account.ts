@@ -40,6 +40,10 @@ export type WecomLoginResult =
   | { success: true; token: string }
   | { success: false; error: string };
 
+export type DevUserLoginResult =
+  | { success: true; token: string; message: string }
+  | { success: false; status: number; error: string };
+
 export async function changeUserPassword(
   userId: number,
   oldPassword: string,
@@ -176,4 +180,23 @@ export async function loginWithWecomCode(code: string): Promise<WecomLoginResult
   });
 
   return { success: true, token };
+}
+
+export async function loginWithDevUserId(userId: number): Promise<DevUserLoginResult> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, name: true, sessionVersion: true },
+  });
+
+  if (!user) return { success: false, status: 404, error: "User not found" };
+
+  const token = await createToken({
+    userId: user.id,
+    wxUserId: "",
+    name: user.name,
+    departmentId: 0,
+    sessionVersion: user.sessionVersion,
+  });
+
+  return { success: true, token, message: `已登录为 ${user.name}` };
 }
