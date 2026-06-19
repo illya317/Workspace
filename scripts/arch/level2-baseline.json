@@ -99,7 +99,6 @@
     "PUT /api/departments/:param",
     "PUT /api/employee-positions/:param",
     "PUT /api/employee-projects/:param",
-    "PUT /api/finance/statement-workpapers",
     "PUT /api/hr/companies",
     "PUT /api/hr/companies/:param",
     "PUT /api/hr/company-relations/:param",

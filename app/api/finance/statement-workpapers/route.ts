@@ -4,61 +4,54 @@
 import { NextResponse } from "next/server";
 import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
 import { getOrCreateDraft, saveWorkpaper } from "@workspace/finance/server/statements/workpapers/service";
-import type { SaveWorkpaperInput } from "@workspace/finance/server/statements/workpapers/types";
-
-function validateYearMonth(year: number, month: number): string | null {
-  if (!Number.isInteger(year) || !Number.isInteger(month)) return "year, month 必须为整数";
-  if (year < 2000 || year > 2100) return "year 超出范围 (2000-2100)";
-  if (month < 1 || month > 12) return "month 必须为 1-12";
-  return null;
-}
-
-function validateAmount(v: unknown): v is number {
-  return typeof v === "number" && Number.isFinite(v);
-}
+import {
+  saveWorkpaperSchema,
+  workpaperQuerySchema,
+} from "@workspace/finance/server/statements/workpapers/schemas";
 
 /** GET ?companyCode=&year=&month=&reportType=incomeStatement|cashFlow */
 export const GET = withFinanceReportAccess(async (req) => {
   const { searchParams } = new URL(req.url);
-  const companyCode = searchParams.get("companyCode");
-  const year = searchParams.get("year");
-  const month = searchParams.get("month");
-  const reportType = searchParams.get("reportType");
-  if (!companyCode || !year || !month || !reportType) {
+  const raw = Object.fromEntries(searchParams.entries());
+  if (!raw.companyCode || !raw.year || !raw.month || !raw.reportType) {
     return NextResponse.json({ error: "companyCode, year, month, reportType 为必填" }, { status: 400 });
   }
-  const y = Number(year), m = Number(month);
-  const err = validateYearMonth(y, m);
-  if (err) return NextResponse.json({ error: err }, { status: 400 });
-  if (reportType !== "incomeStatement" && reportType !== "cashFlow") {
-    return NextResponse.json({ error: "reportType 仅支持 incomeStatement / cashFlow" }, { status: 400 });
+  const parsed = workpaperQuerySchema.safeParse(raw);
+  if (!parsed.success) {
+    if (raw.reportType !== "incomeStatement" && raw.reportType !== "cashFlow") {
+      return NextResponse.json({ error: "reportType 仅支持 incomeStatement / cashFlow" }, { status: 400 });
+    }
+    return NextResponse.json({ error: "year, month 无效" }, { status: 400 });
   }
-  const result = await getOrCreateDraft({ companyCode, year: y, month: m, reportType });
+  const result = await getOrCreateDraft(parsed.data);
   return NextResponse.json(result);
 });
 
-/** PUT { companyCode, year, month, reportType, note?, lines[] } — 全量保存 */
-export const PUT = withFinanceReportWrite(async (req, user) => {
-  let body: SaveWorkpaperInput;
-  try { body = await req.json(); } catch {
-    return NextResponse.json({ error: "请求体必须为 JSON" }, { status: 400 });
+function formatSaveError(issues: { path: PropertyKey[] }[]) {
+  if (issues.some((issue) => issue.path[0] === "lines" && issue.path.length > 1)) {
+    return NextResponse.json(
+      { error: "每行需包含 lineCode 与有效的 manualAmount / importedAmount（禁止 NaN / Infinity）" },
+      { status: 400 },
+    );
   }
-  const { companyCode, year, month, reportType, lines } = body;
-  if (!companyCode || year == null || month == null || !reportType || !lines || !Array.isArray(lines)) {
-    return NextResponse.json({ error: "companyCode, year, month, reportType, lines 为必填" }, { status: 400 });
-  }
-  const err = validateYearMonth(year, month);
-  if (err) return NextResponse.json({ error: err }, { status: 400 });
-  if (reportType !== "incomeStatement" && reportType !== "cashFlow") {
+  if (issues.some((issue) => issue.path[0] === "reportType")) {
     return NextResponse.json({ error: "reportType 仅支持 incomeStatement / cashFlow" }, { status: 400 });
   }
-  for (const l of lines) {
-    if (!l.lineCode || !validateAmount(l.manualAmount) || !validateAmount(l.importedAmount)) {
-      return NextResponse.json({ error: "每行需包含 lineCode 与有效的 manualAmount / importedAmount（禁止 NaN / Infinity）" }, { status: 400 });
-    }
+  return NextResponse.json({ error: "companyCode, year, month, reportType, lines 为必填" }, { status: 400 });
+}
+
+/** PUT { companyCode, year, month, reportType, note?, lines[] } — 全量保存 */
+export const PUT = withFinanceReportWrite(async (req, user) => {
+  const body = await req.json().catch(() => null);
+  if (!body) {
+    return NextResponse.json({ error: "请求体必须为 JSON" }, { status: 400 });
+  }
+  const parsed = saveWorkpaperSchema.safeParse(body);
+  if (!parsed.success) {
+    return formatSaveError(parsed.error.issues);
   }
   try {
-    const result = await saveWorkpaper(body, user.userId);
+    const result = await saveWorkpaper(parsed.data, user.userId);
     return NextResponse.json(result);
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : "保存失败";
