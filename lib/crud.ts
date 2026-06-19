@@ -2,7 +2,7 @@
 export { createCrudHandlers, type CrudFactoryConfig, type AccessChecker } from "./crud-factory";
 
 import { createCrudHandlers } from "./crud-factory";
-import { checkHRAccess, checkHRWrite, checkHRDelete } from "./auth";
+import { checkHRAccess, checkHRWrite, checkHRDelete } from "@/server/auth/domain";
 import type { CrudFactoryConfig } from "./crud-factory";
 
 export type CrudConfig = Omit<CrudFactoryConfig, "accessCheck" | "writeCheck" | "deleteCheck">;

@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import { authorize } from "./auth";
+import { authorize } from "@/server/auth/authorize";
 
 // ─── Business rule helpers ──────────────────────────────
 

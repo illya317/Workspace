@@ -4,7 +4,7 @@
  */
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/server/auth/session";
-import { authorize } from "@/lib/auth";
+import { authorize } from "@workspace/platform/server/auth";
 import { financeAgentTools } from "@workspace/finance/server/agent-tools";
 import { hrAgentTools } from "@workspace/hr/server/agent-tools";
 import { buildCapabilities } from "@workspace/platform/server/agent";

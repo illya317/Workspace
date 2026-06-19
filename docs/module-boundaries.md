@@ -43,7 +43,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/platform/module-lifecycle.ts` 从模块注册的 `lifecycleStatus` 派生资源生命周期提示；`app/lib/module-lifecycle.ts` 保留兼容 re-export。
 - `packages/platform/types` 已接收登录态平台契约类型，`lib/types.ts` 保留兼容 re-export。
 - `packages/platform/audit` 已接收审计展示字段标签和值格式化 helper，`lib/audit-field-labels.ts` 保留兼容 re-export。
-- `packages/platform/server/auth.ts` 已接收认证和 HR 权限检查的 server 契约；业务包需要鉴权时依赖 `@workspace/platform/server/auth`，不要直接依赖 `@/lib/auth`。
+- `packages/platform/server/auth.ts` 已接收认证和 HR 权限检查的 server 契约；旧 `lib/auth.ts` 聚合 hub 已删除。业务包和 app route 需要鉴权时依赖 `@workspace/platform/server/auth`，不要新增 `@/lib/auth` 入口。
 - `server/auth/authorize.ts` 是 Level 1 权限单入口；平台 auth helper、page guard 和旧 wrapper 必须委托 `authorize()`，新增 API route 不得新增裸 `checkPermission()`。
 - `packages/platform/server/crud-factory.ts` 已接收通用 CRUD route helper；业务包需要复用字段级更新/创建/删除时通过本领域 wrapper 使用，不要直接依赖 `@/lib/crud`。
 - `packages/platform/server/prisma.ts` 已接收单库 Prisma runtime client，`lib/prisma.ts` 保留兼容 re-export；业务包应优先依赖 `@workspace/platform/server/prisma`，不要直接依赖 `@/lib/prisma` 或 generated client。

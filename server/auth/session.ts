@@ -1,7 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/auth";
+import { verifyToken } from "@/lib/auth/token";
 import { getPermissionContext } from "@/server/rbac/context";
 import { evaluatePermissionWithContext } from "@/server/rbac/check";
 import { getManageableResourceKeys } from "@/server/rbac/admin-scope";

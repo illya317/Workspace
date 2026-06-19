@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate, authorize } from "@/lib/auth";
+import { authenticate, authorize } from "@workspace/platform/server/auth";
 import { listAdminProjects } from "@workspace/platform/server/admin-projects";
 import { z } from "zod";
 

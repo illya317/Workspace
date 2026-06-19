@@ -2,7 +2,7 @@
 export { createCrudHandlers, type CrudFactoryConfig, type AccessChecker } from "./crud-factory";
 
 import { createCrudHandlers } from "./crud-factory";
-import { checkInventoryAccess } from "./auth";
+import { checkInventoryAccess } from "@/server/auth/domain";
 import type { CrudFactoryConfig } from "./crud-factory";
 
 export type InventoryCrudConfig = Omit<CrudFactoryConfig, "accessCheck">;

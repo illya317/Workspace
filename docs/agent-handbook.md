@@ -206,7 +206,7 @@ rm data/dev.db && npx prisma db push
 
 1. 网页版：Cookie JWT (`token`)
 2. API 接入：`X-API-Key` 个人密钥 + `X-Username` + `X-Password`
-3. 权限校验：优先使用 `@workspace/platform/server/auth` 中的平台契约；`lib/auth.ts` 只保留兼容 re-export。
+3. 权限校验：优先使用 `@workspace/platform/server/auth` 中的平台契约；旧 `lib/auth.ts` 聚合 hub 已删除，不要恢复同类兼容入口。
 
 API 权限规则：
 
@@ -250,7 +250,7 @@ API 权限规则：
 - 选择面板和字段展示必须解耦。字段展示保持统一样式；选择面板可以是普通下拉、分级选择、FK 搜索、tag 选择。
 - 通知用 `useToast()`，禁止裸 `setTimeout`。
 - 公司名、编码、管理体系通过 API 或领域 service/helper 获取，禁止硬编码。
-- API 鉴权优先走 `@workspace/platform/server/auth`；`lib/auth.ts` 只保留兼容 re-export。
+- API 鉴权优先走 `@workspace/platform/server/auth`；旧 `lib/auth.ts` 聚合 hub 已删除，不要恢复同类兼容入口。
 - 搜索优先用 `@workspace/core/search` 的通用匹配；业务语义搜索留在对应业务包。
 - 当前用户类型从 `@workspace/platform/types` 导入 `SessionUser`，禁止页面内重复定义 `interface User`。
 - 业务页面 facade 负责组合，不承载大段业务逻辑；超过 150 行应拆 components/hooks。

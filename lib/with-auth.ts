@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import {
   authenticate,
   isKicked,
+} from "@/server/auth/authenticate";
+import {
   checkHRAccess,
   checkHRWrite,
   checkHRDelete,
@@ -30,8 +32,8 @@ import {
   checkContractAccess,
   checkLibraryAccess,
   checkLibraryWrite,
-  type AuthPayload,
-} from "@/lib/auth";
+} from "@/server/auth/domain";
+import type { AuthPayload } from "@/lib/auth/token";
 
 export type { AuthPayload };
 

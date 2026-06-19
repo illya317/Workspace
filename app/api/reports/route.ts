@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate } from "@/lib/auth";
+import { authenticate } from "@workspace/platform/server/auth";
 import { canAccessTarget, canSubmitToTarget } from "@/lib/access";
 import { listReports, createReport, enrichWithRoutineItems, isDuplicateReportError } from "@workspace/work/server";
 

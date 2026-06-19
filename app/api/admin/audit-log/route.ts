@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkHRAccess } from "@/lib/auth";
+import { authenticate, checkHRAccess } from "@workspace/platform/server/auth";
 import { getAuditLogDates, getAuditLogEntries } from "@workspace/platform/server/audit-log";
 
 export async function GET(request: Request) {

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate } from "@/lib/auth";
+import { authenticate } from "@workspace/platform/server/auth";
 import { canAccessTarget, canEditWorkTask } from "@/lib/access";
 import { parseParticipants, getWorkItems, createWorkItem } from "@workspace/work/server";
 

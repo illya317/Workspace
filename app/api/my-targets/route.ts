@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate } from "@/lib/auth";
+import { authenticate } from "@workspace/platform/server/auth";
 import { getUserTargets } from "@workspace/platform/server/user-targets";
 import { z } from "zod";
 

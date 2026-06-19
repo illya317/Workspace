@@ -117,6 +117,7 @@ type Level2Report = {
     repeatedServiceGroups: number;
     routePrimitiveSchemaDuplicates: number;
     apiRouteHelperDuplicates: number;
+    legacyAuthHubFiles: number;
   };
   registries: {
     modules: Array<{
@@ -147,6 +148,7 @@ type Level2Report = {
     compatibilityProxyRouteMethods: ApiRouteMethod[];
     goneRouteMethods: ApiRouteMethod[];
     legacyServiceFiles: string[];
+    legacyAuthHubFiles: string[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -757,6 +759,13 @@ function findLegacyServiceFiles(files: SourceInfo[]) {
     .sort();
 }
 
+function findLegacyAuthHubFiles(files: SourceInfo[]) {
+  return files
+    .filter((file) => file.relPath === "lib/auth.ts")
+    .map((file) => file.relPath)
+    .sort();
+}
+
 function findAppHookFiles(hooks: HookPatternCandidate[]) {
   return hooks
     .filter((hook) => hook.file.startsWith("app/hooks/"))
@@ -808,6 +817,7 @@ export function createLevel2Report(): Level2Report {
   const appHookFiles = findAppHookFiles(hookPatternCandidates);
   const appHookImplementationFiles = findAppHookImplementationFiles(hookPatternCandidates);
   const legacyServiceFiles = findLegacyServiceFiles(sourceFiles);
+  const legacyAuthHubFiles = findLegacyAuthHubFiles(sourceFiles);
 
   return {
     level: "2",
@@ -833,6 +843,7 @@ export function createLevel2Report(): Level2Report {
       repeatedServiceGroups: repeatedServiceGroups.length,
       routePrimitiveSchemaDuplicates: routePrimitiveSchemaDuplicates.length,
       apiRouteHelperDuplicates: apiRouteHelperDuplicates.length,
+      legacyAuthHubFiles: legacyAuthHubFiles.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -865,6 +876,7 @@ export function createLevel2Report(): Level2Report {
       compatibilityProxyRouteMethods,
       goneRouteMethods,
       legacyServiceFiles,
+      legacyAuthHubFiles,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,
