@@ -142,7 +142,6 @@
     "GET /api/projects",
     "GET /api/reports/:param/versions",
     "GET /api/reports/:param/versions/:param",
-    "GET /api/week-info",
     "POST /api/departments",
     "POST /api/employee-positions",
     "POST /api/employee-projects",
