@@ -57,8 +57,6 @@
     "POST /api/employee-positions",
     "POST /api/employee-projects",
     "POST /api/finance/cost/imports",
-    "POST /api/finance/import/confirm",
-    "POST /api/finance/import/preview",
     "POST /api/finance/reclass-results",
     "POST /api/finance/statement-reviews",
     "POST /api/finance/statement-reviews/:param/confirm",

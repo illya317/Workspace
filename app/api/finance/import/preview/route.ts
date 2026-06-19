@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceImportAccess } from "@/lib/with-auth";
 import { parseBalanceSheet, parseJournal, parseAccountTable } from "@workspace/finance/server/import/import";
+import { importPreviewFormSchema } from "@workspace/finance/server/import/schemas";
 
 export const POST = withFinanceImportAccess(async (request: Request) => {
   try {
@@ -19,29 +20,38 @@ export const POST = withFinanceImportAccess(async (request: Request) => {
     if (!companyCode) {
       return NextResponse.json({ error: "请选择公司" }, { status: 400 });
     }
+    const parsed = importPreviewFormSchema.safeParse({
+      file,
+      type,
+      companyCode,
+      year: yearParam || undefined,
+    });
+    if (!parsed.success) {
+      return NextResponse.json({ error: "参数无效" }, { status: 400 });
+    }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const buffer = Buffer.from(await parsed.data.file.arrayBuffer());
 
-    const fileExt = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
+    const fileExt = parsed.data.file.name.slice(parsed.data.file.name.lastIndexOf(".")).toLowerCase();
     let result;
-    if (type === "balance") {
-      result = parseBalanceSheet(buffer, companyCode, fileExt);
-    } else if (type === "journal") {
-      result = parseJournal(buffer, companyCode, fileExt);
+    if (parsed.data.type === "balance") {
+      result = parseBalanceSheet(buffer, parsed.data.companyCode, fileExt);
+    } else if (parsed.data.type === "journal") {
+      result = parseJournal(buffer, parsed.data.companyCode, fileExt);
     } else {
-      result = parseAccountTable(buffer, companyCode, fileExt);
+      result = parseAccountTable(buffer, parsed.data.companyCode, fileExt);
     }
 
     // Use explicitly provided year, or extract from filename, or detect from data
-    if (yearParam) {
-      result.year = parseInt(yearParam, 10);
+    if (parsed.data.year) {
+      result.year = parsed.data.year;
     } else if (result.year === 0) {
-      const yearMatch = file.name.match(/(20\d{2})/);
+      const yearMatch = parsed.data.file.name.match(/(20\d{2})/);
       if (yearMatch) {
         result.year = parseInt(yearMatch[1], 10);
       }
     }
-    result.sourceFileName = file.name;
+    result.sourceFileName = parsed.data.file.name;
 
     return NextResponse.json({ success: true, preview: result });
   } catch (err) {
