@@ -1,7 +1,20 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { authenticate } from "@/lib/auth";
 import { canAccessTarget, canEditWorkTask } from "@/lib/access";
 import { parseParticipants, getWorkItems, createWorkItem } from "@workspace/work/server";
+
+const createWorkItemSchema = z.object({
+  category: z.string().min(1),
+  content: z.string().min(1),
+  importance: z.coerce.number().optional(),
+  urgency: z.coerce.number().optional(),
+  participants: z.string().optional(),
+  sortOrder: z.coerce.number().optional(),
+  targetType: z.string().optional(),
+  targetId: z.coerce.number().optional(),
+  deptId: z.coerce.number().optional(),
+}).passthrough();
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -33,12 +46,12 @@ export async function POST(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 
-  const body = await request.json();
-  const { category, content, importance, urgency, participants, sortOrder, targetType, targetId, deptId } = body;
-
-  if (!content || !category) {
+  const body = await request.json().catch(() => null);
+  const parsedBody = createWorkItemSchema.safeParse(body);
+  if (!parsedBody.success) {
     return NextResponse.json({ error: "工作内容和类别不能为空" }, { status: 400 });
   }
+  const { category, content, importance, urgency, participants, sortOrder, targetType, targetId, deptId } = parsedBody.data;
 
   const finalTargetType = targetType || "department";
   const finalTargetId = targetId ?? (finalTargetType === "department" ? deptId : null) ?? payload.departmentId;
