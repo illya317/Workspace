@@ -33,6 +33,10 @@ main:
             npm ci --no-audit --fund=false --loglevel=error
         - name: validate-deploy-input
           script: |
+            if [ "${RUN_LOCAL_CHECKS:-1}" = "0" ]; then
+              echo "==> 跳过部署前校验（RUN_LOCAL_CHECKS=0）"
+              exit 0
+            fi
             npm run db:validate
             npm run api:check
             npm run schema:check
