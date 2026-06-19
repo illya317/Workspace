@@ -1,6 +1,16 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
 import { deleteCompanyById, listCompanies, upsertCompany } from "@workspace/hr/server";
+
+const companyBodySchema = z.object({
+  code: z.string().trim().min(1),
+  name: z.string().trim().min(1),
+}).passthrough();
+
+const deleteQuerySchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
 
 function serviceResponse<T>(result: { ok: true; data: T } | { ok: false; error: string; status?: number }) {
   if (result.ok) return NextResponse.json(result.data);
@@ -41,8 +51,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
-  const body = await request.json();
-  return serviceResponse(await upsertCompany(body, payload.userId));
+  const parsedBody = companyBodySchema.safeParse(await request.json());
+  if (!parsedBody.success) {
+    return NextResponse.json({ error: "缺少 code/name" }, { status: 400 });
+  }
+
+  return serviceResponse(await upsertCompany(parsedBody.data, payload.userId));
 }
 
 export async function PUT(request: Request) {
@@ -52,8 +66,12 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
-  const body = await request.json();
-  return serviceResponse(await upsertCompany(body, payload.userId));
+  const parsedBody = companyBodySchema.safeParse(await request.json());
+  if (!parsedBody.success) {
+    return NextResponse.json({ error: "缺少 code/name" }, { status: 400 });
+  }
+
+  return serviceResponse(await upsertCompany(parsedBody.data, payload.userId));
 }
 
 export async function DELETE(request: Request) {
@@ -64,8 +82,8 @@ export async function DELETE(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const idParam = searchParams.get("id");
-  if (!idParam) return NextResponse.json({ error: "缺少id" }, { status: 400 });
-  const id = parseInt(idParam);
-  return serviceResponse(await deleteCompanyById(id));
+  const parsedQuery = deleteQuerySchema.safeParse({ id: searchParams.get("id") });
+  if (!parsedQuery.success) return NextResponse.json({ error: "缺少id" }, { status: 400 });
+
+  return serviceResponse(await deleteCompanyById(parsedQuery.data.id));
 }
