@@ -2,7 +2,7 @@
  * 从 DB 读取资源最高角色（maxRoleKey），带缓存。
  * 替代 lib/permissions.ts 中硬编码的 RESOURCE_MAX_ROLE。
  */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 
 const ROLE_HIERARCHY: Record<string, number> = {
   access: 0, write: 1, delete: 2, admin: 3,

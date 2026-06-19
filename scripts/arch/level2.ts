@@ -122,6 +122,8 @@ type Level2Report = {
     legacyRootUtilityFiles: number;
     legacyRootWithAuthFiles: number;
     legacyRootWithAuthImports: number;
+    legacyRootPrismaFiles: number;
+    legacyRootPrismaImports: number;
   };
   registries: {
     modules: Array<{
@@ -157,6 +159,8 @@ type Level2Report = {
     legacyRootUtilityFiles: string[];
     legacyRootWithAuthFiles: string[];
     legacyRootWithAuthImports: string[];
+    legacyRootPrismaFiles: string[];
+    legacyRootPrismaImports: string[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -168,7 +172,7 @@ type Level2Report = {
 const ROOT = path.resolve(__dirname, "../..");
 const HTTP_METHODS: ApiMethod[] = ["GET", "POST", "PUT", "PATCH", "DELETE"];
 const HTTP_METHOD_SET = new Set<string>(HTTP_METHODS);
-const SCAN_ROOTS = ["app", "packages", "server", "lib"];
+const SCAN_ROOTS = ["app", "packages", "server", "lib", "scripts"];
 const SKIPPED_DIRS = new Set([
   ".git",
   ".next",
@@ -814,6 +818,29 @@ function findLegacyRootWithAuthImports(files: SourceInfo[]) {
     .sort();
 }
 
+function findLegacyRootPrismaFiles(files: SourceInfo[]) {
+  return files
+    .filter((file) => file.relPath === "lib/prisma.ts")
+    .map((file) => file.relPath)
+    .sort();
+}
+
+function isLegacyRootPrismaSpecifier(specifier: string) {
+  return specifier === "@/lib/prisma" ||
+    specifier === "./lib/prisma" ||
+    /^(?:\.\.\/)+lib\/prisma$/.test(specifier);
+}
+
+function findLegacyRootPrismaImports(files: SourceInfo[]) {
+  return files
+    .flatMap((file) => (
+      file.imports
+        .filter((item) => isLegacyRootPrismaSpecifier(item.specifier))
+        .map((item) => `${file.relPath}: ${item.specifier}`)
+    ))
+    .sort();
+}
+
 function findAppHookFiles(hooks: HookPatternCandidate[]) {
   return hooks
     .filter((hook) => hook.file.startsWith("app/hooks/"))
@@ -870,6 +897,8 @@ export function createLevel2Report(): Level2Report {
   const legacyRootUtilityFiles = findLegacyRootUtilityFiles(sourceFiles);
   const legacyRootWithAuthFiles = findLegacyRootWithAuthFiles(sourceFiles);
   const legacyRootWithAuthImports = findLegacyRootWithAuthImports(sourceFiles);
+  const legacyRootPrismaFiles = findLegacyRootPrismaFiles(sourceFiles);
+  const legacyRootPrismaImports = findLegacyRootPrismaImports(sourceFiles);
 
   return {
     level: "2",
@@ -900,6 +929,8 @@ export function createLevel2Report(): Level2Report {
       legacyRootUtilityFiles: legacyRootUtilityFiles.length,
       legacyRootWithAuthFiles: legacyRootWithAuthFiles.length,
       legacyRootWithAuthImports: legacyRootWithAuthImports.length,
+      legacyRootPrismaFiles: legacyRootPrismaFiles.length,
+      legacyRootPrismaImports: legacyRootPrismaImports.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -937,6 +968,8 @@ export function createLevel2Report(): Level2Report {
       legacyRootUtilityFiles,
       legacyRootWithAuthFiles,
       legacyRootWithAuthImports,
+      legacyRootPrismaFiles,
+      legacyRootPrismaImports,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,

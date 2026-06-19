@@ -3,7 +3,7 @@
  * ON (默认): system.admin 可 bypass 所有业务权限（兼容旧行为）
  * OFF: system.admin 只保证能进入 /admin，业务页面需单独授权
  */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 
 const KEY = "systemAdminBusinessBypass";
 let _cache: boolean | null = null;

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import { verifyToken, getTokenFromCookie } from "@/lib/auth/token";
 import { authorize } from "./authorize";
 

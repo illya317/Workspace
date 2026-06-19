@@ -5,7 +5,7 @@ import { verifyToken } from "@/lib/auth/token";
 import { getPermissionContext } from "@/server/rbac/context";
 import { evaluatePermissionWithContext } from "@/server/rbac/check";
 import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import type { SessionUser } from "@/lib/types";
 
 async function _getCurrentUser(): Promise<SessionUser | null> {

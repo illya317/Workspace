@@ -1,6 +1,6 @@
 import "server-only";
 import { unstable_cache, revalidateTag } from "next/cache";
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 
 export const getDepartments = unstable_cache(
   async () => prisma.department.findMany({ orderBy: { code: "asc" } }),

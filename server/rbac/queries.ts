@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
 
 type GrantResult = Array<{

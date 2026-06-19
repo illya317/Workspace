@@ -6,7 +6,7 @@
  * This replaces hand-crafted OR chains in session.ts.
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import { evaluatePermissionWithContext } from "./check";
 import type { PermissionContext } from "./types";
 

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 
 export async function getUserPositionIds(userId: number): Promise<number[]> {
   const eps = await prisma.eDP.findMany({

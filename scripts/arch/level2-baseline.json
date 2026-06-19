@@ -12,6 +12,8 @@
   "legacyRootUtilityFiles": [],
   "legacyRootWithAuthFiles": [],
   "legacyRootWithAuthImports": [],
+  "legacyRootPrismaFiles": [],
+  "legacyRootPrismaImports": [],
   "repeatedServiceGroups": [],
   "routePrimitiveSchemaDuplicates": [],
   "apiRouteHelperDuplicates": []

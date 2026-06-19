@@ -1,5 +1,5 @@
 import { computeBalancesForPeriod } from "@workspace/finance/server/ledger/balances";
-import { prisma } from "../lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 
 async function main() {
   // 天力通 (02) 2025.12 period
