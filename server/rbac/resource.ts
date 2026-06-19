@@ -67,3 +67,10 @@ export async function getResourceAncestorKeys(resourceKey: string): Promise<stri
     .map((id) => keyById.get(id))
     .filter((key): key is string => Boolean(key));
 }
+
+export async function getResourceSummariesByIds(resourceIds: number[]) {
+  return prisma.resource.findMany({
+    where: { id: { in: resourceIds } },
+    select: { id: true, key: true, name: true },
+  });
+}

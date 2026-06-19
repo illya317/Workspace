@@ -21,6 +21,7 @@ export * from "./position-description-template-store";
 export * from "./position-codes";
 export * from "./positions";
 export * from "./permission-subjects";
+export * from "./permission-grants";
 export * from "./roster";
 export * from "./schemas";
 export * from "./search";

@@ -1,88 +1,83 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkPermission } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { setGrant, getGrants } from "@workspace/platform/server/auth";
-import { getManageableResourceKeys, canManageResourceGrant } from "@workspace/platform/server/auth";
+import { z } from "zod";
 
-// GET - get all department-level permission grants
+import {
+  listSubjectPermissionGrants,
+  setSubjectPermissionGrant,
+} from "@workspace/hr/server/permission-grants";
+import {
+  authenticate,
+  authorize,
+  canManageResourceGrant,
+  getManageableResourceKeys,
+} from "@workspace/platform/server/auth";
+
+const departmentPermissionSchema = z.object({
+  departmentId: z.coerce.number().int().positive(),
+  resourceKey: z.string().min(1),
+  roleKey: z.string().min(1),
+  value: z.boolean(),
+});
+
 export async function GET(request: Request) {
   const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 
-  const isSysAdmin = await checkPermission(payload.userId, "system", "admin");
-  const manageableKeys = await getManageableResourceKeys(payload.userId);
+  const [isSystemAdmin, manageableKeys] = await Promise.all([
+    authorize({ user: payload.userId, resourceKey: "system", action: "admin" }),
+    getManageableResourceKeys(payload.userId),
+  ]);
 
-  if (!isSysAdmin && manageableKeys.size === 0) {
+  if (!isSystemAdmin && manageableKeys.size === 0) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
-  const grants = await getGrants("department");
-  const filteredGrants = isSysAdmin
-    ? grants
-    : grants.filter((g) => manageableKeys.has(g.resourceKey));
-
-  const resourceIds = [...new Set(filteredGrants.map((g) => g.resourceId))];
-  const departmentIds = [...new Set(filteredGrants.map((g) => g.subjectId))];
-
-  const [resources, departments] = await Promise.all([
-    prisma.resource.findMany({
-      where: { id: { in: resourceIds } },
-      select: { id: true, key: true, name: true },
+  return NextResponse.json(
+    await listSubjectPermissionGrants({
+      subjectType: "department",
+      isSystemAdmin,
+      manageableResourceKeys: manageableKeys,
     }),
-    prisma.department.findMany({
-      where: { id: { in: departmentIds } },
-      select: { id: true, code: true, name: true },
-    }),
-  ]);
-
-  const resMap = new Map(resources.map((r) => [r.id, r]));
-  const deptMap = new Map(departments.map((d) => [d.id, d]));
-
-  const enriched = filteredGrants.map((g) => ({
-    ...g,
-    resource: resMap.get(g.resourceId),
-    department: deptMap.get(g.subjectId),
-    role: { key: g.roleKey },
-  }));
-
-  return NextResponse.json({ grants: enriched });
+  );
 }
 
-// PUT - toggle a department-level permission grant
 export async function PUT(request: Request) {
   try {
     const payload = await authenticate(request);
-    if (!payload) {
-      return NextResponse.json({ error: "未登录" }, { status: 401 });
-    }
+    if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 
-    const body = await request.json();
-    const { departmentId, resourceKey, roleKey, value } = body;
-
-    if (!departmentId || !resourceKey || !roleKey || typeof value !== "boolean") {
+    const parsed = departmentPermissionSchema.safeParse(await request.json().catch(() => null));
+    if (!parsed.success) {
       return NextResponse.json(
         { error: "参数错误: 需要 departmentId, resourceKey, roleKey, value" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const canManage = await canManageResourceGrant(payload.userId, resourceKey, roleKey);
+    const canManage = await canManageResourceGrant(
+      payload.userId,
+      parsed.data.resourceKey,
+      parsed.data.roleKey,
+    );
     if (!canManage) {
       return NextResponse.json({ error: "无权限管理该资源权限" }, { status: 403 });
     }
 
-    await setGrant("department", Number(departmentId), resourceKey, roleKey, value, {
-      actorUserId: payload.userId,
-    });
-
-    return NextResponse.json({ success: true });
-  } catch (e: unknown) {
-    console.error("department-permissions PUT error:", e);
     return NextResponse.json(
-      { error: e instanceof Error ? e.message : "服务器内部错误" },
-      { status: 500 }
+      await setSubjectPermissionGrant({
+        subjectType: "department",
+        subjectId: parsed.data.departmentId,
+        resourceKey: parsed.data.resourceKey,
+        roleKey: parsed.data.roleKey,
+        value: parsed.data.value,
+        actorUserId: payload.userId,
+      }),
+    );
+  } catch (error: unknown) {
+    console.error("department-permissions PUT error:", error);
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : "服务器内部错误" },
+      { status: 500 },
     );
   }
 }

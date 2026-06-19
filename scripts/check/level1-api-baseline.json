@@ -1,11 +1,9 @@
 {
   "directPermissionFiles": [
-    "app/api/admin/department-permissions/route.ts",
     "app/api/admin/employee-permissions/route.ts",
     "app/api/admin/permission-grants/max-role/route.ts",
     "app/api/admin/permission-grants/route.ts",
     "app/api/admin/permissions/route.ts",
-    "app/api/admin/position-permissions/route.ts",
     "app/api/admin/projects/route.ts",
     "app/api/admin/system-config/route.ts",
     "app/api/agent/capabilities/route.ts",
@@ -28,11 +26,9 @@
   "directPrismaFiles": [
     "app/api/admin/audit-log/restore/route.ts",
     "app/api/admin/department-admins/route.ts",
-    "app/api/admin/department-permissions/route.ts",
     "app/api/admin/edit-history/route.ts",
     "app/api/admin/permission-grants/max-role/route.ts",
     "app/api/admin/permissions/route.ts",
-    "app/api/admin/position-permissions/route.ts",
     "app/api/admin/projects/route.ts",
     "app/api/admin/system-config/route.ts",
     "app/api/agent/proposals/[id]/confirm/route.ts",

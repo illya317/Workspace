@@ -28,7 +28,10 @@ export {
 } from "../../../server/rbac/grants";
 export { getPermissionContext, ensureGrantCache } from "../../../server/rbac/context";
 export { getVisibleResourceKeys } from "../../../server/rbac/visibility";
-export { getResourceAncestorKeys } from "../../../server/rbac/resource";
+export {
+  getResourceAncestorKeys,
+  getResourceSummariesByIds,
+} from "../../../server/rbac/resource";
 export {
   clearMaxRoleCache,
   getResourceMaxRole,
