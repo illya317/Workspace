@@ -1,104 +1,59 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
-import { handleCreate } from "@/lib/crud-finance";
-import { parsePositiveInt, parseYear, parsePageParams } from "@/lib/validation";
-import { matchText } from "@/lib/search";
+import {
+  createFinanceAccount,
+  listFinanceAccounts,
+  type FinanceAccountScope,
+} from "@workspace/finance/server/ledger/accounts";
+
+const listAccountsQuerySchema = z.object({
+  companyCode: z.string().optional(),
+  subjectLevel: z.string().optional(),
+  scope: z.enum(["mapped", "unmapped", "inactive", "all"]).optional(),
+  year: z.string().optional(),
+  keyword: z.string().optional(),
+  page: z.coerce.number().int().positive().default(1),
+  pageSize: z.coerce.number().int().positive().max(2000).default(50),
+});
+
+const createAccountSchema = z.object({
+  code: z.string().min(1),
+  name: z.string().min(1),
+  category: z.string().min(1),
+  parentId: z.unknown().optional(),
+  balanceDirection: z.unknown().optional(),
+  companyCode: z.unknown().optional(),
+  mnemonicCode: z.unknown().optional(),
+  currency: z.unknown().optional(),
+  groupSubjectCode: z.unknown().optional(),
+  subjectLevel: z.unknown().optional(),
+  isActive: z.unknown().optional(),
+  sortOrder: z.unknown().optional(),
+});
+
 export const GET = withFinanceLedgerAccess(async (request) => {
   const { searchParams } = new URL(request.url);
-  const companyCode = searchParams.get("companyCode") || undefined;
-  const subjectLevel = searchParams.get("subjectLevel");
-  const scope = searchParams.get("scope") || "mapped";
-  const yearNum = parseYear(searchParams.get("year"));
-  const keyword = searchParams.get("keyword") || "";
-  const where: Record<string, unknown> = {};
-  const hasKeyword = !!keyword;
-  if (scope === "mapped") {
-    where.groupSubjectCode = { not: null };
-  } else if (scope === "unmapped") {
-    where.groupSubjectCode = null;
-  } else if (scope === "inactive") {
-    where.isActive = false;
-  }
-  if (companyCode) {
-    where.companyCode = companyCode;
-  }
-  if (subjectLevel) {
-    const sl = parsePositiveInt(subjectLevel, 0);
-    if (sl > 0) where.subjectLevel = sl;
-  }
-  if (yearNum !== null) where.year = yearNum;
-  const { page, pageSize } = parsePageParams(searchParams, 2000);
-  if (hasKeyword) {
-    // 拼音搜索：全量拉取 → matchText 过滤 → 前端分页
-    const all = await prisma.financeAccount.findMany({
-      where,
-      orderBy: [{ code: "asc" }],
-      include: {
-        parent: { select: { code: true, name: true } },
-      },
-    });
-    const filtered = all.filter(
-      (a) => matchText(a.code, keyword) || matchText(a.name, keyword),
-    );
-    const total = filtered.length;
-    const totalPages = Math.ceil(total / pageSize);
-    const skip = (page - 1) * pageSize;
-    const paged = filtered.slice(skip, skip + pageSize);
-    return NextResponse.json({
-      data: paged,
-      total,
-      page,
-      pageSize,
-      totalPages,
-      accounts: paged,
-    });
-  }
-  const skip = (page - 1) * pageSize;
-  const [accounts, total] = await Promise.all([
-    prisma.financeAccount.findMany({
-      where,
-      orderBy: [{ code: "asc" }],
-      skip,
-      take: pageSize,
-      include: {
-        parent: { select: { code: true, name: true } },
-      },
-    }),
-    prisma.financeAccount.count({ where }),
-  ]);
-  const totalPages = Math.ceil(total / pageSize);
-  return NextResponse.json({
-    data: accounts,
-    total,
-    page,
-    pageSize,
-    totalPages,
-    accounts,
+  const parsed = listAccountsQuerySchema.safeParse({
+    companyCode: searchParams.get("companyCode") || undefined,
+    subjectLevel: searchParams.get("subjectLevel") || undefined,
+    scope: (searchParams.get("scope") || "mapped") as FinanceAccountScope,
+    year: searchParams.get("year") || undefined,
+    keyword: searchParams.get("keyword") || undefined,
+    page: searchParams.get("page") || undefined,
+    pageSize: searchParams.get("pageSize") || undefined,
   });
+  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+
+  return NextResponse.json(await listFinanceAccounts(parsed.data));
 });
-export const POST = withFinanceLedgerWrite(async (request) => {
-  const body = await request.json();
-  const { code, name, category, parentId, balanceDirection, companyCode } = body;
-  if (!code || !name || !category) {
+
+export const POST = withFinanceLedgerWrite(async (request, user) => {
+  const parsed = createAccountSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) {
     return NextResponse.json({ error: "科目编码、名称、类别为必填" }, { status: 400 });
   }
-  return handleCreate(request, {
-    entityType: "FinanceAccount",
-    modelKey: "financeAccount",
-    allowedFields: ["code", "name", "category", "parentId", "balanceDirection", "companyCode", "mnemonicCode", "currency", "groupSubjectCode", "subjectLevel", "sortOrder", "isActive"],
-  }, async () => ({
-    code,
-    name,
-    category,
-    parentId: parentId ? parseInt(parentId) : null,
-    balanceDirection: balanceDirection || "debit",
-    companyCode: companyCode || null,
-    mnemonicCode: body.mnemonicCode || null,
-    currency: body.currency || null,
-    groupSubjectCode: body.groupSubjectCode || null,
-    subjectLevel: body.subjectLevel ? parseInt(body.subjectLevel) : null,
-    isActive: body.isActive !== undefined ? body.isActive : true,
-    sortOrder: body.sortOrder || 0,
-  }));
+
+  return NextResponse.json(await createFinanceAccount(parsed.data, user.userId));
 });
