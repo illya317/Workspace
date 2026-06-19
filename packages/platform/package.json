@@ -12,6 +12,7 @@
     "./module-registry": "./module-registry.ts",
     "./modules": "./modules.tsx",
     "./resources": "./resources.ts",
+    "./server/api": "./server/api.ts",
     "./server/auth": "./server/auth.ts",
     "./server/crud-factory": "./server/crud-factory.ts",
     "./server/history": "./server/history.ts",

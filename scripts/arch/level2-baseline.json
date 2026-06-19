@@ -109,7 +109,6 @@
   ],
   "repeatedServiceGroups": [
     "crud: packages/hr/server/crud.ts | packages/work/server/crud.ts",
-    "field-validation: packages/hr/server/field-validation.ts | packages/work/server/field-validation.ts",
-    "schemas: packages/hr/server/schemas.ts | packages/work/server/schemas.ts"
+    "field-validation: packages/hr/server/field-validation.ts | packages/work/server/field-validation.ts"
   ]
 }

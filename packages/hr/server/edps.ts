@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRWrite } from "@workspace/platform/server/auth";
+import { parseJson } from "@workspace/platform/server/api";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { formatDepartmentPath } from "@workspace/hr/utils/department-path";
 import { isValidDateValue, parseWorkPercent, rejectInvalidDateField } from "./field-validation";
 import { prisma } from "@workspace/platform/server/prisma";
-import { EDPCreateSchema, parseJson } from "./schemas";
+import { EDPCreateSchema } from "./schemas";
 import { handleCreate, handleDelete } from "./crud";
 
 const DATE_FIELDS = ["startDate", "endDate"];

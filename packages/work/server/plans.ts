@@ -1,9 +1,10 @@
 import { snapshotHistory } from "@workspace/platform/server/history";
+import { parseJson } from "@workspace/platform/server/api";
 import { isValidDateValue, rejectInvalidDateField } from "./field-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 import { handleDelete, handleUpdateField } from "./crud";
 import { matchAnyField } from "./search";
-import { WorkPlanCreateSchema, parseJson } from "./schemas";
+import { WorkPlanCreateSchema } from "./schemas";
 
 const DATE_FIELDS = ["startDate", "endDate"];
 const NUMBER_FIELDS = ["budgetAmount"];

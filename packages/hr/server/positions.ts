@@ -1,9 +1,10 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { handleCreate, handleDelete, handleUpdateField } from "./crud";
+import { parseJson } from "@workspace/platform/server/api";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "./search";
-import { PositionCreateSchema, parseJson } from "./schemas";
+import { PositionCreateSchema } from "./schemas";
 import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
 
 export interface PositionListItem {
