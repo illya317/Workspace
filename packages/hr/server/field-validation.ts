@@ -1,5 +1,9 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import {
+  isValidDateValue,
+  rejectInvalidDateField,
+} from "@workspace/platform/server/api";
+import {
   HR_CONTRACT_TYPES,
   HR_EMPLOYMENT_TITLES,
   HR_EDUCATIONS,
@@ -18,28 +22,7 @@ import {
 } from "@workspace/hr/constants/field-options";
 import { normalizePhoneValue, validateChineseIdNumber } from "@workspace/hr/utils/identity";
 
-export function isValidDateValue(value: unknown) {
-  if (value === null || value === undefined || value === "") return true;
-  if (typeof value !== "string") return false;
-
-  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (!match) return false;
-
-  const year = Number(match[1]);
-  const monthIndex = Number(match[2]) - 1;
-  const day = Number(match[3]);
-  const parsed = new Date(year, monthIndex, day);
-  return (
-    parsed.getFullYear() === year &&
-    parsed.getMonth() === monthIndex &&
-    parsed.getDate() === day
-  );
-}
-
-export function rejectInvalidDateField(field: string, value: unknown, dateFields: readonly string[]) {
-  if (dateFields.includes(field) && !isValidDateValue(value)) return null;
-  return { field, value };
-}
+export { isValidDateValue, rejectInvalidDateField };
 
 export async function isValidCompanyName(value: unknown) {
   if (value === null || value === undefined || value === "") return true;

@@ -40,7 +40,11 @@ export {
   checkHRWrite,
   isKicked,
 } from "./server/auth";
-export { parseJson } from "./server/api";
+export {
+  isValidDateValue,
+  parseJson,
+  rejectInvalidDateField,
+} from "./server/api";
 export type { ParsedJson } from "./server/api";
 export { createCrudHandlers } from "./server/crud-factory";
 export type { AccessChecker, CrudFactoryConfig } from "./server/crud-factory";

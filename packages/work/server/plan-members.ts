@@ -1,6 +1,9 @@
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { handleCreate, handleDelete, handleUpdateField } from "./crud";
-import { isValidDateValue, rejectInvalidDateField } from "./field-validation";
+import {
+  isValidDateValue,
+  rejectInvalidDateField,
+} from "@workspace/platform/server/api";
 import { prisma } from "@workspace/platform/server/prisma";
 import { WORK_PLAN_ROLES } from "../constants/field-options";
 
