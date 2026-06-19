@@ -219,8 +219,5 @@
     "server/rbac/check.ts",
     "server/rbac/context.ts"
   ],
-  "directRbacTableFiles": [
-    "app/api/admin/department-admins/route.ts",
-    "server/dal/dict-cache.ts"
-  ]
+  "directRbacTableFiles": []
 }

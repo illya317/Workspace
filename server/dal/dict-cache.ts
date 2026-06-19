@@ -20,18 +20,6 @@ export const getCompanies = unstable_cache(
   { revalidate: 3600, tags: ["companies"] }
 );
 
-export const getResources = unstable_cache(
-  async () => prisma.resource.findMany({ orderBy: { sortOrder: "asc" } }),
-  ["resources"],
-  { revalidate: 3600, tags: ["resources"] }
-);
-
-export const getRoles = unstable_cache(
-  async () => prisma.role.findMany({ orderBy: { sortOrder: "asc" } }),
-  ["roles"],
-  { revalidate: 3600, tags: ["roles"] }
-);
-
 export const getFinanceAccounts = unstable_cache(
   async () => prisma.financeAccount.findMany({ orderBy: { code: "asc" } }),
   ["finance-accounts"],
