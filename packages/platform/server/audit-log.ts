@@ -50,6 +50,10 @@ export interface AuditLogEntry {
   changes: Array<{ field: string; from?: string; to: string }>;
 }
 
+export type RestoreAuditLogSnapshotResult =
+  | { success: true }
+  | { success: false; status: number; error: string };
+
 export async function getAuditLogDates(entityType: string) {
   const rows = await prisma.editHistory.findMany({
     where: { entityType, tag: null },
@@ -178,4 +182,39 @@ export async function getAuditLogEntries(
     });
 
   return { entries, total, page, pageSize };
+}
+
+export async function restoreAuditLogSnapshot(
+  historyId: number,
+): Promise<RestoreAuditLogSnapshotResult> {
+  const snapshot = await prisma.editHistory.findUnique({ where: { id: historyId } });
+  if (!snapshot) return { success: false, status: 404, error: "版本不存在" };
+
+  const resolver = RESOLVERS[snapshot.entityType];
+  if (!resolver) return { success: false, status: 400, error: "不支持的实体类型" };
+
+  let data: Record<string, unknown>;
+  try {
+    data = JSON.parse(snapshot.dataJson) as Record<string, unknown>;
+  } catch {
+    return { success: false, status: 500, error: "数据格式错误" };
+  }
+
+  delete data.id;
+  const entityId = parseInt(snapshot.entityId);
+
+  type ModelDelegate = {
+    findUnique: (args: { where: { id: number } }) => Promise<unknown>;
+    update: (args: { where: { id: number }; data: unknown }) => Promise<unknown>;
+    create: (args: { data: unknown }) => Promise<unknown>;
+  };
+  const model = (prisma as unknown as Record<string, ModelDelegate>)[resolver.model];
+  const exists = await model.findUnique({ where: { id: entityId } });
+  if (exists) {
+    await model.update({ where: { id: entityId }, data });
+  } else {
+    await model.create({ data: { ...data, id: entityId } });
+  }
+
+  return { success: true };
 }
