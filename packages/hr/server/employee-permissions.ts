@@ -1,5 +1,7 @@
-import { prisma } from "@/lib/prisma";
-import { loadCompanyMap, getCompanyNameSync } from "@workspace/hr/server/company-directory";
+import { setGrant } from "@workspace/platform/server/auth";
+import { prisma } from "@workspace/platform/server/prisma";
+
+import { loadCompanyMap, getCompanyNameSync } from "./company-directory";
 
 interface EmployeeRole {
   company: string | null;
@@ -168,39 +170,12 @@ export async function syncUserGrants(employeeId: string, name: string, grants?: 
       const { resourceKey, roleKey, value } = grant;
       if (!resourceKey || !roleKey || typeof value !== "boolean") continue;
 
-      const resource = await prisma.resource.findUnique({ where: { key: resourceKey } });
-      const role = await prisma.role.findUnique({ where: { key: roleKey } });
-
-      if (!resource || !role) continue;
-
-      if (value) {
-        const existing = await prisma.userResourceRole.findFirst({
-          where: {
-            userId: user.id,
-            resourceId: resource.id,
-            roleId: role.id,
-            scopeId: null,
-          },
-        });
-        if (!existing) {
-          await prisma.userResourceRole.create({
-            data: {
-              userId: user.id,
-              resourceId: resource.id,
-              roleId: role.id,
-              scopeId: null,
-            },
-          });
-        }
-      } else {
-        await prisma.userResourceRole.deleteMany({
-          where: {
-            userId: user.id,
-            resourceId: resource.id,
-            roleId: role.id,
-            scopeId: null,
-          },
-        });
+      try {
+        await setGrant("user", user.id, resourceKey, roleKey, value, { scopeId: null });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "权限同步失败";
+        if (message.startsWith("Invalid resourceKey")) continue;
+        return { success: false, error: message, status: 400 };
       }
     }
   }

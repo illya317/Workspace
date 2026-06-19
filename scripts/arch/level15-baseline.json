@@ -266,8 +266,6 @@
     "server/rbac/maxRole.ts",
     "server/rbac/queries.ts",
     "server/rbac/resource.ts",
-    "server/rbac/visibility.ts",
-    "server/services/admin/permission-subjects.ts",
-    "server/services/employee-permissions.ts"
+    "server/rbac/visibility.ts"
   ]
 }

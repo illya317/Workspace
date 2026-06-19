@@ -3,7 +3,6 @@
   "appHookImplementationFiles": [],
   "domainUiCandidatesWithoutCore": [],
   "legacyServiceFiles": [
-    "server/services/admin/permission-subjects.ts",
     "server/services/agent/capabilities.ts",
     "server/services/agent/model/deepseek.ts",
     "server/services/agent/model/noop.ts",
@@ -13,8 +12,7 @@
     "server/services/agent/proposals.ts",
     "server/services/agent/tools/finance.ts",
     "server/services/agent/tools/hr.ts",
-    "server/services/agent/tools/registry.ts",
-    "server/services/employee-permissions.ts"
+    "server/services/agent/tools/registry.ts"
   ],
   "repeatedServiceGroups": []
 }

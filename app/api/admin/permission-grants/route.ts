@@ -4,7 +4,7 @@ import {
   getManageableResourceKeys,
   canManageResourceGrant,
 } from "@workspace/platform/server/auth";
-import { getPermissionGrantData } from "@/server/services/admin/permission-subjects";
+import { getPermissionGrantData } from "@workspace/hr/server/permission-subjects";
 import type { SubjectType } from "@workspace/platform/server/auth";
 
 export async function GET(request: Request) {

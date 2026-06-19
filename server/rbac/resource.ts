@@ -49,3 +49,21 @@ export async function getResourceAncestors(resourceId: number): Promise<number[]
   }
   return result;
 }
+
+export async function getResourceAncestorKeys(resourceKey: string): Promise<string[]> {
+  const resource = await prisma.resource.findUnique({
+    where: { key: resourceKey },
+    select: { id: true },
+  });
+  if (!resource) return [];
+
+  const ancestorIds = await getResourceAncestors(resource.id);
+  const resources = await prisma.resource.findMany({
+    where: { id: { in: ancestorIds } },
+    select: { id: true, key: true },
+  });
+  const keyById = new Map(resources.map((item) => [item.id, item.key]));
+  return ancestorIds
+    .map((id) => keyById.get(id))
+    .filter((key): key is string => Boolean(key));
+}

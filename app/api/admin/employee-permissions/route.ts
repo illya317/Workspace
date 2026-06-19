@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@/lib/auth";
 import { getManageableResourceKeys } from "@workspace/platform/server/auth";
-import { getEmployeesWithPermissions, syncUserGrants } from "@/server/services/employee-permissions";
+import { getEmployeesWithPermissions, syncUserGrants } from "@workspace/hr/server/employee-permissions";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);

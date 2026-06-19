@@ -1,8 +1,11 @@
-import { prisma } from "@/lib/prisma";
-import { loadCompanyMap, getCompanyNameSync } from "@workspace/hr/server/company-directory";
-import { getGrants } from "@/server/rbac/grants";
-import { getResourceAncestors } from "@/server/rbac/resource";
-import type { SubjectType } from "@/server/rbac/grants";
+import {
+  getGrants,
+  getResourceAncestorKeys,
+  type SubjectType,
+} from "@workspace/platform/server/auth";
+import { prisma } from "@workspace/platform/server/prisma";
+
+import { loadCompanyMap, getCompanyNameSync } from "./company-directory";
 
 export interface SubjectInfo {
   id: number;
@@ -42,25 +45,7 @@ export async function getPermissionGrantData(
     departmentGrants = await getGrants("department", undefined, scopeId);
   }
 
-  let ancestorResourceIds: number[] = [];
-  if (resourceKey) {
-    const resource = await prisma.resource.findUnique({
-      where: { key: resourceKey },
-      select: { id: true },
-    });
-    if (resource) {
-      ancestorResourceIds = await getResourceAncestors(resource.id);
-    }
-  }
-
-  const ancestorResourceKeys = resourceKey
-    ? (
-        await prisma.resource.findMany({
-          where: { id: { in: ancestorResourceIds } },
-          select: { key: true },
-        })
-      ).map((r) => r.key)
-    : [];
+  const ancestorResourceKeys = resourceKey ? await getResourceAncestorKeys(resourceKey) : [];
 
   return {
     subjects,
