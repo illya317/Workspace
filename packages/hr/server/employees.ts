@@ -6,7 +6,7 @@ import { serializeHrMajorItems } from "@workspace/hr/constants/field-options";
 import { normalizeHrSchoolValue } from "@workspace/hr/constants/school-options";
 import { prisma } from "@workspace/platform/server/prisma";
 import { fkDisplay, resolveFkValues } from "@workspace/platform/server/resolve-fk";
-import { handleDelete, handleUpdateField } from "./crud";
+import { handleDelete, handleUpdateField } from "./hr-crud";
 import { matchAnyField, matchEmployee } from "./search";
 
 const EMPLOYEE_ID_PATTERN = /^\d{5}$/;

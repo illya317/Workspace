@@ -3,7 +3,7 @@ import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "./search";
 import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
-import { handleDelete, handleUpdateField } from "./crud";
+import { handleDelete, handleUpdateField } from "./hr-crud";
 
 type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
 

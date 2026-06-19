@@ -60,11 +60,27 @@ export async function checkHRDelete(
   return checkHRAccess(userId, "delete", resourceKey);
 }
 
-export async function checkWorksAccess(userId: number): Promise<boolean> {
+export async function checkWorkAccess(
+  userId: number,
+  roleKey: AuthorizeAction = "access",
+): Promise<boolean> {
   return (
     (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
-    (await authorize({ user: userId, resourceKey: "work", action: "access" }))
+    (await authorize({ user: userId, resourceKey: "work.plan", action: roleKey })) ||
+    (await authorize({ user: userId, resourceKey: "work", action: roleKey }))
   );
+}
+
+export async function checkWorkWrite(userId: number): Promise<boolean> {
+  return checkWorkAccess(userId, "write");
+}
+
+export async function checkWorkDelete(userId: number): Promise<boolean> {
+  return checkWorkAccess(userId, "delete");
+}
+
+export async function checkWorksAccess(userId: number): Promise<boolean> {
+  return checkWorkAccess(userId, "access");
 }
 
 export async function checkInventoryAccess(userId: number): Promise<boolean> {

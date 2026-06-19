@@ -1,5 +1,5 @@
 import { Prisma } from "@workspace/platform/server/prisma";
-import { handleCreate, handleDelete, handleUpdateField } from "./crud";
+import { handleCreate, handleDelete, handleUpdateField } from "./hr-crud";
 import { parseJson } from "@workspace/platform/server/api";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";

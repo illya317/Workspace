@@ -27,4 +27,8 @@ export {
   checkHRAccess,
   checkHRWrite,
   checkHRDelete,
+  checkWorkAccess,
+  checkWorkWrite,
+  checkWorkDelete,
+  checkWorksAccess,
 } from "../../../server/auth/domain";

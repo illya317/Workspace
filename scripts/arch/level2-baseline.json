@@ -105,7 +105,5 @@
     "server/services/reports.ts",
     "server/services/works.ts"
   ],
-  "repeatedServiceGroups": [
-    "crud: packages/hr/server/crud.ts | packages/work/server/crud.ts"
-  ]
+  "repeatedServiceGroups": []
 }

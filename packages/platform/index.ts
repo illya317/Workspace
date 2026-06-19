@@ -46,8 +46,16 @@ export {
   rejectInvalidDateField,
 } from "./server/api";
 export type { ParsedJson } from "./server/api";
-export { createCrudHandlers } from "./server/crud-factory";
-export type { AccessChecker, CrudFactoryConfig } from "./server/crud-factory";
+export {
+  createCrudHandlers,
+  createDomainCrudFacade,
+} from "./server/crud-factory";
+export type {
+  AccessChecker,
+  CrudFactoryConfig,
+  DomainCrudAccessChecks,
+  DomainCrudConfig,
+} from "./server/crud-factory";
 export { snapshotHistory } from "./server/history";
 export { prisma } from "./server/prisma";
 export { fkDisplay, resolveFkValues } from "./server/resolve-fk";

@@ -1,5 +1,5 @@
 import { prisma } from "@workspace/platform/server/prisma";
-import { handleCreate, handleDelete, handleUpdateField } from "./crud";
+import { handleCreate, handleDelete, handleUpdateField } from "./hr-crud";
 
 const COMPANY_RELATION_CONFIG = {
   entityType: "CompanyRelation",

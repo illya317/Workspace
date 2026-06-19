@@ -6,6 +6,9 @@ import { prisma } from "./prisma";
 type PrismaModelKey = keyof typeof prisma;
 export type AccessChecker = (userId: number) => Promise<boolean>;
 type BeforeUpdateResult = { field: string; value: unknown } | { error: string; status?: number };
+type CrudBuildData = (
+  body: Record<string, unknown>,
+) => Promise<Record<string, unknown> | null> | Record<string, unknown> | null;
 
 export interface CrudFactoryConfig {
   entityType: string;
@@ -15,6 +18,14 @@ export interface CrudFactoryConfig {
   deleteCheck?: AccessChecker;
   allowedFields?: string[];
   onBeforeUpdate?: (field: string, value: unknown, id?: number) => Promise<BeforeUpdateResult | null>;
+}
+
+export type DomainCrudConfig = Omit<CrudFactoryConfig, "accessCheck" | "writeCheck" | "deleteCheck">;
+
+export interface DomainCrudAccessChecks {
+  accessCheck: AccessChecker;
+  writeCheck: AccessChecker;
+  deleteCheck: AccessChecker;
 }
 
 function pickWriteCheck(config: CrudFactoryConfig, fallback: AccessChecker): AccessChecker {
@@ -100,6 +111,26 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
       await snapshotHistory(config.entityType, record.id, payload.userId);
 
       return NextResponse.json({ success: true, record });
+    },
+  };
+}
+
+export function createDomainCrudFacade(accessChecks: DomainCrudAccessChecks) {
+  function wrap(config: DomainCrudConfig) {
+    return createCrudHandlers({ ...config, ...accessChecks });
+  }
+
+  return {
+    handleUpdateField(request: Request, params: Promise<{ id: string }>, config: DomainCrudConfig) {
+      return wrap(config).handleUpdateField(request, params);
+    },
+
+    handleDelete(request: Request, params: Promise<{ id: string }>, config: DomainCrudConfig) {
+      return wrap(config).handleDelete(request, params);
+    },
+
+    handleCreate(request: Request, config: DomainCrudConfig, buildData?: CrudBuildData) {
+      return wrap(config).handleCreate(request, buildData);
     },
   };
 }

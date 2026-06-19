@@ -6,7 +6,7 @@ import { formatDepartmentPath } from "@workspace/hr/utils/department-path";
 import { isValidDateValue, parseWorkPercent, rejectInvalidDateField } from "./field-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 import { EDPCreateSchema } from "./schemas";
-import { handleCreate, handleDelete } from "./crud";
+import { handleCreate, handleDelete } from "./hr-crud";
 
 const DATE_FIELDS = ["startDate", "endDate"];
 const EDP_FIELDS = ["positionId", "isPrimary", "startDate", "endDate", "reportTo", "workPercent"];
