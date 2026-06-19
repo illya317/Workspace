@@ -67,9 +67,9 @@ export const POST = withLibraryWrite(async (request: Request, user, ctx?: RouteC
 
   // Run generator
   const output = await gen.generate({
+    ...body,
     title,
     summary,
-    ...body,
   });
 
   // Persist
