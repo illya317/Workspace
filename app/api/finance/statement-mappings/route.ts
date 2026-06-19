@@ -1,101 +1,117 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
 import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
-import { clearMappingCache } from "@workspace/finance/server/statements/mapping/resolver";
-import { ensureStatementMappings } from "@workspace/finance/server/statements/mapping/seed-from-config";
+import {
+  deleteStatementMapping,
+  listStatementMappings,
+  saveStatementMapping,
+  StatementMappingServiceError,
+} from "@workspace/finance/server/statements/mapping/statement-mappings";
 
-const VALID_TYPES = ["balance"];
-
-// GET: 列出所有映射（反向视图用）
-export const GET = withFinanceReportAccess(async (request) => {
-  const { searchParams } = new URL(request.url);
-  const companyCode = searchParams.get("companyCode");
-  const year = parseInt(searchParams.get("year") || "", 10);
-  const statementType = searchParams.get("statementType") || "balance";
-
-  if (!companyCode || !year)
-    return NextResponse.json({ error: "companyCode, year 为必填" }, { status: 400 });
-  if (!VALID_TYPES.includes(statementType))
-    return NextResponse.json({ error: "statementType 暂只支持 balance" }, { status: 400 });
-
-  // Ensure mappings exist before read (avoid race with statement-config init)
-  await ensureStatementMappings(companyCode, year, statementType);
-
-  const mappings = await prisma.financeStatementAccountMapping.findMany({
-    where: { companyCode, year, statementType },
-    select: { accountCode: true, lineCode: true, operator: true, source: true, note: true },
-    orderBy: { lineCode: "asc" },
-  });
-
-  return NextResponse.json({ mappings });
+const mappingQuerySchema = z.object({
+  companyCode: z.string().min(1),
+  year: z.coerce.number().int(),
+  statementType: z.literal("balance").default("balance"),
 });
 
-// POST: upsert 映射（科目 → 报表项目）
+const saveMappingSchema = mappingQuerySchema.extend({
+  accountCode: z.string().min(1),
+  lineCode: z.string().min(1),
+  operator: z.enum(["add", "subtract", "exclude"]).default("add"),
+});
+
+const deleteMappingSchema = mappingQuerySchema.extend({ accountCode: z.string().min(1) });
+const validOperators = ["add", "subtract", "exclude"];
+
+function readMappingQuery(request: Request) {
+  const { searchParams } = new URL(request.url);
+  return {
+    companyCode: searchParams.get("companyCode"),
+    year: searchParams.get("year"),
+    statementType: searchParams.get("statementType") || "balance",
+    accountCode: searchParams.get("accountCode"),
+  };
+}
+
+const isMissing = (value: unknown): boolean => value === null || value === undefined || value === "";
+
+function serviceErrorResponse(error: unknown) {
+  if (error instanceof StatementMappingServiceError) {
+    return NextResponse.json({ error: error.message }, { status: error.status });
+  }
+  throw error;
+}
+
+const badRequest = (error: string) => NextResponse.json({ error }, { status: 400 });
+
+export const GET = withFinanceReportAccess(async (request) => {
+  const raw = readMappingQuery(request);
+  if (isMissing(raw.companyCode) || isMissing(raw.year)) {
+    return badRequest("companyCode, year 为必填");
+  }
+
+  const parsed = mappingQuerySchema.safeParse(raw);
+  if (!parsed.success) {
+    return badRequest("statementType 暂只支持 balance");
+  }
+
+  try {
+    return NextResponse.json(await listStatementMappings(parsed.data));
+  } catch (error) {
+    return serviceErrorResponse(error);
+  }
+});
+
 export const POST = withFinanceReportWrite(async (request) => {
   const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object")
-    return NextResponse.json({ error: "请求体为必填" }, { status: 400 });
+  if (!body || typeof body !== "object") {
+    return badRequest("请求体为必填");
+  }
+  const payload = body as Record<string, unknown>;
 
-  const { companyCode, year, statementType, accountCode, lineCode, operator } = body;
-  if (!companyCode || !year || !statementType || !accountCode || !lineCode)
-    return NextResponse.json(
-      { error: "companyCode, year, statementType, accountCode, lineCode 为必填" },
-      { status: 400 },
-    );
-  const op = (operator || "add") as string;
-  if (op !== "add" && op !== "subtract" && op !== "exclude")
-    return NextResponse.json({ error: "operator 必须为 add、subtract 或 exclude" }, { status: 400 });
+  if (
+    isMissing(payload.companyCode) ||
+    isMissing(payload.year) ||
+    isMissing(payload.statementType) ||
+    isMissing(payload.accountCode) ||
+    isMissing(payload.lineCode)
+  ) {
+    return badRequest("companyCode, year, statementType, accountCode, lineCode 为必填");
+  }
 
-  const yearNum = parseInt(year, 10);
-  if (isNaN(yearNum)) return NextResponse.json({ error: "year 必须为数字" }, { status: 400 });
-  if (!VALID_TYPES.includes(statementType))
-    return NextResponse.json({ error: "statementType 暂只支持 balance" }, { status: 400 });
+  const parsed = saveMappingSchema.safeParse(body);
+  if (!parsed.success) {
+    if (payload.operator && !validOperators.includes(String(payload.operator))) {
+      return badRequest("operator 必须为 add、subtract 或 exclude");
+    }
+    if (!Number.isFinite(Number(payload.year))) {
+      return badRequest("year 必须为数字");
+    }
+    return badRequest("statementType 暂只支持 balance");
+  }
 
-  // Validate lineCode exists
-  const line = await prisma.financeStatementLineConfig.findUnique({
-    where: { companyCode_year_reportType_lineCode: { companyCode, year: yearNum, reportType: "balanceSheet", lineCode } },
-  });
-  if (!line) return NextResponse.json({ error: "lineCode 不存在" }, { status: 400 });
-
-  // Validate accountCode exists for this company+year
-  const account = await prisma.financeAccount.findUnique({
-    where: { code_companyCode_year: { code: accountCode, companyCode, year: yearNum } },
-  });
-  if (!account) return NextResponse.json({ error: "accountCode 不存在" }, { status: 400 });
-
-  const mapping = await prisma.financeStatementAccountMapping.upsert({
-    where: {
-      companyCode_year_statementType_accountCode: {
-        companyCode, year: yearNum, statementType, accountCode,
-      },
-    },
-    create: { companyCode, year: yearNum, statementType, accountCode, lineCode, operator: op, source: "manual" },
-    update: { lineCode, operator: op, source: "manual", note: null },
-  });
-
-  clearMappingCache();
-
-  return NextResponse.json({ success: true, mapping });
+  try {
+    return NextResponse.json(await saveStatementMapping(parsed.data));
+  } catch (error) {
+    return serviceErrorResponse(error);
+  }
 });
 
-// DELETE: 清除映射（回到父级继承，幂等）
 export const DELETE = withFinanceReportWrite(async (request) => {
-  const { searchParams } = new URL(request.url);
-  const companyCode = searchParams.get("companyCode");
-  const year = parseInt(searchParams.get("year") || "", 10);
-  const statementType = searchParams.get("statementType") || "balance";
-  const accountCode = searchParams.get("accountCode");
+  const raw = readMappingQuery(request);
+  if (isMissing(raw.companyCode) || isMissing(raw.year) || isMissing(raw.accountCode)) {
+    return badRequest("companyCode, year, accountCode 为必填");
+  }
 
-  if (!companyCode || !year || !accountCode)
-    return NextResponse.json({ error: "companyCode, year, accountCode 为必填" }, { status: 400 });
-  if (!VALID_TYPES.includes(statementType))
-    return NextResponse.json({ error: "statementType 暂只支持 balance" }, { status: 400 });
+  const parsed = deleteMappingSchema.safeParse(raw);
+  if (!parsed.success) {
+    return badRequest("statementType 暂只支持 balance");
+  }
 
-  const result = await prisma.financeStatementAccountMapping.deleteMany({
-    where: { companyCode, year, statementType, accountCode },
-  });
-
-  clearMappingCache();
-
-  return NextResponse.json({ success: true, deleted: result.count });
+  try {
+    return NextResponse.json(await deleteStatementMapping(parsed.data));
+  } catch (error) {
+    return serviceErrorResponse(error);
+  }
 });
