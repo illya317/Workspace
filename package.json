@@ -22,8 +22,6 @@
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
     "arch:gate": "tsx scripts/arch/gate.ts",
     "arch:level2": "tsx scripts/arch/level2.ts",
-    "orchestrator:route": "tsx orchestrator/router.ts",
-    "orchestrator:check": "tsx scripts/orchestrator-check.ts",
     "db:check": "node scripts/check/check-db.js",
     "db:path:check": "node scripts/check/check-database-paths.js",
     "db:docs": "node scripts/generate/gen-db-docs.js",
