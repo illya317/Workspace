@@ -334,12 +334,30 @@ export const registeredModules = registeredModuleDefinitions
   .filter((key): key is string => Boolean(key));
 
 function validateModuleRegistry() {
-  const seen = new Set<string>();
+  const seenPackages = new Set<string>();
+  const seenModuleKeys = new Set<string>();
+  const seenRoutes = new Map<string, string>();
+
+  for (const definition of registeredModuleDefinitions) {
+    if (seenPackages.has(definition.packageName)) {
+      throw new Error(`DUPLICATE MODULE PACKAGE: ${definition.packageName}`);
+    }
+    seenPackages.add(definition.packageName);
+
+    for (const route of definition.routes ?? []) {
+      const existingPackage = seenRoutes.get(route);
+      if (existingPackage) {
+        throw new Error(`DUPLICATE MODULE ROUTE: ${route} is registered by ${existingPackage} and ${definition.packageName}`);
+      }
+      seenRoutes.set(route, definition.packageName);
+    }
+  }
+
   for (const moduleKey of registeredModules) {
-    if (seen.has(moduleKey)) {
+    if (seenModuleKeys.has(moduleKey)) {
       throw new Error(`DUPLICATE MODULE KEY: ${moduleKey}`);
     }
-    seen.add(moduleKey);
+    seenModuleKeys.add(moduleKey);
   }
 
   for (const definition of registeredModuleDefinitions) {
