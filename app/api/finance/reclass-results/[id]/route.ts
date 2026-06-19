@@ -5,34 +5,42 @@ import {
   createManualReclassResult,
   ReviewError,
 } from "@workspace/finance/server/ledger/reclass-results/review";
-import type { ReviewPayload } from "@workspace/finance/server/ledger/reclass-results/types";
+import {
+  manualReclassResultSchema,
+  reclassResultIdSchema,
+  reviewReclassPayloadSchema,
+} from "@workspace/finance/server/ledger/reclass-results/schemas";
 
 export async function PATCH(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   return withFinanceLedgerWrite(async (req, user) => {
-    const { id } = await params;
-    const resultId = parseInt(id, 10);
+    const parsedParams = reclassResultIdSchema.safeParse(await params);
+    if (!parsedParams.success) {
+      return NextResponse.json({ error: "无效的 ID" }, { status: 400 });
+    }
+    const resultId = parsedParams.data.id;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let body: any;
-    try {
-      body = await req.json();
-    } catch {
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object") {
       return NextResponse.json({ error: "请求体格式错误" }, { status: 400 });
     }
 
     // id=0 → 手动创建 ReclassResult + 沉淀例外规则 + 全公司同步
     if (resultId === 0) {
-      const { periodId, voucherItemId, sourceAccount, targetAccount, amount } = body;
-      if (!periodId || !voucherItemId || !targetAccount) {
+      const parsedBody = manualReclassResultSchema.safeParse(body);
+      if (!parsedBody.success) {
         return NextResponse.json({ error: "缺少 periodId / voucherItemId / targetAccount" }, { status: 400 });
       }
       try {
         const item = await createManualReclassResult({
-          periodId, voucherItemId, sourceAccount: sourceAccount || "",
-          targetAccount, amount: amount || 0, userId: user.userId,
+          periodId: parsedBody.data.periodId,
+          voucherItemId: parsedBody.data.voucherItemId,
+          sourceAccount: parsedBody.data.sourceAccount,
+          targetAccount: parsedBody.data.targetAccount,
+          amount: parsedBody.data.amount,
+          userId: user.userId,
         });
         return NextResponse.json({ item });
       } catch (err) {
@@ -45,8 +53,15 @@ export async function PATCH(
       return NextResponse.json({ error: "无效的 ID" }, { status: 400 });
     }
 
-    // 参数校验
-    if (!["approve", "reject", "adjust", "revert", "mark_pending"].includes(body.action)) {
+    const parsedBody = reviewReclassPayloadSchema.safeParse(body);
+    if (!parsedBody.success) {
+      const action = "action" in body ? body.action : undefined;
+      if (action === "adjust") {
+        return NextResponse.json(
+          { error: "调整操作需提供有效的 targetAccount 和 amount > 0" },
+          { status: 400 },
+        );
+      }
       return NextResponse.json(
         { error: "action 必须为 approve / reject / adjust / revert / mark_pending" },
         { status: 400 },
@@ -56,7 +71,7 @@ export async function PATCH(
     try {
       const result = await reviewReclassResult({
         id: resultId,
-        payload: body as ReviewPayload,
+        payload: parsedBody.data,
         userId: user.userId,
       });
       return NextResponse.json({ item: result });
