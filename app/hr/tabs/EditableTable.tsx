@@ -1,7 +1,7 @@
 "use client";
 
 import type { TabConfig, FieldConfig } from "../types";
-import { formatHrMajorItems } from "@/lib/hr-field-options";
+import { formatHrMajorItems } from "@workspace/hr/constants/field-options";
 
 export function getVal(obj: unknown, path: string): unknown {
   return path.split(".").reduce<unknown>((o, k) => {

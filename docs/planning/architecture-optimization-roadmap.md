@@ -1,5 +1,7 @@
 # 现状架构优化路线图
 
+> 历史路线图说明：本文记录早期治理过程。涉及新模块目录、service 位置和包边界时，以 `docs/module-boundaries.md`、`docs/architecture-governance.md`、`docs/reusable-components.md` 为准；不要按本文早期 `server/services/<domain>` 模板新增业务代码。
+
 这份文档回答一个问题：项目现在已经有 HR、财务、库存、合同、权限、周报等模块，文件夹开始变多，后续还会加绩效、采购、生产。现状应该怎么优化，避免小项目一开始就留下大项目的病根。
 
 ## 总原则
@@ -24,8 +26,9 @@
 | admin 旧权限文件残留 | 新权限矩阵已存在，但旧 ByUser/ByPosition 等文件还在 | ✅ 旧权限文件已删除，权限页只剩用户账号 + 权限管理两个主 tab |
 | 超长文件仍存在 | `PermissionsTab.tsx`、`usePermissionsTab.ts`、`CodeTable.tsx` 超过 300 行 | ✅ 已拆分：PermissionsTab 132 行、usePermissionsTab 203 行、CodeTable 152 行 |
 | service 层不均匀 | finance-cost 已开始有 service，但其他模块仍有 API/页面承担业务逻辑 | ✅ admin permission-grants 已下沉到 `server/services/admin/`，finance-cost 持续维护 |
-| docs 分散 | README、CLAUDE、ARCHITECTURE、docs 各有一部分 | ✅ README 为项目地图，docs/ 放治理规则，各模块自有 ARCHITECTURE.md |
+| docs 分散 | README、AGENTS、ARCHITECTURE、docs 各有一部分 | ✅ README 为项目地图，AGENTS 只做入口，docs/ 放治理规则，各模块自有 ARCHITECTURE.md |
 | 脚本混杂 | `scripts/` 同时有 check/import/migrate/generate | ✅ 已分类为 `scripts/check/`、`scripts/import/`、`scripts/migrate/`、`scripts/generate/`、`scripts/seed/`，命名规则已落地 |
+| 模块边界 | `app/`、`server/`、`lib/` 直接承载所有模块 | ✅ 已建立 `packages/core/platform/hr/production/finance` 的三层五包边界，先拆注册和依赖方向，不拆部署 |
 
 ## 优化路线
 
@@ -36,7 +39,7 @@
 已完成：
 
 - `README.md` 改成项目地图。
-- `CLAUDE.md` / `AGENTS.md` 增加项目规则。
+- `AGENTS.md` 增加入口规则，细则沉到 `docs/agent-handbook.md`。
 - 新增 `docs/architecture-governance.md`。
 - 新增 `npm run arch:check`。
 - pre-commit 和 CI 接入 `arch:check`。
@@ -149,7 +152,7 @@ npm run build
   - `/api/projects` → `/api/hr/projects`
   - `/api/employee-projects` → `/api/hr/employee-projects`
 - 前端已全部迁移到 `/api/hr/*`：
-  - `useSearch.ts` → `/api/hr/employees/search`、`/api/hr/autocomplete`
+  - 旧 `app/hooks/useSearch.ts` 已删除；HR 实体搜索走 `@workspace/hr/ui` 的 `EntitySearchInput` 和 `@workspace/hr/server` 的搜索 service
   - `RosterTab.tsx` → `/api/hr/roster`
   - `useCodeData.ts` → `/api/hr/roster`
 - `docs/generated/api.md` 已更新：旧 API 单独列为"兼容层（已废弃）"。
@@ -199,7 +202,7 @@ npx tsc --noEmit
 
 目标：让业务逻辑从页面/API 中下沉到 service。
 
-目标结构：
+历史目标结构（已被 Phase 6 的 `packages/<domain>/server` 方向替代）：
 
 ```txt
 server/services/hr/
@@ -217,6 +220,25 @@ server/services/works/
 - 派生指标、汇总、导入、批量更新放 service。
 - 页面不直接计算业务口径。
 - service 返回 DTO，不把 Prisma 原对象裸传给 UI。
+
+### Phase 6：三层五包边界 ✅ 已启动
+
+目标：先把代码所有权和依赖方向拆清楚，但仍保持一个 Workspace Next 服务、一个数据库和现有 URL。
+
+已完成：
+
+- 新增 `packages/core`，定义模块注册、资源注册、API guard 的基础契约。
+- 新增 `packages/platform`，聚合模块注册并生成导航入口。
+- 新增 `packages/hr`、`packages/production`、`packages/finance`，各自导出业务包注册信息。
+- `app/lib/module-nav.tsx` 降级为兼容出口，真实注册来源切到 `packages/platform/modules.tsx`。
+- 新增 package 边界检查，接入 `npm run arch:check`。
+- 新增 `docs/module-boundaries.md`。
+
+后续：
+
+- Core 逐步接收通用字段输入、日期、FK 搜索、tag 输入、表格、筛选、确认弹窗。
+- HR 先作为样板，把 UI、server、import、types、constants 逐步迁入 `packages/hr`。
+- Production、Finance 按 HR 样板迁移。
 
 优先迁移：
 
@@ -253,7 +275,7 @@ scripts/seed/
 
 目标：绩效、采购、生产不要重新发明结构。
 
-新模块模板：
+历史新模块模板（已被 `packages/<domain>` 模板替代，见 `docs/planning/new-domain-template.md`）：
 
 ```txt
 app/<domain>/

@@ -1,22 +1,2 @@
-"use client";
-
-import { useState, useCallback } from "react";
-
-export interface ToastState {
-  message: string;
-  type: "success" | "error";
-}
-
-export function useToast() {
-  const [toast, setToast] = useState<ToastState | null>(null);
-
-  const showToast = useCallback((message: string, type: "success" | "error" = "success") => {
-    setToast({ message, type });
-  }, []);
-
-  const closeToast = useCallback(() => {
-    setToast(null);
-  }, []);
-
-  return { toast, showToast, closeToast };
-}
+export { useToast } from "@workspace/core/hooks/useToast";
+export type { ToastState } from "@workspace/core/hooks/useToast";

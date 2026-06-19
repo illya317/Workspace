@@ -17,6 +17,7 @@ const REQUIRED_DOMAINS = [
   "finance",
   "hr",
   "inventory",
+  "production",
   "reports",
   "works",
 ];
@@ -28,8 +29,10 @@ const OPTIONAL_DIRS = [
   "api-guide",
   "components",
   "docs",
+  "external",
   "history",
   "hooks",
+  "lib",
   "library",
   "login",
   "portal",

@@ -21,6 +21,7 @@ import type { SessionUser } from "@/lib/types";
 export async function requireResourceAccess(resourceKey: string): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  if (user.isSuperAdmin) return user;
   if (!user.visibleResourceKeys?.includes(resourceKey)) redirect("/portal");
   return user;
 }
@@ -32,6 +33,7 @@ export async function requireResourceAccess(resourceKey: string): Promise<Sessio
 export async function requireAdminManageAccess(): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  if (user.isSuperAdmin) return user;
   if ((user.manageableResourceKeys?.length ?? 0) === 0) redirect("/portal");
   return user;
 }

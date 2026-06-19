@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import SelectField from "@/app/components/SelectField";
 import StarRating from "./StarRating";
 import type { WorkItem } from "./types";
 
@@ -33,14 +34,15 @@ export default function WorkForm({
       <div className="space-y-3">
         <div>
           <label className="mb-1 block text-xs text-gray-600">类别</label>
-          <select
+          <SelectField
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="rounded-md border border-gray-300 px-2 py-1.5 text-sm text-gray-900 focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="routine">日常工作</option>
-            <option value="non-routine">其他工作</option>
-          </select>
+            onChange={setCategory}
+            options={[
+              { value: "routine", label: "日常工作" },
+              { value: "non-routine", label: "其他工作" },
+            ]}
+            selectClassName="w-auto min-w-28 px-2 py-1.5 text-sm"
+          />
         </div>
         <div>
           <label className="mb-1 block text-xs text-gray-600">

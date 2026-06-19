@@ -1,0 +1,67 @@
+"use client";
+
+import { FilterToolbar, SelectField } from "@workspace/core/ui";
+
+interface ContractFiltersProps {
+  q: string;
+  onQChange: (value: string) => void;
+  locationFilter: string;
+  onLocationChange: (value: string) => void;
+  categoryFilter: string;
+  onCategoryChange: (value: string) => void;
+  statusFilter: string;
+  onStatusChange: (value: string) => void;
+  locations: string[];
+  categories: string[];
+  statuses: string[];
+  onCreate: () => void;
+}
+
+export default function ContractFilters({
+  q, onQChange,
+  locationFilter, onLocationChange,
+  categoryFilter, onCategoryChange,
+  statusFilter, onStatusChange,
+  locations, categories, statuses,
+  onCreate,
+}: ContractFiltersProps) {
+  return (
+    <div className="mb-4">
+      <FilterToolbar
+        keyword={q}
+        onKeywordChange={onQChange}
+        searchPlaceholder="搜索合同名称、签署方、内容..."
+        extraRight={(
+          <button
+            onClick={onCreate}
+            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          >
+            + 新增合同
+          </button>
+        )}
+      >
+        <SelectField
+          value={locationFilter}
+          onChange={onLocationChange}
+          placeholder="全部位置"
+          options={locations.map((value) => ({ value, label: value }))}
+          selectClassName="w-32 px-3 py-2 text-sm"
+        />
+        <SelectField
+          value={categoryFilter}
+          onChange={onCategoryChange}
+          placeholder="全部类型"
+          options={categories.map((value) => ({ value, label: value }))}
+          selectClassName="w-32 px-3 py-2 text-sm"
+        />
+        <SelectField
+          value={statusFilter}
+          onChange={onStatusChange}
+          placeholder="全部状态"
+          options={statuses.map((value) => ({ value, label: value }))}
+          selectClassName="w-32 px-3 py-2 text-sm"
+        />
+      </FilterToolbar>
+    </div>
+  );
+}

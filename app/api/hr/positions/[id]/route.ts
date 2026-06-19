@@ -1,11 +1,9 @@
-import { handleUpdateField, handleDelete } from "@/lib/crud";
-
-const CONFIG = { entityType: "Position", modelKey: "position" as const, allowedFields: ["code","name","alias","departmentId","positionDescriptionId"] };
+import { deletePositionByParams, updatePositionField } from "@workspace/hr/server";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return handleUpdateField(request, params, CONFIG);
+  return updatePositionField(request, params);
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return handleDelete(request, params, CONFIG);
+  return deletePositionByParams(request, params);
 }

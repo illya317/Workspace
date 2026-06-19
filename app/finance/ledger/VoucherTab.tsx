@@ -3,11 +3,11 @@
 import { useEffect, useState, useMemo } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import DataTable, { getDefaultVisibleColumns } from "@/app/components/DataTable";
+import { DataTable, getDefaultVisibleColumns } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
-import { BASE_ITEM_COLUMNS } from "../components/VoucherItemTable";
-import type { VoucherItemRow } from "../components/VoucherItemTable";
+import { BASE_ITEM_COLUMNS } from "@workspace/finance/ui";
+import type { VoucherItemRow } from "@workspace/finance/ui";
 import { useReclassResults } from "./useReclassResults";
 import ReclassReviewView from "../components/ReclassReviewView";
 import { getVoucherColumns } from "./VoucherColumns";

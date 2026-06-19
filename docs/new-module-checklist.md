@@ -16,16 +16,15 @@
   - L1 模块资源：`maxRoleKey: "admin"`（业务动作上线后改）
   - 子页面/子功能按需加子资源
 - [ ] 新增的子资源必须设 `parentKey` 指向正确的父资源
-- [ ] `app/lib/module-nav.tsx` 注册模块入口：
-  - L1 模块配 `resourceKey`
-  - 子模块配 `resourceKey`（不要用 `requiredPerm`）
+- [ ] `packages/<domain>/module.ts` 导出 `moduleDef` / `resourceDefs` / `routes`
+- [ ] `packages/platform/modules.tsx` 聚合模块注册；`app/lib/module-nav.tsx` 只作为兼容出口
 
 ## 3. 页面
 
-- [ ] `app/<domain>/page.tsx` 服务端组件 facade，只组合组件
+- [ ] `app/<domain>/page.tsx` 服务端组件 facade，只组合 `packages/<domain>/ui` 导出的组件
 - [ ] 目录下有子页面的，加 `layout.tsx` 统一做路由级门禁：
   ```tsx
-  import { requireResourceAccess } from "@/server/auth/guard";
+  import { requireResourceAccess } from "@workspace/platform/server/auth";
   export default async function Layout({ children }) {
     await requireResourceAccess("<resource.key>");
     return children;
@@ -35,7 +34,7 @@
 
 ## 4. API
 
-- [ ] `app/api/<domain>/route.ts` — 四件事：认证、参数校验、调 service、返回 DTO
+- [ ] `app/api/<domain>/route.ts` — 四件事：认证、参数校验、调 package service、返回 DTO
 - [ ] GET → 至少 `access`；POST/PUT → `write`；DELETE → `delete`
 - [ ] 用 `with*Access` wrapper（`lib/with-auth.ts`）或内联 `authenticate() + checkPermission()`
 - [ ] API route 不超过 120 行，超了拆 service
@@ -43,14 +42,14 @@
 
 ## 5. 业务服务
 
-- [ ] `server/services/<domain>/` — 查询、导入、计算、聚合、业务规则
+- [ ] `packages/<domain>/server/` — 查询、导入、计算、聚合、业务规则
 - [ ] 单个 service 文件不超过 260 行
 - [ ] 禁止在 API route 里写复杂计算
 
 ## 6. 架构文档
 
 - [ ] `app/<domain>/ARCHITECTURE.md`：数据来源、事实/计算字段、权限模型、页面清单
-- [ ] 更新 `CLAUDE.md` 关键路由表（如果模块增加新路由）
+- [ ] 更新 `AGENTS.md` 或 `docs/agent-handbook.md` 的关键路由表（如果模块增加新路由）
 
 ## 7. 构建验证（硬约束，不通过不能提交）
 

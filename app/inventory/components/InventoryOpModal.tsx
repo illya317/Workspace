@@ -1,5 +1,7 @@
 "use client";
 
+import { SelectField } from "@workspace/core/ui";
+
 interface OpTypeOption {
   value: string;
   label: string;
@@ -24,16 +26,14 @@ export default function InventoryOpModal({
         <h3 className="mb-4 text-sm font-semibold">库存操作</h3>
         <div className="space-y-3">
           <div>
-            <label className="text-xs text-gray-600">操作类型</label>
-            <select
+            <SelectField
+              label="操作类型"
               value={opForm.opType}
-              onChange={(e) => onFieldChange("opType", e.target.value)}
-              className="w-full rounded border border-gray-300 px-2 py-1 text-xs"
-            >
-              {opTypes.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
+              onChange={(value) => onFieldChange("opType", value)}
+              options={opTypes}
+              className="block"
+              selectClassName="min-h-8"
+            />
           </div>
           <div>
             <label className="text-xs text-gray-600">数量</label>

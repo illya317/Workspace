@@ -70,6 +70,9 @@ ops/server.env.sh
 # Playwright test results
 /test-results/
 
+# Local scratch artifacts
+/tmp/
+
 # Agent worktrees
 /.claude/
 

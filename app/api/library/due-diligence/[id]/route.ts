@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { withLibraryAccess, withLibraryWrite } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
-import { getRequest, updateRequest, deleteRequest } from "@/server/services/library/due-diligence";
-import { getMaxConfidentialityLevel } from "@/server/services/library/permissions";
+import { getRequest, updateRequest, deleteRequest } from "@workspace/library/server/due-diligence";
+import { getMaxConfidentialityLevel } from "@workspace/library/server/permissions";
 
 async function parseId(ctx?: RouteContext) {
   const { id } = await ctx!.params;

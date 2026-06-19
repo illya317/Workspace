@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withLibraryAccess, withLibraryWrite } from "@/lib/with-auth";
-import { listRequests, createRequest } from "@/server/services/library/due-diligence";
+import { listRequests, createRequest } from "@workspace/library/server/due-diligence";
 
 export const GET = withLibraryAccess(async () => {
   const requests = await listRequests();

@@ -2,6 +2,7 @@
 
 import type { PeriodType } from "@/lib/period";
 import { getPeriodTypeName } from "@/lib/period";
+import SelectField from "@/app/components/SelectField";
 import WorkSection, { type ItemRow } from "./WorkSection";
 
 export interface Report {
@@ -121,20 +122,26 @@ export default function ReportEditor({
         </div>
         <div className="mb-2 flex items-center justify-center gap-3">
           {periodType === "yearly" ? (
-            <select value={selectedYear} onChange={(e) => onYearChange(parseInt(e.target.value))}
-              className="rounded-md border-0 bg-white/20 px-3 py-1.5 text-sm text-white backdrop-blur-sm focus:ring-2 focus:ring-white/50">
-              {yearOptions.map((y) => <option key={y} value={y} className="text-gray-800">{y} 年</option>)}
-            </select>
+            <SelectField
+              value={String(selectedYear)}
+              onChange={(nextValue) => onYearChange(parseInt(nextValue))}
+              options={yearOptions.map((y) => ({ value: String(y), label: `${y} 年` }))}
+              selectClassName="min-w-24 border-0 bg-white/20 px-3 py-1.5 text-sm text-white backdrop-blur-sm focus:ring-2 focus:ring-white/50"
+            />
           ) : (
             <>
-              <select value={selectedYear} onChange={(e) => onYearChange(parseInt(e.target.value))}
-                className="rounded-md border-0 bg-white/20 px-3 py-1.5 text-sm text-white backdrop-blur-sm focus:ring-2 focus:ring-white/50">
-                {yearOptions.map((y) => <option key={y} value={y} className="text-gray-800">{y} 年</option>)}
-              </select>
-              <select value={selectedPeriodIndex} onChange={(e) => onPeriodIndexChange(parseInt(e.target.value))}
-                className="rounded-md border-0 bg-white/20 px-3 py-1.5 text-sm text-white backdrop-blur-sm focus:ring-2 focus:ring-white/50">
-                {periodOptions.map((p) => <option key={p.value} value={p.value} className="text-gray-800">{p.label}</option>)}
-              </select>
+              <SelectField
+                value={String(selectedYear)}
+                onChange={(nextValue) => onYearChange(parseInt(nextValue))}
+                options={yearOptions.map((y) => ({ value: String(y), label: `${y} 年` }))}
+                selectClassName="min-w-24 border-0 bg-white/20 px-3 py-1.5 text-sm text-white backdrop-blur-sm focus:ring-2 focus:ring-white/50"
+              />
+              <SelectField
+                value={String(selectedPeriodIndex)}
+                onChange={(nextValue) => onPeriodIndexChange(parseInt(nextValue))}
+                options={periodOptions.map((p) => ({ value: String(p.value), label: p.label }))}
+                selectClassName="min-w-24 border-0 bg-white/20 px-3 py-1.5 text-sm text-white backdrop-blur-sm focus:ring-2 focus:ring-white/50"
+              />
             </>
           )}
         </div>
@@ -156,11 +163,18 @@ export default function ReportEditor({
               {versions.length > 0 && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-500">历史版本：</span>
-                  <select value={viewingVersion} onChange={(e) => onLoadVersion(parseInt(e.target.value))}
-                    className="rounded-md border border-gray-200 px-2 py-1 text-xs text-gray-900 focus:border-emerald-400 focus:outline-none">
-                    <option value={0}>最新版 (V{report.version})</option>
-                    {versions.map((v) => <option key={v.version} value={v.version}>V{v.version} ({new Date(v.createdAt).toLocaleDateString("zh-CN")})</option>)}
-                  </select>
+                  <SelectField
+                    value={String(viewingVersion)}
+                    onChange={(nextValue) => onLoadVersion(parseInt(nextValue))}
+                    options={[
+                      { value: "0", label: `最新版 (V${report.version})` },
+                      ...versions.map((v) => ({
+                        value: String(v.version),
+                        label: `V${v.version} (${new Date(v.createdAt).toLocaleDateString("zh-CN")})`,
+                      })),
+                    ]}
+                    selectClassName="min-w-36 px-2 py-1 text-xs"
+                  />
                 </div>
               )}
             </div>

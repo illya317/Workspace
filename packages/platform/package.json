@@ -1,0 +1,24 @@
+{
+  "name": "@workspace/platform",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./audit": "./audit/index.ts",
+    "./hooks": "./hooks/index.ts",
+    "./module-lifecycle": "./module-lifecycle.ts",
+    "./module-nav": "./module-nav.tsx",
+    "./modules": "./modules.tsx",
+    "./resources": "./resources.ts",
+    "./server/auth": "./server/auth.ts",
+    "./server/crud-factory": "./server/crud-factory.ts",
+    "./server/history": "./server/history.ts",
+    "./server/prisma": "./server/prisma.ts",
+    "./server/resolve-fk": "./server/resolve-fk.ts",
+    "./types": "./types/index.ts",
+    "./ui/settings": "./ui/settings/index.ts",
+    "./ui": "./ui/index.ts",
+    "./ui/*": "./ui/*.tsx"
+  }
+}

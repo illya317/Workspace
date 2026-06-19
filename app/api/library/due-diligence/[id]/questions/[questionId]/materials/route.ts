@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import { withLibraryAccess, withLibraryWrite } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
-import { updateMaterialSelection } from "@/server/services/library/due-diligence";
-import { getMaxConfidentialityLevel } from "@/server/services/library/permissions";
+import {
+  getMaterialSelectionAccess,
+  listQuestionMaterialSelections,
+  updateMaterialSelection,
+  verifyQuestionBelongsToRequest,
+} from "@workspace/library/server/due-diligence";
+import { getMaxConfidentialityLevel } from "@workspace/library/server/permissions";
 
 async function parseIds(ctx?: RouteContext) {
   const params = await ctx!.params;
@@ -13,39 +17,15 @@ async function parseIds(ctx?: RouteContext) {
   return { requestId, questionId };
 }
 
-/** Verify that the question belongs to the request */
-async function verifyQuestionBelongs(requestId: number, questionId: number) {
-  const question = await prisma.dueDiligenceQuestion.findUnique({
-    where: { id: questionId },
-    select: { requestId: true },
-  });
-  if (!question) return { ok: false as const, status: 404, error: "Question not found" };
-  if (question.requestId !== requestId) {
-    return { ok: false as const, status: 403, error: "Question does not belong to this request" };
-  }
-  return { ok: true as const };
-}
-
 export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
   const ids = await parseIds(ctx);
   if (!ids) return NextResponse.json({ error: "Invalid ids" }, { status: 400 });
 
-  const check = await verifyQuestionBelongs(ids.requestId, ids.questionId);
+  const check = await verifyQuestionBelongsToRequest(ids.requestId, ids.questionId);
   if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status });
 
   const maxLevel = await getMaxConfidentialityLevel(user.userId);
-
-  const selections = await prisma.dueDiligenceMaterialSelection.findMany({
-    where: {
-      questionId: ids.questionId,
-      document: { confidentialityLevel: { lte: maxLevel } },
-    },
-    include: {
-      document: { select: { id: true, title: true, fileName: true, categoryName: true, confidentialityLevel: true } },
-      documentVersion: { select: { id: true, versionNo: true } },
-    },
-    orderBy: { matchScore: "desc" },
-  });
+  const selections = await listQuestionMaterialSelections(ids.questionId, maxLevel);
 
   return NextResponse.json(selections);
 });
@@ -54,7 +34,7 @@ export const PATCH = withLibraryWrite(async (request: Request, user, ctx?: Route
   const ids = await parseIds(ctx);
   if (!ids) return NextResponse.json({ error: "Invalid ids" }, { status: 400 });
 
-  const check = await verifyQuestionBelongs(ids.requestId, ids.questionId);
+  const check = await verifyQuestionBelongsToRequest(ids.requestId, ids.questionId);
   if (!check.ok) return NextResponse.json({ error: check.error }, { status: check.status });
 
   let body: unknown;
@@ -78,13 +58,7 @@ export const PATCH = withLibraryWrite(async (request: Request, user, ctx?: Route
   // Verify selection belongs to this question and user can access the document
   const maxLevel = await getMaxConfidentialityLevel(user.userId);
 
-  const selection = await prisma.dueDiligenceMaterialSelection.findUnique({
-    where: { id: b.selectionId },
-    select: {
-      questionId: true,
-      document: { select: { confidentialityLevel: true } },
-    },
-  });
+  const selection = await getMaterialSelectionAccess(b.selectionId);
   if (!selection) return NextResponse.json({ error: "Selection not found" }, { status: 404 });
   if (selection.questionId !== ids.questionId) {
     return NextResponse.json({ error: "Selection does not belong to this question" }, { status: 403 });

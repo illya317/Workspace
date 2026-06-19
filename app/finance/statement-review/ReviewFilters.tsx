@@ -1,6 +1,6 @@
 "use client";
 
-import SelectField from "@/app/components/SelectField";
+import { SelectField } from "@workspace/core/ui";
 import { useCompanyOptions } from "@/app/hooks/useCompanyOptions";
 
 const YS = ["2024", "2025", "2026"];

@@ -1,7 +1,7 @@
 import { requireResourceAccess } from "@/server/auth/guard";
 import { checkPermission } from "@/server/rbac/check";
-import AppShell from "@/app/components/AppShell";
-import LibraryClient from "./LibraryClient";
+import { AppShell } from "@workspace/platform/ui";
+import { LibraryClient } from "@workspace/library/ui";
 
 const ROOT_LABEL = process.env.LIBRARY_LABEL || "资料库";
 

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useMemo, Fragment } from "react";
+import { useConfirmDelete } from "@/app/components/ConfirmProvider";
+import { SelectField } from "@workspace/core/ui";
 import { useStatementConfig } from "./StatementConfigContext";
 
 interface LineCfg { lineCode: string; label: string; section: string; reclassSource: boolean; reclassTarget: boolean; isHeader: boolean; isTotal: boolean; isGrandTotal: boolean; }
@@ -17,6 +19,7 @@ const SECTION_ORDER = ["currentAssets", "nonCurrentAssets", "currentLiabilities"
 
 export default function LineConfigTab() {
   const { company, year } = useStatementConfig();
+  const confirmDelete = useConfirmDelete();
   const [lines, setLines] = useState<LineCfg[]>([]);
   const [mappings, setMappings] = useState<Mapping[]>([]);
   const [accounts, setAccounts] = useState<AcctInfo[]>([]);
@@ -75,6 +78,12 @@ export default function LineConfigTab() {
   async function handleRestoreDefault(accountCode: string) {
     const yearNum = parseInt(year, 10);
     if (isNaN(yearNum)) { setError("年度无效"); return; }
+    const ok = await confirmDelete({
+      title: "删除配置",
+      message: `确定删除科目 ${accountCode} 的手工配置并恢复默认规则吗？`,
+      confirmLabel: "删除配置",
+    });
+    if (!ok) return;
     setSaving((p) => new Set(p).add(accountCode));
     const res = await fetch(`/workspace/api/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance&accountCode=${encodeURIComponent(accountCode)}`, { method: "DELETE" });
     setSaving((p) => { const n = new Set(p); n.delete(accountCode); return n; });
@@ -145,7 +154,7 @@ export default function LineConfigTab() {
                     {inhAccts.length > 0 && (<div className="mb-1"><p className="text-[10px] text-gray-400 mb-1">继承科目（来自 prefix/父级）</p>
                       <table className="w-full text-[11px] mb-1"><tbody>{inhAccts.map((a) => { const isSaving = saving.has(`${l.lineCode}:${a.accountCode}`); return (<tr key={a.accountCode} className="border-b border-gray-100"><td className="py-1 w-20"><span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500">继承</span></td><td className="py-1 font-mono text-gray-500">{a.accountCode}</td><td className="py-1 text-gray-500">{a.accountName}</td><td className="py-1 text-right text-gray-400">{fmt(a.closingDebit)}</td><td className="py-1 text-right text-gray-400">{fmt(a.closingCredit)}</td><td className="py-1 text-center"><button onClick={() => saveMapping(a.accountCode, l.lineCode, "exclude")} disabled={isSaving} className="text-[10px] text-amber-500 hover:text-amber-700 hover:underline">{isSaving ? "..." : "排除"}</button></td></tr>); })}</tbody></table></div>)}
                     {addingFor === l.lineCode ? (<div className="flex flex-col gap-1 mt-1"><input type="text" placeholder="搜索科目编码或名称..." value={acctSearch} onChange={(e) => setAcctSearch(e.target.value)} className="rounded border border-gray-200 px-2 py-1 text-[11px] focus:border-emerald-400 focus:outline-none w-64" />
-                      <div className="flex items-center gap-2"><select value={newAccount} onChange={(e) => setNewAccount(e.target.value)} size={Math.min(filteredAccts.length + 1, 8)} className="rounded border border-gray-200 px-1.5 py-0.5 text-[11px] focus:border-emerald-400 focus:outline-none w-64"><option value="">— 选择科目 ({filteredAccts.length}) —</option>{filteredAccts.map((a) => (<option key={a.code} value={a.code}>{a.code} {a.name}</option>))}</select>
+                      <div className="flex items-center gap-2"><SelectField value={newAccount} onChange={setNewAccount} placeholder={`选择科目 (${filteredAccts.length})`} options={filteredAccts.map((a) => ({ value: a.code, label: `${a.code} ${a.name}` }))} selectClassName="w-64 px-1.5 py-0.5 text-[11px]" />
                         <div className="flex flex-col gap-1"><button onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "add"); setAddingFor(null); setNewAccount(""); setAcctSearch(""); }} disabled={!newAccount} className="rounded bg-emerald-600 px-2 py-0.5 text-[10px] text-white hover:bg-emerald-700 disabled:opacity-50">添加 (+)</button><button onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "subtract"); setAddingFor(null); setNewAccount(""); setAcctSearch(""); }} disabled={!newAccount} className="rounded bg-red-500 px-2 py-0.5 text-[10px] text-white hover:bg-red-600 disabled:opacity-50">添加 (−)</button><button onClick={() => { setAddingFor(null); setNewAccount(""); setAcctSearch(""); }} className="text-[10px] text-gray-400 hover:text-gray-600">取消</button></div></div></div>) : (<button onClick={() => setAddingFor(l.lineCode)} className="mt-1 text-[10px] text-emerald-600 hover:text-emerald-800 hover:underline">+ 添加科目</button>)}
                   </td></tr>)}
                 </Fragment>);

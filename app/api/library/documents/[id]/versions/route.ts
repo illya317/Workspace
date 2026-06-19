@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { withLibraryAccess } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
-import { getDocument } from "@/server/services/library/metadata";
-import { getDocumentVersions } from "@/server/services/library/versions";
-import { getMaxConfidentialityLevel } from "@/server/services/library/permissions";
+import { getDocument } from "@workspace/library/server/metadata";
+import { getDocumentVersions } from "@workspace/library/server/versions";
+import { getMaxConfidentialityLevel } from "@workspace/library/server/permissions";
 
 export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
   const { id } = await ctx!.params;

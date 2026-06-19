@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkHRAccess, checkHRWrite } from "@/lib/auth";
+import { authenticate, checkHRAccess, checkHRWrite } from "@workspace/platform/server/auth";
 import {
   normalizePositionDescriptionTemplates,
   readPositionDescriptionTemplates,
   writePositionDescriptionTemplates,
-} from "@/server/services/hr/position-description-template-store";
+} from "@workspace/hr/server";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);

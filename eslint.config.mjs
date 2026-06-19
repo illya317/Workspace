@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Claude worktrees (copies of codebase for agent isolation)
     ".claude/**",
+    // Temporary research/scrape artifacts are not product or tooling source.
+    "tmp/**",
   ]),
   // Core quality gates: 0 warnings target for CI (--max-warnings=0)
   {
@@ -29,9 +31,132 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  // Package boundaries: keep the Core -> Platform -> Apps direction enforceable through lint too.
+  {
+    files: ["packages/core/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "@workspace/platform",
+                "@workspace/platform/*",
+                "@workspace/hr",
+                "@workspace/hr/*",
+                "@workspace/production",
+                "@workspace/production/*",
+                "@workspace/finance",
+                "@workspace/finance/*",
+                "@/*",
+              ],
+              message: "Core must stay framework/runtime/business agnostic. Move platform or business dependencies out of @workspace/core.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["packages/platform/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "@/app/*",
+                "@/lib/*",
+                "@/server/*",
+                "@/generated/*",
+              ],
+              message: "Platform package must use package-owned contracts instead of app-root runtime aliases.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["packages/hr/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "@/app/*",
+                "@/lib/*",
+                "@/server/*",
+                "@/generated/*",
+                "@workspace/production",
+                "@workspace/production/*",
+                "@workspace/finance",
+                "@workspace/finance/*",
+              ],
+              message: "HR must depend on @workspace/platform contracts or HR-owned code, not app-root runtime aliases or other Apps.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["packages/production/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "@/app/*",
+                "@/lib/*",
+                "@/server/*",
+                "@/generated/*",
+                "@workspace/hr",
+                "@workspace/hr/*",
+                "@workspace/finance",
+                "@workspace/finance/*",
+              ],
+              message: "Production must depend on @workspace/platform contracts or Production-owned code, not app-root runtime aliases or other Apps.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["packages/finance/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "@/app/*",
+                "@/lib/*",
+                "@/server/*",
+                "@/generated/*",
+                "@workspace/hr",
+                "@workspace/hr/*",
+                "@workspace/production",
+                "@workspace/production/*",
+              ],
+              message: "Finance must depend on @workspace/platform contracts or Finance-owned code, not app-root runtime aliases or other Apps.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Scripts: allow CommonJS and relax type rules for tooling
   {
-    files: ["scripts/**/*", "prisma/**/*"],
+    files: ["scripts/**/*", "config/scripts/**/*", "prisma/**/*"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/no-explicit-any": "off",

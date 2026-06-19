@@ -5,7 +5,7 @@ import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
-import FinanceBalanceReconcile from "../components/FinanceBalanceReconcile";
+import { FinanceBalanceReconcile } from "@workspace/finance/ui";
 
 interface Period {
   id: number;

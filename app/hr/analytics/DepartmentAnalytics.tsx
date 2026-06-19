@@ -13,10 +13,6 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
     const l1 = departments.filter((d) => d.level === 1).length;
     const l2 = departments.filter((d) => d.level === 2).length;
     const l3 = departments.filter((d) => d.level === 3).length;
-    const companyCounts: Record<string, number> = {};
-    for (const d of departments) {
-      if (d.company) companyCounts[d.company] = (companyCounts[d.company] || 0) + 1;
-    }
 
     const deptActualMap = new Map<number, Set<number>>();
     activeEdps.filter((e) => e.isPrimary && e.departmentId).forEach((e) => {
@@ -28,7 +24,7 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
       .map((d) => ({ ...d, actual: deptActualMap.get(d.id)?.size || 0 }))
       .sort((a, b) => b.actual - a.actual);
 
-    return { l1, l2, l3, companyCounts, deptWithHeadcount };
+    return { l1, l2, l3, deptWithHeadcount };
   }, [departments, activeEdps]);
 
   const rootDepts = useMemo(() => {
@@ -94,7 +90,6 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
             onChange={(e) => setSearch(e.target.value)}
             className="flex-1 max-w-sm px-3 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:border-emerald-400"
           />
-          <span className="text-xs text-gray-400">{Object.entries(stats.companyCounts).map(([name, count]) => `${name} ${count}`).join(" | ")}</span>
         </div>
 
         <div className="max-h-[600px] overflow-y-auto pr-2">

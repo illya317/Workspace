@@ -6,279 +6,68 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ---
 
-# Workspace 项目架构
+# Agent Entry
 
-## 技术栈
+这是 agent 入口，只保留开工前必须知道的硬约束和文档导航。详细规则见 `docs/agent-handbook.md`；不要把长篇架构、部署、数据库或 UI 规范继续堆回这里。
 
-- **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
-- **数据库**: Prisma ORM + SQLite (`data/dev.db`)
-- **认证**: JWT Cookie + API Key (个人)
-- **部署**: CNB API/CLI 触发发布（CNB/Linux CI 构建 standalone 产物；CVM + PM2 只解包产物并重启）
+## 项目速记
 
-## 部署与运行态同步
+- **栈**: Next.js 16 + React + TypeScript + Tailwind CSS + Prisma + SQLite。
+- **定位**: 内部管理系统，会继续扩展 HR、财务、库存、合同、绩效、采购、生产等模块。
+- **目录契约**: 当前是 `Core -> Platform -> Apps` 三层多包。新增/重构代码优先进入 `packages/core`、`packages/platform`、`packages/<domain>`；`app/<domain>/` 和 `app/api/<domain>/` 只保留 Next 路由壳，不能继续承载复杂业务实现。
+- **当前改造方向**: Workspace 正在按 `Core -> Platform -> Apps` 拆成 `packages/core`、`packages/platform`、`packages/hr`、`packages/work`、`packages/production`、`packages/finance` 等包。旧 `app/`、`app/api/`、`lib/`、`server/services/` 只作为路由壳或兼容层逐步收口，新代码必须顺着包边界走，不要按旧思路继续把业务、平台和通用组件混在一起。
+- **并行协作提醒**: Project 正在从 HR 剥离到 Work 业务包，相关边界见 `docs/agent-coordination-work-split.md`；其他 agent 不要继续在 HR 中新增 Project / EmployeeProject 能力。
+- **核心原则**: DB 存事实，Service 算结果，API 返回 DTO，UI 展示结果，文档解释边界，CI 拦住越界。
+- **部署**: 本地不直连服务器部署；生产发布必须先 commit/push 到 CNB，再用 CNB API/CLI 触发 `api_trigger`。细节见 `docs/ops/deploy.md`。
 
-- 仓库默认远端 `origin` 使用 CNB：`https://cnb.cool/illya317/Workspace.git`。
-- `git push origin main` 只触发 CNB CI 检查，不发布生产；不要依赖 push 自动部署。
-- 本地不直连服务器部署；正式发布必须先 commit 并 push 到 CNB，再用 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`。
-- CNB/API 部署使用 `./ops/deploy.sh`，在 CNB/Linux CI 容器里完成检查与构建，然后只把 `.next/standalone` 产物包上传到服务器；服务器不执行 `npm ci` / `npm run build`。
-- 云效 YAML 流水线样例在 `ops/yunxiao.pipeline.yml`；私密部署参数不要写入 YAML，优先通过云效变量组或流水线 UI 变量注入。
-- 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、`data/`、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先备份该目录。
-- `data/` 以服务器为准：本地 `data/` 不上传覆盖服务器。
-- 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL`、`WORKSPACE_CONFIG_DIR` 直接指向外部 data。
-- `.env` 可以软链到外部 `.workspace/.env`；`public/company` 和 `public/assets/agent/avatar` 开发时可软链到 `.workspace/assets/...`，生产 standalone 打包时脚本用 `cp -rL` 复制真实文件。
+## QC 开发模式字段速记
 
-更新源码流程：
+- QC 表格真源判断：PNG 截图只是线索，可能被 DOCX→PDF 转换、分页、裁剪边界或跨页表格截断/错位/遮挡。看到表格断裂、标题与表格不连续、页眉页脚混入、明显少行少列时，必须回看相邻截图、PDF 原页、MD 和 DOCX 上下文，人工判断真实 `layout_blocks`，不能只按单张 PNG 复刻。
+- `i`: 普通可填字段；没有公式元数据，也不是任何公式的依赖输入。
+- `x`: 公式输入字段；它被同一作用域内某个 `method_groups[].fields[]` 的 `formula/rule` 引用，点击对应 `f(x)` 时应高亮。
+- `f(x)`: 公式输出字段；通常是 `attr: calculated` 且有 `formula/rule`，或 layout part 明确带 `advancedFormulaText/advancedDependencyFieldKeys`。点击后提示公式和对应 `x`。
+- `ref`: 完全引用别的字段值，不是新计算；包括跨阶段复制的 `reference_field_key/value_source`、公式表达式只是某个同作用域字段名、以及同一个 `fieldKey` 的重复只读展示。
+- `date`: 日期输入字段。若日期是引用值，开发模式显示 `ref`。
+- `data`: 原始数据、图谱、附件类 block，当前主要通过 `attachment_upload`/hidden `data-field-key` 承载，不走 `i/x/f(x)/ref` 的普通字段 badge。
+- `✓`: checkbox/radio 选择字段。若它同时是引用或公式依赖，按引用/公式优先显示。
+- `param`: 静态参数文本或预置参数，不参与填写和计算。
+- 同一个 part 理论上可能同时命中多种语义，显示优先级固定为 `ref > f(x) > x > i`；checkbox/radio/date 是输入类型的显示标签，仍服从引用和公式优先级。
+- 写 QC JSON/layout 时，表格必须保留 `layout_blocks` 结构，不能把 MD 表格退化成段落文本。计算结果格使用稳定 `fieldKey` + `readonlyDisplay: true`，并在同一 test 的 `method_groups` 中提供同名 `attr: calculated` 字段和公式；普通输入使用同一组公式可引用的稳定 `fieldKey`。只有“值完全相同”才复用同一 `fieldKey` 或写 `reference_field_key/value_source`。
 
-```bash
-git status --short
-git add <files>
-git commit -m "<message>"
-git push origin main
-```
+## 开工先读
 
-生产发布流程：
-
-```bash
-sha="$(git rev-parse HEAD)"
-cnb build start-build \
-  --repo illya317/workspace \
-  --branch main \
-  --sha "$sha" \
-  --event api_trigger \
-  --title "deploy ${sha:0:8}" \
-  --sync false \
-  --verbose
-```
-
-部署后用返回的 `sn` 查询状态：
-
-```bash
-cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
-```
-
-如果部署失败，用同一个 `sn` 和 pipeline/stage id 拉取失败 stage 日志；不要再额外 push 一次制造第二条部署记录。
-
-新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `/Users/koito/Desktop/workspace/.workspace/AGENTS.md`。
-
-## 项目地图
-
-本项目不是单一 HR 应用，而是会继续扩展 HR、财务、库存、合同、绩效、采购、生产等模块的内部管理系统。新增能力时先判断它属于哪一层：
-
-| 层级 | 目录 | 职责 |
-|---|---|---|
-| 业务页面 | `app/<domain>/` | 页面、组件、hooks、types、领域 `ARCHITECTURE.md` |
-| API | `app/api/<domain>/` | 鉴权、参数校验、调用 service、返回 DTO |
-| 开发辅助 | `app/api/dev-login-bypass/` | 开发环境快速登录（仅本地） |
-| 业务服务 | `server/services/<domain>/` | 查询、导入、计算、聚合、业务规则 |
-| 认证权限 | `server/auth/`, `server/rbac/`, `lib/permissions.ts` | 登录、session、RBAC、资源树 |
-| 数据库 | `prisma/` | Prisma schema、migration、seed |
-| 共享前端 | `app/components/`, `app/hooks/` | 全站复用 UI 和 hooks |
-| 共享工具 | `lib/` | 跨端类型、常量、Prisma client、历史工具 |
-| 文档治理 | `docs/`, `app/*/ARCHITECTURE.md` | 项目地图和模块边界 |
-
-新增业务模块必须按同一套目录契约落位。例如绩效模块应使用 `app/performance/`、`app/api/performance/`、`server/services/performance/`，采购模块应使用 `app/procurement/`、`app/api/procurement/`、`server/services/procurement/`。禁止把新模块塞进 HR、Finance 或通用 `lib/` 里借壳生长。
-
-## 必读文档触发条件
-
-Agent 不要只靠目录名猜架构。遇到下列任务时，必须先读对应文档，再改代码：
+Agent 不要只靠目录名猜架构。命中多个条件时全部读取，交付说明里写明参考了哪些文档。
 
 | 任务类型 | 必读文档 |
 |---|---|
-| 任何跨目录、跨模块、超过单文件的小改动 | `README.md`、`docs/architecture-governance.md` |
-| 评估”现在架构怎么优化”或整理目录 | `docs/planning/architecture-optimization-roadmap.md`、`docs/architecture-governance.md` |
-| 新增业务模块，例如绩效、采购、生产 | `README.md`、`docs/architecture-governance.md`、`docs/planning/new-domain-template.md`，并新建 `app/<domain>/ARCHITECTURE.md` |
+| 跨目录、跨模块、超过单文件的小改动 | `README.md`、`docs/architecture-governance.md`、`docs/agent-handbook.md` |
+| 评估架构优化、整理目录、治理债 | `docs/core-platform-apps-migration-map.md`、`docs/planning/architecture-optimization-roadmap.md`、`docs/architecture-governance.md` |
+| 新增业务模块 | `README.md`、`docs/architecture-governance.md`、`docs/planning/new-domain-template.md`、`docs/new-module-checklist.md` |
+| 已有模块内新增 Tab、审核流、规则页、CRUD | `docs/existing-module-feature-checklist.md`、对应模块 `ARCHITECTURE.md` |
+| 新增或修改下拉、搜索、筛选、日期、确认弹窗、表格、页面模板 | `docs/reusable-components.md`、`docs/module-boundaries.md` |
 | 修改 Prisma schema、migration、seed、导入脚本 | `docs/schema-governance.md`、`docs/database.md`、对应模块 `ARCHITECTURE.md` |
 | 修改权限、授权、后台权限 UI、资源树 | `docs/security/rbac.md`、`docs/architecture-governance.md`、`lib/permissions.ts` |
 | 修改 HR 模块 | `app/hr/ARCHITECTURE.md` |
 | 修改财务成本模块 | `app/finance/cost/ARCHITECTURE.md` |
 | 修改环境变量、`.env.example`、部署脚本、CI | `docs/ops/environment.md`、`docs/ops/deploy.md` |
-| 使用 Next.js 路由、构建、缓存、Server Component 等框架能力 | 先读 `node_modules/next/dist/docs/` 里相关 Next.js 16 文档 |
+| 使用 Next.js 路由、构建、缓存、Server Component 等能力 | `node_modules/next/dist/docs/` 中相关 Next.js 16 文档 |
 
-如果任务同时命中多个条件，全部相关文档都要读。读完后在交付说明里写明参考了哪些文档，以及是否同步更新了文档。
+## 开发红线
 
-## 新模块接入流程
+- 新业务代码必须落到对应 package/domain，禁止借壳塞进 HR、Finance、通用 `lib/` 或 route 文件。
+- 新增或重构代码必须符合当前三层五包方向：通用 UI/字段/弹窗进 Core，登录权限/导航/审计/平台壳进 Platform，HR/生产/财务各自进业务包。不要新增 app-root runtime 依赖来绕过包边界。
+- 下拉、搜索、筛选、日期、确认弹窗、表格、页面模板先查 `docs/reusable-components.md`；已有 Core/Platform/App 组件时禁止重复造车，字段展示和选择面板必须解耦。
+- API route 只做认证、权限、参数校验、调用 service、返回 DTO。
+- 页面按钮隐藏不是安全边界；所有写入和删除必须在 API 层校验。
+- 公司名、公司编码、管理体系、查询分组、共享编码池等公司事实必须来自 `Company` 表或 seed/migration 输入，业务代码只能通过领域 service/helper 查询和派生。
+- 文件大小是硬约束：页面 facade 150 行，组件/hook 220 行，API route 120 行，service 260 行。超限先拆分。
+- 修改架构、schema、权限、导入流程时，必须同步更新 README、docs 或对应 `ARCHITECTURE.md`。
 
-仅适用于“新增业务模块 / 新 domain”。
-如果是在已有模块内新增 Tab、审核流、规则页、CRUD 能力，不要套下面全流程，改看 `docs/existing-module-feature-checklist.md`。
+## 交付前检查
 
-1. 在 `lib/permissions.ts` 注册资源 key，动作只用 `access / write / delete / admin`。
-2. 在 seed 中注册资源树，设置 `parentId / maxRoleKey / sortOrder`。
-3. 在 `app/lib/module-nav.tsx` 的 `MODULES` 数组注册模块，使用 `resourceKey`，不要默认使用 `requiredPerm`。
-4. 创建 `app/<domain>/ARCHITECTURE.md`，写清楚数据来源、事实字段、计算字段、权限、页面。
-5. 如需新表，创建 `prisma/models/<domain>.prisma`，同步 migration/seed，并更新数据库文档。
-6. 在 `server/services/<domain>/` 写业务逻辑；API route 只做认证、参数校验、调用 service、返回 DTO。
-7. 在 `app/api/<domain>/` 写 route handler，GET/POST/PUT/PATCH/DELETE 必须匹配权限动作。
-8. 在 `app/<domain>/` 写 UI：模块首页用 `ModuleHome`，子页面用 `AppShell`。
-9. 对需要独立权限的子页面，在对应子目录加 `layout.tsx`，调用 `requireResourceAccess("<resourceKey>")` 做路由门禁。
-10. 同步更新 `README.md`、`AGENTS.md` / `AGENTS.md`、`docs/new-module-checklist.md` 和对应模块文档。
-11. 交付前运行硬约束，并提交一个清晰 commit。
+按改动风险选择必要检查；影响共享行为、权限、schema 或构建时必须跑完整组：
 
-摘要：
-
-| 步骤 | 内容 |
-|------|------|
-| 1. RBAC | `lib/permissions.ts` + seed 注册资源树 |
-| 2. 导航 | `module-nav.tsx` 配 `resourceKey` |
-| 3. 数据库 | `prisma/models/<domain>.prisma` + migration + seed |
-| 4. 页面 | facade server component + 子目录 `layout.tsx` 路由门禁 |
-| 5. API | 认证 → 参数校验 → 调 service → 返回 DTO |
-| 6. Service | `server/services/<domain>/` 业务逻辑 |
-| 7. 文档 | `ARCHITECTURE.md` + README/AGENTS/Codex/checklist |
-| 8. 硬约束 | `tsc --noEmit` / `lint --max-warnings=0` / `build` / `arch:check` / `size:check` |
-
-核心原则：
-
-```
-DB 存事实。
-Service 算结果。
-API 返回 DTO。
-UI 展示结果。
-文档解释边界。
-CI 拦住越界。
-权限展示用 visibleResourceKeys，页面安全边界用 layout.tsx + requireResourceAccess()，
-API 安全边界用 checkPermission()。
-```
-
-## 数据库模型
-
-核心业务表（seed JSON 与表字段一一对应，除审计字段外）：
-
-| 表 | JSON 来源 | 说明 |
-|---|---|---|
-| `Employee` | `employees.json` | 员工基础信息（16 字段） |
-| `Employment` | `employments.json` | 雇佣信息（status/company/joinDate/leaveDate/contracts 等） |
-| `EDP` | `employee_positions.json` | 员工-部门-岗位关联（`@@map("EmployeePosition")`） |
-| `Department` | `department.json` | 部门树（扁平存储，parentId 推导自 children） |
-| `Position` | `position.json` | 岗位 |
-| `PositionDescription` | `position-descriptions/*.json` | 岗位说明书（details 为 JSON  blob） |
-| `Company` | `companies.json` | 公司 |
-
-**已删除的表/字段**：ManagementGroup（整张表）、Employee.deleted/deletedTime/deletedBy、EDP.system/center/sortOrder、Department.sortOrder 等。
-
-**审计字段**（统一顺序：`editedBy → editor → editedAt → version → createdAt → updatedAt`）：Employee、Employment、Company、Department、Position、EDP、Project、EmployeeProject、PositionDescription、Report 均具备。
-
-Schema 可视化文档：`docs/generated/tables.html`（自动生成，运行 `node scripts/gen-tables-html.js`）。
-
-## Prisma Schema 规则
-
-- 当前 schema 仍在 `prisma/schema.prisma`，新增领域前优先完成或遵守多文件 schema 治理计划。
-- 目标结构是按领域拆分到 `prisma/models/*.prisma`，主 `prisma/schema.prisma` 只保留 `generator` 和 `datasource`。
-- 所有 model 必须按领域归属：auth/rbac、hr、reports、works、finance-ledger、finance-cost、inventory、contracts、future domains。
-- 每个 model 前必须有 `///` 注释，说明业务含义、数据来源、是否事实表。
-- DB 默认只保存事实字段；合计、百分比、毛利、单位成本、未回款等派生结果必须放在 service 层计算。
-- Finance Cost 禁止把 normalized JSON 原样映射成 DB schema。
-- 修改 schema 后必须同步更新对应 `ARCHITECTURE.md` 和 `docs/database.md` 或 `docs/schema-governance.md`。
-
-## 数据导入
-
-源数据在 `prisma/seed-data/*.json`、`prisma/seed-data/position-descriptions/*.json` 和 `prisma/seed-data/department-descriptions/*.json`：
-
-```
-Company → Department → PositionDescription → Position → Employee → Employment → EDP
-```
-
-重置数据：`rm data/dev.db && npx prisma db push`
-
-## 关键路由
-
-| 页面 | 路径 | 权限 |
-|------|------|------|
-| 登录 | `/login` | 公开 |
-| 入口 | `/portal` | 登录 |
-| 工作汇报 | `/reports` | 登录 |
-| 历史记录 | `/history` | 登录 |
-| 工作清单 | `/works` | 登录 |
-| 人事行政 | `/hr` | `people.access` |
-| 管理后台 | `/admin` | `system.admin` 或 `people.access` |
-| 接入指南 | `/api-guide` | `system.api.access` |
-| 设置 | `/settings` | 登录 |
-| 智能助手 | `/api/agent` | 登录（权限随用户） |
-| 外部关系 | `/external` | 登录 |
-| 文档中心 | `/docs` | 登录 |
-| 资料库 | `/library` | 登录 |
-| 财务数据 | `/finance` | 登录 |
-| 成本管理 | `/finance/cost` | `finance.access` 或 `finance.cost.access` |
-
-## 认证方式
-
-1. **网页版**: Cookie JWT (`token`)
-2. **API接入**: `X-API-Key`(个人) + `X-Username` + `X-Password`
-3. **权限校验**: `lib/auth.ts` — `authenticate()`, `checkPermission()`, `checkHRAccess()`
-
-## API 权限规则
-
-- 页面按钮隐藏不是安全边界，所有写入和删除必须在 API 层校验。
-- GET 使用 `access`；POST/PUT/PATCH 使用 `write`；DELETE 使用 `delete`；授权和系统配置使用 `admin` 或 `system.admin`。
-- 新 API route 只允许做四件事：认证、参数校验、调用 service、返回 DTO。
-- 复杂查询、导入、汇总、派生字段计算必须放到 `server/services/<domain>/`。
-- 旧兼容 API 可以保留代理，但新功能必须走领域入口，例如 HR 新接口走 `app/api/hr/*`，财务成本走 `app/api/finance/cost/*`。
-
----
-
-# 业务规则
-
-## 公司分组
-
-- **公司事实来源**：公司名称、编码、管理体系、查询分组、共享编码池等来自 `Company` 表；seed/migration 只负责初始化事实数据。
-- **查询封装**：公司相关判断必须通过领域 service/helper 从 DB 派生，禁止在调用方复制公司映射、分组数组或特殊判断。
-- **通用框架约束**：公司专有事实禁止硬编码在 `app/`、`server/`、`lib/`、`scripts/` 中，包括具体公司名、公司编码、管理体系、查询分组、共享编码池、特殊公司判断。此类信息必须来自 `Company` 表（或 seed/migration 的输入数据），业务代码只允许通过领域 service/helper 查询和派生。
-
-## 编码规则
-
-- 部门：L1=`前缀001`，L2=`前缀100/200`，L3=`前缀101`
-- 岗位：`GW-{dept}-{seq}`，GMP 岗位带 `PPA-` 前缀
-
----
-
-# 前端规范
-
-## 共享组件（必须使用，禁止重复造轮子）
-
-| 组件 | 用途 | 导入 |
-|------|------|------|
-| `ConfirmModal` | 确认弹框 | `@/app/components/ConfirmModal` |
-| `DetailModal` | 通用详情弹窗 | `@/app/components/DetailModal` |
-| `EditToolbar` | 编辑工具栏（编辑→保存+取消+版本） | `@/app/components/EditToolbar` |
-| `Toast` + `useToast` | 通知提示 | `@/app/components/Toast` + `@/app/hooks/useToast` |
-| `FilterBar` | 筛选栏容器 | `@/app/components/FilterBar` |
-| `SearchBox` | 统一搜索框（可配target/filters/debounce） | `@/app/components/SearchBox` |
-| `TargetSwitcher` | 汇报对象两段选择器 | `@/app/components/TargetSwitcher` |
-
-**规范**:
-- 确认弹框 → `<ConfirmModal>`，禁止 `window.confirm`
-- 通知 → `useToast()`，禁止裸 `setTimeout`
-- 公司名/编码/管理体系 → 通过 API 或领域 service/helper 获取，禁止硬编码
-- API 鉴权 → `lib/auth.ts`
-- 搜索 → `useSearch` hook 或 `<SearchBox>` 组件
-- 当前用户类型 → `import { SessionUser } from "@/lib/types"`，禁止页面内重复定义 `interface User`
-- 业务页面 facade 负责组合，不承载大段业务逻辑；超过 150 行应拆 components/hooks。
-- 文件大小是硬约束：组件/hook 不超过 220 行，API route 不超过 120 行，service 不超过 260 行；超限时必须先拆分到红线内，不能用历史白名单放行。
-- 新业务模块必须有 `types.ts`、必要 hooks/components，以及 `ARCHITECTURE.md`。
-- 禁止在页面里直接堆 fetch、权限判断、复杂映射和计算；这些应分别下沉到 hook、API/service、权限 helper。
-
----
-
-# lib/ 工具模块
-
-| 模块 | 用途 | 关键导出 |
-|------|------|----------|
-| `server/services/hr/company-directory.ts` | 公司事实查询/分组/体系判断 | 从 `Company` 表派生公司名、编码池、管理体系、查询分组 |
-| `lib/types.ts` | 共享类型 | `SessionUser`（当前用户，全站统一，禁止各处重复定义） |
-| `lib/security.ts` | 登录安全 | `checkBruteForce`, `recordAttempt` |
-| `lib/search.ts` | 拼音搜索 | `getInitials`, `matchEmployee` |
-| `lib/auth.ts` | 认证鉴权 | `authenticate`, `checkPermission`, `checkHRAccess`, `checkWorksAccess` |
-| `lib/access.ts` | 目标权限 | `getUserTargets`, `canAccessTarget`, `canSubmitToTarget` |
-| `lib/permissions.ts` | RBAC常量 | `RES`(资源树), `ROLE`(5角色), `perm`(兼容) |
-| `lib/period.ts` | 周期计算 | `getCurrentPeriod`, `getPeriodRange`, `getPeriodOptions`, `PeriodType` |
-| `server/services/finance-cost/` | 成本管理业务逻辑 | 汇总、导入、查询、计算 |
-| `lib/prisma.ts` | 数据库 | `import { prisma } from "@/lib/prisma"` |
-| `lib/useSearch.ts` | 统一搜索hook | `useSearch({ target, mode, filters, debounceMs })` |
-
-## 硬约束
-
-交付前必须运行：
-
-```
+```bash
 npm run arch:check
 npm run size:check
 npm run lint -- --max-warnings=0
@@ -286,9 +75,4 @@ npx tsc --noEmit
 npm run build
 ```
 
-提交规则：
-
-- 每次完成一个独立任务后要提交 commit。
-- commit 前先看 `git status`，不要把无关文件、`.env`、数据库、`.DS_Store`、临时 planning 文件提交进去。
-- 已有用户或其他 agent 的改动不得回滚；如需跨任务整理，单独开治理任务。
-- 修改架构、schema、权限、导入流程时，必须同步更新 README、AGENTS/Codex 或对应 `ARCHITECTURE.md`。
+提交前先看 `git status --short`，不要提交无关文件、`.env`、数据库、`.DS_Store` 或临时 planning 文件。已有用户或其他 agent 的改动不得回滚。

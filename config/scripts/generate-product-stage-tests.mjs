@@ -1329,6 +1329,10 @@ const FRIABILITY_SAMPLE_FIRST_PRODUCTS = new Set([
   "methimazole",
 ]);
 
+function friabilityOperationFieldKey(stageKey, name) {
+  return `${stageKey}/friability/operation/${str(name).replace(/[\\/]/g, "_")}`;
+}
+
 function normalizeFriabilityOperationPartsBlocks(layoutBlocks, productKey, stageKey, testKeyValue) {
   if (testKeyValue !== "friability") return layoutBlocks;
   const sampleFirst = FRIABILITY_SAMPLE_FIRST_PRODUCTS.has(productKey);
@@ -1340,7 +1344,6 @@ function normalizeFriabilityOperationPartsBlocks(layoutBlocks, productKey, stage
     if (str(data.type) !== "operation_text") return block;
     const text = str(data.text);
     if (!/吹风机|圆筒|转动100次|精密称定\{FIELD:g/.test(text)) return block;
-    const prefix = `${stageKey}/${testKeyValue}/operation_text_1`;
     return {
       ...data,
       text: normalizedText,
@@ -1348,11 +1351,38 @@ function normalizeFriabilityOperationPartsBlocks(layoutBlocks, productKey, stage
         textPart(sampleFirst
           ? "取供试品适量，照通则（0923）法测定，用吹风机吹去片剂脱落的粉末，精密称定"
           : "照通则（0923）法测定。取供试品适量，用吹风机吹去片剂脱落的粉末，精密称定"),
-        { type: "line", fieldKey: `${prefix}/md_field_1`, width: "2.6rem", underline: true },
+        inputPart("测试前称重", { fieldKey: friabilityOperationFieldKey(stageKey, "测试前称重"), width: "4em" }),
         textPart("g（约6.5g），置圆筒中，转动100次。取出，同法除去粉末，精密称定"),
-        { type: "line", fieldKey: `${prefix}/md_field_2`, width: "2.6rem", underline: true },
+        inputPart("测试后称重", { fieldKey: friabilityOperationFieldKey(stageKey, "测试后称重"), width: "4em" }),
         textPart("g。"),
       ],
+    };
+  });
+}
+
+function normalizeFriabilityFormulaReferenceParts(layoutBlocks, stageKey, testKeyValue) {
+  if (testKeyValue !== "friability") return layoutBlocks;
+  const readonlyOperand = (part, rowText) => {
+    const data = rec(part);
+    const field = str(data.field || data.name);
+    const isLossOperand = /减失/.test(rowText) && /^测试[123]-(?:前重|后重)$/.test(field);
+    const isAverageOperand = /三次减失/.test(rowText) && /^测试[123]-减失率$/.test(field);
+    return isLossOperand || isAverageOperand
+      ? { ...data, fieldKey: `${stageKey}/friability/table/${field}`, readonlyDisplay: true }
+      : part;
+  };
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "table" || str(data.label) !== "脆碎度三次减失重量计算") return block;
+    return {
+      ...data,
+      rows: arr(data.rows).map((row) => {
+        const rowText = arr(row).map((cell) => str(rec(cell).rawText)).join(" ");
+        return arr(row).map((cell) => ({
+          ...rec(cell),
+          parts: arr(rec(cell).parts).map((part) => readonlyOperand(part, rowText)),
+        }));
+      }),
     };
   });
 }
@@ -1414,6 +1444,99 @@ function normalizeHydrochlorothiazideIdentificationPartsBlocks(layoutBlocks, pro
   });
 }
 
+function finishedIdentificationOperationApplies(productKey, stageKey, testKeyValue) {
+  return stageKey === "finished"
+    && testKeyValue === "identification"
+    && ["atenolol", "azithromycin", "hydrochlorothiazide"].includes(productKey);
+}
+
+function finishedIdentificationOperationFieldKey(productKey, name) {
+  return `finished/identification/${productKey}/${str(name).replace(/[\\/]/g, "_")}`;
+}
+
+function finishedIdentificationOperationFieldMap(productKey) {
+  if (productKey === "atenolol") {
+    return {
+      1: ["供试品称取量", "number", "mg"],
+      2: ["供试品量瓶体积", "number", "ml"],
+      3: ["供试品续滤液移取量", "number", "ml"],
+      4: ["供试品二次量瓶体积", "number", "ml"],
+      5: ["最大吸收波长1", "number", "nm"],
+      6: ["最大吸收波长2", "number", "nm"],
+      7: ["最大吸收波长3", "number", "nm"],
+    };
+  }
+  if (productKey === "azithromycin") {
+    return {
+      1: ["供试品称取量", "number", "g"],
+      2: ["供试品量瓶体积", "number", "ml"],
+      3: ["对照品称取量", "number", "mg"],
+      4: ["对照品量瓶体积", "number", "ml"],
+    };
+  }
+  if (productKey === "hydrochlorothiazide") {
+    return {
+      1: ["供试品称取量", "number", "mg"],
+      2: ["供试品丙酮体积", "number", "ml"],
+      3: ["对照品称取量", "number", "mg"],
+      4: ["对照品量瓶体积", "number", "ml"],
+      5: ["紫外检视波长", "number", "nm"],
+      6: ["薄层斑点结果1", "text", ""],
+      7: ["薄层斑点结果2", "text", ""],
+      8: ["薄层斑点结果3", "text", ""],
+      9: ["薄层斑点结果4", "text", ""],
+    };
+  }
+  return {};
+}
+
+function normalizeFinishedIdentificationOperationFields(layoutBlocks, productKey, stageKey, testKeyValue) {
+  if (!finishedIdentificationOperationApplies(productKey, stageKey, testKeyValue)) return layoutBlocks;
+  const map = finishedIdentificationOperationFieldMap(productKey);
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts).map((part) => {
+      const item = rec(part);
+      const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+      if (!match) return part;
+      const mapped = map[Number(match[1])];
+      if (!mapped) return part;
+      const [name] = mapped;
+      return {
+        ...item,
+        field: name,
+        fieldKey: finishedIdentificationOperationFieldKey(productKey, name),
+      };
+    });
+    return { ...data, parts };
+  });
+}
+
+function finishedIdentificationOperationMethodGroup(productKey) {
+  const productName = {
+    atenolol: "阿替洛尔片",
+    azithromycin: "阿奇霉素胶囊",
+    hydrochlorothiazide: "氢氯噻嗪片",
+  }[productKey] || productKey;
+  const fields = Object.values(finishedIdentificationOperationFieldMap(productKey)).map(([name, type, unit]) => (
+    methodField(name, finishedIdentificationOperationFieldKey(productKey, name), "fillable", "", {
+      group: `${productName}成品鉴别`,
+      type,
+      unit,
+    })
+  ));
+  fields.push(methodField("保留时间一致性", "finished/identification/operation/保留时间一致性", "fillable", "", {
+    group: `${productName}成品鉴别`,
+    type: "text",
+  }));
+  return {
+    name: `${productName}成品鉴别`,
+    source: "dedicated_layout",
+    fields,
+  };
+}
+
 function disintegrationMethodGroup(stageKey) {
   return {
     name: "崩解时限",
@@ -1463,6 +1586,72 @@ function demoteDeprecatedDisplayParams(value) {
     return { type: "text", text };
   }
   return Object.fromEntries(Object.entries(data).map(([key, val]) => [key, demoteDeprecatedDisplayParams(val)]));
+}
+
+function appearanceFieldKey(stageKey, name = "性状描述") {
+  return `${stageKey}/appearance/operation/${str(name).replace(/[\\/]/g, "_")}`;
+}
+
+function appearanceMethodGroup(stageKey) {
+  return {
+    name: `${diammoniumStageLabel(stageKey)}性状`,
+    source: "dedicated_layout",
+    fields: [
+      methodField("性状描述", appearanceFieldKey(stageKey), "fillable", "", {
+        group: `${diammoniumStageLabel(stageKey)}性状`,
+        type: "text",
+      }),
+    ],
+  };
+}
+
+function normalizeAppearanceOperationLayoutBlocks(layoutBlocks, stageKey, testKeyValue) {
+  if (testKeyValue !== "appearance") return layoutBlocks;
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts);
+    const text = parts.map((part) => str(rec(part).text)).join("");
+    if (!text.includes("目测") || !text.includes("本品为")) return block;
+    return {
+      ...data,
+      sourceTemplateId: "dedicated/appearance_operation_text",
+      parts: parts.map((part) => {
+        const item = rec(part);
+        if (str(item.fieldKey).includes("/md_field_") || str(item.type) === "line") {
+          return inputPart("性状描述", { fieldKey: appearanceFieldKey(stageKey), width: "8em" });
+        }
+        return part;
+      }),
+    };
+  });
+}
+
+function normalizeRetentionTimeOperationFields(layoutBlocks, stageKey, testKeyValue) {
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    const parts = arr(data.parts);
+    if (!parts.length) return block;
+    let afterRetentionPhrase = false;
+    let changed = false;
+    const nextParts = parts.map((part) => {
+      const item = rec(part);
+      const text = str(item.text);
+      if (text.includes("含量测定项下记录的色谱图") || text.includes("保留时间")) {
+        afterRetentionPhrase = true;
+      }
+      if (afterRetentionPhrase && (str(item.fieldKey).includes("/md_field_") || str(item.type) === "line")) {
+        changed = true;
+        afterRetentionPhrase = false;
+        return inputPart("保留时间一致性", {
+          fieldKey: `${stageKey}/${testKeyValue}/operation/保留时间一致性`,
+          width: "4em",
+        });
+      }
+      return part;
+    });
+    return changed ? { ...data, parts: nextParts } : block;
+  });
 }
 
 function stripDeprecatedParamValues(value) {
@@ -1878,6 +2067,10 @@ function diammoniumContentPrefix(stageKey) {
   return `${str(stageKey) || "intermediate"}/content/diammonium`;
 }
 
+function diammoniumContentFieldKey(stageKey, name) {
+  return `${diammoniumContentPrefix(stageKey)}/${str(name).replace(/[\\/]/g, "_")}`;
+}
+
 function diammoniumFieldKey(name) {
   return `${diammoniumContentPrefix("intermediate")}/${str(name).replace(/[\\/]/g, "_")}`;
 }
@@ -1894,6 +2087,10 @@ function inputPart(field, options = {}) {
     width: str(options.width) || "5em",
     readonlyDisplay: options.readonlyDisplay === true,
   });
+}
+
+function namedInputPart(field, fieldKey, options = {}) {
+  return inputPart(field, { ...options, fieldKey });
 }
 
 function methodField(field, fieldKey, attr = "fillable", formula = "", extra = {}) {
@@ -2411,6 +2608,40 @@ function diammoniumContentLayoutBlocks(stageKey) {
   ], stageKey);
 }
 
+function normalizeDiammoniumContentOperationFields(layoutBlocks, productKey, stageKey, testKeyValue) {
+  if (productKey !== "diammonium_glycyrrhizinate" || testKeyValue !== "content" || !["intermediate", "packaging"].includes(stageKey)) return layoutBlocks;
+  const byIndex = {
+    1: { name: "样1-净重", readonly: true },
+    2: { name: "样2-净重", readonly: true },
+    3: { name: "供试品溶液量瓶体积" },
+    4: { name: "供试品溶液移取量" },
+    5: { name: "供试品溶液二次量瓶体积" },
+    6: { name: "对照1-净重", readonly: true },
+    7: { name: "对照2-净重", readonly: true },
+    8: { name: "对照品溶液量瓶体积" },
+    9: { name: "对照品溶液移取量" },
+    10: { name: "对照品溶液二次量瓶体积" },
+  };
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts).map((part) => {
+      const item = rec(part);
+      const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+      if (!match) return part;
+      const inferred = byIndex[Number(match[1])];
+      if (!inferred) return part;
+      return {
+        ...item,
+        field: inferred.name,
+        fieldKey: diammoniumContentFieldKey(stageKey, inferred.name),
+        readonlyDisplay: inferred.readonly === true ? true : item.readonlyDisplay,
+      };
+    });
+    return { ...data, parts };
+  });
+}
+
 function diammoniumIdentificationFieldKey(name) {
   return `finished/identification/diammonium_glycyrrhizinate/${str(name).replace(/[\\/]/g, "_")}`;
 }
@@ -2778,6 +3009,50 @@ function pantoprazoleContentMeasurementBlocks(stageKey) {
   ];
 }
 
+function pantoprazoleContentOperationBlock(stageKey) {
+  const samplePrefix = stageKey === "intermediate"
+    ? [textPart("取本品适量，研细，精密称取①")]
+    : [textPart("取本品20片，除去薄膜衣后，研细，精密称取①")];
+  return {
+    type: "paragraph",
+    label: "md_operation_method",
+    sourceTemplateId: `dedicated/pantoprazole_${stageKey}_content`,
+    parts: [
+      textPart("对照品溶液制备：", { bold: true }),
+      textPart("取泮托拉唑钠对照品，精密称取①"),
+      pantoprazoleInput(stageKey, "对照1-净重", { readonlyDisplay: true, width: "5em" }),
+      textPart("mg②"),
+      pantoprazoleInput(stageKey, "对照2-净重", { readonlyDisplay: true, width: "5em" }),
+      textPart("mg（10mg），分别置"),
+      pantoprazoleInput(stageKey, "对照品定容体积", { width: "4em" }),
+      textPart("ml（50ml）量瓶中，用乙醇溶解并稀释至刻度，摇匀。精密吸取"),
+      pantoprazoleInput(stageKey, "对照品吸取体积", { width: "4em" }),
+      textPart("ml（2ml）置"),
+      pantoprazoleInput(stageKey, "对照品二次定容体积", { width: "4em" }),
+      textPart("ml（25ml）量瓶中，加乙醇稀释制成每1ml中约含16μg的溶液，摇匀，作为对照品溶液。"),
+      lineBreakPart(),
+      textPart("样品溶液制备：", { bold: true }),
+      ...samplePrefix,
+      pantoprazoleInput(stageKey, "样1-净重", { readonlyDisplay: true, width: "5em" }),
+      textPart("mg②"),
+      pantoprazoleInput(stageKey, "样2-净重", { readonlyDisplay: true, width: "5em" }),
+      textPart("mg（约相当于泮托拉唑钠20mg），分别置"),
+      pantoprazoleInput(stageKey, "样品定容体积", { width: "4em" }),
+      textPart("ml（100ml）量瓶中，加乙醇适量，振摇使溶解，加乙醇稀释至刻度，摇匀，滤过，精密吸取续滤液"),
+      pantoprazoleInput(stageKey, "样品吸取体积", { width: "4em" }),
+      textPart("ml（2ml）置"),
+      pantoprazoleInput(stageKey, "样品二次定容体积", { width: "4em" }),
+      textPart("ml（25ml）量瓶中，加乙醇稀释至刻度，摇匀，作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("分别取上述溶液，照紫外-可见分光光度法(通则0401)，在"),
+      pantoprazoleInput(stageKey, "检测波长", { width: "4em" }),
+      textPart("nm（292nm±2nm）的波长处测定吸光度，计算结果乘以0.9458，计算。"),
+    ],
+    order: 140,
+  };
+}
+
 function pantoprazoleContentLayoutBlocks(stageKey) {
   return [
     pantoprazoleContentWeighingTable(stageKey),
@@ -2815,6 +3090,49 @@ function pantoprazoleAcidResistanceTable(label, columnWidths, rows, order) {
     columnWidths,
     rows,
     order,
+  };
+}
+
+function pantoprazoleAcidResistanceOperationBlock() {
+  return {
+    type: "paragraph",
+    label: "md_operation_method",
+    sourceTemplateId: "dedicated/pantoprazole_finished_acid_resistance",
+    parts: [
+      textPart("照通则(0401)法测定。"),
+      lineBreakPart(),
+      textPart("对照品溶液制备：", { bold: true }),
+      textPart("取泮托拉唑钠对照品"),
+      pantoprazoleAcidResistanceInput("对照品称量", { width: "5em" }),
+      textPart("mg（10mg）置"),
+      pantoprazoleAcidResistanceInput("对照品定容体积", { width: "4em" }),
+      textPart("ml（50ml）量瓶中，用乙醇溶解并稀释至刻度，摇匀。精密吸取"),
+      pantoprazoleAcidResistanceInput("对照品吸取体积", { width: "4em" }),
+      textPart("ml（2ml）置"),
+      pantoprazoleAcidResistanceInput("对照品二次定容体积", { width: "4em" }),
+      textPart("ml（25ml）量瓶中，加乙醇稀释制成每1ml中约含16μg的溶液，摇匀，作为对照品溶液。"),
+      lineBreakPart(),
+      textPart("样品溶液制备：", { bold: true }),
+      textPart("取本品"),
+      pantoprazoleAcidResistanceInput("样品片数", { width: "4em" }),
+      textPart("片（6片），照溶出度与释放度测定法（通则0931 第一法）"),
+      pantoprazoleAcidResistanceInput("溶出方法", { width: "4em" }),
+      textPart("（篮）法，以0.1mol/L盐酸溶液900ml为溶出介质，转速"),
+      pantoprazoleAcidResistanceInput("转速", { width: "4em" }),
+      textPart("rpm/min（100rpm/min），依法操作，经2小时，供试品片均不得有裂缝或崩解现象，取出药片，以水冲洗片剂表面的酸液，将药片置乳钵中加乙醇研细并转移至"),
+      pantoprazoleAcidResistanceInput("样品定容体积", { width: "4em" }),
+      textPart("ml（100ml）量瓶中，加乙醇至刻度，摇匀，滤过，精密量取"),
+      pantoprazoleAcidResistanceInput("样品吸取体积", { width: "4em" }),
+      textPart("ml（2ml），置"),
+      pantoprazoleAcidResistanceInput("样品二次定容体积", { width: "4em" }),
+      textPart("ml（50ml）量瓶中，加乙醇稀释至刻度，摇匀作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("照含量测定项下的方法自“照分光光度法”起，同法测定，计算每片的含量。"),
+      lineBreakPart(),
+      textPart("称重与计算：", { bold: true }),
+    ],
+    order: 140,
   };
 }
 
@@ -2904,6 +3222,52 @@ function spironolactoneRelatedReadonly(name, formulaText, dependencyNames, optio
     advancedFormulaText: formulaText,
     advancedDependencyFieldKeys: dependencyNames.map(spironolactoneRelatedFieldKey),
   };
+}
+
+const SPIRONOLACTONE_RELATED_OPERATION_FIELD_MAP = new Map([
+  [1, ["色谱柱长度", false]],
+  [2, ["检测波长254nm", false]],
+  [3, ["检测波长283nm", false]],
+  [4, ["坎利酮对照品净重", true]],
+  [5, ["对照品溶液1量瓶体积", false]],
+  [6, ["对照品溶液1溶解溶剂体积", false]],
+  [7, ["对照品溶液1移取量", false]],
+  [8, ["对照品溶液2量瓶体积", false]],
+  [9, ["系统适用性供试品溶液移取量", false]],
+  [10, ["系统适用性对照品溶液1移取量", false]],
+  [11, ["系统适用性量瓶体积", false]],
+  [12, ["供试品净重", true]],
+  [13, ["供试品量瓶体积", false]],
+  [14, ["供试品三氯甲烷首次提取体积", false]],
+  [15, ["供试品三氯甲烷重复提取体积", false]],
+  [16, ["供试品四氢呋喃体积", false]],
+  [17, ["供试品流动相体积", false]],
+  [18, ["对照溶液1供试品溶液移取量", false]],
+  [19, ["对照溶液1量瓶体积", false]],
+  [20, ["对照溶液2对照溶液1移取量", false]],
+  [21, ["对照溶液2量瓶体积", false]],
+]);
+
+function normalizeSpironolactoneRelatedOperationFields(layoutBlocks) {
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    return {
+      ...data,
+      parts: arr(data.parts).map((part) => {
+        const item = rec(part);
+        const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+        if (!match) return part;
+        const [name, readonly] = SPIRONOLACTONE_RELATED_OPERATION_FIELD_MAP.get(Number(match[1])) || [`操作参数${match[1]}`, false];
+        return {
+          ...item,
+          field: name,
+          fieldKey: spironolactoneRelatedFieldKey(name),
+          readonlyDisplay: readonly ? true : item.readonlyDisplay,
+        };
+      }),
+    };
+  });
 }
 
 function spironolactoneRelatedTable(label, columnWidths, rows, order) {
@@ -3034,7 +3398,32 @@ function spironolactoneRelatedMethodField(name, attr = "fillable", formula = "",
 
 function spironolactoneRelatedMethodGroup() {
   const fields = [];
-  const add = (...args) => fields.push(spironolactoneRelatedMethodField(...args));
+  const addedNames = new Set();
+  const add = (...args) => {
+    const [name] = args;
+    if (addedNames.has(name)) return;
+    addedNames.add(name);
+    fields.push(spironolactoneRelatedMethodField(...args));
+  };
+  add("色谱柱长度", "fillable", "", { unit: "mm" });
+  add("检测波长254nm", "fillable", "", { unit: "nm" });
+  add("检测波长283nm", "fillable", "", { unit: "nm" });
+  add("对照品溶液1量瓶体积", "fillable", "", { unit: "ml" });
+  add("对照品溶液1溶解溶剂体积", "fillable", "", { unit: "ml" });
+  add("对照品溶液1移取量", "fillable", "", { unit: "ml" });
+  add("对照品溶液2量瓶体积", "fillable", "", { unit: "ml" });
+  add("系统适用性供试品溶液移取量", "fillable", "", { unit: "ml" });
+  add("系统适用性对照品溶液1移取量", "fillable", "", { unit: "ml" });
+  add("系统适用性量瓶体积", "fillable", "", { unit: "ml" });
+  add("供试品量瓶体积", "fillable", "", { unit: "ml" });
+  add("供试品三氯甲烷首次提取体积", "fillable", "", { unit: "ml" });
+  add("供试品三氯甲烷重复提取体积", "fillable", "", { unit: "ml" });
+  add("供试品四氢呋喃体积", "fillable", "", { unit: "ml" });
+  add("供试品流动相体积", "fillable", "", { unit: "ml" });
+  add("对照溶液1供试品溶液移取量", "fillable", "", { unit: "ml" });
+  add("对照溶液1量瓶体积", "fillable", "", { unit: "ml" });
+  add("对照溶液2对照溶液1移取量", "fillable", "", { unit: "ml" });
+  add("对照溶液2量瓶体积", "fillable", "", { unit: "ml" });
   add("坎利酮对照品含量", "fillable", "", { unit: "%" });
   add("坎利酮对照品毛重", "fillable", "", { unit: "mg" });
   add("坎利酮对照品皮重", "fillable", "", { unit: "mg" });
@@ -3060,7 +3449,7 @@ function spironolactoneRelatedMethodGroup() {
 }
 
 function spironolactoneRelatedSubstancesLayoutBlocks(layoutBlocks) {
-  const nextBlocks = arr(layoutBlocks).filter((block) => {
+  const nextBlocks = normalizeSpironolactoneRelatedOperationFields(arr(layoutBlocks)).filter((block) => {
     const data = rec(block);
     const label = str(data.label);
     const title = str(data.title || data.text);
@@ -3085,6 +3474,17 @@ function levofloxacinRelatedFieldKey(name) {
 
 function levofloxacinRelatedInput(name, options = {}) {
   return inputPart(name, { ...options, fieldKey: levofloxacinRelatedFieldKey(name) });
+}
+
+function levofloxacinRelatedOperationFieldNames() {
+  return [
+    ["环丙沙星对照品称取量", "number", "mg"],
+    ["杂质E对照品称取量", "number", "mg"],
+    ["系统适用性混合对照量瓶体积", "number", "ml"],
+    ["左氧氟沙星对照品称取量", "number", "mg"],
+    ["左氧氟沙星对照品量瓶体积", "number", "ml"],
+    ["环丙沙星对照品溶液移取量", "number", "ml"],
+  ];
 }
 
 function levofloxacinRelatedRadio(name) {
@@ -3220,6 +3620,9 @@ function levofloxacinRelatedMethodField(name, attr = "fillable", formula = "", e
 function levofloxacinRelatedMethodGroup() {
   const fields = [];
   const add = (...args) => fields.push(levofloxacinRelatedMethodField(...args));
+  for (const [name, type, unit] of levofloxacinRelatedOperationFieldNames()) {
+    add(name, "fillable", "", { type, unit });
+  }
   add("杂质A对照品含量", "fillable", "", { unit: "%" });
   add("杂质A对照品称样", "fillable", "", { unit: "mg" });
   add("供试品称样", "fillable", "", { unit: "g" });
@@ -3241,7 +3644,7 @@ function levofloxacinRelatedMethodGroup() {
 }
 
 function levofloxacinRelatedSubstancesLayoutBlocks(layoutBlocks) {
-  const nextBlocks = arr(layoutBlocks).filter((block) => {
+  const nextBlocks = normalizeLevofloxacinRelatedOperationFields(arr(layoutBlocks)).filter((block) => {
     const data = rec(block);
     const label = str(data.label);
     const title = str(data.title || data.text);
@@ -3254,6 +3657,27 @@ function levofloxacinRelatedSubstancesLayoutBlocks(layoutBlocks) {
   const insertAt = postMethodBlockIndex(nextBlocks);
   nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, ...levofloxacinRelatedLayoutBlocks());
   return nextBlocks;
+}
+
+function normalizeLevofloxacinRelatedOperationFields(layoutBlocks) {
+  const byIndex = Object.fromEntries(levofloxacinRelatedOperationFieldNames().map((entry, index) => [index + 1, entry[0]]));
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts).map((part) => {
+      const item = rec(part);
+      const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+      if (!match) return part;
+      const name = byIndex[Number(match[1])];
+      if (!name) return part;
+      return {
+        ...item,
+        field: name,
+        fieldKey: levofloxacinRelatedFieldKey(name),
+      };
+    });
+    return { ...data, parts };
+  });
 }
 
 const ALLOPURINOL_RELATED_NAMED_IMPURITIES = ["杂质A", "杂质B", "杂质C", "杂质D", "杂质E"];
@@ -3458,6 +3882,117 @@ function allopurinolRelatedCalculationTable() {
   ], 171);
 }
 
+function allopurinolRelatedOperationFieldNames() {
+  return [
+    ["供试品量瓶体积", "number", "ml"],
+    ["供试品氢氧化钠体积", "number", "ml"],
+    ["对照母液量瓶体积", "number", "ml"],
+    ["对照母液氢氧化钠体积", "number", "ml"],
+    ["杂质A母液移取量", "number", "ml"],
+    ["杂质B母液移取量", "number", "ml"],
+    ["杂质C母液移取量", "number", "ml"],
+    ["杂质D母液移取量", "number", "ml"],
+    ["杂质E母液移取量", "number", "ml"],
+    ["别嘌醇母液移取量", "number", "ml"],
+    ["对照贮备液量瓶体积", "number", "ml"],
+    ["对照贮备液移取量", "number", "ml"],
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["色谱柱规格", "text", ""],
+    ["流速", "number", "ml/min"],
+    ["柱温", "number", "℃"],
+    ["检测波长", "number", "nm"],
+    ["进样体积", "number", "μl"],
+  ];
+}
+
+function allopurinolRelatedOperationBlock() {
+  const op = (field, options = {}) => allopurinolRelatedInput(field, options);
+  const ref = (field, options = {}) => allopurinolRelatedInput(field, { ...options, readonlyDisplay: true });
+  return {
+    type: "paragraph",
+    label: "别嘌醇片成品有关物质操作方法",
+    sourceTemplateId: "dedicated/allopurinol_finished_related_substances_operation",
+    sectionRole: "operation_text",
+    sectionRef: "operation",
+    order: 136,
+    moduleOrder: 15,
+    parts: [
+      textPart("照高效液相色谱法（通则0512）试验。"),
+      lineBreakPart(),
+      textPart("供试品溶液：", { bold: true }),
+      textPart("临用新制。精密称取细粉适量"),
+      ref("称样/供试品-净重"),
+      textPart("mg（约相当于别嘌醇15mg），置"),
+      op("供试品量瓶体积"),
+      textPart("ml（100ml）量瓶中，加0.1mol/L氢氧化钠溶液"),
+      op("供试品氢氧化钠体积"),
+      textPart("ml（5ml）使溶解，用稀释剂[甲醇-水（10:90）]稀释至刻度，摇匀，滤过，取续滤液作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("对照品溶液：", { bold: true }),
+      textPart("另取别嘌醇杂质A"),
+      ref("称样/杂质A-净重"),
+      textPart("mg（5mg）置"),
+      op("对照母液量瓶体积"),
+      textPart("ml（100ml）量瓶中；杂质B"),
+      ref("称样/杂质B-净重"),
+      textPart("mg（5mg）置"),
+      op("对照母液量瓶体积"),
+      textPart("ml（100ml）量瓶中；杂质C"),
+      ref("称样/杂质C-净重"),
+      textPart("mg（5mg）置"),
+      op("对照母液量瓶体积"),
+      textPart("ml（100ml）量瓶中；杂质D"),
+      ref("称样/杂质D-净重"),
+      textPart("mg（5mg）置"),
+      op("对照母液量瓶体积"),
+      textPart("ml（100ml）量瓶中；杂质E"),
+      ref("称样/杂质E-净重"),
+      textPart("mg（5mg）置"),
+      op("对照母液量瓶体积"),
+      textPart("ml（100ml）量瓶中；别嘌醇对照品"),
+      ref("称样/别嘌醇对照-净重"),
+      textPart("mg（5mg）置"),
+      op("对照母液量瓶体积"),
+      textPart("ml（100ml）量瓶中；分别加0.1mol/L氢氧化钠溶液"),
+      op("对照母液氢氧化钠体积"),
+      textPart("ml（5ml）使溶解，用溶剂[甲醇-1.25g/L磷酸二氢钾溶液（10:90）]稀释至刻度，作为对照品溶液母液。分别精密量取杂质A母液"),
+      op("杂质A母液移取量"),
+      textPart("ml（6ml）、杂质B母液"),
+      op("杂质B母液移取量"),
+      textPart("ml（3ml）、杂质C母液"),
+      op("杂质C母液移取量"),
+      textPart("ml（3ml）、杂质D母液"),
+      op("杂质D母液移取量"),
+      textPart("ml（3ml）、杂质E母液"),
+      op("杂质E母液移取量"),
+      textPart("ml（3ml）、别嘌醇母液"),
+      op("别嘌醇母液移取量"),
+      textPart("ml（3ml）置同一"),
+      op("对照贮备液量瓶体积"),
+      textPart("ml（100ml）量瓶中，用稀释剂[甲醇-水（10:90）]稀释至刻度，作为对照品贮备液。再精密量取贮备液"),
+      op("对照贮备液移取量"),
+      textPart("ml（10ml）置"),
+      op("对照品溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，用稀释剂[甲醇-水（10:90）]稀释至刻度制成每1ml中约含别嘌醇杂质A0.3μg，杂质B、杂质C、杂质D、杂质E、别嘌醇各0.15μg的混合溶液，作为对照品溶液。"),
+      lineBreakPart(),
+      textPart("色谱条件与系统适应性试验：", { bold: true }),
+      textPart("用十八烷基硅烷键合硅胶为填充剂（"),
+      op("色谱柱规格", { width: "8em" }),
+      textPart("；原文为4.6mm×250mm，5μm）；流动相A为1.25g/L磷酸二氢钾溶液（用磷酸调节PH至2.0），流动相B为甲醇，按表进行线性梯度洗脱；流速为每分钟"),
+      op("流速"),
+      textPart("ml；柱温为"),
+      op("柱温"),
+      textPart("℃；检测波长为"),
+      op("检测波长"),
+      textPart("nm。取对照品溶液"),
+      op("进样体积"),
+      textPart("μl注入液相色谱仪，记录色谱图，别嘌醇色谱峰的保留时间约为10分钟，洗脱顺序为杂质A、杂质C、杂质B、别嘌醇、杂质D、杂质E；杂质B与杂质C的分离度不得小于1.5，别嘌醇色谱峰的拖尾因子不得大于1.5。再精密量取供试品溶液与对照品溶液各"),
+      op("进样体积"),
+      textPart("μl，分别注入液相色谱仪，记录色谱图。供试品溶液中如有与杂质A、杂质B、杂质C、杂质D、杂质E保留时间一致的峰，其含量按外标法以峰面积计算。"),
+    ],
+  };
+}
+
 function allopurinolRelatedLayoutBlocks() {
   return [
     allopurinolRelatedWeighingTable(),
@@ -3473,12 +4008,14 @@ function allopurinolRelatedSubstancesLayoutBlocks(layoutBlocks) {
     const title = str(data.title || data.text);
     const type = str(data.type);
     return !(
-      (type === "title" && ["称样", "称重", "测定", "计算", "测定与计算"].includes(title))
+      label === "md_operation_method"
+      || str(data.type) === "sectioned_operation_steps"
+      || (type === "title" && ["称样", "称重", "测定", "计算", "测定与计算"].includes(title))
       || ["多对照称样", "系统适用性", "对照品峰面积", "多杂质计算"].includes(label)
     );
   });
   const insertAt = postMethodBlockIndex(nextBlocks);
-  nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, ...allopurinolRelatedLayoutBlocks());
+  nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, allopurinolRelatedOperationBlock(), ...allopurinolRelatedLayoutBlocks());
   return nextBlocks;
 }
 
@@ -3496,6 +4033,58 @@ function allopurinolContentFieldKey(stageKey, name) {
 
 function allopurinolInput(stageKey, field, options = {}) {
   return inputPart(field, { ...options, fieldKey: allopurinolContentFieldKey(stageKey, field) });
+}
+
+function allopurinolContentOperationFieldNames() {
+  return [
+    ["供试品定容体积", "number", "ml"],
+    ["氢氧化钠溶液体积", "number", "ml"],
+    ["续滤液移取量1", "number", "ml"],
+    ["续滤液定容体积1", "number", "ml"],
+    ["续滤液移取量2", "number", "ml"],
+    ["续滤液定容体积2", "number", "ml"],
+  ];
+}
+
+function allopurinolContentOperationBlock(stageKey) {
+  const op = (field, options = {}) => allopurinolInput(stageKey, field, options);
+  const takePrefix = stageKey === "packaging"
+    ? [textPart("取本品20片，研细，精密称定，精密称取①")]
+    : [textPart("取本品适量，研细，精密称定，精密称取①")];
+  return {
+    type: "paragraph",
+    label: `别嘌醇片${diammoniumStageLabel(stageKey)}含量操作方法`,
+    sourceTemplateId: `dedicated/allopurinol_${stageKey}_content_operation`,
+    sectionRole: "operation_text",
+    sectionRef: "operation",
+    order: 136,
+    moduleOrder: 15,
+    parts: [
+      textPart("供试品溶液制备：", { bold: true }),
+      ...takePrefix,
+      op("样1-净重", { readonlyDisplay: true }),
+      textPart(" g②"),
+      op("样2-净重", { readonlyDisplay: true }),
+      textPart("g（约相当于别嘌醇0.1g），置"),
+      op("供试品定容体积"),
+      textPart("ml（100ml）量瓶中，加0.2％氢氧化钠溶液"),
+      op("氢氧化钠溶液体积"),
+      textPart("ml（20ml），振摇15分钟使别嘌醇溶解，加水稀释至刻度，摇匀，滤过；精密量取续滤液"),
+      op("续滤液移取量1"),
+      textPart("ml（5ml），置"),
+      op("续滤液定容体积1"),
+      textPart("ml（50ml）量瓶中，加盐酸溶液（9→1000）稀释至刻度，摇匀；再精密量取续滤液"),
+      op("续滤液移取量2"),
+      textPart("ml（5ml），置"),
+      op("续滤液定容体积2"),
+      textPart("ml（50ml）量瓶中，加盐酸溶液（9→1000）稀释至刻度，摇匀，作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("取上述溶液，照紫外-可见分光光度法(通则0401)，在"),
+      op("检测波长", { readonlyDisplay: true }),
+      textPart("nm（250nm±2nm）的波长处测定吸光度，按 C5H4N4O 的吸收系数（E1%1cm）为571计算。"),
+    ],
+  };
 }
 
 function allopurinolIdentificationApplies(productKey, stageKey, testKeyValue) {
@@ -3872,6 +4461,60 @@ function hydrochlorothiazideUniformityInput(stageKey, field, options = {}) {
   return inputPart(field, { ...options, fieldKey: hydrochlorothiazideUniformityFieldKey(stageKey, field) });
 }
 
+function hydrochlorothiazideUniformityOperationFieldNames() {
+  return [
+    ["系统适用性氢氯噻嗪对照品称重", "number", "mg"],
+    ["系统适用性氯噻嗪对照品称重", "number", "mg"],
+    ["系统适用性溶液量瓶体积", "number", "ml"],
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["对照品溶液移取量", "number", "ml"],
+    ["对照品溶液二次量瓶体积", "number", "ml"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["供试品溶液流动相加入量", "number", "ml"],
+    ["供试品溶液甲醇乙腈加入量", "number", "ml"],
+    ["供试品溶液移取量", "number", "ml"],
+    ["供试品溶液二次量瓶体积", "number", "ml"],
+    ["进样体积", "number", "μl"],
+  ];
+}
+
+function normalizeHydrochlorothiazideUniformityOperationFields(layoutBlocks, productKey, stageKey, testKeyValue) {
+  if (!hydrochlorothiazideContentUniformityApplies(productKey, stageKey, testKeyValue)) return layoutBlocks;
+  const byIndex = {
+    1: { name: "系统适用性氢氯噻嗪对照品称重" },
+    2: { name: "系统适用性氯噻嗪对照品称重" },
+    3: { name: "系统适用性溶液量瓶体积" },
+    4: { name: "对照称重", readonly: true },
+    5: { name: "对照品溶液量瓶体积" },
+    6: { name: "对照品溶液移取量" },
+    7: { name: "对照品溶液二次量瓶体积" },
+    8: { name: "供试品溶液量瓶体积" },
+    9: { name: "供试品溶液流动相加入量" },
+    10: { name: "供试品溶液甲醇乙腈加入量" },
+    11: { name: "供试品溶液移取量" },
+    12: { name: "供试品溶液二次量瓶体积" },
+    13: { name: "进样体积" },
+  };
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts).map((part) => {
+      const item = rec(part);
+      const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+      if (!match) return part;
+      const inferred = byIndex[Number(match[1])];
+      if (!inferred) return part;
+      return {
+        ...item,
+        field: inferred.name,
+        fieldKey: hydrochlorothiazideUniformityFieldKey(stageKey, inferred.name),
+        readonlyDisplay: inferred.readonly === true ? true : item.readonlyDisplay,
+      };
+    });
+    return { ...data, parts };
+  });
+}
+
 function hydrochlorothiazideUniformityTable(stageKey, label, columnWidths, rows, order) {
   return {
     type: "table",
@@ -3981,7 +4624,15 @@ function hydrochlorothiazideUniformityMethodField(stageKey, name, attr = "fillab
 
 function hydrochlorothiazideUniformityMethodGroup(stageKey) {
   const fields = [];
-  const add = (...args) => fields.push(hydrochlorothiazideUniformityMethodField(stageKey, ...args));
+  const addedNames = new Set();
+  const add = (name, ...args) => {
+    if (addedNames.has(name)) return;
+    addedNames.add(name);
+    fields.push(hydrochlorothiazideUniformityMethodField(stageKey, name, ...args));
+  };
+  for (const [field, type, unit] of hydrochlorothiazideUniformityOperationFieldNames()) {
+    add(field, "fillable", "", { type, unit });
+  }
   add("对照含量", "fillable", "", { unit: "%" });
   add("对照-毛重", "fillable", "", { unit: "mg" });
   add("对照-皮重", "fillable", "", { unit: "mg" });
@@ -4015,6 +4666,39 @@ function isosorbideUniformityFieldKey(stageKey, name) {
 
 function isosorbideUniformityInput(stageKey, field, options = {}) {
   return inputPart(field, { ...options, fieldKey: isosorbideUniformityFieldKey(stageKey, field) });
+}
+
+function isosorbideUniformityOperationFieldNames() {
+  return [
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+  ];
+}
+
+function normalizeIsosorbideUniformityOperationFields(layoutBlocks, productKey, stageKey, testKeyValue) {
+  if (!isosorbideUniformityApplies(productKey, stageKey, testKeyValue)) return layoutBlocks;
+  const byIndex = {
+    1: { name: "对照称重" },
+    2: { name: "对照品溶液量瓶体积" },
+    3: { name: "供试品溶液量瓶体积" },
+  };
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts).map((part) => {
+      const item = rec(part);
+      const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+      if (!match) return part;
+      const inferred = byIndex[Number(match[1])];
+      if (!inferred) return part;
+      return {
+        ...item,
+        field: inferred.name,
+        fieldKey: isosorbideUniformityFieldKey(stageKey, inferred.name),
+      };
+    });
+    return { ...data, parts };
+  });
 }
 
 function isosorbideUniformityCalculationTable(stageKey) {
@@ -4071,6 +4755,9 @@ function isosorbideUniformityMethodField(stageKey, name, attr = "fillable", form
 function isosorbideUniformityMethodGroup(stageKey) {
   const fields = [];
   const add = (...args) => fields.push(isosorbideUniformityMethodField(stageKey, ...args));
+  for (const [field, type, unit] of isosorbideUniformityOperationFieldNames()) {
+    add(field, "fillable", "", { type, unit });
+  }
   add("对照含量", "fillable", "", { unit: "%" });
   add("对照称重", "fillable", "", { unit: "mg" });
   add("对照峰面积", "fillable");
@@ -4124,6 +4811,154 @@ function singleReferenceHplcUniformityFieldKey(productKey, stageKey, name) {
 
 function singleReferenceHplcUniformityInput(productKey, stageKey, field, options = {}) {
   return inputPart(field, { ...options, fieldKey: singleReferenceHplcUniformityFieldKey(productKey, stageKey, field) });
+}
+
+function simvastatinUniformityOperationInput(stageKey, field, options = {}) {
+  return namedInputPart(field, singleReferenceHplcUniformityFieldKey("simvastatin", stageKey, field), options);
+}
+
+function simvastatinUniformityOperationFieldNames() {
+  return [
+    ["色谱柱长度", "number", "mm"],
+    ["检测波长", "number", "nm"],
+    ["理论板数限度", "number", ""],
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["进样体积", "number", "μl"],
+  ];
+}
+
+function terazosinUniformityOperationFieldNames() {
+  return [
+    ["色谱柱长度", "number", "mm"],
+    ["理论板数限度", "number", ""],
+    ["检测波长", "number", "nm"],
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["对照品溶液移取量", "number", "ml"],
+    ["对照品溶液二次量瓶体积", "number", "ml"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+  ];
+}
+
+function spironolactoneUniformityOperationFieldNames() {
+  return [
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["对照品溶液移取量", "number", "ml"],
+    ["对照品溶液二次量瓶体积", "number", "ml"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["供试品溶液移取量", "number", "ml"],
+    ["供试品溶液二次量瓶体积", "number", "ml"],
+    ["进样体积", "number", "μl"],
+  ];
+}
+
+function normalizeSpironolactoneUniformityOperationFields(layoutBlocks, productKey, stageKey, testKeyValue) {
+  if (productKey !== "spironolactone" || !singleReferenceHplcUniformityApplies(productKey, stageKey, testKeyValue)) return layoutBlocks;
+  const byIndex = {
+    1: { name: "对照称重", readonly: true },
+    2: { name: "对照品溶液量瓶体积" },
+    3: { name: "对照品溶液移取量" },
+    4: { name: "对照品溶液二次量瓶体积" },
+    5: { name: "供试品溶液量瓶体积" },
+    6: { name: "供试品溶液移取量" },
+    7: { name: "供试品溶液二次量瓶体积" },
+    8: { name: "进样体积" },
+  };
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts).map((part) => {
+      const item = rec(part);
+      const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+      if (!match) return part;
+      const inferred = byIndex[Number(match[1])];
+      if (!inferred) return part;
+      return {
+        ...item,
+        field: inferred.name,
+        fieldKey: singleReferenceHplcUniformityFieldKey(productKey, stageKey, inferred.name),
+        readonlyDisplay: inferred.readonly === true ? true : item.readonlyDisplay,
+      };
+    });
+    return { ...data, parts };
+  });
+}
+
+function simvastatinUniformityOperationBlock(stageKey) {
+  const op = (field, options = {}) => simvastatinUniformityOperationInput(stageKey, field, options);
+  const tableInput = (field, options = {}) => singleReferenceHplcUniformityInput("simvastatin", stageKey, field, options);
+  return {
+    type: "paragraph",
+    label: "辛伐他汀片含量均匀度操作方法",
+    sourceTemplateId: `dedicated/simvastatin_${stageKey}_content_uniformity_operation`,
+    order: 136,
+    parts: [
+      textPart("色谱条件与系统适用性试验：", { bold: true }),
+      textPart("色谱柱：C18×"),
+      op("色谱柱长度"),
+      textPart("mm×4.6mm；以乙腈-0.025mol/L磷酸二氢钠溶液（用磷酸或氢氧化钠试液调节PH值至4.5）（65：35）为流动相，检测波长："),
+      op("检测波长"),
+      textPart("nm（238nm），n≥"),
+      op("理论板数限度"),
+      textPart("（柱参数应≥2000）。溶剂Ⅰ：乙腈-0.05mol/L醋酸钠溶液（用冰醋酸调节PH4.0）（8：2）。"),
+      lineBreakPart(),
+      textPart("对照品溶液制备：", { bold: true }),
+      textPart("精密称取辛伐他汀对照品"),
+      tableInput("对照称重", { readonlyDisplay: true }),
+      textPart("mg（约10mg）置"),
+      op("对照品溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，用溶剂Ⅰ超声使溶解并稀释至刻度，摇匀，制成1ml中含0.1mg的溶液，作为对照品溶液。"),
+      lineBreakPart(),
+      textPart("供试品溶液制备：", { bold: true }),
+      textPart("取本品1片，置"),
+      op("供试品溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，加溶剂Ⅰ适量，充分振摇，使辛伐他汀溶解，加溶剂Ⅰ稀释至刻度，摇匀，滤过，取续滤液，作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("取供试品溶液和对照品溶液各"),
+      op("进样体积"),
+      textPart("μl（20μl），分别注入液相色谱仪，照含量项下方法测定。按外标法以峰面积计算每片的含量，应符合规定（通则0941）。"),
+    ],
+  };
+}
+
+function terazosinUniformityOperationBlock(stageKey) {
+  const op = (field, options = {}) => namedInputPart(field, singleReferenceHplcUniformityFieldKey("terazosin", stageKey, field), options);
+  const tableInput = (field, options = {}) => singleReferenceHplcUniformityInput("terazosin", stageKey, field, options);
+  return {
+    type: "paragraph",
+    label: "盐酸特拉唑嗪胶囊含量均匀度操作方法",
+    sourceTemplateId: `dedicated/terazosin_${stageKey}_content_uniformity_operation`,
+    order: 136,
+    parts: [
+      textPart("照高效液相色谱法测定（通则0512）。"),
+      lineBreakPart(),
+      textPart("色谱条件与系统适用性试验：", { bold: true }),
+      textPart("色谱柱：C18×"),
+      op("色谱柱长度"),
+      textPart("mm×4.6mm；以乙腈：高氯酸溶液（取三乙胺2ml置1000ml水中，用高氯酸调节PH值至2.0）20：80为流动相；n≥"),
+      op("理论板数限度"),
+      textPart("（应不低于3000），检测波长："),
+      op("检测波长"),
+      textPart("nm（246nm）；特拉唑嗪峰与相邻杂质峰的分离度应符合要求。"),
+      lineBreakPart(),
+      textPart("对照品溶液制备：", { bold: true }),
+      textPart("精密称取盐酸特拉唑嗪对照品"),
+      tableInput("对照称重", { readonlyDisplay: true }),
+      textPart("mg（10mg）置"),
+      op("对照品溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，加溶剂[乙腈—水—盐酸（200：800：0.9）]溶解并稀释至刻度，摇匀。再精密吸取"),
+      op("对照品溶液移取量"),
+      textPart("ml（5ml）置"),
+      op("对照品溶液二次量瓶体积"),
+      textPart("ml（25ml）量瓶中加溶剂稀释至刻度，制成每1ml中约含特拉唑嗪20μg的溶液，作为对照品溶液。"),
+      lineBreakPart(),
+      textPart("供试品溶液制备：", { bold: true }),
+      textPart("取本品1粒，将内容物倾入"),
+      op("供试品溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，囊壳用有关物质项下溶剂分次洗净，洗液并入量瓶中，超声使盐酸特拉唑嗪溶解，用溶剂稀释至刻度，摇匀，滤过，取续滤液作为供试品溶液。"),
+    ],
+  };
 }
 
 function singleReferenceHplcUniformityReferenceTable(productKey, stageKey) {
@@ -4230,6 +5065,21 @@ function singleReferenceHplcUniformityMethodGroup(productKey, stageKey) {
   const config = SINGLE_REFERENCE_HPLC_UNIFORMITY_CONFIG[productKey];
   const fields = [];
   const add = (...args) => fields.push(singleReferenceHplcUniformityMethodField(productKey, stageKey, ...args));
+  if (productKey === "simvastatin") {
+    for (const [field, type, unit] of simvastatinUniformityOperationFieldNames()) {
+      add(field, "fillable", "", { type, unit });
+    }
+  }
+  if (productKey === "spironolactone") {
+    for (const [field, type, unit] of spironolactoneUniformityOperationFieldNames()) {
+      add(field, "fillable", "", { type, unit });
+    }
+  }
+  if (productKey === "terazosin") {
+    for (const [field, type, unit] of terazosinUniformityOperationFieldNames()) {
+      add(field, "fillable", "", { type, unit });
+    }
+  }
   add("对照含量", "fillable", "", { unit: "%" });
   add("对照-毛重", "fillable", "", { unit: "mg" });
   add("对照-皮重", "fillable", "", { unit: "mg" });
@@ -4391,6 +5241,17 @@ function reconcileDedicatedProductLayoutBlocks(layoutBlocks, productKey, stageKe
         || new RegExp(`${config.displayName}(?:对照称样|测定与计算)`).test(label)
       );
     });
+    if (productKey === "simvastatin" || productKey === "terazosin") {
+      const methodIndex = nextBlocks.findIndex((block) => str(rec(block).label) === "md_operation_method");
+      const operationBlock = productKey === "simvastatin"
+        ? simvastatinUniformityOperationBlock(stageKey)
+        : terazosinUniformityOperationBlock(stageKey);
+      if (methodIndex >= 0) nextBlocks.splice(methodIndex, 1, operationBlock);
+      else {
+        const insertAt = postMethodBlockIndex(nextBlocks);
+        nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, operationBlock);
+      }
+    }
     const contentBlocks = singleReferenceHplcUniformityLayoutBlocks(productKey, stageKey);
     const weighingTitleIndex = nextBlocks.findIndex((block) => {
       const data = rec(block);
@@ -4434,6 +5295,7 @@ function reconcileDedicatedProductLayoutBlocks(layoutBlocks, productKey, stageKe
       return !(
         label === "HPLC称重"
         || label === "UV含量测定与计算"
+        || label === "md_operation_method"
         || /^md_supplement_paragraph_/.test(label)
         || label === "MD补充表格1"
         || label === "数据记录表"
@@ -4443,6 +5305,8 @@ function reconcileDedicatedProductLayoutBlocks(layoutBlocks, productKey, stageKe
       );
     });
     const contentBlocks = pantoprazoleContentLayoutBlocks(stageKey);
+    const operationInsertAt = postMethodBlockIndex(nextBlocks);
+    nextBlocks.splice(operationInsertAt >= 0 ? operationInsertAt : nextBlocks.length, 0, pantoprazoleContentOperationBlock(stageKey));
     const weighingTitleIndex = nextBlocks.findIndex((block) => str(rec(block).type) === "title" && /称重/.test(str(rec(block).title || rec(block).text)));
     if (weighingTitleIndex >= 0) nextBlocks.splice(weighingTitleIndex + 1, 0, contentBlocks[0]);
     const measurementTitleIndexValue = measurementTitleIndex(nextBlocks);
@@ -4457,6 +5321,7 @@ function reconcileDedicatedProductLayoutBlocks(layoutBlocks, productKey, stageKe
       const title = str(data.title || data.text);
       return !(
         label === "MD补充表格1"
+        || label === "md_operation_method"
         || label === "数据记录表"
         || label === "**数据记录表：**"
         || /^md_supplement_paragraph_/.test(label)
@@ -4466,7 +5331,7 @@ function reconcileDedicatedProductLayoutBlocks(layoutBlocks, productKey, stageKe
       );
     });
     const insertAt = postMethodBlockIndex(nextBlocks);
-    nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, ...pantoprazoleAcidResistanceLayoutBlocks());
+    nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, pantoprazoleAcidResistanceOperationBlock(), ...pantoprazoleAcidResistanceLayoutBlocks());
     return nextBlocks;
   }
   if (allopurinolContentApplies(productKey, stageKey, testKeyValue)) {
@@ -4482,11 +5347,20 @@ function reconcileDedicatedProductLayoutBlocks(layoutBlocks, productKey, stageKe
         || label === "MD补充表格1"
         || label === "数据记录表"
         || label === "**数据记录表：**"
+        || label === "md_operation_method"
+        || str(data.type) === "sectioned_operation_steps"
         || /别嘌醇片.*含量(?:称重|吸光度|计算公式|结果计算)/.test(label)
         || (str(data.type) === "title" && /^(对照品计算|供试品计算)$/.test(title))
       );
     });
     const contentBlocks = allopurinolContentLayoutBlocks(stageKey);
+    const operationTitleIndex = nextBlocks.findIndex((block) => str(rec(block).type) === "title" && /操作方法/.test(str(rec(block).title || rec(block).text)));
+    const fallbackOperationInsertAt = postMethodBlockIndex(nextBlocks);
+    nextBlocks.splice(
+      operationTitleIndex >= 0 ? operationTitleIndex + 1 : (fallbackOperationInsertAt >= 0 ? fallbackOperationInsertAt : nextBlocks.length),
+      0,
+      allopurinolContentOperationBlock(stageKey),
+    );
     const weighingTitleIndex = nextBlocks.findIndex((block) => str(rec(block).type) === "title" && /称重/.test(str(rec(block).title || rec(block).text)));
     if (weighingTitleIndex >= 0) nextBlocks.splice(weighingTitleIndex + 1, 0, contentBlocks[0]);
     const measurementTitleIndexValue = measurementTitleIndex(nextBlocks);
@@ -4592,6 +5466,19 @@ function reconcileDedicatedProductLayoutBlocks(layoutBlocks, productKey, stageKe
         || (str(data.type) === "title" && /^(对照品计算|供试品计算)$/.test(title))
       );
     });
+    if (productKey === "simvastatin" || productKey === "terazosin" || productKey === "verapamil") {
+      const methodIndex = nextBlocks.findIndex((block) => str(rec(block).label) === "md_operation_method");
+      const operationBlock = productKey === "simvastatin"
+        ? simvastatinContentOperationBlock(ctx)
+        : productKey === "terazosin"
+          ? terazosinContentOperationBlock(ctx)
+          : verapamilContentOperationBlock(ctx);
+      if (methodIndex >= 0) nextBlocks.splice(methodIndex, 1, operationBlock);
+      else {
+        const insertAt = postMethodBlockIndex(nextBlocks);
+        nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, operationBlock);
+      }
+    }
     const contentBlocks = specialHplcContentLayoutBlocks(productKey, stageKey);
     const methodBlock = specialHplcContentMeasurementMethodBlock(ctx);
     const weighingTitleIndex = nextBlocks.findIndex((block) => str(rec(block).type) === "title" && /称重/.test(str(rec(block).title || rec(block).text)));
@@ -4739,6 +5626,22 @@ function reconcileDedicatedProductLayoutBlocks(layoutBlocks, productKey, stageKe
         || label === "数据记录表"
       );
     });
+    if ((productKey === "allopurinol" || productKey === "simvastatin" || productKey === "terazosin" || productKey === "verapamil") && testKeyValue === "dissolution") {
+      const ctx = specialDissolutionContext(productKey, stageKey, testKeyValue);
+      const methodIndex = nextBlocks.findIndex((block) => str(rec(block).label) === "md_operation_method");
+      const operationBlock = productKey === "allopurinol"
+        ? allopurinolDissolutionOperationBlock(ctx)
+        : productKey === "simvastatin"
+        ? simvastatinDissolutionOperationBlock(ctx)
+        : productKey === "terazosin"
+          ? terazosinDissolutionOperationBlock(ctx)
+          : verapamilDissolutionOperationBlock(ctx);
+      if (methodIndex >= 0) nextBlocks.splice(methodIndex, 1, operationBlock);
+      else {
+        const operationInsertAt = postMethodBlockIndex(nextBlocks);
+        nextBlocks.splice(operationInsertAt >= 0 ? operationInsertAt : nextBlocks.length, 0, operationBlock);
+      }
+    }
     const insertAt = postMethodBlockIndex(nextBlocks);
     nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, ...specialDissolutionLayoutBlocks(productKey, stageKey, testKeyValue));
     return nextBlocks;
@@ -4875,6 +5778,12 @@ function diammoniumIntermediateContentMethodGroup() {
     ["样品空白溶剂OD", ""],
     ["样1-OD", ""],
     ["样2-OD", ""],
+    ["供试品溶液量瓶体积", "ml"],
+    ["供试品溶液移取量", "ml"],
+    ["供试品溶液二次量瓶体积", "ml"],
+    ["对照品溶液量瓶体积", "ml"],
+    ["对照品溶液移取量", "ml"],
+    ["对照品溶液二次量瓶体积", "ml"],
   ].map(([name, unit]) => diammoniumMethodField(name, "fillable", "", { unit, type: /波长/.test(name) ? "text" : "number" }));
   const calculated = [
     ["理论粒重", "投料量 / (批量 * 10)", "g/粒"],
@@ -4994,6 +5903,383 @@ function specialHplcContentFieldKey(ctx, name) {
 
 function hcInput(ctx, field, options = {}) {
   return inputPart(field, { ...options, fieldKey: specialHplcContentFieldKey(ctx, field) });
+}
+
+function simvastatinContentOperationInput(ctx, field, options = {}) {
+  return namedInputPart(field, specialHplcContentFieldKey(ctx, field), options);
+}
+
+function simvastatinContentOperationFieldNames(stageKey) {
+  return [
+    ["色谱柱长度", "number", "mm"],
+    ["检测波长", "number", "nm"],
+    ["理论板数限度", "number", ""],
+    ["系统适用性量瓶体积", "number", "ml"],
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["进样体积", "number", "μl"],
+    ...(stageKey === "intermediate" ? [] : [["供试品片数", "number", "片"]]),
+  ];
+}
+
+function terazosinContentOperationFieldNames() {
+  return [
+    ["色谱柱长度", "number", "mm"],
+    ["理论板数限度", "number", ""],
+    ["检测波长", "number", "nm"],
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["对照品溶液移取量", "number", "ml"],
+    ["对照品溶液二次量瓶体积", "number", "ml"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["进样体积", "number", "μl"],
+  ];
+}
+
+function verapamilContentOperationFieldNames() {
+  return [
+    ["色谱柱长度", "number", "mm"],
+    ["检测波长", "number", "nm"],
+    ["进样体积", "number", "μl"],
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["供试品溶液移取量", "number", "ml"],
+    ["供试品溶液二次量瓶体积", "number", "ml"],
+  ];
+}
+
+function specialHplcContentOperationFieldNames(ctx) {
+  const names = [
+    ["色谱柱长度", "number", "mm"],
+    ["柱温", "number", "℃"],
+    ["检测波长", "number", "nm"],
+    ["流速", "number", "ml/min"],
+    ["理论板数限度", "number", ""],
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["对照品溶液移取量", "number", "ml"],
+    ["对照品溶液二次量瓶体积", "number", "ml"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["供试品溶液移取量", "number", "ml"],
+    ["供试品溶液二次量瓶体积", "number", "ml"],
+    ["进样体积", "number", "μl"],
+  ];
+  if (ctx.productKey === "azithromycin" && ctx.stageKey === "intermediate") {
+    names.push(["系统适用性对照品溶液量瓶体积", "number", "ml"]);
+  }
+  return names;
+}
+
+function nearbyText(parts, index, direction) {
+  const output = [];
+  for (let offset = index + direction; offset >= 0 && offset < parts.length && output.join("").length < 80; offset += direction) {
+    const item = rec(parts[offset]);
+    if (str(item.type) === "br") {
+      if (output.length) break;
+      continue;
+    }
+    const text = str(item.text || item.rawText);
+    if (text) output[direction < 0 ? "unshift" : "push"](text);
+  }
+  return output.join("");
+}
+
+function inferSpecialHplcContentOperationField(ctx, section, previousText, nextText, part, counters) {
+  const previous = str(previousText);
+  const next = str(nextText);
+  const partData = rec(part);
+  const bump = (key) => {
+    counters[key] = (Number(counters[key]) || 0) + 1;
+    return counters[key];
+  };
+  const inReference = /对照品/.test(section);
+  const inSample = /供试品/.test(section);
+  const nameForIndexedWeight = (prefix) => {
+    if (/②\s*$|②/.test(previous)) return `${prefix}2-净重`;
+    if (/①\s*$|①/.test(previous)) return `${prefix}1-净重`;
+    return `${prefix}${bump(`${prefix}称量`)}-净重`;
+  };
+  if (/n≥|理论(?:板|塔)板|理论板数|理论塔板数/.test(previous)) return { name: "理论板数限度" };
+  if (/置\s*$|分别置\s*$/.test(previous) && /ml|量瓶/.test(next)) {
+    if (inReference) {
+      const count = bump("对照品溶液量瓶");
+      return { name: count === 1 ? "对照品溶液量瓶体积" : "对照品溶液二次量瓶体积" };
+    }
+    if (inSample) {
+      const count = bump("供试品溶液量瓶");
+      return { name: count === 1 ? "供试品溶液量瓶体积" : "供试品溶液二次量瓶体积" };
+    }
+  }
+  if (/精密量取|吸取|续滤液/.test(previous)) {
+    if (inReference) return { name: "对照品溶液移取量" };
+    if (inSample) return { name: "供试品溶液移取量" };
+  }
+  if (/色谱柱|C18×?$/.test(previous)) return { name: "色谱柱长度" };
+  if (/柱温/.test(previous)) return { name: "柱温" };
+  if (/检测波长/.test(previous)) return { name: "检测波长" };
+  if (/流速/.test(previous)) return { name: "流速" };
+  if (/进样体积|上述两种溶液|两种溶液各|分别取上述/.test(previous)) return { name: "进样体积" };
+  if (/精密称取|称取/.test(previous) || /①|②/.test(previous)) {
+    if (inReference) return { name: nameForIndexedWeight("对照"), readonly: true };
+    if (inSample) return { name: nameForIndexedWeight("样"), readonly: true };
+  }
+  return { name: `${section.replace(/[：:]/g, "") || "操作"}参数${bump("操作参数")}` };
+}
+
+function normalizeSpecialHplcContentOperationFields(layoutBlocks, productKey, stageKey, testKeyValue) {
+  if (!specialHplcContentApplies(productKey, stageKey, testKeyValue)) return layoutBlocks;
+  const ctx = specialHplcContentContext(productKey, stageKey);
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    let section = "";
+    const counters = {};
+    const parts = arr(data.parts);
+    const nextParts = parts.map((part, index) => {
+      const item = rec(part);
+      const text = str(item.text);
+      if (text && (item.bold || /(?:色谱条件|系统适用性|对照品溶液制备|供试品溶液制备|测定法)/.test(text))) {
+        section = text.replace(/\s+/g, "").replace(/[：:]*$/, "");
+      }
+      const fieldKey = str(item.fieldKey || item.field_key);
+      if (!fieldKey.includes("/operation/md_field_")) return part;
+      const inferred = inferSpecialHplcContentOperationField(
+        ctx,
+        section,
+        nearbyText(parts, index, -1),
+        nearbyText(parts, index, 1),
+        item,
+        counters,
+      );
+      return {
+        ...item,
+        field: inferred.name,
+        fieldKey: specialHplcContentFieldKey(ctx, inferred.name),
+        readonlyDisplay: inferred.readonly === true ? true : item.readonlyDisplay,
+      };
+    });
+    return { ...data, parts: nextParts };
+  });
+}
+
+function inferDissolutionOperationField(section, previousText, nextText, immediatePreviousText, immediateNextText, counters) {
+  const sectionText = str(section);
+  const previous = str(previousText);
+  const next = str(nextText);
+  const immediatePrevious = str(immediatePreviousText);
+  const immediateNext = str(immediateNextText);
+  const bump = (key) => {
+    counters[key] = (Number(counters[key]) || 0) + 1;
+    return counters[key];
+  };
+  const inReference = /对照品|对照/.test(sectionText) || /对照品溶液|对照品/.test(previous);
+  const inSample = /供试品|样品/.test(sectionText) || /供试品溶液|供试品|续滤液/.test(previous);
+  if (/精密称定|精密称取|称定|称取/.test(immediatePrevious || previous) && /mg/.test(immediateNext || next)) return { name: "对照净重", readonly: true };
+  if (/置\s*$|至\s*$/.test(immediatePrevious) && /ml|量瓶/.test(immediateNext || next)) {
+    if (inReference) {
+      const count = bump("对照品溶液量瓶");
+      return { name: count === 1 ? "对照品溶液量瓶体积" : "对照品溶液二次量瓶体积" };
+    }
+    if (inSample) return { name: "供试品溶液量瓶体积" };
+  }
+  if (/加(?:乙醇|甲醇|水)\s*$/.test(immediatePrevious)) return { name: "对照品溶解溶剂体积" };
+  if (/精密吸取|精密量取|再精密吸取|再精密量取/.test(immediatePrevious)) {
+    if (inReference) return { name: "对照品溶液移取量" };
+    if (inSample) return { name: "供试品溶液移取量" };
+  }
+  if (/取续滤液|续滤液/.test(immediatePrevious || previous)) {
+    return /置|至|量瓶/.test(immediateNext || next) ? { name: "供试品溶液移取量" } : { name: "取样体积" };
+  }
+  if (/以\s*$|第二法[）)]?\s*$|第一法[）)]?\s*$/.test(immediatePrevious) && /[（(].*[桨篮]|法/.test(immediateNext || next)) return { name: "溶出方法" };
+  if (/转速|转速为每分钟/.test(immediatePrevious)) return { name: "转速" };
+  if (/为溶出介质/.test(immediateNext) || /以水\s*$|盐酸溶液\s*$|十二烷基硫酸钠.*溶液\s*$|缓冲液.*\)\s*$|盐酸溶液[（(]9/.test(immediatePrevious)) return { name: "溶出介质体积" };
+  if (/波长|在\s*$/.test(immediatePrevious || previous) && /nm/.test(immediateNext || next)) return { name: "检测波长" };
+  if (/两种溶液各|上述两种溶液各|分别注入|各\s*$/.test(immediatePrevious || previous) && /μl|µl|ul/.test(immediateNext || next)) return { name: "进样体积" };
+  return { name: `操作参数${bump("操作参数")}` };
+}
+
+function normalizeSpecialDissolutionOperationFields(layoutBlocks, productKey, stageKey, testKeyValue) {
+  const isSpecial = specialDissolutionApplies(productKey, stageKey, testKeyValue);
+  const isDiammonium = productKey === "diammonium_glycyrrhizinate" && stageKey === "packaging" && testKeyValue === "dissolution";
+  if (!isSpecial && !isDiammonium) return layoutBlocks;
+  const fieldKeyFor = isDiammonium
+    ? (name) => diammoniumDissolutionFieldKey(name)
+    : (name) => specialDissolutionFieldKey(productKey, stageKey, testKeyValue, name);
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    let section = "";
+    const counters = {};
+    const parts = arr(data.parts);
+    const nextParts = parts.map((part, index) => {
+      const item = rec(part);
+      const text = str(item.text);
+      if (text && (item.bold || /(?:溶出条件|对照品溶液制备|供试品溶液制备|样品溶液制备|测定法|空白溶液)/.test(text))) {
+        section = text.replace(/\s+/g, "").replace(/[：:]*$/, "");
+      }
+      const fieldKey = str(item.fieldKey || item.field_key);
+      if (!fieldKey.includes("/operation/md_field_")) return part;
+      const inferred = inferDissolutionOperationField(
+        section,
+        nearbyText(parts, index, -1),
+        nearbyText(parts, index, 1),
+        str(rec(parts[index - 1]).text || rec(parts[index - 1]).rawText),
+        str(rec(parts[index + 1]).text || rec(parts[index + 1]).rawText),
+        counters,
+      );
+      return {
+        ...item,
+        field: inferred.name,
+        fieldKey: fieldKeyFor(inferred.name),
+        readonlyDisplay: inferred.readonly === true ? true : item.readonlyDisplay,
+      };
+    });
+    return { ...data, parts: nextParts };
+  });
+}
+
+function simvastatinContentOperationBlock(ctx) {
+  const op = (field, options = {}) => simvastatinContentOperationInput(ctx, field, options);
+  const sampleLead = ctx.stageKey === "intermediate"
+    ? [textPart("供试品溶液制备：", { bold: true }), textPart("取本品研细，精密称取①")]
+    : [textPart("供试品溶液制备：", { bold: true }), textPart("取本品"), op("供试品片数", { width: "3.5em" }), textPart("片，精密称定，研细，精密称取①")];
+  return {
+    type: "paragraph",
+    label: "辛伐他汀片含量操作方法",
+    sourceTemplateId: `dedicated/${ctx.productKey}_${ctx.stageKey}_content_operation`,
+    order: 136,
+    parts: [
+      textPart("色谱条件与系统适用性试验：", { bold: true }),
+      textPart("色谱柱：C18×"),
+      op("色谱柱长度"),
+      textPart("mm×4.6mm；以乙腈-0.025mol/L磷酸二氢钠溶液（用磷酸或氢氧化钠试液调节PH值至4.5）（65：35）为流动相，检测波长："),
+      op("检测波长"),
+      textPart("nm（238nm），n≥"),
+      op("理论板数限度"),
+      textPart("（柱参数应≥2000）。溶剂Ⅰ：乙腈-0.05mol/L醋酸钠溶液（用冰醋酸调节PH4.0）（8：2）。取辛伐他汀对照品"),
+      hcInput(ctx, "系统适用性辛伐他汀对照-净重", { readonlyDisplay: true }),
+      textPart("mg（约2mg）与洛伐他汀对照品"),
+      hcInput(ctx, "系统适用性洛伐他汀对照-净重", { readonlyDisplay: true }),
+      textPart("mg（约2mg）置同一"),
+      op("系统适用性量瓶体积"),
+      textPart("ml（100ml）量瓶中，用溶剂Ⅰ超声使溶解，并稀释制成每1ml中约含20μg的溶液，作为系统适用性溶液；取20μl注入液相色谱仪，记录色谱图，辛伐他汀峰与洛伐他汀峰之间的分离度应大于3.0，辛伐他汀峰理论板数≥2000。"),
+      lineBreakPart(),
+      textPart("对照品溶液制备：", { bold: true }),
+      textPart("精密称取辛伐他汀对照品①"),
+      hcInput(ctx, "对照1-净重", { readonlyDisplay: true }),
+      textPart("mg②"),
+      hcInput(ctx, "对照2-净重", { readonlyDisplay: true }),
+      textPart("mg（约10mg）分别置"),
+      op("对照品溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，用溶剂Ⅰ超声使溶解并稀释至刻度，制成1ml中含0.1mg的溶液，摇匀，作为对照品溶液。"),
+      lineBreakPart(),
+      ...sampleLead,
+      hcInput(ctx, "样1-净重", { readonlyDisplay: true }),
+      textPart(ctx.sampleWeightUnit),
+      textPart("②"),
+      hcInput(ctx, "样2-净重", { readonlyDisplay: true }),
+      textPart(`${ctx.sampleWeightUnit}（约相当于辛伐他汀10mg）分别置`),
+      op("供试品溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，加溶剂Ⅰ适量，超声使辛伐他汀溶解，并稀释至刻度，摇匀，滤过，取续滤液作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("精密量取上述两种溶液各"),
+      op("进样体积"),
+      textPart("μl（20μl），分别注入液相色谱仪，记录色谱图；按外标法以峰面积计算。"),
+    ],
+  };
+}
+
+function terazosinContentOperationBlock(ctx) {
+  const op = (field, options = {}) => namedInputPart(field, specialHplcContentFieldKey(ctx, field), options);
+  return {
+    type: "paragraph",
+    label: "盐酸特拉唑嗪胶囊含量操作方法",
+    sourceTemplateId: `dedicated/${ctx.productKey}_${ctx.stageKey}_content_operation`,
+    order: 136,
+    parts: [
+      textPart("色谱条件与系统适用性试验：", { bold: true }),
+      textPart("色谱柱：C18×"),
+      op("色谱柱长度"),
+      textPart("mm×4.6mm；以乙腈：高氯酸溶液（取三乙胺2ml，至1000ml水中，用高氯酸调节PH值至2.0）20：80为流动相；n≥"),
+      op("理论板数限度"),
+      textPart("（应不低于3000）；检测波长："),
+      op("检测波长"),
+      textPart("nm（246nm）。特拉唑嗪峰与相邻杂质峰的分离度应符合要求。"),
+      lineBreakPart(),
+      textPart("对照品溶液制备：", { bold: true }),
+      textPart("精密称取盐酸特拉唑嗪对照品①"),
+      hcInput(ctx, "对照1-净重", { readonlyDisplay: true }),
+      textPart("mg②"),
+      hcInput(ctx, "对照2-净重", { readonlyDisplay: true }),
+      textPart("mg（10mg）分别置"),
+      op("对照品溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，加溶剂[乙腈—水—盐酸（200：800：0.9）]溶解并稀释至刻度，摇匀。再精密吸取"),
+      op("对照品溶液移取量"),
+      textPart("ml（5ml）置"),
+      op("对照品溶液二次量瓶体积"),
+      textPart("ml（25ml）量瓶中加溶剂稀释制成每1ml中约含特拉唑嗪20μg的溶液，作为对照品溶液。"),
+      lineBreakPart(),
+      textPart("供试品溶液制备：", { bold: true }),
+      textPart("取本品适量研细，精密称取①"),
+      hcInput(ctx, "样1-净重", { readonlyDisplay: true }),
+      textPart("g、②"),
+      hcInput(ctx, "样2-净重", { readonlyDisplay: true }),
+      textPart("g（约相当于特拉唑嗪2mg），分别置"),
+      op("供试品溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，加溶剂适量，超声使盐酸特拉唑嗪溶解，放冷，用溶剂稀释至刻度，摇匀，滤过，取续滤液作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("精密量取上述两种溶液"),
+      op("进样体积"),
+      textPart("μl（10μl）分别注入液相色谱仪，照高效液相色谱法测定（通则0512）。记录色谱图；按外标法以峰面积计算。"),
+    ],
+  };
+}
+
+function verapamilContentOperationBlock(ctx) {
+  const op = (field, options = {}) => namedInputPart(field, specialHplcContentFieldKey(ctx, field), options);
+  return {
+    type: "paragraph",
+    label: "盐酸维拉帕米片含量操作方法",
+    sourceTemplateId: `dedicated/${ctx.productKey}_${ctx.stageKey}_content_operation`,
+    order: 136,
+    parts: [
+      textPart("照高效液相色谱法测定（通则0512）。"),
+      lineBreakPart(),
+      textPart("色谱条件：", { bold: true }),
+      textPart("用十八烷基硅烷键合硅胶为填充剂；色谱柱：C18×"),
+      op("色谱柱长度"),
+      textPart("mm×4.6mm；以醋酸-醋酸钠溶液（取醋酸钠1.36g加水适量，振摇使溶解，加冰醋酸33ml，加水稀释至1000ml，摇匀）－甲醇-三乙胺（55：45：1）为流动相，柱温为40℃；检测波长："),
+      op("检测波长"),
+      textPart("nm（278nm），进样体积"),
+      op("进样体积"),
+      textPart("μl（20μl）。"),
+      lineBreakPart(),
+      textPart("对照品溶液制备：", { bold: true }),
+      textPart("精密称取盐酸维拉帕米对照品①"),
+      hcInput(ctx, "对照1-净重", { readonlyDisplay: true }),
+      textPart("mg②"),
+      hcInput(ctx, "对照2-净重", { readonlyDisplay: true }),
+      textPart("mg（12.5mg）置"),
+      op("对照品溶液量瓶体积"),
+      textPart("ml（50ml）量瓶中，加流动相溶解并定量稀释制成每1ml中约含0.25mg的溶液，作为对照品溶液。"),
+      lineBreakPart(),
+      textPart("供试品溶液制备：", { bold: true }),
+      textPart("取本品适量研细，精密称取①"),
+      hcInput(ctx, "样1-净重", { readonlyDisplay: true }),
+      textPart("g②"),
+      hcInput(ctx, "样2-净重", { readonlyDisplay: true }),
+      textPart("g（约相当于盐酸维拉帕米0.125g），置"),
+      op("供试品溶液量瓶体积"),
+      textPart("ml（50ml）量瓶中，加流动相适量振摇使盐酸维拉帕米溶解并稀释至刻度，摇匀，滤过，再精密量取续滤液"),
+      op("供试品溶液移取量"),
+      textPart("ml（5ml），置"),
+      op("供试品溶液二次量瓶体积"),
+      textPart("ml（50ml）量瓶中，加流动相稀释至刻度，摇匀，作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("精密量取上述两种溶液，分别注入液相色谱仪，记录色谱图；按外标法以峰面积计算。"),
+    ],
+  };
 }
 
 function lineBreakPart() {
@@ -5392,16 +6678,25 @@ function normalizeSimpleFinishedContentReferenceLayoutBlocks(test) {
     const data = rec(block);
     const title = str(data.title || data.text);
     const label = str(data.label);
+    const type = str(data.type);
+    if (label === "md_operation_method") return true;
     if (str(data.type) === "title" && /^(称重|称样|测定与计算|计算)$/.test(title)) return true;
     if (str(data.type) === "sectioned_operation_steps") return true;
     if (label === "project_header_dates" || label === "test_signature_footer") return false;
+    if (type === "paragraph" && /含量操作方法$/.test(label)) return true;
     if (str(data.type) === "table" && /(?:含量|测定|称重|称样|计算|吸光度|系统适用性|对照品|供试品)/.test(label)) return true;
     if (str(data.type) === "paragraph" && /含量测定法$/.test(label)) return true;
     return false;
   };
   const output = [];
   for (const block of arr(rec(test).layout_blocks)) {
-    if (shouldDrop(block)) continue;
+    if (shouldDrop(block)) {
+      if (!inserted && str(rec(block).label) === "md_operation_method") {
+        output.push(...referenceBlocks);
+        inserted = true;
+      }
+      continue;
+    }
     output.push(block);
     if (!inserted && str(rec(block).label) === "md_operation_method") {
       output.push(...referenceBlocks);
@@ -5512,6 +6807,14 @@ function berberineIdentificationOperationDetailBlock() {
     order: 136,
     moduleOrder: 15,
     parts: [
+      textPart("取本品"),
+      berberineIdentificationInput("2.2.4-取样量", { width: "5em" }),
+      textPart("g（约0.1g），加水"),
+      berberineIdentificationInput("2.2.4-加水体积", { width: "4em" }),
+      textPart("ml（10ml）和稀盐酸"),
+      berberineIdentificationInput("2.2.4-稀盐酸体积", { width: "4em" }),
+      textPart("ml（0.2ml）振摇1分钟后滤过，滤液照下述方法试验："),
+      { type: "br" },
       berberineIdentificationHeading("4.1"),
       textPart(" 取滤液"),
       berberineIdentificationInput("2.2.4.1-滤液体积", { width: "4em" }),
@@ -5553,11 +6856,12 @@ function berberineIdentificationLayoutBlocks(layoutBlocks) {
     const isMisclassifiedReactionHeading = str(data.type) === "paragraph"
       && arr(data.parts).some((part) => str(rec(part).type) === "section_heading" && /^4\.[123]$/.test(str(rec(part).sectionSuffix)));
     if (isMisclassifiedReactionHeading) continue;
-    output.push(block);
     if (!inserted && str(data.label) === "md_operation_method") {
       output.push(detailBlock);
       inserted = true;
+      continue;
     }
+    output.push(block);
   }
   if (!inserted) {
     const insertAt = postMethodBlockIndex(output);
@@ -5568,6 +6872,9 @@ function berberineIdentificationLayoutBlocks(layoutBlocks) {
 
 function berberineIdentificationMethodGroup() {
   const fields = [
+    ["2.2.4-取样量", "number", "g"],
+    ["2.2.4-加水体积", "number", "ml"],
+    ["2.2.4-稀盐酸体积", "number", "ml"],
     ["2.2.4.1-滤液体积", "number", "ml"],
     ["2.2.4.1-三氯化铁试液体积", "number", "ml"],
     ["2.2.4.1-呈色结果", "text", ""],
@@ -5810,7 +7117,7 @@ function methimazoleIdentificationInput(name, options = {}) {
 }
 
 function methimazoleIdentificationHeading(sectionSuffix) {
-  return textPart(`2.2.${sectionSuffix}`, { bold: true });
+  return textPart(`2.2.${sectionSuffix}`, { bold: sectionSuffix === "4.1" });
 }
 
 function methimazoleIdentificationOperationBlock() {
@@ -6797,13 +8104,23 @@ function normalizeAllopurinolFinishedDissolutionReferenceLayoutBlocks(test) {
   const shouldDrop = (block) => {
     const data = rec(block);
     const label = str(data.label);
+    const title = str(data.title || data.text);
     if (label === "project_header_dates" || label === "test_signature_footer") return false;
+    if (label === "md_operation_method") return true;
+    if (str(data.type) === "paragraph" && /溶出度操作方法$/.test(label)) return true;
+    if (str(data.type) === "title" && /^(测定与计算)$/.test(title)) return true;
     if (str(data.type) === "table" && label === "别嘌醇片溶出度测定与计算") return true;
     return false;
   };
   const output = [];
   for (const block of arr(rec(test).layout_blocks)) {
-    if (shouldDrop(block)) continue;
+    if (shouldDrop(block)) {
+      if (!inserted && str(rec(block).label) === "md_operation_method") {
+        output.push(...referenceBlocks);
+        inserted = true;
+      }
+      continue;
+    }
     output.push(block);
     if (!inserted && str(rec(block).label) === "md_operation_method") {
       output.push(...referenceBlocks);
@@ -6864,12 +8181,19 @@ function normalizeAtenololFinishedDissolutionReferenceLayoutBlocks(test) {
     const data = rec(block);
     const label = str(data.label);
     if (label === "project_header_dates" || label === "test_signature_footer") return false;
+    if (label === "md_operation_method") return true;
     if (str(data.type) === "table" && label === "阿替洛尔片溶出度测定与计算") return true;
     return false;
   };
   const output = [];
   for (const block of arr(rec(test).layout_blocks)) {
-    if (shouldDrop(block)) continue;
+    if (shouldDrop(block)) {
+      if (!inserted && str(rec(block).label) === "md_operation_method") {
+        output.push(...referenceBlocks);
+        inserted = true;
+      }
+      continue;
+    }
     output.push(block);
     if (!inserted && str(rec(block).label) === "md_operation_method") {
       output.push(...referenceBlocks);
@@ -6930,12 +8254,19 @@ function normalizeAzithromycinFinishedDissolutionReferenceLayoutBlocks(test) {
     const data = rec(block);
     const label = str(data.label);
     if (label === "project_header_dates" || label === "test_signature_footer") return false;
+    if (label === "md_operation_method") return true;
     if (str(data.type) === "table" && label === "阿奇霉素胶囊溶出度测定与计算") return true;
     return false;
   };
   const output = [];
   for (const block of arr(rec(test).layout_blocks)) {
-    if (shouldDrop(block)) continue;
+    if (shouldDrop(block)) {
+      if (!inserted && str(rec(block).label) === "md_operation_method") {
+        output.push(...referenceBlocks);
+        inserted = true;
+      }
+      continue;
+    }
     output.push(block);
     if (!inserted && str(rec(block).label) === "md_operation_method") {
       output.push(...referenceBlocks);
@@ -6996,12 +8327,19 @@ function normalizeClarithromycinFinishedDissolutionReferenceLayoutBlocks(test) {
     const data = rec(block);
     const label = str(data.label);
     if (label === "project_header_dates" || label === "test_signature_footer") return false;
+    if (label === "md_operation_method") return true;
     if (str(data.type) === "table" && label === "克拉霉素胶囊溶出度测定与计算") return true;
     return false;
   };
   const output = [];
   for (const block of arr(rec(test).layout_blocks)) {
-    if (shouldDrop(block)) continue;
+    if (shouldDrop(block)) {
+      if (!inserted && str(rec(block).label) === "md_operation_method") {
+        output.push(...referenceBlocks);
+        inserted = true;
+      }
+      continue;
+    }
     output.push(block);
     if (!inserted && str(rec(block).label) === "md_operation_method") {
       output.push(...referenceBlocks);
@@ -7055,13 +8393,20 @@ function normalizeDiammoniumFinishedDissolutionReferenceLayoutBlocks(test) {
     const data = rec(block);
     const label = str(data.label);
     if (label === "project_header_dates" || label === "test_signature_footer") return false;
+    if (label === "md_operation_method") return true;
     if (str(data.type) === "title" && str(data.title || data.text) === "测定与计算") return true;
     if (str(data.type) === "table" && /^甘草酸二铵成品溶出度(?:测定与计算|对照品计算|吸光度|计算公式|结果)$/.test(label)) return true;
     return false;
   };
   const output = [];
   for (const block of arr(rec(test).layout_blocks)) {
-    if (shouldDrop(block)) continue;
+    if (shouldDrop(block)) {
+      if (!inserted && str(rec(block).label) === "md_operation_method") {
+        output.push(...referenceBlocks);
+        inserted = true;
+      }
+      continue;
+    }
     output.push(block);
     if (!inserted && str(rec(block).label) === "md_operation_method") {
       output.push(...referenceBlocks);
@@ -7122,12 +8467,19 @@ function normalizeHydrochlorothiazideFinishedDissolutionReferenceLayoutBlocks(te
     const data = rec(block);
     const label = str(data.label);
     if (label === "project_header_dates" || label === "test_signature_footer") return false;
+    if (label === "md_operation_method") return true;
     if (str(data.type) === "table" && label === "氢氯噻嗪片溶出度测定与计算") return true;
     return false;
   };
   const output = [];
   for (const block of arr(rec(test).layout_blocks)) {
-    if (shouldDrop(block)) continue;
+    if (shouldDrop(block)) {
+      if (!inserted && str(rec(block).label) === "md_operation_method") {
+        output.push(...referenceBlocks);
+        inserted = true;
+      }
+      continue;
+    }
     output.push(block);
     if (!inserted && str(rec(block).label) === "md_operation_method") {
       output.push(...referenceBlocks);
@@ -7188,12 +8540,19 @@ function normalizeIsosorbideFinishedDissolutionReferenceLayoutBlocks(test) {
     const data = rec(block);
     const label = str(data.label);
     if (label === "project_header_dates" || label === "test_signature_footer") return false;
+    if (label === "md_operation_method") return true;
     if (str(data.type) === "table" && label === "硝酸异山梨酯片溶出度测定与计算") return true;
     return false;
   };
   const output = [];
   for (const block of arr(rec(test).layout_blocks)) {
-    if (shouldDrop(block)) continue;
+    if (shouldDrop(block)) {
+      if (!inserted && str(rec(block).label) === "md_operation_method") {
+        output.push(...referenceBlocks);
+        inserted = true;
+      }
+      continue;
+    }
     output.push(block);
     if (!inserted && str(rec(block).label) === "md_operation_method") {
       output.push(...referenceBlocks);
@@ -7254,12 +8613,19 @@ function normalizeLevofloxacinFinishedDissolutionReferenceLayoutBlocks(test) {
     const data = rec(block);
     const label = str(data.label);
     if (label === "project_header_dates" || label === "test_signature_footer") return false;
+    if (label === "md_operation_method") return true;
     if (str(data.type) === "table" && label === "盐酸左氧氟沙星胶囊溶出度测定与计算") return true;
     return false;
   };
   const output = [];
   for (const block of arr(rec(test).layout_blocks)) {
-    if (shouldDrop(block)) continue;
+    if (shouldDrop(block)) {
+      if (!inserted && str(rec(block).label) === "md_operation_method") {
+        output.push(...referenceBlocks);
+        inserted = true;
+      }
+      continue;
+    }
     output.push(block);
     if (!inserted && str(rec(block).label) === "md_operation_method") {
       output.push(...referenceBlocks);
@@ -7391,6 +8757,8 @@ function normalizePantoprazoleFinishedReleaseReferenceLayoutBlocks(test, options
     const label = str(data.label);
     const title = str(data.title || data.text);
     if (label === "project_header_dates" || label === "test_signature_footer") return false;
+    if (label === "md_operation_method") return true;
+    if (str(data.type) === "paragraph" && /(?:溶出度|释放度|酸中释放度)操作方法$/.test(label)) return true;
     if (str(data.type) === "table" && label === options.dropLabel) return true;
     if (str(data.type) === "title" && title === "测定与计算") return true;
     return false;
@@ -7459,6 +8827,8 @@ function normalizeSimpleFinishedDissolutionReferenceLayoutBlocks(test, options) 
     const label = str(data.label);
     const title = str(data.title || data.text);
     if (label === "project_header_dates" || label === "test_signature_footer") return false;
+    if (label === "md_operation_method") return true;
+    if (str(data.type) === "paragraph" && /(?:溶出度|释放度|酸中释放度)操作方法$/.test(label)) return true;
     if (str(data.type) === "table" && label === options.dropLabel) return true;
     if (str(data.type) === "title" && title === "测定与计算") return true;
     return false;
@@ -7564,6 +8934,8 @@ function normalizeFinishedContentUniformityReferenceLayoutBlocks(test, options) 
     const title = str(data.title || data.text);
     const type = str(data.type);
     if (label === "project_header_dates" || label === "test_signature_footer") return false;
+    if (label === "md_operation_method") return true;
+    if (type === "paragraph" && /含量均匀度操作方法$/.test(label)) return true;
     if (type === "table" && options.dropPatterns.some((pattern) => pattern.test(label))) return true;
     if (type === "title" && /^(对照称样|称重|测定与计算)$/.test(title)) return true;
     if (type === "paragraph" && (label === "paragraph" || !label)) return true;
@@ -7572,7 +8944,13 @@ function normalizeFinishedContentUniformityReferenceLayoutBlocks(test, options) 
   };
   const output = [];
   for (const block of arr(rec(test).layout_blocks)) {
-    if (shouldDrop(block)) continue;
+    if (shouldDrop(block)) {
+      if (!inserted && str(rec(block).label) === "md_operation_method") {
+        output.push(...referenceBlocks);
+        inserted = true;
+      }
+      continue;
+    }
     output.push(block);
     if (!inserted && str(rec(block).label) === "md_operation_method") {
       output.push(...referenceBlocks);
@@ -7602,8 +8980,16 @@ function specialHplcContentMethodField(ctx, name, attr = "fillable", formula = "
 function specialHplcContentMethodGroup(productKey, stageKey) {
   const ctx = specialHplcContentContext(productKey, stageKey);
   const fields = [];
-  const add = (...args) => fields.push(specialHplcContentMethodField(ctx, ...args));
+  const addedNames = new Set();
+  const add = (name, ...args) => {
+    if (addedNames.has(name)) return;
+    addedNames.add(name);
+    fields.push(specialHplcContentMethodField(ctx, name, ...args));
+  };
   const unitWeight = `平均${ctx.unitLabel}重`;
+  for (const [field, type, unit] of specialHplcContentOperationFieldNames(ctx)) {
+    add(field, "fillable", "", { type, unit });
+  }
   if (ctx.productKey === "azithromycin") {
     add("进样体积", "fillable", "", { unit: "μl", defaultValue: 50 });
     if (ctx.stageKey === "intermediate") {
@@ -7614,11 +9000,24 @@ function specialHplcContentMethodGroup(productKey, stageKey) {
     }
   }
   if (ctx.productKey === "simvastatin") {
+    for (const [field, type, unit] of simvastatinContentOperationFieldNames(stageKey)) {
+      add(field, "fillable", "", { type, unit });
+    }
     for (const prefix of ["系统适用性辛伐他汀对照", "系统适用性洛伐他汀对照"]) {
       add(`${prefix}含量`, "fillable", "", { unit: "%" });
       add(`${prefix}-毛重`, "fillable", "", { unit: "mg" });
       add(`${prefix}-皮重`, "fillable", "", { unit: "mg" });
       add(`${prefix}-净重`, "calculated", `${prefix}-毛重 - ${prefix}-皮重`, { unit: "mg" });
+    }
+  }
+  if (ctx.productKey === "terazosin") {
+    for (const [field, type, unit] of terazosinContentOperationFieldNames()) {
+      add(field, "fillable", "", { type, unit });
+    }
+  }
+  if (ctx.productKey === "verapamil") {
+    for (const [field, type, unit] of verapamilContentOperationFieldNames()) {
+      add(field, "fillable", "", { type, unit });
     }
   }
   add("对照含量", "fillable", "", { unit: "%" });
@@ -7712,6 +9111,49 @@ function methInput(stageKey, field, options = {}) {
   return inputPart(field, { ...options, fieldKey: methimazoleContentFieldKey(stageKey, field) });
 }
 
+function methimazoleContentOperationFieldNames() {
+  return [
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["供试品溶液加水体积", "number", "ml"],
+    ["供试品溶液移取量", "number", "ml"],
+    ["预加氢氧化钠滴定液体积", "number", "ml"],
+    ["硝酸银溶液体积", "number", "ml"],
+    ["溴麝香草酚蓝指示液体积", "number", "ml"],
+  ];
+}
+
+function normalizeMethimazoleContentOperationFields(layoutBlocks, productKey, stageKey, testKeyValue) {
+  if (productKey !== "methimazole" || testKeyValue !== "content" || !["intermediate", "packaging"].includes(stageKey)) return layoutBlocks;
+  const byIndex = {
+    1: { name: "样1-净重", readonly: true },
+    2: { name: "样2-净重", readonly: true },
+    3: { name: "供试品溶液量瓶体积" },
+    4: { name: "供试品溶液加水体积" },
+    5: { name: "供试品溶液移取量" },
+    6: { name: "预加氢氧化钠滴定液体积" },
+    7: { name: "硝酸银溶液体积" },
+    8: { name: "溴麝香草酚蓝指示液体积" },
+  };
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts).map((part) => {
+      const item = rec(part);
+      const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+      if (!match) return part;
+      const inferred = byIndex[Number(match[1])];
+      if (!inferred) return part;
+      return {
+        ...item,
+        field: inferred.name,
+        fieldKey: methimazoleContentFieldKey(stageKey, inferred.name),
+        readonlyDisplay: inferred.readonly === true ? true : item.readonlyDisplay,
+      };
+    });
+    return { ...data, parts };
+  });
+}
+
 function methimazoleContentTable(stageKey, label, columnWidths, rows, order) {
   return {
     type: "table",
@@ -7730,33 +9172,36 @@ function methimazoleContentLayoutBlocks(stageKey) {
     ? [
         textPart("投料量（Kg）/[批量（万片）×10]="),
         methInput(stageKey, "投料量"),
-        textPart(" / "),
+        textPart(" / ["),
         methInput(stageKey, "批量"),
+        textPart("×10]"),
         textPart(" = "),
         methInput(stageKey, unitWeightName, { readonlyDisplay: true }),
         textPart(" g/片"),
       ]
     : [
         textPart("20片总重："),
-        methInput(stageKey, "20片总重"),
-        textPart(" ÷ 20 = "),
+        methInput(stageKey, "20片总毛重"),
+        textPart(" - "),
+        methInput(stageKey, "20片总皮重"),
+        textPart(" = "),
+        methInput(stageKey, "20片总重", { readonlyDisplay: true }),
+        textPart(" g÷20= "),
         methInput(stageKey, unitWeightName, { readonlyDisplay: true }),
         textPart(" g/片"),
       ];
   return [
     methimazoleContentTable(stageKey, "称重", ["18%", "18%", "64%"], [
       [
-        contentCell("样品称样（g）"),
+        contentCell("样品称样（g）", { rowspan: 3 }),
         contentCell(`${unitWeightName}（g）`),
         contentCell(unitWeightExpression),
       ],
       [
-        contentCell(""),
         contentCell("样1"),
         contentCell([methInput(stageKey, "样1-毛重"), textPart(" - "), methInput(stageKey, "样1-皮重"), textPart(" = "), methInput(stageKey, "样1-净重", { readonlyDisplay: true }), textPart(" g")]),
       ],
       [
-        contentCell(""),
         contentCell("样2"),
         contentCell([methInput(stageKey, "样2-毛重"), textPart(" - "), methInput(stageKey, "样2-皮重"), textPart(" = "), methInput(stageKey, "样2-净重", { readonlyDisplay: true }), textPart(" g")]),
       ],
@@ -7787,13 +9232,18 @@ function methimazoleMethodField(stageKey, name, attr = "fillable", formula = "",
 function methimazoleContentMethodGroup(stageKey) {
   const fields = [];
   const add = (...args) => fields.push(methimazoleMethodField(stageKey, ...args));
+  for (const [field, type, unit] of methimazoleContentOperationFieldNames()) {
+    add(field, "fillable", "", { type, unit });
+  }
   const unitWeightName = stageKey === "intermediate" ? "理论片重" : "平均片重";
   if (stageKey === "intermediate") {
     add("投料量", "fillable", "", { unit: "Kg" });
     add("批量", "fillable", "", { unit: "万片" });
     add(unitWeightName, "calculated", "投料量 / (批量 * 10)", { unit: "g/片" });
   } else {
-    add("20片总重", "fillable", "", { unit: "g" });
+    add("20片总毛重", "fillable", "", { unit: "g" });
+    add("20片总皮重", "fillable", "", { unit: "g" });
+    add("20片总重", "calculated", "20片总毛重 - 20片总皮重", { unit: "g" });
     add(unitWeightName, "calculated", "20片总重 / 20", { unit: "g/片" });
   }
   for (const prefix of ["样1", "样2"]) {
@@ -7827,6 +9277,53 @@ function methimazoleUniformityFieldKey(stageKey, name) {
 
 function methUniInput(stageKey, field, options = {}) {
   return inputPart(field, { ...options, fieldKey: methimazoleUniformityFieldKey(stageKey, field) });
+}
+
+function methimazoleUniformityOperationFieldNames() {
+  return [
+    ["供试品片数", "number", "片"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["供试品溶液加水体积", "number", "ml"],
+    ["供试品溶液移取量", "number", "ml"],
+    ["供试品溶液二次量瓶体积", "number", "ml"],
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["对照品溶液移取量", "number", "ml"],
+    ["对照品溶液二次量瓶体积", "number", "ml"],
+  ];
+}
+
+function normalizeMethimazoleUniformityOperationFields(layoutBlocks, productKey, stageKey, testKeyValue) {
+  if (!methimazoleUniformityApplies(productKey, stageKey, testKeyValue)) return layoutBlocks;
+  const byIndex = {
+    1: { name: "供试品片数" },
+    2: { name: "供试品溶液量瓶体积" },
+    3: { name: "供试品溶液加水体积" },
+    4: { name: "供试品溶液移取量" },
+    5: { name: "供试品溶液二次量瓶体积" },
+    6: { name: "对照1-净重", readonly: true },
+    7: { name: "对照2-净重", readonly: true },
+    8: { name: "对照品溶液量瓶体积" },
+    9: { name: "对照品溶液移取量" },
+    10: { name: "对照品溶液二次量瓶体积" },
+  };
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts).map((part) => {
+      const item = rec(part);
+      const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+      if (!match) return part;
+      const inferred = byIndex[Number(match[1])];
+      if (!inferred) return part;
+      return {
+        ...item,
+        field: inferred.name,
+        fieldKey: methimazoleUniformityFieldKey(stageKey, inferred.name),
+        readonlyDisplay: inferred.readonly === true ? true : item.readonlyDisplay,
+      };
+    });
+    return { ...data, parts };
+  });
 }
 
 function methimazoleUniformityTable(stageKey, label, columnWidths, rows, order) {
@@ -7899,6 +9396,9 @@ function methimazoleUniformityMethodField(stageKey, name, attr = "fillable", for
 function methimazoleUniformityMethodGroup(stageKey) {
   const fields = [];
   const add = (...args) => fields.push(methimazoleUniformityMethodField(stageKey, ...args));
+  for (const [field, type, unit] of methimazoleUniformityOperationFieldNames()) {
+    add(field, "fillable", "", { type, unit });
+  }
   add("对照含量", "fillable", "", { unit: "%" });
   for (const prefix of ["对照1", "对照2"]) {
     add(`${prefix}-毛重`, "fillable", "", { unit: "mg" });
@@ -8265,6 +9765,12 @@ function diammoniumDissolutionMethodField(name, attr = "fillable", formula = "",
 
 function diammoniumPackagingDissolutionMethodGroup() {
   const fillable = [
+    ["溶出介质体积", "ml", "number"],
+    ["转速", "rpm/min", "number"],
+    ["取样体积", "ml", "number"],
+    ["对照品溶液量瓶体积", "ml", "number"],
+    ["对照品溶液移取量", "ml", "number"],
+    ["对照品溶液二次量瓶体积", "ml", "number"],
     ["对照含量", "%", "number"],
     ["对照毛重", "mg", "number"],
     ["对照皮重", "mg", "number"],
@@ -8329,6 +9835,156 @@ function specialDissolutionFieldKey(productKey, stageKey, testKeyValue, name) {
 
 function sduInput(ctx, field, options = {}) {
   return inputPart(field, { ...options, fieldKey: specialDissolutionFieldKey(ctx.productKey, ctx.stageKey, ctx.testKeyValue, field) });
+}
+
+function simvastatinDissolutionOperationFieldNames() {
+  return [
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["对照品转移体积", "number", "ml"],
+    ["对照品稀释量瓶体积", "number", "ml"],
+    ["供试品片数", "number", "片"],
+    ["溶出介质体积", "number", "ml"],
+    ["转速", "number", "rpm/min"],
+    ["进样体积", "number", "μl"],
+  ];
+}
+
+function terazosinDissolutionOperationFieldNames() {
+  return [
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["对照品溶液移取量", "number", "ml"],
+    ["对照品溶液二次量瓶体积", "number", "ml"],
+    ["供试品粒数", "number", "粒"],
+    ["溶出方法", "text", ""],
+    ["溶出介质体积", "number", "ml"],
+    ["转速", "number", "rpm/min"],
+  ];
+}
+
+function allopurinolDissolutionOperationFieldNames() {
+  return [
+    ["供试品片数", "number", "片"],
+    ["溶出介质体积", "number", "ml"],
+    ["转速", "number", "rpm/min"],
+    ["取样体积", "number", "ml"],
+    ["续滤液移取量", "number", "ml"],
+    ["续滤液定容体积", "number", "ml"],
+  ];
+}
+
+function allopurinolDissolutionOperationBlock(ctx) {
+  const op = (field, options = {}) => sduInput(ctx, field, options);
+  return {
+    type: "paragraph",
+    label: "别嘌醇片溶出度操作方法",
+    sourceTemplateId: `dedicated/${ctx.productKey}_${ctx.stageKey}_${ctx.testKeyValue}_operation`,
+    sectionRole: "operation_text",
+    sectionRef: "operation",
+    order: 136,
+    moduleOrder: 15,
+    parts: [
+      textPart("照溶出度与释放度测定法（中国药典2025年版四部通则0931第二法）测定。"),
+      lineBreakPart(),
+      textPart("样品溶液制备：", { bold: true }),
+      textPart("取本品"),
+      op("供试品片数"),
+      textPart("片（6片），照溶出度与释放度测定法（通则0931第二法）（桨）法，以盐酸溶液(9→1000)"),
+      op("溶出介质体积"),
+      textPart("ml（1000ml）为溶出介质，转速"),
+      op("转速"),
+      textPart("rpm/min（100rpm/min），依法操作，经45分钟，各取溶液"),
+      op("取样体积"),
+      textPart("ml（10mL），滤过，精密量取续滤液"),
+      op("续滤液移取量"),
+      textPart("ml（5ml），置"),
+      op("续滤液定容体积"),
+      textPart("ml（50 ml）量瓶中，用同一溶出介质稀释至刻度，摇匀，作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("取上述溶液，照紫外-分光光度法（2025年版药典第四部通则0401），在"),
+      op("检测波长", { readonlyDisplay: true }),
+      textPart("nm（250nm±2nm）的波长处分别测定吸光度，按C5H4N4O的吸收系数（E1%1cm）为571计算出每片的溶出量。"),
+    ],
+  };
+}
+
+function simvastatinDissolutionOperationBlock(ctx) {
+  const op = (field, options = {}) => sduInput(ctx, field, options);
+  return {
+    type: "paragraph",
+    label: "辛伐他汀片溶出度操作方法",
+    sourceTemplateId: `dedicated/${ctx.productKey}_${ctx.stageKey}_${ctx.testKeyValue}_operation`,
+    order: 136,
+    parts: [
+      textPart("对照品溶液制备：", { bold: true }),
+      textPart("精密称定辛伐他汀对照品"),
+      op("对照净重", { readonlyDisplay: true }),
+      textPart("mg（约12mg）置"),
+      op("对照品溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，加溶出介质使溶解并稀释至刻度，再精密吸取"),
+      op("对照品转移体积"),
+      textPart("ml（5ml）至"),
+      op("对照品稀释量瓶体积"),
+      textPart("ml（50ml）量瓶中，用溶出介质定量稀释成每1ml约含辛伐他汀12μg，作为对照品溶液。"),
+      lineBreakPart(),
+      textPart("供试品溶液制备：", { bold: true }),
+      textPart("取本品"),
+      op("供试品片数"),
+      textPart("片（6片），照溶出度与释放度测定法（通则0931第二法）（桨）法，以含0.5%十二烷基硫酸钠的0.01mol/L磷酸二氢钠缓冲液（用50%氢氧化钠溶液调节pH值至7.0）"),
+      op("溶出介质体积"),
+      textPart("ml（900ml）为溶出介质，转速"),
+      op("转速"),
+      textPart("rpm/min（50rpm/min），依法操作，经30分钟时，取溶液10ml滤过，作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("照含量测定项下的色谱条件，取供试品溶液和对照品溶液各"),
+      op("进样体积"),
+      textPart("μl（20μl），分别注入液相色谱仪，记录色谱图，按外标法以峰面积计算每片的溶出量。"),
+    ],
+  };
+}
+
+function terazosinDissolutionOperationBlock(ctx) {
+  const op = (field, options = {}) => sduInput(ctx, field, options);
+  return {
+    type: "paragraph",
+    label: "盐酸特拉唑嗪胶囊溶出度操作方法",
+    sourceTemplateId: `dedicated/${ctx.productKey}_${ctx.stageKey}_${ctx.testKeyValue}_operation`,
+    order: 136,
+    parts: [
+      textPart("照溶出度与释放度测定法（通则0931第一法）测定。"),
+      lineBreakPart(),
+      textPart("对照品溶液制备：", { bold: true }),
+      textPart("精密称取盐酸特拉唑嗪对照品"),
+      sduInput(ctx, "对照净重", { readonlyDisplay: true }),
+      textPart("mg（约10mg）至"),
+      op("对照品溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，加0.1mol/L盐酸溶液使溶解并稀释至刻度，摇匀。再精密吸取"),
+      op("对照品溶液移取量"),
+      textPart("ml（2ml）至"),
+      op("对照品溶液二次量瓶体积"),
+      textPart("ml（50ml）量瓶中，加0.1mol/L盐酸溶液稀释制成每1ml约含特拉唑嗪4μg溶液，作为对照品溶液。"),
+      lineBreakPart(),
+      textPart("供试品溶液制备：", { bold: true }),
+      textPart("取本品"),
+      op("供试品粒数"),
+      textPart("粒（6粒），照溶出度与释放度测定法（通则0931第一法）"),
+      op("溶出方法", { width: "4em" }),
+      textPart("（篮）法，以盐酸溶液（9→1000）"),
+      op("溶出介质体积"),
+      textPart("ml（500ml）为溶出介质，转速"),
+      op("转速"),
+      textPart("rpm/min（100rpm/min），依法操作，经30分钟时，取溶液滤过，弃去初滤液15ml，取续滤液作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("空白溶液：", { bold: true }),
+      textPart("取本品一粒，倾出内容物，按供试品溶液，同法操作，即得。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("分别取上述溶液，照紫外-可见分光光度法（通则0401），在"),
+      op("检测波长"),
+      textPart("nm（246nm±2nm）的波长处测定吸光度，扣除空白胶囊的吸光度，计算出每粒的溶出量，结果乘以0.914。"),
+    ],
+  };
 }
 
 function specialDissolutionTable(ctx, label, columnWidths, rows, order, extra = {}) {
@@ -8821,6 +10477,108 @@ function specialDissolutionPantoprazoleBlocks(ctx) {
   ];
 }
 
+function pantoprazoleReleaseOperationBlock(ctx) {
+  const sourceTemplateId = `dedicated/${ctx.productKey}_${ctx.stageKey}_${ctx.testKeyValue}`;
+  if (ctx.testKeyValue === "acid_release") {
+    return {
+      type: "paragraph",
+      label: "md_operation_method",
+      sourceTemplateId,
+      parts: [
+        textPart("对照品溶液制备：", { bold: true }),
+        textPart("取泮托拉唑钠对照品，精密称定"),
+        sduInput(ctx, "对照品称量", { width: "5em" }),
+        textPart("mg（约15mg）置"),
+        sduInput(ctx, "对照品定容体积", { width: "4em" }),
+        textPart("ml（100ml）量瓶中（临用新制），加0.1mol/L 盐酸溶液溶解并定量稀释至刻度，摇匀。再精密吸取"),
+        sduInput(ctx, "对照品吸取体积", { width: "4em" }),
+        textPart("ml（5ml）至"),
+        sduInput(ctx, "对照品二次定容体积", { width: "4em" }),
+        textPart("ml（50ml）量瓶中，加溶出介质稀释制成每1ml约含15μg溶液，作为对照品溶液。"),
+        lineBreakPart(),
+        textPart("样品溶液制备：", { bold: true }),
+        textPart("取本品"),
+        sduInput(ctx, "样品片数", { width: "4em" }),
+        textPart("片（6片），照溶出度与释放度测定法（通则0931 第一法）"),
+        sduInput(ctx, "溶出方法", { width: "4em" }),
+        textPart("（篮）法，以0.1mol/L 盐酸溶液900ml为溶出介质，转速"),
+        sduInput(ctx, "转速", { width: "4em" }),
+        textPart("rpm/min（100rpm/min），依法操作，经2小时，取溶液滤过，精密量取续滤液"),
+        sduInput(ctx, "续滤液体积", { width: "4em" }),
+        textPart("ml（10ml）置"),
+        sduInput(ctx, "供试品定容体积", { width: "4em" }),
+        textPart("ml（25ml）量瓶中，加0.1mol/L盐酸溶液稀释至刻度，摇匀，作为供试品溶液。"),
+        lineBreakPart(),
+        textPart("测定法：", { bold: true }),
+        textPart("分别取上述两种溶液，照通则(0401)法测定，在"),
+        sduInput(ctx, "检测波长", { width: "4em" }),
+        textPart("nm（288nm±2nm）的波长处分别测定吸收度，计算出每片的酸中释放量。"),
+      ],
+      order: 140,
+    };
+  }
+  return {
+    type: "paragraph",
+    label: "md_operation_method",
+    sourceTemplateId,
+    parts: [
+      textPart("照溶出度与释放度测定法（通则0931 第一法）测定。"),
+      lineBreakPart(),
+      textPart("对照品溶液制备：", { bold: true }),
+      textPart("取泮托拉唑钠对照品，精密称定"),
+      sduInput(ctx, "对照品称量", { width: "5em" }),
+      textPart("mg（约15mg）置"),
+      sduInput(ctx, "对照品定容体积", { width: "4em" }),
+      textPart("ml（100ml）量瓶中（临用新制），加磷酸盐缓冲液[磷酸盐缓冲液(取0.1mol/L 盐酸溶液和0.2mol/L 磷酸钠溶液按3:1混合溶液均匀，用盐酸调节PH6.8)]溶解并定量稀释至刻度，摇匀。再精密吸取"),
+      sduInput(ctx, "对照品吸取体积", { width: "4em" }),
+      textPart("ml（5ml）至"),
+      sduInput(ctx, "对照品二次定容体积", { width: "4em" }),
+      textPart("ml（50ml）量瓶中，加溶出介质稀释制成每1ml约含15μg溶液，作为对照品溶液。"),
+      lineBreakPart(),
+      textPart("样品溶液制备：", { bold: true }),
+      textPart("弃去上述2.3.5项下各杯中酸液，照溶出度与释放度测定法（通则0931 第一法）"),
+      sduInput(ctx, "溶出方法", { width: "4em" }),
+      textPart("（篮）法，立即加入温度为37℃±0.5℃的磷酸缓冲液"),
+      sduInput(ctx, "溶出介质体积", { width: "4em" }),
+      textPart("ml（900ml）为溶出介质，转速"),
+      sduInput(ctx, "转速", { width: "4em" }),
+      textPart("rpm/min（100rpm/min）依法操作，经30分钟，取溶液滤过，精密量取续滤液"),
+      sduInput(ctx, "续滤液体积", { width: "4em" }),
+      textPart("ml（10ml）置"),
+      sduInput(ctx, "供试品定容体积", { width: "4em" }),
+      textPart("ml（25ml）量瓶中，加溶出介质稀释制成每1ml约含15μg溶液，作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("取上述两种溶液，照通则(0401)法测定，在"),
+      sduInput(ctx, "检测波长", { width: "4em" }),
+      textPart("nm（288nm±2nm）的波长处分别测定吸收度，计算出每片的释放量，结果乘以0.9458，计算每片的释放量。"),
+    ],
+    order: 140,
+  };
+}
+
+function normalizePantoprazoleReleaseOperationLayoutBlocks(layoutBlocks, productKey, stageKey, testKeyValue) {
+  if (productKey !== "pantoprazole" || stageKey !== "packaging" || !["acid_release", "dissolution"].includes(testKeyValue)) {
+    return layoutBlocks;
+  }
+  const ctx = specialDissolutionContext(productKey, stageKey, testKeyValue);
+  const operationBlock = pantoprazoleReleaseOperationBlock(ctx);
+  let replaced = false;
+  const output = arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.label) === "md_operation_method") {
+      replaced = true;
+      return operationBlock;
+    }
+    return block;
+  });
+  if (!replaced) {
+    const insertAt = output.findIndex((block) => str(rec(block).type) === "title" && str(rec(block).title || rec(block).text).includes("测定与计算"));
+    output.splice(insertAt >= 0 ? insertAt : Math.max(1, output.length - 1), 0, operationBlock);
+  }
+  return output;
+}
+
 function specialDissolutionSimvastatinBlocks(ctx) {
   return [
     specialDissolutionTable(ctx, "测定与计算", ["16.66%", "16.66%", "16.66%", "16.66%", "16.66%", "16.7%"], [
@@ -9093,6 +10851,57 @@ function specialDissolutionVerapamilBlocks(ctx) {
   ];
 }
 
+function verapamilDissolutionOperationFieldNames() {
+  return [
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["对照品溶液移取量", "number", "ml"],
+    ["对照品溶液二次量瓶体积", "number", "ml"],
+    ["供试品片数", "number", "片"],
+    ["溶出介质体积", "number", "ml"],
+    ["转速", "number", "rpm/min"],
+  ];
+}
+
+function verapamilDissolutionOperationBlock(ctx) {
+  const op = (field, options = {}) => namedInputPart(field, specialDissolutionFieldKey(ctx.productKey, ctx.stageKey, ctx.testKeyValue, field), options);
+  return {
+    type: "paragraph",
+    label: "盐酸维拉帕米片溶出度操作方法",
+    sourceTemplateId: `dedicated/${ctx.productKey}_${ctx.stageKey}_${ctx.testKeyValue}_operation`,
+    order: 136,
+    parts: [
+      textPart("照溶出度与释放度测定法（通则0931第一法）测定。"),
+      lineBreakPart(),
+      textPart("对照品溶液制备：", { bold: true }),
+      textPart("精密称定盐酸维拉帕米对照品"),
+      sduInput(ctx, "对照净重", { readonlyDisplay: true }),
+      textPart("mg（约10mg）至"),
+      op("对照品溶液量瓶体积"),
+      textPart("ml（50ml）量瓶中，加0.1mol/L盐酸溶液使溶解并稀释至刻度，精密量取"),
+      op("对照品溶液移取量"),
+      textPart("ml（5ml）至"),
+      op("对照品溶液二次量瓶体积"),
+      textPart("ml（25ml）量瓶中，加0.1mol/L盐酸溶液稀释至刻度，制成约为每40μg/ml溶液，作为对照品溶液。"),
+      lineBreakPart(),
+      textPart("供试品溶液制备：", { bold: true }),
+      textPart("取本品"),
+      op("供试品片数"),
+      textPart("片（6片），照溶出度与释放度测定法（通则0931第二法）（桨）法，以盐酸溶液（9→1000）"),
+      op("溶出介质体积"),
+      textPart("ml（900ml）为溶出介质，转速"),
+      op("转速"),
+      textPart("rpm/min（50rpm/min），依法操作，经45分钟时，取续滤液滤过，作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("取上述两种溶液，照紫外-可见分光光度法（通则0401），在"),
+      sduInput(ctx, "检测波长278nm"),
+      textPart("（278nm±2nm）与"),
+      sduInput(ctx, "检测波长300nm"),
+      textPart("（300nm±2nm）的波长处分别测定吸光度。求出各自的吸光度差值（△A），计算出每片的溶出量。"),
+    ],
+  };
+}
+
 function specialDissolutionReferenceBlocks(ctx) {
   const resultName = specialDissolutionResultName(ctx.productKey, ctx.testKeyValue);
   const sampleResultField = (index) => `样${index}-${resultName}`;
@@ -9361,8 +11170,38 @@ function specialDissolutionMethodGroup(productKey, stageKey, testKeyValue) {
   const ctx = specialDissolutionContext(productKey, stageKey, testKeyValue);
   const resultName = specialDissolutionResultName(productKey, testKeyValue);
   const fields = [];
-  const add = (...args) => fields.push(specialDissolutionMethodField(ctx, ...args));
+  const addedNames = new Set();
+  const add = (...args) => {
+    const [name] = args;
+    if (addedNames.has(name)) return;
+    addedNames.add(name);
+    fields.push(specialDissolutionMethodField(ctx, ...args));
+  };
+  const genericOperationFields = [
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["对照品溶液移取量", "number", "ml"],
+    ["对照品溶液二次量瓶体积", "number", "ml"],
+    ["对照品溶解溶剂体积", "number", "ml"],
+    ["供试品片数", "number", "片"],
+    ["供试品粒数", "number", "粒"],
+    ["溶出方法", "text", ""],
+    ["溶出介质体积", "number", "ml"],
+    ["转速", "number", "rpm/min"],
+    ["取样体积", "number", "ml"],
+    ["供试品溶液移取量", "number", "ml"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["检测波长", "number", "nm"],
+    ["进样体积", "number", "μl"],
+  ];
+  for (const [field, type, unit] of genericOperationFields) {
+    add(field, "fillable", "", { type, unit });
+  }
   if (["azithromycin", "clarithromycin", "isosorbide_dinitrate", "simvastatin"].includes(productKey)) {
+    if (productKey === "simvastatin") {
+      for (const [field, type, unit] of simvastatinDissolutionOperationFieldNames()) {
+        add(field, "fillable", "", { type, unit });
+      }
+    }
     add("对照含量", "fillable", "", { unit: "%" });
     add("对照毛重", "fillable", "", { unit: "mg" });
     add("对照皮重", "fillable", "", { unit: "mg" });
@@ -9386,6 +11225,9 @@ function specialDissolutionMethodGroup(productKey, stageKey, testKeyValue) {
       }
     }
   } else if (productKey === "verapamil") {
+    for (const [field, type, unit] of verapamilDissolutionOperationFieldNames()) {
+      add(field, "fillable", "", { type, unit });
+    }
     add("检测波长", "prefilled", "", { unit: "nm", type: "text", defaultValue: "278nm±2nm / 300nm±2nm" });
     add("检测波长278nm", "prefilled", "", { unit: "nm", type: "text", defaultValue: "278nm±2nm" });
     add("检测波长300nm", "prefilled", "", { unit: "nm", type: "text", defaultValue: "300nm±2nm" });
@@ -9405,6 +11247,9 @@ function specialDissolutionMethodGroup(productKey, stageKey, testKeyValue) {
       add(`样${index}-溶出度`, "calculated", `样${index}-△A * 对照净重 * 对照含量 * 9 * 2 * 100 / (对照-△A * 40 * 5)`, { unit: "%" });
     }
   } else if (productKey === "allopurinol") {
+    for (const [field, type, unit] of allopurinolDissolutionOperationFieldNames()) {
+      add(field, "fillable", "", { type, unit });
+    }
     add("检测波长", "fillable", "", { unit: "nm" });
     add("空白OD");
     add("空白溶剂OD");
@@ -9413,6 +11258,23 @@ function specialDissolutionMethodGroup(productKey, stageKey, testKeyValue) {
       add(`样${index}-溶出度`, "calculated", `(样${index}-OD - 空白OD) * 100 * 100 / (571 * 0.1)`, { unit: "%" });
     }
   } else {
+    if (productKey === "pantoprazole") {
+      add("对照品称量", "fillable", "", { unit: "mg" });
+      add("对照品定容体积", "fillable", "", { unit: "ml" });
+      add("对照品吸取体积", "fillable", "", { unit: "ml" });
+      add("对照品二次定容体积", "fillable", "", { unit: "ml" });
+      if (testKeyValue === "acid_release") add("样品片数", "fillable", "", { unit: "片" });
+      add("溶出方法", "fillable", "", { type: "text" });
+      if (testKeyValue === "dissolution") add("溶出介质体积", "fillable", "", { unit: "ml" });
+      add("转速", "fillable", "", { unit: "rpm/min" });
+      add("续滤液体积", "fillable", "", { unit: "ml" });
+      add("供试品定容体积", "fillable", "", { unit: "ml" });
+    }
+    if (productKey === "terazosin") {
+      for (const [field, type, unit] of terazosinDissolutionOperationFieldNames()) {
+        add(field, "fillable", "", { type, unit });
+      }
+    }
     add("检测波长", "fillable", "", { unit: "nm", type: "text" });
     add("对照含量", "fillable", "", { unit: "%" });
     add("对照毛重", "fillable", "", { unit: "mg" });
@@ -9437,7 +11299,7 @@ function specialDissolutionMethodGroup(productKey, stageKey, testKeyValue) {
       } else if (productKey === "levofloxacin") {
         add(resultField, "calculated", `样${index}-OD * 对照净重 * 对照含量 * 9 * 100 / (对照OD * 0.1 * 1000)`, { unit: "%" });
       } else if (productKey === "pantoprazole") {
-        add(resultField, "calculated", `(样${index}-OD - 空白OD) * 对照净重 * 对照含量 * 0.9458 * 9 / ((对照OD - 空白OD) * 4 * 40)`, { unit: "%" });
+        add(resultField, "calculated", `(样${index}-OD - 空白OD) * 对照净重 * 对照含量 * 0.9458 * 9 * 100 / ((对照OD - 空白OD) * 4 * 40)`, { unit: "%" });
       } else if (productKey === "spironolactone") {
         add(resultField, "calculated", `(样${index}-OD - 空白OD) * 对照净重 * 对照含量 * 2 * 100 / ((对照OD - 空白OD) * 20)`, { unit: "%" });
       } else if (productKey === "terazosin") {
@@ -9473,6 +11335,12 @@ function pantoprazoleContentMethodField(stageKey, name, attr = "fillable", formu
 function pantoprazoleContentMethodGroup(stageKey) {
   const fields = [];
   const add = (...args) => fields.push(pantoprazoleContentMethodField(stageKey, ...args));
+  add("对照品定容体积", "fillable", "", { unit: "ml" });
+  add("对照品吸取体积", "fillable", "", { unit: "ml" });
+  add("对照品二次定容体积", "fillable", "", { unit: "ml" });
+  add("样品定容体积", "fillable", "", { unit: "ml" });
+  add("样品吸取体积", "fillable", "", { unit: "ml" });
+  add("样品二次定容体积", "fillable", "", { unit: "ml" });
   add("对照含量", "fillable", "", { unit: "%" });
   for (const index of [1, 2]) {
     add(`对照${index}-毛重`, "fillable", "", { unit: "mg" });
@@ -9533,12 +11401,17 @@ function pantoprazoleAcidResistanceMethodField(name, attr = "fillable", formula 
 function pantoprazoleAcidResistanceMethodGroup() {
   const fields = [];
   const add = (...args) => fields.push(pantoprazoleAcidResistanceMethodField(...args));
-  add("酸处理介质", "prefilled", "", { type: "text", defaultValue: "0.1mol/L盐酸溶液" });
-  add("介质体积", "prefilled", "", { unit: "ml", defaultValue: 900 });
-  add("转速", "prefilled", "", { unit: "rpm", defaultValue: 100 });
-  add("酸处理时间", "prefilled", "", { unit: "min", defaultValue: 120 });
-  add("检测波长", "prefilled", "", { type: "text", unit: "nm", defaultValue: "292nm±2nm" });
-  add("外观确认", "fillable", "", { type: "select", options: ["符合", "不符合"] });
+  add("对照品称量", "fillable", "", { unit: "mg" });
+  add("对照品定容体积", "fillable", "", { unit: "ml" });
+  add("对照品吸取体积", "fillable", "", { unit: "ml" });
+  add("对照品二次定容体积", "fillable", "", { unit: "ml" });
+  add("样品片数", "fillable", "", { unit: "片" });
+  add("溶出方法", "fillable", "", { type: "text" });
+  add("转速", "fillable", "", { unit: "rpm/min" });
+  add("样品定容体积", "fillable", "", { unit: "ml" });
+  add("样品吸取体积", "fillable", "", { unit: "ml" });
+  add("样品二次定容体积", "fillable", "", { unit: "ml" });
+  add("检测波长", "fillable", "", { type: "text", unit: "nm" });
   add("对照含量", "fillable", "", { unit: "%" });
   add("对照毛重", "fillable", "", { unit: "mg" });
   add("对照皮重", "fillable", "", { unit: "mg" });
@@ -9548,7 +11421,7 @@ function pantoprazoleAcidResistanceMethodGroup() {
   add("对照OD");
   for (let index = 1; index <= 6; index += 1) {
     add(`样${index}-OD`);
-    add(`样${index}-耐酸力`, "calculated", `(样${index}-OD - 空白OD) * 对照净重 * 对照含量 * 0.9458 * 4 / ((对照OD - 空白OD) * 40)`, { unit: "%" });
+    add(`样${index}-耐酸力`, "calculated", `(样${index}-OD - 空白OD) * 对照净重 * 对照含量 * 0.9458 * 4 * 100 / ((对照OD - 空白OD) * 40)`, { unit: "%" });
   }
   add("平均耐酸力", "calculated", "(样1-耐酸力 + 样2-耐酸力 + 样3-耐酸力 + 样4-耐酸力 + 样5-耐酸力 + 样6-耐酸力) / 6", { unit: "%" });
   add("结论-结果", "calculated", "平均耐酸力", { unit: "%" });
@@ -9572,6 +11445,42 @@ function allopurinolRelatedMethodField(name, attr = "fillable", formula = "", ex
   });
 }
 
+function friabilityOperationMethodGroup(stageKey) {
+  const group = `${diammoniumStageLabel(stageKey)}脆碎度`;
+  const fields = [
+    methodField("测试前称重", friabilityOperationFieldKey(stageKey, "测试前称重"), "fillable", "", { group: `${group}操作`, type: "number", unit: "g" }),
+    methodField("测试后称重", friabilityOperationFieldKey(stageKey, "测试后称重"), "fillable", "", { group: `${group}操作`, type: "number", unit: "g" }),
+  ];
+  for (const index of [1, 2, 3]) {
+    fields.push(
+      methodField(`测试${index}-前重`, `${stageKey}/friability/table/测试${index}-前重`, "fillable", "", { group, type: "number", unit: "g" }),
+      methodField(`测试${index}-后重`, `${stageKey}/friability/table/测试${index}-后重`, "fillable", "", { group, type: "number", unit: "g" }),
+      methodField(
+        `测试${index}-减失率`,
+        `${stageKey}/friability/table/测试${index}-减失率`,
+        "calculated",
+        `(测试${index}-前重 - 测试${index}-后重) / 测试${index}-前重 * 100`,
+        { group, type: "number", unit: "%" },
+      ),
+    );
+  }
+  fields.push(
+    methodField("目测断裂龟裂", `${stageKey}/friability/table/目测断裂龟裂`, "fillable", "", { group, type: "text" }),
+    methodField(
+      "平均减失率",
+      `${stageKey}/friability/table/平均减失率`,
+      "calculated",
+      "(测试1-减失率 + 测试2-减失率 + 测试3-减失率) / 3",
+      { group, type: "number", unit: "%" },
+    ),
+  );
+  return {
+    name: group,
+    source: "dedicated_layout",
+    fields,
+  };
+}
+
 function allopurinolRelatedSubstancesMethodGroup() {
   const fields = [];
   const add = (...args) => fields.push(allopurinolRelatedMethodField(...args));
@@ -9585,6 +11494,9 @@ function allopurinolRelatedSubstancesMethodGroup() {
   add("称样/供试品-毛重", "fillable", "", { unit: "mg" });
   add("称样/供试品-皮重", "fillable", "", { unit: "mg" });
   add("称样/供试品-净重", "calculated", "称样/供试品-毛重 - 称样/供试品-皮重", { unit: "mg" });
+  for (const [field, type, unit] of allopurinolRelatedOperationFieldNames()) {
+    add(field, "fillable", "", { type, unit });
+  }
   add("系统适用性-1", "fillable", "", { type: "number" });
   add("系统适用性-2", "fillable", "", { type: "number" });
   add("系统适用性-1是否符合", "calculated", "系统适用性-1 >= 1.5", { type: "boolean" });
@@ -9661,6 +11573,47 @@ function pantoprazoleRelatedTable(label, columnWidths, rows, order) {
   };
 }
 
+function pantoprazoleRelatedOperationBlock() {
+  return {
+    type: "paragraph",
+    label: "泮托拉唑钠肠溶片成品有关物质操作方法",
+    sourceTemplateId: "dedicated/pantoprazole_finished_related_substances",
+    sectionRole: "operation_text",
+    sectionRef: "operation",
+    order: 136,
+    moduleOrder: 15,
+    parts: [
+      textPart("照高效液相色谱法(通则0512)测定。"),
+      { type: "br" },
+      textPart("色谱条件与系统适应性试验：", { bold: true }),
+      textPart("十八烷基硅烷键合硅胶为填充剂：C18×"),
+      pantoprazoleRelatedInput("色谱柱长度", { width: "4em" }),
+      textPart("mm×4.6mm；以磷酸盐缓冲液(取磷酸氢二钠1.12g与磷酸二氢钠0.18g，加水溶解并稀释至1000ml)—乙腈(70:30)为流动相，检测波长为"),
+      pantoprazoleRelatedInput("检测波长", { width: "4em" }),
+      textPart("nm（288nm），理论塔板数按泮托拉唑钠峰计算应不低于2500。"),
+      { type: "br" },
+      textPart("样品溶液制备：", { bold: true }),
+      textPart("取本品内容物"),
+      pantoprazoleRelatedInput("供试品称量", { width: "5em" }),
+      textPart("mg（约相当于泮托拉唑钠10mg），置"),
+      pantoprazoleRelatedInput("供试品定容体积", { width: "4em" }),
+      textPart("ml（50ml）量瓶中，加流动相溶解并稀释至刻度，摇匀，滤过，取续滤液作为供试品。"),
+      { type: "br" },
+      textPart("对照溶液制备：", { bold: true }),
+      textPart("精密吸取"),
+      pantoprazoleRelatedInput("对照溶液吸取体积", { width: "4em" }),
+      textPart("ml（3ml）置"),
+      pantoprazoleRelatedInput("对照溶液定容体积", { width: "4em" }),
+      textPart("ml（200ml）量瓶中，用流动相稀释成每1ml中含3μg的溶液，作为对照溶液。"),
+      { type: "br" },
+      textPart("测定法：", { bold: true }),
+      textPart("精密量取对照溶液20μl，注入液相色谱仪，调节仪器灵敏度，使主成分峰高为满量程的10～20%，精密量取对照溶液与供试品溶液各"),
+      pantoprazoleRelatedInput("进样体积", { width: "4em" }),
+      textPart("μl（20μl），分别注入液相色谱仪，记录色谱图至主成分保留时间的2倍，供试品溶液色谱图中如有杂质峰，量取与主成份峰相对保留时间0.24以上各杂质峰的和，不得大于对照溶液的主峰面积(1.5%)。"),
+    ],
+  };
+}
+
 function pantoprazoleRelatedLayoutBlocks() {
   return [
     pantoprazoleRelatedTable("称样", ["30%", "70%"], [
@@ -9710,6 +11663,7 @@ function pantoprazoleRelatedLayoutBlocks() {
 }
 
 function pantoprazoleRelatedSubstancesLayoutBlocks(layoutBlocks) {
+  const operationBlock = pantoprazoleRelatedOperationBlock();
   const nextBlocks = arr(layoutBlocks).filter((block) => {
     const data = rec(block);
     const label = str(data.label);
@@ -9719,7 +11673,7 @@ function pantoprazoleRelatedSubstancesLayoutBlocks(layoutBlocks) {
       (type === "title" && ["称样", "称重", "计算", "测定与计算"].includes(title))
       || ["有关物质称样", "有关物质峰面积计算", "泮托拉唑钠肠溶片成品有关物质称样", "泮托拉唑钠肠溶片成品有关物质计算"].includes(label)
     );
-  });
+  }).map((block) => (str(rec(block).label) === "md_operation_method" ? operationBlock : block));
   const insertAt = postMethodBlockIndex(nextBlocks);
   nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, ...pantoprazoleRelatedLayoutBlocks());
   return nextBlocks;
@@ -9740,6 +11694,13 @@ function pantoprazoleRelatedMethodField(name, attr = "fillable", formula = "", e
 function pantoprazoleRelatedMethodGroup() {
   const fields = [];
   const add = (...args) => fields.push(pantoprazoleRelatedMethodField(...args));
+  add("色谱柱长度", "fillable", "", { unit: "mm" });
+  add("检测波长", "fillable", "", { unit: "nm" });
+  add("供试品称量", "fillable", "", { unit: "mg" });
+  add("供试品定容体积", "fillable", "", { unit: "ml" });
+  add("对照溶液吸取体积", "fillable", "", { unit: "ml" });
+  add("对照溶液定容体积", "fillable", "", { unit: "ml" });
+  add("进样体积", "fillable", "", { unit: "μl" });
   add("供试品-毛重", "fillable", "", { unit: "mg" });
   add("供试品-皮重", "fillable", "", { unit: "mg" });
   add("供试品-净重", "calculated", "供试品-毛重 - 供试品-皮重", { unit: "mg" });
@@ -9764,6 +11725,18 @@ function atenololRelatedFieldKey(name) {
 
 function atenololRelatedInput(field, options = {}) {
   return inputPart(field, { ...options, fieldKey: atenololRelatedFieldKey(field) });
+}
+
+function atenololRelatedOperationFieldNames() {
+  return [
+    ["色谱柱长度", "number", "mm"],
+    ["柱温", "number", "℃"],
+    ["理论板数限度", "number", ""],
+    ["供试品-净重", "number", "mg", true],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["对照溶液移取量", "number", "ml"],
+    ["对照溶液量瓶体积", "number", "ml"],
+  ];
 }
 
 function atenololRelatedReadonly(name, formulaText, dependencyNames, options = {}) {
@@ -9845,7 +11818,7 @@ function atenololRelatedLayoutBlocks() {
 }
 
 function atenololRelatedSubstancesLayoutBlocks(layoutBlocks) {
-  const nextBlocks = arr(layoutBlocks).filter((block) => {
+  const nextBlocks = normalizeAtenololRelatedOperationFields(arr(layoutBlocks)).filter((block) => {
     const data = rec(block);
     const label = str(data.label);
     const title = str(data.title || data.text);
@@ -9858,6 +11831,29 @@ function atenololRelatedSubstancesLayoutBlocks(layoutBlocks) {
   const insertAt = postMethodBlockIndex(nextBlocks);
   nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, ...atenololRelatedLayoutBlocks());
   return nextBlocks;
+}
+
+function normalizeAtenololRelatedOperationFields(layoutBlocks) {
+  const byIndex = Object.fromEntries(atenololRelatedOperationFieldNames().map((entry, index) => [index + 1, entry]));
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts).map((part) => {
+      const item = rec(part);
+      const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+      if (!match) return part;
+      const mapped = byIndex[Number(match[1])];
+      if (!mapped) return part;
+      const [name, , , readonly] = mapped;
+      return {
+        ...item,
+        field: name,
+        fieldKey: atenololRelatedFieldKey(name),
+        readonlyDisplay: readonly ? true : item.readonlyDisplay,
+      };
+    });
+    return { ...data, parts };
+  });
 }
 
 function atenololRelatedMethodField(name, attr = "fillable", formula = "", extra = {}) {
@@ -9875,6 +11871,9 @@ function atenololRelatedMethodField(name, attr = "fillable", formula = "", extra
 function atenololRelatedMethodGroup() {
   const fields = [];
   const add = (...args) => fields.push(atenololRelatedMethodField(...args));
+  for (const [name, type, unit, readonly] of atenololRelatedOperationFieldNames()) {
+    if (!readonly) add(name, "fillable", "", { type, unit });
+  }
   add("供试品-毛重", "fillable", "", { unit: "mg" });
   add("供试品-皮重", "fillable", "", { unit: "mg" });
   add("供试品-净重", "calculated", "供试品-毛重 - 供试品-皮重", { unit: "mg" });
@@ -9899,6 +11898,17 @@ function clarithromycinRelatedFieldKey(name) {
 
 function clarithromycinRelatedInput(field, options = {}) {
   return inputPart(field, { ...options, fieldKey: clarithromycinRelatedFieldKey(field) });
+}
+
+function clarithromycinRelatedOperationFieldNames() {
+  return [
+    ["色谱柱长度", "number", "mm"],
+    ["检测波长", "number", "nm"],
+    ["供试品-净重", "number", "mg", true],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["对照溶液移取量", "number", "ml"],
+    ["对照溶液量瓶体积", "number", "ml"],
+  ];
 }
 
 function clarithromycinRelatedReadonly(name, formulaText, dependencyNames, options = {}) {
@@ -9981,7 +11991,7 @@ function clarithromycinRelatedLayoutBlocks() {
 }
 
 function clarithromycinRelatedSubstancesLayoutBlocks(layoutBlocks) {
-  const nextBlocks = arr(layoutBlocks).filter((block) => {
+  const nextBlocks = normalizeClarithromycinRelatedOperationFields(arr(layoutBlocks)).filter((block) => {
     const data = rec(block);
     const label = str(data.label);
     const title = str(data.title || data.text);
@@ -9994,6 +12004,29 @@ function clarithromycinRelatedSubstancesLayoutBlocks(layoutBlocks) {
   const insertAt = postMethodBlockIndex(nextBlocks);
   nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, ...clarithromycinRelatedLayoutBlocks());
   return nextBlocks;
+}
+
+function normalizeClarithromycinRelatedOperationFields(layoutBlocks) {
+  const byIndex = Object.fromEntries(clarithromycinRelatedOperationFieldNames().map((entry, index) => [index + 1, entry]));
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts).map((part) => {
+      const item = rec(part);
+      const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+      if (!match) return part;
+      const mapped = byIndex[Number(match[1])];
+      if (!mapped) return part;
+      const [name, , , readonly] = mapped;
+      return {
+        ...item,
+        field: name,
+        fieldKey: clarithromycinRelatedFieldKey(name),
+        readonlyDisplay: readonly ? true : item.readonlyDisplay,
+      };
+    });
+    return { ...data, parts };
+  });
 }
 
 function clarithromycinRelatedMethodField(name, attr = "fillable", formula = "", extra = {}) {
@@ -10011,6 +12044,9 @@ function clarithromycinRelatedMethodField(name, attr = "fillable", formula = "",
 function clarithromycinRelatedMethodGroup() {
   const fields = [];
   const add = (...args) => fields.push(clarithromycinRelatedMethodField(...args));
+  for (const [name, type, unit, readonly] of clarithromycinRelatedOperationFieldNames()) {
+    if (!readonly) add(name, "fillable", "", { type, unit });
+  }
   add("供试品-毛重", "fillable", "", { unit: "mg" });
   add("供试品-皮重", "fillable", "", { unit: "mg" });
   add("供试品-净重", "calculated", "供试品-毛重 - 供试品-皮重", { unit: "mg" });
@@ -10214,11 +12250,66 @@ function terazosinRelatedInput(field, options = {}) {
   return inputPart(field, { ...options, fieldKey: terazosinRelatedFieldKey(field) });
 }
 
+function terazosinRelatedOperationFieldNames() {
+  return [
+    ["色谱柱长度", "number", "mm"],
+    ["检测波长", "number", "nm"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["对照溶液移取量", "number", "ml"],
+    ["对照溶液量瓶体积", "number", "ml"],
+    ["进样体积", "number", "μl"],
+  ];
+}
+
 function terazosinRelatedReadonly(name, formulaText, dependencyNames, options = {}) {
   return {
     ...terazosinRelatedInput(name, { readonlyDisplay: true, width: str(options.width) || "5em" }),
     advancedFormulaText: formulaText,
     advancedDependencyFieldKeys: dependencyNames.map(terazosinRelatedFieldKey),
+  };
+}
+
+function terazosinRelatedOperationBlock() {
+  const op = (field, options = {}) => namedInputPart(field, terazosinRelatedFieldKey(field), options);
+  return {
+    type: "paragraph",
+    label: "盐酸特拉唑嗪胶囊成品有关物质操作方法",
+    sourceTemplateId: "dedicated/terazosin_finished_related_substances_operation",
+    order: 136,
+    parts: [
+      textPart("（临用新制）照高效液相色谱法（通则0512）测定。"),
+      lineBreakPart(),
+      textPart("色谱条件与系统适用性试验：", { bold: true }),
+      textPart("色谱柱：C18×"),
+      op("色谱柱长度"),
+      textPart("mm×4.6mm；以乙腈：高氯酸溶液（取三乙胺2ml置1000ml水中，用高氯酸调节PH值至2.0）20：80为流动相，检测波长："),
+      op("检测波长"),
+      textPart("nm（246nm）。"),
+      lineBreakPart(),
+      textPart("供试品溶液制备：", { bold: true }),
+      textPart("取本品内容物"),
+      terazosinRelatedReadonly(
+        "供试品-净重",
+        "供试品-净重 = 供试品-毛重 - 供试品-皮重",
+        ["供试品-毛重", "供试品-皮重"],
+        { width: "5em" },
+      ),
+      textPart("g（约相当于特拉唑嗪12.5mg），置"),
+      op("供试品溶液量瓶体积"),
+      textPart("ml（25ml）量瓶中，加溶剂[乙腈—水—盐酸（200：800：0.9）]适量，超声使盐酸特拉唑嗪溶解，放冷，用溶剂稀释至刻度，摇匀，滤过，取续滤液作为供试品溶液。"),
+      lineBreakPart(),
+      textPart("对照溶液制备：", { bold: true }),
+      textPart("精密量取供试品溶液"),
+      op("对照溶液移取量"),
+      textPart("ml（1ml）置"),
+      op("对照溶液量瓶体积"),
+      textPart("ml（200ml）量瓶中，加溶剂稀释至刻度，摇匀，为对照溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("照含量项下的色谱条件，精密量取供试品溶液、对照溶液各"),
+      op("进样体积"),
+      textPart("μl，分别注入液相色谱仪，记录色谱图至主成分峰保留时间的5倍。供试品溶液色谱图中如有杂质峰，小于对照溶液主峰面积0.1倍色谱峰忽略不计。"),
+    ],
   };
 }
 
@@ -10311,12 +12402,15 @@ function terazosinRelatedSubstancesLayoutBlocks(layoutBlocks) {
     const title = str(data.title || data.text);
     const type = str(data.type);
     return !(
+      label === "md_operation_method"
+      || label === "盐酸特拉唑嗪胶囊成品有关物质操作方法"
+      || 
       (type === "title" && ["称样", "称重", "计算", "测定与计算"].includes(title))
       || ["有关物质称样", "有关物质峰面积计算", "盐酸特拉唑嗪胶囊成品有关物质称样", "盐酸特拉唑嗪胶囊成品有关物质计算"].includes(label)
     );
   });
   const insertAt = postMethodBlockIndex(nextBlocks);
-  nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, ...terazosinRelatedLayoutBlocks());
+  nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, terazosinRelatedOperationBlock(), ...terazosinRelatedLayoutBlocks());
   return nextBlocks;
 }
 
@@ -10335,6 +12429,9 @@ function terazosinRelatedMethodField(name, attr = "fillable", formula = "", extr
 function terazosinRelatedMethodGroup() {
   const fields = [];
   const add = (...args) => fields.push(terazosinRelatedMethodField(...args));
+  for (const [field, type, unit] of terazosinRelatedOperationFieldNames()) {
+    add(field, "fillable", "", { type, unit });
+  }
   add("供试品-毛重", "fillable", "", { unit: "g" });
   add("供试品-皮重", "fillable", "", { unit: "g" });
   add("供试品-净重", "calculated", "供试品-毛重 - 供试品-皮重", { unit: "g" });
@@ -10363,11 +12460,69 @@ function verapamilRelatedInput(field, options = {}) {
   return inputPart(field, { ...options, fieldKey: verapamilRelatedFieldKey(field) });
 }
 
+function verapamilRelatedOperationFieldNames() {
+  return [
+    ["色谱柱长度", "number", "mm"],
+    ["检测波长", "number", "nm"],
+    ["进样体积", "number", "μl"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+    ["对照溶液移取量", "number", "ml"],
+    ["对照溶液量瓶体积", "number", "ml"],
+  ];
+}
+
 function verapamilRelatedReadonly(name, formulaText, dependencyNames, options = {}) {
   return {
     ...verapamilRelatedInput(name, { readonlyDisplay: true, width: str(options.width) || "5em" }),
     advancedFormulaText: formulaText,
     advancedDependencyFieldKeys: dependencyNames.map(verapamilRelatedFieldKey),
+  };
+}
+
+function verapamilRelatedOperationBlock() {
+  const op = (field, options = {}) => namedInputPart(field, verapamilRelatedFieldKey(field), options);
+  return {
+    type: "paragraph",
+    label: "盐酸维拉帕米片成品有关物质操作方法",
+    sourceTemplateId: "dedicated/verapamil_finished_related_substances_operation",
+    order: 136,
+    parts: [
+      textPart("照高效液相色谱法（通则0512）测定。"),
+      lineBreakPart(),
+      textPart("色谱条件：", { bold: true }),
+      textPart("用十八烷基硅烷键合硅胶为填充剂；色谱柱：C18×"),
+      op("色谱柱长度"),
+      textPart("mm×4.6mm；以醋酸-醋酸钠溶液（取醋酸钠1.36g加水适量，振摇使溶解，加冰醋酸33ml，加水稀释至1000ml，摇匀）－甲醇-三乙胺（55：45：1）为流动相，柱温为40℃；检测波长："),
+      op("检测波长"),
+      textPart("nm（278nm），进样体积"),
+      op("进样体积"),
+      textPart("μl（20μl）。"),
+      lineBreakPart(),
+      textPart("系统适用性要求：", { bold: true }),
+      textPart("理论板数按维拉帕米峰计算不低于2000。"),
+      lineBreakPart(),
+      textPart("供试品溶液：", { bold: true }),
+      textPart("取含量项下的续滤液：取本品适量研细，精密称"),
+      verapamilRelatedReadonly(
+        "供试品-净重",
+        "供试品-净重 = 供试品-毛重 - 供试品-皮重",
+        ["供试品-毛重", "供试品-皮重"],
+        { width: "5em" },
+      ),
+      textPart("g（约相当于盐酸维拉帕米0.125g），置"),
+      op("供试品溶液量瓶体积"),
+      textPart("ml（50ml）量瓶中，加流动相适量振摇使盐酸维拉帕米溶解并稀释至刻度，摇匀，滤过。"),
+      lineBreakPart(),
+      textPart("对照溶液：", { bold: true }),
+      textPart("精密量取供试品溶液"),
+      op("对照溶液移取量"),
+      textPart("ml（1ml）置"),
+      op("对照溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，用流动相稀释至刻度，摇匀。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("精密量取供试品溶液与对照品溶液，分别注入液相色谱仪，记录色谱图至主成分峰保留时间的3倍。"),
+    ],
   };
 }
 
@@ -10443,12 +12598,14 @@ function verapamilRelatedSubstancesLayoutBlocks(layoutBlocks) {
     const title = str(data.title || data.text);
     const type = str(data.type);
     return !(
-      (type === "title" && ["称样", "称重", "计算", "测定与计算"].includes(title))
+      label === "md_operation_method"
+      || label === "盐酸维拉帕米片成品有关物质操作方法"
+      || (type === "title" && ["称样", "称重", "计算", "测定与计算"].includes(title))
       || ["有关物质称样", "有关物质峰面积计算", "盐酸维拉帕米片成品有关物质称样", "盐酸维拉帕米片成品有关物质计算"].includes(label)
     );
   });
   const insertAt = postMethodBlockIndex(nextBlocks);
-  nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, ...verapamilRelatedLayoutBlocks());
+  nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, verapamilRelatedOperationBlock(), ...verapamilRelatedLayoutBlocks());
   return nextBlocks;
 }
 
@@ -10467,6 +12624,9 @@ function verapamilRelatedMethodField(name, attr = "fillable", formula = "", extr
 function verapamilRelatedMethodGroup() {
   const fields = [];
   const add = (...args) => fields.push(verapamilRelatedMethodField(...args));
+  for (const [field, type, unit] of verapamilRelatedOperationFieldNames()) {
+    add(field, "fillable", "", { type, unit });
+  }
   add("供试品-毛重", "fillable", "", { unit: "g" });
   add("供试品-皮重", "fillable", "", { unit: "g" });
   add("供试品-净重", "calculated", "供试品-毛重 - 供试品-皮重", { unit: "g" });
@@ -10487,6 +12647,25 @@ function azithromycinRelatedSubstancesApplies(productKey, stageKey, testKeyValue
 
 function azithromycinRelatedFieldKey(name) {
   return `finished/related_substances/azithromycin_impurities/${str(name).replace(/[\\/]/g, "_")}`;
+}
+
+function normalizeAzithromycinRelatedOperationFields(layoutBlocks) {
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts).map((part) => {
+      const item = rec(part);
+      const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+      if (!match) return part;
+      if (Number(match[1]) !== 1) return part;
+      return {
+        ...item,
+        field: "色谱柱长度",
+        fieldKey: azithromycinRelatedFieldKey("色谱柱长度"),
+      };
+    });
+    return { ...data, parts };
+  });
 }
 
 const AZITHROMYCIN_RELATED_PART_FIELD_MAP = {
@@ -10578,7 +12757,7 @@ function withAzithromycinRelatedPartKey(part) {
 }
 
 function azithromycinRelatedSubstancesLayoutBlocks(layoutBlocks) {
-  return arr(layoutBlocks).map((block) => {
+  return normalizeAzithromycinRelatedOperationFields(arr(layoutBlocks)).map((block) => {
     const data = { ...rec(block) };
     const label = str(data.label);
     if (str(data.type) !== "table" || !["有关物质称样", "阿奇霉素有关物质峰面积计算表"].includes(label)) return block;
@@ -10630,6 +12809,7 @@ function azithromycinRelatedMethodField(name, attr = "fillable", formula = "", e
 function azithromycinRelatedMethodGroup() {
   const fields = [];
   const add = (...args) => fields.push(azithromycinRelatedMethodField(...args));
+  add("色谱柱长度", "fillable", "", { unit: "mm" });
   add("系统适用性对照品称样", "fillable", "", { unit: "mg" });
   add("杂质A对照品称样", "fillable", "", { unit: "mg" });
   add("杂质S对照品称样", "fillable", "", { unit: "mg" });
@@ -10669,6 +12849,72 @@ function simvastatinRelatedFieldKey(name) {
 
 function simvastatinRelatedInput(field, options = {}) {
   return inputPart(field, { ...options, fieldKey: simvastatinRelatedFieldKey(field) });
+}
+
+function simvastatinRelatedOperationFieldNames() {
+  return [
+    ["色谱柱长度", "number", "mm"],
+    ["检测波长", "number", "nm"],
+    ["酸溶液量瓶体积", "number", "ml"],
+    ["氢氧化钠乙腈体积", "number", "ml"],
+    ["系统适用性量瓶体积", "number", "ml"],
+    ["辛伐他汀酸溶液体积", "number", "ml"],
+    ["供试品量瓶体积", "number", "ml"],
+    ["对照溶液转移体积", "number", "ml"],
+    ["对照溶液量瓶体积", "number", "ml"],
+  ];
+}
+
+function simvastatinRelatedOperationBlock() {
+  const input = (field, options = {}) => simvastatinRelatedInput(field, options);
+  return {
+    type: "paragraph",
+    label: "辛伐他汀片成品有关物质操作方法",
+    sourceTemplateId: "dedicated/simvastatin_finished_related_substances_operation",
+    order: 136,
+    parts: [
+      textPart("色谱条件与系统适用性试验：", { bold: true }),
+      textPart("用十八烷基硅烷键合硅胶为填充剂（色谱柱规格为4.6mm×"),
+      input("色谱柱长度"),
+      textPart("mm（33mm），粒度3μm）；以乙腈-0.1%磷酸溶液（50：50）为流动相A，0.1%磷酸的乙腈溶液为流动相B，按下表进行梯度洗脱；流速为每分钟3.0ml；检测波长为"),
+      input("检测波长"),
+      textPart("nm（238nm）。"),
+      lineBreakPart(),
+      textPart("有关物质溶剂II：", { bold: true }),
+      textPart("乙腈-0.01mol/L磷酸二氢钾溶液（用磷酸调节PH至4.0）（60：40）。精密称取辛伐他汀对照品"),
+      input("酸溶液-净重", { readonlyDisplay: true }),
+      textPart("mg（约10mg），置"),
+      input("酸溶液量瓶体积"),
+      textPart("ml（25ml）量瓶中，加0.2mol/L氢氧化钠溶液-乙腈（1：1）的混合溶液"),
+      input("氢氧化钠乙腈体积"),
+      textPart("ml（2.5ml），振摇使溶解，放置5分钟，加稀盐酸中和后（用pH试纸测定显中性），用有关物质溶剂II稀释至刻度，得到含开环降解物的辛伐他汀酸溶液；取洛伐他汀对照品"),
+      input("系统适用性洛伐他汀对照品-净重", { readonlyDisplay: true }),
+      textPart("mg（约2mg）与辛伐他汀对照品"),
+      input("系统适用性辛伐他汀对照品-净重", { readonlyDisplay: true }),
+      textPart("mg（约2mg），置同一"),
+      input("系统适用性量瓶体积"),
+      textPart("ml（100ml）量瓶中，加入辛伐他汀酸溶液"),
+      input("辛伐他汀酸溶液体积"),
+      textPart("ml（5ml），用有关物质溶剂II溶解并稀释至刻度，摇匀，作为系统适用性溶液；取10μl注入液相色谱仪，记录色谱图，辛伐他汀酸峰与洛伐他汀峰之间的分离度应符合要求，洛伐他汀峰与辛伐他汀峰之间的分离度应不小于4.0。"),
+      lineBreakPart(),
+      textPart("供试品溶液制备：", { bold: true }),
+      textPart("取本品细粉"),
+      input("样-净重", { readonlyDisplay: true }),
+      textPart("g（约相当于辛伐他汀80mg），置"),
+      input("供试品量瓶体积"),
+      textPart("ml（100ml）量瓶中，加溶剂II适量，充分振摇，使辛伐他汀溶解并稀释至刻度，摇匀，滤过，取续滤液作为供试品溶液（3小时内测定）。"),
+      lineBreakPart(),
+      textPart("对照溶液制备：", { bold: true }),
+      textPart("精密量取供试品溶液"),
+      input("对照溶液转移体积"),
+      textPart("ml（1ml），置"),
+      input("对照溶液量瓶体积"),
+      textPart("ml（100ml）量瓶中，用溶剂II稀释至刻度，摇匀，作为对照溶液。"),
+      lineBreakPart(),
+      textPart("测定法：", { bold: true }),
+      textPart("精密量取供试品溶液与对照溶液各10μl，分别注入液相色谱仪。供试品溶液的色谱图中如有杂质峰，扣除相关保留时间0.3倍前的辅料峰，供试品溶液中任何小于对照溶液主峰面积0.05倍的峰忽略不计。"),
+    ],
+  };
 }
 
 function simvastatinRelatedReadonly(name, formulaText, dependencyNames, options = {}) {
@@ -10815,6 +13061,13 @@ function simvastatinRelatedSubstancesLayoutBlocks(layoutBlocks) {
       ].includes(label)
     );
   });
+  const methodIndex = nextBlocks.findIndex((block) => str(rec(block).label) === "md_operation_method");
+  const operationBlock = simvastatinRelatedOperationBlock();
+  if (methodIndex >= 0) nextBlocks.splice(methodIndex, 1, operationBlock);
+  else {
+    const operationInsertAt = postMethodBlockIndex(nextBlocks);
+    nextBlocks.splice(operationInsertAt >= 0 ? operationInsertAt : nextBlocks.length, 0, operationBlock);
+  }
   const insertAt = postMethodBlockIndex(nextBlocks);
   nextBlocks.splice(insertAt >= 0 ? insertAt : nextBlocks.length, 0, ...simvastatinRelatedCalculationLayoutBlocks());
   return nextBlocks;
@@ -10836,6 +13089,9 @@ function simvastatinRelatedMethodField(name, attr = "fillable", formula = "", ex
 function simvastatinRelatedMethodGroup() {
   const fields = [];
   const add = (...args) => fields.push(simvastatinRelatedMethodField(...args));
+  for (const [name, type, unit] of simvastatinRelatedOperationFieldNames()) {
+    add(name, "fillable", "", { type, unit });
+  }
   add("样-毛重", "fillable", "", { unit: "g" });
   add("样-皮重", "fillable", "", { unit: "g" });
   add("样-净重", "calculated", "样-毛重 - 样-皮重", { unit: "g" });
@@ -10925,6 +13181,9 @@ function allopurinolContentMethodGroup(stageKey) {
     add(`样${index}-毛重`, "fillable", "", { unit: "g" });
     add(`样${index}-皮重`, "fillable", "", { unit: "g" });
     add(`样${index}-净重`, "calculated", `样${index}-毛重 - 样${index}-皮重`, { unit: "g" });
+  }
+  for (const [field, type, unit] of allopurinolContentOperationFieldNames()) {
+    add(field, "fillable", "", { type, unit });
   }
   add("检测波长", "fillable", "", { unit: "nm", type: "text" });
   add("空白OD");
@@ -11023,6 +13282,43 @@ function berberineContentFieldKey(stageKey, name) {
 
 function berberineInput(stageKey, field, options = {}) {
   return inputPart(field, { ...options, fieldKey: berberineContentFieldKey(stageKey, field) });
+}
+
+function berberineContentOperationFieldNames() {
+  return [
+    ["对照品溶液量瓶体积", "number", "ml"],
+    ["供试品溶液量瓶体积", "number", "ml"],
+  ];
+}
+
+function normalizeBerberineContentOperationFields(layoutBlocks, productKey, stageKey, testKeyValue) {
+  if (productKey !== "berberine_tannate" || testKeyValue !== "content" || !["intermediate", "packaging", "finished"].includes(stageKey)) return layoutBlocks;
+  const byIndex = {
+    1: { name: "对照1-净重", readonly: true },
+    2: { name: "对照2-净重", readonly: true },
+    3: { name: "对照品溶液量瓶体积" },
+    4: { name: "样1-净重", readonly: true },
+    5: { name: "样2-净重", readonly: true },
+    6: { name: "供试品溶液量瓶体积" },
+  };
+  return arr(layoutBlocks).map((block) => {
+    const data = rec(block);
+    if (str(data.type) !== "paragraph" || str(data.label) !== "md_operation_method") return block;
+    const parts = arr(data.parts).map((part) => {
+      const item = rec(part);
+      const match = str(item.fieldKey || item.field_key).match(/\/operation\/md_field_(\d+)$/);
+      if (!match) return part;
+      const inferred = byIndex[Number(match[1])];
+      if (!inferred) return part;
+      return {
+        ...item,
+        field: inferred.name,
+        fieldKey: berberineContentFieldKey(stageKey, inferred.name),
+        readonlyDisplay: inferred.readonly === true ? true : item.readonlyDisplay,
+      };
+    });
+    return { ...data, parts };
+  });
 }
 
 function berberineContentTable(stageKey, label, columnWidths, rows, order) {
@@ -11191,6 +13487,9 @@ function berberineContentMethodField(stageKey, name, attr = "fillable", formula 
 function berberineContentMethodGroup(stageKey) {
   const fields = [];
   const add = (...args) => fields.push(berberineContentMethodField(stageKey, ...args));
+  for (const [field, type, unit] of berberineContentOperationFieldNames()) {
+    add(field, "fillable", "", { type, unit });
+  }
   if (stageKey === "intermediate") {
     add("投料量", "fillable", "", { unit: "Kg" });
     add("批量", "fillable", "", { unit: "万片" });
@@ -11236,6 +13535,9 @@ function berberineContentMethodGroup(stageKey) {
 
 function reconcileDedicatedMethodGroups(methodGroups, productKey, stageKey, testKeyValue, test = {}) {
   const groups = [...methodGroups];
+  if (testKeyValue === "appearance") {
+    groups.unshift(appearanceMethodGroup(stageKey));
+  }
   if (azithromycinFinishedMoistureApplies(productKey, stageKey, testKeyValue)) {
     groups.unshift(azithromycinFinishedMoistureMethodGroup());
   } else if (testKeyValue === "moisture") {
@@ -11244,11 +13546,17 @@ function reconcileDedicatedMethodGroups(methodGroups, productKey, stageKey, test
   if (testKeyValue === "weight_variation" || testKeyValue === "fill_variation") {
     groups.unshift(variationMethodGroup(stageKey, testKeyValue, rec(test["标准规定参数"])));
   }
+  if (testKeyValue === "friability") {
+    groups.unshift(friabilityOperationMethodGroup(stageKey));
+  }
   if (allopurinolIdentificationApplies(productKey, stageKey, testKeyValue)) {
     groups.unshift(allopurinolIdentificationMethodGroup());
   }
   if (levofloxacinIdentificationApplies(productKey, stageKey, testKeyValue)) {
     groups.unshift(levofloxacinIdentificationMethodGroup());
+  }
+  if (finishedIdentificationOperationApplies(productKey, stageKey, testKeyValue)) {
+    groups.unshift(finishedIdentificationOperationMethodGroup(productKey));
   }
   if (terazosinIdentificationApplies(productKey, stageKey, testKeyValue)) {
     groups.unshift(terazosinIdentificationMethodGroup());
@@ -12178,14 +14486,28 @@ async function testObject({ productName, productKey, stageKey, test, mdTest, lay
   const supplementalLayoutBlocks = reconcileMissingMdParagraphs(tableLayoutBlocks, mdTest, stageKey, key);
   const formulaLayoutBlocks = reconcileMoistureLayoutBlocks(supplementalLayoutBlocks, stageKey, key);
   let layoutBlocks = reconcileDedicatedProductLayoutBlocks(formulaLayoutBlocks, productKey, stageKey, key);
+  layoutBlocks = normalizePantoprazoleReleaseOperationLayoutBlocks(layoutBlocks, productKey, stageKey, key);
   layoutBlocks = normalizeVariationLayoutBlocks(layoutBlocks, productKey, stageKey, key, test);
   layoutBlocks = normalizeRecoveredMdTableBlocks(layoutBlocks, productKey, stageKey, key);
   layoutBlocks = normalizeFriabilityOperationTextBlocks(layoutBlocks, key);
   layoutBlocks = normalizeOperationTextBlocks(layoutBlocks, stageKey, key);
+  layoutBlocks = normalizeSpecialHplcContentOperationFields(layoutBlocks, productKey, stageKey, key);
+  layoutBlocks = normalizeDiammoniumContentOperationFields(layoutBlocks, productKey, stageKey, key);
+  layoutBlocks = normalizeSpecialDissolutionOperationFields(layoutBlocks, productKey, stageKey, key);
+  layoutBlocks = normalizeHydrochlorothiazideUniformityOperationFields(layoutBlocks, productKey, stageKey, key);
+  layoutBlocks = normalizeMethimazoleUniformityOperationFields(layoutBlocks, productKey, stageKey, key);
+  layoutBlocks = normalizeSpironolactoneUniformityOperationFields(layoutBlocks, productKey, stageKey, key);
+  layoutBlocks = normalizeIsosorbideUniformityOperationFields(layoutBlocks, productKey, stageKey, key);
+  layoutBlocks = normalizeMethimazoleContentOperationFields(layoutBlocks, productKey, stageKey, key);
+  layoutBlocks = normalizeBerberineContentOperationFields(layoutBlocks, productKey, stageKey, key);
   layoutBlocks = normalizeFriabilityOperationPartsBlocks(layoutBlocks, productKey, stageKey, key);
+  layoutBlocks = normalizeFriabilityFormulaReferenceParts(layoutBlocks, stageKey, key);
   layoutBlocks = normalizeDisintegrationOperationPartsBlocks(layoutBlocks, stageKey, key);
   layoutBlocks = normalizeHydrochlorothiazideIdentificationPartsBlocks(layoutBlocks, productKey, stageKey, key);
+  layoutBlocks = normalizeFinishedIdentificationOperationFields(layoutBlocks, productKey, stageKey, key);
   layoutBlocks = removeEmptyStructuredOperationBlocks(layoutBlocks);
+  layoutBlocks = normalizeAppearanceOperationLayoutBlocks(layoutBlocks, stageKey, key);
+  layoutBlocks = normalizeRetentionTimeOperationFields(layoutBlocks, stageKey, key);
   layoutBlocks = demoteDeprecatedDisplayParams(layoutBlocks);
   layoutBlocks = removeFinalDedicatedDuplicateParagraphs(layoutBlocks, productKey, stageKey, key);
   layoutBlocks.push(signatureFooterBlock(stageKey, key));

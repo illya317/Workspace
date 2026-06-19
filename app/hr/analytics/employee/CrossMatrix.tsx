@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectField } from "@workspace/core/ui";
 import type { DimKey } from "./constants";
 import { DIM_LABELS } from "./constants";
 import type { CrossMatrixData } from "./useEmployeeData";
@@ -33,35 +34,35 @@ export default function CrossMatrix({
   setCrossCol: (v: DimKey) => void;
 }) {
   const crossMax = Math.max(0, ...Object.values(crossMatrix.rowTotals));
+  const rowOptions = featureList
+    .filter((feature) => feature !== crossCol)
+    .map((feature) => ({ value: feature, label: DIM_LABELS[feature] }));
+  const colOptions = featureList
+    .filter((feature) => feature !== crossRow)
+    .map((feature) => ({ value: feature, label: DIM_LABELS[feature] }));
 
   return (
     <div className="bg-white rounded-lg shadow-sm p-5">
       <h3 className="text-sm font-semibold text-gray-700 mb-3">交叉分析</h3>
       <div className="flex items-center gap-4 mb-4">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">行：</span>
-          <select
+          <SelectField
+            label="行："
             value={crossRow}
-            onChange={(e) => setCrossRow(e.target.value as DimKey)}
-            className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:border-emerald-400"
-          >
-            {featureList.map((f) => (
-              <option key={f} value={f} disabled={f === crossCol}>{DIM_LABELS[f]}</option>
-            ))}
-          </select>
+            onChange={(value) => setCrossRow(value as DimKey)}
+            options={rowOptions}
+            selectClassName="min-h-7 w-28"
+          />
         </div>
         <span className="text-xs text-gray-300">&times;</span>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">列：</span>
-          <select
+          <SelectField
+            label="列："
             value={crossCol}
-            onChange={(e) => setCrossCol(e.target.value as DimKey)}
-            className="px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:border-emerald-400"
-          >
-            {featureList.map((f) => (
-              <option key={f} value={f} disabled={f === crossRow}>{DIM_LABELS[f]}</option>
-            ))}
-          </select>
+            onChange={(value) => setCrossCol(value as DimKey)}
+            options={colOptions}
+            selectClassName="min-h-7 w-28"
+          />
         </div>
         <span className="text-xs text-gray-400">共 {statsActive} 人</span>
       </div>

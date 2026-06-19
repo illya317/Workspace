@@ -1,5 +1,7 @@
 "use client";
 
+import { useConfirmDelete } from "@/app/components/ConfirmProvider";
+import SelectField from "@/app/components/SelectField";
 import AutoResizeTextarea from "./AutoResizeTextarea";
 
 export interface ItemRow {
@@ -47,9 +49,18 @@ export default function WorkSection({
   onRemove,
   onMove,
 }: Props) {
+  const confirmDelete = useConfirmDelete();
   const availableWorks = workList.filter(
     (w) => w.category === category && !items.some((item) => item.plan === w.content)
   );
+
+  async function confirmRemove(index: number) {
+    const ok = await confirmDelete({
+      message: `确定删除这条${title}吗？`,
+    });
+    if (!ok) return;
+    onRemove(index);
+  }
 
   return (
     <div className="rounded-lg bg-white p-6 shadow-sm">
@@ -71,7 +82,7 @@ export default function WorkSection({
                     className="rounded px-2 py-0.5 text-xs text-gray-500 hover:bg-gray-100 disabled:opacity-30">↑</button>
                   <button type="button" onClick={() => onMove(index, 1)} disabled={index === items.length - 1}
                     className="rounded px-2 py-0.5 text-xs text-gray-500 hover:bg-gray-100 disabled:opacity-30">↓</button>
-                  <button type="button" onClick={() => onRemove(index)}
+                  <button type="button" onClick={() => confirmRemove(index)}
                     className="rounded px-2 py-0.5 text-xs text-red-500 hover:bg-red-50">删除</button>
                 </div>
               )}
@@ -104,16 +115,13 @@ export default function WorkSection({
         <div className="mt-3">
           {showImport ? (
             <div className="flex items-center gap-2">
-              <select
+              <SelectField
                 value=""
-                onChange={(e) => onImportWork(e.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-emerald-400 focus:outline-none"
-              >
-                <option value="">选择工作清单中的工作...</option>
-                {availableWorks.map((w) => (
-                  <option key={w.id} value={w.content}>{w.content}</option>
-                ))}
-              </select>
+                onChange={(nextValue) => onImportWork(nextValue)}
+                placeholder="选择工作清单中的工作..."
+                options={availableWorks.map((w) => ({ value: w.content, label: w.content }))}
+                selectClassName="min-w-64 px-3 py-2 text-sm"
+              />
               <button type="button" onClick={() => onShowImport(false)}
                 className="text-sm text-gray-500 hover:text-gray-700">取消</button>
             </div>

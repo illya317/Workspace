@@ -1,5 +1,7 @@
 "use client";
 
+import { SelectField } from "@workspace/core/ui";
+
 interface DeptBudgetFiltersProps {
   deptFilter: string;
   setDeptFilter: (v: string) => void;
@@ -32,42 +34,33 @@ export default function DeptBudgetFilters({
       <div className="flex flex-wrap items-center gap-3 rounded-lg bg-white p-3 shadow-sm">
         <div className="flex items-center gap-2">
           <label className="text-xs text-gray-500">部门</label>
-          <select
+          <SelectField
             value={deptFilter}
-            onChange={(e) => setDeptFilter(e.target.value)}
-            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">全部部门</option>
-            {deptOptions.map((d) => (
-              <option key={d} value={d}>{d}</option>
-            ))}
-          </select>
+            onChange={setDeptFilter}
+            placeholder="全部部门"
+            options={deptOptions.map((d) => ({ value: d, label: d }))}
+            selectClassName="min-w-28 px-2 py-1 text-xs"
+          />
         </div>
         <div className="flex items-center gap-2">
           <label className="text-xs text-gray-500">费用类型</label>
-          <select
+          <SelectField
             value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">全部类型</option>
-            {typeOptions.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
+            onChange={setTypeFilter}
+            placeholder="全部类型"
+            options={typeOptions.map((t) => ({ value: t, label: t }))}
+            selectClassName="min-w-28 px-2 py-1 text-xs"
+          />
         </div>
         <div className="flex items-center gap-2">
           <label className="text-xs text-gray-500">科目</label>
-          <select
+          <SelectField
             value={accountFilter}
-            onChange={(e) => setAccountFilter(e.target.value)}
-            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">全部科目</option>
-            {accountOptions.map((a) => (
-              <option key={a} value={a}>{a}</option>
-            ))}
-          </select>
+            onChange={setAccountFilter}
+            placeholder="全部科目"
+            options={accountOptions.map((a) => ({ value: a, label: a }))}
+            selectClassName="min-w-28 px-2 py-1 text-xs"
+          />
         </div>
         {(deptFilter || typeFilter || accountFilter) && (
           <button

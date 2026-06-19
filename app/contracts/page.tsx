@@ -1,6 +1,6 @@
 import { requireResourceAccess } from "@/server/auth/guard";
-import AppShell from "@/app/components/AppShell";
-import ContractsClient from "./ContractsClient";
+import { AppShell } from "@workspace/platform/ui";
+import { ContractsClient } from "@workspace/administration/ui";
 
 export default async function ContractsPage() {
   const user = await requireResourceAccess("administration.contract");

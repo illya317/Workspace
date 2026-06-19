@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SelectField } from "@workspace/core/ui";
 import type { Employee, Employment, EDP } from "./useAnalyticsData";
 import StatCard from "./shared/StatCard";
 import type { DimKey } from "./employee/constants";
@@ -53,15 +54,12 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
       <div className="bg-white rounded-lg shadow-sm p-5">
         <div className="flex items-center gap-4 mb-4">
           <h3 className="text-sm font-semibold text-gray-700">特征分布</h3>
-          <select
+          <SelectField
             value={feature}
-            onChange={(e) => setFeature(e.target.value as DimKey)}
-            className="px-3 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:border-emerald-400"
-          >
-            {featureList.map((f) => (
-              <option key={f} value={f}>{DIM_LABELS[f]}分布</option>
-            ))}
-          </select>
+            onChange={(value) => setFeature(value as DimKey)}
+            options={featureList.map((item) => ({ value: item, label: `${DIM_LABELS[item]}分布` }))}
+            selectClassName="min-h-8 w-32"
+          />
           <span className="text-xs text-gray-400">基于 {stats.active} 位在职员工</span>
         </div>
 

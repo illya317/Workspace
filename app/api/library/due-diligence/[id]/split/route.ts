@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withLibraryWrite } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
-import { getRequest, createQuestions, splitQuestionnaire } from "@/server/services/library/due-diligence";
+import { getRequest, createQuestions, splitQuestionnaire } from "@workspace/library/server/due-diligence";
 
 async function parseId(ctx?: RouteContext) {
   const { id } = await ctx!.params;

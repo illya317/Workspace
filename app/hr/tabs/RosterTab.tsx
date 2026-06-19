@@ -3,9 +3,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { workspacePath } from "@/app/lib/api-path";
 import HRToolbar from "@/app/components/HRToolbar";
-import SearchBox from "@/app/components/SearchBox";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
+import { EntitySearchInput } from "@workspace/hr/ui";
 
 import type { HRUser as User, RosterEmployee as Employee } from "../types";
 
@@ -119,11 +119,13 @@ export default function RosterTab({ user: _user, selectedCompany }: { user: User
         onKeywordEnter={loadRoster}
         onReset={() => { setFilterDept(""); setKeyword(""); setRosterFilter("在职"); setResetKey((k) => k + 1); loadRoster(); }}
       >
-        <div className="w-48">
-          <SearchBox key={resetKey} config={{ target: "department" }}
+        <div className="w-48" key={resetKey}>
+          <EntitySearchInput
+            value={filterDept}
+            entity="department"
             placeholder="部门筛选"
-            onSelect={(item: { name: string }) => setFilterDept(item.name)}
-            renderItem={(item: { name: string }) => <span>{item.name}</span>} />
+            onChange={(value) => setFilterDept(value)}
+          />
         </div>
         <button onClick={downloadExcel}
           className="rounded-md border border-emerald-300 px-3 py-2 text-sm text-emerald-600 hover:bg-emerald-50">

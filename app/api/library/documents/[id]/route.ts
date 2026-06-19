@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { withLibraryAccess } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
-import { getDocument, updateDocumentMetadata, archiveDocument } from "@/server/services/library/metadata";
-import { validateBody } from "@/server/services/library/document-validation";
+import { getDocument, updateDocumentMetadata, archiveDocument } from "@workspace/library/server/metadata";
+import { validateBody } from "@workspace/library/server/document-validation";
 import {
   getMaxConfidentialityLevel,
   checkLibraryWrite,
   checkLibraryAdmin,
   checkLibraryDelete,
-} from "@/server/services/library/permissions";
+} from "@workspace/library/server/permissions";
 
 async function checkDocAccess(docId: number, userId: number) {
   const doc = await getDocument(docId);

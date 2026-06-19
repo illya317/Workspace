@@ -1,276 +1,127 @@
 #!/usr/bin/env node
 
-/**
- * 硬约束：module-nav.tsx 中的每个模块/子模块必须配置 resourceKey。
- * settings 模块作为白名单放行（个人设置类页面天然登录可见）。
- *
- * 实现：使用 TypeScript AST 精确区分父对象自身属性与 children 数组内部，
- * 避免文本正则把子模块的 resourceKey 误算到父模块上。
- */
-
-const fs = require("fs");
 const path = require("path");
-
-const ROOT = path.resolve(__dirname, "..", "..");
-const NAV_PATH = path.join(ROOT, "app", "lib", "module-nav.tsx");
+const { collectModuleDefs, collectRoutes, REGISTRY_GLOBS, ROOT } = require("./module-registry-reader");
 
 const WHITELIST_MODULES = new Set(["settings"]);
 
-function readText(filePath) {
-  return fs.readFileSync(filePath, "utf8");
+function displayPath(filePath) {
+  return path.relative(ROOT, filePath).replace(/\\/g, "/");
 }
 
-function parseNavFile(filePath) {
-  const ts = require("typescript");
-  const text = readText(filePath);
-  const sourceFile = ts.createSourceFile(
-    filePath,
-    text,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TSX,
-  );
-  return { ts, sourceFile, text };
+function getPathViolation(value) {
+  if (!value) return null;
+  if (value.startsWith("@workspace/")) return "不能把 package 名写进 URL，请使用站内路径如 /hr/roster";
+  if (value.startsWith("/workspace/")) return "不能手写 basePath /workspace，请使用不带 basePath 的站内路径";
+  if (!value.startsWith("/")) return "必须使用以 / 开头的站内绝对路径";
+  return null;
 }
 
-function getLine(sourceFile, pos) {
-  return sourceFile.getLineAndCharacterOfPosition(pos).line + 1;
-}
-
-function getPropertyName(ts, prop) {
-  if (ts.isPropertyAssignment(prop) || ts.isShorthandPropertyAssignment(prop) || ts.isMethodDeclaration(prop)) {
-    if (ts.isIdentifier(prop.name) || ts.isStringLiteral(prop.name)) {
-      return prop.name.text;
-    }
-  }
-  if (ts.isPropertyAssignment(prop) && ts.isComputedPropertyName(prop.name)) {
-    if (ts.isStringLiteral(prop.name.expression)) {
-      return prop.name.expression.text;
-    }
-  }
-  return undefined;
-}
-
-function getObjectProperty(ts, obj, name) {
-  if (!ts.isObjectLiteralExpression(obj)) return undefined;
-  for (const prop of obj.properties) {
-    const propName = getPropertyName(ts, prop);
-    if (propName === name) return prop;
-  }
-  return undefined;
-}
-
-function getKeyValue(ts, obj) {
-  const keyProp = getObjectProperty(ts, obj, "key");
-  if (!keyProp) return undefined;
-  if (ts.isPropertyAssignment(keyProp)) {
-    if (ts.isStringLiteral(keyProp.initializer)) {
-      return keyProp.initializer.text;
-    }
-  }
-  if (ts.isShorthandPropertyAssignment(keyProp) && ts.isIdentifier(keyProp.name)) {
-    return keyProp.name.text;
-  }
-  return undefined;
-}
-
-function hasOwnGate(ts, obj) {
-  if (!ts.isObjectLiteralExpression(obj)) return false;
-  for (const prop of obj.properties) {
-    const propName = getPropertyName(ts, prop);
-    if (propName === "resourceKey") {
-      return true;
-    }
-  }
-  return false;
-}
-
-function collectViolations(ts, sourceFile, arrayNode, pathPrefix, violations) {
-  if (!arrayNode) return;
-  if (!ts.isArrayLiteralExpression(arrayNode)) return;
-
-  for (const element of arrayNode.elements) {
-    if (!ts.isObjectLiteralExpression(element)) continue;
-
-    const key = getKeyValue(ts, element);
-    const fullKey = pathPrefix ? `${pathPrefix}.${key}` : key;
-    const line = getLine(sourceFile, element.getStart(sourceFile));
-
-    const isWhitelisted = !pathPrefix && WHITELIST_MODULES.has(key);
-    if (!isWhitelisted && !hasOwnGate(ts, element)) {
+function runCheck() {
+  const moduleDefs = collectModuleDefs();
+  const routes = collectRoutes();
+  const violations = [];
+  for (const def of moduleDefs) {
+    const isWhitelisted = !def.parentKey && WHITELIST_MODULES.has(def.key);
+    if (!isWhitelisted && !def.hasResourceKey) {
       violations.push({
-        key: fullKey,
-        line,
-        message: `${pathPrefix ? "子模块" : "模块"} "${fullKey}" 缺少 resourceKey`,
+        filePath: def.filePath,
+        line: def.line,
+        message: `${def.parentKey ? "子模块" : "模块"} "${def.key}" 缺少 resourceKey`,
       });
     }
-
-    const childrenProp = getObjectProperty(ts, element, "children");
-    if (childrenProp && ts.isPropertyAssignment(childrenProp)) {
-      const childrenInit = childrenProp.initializer;
-      if (ts.isArrayLiteralExpression(childrenInit)) {
-        collectViolations(ts, sourceFile, childrenInit, key, violations);
-      }
+    const hrefViolation = getPathViolation(def.href);
+    if (hrefViolation) {
+      violations.push({
+        filePath: def.filePath,
+        line: def.line,
+        message: `${def.parentKey ? "子模块" : "模块"} "${def.key}" href="${def.href}" 无效：${hrefViolation}`,
+      });
     }
   }
-}
-
-function findModulesArray(ts, sourceFile) {
-  let modulesArray = null;
-
-  function visit(node) {
-    if (modulesArray) return;
-    if (
-      ts.isVariableDeclaration(node) &&
-      ts.isIdentifier(node.name) &&
-      node.name.text === "MODULES" &&
-      node.initializer &&
-      ts.isArrayLiteralExpression(node.initializer)
-    ) {
-      modulesArray = node.initializer;
-      return;
+  for (const route of routes) {
+    const routeViolation = getPathViolation(route.route);
+    if (routeViolation) {
+      violations.push({
+        filePath: route.filePath,
+        line: route.line,
+        message: `routes 包含无效路径 "${route.route}"：${routeViolation}`,
+      });
     }
-    ts.forEachChild(node, visit);
   }
-
-  visit(sourceFile);
-  return modulesArray;
-}
-
-function runCheck(filePath) {
-  if (!fs.existsSync(filePath)) {
-    console.error(`✗ module-nav file not found: ${filePath}`);
-    process.exit(1);
-  }
-
-  const { ts, sourceFile } = parseNavFile(filePath);
-  const modulesArray = findModulesArray(ts, sourceFile);
-
-  if (!modulesArray) {
-    console.error("✗ MODULES array not found in module-nav.tsx");
-    process.exit(1);
-  }
-
-  const violations = [];
-  collectViolations(ts, sourceFile, modulesArray, "", violations);
 
   if (violations.length > 0) {
-    console.error("✗ Module-nav access gate check failed.");
+    console.error("✗ Module registry access gate check failed.");
     for (const v of violations) {
-      console.error(`  app/lib/module-nav.tsx:${v.line} — ${v.message}`);
+      console.error(`  ${displayPath(v.filePath)}:${v.line} — ${v.message}`);
     }
-    return { ok: false, violations };
+    return false;
   }
 
-  return { ok: true, violations: [] };
+  console.log("✓ Module registry access gate check passed.");
+  return true;
 }
-
-function main() {
-  const result = runCheck(NAV_PATH);
-  if (result.ok) {
-    console.log("✓ Module-nav access gate check passed.");
-  } else {
-    process.exit(1);
-  }
-}
-
-// ─── Fixture tests ─────────────────────────────────────────
 
 function runFixtures() {
-  const ts = require("typescript");
-
-  function makeSource(text) {
-    return ts.createSourceFile("fixture.tsx", text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-  }
-
-  function expectResult(text, expectedOk, label) {
-    const sourceFile = makeSource(text);
-    const modulesArray = findModulesArray(ts, sourceFile);
-    if (!modulesArray) {
-      console.error(`  ✗ fixture "${label}": MODULES array not found`);
-      return false;
-    }
-    const violations = [];
-    collectViolations(ts, sourceFile, modulesArray, "", violations);
-    const ok = violations.length === 0;
-    if (ok !== expectedOk) {
-      console.error(
-        `  ✗ fixture "${label}": expected ${expectedOk ? "pass" : "fail"}, got ${ok ? "pass" : "fail"}`,
-      );
-      if (violations.length) {
-        for (const v of violations) {
-          console.error(`      line ${v.line}: ${v.message}`);
-        }
-      }
-      return false;
-    }
-    console.log(`  ✓ fixture "${label}" ${expectedOk ? "passes" : "fails"} as expected`);
-    return true;
-  }
-
-  const fixtures = [
+  const fs = require("fs");
+  const os = require("os");
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "module-registry-fixtures-"));
+  const fixturePath = path.join(tmpDir, "module.ts");
+  const cases = [
     {
-      label: "parent missing gate, child has gate → fail",
-      text: `export const MODULES: any[] = [
-        { key: "finance", label: "财务", href: "/finance", icon: null, color: "amber",
-          children: [
-            { key: "tax", label: "税务", href: "/finance/tax", resourceKey: "finance.tax" },
-          ],
-        },
-      ];`,
+      label: "parent missing gate, child has gate -> fail",
+      text: `export const pkg = { moduleDef: { key: "finance", label: "财务", href: "/finance", iconKey: "finance", color: "amber", children: [{ key: "tax", label: "税务", href: "/finance/tax", resourceKey: "finance.tax" }] } };`,
       expectedOk: false,
     },
     {
-      label: "parent has gate, child has gate → pass",
-      text: `export const MODULES: any[] = [
-        { key: "finance", label: "财务", href: "/finance", icon: null, color: "amber", resourceKey: "finance",
-          children: [
-            { key: "tax", label: "税务", href: "/finance/tax", resourceKey: "finance.tax" },
-          ],
-        },
-      ];`,
+      label: "parent has gate, child has gate -> pass",
+      text: `export const pkg = { moduleDef: { key: "finance", label: "财务", href: "/finance", iconKey: "finance", color: "amber", resourceKey: "finance", children: [{ key: "tax", label: "税务", href: "/finance/tax", resourceKey: "finance.tax" }] } };`,
       expectedOk: true,
     },
     {
-      label: "settings module without gate → pass",
-      text: `export const MODULES: any[] = [
-        { key: "settings", label: "设置", href: "/settings", icon: null, color: "orange" },
-      ];`,
+      label: "settings module without gate -> pass",
+      text: `export const pkg = { moduleDef: { key: "settings", label: "设置", href: "/settings", iconKey: "settings", color: "orange" } };`,
       expectedOk: true,
     },
     {
-      label: "parent missing gate, no children → fail",
-      text: `export const MODULES: any[] = [
-        { key: "library", label: "资料库", href: "/library", icon: null, color: "orange" },
-      ];`,
+      label: "package name used as href -> fail",
+      text: `export const pkg = { moduleDef: { key: "hr", label: "人事", href: "/hr", iconKey: "hr", color: "blue", resourceKey: "people", children: [{ key: "roster", label: "花名册", href: "@workspace/hr/roster", resourceKey: "people.roster" }] } };`,
       expectedOk: false,
     },
     {
-      label: "child missing gate → fail",
-      text: `export const MODULES: any[] = [
-        { key: "finance", label: "财务", href: "/finance", icon: null, color: "amber", resourceKey: "finance",
-          children: [
-            { key: "tax", label: "税务", href: "/finance/tax" },
-          ],
-        },
-      ];`,
+      label: "basePath used as href -> fail",
+      text: `export const pkg = { moduleDef: { key: "hr", label: "人事", href: "/workspace/hr", iconKey: "hr", color: "blue", resourceKey: "people" } };`,
+      expectedOk: false,
+    },
+    {
+      label: "package name used as route -> fail",
+      text: `export const pkg = { moduleDef: { key: "hr", label: "人事", href: "/hr", iconKey: "hr", color: "blue", resourceKey: "people" }, routes: ["/hr", "@workspace/hr/roster"] };`,
       expectedOk: false,
     },
   ];
 
-  console.log("Running fixtures...");
   let allPassed = true;
-  for (const f of fixtures) {
-    if (!expectResult(f.text, f.expectedOk, f.label)) {
+  for (const c of cases) {
+    fs.writeFileSync(fixturePath, c.text);
+    const defs = collectModuleDefs([fixturePath]);
+    const routes = collectRoutes([fixturePath]);
+    const ok = defs.every((def) => {
+      const isWhitelisted = !def.parentKey && WHITELIST_MODULES.has(def.key);
+      return (isWhitelisted || def.hasResourceKey) && !getPathViolation(def.href);
+    }) && routes.every((route) => !getPathViolation(route.route));
+    if (ok !== c.expectedOk) {
       allPassed = false;
+      console.error(`  ✗ fixture "${c.label}": expected ${c.expectedOk ? "pass" : "fail"}, got ${ok ? "pass" : "fail"}`);
+    } else {
+      console.log(`  ✓ fixture "${c.label}" ${c.expectedOk ? "passes" : "fails"} as expected`);
     }
   }
   return allPassed;
 }
 
 if (process.argv.includes("--fixtures")) {
-  const ok = runFixtures();
-  process.exit(ok ? 0 : 1);
-} else {
-  main();
+  console.log(`Checking fixtures for ${REGISTRY_GLOBS.length} registry files...`);
+  process.exit(runFixtures() ? 0 : 1);
 }
+
+process.exit(runCheck() ? 0 : 1);

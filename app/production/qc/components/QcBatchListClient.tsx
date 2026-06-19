@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { SelectField } from "@workspace/core/ui";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import Toast from "@/app/components/Toast";
 import type { QcBatchList, QcBatchSummary, QcRecordTemplateSummary } from "@/server/services/production/qc";
@@ -88,19 +89,14 @@ export default function QcBatchListClient({ initialData, products }: Props) {
           <h2 className="text-sm font-semibold text-slate-900">新建批次</h2>
         </div>
         <div className="grid gap-3 p-4 md:grid-cols-[minmax(220px,1.1fr)_minmax(220px,1fr)_auto] md:items-end">
-          <label className="block text-xs font-semibold text-slate-600">
-            产品
-            <select
-              value={productKey}
-              onChange={(event) => setProductKey(event.target.value)}
-              className="mt-2 h-11 w-full appearance-none rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-900 outline-none focus:border-emerald-600"
-              style={{ backgroundImage: "none" }}
-            >
-              {products.map((product) => (
-                <option key={product.id} value={product.id}>{product.productName}</option>
-              ))}
-            </select>
-          </label>
+          <SelectField
+            label="产品"
+            value={productKey}
+            onChange={setProductKey}
+            options={products.map((product) => ({ value: product.id, label: product.productName }))}
+            className="block font-semibold text-slate-600"
+            selectClassName="mt-2 h-11 px-3 text-sm"
+          />
           <label className="block text-xs font-semibold text-slate-600">
             批号
             <input

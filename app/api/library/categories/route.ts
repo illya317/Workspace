@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withLibraryAccess } from "@/lib/with-auth";
-import { listCategories } from "@/server/services/library/metadata";
-import { buildConfidentialityFilter } from "@/server/services/library/permissions";
+import { listCategories } from "@workspace/library/server/metadata";
+import { buildConfidentialityFilter } from "@workspace/library/server/permissions";
 
 export const GET = withLibraryAccess(async (_request: Request, user) => {
   const confFilter = await buildConfidentialityFilter(user.userId);

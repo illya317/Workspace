@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectField } from "@workspace/core/ui";
 import type { CostFiltersState } from "../types";
 
 interface Props {
@@ -19,34 +20,24 @@ export default function CostFilters({ filters, onChange }: Props) {
     <div className="flex flex-wrap items-end gap-3 rounded-lg bg-white p-4 shadow-sm">
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-gray-500">年份</label>
-        <select
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-          value={filters.year ?? ""}
-          onChange={(e) => update("year", e.target.value ? parseInt(e.target.value) : undefined)}
-        >
-          <option value="">全部</option>
-          {years.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
+        <SelectField
+          value={filters.year == null ? "" : String(filters.year)}
+          onChange={(nextValue) => update("year", nextValue ? parseInt(nextValue) : undefined)}
+          placeholder="全部"
+          options={years.map((y) => ({ value: String(y), label: String(y) }))}
+          selectClassName="min-w-24 px-3 py-2 text-sm"
+        />
       </div>
 
       <div className="flex flex-col gap-1">
         <label className="text-xs font-medium text-gray-500">月份</label>
-        <select
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-          value={filters.month ?? ""}
-          onChange={(e) => update("month", e.target.value ? parseInt(e.target.value) : undefined)}
-        >
-          <option value="">全部</option>
-          {months.map((m) => (
-            <option key={m} value={m}>
-              {m}月
-            </option>
-          ))}
-        </select>
+        <SelectField
+          value={filters.month == null ? "" : String(filters.month)}
+          onChange={(nextValue) => update("month", nextValue ? parseInt(nextValue) : undefined)}
+          placeholder="全部"
+          options={months.map((m) => ({ value: String(m), label: `${m}月` }))}
+          selectClassName="min-w-24 px-3 py-2 text-sm"
+        />
       </div>
 
       <div className="flex flex-col gap-1">

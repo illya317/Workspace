@@ -19,7 +19,7 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
-    "arch:check": "node scripts/check/check-architecture-governance.js && npm run module-nav:check && node scripts/check/check-module-page-gates.js",
+    "arch:check": "node scripts/check/check-architecture-governance.js && npm run module-nav:check && node scripts/check/check-resource-registry.js && node scripts/check/check-module-page-gates.js && node scripts/check/check-package-boundaries.js",
     "module-nav:check": "node scripts/check/check-module-nav-gates.js && node scripts/check/check-module-nav-gates.js --fixtures",
     "db:check": "node scripts/check/check-db.js",
     "db:path:check": "node scripts/check/check-database-paths.js",

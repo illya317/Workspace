@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
 import { matchAnyField } from "@/lib/search-schema";
-import { snapshotHistory } from "@/lib/history";
+import { snapshotHistory } from "@workspace/platform/server/history";
 import { loadCompanyMap, getCompanyNameSync } from "@/server/services/hr/company-directory";
 
 export interface PositionListItem {

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/server/auth/session";
-import AppShell from "@/app/components/AppShell";
-import SettingsClient from "./SettingsClient";
+import { AppShell } from "@workspace/platform/ui";
+import { SettingsClient } from "@workspace/platform/ui/settings";
 
 export default async function SettingsPage() {
   const user = await getCurrentUser();

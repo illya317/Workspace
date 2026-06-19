@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import SelectField from "./SelectField";
 
 interface Group {
   id: number;
@@ -52,21 +53,16 @@ export default function ReportGroupSwitcher({ value, onChange }: Props) {
   }
 
   return (
-    <select
-      value={value ?? ""}
-      onChange={(e) => {
-        const id = e.target.value ? parseInt(e.target.value) : null;
+    <SelectField
+      value={value == null ? "" : String(value)}
+      onChange={(nextValue) => {
+        const id = nextValue ? parseInt(nextValue) : null;
         const group = id ? groups.find((g) => g.id === id) || null : null;
         onChange(group);
       }}
-      className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700 focus:border-emerald-400 focus:outline-none"
-    >
-      <option value="">选择分组...</option>
-      {groups.map((g) => (
-        <option key={g.id} value={g.id}>
-          {g.name}
-        </option>
-      ))}
-    </select>
+      placeholder="选择分组..."
+      options={groups.map((g) => ({ value: String(g.id), label: g.name }))}
+      selectClassName="min-w-32 px-2 py-1 text-xs"
+    />
   );
 }

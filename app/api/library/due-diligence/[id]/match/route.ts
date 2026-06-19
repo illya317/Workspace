@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { withLibraryWrite } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
-import { getRequest, clearMaterialSelections, createMaterialSelections } from "@/server/services/library/due-diligence";
-import { matchDocumentsForQuestion } from "@/server/services/library/matching";
-import { getMaxConfidentialityLevel } from "@/server/services/library/permissions";
+import { getRequest, clearMaterialSelections, createMaterialSelections } from "@workspace/library/server/due-diligence";
+import { matchDocumentsForQuestion } from "@workspace/library/server/matching";
+import { getMaxConfidentialityLevel } from "@workspace/library/server/permissions";
 
 async function parseId(ctx?: RouteContext) {
   const { id } = await ctx!.params;

@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
-import { Prisma } from "@/generated/prisma/client";
-import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@/lib/auth";
-import { getPositionList, updatePosition, deletePosition } from "@/server/services/hr/positions";
-import { handleCreate } from "@/lib/crud";
-import { PositionCreateSchema, parseJson } from "@/lib/schemas";
-
-const CONFIG = { entityType: "Position", modelKey: "position" as const };
+import { Prisma } from "@workspace/platform/server/prisma";
+import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
+import { createPosition, deletePosition, getPositionList, updatePosition } from "@workspace/hr/server";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -26,9 +22,9 @@ export async function POST(request: Request) {
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
   if (!(await checkHRWrite(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
-  const parsed = await parseJson(request, PositionCreateSchema);
-  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
-  return handleCreate(request, CONFIG, () => parsed.data);
+  const result = await createPosition(request);
+  if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
+  return result.response;
 }
 
 export async function PUT(request: Request) {

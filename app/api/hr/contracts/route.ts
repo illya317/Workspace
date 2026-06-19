@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkHRAccess, checkHRWrite } from "@/lib/auth";
-import { getContracts, addContract } from "@/server/services/contracts";
-import { isValidCompanyName, isValidDateValue, validateContractOption } from "@/lib/hr-field-validation";
+import { authenticate, checkHRAccess, checkHRWrite } from "@workspace/platform/server/auth";
+import {
+  addContract,
+  getContracts,
+  isValidCompanyName,
+  isValidDateValue,
+  validateContractOption,
+} from "@workspace/hr/server";
 
 const DATE_FIELDS = [
   "firstContractStartDate", "firstContractEndDate",

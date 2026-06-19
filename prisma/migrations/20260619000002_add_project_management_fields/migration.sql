@@ -1,0 +1,10 @@
+ALTER TABLE "Project" ADD COLUMN "status" TEXT;
+ALTER TABLE "Project" ADD COLUMN "priority" TEXT;
+ALTER TABLE "Project" ADD COLUMN "stage" TEXT;
+ALTER TABLE "Project" ADD COLUMN "plan" TEXT;
+ALTER TABLE "Project" ADD COLUMN "goal" TEXT;
+ALTER TABLE "Project" ADD COLUMN "milestones" TEXT;
+ALTER TABLE "Project" ADD COLUMN "budgetAmount" REAL;
+ALTER TABLE "Project" ADD COLUMN "budgetNote" TEXT;
+ALTER TABLE "Project" ADD COLUMN "riskNote" TEXT;
+ALTER TABLE "Project" ADD COLUMN "remark" TEXT;

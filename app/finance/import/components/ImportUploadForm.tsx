@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectField } from "@workspace/core/ui";
 import { Company } from "./types";
 
 interface ImportUploadFormProps {
@@ -66,48 +67,45 @@ export default function ImportUploadForm({
         {/* Company */}
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-600">公司</label>
-          <select
+          <SelectField
             value={companyCode}
-            onChange={(e) => onCompanyChange(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-          >
-            <option value="">请选择公司</option>
-            {companies.map((c) => (
-              <option key={c.id} value={c.code}>
-                {c.code} {c.name}
-              </option>
-            ))}
-          </select>
+            onChange={onCompanyChange}
+            placeholder="请选择公司"
+            options={companies.map((c) => ({ value: c.code, label: `${c.code} ${c.name}` }))}
+            selectClassName="px-3 py-2 text-sm"
+          />
         </div>
 
         {/* Type */}
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-600">导入类型</label>
-          <select
+          <SelectField
             value={importType}
-            onChange={(e) =>
-              onTypeChange(e.target.value as "balance" | "journal" | "account")
+            onChange={(nextValue) =>
+              onTypeChange(nextValue as "balance" | "journal" | "account")
             }
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-          >
-            <option value="balance">余额表</option>
-            <option value="journal">序时账</option>
-            <option value="account">科目表</option>
-          </select>
+            options={[
+              { value: "balance", label: "余额表" },
+              { value: "journal", label: "序时账" },
+              { value: "account", label: "科目表" },
+            ]}
+            selectClassName="px-3 py-2 text-sm"
+          />
         </div>
 
         {/* Year */}
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-600">年度</label>
-          <select
+          <SelectField
             value={year}
-            onChange={(e) => onYearChange(e.target.value)}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-          >
-            <option value="2024">2024</option>
-            <option value="2025">2025</option>
-            <option value="2026">2026</option>
-          </select>
+            onChange={onYearChange}
+            options={[
+              { value: "2024", label: "2024" },
+              { value: "2025", label: "2025" },
+              { value: "2026", label: "2026" },
+            ]}
+            selectClassName="px-3 py-2 text-sm"
+          />
         </div>
 
         {/* File */}

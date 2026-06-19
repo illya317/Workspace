@@ -114,6 +114,7 @@ const KNOWN_PREFIXES = [
   "user",
   "week-info",
   "works",
+  "work",
   "my-api-key",
   "my-targets",
   "position-descriptions",

@@ -1,7 +1,7 @@
 "use client";
 
-import type { DataTableColumn } from "@/app/components/DataTable";
-import CompanyNameCell from "@/app/components/CompanyNameCell";
+import type { DataTableColumn } from "@workspace/core/ui";
+import { CompanyNameCell } from "@workspace/platform/ui";
 import type { Voucher } from "./types";
 
 const fmt = (n: number) =>

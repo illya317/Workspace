@@ -96,15 +96,16 @@ function renderAdvancedField({ part, key, field, fieldType, sourceKey, hasLayout
 }) {
   const resolvedSourceKey = sourceKey || referenceSourceKeyForPart(part, field, context.test);
   const isDuplicateReadonlyDisplay = !!key && part.readonlyDisplay && context.firstPartByKey?.has(key) && context.firstPartByKey.get(key) !== part;
+  const isReadonlyReferenceDisplay = !!key && part.readonlyDisplay;
   const isReferenceOutput = !!resolvedSourceKey || (!hasLayoutFormula && (isReferenceFormula(field, context.test) || isReadonlyReferencePart(part, field)));
-  const effectiveReferenceOutput = isReferenceOutput || isDuplicateReadonlyDisplay;
+  const effectiveReferenceOutput = isReferenceOutput || isDuplicateReadonlyDisplay || isReadonlyReferenceDisplay;
   const isFormulaOutput = (hasLayoutFormula || field?.attr === "calculated") && !effectiveReferenceOutput;
   const isFormulaInput = !!key && context.formulaInputKeys?.has(key);
   const kind = effectiveReferenceOutput ? "reference" : isFormulaOutput ? "formulaOutput" : isFormulaInput ? "formulaInput" : "input";
   const badgeFieldKey = key || part.field || part.name;
   const formulaText = resolvedSourceKey
     ? referenceFormulaText(resolvedSourceKey)
-    : isDuplicateReadonlyDisplay
+    : isDuplicateReadonlyDisplay || isReadonlyReferenceDisplay
       ? referenceFormulaText(key)
       : effectiveReferenceOutput || isFormulaOutput || part.advancedFormulaText || part.advancedFormulaTextMap
         ? resolveAdvancedFormulaText(part, context.values, field)

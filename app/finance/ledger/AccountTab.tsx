@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import Toast from "@/app/components/Toast";
 import { useToast } from "@/app/hooks/useToast";
-import { getDefaultVisibleColumns } from "@/app/components/DataTable";
+import { getDefaultVisibleColumns } from "@workspace/core/ui";
 import FilterField from "@/app/components/FilterField";
 import StatusToggle from "@/app/components/StatusToggle";
-import AccountTable, { type Account, ACCOUNT_COLUMNS } from "../components/AccountTable";
+import { AccountTable, ACCOUNT_COLUMNS, type Account } from "@workspace/finance/ui";
 import ReclassConfigView from "../components/ReclassConfigView";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";

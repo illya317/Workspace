@@ -28,12 +28,14 @@ export type AggregateProject = {
 
 export type ProjectAvgAggregateOutputType = {
   id: number | null
+  budgetAmount: number | null
   editedBy: number | null
   version: number | null
 }
 
 export type ProjectSumAggregateOutputType = {
   id: number | null
+  budgetAmount: number | null
   editedBy: number | null
   version: number | null
 }
@@ -43,6 +45,16 @@ export type ProjectMinAggregateOutputType = {
   name: string | null
   type: string | null
   description: string | null
+  status: string | null
+  priority: string | null
+  stage: string | null
+  plan: string | null
+  goal: string | null
+  milestones: string | null
+  budgetAmount: number | null
+  budgetNote: string | null
+  riskNote: string | null
+  remark: string | null
   startDate: Date | null
   endDate: Date | null
   editedBy: number | null
@@ -57,6 +69,16 @@ export type ProjectMaxAggregateOutputType = {
   name: string | null
   type: string | null
   description: string | null
+  status: string | null
+  priority: string | null
+  stage: string | null
+  plan: string | null
+  goal: string | null
+  milestones: string | null
+  budgetAmount: number | null
+  budgetNote: string | null
+  riskNote: string | null
+  remark: string | null
   startDate: Date | null
   endDate: Date | null
   editedBy: number | null
@@ -71,6 +93,16 @@ export type ProjectCountAggregateOutputType = {
   name: number
   type: number
   description: number
+  status: number
+  priority: number
+  stage: number
+  plan: number
+  goal: number
+  milestones: number
+  budgetAmount: number
+  budgetNote: number
+  riskNote: number
+  remark: number
   startDate: number
   endDate: number
   editedBy: number
@@ -84,12 +116,14 @@ export type ProjectCountAggregateOutputType = {
 
 export type ProjectAvgAggregateInputType = {
   id?: true
+  budgetAmount?: true
   editedBy?: true
   version?: true
 }
 
 export type ProjectSumAggregateInputType = {
   id?: true
+  budgetAmount?: true
   editedBy?: true
   version?: true
 }
@@ -99,6 +133,16 @@ export type ProjectMinAggregateInputType = {
   name?: true
   type?: true
   description?: true
+  status?: true
+  priority?: true
+  stage?: true
+  plan?: true
+  goal?: true
+  milestones?: true
+  budgetAmount?: true
+  budgetNote?: true
+  riskNote?: true
+  remark?: true
   startDate?: true
   endDate?: true
   editedBy?: true
@@ -113,6 +157,16 @@ export type ProjectMaxAggregateInputType = {
   name?: true
   type?: true
   description?: true
+  status?: true
+  priority?: true
+  stage?: true
+  plan?: true
+  goal?: true
+  milestones?: true
+  budgetAmount?: true
+  budgetNote?: true
+  riskNote?: true
+  remark?: true
   startDate?: true
   endDate?: true
   editedBy?: true
@@ -127,6 +181,16 @@ export type ProjectCountAggregateInputType = {
   name?: true
   type?: true
   description?: true
+  status?: true
+  priority?: true
+  stage?: true
+  plan?: true
+  goal?: true
+  milestones?: true
+  budgetAmount?: true
+  budgetNote?: true
+  riskNote?: true
+  remark?: true
   startDate?: true
   endDate?: true
   editedBy?: true
@@ -228,6 +292,16 @@ export type ProjectGroupByOutputType = {
   name: string
   type: string
   description: string | null
+  status: string | null
+  priority: string | null
+  stage: string | null
+  plan: string | null
+  goal: string | null
+  milestones: string | null
+  budgetAmount: number | null
+  budgetNote: string | null
+  riskNote: string | null
+  remark: string | null
   startDate: Date | null
   endDate: Date | null
   editedBy: number | null
@@ -265,6 +339,16 @@ export type ProjectWhereInput = {
   name?: Prisma.StringFilter<"Project"> | string
   type?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
+  status?: Prisma.StringNullableFilter<"Project"> | string | null
+  priority?: Prisma.StringNullableFilter<"Project"> | string | null
+  stage?: Prisma.StringNullableFilter<"Project"> | string | null
+  plan?: Prisma.StringNullableFilter<"Project"> | string | null
+  goal?: Prisma.StringNullableFilter<"Project"> | string | null
+  milestones?: Prisma.StringNullableFilter<"Project"> | string | null
+  budgetAmount?: Prisma.FloatNullableFilter<"Project"> | number | null
+  budgetNote?: Prisma.StringNullableFilter<"Project"> | string | null
+  riskNote?: Prisma.StringNullableFilter<"Project"> | string | null
+  remark?: Prisma.StringNullableFilter<"Project"> | string | null
   startDate?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   editedBy?: Prisma.IntNullableFilter<"Project"> | number | null
@@ -281,6 +365,16 @@ export type ProjectOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrderInput | Prisma.SortOrder
+  priority?: Prisma.SortOrderInput | Prisma.SortOrder
+  stage?: Prisma.SortOrderInput | Prisma.SortOrder
+  plan?: Prisma.SortOrderInput | Prisma.SortOrder
+  goal?: Prisma.SortOrderInput | Prisma.SortOrder
+  milestones?: Prisma.SortOrderInput | Prisma.SortOrder
+  budgetAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  budgetNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  riskNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  remark?: Prisma.SortOrderInput | Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -300,6 +394,16 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Project"> | string
   type?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
+  status?: Prisma.StringNullableFilter<"Project"> | string | null
+  priority?: Prisma.StringNullableFilter<"Project"> | string | null
+  stage?: Prisma.StringNullableFilter<"Project"> | string | null
+  plan?: Prisma.StringNullableFilter<"Project"> | string | null
+  goal?: Prisma.StringNullableFilter<"Project"> | string | null
+  milestones?: Prisma.StringNullableFilter<"Project"> | string | null
+  budgetAmount?: Prisma.FloatNullableFilter<"Project"> | number | null
+  budgetNote?: Prisma.StringNullableFilter<"Project"> | string | null
+  riskNote?: Prisma.StringNullableFilter<"Project"> | string | null
+  remark?: Prisma.StringNullableFilter<"Project"> | string | null
   startDate?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   editedBy?: Prisma.IntNullableFilter<"Project"> | number | null
@@ -316,6 +420,16 @@ export type ProjectOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  status?: Prisma.SortOrderInput | Prisma.SortOrder
+  priority?: Prisma.SortOrderInput | Prisma.SortOrder
+  stage?: Prisma.SortOrderInput | Prisma.SortOrder
+  plan?: Prisma.SortOrderInput | Prisma.SortOrder
+  goal?: Prisma.SortOrderInput | Prisma.SortOrder
+  milestones?: Prisma.SortOrderInput | Prisma.SortOrder
+  budgetAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  budgetNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  riskNote?: Prisma.SortOrderInput | Prisma.SortOrder
+  remark?: Prisma.SortOrderInput | Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -338,6 +452,16 @@ export type ProjectScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Project"> | string
   type?: Prisma.StringWithAggregatesFilter<"Project"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  status?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  priority?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  stage?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  plan?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  goal?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  milestones?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  budgetAmount?: Prisma.FloatNullableWithAggregatesFilter<"Project"> | number | null
+  budgetNote?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  riskNote?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  remark?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   startDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
   endDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"Project"> | number | null
@@ -351,6 +475,16 @@ export type ProjectCreateInput = {
   name: string
   type?: string
   description?: string | null
+  status?: string | null
+  priority?: string | null
+  stage?: string | null
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
@@ -367,6 +501,16 @@ export type ProjectUncheckedCreateInput = {
   name: string
   type?: string
   description?: string | null
+  status?: string | null
+  priority?: string | null
+  stage?: string | null
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
@@ -382,6 +526,16 @@ export type ProjectUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -398,6 +552,16 @@ export type ProjectUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -414,6 +578,16 @@ export type ProjectCreateManyInput = {
   name: string
   type?: string
   description?: string | null
+  status?: string | null
+  priority?: string | null
+  stage?: string | null
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
@@ -427,6 +601,16 @@ export type ProjectUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -441,6 +625,16 @@ export type ProjectUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -455,6 +649,16 @@ export type ProjectCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  goal?: Prisma.SortOrder
+  milestones?: Prisma.SortOrder
+  budgetAmount?: Prisma.SortOrder
+  budgetNote?: Prisma.SortOrder
+  riskNote?: Prisma.SortOrder
+  remark?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -466,6 +670,7 @@ export type ProjectCountOrderByAggregateInput = {
 
 export type ProjectAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  budgetAmount?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -475,6 +680,16 @@ export type ProjectMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  goal?: Prisma.SortOrder
+  milestones?: Prisma.SortOrder
+  budgetAmount?: Prisma.SortOrder
+  budgetNote?: Prisma.SortOrder
+  riskNote?: Prisma.SortOrder
+  remark?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -489,6 +704,16 @@ export type ProjectMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  status?: Prisma.SortOrder
+  priority?: Prisma.SortOrder
+  stage?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  goal?: Prisma.SortOrder
+  milestones?: Prisma.SortOrder
+  budgetAmount?: Prisma.SortOrder
+  budgetNote?: Prisma.SortOrder
+  riskNote?: Prisma.SortOrder
+  remark?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -500,6 +725,7 @@ export type ProjectMinOrderByAggregateInput = {
 
 export type ProjectSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  budgetAmount?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -541,6 +767,16 @@ export type ProjectCreateWithoutEmployeesInput = {
   name: string
   type?: string
   description?: string | null
+  status?: string | null
+  priority?: string | null
+  stage?: string | null
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
@@ -556,6 +792,16 @@ export type ProjectUncheckedCreateWithoutEmployeesInput = {
   name: string
   type?: string
   description?: string | null
+  status?: string | null
+  priority?: string | null
+  stage?: string | null
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
@@ -586,6 +832,16 @@ export type ProjectUpdateWithoutEmployeesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -601,6 +857,16 @@ export type ProjectUncheckedUpdateWithoutEmployeesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -615,6 +881,16 @@ export type ProjectCreateWithoutWorkAssigneesInput = {
   name: string
   type?: string
   description?: string | null
+  status?: string | null
+  priority?: string | null
+  stage?: string | null
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
@@ -630,6 +906,16 @@ export type ProjectUncheckedCreateWithoutWorkAssigneesInput = {
   name: string
   type?: string
   description?: string | null
+  status?: string | null
+  priority?: string | null
+  stage?: string | null
+  plan?: string | null
+  goal?: string | null
+  milestones?: string | null
+  budgetAmount?: number | null
+  budgetNote?: string | null
+  riskNote?: string | null
+  remark?: string | null
   startDate?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
@@ -660,6 +946,16 @@ export type ProjectUpdateWithoutWorkAssigneesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -675,6 +971,16 @@ export type ProjectUncheckedUpdateWithoutWorkAssigneesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -730,6 +1036,16 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name?: boolean
   type?: boolean
   description?: boolean
+  status?: boolean
+  priority?: boolean
+  stage?: boolean
+  plan?: boolean
+  goal?: boolean
+  milestones?: boolean
+  budgetAmount?: boolean
+  budgetNote?: boolean
+  riskNote?: boolean
+  remark?: boolean
   startDate?: boolean
   endDate?: boolean
   editedBy?: boolean
@@ -747,6 +1063,16 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   type?: boolean
   description?: boolean
+  status?: boolean
+  priority?: boolean
+  stage?: boolean
+  plan?: boolean
+  goal?: boolean
+  milestones?: boolean
+  budgetAmount?: boolean
+  budgetNote?: boolean
+  riskNote?: boolean
+  remark?: boolean
   startDate?: boolean
   endDate?: boolean
   editedBy?: boolean
@@ -761,6 +1087,16 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   type?: boolean
   description?: boolean
+  status?: boolean
+  priority?: boolean
+  stage?: boolean
+  plan?: boolean
+  goal?: boolean
+  milestones?: boolean
+  budgetAmount?: boolean
+  budgetNote?: boolean
+  riskNote?: boolean
+  remark?: boolean
   startDate?: boolean
   endDate?: boolean
   editedBy?: boolean
@@ -775,6 +1111,16 @@ export type ProjectSelectScalar = {
   name?: boolean
   type?: boolean
   description?: boolean
+  status?: boolean
+  priority?: boolean
+  stage?: boolean
+  plan?: boolean
+  goal?: boolean
+  milestones?: boolean
+  budgetAmount?: boolean
+  budgetNote?: boolean
+  riskNote?: boolean
+  remark?: boolean
   startDate?: boolean
   endDate?: boolean
   editedBy?: boolean
@@ -784,7 +1130,7 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "description" | "startDate" | "endDate" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "description" | "status" | "priority" | "stage" | "plan" | "goal" | "milestones" | "budgetAmount" | "budgetNote" | "riskNote" | "remark" | "startDate" | "endDate" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employees?: boolean | Prisma.Project$employeesArgs<ExtArgs>
   workAssignees?: boolean | Prisma.Project$workAssigneesArgs<ExtArgs>
@@ -804,6 +1150,16 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     name: string
     type: string
     description: string | null
+    status: string | null
+    priority: string | null
+    stage: string | null
+    plan: string | null
+    goal: string | null
+    milestones: string | null
+    budgetAmount: number | null
+    budgetNote: string | null
+    riskNote: string | null
+    remark: string | null
     startDate: Date | null
     endDate: Date | null
     editedBy: number | null
@@ -1240,6 +1596,16 @@ export interface ProjectFieldRefs {
   readonly name: Prisma.FieldRef<"Project", 'String'>
   readonly type: Prisma.FieldRef<"Project", 'String'>
   readonly description: Prisma.FieldRef<"Project", 'String'>
+  readonly status: Prisma.FieldRef<"Project", 'String'>
+  readonly priority: Prisma.FieldRef<"Project", 'String'>
+  readonly stage: Prisma.FieldRef<"Project", 'String'>
+  readonly plan: Prisma.FieldRef<"Project", 'String'>
+  readonly goal: Prisma.FieldRef<"Project", 'String'>
+  readonly milestones: Prisma.FieldRef<"Project", 'String'>
+  readonly budgetAmount: Prisma.FieldRef<"Project", 'Float'>
+  readonly budgetNote: Prisma.FieldRef<"Project", 'String'>
+  readonly riskNote: Prisma.FieldRef<"Project", 'String'>
+  readonly remark: Prisma.FieldRef<"Project", 'String'>
   readonly startDate: Prisma.FieldRef<"Project", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"Project", 'DateTime'>
   readonly editedBy: Prisma.FieldRef<"Project", 'Int'>

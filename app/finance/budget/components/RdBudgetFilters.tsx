@@ -1,5 +1,7 @@
 "use client";
 
+import { SelectField } from "@workspace/core/ui";
+
 interface RdBudgetFiltersProps {
   projectFilter: string;
   setProjectFilter: (v: string) => void;
@@ -26,29 +28,23 @@ export default function RdBudgetFilters({
       <div className="flex flex-wrap items-center gap-3 rounded-lg bg-white p-3 shadow-sm">
         <div className="flex items-center gap-2">
           <label className="text-xs text-gray-500">研发项目</label>
-          <select
+          <SelectField
             value={projectFilter}
-            onChange={(e) => setProjectFilter(e.target.value)}
-            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">全部项目</option>
-            {projectOptions.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
+            onChange={setProjectFilter}
+            placeholder="全部项目"
+            options={projectOptions.map((p) => ({ value: p, label: p }))}
+            selectClassName="min-w-28 px-2 py-1 text-xs"
+          />
         </div>
         <div className="flex items-center gap-2">
           <label className="text-xs text-gray-500">产品类别</label>
-          <select
+          <SelectField
             value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-          >
-            <option value="">全部类别</option>
-            {categoryOptions.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+            onChange={setCategoryFilter}
+            placeholder="全部类别"
+            options={categoryOptions.map((c) => ({ value: c, label: c }))}
+            selectClassName="min-w-28 px-2 py-1 text-xs"
+          />
         </div>
         {(projectFilter || categoryFilter) && (
           <button

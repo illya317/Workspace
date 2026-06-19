@@ -3,9 +3,9 @@ import AppShell from "@/app/components/AppShell";
 import WorksClient from "./WorksClient";
 
 export default async function WorksPage() {
-  const user = await requireResourceAccess("work");
+  const user = await requireResourceAccess("work.task");
   return (
-    <AppShell title="工作清单" backHref="/portal" navLinks={[{ label: "工作汇报", href: "/reports" }, { label: "历史记录", href: "/history" }]} user={user}>
+    <AppShell title="工作清单" backHref="/work" user={user}>
       <WorksClient user={user} hideShell />
     </AppShell>
   );

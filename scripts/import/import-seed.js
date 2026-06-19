@@ -600,6 +600,7 @@ async function main() {
         joinDate: e.joinDate || null,
         leaveDate: e.leaveDate || null,
         leaveReason: e.leaveReason || null,
+        leaveNote: e.leaveNote || null,
         officeLocation: deriveOfficeLocation(e, companyByName),
         personnelType: e.personnelType || null,
         rank: e.rank || null,

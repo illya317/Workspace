@@ -6,7 +6,7 @@ import LineConfigTab from "./LineConfigTab";
 import UnmappedTab from "./UnmappedTab";
 import BalanceCheckTab from "./BalanceCheckTab";
 import { StatementConfigProvider, useStatementConfig } from "./StatementConfigContext";
-import SelectField from "@/app/components/SelectField";
+import { SelectField } from "@workspace/core/ui";
 import { useCompanyOptions } from "@/app/hooks/useCompanyOptions";
 
 const tabs = [

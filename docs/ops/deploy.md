@@ -33,16 +33,35 @@ npm run dev
 
 ## 当前生产部署（CVM + PM2）
 
-本地不直连服务器部署。发布入口是 push 到 CNB：
+本地不直连服务器部署。`git push origin main` 只触发 CNB CI 检查，不发布生产；不要依赖 push 自动部署。
+
+源码同步流程：
 
 ```bash
+git status --short
+git add <files>
+git commit -m "<message>"
 git push origin main
 ```
 
-CNB/远端 CI 内部入口：
+生产发布必须基于已 push 到 CNB 的 commit，通过 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`：
 
 ```bash
-./ops/deploy.sh
+sha="$(git rev-parse HEAD)"
+cnb build start-build \
+  --repo illya317/workspace \
+  --branch main \
+  --sha "$sha" \
+  --event api_trigger \
+  --title "deploy ${sha:0:8}" \
+  --sync false \
+  --verbose
+```
+
+部署后用返回的 `sn` 查询状态：
+
+```bash
+cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 ```
 
 部署脚本只读取 CNB imports/CI 环境变量，不读取本机 `ops/server.env.sh`。需要在 CNB 环境里配置：
@@ -56,18 +75,19 @@ CNB/远端 CI 内部入口：
 
 部署流程：
 
-1. 本地只提交并 push 到 CNB。
-2. CNB/Linux 容器执行 `npm ci`、静态检查和 `npm run build`。
-3. CNB 将 `.next/standalone`、`.next/static`、`public` 打包为 standalone 产物。
-4. CNB 通过 SSH 上传产物到服务器，服务器解包到 `REMOTE_DIR/releases/<release>`。
-5. 服务器把 `.env`、数据库、品牌资源、Agent 头像等运行态资源继续指向 `$REMOTE_WORKSPACE_CONFIG_DIR`。
-6. 服务器在切换 release 前备份 `$REMOTE_WORKSPACE_CONFIG_DIR` 到 `workspace-runtime-backups/`。
-7. 服务器清空 `REMOTE_DIR` 里的旧源码、旧 `.next`、旧 `node_modules` 等杂物，只保留 `releases/` 和 `current`。
-8. 使用 PM2 重新启动 `server.js` 并保存进程列表。
+1. 本地只提交并 push 到 CNB，push 本身不发布生产。
+2. 用 CNB API/CLI 触发 `api_trigger`。
+3. CNB/Linux 容器执行 `npm ci`、静态检查和 `npm run build`。
+4. CNB 将 `.next/standalone`、`.next/static`、`public` 打包为 standalone 产物。
+5. CNB 通过 SSH 上传产物到服务器，服务器解包到 `REMOTE_DIR/releases/<release>`。
+6. 服务器把 `.env`、数据库、品牌资源、Agent 头像等运行态资源继续指向 `$REMOTE_WORKSPACE_CONFIG_DIR`。
+7. 服务器在切换 release 前备份 `$REMOTE_WORKSPACE_CONFIG_DIR` 到 `workspace-runtime-backups/`。
+8. 服务器清空 `REMOTE_DIR` 里的旧源码、旧 `.next`、旧 `node_modules` 等杂物，只保留 `releases/` 和 `current`。
+9. 使用 PM2 重新启动 `server.js` 并保存进程列表。
 
 这套策略把构建 CPU 放在 CNB/CI 容器里，CVM 只负责运行指定版本，避免生产服务器在部署时执行 `npm ci` 或 `npm run build`。
 
-## CNB / 云效自动部署
+## CNB / 云效远端部署
 
 `ops/deploy.sh` 是给 CNB、云效或其他远端 Linux CI 机器使用的部署脚本：
 
@@ -114,10 +134,11 @@ chmod +x ops/deploy.sh
 
 推荐触发方式：
 
-1. `main` 分支 push 自动触发。
-2. 先执行 `ops/deploy.sh` 里的静态检查。
-3. 再在 CI 容器构建 standalone 产物并上传服务器。
-4. 最后健康检查。
+1. `main` 分支 push 只做 CI 检查。
+2. 需要生产发布时，用 CNB API/CLI 触发 `api_trigger`。
+3. 远端 CI 先执行 `ops/deploy.sh` 里的静态检查。
+4. 再在 CI 容器构建 standalone 产物并上传服务器。
+5. 最后健康检查。
 
 如果你想把 CI/CD 分成两个阶段，也可以：
 

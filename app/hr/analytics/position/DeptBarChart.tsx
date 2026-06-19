@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectField } from "@workspace/core/ui";
 import type { DeptEntry, FilteredDept } from "./usePositionData";
 
 const LEVEL_LABEL: Record<number, string> = { 1: "L1 事业部", 2: "L2 部门", 3: "L3 子部门" };
@@ -79,16 +80,14 @@ export default function DeptBarChart({
             条形宽度跨层级统一比例
           </span>
         </h3>
-        <select
-          value={filterL1 ?? ""}
-          onChange={(e) => setFilterL1(e.target.value ? Number(e.target.value) : null)}
-          className="ml-auto px-3 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:border-emerald-400"
-        >
-          <option value="">全部事业部</option>
-          {l1List.map((d) => (
-            <option key={d.id} value={d.id}>{d.name}</option>
-          ))}
-        </select>
+        <SelectField
+          value={filterL1 == null ? "" : String(filterL1)}
+          onChange={(value) => setFilterL1(value ? Number(value) : null)}
+          placeholder="全部事业部"
+          options={l1List.map((dept) => ({ value: String(dept.id), label: dept.name }))}
+          className="ml-auto w-40"
+          selectClassName="min-h-8"
+        />
       </div>
 
       <LevelSection level={1} entries={filteredDept.l1} globalMax={globalMax} />

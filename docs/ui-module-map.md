@@ -30,8 +30,8 @@ AppShell
 
 | 模块 | 路径 | 用途 | 覆盖页面 |
 |------|------|------|---------|
-| **FinanceFilters** | `app/finance/components/FinanceFilters.tsx` | 筛选栏：FilterBar + SelectField + SearchBox 组合，支持公司/年/月/层级/搜索/每页/共xxx条/extra 槽 | 总账/报表/预算/成本 |
-| **CompanyPeriodPicker** | `app/finance/components/CompanyPeriodPicker.tsx` | 公司+年+月组合选择器（SelectField 组合） | 导入/成本/预算 |
+| **FinanceFilters** | `packages/finance/ui/components/FinanceFilters.tsx` | 筛选栏：Core FilterToolbar + SelectField 组合，支持公司/年/月/层级/搜索/每页/字段/extra 槽；旧 app 文件为 re-export | 总账/报表/预算/成本 |
+| **CompanyPeriodPicker** | `packages/finance/ui/components/CompanyPeriodPicker.tsx` | 公司+年+月组合选择器（SelectField 组合）；旧 app 文件为 re-export | 导入/成本/预算 |
 | **ReviewActionModal** | `app/finance/components/ReviewActionModal.tsx` | 重分类审核弹窗（替代 prompt+parseFloat） | 重分类审核 |
 | **AccountCodeInput** | `app/finance/components/AccountCodeInput.tsx` | 科目编码输入/选择 | 科目/重分类规则 |
 | **ReportLines** | `app/finance/statements/ReportLines.tsx` | 报表行项目 + drill-down 明细展开 | 财务报表 |
@@ -39,7 +39,7 @@ AppShell
 | **AccountCreateModal** | `app/finance/components/AccountCreateModal.tsx` | 新增科目弹窗 | 科目设置 |
 | **FinanceBalanceReconcile** | `app/finance/components/FinanceBalanceReconcile.tsx` | 余额对账 | 余额表 |
 | **ImportPreview** | `app/finance/import/components/ImportPreview.tsx` | 导入预览 | 数据导入 |
-| **FinanceShell** | `app/finance/components/FinanceShell.tsx` | 财务导航外壳 | 财务全模块 |
+| **FinanceShell** | `packages/finance/ui/components/FinanceShell.tsx` | 财务导航外壳；旧 app 文件为 re-export | 财务全模块 |
 
 重分类状态映射（业务常量，不进全局 StatusBadge）：
 
@@ -93,18 +93,19 @@ export const RECLASS_STATUS: Record<string, { label: string; variant: StatusBadg
 
 | 模块 | 路径 | 用途 |
 |------|------|------|
-| **FilterBar** | `app/components/FilterBar.tsx` | 筛选栏容器（纯 wrapper） |
-| **SelectField** | `app/components/SelectField.tsx` | 通用下拉：label + select + options |
-| **SearchBox** | `app/components/SearchBox.tsx` | 统一搜索框（typeahead/autocomplete） |
+| **FilterBar** | `@workspace/core/ui` | 筛选栏容器（纯 wrapper） |
+| **FilterToolbar** | `@workspace/core/ui` | 搜索、列显隐、每页数量、筛选插槽组合 |
+| **SelectField** | `@workspace/core/ui` | 通用下拉：label + options，支持拼音匹配 |
+| **EntitySearchInput** | `@workspace/hr/ui` | HR 实体/FK 搜索；业务语义留在 HR 包 |
 
 ### 弹窗与工具栏
 
 | 模块 | 路径 | 用途 |
 |------|------|------|
-| **ConfirmModal** | `app/components/ConfirmModal.tsx` | 确认弹窗 |
-| **DetailModal** | `app/components/DetailModal.tsx` | 详情弹窗 |
-| **EditToolbar** | `app/components/EditToolbar.tsx` | 编辑工具栏 |
-| **Toast + useToast** | `app/components/Toast.tsx` + `app/hooks/useToast.ts` | 通知提示 |
+| **ConfirmModal** | `@workspace/core/ui` | 确认弹窗 |
+| **DetailModal** | `@workspace/core/ui` | 详情弹窗 |
+| **EditToolbar** | `@workspace/core/ui` | 编辑工具栏 |
+| **Toast + useToast** | `@workspace/core/ui` + `@workspace/core/hooks` | 通知提示 |
 
 ### 导航与用户
 

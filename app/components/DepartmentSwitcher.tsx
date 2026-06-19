@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { SessionUser } from '@/lib/types';
+import SelectField from "./SelectField";
 
 interface Dept {
   id: number;
@@ -61,9 +62,6 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
 
   if (!user) return null;
 
-  const selectCls =
-    "rounded-md border border-gray-300 bg-white px-2 py-1 text-xs text-gray-700 focus:border-emerald-400 focus:outline-none";
-
   // 非管理员：只显示当前部门文本
   if (!user.isWorkListAdmin) {
     return (
@@ -77,34 +75,26 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
   const deptsInCompany = depts.filter((d) => d.company === selectedCompany);
   return (
     <div className="flex items-center gap-2">
-      <select
+      <SelectField
         value={selectedCompany}
-        onChange={(e) => handleCompanyChange(e.target.value)}
-        className={selectCls}
-      >
-        <option value="">选择公司</option>
-        {companies.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </select>
-      <select
-        value={selectedDeptId ?? ""}
-        onChange={(e) => {
-          const val = e.target.value;
+        onChange={handleCompanyChange}
+        placeholder="选择公司"
+        options={companies.map((c) => ({ value: c, label: c }))}
+        selectClassName="min-w-24 px-2 py-1 text-xs"
+      />
+      <SelectField
+        value={selectedDeptId == null ? "" : String(selectedDeptId)}
+        onChange={(val) => {
           if (!val) clearSelection();
-          else handleDeptChange(parseInt(val));
+          else handleDeptChange(parseInt(String(val)));
         }}
-        className={selectCls}
-      >
-        <option value="">选择部门</option>
-        {deptsInCompany.map((d) => (
-          <option key={d.id} value={d.id}>
-            {d.id === selectedDeptId ? `${d.name}（当前）` : d.name}
-          </option>
-        ))}
-      </select>
+        placeholder="选择部门"
+        options={deptsInCompany.map((d) => ({
+          value: String(d.id),
+          label: d.id === selectedDeptId ? `${d.name}（当前）` : d.name,
+        }))}
+        selectClassName="min-w-28 px-2 py-1 text-xs"
+      />
     </div>
   );
 }

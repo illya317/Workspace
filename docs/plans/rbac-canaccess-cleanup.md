@@ -22,8 +22,8 @@
 
 `session.ts:64-71` 的硬编码 OR 链：
 ```ts
-const financeKeys = ["finance", "finance.cost", "finance.ledger", 
-                     "finance.statement", "finance.budget", 
+const financeKeys = ["finance", "finance.cost", "finance.ledger",
+                     "finance.statement", "finance.budget",
                      "finance.analysis", "finance.import"];
 const hasFinance = financeKeys.some(ma);
 ```
@@ -171,7 +171,7 @@ export default async function Page() {
 
 - `docs/security/rbac.md`：更新权限判断流程说明，删除旧 boolean 字段相关描述
 - `app/finance/ARCHITECTURE.md`：已更新，确认所有 Guard 描述准确
-- `CLAUDE.md` / `AGENTS.md`：如有旧 boolean 字段的引用，同步更新
+- `AGENTS.md` / `docs/agent-handbook.md`：如有旧 boolean 字段的引用，同步更新
 
 ## 验证
 

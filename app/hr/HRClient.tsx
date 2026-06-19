@@ -9,8 +9,6 @@ import EmployeeTab from "./tabs/EmployeeTab";
 import EmploymentTab from "./tabs/EmploymentTab";
 import DepartmentPositionTab from "./tabs/DepartmentPositionTab";
 import EDPTab from "./tabs/EDPTab";
-import ProjectTab from "./tabs/ProjectTab";
-import EmployeeProjectTab from "./tabs/EmployeeProjectTab";
 import ContractTab from "./tabs/ContractTab";
 import EmployeeDirectory from "./profile/EmployeeDirectory";
 
@@ -23,16 +21,13 @@ type HRTab =
   | "contract"
   | "department"
   | "position"
-  | "project"
-  | "edp"
-  | "employee-project";
+  | "edp";
 
-type HRView = "employee" | "department-position" | "project" | "bulk";
+type HRView = "employee" | "department-position" | "bulk";
 
 const views: { key: HRView; label: string }[] = [
   { key: "employee", label: "员工资料" },
   { key: "department-position", label: "部门岗位" },
-  { key: "project", label: "项目" },
   { key: "bulk", label: "员工信息表" },
 ];
 
@@ -41,7 +36,6 @@ const bulkTabs: { key: HRTab; label: string }[] = [
   { key: "employment", label: "雇佣关系" },
   { key: "contract", label: "合同" },
   { key: "edp", label: "部门岗位" },
-  { key: "employee-project", label: "项目员工" },
 ];
 
 function toHRUser(user: SessionUser): HRUser {
@@ -105,7 +99,6 @@ export default function HRClient({ user, hideShell }: { user: SessionUser; hideS
         {activeView === "employee" && <EmployeeDirectory user={hrUser} />}
 
         {activeView === "department-position" && <DepartmentPositionTab user={hrUser} />}
-        {activeView === "project" && <ProjectTab user={hrUser} />}
 
         {activeView === "bulk" && (
           <>
@@ -133,7 +126,6 @@ export default function HRClient({ user, hideShell }: { user: SessionUser; hideS
               {activeTab === "employment" && <EmploymentTab user={hrUser} />}
               {activeTab === "edp" && <EDPTab user={hrUser} />}
               {activeTab === "contract" && <ContractTab user={hrUser} />}
-              {activeTab === "employee-project" && <EmployeeProjectTab user={hrUser} />}
             </>
           </>
         )}

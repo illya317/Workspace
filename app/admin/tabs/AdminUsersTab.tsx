@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { getInitials } from "@/lib/search";
+import SelectField from "@/app/components/SelectField";
 import type { ResourceItem } from "../types";
 import UserRow from "./UserRow";
 
@@ -128,10 +129,12 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
         </div>
         <span className="text-sm text-gray-400">{filtered.length} 个用户{keyword && ` (共${users.length})`}</span>
         <div className="flex-1" />
-        <select value={pageSize} onChange={(e) => onPageSizeChange(Number(e.target.value))}
-          className="rounded border border-gray-300 px-2 py-1.5 text-xs text-gray-600">
-          {[20, 50, 100].map((n) => <option key={n} value={n}>{n}条/页</option>)}
-        </select>
+        <SelectField
+          value={String(pageSize)}
+          onChange={(nextValue) => onPageSizeChange(Number(nextValue))}
+          options={[20, 50, 100].map((n) => ({ value: String(n), label: `${n}条/页` }))}
+          selectClassName="min-w-20 px-2 py-1.5 text-xs text-gray-600"
+        />
         <button onClick={() => { setCreating(true); setTimeout(() => nameRef.current?.focus(), 50); }}
           className="rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700">新建</button>
       </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useConfirmDelete } from "@/app/components/ConfirmProvider";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState } from "../types";
 
@@ -10,6 +11,7 @@ interface Props {
 
 export default function ImportHistoryTable({ filters }: Props) {
   const [page, setPage] = useState(1);
+  const confirmDelete = useConfirmDelete();
   const { data, pagination, loading, error, refetch } = useCostData({
     endpoint: "imports",
     filters,
@@ -18,20 +20,25 @@ export default function ImportHistoryTable({ filters }: Props) {
   });
 
   const [deleting, setDeleting] = useState<number | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const handleDelete = async (id: number) => {
-    if (!confirm("确定删除该导入批次？关联数据将被一并删除。")) return;
+    const ok = await confirmDelete({
+      message: "确定删除该导入批次？关联数据将被一并删除。",
+    });
+    if (!ok) return;
     setDeleting(id);
+    setLocalError(null);
     try {
       const res = await fetch(`/workspace/api/finance/cost/imports/${id}`, { method: "DELETE" });
       const json = await res.json();
       if (!res.ok || !json.success) {
-        alert(json.error || "删除失败");
+        setLocalError(json.error || "删除失败");
       } else {
         refetch();
       }
     } catch (e) {
-      alert(e instanceof Error ? e.message : "删除失败");
+      setLocalError(e instanceof Error ? e.message : "删除失败");
     } finally {
       setDeleting(null);
     }
@@ -41,6 +48,7 @@ export default function ImportHistoryTable({ filters }: Props) {
     <div className="space-y-4">
       {loading && <p className="text-sm text-gray-500">加载中…</p>}
       {error && <p className="text-sm text-red-500">{error}</p>}
+      {localError && <p className="text-sm text-red-500">{localError}</p>}
 
       <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
         <table className="w-full text-sm">

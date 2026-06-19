@@ -25,14 +25,14 @@
 建议先写一句：
 
 ```md
-本次仅扩展 `app/<domain>/...` 现有模块能力，不新增模块入口、不新增 domain。
+本次仅扩展现有 `<domain>` 业务包能力，不新增模块入口、不新增 domain；`app/<domain>/...` 只作为路由壳。
 ```
 
 ## 2. 数据与规则先行
 
 - [ ] 先确认依赖哪些现有表、现有字段、现有 service
 - [ ] 缺字段时才改 schema；不为 UI 临时造字段
-- [ ] 规则逻辑放 `server/services/<domain>/...`
+- [ ] 规则逻辑放 `packages/<domain>/server/...`
 - [ ] 不把复杂判断堆进 page、tab、route
 
 如果是规则/审核/状态机类能力，优先拆成：

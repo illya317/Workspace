@@ -1,14 +1,13 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkHRAccess, checkPermission } from "@/lib/auth";
+import { authenticate, checkHRAccess, checkPermission } from "@workspace/platform/server/auth";
 import {
   ROSTER_FIELDS,
+  buildRosterExcel,
+  buildRosterRows,
+  getRosterFilterOptions,
   getVisibleFields,
   queryRawEmployees,
-  buildRosterRows,
-  buildRosterExcel,
-  getAllDepartmentNames,
-} from "@/server/services/hr/roster";
-import { listActiveCompanies } from "@/server/services/hr/company-directory";
+} from "@workspace/hr/server";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -40,9 +39,7 @@ export async function GET(request: Request) {
     });
   }
 
-  const companies = await listActiveCompanies();
-  const allCompanies = companies.map((c) => c.name);
-  const allDepts = await getAllDepartmentNames();
+  const { allCompanies, allDepts } = await getRosterFilterOptions();
 
   return NextResponse.json({ employees: rows, fields: ROSTER_FIELDS, visibleFields, allCompanies, allDepts });
 }

@@ -19,7 +19,23 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@workspace/core": ["./packages/core/index.ts"],
+      "@workspace/core/*": ["./packages/core/*"],
+      "@workspace/platform": ["./packages/platform/index.ts"],
+      "@workspace/platform/*": ["./packages/platform/*"],
+      "@workspace/administration": ["./packages/administration/index.ts"],
+      "@workspace/administration/*": ["./packages/administration/*"],
+      "@workspace/library": ["./packages/library/index.ts"],
+      "@workspace/library/*": ["./packages/library/*"],
+      "@workspace/hr": ["./packages/hr/index.ts"],
+      "@workspace/hr/*": ["./packages/hr/*"],
+      "@workspace/production": ["./packages/production/index.ts"],
+      "@workspace/production/*": ["./packages/production/*"],
+      "@workspace/finance": ["./packages/finance/index.ts"],
+      "@workspace/finance/*": ["./packages/finance/*"],
+      "@workspace/work": ["./packages/work/index.ts"],
+      "@workspace/work/*": ["./packages/work/*"]
     }
   },
   "include": [

@@ -7,6 +7,7 @@ import NavLink from "@/app/components/NavLink";
 import UserMenu from "@/app/components/UserMenu";
 import TabBar from "@/app/components/TabBar";
 import Toast from "@/app/components/Toast";
+import SelectField from "@/app/components/SelectField";
 import { useToast } from "@/app/hooks/useToast";
 import AdminUsersTab from "./tabs/AdminUsersTab";
 import PermissionsTab from "./tabs/PermissionsTab";
@@ -114,14 +115,15 @@ export default function AdminClient({ user }: { user: SessionUser }) {
             <h3 className="mb-3 text-sm font-semibold text-gray-700">系统配置</h3>
             <div className="flex items-center gap-4">
               <label className="text-sm text-gray-600">权限冲突策略：</label>
-              <select
+              <SelectField
                 value={conflictStrategy}
-                onChange={(e) => saveConflictStrategy(e.target.value)}
-                className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none"
-              >
-                <option value="union">并集（任一有权限即可）</option>
-                <option value="deny_override">拒绝优先</option>
-              </select>
+                onChange={saveConflictStrategy}
+                options={[
+                  { value: "union", label: "并集（任一有权限即可）" },
+                  { value: "deny_override", label: "拒绝优先" },
+                ]}
+                selectClassName="min-w-56 px-3 py-2 text-sm"
+              />
               <span className="text-xs text-gray-400">
                 {conflictStrategy === "union" ? "用户、岗位、部门任一授权即通过" : "任一来源拒绝则拒绝"}
               </span>

@@ -1,0 +1,19 @@
+{
+  "name": "@workspace/finance",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./constants": "./constants/index.ts",
+    "./import": "./import/index.ts",
+    "./module": "./module.ts",
+    "./server": "./server/index.ts",
+    "./types": "./types/index.ts",
+    "./types/*": "./types/*.ts",
+    "./ui": "./ui/index.ts",
+    "./ui/components/*": "./ui/components/*.tsx",
+    "./ui/ledger/*": "./ui/ledger/*.tsx",
+    "./ui/navigation/*": "./ui/navigation/*.ts"
+  }
+}

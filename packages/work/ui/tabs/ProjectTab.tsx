@@ -1,0 +1,850 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
+import { Toast } from "@workspace/core/ui";
+import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
+import EntitySearchInput, { type SearchOption } from "../components/EntitySearchInput";
+import OptionPicker, { type PickerOption } from "../components/OptionPicker";
+import SplitWorkspace, { type SplitWorkspaceMode } from "../components/SplitWorkspace";
+import { workspacePath } from "@workspace/core/routing";
+import { type WorkUser, workCanEdit } from "@workspace/work/types";
+import { matchText } from "@workspace/core/search";
+import { WORK_PLAN_ROLES } from "@workspace/work/constants";
+
+type ProjectItem = {
+  id: number;
+  name: string;
+  description: string | null;
+  status: string | null;
+  priority: string | null;
+  stage: string | null;
+  plan: string | null;
+  goal: string | null;
+  milestones: string | null;
+  budgetAmount: number | null;
+  budgetNote: string | null;
+  riskNote: string | null;
+  remark: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  employeeCount: number;
+};
+
+type ProjectMemberEntry = {
+  id: number;
+  employeeId: number;
+  employeeNumber: string;
+  employeeName: string;
+  projectId: number;
+  projectName: string;
+  role: string | null;
+  startDate: string | null;
+  endDate: string | null;
+};
+
+type EmployeeTag = {
+  id: number;
+  employeeNumber: string;
+  name: string;
+};
+
+type ProjectRole = (typeof WORK_PLAN_ROLES)[number];
+type MultiProjectRole = Exclude<ProjectRole, "负责人">;
+const MULTI_PROJECT_ROLES = WORK_PLAN_ROLES.filter((role) => role !== "负责人") as MultiProjectRole[];
+
+type ProjectDraft = {
+  id: number | null;
+  name: string;
+  description: string | null;
+  status: string | null;
+  priority: string | null;
+  stage: string | null;
+  plan: string | null;
+  goal: string | null;
+  milestones: string | null;
+  budgetAmount: number | null;
+  budgetNote: string | null;
+  riskNote: string | null;
+  remark: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  leader: EmployeeTag | null;
+  roleGroups: Record<MultiProjectRole, EmployeeTag[]>;
+};
+
+const PROJECT_STATUS_OPTIONS = ["规划中", "进行中", "暂停", "已完成", "已取消"] as const;
+const PROJECT_PRIORITY_OPTIONS = ["高", "中", "低"] as const;
+const PROJECT_STAGE_OPTIONS = ["立项", "规划", "执行", "验收", "收尾"] as const;
+
+function toPickerOptions(values: readonly string[]): PickerOption[] {
+  return values.map((value) => ({ value, label: value }));
+}
+
+const PROJECT_STATUS_PICKER_OPTIONS = toPickerOptions(PROJECT_STATUS_OPTIONS);
+const PROJECT_PRIORITY_PICKER_OPTIONS = toPickerOptions(PROJECT_PRIORITY_OPTIONS);
+const PROJECT_STAGE_PICKER_OPTIONS = toPickerOptions(PROJECT_STAGE_OPTIONS);
+
+function projectCode(project: ProjectItem | null, draft: ProjectDraft | null) {
+  const id = project?.id ?? draft?.id;
+  return id ? `MK-${String(id).padStart(4, "0")}` : "保存后生成";
+}
+
+function FieldLabel({ children, required = false }: { children: string; required?: boolean }) {
+  return (
+    <span className="text-xs font-medium text-slate-500">
+      {children}
+      {required && <span className="ml-0.5 text-red-500">*</span>}
+    </span>
+  );
+}
+
+function SectionCard({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <h5 className="mb-3 text-sm font-semibold text-slate-900">{title}</h5>
+      {children}
+    </div>
+  );
+}
+
+const inputClassName = "h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500";
+const pickerButtonClassName = `${inputClassName} text-left`;
+const textareaClassName = "min-h-24 w-full resize-y rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500";
+
+function employeeFromOption(option?: SearchOption): EmployeeTag | null {
+  if (!option) return null;
+  return {
+    id: option.id,
+    employeeNumber: option.subtitle || "",
+    name: option.name,
+  };
+}
+
+function memberFromEntry(entry: ProjectMemberEntry): EmployeeTag {
+  return {
+    id: entry.employeeId,
+    employeeNumber: entry.employeeNumber,
+    name: entry.employeeName,
+  };
+}
+
+function dedupeMembers(members: EmployeeTag[]) {
+  const seen = new Set<number>();
+  const next: EmployeeTag[] = [];
+  for (const member of members) {
+    if (!member.id || seen.has(member.id)) continue;
+    seen.add(member.id);
+    next.push(member);
+  }
+  return next;
+}
+
+function isLeaderRole(role: string | null | undefined) {
+  return role === "负责人" || role === "计划负责人";
+}
+
+function emptyRoleGroups(): Record<MultiProjectRole, EmployeeTag[]> {
+  return {
+    "执行负责": [],
+    "支持协作": [],
+    "咨询参与": [],
+    "知会": [],
+  };
+}
+
+function normalizeProjectRole(role: string | null | undefined): ProjectRole {
+  if (isLeaderRole(role)) return "负责人";
+  return WORK_PLAN_ROLES.includes(role as ProjectRole) ? role as ProjectRole : "执行负责";
+}
+
+function draftSnapshot(draft: ProjectDraft | null) {
+  if (!draft) return "";
+  return JSON.stringify({
+    id: draft.id,
+    name: draft.name.trim(),
+    description: draft.description || null,
+    status: draft.status || null,
+    priority: draft.priority || null,
+    stage: draft.stage || null,
+    plan: draft.plan || null,
+    goal: draft.goal || null,
+    milestones: draft.milestones || null,
+    budgetAmount: draft.budgetAmount ?? null,
+    budgetNote: draft.budgetNote || null,
+    riskNote: draft.riskNote || null,
+    remark: draft.remark || null,
+    startDate: draft.startDate || null,
+    endDate: draft.endDate || null,
+    leaderId: draft.leader?.id ?? null,
+    roleGroups: Object.fromEntries(
+      MULTI_PROJECT_ROLES.map((role) => [
+        role,
+        draft.roleGroups[role].map((member) => member.id).sort((a, b) => a - b),
+      ]),
+    ),
+  });
+}
+
+function createProjectDraft(project: ProjectItem | null, entries: ProjectMemberEntry[]): ProjectDraft {
+  const leaderEntry = entries.find((entry) => isLeaderRole(entry.role));
+  const roleGroups = emptyRoleGroups();
+  const leaderId = leaderEntry?.employeeId ?? null;
+  for (const entry of entries) {
+    const role = normalizeProjectRole(entry.role);
+    if (role === "负责人" || entry.employeeId === leaderId) continue;
+    roleGroups[role].push(memberFromEntry(entry));
+  }
+  for (const role of MULTI_PROJECT_ROLES) {
+    roleGroups[role] = dedupeMembers(roleGroups[role]);
+  }
+  return {
+    id: project?.id ?? null,
+    name: project?.name ?? "",
+    description: project?.description ?? null,
+    status: project?.status ?? null,
+    priority: project?.priority ?? null,
+    stage: project?.stage ?? null,
+    plan: project?.plan ?? null,
+    goal: project?.goal ?? null,
+    milestones: project?.milestones ?? null,
+    budgetAmount: project?.budgetAmount ?? null,
+    budgetNote: project?.budgetNote ?? null,
+    riskNote: project?.riskNote ?? null,
+    remark: project?.remark ?? null,
+    startDate: project?.startDate ?? null,
+    endDate: project?.endDate ?? null,
+    leader: leaderEntry ? memberFromEntry(leaderEntry) : null,
+    roleGroups,
+  };
+}
+
+function ProjectMemberTagsInput({
+  value,
+  disabled,
+  onChange,
+}: {
+  value: EmployeeTag[];
+  disabled?: boolean;
+  onChange: (value: EmployeeTag[]) => void;
+}) {
+  function add(option?: SearchOption) {
+    const employee = employeeFromOption(option);
+    if (!employee) return;
+    onChange(dedupeMembers([...value, employee]));
+  }
+
+  function remove(id: number) {
+    onChange(value.filter((member) => member.id !== id));
+  }
+
+  return (
+    <div className="min-h-10 rounded-md border border-slate-300 bg-white px-2 py-1.5 shadow-sm focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+      <div className="flex flex-wrap items-center gap-2">
+        {value.map((member) => (
+          <span
+            key={member.id}
+            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1 text-sm font-medium text-slate-700 shadow-sm"
+          >
+            {member.name}
+            {!disabled && (
+              <button
+                type="button"
+                onClick={() => remove(member.id)}
+                className="text-slate-400 hover:text-red-500"
+                aria-label={`移除${member.name}`}
+              >
+                ×
+              </button>
+            )}
+          </span>
+        ))}
+        {!disabled && (
+          <div className="min-w-48 flex-1">
+            <EntitySearchInput
+              entity="employee"
+              value=""
+              activeOnly
+              placeholder={value.length ? "继续添加" : "搜索员工"}
+              onChange={(_label, option) => add(option)}
+            />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function ProjectTab({ user }: { user: WorkUser }) {
+  const canEdit = workCanEdit(user);
+  const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [entries, setEntries] = useState<ProjectMemberEntry[]>([]);
+  const [selection, setSelection] = useState<number | "new" | null>(null);
+  const [draft, setDraft] = useState<ProjectDraft | null>(null);
+  const [baseline, setBaseline] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [projectListOpen, setProjectListOpen] = useState(true);
+  const [projectListDrawerOpen, setProjectListDrawerOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  const selectedProject = useMemo(
+    () => typeof selection === "number" ? projects.find((project) => project.id === selection) || null : null,
+    [projects, selection]
+  );
+
+  const selectedEntries = useMemo(
+    () => selectedProject ? entries.filter((entry) => entry.projectId === selectedProject.id) : [],
+    [entries, selectedProject]
+  );
+
+  const filteredProjects = useMemo(() => {
+    const q = keyword.trim();
+    if (!q) return projects;
+    return projects.filter((project) => matchText(project.name, q) || matchText(projectCode(project, null), q));
+  }, [keyword, projects]);
+
+  const isCreating = selection === "new";
+  const dirty = draftSnapshot(draft) !== baseline;
+  const editorTitle = isCreating ? "新建工作计划" : selectedProject ? "工作计划信息" : "工作计划详情";
+  const canSave = !!draft && canEdit && !saving && (isCreating || dirty);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [projectRes, entryRes] = await Promise.all([
+        fetch(workspacePath("/api/work/plans?pageSize=500")),
+        fetch(workspacePath("/api/work/plan-members?pageSize=500")),
+      ]);
+      if (!projectRes.ok || !entryRes.ok) throw new Error("加载失败");
+      const [projectData, entryData] = await Promise.all([projectRes.json(), entryRes.json()]);
+      const nextProjects = (projectData.projects || []) as ProjectItem[];
+      const nextEntries = (entryData.entries || []) as ProjectMemberEntry[];
+      setProjects(nextProjects);
+      setEntries(nextEntries);
+      setSelection((prev) => prev ?? (nextProjects[0]?.id ?? null));
+    } catch {
+      setError("工作计划加载失败");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    const nextDraft = selection === "new"
+      ? createProjectDraft(null, [])
+      : selectedProject
+        ? createProjectDraft(selectedProject, selectedEntries)
+        : null;
+    setDraft(nextDraft);
+    setBaseline(draftSnapshot(nextDraft));
+  }, [selectedEntries, selectedProject, selection]);
+
+function updateDraft<K extends keyof ProjectDraft>(key: K, value: ProjectDraft[K]) {
+  setDraft((prev) => prev ? { ...prev, [key]: value } : prev);
+}
+
+function setLeader(option?: SearchOption) {
+  const employee = employeeFromOption(option);
+  setDraft((prev) => {
+    if (!prev) return prev;
+    const roleGroups = { ...prev.roleGroups };
+    if (employee) {
+      for (const role of MULTI_PROJECT_ROLES) {
+        roleGroups[role] = roleGroups[role].filter((member) => member.id !== employee.id);
+      }
+    }
+    return {
+      ...prev,
+      leader: employee,
+      roleGroups,
+    };
+  });
+}
+
+function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
+  setDraft((prev) => {
+    if (!prev) return prev;
+    const nextMembers = dedupeMembers(members);
+    const movedIds = new Set(nextMembers.map((member) => member.id));
+    const roleGroups = { ...prev.roleGroups, [role]: nextMembers };
+    for (const otherRole of MULTI_PROJECT_ROLES) {
+      if (otherRole === role) continue;
+      roleGroups[otherRole] = roleGroups[otherRole].filter((member) => !movedIds.has(member.id));
+    }
+    return {
+      ...prev,
+      leader: prev.leader && movedIds.has(prev.leader.id) ? null : prev.leader,
+      roleGroups,
+    };
+  });
+}
+
+  async function updateProjectField(projectId: number, field: string, value: unknown) {
+    const res = await fetch(workspacePath(`/api/work/plans/${projectId}`), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ field, value }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "保存工作计划失败");
+    }
+  }
+
+  async function createProject(name: string) {
+    const res = await fetch(workspacePath("/api/work/plans"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        description: draft?.description || null,
+        status: draft?.status || null,
+        priority: draft?.priority || null,
+        stage: draft?.stage || null,
+        plan: draft?.plan || null,
+        goal: draft?.goal || null,
+        milestones: draft?.milestones || null,
+        budgetAmount: draft?.budgetAmount ?? null,
+        budgetNote: draft?.budgetNote || null,
+        riskNote: draft?.riskNote || null,
+        remark: draft?.remark || null,
+        startDate: draft?.startDate || null,
+        endDate: draft?.endDate || null,
+      }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "新建工作计划失败");
+    }
+    const data = await res.json();
+    return Number(data.record?.id);
+  }
+
+  async function createMember(projectId: number, member: EmployeeTag, role: string | null) {
+    const res = await fetch(workspacePath("/api/work/plan-members"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        employeeId: member.employeeNumber,
+        projectId,
+        role,
+      }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "保存计划参与人失败");
+    }
+  }
+
+  async function updateMemberRole(entryId: number, role: string | null) {
+    const res = await fetch(workspacePath(`/api/work/plan-members/${entryId}`), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ field: "role", value: role }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "保存计划负责人失败");
+    }
+  }
+
+  async function deleteMember(entryId: number) {
+    const res = await fetch(workspacePath(`/api/work/plan-members/${entryId}`), { method: "DELETE" });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "删除计划参与人失败");
+    }
+  }
+
+  async function syncMembers(projectId: number, nextDraft: ProjectDraft) {
+    const currentEntries = entries.filter((entry) => entry.projectId === projectId);
+    const targets = [
+      ...(nextDraft.leader ? [{ member: nextDraft.leader, role: "负责人" as ProjectRole }] : []),
+      ...MULTI_PROJECT_ROLES.flatMap((role) =>
+        nextDraft.roleGroups[role].map((member) => ({ member, role })),
+      ),
+    ];
+    const dedupedTargets = new Map<number, { member: EmployeeTag; role: ProjectRole }>();
+    for (const target of targets) {
+      if (!dedupedTargets.has(target.member.id)) dedupedTargets.set(target.member.id, target);
+    }
+    const targetIds = new Set(dedupedTargets.keys());
+    const currentByEmployeeId = new Map(currentEntries.map((entry) => [entry.employeeId, entry]));
+
+    for (const entry of currentEntries) {
+      if (!targetIds.has(entry.employeeId)) {
+        await deleteMember(entry.id);
+      }
+    }
+
+    for (const { member, role } of dedupedTargets.values()) {
+      const entry = currentByEmployeeId.get(member.id);
+      if (!entry) {
+        await createMember(projectId, member, role);
+      } else if (normalizeProjectRole(entry.role) !== role) {
+        await updateMemberRole(entry.id, role);
+      }
+    }
+  }
+
+  async function saveProject() {
+    if (!draft || (!isCreating && !dirty)) return;
+    const name = draft.name.trim();
+    if (!name) {
+      setToast({ type: "error", message: "计划名称不能为空" });
+      return;
+    }
+    setSaving(true);
+    try {
+      const projectId = draft.id ?? await createProject(name);
+      if (!projectId) throw new Error("新建工作计划失败");
+      if (draft.id && selectedProject && selectedProject.name !== name) {
+        await updateProjectField(projectId, "name", name);
+      }
+      if (draft.id && selectedProject) {
+        const fields = [
+          "description",
+          "status",
+          "priority",
+          "stage",
+          "plan",
+          "goal",
+          "milestones",
+          "budgetAmount",
+          "budgetNote",
+          "riskNote",
+          "remark",
+          "startDate",
+          "endDate",
+        ] as const;
+        for (const field of fields) {
+          const value = draft[field] ?? null;
+          if ((selectedProject[field] ?? null) !== value) {
+            await updateProjectField(projectId, field, value);
+          }
+        }
+      }
+      await syncMembers(projectId, { ...draft, id: projectId, name });
+      setToast({ type: "success", message: "工作计划信息已保存" });
+      await loadData();
+      setSelection(projectId);
+    } catch (err) {
+      setToast({ type: "error", message: err instanceof Error ? err.message : "保存失败" });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function renderProjectListPanel(mode: SplitWorkspaceMode) {
+    return (
+      <section className={`rounded-lg border border-slate-200 bg-white shadow-sm ${mode === "drawer" ? "h-full overflow-hidden" : ""}`}>
+        <div className="border-b border-slate-200 p-3">
+          <div className="space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h4 className="text-base font-semibold text-slate-900">工作计划列表</h4>
+                <p className="mt-1 text-xs text-slate-500">选择计划后维护主数据和人员角色。</p>
+              </div>
+              {mode === "drawer" && (
+                <button
+                  type="button"
+                  onClick={() => setProjectListDrawerOpen(false)}
+                  className="rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-500 hover:bg-slate-50"
+                >
+                  关闭
+                </button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={!canEdit}
+                onClick={() => {
+                  setSelection("new");
+                  setProjectListDrawerOpen(false);
+                }}
+                className="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              >
+                新建工作计划
+              </button>
+            </div>
+            <input
+              value={keyword}
+              onChange={(event) => setKeyword(event.target.value)}
+              placeholder="搜索计划名称、编码"
+              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            />
+          </div>
+        </div>
+        <div className={`${mode === "drawer" ? "h-[calc(100%-140px)]" : "max-h-[760px]"} space-y-2 overflow-auto p-3`}>
+          {filteredProjects.map((project) => {
+            const active = selection === project.id;
+            return (
+              <button
+                key={project.id}
+                type="button"
+                onClick={() => {
+                  setSelection(project.id);
+                  setProjectListDrawerOpen(false);
+                }}
+                className={`w-full rounded-lg border px-3 py-3 text-left transition ${
+                  active
+                    ? "border-emerald-400 bg-emerald-50"
+                    : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold text-slate-900">{project.name}</div>
+                    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
+                      <span>{projectCode(project, null)}</span>
+                      {project.status && <span className="rounded bg-white px-1.5 py-0.5 text-slate-500">{project.status}</span>}
+                      {project.priority && <span className="rounded bg-white px-1.5 py-0.5 text-slate-500">{project.priority}</span>}
+                    </div>
+                  </div>
+                  <span className="shrink-0 rounded bg-white px-2 py-1 text-xs text-slate-500">人 {project.employeeCount}</span>
+                </div>
+              </button>
+            );
+          })}
+          {filteredProjects.length === 0 && (
+            <p className="rounded-md border border-dashed border-slate-200 px-3 py-8 text-center text-sm text-slate-400">暂无工作计划</p>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  if (loading) return <div className="rounded-lg border border-slate-200 bg-white p-8 text-center text-sm text-slate-400">加载中...</div>;
+  if (error) return <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center text-sm text-red-600">{error}</div>;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h3 className="text-base font-semibold text-slate-900">工作计划资料</h3>
+          <p className="mt-1 text-sm text-slate-500">计划主数据和参与人员维护。</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setProjectListDrawerOpen(true)}
+            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 xl:hidden"
+          >
+            显示工作计划列表
+          </button>
+          <button
+            type="button"
+            onClick={() => setProjectListOpen((open) => !open)}
+            className="hidden rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 xl:inline-flex"
+          >
+            {projectListOpen ? "隐藏工作计划列表" : "显示工作计划列表"}
+          </button>
+        </div>
+      </div>
+
+      <SplitWorkspace
+        sideOpen={projectListOpen}
+        drawerOpen={projectListDrawerOpen}
+        onDrawerOpenChange={setProjectListDrawerOpen}
+        renderSide={renderProjectListPanel}
+      >
+        <section className="rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm">
+          <div className="mb-4 flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4">
+            <div>
+              <h4 className="text-sm font-semibold text-slate-900">{editorTitle}</h4>
+              {dirty && <p className="mt-1 text-xs text-amber-600">有未保存修改</p>}
+            </div>
+            {draft && (
+              <button
+                type="button"
+                disabled={!canSave}
+                onClick={saveProject}
+                className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              >
+                {saving ? "保存中..." : "保存计划"}
+              </button>
+            )}
+          </div>
+
+          {draft ? (
+            <div className="space-y-4">
+              <SectionCard title="基础信息">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <label className="space-y-1">
+                    <FieldLabel>计划编码</FieldLabel>
+                    <input
+                      value={projectCode(selectedProject, draft)}
+                      readOnly
+                      className="h-10 w-full cursor-default rounded-md border border-slate-200 bg-slate-100 px-3 font-mono text-sm text-slate-600 shadow-sm"
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <FieldLabel required>计划名称</FieldLabel>
+                    <input
+                      value={draft.name}
+                      disabled={!canEdit}
+                      onChange={(event) => updateDraft("name", event.target.value)}
+                      className={inputClassName}
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <FieldLabel>计划状态</FieldLabel>
+                    <OptionPicker
+                      value={draft.status}
+                      options={PROJECT_STATUS_PICKER_OPTIONS}
+                      disabled={!canEdit}
+                      onChange={(value) => updateDraft("status", value)}
+                      placeholder="未设置"
+                      buttonClassName={pickerButtonClassName}
+                      popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-72 rounded-lg border border-slate-200 bg-white p-3 shadow-xl"
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <FieldLabel>优先级</FieldLabel>
+                    <OptionPicker
+                      value={draft.priority}
+                      options={PROJECT_PRIORITY_PICKER_OPTIONS}
+                      disabled={!canEdit}
+                      onChange={(value) => updateDraft("priority", value)}
+                      placeholder="未设置"
+                      buttonClassName={pickerButtonClassName}
+                      popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-56 rounded-lg border border-slate-200 bg-white p-3 shadow-xl"
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <FieldLabel>计划阶段</FieldLabel>
+                    <OptionPicker
+                      value={draft.stage}
+                      options={PROJECT_STAGE_PICKER_OPTIONS}
+                      disabled={!canEdit}
+                      onChange={(value) => updateDraft("stage", value)}
+                      placeholder="未设置"
+                      buttonClassName={pickerButtonClassName}
+                      popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-72 rounded-lg border border-slate-200 bg-white p-3 shadow-xl"
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <FieldLabel>计划开始时间</FieldLabel>
+                    <CalendarDateInput
+                      value={draft.startDate}
+                      disabled={!canEdit}
+                      onChange={(value) => updateDraft("startDate", value)}
+                      className={inputClassName}
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <FieldLabel>计划结束时间</FieldLabel>
+                    <CalendarDateInput
+                      value={draft.endDate}
+                      disabled={!canEdit}
+                      onChange={(value) => updateDraft("endDate", value)}
+                      className={inputClassName}
+                    />
+                  </label>
+                  <label className="space-y-1 md:col-span-2">
+                    <FieldLabel>说明</FieldLabel>
+                    <textarea value={draft.description || ""} disabled={!canEdit} onChange={(event) => updateDraft("description", event.target.value || null)} className={textareaClassName} />
+                  </label>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="规划与预算">
+                <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                  <label className="space-y-1 md:col-span-2">
+                    <FieldLabel>计划规划</FieldLabel>
+                    <textarea value={draft.plan || ""} disabled={!canEdit} onChange={(event) => updateDraft("plan", event.target.value || null)} className={textareaClassName} />
+                  </label>
+                  <label className="space-y-1 md:col-span-2">
+                    <FieldLabel>计划目标</FieldLabel>
+                    <textarea value={draft.goal || ""} disabled={!canEdit} onChange={(event) => updateDraft("goal", event.target.value || null)} className={textareaClassName} />
+                  </label>
+                  <label className="space-y-1 md:col-span-2">
+                    <FieldLabel>关键里程碑</FieldLabel>
+                    <textarea value={draft.milestones || ""} disabled={!canEdit} onChange={(event) => updateDraft("milestones", event.target.value || null)} className={textareaClassName} />
+                  </label>
+                  <label className="space-y-1">
+                    <FieldLabel>预算金额</FieldLabel>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={draft.budgetAmount ?? ""}
+                      disabled={!canEdit}
+                      onChange={(event) => updateDraft("budgetAmount", event.target.value === "" ? null : Number(event.target.value))}
+                      className={inputClassName}
+                    />
+                  </label>
+                  <label className="space-y-1 md:col-span-2">
+                    <FieldLabel>预算说明</FieldLabel>
+                    <textarea value={draft.budgetNote || ""} disabled={!canEdit} onChange={(event) => updateDraft("budgetNote", event.target.value || null)} className={textareaClassName} />
+                  </label>
+                  <label className="space-y-1 md:col-span-2">
+                    <FieldLabel>风险说明</FieldLabel>
+                    <textarea value={draft.riskNote || ""} disabled={!canEdit} onChange={(event) => updateDraft("riskNote", event.target.value || null)} className={textareaClassName} />
+                  </label>
+                  <label className="space-y-1 md:col-span-2">
+                    <FieldLabel>备注</FieldLabel>
+                    <textarea value={draft.remark || ""} disabled={!canEdit} onChange={(event) => updateDraft("remark", event.target.value || null)} className={textareaClassName} />
+                  </label>
+                </div>
+              </SectionCard>
+
+              <SectionCard title="计划人员">
+                <div className="space-y-3">
+                  <label className="block space-y-1">
+                    <FieldLabel>计划负责人</FieldLabel>
+                    <EntitySearchInput
+                      entity="employee"
+                      activeOnly
+                      value={draft.leader?.employeeNumber || ""}
+                      displayValue={draft.leader?.name || ""}
+                      disabled={!canEdit}
+                      placeholder="搜索负责人"
+                      onChange={(_label, option) => setLeader(option)}
+                    />
+                  </label>
+
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    {MULTI_PROJECT_ROLES.map((role) => (
+                      <label key={role} className="block space-y-1">
+                        <FieldLabel>{role}</FieldLabel>
+                        <ProjectMemberTagsInput
+                          value={draft.roleGroups[role]}
+                          disabled={!canEdit}
+                          onChange={(members) => setRoleMembers(role, members)}
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </SectionCard>
+            </div>
+          ) : (
+            <div className="flex min-h-64 items-center justify-center p-8">
+              <div className="text-center">
+                <p className="text-sm font-medium text-slate-600">暂无可编辑工作计划</p>
+                <p className="mt-1 text-sm text-slate-400">请选择左侧计划，或新建工作计划后维护资料。</p>
+              </div>
+            </div>
+          )}
+        </section>
+      </SplitWorkspace>
+
+      <Toast
+        type={toast?.type}
+        message={toast?.message || ""}
+        show={!!toast}
+        onClose={() => setToast(null)}
+      />
+    </div>
+  );
+}

@@ -3,6 +3,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { matchEmployee } from "@/lib/search";
 import FilterBar from "@/app/components/FilterBar";
+import SelectField from "@/app/components/SelectField";
 
 export interface EmployeePerm {
   employeeId: string; name: string; userId: number | null; username: string | null;
@@ -67,14 +68,18 @@ export default function PermissionDrilldown({ drillKey, empPerms, empLoading, fC
         <button onClick={onClose} className="text-xs text-gray-400 hover:text-gray-600">关闭</button>
       </div>
       <FilterBar>
-        <select value={fCompany} onChange={e => { setFCompany(e.target.value); setFDept("全部"); }}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none">
-          {allCompanies.map(c => <option key={c} value={c}>{c}</option>)}
-        </select>
-        <select value={fDept} onChange={e => setFDept(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none">
-          {allDepts.map(d => <option key={d} value={d}>{d}</option>)}
-        </select>
+        <SelectField
+          value={fCompany}
+          onChange={(nextValue) => { setFCompany(nextValue); setFDept("全部"); }}
+          options={allCompanies.map((c) => ({ value: c, label: c }))}
+          selectClassName="min-w-32 px-3 py-2 text-sm"
+        />
+        <SelectField
+          value={fDept}
+          onChange={setFDept}
+          options={allDepts.map((d) => ({ value: d, label: d }))}
+          selectClassName="min-w-32 px-3 py-2 text-sm"
+        />
         <input type="text" value={fKeyword} onChange={e => setFKeyword(e.target.value)}
           placeholder="搜索姓名/工号..." className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none" />
       </FilterBar>

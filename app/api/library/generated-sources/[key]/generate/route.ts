@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { withLibraryWrite } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
-import { getMaxConfidentialityLevel } from "@/server/services/library/permissions";
-import { getGenerator } from "@/server/services/library/generators/registry";
-import { upsertGeneratedDocument } from "@/server/services/library/generators/generated-document";
+import { getMaxConfidentialityLevel } from "@workspace/library/server/permissions";
+import { getGenerator } from "@workspace/library/server/generators/registry";
+import { upsertGeneratedDocument } from "@workspace/library/server/generators/generated-document";
+import { getGeneratedSourceForRun } from "@workspace/library/server";
 
 async function parseKey(ctx?: RouteContext) {
   const { key } = await ctx!.params;
@@ -25,10 +25,7 @@ export const POST = withLibraryWrite(async (request: Request, user, ctx?: RouteC
   }
 
   // Check source is enabled
-  const source = await prisma.libraryGeneratedSource.findUnique({
-    where: { key },
-    select: { enabled: true, defaultConfidentialityLevel: true, outputCategory: true },
-  });
+  const source = await getGeneratedSourceForRun(key);
   if (!source || !source.enabled) {
     return NextResponse.json({ error: "Generator disabled" }, { status: 403 });
   }

@@ -76,6 +76,7 @@ export interface Employment {
   joinDate: string | null;
   leaveDate: string | null;
   leaveReason: string | null;
+  leaveNote: string | null;
   officeLocation: string | null;
   personnelType: string | null;
   rank: string | null;

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import { SelectField } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import ReportLines from "./ReportLines";
 import ReportBanner from "./ReportBanner";
@@ -100,11 +101,16 @@ export default function ReportTab() {
           <>
             <div className="flex items-center gap-2">
               <label className="text-xs text-gray-500">报表</label>
-              <select value={reportType} onChange={(e) => setReportType(e.target.value as "balance" | "income" | "cashflow")} className="rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none">
-                <option value="balance">资产负债表</option>
-                <option value="income">利润表</option>
-                <option value="cashflow">现金流量表</option>
-              </select>
+              <SelectField
+                value={reportType}
+                onChange={(nextValue) => setReportType(nextValue as "balance" | "income" | "cashflow")}
+                options={[
+                  { value: "balance", label: "资产负债表" },
+                  { value: "income", label: "利润表" },
+                  { value: "cashflow", label: "现金流量表" },
+                ]}
+                selectClassName="min-w-28 px-2 py-1 text-xs"
+              />
             </div>
             <button onClick={loadReport} className="rounded-md bg-emerald-600 px-4 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-50">生成报表</button>
           </>

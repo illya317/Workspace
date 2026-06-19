@@ -1,5 +1,6 @@
 "use client";
 import type { CSSProperties, ChangeEvent } from "react";
+import { SelectField } from "@workspace/core/ui";
 import type { QcLayoutPart } from "@/server/services/production/qc";
 
 const PAPER_INPUT_TEXT_CLASS = "text-[15px]";
@@ -147,23 +148,18 @@ export function QcPaperSelectInput({
 }) {
   const error = qcRangeError(part, value ?? part.defaultValue);
   return (
-    <select
-      aria-label={part.fieldKey || part.field || part.name || "选择项"}
-      data-field-key={part.fieldKey || part.field || part.name}
+    <SelectField
+      ariaLabel={part.fieldKey || part.field || part.name || "选择项"}
+      dataFieldKey={part.fieldKey || part.field || part.name}
       value={value ?? part.defaultValue ?? ""}
-      onChange={(event: ChangeEvent<HTMLSelectElement>) => onChange?.(event.target.value)}
+      onChange={(nextValue) => onChange?.(nextValue)}
       disabled={readOnly || part.readonlyDisplay}
-      title={error}
-      className={`${inTable ? "mx-0" : "mx-1"} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 appearance-none border-0 bg-transparent px-0.5 text-center tabular-nums align-middle leading-7 outline-none disabled:opacity-100 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+      placeholder=" "
+      options={options.map((option) => ({ value: option, label: option }))}
+      className={`${inTable ? "mx-0" : "mx-1"} inline-block align-middle`}
+      selectClassName={`${PAPER_INPUT_TEXT_CLASS} h-7 min-h-7 rounded-none border-0 bg-transparent px-0.5 text-center tabular-nums leading-7 shadow-none disabled:opacity-100 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
       style={selectWidth(part, options, value ?? part.defaultValue, inTable)}
-    >
-      <option value=""> </option>
-      {options.map((option) => (
-        <option key={`${part.fieldKey || part.field || part.name}-${option}`} value={option}>
-          {option}
-        </option>
-      ))}
-    </select>
+    />
   );
 }
 

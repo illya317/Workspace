@@ -2,6 +2,7 @@
 
 import { usePermissionsTab } from "../hooks/usePermissionsTab";
 import FilterBar from "@/app/components/FilterBar";
+import SelectField from "@/app/components/SelectField";
 import ResourceTree from "../components/permissions/ResourceTree";
 import MatrixTable from "../components/permissions/MatrixTable";
 import type { ResourceItem, SubjectType } from "../types";
@@ -22,15 +23,16 @@ export default function PermissionsTab({ resources, showToast }: Props) {
           {s.selectedResource && s.isSystemAdmin && s.selectedResource !== "system" && (
             <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
               最高业务权限：
-              <select
+              <SelectField
                 value={s.maxRoleKey === "admin" ? "delete" : s.maxRoleKey}
-                onChange={(e) => s.updateMaxRole(e.target.value)}
-                className="rounded border border-gray-200 px-1 py-0.5 text-xs text-gray-600"
-              >
-                <option value="access">访问</option>
-                <option value="write">编辑</option>
-                <option value="delete">删除</option>
-              </select>
+                onChange={s.updateMaxRole}
+                options={[
+                  { value: "access", label: "访问" },
+                  { value: "write", label: "编辑" },
+                  { value: "delete", label: "删除" },
+                ]}
+                selectClassName="min-h-6 min-w-16 px-1 py-0.5 text-xs text-gray-600"
+              />
             </div>
           )}
           <ResourceTree
@@ -64,42 +66,33 @@ export default function PermissionsTab({ resources, showToast }: Props) {
           <FilterBar>
             {s.subjectType !== "department" && (
               <>
-                <select
-                  value={s.l1Dept}
-                  onChange={(e) => s.setL1Dept(e.target.value)}
-                  className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-emerald-400 focus:outline-none"
-                >
-                  {s.l1Options.map((d) => (
-                    <option key={d} value={d}>
-                      {d === "全部" ? "一级部门" : d}
-                    </option>
-                  ))}
-                </select>
-                {s.l2Options.length > 1 && (
-                  <select
-                    value={s.l2Dept}
-                    onChange={(e) => s.setL2Dept(e.target.value)}
-                    className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-emerald-400 focus:outline-none"
-                  >
-                    {s.l2Options.map((d) => (
-                      <option key={d} value={d}>
-                        {d === "全部" ? "二级部门" : d}
-                      </option>
-                    ))}
-                  </select>
-                )}
-                {s.l3Options.length > 1 && (
-                  <select
-                    value={s.l3Dept}
-                    onChange={(e) => s.setL3Dept(e.target.value)}
-                    className="rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-emerald-400 focus:outline-none"
-                  >
-                    {s.l3Options.map((d) => (
-                      <option key={d} value={d}>
-                        {d === "全部" ? "三级部门" : d}
-                      </option>
-                    ))}
-                  </select>
+	                <SelectField
+	                  value={s.l1Dept}
+	                  onChange={s.setL1Dept}
+	                  options={s.l1Options.flatMap((d) =>
+	                    d ? [{ value: d, label: d === "全部" ? "一级部门" : d }] : []
+	                  )}
+	                  selectClassName="min-w-28 px-3 py-1.5 text-sm"
+	                />
+	                {s.l2Options.length > 1 && (
+	                  <SelectField
+	                    value={s.l2Dept}
+	                    onChange={s.setL2Dept}
+	                    options={s.l2Options.flatMap((d) =>
+	                      d ? [{ value: d, label: d === "全部" ? "二级部门" : d }] : []
+	                    )}
+	                    selectClassName="min-w-28 px-3 py-1.5 text-sm"
+	                  />
+	                )}
+	                {s.l3Options.length > 1 && (
+	                  <SelectField
+	                    value={s.l3Dept}
+	                    onChange={s.setL3Dept}
+	                    options={s.l3Options.flatMap((d) =>
+	                      d ? [{ value: d, label: d === "全部" ? "三级部门" : d }] : []
+	                    )}
+	                    selectClassName="min-w-28 px-3 py-1.5 text-sm"
+	                  />
                 )}
               </>
             )}

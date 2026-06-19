@@ -51,14 +51,20 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
 
   const { getVisibleResourceKeys } = await import("@/server/rbac/visibility");
   const { ensureGrantCache } = await import("@/server/rbac/context");
+  const { RESOURCE_KEYS } = await import("@workspace/platform/resources");
   await ensureGrantCache(ctx); // preload all grants → checkPermissionWithContext hits in-memory fast path
 
   const [visibleAccess, visibleWrite] = await Promise.all([
     getVisibleResourceKeys(ctx, "access"),
     getVisibleResourceKeys(ctx, "write"),
   ]);
+  const allResourceKeys = new Set([
+    ...RESOURCE_KEYS,
+    ...visibleAccess,
+    ...visibleWrite,
+  ]);
 
-  const canAnyWeek = await checkPermissionWithContext(ctx, "work.report", "write");
+  const canAnyWeek = isAdmin || await checkPermissionWithContext(ctx, "work.report", "write");
 
   const manageableKeys = await getManageableResourceKeys(payload.userId);
 
@@ -67,9 +73,9 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
     isWorkListAdmin: isAdmin,
     isSuperAdmin: isAdmin,
     canSelectAnyWeek: canAnyWeek,
-    visibleResourceKeys: [...visibleAccess],
-    visibleWriteResourceKeys: [...visibleWrite],
-    manageableResourceKeys: [...manageableKeys],
+    visibleResourceKeys: isAdmin ? [...allResourceKeys] : [...visibleAccess],
+    visibleWriteResourceKeys: isAdmin ? [...allResourceKeys] : [...visibleWrite],
+    manageableResourceKeys: isAdmin ? [...new Set([...manageableKeys, ...RESOURCE_KEYS])] : [...manageableKeys],
     employeeId: employee?.employeeId ?? null,
     isActiveEmployee,
   };

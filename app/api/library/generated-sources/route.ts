@@ -1,18 +1,8 @@
 import { NextResponse } from "next/server";
 import { withLibraryAccess } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
+import { listEnabledGeneratedSources } from "@workspace/library/server";
 
 export const GET = withLibraryAccess(async () => {
-  const sources = await prisma.libraryGeneratedSource.findMany({
-    where: { enabled: true },
-    orderBy: { name: "asc" },
-    select: {
-      key: true,
-      name: true,
-      outputCategory: true,
-      defaultConfidentialityLevel: true,
-      enabled: true,
-    },
-  });
+  const sources = await listEnabledGeneratedSources();
   return NextResponse.json(sources);
 });

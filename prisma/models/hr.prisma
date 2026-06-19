@@ -41,6 +41,7 @@ model Employment {
   joinDate       String?
   leaveDate      String?
   leaveReason    String?
+  leaveNote      String?
   officeLocation String?
   attendanceType String?
   personnelType  String?
@@ -194,6 +195,16 @@ model Project {
   name          String
   type          String                @default("project")
   description   String?
+  status        String?
+  priority      String?
+  stage         String?
+  plan          String?
+  goal          String?
+  milestones    String?
+  budgetAmount  Float?
+  budgetNote    String?
+  riskNote      String?
+  remark        String?
   startDate     DateTime?
   endDate       DateTime?
   editedBy      Int?

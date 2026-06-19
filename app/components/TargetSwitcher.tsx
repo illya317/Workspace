@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import SelectField from "./SelectField";
 
 interface Target {
   id: number;
@@ -74,22 +75,18 @@ export default function TargetSwitcher({ value, onChange }: Props) {
     <span className="inline-flex items-center gap-1 text-xs">
       {/* Type selector */}
       {availableTypes.length > 1 ? (
-        <select
+        <SelectField
           value={targetType}
-          onChange={(e) => {
-            const t = e.target.value;
+          onChange={(t) => {
             setTargetType(t);
             const list = resolveItems(data, t);
             if (list.length > 0) {
               onChange({ targetType: t, targetId: list[0].id, targetName: list[0].name });
             }
           }}
-          className="rounded border border-gray-300 bg-white px-1.5 py-0.5 text-gray-600 focus:border-emerald-400 focus:outline-none"
-        >
-          {availableTypes.map(([t, label]) => (
-            <option key={t} value={t}>{label}</option>
-          ))}
-        </select>
+          options={availableTypes.map(([t, label]) => ({ value: t, label }))}
+          selectClassName="min-h-6 min-w-20 px-1.5 py-0.5 text-xs text-gray-600"
+        />
       ) : (
         <span className="text-gray-500">{availableTypes[0]?.[1]}</span>
       )}
@@ -98,21 +95,19 @@ export default function TargetSwitcher({ value, onChange }: Props) {
       {items.length === 1 ? (
         <span className="text-gray-500">{items[0].name}</span>
       ) : (
-        <select
-          value={value?.targetId ?? ""}
-          onChange={(e) => {
-            const id = parseInt(e.target.value);
+        <SelectField
+          value={value?.targetId == null ? "" : String(value.targetId)}
+          onChange={(nextValue) => {
+            const id = parseInt(nextValue);
             const item = items.find((i) => i.id === id);
             if (item) onChange({ targetType, targetId: id, targetName: item.name });
           }}
-          className="rounded border border-gray-300 bg-white px-1.5 py-0.5 text-gray-700 focus:border-emerald-400 focus:outline-none"
-        >
-          {items.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.name}{item.company ? ` (${item.company})` : ""}
-            </option>
-          ))}
-        </select>
+          options={items.map((item) => ({
+            value: String(item.id),
+            label: `${item.name}${item.company ? ` (${item.company})` : ""}`,
+          }))}
+          selectClassName="min-h-6 min-w-28 px-1.5 py-0.5 text-xs text-gray-700"
+        />
       )}
     </span>
   );

@@ -7,7 +7,7 @@ const { execSync } = require("child_process");
 const ROOT = path.resolve(__dirname, "..", "..");
 
 const REQUIRED_FILES = [
-  "CLAUDE.md",
+  "AGENTS.md",
   "docs/architecture-governance.md",
 ];
 
@@ -21,11 +21,10 @@ const REQUIRED_README_SECTIONS = [
 ];
 
 const REQUIRED_AGENT_SECTIONS = [
-  "## 项目地图",
-  "## 新模块接入流程",
-  "## Prisma Schema 规则",
-  "## API 权限规则",
-  "## 硬约束",
+  "## 项目速记",
+  "## 开工先读",
+  "## 开发红线",
+  "## 交付前检查",
 ];
 
 const ALLOWED_API_ROOTS = new Set([
@@ -52,6 +51,7 @@ const ALLOWED_API_ROOTS = new Set([
   "reports",
   "user",
   "week-info",
+  "work",
   "works",
 ]);
 
@@ -87,6 +87,21 @@ function readText(relativePath) {
   return fs.readFileSync(rel(relativePath), "utf8");
 }
 
+function hasRouteFile(dir) {
+  if (!fs.existsSync(dir)) return false;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith(".")) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isFile() && /^route\.(ts|tsx|js|jsx)$/.test(entry.name)) {
+      return true;
+    }
+    if (entry.isDirectory() && hasRouteFile(full)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 for (const file of REQUIRED_FILES) {
   if (!fs.existsSync(rel(file))) {
     fail(`${file} is required for architecture governance`);
@@ -102,10 +117,10 @@ if (fs.existsSync(rel("README.md"))) {
   }
 }
 
-if (fs.existsSync(rel("CLAUDE.md"))) {
-  const agentRules = readText("CLAUDE.md");
+if (fs.existsSync(rel("AGENTS.md"))) {
+  const agentRules = readText("AGENTS.md");
   for (const section of REQUIRED_AGENT_SECTIONS) {
-    if (!agentRules.includes(section)) fail(`CLAUDE.md missing section: ${section}`);
+    if (!agentRules.includes(section)) fail(`AGENTS.md missing section: ${section}`);
   }
 }
 
@@ -127,9 +142,10 @@ if (fs.existsSync(apiDir)) {
   for (const entry of fs.readdirSync(apiDir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
     if (entry.name.startsWith(".")) continue;
+    if (!hasRouteFile(path.join(apiDir, entry.name))) continue;
     if (!ALLOWED_API_ROOTS.has(entry.name)) {
       fail(
-        `app/api/${entry.name} is not registered. Add the domain to README.md, CLAUDE.md, and scripts/check-architecture-governance.js.`
+        `app/api/${entry.name} is not registered. Add the domain to README.md, AGENTS.md, and scripts/check-architecture-governance.js.`
       );
     }
   }

@@ -1,6 +1,5 @@
-import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/generated/prisma/client";
-import { resolveFkValues, fkDisplay } from "@/lib/resolve-fk";
+import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { fkDisplay, resolveFkValues } from "@workspace/platform/server/resolve-fk";
 
 const RESOLVERS: Record<string, { model: string; field: string; fallback: string }> = {
   Employee: { model: "employee", field: "name", fallback: "未知员工" },

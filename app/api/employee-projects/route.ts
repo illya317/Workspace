@@ -1,9 +1,9 @@
 // @deprecated 兼容入口，新代码请使用 /api/hr/* 替代。此文件不再新增业务逻辑。
-// ⚠️ 已迁移到 /api/hr/employee-projects，本文件保留兼容期
+// ⚠️ 已迁移到 /api/work/plan-members，本文件保留兼容期
 
 function proxy(request: Request) {
   const url = new URL(request.url);
-  const target = new URL("/api/hr/employee-projects", url.origin);
+  const target = new URL("/api/work/plan-members", url.origin);
   target.search = url.search;
   const body = ["POST", "PUT", "PATCH"].includes(request.method)
     ? request.body

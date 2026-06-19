@@ -46,9 +46,6 @@ export default function DeptNode({
           L{level + 1}
         </span>
         <span className="text-sm font-medium flex-1">{dept.name}</span>
-        {dept.alias && <span className="text-xs opacity-60">({dept.alias})</span>}
-        <span className="text-xs font-mono opacity-60">{dept.code}</span>
-        <span className="text-xs opacity-80">{dept.company}</span>
         <div className="flex gap-2">
           {dept.headcount > 0 && (
             <span className="text-xs bg-white/60 px-2 py-0.5 rounded font-medium">

@@ -1,0 +1,18 @@
+{
+  "name": "@workspace/core",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./module-contract": "./module-contract.ts",
+    "./hooks": "./hooks/index.ts",
+    "./hooks/*": "./hooks/*.ts",
+    "./routing": "./routing/index.ts",
+    "./routing/*": "./routing/*.ts",
+    "./search": "./search/index.ts",
+    "./search/*": "./search/*.ts",
+    "./ui": "./ui/index.ts",
+    "./ui/*": "./ui/*.tsx"
+  }
+}

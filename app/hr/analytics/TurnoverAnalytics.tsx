@@ -193,6 +193,7 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
                 <th className="text-left py-2 px-2">入职日期</th>
                 <th className="text-left py-2 px-2">离职日期</th>
                 <th className="text-left py-2 px-2">原因</th>
+                <th className="text-left py-2 px-2">补充说明</th>
               </tr>
             </thead>
             <tbody>
@@ -203,10 +204,11 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
                   <td className="py-2 px-2 text-gray-500">{e.joinDate || "—"}</td>
                   <td className="py-2 px-2 text-gray-500">{e.leaveDate}</td>
                   <td className="py-2 px-2 text-gray-500">{e.leaveReason || "—"}</td>
+                  <td className="py-2 px-2 text-gray-500">{e.leaveNote || "—"}</td>
                 </tr>
               ))}
               {stats.recentLeaves.length === 0 && (
-                <tr><td colSpan={5} className="py-4 text-center text-gray-400">暂无数据</td></tr>
+                <tr><td colSpan={6} className="py-4 text-center text-gray-400">暂无数据</td></tr>
               )}
             </tbody>
           </table>

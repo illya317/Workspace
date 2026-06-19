@@ -1,3 +1,5 @@
+import { RESOURCE_MAX_ROLE } from "@workspace/platform/resources";
+
 // ============================================================
 // RBAC Resource/Role keys — centralized constants
 // ============================================================
@@ -23,8 +25,10 @@ export const RES = {
   },
   work: {
     root: "work",
+    plan: "work.plan",
     report: "work.report",
     task: "work.task",
+    history: "work.history",
   },
   finance: {
     root: "finance",
@@ -86,26 +90,6 @@ export const ACTION = {
 export function normalizeRoleKey(roleKey: string): string {
   return roleKey === "read" ? "access" : roleKey;
 }
-
-// ─── Fallback 常量：DB 未就绪时使用 ──
-export const RESOURCE_MAX_ROLE: Record<string, string> = {
-  system: "admin",
-  library: "write",
-  "library.write": "admin",
-  "library.secret": "access",
-  "library.top_secret": "access",
-  docs: "access",
-  external: "delete",
-  production: "admin",
-  "production.qc": "admin",
-  "production.qc.batches": "admin",
-  "production.qc.templates": "admin",
-  finance: "admin",
-  administration: "admin",
-  people: "admin",
-  work: "admin",
-  legal: "access",
-};
 
 const ROLE_HIERARCHY: Record<string, number> = {
   access: 0, write: 1, delete: 2, admin: 3,

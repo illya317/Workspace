@@ -1,5 +1,7 @@
 "use client";
 
+import { SelectField } from "@workspace/core/ui";
+
 interface CreateFieldConfig {
   key: string;
   label: string;
@@ -35,15 +37,12 @@ export default function InventoryCreateModal({
                 {f.label}{f.required && <span className="ml-0.5 text-red-400">*</span>}
               </label>
               {f.type === "select" ? (
-                <select
+                <SelectField
                   value={(form[f.key] as string) ?? f.defaultValue ?? ""}
-                  onChange={(e) => onFieldChange(f.key, e.target.value)}
-                  className="w-full rounded border border-gray-300 px-2 py-1 text-xs"
-                >
-                  {f.options?.map((opt) => (
-                    <option key={opt} value={opt}>{opt}</option>
-                  ))}
-                </select>
+                  onChange={(value) => onFieldChange(f.key, value)}
+                  options={(f.options ?? []).map((option) => ({ value: option, label: option }))}
+                  selectClassName="min-h-7"
+                />
               ) : (
                 <input
                   value={(form[f.key] as string) ?? ""}

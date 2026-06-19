@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectField } from "@workspace/core/ui";
 import type { QcTemplateMethodField, QcTemplateTestItem } from "@/server/services/production/qc";
 import { QcPaperChoiceInput } from "./QcPaperInputs";
 import { useQcFormulaEngine, type QcFieldValues } from "./useQcFormulaEngine";
@@ -39,19 +40,17 @@ function FieldInput({
   if (field.type === "select") {
     return (
       <div className="flex min-h-9 items-center justify-center gap-2">
-        <select
-          data-field-key={field.fieldKey}
+        <SelectField
+          ariaLabel={field.name || field.fieldKey || "选择项"}
+          dataFieldKey={field.fieldKey}
           value={value}
-          onChange={(event) => onChange(event.target.value)}
+          onChange={onChange}
           disabled={calculated || field.attr === "prefilled"}
-          className="h-8 min-w-16 appearance-none border-0 border-b border-slate-950 bg-transparent px-1 text-center text-sm outline-none disabled:opacity-100"
-          style={{ backgroundImage: "none" }}
-        >
-          <option value=""> </option>
-          {field.options?.map((option) => (
-            <option key={`${field.fieldKey}-${option}`} value={option}>{option}</option>
-          ))}
-        </select>
+          placeholder=" "
+          options={(field.options ?? []).map((option) => ({ value: option, label: option }))}
+          className="inline-block min-w-16"
+          selectClassName="h-8 min-h-8 rounded-none border-0 border-b border-slate-950 bg-transparent px-1 text-center text-sm shadow-none disabled:opacity-100"
+        />
         {field.unit && <span className="text-xs text-slate-700">{field.unit}</span>}
       </div>
     );

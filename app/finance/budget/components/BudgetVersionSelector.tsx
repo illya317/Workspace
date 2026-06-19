@@ -1,5 +1,7 @@
 "use client";
 
+import { SelectField } from "@workspace/core/ui";
+
 interface Version {
   id: number;
   name: string;
@@ -28,17 +30,17 @@ export default function BudgetVersionSelector({ versions, activeVersionId, onCha
   return (
     <div className="flex items-center gap-2">
       <label className="text-sm text-gray-500">预算版本:</label>
-      <select
-        value={activeVersionId ?? ""}
-        onChange={(e) => onChange(parseInt(e.target.value))}
-        className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm"
-      >
-        {versions.map((v) => (
-          <option key={v.id} value={v.id}>
-            {v.name} ({statusLabel(v.status)})
-          </option>
-        ))}
-      </select>
+      <SelectField
+        value={activeVersionId == null ? "" : String(activeVersionId)}
+        onChange={(nextValue) => {
+          if (nextValue) onChange(parseInt(nextValue));
+        }}
+        options={versions.map((v) => ({
+          value: String(v.id),
+          label: `${v.name} (${statusLabel(v.status)})`,
+        }))}
+        selectClassName="min-w-44 px-3 py-1.5 text-sm"
+      />
     </div>
   );
 }

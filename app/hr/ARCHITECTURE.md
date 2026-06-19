@@ -42,9 +42,7 @@
 | 合同信息 | ContractTab | 基于 `GenericTableTab` |
 | 公司管理 | CompanyTab | 基于 `CodeTab` |
 | 公司关系 | CompanyRelationTab | 基于 `GenericTableTab` |
-| 项目 | ProjectTab | 基于 `CodeTab` |
-| 项目信息 | ProjectInfoTab | 基于 `GenericTableTab` |
-| 员工项目 | EmployeeProjectTab | 基于 `GenericTableTab` |
+| 工作计划 | - | 已剥离到 `@workspace/work`，HR 不再维护入口 |
 
 ## 核心组件链
 
@@ -103,11 +101,13 @@ export interface TabConfig {
 
 ## 搜索模块
 
-所有搜索统一走 `lib/search.ts`（唯一 import `pinyin-pro` 的地方）：
-- `matchEmployee(obj, keyword)` — 姓名+别名+工号+拼音首字母
-- `getInitials(text)` — 拼音首字母提取
-- `matchAnyField(record, keyword, modelName)` — 通用字段搜索（`lib/search-schema.ts`）
-- `useSearch(config)` — 客户端搜索 hook（`lib/useSearch.ts`），默认带拼音
+通用文本匹配统一走 `@workspace/core/search`，HR 业务语义搜索留在 `@workspace/hr/server` 或 `@workspace/hr/ui`：
+- `matchText(text, keyword)` — 文本、拼音全拼、拼音首字母统一匹配
+- `searchHrAutocomplete(entity, keyword)` — HR 实体/FK 搜索
+- `searchEmployeesForAccountLink(keyword)` — 员工账号关联搜索
+- `EntitySearchInput` — HR 实体选择输入，字段展示和搜索面板解耦
+
+旧 `app/components/SearchBox` / `app/hooks/useSearch` 已废弃，并由 `npm run arch:check` 禁止复活。
 
 ## API 路由规范
 

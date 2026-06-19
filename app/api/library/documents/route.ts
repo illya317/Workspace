@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withLibraryAccess } from "@/lib/with-auth";
-import { listDocuments } from "@/server/services/library/metadata";
-import { buildConfidentialityFilter } from "@/server/services/library/permissions";
+import { listDocuments } from "@workspace/library/server/metadata";
+import { buildConfidentialityFilter } from "@workspace/library/server/permissions";
 
 export const GET = withLibraryAccess(async (request: Request, user) => {
   const { searchParams } = new URL(request.url);
