@@ -2,6 +2,13 @@
 
 这是一张给新 agent 的开工卡片。先按这里完成分流，再进入对应专题文档。
 
+## 0. 当前执行模式
+
+- Workspace 处于 **Level 2 / Level 2.5**：Architecture 负责发现结构漂移、判断根因、拆成可执行任务包；Feature/Data/Ops 负责按任务包执行。
+- 所有强制校验仍只有一个入口：`npm run arch:gate`。不要新增本地私有 gate、CI 旁路检查或第二套 registry。
+- Architecture 输出必须是文件级或模块级动作；Feature/Data/Ops 收到任务后只改自己负责范围。发现任务需要改 gate、baseline、registry 或跨包规则时，先回传 Architecture。
+- 历史债可以由 baseline 锁定，但 baseline 只能减少，不能为了新违规扩写。
+
 ## 1. 开工顺序
 
 1. 运行 `git status --short --branch`，确认当前分支和已有脏文件。
@@ -14,10 +21,10 @@
 
 | 角色 | 可以改 | 不能改 |
 |---|---|---|
-| Architecture | `AGENTS.md`、`docs/*` 架构治理、`scripts/arch/*`、`scripts/check/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts`、baseline ratchet、Platform/API/service 收敛 | 业务体验细节、业务数据生成内容、运行时任务分派 |
-| Feature | 对应 `packages/<domain>/ui`、`packages/<domain>/server`、`app/<domain>` 薄壳、`app/api/<domain>` 薄壳；必要时补 Core UI 基建 | architecture gate、CI 规则、auth/module enforcement、无关业务包 |
+| Architecture | `AGENTS.md`、`docs/*` 架构治理、`scripts/arch/*`、`scripts/check/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts`、baseline ratchet、迁移归属表、可执行任务包 | 业务体验细节、业务数据生成内容、运行时任务分派、领域功能实现 |
+| Feature | 对应 `packages/<domain>/ui`、`packages/<domain>/server`、`app/<domain>` 薄壳、`app/api/<domain>` 薄壳；必要时补 Core UI 基建 | architecture gate、CI 规则、auth/module enforcement、无关业务包、未分配的 baseline/rule 改动 |
 | Data | `prisma/*`、seed、导入脚本、生成脚本和生成物 | 通用 UI、页面体验、架构 gate、权限系统 |
-| Ops/CI | CI、部署、环境、package scripts、运行脚本 | 业务功能、领域 UI、service 业务规则 |
+| Ops/CI | CI、部署、环境、package scripts、运行脚本 | 业务功能、领域 UI、service 业务规则、平行架构 gate |
 
 ## 3. 放置规则
 
@@ -41,6 +48,8 @@
 - `npm run arch:level2` 是结构智能报告，用来发现重复 UI pattern、API route contract 缺口、route 模板漂移、旧 service 债和 app hook/UI 存量。
 - 报告发现不能直接变成私有规则；要强制就接入唯一 `npm run arch:gate`。
 - baseline 只代表历史债锁定。迁移减少历史债时要同步 ratchet；新增违规不能通过扩写 baseline 放行。
+- Level 2 任务排序固定按系统影响：边界污染 > 校验薄弱 > 抽象缺口 > 迁移债 > 重复代码。
+- Feature/Data/Ops 不需要重新做全量架构分析；执行任务前只确认目标文件、依赖顺序和并行避让范围。
 
 ## 6. 交接格式
 
@@ -51,7 +60,30 @@
 范围:
 文件:
 动作: move | delete | refactor | rewrite
+目标层: core | platform | package | app-shell | api-shell | data | ops
+依赖:
 禁止触碰:
 验证:
 风险:
 ```
+
+任务包必须能直接开工。下面是最低合格粒度：
+
+```txt
+目标: Finance period API route 去业务逻辑化
+范围: finance
+文件: app/api/finance/periods/route.ts, packages/finance/server/ledger/periods.ts
+动作: refactor
+目标层: api-shell + package
+依赖: 先补 package service，再缩薄 route，最后 ratchet baseline
+禁止触碰: packages/work, config/scripts/generate-product-stage-tests.mjs
+验证: npm run arch:gate; npm run typecheck:quick
+风险: medium
+```
+
+## 7. 本地提交纪律
+
+- 提交前再次运行 `git status --short`。只 stage 本任务文件。
+- 看到别的 agent 的脏文件时，不要 `git checkout --`、不要批量格式化、不要带进 commit。
+- 需要临时隔离时，先 stage 自己的文件，再使用 `git stash push --keep-index --include-untracked`，验证后恢复；不要 `stash pop` 未确认来源的 stash。
+- 本地开发只允许一个 3000 端口 dev server。需要开 dev 前先查 `lsof -nP -iTCP:3000 -sTCP:LISTEN`。
