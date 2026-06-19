@@ -1,41 +1,42 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/generated/prisma/client";
+import {
+  createFinancePeriod,
+  listFinancePeriods,
+} from "@workspace/finance/server/ledger/periods";
+
+const periodsQuerySchema = z.object({
+  year: z.coerce.number().int().optional(),
+});
+
+const createPeriodSchema = z.object({
+  year: z.coerce.number().int(),
+  month: z.coerce.number().int().min(1).max(12),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  companyCode: z.string().optional(),
+});
 
 export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
-  const year = searchParams.get("year");
-  const where: Prisma.FinancePeriodWhereInput = {};
-  if (year) where.year = parseInt(year);
-
-  const periods = await prisma.financePeriod.findMany({
-    where,
-    orderBy: [{ year: "desc" }, { month: "desc" }],
+  const parsed = periodsQuerySchema.safeParse({
+    year: searchParams.get("year") || undefined,
   });
-  return NextResponse.json({ periods });
+  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+
+  return NextResponse.json(await listFinancePeriods(parsed.data));
 });
 
 export const POST = withFinanceLedgerWrite(async (request: Request, _user) => {
-  const body = await request.json();
-  const { year, month, startDate, endDate, companyCode } = body;
-  if (!year || !month) {
+  const parsed = createPeriodSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) {
     return NextResponse.json({ error: "年份和月份为必填" }, { status: 400 });
   }
 
-  const existing = await prisma.financePeriod.findFirst({
-    where: { year: parseInt(year), month: parseInt(month), companyCode: companyCode || null },
-  });
-  if (existing) return NextResponse.json({ error: "该期间已存在" }, { status: 400 });
+  const result = await createFinancePeriod(parsed.data);
+  if (!result.success) return NextResponse.json({ error: result.error }, { status: result.status });
 
-  const period = await prisma.financePeriod.create({
-    data: {
-      year: parseInt(year),
-      month: parseInt(month),
-      startDate: startDate || `${year}-${String(month).padStart(2, "0")}-01`,
-      endDate: endDate || `${year}-${String(month).padStart(2, "0")}-31`,
-      companyCode: companyCode || null,
-    },
-  });
-  return NextResponse.json({ success: true, period });
+  return NextResponse.json(result);
 });

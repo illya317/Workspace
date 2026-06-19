@@ -1,26 +1,37 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
 import { withFinanceLedgerWrite, withFinanceLedgerDelete } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
+import {
+  deleteFinancePeriod,
+  updateFinancePeriod,
+} from "@workspace/finance/server/ledger/periods";
+
+const paramsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+const updatePeriodSchema = z.object({
+  isClosed: z.boolean().optional(),
+});
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   return withFinanceLedgerWrite(async (req, _user) => {
-    const { id } = await params;
-    const body = await req.json();
-    const { isClosed } = body;
+    const parsedParams = paramsSchema.safeParse(await params);
+    if (!parsedParams.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
 
-    const period = await prisma.financePeriod.update({
-      where: { id: parseInt(id) },
-      data: { isClosed: isClosed ?? false },
-    });
+    const parsedBody = updatePeriodSchema.safeParse(await req.json().catch(() => null));
+    if (!parsedBody.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
 
-    return NextResponse.json({ success: true, period });
+    return NextResponse.json(await updateFinancePeriod(parsedParams.data.id, parsedBody.data));
   })(request);
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   return withFinanceLedgerDelete(async (_req) => {
-    const { id } = await params;
-    await prisma.financePeriod.delete({ where: { id: parseInt(id) } });
-    return NextResponse.json({ success: true });
+    const parsedParams = paramsSchema.safeParse(await params);
+    if (!parsedParams.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+
+    return NextResponse.json(await deleteFinancePeriod(parsedParams.data.id));
   })(request);
 }
