@@ -1,7 +1,9 @@
 import "server-only";
 import { cache } from "react";
 import { cookies } from "next/headers";
-import { verifyToken, getPermissionContext, checkPermissionWithContext } from "@/lib/auth";
+import { verifyToken } from "@/lib/auth";
+import { getPermissionContext } from "@/server/rbac/context";
+import { evaluatePermissionWithContext } from "@/server/rbac/check";
 import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
 import { prisma } from "@/lib/prisma";
 import type { SessionUser } from "@/lib/types";
@@ -52,7 +54,7 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
   const { getVisibleResourceKeys } = await import("@/server/rbac/visibility");
   const { ensureGrantCache } = await import("@/server/rbac/context");
   const { RESOURCE_KEYS } = await import("@workspace/platform/resources");
-  await ensureGrantCache(ctx); // preload all grants → checkPermissionWithContext hits in-memory fast path
+  await ensureGrantCache(ctx); // preload all grants for the in-memory fast path
 
   const [visibleAccess, visibleWrite] = await Promise.all([
     getVisibleResourceKeys(ctx, "access"),
@@ -64,7 +66,7 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
     ...visibleWrite,
   ]);
 
-  const canAnyWeek = isAdmin || await checkPermissionWithContext(ctx, "work.report", "write");
+  const canAnyWeek = isAdmin || await evaluatePermissionWithContext(ctx, "work.report", "write");
 
   const manageableKeys = await getManageableResourceKeys(payload.userId);
 

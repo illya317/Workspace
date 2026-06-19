@@ -212,12 +212,6 @@
     "app/works/WorksList.tsx",
     "app/works/page.tsx"
   ],
-  "directPermissionFiles": [
-    "lib/auth.ts",
-    "packages/platform/server/auth.ts",
-    "server/auth/authorize.ts",
-    "server/rbac/check.ts",
-    "server/rbac/context.ts"
-  ],
+  "directPermissionFiles": [],
   "directRbacTableFiles": []
 }

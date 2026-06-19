@@ -7,7 +7,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import { checkPermissionWithContext } from "./check";
+import { evaluatePermissionWithContext } from "./check";
 import type { PermissionContext } from "./types";
 
 interface ResNode {
@@ -44,7 +44,7 @@ export async function getVisibleResourceKeys(
 
   // Check each resource; if granted, walk up ancestors
   for (const r of resources) {
-    if (await checkPermissionWithContext(ctx, r.key, roleKey)) {
+    if (await evaluatePermissionWithContext(ctx, r.key, roleKey)) {
       let cur: ResNode | undefined = r;
       while (cur) {
         visible.add(cur.key);

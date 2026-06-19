@@ -12,7 +12,6 @@ export {
   type AuthorizeInput,
   type AuthorizeUser,
 } from "../../../server/auth/authorize";
-export { checkPermission } from "../../../server/rbac/check";
 export {
   canManageResourceGrant,
   getManageableResourceKeys,

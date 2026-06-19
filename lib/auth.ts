@@ -63,25 +63,3 @@ export {
   checkLibraryAccess,
   checkLibraryWrite,
 } from "@/server/auth/library";
-
-// RBAC resource tree
-export {
-  getResourceDescendants,
-  invalidateResourceCache,
-} from "@/server/rbac/resource";
-
-// RBAC permission context
-export { getPermissionContext } from "@/server/rbac/context";
-export type { PermissionContext } from "@/server/rbac/types";
-
-// RBAC core checks
-export {
-  checkPermission,
-  checkPermissionWithContext,
-} from "@/server/rbac/check";
-
-// RBAC queries (admin UI)
-export {
-  getUserPermissions,
-  getUserDepartmentAdmins,
-} from "@/server/rbac/queries";

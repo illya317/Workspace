@@ -1,5 +1,5 @@
 import "server-only";
-import { checkPermission } from "@/server/rbac/check";
+import { evaluatePermission } from "@/server/rbac/check";
 
 export type AuthorizeAction = "access" | "write" | "delete" | "admin";
 
@@ -35,7 +35,7 @@ export async function authorize({
 
   const userId = getAuthorizeUserId(user);
   if (!userId) return false;
-  return checkPermission(userId, resourceKey, action);
+  return evaluatePermission(userId, resourceKey, action);
 }
 
 export async function requireAuthorized(input: AuthorizeInput): Promise<void> {

@@ -16,7 +16,7 @@ function resolveRoleKeys(roleKey: string): string[] {
   return ["admin", "delete", "write", "access"];                      // 所有角色都隐含 access
 }
 
-export async function checkPermission(
+export async function evaluatePermission(
   userId: number,
   resourceKey: string,
   roleKey: string,
@@ -24,7 +24,7 @@ export async function checkPermission(
   // 0. system.admin bypass（受开关控制）
   const isSelfCheck = resourceKey === "system" && normalizeRoleKey(roleKey) === "admin";
   if (!isSelfCheck) {
-    const isSysAdmin = await checkPermission(userId, "system", "admin");
+    const isSysAdmin = await evaluatePermission(userId, "system", "admin");
     if (isSysAdmin) {
       // system.* 资源始终 bypass（保证后台管理不受影响）
       if (resourceKey === "system" || resourceKey.startsWith("system.")) return true;
@@ -84,7 +84,7 @@ export async function checkPermission(
   return false;
 }
 
-export async function checkPermissionWithContext(
+export async function evaluatePermissionWithContext(
   ctx: PermissionContext,
   resourceKey: string,
   roleKey: string,
@@ -96,11 +96,11 @@ export async function checkPermissionWithContext(
 
   // Fast path: use preloaded grant cache (avoids N×3 DB queries)
   if (ctx._grantCache) {
-    return checkPermissionCached(ctx, resourceKey, roleKey);
+    return evaluatePermissionCached(ctx, resourceKey, roleKey);
   }
 
   // Slow path: individual DB queries
-  return checkPermissionSlow(ctx, resourceKey, roleKey);
+  return evaluatePermissionSlow(ctx, resourceKey, roleKey);
 }
 
 const _resourceCache = new Map<string, { id: number } | null>();
@@ -150,7 +150,7 @@ function checkGrantCache(
   return false;
 }
 
-function checkPermissionCached(
+function evaluatePermissionCached(
   ctx: PermissionContext,
   resourceKey: string,
   roleKey: string,
@@ -173,7 +173,7 @@ function resolveResourceIdsSync(resourceKey: string): number[] | null {
   return _ancestorCache.get(r.id) ?? null;
 }
 
-async function checkPermissionSlow(
+async function evaluatePermissionSlow(
   ctx: PermissionContext,
   resourceKey: string,
   roleKey: string,

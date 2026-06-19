@@ -1,13 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
-import { checkPermission } from "./check";
+import { evaluatePermission } from "./check";
 import type { PermissionContext } from "./types";
 
 export async function getPermissionContext(userId: number): Promise<PermissionContext> {
   const [positionIds, departmentIds, isAdmin] = await Promise.all([
     getUserPositionIds(userId),
     getUserDepartmentIds(userId),
-    checkPermission(userId, "system", "admin"),
+    evaluatePermission(userId, "system", "admin"),
   ]);
   return { userId, isAdmin, positionIds, departmentIds };
 }
@@ -16,7 +16,7 @@ export async function getPermissionContext(userId: number): Promise<PermissionCo
 export async function ensureGrantCache(ctx: PermissionContext): Promise<void> {
   if (ctx._grantCache) return;
 
-  // Warm resource and ancestor caches (used by checkPermissionCached)
+  // Warm resource and ancestor caches for permission evaluation.
   const allResources = await prisma.resource.findMany({ select: { id: true, key: true, parentId: true } });
   const { _warmCaches } = await import("./check");
   _warmCaches(allResources);
