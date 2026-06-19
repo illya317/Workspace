@@ -23,6 +23,7 @@ type Level2Baseline = {
   legacyRootPermissionsImports: string[];
   legacyRootPeriodImplementationFiles: string[];
   legacyRootPeriodImports: string[];
+  legacyRootSearchSchemaFiles: string[];
   repeatedServiceGroups: string[];
   routePrimitiveSchemaDuplicates: string[];
   apiRouteHelperDuplicates: string[];
@@ -125,6 +126,7 @@ export function checkLevel2Ratchet() {
       ["legacyRootPermissionsImports", report.drift.legacyRootPermissionsImports],
       ["legacyRootPeriodImplementationFiles", report.drift.legacyRootPeriodImplementationFiles],
       ["legacyRootPeriodImports", report.drift.legacyRootPeriodImports],
+      ["legacyRootSearchSchemaFiles", report.drift.legacyRootSearchSchemaFiles],
       [
         "repeatedServiceGroups",
         report.drift.repeatedServiceGroups.map(repeatedServiceGroupKey),

@@ -128,6 +128,7 @@ type Level2Report = {
     legacyRootPermissionsImports: number;
     legacyRootPeriodImplementationFiles: number;
     legacyRootPeriodImports: number;
+    legacyRootSearchSchemaFiles: number;
   };
   registries: {
     modules: Array<{
@@ -169,6 +170,7 @@ type Level2Report = {
     legacyRootPermissionsImports: string[];
     legacyRootPeriodImplementationFiles: string[];
     legacyRootPeriodImports: string[];
+    legacyRootSearchSchemaFiles: string[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -927,6 +929,13 @@ function findLegacyRootPeriodImports(files: SourceInfo[]) {
     .sort();
 }
 
+function findLegacyRootSearchSchemaFiles(files: SourceInfo[]) {
+  return files
+    .filter((file) => file.relPath === "lib/search-schema.ts")
+    .map((file) => file.relPath)
+    .sort();
+}
+
 function findAppHookFiles(hooks: HookPatternCandidate[]) {
   return hooks
     .filter((hook) => hook.file.startsWith("app/hooks/"))
@@ -989,6 +998,7 @@ export function createLevel2Report(): Level2Report {
   const legacyRootPermissionsImports = findLegacyRootPermissionsImports(sourceFiles);
   const legacyRootPeriodImplementationFiles = findLegacyRootPeriodImplementationFiles(sourceFiles);
   const legacyRootPeriodImports = findLegacyRootPeriodImports(sourceFiles);
+  const legacyRootSearchSchemaFiles = findLegacyRootSearchSchemaFiles(sourceFiles);
 
   return {
     level: "2",
@@ -1025,6 +1035,7 @@ export function createLevel2Report(): Level2Report {
       legacyRootPermissionsImports: legacyRootPermissionsImports.length,
       legacyRootPeriodImplementationFiles: legacyRootPeriodImplementationFiles.length,
       legacyRootPeriodImports: legacyRootPeriodImports.length,
+      legacyRootSearchSchemaFiles: legacyRootSearchSchemaFiles.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -1068,6 +1079,7 @@ export function createLevel2Report(): Level2Report {
       legacyRootPermissionsImports,
       legacyRootPeriodImplementationFiles,
       legacyRootPeriodImports,
+      legacyRootSearchSchemaFiles,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,
