@@ -77,6 +77,7 @@ risk:
 flow:
   - "PR"
   - "Orchestrator: emits target/risk/review_required only"
+  - "Orchestrator: emits REASSIGN only when mismatch, capability overflow, wrong-domain reviewer result, or confidence below 0.6 is signaled"
   - "Reviewer: evaluates correctness, architecture violations, permissions, security, and duplication"
   - "CI Gate"
   - "Merge"
@@ -85,3 +86,10 @@ output:
   target: "feature | architecture | data | ops"
   risk: "low | medium | high"
   review_required: "boolean"
+
+reassign_output:
+  action: "REASSIGN"
+  new_agent: "feature | data | ops | architecture | reviewer"
+  reason: "string"
+  previous_agent: "feature | data | ops | architecture | null"
+  retry: true
