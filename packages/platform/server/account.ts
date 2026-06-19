@@ -1,6 +1,10 @@
 import bcrypt from "bcryptjs";
 
 import {
+  getWecomUserByCode,
+  getWecomUserDetail,
+} from "../../../server/auth/wecom";
+import {
   createToken,
   ensureGrantCache,
   getManageableResourceKeys,
@@ -31,6 +35,10 @@ export type PasswordLoginResult =
       };
     }
   | { success: false; status: number; error: string };
+
+export type WecomLoginResult =
+  | { success: true; token: string }
+  | { success: false; error: string };
 
 export async function changeUserPassword(
   userId: number,
@@ -137,4 +145,35 @@ export async function loginWithPassword(
       manageableResourceKeys: [...manageableKeys],
     },
   };
+}
+
+export async function loginWithWecomCode(code: string): Promise<WecomLoginResult> {
+  const { userId: wxUserId, userTicket } = await getWecomUserByCode(code);
+  const user = await prisma.user.findUnique({
+    where: { wxUserId },
+    select: { id: true, name: true, wxUserId: true, canLogin: true, sessionVersion: true },
+  });
+
+  if (!user) return { success: false, error: `企业微信账号 ${wxUserId} 尚未绑定` };
+  if (!user.canLogin) return { success: false, error: "账号已被停用，请联系管理员" };
+
+  if (userTicket) {
+    try {
+      const detail = await getWecomUserDetail(userTicket);
+      const avatar = detail?.avatar || undefined;
+      if (avatar) await prisma.user.update({ where: { id: user.id }, data: { avatar } });
+    } catch (error) {
+      console.error("Sync WeCom user detail failed", error);
+    }
+  }
+
+  const token = await createToken({
+    userId: user.id,
+    wxUserId: user.wxUserId ?? "",
+    name: user.name,
+    departmentId: 0,
+    sessionVersion: user.sessionVersion,
+  });
+
+  return { success: true, token };
 }

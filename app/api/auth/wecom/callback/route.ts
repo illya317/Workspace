@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { createToken } from "@/lib/auth";
-import { SESSION_MAX_AGE_SECONDS } from "@/lib/auth/token";
-import { getWecomUserByCode, getWecomUserDetail } from "@/server/auth/wecom";
+import { SESSION_MAX_AGE_SECONDS } from "@workspace/platform/server/auth";
+import { loginWithWecomCode } from "@workspace/platform/server/account";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 const POST_LOGIN_NEXT_COOKIE = "post_login_next";
@@ -66,38 +64,12 @@ export async function GET(request: Request) {
   }
 
   try {
-    const { userId: wxUserId, userTicket } = await getWecomUserByCode(code);
-    const user = await prisma.user.findUnique({
-      where: { wxUserId },
-      select: { id: true, name: true, wxUserId: true, canLogin: true, sessionVersion: true },
-    });
-
-    if (!user) return redirectToLogin(request, `企业微信账号 ${wxUserId} 尚未绑定`);
-    if (!user.canLogin) return redirectToLogin(request, "账号已被停用，请联系管理员");
-
-    let avatar: string | undefined;
-    if (userTicket) {
-      try {
-        const detail = await getWecomUserDetail(userTicket);
-        avatar = detail?.avatar || undefined;
-      } catch (error) {
-        console.error("Sync WeCom user detail failed", error);
-      }
-    }
-
-    if (avatar) await prisma.user.update({ where: { id: user.id }, data: { avatar } });
-
-    const token = await createToken({
-      userId: user.id,
-      wxUserId: user.wxUserId ?? "",
-      name: user.name,
-      departmentId: 0,
-      sessionVersion: user.sessionVersion,
-    });
+    const login = await loginWithWecomCode(code);
+    if (!login.success) return redirectToLogin(request, login.error);
 
     const nextPath = safeNextPath(readCookie(request, POST_LOGIN_NEXT_COOKIE)) || `${BASE_PATH}/portal`;
     const response = NextResponse.redirect(new URL(nextPath, getRequestOrigin(request)));
-    response.cookies.set("token", token, {
+    response.cookies.set("token", login.token, {
       httpOnly: true,
       secure: false,
       sameSite: "lax",
