@@ -2,7 +2,6 @@
   "uncontractedApiRouteMethods": [],
   "apiRouteMethodsWithDirectPrismaSignal": [],
   "apiRouteMethodsWithoutValidationSignal": [
-    "DELETE /api/admin/company-relations/:param",
     "DELETE /api/admin/position-codes",
     "DELETE /api/departments/:param",
     "DELETE /api/employee-positions/:param",
@@ -36,7 +35,6 @@
     "PATCH /api/library/due-diligence/:param/questions/:param/materials",
     "PATCH /api/production/qc/batches/:param",
     "PATCH /api/production/qc/template-feedback",
-    "POST /api/admin/company-relations",
     "POST /api/agent",
     "POST /api/agent/proposals/:param/cancel",
     "POST /api/agent/proposals/:param/confirm",
@@ -74,7 +72,6 @@
     "POST /api/work/plan-members",
     "POST /api/work/plans",
     "POST /api/works",
-    "PUT /api/admin/company-relations/:param",
     "PUT /api/admin/employee-permissions",
     "PUT /api/admin/permission-grants",
     "PUT /api/admin/position-codes",
