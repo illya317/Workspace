@@ -24,11 +24,9 @@
     "PUT /api/hr/employee-profiles/:param/edps",
     "PUT /api/hr/employee-profiles/:param/projects",
     "PUT /api/hr/employee-projects/:param",
-    "PUT /api/hr/position-description-templates",
     "PUT /api/hr/positions",
     "PUT /api/hr/positions/:param",
     "PUT /api/hr/projects/:param",
-    "PUT /api/position-descriptions",
     "PUT /api/work/plan-members/:param",
     "PUT /api/work/plans/:param"
   ],

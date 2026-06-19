@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { authenticate, checkHRAccess, checkHRWrite } from "@workspace/platform/server/auth";
 import {
   getPositionDescriptionByCode,
@@ -6,6 +7,14 @@ import {
   listPositionDescriptions,
   updatePositionDescription,
 } from "@workspace/hr/server";
+
+const updatePositionDescriptionSchema = z.object({
+  id: z.unknown().optional(),
+  code: z.unknown().optional(),
+  name: z.unknown().optional(),
+  headcount: z.unknown().optional(),
+  details: z.unknown().optional(),
+}).passthrough();
 
 function serviceResponse<T>(result: { ok: true; data: T } | { ok: false; error: string; status?: number }) {
   if (result.ok) return NextResponse.json(result.data);
@@ -29,5 +38,8 @@ export async function PUT(request: Request) {
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
   if (!(await checkHRWrite(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
-  return serviceResponse(await updatePositionDescription(await request.json(), payload.userId));
+  const body = await request.json().catch(() => null);
+  const parsedBody = updatePositionDescriptionSchema.safeParse(body);
+  if (!parsedBody.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  return serviceResponse(await updatePositionDescription(parsedBody.data, payload.userId));
 }
