@@ -28,7 +28,7 @@
 - 可以稳定通过服务层实时计算出来的字段
 
 ### Service 计算层
-- 位置：`server/services/finance-cost/`
+- 位置：`packages/finance/server/cost/`
 - 负责：汇总金额、成本率、毛利、单位成本、趋势、分组统计
 
 ## 2. Schema 说明

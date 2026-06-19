@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withFinanceCostAccess } from "@/lib/with-auth";
-import { listWorkshopReports, getWorkshopSummary } from "@/server/services/finance-cost";
+import { listWorkshopReports, getWorkshopSummary } from "@workspace/finance/server/cost";
 
 export async function GET(request: Request) {
   return withFinanceCostAccess(async (req) => {

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import type { CostQueryParams, PaginatedResult } from "./common";
 import { buildPagination, buildYearMonthWhere } from "./common";
 

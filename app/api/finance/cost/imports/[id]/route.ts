@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withFinanceCostAccess, withFinanceCostDelete } from "@/lib/with-auth";
-import { deleteImportById, getImportById } from "@/server/services/finance-cost";
+import { deleteImportById, getImportById } from "@workspace/finance/server/cost";
 
 export async function DELETE(
   request: Request,

@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
-import type { Prisma } from "@/generated/prisma/client";
+import { prisma } from "@workspace/platform/server/prisma";
+import type { Prisma } from "@workspace/platform/server/prisma";
 
 export interface ImportCreateInput {
   profile: string;
