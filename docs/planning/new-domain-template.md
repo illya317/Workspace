@@ -60,17 +60,12 @@ prisma/models/<domain>.prisma  # 领域模型（按 schema 治理规则）
 ### page.tsx
 
 ```tsx
-import { authenticate, checkPermission } from "@workspace/platform/server/auth";
-import { redirect } from "next/navigation";
-import DomainClient from "./DomainClient";
+import { requireResourceAccess } from "@/server/auth/guard";
+import { DomainClient } from "@workspace/<domain>/ui";
 
 export default async function DomainPage() {
-  const payload = await authenticate();
-  if (!payload) redirect("/login");
-  if (!(await checkPermission(payload.userId, "domain", "access"))) {
-    redirect("/portal");
-  }
-  return <DomainClient />;
+  const user = await requireResourceAccess("<domain>");
+  return <DomainClient user={user} />;
 }
 ```
 
@@ -78,16 +73,31 @@ export default async function DomainPage() {
 
 ```ts
 import { NextResponse } from "next/server";
-import { authenticate, checkPermission } from "@workspace/platform/server/auth";
+import { z } from "zod";
+import { authenticate, requireAuthorized } from "@workspace/platform/server/auth";
 import * as service from "@workspace/<domain>/server";
+
+const querySchema = z.object({
+  keyword: z.string().optional(),
+});
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkPermission(payload.userId, "domain", "access"))) {
+
+  try {
+    await requireAuthorized({ user: payload.userId, resourceKey: "<domain>", action: "access" });
+  } catch {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
-  const data = await service.listItems();
+
+  const { searchParams } = new URL(request.url);
+  const parsed = querySchema.safeParse({
+    keyword: searchParams.get("keyword") || undefined,
+  });
+  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+
+  const data = await service.listItems(parsed.data);
   return NextResponse.json({ items: data });
 }
 ```
@@ -101,5 +111,5 @@ export async function GET(request: Request) {
 - [ ] 运行 `npm run db:validate && npm run schema:check`
 - [ ] 实现 `packages/<domain>/server/*`
 - [ ] 实现 `app/api/<domain>/route.ts`
-- [ ] 实现 `app/<domain>/page.tsx` + `DomainClient.tsx`
+- [ ] 实现 `packages/<domain>/ui` 组件，再由 `app/<domain>/page.tsx` 挂载
 - [ ] 运行硬约束：`npm run arch:gate && npm run lint -- --max-warnings=0 && npx tsc --noEmit && npm run build`

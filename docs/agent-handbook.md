@@ -84,6 +84,19 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 
 新增业务模块必须先建立 package 边界。例如绩效模块应使用 `packages/performance/{module,ui,server,types,constants,import}` 承载实现，再由 `app/performance/` 和 `app/api/performance/` 提供薄路由壳。禁止把新模块塞进 HR、Finance、通用 `lib/` 或 route 文件里借壳生长。
 
+### Agent 接力和文件隔离
+
+开工前先读 `docs/agent-startup.md`，再按任务类型进入专题文档。Architecture、Feature、Data、Ops/CI 不能混用职责：
+
+| 角色 | 负责 | 交付时必须说明 |
+|---|---|---|
+| Architecture | 规则、文档、gate、registry、API contract、baseline ratchet、Platform/API/service 收敛 | 是否修改单一 `arch:gate`、是否 ratchet baseline、是否只减少历史债 |
+| Feature | 业务 UI、业务 service、页面/API route 薄壳 | 所属 domain、复用了哪些 Core/Platform 组件、是否避开其他业务包 |
+| Data | schema、seed、导入、生成脚本和生成物 | 数据来源、事实字段、migration/seed 影响、是否更新数据库文档 |
+| Ops/CI | CI、部署、环境、脚本运行态 | 是否仍通过单一 `arch:gate`，是否影响本地/生产运行 |
+
+并行时只 stage 自己的文件。`git status --short` 中出现其他 agent 的范围时，不要提交、回滚、格式化或改名。确实需要干净工作区验证时，先 stage 自己的文件，再用 `git stash push --keep-index --include-untracked` 临时隔离，验证后恢复 stash。
+
 ## 4. 必读文档触发条件
 
 `AGENTS.md` 保留简版触发表。完整治理规则见 `docs/architecture-governance.md`。
@@ -255,7 +268,7 @@ API 权限规则：
 | `@workspace/core/search` | 通用搜索 | 拼音首字母、全拼和文本匹配 |
 | `@workspace/platform/ui` | 平台壳 UI | `AppShell`、`ModuleHome`、`PortalClient`、`UserMenu`、审计日志 UI |
 | `@workspace/platform/types` | 平台类型 | `SessionUser`，全站统一 |
-| `@workspace/platform/server/auth` | 认证鉴权 | `authenticate`、`checkPermission`、`checkHRAccess` 等 server 契约 |
+| `@workspace/platform/server/auth` | 认证鉴权 | `authenticate`、`authorize`、`requireAuthorized` 和已委托 `authorize()` 的领域 wrapper；新代码不要直接调用 `checkPermission` |
 | `@workspace/platform/server/prisma` | 数据库 | 单库 Prisma runtime client |
 | `@workspace/platform/server/history` | 审计 | `snapshotHistory` |
 | `@workspace/platform/server/crud-factory` | 通用 CRUD 工厂 | 业务包通过本领域 wrapper 复用 |
