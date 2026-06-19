@@ -17,6 +17,7 @@
     "./server/agent": "./server/agent/index.ts",
     "./server/agent/*": "./server/agent/*.ts",
     "./server/agent/model/*": "./server/agent/model/*.ts",
+    "./server/admin-projects": "./server/admin-projects.ts",
     "./server/audit-log": "./server/audit-log.ts",
     "./server/auth": "./server/auth.ts",
     "./server/crud-factory": "./server/crud-factory.ts",

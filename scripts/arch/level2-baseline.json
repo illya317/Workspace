@@ -2,7 +2,6 @@
   "uncontractedApiRouteMethods": [],
   "apiRouteMethodsWithDirectPrismaSignal": [
     "DELETE /api/works/:param",
-    "GET /api/admin/projects",
     "GET /api/reports/:param/versions",
     "GET /api/reports/:param/versions/:param",
     "PUT /api/reports/:param",
@@ -132,7 +131,6 @@
     "DELETE /api/positions/:param",
     "DELETE /api/projects/:param",
     "DELETE /api/works/:param",
-    "GET /api/admin/projects",
     "GET /api/departments",
     "GET /api/employee-positions",
     "GET /api/employee-projects",
