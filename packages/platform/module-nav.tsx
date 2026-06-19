@@ -16,7 +16,7 @@ export const MODULES: ModuleDef[] = workspacePackages
   .filter((moduleDef): moduleDef is ModuleRegistration => Boolean(moduleDef))
   .map(toModuleDef);
 
-function canAccess(user: SessionUser, resourceKey?: string): boolean {
+function isResourceVisible(user: SessionUser, resourceKey?: string): boolean {
   if (resourceKey) {
     return (user.visibleResourceKeys || []).includes(resourceKey);
   }
@@ -25,9 +25,9 @@ function canAccess(user: SessionUser, resourceKey?: string): boolean {
 
 export function getAccessibleModules(user: SessionUser): ModuleDef[] {
   return MODULES.filter((m) => {
-    if (canAccess(user, m.resourceKey)) return true;
+    if (isResourceVisible(user, m.resourceKey)) return true;
     if (m.children?.length) {
-      return m.children.some((c) => canAccess(user, c.resourceKey));
+      return m.children.some((c) => isResourceVisible(user, c.resourceKey));
     }
     return false;
   });
@@ -36,7 +36,7 @@ export function getAccessibleModules(user: SessionUser): ModuleDef[] {
 export function getSubModules(user: SessionUser, moduleKey: string): SubModuleDef[] {
   const mod = MODULES.find((m) => m.key === moduleKey);
   if (!mod?.children) return [];
-  return mod.children.filter((c) => canAccess(user, c.resourceKey));
+  return mod.children.filter((c) => isResourceVisible(user, c.resourceKey));
 }
 
 export function getEmptyMessage(_moduleKey: string): string {

@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import { checkPermission } from "./auth";
+import { authorize } from "./auth";
 
 // ─── Business rule helpers ──────────────────────────────
 
@@ -67,7 +67,7 @@ export async function getUserTargets(userId: number): Promise<{
   users: TargetInfo[];
 }> {
   // System admin → all targets
-  if (await checkPermission(userId, "work", "admin")) {
+  if (await authorize({ user: userId, resourceKey: "work", action: "admin" })) {
     const [departments, projects, positions, users] = await Promise.all([
       prisma.department.findMany({ select: { id: true, name: true, code: true } }),
       prisma.project.findMany({ select: { id: true, name: true, type: true } }),
@@ -84,7 +84,7 @@ export async function getUserTargets(userId: number): Promise<{
   }
 
   // Work admin → all department/project targets
-  const isWorkAdmin = await checkPermission(userId, "work", "admin");
+  const isWorkAdmin = await authorize({ user: userId, resourceKey: "work", action: "admin" });
   const [allDepts, allProjs] = isWorkAdmin ? await Promise.all([
     prisma.department.findMany({ select: { id: true, name: true, code: true } }),
     prisma.project.findMany({ select: { id: true, name: true, type: true } }),
@@ -173,7 +173,7 @@ export async function canAccessTarget(
   // Own personal data: always
   if (targetType === "user" && targetId === userId) return true;
   // Admin bypass
-  if (await checkPermission(userId, "work", "admin")) return true;
+  if (await authorize({ user: userId, resourceKey: "work", action: "admin" })) return true;
   // Membership → can view
   return isMemberOfTarget(userId, targetType, targetId);
 }
@@ -185,7 +185,7 @@ export async function canSubmitToTarget(
   // Own personal data: always
   if (targetType === "user" && targetId === userId) return true;
   // Admin bypass
-  if (await checkPermission(userId, "work", "admin")) return true;
+  if (await authorize({ user: userId, resourceKey: "work", action: "admin" })) return true;
   // Assignee → can write
   if (await isAssignee(userId, targetType, targetId, "report")) return true;
   return false;
@@ -196,7 +196,7 @@ export async function canEditWorkTask(
   userId: number, targetType: string, targetId: number,
 ): Promise<boolean> {
   if (targetType === "user" && targetId === userId) return true;
-  if (await checkPermission(userId, "work", "admin")) return true;
+  if (await authorize({ user: userId, resourceKey: "work", action: "admin" })) return true;
   if (await isAssignee(userId, targetType, targetId, "task")) return true;
   return false;
 }
