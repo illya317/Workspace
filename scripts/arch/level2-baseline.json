@@ -1,9 +1,7 @@
 {
   "uncontractedApiRouteMethods": [],
   "appHookImplementationFiles": [],
-  "domainUiCandidatesWithoutCore": [
-    "packages/work/ui/components/OptionPicker.tsx"
-  ],
+  "domainUiCandidatesWithoutCore": [],
   "legacyServiceFiles": [
     "server/services/admin/audit-log.ts",
     "server/services/admin/permission-subjects.ts",
