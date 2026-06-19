@@ -137,7 +137,6 @@
     "GET /api/employees",
     "GET /api/employees/autocomplete",
     "GET /api/employees/search",
-    "GET /api/my-targets",
     "GET /api/positions",
     "GET /api/projects",
     "GET /api/reports/:param/versions",

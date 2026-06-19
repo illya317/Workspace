@@ -28,6 +28,7 @@
     "./server/resolve-fk": "./server/resolve-fk.ts",
     "./server/security": "./server/security.ts",
     "./server/system-config": "./server/system-config.ts",
+    "./server/user-targets": "./server/user-targets.ts",
     "./server/user-preferences": "./server/user-preferences.ts",
     "./server/users": "./server/users.ts",
     "./server/week-info": "./server/week-info.ts",
