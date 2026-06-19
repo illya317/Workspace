@@ -68,7 +68,7 @@ page.tsx
 1. **tabConfigs.ts** 定义每个 Tab 的字段配置（FieldConfig[]）、FK 映射、API 端点
 2. **useGenericTab.ts** 提供通用 CRUD hook：加载/创建/更新/搜索/筛选/审计日志
 3. **GenericTableTab.tsx** 消费 hook，渲染表格 + 工具栏 + 弹窗
-4. **API 路由** 在 `app/api/hr/` 下，统一使用 `lib/crud.ts` 模板或 `matchAnyField` 搜索
+4. **API 路由** 在 `app/api/hr/` 下，统一通过 `packages/hr/server` service 和 `@workspace/platform/server/crud-factory` 的领域 wrapper 处理字段级 CRUD，搜索使用 HR server helper
 
 员工详情页的数据流：
 

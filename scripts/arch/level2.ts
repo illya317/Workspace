@@ -119,6 +119,7 @@ type Level2Report = {
     apiRouteHelperDuplicates: number;
     legacyAuthHubFiles: number;
     legacyRootAccessFiles: number;
+    legacyRootUtilityFiles: number;
   };
   registries: {
     modules: Array<{
@@ -151,6 +152,7 @@ type Level2Report = {
     legacyServiceFiles: string[];
     legacyAuthHubFiles: string[];
     legacyRootAccessFiles: string[];
+    legacyRootUtilityFiles: string[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -186,6 +188,15 @@ const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
   { name: "tabs", regex: /tabs?|tabbar/i },
   { name: "date", regex: /date(input|picker|field)|calendar/i },
 ];
+const LEGACY_ROOT_UTILITY_FILES = new Set([
+  "lib/company-server.ts",
+  "lib/crud-factory.ts",
+  "lib/crud-finance.ts",
+  "lib/crud-inventory.ts",
+  "lib/crud.ts",
+  "lib/schemas.ts",
+  "lib/validation.ts",
+]);
 const API_VALIDATION_SIGNAL_REGEX = /\b(safeParse|parse)\s*\(|\bz\s*\.|\bparseJson\s*\(|\bvalidateCompatibilityProxyBody\s*\(|\bcreateValidatedIdProxyHandler\s*\(|\bparseRouteId(Params)?\s*\(/;
 const ROUTE_PRIMITIVE_IMPORTS: Record<RoutePrimitiveSchemaKind, string> = {
   "route-id-params": "routeIdParamsSchema",
@@ -775,6 +786,13 @@ function findLegacyRootAccessFiles(files: SourceInfo[]) {
     .sort();
 }
 
+function findLegacyRootUtilityFiles(files: SourceInfo[]) {
+  return files
+    .filter((file) => LEGACY_ROOT_UTILITY_FILES.has(file.relPath))
+    .map((file) => file.relPath)
+    .sort();
+}
+
 function findAppHookFiles(hooks: HookPatternCandidate[]) {
   return hooks
     .filter((hook) => hook.file.startsWith("app/hooks/"))
@@ -828,6 +846,7 @@ export function createLevel2Report(): Level2Report {
   const legacyServiceFiles = findLegacyServiceFiles(sourceFiles);
   const legacyAuthHubFiles = findLegacyAuthHubFiles(sourceFiles);
   const legacyRootAccessFiles = findLegacyRootAccessFiles(sourceFiles);
+  const legacyRootUtilityFiles = findLegacyRootUtilityFiles(sourceFiles);
 
   return {
     level: "2",
@@ -855,6 +874,7 @@ export function createLevel2Report(): Level2Report {
       apiRouteHelperDuplicates: apiRouteHelperDuplicates.length,
       legacyAuthHubFiles: legacyAuthHubFiles.length,
       legacyRootAccessFiles: legacyRootAccessFiles.length,
+      legacyRootUtilityFiles: legacyRootUtilityFiles.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -889,6 +909,7 @@ export function createLevel2Report(): Level2Report {
       legacyServiceFiles,
       legacyAuthHubFiles,
       legacyRootAccessFiles,
+      legacyRootUtilityFiles,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,
