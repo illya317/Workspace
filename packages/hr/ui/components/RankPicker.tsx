@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { PickerShell } from "@workspace/core/ui";
 
 interface RankPickerProps {
   value: unknown;
@@ -32,9 +33,7 @@ export default function RankPicker({
 }: RankPickerProps) {
   const current = normalizeValue(value);
   const parsedCurrent = parseRank(current);
-  const [open, setOpen] = useState(false);
   const [group, setGroup] = useState(parsedCurrent?.group || "M");
-  const rootRef = useRef<HTMLDivElement | null>(null);
 
   const groups = useMemo(() => {
     const grouped = new Map<string, string[]>();
@@ -59,41 +58,22 @@ export default function RankPicker({
     if (parsedCurrent?.group) setGroup(parsedCurrent.group);
   }, [parsedCurrent?.group]);
 
-  useEffect(() => {
-    if (!open) return;
-    function onPointerDown(event: PointerEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
-    }
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
-    document.addEventListener("pointerdown", onPointerDown);
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("pointerdown", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [open]);
-
   return (
-    <div ref={rootRef} className={`relative ${className || ""}`}>
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => setOpen((next) => !next)}
-        className={buttonClassName || "w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-left text-sm text-slate-800 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500"}
-      >
-        <span className={current ? "text-slate-900" : "text-slate-400"}>{current || "未设置"}</span>
-      </button>
-
-      {open && !disabled && (
-        <div className="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-72 rounded-lg border border-slate-200 bg-white p-3 shadow-xl">
+    <PickerShell
+      valueLabel={current}
+      disabled={disabled}
+      className={className}
+      buttonClassName={buttonClassName}
+      popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-72 rounded-lg border border-slate-200 bg-white p-3 shadow-xl"
+    >
+      {({ close }) => (
+        <>
           <div className="mb-3 flex items-center gap-2">
             <button
               type="button"
               onClick={() => {
                 onChange(null);
-                setOpen(false);
+                close();
               }}
               className={`rounded-md border px-3 py-1.5 text-xs font-medium transition ${current ? "border-slate-200 bg-white text-slate-600 hover:bg-slate-50" : "border-slate-300 bg-slate-100 text-slate-900"}`}
             >
@@ -126,7 +106,7 @@ export default function RankPicker({
                   type="button"
                   onClick={() => {
                     onChange(rank);
-                    setOpen(false);
+                    close();
                   }}
                   className={`rounded-md border px-2 py-2 text-sm font-medium transition ${
                     selected
@@ -139,8 +119,8 @@ export default function RankPicker({
               );
             })}
           </div>
-        </div>
+        </>
       )}
-    </div>
+    </PickerShell>
   );
 }

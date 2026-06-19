@@ -1,5 +1,6 @@
 import { checkAuth } from "./auth";
 import { checkDeps } from "./deps";
+import { checkLevel2Ratchet } from "./level2-enforce";
 import { checkModules } from "./modules";
 import { scan } from "./scan";
 
@@ -10,6 +11,7 @@ export async function archGate() {
     ["scan", scan],
     ["deps", checkDeps],
     ["modules", checkModules],
+    ["level2-ratchet", checkLevel2Ratchet],
     ["auth", checkAuth],
   ];
 

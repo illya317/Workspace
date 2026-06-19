@@ -17,6 +17,8 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 - `ui/NumberCell`
 - `ui/AmountCell`
 - `ui/ColumnToggle`
+- `ui/OptionPicker`
+- `ui/PickerShell`
 - `ui/TabBar`
 - `ui/DataTable`
 - `ui/FilterField`

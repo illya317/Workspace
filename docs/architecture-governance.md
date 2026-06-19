@@ -195,6 +195,7 @@ Level 2 结构智能层：
 - `npm run arch:level2` 生成确定性的结构报告，用于发现 UI pattern 重复、API route contract 覆盖缺口、旧 service 迁移债和 app 层 JSX 存量。
 - API Contract 的单一来源是 `packages/platform/api-registry.ts`，它从 `packages/platform/module-registry.ts` 的 `apiGuards` 和 `apiRoutes` 派生，不允许业务包维护第二套 API 清单。
 - `apiGuards` 表示需要资源权限的 protected API；`apiRoutes` 表示显式 route contract，可标记为 `protected`、`public`、`dev` 或 `disabled`，用于登录/OAuth、开发入口、禁用兼容 API 等非资源权限入口。
+- Level 2 中已升级为强制规则的漂移项由 `scripts/arch/level2-baseline.json` 锁定，并通过唯一 `npm run arch:gate` 执行。baseline 只能减少：新增未注册 API route、app-root hook 实现、未复用 Core 的业务选择器、旧 `server/services` 文件或重复 service group 都会失败；迁移删除后必须同步删 baseline 项。
 - Level 2 报告只读、不自动修复、不直接失败 CI。把某个发现升级为硬约束前，必须先进入 `scripts/arch/gate.ts` 所属的单 gate 系统，禁止在 CI 里新增旁路检查。
 - Feature/Data/Ops agent 使用 Level 2 报告拆迁移任务时，只能改对应业务文件；Architecture agent 才能修改 `scripts/arch/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts` 和相关治理文档。
 

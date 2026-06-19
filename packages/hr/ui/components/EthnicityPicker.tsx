@@ -1,6 +1,6 @@
 "use client";
 
-import OptionPicker from "./OptionPicker";
+import { OptionPicker } from "@workspace/core/ui";
 import { HR_COMMON_ETHNICITIES, HR_ETHNICITIES } from "@workspace/hr/constants/field-options";
 
 interface EthnicityPickerProps {

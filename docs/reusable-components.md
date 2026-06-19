@@ -16,6 +16,8 @@
 | 能力 | 统一入口 | 适用场景 | 禁止做法 |
 |---|---|---|---|
 | 单选下拉 | `@workspace/core/ui` 的 `SelectField` | 状态、阶段、优先级、年月、固定枚举 | 业务包或页面手写原生 `<select>` |
+| 常用项 + 更多选择 | `@workspace/core/ui` 的 `OptionPicker` | 民族、固定选项、候选较多但可先展示常用项的字段 | 每个业务包复制按钮组 + 更多弹层 |
+| 分级/自定义选择弹层 | `@workspace/core/ui` 的 `PickerShell` | 专业、职称、职级等需要业务自定义面板的字段 | 每个业务组件重复手写触发按钮、外部点击关闭和 Escape 关闭 |
 | 二段式筛选 | `@workspace/core/ui` 的 `FilterField` | 字段 + 值组合筛选 | 每个模块复制一份筛选 UI |
 | 筛选栏 | `@workspace/core/ui` 的 `FilterBar` | 列表页搜索、筛选、重置、批量工具 | 页面里散落按钮和输入框 |
 | 标准筛选工具栏 | `@workspace/core/ui` 的 `FilterToolbar` | 搜索、字段显隐、每页数量、筛选插槽组合 | 每个模块重写搜索框 + 字段按钮 + 每页下拉 |
