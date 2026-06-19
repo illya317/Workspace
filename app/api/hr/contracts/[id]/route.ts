@@ -1,16 +1,7 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import { routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
 import { authenticate, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
 import { deleteContract, updateContractField } from "@workspace/hr/server";
-
-const paramsSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
-
-const updateContractFieldSchema = z.object({
-  field: z.string().min(1),
-  value: z.unknown().optional(),
-}).passthrough();
 
 export async function PUT(
   request: Request,
@@ -20,11 +11,11 @@ export async function PUT(
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
   if (!(await checkHRWrite(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
-  const parsedParams = paramsSchema.safeParse(await params);
+  const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
 
   const body = await request.json().catch(() => null);
-  const parsedBody = updateContractFieldSchema.safeParse(body);
+  const parsedBody = updateFieldBodySchema.safeParse(body);
   if (!parsedBody.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
   const { field, value } = parsedBody.data;
   const result = await updateContractField(parsedParams.data.id, field, value, payload.userId);
@@ -40,7 +31,7 @@ export async function DELETE(
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
   if (!(await checkHRDelete(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
-  const parsedParams = paramsSchema.safeParse(await params);
+  const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
   const result = await deleteContract(parsedParams.data.id, payload.userId);
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });

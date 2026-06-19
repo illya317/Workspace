@@ -26,6 +26,19 @@ export async function parseJson<T>(
 
 const compatibilityProxyBodySchema = z.object({}).passthrough();
 
+export const routeIdParamsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+export const updateFieldBodySchema = z.object({
+  field: z.string().min(1),
+  value: z.unknown().optional(),
+}).passthrough();
+
+export const rowsRequestBodySchema = z.object({
+  rows: z.unknown().optional(),
+}).passthrough();
+
 export async function validateCompatibilityProxyBody(request: Request): Promise<ParsedJson<Record<string, unknown>>> {
   if (!["POST", "PUT", "PATCH"].includes(request.method.toUpperCase())) {
     return { ok: true, data: {} };
