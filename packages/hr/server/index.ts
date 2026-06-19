@@ -4,6 +4,7 @@ export * from "./companies";
 export * from "./company-relations";
 export * from "./company-directory";
 export * from "./contracts";
+export * from "./department-codes";
 export * from "./departments";
 export * from "./edps";
 export * from "./employee-contracts";

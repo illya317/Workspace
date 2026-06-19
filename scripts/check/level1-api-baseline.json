@@ -28,7 +28,6 @@
   "directPrismaFiles": [
     "app/api/admin/audit-log/restore/route.ts",
     "app/api/admin/department-admins/route.ts",
-    "app/api/admin/department-codes/route.ts",
     "app/api/admin/department-permissions/route.ts",
     "app/api/admin/departments/route.ts",
     "app/api/admin/edit-history/route.ts",
