@@ -47,6 +47,7 @@ type ApiRouteMethod = {
   hasAuthorizeSignal: boolean;
   hasValidationSignal: boolean;
   hasServiceSignal: boolean;
+  hasCompatibilityProxySignal: boolean;
   hasDirectPrismaSignal: boolean;
 };
 
@@ -83,6 +84,7 @@ type Level2Report = {
     apiRouteMethodsWithDirectPrismaSignal: number;
     apiRouteMethodsWithoutValidationSignal: number;
     apiRouteMethodsWithoutServiceSignal: number;
+    compatibilityProxyRouteMethods: number;
     uiPatternCandidates: number;
     uiPatternCandidatesWithoutCore: number;
     hookPatternCandidates: number;
@@ -115,6 +117,7 @@ type Level2Report = {
     apiRoutesWithDirectPrismaSignal: ApiRouteMethod[];
     apiRouteMethodsWithoutValidationSignal: ApiRouteMethod[];
     apiRouteMethodsWithoutServiceSignal: ApiRouteMethod[];
+    compatibilityProxyRouteMethods: ApiRouteMethod[];
     legacyServiceFiles: string[];
     repeatedServiceGroups: ServicePatternGroup[];
     domainUiCandidatesWithoutCore: UiPatternCandidate[];
@@ -412,6 +415,19 @@ function hasServiceSignal(file: SourceInfo) {
   });
 }
 
+function hasCompatibilityProxySignal(file: SourceInfo) {
+  if (!/@deprecated/.test(file.text)) return false;
+  if (/\bprisma\s*\./.test(file.text)) return false;
+
+  const importsProxyHelper = file.imports.some((item) => item.specifier === "@/lib/proxy-route");
+  const callsProxyHelper = /\bcreateProxyHandler\s*\(\s*["']\/api\//.test(file.text);
+  const proxiesWithFetch =
+    /\bfetch\s*\(/.test(file.text) &&
+    /new URL\(\s*["']\/api\//.test(file.text);
+
+  return (importsProxyHelper && callsProxyHelper) || proxiesWithFetch;
+}
+
 function findApiRouteMethods(files: SourceInfo[]) {
   const routeMethods: ApiRouteMethod[] = [];
 
@@ -419,6 +435,7 @@ function findApiRouteMethods(files: SourceInfo[]) {
     if (!/^app\/api\/.*\/route\.ts$/.test(file.relPath)) continue;
 
     const apiPath = routePathFromFile(file.relPath);
+    const compatibilityProxySignal = hasCompatibilityProxySignal(file);
     for (const method of getExportedHttpMethods(file.sourceFile)) {
       const contract = findApiContract(method, apiPath);
       routeMethods.push({
@@ -434,6 +451,7 @@ function findApiRouteMethods(files: SourceInfo[]) {
         hasAuthorizeSignal: /\bauthorize\s*\(/.test(file.text),
         hasValidationSignal: /\b(safeParse|parse)\s*\(|\bz\s*\./.test(file.text),
         hasServiceSignal: hasServiceSignal(file),
+        hasCompatibilityProxySignal: compatibilityProxySignal,
         hasDirectPrismaSignal: /\bprisma\s*\./.test(file.text),
       });
     }
@@ -593,10 +611,13 @@ export function createLevel2Report(): Level2Report {
   const repeatedServiceGroups = findRepeatedServiceGroups(sourceFiles);
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
   const apiRoutesWithDirectPrismaSignal = apiRouteMethods.filter((route) => route.hasDirectPrismaSignal);
+  const compatibilityProxyRouteMethods = apiRouteMethods.filter((route) => route.hasCompatibilityProxySignal);
   const apiRouteMethodsWithoutValidationSignal = apiRouteMethods
     .filter((route) => route.method !== "GET")
     .filter((route) => !route.hasValidationSignal);
-  const apiRouteMethodsWithoutServiceSignal = apiRouteMethods.filter((route) => !route.hasServiceSignal);
+  const apiRouteMethodsWithoutServiceSignal = apiRouteMethods
+    .filter((route) => !route.hasServiceSignal)
+    .filter((route) => !route.hasCompatibilityProxySignal);
   const domainUiCandidatesWithoutCore = uiPatternCandidates
     .filter((candidate) => candidate.layer === "domain")
     .filter((candidate) => !candidate.importsCoreUi);
@@ -620,6 +641,7 @@ export function createLevel2Report(): Level2Report {
       apiRouteMethodsWithDirectPrismaSignal: apiRoutesWithDirectPrismaSignal.length,
       apiRouteMethodsWithoutValidationSignal: apiRouteMethodsWithoutValidationSignal.length,
       apiRouteMethodsWithoutServiceSignal: apiRouteMethodsWithoutServiceSignal.length,
+      compatibilityProxyRouteMethods: compatibilityProxyRouteMethods.length,
       uiPatternCandidates: uiPatternCandidates.length,
       uiPatternCandidatesWithoutCore: domainUiCandidatesWithoutCore.length,
       hookPatternCandidates: hookPatternCandidates.length,
@@ -654,6 +676,7 @@ export function createLevel2Report(): Level2Report {
       apiRoutesWithDirectPrismaSignal,
       apiRouteMethodsWithoutValidationSignal,
       apiRouteMethodsWithoutServiceSignal,
+      compatibilityProxyRouteMethods,
       legacyServiceFiles,
       repeatedServiceGroups,
       domainUiCandidatesWithoutCore,
