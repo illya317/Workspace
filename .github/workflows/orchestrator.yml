@@ -29,9 +29,10 @@ jobs:
       - name: Collect changed files
         shell: bash
         run: |
+          git fetch origin "${{ github.event.pull_request.base.ref }}" --depth=1
           git diff --name-only --diff-filter=ACMRT \
-            "${{ github.event.pull_request.base.sha }}" \
-            "${{ github.event.pull_request.head.sha }}" > /tmp/orchestrator-files.txt
+            "$(git merge-base HEAD "origin/${{ github.event.pull_request.base.ref }}")" \
+            HEAD > /tmp/orchestrator-files.txt
           cat /tmp/orchestrator-files.txt
 
       - name: Detect declared agent
