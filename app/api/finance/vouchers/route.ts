@@ -1,80 +1,69 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
-import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/generated/prisma/client";
-import { createVoucher } from "@workspace/finance/server/ledger/voucher-service";
-import { parsePositiveInt, parseYear, parseMonth, parsePageParams } from "@/lib/validation";
-import { matchText } from "@/lib/search";
+import { createVoucher, listVouchers } from "@workspace/finance/server/ledger/voucher-service";
+
+const optionalPositiveInt = z.preprocess(
+  (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
+  z.number().int().positive().optional(),
+);
+const optionalYear = z.preprocess(
+  (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
+  z.number().int().min(2020).max(2099).optional(),
+);
+const optionalMonth = z.preprocess(
+  (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
+  z.number().int().min(1).max(12).optional(),
+);
+
+const listVouchersSchema = z.object({
+  periodId: optionalPositiveInt,
+  status: z.string().optional(),
+  companyCode: z.string().optional(),
+  year: optionalYear,
+  month: optionalMonth,
+  keyword: z.string().default(""),
+  page: z.coerce.number().int().positive().default(1),
+  pageSize: z.coerce.number().int().positive().max(200).default(50),
+});
+
+const voucherItemSchema = z.object({
+  accountId: z.unknown(),
+  debit: z.unknown(),
+  credit: z.unknown(),
+  description: z.unknown().optional(),
+});
+
+const createVoucherSchema = z
+  .object({
+    voucherNo: z.string().min(1),
+    date: z.string().min(1),
+    companyCode: z.string().min(1),
+    description: z.string().optional(),
+    status: z.string().optional(),
+    items: z.array(voucherItemSchema).min(1),
+  })
+  .passthrough();
+
+const badRequest = (error: string) => NextResponse.json({ error }, { status: 400 });
 
 export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
-  const periodId = searchParams.get("periodId");
-  const status = searchParams.get("status");
-  const companyCode = searchParams.get("companyCode");
-  const yearNum = parseYear(searchParams.get("year"));
-  const monthNum = parseMonth(searchParams.get("month"));
-  const keyword = searchParams.get("keyword") || "";
-  const hasKeyword = !!keyword;
-  const { page, pageSize } = parsePageParams(searchParams);
-  const where: Prisma.FinanceVoucherWhereInput = {};
-  if (periodId) where.periodId = parsePositiveInt(periodId, 0);
-  if (status) where.status = status;
-  if (companyCode) where.companyCode = companyCode;
-  if (yearNum !== null || monthNum !== null) {
-    where.period = {};
-    if (yearNum !== null) where.period.year = yearNum;
-    if (monthNum !== null) where.period.month = monthNum;
-  }
+  const parsed = listVouchersSchema.safeParse(Object.fromEntries(searchParams.entries()));
+  if (!parsed.success) return badRequest("参数无效");
 
-  if (hasKeyword) {
-    const all = await prisma.financeVoucher.findMany({
-      where,
-      orderBy: { date: "desc" },
-      include: {
-        items: { include: { account: true }, orderBy: { sortOrder: "asc" } },
-        period: true,
-      },
-    });
-    const filtered = all.filter(
-      (v) => matchText(v.voucherNo, keyword) || matchText(v.description, keyword),
-    );
-    const total = filtered.length;
-    const skip = (page - 1) * pageSize;
-    return NextResponse.json({
-      data: filtered.slice(skip, skip + pageSize),
-      total, page, pageSize,
-      totalPages: Math.ceil(total / pageSize),
-      vouchers: filtered.slice(skip, skip + pageSize),
-    });
-  }
-
-  const [vouchers, total] = await Promise.all([
-    prisma.financeVoucher.findMany({
-      where,
-      orderBy: { date: "desc" },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
-      include: {
-        items: { include: { account: true }, orderBy: { sortOrder: "asc" } },
-        period: true,
-      },
-    }),
-    prisma.financeVoucher.count({ where }),
-  ]);
-  const totalPages = Math.ceil(total / pageSize);
-  return NextResponse.json({
-    data: vouchers,
-    total,
-    page,
-    pageSize,
-    totalPages,
-    vouchers,
-  });
+  return NextResponse.json(await listVouchers(parsed.data));
 });
 
 export const POST = withFinanceLedgerWrite(async (request: Request, user) => {
-  const body = await request.json();
-  const result = await createVoucher(body, user.userId);
+  const body = await request.json().catch(() => null);
+  if (!body || typeof body !== "object") return badRequest("请求体为必填");
+
+  const parsed = createVoucherSchema.safeParse(body);
+  if (!parsed.success) return badRequest("凭证号、日期、公司编码、分录为必填");
+
+  const result = await createVoucher(parsed.data, user.userId);
   if (result.error) {
     const { error, status, ...rest } = result;
     return NextResponse.json({ error, ...rest }, { status: status as number });
