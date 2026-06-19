@@ -20,6 +20,7 @@
     "./server/audit-log": "./server/audit-log.ts",
     "./server/auth": "./server/auth.ts",
     "./server/crud-factory": "./server/crud-factory.ts",
+    "./server/department-admins": "./server/department-admins.ts",
     "./server/history": "./server/history.ts",
     "./server/prisma": "./server/prisma.ts",
     "./server/resolve-fk": "./server/resolve-fk.ts",

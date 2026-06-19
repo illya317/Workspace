@@ -12,6 +12,59 @@ interface GrantItem {
   scopeId: string | null;
 }
 
+export type UserResourceRoleAssignment = {
+  id: number;
+  scopeId: string | null;
+  user: { id: number; name: string; username: string | null };
+};
+
+export async function resourceRoleExists(resourceKey: string, roleKey: string) {
+  const normalizedRole = normalizeRoleKey(roleKey);
+  const [resource, role] = await Promise.all([
+    prisma.resource.findUnique({ where: { key: resourceKey } }),
+    prisma.role.findUnique({ where: { key: normalizedRole } }),
+  ]);
+  return Boolean(resource && role);
+}
+
+export async function getUserResourceRoleAssignments(
+  resourceKey: string,
+  roleKey: string,
+): Promise<UserResourceRoleAssignment[]> {
+  const normalizedRole = normalizeRoleKey(roleKey);
+  return prisma.userResourceRole.findMany({
+    where: {
+      resource: { key: resourceKey },
+      role: { key: normalizedRole },
+    },
+    include: {
+      user: { select: { id: true, name: true, username: true } },
+    },
+  });
+}
+
+export async function userResourceRoleAssignmentExists(
+  userId: number,
+  resourceKey: string,
+  roleKey: string,
+  scopeId: string | null,
+) {
+  const normalizedRole = normalizeRoleKey(roleKey);
+  const existing = await prisma.userResourceRole.findFirst({
+    where: {
+      userId,
+      resource: { key: resourceKey },
+      role: { key: normalizedRole },
+      scopeId,
+    },
+  });
+  return Boolean(existing);
+}
+
+export async function deleteUserResourceRoleAssignment(id: number) {
+  await prisma.userResourceRole.delete({ where: { id } });
+}
+
 export async function setGrant(
   subjectType: SubjectType,
   subjectId: number,
