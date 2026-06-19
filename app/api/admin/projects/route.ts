@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkPermission } from "@/lib/auth";
+import { authenticate, authorize } from "@/lib/auth";
 import { listAdminProjects } from "@workspace/platform/server/admin-projects";
 import { z } from "zod";
 
@@ -10,7 +10,7 @@ export async function GET(request: Request) {
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
   adminProjectsQuerySchema.parse(Object.fromEntries(new URL(request.url).searchParams.entries()));
 
-  const isSysAdmin = await checkPermission(payload.userId, "system", "admin");
+  const isSysAdmin = await authorize({ user: payload.userId, resourceKey: "system", action: "admin" });
   if (!isSysAdmin) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const projects = await listAdminProjects();

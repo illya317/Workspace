@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth, type RouteContext } from "@/lib/with-auth";
-import { checkPermission } from "@workspace/platform/server/auth";
+import { authorize } from "@workspace/platform/server/auth";
 import { submitQcBatch } from "@workspace/production/server/qc";
 
 const paramsSchema = z.object({
@@ -16,4 +16,4 @@ export const POST = withAuth(async (_request, _user, ctx?: RouteContext) => {
   const batch = await submitQcBatch(parsed.data.batchId);
   if (!batch) return NextResponse.json({ error: "批次不存在" }, { status: 404 });
   return NextResponse.json({ data: batch });
-}, (userId) => checkPermission(userId, "production.qc.batches", "write"));
+}, (userId) => authorize({ user: userId, resourceKey: "production.qc.batches", action: "write" }));

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth, type RouteContext } from "@/lib/with-auth";
-import { checkPermission } from "@workspace/platform/server/auth";
+import { authorize } from "@workspace/platform/server/auth";
 import { deleteQcBatch, getQcBatch, updateQcBatch } from "@workspace/production/server/qc";
 
 const paramsSchema = z.object({
@@ -25,7 +25,7 @@ export const GET = withAuth(async (_request, _user, ctx) => {
   const batch = await getQcBatch(batchId);
   if (!batch) return NextResponse.json({ error: "批次不存在" }, { status: 404 });
   return NextResponse.json({ data: batch });
-}, (userId) => checkPermission(userId, "production.qc.batches", "access"));
+}, (userId) => authorize({ user: userId, resourceKey: "production.qc.batches", action: "access" }));
 
 export const PATCH = withAuth(async (request, _user, ctx) => {
   const batchId = await parseBatchId(ctx);
@@ -37,7 +37,7 @@ export const PATCH = withAuth(async (request, _user, ctx) => {
   const batch = await updateQcBatch(batchId, parsed.data);
   if (!batch) return NextResponse.json({ error: "批次不存在" }, { status: 404 });
   return NextResponse.json({ data: batch });
-}, (userId) => checkPermission(userId, "production.qc.batches", "write"));
+}, (userId) => authorize({ user: userId, resourceKey: "production.qc.batches", action: "write" }));
 
 export const DELETE = withAuth(async (_request, _user, ctx) => {
   const batchId = await parseBatchId(ctx);
@@ -45,4 +45,4 @@ export const DELETE = withAuth(async (_request, _user, ctx) => {
   const deleted = await deleteQcBatch(batchId);
   if (!deleted) return NextResponse.json({ error: "批次不存在" }, { status: 404 });
   return NextResponse.json({ ok: true });
-}, (userId) => checkPermission(userId, "production.qc.batches", "delete"));
+}, (userId) => authorize({ user: userId, resourceKey: "production.qc.batches", action: "delete" }));

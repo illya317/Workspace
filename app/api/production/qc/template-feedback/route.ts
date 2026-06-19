@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@/lib/with-auth";
-import { checkPermission } from "@workspace/platform/server/auth";
+import { authorize } from "@workspace/platform/server/auth";
 import {
   getQcTemplateFeedback,
   listQcTemplateFeedbackByContext,
@@ -43,7 +43,7 @@ export const GET = withAuth(async (request, user) => {
     return NextResponse.json({ data, items });
   }
   return NextResponse.json({ data: await listQcTemplateFeedback() });
-}, (userId) => checkPermission(userId, "production.qc.templates", "access"));
+}, (userId) => authorize({ user: userId, resourceKey: "production.qc.templates", action: "access" }));
 
 export const POST = withAuth(async (request, user) => {
   const body = await request.json().catch(() => null);
@@ -67,7 +67,7 @@ export const POST = withAuth(async (request, user) => {
     const message = error instanceof Error ? error.message : "保存反馈失败";
     return NextResponse.json({ error: message }, { status: 400 });
   }
-}, (userId) => checkPermission(userId, "production.qc.templates", "write"));
+}, (userId) => authorize({ user: userId, resourceKey: "production.qc.templates", action: "write" }));
 
 export const PATCH = withAuth(async (request, user) => {
   const body = await request.json().catch(() => null);
@@ -90,4 +90,4 @@ export const PATCH = withAuth(async (request, user) => {
     const message = error instanceof Error ? error.message : "更新反馈状态失败";
     return NextResponse.json({ error: message }, { status: 400 });
   }
-}, (userId) => checkPermission(userId, "production.qc.templates", "write"));
+}, (userId) => authorize({ user: userId, resourceKey: "production.qc.templates", action: "write" }));

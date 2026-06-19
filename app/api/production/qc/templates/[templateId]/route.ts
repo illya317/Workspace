@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withAuth, type RouteContext } from "@/lib/with-auth";
-import { checkPermission } from "@workspace/platform/server/auth";
+import { authorize } from "@workspace/platform/server/auth";
 import { getQcTemplateDetail } from "@workspace/production/server/qc";
 
 export const dynamic = "force-dynamic";
@@ -21,4 +21,4 @@ export const GET = withAuth(async (_req, _user, context?: RouteContext) => {
     }
     throw error;
   }
-}, (userId) => checkPermission(userId, "production.qc.templates", "access"));
+}, (userId) => authorize({ user: userId, resourceKey: "production.qc.templates", action: "access" }));

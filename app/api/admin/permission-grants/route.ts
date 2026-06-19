@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate, checkPermission } from "@workspace/platform/server/auth";
+import { authenticate, authorize } from "@workspace/platform/server/auth";
 import {
   getManageableResourceKeys,
   canManageResourceGrant,
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const isSysAdmin = await checkPermission(payload.userId, "system", "admin");
+  const isSysAdmin = await authorize({ user: payload.userId, resourceKey: "system", action: "admin" });
   const manageableKeys = await getManageableResourceKeys(payload.userId);
 
   if (!isSysAdmin && manageableKeys.size === 0) {
@@ -74,7 +74,7 @@ export async function PUT(request: Request) {
 
   // Only system.admin can grant/revoke admin role
   if (roleKey === "admin") {
-    const isSysAdmin = await checkPermission(payload.userId, "system", "admin");
+    const isSysAdmin = await authorize({ user: payload.userId, resourceKey: "system", action: "admin" });
     if (!isSysAdmin) {
       return NextResponse.json({ error: "仅系统管理员可管理 admin 权限" }, { status: 403 });
     }
