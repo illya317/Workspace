@@ -1,6 +1,29 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
 import { createCompany, deleteCompanyById, listCompanies, upsertCompany } from "@workspace/hr/server";
+
+const companiesQuerySchema = z.object({
+  keyword: z.string().catch(""),
+  active: z.string().optional(),
+  page: z.coerce.number().int().min(1).catch(1),
+  pageSize: z.coerce.number().int().min(1).max(500).catch(50),
+}).passthrough();
+
+const createCompanySchema = z.object({
+  code: z.string().min(1),
+  name: z.string().min(1),
+}).passthrough();
+
+const upsertCompanySchema = z.object({
+  id: z.unknown().optional(),
+  code: z.string().min(1),
+  name: z.string().min(1),
+}).passthrough();
+
+const deleteCompanyQuerySchema = z.object({
+  id: z.coerce.number().int().positive(),
+}).passthrough();
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -12,14 +35,18 @@ export async function GET(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const keyword = searchParams.get("keyword") || "";
-  const activeOnly = searchParams.get("active") === "1";
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
+  const parsedQuery = companiesQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+  if (!parsedQuery.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  const keyword = parsedQuery.data.keyword;
+  const activeOnly = parsedQuery.data.active === "1";
+  const { page, pageSize } = parsedQuery.data;
   return NextResponse.json(await listCompanies({ keyword, activeOnly, page, pageSize }));
 }
 
 export async function POST(request: Request) {
+  const body = await request.clone().json().catch(() => null);
+  const parsedBody = createCompanySchema.safeParse(body);
+  if (!parsedBody.success) return NextResponse.json({ error: "缺少 code/name" }, { status: 400 });
   return createCompany(request);
 }
 
@@ -30,7 +57,10 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
-  const result = await upsertCompany(await request.json(), payload.userId);
+  const body = await request.json().catch(() => null);
+  const parsedBody = upsertCompanySchema.safeParse(body);
+  if (!parsedBody.success) return NextResponse.json({ error: "缺少 code/name" }, { status: 400 });
+  const result = await upsertCompany(parsedBody.data, payload.userId);
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
   return NextResponse.json(result.data);
 }
@@ -43,10 +73,9 @@ export async function DELETE(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const idParam = searchParams.get("id");
-  if (!idParam) return NextResponse.json({ error: "缺少id" }, { status: 400 });
-  const id = parseInt(idParam);
-  const result = await deleteCompanyById(id);
+  const parsedQuery = deleteCompanyQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+  if (!parsedQuery.success) return NextResponse.json({ error: "缺少id" }, { status: 400 });
+  const result = await deleteCompanyById(parsedQuery.data.id);
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
   return NextResponse.json(result.data);
 }
