@@ -61,6 +61,18 @@ type RoutePrimitiveSchemaCandidate = {
   importsPlatformPrimitive: boolean;
 };
 
+type ApiRouteHelperKind =
+  | "bad-request-response"
+  | "route-id-parser"
+  | "service-response"
+  | "validated-id-proxy";
+
+type ApiRouteHelperCandidate = {
+  file: string;
+  helperName: string;
+  kind: ApiRouteHelperKind;
+};
+
 type HookPatternCandidate = {
   file: string;
   packageName: string;
@@ -104,6 +116,7 @@ type Level2Report = {
     legacyServiceFiles: number;
     repeatedServiceGroups: number;
     routePrimitiveSchemaDuplicates: number;
+    apiRouteHelperDuplicates: number;
   };
   registries: {
     modules: Array<{
@@ -121,6 +134,7 @@ type Level2Report = {
     apiRouteMethods: ApiRouteMethod[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaCandidates: RoutePrimitiveSchemaCandidate[];
+    apiRouteHelperCandidates: ApiRouteHelperCandidate[];
   };
   drift: {
     appJsxFiles: string[];
@@ -135,6 +149,7 @@ type Level2Report = {
     legacyServiceFiles: string[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
+    apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
     domainUiCandidatesWithoutCore: UiPatternCandidate[];
     domainHookCandidatesWithoutShared: HookPatternCandidate[];
   };
@@ -167,12 +182,21 @@ const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
   { name: "tabs", regex: /tabs?|tabbar/i },
   { name: "date", regex: /date(input|picker|field)|calendar/i },
 ];
-const API_VALIDATION_SIGNAL_REGEX = /\b(safeParse|parse)\s*\(|\bz\s*\.|\bparseJson\s*\(|\bvalidateCompatibilityProxyBody\s*\(/;
+const API_VALIDATION_SIGNAL_REGEX = /\b(safeParse|parse)\s*\(|\bz\s*\.|\bparseJson\s*\(|\bvalidateCompatibilityProxyBody\s*\(|\bcreateValidatedIdProxyHandler\s*\(|\bparseRouteId(Params)?\s*\(/;
 const ROUTE_PRIMITIVE_IMPORTS: Record<RoutePrimitiveSchemaKind, string> = {
   "route-id-params": "routeIdParamsSchema",
   "update-field-body": "updateFieldBodySchema",
   "rows-body": "rowsRequestBodySchema",
 };
+const API_ROUTE_HELPER_RULES: Array<{ kind: ApiRouteHelperKind; names: string[] }> = [
+  { kind: "bad-request-response", names: ["badRequest", "errorResponse"] },
+  { kind: "route-id-parser", names: ["parseId", "parseParams"] },
+  { kind: "service-response", names: ["serviceResponse", "serviceResultResponse"] },
+  { kind: "validated-id-proxy", names: ["proxyWithValidatedId"] },
+];
+const API_ROUTE_HELPER_KIND_BY_NAME = new Map(
+  API_ROUTE_HELPER_RULES.flatMap((rule) => rule.names.map((name) => [name, rule.kind] as const)),
+);
 
 function toRelative(filePath: string) {
   return path.relative(ROOT, filePath).replace(/\\/g, "/");
@@ -440,8 +464,11 @@ function hasCompatibilityProxySignal(file: SourceInfo) {
   if (!/@deprecated/.test(file.text)) return false;
   if (/\bprisma\s*\./.test(file.text)) return false;
 
-  const importsProxyHelper = file.imports.some((item) => item.specifier === "@/lib/proxy-route");
-  const callsProxyHelper = /\bcreateProxyHandler\s*\(\s*["']\/api\//.test(file.text);
+  const importsProxyHelper = file.imports.some((item) => (
+    item.specifier === "@/lib/proxy-route" ||
+    item.specifier === "@workspace/platform/server/api"
+  ));
+  const callsProxyHelper = /\bcreate(ValidatedId)?ProxyHandler\s*\(\s*["']\/api\//.test(file.text);
   const proxiesWithFetch =
     /\bfetch\s*\(/.test(file.text) &&
     /new URL\(\s*["']\/api\//.test(file.text);
@@ -566,6 +593,44 @@ function findRoutePrimitiveSchemaCandidates(files: SourceInfo[]) {
   }
 
   return candidates.sort((left, right) => `${left.primitive}:${left.file}:${left.schemaName}`.localeCompare(`${right.primitive}:${right.file}:${right.schemaName}`));
+}
+
+function findApiRouteHelperCandidates(files: SourceInfo[]) {
+  const candidates: ApiRouteHelperCandidate[] = [];
+
+  for (const file of files) {
+    if (!/^app\/api\/.*\/route\.ts$/.test(file.relPath)) continue;
+
+    for (const statement of file.sourceFile.statements) {
+      if (ts.isFunctionDeclaration(statement) && statement.name) {
+        const kind = API_ROUTE_HELPER_KIND_BY_NAME.get(statement.name.text);
+        if (kind) {
+          candidates.push({
+            file: file.relPath,
+            helperName: statement.name.text,
+            kind,
+          });
+        }
+        continue;
+      }
+
+      if (ts.isVariableStatement(statement)) {
+        for (const declaration of statement.declarationList.declarations) {
+          if (!ts.isIdentifier(declaration.name)) continue;
+          const kind = API_ROUTE_HELPER_KIND_BY_NAME.get(declaration.name.text);
+          if (kind) {
+            candidates.push({
+              file: file.relPath,
+              helperName: declaration.name.text,
+              kind,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  return candidates.sort((left, right) => `${left.kind}:${left.file}:${left.helperName}`.localeCompare(`${right.kind}:${right.file}:${right.helperName}`));
 }
 
 function findHookPatternCandidates(files: SourceInfo[]) {
@@ -716,6 +781,7 @@ export function createLevel2Report(): Level2Report {
   const uiPatternCandidates = findUiPatternCandidates(sourceFiles);
   const apiRouteMethods = findApiRouteMethods(sourceFiles);
   const routePrimitiveSchemaCandidates = findRoutePrimitiveSchemaCandidates(sourceFiles);
+  const apiRouteHelperCandidates = findApiRouteHelperCandidates(sourceFiles);
   const hookPatternCandidates = findHookPatternCandidates(sourceFiles);
   const repeatedServiceGroups = findRepeatedServiceGroups(sourceFiles);
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
@@ -731,6 +797,7 @@ export function createLevel2Report(): Level2Report {
     .filter((route) => !route.hasCompatibilityProxySignal);
   const routePrimitiveSchemaDuplicates = routePrimitiveSchemaCandidates
     .filter((candidate) => !candidate.importsPlatformPrimitive);
+  const apiRouteHelperDuplicates = apiRouteHelperCandidates;
   const domainUiCandidatesWithoutCore = uiPatternCandidates
     .filter((candidate) => candidate.layer === "domain")
     .filter((candidate) => !candidate.importsCoreUi);
@@ -764,6 +831,7 @@ export function createLevel2Report(): Level2Report {
       legacyServiceFiles: legacyServiceFiles.length,
       repeatedServiceGroups: repeatedServiceGroups.length,
       routePrimitiveSchemaDuplicates: routePrimitiveSchemaDuplicates.length,
+      apiRouteHelperDuplicates: apiRouteHelperDuplicates.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -783,6 +851,7 @@ export function createLevel2Report(): Level2Report {
       apiRouteMethods,
       repeatedServiceGroups,
       routePrimitiveSchemaCandidates,
+      apiRouteHelperCandidates,
     },
     drift: {
       appJsxFiles: findAppJsxFiles(sourceFiles),
@@ -797,6 +866,7 @@ export function createLevel2Report(): Level2Report {
       legacyServiceFiles,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
+      apiRouteHelperDuplicates,
       domainUiCandidatesWithoutCore,
       domainHookCandidatesWithoutShared,
     },

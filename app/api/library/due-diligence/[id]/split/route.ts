@@ -2,20 +2,15 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { withLibraryWrite } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
-import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { parseRouteId } from "@workspace/platform/server/api";
 import { getRequest, createQuestions, splitQuestionnaire } from "@workspace/library/server/due-diligence";
 
 const splitRequestSchema = z.object({
   text: z.string().trim().min(1),
 });
 
-async function parseId(ctx?: RouteContext) {
-  const parsedParams = routeIdParamsSchema.safeParse(await ctx!.params);
-  return parsedParams.success ? parsedParams.data.id : null;
-}
-
 export const POST = withLibraryWrite(async (request: Request, _user, ctx?: RouteContext) => {
-  const id = await parseId(ctx);
+  const id = await parseRouteId(ctx?.params);
   if (id === null) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
   const req = await getRequest(id);

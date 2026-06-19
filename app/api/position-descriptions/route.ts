@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { jsonServiceResponse } from "@workspace/platform/server/api";
 import { authenticate, checkHRAccess, checkHRWrite } from "@workspace/platform/server/auth";
 import {
   getPositionDescriptionByCode,
@@ -16,11 +17,6 @@ const updatePositionDescriptionSchema = z.object({
   details: z.unknown().optional(),
 }).passthrough();
 
-function serviceResponse<T>(result: { ok: true; data: T } | { ok: false; error: string; status?: number }) {
-  if (result.ok) return NextResponse.json(result.data);
-  return NextResponse.json({ error: result.error }, { status: result.status ?? 400 });
-}
-
 export async function GET(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
@@ -29,7 +25,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   if (searchParams.get("tree") === "1") return NextResponse.json(await getPositionDescriptionTree());
-  if (code) return serviceResponse(await getPositionDescriptionByCode(code));
+  if (code) return jsonServiceResponse(await getPositionDescriptionByCode(code));
   return NextResponse.json(await listPositionDescriptions(searchParams.get("search") || ""));
 }
 
@@ -41,5 +37,5 @@ export async function PUT(request: Request) {
   const body = await request.json().catch(() => null);
   const parsedBody = updatePositionDescriptionSchema.safeParse(body);
   if (!parsedBody.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
-  return serviceResponse(await updatePositionDescription(parsedBody.data, payload.userId));
+  return jsonServiceResponse(await updatePositionDescription(parsedBody.data, payload.userId));
 }

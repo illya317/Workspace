@@ -4,7 +4,7 @@
 
 | 页面 | 路由 | 组件 |
 |------|------|------|
-| 财务首页 | `/finance` | `page.tsx` → `FinanceHomeClient.tsx` |
+| 财务首页 | `/finance` | `page.tsx` → Platform `ModuleHome` |
 | 总账会计 | `/finance/ledger` | `ledger/page.tsx` → `LedgerClient.tsx` |
 | 财务报表 | `/finance/statements` | `statements/page.tsx` → `StatementsClient.tsx` |
 | 管理会计 | `/finance/analysis` | `analysis/page.tsx` → `FinanceAnalysisClient.tsx` |
@@ -14,13 +14,13 @@
 | 司库管理 | `/finance/treasury` | `treasury/page.tsx` (占位) |
 | 数据导入与治理 | `/finance/import` | `import/page.tsx` → `ImportClient.tsx` |
 
-所有页面由 `FinanceShell` 统一包裹，提供顶部导航栏、Logo、返回入口及用户菜单。
+财务子页面由 `FinanceShell` 统一包裹，提供顶部导航栏、Logo、返回入口及用户菜单。财务首页由 Platform `AppShell` + `ModuleHome` 渲染入口卡片，入口配置来自平台模块注册表。
 
 ## 页面结构
 
 ### 财务首页 (`/finance`)
 
-`FinanceHomeClient` 渲染模块入口卡片与状态概览：
+`/finance` 通过 Platform `ModuleHome` 渲染模块入口卡片：
 
 | 模块 | 说明 |
 |------|------|
@@ -73,8 +73,8 @@
 
 ```
 page.tsx
-  └─ FinanceShell
-       └─ FinanceHomeClient.tsx
+  └─ AppShell
+       └─ ModuleHome
 
 ledger/page.tsx
   └─ FinanceShell

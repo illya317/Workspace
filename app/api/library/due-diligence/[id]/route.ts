@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { withLibraryAccess, withLibraryWrite } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
-import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { parseRouteId } from "@workspace/platform/server/api";
 import { getRequest, updateRequest, deleteRequest } from "@workspace/library/server/due-diligence";
 import { getMaxConfidentialityLevel } from "@workspace/library/server/permissions";
 
@@ -12,13 +12,8 @@ const updateRequestSchema = z.object({
   defaultConfidentialityLevel: z.coerce.number().int().min(0).max(4).optional(),
 });
 
-async function parseId(ctx?: RouteContext) {
-  const parsedParams = routeIdParamsSchema.safeParse(await ctx!.params);
-  return parsedParams.success ? parsedParams.data.id : null;
-}
-
 export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
-  const id = await parseId(ctx);
+  const id = await parseRouteId(ctx?.params);
   if (id === null) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   const maxLevel = await getMaxConfidentialityLevel(user.userId);
   const req = await getRequest(id, maxLevel);
@@ -27,7 +22,7 @@ export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
 });
 
 export const PATCH = withLibraryWrite(async (request: Request, _user, ctx?: RouteContext) => {
-  const id = await parseId(ctx);
+  const id = await parseRouteId(ctx?.params);
   if (id === null) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
   let body: z.infer<typeof updateRequestSchema>;
@@ -56,7 +51,7 @@ export const PATCH = withLibraryWrite(async (request: Request, _user, ctx?: Rout
 });
 
 export const DELETE = withLibraryWrite(async (_req, _user, ctx?: RouteContext) => {
-  const id = await parseId(ctx);
+  const id = await parseRouteId(ctx?.params);
   if (id === null) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   await deleteRequest(id);
   return NextResponse.json({ ok: true });

@@ -20,5 +20,6 @@
   "domainUiCandidatesWithoutCore": [],
   "legacyServiceFiles": [],
   "repeatedServiceGroups": [],
-  "routePrimitiveSchemaDuplicates": []
+  "routePrimitiveSchemaDuplicates": [],
+  "apiRouteHelperDuplicates": []
 }

@@ -1,18 +1,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
-import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { jsonServiceResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
 import { deleteCompanyById, listCompanies, upsertCompany } from "@workspace/hr/server";
 
 const companyBodySchema = z.object({
   code: z.string().trim().min(1),
   name: z.string().trim().min(1),
 }).passthrough();
-
-function serviceResponse<T>(result: { ok: true; data: T } | { ok: false; error: string; status?: number }) {
-  if (result.ok) return NextResponse.json(result.data);
-  return NextResponse.json({ error: result.error }, { status: result.status ?? 400 });
-}
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -53,7 +48,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "缺少 code/name" }, { status: 400 });
   }
 
-  return serviceResponse(await upsertCompany(parsedBody.data, payload.userId));
+  return jsonServiceResponse(await upsertCompany(parsedBody.data, payload.userId));
 }
 
 export async function PUT(request: Request) {
@@ -68,7 +63,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "缺少 code/name" }, { status: 400 });
   }
 
-  return serviceResponse(await upsertCompany(parsedBody.data, payload.userId));
+  return jsonServiceResponse(await upsertCompany(parsedBody.data, payload.userId));
 }
 
 export async function DELETE(request: Request) {
@@ -82,5 +77,5 @@ export async function DELETE(request: Request) {
   const parsedQuery = routeIdParamsSchema.safeParse({ id: searchParams.get("id") });
   if (!parsedQuery.success) return NextResponse.json({ error: "缺少id" }, { status: 400 });
 
-  return serviceResponse(await deleteCompanyById(parsedQuery.data.id));
+  return jsonServiceResponse(await deleteCompanyById(parsedQuery.data.id));
 }

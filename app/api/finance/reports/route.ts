@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { withFinanceReportAccess } from "@/lib/with-auth";
+import { jsonBadRequest } from "@workspace/platform/server/api";
 import { generateFinanceReport } from "@workspace/finance/server/statements/report-generator";
 
 const optionalPositiveInt = z.preprocess(
@@ -34,19 +34,15 @@ const reportQuerySchema = z
     });
   });
 
-function badRequest(error: string) {
-  return NextResponse.json({ error }, { status: 400 });
-}
-
 export const GET = withFinanceReportAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const raw = Object.fromEntries(searchParams.entries());
-  if (!raw.type) return badRequest("type 为必填（balance/income/cashflow）");
+  if (!raw.type) return jsonBadRequest("type 为必填（balance/income/cashflow）");
 
   const parsed = reportQuerySchema.safeParse(raw);
   if (!parsed.success) {
     const issue = parsed.error.issues[0];
-    return badRequest(issue?.message || "参数无效");
+    return jsonBadRequest(issue?.message || "参数无效");
   }
 
   return generateFinanceReport({

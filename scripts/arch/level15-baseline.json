@@ -41,7 +41,6 @@
     "app/external/page.tsx",
     "app/external/suppliers/SuppliersClient.tsx",
     "app/external/suppliers/page.tsx",
-    "app/finance/FinanceHomeClient.tsx",
     "app/finance/analysis/FinanceAnalysisClient.tsx",
     "app/finance/analysis/page.tsx",
     "app/finance/budget/BudgetClient.tsx",

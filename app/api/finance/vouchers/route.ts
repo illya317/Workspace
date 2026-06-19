@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
+import { jsonBadRequest, jsonResultResponse } from "@workspace/platform/server/api";
 import { createVoucher, listVouchers } from "@workspace/finance/server/ledger/voucher-service";
 
 const optionalPositiveInt = z.preprocess(
@@ -46,27 +47,21 @@ const createVoucherSchema = z
   })
   .passthrough();
 
-const badRequest = (error: string) => NextResponse.json({ error }, { status: 400 });
-
 export const GET = withFinanceLedgerAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
   const parsed = listVouchersSchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsed.success) return badRequest("参数无效");
+  if (!parsed.success) return jsonBadRequest("参数无效");
 
   return NextResponse.json(await listVouchers(parsed.data));
 });
 
 export const POST = withFinanceLedgerWrite(async (request: Request, user) => {
   const body = await request.json().catch(() => null);
-  if (!body || typeof body !== "object") return badRequest("请求体为必填");
+  if (!body || typeof body !== "object") return jsonBadRequest("请求体为必填");
 
   const parsed = createVoucherSchema.safeParse(body);
-  if (!parsed.success) return badRequest("凭证号、日期、公司编码、分录为必填");
+  if (!parsed.success) return jsonBadRequest("凭证号、日期、公司编码、分录为必填");
 
   const result = await createVoucher(parsed.data, user.userId);
-  if (result.error) {
-    const { error, status, ...rest } = result;
-    return NextResponse.json({ error, ...rest }, { status: status as number });
-  }
-  return NextResponse.json(result);
+  return jsonResultResponse(result);
 });

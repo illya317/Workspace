@@ -13,6 +13,7 @@ type Level2Baseline = {
   legacyServiceFiles: string[];
   repeatedServiceGroups: string[];
   routePrimitiveSchemaDuplicates: string[];
+  apiRouteHelperDuplicates: string[];
 };
 
 const ROOT = path.resolve(__dirname, "../..");
@@ -36,6 +37,10 @@ function apiRouteMethodKey(route: { method: string; path: string }) {
 
 function routePrimitiveSchemaKey(candidate: { primitive: string; file: string; schemaName: string }) {
   return `${candidate.primitive}: ${candidate.file}#${candidate.schemaName}`;
+}
+
+function apiRouteHelperKey(candidate: { kind: string; file: string; helperName: string }) {
+  return `${candidate.kind}: ${candidate.file}#${candidate.helperName}`;
 }
 
 function diff(left: string[], right: string[]) {
@@ -100,6 +105,10 @@ export function checkLevel2Ratchet() {
       [
         "routePrimitiveSchemaDuplicates",
         report.drift.routePrimitiveSchemaDuplicates.map(routePrimitiveSchemaKey),
+      ],
+      [
+        "apiRouteHelperDuplicates",
+        report.drift.apiRouteHelperDuplicates.map(apiRouteHelperKey),
       ],
     ];
 

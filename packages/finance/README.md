@@ -17,7 +17,7 @@ import/    # 财务导入解析、清洗和校验流程
 - `ui/components/FinanceShell.tsx`：财务模块页面壳和二级导航。
 - `ui/components/FinanceFilters.tsx`：财务全域筛选模板，基于 Core `FilterToolbar` / `SelectField`。
 - `ui/components/CompanyPeriodPicker.tsx`：公司、年度、月份组合选择模板。
-- `ui/navigation/nav-utils.ts`：财务子模块导航和权限过滤 helper；旧 `app/finance/lib/nav-utils.ts` 只保留兼容 re-export。
+- `ui/navigation/nav-utils.ts`：财务子模块导航和权限过滤 helper。
 - `types/reclass.ts`：重分类配置 UI 使用的候选 DTO 类型。
 - `server/import/`、`server/budget/`、`server/analysis/`：财务导入预览/确认、预算版本/预算数据和预算分析服务；旧 `server/services/finance/{import,budget,analysis}` 已收口到财务业务包。
 - `server/ledger/`、`server/schedules/`：财务科目、凭证、余额滚动、重分类、重分类规则和调度计算服务；旧 `server/services/finance/{ledger,schedules}` 已收口到财务业务包。

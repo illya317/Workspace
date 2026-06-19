@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
+import { jsonBadRequest } from "@workspace/platform/server/api";
 import {
   deleteStatementMapping,
   listStatementMappings,
@@ -43,17 +44,15 @@ function serviceErrorResponse(error: unknown) {
   throw error;
 }
 
-const badRequest = (error: string) => NextResponse.json({ error }, { status: 400 });
-
 export const GET = withFinanceReportAccess(async (request) => {
   const raw = readMappingQuery(request);
   if (isMissing(raw.companyCode) || isMissing(raw.year)) {
-    return badRequest("companyCode, year 为必填");
+    return jsonBadRequest("companyCode, year 为必填");
   }
 
   const parsed = mappingQuerySchema.safeParse(raw);
   if (!parsed.success) {
-    return badRequest("statementType 暂只支持 balance");
+    return jsonBadRequest("statementType 暂只支持 balance");
   }
 
   try {
@@ -66,7 +65,7 @@ export const GET = withFinanceReportAccess(async (request) => {
 export const POST = withFinanceReportWrite(async (request) => {
   const body = await request.json().catch(() => null);
   if (!body || typeof body !== "object") {
-    return badRequest("请求体为必填");
+    return jsonBadRequest("请求体为必填");
   }
   const payload = body as Record<string, unknown>;
 
@@ -77,18 +76,18 @@ export const POST = withFinanceReportWrite(async (request) => {
     isMissing(payload.accountCode) ||
     isMissing(payload.lineCode)
   ) {
-    return badRequest("companyCode, year, statementType, accountCode, lineCode 为必填");
+    return jsonBadRequest("companyCode, year, statementType, accountCode, lineCode 为必填");
   }
 
   const parsed = saveMappingSchema.safeParse(body);
   if (!parsed.success) {
     if (payload.operator && !validOperators.includes(String(payload.operator))) {
-      return badRequest("operator 必须为 add、subtract 或 exclude");
+      return jsonBadRequest("operator 必须为 add、subtract 或 exclude");
     }
     if (!Number.isFinite(Number(payload.year))) {
-      return badRequest("year 必须为数字");
+      return jsonBadRequest("year 必须为数字");
     }
-    return badRequest("statementType 暂只支持 balance");
+    return jsonBadRequest("statementType 暂只支持 balance");
   }
 
   try {
@@ -101,12 +100,12 @@ export const POST = withFinanceReportWrite(async (request) => {
 export const DELETE = withFinanceReportWrite(async (request) => {
   const raw = readMappingQuery(request);
   if (isMissing(raw.companyCode) || isMissing(raw.year) || isMissing(raw.accountCode)) {
-    return badRequest("companyCode, year, accountCode 为必填");
+    return jsonBadRequest("companyCode, year, accountCode 为必填");
   }
 
   const parsed = deleteMappingSchema.safeParse(raw);
   if (!parsed.success) {
-    return badRequest("statementType 暂只支持 balance");
+    return jsonBadRequest("statementType 暂只支持 balance");
   }
 
   try {

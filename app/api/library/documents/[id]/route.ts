@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withLibraryAccess } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
-import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { parseRouteId } from "@workspace/platform/server/api";
 import { getDocument, updateDocumentMetadata, archiveDocument } from "@workspace/library/server/metadata";
 import { validateBody } from "@workspace/library/server/document-validation";
 import {
@@ -10,11 +10,6 @@ import {
   checkLibraryAdmin,
   checkLibraryDelete,
 } from "@workspace/library/server/permissions";
-
-async function parseId(ctx?: RouteContext) {
-  const parsedParams = routeIdParamsSchema.safeParse(await ctx!.params);
-  return parsedParams.success ? parsedParams.data.id : null;
-}
 
 async function checkDocAccess(docId: number, userId: number) {
   const doc = await getDocument(docId);
@@ -27,7 +22,7 @@ async function checkDocAccess(docId: number, userId: number) {
 }
 
 export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
-  const docId = await parseId(ctx);
+  const docId = await parseRouteId(ctx?.params);
   if (docId === null) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
   const check = await checkDocAccess(docId, user.userId);
@@ -37,7 +32,7 @@ export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
 });
 
 export const PATCH = withLibraryAccess(async (request, user, ctx?: RouteContext) => {
-  const docId = await parseId(ctx);
+  const docId = await parseRouteId(ctx?.params);
   if (docId === null) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
   const check = await checkDocAccess(docId, user.userId);
@@ -74,7 +69,7 @@ export const PATCH = withLibraryAccess(async (request, user, ctx?: RouteContext)
 });
 
 export const DELETE = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
-  const docId = await parseId(ctx);
+  const docId = await parseRouteId(ctx?.params);
   if (docId === null) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
   const check = await checkDocAccess(docId, user.userId);

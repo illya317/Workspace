@@ -32,7 +32,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/hr/server` 已接收 HR autocomplete 与搜索配置、字段校验、创建参数 schema、公司、公司关系、部门、员工、雇佣、合同、EDP、项目、员工项目、名册、岗位、岗位说明书模板、员工详情聚合、员工合同/岗位/项目保存、员工历史记录和岗位说明书查询/保存 service。
 - `packages/hr/server/search.ts` 已接收 HR 员工和 HR 主数据搜索语义。
 - `packages/finance/ui` 已接收财务重分类配置视图及其局部组件、列配置。
-- `packages/finance/ui` 已接收财务页面壳 `FinanceShell`、财务全域筛选模板 `FinanceFilters`、公司期间选择器 `CompanyPeriodPicker` 和财务子模块导航 helper；旧 `app/finance/components/*` 与 `app/finance/lib/nav-utils.ts` 保留兼容 re-export。
+- `packages/finance/ui` 已接收财务页面壳 `FinanceShell`、财务全域筛选模板 `FinanceFilters`、公司期间选择器 `CompanyPeriodPicker` 和财务子模块导航 helper；旧 `app/finance/components/*` 保留兼容 re-export。
 - `packages/finance/types` 已接收重分类配置 UI 的候选 DTO 类型；后续服务下沉时与 server DTO 合并。
 - `packages/core/routing` 已接收 Workspace base path 拼接 helper，app 旧路径仅作兼容 re-export。
 - `packages/core/search` 已接收通用拼音首字母、全拼和文本匹配 helper；员工语义匹配仍留在 HR/兼容层。
