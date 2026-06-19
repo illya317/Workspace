@@ -3,7 +3,6 @@
   "apiRouteMethodsWithDirectPrismaSignal": [
     "DELETE /api/works/:param",
     "GET /api/admin/projects",
-    "GET /api/finance/reports",
     "GET /api/reports/:param/versions",
     "GET /api/reports/:param/versions/:param",
     "PUT /api/reports/:param",

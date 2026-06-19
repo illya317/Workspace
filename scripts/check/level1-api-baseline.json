@@ -33,7 +33,6 @@
     "app/api/auth/gateway-check/route.ts",
     "app/api/auth/wecom/callback/route.ts",
     "app/api/dev-login-bypass/route.ts",
-    "app/api/finance/reports/route.ts",
     "app/api/hr/positions/route.ts",
     "app/api/my-api-key/route.ts",
     "app/api/reports/[id]/route.ts",
