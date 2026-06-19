@@ -3,10 +3,8 @@
   "apiRouteMethodsWithDirectPrismaSignal": [],
   "apiRouteMethodsWithoutValidationSignal": [
     "DELETE /api/hr/departments",
-    "DELETE /api/hr/departments/:param",
     "DELETE /api/hr/employee-projects/:param",
     "DELETE /api/hr/positions",
-    "DELETE /api/hr/positions/:param",
     "DELETE /api/hr/projects/:param",
     "DELETE /api/work/plan-members/:param",
     "DELETE /api/work/plans/:param",
@@ -17,10 +15,8 @@
     "POST /api/work/plan-members",
     "POST /api/work/plans",
     "PUT /api/hr/departments",
-    "PUT /api/hr/departments/:param",
     "PUT /api/hr/employee-projects/:param",
     "PUT /api/hr/positions",
-    "PUT /api/hr/positions/:param",
     "PUT /api/hr/projects/:param",
     "PUT /api/work/plan-members/:param",
     "PUT /api/work/plans/:param"
