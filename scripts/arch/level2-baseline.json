@@ -56,7 +56,6 @@
     "POST /api/departments",
     "POST /api/employee-positions",
     "POST /api/employee-projects",
-    "POST /api/finance/balances/reconcile",
     "POST /api/finance/budget",
     "POST /api/finance/budget/versions",
     "POST /api/finance/budget/versions/:param/activate",

@@ -1,19 +1,14 @@
 import { NextResponse } from "next/server";
 import { withFinanceCostAccess } from "@/lib/with-auth";
-import { getCostSummary } from "@workspace/finance/server/cost";
+import { costQuerySchema, getCostSummary } from "@workspace/finance/server/cost";
 
 export async function GET(request: Request) {
   return withFinanceCostAccess(async (req) => {
     const { searchParams } = new URL(req.url);
-    const params = {
-      year: searchParams.has("year") ? parseInt(searchParams.get("year")!) : undefined,
-      month: searchParams.has("month") ? parseInt(searchParams.get("month")!) : undefined,
-      productName: searchParams.get("productName") ?? undefined,
-      customerName: searchParams.get("customerName") ?? undefined,
-      sourceFile: searchParams.get("sourceFile") ?? undefined,
-    };
+    const parsed = costQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+    if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
 
-    const summary = await getCostSummary(params);
+    const summary = await getCostSummary(parsed.data);
     return NextResponse.json({ success: true, data: summary });
   })(request);
 }
