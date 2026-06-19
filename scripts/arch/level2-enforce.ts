@@ -5,6 +5,9 @@ import { createLevel2Report } from "./level2";
 
 type Level2Baseline = {
   uncontractedApiRouteMethods: string[];
+  apiRouteMethodsWithDirectPrismaSignal: string[];
+  apiRouteMethodsWithoutValidationSignal: string[];
+  apiRouteMethodsWithoutServiceSignal: string[];
   appHookImplementationFiles: string[];
   domainUiCandidatesWithoutCore: string[];
   legacyServiceFiles: string[];
@@ -24,6 +27,10 @@ function uniqueSorted(items: string[]) {
 
 function repeatedServiceGroupKey(group: { name: string; files: string[] }) {
   return `${group.name}: ${group.files.join(" | ")}`;
+}
+
+function apiRouteMethodKey(route: { method: string; path: string }) {
+  return `${route.method} ${route.path}`;
 }
 
 function diff(left: string[], right: string[]) {
@@ -61,7 +68,19 @@ export function checkLevel2Ratchet() {
     const checks: Array<[keyof Level2Baseline, string[]]> = [
       [
         "uncontractedApiRouteMethods",
-        report.drift.uncontractedApiRouteMethods.map((route) => `${route.method} ${route.path}`),
+        report.drift.uncontractedApiRouteMethods.map(apiRouteMethodKey),
+      ],
+      [
+        "apiRouteMethodsWithDirectPrismaSignal",
+        report.drift.apiRoutesWithDirectPrismaSignal.map(apiRouteMethodKey),
+      ],
+      [
+        "apiRouteMethodsWithoutValidationSignal",
+        report.drift.apiRouteMethodsWithoutValidationSignal.map(apiRouteMethodKey),
+      ],
+      [
+        "apiRouteMethodsWithoutServiceSignal",
+        report.drift.apiRouteMethodsWithoutServiceSignal.map(apiRouteMethodKey),
       ],
       ["appHookImplementationFiles", report.drift.appHookImplementationFiles],
       [

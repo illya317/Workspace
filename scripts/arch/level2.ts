@@ -80,6 +80,9 @@ type Level2Report = {
     apiContracts: number;
     apiRouteMethods: number;
     uncontractedApiRouteMethods: number;
+    apiRouteMethodsWithDirectPrismaSignal: number;
+    apiRouteMethodsWithoutValidationSignal: number;
+    apiRouteMethodsWithoutServiceSignal: number;
     uiPatternCandidates: number;
     uiPatternCandidatesWithoutCore: number;
     hookPatternCandidates: number;
@@ -110,6 +113,8 @@ type Level2Report = {
     appHookImplementationFiles: string[];
     uncontractedApiRouteMethods: ApiRouteMethod[];
     apiRoutesWithDirectPrismaSignal: ApiRouteMethod[];
+    apiRouteMethodsWithoutValidationSignal: ApiRouteMethod[];
+    apiRouteMethodsWithoutServiceSignal: ApiRouteMethod[];
     legacyServiceFiles: string[];
     repeatedServiceGroups: ServicePatternGroup[];
     domainUiCandidatesWithoutCore: UiPatternCandidate[];
@@ -587,6 +592,11 @@ export function createLevel2Report(): Level2Report {
   const hookPatternCandidates = findHookPatternCandidates(sourceFiles);
   const repeatedServiceGroups = findRepeatedServiceGroups(sourceFiles);
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
+  const apiRoutesWithDirectPrismaSignal = apiRouteMethods.filter((route) => route.hasDirectPrismaSignal);
+  const apiRouteMethodsWithoutValidationSignal = apiRouteMethods
+    .filter((route) => route.method !== "GET")
+    .filter((route) => !route.hasValidationSignal);
+  const apiRouteMethodsWithoutServiceSignal = apiRouteMethods.filter((route) => !route.hasServiceSignal);
   const domainUiCandidatesWithoutCore = uiPatternCandidates
     .filter((candidate) => candidate.layer === "domain")
     .filter((candidate) => !candidate.importsCoreUi);
@@ -607,6 +617,9 @@ export function createLevel2Report(): Level2Report {
       apiContracts: apiContracts.length,
       apiRouteMethods: apiRouteMethods.length,
       uncontractedApiRouteMethods: uncontractedApiRouteMethods.length,
+      apiRouteMethodsWithDirectPrismaSignal: apiRoutesWithDirectPrismaSignal.length,
+      apiRouteMethodsWithoutValidationSignal: apiRouteMethodsWithoutValidationSignal.length,
+      apiRouteMethodsWithoutServiceSignal: apiRouteMethodsWithoutServiceSignal.length,
       uiPatternCandidates: uiPatternCandidates.length,
       uiPatternCandidatesWithoutCore: domainUiCandidatesWithoutCore.length,
       hookPatternCandidates: hookPatternCandidates.length,
@@ -638,7 +651,9 @@ export function createLevel2Report(): Level2Report {
       appHookFiles,
       appHookImplementationFiles,
       uncontractedApiRouteMethods,
-      apiRoutesWithDirectPrismaSignal: apiRouteMethods.filter((route) => route.hasDirectPrismaSignal),
+      apiRoutesWithDirectPrismaSignal,
+      apiRouteMethodsWithoutValidationSignal,
+      apiRouteMethodsWithoutServiceSignal,
       legacyServiceFiles,
       repeatedServiceGroups,
       domainUiCandidatesWithoutCore,
