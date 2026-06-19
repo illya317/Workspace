@@ -5,7 +5,7 @@
 import type { SessionUser } from "@/lib/types";
 import type { AgentTool } from "./registry";
 import { normalizeHrSchoolValue } from "@/lib/hr-school-options";
-import { queryRawEmployees } from "@/server/services/hr/roster";
+import { queryRawEmployees } from "@workspace/hr/server/roster";
 
 export const searchEmployeesTool: AgentTool = {
   key: "hr.searchEmployees",

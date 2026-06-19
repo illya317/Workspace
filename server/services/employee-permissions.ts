@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { loadCompanyMap, getCompanyNameSync } from "@/server/services/hr/company-directory";
+import { loadCompanyMap, getCompanyNameSync } from "@workspace/hr/server/company-directory";
 
 interface EmployeeRole {
   company: string | null;

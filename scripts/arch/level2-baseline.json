@@ -86,10 +86,6 @@
     "server/services/finance/statements/statement-config-view.ts",
     "server/services/finance/statements/workpapers/service.ts",
     "server/services/finance/statements/workpapers/types.ts",
-    "server/services/hr/company-directory.ts",
-    "server/services/hr/position-description-template-store.ts",
-    "server/services/hr/positions.ts",
-    "server/services/hr/roster.ts",
     "server/services/production/qc/batches.ts",
     "server/services/production/qc/feedback-types.ts",
     "server/services/production/qc/index.ts",
@@ -112,15 +108,8 @@
     "server/services/works.ts"
   ],
   "repeatedServiceGroups": [
-    "company-directory: packages/hr/server/company-directory.ts | server/services/hr/company-directory.ts",
-    "contracts: packages/administration/server/contracts.ts | packages/hr/server/contracts.ts",
     "crud: packages/hr/server/crud.ts | packages/work/server/crud.ts",
     "field-validation: packages/hr/server/field-validation.ts | packages/work/server/field-validation.ts",
-    "position-description-template-store: packages/hr/server/position-description-template-store.ts | server/services/hr/position-description-template-store.ts",
-    "positions: packages/hr/server/positions.ts | server/services/hr/positions.ts",
-    "registry: packages/library/server/generators/registry.ts | server/services/agent/tools/registry.ts",
-    "roster: packages/hr/server/roster.ts | server/services/hr/roster.ts",
-    "schemas: packages/hr/server/schemas.ts | packages/work/server/schemas.ts",
-    "search: packages/hr/server/search.ts | packages/work/server/search.ts"
+    "schemas: packages/hr/server/schemas.ts | packages/work/server/schemas.ts"
   ]
 }

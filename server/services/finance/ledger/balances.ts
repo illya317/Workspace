@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { getCompanyNameByCode } from "@/server/services/hr/company-directory";
+import { getCompanyNameByCode } from "@workspace/hr/server/company-directory";
 import {
   type ComputedBalance,
   type SideBalance,

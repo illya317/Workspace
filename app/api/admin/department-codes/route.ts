@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
-import { getCodePoolCode } from "@/server/services/hr/company-directory";
+import { getCodePoolCode } from "@workspace/hr/server/company-directory";
 
 async function buildFullCode(code: string, company: string): Promise<string> {
   const normalized = await getCodePoolCode(company);

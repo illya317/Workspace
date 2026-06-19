@@ -66,6 +66,8 @@ type ServicePatternGroup = {
   owners: string[];
   legacyRootFiles: string[];
   packageFiles: string[];
+  sharedExports: string[];
+  exactSharedExports: string[];
 };
 
 type Level2Report = {
@@ -302,6 +304,66 @@ function hasExportModifier(node: ts.Node) {
   return Boolean(modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword));
 }
 
+type ExportDetails = {
+  symbols: string[];
+  bodies: Map<string, string>;
+};
+
+function normalizeExportBody(text: string) {
+  return text.replace(/\s+/g, " ").trim();
+}
+
+function collectExportDetails(file: SourceInfo): ExportDetails {
+  const symbols = new Set<string>();
+  const bodies = new Map<string, string>();
+
+  const addSymbol = (name: string, node?: ts.Node) => {
+    symbols.add(name);
+    if (node) bodies.set(name, normalizeExportBody(node.getText(file.sourceFile)));
+  };
+
+  for (const statement of file.sourceFile.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name && hasExportModifier(statement)) {
+      addSymbol(statement.name.text, statement);
+      continue;
+    }
+
+    if (ts.isVariableStatement(statement) && hasExportModifier(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        if (ts.isIdentifier(declaration.name)) {
+          addSymbol(declaration.name.text, declaration.initializer ?? declaration);
+        }
+      }
+      continue;
+    }
+
+    if (
+      (
+        ts.isClassDeclaration(statement) ||
+        ts.isInterfaceDeclaration(statement) ||
+        ts.isTypeAliasDeclaration(statement) ||
+        ts.isEnumDeclaration(statement)
+      ) &&
+      statement.name &&
+      hasExportModifier(statement)
+    ) {
+      addSymbol(statement.name.text, statement);
+      continue;
+    }
+
+    if (ts.isExportDeclaration(statement) && statement.exportClause && ts.isNamedExports(statement.exportClause)) {
+      for (const element of statement.exportClause.elements) {
+        addSymbol(element.name.text);
+      }
+    }
+  }
+
+  return {
+    symbols: [...symbols].sort(),
+    bodies,
+  };
+}
+
 function isApiMethod(value: string): value is ApiMethod {
   return HTTP_METHOD_SET.has(value);
 }
@@ -423,6 +485,38 @@ function findRepeatedServiceGroups(files: SourceInfo[]) {
         if (file.relPath.startsWith("server/services/")) return "legacy-root";
         return getPackageName(file.relPath);
       }))].sort();
+      const exportDetailsByFile = new Map(groupFiles.map((file) => [file.relPath, collectExportDetails(file)]));
+      const ownersBySymbol = new Map<string, Set<string>>();
+      const bodiesBySymbol = new Map<string, Map<string, Set<string>>>();
+
+      for (const file of groupFiles) {
+        const owner = file.relPath.startsWith("server/services/") ? "legacy-root" : getPackageName(file.relPath);
+        const details = exportDetailsByFile.get(file.relPath);
+        if (!details) continue;
+
+        for (const symbol of details.symbols) {
+          const symbolOwners = ownersBySymbol.get(symbol) ?? new Set<string>();
+          symbolOwners.add(owner);
+          ownersBySymbol.set(symbol, symbolOwners);
+
+          const body = details.bodies.get(symbol);
+          if (!body) continue;
+          const bodyOwners = bodiesBySymbol.get(symbol) ?? new Map<string, Set<string>>();
+          const matchingOwners = bodyOwners.get(body) ?? new Set<string>();
+          matchingOwners.add(owner);
+          bodyOwners.set(body, matchingOwners);
+          bodiesBySymbol.set(symbol, bodyOwners);
+        }
+      }
+
+      const sharedExports = [...ownersBySymbol.entries()]
+        .filter(([, symbolOwners]) => symbolOwners.size > 1)
+        .map(([symbol]) => symbol)
+        .sort();
+      const exactSharedExports = [...bodiesBySymbol.entries()]
+        .filter(([, bodyOwners]) => [...bodyOwners.values()].some((symbolOwners) => symbolOwners.size > 1))
+        .map(([symbol]) => symbol)
+        .sort();
 
       return {
         name,
@@ -430,10 +524,15 @@ function findRepeatedServiceGroups(files: SourceInfo[]) {
         owners,
         legacyRootFiles: filesInGroup.filter((file) => file.startsWith("server/services/")),
         packageFiles: filesInGroup.filter((file) => file.startsWith("packages/")),
+        sharedExports,
+        exactSharedExports,
       };
     })
     .filter((group) => group.files.length > 1)
-    .filter((group) => group.owners.length > 1 || (group.legacyRootFiles.length > 0 && group.packageFiles.length > 0))
+    .filter((group) => {
+      if (group.legacyRootFiles.length > 0 && group.packageFiles.length > 0) return group.sharedExports.length > 0;
+      return group.sharedExports.length >= 2 || group.exactSharedExports.length > 0;
+    })
     .sort((left, right) => left.name.localeCompare(right.name));
 }
 

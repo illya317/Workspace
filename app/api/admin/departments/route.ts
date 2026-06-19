@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, isAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { loadCompanyMap, resolveCompanyCode } from "@/server/services/hr/company-directory";
+import { loadCompanyMap, resolveCompanyCode } from "@workspace/hr/server/company-directory";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
