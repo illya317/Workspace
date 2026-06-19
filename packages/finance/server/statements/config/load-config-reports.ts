@@ -1,5 +1,5 @@
 /** P3 Batch 1: line config loaders for income + cash flow. */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import { INCOME_STATEMENT_LINES, type IncomeLineConfig } from "./income-statement-lines";
 import { CASH_FLOW_LINES, type CashFlowLineConfig } from "./cash-flow-lines";
 

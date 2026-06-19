@@ -1,7 +1,7 @@
 /** P3 Batch 3: review GET (read) + POST (generate from workpaper). */
 import { NextResponse } from "next/server";
 import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
-import { generateReview, getReview } from "@/server/services/finance/statements/reviews/service";
+import { generateReview, getReview } from "@workspace/finance/server/statements/reviews/service";
 
 function extractStatus(e: unknown): number {
   if (e instanceof Error && "statusCode" in e && typeof (e as { statusCode: unknown }).statusCode === "number") {

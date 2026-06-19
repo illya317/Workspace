@@ -2,7 +2,7 @@
  * 报表项目配置加载器
  * 优先级：DB 配置 → 上一年度复制 → TS 默认模板
  */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import { BALANCE_SHEET_LINES } from "../config/balance-sheet-lines";
 import type { BalanceSheetLineConfig } from "../config/balance-sheet-lines";
 

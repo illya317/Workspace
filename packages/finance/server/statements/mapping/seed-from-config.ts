@@ -26,7 +26,7 @@
  *     - "backfilled"          在已有 mapping 上补齐缺失
  *     - "existing"            啥也没改
  */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import { BALANCE_SHEET_LINES } from "../config/balance-sheet-lines";
 
 export async function ensureStatementMappings(

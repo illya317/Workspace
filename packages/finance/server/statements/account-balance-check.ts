@@ -5,7 +5,7 @@
  * childrenSum = 直接子级余额之和；leafSum = 全部叶子余额之和。
  * Leaf balance 单独校验。
  */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 
 export interface AccountNode {
   code: string; name: string; level: number;

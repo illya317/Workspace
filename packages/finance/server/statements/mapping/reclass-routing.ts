@@ -17,7 +17,7 @@
  *     await resolveReclassEntriesToLines(companyCode, year, entries);
  *   // pass to computeBalanceSheetLines; unresolved → diagnostics
  */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import type { ReclassEntry } from "../report-helpers";
 import { ensureStatementMappings } from "./seed-from-config";
 

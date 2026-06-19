@@ -1,5 +1,5 @@
 /** P3 Batch 2: workpaper read/write service. */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import { loadIncomeStatementConfig, loadCashFlowConfig } from "../config/load-config-reports";
 import type { IncomeStatementLineRow, CashFlowLineRow } from "../config/load-config-reports";
 import type {

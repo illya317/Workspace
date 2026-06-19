@@ -13,7 +13,7 @@
 import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../generated/prisma/client";
-import { CASH_FLOW_LINES } from "../server/services/finance/statements/config/cash-flow-lines";
+import { CASH_FLOW_LINES } from "@workspace/finance/server/statements/config/cash-flow-lines";
 import { requireDatabasePath } from "./lib/database-url.js";
 import * as XLSX from "xlsx";
 import * as fs from "fs";

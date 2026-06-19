@@ -1,5 +1,5 @@
 /** M11.5: line-level diff between legacy prefixes and mapping-based balance sheet compute. Read-only diagnostic. */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import type { BalanceItem, ReclassEntry, ReportPeriod } from "./report-helpers";
 import { reclassifyFromEntries } from "./report-helpers";
 import { loadBalanceSheetConfig } from "./config/load-config";

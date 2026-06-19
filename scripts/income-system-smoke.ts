@@ -17,9 +17,9 @@ import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../generated/prisma/client";
 import { requireDatabasePath } from "./lib/database-url.js";
-import { generateReview, getReview } from "../server/services/finance/statements/reviews/service";
-import { getOrCreateDraft, saveWorkpaper } from "../server/services/finance/statements/workpapers/service";
-import { computeIncomeSystemAmounts } from "../server/services/finance/statements/reviews/system-amounts";
+import { generateReview, getReview } from "@workspace/finance/server/statements/reviews/service";
+import { getOrCreateDraft, saveWorkpaper } from "@workspace/finance/server/statements/workpapers/service";
+import { computeIncomeSystemAmounts } from "@workspace/finance/server/statements/reviews/system-amounts";
 
 const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: requireDatabasePath() }) });
 

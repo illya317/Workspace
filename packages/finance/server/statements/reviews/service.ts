@@ -1,5 +1,5 @@
 /** P3 Batch 3: review CRUD + confirm service. */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import { loadIncomeStatementConfig, loadCashFlowConfig } from "../config/load-config-reports";
 import { computeIncomeSystemAmounts } from "./system-amounts";
 import type {

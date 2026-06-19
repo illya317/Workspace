@@ -1,8 +1,8 @@
 /** P3 Batch 3: PUT /api/finance/statement-reviews/[id] — update review lines (partial). */
 import { NextResponse } from "next/server";
 import { withFinanceReportWrite } from "@/lib/with-auth";
-import { updateReviewLines } from "@/server/services/finance/statements/reviews/service";
-import type { ReviewLineInput } from "@/server/services/finance/statements/reviews/types";
+import { updateReviewLines } from "@workspace/finance/server/statements/reviews/service";
+import type { ReviewLineInput } from "@workspace/finance/server/statements/reviews/types";
 
 function statusFrom(e: unknown): number {
   if (e instanceof Error && "statusCode" in e && typeof (e as { statusCode: unknown }).statusCode === "number") {

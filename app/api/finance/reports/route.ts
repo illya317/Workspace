@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceReportAccess } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { generateReport } from "@/server/services/finance/statements/report-generator";
+import { generateReport } from "@workspace/finance/server/statements/report-generator";
 
 /** 报表生成：资产负债表 / 利润表 / 现金流量表 */
 export const GET = withFinanceReportAccess(async (request: Request) => {

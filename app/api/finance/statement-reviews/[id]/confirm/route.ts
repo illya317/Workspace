@@ -1,7 +1,7 @@
 /** P3 Batch 3: POST /api/finance/statement-reviews/[id]/confirm — confirm review. */
 import { NextResponse } from "next/server";
 import { withFinanceReportWrite } from "@/lib/with-auth";
-import { confirmReview } from "@/server/services/finance/statements/reviews/service";
+import { confirmReview } from "@workspace/finance/server/statements/reviews/service";
 
 function statusFrom(e: unknown): number {
   if (e instanceof Error && "statusCode" in e && typeof (e as { statusCode: unknown }).statusCode === "number") {

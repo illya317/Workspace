@@ -19,7 +19,7 @@ import "dotenv/config";
 import * as fs from "fs";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../generated/prisma/client";
-import { computeBalanceSheetDiff } from "../server/services/finance/statements/balance-sheet-diff";
+import { computeBalanceSheetDiff } from "@workspace/finance/server/statements/balance-sheet-diff";
 import { requireDatabasePath } from "./lib/database-url.js";
 
 function parseArgs(argv: string[]): {

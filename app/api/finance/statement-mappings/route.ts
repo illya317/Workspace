@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { clearMappingCache } from "@/server/services/finance/statements/mapping/resolver";
-import { ensureStatementMappings } from "@/server/services/finance/statements/mapping/seed-from-config";
+import { clearMappingCache } from "@workspace/finance/server/statements/mapping/resolver";
+import { ensureStatementMappings } from "@workspace/finance/server/statements/mapping/seed-from-config";
 
 const VALID_TYPES = ["balance"];
 

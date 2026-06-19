@@ -3,8 +3,8 @@
  *  不在 payload 中的 lineCode 会被删除。 */
 import { NextResponse } from "next/server";
 import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
-import { getOrCreateDraft, saveWorkpaper } from "@/server/services/finance/statements/workpapers/service";
-import type { SaveWorkpaperInput } from "@/server/services/finance/statements/workpapers/types";
+import { getOrCreateDraft, saveWorkpaper } from "@workspace/finance/server/statements/workpapers/service";
+import type { SaveWorkpaperInput } from "@workspace/finance/server/statements/workpapers/types";
 
 function validateYearMonth(year: number, month: number): string | null {
   if (!Number.isInteger(year) || !Number.isInteger(month)) return "year, month 必须为整数";

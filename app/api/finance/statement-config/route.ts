@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { getStatementConfigView } from "@/server/services/finance/statements/statement-config-view";
+import { getStatementConfigView } from "@workspace/finance/server/statements/statement-config-view";
 
 // GET: 报表配置视图（lineConfigs + accountTree + mappingPreview）
 // 权限：finance.statement access

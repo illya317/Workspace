@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withFinanceReportAccess } from "@/lib/with-auth";
-import { getReportDetail } from "@/server/services/finance/statements/report-detail";
+import { getReportDetail } from "@workspace/finance/server/statements/report-detail";
 
 export const GET = withFinanceReportAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);

@@ -11,6 +11,7 @@
     "./server": "./server/index.ts",
     "./server/cost": "./server/cost/index.ts",
     "./server/cost/*": "./server/cost/*.ts",
+    "./server/statements/*": "./server/statements/*.ts",
     "./types": "./types/index.ts",
     "./types/*": "./types/*.ts",
     "./ui": "./ui/index.ts",

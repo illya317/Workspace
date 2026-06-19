@@ -27,7 +27,7 @@
 import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../generated/prisma/client";
-import { ensureStatementMappings } from "../server/services/finance/statements/mapping/seed-from-config";
+import { ensureStatementMappings } from "@workspace/finance/server/statements/mapping/seed-from-config";
 
 interface CliOpts {
   companyCode: string | null;

@@ -22,7 +22,7 @@ import { requireDatabasePath } from "./lib/database-url.js";
 import {
   getOrCreateDraft,
   saveWorkpaper,
-} from "../server/services/finance/statements/workpapers/service";
+} from "@workspace/finance/server/statements/workpapers/service";
 
 const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: requireDatabasePath() }) });
 

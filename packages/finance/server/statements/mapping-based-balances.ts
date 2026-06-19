@@ -1,5 +1,5 @@
 /** M10a: mapping-based balance aggregation with residual leaf. residual = own - children sum. */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import { ensureStatementMappings } from "./mapping/seed-from-config";
 
 // ─── Types ─────────────────────────────────────────────────

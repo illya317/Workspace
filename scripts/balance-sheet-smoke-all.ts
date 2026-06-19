@@ -21,7 +21,7 @@ import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../generated/prisma/client";
 import { requireDatabasePath } from "./lib/database-url.js";
-import { computeBalanceSheetDiff } from "../server/services/finance/statements/balance-sheet-diff";
+import { computeBalanceSheetDiff } from "@workspace/finance/server/statements/balance-sheet-diff";
 
 interface PeriodRow {
   companyCode: string;

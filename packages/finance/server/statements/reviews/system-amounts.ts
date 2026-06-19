@@ -12,7 +12,7 @@
  *   header/total/grandTotal lines: amount = 0 (derived in report layer)
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import type { IncomeStatementLineRow } from "../config/load-config-reports";
 import { loadIncomeStatementConfig } from "../config/load-config-reports";
 

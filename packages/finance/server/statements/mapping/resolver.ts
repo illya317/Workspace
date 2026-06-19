@@ -4,7 +4,7 @@
  * 优先用 FinanceAccount.parentId 构建 parent chain。
  * parent 缺失时 prefix fallback。
  */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import type { MappingResolveResult } from "./types";
 
 let _cache: Map<string, { lineCode: string; operator: "add" | "subtract" | "exclude" }> | null = null;

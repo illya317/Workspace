@@ -2,7 +2,7 @@
  * Helpers for balance-sheet-diff: in-memory mapping resolver + bucket logic.
  * Extracted to keep the main diff service under the 260-line cap.
  */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import type { BalanceSheetLineConfig } from "./config/balance-sheet-lines";
 
 export interface UnresolvedAccountDetail {

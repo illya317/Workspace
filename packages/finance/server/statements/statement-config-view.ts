@@ -6,7 +6,7 @@
  * - accountTree: L1→L2→L3 科目余额树
  * - mappingPreview: 每个科目节点的报表项目归属
  */
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import { loadBalanceSheetConfig } from "./config/load-config";
 import { checkAccountBalanceTree, type AccountNode } from "./account-balance-check";
 import { ensureStatementMappings } from "./mapping/seed-from-config";

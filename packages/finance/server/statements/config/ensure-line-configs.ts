@@ -15,7 +15,7 @@
  * P3 Batch 1: framework only. No compute, no UI, no API changes.
  */
 
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 import { loadBalanceSheetConfig } from "./load-config";
 import { loadIncomeStatementConfig, loadCashFlowConfig } from "./load-config-reports";
 
