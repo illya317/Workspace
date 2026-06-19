@@ -221,7 +221,6 @@
     "app/api/admin/permissions/route.ts",
     "app/api/admin/position-permissions/route.ts",
     "app/api/admin/projects/route.ts",
-    "app/api/admin/system-config/route.ts",
     "app/api/admin/users/route.ts",
     "app/api/agent/capabilities/route.ts",
     "app/api/agent/route.ts",
