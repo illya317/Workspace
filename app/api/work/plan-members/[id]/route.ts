@@ -1,9 +1,17 @@
+import { parseRouteIdParams, validateCompatibilityProxyBody } from "@workspace/platform/server/api";
 import { deleteWorkPlanMember, updateWorkPlanMemberField } from "@workspace/work/server";
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return updateWorkPlanMemberField(request, params);
+  const validation = await validateCompatibilityProxyBody(request);
+  if (!validation.ok) return Response.json({ error: validation.error }, { status: 400 });
+
+  const parsedParams = await parseRouteIdParams(params);
+  if (!parsedParams) return Response.json({ error: "ID 无效" }, { status: 400 });
+  return updateWorkPlanMemberField(request, Promise.resolve(parsedParams));
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
-  return deleteWorkPlanMember(request, params);
+  const parsedParams = await parseRouteIdParams(params);
+  if (!parsedParams) return Response.json({ error: "ID 无效" }, { status: 400 });
+  return deleteWorkPlanMember(request, Promise.resolve(parsedParams));
 }

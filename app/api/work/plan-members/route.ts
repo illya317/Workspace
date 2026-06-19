@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@workspace/platform/server/auth";
+import { validateCompatibilityProxyBody } from "@workspace/platform/server/api";
 import { createWorkPlanMember, listWorkPlanMembers } from "@workspace/work/server";
 
 async function canUseWorkPlan(userId: number, role: "access" | "write" | "delete" = "access") {
@@ -27,5 +28,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const validation = await validateCompatibilityProxyBody(request);
+  if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
+
   return createWorkPlanMember(request);
 }

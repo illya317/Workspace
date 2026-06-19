@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@workspace/platform/server/auth";
+import { validateCompatibilityProxyBody } from "@workspace/platform/server/api";
 import { createWorkPlan, listWorkPlans } from "@workspace/work/server";
 
 async function canUseWorkPlan(userId: number, role: "access" | "write" | "delete" = "access") {
@@ -24,6 +25,9 @@ export async function POST(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
   if (!(await canUseWorkPlan(payload.userId, "write"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+
+  const validation = await validateCompatibilityProxyBody(request);
+  if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
 
   const result = await createWorkPlan(request, payload.userId);
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });

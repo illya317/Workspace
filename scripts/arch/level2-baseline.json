@@ -1,20 +1,7 @@
 {
   "uncontractedApiRouteMethods": [],
   "apiRouteMethodsWithDirectPrismaSignal": [],
-  "apiRouteMethodsWithoutValidationSignal": [
-    "DELETE /api/hr/departments",
-    "DELETE /api/hr/positions",
-    "DELETE /api/work/plan-members/:param",
-    "DELETE /api/work/plans/:param",
-    "POST /api/hr/departments",
-    "POST /api/hr/positions",
-    "POST /api/work/plan-members",
-    "POST /api/work/plans",
-    "PUT /api/hr/departments",
-    "PUT /api/hr/positions",
-    "PUT /api/work/plan-members/:param",
-    "PUT /api/work/plans/:param"
-  ],
+  "apiRouteMethodsWithoutValidationSignal": [],
   "apiRouteMethodsWithoutServiceSignal": [],
   "appHookImplementationFiles": [],
   "domainUiCandidatesWithoutCore": [],

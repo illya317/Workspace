@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { withHRAccess, withHRDelete, withHRWrite } from "@/lib/with-auth";
-import { jsonServiceResponse } from "@workspace/platform/server/api";
+import { jsonServiceResponse, routeIdParamsSchema, validateCompatibilityProxyBody } from "@workspace/platform/server/api";
 import { createDepartment, deleteDepartment, listDepartments, updateDepartment } from "@workspace/hr/server";
 
 export const GET = withHRAccess(async (request: Request) => {
@@ -13,16 +13,25 @@ export const GET = withHRAccess(async (request: Request) => {
 });
 
 export const POST = withHRWrite(async (request: Request, user) => {
+  const validation = await validateCompatibilityProxyBody(request);
+  if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
+
   const body = await request.json();
   return jsonServiceResponse(await createDepartment(body, user.userId));
 });
 
 export const PUT = withHRWrite(async (request: Request, user) => {
+  const validation = await validateCompatibilityProxyBody(request);
+  if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
+
   const body = await request.json();
   return jsonServiceResponse(await updateDepartment(body, user.userId));
 });
 
 export const DELETE = withHRDelete(async (request: Request) => {
   const { searchParams } = new URL(request.url);
-  return jsonServiceResponse(await deleteDepartment(searchParams.get("id")));
+  const parsedQuery = routeIdParamsSchema.safeParse(Object.fromEntries(searchParams.entries()));
+  if (!parsedQuery.success) return NextResponse.json({ error: "缺少id" }, { status: 400 });
+
+  return jsonServiceResponse(await deleteDepartment(String(parsedQuery.data.id)));
 });
