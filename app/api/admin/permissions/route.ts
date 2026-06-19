@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
+import { getManageableResourceKeys } from "@workspace/platform/server/auth";
 
 interface TreeNode {
   id: number;
@@ -79,7 +79,7 @@ export async function GET(request: Request) {
   }
 
   // Effective maxRoleKey per resource
-  const { getResourceMaxRole } = await import("@/server/rbac/maxRole");
+  const { getResourceMaxRole } = await import("@workspace/platform/server/auth");
   const effectiveMaxRoleMap = new Map<string, string>();
   for (const r of allResources) {
     if (allowedKeys.has(r.key)) effectiveMaxRoleMap.set(r.key, await getResourceMaxRole(r.key));

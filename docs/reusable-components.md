@@ -9,7 +9,7 @@
 - Apps 只写业务语义：HR、Finance、Production 只负责把业务字段、选项、校验、DTO 接到 Core/Platform 组件上。
 - 字段展示和选择方式必须解耦。字段本体看起来应该一致；选择面板可以是普通下拉、分级选择、FK 搜索、tag 选择，但不能让字段展示形态跟着变。
 - 搜索类选择默认支持中文、拼音全拼和拼音首字母。禁止业务组件各自写一套搜索算法。
-- 旧 `app/components/SearchBox` / `app/hooks/useSearch` 已废弃并由 `arch:check` 禁止复活；通用关键词筛选用 Core `FilterToolbar`，业务 FK/实体选择用对应业务包组件。
+- 旧 `app/components/SearchBox` / `app/hooks/useSearch` 已废弃并由 `arch:gate` 禁止复活；通用关键词筛选用 Core `FilterToolbar`，业务 FK/实体选择用对应业务包组件。
 
 ## Core 组件
 
@@ -79,7 +79,7 @@ Finance 当前已经有第一层统一模板，但业务页面还在渐进迁移
 
 ## 硬约束
 
-这些规则已经由 `npm run arch:check` 中的 package boundary 检查执行，新增包内代码必须通过：
+这些规则已经由 `npm run arch:gate` 中的 AST 和 package boundary 检查执行，新增包内代码必须通过：
 
 - `packages/*` 禁止出现原生 `<select>`；只能使用 Core `SelectField` 或基于 Core 的 App 字段组件。
 - `packages/*` 禁止 `window.confirm`。

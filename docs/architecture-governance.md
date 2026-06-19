@@ -107,14 +107,14 @@ API route 只做：
 
 Level 1 起，权限入口统一为 `server/auth/authorize.ts` 的 `authorize()`。旧的 `withAuth`、`withFinance*`、`checkHRAccess`、`requireResourceAccess` 等兼容入口必须委托 `authorize()`，新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。
 
-`npm run auth:check` 会强制：
+`npm run arch:gate` 的 auth 阶段会强制：
 
 - `server/auth/authorize.ts` 存在并导出 `authorize()`。
 - 核心 auth helper 委托 `authorize()`。
 - 新增 API route 必须有认证/授权 gate、明确代理到兼容 route、显式转调 package service，或是文档化的 public/disabled handler。
 - 新增 API route 不得新增裸 `checkPermission()` 或裸 `prisma.`。当前历史债由 `scripts/check/level1-api-baseline.json` 锁定，只能减少，不能新增。
 
-Level 1.5 额外执行 `npm run arch:scan`。这个扫描不是 advisory：命中即 `exit 1`。它会阻断 `checkPermission`、`hasAccess`、`canAccess`、`roleCheck`、`rbacCheck` 等替代权限入口，阻断 `if (user.role)` 一类角色分支，阻断 `authorize()`/RBAC service 外新增 RBAC 表直查，并阻断业务包通过 `@/server/*` 或相对路径绕过边界。已有历史债只允许出现在 `scripts/arch/level15-baseline.json`，迁移删除文件时必须同时删 baseline 项；新增违规不能把 baseline 当白名单扩写。
+`npm run arch:gate` 的 AST 阶段不是 advisory：命中即 `exit 1`。它会阻断 `checkPermission`、`hasAccess`、`canAccess`、`roleCheck`、`rbacCheck` 等替代权限入口，阻断 `if (user.role)` 一类角色分支，阻断 `authorize()`/RBAC service 外新增 RBAC 表直查，并阻断业务包通过 `@/server/*` 或相对路径绕过边界。已有历史债只允许出现在 `scripts/arch/level15-baseline.json`，迁移删除文件时必须同时删 baseline 项；新增违规不能把 baseline 当白名单扩写。
 
 权限动作：
 
@@ -178,13 +178,14 @@ app/* route shell
 - `app/lib/module-nav.tsx` 只是兼容出口，模块真实注册来源是 `packages/platform/module-registry.ts`。`packages/platform/modules.tsx` 只消费 registry 并生成运行时聚合，不直接 import domain 包。
 - 模块注册的 `href` 和 `routes` 只写不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止把 `@workspace/*` package 名或 `/workspace` basePath 写入 URL。
 
-这些规则由 `npm run arch:check` 中的 module registry、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
+这些规则由 `npm run arch:gate` 中的 module registry、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
 
 Level 1/1.5 额外硬约束：
 
-- `npm run arch:scan` 使用 TypeScript AST 做硬扫描，阻断 UI 库 import、app 层新增 UI、权限绕过、RBAC 表直查、业务包 server alias 绕过和跨业务包 import。
-- `npm run lint:deps` 使用 `dependency-cruiser.config.cjs` 检查包级 DAG 和循环依赖。Core 不能 import Platform/Apps，Platform 不能 import domain package，domain package 不能互相 import，生成目录不参与依赖图。
-- `npm run module-check` 要求每个业务包通过 `packages/platform/module-registry.ts` 注册并导出来自 registry 的 `moduleDefinition`；未注册、重复 key、从业务包反向聚合到 Platform 都会失败。
+- `npm run arch:gate` 是唯一架构入口，串行执行 AST 扫描、dependency-cruiser、module registry、资源注册、package boundary 和 auth/API 检查；任一阶段失败立即退出。
+- AST 阶段阻断 UI 库 import、app 层新增 UI、权限绕过、RBAC 表直查、业务包 server alias 绕过和跨业务包 import。
+- dependency-cruiser 阶段检查包级 DAG 和循环依赖。Core 不能 import Platform/Apps，Platform 不能 import domain package，domain package 不能互相 import，生成目录不参与依赖图。
+- module registry 阶段要求每个业务包通过 `packages/platform/module-registry.ts` 注册并导出来自 registry 的 `moduleDefinition`；未注册、重复 key、从业务包反向聚合到 Platform 都会失败。
 - ESLint 禁止 `antd`、`@mui/*`、`react-bootstrap` 等 UI 库 import。需要新基础 UI 时先补 `packages/core/ui`。
 - 业务包之间禁止直接互相 import；跨模块能力必须进入 Platform service/registry，或通过明确稳定的 package contract 暴露。
 

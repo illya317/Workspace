@@ -14,7 +14,7 @@
 
 | 功能 | 目标包 | 当前文件 | 迁移后文件 | app 是否只剩薄壳 | 旧代码是否删除 |
 |---|---|---|---|---|---|
-| 通用下拉、日期、确认、Toast、表格、筛选、分页、Tag、搜索匹配 | `packages/core` | `app/components/*`, `app/hooks/useToast.ts`, app 内一次性控件 | `packages/core/ui/*`, `packages/core/hooks/*`, `packages/core/search/*` | 部分完成：`app/components` 仍有兼容壳和少量真实实现 | 进行中；旧 `SearchBox/useSearch` 已删除并被 `arch:check` 禁止复活 |
+| 通用下拉、日期、确认、Toast、表格、筛选、分页、Tag、搜索匹配 | `packages/core` | `app/components/*`, `app/hooks/useToast.ts`, app 内一次性控件 | `packages/core/ui/*`, `packages/core/hooks/*`, `packages/core/search/*` | 部分完成：`app/components` 仍有兼容壳和少量真实实现 | 进行中；旧 `SearchBox/useSearch` 已删除并被 `arch:gate` 禁止复活 |
 | 平台壳、模块首页、导航、用户菜单、Portal、审计 UI | `packages/platform` | `app/components/AppShell.tsx`, `ModuleHome.tsx`, `NavLink.tsx`, `UserMenu.tsx`, `AuditLog*`, `app/portal/*` | `packages/platform/ui/*`, `packages/platform/module-registry.ts`, `packages/platform/modules.tsx`, `packages/platform/audit/*` | 部分完成：app 层仍大量通过兼容壳引用 | 未完成；应逐页改为 `@workspace/platform/ui` |
 | 平台认证、权限、Prisma 入口、CRUD 工厂、历史、FK 解析 | `packages/platform/server` | `lib/auth.ts`, `lib/permissions.ts`, `lib/prisma.ts`, `lib/crud-factory.ts`, `lib/history.ts`, `lib/resolve-fk.ts` | `packages/platform/server/*`, `packages/platform/resources.ts` | 部分完成：`lib` 仍承载兼容与部分真实逻辑 | 未完成；迁移后 `lib` 只保留 re-export 或 Next 必需工具 |
 | HR 资料、部门岗位、员工项目、导入、校验、搜索 | `packages/hr` | `app/hr/*`, `app/api/hr/*`, `server/services/hr/*`, `lib/hr-*`, `lib/autocomplete-config.ts` | `packages/hr/ui/*`, `packages/hr/server/*`, `packages/hr/types/*`, `packages/hr/constants/*`, `packages/hr/import/*` | 大部分完成：HR 页面仍有旧薄壳和少量 app 组件引用 | 进行中；需继续删除旧 app HR 真实实现 |
@@ -37,7 +37,7 @@
 2. **Work 业务包**：由并行线程承接 Project / EmployeeProject / reports / works / history；本线程只把它纳入边界表和硬约束，不改 Work 具体实现。
 3. **Platform 平台能力**：迁移 settings / docs 和平台壳，避免只注册模块但 UI/server 仍留在 app/server。
 4. **Contracts / Library 独立包**：不要塞进 Platform；按业务包拆 `ui/server/types/module`。
-5. **硬约束升级**：`arch:check` 已扩大检查范围，禁止业务包之间直接 import，禁止非 Core 包新增未基于 Core/Platform 的疑似基础组件。Work 的临时搜索组件在 allowlist 中记录为并行拆分债务。
+5. **硬约束升级**：`arch:gate` 已扩大检查范围，禁止业务包之间直接 import，禁止非 Core 包新增未基于 Core/Platform 的疑似基础组件。Work 的临时搜索组件在 allowlist 中记录为并行拆分债务。
 
 ## 验收证据
 
@@ -50,7 +50,7 @@
 并运行：
 
 ```bash
-npm run arch:check
+npm run arch:gate
 npm run size:check
 npm run lint -- --max-warnings=0
 npm run typecheck:quick

@@ -53,14 +53,14 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/platform/ui` 已接收登录后的 Portal、L1 模块首页、AppShell、跨页 NavLink、用户菜单、设置页和审计日志 UI；AppShell 必须复用 Core `PageShell`。`app/portal/PortalClient.tsx` 与 `app/components/{AppShell,AuditLogEntry,AuditLogModal,ModuleHome,NavLink,UserMenu}.tsx` 保留兼容 re-export。
 - `packages/administration` 已接收合同台账的 module、UI、server、types，`app/contracts/page.tsx` 和 `app/api/contracts/*` 只保留 Next 壳。
 - `packages/library` 已接收资料库 module、UI、server、types，`app/library/page.tsx` 和 `app/api/library/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。
-- 每个业务包的 `module.ts` 必须导出 `moduleDefinition`，同时保留领域兼容别名（例如 `financePackage`）。`moduleDefinition` 必须来自 `packages/platform/module-registry.ts` 的 `getRegisteredModuleDefinition("@workspace/<domain>")`；`npm run module-check` 会校验业务包导出、registry 注册和重复 module key。
+- 每个业务包的 `module.ts` 必须导出 `moduleDefinition`，同时保留领域兼容别名（例如 `financePackage`）。`moduleDefinition` 必须来自 `packages/platform/module-registry.ts` 的 `getRegisteredModuleDefinition("@workspace/<domain>")`；`npm run arch:gate` 会校验业务包导出、registry 注册和重复 module key。
 - `packages/platform/ui/docs` 已接收文档中心和接入指南 UI；`app/docs/*` 与 `app/api-guide/page.tsx` 只保留鉴权/参数/挂载壳。
 - `app/lib/module-nav.tsx` 是兼容出口，现有页面暂时继续从这里导入。
 - `app/components/ConfirmModal.tsx`、`ConfirmProvider.tsx`、`DetailModal.tsx`、`FilterBar.tsx`、`FilterToolbar.tsx`、`Toast.tsx`、`SelectField.tsx`、`StatusBadge.tsx`、`StatusToggle.tsx`、`NumberCell.tsx`、`AmountCell.tsx`、`ColumnToggle.tsx`、`TabBar.tsx`、`DataTable.tsx`、`FilterField.tsx`、`EditToolbar.tsx` 和 `app/hooks/useToast.ts` 已降级为兼容 re-export。
 - `app/hooks/useCompanyOptions.ts` 已降级为 `@workspace/platform/hooks` 的兼容 re-export。
 - `app/hr/types.ts`、`app/hr/profile/types.ts`、`app/hr/code/types.ts`、`app/hr/tabConfigs.ts`、`app/hr/tab-configs/*`、`app/hr/profile/fields.ts`、`app/hr/profile/lunar-birthday.ts`、`app/hr/code/useCodeHelpers.ts`、`app/hr/analytics/*`、`app/hr/profile/*`、第一批 `app/hr/components/*` HR 专用字段组件和第一批 `app/hr/tabs/*` 大组件已降级为兼容 re-export。
 - `app/api/hr/autocomplete`、`app/api/hr/companies`、`app/api/hr/company-relations`、`app/api/hr/contracts`、`app/api/hr/departments`、`app/api/hr/edps`、`app/api/hr/employees`、`app/api/hr/employee-projects`、`app/api/hr/employee-profiles/*`、`app/api/hr/employments`、`app/api/hr/position-description-templates`、`app/api/hr/positions`、`app/api/hr/projects`、`app/api/hr/roster` 和 `app/api/position-descriptions` 已降级为认证/权限/响应壳，业务逻辑下沉到 `@workspace/hr/server`。
-- 模块注册中的 `href` 与 `routes` 必须使用不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止写 `@workspace/...` package 名或 `/workspace/...`，这个规则由 `npm run module-nav:check` 校验。
+- 模块注册中的 `href` 与 `routes` 必须使用不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止写 `@workspace/...` package 名或 `/workspace/...`，这个规则由 `npm run arch:gate` 校验。
 
 ## 路由和服务迁移原则
 
@@ -98,15 +98,11 @@ app/* route shell
   -> platform contracts only when needed
 ```
 
-`npm run arch:check` 会先执行 Level 1.5 AST 扫描，再执行模块入口、资源注册、package 边界和 Level 1 检查，防止 Core 反向依赖平台或业务包，防止 Platform 直接 import 业务包实现，防止业务包之间直接互相引用，也防止 `packages/*` 反向 import `app/*` 路由壳或 app-root `lib/server/generated` runtime alias。它还会检查疑似重复基础组件文件名是否基于 Core/Platform 基建；新增例外必须写入脚本 allowlist。
+`npm run arch:gate` 会先执行 Level 1.5 AST 扫描，再执行模块入口、资源注册、package 边界和 Level 1 检查，防止 Core 反向依赖平台或业务包，防止 Platform 直接 import 业务包实现，防止业务包之间直接互相引用，也防止 `packages/*` 反向 import `app/*` 路由壳或 app-root `lib/server/generated` runtime alias。它还会检查疑似重复基础组件文件名是否基于 Core/Platform 基建；新增例外必须写入脚本 allowlist。
 
-Level 1/1.5 单独命令：
+Level 1/1.5 只有一个硬门禁入口：
 
-- `npm run arch:scan`：AST 硬扫描。新增 UI 库 import、新增 app 层 UI、替代权限函数、`if (user.role)`、新增 RBAC 表直查、业务包 `@/server/*` alias 绕过、跨业务包 import 都会 `exit 1`。历史债由 `scripts/arch/level15-baseline.json` 锁定，只能减少。
-- `npm run lint:deps`：dependency-cruiser DAG 和循环依赖检查。Core 不能 import Platform/Apps，Platform 不能 import domain package，domain package 不能互相 import。
-- `npm run module-check`：业务包必须导出来自 `packages/platform/module-registry.ts` 的 `moduleDefinition`，registry 里不能缺失或重复 module key。
-- `npm run auth:check`：`authorize()` 必须存在，核心 auth helper 必须委托它；新增 API 不得新增裸 `checkPermission()` 或裸 Prisma。历史 route 债务由 `scripts/check/level1-api-baseline.json` 锁定，只能减少不能增加。
-- `npm run level1:check`：汇总 `arch:scan`、依赖图、模块锁、package 边界和 auth/API 检查，CI 和 `arch:check` 都会执行。
+- `npm run arch:gate`：串行执行 AST 硬扫描、dependency-cruiser DAG、模块注册锁、资源注册、package 边界和 auth/API 检查。新增 UI 库 import、新增 app 层 UI、替代权限函数、`if (user.role)`、新增 RBAC 表直查、业务包 `@/server/*` alias 绕过、跨业务包 import、循环依赖、未注册或重复 module key 都会立即 `exit 1`。历史债由 `scripts/arch/level15-baseline.json` 和 `scripts/check/level1-api-baseline.json` 锁定，只能减少，不能扩写。
 
 `app/` 层是 routing only：
 

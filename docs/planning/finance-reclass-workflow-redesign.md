@@ -531,6 +531,6 @@ npm run build
 
 ```bash
 npm run schema:check
-npm run arch:check
+npm run arch:gate
 npm run docs:check
 ```

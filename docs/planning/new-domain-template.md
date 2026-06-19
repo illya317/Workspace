@@ -102,4 +102,4 @@ export async function GET(request: Request) {
 - [ ] 实现 `packages/<domain>/server/*`
 - [ ] 实现 `app/api/<domain>/route.ts`
 - [ ] 实现 `app/<domain>/page.tsx` + `DomainClient.tsx`
-- [ ] 运行硬约束：`npm run arch:check && npm run lint -- --max-warnings=0 && npx tsc --noEmit && npm run build`
+- [ ] 运行硬约束：`npm run arch:gate && npm run lint -- --max-warnings=0 && npx tsc --noEmit && npm run build`

@@ -41,8 +41,8 @@
 - `README.md` 改成项目地图。
 - `AGENTS.md` 增加入口规则，细则沉到 `docs/agent-handbook.md`。
 - 新增 `docs/architecture-governance.md`。
-- 新增 `npm run arch:check`。
-- pre-commit 和 CI 接入 `arch:check`。
+- 新增 `npm run arch:gate`。
+- pre-commit 和 CI 接入 `arch:gate`。
 - 新增 `npm run schema:check`，检查 Prisma model 是否按领域、是否有注释、是否同步文档。
 
 后续补强：
@@ -53,7 +53,7 @@
 验收：
 
 ```bash
-npm run arch:check
+npm run arch:gate
 npm run schema:check
 npm run lint -- --max-warnings=0
 npx tsc --noEmit
@@ -193,7 +193,7 @@ rg '/api/employees|/api/positions|/api/departments' app/ --type-add 'web:*.{ts,t
 验收：
 
 ```bash
-npm run arch:check
+npm run arch:gate
 npm run lint -- --max-warnings=0
 npx tsc --noEmit
 ```
@@ -231,7 +231,7 @@ server/services/works/
 - 新增 `packages/platform`，聚合模块注册并生成导航入口。
 - 新增 `packages/hr`、`packages/production`、`packages/finance`，各自导出业务包注册信息。
 - `app/lib/module-nav.tsx` 降级为兼容出口，真实注册来源切到 `packages/platform/modules.tsx`。
-- 新增 package 边界检查，接入 `npm run arch:check`。
+- 新增 package 边界检查，接入 `npm run arch:gate`。
 - 新增 `docs/module-boundaries.md`。
 
 后续：

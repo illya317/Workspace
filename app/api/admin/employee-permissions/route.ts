@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@/lib/auth";
-import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
+import { getManageableResourceKeys } from "@workspace/platform/server/auth";
 import { getEmployeesWithPermissions, syncUserGrants } from "@/server/services/employee-permissions";
 
 export async function GET(request: Request) {

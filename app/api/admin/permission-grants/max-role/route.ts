@@ -31,7 +31,7 @@ export async function PATCH(request: Request) {
 
   // 父级有效上限（走 DB parent 链，含祖父级）
   if (res.parent) {
-    const { getResourceMaxRole } = await import("@/server/rbac/maxRole");
+    const { getResourceMaxRole } = await import("@workspace/platform/server/auth");
     const parentMax = await getResourceMaxRole(res.parent.key);
     const parentLevel = ROLE_HIERARCHY[parentMax] ?? 3;
     const newLevel = ROLE_HIERARCHY[maxRoleKey] ?? 3;
@@ -43,7 +43,7 @@ export async function PATCH(request: Request) {
   }
 
   await prisma.resource.update({ where: { key: resourceKey }, data: { maxRoleKey } });
-  const { clearMaxRoleCache } = await import("@/server/rbac/maxRole");
+  const { clearMaxRoleCache } = await import("@workspace/platform/server/auth");
   clearMaxRoleCache();
 
   return NextResponse.json({ success: true, maxRoleKey });

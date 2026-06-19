@@ -23,31 +23,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Architecture AST scan
-        run: npm run arch:scan
-
-      - name: Dependency DAG
-        run: npm run lint:deps
-
-      - name: Module definitions
-        run: npm run module-check
-
-      - name: Authorization and API gate
-        run: npm run auth:check
-
-      - name: Lint
-        run: npm run lint:full
+      - name: Architecture Gate
+        run: npm run arch:gate
 
       - name: Test
         run: npm test
-
-      - name: Prisma schema validate
-        run: npm run db:validate
-
-      - name: Schema governance
-        run: npm run schema:check
-
-      - name: Full CI
-        run: npm run ci
-        env:
-          NEXTAUTH_SECRET: ci-dummy-secret-for-build

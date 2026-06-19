@@ -109,7 +109,7 @@ npm run build
 如涉及架构/文档/Schema，再补：
 
 ```bash
-npm run arch:check
+npm run arch:gate
 npm run schema:check
 ```
 

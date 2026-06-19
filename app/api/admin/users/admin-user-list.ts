@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { isSystemAdminBypassEnabled } from "@/server/rbac/bypass";
+import { isSystemAdminBypassEnabled } from "@workspace/platform/server/auth";
 
 type RoleKey = "access" | "write";
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withAuth, type RouteContext } from "@/lib/with-auth";
-import { checkPermission } from "@/server/rbac/check";
+import { checkPermission } from "@workspace/platform/server/auth";
 import { deleteQcBatch, getQcBatch, updateQcBatch } from "@/server/services/production/qc";
 
 async function parseBatchId(ctx?: RouteContext) {

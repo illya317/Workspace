@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { authenticate } from "@/lib/auth";
-import { setGrant } from "@/server/rbac/grants";
-import { canManageResourceGrant } from "@/server/rbac/admin-scope";
+import { canManageResourceGrant, setGrant } from "@workspace/platform/server/auth";
 
 export async function PUT(request: Request) {
   const payload = await authenticate(request);

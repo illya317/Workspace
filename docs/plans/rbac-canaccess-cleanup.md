@@ -185,7 +185,7 @@ grep -n "canAccess" server/auth/session.ts
 # 期望：无匹配
 
 # 3. 硬约束通过
-npm run arch:check
+npm run arch:gate
 
 # 4. 全量验收
 npm run size:check

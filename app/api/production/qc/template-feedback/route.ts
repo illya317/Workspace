@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withAuth } from "@/lib/with-auth";
-import { checkPermission } from "@/server/rbac/check";
+import { checkPermission } from "@workspace/platform/server/auth";
 import {
   getQcTemplateFeedback,
   listQcTemplateFeedbackByContext,

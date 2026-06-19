@@ -3,9 +3,9 @@ import { authenticate, checkPermission } from "@/lib/auth";
 import {
   getManageableResourceKeys,
   canManageResourceGrant,
-} from "@/server/rbac/admin-scope";
+} from "@workspace/platform/server/auth";
 import { getPermissionGrantData } from "@/server/services/admin/permission-subjects";
-import type { SubjectType } from "@/server/rbac/grants";
+import type { SubjectType } from "@workspace/platform/server/auth";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -33,12 +33,12 @@ export async function GET(request: Request) {
   // 附上当前资源及祖先的 maxRoleKey
   let maxRoleKey = "admin";
   if (resourceKey) {
-    const { getResourceMaxRole } = await import("@/server/rbac/maxRole");
+    const { getResourceMaxRole } = await import("@workspace/platform/server/auth");
     maxRoleKey = await getResourceMaxRole(resourceKey);
   }
 
   // Batch 5.1: bypass toggle for frontend matrix display
-  const { isSystemAdminBypassEnabled } = await import("@/server/rbac/bypass");
+  const { isSystemAdminBypassEnabled } = await import("@workspace/platform/server/auth");
   const bypassEnabled = await isSystemAdminBypassEnabled();
 
   return NextResponse.json({
@@ -76,7 +76,7 @@ export async function PUT(request: Request) {
   if (!canManage) return NextResponse.json({ error: "无权限管理该资源权限" }, { status: 403 });
 
   if (value) {
-    const { isRoleAllowedForResource, getResourceMaxRole } = await import("@/server/rbac/maxRole");
+    const { isRoleAllowedForResource, getResourceMaxRole } = await import("@workspace/platform/server/auth");
     if (!(await isRoleAllowedForResource(resourceKey, roleKey))) {
       const max = await getResourceMaxRole(resourceKey);
       const labels: Record<string, string> = { access: "访问", write: "编辑", delete: "删除", admin: "管理" };
@@ -85,7 +85,7 @@ export async function PUT(request: Request) {
   }
 
   try {
-    const { setGrant } = await import("@/server/rbac/grants");
+    const { setGrant } = await import("@workspace/platform/server/auth");
     await setGrant(
       subjectType as SubjectType,
       subjectId,

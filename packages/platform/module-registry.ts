@@ -286,6 +286,29 @@ export const registeredModuleDefinitions = [
   },
 ] satisfies WorkspacePackageRegistration[];
 
+export const registeredModules = registeredModuleDefinitions
+  .map((definition) => definition.moduleDef?.key)
+  .filter((key): key is string => Boolean(key));
+
+function validateModuleRegistry() {
+  const seen = new Set<string>();
+  for (const moduleKey of registeredModules) {
+    if (seen.has(moduleKey)) {
+      throw new Error(`DUPLICATE MODULE KEY: ${moduleKey}`);
+    }
+    seen.add(moduleKey);
+  }
+
+  for (const definition of registeredModuleDefinitions) {
+    const moduleKey = definition.moduleDef?.key;
+    if (moduleKey && !registeredModules.includes(moduleKey)) {
+      throw new Error(`MODULE NOT REGISTERED: ${moduleKey}`);
+    }
+  }
+}
+
+validateModuleRegistry();
+
 export const registeredDomainPackageNames = registeredModuleDefinitions
   .filter((definition) => definition.layer === "domain")
   .map((definition) => definition.packageName);

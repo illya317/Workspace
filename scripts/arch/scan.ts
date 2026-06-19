@@ -8,6 +8,12 @@ type Baseline = {
   directRbacTableFiles: string[];
 };
 
+type Violation = {
+  file: string;
+  rule: string;
+  message: string;
+};
+
 const ROOT = path.resolve(__dirname, "../..");
 const BUSINESS_PACKAGES = new Set([
   "administration",
@@ -17,28 +23,28 @@ const BUSINESS_PACKAGES = new Set([
   "production",
   "work",
 ]);
-const UI_LIBRARY_IMPORTS = ["antd", "@mui/", "react-bootstrap"];
-const PERMISSION_FUNCTION_NAMES = new Set([
+const FORBIDDEN_PATTERNS = [
   "checkPermission",
-  "hasAccess",
   "canAccess",
+  "hasAccess",
   "roleCheck",
   "rbacCheck",
-]);
+];
+const FORBIDDEN_IMPORTS = [
+  "@/server/rbac",
+  "@/server/auth/legacy",
+  "antd",
+  "@mui",
+  "react-bootstrap",
+];
+const FORBIDDEN_UI_IN_APP = ["app/**/*.tsx"];
+const PERMISSION_FUNCTION_NAMES = new Set(FORBIDDEN_PATTERNS);
 const RBAC_TABLE_NAMES = new Set([
   "userResourceRole",
   "positionResourceRole",
   "departmentResourceRole",
 ]);
 const RBAC_MODEL_NAMES = new Set(["resource", "role"]);
-const APP_UI_NAME_PATTERN = /(Component|Client|Panel|Modal|Form|Filter|Table|Toolbar|Shell|Card|List|Row|Tab|Input|Button|View)$/;
-const ROUTE_SHELL_FILENAMES = new Set([
-  "page.tsx",
-  "layout.tsx",
-  "loading.tsx",
-  "error.tsx",
-  "not-found.tsx",
-]);
 
 const baseline = JSON.parse(
   fs.readFileSync(path.join(ROOT, "scripts/arch/level15-baseline.json"), "utf8"),
@@ -50,16 +56,14 @@ const baselineSets = {
   directRbacTableFiles: new Set(baseline.directRbacTableFiles),
 };
 
-type Violation = {
-  file: string;
-  rule: string;
-  message: string;
-};
+class ArchViolation extends Error {
+  constructor(readonly violation: Violation) {
+    super(`${violation.file} [${violation.rule}] ${violation.message}`);
+  }
+}
 
-const violations: Violation[] = [];
-
-function addViolation(file: string, rule: string, message: string) {
-  violations.push({ file, rule, message });
+function fail(file: string, rule: string, message: string): never {
+  throw new ArchViolation({ file, rule, message });
 }
 
 function toRelative(filePath: string) {
@@ -146,61 +150,66 @@ function callExpressionName(expression: ts.Expression) {
   return null;
 }
 
+function importMatchesForbidden(specifier: string, forbidden: string) {
+  if (forbidden.startsWith("@/")) return specifier === forbidden || specifier.startsWith(`${forbidden}/`);
+  if (forbidden.startsWith("@mui")) return specifier === "@mui" || specifier.startsWith("@mui/");
+  return specifier === forbidden || specifier.startsWith(`${forbidden}/`);
+}
+
+function isLegacyPermissionKernel(rel: string) {
+  return rel.startsWith("server/rbac/") ||
+    rel === "server/auth/authorize.ts" ||
+    rel === "server/auth/session.ts" ||
+    baselineSets.directPermissionFiles.has(rel) ||
+    baselineSets.directRbacTableFiles.has(rel);
+}
+
 function appUiViolation(sourceFile: ts.SourceFile, rel: string) {
   if (!rel.startsWith("app/") || rel.startsWith("app/api/") || !rel.endsWith(".tsx")) return false;
   if (!hasJsx(sourceFile)) return false;
-
-  const basename = path.posix.basename(rel);
-  const isRouteShell = ROUTE_SHELL_FILENAMES.has(basename);
-  const sourceText = sourceFile.getFullText();
-  const hasLayoutStyling = /\bclassName\s*=/.test(sourceText);
-  const hasUiFileName = APP_UI_NAME_PATTERN.test(path.posix.basename(rel, ".tsx"));
-
-  return !isRouteShell || hasLayoutStyling || hasUiFileName;
+  return FORBIDDEN_UI_IN_APP.length > 0;
 }
 
 function scanImport(filePath: string, rel: string, specifier: string) {
-  if (
-    UI_LIBRARY_IMPORTS.some((blocked) =>
-      blocked.endsWith("/")
-        ? specifier.startsWith(blocked)
-        : specifier === blocked || specifier.startsWith(`${blocked}/`),
-    )
-  ) {
-    addViolation(rel, "ui-library-import", `third-party UI import "${specifier}" is forbidden; use @workspace/core/ui`);
+  const blockedImport = FORBIDDEN_IMPORTS.find((forbidden) => importMatchesForbidden(specifier, forbidden));
+  if (blockedImport) {
+    const isRbacKernelImport = blockedImport === "@/server/rbac" && isLegacyPermissionKernel(rel);
+    if (!isRbacKernelImport) {
+      fail(rel, "forbidden-import", `import "${specifier}" is forbidden by the architecture gate`);
+    }
   }
 
   const packageName = getPackageName(rel);
   const importedWorkspacePackage = getImportedWorkspacePackage(specifier);
   if (packageName === "core" && importedWorkspacePackage && importedWorkspacePackage !== "core") {
-    addViolation(rel, "core-dependency", `Core cannot import ${specifier}`);
+    fail(rel, "core-dependency", `Core cannot import ${specifier}`);
   }
 
   if (packageName === "platform" && importedWorkspacePackage && BUSINESS_PACKAGES.has(importedWorkspacePackage)) {
-    addViolation(rel, "platform-domain-import", `Platform cannot import domain package ${specifier}; use module-registry data`);
+    fail(rel, "platform-domain-import", `Platform cannot import domain package ${specifier}; use module-registry data`);
   }
 
   if (isBusinessPackageFile(rel)) {
     if (specifier.startsWith("@/server/") || specifier.startsWith("server/")) {
-      addViolation(rel, "package-server-alias", `Domain packages cannot import server runtime alias "${specifier}"`);
+      fail(rel, "package-server-alias", `Domain packages cannot import server runtime alias "${specifier}"`);
     }
     if (
       importedWorkspacePackage &&
       BUSINESS_PACKAGES.has(importedWorkspacePackage) &&
       importedWorkspacePackage !== packageName
     ) {
-      addViolation(rel, "cross-domain-import", `Domain package ${packageName} cannot import ${specifier}`);
+      fail(rel, "cross-domain-import", `Domain package ${packageName} cannot import ${specifier}`);
     }
 
     const resolved = resolveRelativeImport(filePath, specifier);
     if (resolved) {
       const rootPosix = toPosix(ROOT);
       if (resolved.startsWith(`${rootPosix}/server/`)) {
-        addViolation(rel, "package-server-relative-import", `Domain packages cannot import server/ via relative path "${specifier}"`);
+        fail(rel, "package-server-relative-import", `Domain packages cannot import server/ via relative path "${specifier}"`);
       }
       for (const domain of BUSINESS_PACKAGES) {
         if (domain !== packageName && resolved.startsWith(`${rootPosix}/packages/${domain}/`)) {
-          addViolation(rel, "cross-domain-relative-import", `Domain package ${packageName} cannot import packages/${domain} via relative path "${specifier}"`);
+          fail(rel, "cross-domain-relative-import", `Domain package ${packageName} cannot import packages/${domain} via relative path "${specifier}"`);
         }
       }
     }
@@ -219,7 +228,7 @@ function scanFile(filePath: string) {
   );
 
   if (appUiViolation(sourceFile, rel) && !baselineSets.appUiFiles.has(rel)) {
-    addViolation(rel, "app-ui", "app/ is routing-only; move UI/components/forms/tables/filters to packages/*/ui or packages/platform/ui");
+    fail(rel, "app-ui", "app/ is routing-only; move JSX UI to packages/*/ui or packages/platform/ui");
   }
 
   const visit = (node: ts.Node) => {
@@ -228,18 +237,26 @@ function scanFile(filePath: string) {
     }
 
     if (ts.isCallExpression(node)) {
+      if (
+        node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+        node.arguments[0] &&
+        ts.isStringLiteralLike(node.arguments[0])
+      ) {
+        scanImport(filePath, rel, node.arguments[0].text);
+      }
+
       const name = callExpressionName(node.expression);
       if (name && PERMISSION_FUNCTION_NAMES.has(name) && !baselineSets.directPermissionFiles.has(rel)) {
-        addViolation(rel, "permission-bypass", `permission helper "${name}" is forbidden; use authorize()`);
+        fail(rel, "permission-bypass", `permission helper "${name}" is forbidden; use authorize()`);
       }
     }
 
     if (ts.isFunctionDeclaration(node) && node.name && PERMISSION_FUNCTION_NAMES.has(node.name.text) && !baselineSets.directPermissionFiles.has(rel)) {
-      addViolation(rel, "permission-helper-definition", `permission helper "${node.name.text}" is forbidden; use authorize()`);
+      fail(rel, "permission-helper-definition", `permission helper "${node.name.text}" is forbidden; use authorize()`);
     }
 
     if (ts.isIfStatement(node) && containsUserRoleCheck(node.expression)) {
-      addViolation(rel, "role-if", "role-based if checks are forbidden; use authorize()");
+      fail(rel, "role-if", "role-based if checks are forbidden; use authorize()");
     }
 
     if (ts.isPropertyAccessExpression(node)) {
@@ -250,7 +267,7 @@ function scanFile(filePath: string) {
         ts.isIdentifier(node.expression) &&
         node.expression.text === "prisma";
       if ((isRbacGrantTable || isPrismaRbacModel) && !baselineSets.directRbacTableFiles.has(rel)) {
-        addViolation(rel, "direct-rbac-table", `direct RBAC table/model access "${name}" is forbidden outside authorize/RBAC services`);
+        fail(rel, "direct-rbac-table", `direct RBAC table/model access "${name}" is forbidden outside authorize/RBAC services`);
       }
     }
 
@@ -263,26 +280,31 @@ function checkBaselineFilesStillExist() {
   for (const [kind, files] of Object.entries(baselineSets)) {
     for (const rel of files) {
       if (!fs.existsSync(path.join(ROOT, rel))) {
-        addViolation(rel, `stale-${kind}`, "legacy baseline entry points to a missing file; remove the baseline entry with the migration");
+        fail(rel, `stale-${kind}`, "legacy baseline entry points to a missing file; remove the baseline entry with the migration");
       }
     }
   }
 }
 
-checkBaselineFilesStillExist();
+export function scan() {
+  try {
+    checkBaselineFilesStillExist();
 
-for (const rootName of ["app", "packages", "server", "lib"]) {
-  for (const file of walk(path.join(ROOT, rootName))) {
-    scanFile(file);
+    for (const rootName of ["app", "packages", "server", "lib"]) {
+      for (const file of walk(path.join(ROOT, rootName))) {
+        scanFile(file);
+      }
+    }
+
+    console.log("✓ Architecture AST scan passed.");
+    return true;
+  } catch (error) {
+    console.error("✗ Architecture AST scan failed.");
+    console.error(error instanceof Error ? `  ${error.message}` : error);
+    return false;
   }
 }
 
-if (violations.length > 0) {
-  console.error("✗ Level 1.5 architecture scan failed.");
-  for (const violation of violations) {
-    console.error(`  ${violation.file} [${violation.rule}] ${violation.message}`);
-  }
-  process.exit(1);
+if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {
+  process.exit(scan() ? 0 : 1);
 }
-
-console.log("✓ Level 1.5 architecture scan passed.");

@@ -8,6 +8,22 @@ export {
 } from "../../../server/auth/authorize";
 export { checkPermission } from "../../../server/rbac/check";
 export {
+  canManageResourceGrant,
+  getManageableResourceKeys,
+} from "../../../server/rbac/admin-scope";
+export { getGrants, setGrant, type SubjectType } from "../../../server/rbac/grants";
+export { getPermissionContext, ensureGrantCache } from "../../../server/rbac/context";
+export { getVisibleResourceKeys } from "../../../server/rbac/visibility";
+export {
+  clearMaxRoleCache,
+  getResourceMaxRole,
+  isRoleAllowedForResource,
+} from "../../../server/rbac/maxRole";
+export {
+  clearBypassCache,
+  isSystemAdminBypassEnabled,
+} from "../../../server/rbac/bypass";
+export {
   checkHRAccess,
   checkHRWrite,
   checkHRDelete,

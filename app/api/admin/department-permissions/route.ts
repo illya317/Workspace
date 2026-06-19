@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkPermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { setGrant, getGrants } from "@/server/rbac/grants";
-import { getManageableResourceKeys, canManageResourceGrant } from "@/server/rbac/admin-scope";
+import { setGrant, getGrants } from "@workspace/platform/server/auth";
+import { getManageableResourceKeys, canManageResourceGrant } from "@workspace/platform/server/auth";
 
 // GET - get all department-level permission grants
 export async function GET(request: Request) {

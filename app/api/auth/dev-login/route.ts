@@ -1,11 +1,16 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { createToken, getPermissionContext } from "@/lib/auth";
+import { createToken } from "@/lib/auth";
 import { SESSION_MAX_AGE_SECONDS } from "@/lib/auth/token";
 import { checkBruteForce, recordAttempt } from "@/lib/security";
 import { LoginSchema, parseJson } from "@/lib/schemas";
-import { getManageableResourceKeys } from "@/server/rbac/admin-scope";
+import {
+  ensureGrantCache,
+  getManageableResourceKeys,
+  getPermissionContext,
+  getVisibleResourceKeys,
+} from "@workspace/platform/server/auth";
 
 export async function POST(request: Request) {
   // 非浏览器拦截
@@ -72,8 +77,6 @@ export async function POST(request: Request) {
   });
 
   const ctx = await getPermissionContext(user.id);
-  const { getVisibleResourceKeys } = await import("@/server/rbac/visibility");
-  const { ensureGrantCache } = await import("@/server/rbac/context");
   await ensureGrantCache(ctx);
   const [visibleAccess, visibleWrite] = await Promise.all([
     getVisibleResourceKeys(ctx, "access"),

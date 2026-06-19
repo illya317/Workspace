@@ -119,7 +119,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 | 5. API | 认证 -> 权限 -> 参数校验 -> 调 package service -> 返回 DTO |
 | 6. Service | `packages/<domain>/server/` 业务逻辑 |
 | 7. 文档 | `ARCHITECTURE.md` + README/AGENTS/docs/checklist |
-| 8. 硬约束 | `tsc --noEmit` / `lint --max-warnings=0` / `build` / `arch:check` / `size:check` |
+| 8. 硬约束 | `tsc --noEmit` / `lint --max-warnings=0` / `build` / `arch:gate` / `size:check` |
 
 ## 6. 数据库模型
 
@@ -276,7 +276,7 @@ API 权限规则：
 交付前按风险运行：
 
 ```bash
-npm run arch:check
+npm run arch:gate
 npm run size:check
 npm run lint -- --max-warnings=0
 npx tsc --noEmit
