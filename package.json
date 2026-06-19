@@ -21,6 +21,8 @@
     "test:e2e:ui": "playwright test --ui",
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
     "arch:gate": "tsx scripts/arch/gate.ts",
+    "orchestrator:route": "tsx orchestrator/router.ts",
+    "orchestrator:check": "tsx scripts/orchestrator-check.ts",
     "db:check": "node scripts/check/check-db.js",
     "db:path:check": "node scripts/check/check-database-paths.js",
     "db:docs": "node scripts/generate/gen-db-docs.js",
@@ -83,7 +85,6 @@
     "prisma-docs-generator": "^0.8.0",
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
-    "tsx": "^4.21.0",
     "typescript": "^5",
     "xlsx": "^0.18.5"
   }

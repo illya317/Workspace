@@ -1,0 +1,49 @@
+name: Orchestrator Guard
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Collect changed files
+        shell: bash
+        run: |
+          git fetch origin "${{ github.event.pull_request.base.ref }}" --depth=1
+          git diff --name-only --diff-filter=ACMRT \
+            "$(git merge-base HEAD "origin/${{ github.event.pull_request.base.ref }}")" \
+            HEAD > /tmp/orchestrator-files.txt
+          cat /tmp/orchestrator-files.txt
+
+      - name: Detect declared agent
+        id: declared-agent
+        shell: bash
+        run: |
+          labels=$(jq -r '[.pull_request.labels[].name
+            | select(test("^agent:[[:space:]]*(architect|architecture|feature|data|ops)$"))
+            | sub("^agent:[[:space:]]*"; "")] | unique | .[]' "$GITHUB_EVENT_PATH")
+          agent=$(printf "%s\n" "$labels" | sed '/^$/d' | paste -sd "," -)
+          echo "agent=$agent" >> "$GITHUB_OUTPUT"
+
+      - name: Evaluate PR decision
+        run: npx tsx scripts/orchestrator-check.ts --agent "${{ steps.declared-agent.outputs.agent }}" --files-from /tmp/orchestrator-files.txt
