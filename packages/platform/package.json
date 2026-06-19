@@ -22,6 +22,7 @@
     "./server/crud-factory": "./server/crud-factory.ts",
     "./server/department-admins": "./server/department-admins.ts",
     "./server/history": "./server/history.ts",
+    "./server/permissions": "./server/permissions.ts",
     "./server/prisma": "./server/prisma.ts",
     "./server/resolve-fk": "./server/resolve-fk.ts",
     "./server/security": "./server/security.ts",

@@ -7,6 +7,9 @@ import { prisma } from "@/lib/prisma";
 const ROLE_HIERARCHY: Record<string, number> = {
   access: 0, write: 1, delete: 2, admin: 3,
 };
+const ROLE_LABELS: Record<string, string> = {
+  access: "访问", write: "编辑", delete: "删除", admin: "管理",
+};
 
 interface ResourceCache {
   key: string;
@@ -76,4 +79,43 @@ export async function isRoleAllowedForResource(
 
 export function clearMaxRoleCache() {
   cache = null; cacheTs = 0;
+}
+
+export type UpdateResourceMaxRoleResult =
+  | { success: true; maxRoleKey: string }
+  | { success: false; status: number; error: string };
+
+export async function updateResourceMaxRole(
+  resourceKey: string,
+  maxRoleKey: string,
+): Promise<UpdateResourceMaxRoleResult> {
+  if (resourceKey !== "system" && !["access", "write", "delete"].includes(maxRoleKey)) {
+    return { success: false, status: 400, error: "最高业务权限仅支持访问/编辑/删除" };
+  }
+  if (resourceKey === "system" && maxRoleKey !== "admin") {
+    return { success: false, status: 400, error: "系统资源最高权限不可低于管理" };
+  }
+
+  const resource = await prisma.resource.findUnique({
+    where: { key: resourceKey },
+    select: { parent: { select: { key: true } } },
+  });
+  if (!resource) return { success: false, status: 404, error: "资源不存在" };
+
+  if (resource.parent) {
+    const parentMax = await getResourceMaxRole(resource.parent.key);
+    const parentLevel = ROLE_HIERARCHY[parentMax] ?? 3;
+    const newLevel = ROLE_HIERARCHY[maxRoleKey] ?? 3;
+    if (newLevel > parentLevel) {
+      return {
+        success: false,
+        status: 400,
+        error: `父资源"${resource.parent.key}"有效上限为${ROLE_LABELS[parentMax]}，子资源不可超过`,
+      };
+    }
+  }
+
+  await prisma.resource.update({ where: { key: resourceKey }, data: { maxRoleKey } });
+  clearMaxRoleCache();
+  return { success: true, maxRoleKey };
 }
