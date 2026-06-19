@@ -29,7 +29,7 @@
 
 当前已接入：
 
-1. `server/services/production/qc/` 默认从 `WORKSPACE_CONFIG_DIR/config/pharma-ops/` 读取 pharma-ops 配置，找不到时再尝试源码兜底、`PHARMA_OPS_ROOT` 或相邻目录。
+1. `packages/production/server/qc/` 默认从 `WORKSPACE_CONFIG_DIR/config/pharma-ops/` 读取 pharma-ops 配置，找不到时再尝试源码兜底、`PHARMA_OPS_ROOT` 或相邻目录。
 2. `/api/production/qc/config` 返回产品、record templates、methods、layout mapping 的只读概览，并暴露配置源 revision/dirty 状态。
 3. `/production/qc/batches` 提供批次创建、批次台账、草稿/提交状态和记录入口。
 4. `/production/qc/batches/[batchId]` 展示批次检验记录阶段入口。

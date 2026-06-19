@@ -1,7 +1,7 @@
 "use client";
 import type { CSSProperties, ChangeEvent } from "react";
 import { SelectField } from "@workspace/core/ui";
-import type { QcLayoutPart } from "@/server/services/production/qc";
+import type { QcLayoutPart } from "@workspace/production/server/qc";
 
 const PAPER_INPUT_TEXT_CLASS = "text-[15px]";
 

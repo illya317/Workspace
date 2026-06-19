@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { QcBatchSummary, QcLayoutBlock, QcTemplateStage } from "@/server/services/production/qc";
+import type { QcBatchSummary, QcLayoutBlock, QcTemplateStage } from "@workspace/production/server/qc";
 import QcLayoutPaper from "./QcLayoutPaper";
 
 interface Props {

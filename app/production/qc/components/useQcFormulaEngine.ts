@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { QcTemplateMethodField, QcTemplateTestItem } from "@/server/services/production/qc";
+import type { QcTemplateMethodField, QcTemplateTestItem } from "@workspace/production/server/qc";
 
 export type QcFieldValues = Record<string, string>;
 

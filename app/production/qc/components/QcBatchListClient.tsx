@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { SelectField } from "@workspace/core/ui";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import Toast from "@/app/components/Toast";
-import type { QcBatchList, QcBatchSummary, QcRecordTemplateSummary } from "@/server/services/production/qc";
+import type { QcBatchList, QcBatchSummary, QcRecordTemplateSummary } from "@workspace/production/server/qc";
 
 interface Props {
   initialData: QcBatchList;

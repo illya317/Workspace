@@ -1,4 +1,4 @@
-import type { QcLayoutPart, QcTemplateMethodField, QcTemplateTestItem } from "@/server/services/production/qc";
+import type { QcLayoutPart, QcTemplateMethodField, QcTemplateTestItem } from "@workspace/production/server/qc";
 import type { QcFieldValues } from "../useQcFormulaEngine";
 
 export interface LayoutRenderContext {

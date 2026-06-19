@@ -1,6 +1,6 @@
 "use client";
 
-import type { QcLayoutBlock, QcLayoutCell } from "@/server/services/production/qc";
+import type { QcLayoutBlock, QcLayoutCell } from "@workspace/production/server/qc";
 import { TableBlock, type LayoutRenderContext } from "./QcLayoutTable";
 
 type NamedItem = { name: string };

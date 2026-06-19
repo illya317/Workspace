@@ -1,4 +1,4 @@
-import type { QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@/server/services/production/qc";
+import type { QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 
 interface Props {
   detail: QcTemplateDetail;

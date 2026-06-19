@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { buildQcTemplateCache } from "@/server/services/production/qc";
+import { buildQcTemplateCache } from "@workspace/production/server/qc";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

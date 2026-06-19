@@ -5,13 +5,13 @@ type ModuleLoader = (request: string, parent?: NodeModule | null, isMain?: boole
 
 const originalLoad = (Module as unknown as { _load: ModuleLoader })._load;
 (Module as unknown as { _load: ModuleLoader })._load = function patchedLoad(request, parent, isMain) {
-  if (request === "server-only") return {};
+  if (request === "server-only" || request.endsWith("/server-only/index.js")) return {};
   return originalLoad.call(this, request, parent, isMain);
 };
 
 async function main() {
   process.env.WORKSPACE_CONFIG_DIR ||= path.resolve(process.cwd(), "..", ".workspace");
-  const { buildQcTemplateCache } = await import("../server/services/production/qc/template-cache");
+  const { buildQcTemplateCache } = await import("../packages/production/server/qc/template-cache");
   const cache = await buildQcTemplateCache();
   const productCount = Object.keys(cache.templates).length;
   const testCount = Object.values(cache.templates).reduce(

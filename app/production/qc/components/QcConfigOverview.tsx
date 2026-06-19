@@ -1,4 +1,4 @@
-import type { QcConfigOverview } from "@/server/services/production/qc";
+import type { QcConfigOverview } from "@workspace/production/server/qc";
 import Link from "next/link";
 
 interface Props {

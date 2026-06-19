@@ -1,5 +1,5 @@
 import { requireResourceAccess } from "@/server/auth/guard";
-import { getQcConfigOverview, listQcBatches } from "@/server/services/production/qc";
+import { getQcConfigOverview, listQcBatches } from "@workspace/production/server/qc";
 import QcBatchListClient from "../components/QcBatchListClient";
 import QcModuleShell from "../components/QcModuleShell";
 

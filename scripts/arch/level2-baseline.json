@@ -81,25 +81,7 @@
     "server/services/finance/statements/reviews/types.ts",
     "server/services/finance/statements/statement-config-view.ts",
     "server/services/finance/statements/workpapers/service.ts",
-    "server/services/finance/statements/workpapers/types.ts",
-    "server/services/production/qc/batches.ts",
-    "server/services/production/qc/feedback-types.ts",
-    "server/services/production/qc/index.ts",
-    "server/services/production/qc/layout-block-utils.ts",
-    "server/services/production/qc/layout-blocks.ts",
-    "server/services/production/qc/layout-custom-blocks.ts",
-    "server/services/production/qc/layout-inline-parts.ts",
-    "server/services/production/qc/method-fields.ts",
-    "server/services/production/qc/overview.ts",
-    "server/services/production/qc/precheck-layout.ts",
-    "server/services/production/qc/record-structure.ts",
-    "server/services/production/qc/runtime-data-path.ts",
-    "server/services/production/qc/source.ts",
-    "server/services/production/qc/template-cache.ts",
-    "server/services/production/qc/template-feedback-store.ts",
-    "server/services/production/qc/template-feedback.ts",
-    "server/services/production/qc/test-metadata.ts",
-    "server/services/production/qc/types.ts"
+    "server/services/finance/statements/workpapers/types.ts"
   ],
   "repeatedServiceGroups": []
 }

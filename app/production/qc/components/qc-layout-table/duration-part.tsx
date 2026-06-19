@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import type { QcLayoutPart } from "@/server/services/production/qc";
+import type { QcLayoutPart } from "@workspace/production/server/qc";
 import { qcRangeError, qcRangeLabel } from "../QcPaperInputs";
 import { AdvancedFieldBadge } from "./badges";
 import {

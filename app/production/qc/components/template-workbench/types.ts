@@ -3,7 +3,7 @@ import type {
   QcTemplateFeedbackContext,
   QcTemplateStage,
   QcTemplateTestItem,
-} from "@/server/services/production/qc";
+} from "@workspace/production/server/qc";
 
 export type PreviewKind = "precheck" | "experiment" | "test";
 

@@ -14,5 +14,6 @@ import/    # 生产导入解析、清洗和校验流程
 
 - `types/qc/types.ts`：生产 QC 模板、布局、批次等领域类型。
 - `types/qc/feedback.ts`：QC 模板反馈上下文、反馈项和解决状态类型。
+- `server/qc/`：生产 QC 配置读取、模板缓存、批次台账和模板反馈服务；旧 `server/services/production/qc` 已收口到生产业务包。
 
 资源注册中保留 `production.inventory` 作为历史权限兼容项；当前导航仍以 QC 批次和检验模板为主。

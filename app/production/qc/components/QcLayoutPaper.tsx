@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { QcLayoutBlock, QcTemplateTestItem } from "@/server/services/production/qc";
+import type { QcLayoutBlock, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { type LayoutRenderContext } from "./QcLayoutTable";
 import { useQcFormulaEngine, type QcFieldValues } from "./useQcFormulaEngine";
 import { RenderBlock } from "./qc-layout-paper/blocks";

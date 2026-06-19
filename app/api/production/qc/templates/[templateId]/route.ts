@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withAuth, type RouteContext } from "@/lib/with-auth";
 import { checkPermission } from "@workspace/platform/server/auth";
-import { getQcTemplateDetail } from "@/server/services/production/qc";
+import { getQcTemplateDetail } from "@workspace/production/server/qc";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

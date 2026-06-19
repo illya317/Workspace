@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { QcTemplateDetail, QcTemplateFeedbackState, QcTemplateStage, QcTemplateTestItem } from "@/server/services/production/qc";
+import type { QcTemplateDetail, QcTemplateFeedbackState, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import {
   feedbackContext,
   feedbackKey,

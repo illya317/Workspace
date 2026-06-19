@@ -1,4 +1,4 @@
-import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcTemplateTestItem } from "@/server/services/production/qc";
+import type { QcLayoutBlock, QcLayoutCell, QcLayoutPart, QcTemplateTestItem } from "@workspace/production/server/qc";
 
 export interface NumberedBlock extends QcLayoutBlock {
   displaySection?: string;

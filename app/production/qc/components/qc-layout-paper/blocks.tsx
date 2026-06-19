@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { QcLayoutCell, QcLayoutPart } from "@/server/services/production/qc";
+import type { QcLayoutCell, QcLayoutPart } from "@workspace/production/server/qc";
 import QcConfirmationTable from "../QcConfirmationTable";
 import { Part, TableBlock, type LayoutRenderContext } from "../QcLayoutTable";
 import { QcPaperChoiceInput, QcPaperLineInput } from "../QcPaperInputs";

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { requireResourceAccess } from "@/server/auth/guard";
-import { getQcTemplateDetail } from "@/server/services/production/qc";
+import { getQcTemplateDetail } from "@workspace/production/server/qc";
 import QcModuleShell from "../../components/QcModuleShell";
 import QcTemplateDetailPanel from "../../components/QcTemplateDetail";
 

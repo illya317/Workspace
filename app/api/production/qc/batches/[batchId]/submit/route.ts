@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withAuth, type RouteContext } from "@/lib/with-auth";
 import { checkPermission } from "@workspace/platform/server/auth";
-import { submitQcBatch } from "@/server/services/production/qc";
+import { submitQcBatch } from "@workspace/production/server/qc";
 
 export const POST = withAuth(async (_request, _user, ctx?: RouteContext) => {
   const batchId = Number((await ctx?.params)?.batchId);

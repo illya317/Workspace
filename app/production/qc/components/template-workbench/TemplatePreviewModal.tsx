@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { QcLayoutBlock, QcTemplateTestItem } from "@/server/services/production/qc";
+import type { QcLayoutBlock, QcTemplateTestItem } from "@workspace/production/server/qc";
 import QcLayoutPaper from "../QcLayoutPaper";
 import TemplateInlineFeedback from "./TemplateInlineFeedback";
 import { numerals, selectionTitle, type WorkbenchSelection } from "./types";

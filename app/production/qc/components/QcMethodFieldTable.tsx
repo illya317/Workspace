@@ -1,7 +1,7 @@
 "use client";
 
 import { SelectField } from "@workspace/core/ui";
-import type { QcTemplateMethodField, QcTemplateTestItem } from "@/server/services/production/qc";
+import type { QcTemplateMethodField, QcTemplateTestItem } from "@workspace/production/server/qc";
 import { QcPaperChoiceInput } from "./QcPaperInputs";
 import { useQcFormulaEngine, type QcFieldValues } from "./useQcFormulaEngine";
 

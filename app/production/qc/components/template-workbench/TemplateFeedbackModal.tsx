@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import type { QcTemplateFeedbackItem, QcTemplateFeedbackState } from "@/server/services/production/qc";
+import type { QcTemplateFeedbackItem, QcTemplateFeedbackState } from "@workspace/production/server/qc";
 import { feedbackKey, selectionTitle, type FeedbackTarget } from "./types";
 
 const FEEDBACK_FIELDS = [

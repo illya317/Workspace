@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { QcLayoutPart } from "@/server/services/production/qc";
+import type { QcLayoutPart } from "@workspace/production/server/qc";
 
 function todayValue() {
   const date = new Date();

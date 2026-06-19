@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { QcLayoutCell } from "@/server/services/production/qc";
+import type { QcLayoutCell } from "@workspace/production/server/qc";
 import { isCompactFormCell, isFormLikePart, isShortUnitTextPart } from "./helpers";
 import { Part } from "./parts";
 import type { LayoutRenderContext } from "./types";

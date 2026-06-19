@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import type { QcLayoutBlock } from "@/server/services/production/qc";
+import type { QcLayoutBlock } from "@workspace/production/server/qc";
 import { CellContent } from "./qc-layout-table/cell-content";
 import { Part } from "./qc-layout-table/parts";
 import type { LayoutRenderContext } from "./qc-layout-table/types";

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import type { QcBatchSummary, QcTemplateStage, QcTemplateTestItem } from "@/server/services/production/qc";
+import type { QcBatchSummary, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import QcLayoutPaper from "./QcLayoutPaper";
 import QcMethodFieldTable from "./QcMethodFieldTable";
 import { useQcFormulaEngine } from "./useQcFormulaEngine";

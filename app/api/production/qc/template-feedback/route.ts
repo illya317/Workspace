@@ -8,7 +8,7 @@ import {
   saveQcTemplateInlineFeedback,
   saveQcTemplateFeedback,
   updateQcTemplateFeedbackResolved,
-} from "@/server/services/production/qc";
+} from "@workspace/production/server/qc";
 
 export const GET = withAuth(async (request, user) => {
   const key = new URL(request.url).searchParams.get("key")?.trim();

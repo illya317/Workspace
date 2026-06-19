@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withAuth } from "@/lib/with-auth";
 import { checkPermission } from "@workspace/platform/server/auth";
-import { createQcBatch, listQcBatches } from "@/server/services/production/qc";
+import { createQcBatch, listQcBatches } from "@workspace/production/server/qc";
 
 export const GET = withAuth(async () => {
   return NextResponse.json({ data: await listQcBatches() });

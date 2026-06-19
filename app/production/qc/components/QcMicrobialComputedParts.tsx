@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import type { QcLayoutPart } from "@/server/services/production/qc";
+import type { QcLayoutPart } from "@workspace/production/server/qc";
 import { QcPaperLineInput } from "./QcPaperInputs";
 import type { LayoutRenderContext } from "./QcLayoutTable";
 import type { QcFieldValues } from "./useQcFormulaEngine";

@@ -1,6 +1,6 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
-import type { QcTemplateDetail, QcTemplateFeedbackState } from "@/server/services/production/qc";
+import type { QcTemplateDetail, QcTemplateFeedbackState } from "@workspace/production/server/qc";
 import TemplateFeedbackModal from "./template-workbench/TemplateFeedbackModal";
 import TemplatePreviewModal from "./template-workbench/TemplatePreviewModal";
 import StageRows, { testMatches } from "./template-workbench/WorkbenchRows";

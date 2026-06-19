@@ -1,6 +1,6 @@
 "use client";
 
-import type { QcLayoutPart } from "@/server/services/production/qc";
+import type { QcLayoutPart } from "@workspace/production/server/qc";
 import { MicrobialSelectedTotalPart } from "../QcMicrobialComputedParts";
 import { QcPaperDateInput } from "../QcPaperDateInput";
 import { QcPaperChoiceInput, QcPaperLineInput, QcPaperSelectInput } from "../QcPaperInputs";
