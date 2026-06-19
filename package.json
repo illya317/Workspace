@@ -26,6 +26,8 @@
     "level1:check": "npm run arch:scan && npm run lint:deps && npm run module-check && npm run auth:check",
     "module-check": "node scripts/check/check-module-definitions.js",
     "auth:check": "node scripts/check/check-authorize-usage.js",
+    "orchestrator:route": "tsx orchestrator/router.ts",
+    "orchestrator:check": "tsx scripts/orchestrator-check.ts",
     "module-nav:check": "node scripts/check/check-module-nav-gates.js && node scripts/check/check-module-nav-gates.js --fixtures",
     "db:check": "node scripts/check/check-db.js",
     "db:path:check": "node scripts/check/check-database-paths.js",

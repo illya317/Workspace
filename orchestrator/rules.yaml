@@ -1,0 +1,80 @@
+version: 1
+
+label:
+  required_prefix: "agent:"
+  allowed:
+    - architecture
+    - feature
+    - data
+    - ops
+  aliases:
+    architect: architecture
+
+classification:
+  mixed_pr_policy: block
+  unknown_path_policy: block
+  precedence:
+    - architecture
+    - data
+    - ops
+    - feature
+
+routing:
+  architecture:
+    - core/**
+    - packages/core/**
+    - packages/platform/**
+    - orchestrator/**
+    - .github/workflows/orchestrator.yml
+    - scripts/orchestrator-check.ts
+    - scripts/arch/**
+    - scripts/check/**
+    - docs/**
+    - AGENTS.md
+    - README.md
+    - rules.md
+    - package.json
+    - package-lock.json
+    - tsconfig.json
+    - .gitignore
+    - next.config.ts
+    - eslint.config.mjs
+    - playwright.config.ts
+  data:
+    - prisma/**
+    - scripts/data/**
+    - scripts/import/**
+    - packages/*/import/**
+  ops:
+    - .github/**
+    - ops/**
+    - deploy.sh
+  feature:
+    - app/**
+    - lib/**
+    - server/services/**
+    - packages/*/**
+
+risk:
+  high:
+    - orchestrator/**
+    - .github/**
+    - scripts/arch/**
+    - scripts/check/**
+    - core/**
+    - packages/core/**
+    - packages/platform/**
+    - package.json
+    - package-lock.json
+    - tsconfig.json
+  medium:
+    - prisma/**
+    - scripts/data/**
+    - scripts/import/**
+    - packages/*/import/**
+    - server/services/**
+
+decision:
+  approve: "single low-risk route with matching agent label"
+  review: "single valid route with medium/high risk"
+  block: "missing or invalid agent label, unknown route, mixed route, or label/classification mismatch"
