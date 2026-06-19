@@ -12,6 +12,7 @@
     "./module-registry": "./module-registry.ts",
     "./modules": "./modules.tsx",
     "./resources": "./resources.ts",
+    "./server/account": "./server/account.ts",
     "./server/api": "./server/api.ts",
     "./server/agent": "./server/agent/index.ts",
     "./server/agent/*": "./server/agent/*.ts",

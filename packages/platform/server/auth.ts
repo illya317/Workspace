@@ -1,4 +1,5 @@
 export { authenticate, isKicked } from "../../../server/auth/authenticate";
+export { getTokenFromCookie, verifyToken } from "../../../lib/auth/token";
 export {
   authorize,
   requireAuthorized,

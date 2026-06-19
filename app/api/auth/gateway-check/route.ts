@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { getTokenFromCookie, verifyToken } from "@/lib/auth";
+import { getTokenFromCookie, verifyToken } from "@workspace/platform/server/auth";
+import { isUserSessionActive } from "@workspace/platform/server/account";
 
 export async function GET(request: Request) {
   const token = getTokenFromCookie(request);
@@ -13,12 +13,7 @@ export async function GET(request: Request) {
     return new NextResponse(null, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: payload.userId },
-    select: { canLogin: true, sessionVersion: true },
-  });
-
-  if (!user?.canLogin || user.sessionVersion !== payload.sessionVersion) {
+  if (!(await isUserSessionActive(payload.userId, payload.sessionVersion))) {
     return new NextResponse(null, { status: 401 });
   }
 
