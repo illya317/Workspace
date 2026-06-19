@@ -4,10 +4,7 @@ const ts = require("typescript");
 
 const ROOT = path.resolve(__dirname, "..", "..");
 const REGISTRY_GLOBS = [
-  path.join(ROOT, "packages", "platform", "modules.tsx"),
-  path.join(ROOT, "packages", "hr", "module.ts"),
-  path.join(ROOT, "packages", "production", "module.ts"),
-  path.join(ROOT, "packages", "finance", "module.ts"),
+  path.join(ROOT, "packages", "platform", "module-registry.ts"),
 ];
 
 function getLine(sourceFile, pos) {
