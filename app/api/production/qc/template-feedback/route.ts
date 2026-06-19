@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { withAuth } from "@/lib/with-auth";
 import { checkPermission } from "@workspace/platform/server/auth";
 import {
@@ -10,8 +11,30 @@ import {
   updateQcTemplateFeedbackResolved,
 } from "@workspace/production/server/qc";
 
+const feedbackQuerySchema = z.object({
+  key: z.string().trim().optional(),
+}).passthrough();
+
+const saveFeedbackSchema = z.object({
+  context: z.unknown(),
+  sections: z.unknown().optional(),
+  note: z.unknown().optional(),
+  inlineEntry: z.unknown().optional(),
+}).passthrough();
+
+const updateFeedbackResolvedSchema = z.object({
+  key: z.coerce.string().trim().min(1),
+  resolved: z.unknown().optional(),
+  targetType: z.string().optional(),
+  targetId: z.coerce.string().optional(),
+}).passthrough();
+
 export const GET = withAuth(async (request, user) => {
-  const key = new URL(request.url).searchParams.get("key")?.trim();
+  const parsedQuery = feedbackQuerySchema.safeParse(
+    Object.fromEntries(new URL(request.url).searchParams.entries()),
+  );
+  if (!parsedQuery.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  const key = parsedQuery.data.key;
   if (key) {
     const [data, items] = await Promise.all([
       getQcTemplateFeedback(key, user.userId),
@@ -27,7 +50,9 @@ export const POST = withAuth(async (request, user) => {
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "请求体必须为 JSON" }, { status: 400 });
   }
-  const data = body as Record<string, unknown>;
+  const parsed = saveFeedbackSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  const data = parsed.data;
   try {
     const author = {
       userId: user.userId,
@@ -49,11 +74,11 @@ export const PATCH = withAuth(async (request, user) => {
   if (!body || typeof body !== "object") {
     return NextResponse.json({ error: "请求体必须为 JSON" }, { status: 400 });
   }
-  const data = body as Record<string, unknown>;
-  const key = String(data.key ?? "").trim();
-  if (!key) return NextResponse.json({ error: "缺少反馈 key" }, { status: 400 });
+  const parsed = updateFeedbackResolvedSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: "缺少反馈 key" }, { status: 400 });
+  const data = parsed.data;
   try {
-    const item = await updateQcTemplateFeedbackResolved(key, data.resolved === true, {
+    const item = await updateQcTemplateFeedbackResolved(data.key, data.resolved === true, {
       userId: user.userId,
       userName: user.name,
     }, {
