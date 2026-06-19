@@ -101,9 +101,7 @@
     "server/services/production/qc/template-feedback-store.ts",
     "server/services/production/qc/template-feedback.ts",
     "server/services/production/qc/test-metadata.ts",
-    "server/services/production/qc/types.ts",
-    "server/services/reports.ts",
-    "server/services/works.ts"
+    "server/services/production/qc/types.ts"
   ],
   "repeatedServiceGroups": []
 }

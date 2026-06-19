@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate } from "@/lib/auth";
 import { canAccessTarget, canEditWorkTask } from "@/lib/access";
-import { parseParticipants, getWorkItems, createWorkItem } from "@/server/services/works";
+import { parseParticipants, getWorkItems, createWorkItem } from "@workspace/work/server";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);

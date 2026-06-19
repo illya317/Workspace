@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate } from "@/lib/auth";
 import { canAccessTarget, canSubmitToTarget } from "@/lib/access";
-import { listReports, createReport, enrichWithRoutineItems, isDuplicateReportError } from "@/server/services/reports";
+import { listReports, createReport, enrichWithRoutineItems, isDuplicateReportError } from "@workspace/work/server";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);

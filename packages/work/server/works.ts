@@ -1,10 +1,10 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@workspace/platform/server/prisma";
 
 export function parseParticipants(input?: string): string[] {
   if (!input) return [];
   return input
     .split(/,|，/)
-    .map((n) => n.trim())
+    .map((name) => name.trim())
     .filter(Boolean);
 }
 

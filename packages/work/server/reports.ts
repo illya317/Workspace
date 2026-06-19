@@ -1,5 +1,4 @@
-import { prisma } from "@/lib/prisma";
-import { Prisma } from "@/generated/prisma/client";
+import { Prisma, prisma } from "@workspace/platform/server/prisma";
 
 interface ReportFilters {
   date?: string;
@@ -51,9 +50,9 @@ interface CreateReportInput {
 export async function enrichWithRoutineItems(
   items: ReportItemInput[],
   targetType: string,
-  targetId: number
+  targetId: number,
 ): Promise<ReportItemInput[]> {
-  const hasRoutine = items.some((i) => i.category === "routine");
+  const hasRoutine = items.some((item) => item.category === "routine");
   if (hasRoutine) return items;
 
   const works = await prisma.workItem.findMany({
@@ -63,13 +62,13 @@ export async function enrichWithRoutineItems(
 
   if (works.length === 0) return items;
 
-  const routineItems = works.map((w, idx) => ({
+  const routineItems = works.map((work, index) => ({
     category: "routine",
-    plan: w.content,
+    plan: work.content,
     completion: "",
     nextGoal: "",
-    sortOrder: idx,
-    workId: w.id,
+    sortOrder: index,
+    workId: work.id,
   }));
 
   return [...routineItems, ...items];
