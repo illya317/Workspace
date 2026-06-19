@@ -1,6 +1,6 @@
-import ethnicitiesConfig from "../../../../.workspace/config/hr/ethnicities.json";
-import professionalTitlesConfig from "../../../../.workspace/config/hr/professional-titles.json";
-import undergraduateMajorsCatalog from "../../../../.workspace/data/reference/education/china-undergraduate-majors-2025.json";
+import ethnicitiesConfig from "./data/ethnicities.json";
+import professionalTitlesConfig from "./data/professional-titles.json";
+import undergraduateMajorsCatalog from "./data/undergraduate-majors.json";
 
 type HREthnicityConfig = {
   ethnicities: string[];

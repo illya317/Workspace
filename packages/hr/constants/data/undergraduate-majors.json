@@ -1,0 +1,18 @@
+{
+  "records": [
+    { "categoryName": "经济学", "className": "经济学类" },
+    { "categoryName": "法学", "className": "法学类" },
+    { "categoryName": "教育学", "className": "教育学类" },
+    { "categoryName": "文学", "className": "中国语言文学类" },
+    { "categoryName": "理学", "className": "数学类" },
+    { "categoryName": "理学", "className": "化学类" },
+    { "categoryName": "工学", "className": "机械类" },
+    { "categoryName": "工学", "className": "材料类" },
+    { "categoryName": "工学", "className": "计算机类" },
+    { "categoryName": "工学", "className": "化工与制药类" },
+    { "categoryName": "医学", "className": "临床医学类" },
+    { "categoryName": "医学", "className": "药学类" },
+    { "categoryName": "管理学", "className": "工商管理类" },
+    { "categoryName": "不限", "className": "不限专业" }
+  ]
+}

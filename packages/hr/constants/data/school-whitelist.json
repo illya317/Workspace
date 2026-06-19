@@ -1,0 +1,6 @@
+{
+  "specialSchools": [
+    { "name": "不限", "label": "不限", "aliases": [] },
+    { "name": "其他", "label": "其他", "aliases": [] }
+  ]
+}

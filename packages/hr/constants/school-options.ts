@@ -1,6 +1,6 @@
-import chinaInstitutionsCatalog from "../../../../.workspace/data/reference/education/china-higher-education-institutions-2025.json";
-import qsWorldRankingsCatalog from "../../../../.workspace/data/reference/education/qs-world-university-rankings-2027.json";
-import schoolWhitelistConfig from "../../../../.workspace/config/hr/school-whitelist.json";
+import chinaInstitutionsCatalog from "./data/china-institutions.json";
+import qsWorldRankingsCatalog from "./data/qs-world-rankings.json";
+import schoolWhitelistConfig from "./data/school-whitelist.json";
 
 type ChinaInstitutionRecord = {
   name: string;

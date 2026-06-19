@@ -1,0 +1,11 @@
+{
+  "records": [
+    { "name": "清华大学", "kind": "普通高等学校", "level": "本科", "province": "北京", "city": "北京" },
+    { "name": "北京大学", "kind": "普通高等学校", "level": "本科", "province": "北京", "city": "北京" },
+    { "name": "复旦大学", "kind": "普通高等学校", "level": "本科", "province": "上海", "city": "上海" },
+    { "name": "上海交通大学", "kind": "普通高等学校", "level": "本科", "province": "上海", "city": "上海" },
+    { "name": "浙江大学", "kind": "普通高等学校", "level": "本科", "province": "浙江", "city": "杭州" },
+    { "name": "南京大学", "kind": "普通高等学校", "level": "本科", "province": "江苏", "city": "南京" },
+    { "name": "中国科学技术大学", "kind": "普通高等学校", "level": "本科", "province": "安徽", "city": "合肥" }
+  ]
+}
