@@ -3,6 +3,7 @@
   "apiRouteMethodsWithDirectPrismaSignal": [],
   "apiRouteMethodsWithoutValidationSignal": [],
   "apiRouteMethodsWithoutServiceSignal": [],
+  "appHookFiles": [],
   "appHookImplementationFiles": [],
   "domainUiCandidatesWithoutCore": [],
   "legacyServiceFiles": [],

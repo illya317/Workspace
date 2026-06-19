@@ -8,6 +8,7 @@ type Level2Baseline = {
   apiRouteMethodsWithDirectPrismaSignal: string[];
   apiRouteMethodsWithoutValidationSignal: string[];
   apiRouteMethodsWithoutServiceSignal: string[];
+  appHookFiles: string[];
   appHookImplementationFiles: string[];
   domainUiCandidatesWithoutCore: string[];
   legacyServiceFiles: string[];
@@ -92,6 +93,7 @@ export function checkLevel2Ratchet() {
         "apiRouteMethodsWithoutServiceSignal",
         report.drift.apiRouteMethodsWithoutServiceSignal.map(apiRouteMethodKey),
       ],
+      ["appHookFiles", report.drift.appHookFiles],
       ["appHookImplementationFiles", report.drift.appHookImplementationFiles],
       [
         "domainUiCandidatesWithoutCore",
