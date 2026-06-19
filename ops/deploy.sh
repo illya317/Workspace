@@ -123,7 +123,7 @@ build_artifact() {
 
   local standalone_server
   local standalone_app_dir
-  standalone_server="$(find .next/standalone -type f -name server.js | head -n 1)"
+  standalone_server="$(find .next/standalone -path '*/node_modules/*' -prune -o -type f -name server.js -print | head -n 1)"
   if [ -z "$standalone_server" ]; then
     echo "[错误] Next standalone 产物缺少 server.js"
     find .next/standalone -maxdepth 4 -type f | sort | head -80 || true
