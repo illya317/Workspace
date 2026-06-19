@@ -1,0 +1,38 @@
+{
+  "ARCHITECT_MODE": {
+    "locked_paths": ["app/**", "packages/*/**", "prisma/**"],
+    "exempt_paths": ["packages/core/**", "packages/platform/**"],
+    "allowed_agents": ["architect"]
+  },
+  "FEATURE_MODE": {
+    "locked_paths": [
+      "core/**",
+      "packages/core/**",
+      "packages/platform/**",
+      "orchestrator/**",
+      ".github/**",
+      "scripts/arch/**",
+      "scripts/check/**",
+      "scripts/orchestrator-check.ts",
+      "prisma/**"
+    ],
+    "allowed_agents": ["feature"]
+  },
+  "DATA_MODE": {
+    "locked_paths": [
+      "app/**",
+      "core/**",
+      "packages/core/**",
+      "packages/platform/**",
+      "orchestrator/**",
+      ".github/**",
+      "scripts/arch/**",
+      "scripts/check/**"
+    ],
+    "allowed_agents": ["data"]
+  },
+  "OPS_MODE": {
+    "locked_paths": ["app/**", "packages/*/**", "prisma/**", "core/**"],
+    "allowed_agents": ["ops"]
+  }
+}

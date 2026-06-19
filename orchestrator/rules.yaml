@@ -1,0 +1,61 @@
+version: 1
+
+label:
+  required_prefix: "agent:"
+  allowed:
+    - architect
+    - feature
+    - data
+    - ops
+
+classification:
+  mixed_pr_policy: fail
+  unknown_path_policy: fail
+  precedence:
+    - architect
+    - data
+    - ops
+    - feature
+
+routing:
+  architect:
+    - core/**
+    - packages/core/**
+    - packages/platform/**
+    - orchestrator/**
+    - .github/workflows/orchestrator.yml
+    - scripts/orchestrator-check.ts
+    - scripts/arch/**
+    - scripts/check/**
+    - docs/**
+    - AGENTS.md
+    - README.md
+    - rules.md
+    - package.json
+    - package-lock.json
+    - tsconfig.json
+    - .gitignore
+    - next.config.ts
+    - eslint.config.mjs
+    - playwright.config.ts
+  data:
+    - prisma/**
+    - scripts/data/**
+    - scripts/import/**
+    - packages/*/import/**
+  ops:
+    - .github/**
+    - ops/**
+    - deploy.sh
+  feature:
+    - app/**
+    - lib/**
+    - server/services/**
+    - packages/*/**
+
+lock_modes:
+  source: orchestrator/locks.json
+  semantics:
+    - locked_paths block an agent even when a route would otherwise match.
+    - exempt_paths are narrow carve-outs inside a locked path.
+    - every PR must resolve to exactly one agent in v1.
