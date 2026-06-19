@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { deleteCompanyById, listCompanies, upsertCompany } from "@workspace/hr/server";
 
 const companyBodySchema = z.object({
   code: z.string().trim().min(1),
   name: z.string().trim().min(1),
 }).passthrough();
-
-const deleteQuerySchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
 
 function serviceResponse<T>(result: { ok: true; data: T } | { ok: false; error: string; status?: number }) {
   if (result.ok) return NextResponse.json(result.data);
@@ -82,7 +79,7 @@ export async function DELETE(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const parsedQuery = deleteQuerySchema.safeParse({ id: searchParams.get("id") });
+  const parsedQuery = routeIdParamsSchema.safeParse({ id: searchParams.get("id") });
   if (!parsedQuery.success) return NextResponse.json({ error: "缺少id" }, { status: 400 });
 
   return serviceResponse(await deleteCompanyById(parsedQuery.data.id));

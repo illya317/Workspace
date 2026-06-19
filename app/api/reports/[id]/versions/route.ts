@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { authenticate } from "@workspace/platform/server/auth";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { getReportAccessMetadata, listReportHistory } from "@workspace/work/server";
-
-const paramsSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
 
 export async function GET(
   request: Request,
@@ -16,7 +12,7 @@ export async function GET(
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const parsedParams = paramsSchema.safeParse(await params);
+  const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) {
     return NextResponse.json({ error: "报告 ID 无效" }, { status: 400 });
   }

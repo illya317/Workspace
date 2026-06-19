@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { getCurrentUser } from "@/server/auth/session";
 import { cancelProposal } from "@workspace/platform/server/agent";
-
-const paramsSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 
 export async function POST(
   _request: Request,
@@ -14,7 +10,7 @@ export async function POST(
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const parsedParams = paramsSchema.safeParse(await params);
+  const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
   try {

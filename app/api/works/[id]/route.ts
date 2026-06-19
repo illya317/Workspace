@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate } from "@workspace/platform/server/auth";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { canEditWorkTask } from "@/lib/access";
 import {
   deleteWorkItem,
@@ -8,10 +9,6 @@ import {
   parseParticipants,
   updateWorkItem,
 } from "@workspace/work/server";
-
-const paramsSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
 
 const updateWorkItemSchema = z.object({
   category: z.string().optional(),
@@ -27,7 +24,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 
-  const parsedParams = paramsSchema.safeParse(await params);
+  const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) {
     return NextResponse.json({ error: "工作项 ID 无效" }, { status: 400 });
   }
@@ -56,7 +53,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 
-  const parsedParams = paramsSchema.safeParse(await params);
+  const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) {
     return NextResponse.json({ error: "工作项 ID 无效" }, { status: 400 });
   }

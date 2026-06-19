@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import {
   addDepartmentAdmin,
   listDepartmentAdmins,
@@ -10,10 +11,6 @@ import { authenticate } from "@workspace/platform/server/auth";
 const departmentAdminBodySchema = z.object({
   departmentId: z.coerce.number().int().positive(),
   userId: z.coerce.number().int().positive(),
-});
-
-const departmentAdminDeleteSchema = z.object({
-  id: z.coerce.number().int().positive(),
 });
 
 // GET - 获取所有部门及其管理员（登录即可访问）
@@ -44,7 +41,7 @@ export async function DELETE(request: Request) {
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 
   const { searchParams } = new URL(request.url);
-  const parsed = departmentAdminDeleteSchema.safeParse(Object.fromEntries(searchParams));
+  const parsed = routeIdParamsSchema.safeParse(Object.fromEntries(searchParams));
   if (!parsed.success) return NextResponse.json({ error: "缺少id" }, { status: 400 });
 
   return NextResponse.json(await removeDepartmentAdmin(parsed.data.id));

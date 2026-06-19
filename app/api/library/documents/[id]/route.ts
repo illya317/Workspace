@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { withLibraryAccess } from "@/lib/with-auth";
 import type { RouteContext } from "@/lib/with-auth";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { getDocument, updateDocumentMetadata, archiveDocument } from "@workspace/library/server/metadata";
 import { validateBody } from "@workspace/library/server/document-validation";
 import {
@@ -11,12 +11,8 @@ import {
   checkLibraryDelete,
 } from "@workspace/library/server/permissions";
 
-const paramsSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
-
 async function parseId(ctx?: RouteContext) {
-  const parsedParams = paramsSchema.safeParse(await ctx!.params);
+  const parsedParams = routeIdParamsSchema.safeParse(await ctx!.params);
   return parsedParams.success ? parsedParams.data.id : null;
 }
 

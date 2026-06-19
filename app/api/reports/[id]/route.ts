@@ -1,15 +1,12 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { authenticate, authorize } from "@workspace/platform/server/auth";
 import { canSubmitToTarget } from "@/lib/access";
 import {
   getReportAccessMetadata,
   updateReportWithHistory,
 } from "@workspace/work/server";
-
-const paramsSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
 
 const reportItemSchema = z.object({
   category: z.string().min(1),
@@ -35,7 +32,7 @@ export async function PUT(
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const parsedParams = paramsSchema.safeParse(await params);
+  const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) {
     return NextResponse.json({ error: "报告 ID 无效" }, { status: 400 });
   }

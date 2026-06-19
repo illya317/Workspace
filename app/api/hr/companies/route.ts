@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCompany, deleteCompanyById, listCompanies, upsertCompany } from "@workspace/hr/server";
 
 const companiesQuerySchema = z.object({
@@ -19,10 +20,6 @@ const upsertCompanySchema = z.object({
   id: z.unknown().optional(),
   code: z.string().min(1),
   name: z.string().min(1),
-}).passthrough();
-
-const deleteCompanyQuerySchema = z.object({
-  id: z.coerce.number().int().positive(),
 }).passthrough();
 
 export async function GET(request: Request) {
@@ -73,7 +70,7 @@ export async function DELETE(request: Request) {
   }
 
   const { searchParams } = new URL(request.url);
-  const parsedQuery = deleteCompanyQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+  const parsedQuery = routeIdParamsSchema.safeParse(Object.fromEntries(searchParams.entries()));
   if (!parsedQuery.success) return NextResponse.json({ error: "缺少id" }, { status: 400 });
   const result = await deleteCompanyById(parsedQuery.data.id);
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });

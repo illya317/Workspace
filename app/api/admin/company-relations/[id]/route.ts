@@ -1,13 +1,9 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
 import { deleteCompanyRelation, updateCompanyRelationField } from "@workspace/hr/server";
-
-const paramsSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 
 async function parseParams(params: Promise<{ id: string }>) {
-  const parsedParams = paramsSchema.safeParse(await params);
+  const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) return null;
   return { id: String(parsedParams.data.id) };
 }

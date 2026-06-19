@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
 import { authenticate, authorize } from "@workspace/platform/server/auth";
 import {
   resetAdminUserPassword,
@@ -8,11 +9,7 @@ import {
   type AdminUserField,
 } from "@workspace/platform/server/users";
 
-const paramsSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
-
-const fieldUpdateSchema = z.object({
+const fieldUpdateSchema = updateFieldBodySchema.extend({
   field: z.enum(["canLogin", "name", "username", "employeeId"]),
   value: z.unknown(),
 });
@@ -35,7 +32,7 @@ export async function PUT(
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const parsedParams = paramsSchema.safeParse(await params);
+  const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) return NextResponse.json({ error: "用户ID无效" }, { status: 400 });
 
   const targetUserId = parsedParams.data.id;
@@ -90,7 +87,7 @@ export async function POST(
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
-  const parsedParams = paramsSchema.safeParse(await params);
+  const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) return NextResponse.json({ error: "用户ID无效" }, { status: 400 });
 
   return NextResponse.json(await resetAdminUserPassword(parsedParams.data.id));

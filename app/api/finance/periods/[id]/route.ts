@@ -2,14 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { withFinanceLedgerWrite, withFinanceLedgerDelete } from "@/lib/with-auth";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import {
   deleteFinancePeriod,
   updateFinancePeriod,
 } from "@workspace/finance/server/ledger/periods";
-
-const paramsSchema = z.object({
-  id: z.coerce.number().int().positive(),
-});
 
 const updatePeriodSchema = z.object({
   isClosed: z.boolean().optional(),
@@ -17,7 +14,7 @@ const updatePeriodSchema = z.object({
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   return withFinanceLedgerWrite(async (req, _user) => {
-    const parsedParams = paramsSchema.safeParse(await params);
+    const parsedParams = routeIdParamsSchema.safeParse(await params);
     if (!parsedParams.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
 
     const parsedBody = updatePeriodSchema.safeParse(await req.json().catch(() => null));
@@ -29,7 +26,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   return withFinanceLedgerDelete(async (_req) => {
-    const parsedParams = paramsSchema.safeParse(await params);
+    const parsedParams = routeIdParamsSchema.safeParse(await params);
     if (!parsedParams.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
 
     return NextResponse.json(await deleteFinancePeriod(parsedParams.data.id));
