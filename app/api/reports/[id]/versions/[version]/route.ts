@@ -24,9 +24,9 @@ export async function GET(
 
   const { id: reportId, version: versionNum } = parsedParams.data;
   const report = await getReportAccessMetadata(reportId);
-  const canAccess = report && report.userId === payload.userId;
+  const canViewReport = report && report.userId === payload.userId;
 
-  if (!canAccess) {
+  if (!canViewReport) {
     return NextResponse.json({ error: "无权访问" }, { status: 403 });
   }
 

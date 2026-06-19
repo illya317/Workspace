@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkHRAccess, checkPermission } from "@workspace/platform/server/auth";
+import { authenticate, authorize, checkHRAccess } from "@workspace/platform/server/auth";
 import {
   ROSTER_FIELDS,
   buildRosterExcel,
@@ -19,7 +19,7 @@ export async function GET(request: Request) {
   const dept = searchParams.get("dept") || "";
   const keyword = searchParams.get("keyword") || "";
   const exportExcel = searchParams.get("export") === "1";
-  const isAdmin = await checkPermission(payload.userId, "system", "admin");
+  const isAdmin = await authorize({ user: payload.userId, resourceKey: "system", action: "admin" });
 
   if (raw) {
     const employees = await queryRawEmployees(keyword);
