@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate } from "@workspace/platform/server/auth";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
-import { canEditWorkTask } from "@/lib/access";
 import {
+  canEditWorkTask,
   deleteWorkItem,
   getWorkItemAccessMetadata,
   parseParticipants,

@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate } from "@workspace/platform/server/auth";
-import { canAccessTarget, canEditWorkTask } from "@/lib/access";
-import { parseParticipants, getWorkItems, createWorkItem } from "@workspace/work/server";
+import {
+  canAccessTarget,
+  canEditWorkTask,
+  createWorkItem,
+  getWorkItems,
+  parseParticipants,
+} from "@workspace/work/server";
 
 const createWorkItemSchema = z.object({
   category: z.string().min(1),

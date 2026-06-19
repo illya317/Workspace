@@ -13,6 +13,7 @@ type Level2Baseline = {
   domainUiCandidatesWithoutCore: string[];
   legacyServiceFiles: string[];
   legacyAuthHubFiles: string[];
+  legacyRootAccessFiles: string[];
   repeatedServiceGroups: string[];
   routePrimitiveSchemaDuplicates: string[];
   apiRouteHelperDuplicates: string[];
@@ -102,6 +103,7 @@ export function checkLevel2Ratchet() {
       ],
       ["legacyServiceFiles", report.drift.legacyServiceFiles],
       ["legacyAuthHubFiles", report.drift.legacyAuthHubFiles],
+      ["legacyRootAccessFiles", report.drift.legacyRootAccessFiles],
       [
         "repeatedServiceGroups",
         report.drift.repeatedServiceGroups.map(repeatedServiceGroupKey),

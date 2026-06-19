@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { authenticate, authorize } from "@workspace/platform/server/auth";
-import { canSubmitToTarget } from "@/lib/access";
 import {
+  canSubmitToTarget,
   getReportAccessMetadata,
   updateReportWithHistory,
 } from "@workspace/work/server";

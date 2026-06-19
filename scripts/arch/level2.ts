@@ -118,6 +118,7 @@ type Level2Report = {
     routePrimitiveSchemaDuplicates: number;
     apiRouteHelperDuplicates: number;
     legacyAuthHubFiles: number;
+    legacyRootAccessFiles: number;
   };
   registries: {
     modules: Array<{
@@ -149,6 +150,7 @@ type Level2Report = {
     goneRouteMethods: ApiRouteMethod[];
     legacyServiceFiles: string[];
     legacyAuthHubFiles: string[];
+    legacyRootAccessFiles: string[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -766,6 +768,13 @@ function findLegacyAuthHubFiles(files: SourceInfo[]) {
     .sort();
 }
 
+function findLegacyRootAccessFiles(files: SourceInfo[]) {
+  return files
+    .filter((file) => file.relPath === "lib/access.ts")
+    .map((file) => file.relPath)
+    .sort();
+}
+
 function findAppHookFiles(hooks: HookPatternCandidate[]) {
   return hooks
     .filter((hook) => hook.file.startsWith("app/hooks/"))
@@ -818,6 +827,7 @@ export function createLevel2Report(): Level2Report {
   const appHookImplementationFiles = findAppHookImplementationFiles(hookPatternCandidates);
   const legacyServiceFiles = findLegacyServiceFiles(sourceFiles);
   const legacyAuthHubFiles = findLegacyAuthHubFiles(sourceFiles);
+  const legacyRootAccessFiles = findLegacyRootAccessFiles(sourceFiles);
 
   return {
     level: "2",
@@ -844,6 +854,7 @@ export function createLevel2Report(): Level2Report {
       routePrimitiveSchemaDuplicates: routePrimitiveSchemaDuplicates.length,
       apiRouteHelperDuplicates: apiRouteHelperDuplicates.length,
       legacyAuthHubFiles: legacyAuthHubFiles.length,
+      legacyRootAccessFiles: legacyRootAccessFiles.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -877,6 +888,7 @@ export function createLevel2Report(): Level2Report {
       goneRouteMethods,
       legacyServiceFiles,
       legacyAuthHubFiles,
+      legacyRootAccessFiles,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,

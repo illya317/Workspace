@@ -275,10 +275,10 @@ API 权限规则：
 | `@workspace/platform/server/resolve-fk` | FK 展示名 | 审计和 DTO 中的 FK 快照显示名解析 |
 | `@workspace/hr/server` | HR 业务服务 | HR 查询、保存、导入、校验、DTO |
 | `@workspace/hr/ui` | HR UI | 员工资料、部门岗位、项目资料等 HR 页面组件 |
+| `@workspace/work/server` | Work 业务服务 | 工作计划、工作清单、工作汇报和目标权限 |
 | `@workspace/production` | 生产包 | 生产/QC 模块注册、类型和后续 UI/server |
 | `@workspace/finance` | 财务包 | 财务模块注册、类型和后续 UI/server |
 | `lib/security.ts` | 登录安全 | `checkBruteForce`, `recordAttempt` |
-| `lib/access.ts` | 目标权限 | `getUserTargets`, `canAccessTarget`, `canSubmitToTarget` |
 | `lib/permissions.ts` | RBAC 常量 | `RES`, `ROLE`, `perm` |
 | `lib/period.ts` | 周期计算 | `getCurrentPeriod`, `getPeriodRange`, `getPeriodOptions`, `PeriodType` |
 
