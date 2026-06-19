@@ -1,4 +1,25 @@
-import type { WorkspacePackageRegistration } from "@workspace/core";
+import type { ApiGuardRegistration, WorkspacePackageRegistration } from "@workspace/core";
+
+const API_ACTION_BY_METHOD = {
+  GET: "access",
+  POST: "write",
+  PUT: "write",
+  PATCH: "write",
+  DELETE: "delete",
+} satisfies Record<ApiGuardRegistration["method"], ApiGuardRegistration["action"]>;
+
+function apiResourceGuards(
+  pathPrefix: string,
+  resourceKey: string,
+  methods: ApiGuardRegistration["method"][] = ["GET", "POST", "PUT", "PATCH", "DELETE"],
+): ApiGuardRegistration[] {
+  return methods.map((method) => ({
+    method,
+    pathPrefix,
+    resourceKey,
+    action: API_ACTION_BY_METHOD[method],
+  }));
+}
 
 export const registeredModuleDefinitions = [
   {
@@ -28,11 +49,11 @@ export const registeredModuleDefinitions = [
     ],
     routes: ["/work", "/work/plans", "/works", "/reports", "/history"],
     apiGuards: [
-      { method: "GET", pathPrefix: "/api/work", resourceKey: "work.plan", action: "access" },
-      { method: "POST", pathPrefix: "/api/work", resourceKey: "work.plan", action: "write" },
-      { method: "PUT", pathPrefix: "/api/work", resourceKey: "work.plan", action: "write" },
-      { method: "PATCH", pathPrefix: "/api/work", resourceKey: "work.plan", action: "write" },
-      { method: "DELETE", pathPrefix: "/api/work", resourceKey: "work.plan", action: "delete" },
+      ...apiResourceGuards("/api/work", "work.plan"),
+      ...apiResourceGuards("/api/projects", "work.plan", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/employee-projects", "work.plan", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/works", "work.task", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/reports", "work.report", ["GET", "POST", "PUT"]),
     ],
   },
   {
@@ -60,11 +81,12 @@ export const registeredModuleDefinitions = [
     ],
     routes: ["/hr", "/hr/roster", "/hr/performance", "/hr/analytics"],
     apiGuards: [
-      { method: "GET", pathPrefix: "/api/hr", resourceKey: "people.roster", action: "access" },
-      { method: "POST", pathPrefix: "/api/hr", resourceKey: "people.roster", action: "write" },
-      { method: "PUT", pathPrefix: "/api/hr", resourceKey: "people.roster", action: "write" },
-      { method: "PATCH", pathPrefix: "/api/hr", resourceKey: "people.roster", action: "write" },
-      { method: "DELETE", pathPrefix: "/api/hr", resourceKey: "people.roster", action: "delete" },
+      ...apiResourceGuards("/api/hr", "people.roster"),
+      ...apiResourceGuards("/api/departments", "people.roster", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/employee-positions", "people.roster", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/employees", "people.roster", ["GET"]),
+      ...apiResourceGuards("/api/positions", "people.roster", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/position-descriptions", "people.roster", ["GET", "PUT"]),
     ],
   },
   {
@@ -94,10 +116,7 @@ export const registeredModuleDefinitions = [
     ],
     routes: ["/administration", "/contracts"],
     apiGuards: [
-      { method: "GET", pathPrefix: "/api/contracts", resourceKey: "administration.contract", action: "access" },
-      { method: "POST", pathPrefix: "/api/contracts", resourceKey: "administration.contract", action: "write" },
-      { method: "PATCH", pathPrefix: "/api/contracts", resourceKey: "administration.contract", action: "write" },
-      { method: "DELETE", pathPrefix: "/api/contracts", resourceKey: "administration.contract", action: "delete" },
+      ...apiResourceGuards("/api/contracts", "administration.contract", ["GET", "POST", "PATCH", "DELETE"]),
     ],
   },
   {
@@ -138,11 +157,7 @@ export const registeredModuleDefinitions = [
     ],
     routes: ["/finance"],
     apiGuards: [
-      { method: "GET", pathPrefix: "/api/finance", resourceKey: "finance", action: "access" },
-      { method: "POST", pathPrefix: "/api/finance", resourceKey: "finance", action: "write" },
-      { method: "PUT", pathPrefix: "/api/finance", resourceKey: "finance", action: "write" },
-      { method: "PATCH", pathPrefix: "/api/finance", resourceKey: "finance", action: "write" },
-      { method: "DELETE", pathPrefix: "/api/finance", resourceKey: "finance", action: "delete" },
+      ...apiResourceGuards("/api/finance", "finance"),
     ],
   },
   {
@@ -170,11 +185,7 @@ export const registeredModuleDefinitions = [
     ],
     routes: ["/production", "/production/qc/batches", "/production/qc/templates"],
     apiGuards: [
-      { method: "GET", pathPrefix: "/api/production", resourceKey: "production", action: "access" },
-      { method: "POST", pathPrefix: "/api/production", resourceKey: "production", action: "write" },
-      { method: "PUT", pathPrefix: "/api/production", resourceKey: "production", action: "write" },
-      { method: "PATCH", pathPrefix: "/api/production", resourceKey: "production", action: "write" },
-      { method: "DELETE", pathPrefix: "/api/production", resourceKey: "production", action: "delete" },
+      ...apiResourceGuards("/api/production", "production"),
     ],
   },
   {
@@ -247,10 +258,8 @@ export const registeredModuleDefinitions = [
     ],
     routes: ["/library"],
     apiGuards: [
-      { method: "GET", pathPrefix: "/api/library", resourceKey: "library", action: "access" },
-      { method: "POST", pathPrefix: "/api/library", resourceKey: "library.write", action: "write" },
-      { method: "PATCH", pathPrefix: "/api/library", resourceKey: "library.write", action: "write" },
-      { method: "DELETE", pathPrefix: "/api/library", resourceKey: "library.write", action: "delete" },
+      ...apiResourceGuards("/api/library", "library", ["GET"]),
+      ...apiResourceGuards("/api/library", "library.write", ["POST", "PATCH", "DELETE"]),
     ],
   },
   {

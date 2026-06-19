@@ -42,6 +42,24 @@ type ApiRouteMethod = {
   hasDirectPrismaSignal: boolean;
 };
 
+type HookPatternCandidate = {
+  file: string;
+  packageName: string;
+  layer: "core" | "platform" | "domain" | "unknown";
+  hookName: string;
+  importsCoreHooks: boolean;
+  importsPlatformHooks: boolean;
+  hasLocalImplementation: boolean;
+};
+
+type ServicePatternGroup = {
+  name: string;
+  files: string[];
+  owners: string[];
+  legacyRootFiles: string[];
+  packageFiles: string[];
+};
+
 type Level2Report = {
   level: "2";
   mode: "structure-intelligence";
@@ -54,7 +72,11 @@ type Level2Report = {
     uncontractedApiRouteMethods: number;
     uiPatternCandidates: number;
     uiPatternCandidatesWithoutCore: number;
+    hookPatternCandidates: number;
+    appHookFiles: number;
+    appHookImplementationFiles: number;
     legacyServiceFiles: number;
+    repeatedServiceGroups: number;
   };
   registries: {
     modules: Array<{
@@ -68,14 +90,20 @@ type Level2Report = {
   };
   patterns: {
     uiPatternCandidates: UiPatternCandidate[];
+    hookPatternCandidates: HookPatternCandidate[];
     apiRouteMethods: ApiRouteMethod[];
+    repeatedServiceGroups: ServicePatternGroup[];
   };
   drift: {
     appJsxFiles: string[];
+    appHookFiles: string[];
+    appHookImplementationFiles: string[];
     uncontractedApiRouteMethods: ApiRouteMethod[];
     apiRoutesWithDirectPrismaSignal: ApiRouteMethod[];
     legacyServiceFiles: string[];
+    repeatedServiceGroups: ServicePatternGroup[];
     domainUiCandidatesWithoutCore: UiPatternCandidate[];
+    domainHookCandidatesWithoutShared: HookPatternCandidate[];
   };
 };
 
@@ -215,6 +243,23 @@ function importsPlatformUi(imports: ImportRecord[]) {
   return imports.some((item) => item.specifier === "@workspace/platform" || item.specifier.startsWith("@workspace/platform/"));
 }
 
+function importsCoreHooks(imports: ImportRecord[]) {
+  return imports.some((item) => item.specifier === "@workspace/core" || item.specifier.startsWith("@workspace/core/hooks"));
+}
+
+function importsPlatformHooks(imports: ImportRecord[]) {
+  return imports.some((item) => item.specifier === "@workspace/platform" || item.specifier.startsWith("@workspace/platform/hooks"));
+}
+
+function hasLocalRuntimeImplementation(sourceFile: ts.SourceFile) {
+  return sourceFile.statements.some((statement) => (
+    ts.isFunctionDeclaration(statement) ||
+    ts.isVariableStatement(statement) ||
+    ts.isClassDeclaration(statement) ||
+    ts.isEnumDeclaration(statement)
+  ));
+}
+
 function findUiPatternCandidates(files: SourceInfo[]) {
   const candidates: UiPatternCandidate[] = [];
 
@@ -320,6 +365,68 @@ function findApiRouteMethods(files: SourceInfo[]) {
   return routeMethods.sort((left, right) => `${left.path}:${left.method}`.localeCompare(`${right.path}:${right.method}`));
 }
 
+function findHookPatternCandidates(files: SourceInfo[]) {
+  const candidates: HookPatternCandidate[] = [];
+
+  for (const file of files) {
+    const baseName = path.basename(file.relPath, path.extname(file.relPath));
+    const isHookName = /^use[A-Z0-9]/.test(baseName);
+    const isHookPath =
+      file.relPath.startsWith("app/hooks/") ||
+      /^packages\/[^/]+\/(ui\/)?hooks\//.test(file.relPath);
+    if (!isHookName || !isHookPath) continue;
+
+    const packageName = getPackageName(file.relPath);
+    candidates.push({
+      file: file.relPath,
+      packageName,
+      layer: getLayer(packageName),
+      hookName: baseName,
+      importsCoreHooks: importsCoreHooks(file.imports),
+      importsPlatformHooks: importsPlatformHooks(file.imports),
+      hasLocalImplementation: hasLocalRuntimeImplementation(file.sourceFile),
+    });
+  }
+
+  return candidates.sort((left, right) => left.file.localeCompare(right.file));
+}
+
+function findRepeatedServiceGroups(files: SourceInfo[]) {
+  const serviceFiles = files.filter((file) => {
+    if (file.relPath.startsWith("server/services/")) return true;
+    return /^packages\/[^/]+\/server\/.*\.ts$/.test(file.relPath);
+  });
+  const groups = new Map<string, SourceInfo[]>();
+
+  for (const file of serviceFiles) {
+    const name = path.basename(file.relPath, path.extname(file.relPath));
+    if (["index", "types"].includes(name)) continue;
+    const current = groups.get(name) ?? [];
+    current.push(file);
+    groups.set(name, current);
+  }
+
+  return [...groups.entries()]
+    .map(([name, groupFiles]) => {
+      const filesInGroup = groupFiles.map((file) => file.relPath).sort();
+      const owners = [...new Set(groupFiles.map((file) => {
+        if (file.relPath.startsWith("server/services/")) return "legacy-root";
+        return getPackageName(file.relPath);
+      }))].sort();
+
+      return {
+        name,
+        files: filesInGroup,
+        owners,
+        legacyRootFiles: filesInGroup.filter((file) => file.startsWith("server/services/")),
+        packageFiles: filesInGroup.filter((file) => file.startsWith("packages/")),
+      };
+    })
+    .filter((group) => group.files.length > 1)
+    .filter((group) => group.owners.length > 1 || (group.legacyRootFiles.length > 0 && group.packageFiles.length > 0))
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
 function countByOwner() {
   const result: Record<string, number> = {};
   for (const contract of apiContracts) {
@@ -345,6 +452,21 @@ function findLegacyServiceFiles(files: SourceInfo[]) {
     .sort();
 }
 
+function findAppHookFiles(hooks: HookPatternCandidate[]) {
+  return hooks
+    .filter((hook) => hook.file.startsWith("app/hooks/"))
+    .map((hook) => hook.file)
+    .sort();
+}
+
+function findAppHookImplementationFiles(hooks: HookPatternCandidate[]) {
+  return hooks
+    .filter((hook) => hook.file.startsWith("app/hooks/"))
+    .filter((hook) => hook.hasLocalImplementation)
+    .map((hook) => hook.file)
+    .sort();
+}
+
 export function createLevel2Report(): Level2Report {
   const sourceFiles = SCAN_ROOTS
     .flatMap((rootName) => walk(path.join(ROOT, rootName)))
@@ -353,10 +475,17 @@ export function createLevel2Report(): Level2Report {
 
   const uiPatternCandidates = findUiPatternCandidates(sourceFiles);
   const apiRouteMethods = findApiRouteMethods(sourceFiles);
+  const hookPatternCandidates = findHookPatternCandidates(sourceFiles);
+  const repeatedServiceGroups = findRepeatedServiceGroups(sourceFiles);
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
   const domainUiCandidatesWithoutCore = uiPatternCandidates
     .filter((candidate) => candidate.layer === "domain")
     .filter((candidate) => !candidate.importsCoreUi);
+  const domainHookCandidatesWithoutShared = hookPatternCandidates
+    .filter((candidate) => candidate.layer === "domain")
+    .filter((candidate) => !candidate.importsCoreHooks && !candidate.importsPlatformHooks);
+  const appHookFiles = findAppHookFiles(hookPatternCandidates);
+  const appHookImplementationFiles = findAppHookImplementationFiles(hookPatternCandidates);
   const legacyServiceFiles = findLegacyServiceFiles(sourceFiles);
 
   return {
@@ -371,7 +500,11 @@ export function createLevel2Report(): Level2Report {
       uncontractedApiRouteMethods: uncontractedApiRouteMethods.length,
       uiPatternCandidates: uiPatternCandidates.length,
       uiPatternCandidatesWithoutCore: domainUiCandidatesWithoutCore.length,
+      hookPatternCandidates: hookPatternCandidates.length,
+      appHookFiles: appHookFiles.length,
+      appHookImplementationFiles: appHookImplementationFiles.length,
       legacyServiceFiles: legacyServiceFiles.length,
+      repeatedServiceGroups: repeatedServiceGroups.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -387,14 +520,20 @@ export function createLevel2Report(): Level2Report {
     },
     patterns: {
       uiPatternCandidates,
+      hookPatternCandidates,
       apiRouteMethods,
+      repeatedServiceGroups,
     },
     drift: {
       appJsxFiles: findAppJsxFiles(sourceFiles),
+      appHookFiles,
+      appHookImplementationFiles,
       uncontractedApiRouteMethods,
       apiRoutesWithDirectPrismaSignal: apiRouteMethods.filter((route) => route.hasDirectPrismaSignal),
       legacyServiceFiles,
+      repeatedServiceGroups,
       domainUiCandidatesWithoutCore,
+      domainHookCandidatesWithoutShared,
     },
   };
 }

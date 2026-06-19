@@ -250,7 +250,7 @@ API 权限规则：
 | 模块 | 用途 | 关键导出 |
 |------|------|----------|
 | `@workspace/core/ui` | 通用 UI | 确认弹框、Toast、表格、筛选、字段、日期、状态、金额/数字单元格 |
-| `@workspace/core/hooks` | 通用 hook | `useToast` |
+| `@workspace/core/hooks` | 通用 hook | `useCSV`、`useToast` |
 | `@workspace/core/routing` | 路由 helper | `workspacePath` |
 | `@workspace/core/search` | 通用搜索 | 拼音首字母、全拼和文本匹配 |
 | `@workspace/platform/ui` | 平台壳 UI | `AppShell`、`ModuleHome`、`PortalClient`、`UserMenu`、审计日志 UI |

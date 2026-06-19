@@ -20,7 +20,7 @@ AppShell
 | **TabBar** | `app/components/TabBar.tsx` | 下划线 tab 导航 | ✅ 多 tab 页面 |
 | **Pagination** | `app/components/Pagination.tsx` | 分页控件：首页/上一页/页码/下一页/末页 | ✅ 有分页需求 |
 | **ModuleHome** | `app/components/ModuleHome.tsx` | L1 模块子入口卡片 | ✅ L1 模块首页 |
-| **useCSV** | `app/hooks/useCSV.tsx` | CSV 导出（hook） | 推荐 |
+| **useCSV** | `@workspace/core/hooks` | CSV 导出（hook） | 推荐 |
 | **requireResourceAccess** | `server/auth/guard.ts` | 路由级权限门禁 | ✅ 子页面 layout.tsx |
 | **requireAuth** | `server/auth/session.ts` | 登录门禁（redirect to /login） | ✅ 页面 facade |
 

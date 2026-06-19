@@ -21,6 +21,7 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 - `ui/DataTable`
 - `ui/FilterField`
 - `ui/EditToolbar`
+- `hooks/useCSV`
 - `hooks/useToast`
 - `routing/workspacePath`
 - `search/getInitials`、`search/getPinyinText`、`search/matchText`
