@@ -121,13 +121,24 @@ build_artifact() {
   echo "==> 在当前 CI/CNB 环境构建 Next standalone 产物..."
   npm run build
 
-  rm -rf .next/standalone/.next/static
-  mkdir -p .next/standalone/.next
-  cp -r .next/static .next/standalone/.next/static
-  rm -rf .next/standalone/public
-  cp -rL public .next/standalone/public
-  rm -rf .next/standalone/data
-  rm -f .next/standalone/.env
+  local standalone_server
+  local standalone_app_dir
+  standalone_server="$(find .next/standalone -type f -name server.js | head -n 1)"
+  if [ -z "$standalone_server" ]; then
+    echo "[错误] Next standalone 产物缺少 server.js"
+    find .next/standalone -maxdepth 4 -type f | sort | head -80 || true
+    exit 1
+  fi
+  standalone_app_dir="$(dirname "$standalone_server")"
+  printf '%s\n' "${standalone_server#.next/standalone/}" > .next/standalone/.server-entry
+
+  rm -rf "$standalone_app_dir/.next/static"
+  mkdir -p "$standalone_app_dir/.next"
+  cp -r .next/static "$standalone_app_dir/.next/static"
+  rm -rf "$standalone_app_dir/public"
+  cp -rL public "$standalone_app_dir/public"
+  rm -rf "$standalone_app_dir/data"
+  rm -f "$standalone_app_dir/.env"
 
   # Next standalone tracing can leave native/runtime packages as partial shells.
   # Keep the SQLite adapter stack complete so production does not depend on
@@ -274,18 +285,24 @@ deploy_remote_artifact() {
     tar -xzf '$remote_tar' -C \"\$release_dir\"
     rm -f '$remote_tar'
 
+    server_entry=\$(cat \"\$release_dir/.server-entry\" 2>/dev/null || printf 'server.js')
+    app_dir=\$(dirname \"\$release_dir/\$server_entry\")
+    test -f \"\$release_dir/\$server_entry\"
+
     ln -sfn '../../.workspace/.env' \"\$release_dir/.env\"
-    rm -rf \"\$release_dir/data\"
+    ln -sfn \"\$(realpath --relative-to=\"\$app_dir\" '$REMOTE_WORKSPACE_CONFIG_DIR/.env')\" \"\$app_dir/.env\"
+    rm -rf \"\$release_dir/data\" \"\$app_dir/data\"
 
     if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company' ]; then
-      rm -rf \"\$release_dir/public/company\"
-      ln -sfn '../../../.workspace/assets/brand/company' \"\$release_dir/public/company\"
+      rm -rf \"\$app_dir/public/company\"
+      mkdir -p \"\$app_dir/public\"
+      ln -sfn \"\$(realpath --relative-to=\"\$app_dir/public\" '$REMOTE_WORKSPACE_CONFIG_DIR/assets/brand/company')\" \"\$app_dir/public/company\"
     fi
 
     if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/agent/avatar' ]; then
-      mkdir -p \"\$release_dir/public/assets/agent\"
-      rm -rf \"\$release_dir/public/assets/agent/avatar\"
-      ln -sfn '../../../../../.workspace/assets/agent/avatar' \"\$release_dir/public/assets/agent/avatar\"
+      mkdir -p \"\$app_dir/public/assets/agent\"
+      rm -rf \"\$app_dir/public/assets/agent/avatar\"
+      ln -sfn \"\$(realpath --relative-to=\"\$app_dir/public/assets/agent\" '$REMOTE_WORKSPACE_CONFIG_DIR/assets/agent/avatar')\" \"\$app_dir/public/assets/agent/avatar\"
     fi
 
     grep -q '^WORKSPACE_CONFIG_DIR=' \"\$release_dir/.env\"
@@ -297,7 +314,7 @@ deploy_remote_artifact() {
     . \"\$release_dir/.env\"
     set +a
     export NODE_ENV=production
-    pm2 start server.js --name '$PM2_NAME' --cwd \"\$release_dir\" --update-env
+    pm2 start \"\$release_dir/\$server_entry\" --name '$PM2_NAME' --cwd \"\$app_dir\" --update-env
     qc_cache_ready=0
     for i in \$(seq 1 20); do
       if curl -fsS -X POST -H \"x-qc-cache-warmup: \$NEXTAUTH_SECRET\" 'http://127.0.0.1:3000/workspace/api/production/qc/cache' >/dev/null; then
