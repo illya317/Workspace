@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server";
 import { withFinanceCostAccess, withFinanceCostDelete } from "@/lib/with-auth";
 import { deleteImportById, getImportById } from "@workspace/finance/server/cost";
+import { costImportIdSchema } from "@workspace/finance/server/cost/import-schemas";
 
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   return withFinanceCostDelete(async () => {
-    const { id } = await params;
-    const numericId = parseInt(id);
-    if (Number.isNaN(numericId)) {
+    const parsedParams = costImportIdSchema.safeParse(await params);
+    if (!parsedParams.success) {
       return NextResponse.json({ success: false, error: "无效ID" }, { status: 400 });
     }
+    const numericId = parsedParams.data.id;
 
     const existing = await getImportById(numericId);
     if (!existing) {
@@ -28,11 +29,11 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   return withFinanceCostAccess(async () => {
-    const { id } = await params;
-    const numericId = parseInt(id);
-    if (Number.isNaN(numericId)) {
+    const parsedParams = costImportIdSchema.safeParse(await params);
+    if (!parsedParams.success) {
       return NextResponse.json({ success: false, error: "无效ID" }, { status: 400 });
     }
+    const numericId = parsedParams.data.id;
 
     const data = await getImportById(numericId);
     if (!data) {

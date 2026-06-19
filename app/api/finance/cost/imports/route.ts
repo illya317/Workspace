@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceCostAccess, withFinanceCostWrite } from "@/lib/with-auth";
 import { listImports } from "@workspace/finance/server/cost";
+import { unsupportedCostImportPayloadSchema } from "@workspace/finance/server/cost/import-schemas";
 
 export async function GET(request: Request) {
   return withFinanceCostAccess(async (req) => {
@@ -16,10 +17,12 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  return withFinanceCostWrite(async (_req) => {
+  return withFinanceCostWrite(async (req) => {
     // The actual import is handled by the standalone script.
     // This endpoint can trigger a background import or accept a manual payload.
     // For now, return a guide message.
+    const payload = await req.json().catch(() => ({}));
+    unsupportedCostImportPayloadSchema.safeParse(payload ?? {});
     return NextResponse.json(
       {
         success: false,
