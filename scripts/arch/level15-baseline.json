@@ -254,7 +254,6 @@
     "app/api/admin/permission-grants/max-role/route.ts",
     "app/api/admin/permissions/route.ts",
     "app/api/admin/position-permissions/route.ts",
-    "app/api/admin/users/[id]/route.ts",
     "server/dal/dict-cache.ts"
   ]
 }

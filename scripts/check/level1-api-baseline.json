@@ -37,7 +37,6 @@
     "app/api/admin/position-permissions/route.ts",
     "app/api/admin/projects/route.ts",
     "app/api/admin/system-config/route.ts",
-    "app/api/admin/users/[id]/route.ts",
     "app/api/agent/proposals/[id]/confirm/route.ts",
     "app/api/auth/change-password/route.ts",
     "app/api/auth/dev-login/route.ts",

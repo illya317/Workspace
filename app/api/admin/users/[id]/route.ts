@@ -1,7 +1,30 @@
-import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
-import { authenticate, isAdmin } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { z } from "zod";
+import { authenticate, authorize } from "@workspace/platform/server/auth";
+import {
+  resetAdminUserPassword,
+  updateAdminUserField,
+  updateAdminUserGrant,
+  type AdminUserField,
+} from "@workspace/platform/server/users";
+
+const paramsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
+const fieldUpdateSchema = z.object({
+  field: z.enum(["canLogin", "name", "username", "employeeId"]),
+  value: z.unknown(),
+});
+
+const grantUpdateSchema = z.object({
+  resourceKey: z.string().min(1),
+  roleKey: z.string().min(1),
+  value: z.boolean(),
+});
+
+const selfAllowedFields = new Set<AdminUserField>(["username"]);
+const adminAllowedFields = new Set<AdminUserField>(["canLogin", "name", "username", "employeeId"]);
 
 export async function PUT(
   request: Request,
@@ -12,61 +35,46 @@ export async function PUT(
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const { id } = await params;
-  const isSelf = payload.userId === parseInt(id);
+  const parsedParams = paramsSchema.safeParse(await params);
+  if (!parsedParams.success) return NextResponse.json({ error: "用户ID无效" }, { status: 400 });
 
-  if (!isSelf && !(await isAdmin(request))) {
+  const targetUserId = parsedParams.data.id;
+  const isSelf = payload.userId === targetUserId;
+  const canAdmin = await authorize({ user: payload.userId, resourceKey: "system", action: "admin" });
+
+  if (!isSelf && !canAdmin) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
-  const body = await request.json();
+  const body = await request.json().catch(() => null);
 
   // Single field update
-  if (body.field && body.value !== undefined) {
-    const { field, value } = body;
-    const SELF_ALLOWED = ["username"];
-    const ADMIN_ALLOWED = ["canLogin", "name", "username", "employeeId"];
-    const allowed = isSelf ? SELF_ALLOWED : ADMIN_ALLOWED;
-    if (!allowed.includes(field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
-    await prisma.user.update({
-      where: { id: parseInt(id) },
-      data: { [field]: field === "canLogin" ? !!value : value || null },
-    });
-    return NextResponse.json({ success: true });
+  if (body && typeof body === "object" && "field" in body) {
+    const parsed = fieldUpdateSchema.safeParse(body);
+    if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+
+    const allowed = isSelf ? selfAllowedFields : adminAllowedFields;
+    if (!allowed.has(parsed.data.field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
+
+    return NextResponse.json(
+      await updateAdminUserField({
+        userId: targetUserId,
+        field: parsed.data.field,
+        value: parsed.data.value,
+      }),
+    );
   }
 
-  if (!(await isAdmin(request))) {
+  if (!canAdmin) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
-  const { resourceKey, roleKey, value } = body;
+  const parsed = grantUpdateSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
 
-  if (resourceKey && roleKey && typeof value === "boolean") {
-    const resource = await prisma.resource.findUnique({ where: { key: resourceKey } });
-    const role = await prisma.role.findUnique({ where: { key: roleKey } });
-    if (resource && role) {
-      if (value) {
-        await prisma.userResourceRole.create({
-          data: { userId: parseInt(id), resourceId: resource.id, roleId: role.id, scopeId: null },
-        });
-      } else {
-        await prisma.userResourceRole.deleteMany({
-          where: { userId: parseInt(id), resourceId: resource.id, roleId: role.id, scopeId: null },
-        });
-      }
-    }
-  }
-
-  return NextResponse.json({ success: true });
-}
-
-function randomPassword(length = 8): string {
-  const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let result = "";
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
+  const result = await updateAdminUserGrant({ userId: targetUserId, ...parsed.data });
+  if (!result.success) return NextResponse.json({ error: result.error }, { status: result.status });
+  return NextResponse.json(result);
 }
 
 export async function POST(
@@ -78,20 +86,12 @@ export async function POST(
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  if (!(await isAdmin(request))) {
+  if (!(await authorize({ user: payload.userId, resourceKey: "system", action: "admin" }))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
-  const { id } = await params;
-  const newPassword = randomPassword(10);
+  const parsedParams = paramsSchema.safeParse(await params);
+  if (!parsedParams.success) return NextResponse.json({ error: "用户ID无效" }, { status: 400 });
 
-  await prisma.user.update({
-    where: { id: parseInt(id) },
-    data: {
-      password: bcrypt.hashSync(newPassword, 10),
-      sessionVersion: { increment: 1 },
-    },
-  });
-
-  return NextResponse.json({ success: true, password: newPassword });
+  return NextResponse.json(await resetAdminUserPassword(parsedParams.data.id));
 }
