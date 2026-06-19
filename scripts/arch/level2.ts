@@ -48,6 +48,7 @@ type ApiRouteMethod = {
   hasValidationSignal: boolean;
   hasServiceSignal: boolean;
   hasCompatibilityProxySignal: boolean;
+  hasGoneRouteSignal: boolean;
   hasDirectPrismaSignal: boolean;
 };
 
@@ -85,6 +86,7 @@ type Level2Report = {
     apiRouteMethodsWithoutValidationSignal: number;
     apiRouteMethodsWithoutServiceSignal: number;
     compatibilityProxyRouteMethods: number;
+    goneRouteMethods: number;
     uiPatternCandidates: number;
     uiPatternCandidatesWithoutCore: number;
     hookPatternCandidates: number;
@@ -118,6 +120,7 @@ type Level2Report = {
     apiRouteMethodsWithoutValidationSignal: ApiRouteMethod[];
     apiRouteMethodsWithoutServiceSignal: ApiRouteMethod[];
     compatibilityProxyRouteMethods: ApiRouteMethod[];
+    goneRouteMethods: ApiRouteMethod[];
     legacyServiceFiles: string[];
     repeatedServiceGroups: ServicePatternGroup[];
     domainUiCandidatesWithoutCore: UiPatternCandidate[];
@@ -428,6 +431,13 @@ function hasCompatibilityProxySignal(file: SourceInfo) {
   return (importsProxyHelper && callsProxyHelper) || proxiesWithFetch;
 }
 
+function hasGoneRouteSignal(file: SourceInfo) {
+  if (/\bprisma\s*\./.test(file.text)) return false;
+
+  return file.imports.some((item) => item.specifier.endsWith("/disabled") || item.specifier === "../disabled" || item.specifier === "../../disabled") &&
+    /\binventoryApiGone\b/.test(file.text);
+}
+
 function findApiRouteMethods(files: SourceInfo[]) {
   const routeMethods: ApiRouteMethod[] = [];
 
@@ -436,6 +446,7 @@ function findApiRouteMethods(files: SourceInfo[]) {
 
     const apiPath = routePathFromFile(file.relPath);
     const compatibilityProxySignal = hasCompatibilityProxySignal(file);
+    const goneRouteSignal = hasGoneRouteSignal(file);
     for (const method of getExportedHttpMethods(file.sourceFile)) {
       const contract = findApiContract(method, apiPath);
       routeMethods.push({
@@ -452,6 +463,7 @@ function findApiRouteMethods(files: SourceInfo[]) {
         hasValidationSignal: /\b(safeParse|parse)\s*\(|\bz\s*\./.test(file.text),
         hasServiceSignal: hasServiceSignal(file),
         hasCompatibilityProxySignal: compatibilityProxySignal,
+        hasGoneRouteSignal: goneRouteSignal,
         hasDirectPrismaSignal: /\bprisma\s*\./.test(file.text),
       });
     }
@@ -612,8 +624,10 @@ export function createLevel2Report(): Level2Report {
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
   const apiRoutesWithDirectPrismaSignal = apiRouteMethods.filter((route) => route.hasDirectPrismaSignal);
   const compatibilityProxyRouteMethods = apiRouteMethods.filter((route) => route.hasCompatibilityProxySignal);
+  const goneRouteMethods = apiRouteMethods.filter((route) => route.hasGoneRouteSignal);
   const apiRouteMethodsWithoutValidationSignal = apiRouteMethods
     .filter((route) => route.method !== "GET")
+    .filter((route) => !route.hasGoneRouteSignal)
     .filter((route) => !route.hasValidationSignal);
   const apiRouteMethodsWithoutServiceSignal = apiRouteMethods
     .filter((route) => !route.hasServiceSignal)
@@ -642,6 +656,7 @@ export function createLevel2Report(): Level2Report {
       apiRouteMethodsWithoutValidationSignal: apiRouteMethodsWithoutValidationSignal.length,
       apiRouteMethodsWithoutServiceSignal: apiRouteMethodsWithoutServiceSignal.length,
       compatibilityProxyRouteMethods: compatibilityProxyRouteMethods.length,
+      goneRouteMethods: goneRouteMethods.length,
       uiPatternCandidates: uiPatternCandidates.length,
       uiPatternCandidatesWithoutCore: domainUiCandidatesWithoutCore.length,
       hookPatternCandidates: hookPatternCandidates.length,
@@ -677,6 +692,7 @@ export function createLevel2Report(): Level2Report {
       apiRouteMethodsWithoutValidationSignal,
       apiRouteMethodsWithoutServiceSignal,
       compatibilityProxyRouteMethods,
+      goneRouteMethods,
       legacyServiceFiles,
       repeatedServiceGroups,
       domainUiCandidatesWithoutCore,
