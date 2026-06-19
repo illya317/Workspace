@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { getPeriodRange, getPeriodTypeName } from "@/lib/period";
-import type { PeriodType } from "@/lib/period";
+import { getPeriodRange, getPeriodTypeName } from "@workspace/core/period";
+import type { PeriodType } from "@workspace/core/period";
 import type { SavedTarget } from "./hooks/useReportAuth";
 import { useReportAuth, loadSavedTarget, saveTarget } from "./hooks/useReportAuth";
 import { useReportPeriod } from "./hooks/useReportPeriod";

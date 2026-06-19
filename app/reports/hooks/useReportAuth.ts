@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import type { PeriodType } from "@/lib/period";
+import type { PeriodType } from "@workspace/core/period";
 
 export interface ReportUser {
   id: number;

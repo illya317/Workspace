@@ -4,8 +4,8 @@ import {
   getPeriodOptions,
   getYearOptions,
   getPeriodTypeName,
-} from "@/lib/period";
-import type { PeriodType } from "@/lib/period";
+} from "@workspace/core/period";
+import type { PeriodType } from "@workspace/core/period";
 import { loadSavedPeriodType, savePeriodType } from "./useReportAuth";
 
 export function useReportPeriod() {

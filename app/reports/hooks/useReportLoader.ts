@@ -2,8 +2,8 @@ import { useState, useCallback } from "react";
 import {
   getPeriodRange,
   getPreviousPeriod,
-} from "@/lib/period";
-import type { PeriodType } from "@/lib/period";
+} from "@workspace/core/period";
+import type { PeriodType } from "@workspace/core/period";
 import type { ReportUser } from "./useReportAuth";
 import type { Report } from "../ReportEditor";
 import type { ItemRow } from "../WorkSection";

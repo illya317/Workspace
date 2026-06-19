@@ -8,6 +8,8 @@
     "./module-contract": "./module-contract.ts",
     "./hooks": "./hooks/index.ts",
     "./hooks/*": "./hooks/*.ts",
+    "./period": "./period/index.ts",
+    "./period/*": "./period/*.ts",
     "./routing": "./routing/index.ts",
     "./routing/*": "./routing/*.ts",
     "./search": "./search/index.ts",

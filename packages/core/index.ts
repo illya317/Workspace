@@ -14,6 +14,7 @@ export type {
   WorkspacePackageRegistration,
 } from "./module-contract";
 export * from "./hooks";
+export * from "./period";
 export * from "./routing";
 export * from "./search";
 export * from "./ui";

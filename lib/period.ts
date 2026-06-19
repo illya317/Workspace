@@ -1,12 +1,10 @@
-export type { PeriodType, PeriodInfo } from "./period-types";
+export type { PeriodInfo, PeriodType } from "@workspace/core/period";
 export {
   getCurrentPeriod,
   getCurrentWeek,
-  getPeriodRange,
-} from "./period-core";
-export {
-  getPreviousPeriod,
-  getPeriodTypeName,
   getPeriodOptions,
+  getPeriodRange,
+  getPeriodTypeName,
+  getPreviousPeriod,
   getYearOptions,
-} from "./period-options";
+} from "@workspace/core/period";

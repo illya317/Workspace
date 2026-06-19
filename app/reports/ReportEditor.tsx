@@ -1,7 +1,7 @@
 "use client";
 
-import type { PeriodType } from "@/lib/period";
-import { getPeriodTypeName } from "@/lib/period";
+import type { PeriodType } from "@workspace/core/period";
+import { getPeriodTypeName } from "@workspace/core/period";
 import SelectField from "@/app/components/SelectField";
 import WorkSection, { type ItemRow } from "./WorkSection";
 

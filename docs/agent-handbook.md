@@ -280,7 +280,7 @@ API 权限规则：
 | `@workspace/finance` | 财务包 | 财务模块注册、类型和后续 UI/server |
 | `lib/security.ts` | 登录安全 | `checkBruteForce`, `recordAttempt` |
 | `@workspace/platform/permissions` | RBAC 常量 | `RES`, `ROLE`, `ACTION`, `normalizeRoleKey` |
-| `lib/period.ts` | 周期计算 | `getCurrentPeriod`, `getPeriodRange`, `getPeriodOptions`, `PeriodType` |
+| `@workspace/core/period` | 周期计算 | `getCurrentPeriod`, `getPeriodRange`, `getPeriodOptions`, `PeriodType` |
 
 `lib/*` 中的旧 runtime 入口只用于兼容存量代码，新代码不要直接依赖；业务包必须通过 Platform server 契约或本包 service 访问。
 

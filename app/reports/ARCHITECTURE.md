@@ -30,7 +30,7 @@ page.tsx
 
 ## 数据流
 
-1. **useReportPeriod.ts** 计算当前汇报周期（基于 `lib/period.ts`）
+1. **useReportPeriod.ts** 计算当前汇报周期（基于 `@workspace/core/period`）
 2. **useReportLoader.ts** 加载当前周期已提交的周报（含版本历史）
 3. **useReportAuth.ts** 校验用户能否向目标对象提交汇报
 4. **API** `app/api/reports/` 提供 CRUD 和版本查询
@@ -53,4 +53,4 @@ page.tsx
 - 只能向自己的汇报对象（my-targets）提交周报
 - 历史版本仅自己和汇报对象可见
 
-汇报周期由 `lib/period.ts` 统一管理，支持周/月/季度等多种周期类型。
+汇报周期由 `@workspace/core/period` 统一管理，支持周/月/季度等多种周期类型。

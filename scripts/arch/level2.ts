@@ -126,6 +126,8 @@ type Level2Report = {
     legacyRootPrismaImports: number;
     legacyRootPermissionsImplementationFiles: number;
     legacyRootPermissionsImports: number;
+    legacyRootPeriodImplementationFiles: number;
+    legacyRootPeriodImports: number;
   };
   registries: {
     modules: Array<{
@@ -165,6 +167,8 @@ type Level2Report = {
     legacyRootPrismaImports: string[];
     legacyRootPermissionsImplementationFiles: string[];
     legacyRootPermissionsImports: string[];
+    legacyRootPeriodImplementationFiles: string[];
+    legacyRootPeriodImports: string[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -208,6 +212,12 @@ const LEGACY_ROOT_UTILITY_FILES = new Set([
   "lib/crud.ts",
   "lib/schemas.ts",
   "lib/validation.ts",
+]);
+const LEGACY_ROOT_PERIOD_FILES = new Set([
+  "lib/period-core.ts",
+  "lib/period-options.ts",
+  "lib/period-types.ts",
+  "lib/period.ts",
 ]);
 const API_VALIDATION_SIGNAL_REGEX = /\b(safeParse|parse)\s*\(|\bz\s*\.|\bparseJson\s*\(|\bvalidateCompatibilityProxyBody\s*\(|\bcreateValidatedIdProxyHandler\s*\(|\bparseRouteId(Params)?\s*\(/;
 const ROUTE_PRIMITIVE_IMPORTS: Record<RoutePrimitiveSchemaKind, string> = {
@@ -878,6 +888,45 @@ function findLegacyRootPermissionsImports(files: SourceInfo[]) {
     .sort();
 }
 
+function isLegacyRootPeriodSpecifier(specifier: string) {
+  return specifier === "@/lib/period" ||
+    specifier === "@/lib/period-core" ||
+    specifier === "@/lib/period-options" ||
+    specifier === "@/lib/period-types" ||
+    specifier === "./lib/period" ||
+    specifier === "./lib/period-core" ||
+    specifier === "./lib/period-options" ||
+    specifier === "./lib/period-types" ||
+    /^(?:\.\.\/)+lib\/period(?:-(?:core|options|types))?$/.test(specifier);
+}
+
+function isPureCorePeriodReExport(file: SourceInfo) {
+  return file.imports.length > 0 &&
+    file.imports.every((item) => item.specifier === "@workspace/core/period") &&
+    file.sourceFile.statements.every((statement) => (
+      ts.isExportDeclaration(statement) ||
+      statement.kind === ts.SyntaxKind.EndOfFileToken
+    ));
+}
+
+function findLegacyRootPeriodImplementationFiles(files: SourceInfo[]) {
+  return files
+    .filter((file) => LEGACY_ROOT_PERIOD_FILES.has(file.relPath))
+    .filter((file) => !isPureCorePeriodReExport(file))
+    .map((file) => file.relPath)
+    .sort();
+}
+
+function findLegacyRootPeriodImports(files: SourceInfo[]) {
+  return files
+    .flatMap((file) => (
+      file.imports
+        .filter((item) => isLegacyRootPeriodSpecifier(item.specifier))
+        .map((item) => `${file.relPath}: ${item.specifier}`)
+    ))
+    .sort();
+}
+
 function findAppHookFiles(hooks: HookPatternCandidate[]) {
   return hooks
     .filter((hook) => hook.file.startsWith("app/hooks/"))
@@ -938,6 +987,8 @@ export function createLevel2Report(): Level2Report {
   const legacyRootPrismaImports = findLegacyRootPrismaImports(sourceFiles);
   const legacyRootPermissionsImplementationFiles = findLegacyRootPermissionsImplementationFiles(sourceFiles);
   const legacyRootPermissionsImports = findLegacyRootPermissionsImports(sourceFiles);
+  const legacyRootPeriodImplementationFiles = findLegacyRootPeriodImplementationFiles(sourceFiles);
+  const legacyRootPeriodImports = findLegacyRootPeriodImports(sourceFiles);
 
   return {
     level: "2",
@@ -972,6 +1023,8 @@ export function createLevel2Report(): Level2Report {
       legacyRootPrismaImports: legacyRootPrismaImports.length,
       legacyRootPermissionsImplementationFiles: legacyRootPermissionsImplementationFiles.length,
       legacyRootPermissionsImports: legacyRootPermissionsImports.length,
+      legacyRootPeriodImplementationFiles: legacyRootPeriodImplementationFiles.length,
+      legacyRootPeriodImports: legacyRootPeriodImports.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -1013,6 +1066,8 @@ export function createLevel2Report(): Level2Report {
       legacyRootPrismaImports,
       legacyRootPermissionsImplementationFiles,
       legacyRootPermissionsImports,
+      legacyRootPeriodImplementationFiles,
+      legacyRootPeriodImports,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,
