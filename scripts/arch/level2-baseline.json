@@ -4,7 +4,6 @@
   "apiRouteMethodsWithoutValidationSignal": [
     "DELETE /api/hr/departments",
     "DELETE /api/hr/departments/:param",
-    "DELETE /api/hr/edps/:param",
     "DELETE /api/hr/employee-projects/:param",
     "DELETE /api/hr/employees/:param",
     "DELETE /api/hr/employments/:param",
@@ -18,7 +17,6 @@
     "POST /api/employee-positions",
     "POST /api/employee-projects",
     "POST /api/hr/departments",
-    "POST /api/hr/edps",
     "POST /api/hr/employee-projects",
     "POST /api/hr/employees",
     "POST /api/hr/employments",
@@ -32,7 +30,6 @@
     "POST /api/works",
     "PUT /api/hr/departments",
     "PUT /api/hr/departments/:param",
-    "PUT /api/hr/edps/:param",
     "PUT /api/hr/employee-profiles/:param/contracts",
     "PUT /api/hr/employee-profiles/:param/edps",
     "PUT /api/hr/employee-profiles/:param/projects",
