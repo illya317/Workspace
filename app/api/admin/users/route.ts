@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
-import { authenticate, checkPermission } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { listAdminUsers } from "./admin-user-list";
+import { z } from "zod";
+import { authenticate, authorize } from "@workspace/platform/server/auth";
+import { createAdminUser, listAdminUsers } from "@workspace/platform/server/users";
+
+const createAdminUserSchema = z.object({
+  name: z.string().trim().min(1),
+  username: z.string().trim().optional().nullable(),
+});
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkPermission(payload.userId, "system", "admin"))) {
+  if (!(await authorize({ user: payload.userId, resourceKey: "system", action: "admin" }))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
@@ -16,16 +21,13 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkPermission(payload.userId, "system", "admin"))) {
+  if (!(await authorize({ user: payload.userId, resourceKey: "system", action: "admin" }))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 
-  const body = await request.json();
-  const { name, username } = body;
-  if (!name) return NextResponse.json({ error: "姓名为必填" }, { status: 400 });
+  const parsed = createAdminUserSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return NextResponse.json({ error: "姓名为必填" }, { status: 400 });
 
-  const user = await prisma.user.create({
-    data: { name, username: username || null, canLogin: true },
-  });
+  const user = await createAdminUser(parsed.data);
   return NextResponse.json({ user });
 }

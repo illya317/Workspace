@@ -56,6 +56,10 @@ const baselineSets = {
   directRbacTableFiles: new Set(baseline.directRbacTableFiles),
 };
 
+function isRbacServiceFile(rel: string) {
+  return rel.startsWith("server/rbac/");
+}
+
 class ArchViolation extends Error {
   constructor(readonly violation: Violation) {
     super(`${violation.file} [${violation.rule}] ${violation.message}`);
@@ -266,7 +270,11 @@ function scanFile(filePath: string) {
         RBAC_MODEL_NAMES.has(name) &&
         ts.isIdentifier(node.expression) &&
         node.expression.text === "prisma";
-      if ((isRbacGrantTable || isPrismaRbacModel) && !baselineSets.directRbacTableFiles.has(rel)) {
+      if (
+        (isRbacGrantTable || isPrismaRbacModel) &&
+        !isRbacServiceFile(rel) &&
+        !baselineSets.directRbacTableFiles.has(rel)
+      ) {
         fail(rel, "direct-rbac-table", `direct RBAC table/model access "${name}" is forbidden outside authorize/RBAC services`);
       }
     }

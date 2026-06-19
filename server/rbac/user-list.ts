@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { isSystemAdminBypassEnabled } from "@workspace/platform/server/auth";
+import { isSystemAdminBypassEnabled } from "./bypass";
 
 type RoleKey = "access" | "write";
 
@@ -59,7 +59,7 @@ function buildResourceMaps(resources: ResourceLite[]) {
   return { byId, descendants, ancestors };
 }
 
-export async function listAdminUsers() {
+export async function listUsersWithEffectiveResourceRoles() {
   const users = await prisma.user.findMany({
     orderBy: { id: "asc" },
     select: { id: true, username: true, name: true, canLogin: true },
@@ -89,23 +89,23 @@ export async function listAdminUsers() {
   const allPositionIds = new Set<number>();
   const allDepartmentIds = new Set<number>();
 
-  for (const e of employees) {
-    if (e.userId == null) continue;
-    empByUser[e.userId] = { name: e.name, employeeId: e.employeeId };
-    const posSet = positionIdsByUser.get(e.userId) || new Set<number>();
-    const deptSet = departmentIdsByUser.get(e.userId) || new Set<number>();
-    for (const p of e.positions) {
-      if (p.positionId != null) {
-        posSet.add(p.positionId);
-        allPositionIds.add(p.positionId);
+  for (const employee of employees) {
+    if (employee.userId == null) continue;
+    empByUser[employee.userId] = { name: employee.name, employeeId: employee.employeeId };
+    const positionSet = positionIdsByUser.get(employee.userId) || new Set<number>();
+    const departmentSet = departmentIdsByUser.get(employee.userId) || new Set<number>();
+    for (const position of employee.positions) {
+      if (position.positionId != null) {
+        positionSet.add(position.positionId);
+        allPositionIds.add(position.positionId);
       }
-      if (p.departmentId != null) {
-        deptSet.add(p.departmentId);
-        allDepartmentIds.add(p.departmentId);
+      if (position.departmentId != null) {
+        departmentSet.add(position.departmentId);
+        allDepartmentIds.add(position.departmentId);
       }
     }
-    positionIdsByUser.set(e.userId, posSet);
-    departmentIdsByUser.set(e.userId, deptSet);
+    positionIdsByUser.set(employee.userId, positionSet);
+    departmentIdsByUser.set(employee.userId, departmentSet);
   }
 
   const [positionRows, departmentRows, bypassEnabled] = await Promise.all([
@@ -148,13 +148,13 @@ export async function listAdminUsers() {
   for (const row of userRows) addGrant(row.userId, row.resourceId, row.role.key);
 
   for (const user of users) {
-    const posSet = positionIdsByUser.get(user.id) || new Set<number>();
-    const deptSet = departmentIdsByUser.get(user.id) || new Set<number>();
+    const positionSet = positionIdsByUser.get(user.id) || new Set<number>();
+    const departmentSet = departmentIdsByUser.get(user.id) || new Set<number>();
     for (const row of positionRows) {
-      if (posSet.has(row.positionId)) addGrant(user.id, row.resourceId, row.role.key);
+      if (positionSet.has(row.positionId)) addGrant(user.id, row.resourceId, row.role.key);
     }
     for (const row of departmentRows) {
-      if (deptSet.has(row.departmentId)) addGrant(user.id, row.resourceId, row.role.key);
+      if (departmentSet.has(row.departmentId)) addGrant(user.id, row.resourceId, row.role.key);
     }
   }
 
@@ -166,17 +166,17 @@ export async function listAdminUsers() {
     }
   }
 
-  return users.map((u) => {
-    const grants = grantsByUser.get(u.id) || new Map<string, RoleKey>();
+  return users.map((user) => {
+    const grants = grantsByUser.get(user.id) || new Map<string, RoleKey>();
     const resourceRoles = [...grants].map(([resourceKey, roleKey]) => ({ resourceKey, roleKey }));
 
     return {
-      id: u.id,
-      username: u.username,
-      name: empByUser[u.id]?.name || u.name,
-      employeeId: empByUser[u.id]?.employeeId || null,
-      canLogin: u.canLogin,
-      isWorkListAdmin: adminUserIds.has(u.id),
+      id: user.id,
+      username: user.username,
+      name: empByUser[user.id]?.name || user.name,
+      employeeId: empByUser[user.id]?.employeeId || null,
+      canLogin: user.canLogin,
+      isWorkListAdmin: adminUserIds.has(user.id),
       resourceRoles,
     };
   });

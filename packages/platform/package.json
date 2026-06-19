@@ -27,6 +27,7 @@
     "./server/security": "./server/security.ts",
     "./server/system-config": "./server/system-config.ts",
     "./server/user-preferences": "./server/user-preferences.ts",
+    "./server/users": "./server/users.ts",
     "./types": "./types/index.ts",
     "./ui/docs": "./ui/docs/index.ts",
     "./ui/settings": "./ui/settings/index.ts",

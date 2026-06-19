@@ -20,6 +20,7 @@ type GrantResult = Array<{
   scopeId: string | null;
 }>;
 
+
 export async function getUserPermissions(userId: number): Promise<GrantResult> {
   const [direct, posIds, deptIds] = await Promise.all([
     prisma.userResourceRole.findMany({

@@ -47,3 +47,8 @@ export {
   checkWorkDelete,
   checkWorksAccess,
 } from "../../../server/auth/domain";
+export {
+  getUserDepartmentAdmins,
+  getUserPermissions,
+} from "../../../server/rbac/queries";
+export { listUsersWithEffectiveResourceRoles } from "../../../server/rbac/user-list";

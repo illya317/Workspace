@@ -221,7 +221,6 @@
     "app/api/admin/permissions/route.ts",
     "app/api/admin/position-permissions/route.ts",
     "app/api/admin/projects/route.ts",
-    "app/api/admin/users/route.ts",
     "app/api/agent/capabilities/route.ts",
     "app/api/agent/route.ts",
     "app/api/hr/employee-projects/route.ts",
@@ -256,15 +255,6 @@
     "app/api/admin/permissions/route.ts",
     "app/api/admin/position-permissions/route.ts",
     "app/api/admin/users/[id]/route.ts",
-    "app/api/admin/users/admin-user-list.ts",
-    "server/dal/dict-cache.ts",
-    "server/rbac/admin-scope.ts",
-    "server/rbac/check.ts",
-    "server/rbac/context.ts",
-    "server/rbac/grants.ts",
-    "server/rbac/maxRole.ts",
-    "server/rbac/queries.ts",
-    "server/rbac/resource.ts",
-    "server/rbac/visibility.ts"
+    "server/dal/dict-cache.ts"
   ]
 }
