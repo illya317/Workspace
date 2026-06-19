@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceAnalysisAccess } from "@/lib/with-auth";
+import { withFinanceAnalysisAccess } from "@workspace/platform/server/with-auth";
 import { getBudgetAnalysis } from "@workspace/finance/server/analysis/budget-analysis";
 
 export const GET = withFinanceAnalysisAccess(async (request: Request) => {

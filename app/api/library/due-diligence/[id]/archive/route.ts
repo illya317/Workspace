@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { withLibraryWrite } from "@/lib/with-auth";
-import type { RouteContext } from "@/lib/with-auth";
+import { withLibraryWrite } from "@workspace/platform/server/with-auth";
+import type { RouteContext } from "@workspace/platform/server/with-auth";
 import { parseRouteId } from "@workspace/platform/server/api";
 import { archiveRequest } from "@workspace/library/server/archive";
 import { getMaxConfidentialityLevel } from "@workspace/library/server/permissions";

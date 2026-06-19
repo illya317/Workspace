@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceBudgetWrite } from "@/lib/with-auth";
+import { withFinanceBudgetWrite } from "@workspace/platform/server/with-auth";
 import { activateBudgetVersion } from "@workspace/finance/server/budget/budget-version";
 import { budgetVersionIdSchema } from "@workspace/finance/server/budget/schemas";
 

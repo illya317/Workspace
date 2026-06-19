@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
+import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
 import { listReclassResults } from "@workspace/finance/server/ledger/reclass-results/list";
 import {
   buildReclassResultsSchema,

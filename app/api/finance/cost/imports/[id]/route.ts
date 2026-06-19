@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceCostAccess, withFinanceCostDelete } from "@/lib/with-auth";
+import { withFinanceCostAccess, withFinanceCostDelete } from "@workspace/platform/server/with-auth";
 import { deleteImportById, getImportById } from "@workspace/finance/server/cost";
 import { costImportIdSchema } from "@workspace/finance/server/cost/import-schemas";
 

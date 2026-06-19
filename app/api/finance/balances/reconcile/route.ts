@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withFinanceLedgerWrite } from "@/lib/with-auth";
+import { withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
 import { reconcileBalanceSheet } from "@workspace/finance/server/ledger/balance-reconcile";
 
 const reconcileFormSchema = z.object({

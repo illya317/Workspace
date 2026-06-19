@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withLibraryWrite } from "@/lib/with-auth";
-import type { RouteContext } from "@/lib/with-auth";
+import { withLibraryWrite } from "@workspace/platform/server/with-auth";
+import type { RouteContext } from "@workspace/platform/server/with-auth";
 import { getMaxConfidentialityLevel } from "@workspace/library/server/permissions";
 import { getGenerator } from "@workspace/library/server/generators/registry";
 import { upsertGeneratedDocument } from "@workspace/library/server/generators/generated-document";

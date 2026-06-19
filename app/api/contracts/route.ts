@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withContractAccess } from "@/lib/with-auth";
+import { withContractAccess } from "@workspace/platform/server/with-auth";
 import { ContractCreateSchema, createContract, listContracts } from "@workspace/administration/server";
 
 export const GET = withContractAccess(async (request) => {

@@ -10,6 +10,8 @@
   "legacyAuthHubFiles": [],
   "legacyRootAccessFiles": [],
   "legacyRootUtilityFiles": [],
+  "legacyRootWithAuthFiles": [],
+  "legacyRootWithAuthImports": [],
   "repeatedServiceGroups": [],
   "routePrimitiveSchemaDuplicates": [],
   "apiRouteHelperDuplicates": []

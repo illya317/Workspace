@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceLedgerWrite } from "@/lib/with-auth";
+import { withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
 import { initializeFinanceDefaults } from "@workspace/finance/server/ledger/periods";
 
 const initFinanceSchema = z.object({

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceLedgerWrite, withFinanceLedgerDelete } from "@/lib/with-auth";
+import { withFinanceLedgerWrite, withFinanceLedgerDelete } from "@workspace/platform/server/with-auth";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import {
   deleteFinancePeriod,

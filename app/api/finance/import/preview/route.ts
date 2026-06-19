@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceImportAccess } from "@/lib/with-auth";
+import { withFinanceImportAccess } from "@workspace/platform/server/with-auth";
 import { parseBalanceSheet, parseJournal, parseAccountTable } from "@workspace/finance/server/import/import";
 import { importPreviewFormSchema } from "@workspace/finance/server/import/schemas";
 

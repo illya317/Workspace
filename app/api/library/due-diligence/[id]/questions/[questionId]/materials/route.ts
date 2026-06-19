@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withLibraryAccess, withLibraryWrite } from "@/lib/with-auth";
-import type { RouteContext } from "@/lib/with-auth";
+import { withLibraryAccess, withLibraryWrite } from "@workspace/platform/server/with-auth";
+import type { RouteContext } from "@workspace/platform/server/with-auth";
 import {
   getMaterialSelectionAccess,
   listQuestionMaterialSelections,

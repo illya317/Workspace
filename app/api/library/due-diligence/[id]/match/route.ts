@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { withLibraryWrite } from "@/lib/with-auth";
-import type { RouteContext } from "@/lib/with-auth";
+import { withLibraryWrite } from "@workspace/platform/server/with-auth";
+import type { RouteContext } from "@workspace/platform/server/with-auth";
 import { parseRouteId } from "@workspace/platform/server/api";
 import { getRequest, clearMaterialSelections, createMaterialSelections } from "@workspace/library/server/due-diligence";
 import { matchDocumentsForQuestion } from "@workspace/library/server/matching";

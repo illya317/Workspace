@@ -1,39 +1,40 @@
 import { NextResponse } from "next/server";
+
 import {
   authenticate,
   isKicked,
-} from "@/server/auth/authenticate";
+} from "../../../server/auth/authenticate";
 import {
-  checkHRAccess,
-  checkHRWrite,
-  checkHRDelete,
-  checkFinanceAccess,
-  checkFinanceWrite,
-  checkFinanceDelete,
-  checkFinanceCostAccess,
-  checkFinanceCostWrite,
-  checkFinanceCostDelete,
-  checkFinanceLedgerAccess,
-  checkFinanceLedgerWrite,
-  checkFinanceLedgerDelete,
-  checkFinanceReportAccess,
-  checkFinanceReportWrite,
-  checkFinanceReportDelete,
-  checkFinanceBudgetAccess,
-  checkFinanceBudgetWrite,
-  checkFinanceBudgetDelete,
-  checkFinanceAnalysisAccess,
-  checkFinanceAnalysisWrite,
-  checkFinanceAnalysisDelete,
-  checkFinanceImportAccess,
-  checkFinanceImportWrite,
-  checkFinanceImportDelete,
-  checkInventoryAccess,
   checkContractAccess,
+  checkFinanceAccess,
+  checkFinanceAnalysisAccess,
+  checkFinanceAnalysisDelete,
+  checkFinanceAnalysisWrite,
+  checkFinanceBudgetAccess,
+  checkFinanceBudgetDelete,
+  checkFinanceBudgetWrite,
+  checkFinanceCostAccess,
+  checkFinanceCostDelete,
+  checkFinanceCostWrite,
+  checkFinanceDelete,
+  checkFinanceImportAccess,
+  checkFinanceImportDelete,
+  checkFinanceImportWrite,
+  checkFinanceLedgerAccess,
+  checkFinanceLedgerDelete,
+  checkFinanceLedgerWrite,
+  checkFinanceReportAccess,
+  checkFinanceReportDelete,
+  checkFinanceReportWrite,
+  checkFinanceWrite,
+  checkHRAccess,
+  checkHRDelete,
+  checkHRWrite,
+  checkInventoryAccess,
   checkLibraryAccess,
   checkLibraryWrite,
-} from "@/server/auth/domain";
-import type { AuthPayload } from "@/lib/auth/token";
+} from "../../../server/auth/domain";
+import type { AuthPayload } from "../../../lib/auth/token";
 
 export type { AuthPayload };
 
@@ -55,17 +56,17 @@ export function withAuth(
     const payload = await authenticate(req);
     if (!payload) {
       if (await isKicked(req)) {
-        const res = NextResponse.json(
+        const response = NextResponse.json(
           { error: "已在其他设备登录" },
           { status: 401 },
         );
-        res.cookies.set("kicked", "1", {
+        response.cookies.set("kicked", "1", {
           httpOnly: false,
           secure: false,
           path: "/",
           maxAge: 60,
         });
-        return res;
+        return response;
       }
       return NextResponse.json({ error: "未登录" }, { status: 401 });
     }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withLibraryWrite } from "@/lib/with-auth";
+import { withLibraryWrite } from "@workspace/platform/server/with-auth";
 import { scanLibrary } from "@workspace/library/server/scan";
 
 const scanRequestSchema = z.object({}).passthrough();

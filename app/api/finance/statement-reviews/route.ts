@@ -1,6 +1,6 @@
 /** P3 Batch 3: review GET (read) + POST (generate from workpaper). */
 import { NextResponse } from "next/server";
-import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
+import { withFinanceReportAccess, withFinanceReportWrite } from "@workspace/platform/server/with-auth";
 import { generateReview, getReview } from "@workspace/finance/server/statements/reviews/service";
 import {
   generateReviewSchema,

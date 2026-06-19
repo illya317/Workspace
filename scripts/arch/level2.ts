@@ -120,6 +120,8 @@ type Level2Report = {
     legacyAuthHubFiles: number;
     legacyRootAccessFiles: number;
     legacyRootUtilityFiles: number;
+    legacyRootWithAuthFiles: number;
+    legacyRootWithAuthImports: number;
   };
   registries: {
     modules: Array<{
@@ -153,6 +155,8 @@ type Level2Report = {
     legacyAuthHubFiles: string[];
     legacyRootAccessFiles: string[];
     legacyRootUtilityFiles: string[];
+    legacyRootWithAuthFiles: string[];
+    legacyRootWithAuthImports: string[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -793,6 +797,23 @@ function findLegacyRootUtilityFiles(files: SourceInfo[]) {
     .sort();
 }
 
+function findLegacyRootWithAuthFiles(files: SourceInfo[]) {
+  return files
+    .filter((file) => file.relPath === "lib/with-auth.ts")
+    .map((file) => file.relPath)
+    .sort();
+}
+
+function findLegacyRootWithAuthImports(files: SourceInfo[]) {
+  return files
+    .flatMap((file) => (
+      file.imports
+        .filter((item) => item.specifier === "@/lib/with-auth")
+        .map((item) => `${file.relPath}: ${item.specifier}`)
+    ))
+    .sort();
+}
+
 function findAppHookFiles(hooks: HookPatternCandidate[]) {
   return hooks
     .filter((hook) => hook.file.startsWith("app/hooks/"))
@@ -847,6 +868,8 @@ export function createLevel2Report(): Level2Report {
   const legacyAuthHubFiles = findLegacyAuthHubFiles(sourceFiles);
   const legacyRootAccessFiles = findLegacyRootAccessFiles(sourceFiles);
   const legacyRootUtilityFiles = findLegacyRootUtilityFiles(sourceFiles);
+  const legacyRootWithAuthFiles = findLegacyRootWithAuthFiles(sourceFiles);
+  const legacyRootWithAuthImports = findLegacyRootWithAuthImports(sourceFiles);
 
   return {
     level: "2",
@@ -875,6 +898,8 @@ export function createLevel2Report(): Level2Report {
       legacyAuthHubFiles: legacyAuthHubFiles.length,
       legacyRootAccessFiles: legacyRootAccessFiles.length,
       legacyRootUtilityFiles: legacyRootUtilityFiles.length,
+      legacyRootWithAuthFiles: legacyRootWithAuthFiles.length,
+      legacyRootWithAuthImports: legacyRootWithAuthImports.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -910,6 +935,8 @@ export function createLevel2Report(): Level2Report {
       legacyAuthHubFiles,
       legacyRootAccessFiles,
       legacyRootUtilityFiles,
+      legacyRootWithAuthFiles,
+      legacyRootWithAuthImports,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,

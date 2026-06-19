@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { withFinanceReportAccess } from "@/lib/with-auth";
+import { withFinanceReportAccess } from "@workspace/platform/server/with-auth";
 import { jsonBadRequest } from "@workspace/platform/server/api";
 import { generateFinanceReport } from "@workspace/finance/server/statements/report-generator";
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withAuth, type RouteContext } from "@/lib/with-auth";
+import { withAuth, type RouteContext } from "@workspace/platform/server/with-auth";
 import { authorize } from "@workspace/platform/server/auth";
 import { submitQcBatch } from "@workspace/production/server/qc";
 

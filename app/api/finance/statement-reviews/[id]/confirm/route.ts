@@ -1,6 +1,6 @@
 /** P3 Batch 3: POST /api/finance/statement-reviews/[id]/confirm — confirm review. */
 import { NextResponse } from "next/server";
-import { withFinanceReportWrite } from "@/lib/with-auth";
+import { withFinanceReportWrite } from "@workspace/platform/server/with-auth";
 import { confirmReview } from "@workspace/finance/server/statements/reviews/service";
 import { reviewIdSchema } from "@workspace/finance/server/statements/reviews/schemas";
 

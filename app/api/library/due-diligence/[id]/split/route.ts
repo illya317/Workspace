@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withLibraryWrite } from "@/lib/with-auth";
-import type { RouteContext } from "@/lib/with-auth";
+import { withLibraryWrite } from "@workspace/platform/server/with-auth";
+import type { RouteContext } from "@workspace/platform/server/with-auth";
 import { parseRouteId } from "@workspace/platform/server/api";
 import { getRequest, createQuestions, splitQuestionnaire } from "@workspace/library/server/due-diligence";
 

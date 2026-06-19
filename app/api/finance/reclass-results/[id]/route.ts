@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceLedgerWrite } from "@/lib/with-auth";
+import { withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
 import {
   reviewReclassResult,
   createManualReclassResult,

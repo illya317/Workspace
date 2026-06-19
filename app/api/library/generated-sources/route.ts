@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withLibraryAccess } from "@/lib/with-auth";
+import { withLibraryAccess } from "@workspace/platform/server/with-auth";
 import { listEnabledGeneratedSources } from "@workspace/library/server";
 
 export const GET = withLibraryAccess(async () => {

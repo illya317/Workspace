@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceCostAccess } from "@/lib/with-auth";
+import { withFinanceCostAccess } from "@workspace/platform/server/with-auth";
 import { costQuerySchema, listCostStructure, getCostStructureSummary } from "@workspace/finance/server/cost";
 
 export async function GET(request: Request) {

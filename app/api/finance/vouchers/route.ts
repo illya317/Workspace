@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
+import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
 import { jsonBadRequest, jsonResultResponse } from "@workspace/platform/server/api";
 import { createVoucher, listVouchers } from "@workspace/finance/server/ledger/voucher-service";
 

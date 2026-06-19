@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
+import { withFinanceReportAccess, withFinanceReportWrite } from "@workspace/platform/server/with-auth";
 import {
   getStatementConfigView,
   saveStatementConfigLines,

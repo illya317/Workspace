@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceLedgerAccess } from "@/lib/with-auth";
+import { withFinanceLedgerAccess } from "@workspace/platform/server/with-auth";
 import { deriveRows } from "@workspace/finance/server/ledger/reclass-results/derived";
 
 export const GET = withFinanceLedgerAccess(async (request) => {

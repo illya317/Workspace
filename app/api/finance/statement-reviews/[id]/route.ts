@@ -1,6 +1,6 @@
 /** P3 Batch 3: PUT /api/finance/statement-reviews/[id] — update review lines (partial). */
 import { NextResponse } from "next/server";
-import { withFinanceReportWrite } from "@/lib/with-auth";
+import { withFinanceReportWrite } from "@workspace/platform/server/with-auth";
 import { updateReviewLines } from "@workspace/finance/server/statements/reviews/service";
 import {
   reviewIdSchema,

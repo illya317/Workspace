@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withLibraryAccess } from "@/lib/with-auth";
+import { withLibraryAccess } from "@workspace/platform/server/with-auth";
 import { listDirectories } from "@workspace/library/server/directories";
 import { buildConfidentialityFilter } from "@workspace/library/server/permissions";
 

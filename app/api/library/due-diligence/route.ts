@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withLibraryAccess, withLibraryWrite } from "@/lib/with-auth";
+import { withLibraryAccess, withLibraryWrite } from "@workspace/platform/server/with-auth";
 import { listRequests, createRequest } from "@workspace/library/server/due-diligence";
 
 const createRequestSchema = z.object({

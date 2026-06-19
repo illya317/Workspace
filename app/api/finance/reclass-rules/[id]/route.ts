@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { withFinanceLedgerWrite } from "@/lib/with-auth";
+import { withFinanceLedgerWrite } from "@workspace/platform/server/with-auth";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { deleteReclassRule } from "@workspace/finance/server/ledger/reclass-rules";
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withAuth } from "@/lib/with-auth";
+import { withAuth } from "@workspace/platform/server/with-auth";
 import { authorize } from "@workspace/platform/server/auth";
 import { createQcBatch, listQcBatches } from "@workspace/production/server/qc";
 

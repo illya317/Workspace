@@ -2,7 +2,7 @@
  *  PUT 是全量保存：payload 里的 lines 完全替换该底稿的现有行。
  *  不在 payload 中的 lineCode 会被删除。 */
 import { NextResponse } from "next/server";
-import { withFinanceReportAccess, withFinanceReportWrite } from "@/lib/with-auth";
+import { withFinanceReportAccess, withFinanceReportWrite } from "@workspace/platform/server/with-auth";
 import { getOrCreateDraft, saveWorkpaper } from "@workspace/finance/server/statements/workpapers/service";
 import {
   saveWorkpaperSchema,

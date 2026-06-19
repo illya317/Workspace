@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceReportAccess } from "@/lib/with-auth";
+import { withFinanceReportAccess } from "@workspace/platform/server/with-auth";
 import { computeReclassification } from "@workspace/finance/server/schedules/reclassify";
 
 export const GET = withFinanceReportAccess(async (request: Request) => {

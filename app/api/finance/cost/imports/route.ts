@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceCostAccess, withFinanceCostWrite } from "@/lib/with-auth";
+import { withFinanceCostAccess, withFinanceCostWrite } from "@workspace/platform/server/with-auth";
 import { listImports } from "@workspace/finance/server/cost";
 import { unsupportedCostImportPayloadSchema } from "@workspace/finance/server/cost/import-schemas";
 

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { withLibraryAccess } from "@/lib/with-auth";
-import type { RouteContext } from "@/lib/with-auth";
+import { withLibraryAccess } from "@workspace/platform/server/with-auth";
+import type { RouteContext } from "@workspace/platform/server/with-auth";
 import { getDocument } from "@workspace/library/server/metadata";
 import { getDocumentVersions } from "@workspace/library/server/versions";
 import { getMaxConfidentialityLevel } from "@workspace/library/server/permissions";

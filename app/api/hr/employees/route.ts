@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { withHRAccess, withHRWrite } from "@/lib/with-auth";
+import { withHRAccess, withHRWrite } from "@workspace/platform/server/with-auth";
 import { createEmployeeWithAccount, listEmployees } from "@workspace/hr/server";
 
 const employeesQuerySchema = z.object({

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { withFinanceImportWrite } from "@/lib/with-auth";
+import { withFinanceImportWrite } from "@workspace/platform/server/with-auth";
 import { confirmFinanceImport } from "@workspace/finance/server/import/import-confirm";
 import { importConfirmBodySchema } from "@workspace/finance/server/import/schemas";
 

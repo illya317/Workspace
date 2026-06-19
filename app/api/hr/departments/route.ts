@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { withHRAccess, withHRDelete, withHRWrite } from "@/lib/with-auth";
+import { withHRAccess, withHRDelete, withHRWrite } from "@workspace/platform/server/with-auth";
 import { jsonServiceResponse, routeIdParamsSchema, validateCompatibilityProxyBody } from "@workspace/platform/server/api";
 import { createDepartment, deleteDepartment, listDepartments, updateDepartment } from "@workspace/hr/server";
 

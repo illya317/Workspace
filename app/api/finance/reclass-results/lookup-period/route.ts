@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceLedgerAccess } from "@/lib/with-auth";
+import { withFinanceLedgerAccess } from "@workspace/platform/server/with-auth";
 import { lookupFinancePeriodId } from "@workspace/finance/server/ledger/periods";
 
 const lookupPeriodQuerySchema = z.object({
