@@ -2,13 +2,16 @@
  * Finance 相关 Agent 工具。
  * 不搬业务逻辑，只做权限校验 + 调用领域 service。
  */
-import type { SessionUser } from "@/lib/types";
-import type { AgentTool } from "./registry";
-import { getActiveVersion } from "@workspace/finance/server/budget/budget-version";
+import type { AgentTool } from "@workspace/platform/server/agent";
+import type { SessionUser } from "@workspace/platform/types";
+
 import {
-  readDeptBudget, readRdBudget,
-  loadDeptBudgetFromDb, loadRdBudgetFromDb,
-} from "@workspace/finance/server/budget/budget-data";
+  loadDeptBudgetFromDb,
+  loadRdBudgetFromDb,
+  readDeptBudget,
+  readRdBudget,
+} from "./budget/budget-data";
+import { getActiveVersion } from "./budget/budget-version";
 
 export const queryBudgetTool: AgentTool = {
   key: "finance.queryBudget",
@@ -55,3 +58,5 @@ export const queryBudgetTool: AgentTool = {
     };
   },
 };
+
+export const financeAgentTools: AgentTool[] = [queryBudgetTool];

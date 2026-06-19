@@ -5,8 +5,9 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/server/auth/session";
 import { checkPermission } from "@/lib/auth";
-import { processMessage } from "@/server/services/agent/orchestrator";
-import type { HistoryMessage } from "@/server/services/agent/model/provider";
+import { financeAgentTools } from "@workspace/finance/server/agent-tools";
+import { hrAgentTools } from "@workspace/hr/server/agent-tools";
+import { processMessage, type HistoryMessage } from "@workspace/platform/server/agent";
 
 export async function POST(request: Request) {
   const user = await getCurrentUser();
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const response = await processMessage(body.message.trim(), user, history);
+    const response = await processMessage(body.message.trim(), user, [...hrAgentTools, ...financeAgentTools], history);
     return NextResponse.json(response);
   } catch (err) {
     const message = err instanceof Error ? err.message : "Internal error";

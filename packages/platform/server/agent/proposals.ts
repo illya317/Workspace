@@ -2,8 +2,8 @@
  * Agent Proposal 服务。
  * 创建 → 用户确认 → 二次鉴权 → 执行写入 → 更新状态。
  */
-import { prisma } from "@/lib/prisma";
-import type { SessionUser } from "@/lib/types";
+import { prisma } from "@workspace/platform/server/prisma";
+import type { SessionUser } from "@workspace/platform/types";
 
 export interface ProposalInput {
   actionKey: string;
@@ -18,6 +18,13 @@ export interface ProposalResult {
   status: string;
   message: string;
 }
+
+export type ProposalExecutor = (
+  payload: Record<string, unknown>,
+  user: SessionUser,
+) => Promise<unknown>;
+
+export type ProposalExecutors = Record<string, ProposalExecutor>;
 
 /** 创建待确认变更（不执行写入） */
 export async function createProposal(
@@ -82,6 +89,23 @@ export async function confirmProposal(
     });
     throw err;
   }
+}
+
+export async function confirmProposalAction(
+  proposalId: number,
+  user: SessionUser,
+  executors: ProposalExecutors,
+): Promise<ProposalResult> {
+  const proposal = await prisma.agentProposal.findUnique({
+    where: { id: proposalId },
+    select: { actionKey: true },
+  });
+  if (!proposal) throw new Error("变更记录不存在");
+
+  const executor = executors[proposal.actionKey];
+  if (!executor) throw new Error(`未知 actionKey: ${proposal.actionKey}`);
+
+  return confirmProposal(proposalId, user, (payload) => executor(payload, user));
 }
 
 /** 取消待确认变更 */

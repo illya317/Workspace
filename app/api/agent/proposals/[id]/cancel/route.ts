@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/server/auth/session";
-import { cancelProposal } from "@/server/services/agent/proposals";
+import { cancelProposal } from "@workspace/platform/server/agent";
 
 export async function POST(
   _request: Request,

@@ -2,12 +2,14 @@
  * Agent 编排器。
  * 接收用户输入 → 意图分类 → 选择工具 → 权限二次校验 → 执行 → 总结 → 返回结果。
  */
-import type { SessionUser } from "@/lib/types";
+import type { SessionUser } from "@workspace/platform/types";
+
 import { buildCapabilities, findTool } from "./capabilities";
 import { deepseekProvider } from "./model/deepseek";
 import { noopProvider } from "./model/noop";
 import type { AgentModelProvider, HistoryMessage, IntentResult } from "./model/provider";
 import { buildClassifyPrompt, buildSummarizePrompt } from "./prompts";
+import type { AgentTool } from "./tools";
 
 export interface AgentResponse {
   type: "answer" | "error" | "clarification" | "proposal";
@@ -26,10 +28,11 @@ export interface AgentResponse {
 export async function processMessage(
   userMessage: string,
   user: SessionUser,
+  tools: AgentTool[],
   history?: HistoryMessage[],
   provider: AgentModelProvider = deepseekProvider,
 ): Promise<AgentResponse> {
-  const capabilities = buildCapabilities(user);
+  const capabilities = buildCapabilities(user, tools);
 
   if (capabilities.length === 0) {
     return {
@@ -64,7 +67,7 @@ export async function processMessage(
   }
 
   // 2. 查找工具
-  const tool = findTool(intent.tool, user);
+  const tool = findTool(intent.tool, user, tools);
   if (!tool) {
     return {
       type: "error",

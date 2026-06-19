@@ -2,9 +2,9 @@
  * 根据 SessionUser 权限生成可用能力清单。
  * Agent 只能使用当前用户有权限的工具。
  */
-import type { SessionUser } from "@/lib/types";
-import type { AgentTool } from "./tools/registry";
-import { TOOLS } from "./tools/registry";
+import type { SessionUser } from "@workspace/platform/types";
+
+import type { AgentTool } from "./tools";
 
 export interface Capability {
   key: string;
@@ -14,8 +14,8 @@ export interface Capability {
   source: "tool";
 }
 
-export function buildCapabilities(user: SessionUser): Capability[] {
-  return TOOLS
+export function buildCapabilities(user: SessionUser, tools: AgentTool[]): Capability[] {
+  return tools
     .filter((tool) => tool.canUse(user))
     .map((tool) => ({
       key: tool.key,
@@ -26,8 +26,8 @@ export function buildCapabilities(user: SessionUser): Capability[] {
 }
 
 /** 按 key 查找工具，同时校验权限 */
-export function findTool(key: string, user: SessionUser): AgentTool | null {
-  const tool = TOOLS.find((t) => t.key === key);
+export function findTool(key: string, user: SessionUser, tools: AgentTool[]): AgentTool | null {
+  const tool = tools.find((t) => t.key === key);
   if (!tool) return null;
   if (!tool.canUse(user)) return null;
   return tool;

@@ -9,9 +9,9 @@
 ```text
 app/components/agent/       # 浮窗、面板、输入、报告抽屉、确认弹窗
 app/api/agent/              # 对话入口 + capabilities + proposals
-server/services/agent/      # 编排、能力清单、工具注册、prompt、proposal 服务
-server/services/agent/tools/ # HR、Finance 工具适配器
-server/services/agent/model/ # LLM provider 接口 + MiniMax/noop 实现
+packages/platform/server/agent/ # 编排、能力清单、工具契约、prompt、proposal、LLM provider
+packages/hr/server/agent-tools.ts # HR 工具适配器与 HR proposal 执行器
+packages/finance/server/agent-tools.ts # Finance 工具适配器
 public/assets/agent/avatar/ # 头像图片资产
 ```
 
@@ -21,9 +21,10 @@ public/assets/agent/avatar/ # 头像图片资产
 AgentPanel
   → POST /api/agent {message, history}
     → authenticate (getCurrentUser)
-    → buildCapabilities(user) → 白名单工具列表
+    → inject domain agent tools
+    → buildCapabilities(user, tools) → 白名单工具列表
     → buildClassifyPrompt → LLM classifyIntent (MiniMax / noop fallback)
-    → findTool → 二次权限校验
+    → findTool(tools) → 二次权限校验
     → tool.execute → 调用领域 service
     → 查询: LLM summarizeResult → answer
     → 写入: createProposal → proposal (不写库)
@@ -35,7 +36,8 @@ AgentPanel
 ## 权限原则
 
 - Agent 只能使用当前登录人的权限
-- 所有工具白名单注册，mutates=true 只能返回 proposal
+- Platform 只拥有 Agent 内核；HR/Finance 工具适配器由对应业务包暴露
+- 所有工具通过 app/api/agent 注入，mutates=true 只能返回 proposal
 - confirm 时二次鉴权（同用户 + pending + 未过期 + write 权限）
 - 永无删除能力
 

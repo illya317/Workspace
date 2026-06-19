@@ -9,6 +9,7 @@
     "./import": "./import/index.ts",
     "./module": "./module.ts",
     "./server": "./server/index.ts",
+    "./server/agent-tools": "./server/agent-tools.ts",
     "./server/analysis/*": "./server/analysis/*.ts",
     "./server/budget/*": "./server/budget/*.ts",
     "./server/cost": "./server/cost/index.ts",

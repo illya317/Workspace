@@ -2,17 +2,6 @@
   "uncontractedApiRouteMethods": [],
   "appHookImplementationFiles": [],
   "domainUiCandidatesWithoutCore": [],
-  "legacyServiceFiles": [
-    "server/services/agent/capabilities.ts",
-    "server/services/agent/model/deepseek.ts",
-    "server/services/agent/model/noop.ts",
-    "server/services/agent/model/provider.ts",
-    "server/services/agent/orchestrator.ts",
-    "server/services/agent/prompts.ts",
-    "server/services/agent/proposals.ts",
-    "server/services/agent/tools/finance.ts",
-    "server/services/agent/tools/hr.ts",
-    "server/services/agent/tools/registry.ts"
-  ],
+  "legacyServiceFiles": [],
   "repeatedServiceGroups": []
 }

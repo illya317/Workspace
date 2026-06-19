@@ -5,7 +5,9 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/server/auth/session";
 import { checkPermission } from "@/lib/auth";
-import { buildCapabilities } from "@/server/services/agent/capabilities";
+import { financeAgentTools } from "@workspace/finance/server/agent-tools";
+import { hrAgentTools } from "@workspace/hr/server/agent-tools";
+import { buildCapabilities } from "@workspace/platform/server/agent";
 
 export async function GET() {
   const user = await getCurrentUser();
@@ -15,6 +17,6 @@ export async function GET() {
     return NextResponse.json({ error: "无权限使用智能体" }, { status: 403 });
   }
 
-  const capabilities = buildCapabilities(user);
+  const capabilities = buildCapabilities(user, [...hrAgentTools, ...financeAgentTools]);
   return NextResponse.json({ capabilities });
 }

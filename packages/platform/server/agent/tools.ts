@@ -1,8 +1,8 @@
 /**
- * Agent 工具注册表。
- * 所有工具在此声明权限绑定，Agent 不能绕过权限直接调用。
+ * Agent tool contracts.
+ * Platform owns orchestration; domain packages own concrete tool adapters.
  */
-import type { SessionUser } from "@/lib/types";
+import type { SessionUser } from "@workspace/platform/types";
 
 export interface AgentToolResult {
   type: "data" | "error" | "empty" | "proposal";
@@ -27,14 +27,3 @@ export interface AgentTool {
   canUse: (user: SessionUser) => boolean;
   execute: (params: Record<string, unknown>, user: SessionUser) => Promise<AgentToolResult>;
 }
-
-// 工具在此集中注册
-import { searchEmployeesTool, updateEmployeeDraftTool, batchUpdateEmployeeDraftTool } from "./hr";
-import { queryBudgetTool } from "./finance";
-
-export const TOOLS: AgentTool[] = [
-  searchEmployeesTool,
-  updateEmployeeDraftTool,
-  batchUpdateEmployeeDraftTool,
-  queryBudgetTool,
-];

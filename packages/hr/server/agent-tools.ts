@@ -2,10 +2,27 @@
  * HR 相关 Agent 工具。
  * 不搬业务逻辑，只做权限校验 + 调用领域 service。
  */
-import type { SessionUser } from "@/lib/types";
-import type { AgentTool } from "./registry";
-import { normalizeHrSchoolValue } from "@/lib/hr-school-options";
-import { queryRawEmployees } from "@workspace/hr/server/roster";
+import {
+  createProposal,
+  type AgentTool,
+  type ProposalExecutors,
+} from "@workspace/platform/server/agent";
+import { prisma } from "@workspace/platform/server/prisma";
+import type { SessionUser } from "@workspace/platform/types";
+
+import { normalizeHrSchoolValue } from "../constants/school-options";
+import { queryRawEmployees } from "./roster";
+
+const ALLOWED_FIELDS = ["education", "title", "phone", "school", "major", "alias", "hometown", "politics"];
+
+function normalizeAgentFieldValue(field: string, value: unknown) {
+  if (field === "school") {
+    const result = normalizeHrSchoolValue(value);
+    if (!result.ok) throw new Error(result.error);
+    return result.value;
+  }
+  return String(value ?? "");
+}
 
 export const searchEmployeesTool: AgentTool = {
   key: "hr.searchEmployees",
@@ -73,9 +90,8 @@ export const updateEmployeeDraftTool: AgentTool = {
     }
 
     // 允许修改的白名单字段
-    const allowedFields = ["education", "title", "phone", "school", "major", "alias", "hometown", "politics"];
-    if (!allowedFields.includes(field)) {
-      return { type: "error", message: `字段"${field}"不支持修改。支持：${allowedFields.join("、")}` };
+    if (!ALLOWED_FIELDS.includes(field)) {
+      return { type: "error", message: `字段"${field}"不支持修改。支持：${ALLOWED_FIELDS.join("、")}` };
     }
     const normalizedNewValue = field === "school" ? normalizeHrSchoolValue(newValue) : null;
     if (normalizedNewValue && !normalizedNewValue.ok) {
@@ -83,7 +99,6 @@ export const updateEmployeeDraftTool: AgentTool = {
     }
 
     // 查当前值：优先用工号，否则按姓名搜索
-    const { prisma } = await import("@/lib/prisma");
     let emp: { id: number; name: string } & Record<string, unknown> | null = null;
     if (employeeId) {
       const found = await prisma.employee.findUnique({
@@ -109,8 +124,6 @@ export const updateEmployeeDraftTool: AgentTool = {
     const finalNewValue = normalizedNewValue?.ok ? normalizedNewValue.value : newValue;
     const diff = { employeeId: actualId, name: emp.name, field, oldValue, newValue: finalNewValue };
 
-    // 创建 proposal（不写库）
-    const { createProposal } = await import("@/server/services/agent/proposals");
     const result = await createProposal(user, {
       actionKey: "hr.updateEmployee",
       targetType: "Employee",
@@ -149,9 +162,8 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
       return { type: "error", message: "缺少必填参数：filterField 或 updateField" };
     }
 
-    const allowedFields = ["education", "title", "phone", "school", "major", "alias", "hometown", "politics"];
-    if (!allowedFields.includes(filterField) || !allowedFields.includes(updateField)) {
-      return { type: "error", message: `字段不支持。允许：${allowedFields.join("、")}` };
+    if (!ALLOWED_FIELDS.includes(filterField) || !ALLOWED_FIELDS.includes(updateField)) {
+      return { type: "error", message: `字段不支持。允许：${ALLOWED_FIELDS.join("、")}` };
     }
     const normalizedUpdateValue = updateField === "school" ? normalizeHrSchoolValue(updateValue) : null;
     if (normalizedUpdateValue && !normalizedUpdateValue.ok) {
@@ -159,7 +171,6 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
     }
     const finalUpdateValue = normalizedUpdateValue?.ok ? normalizedUpdateValue.value : updateValue;
 
-    const { prisma } = await import("@/lib/prisma");
     // SQLite adapter 对 not: { contains } 支持不佳，走 JS 过滤
     const allRows = await prisma.employee.findMany({
       select: { id: true, employeeId: true, name: true, [filterField]: true, [updateField]: true },
@@ -187,8 +198,6 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
     const employeeIds = all.map((e) => e.employeeId);
     const diff = { filterField, filterOp, filterValue, updateField, updateValue: finalUpdateValue, count: all.length, sample: all.slice(0, 5).map((e) => ({ name: e.name, employeeId: e.employeeId, oldValue: (e as Record<string, unknown>)[updateField] })) };
 
-    // 创建 proposal
-    const { createProposal } = await import("@/server/services/agent/proposals");
     const result = await createProposal(user, {
       actionKey: "hr.batchUpdateEmployee",
       targetType: "Employee",
@@ -204,3 +213,46 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
     };
   },
 };
+
+export async function executeHrAgentProposal(
+  payload: Record<string, unknown>,
+  user: SessionUser,
+) {
+  if (!(user.visibleWriteResourceKeys || []).includes("people.roster")) {
+    throw new Error("无 HR 编辑权限");
+  }
+
+  const { field, value, employeeIds } = payload;
+  if (!field || typeof field !== "string") throw new Error("缺少参数 field");
+  if (!ALLOWED_FIELDS.includes(field)) throw new Error(`字段 ${field} 不允许修改`);
+  const normalizedValue = normalizeAgentFieldValue(field, value);
+
+  if (Array.isArray(employeeIds) && employeeIds.length > 0) {
+    if (employeeIds.length > 500) throw new Error("批量更新上限 500");
+    const result = await prisma.employee.updateMany({
+      where: { employeeId: { in: employeeIds.map(String) } },
+      data: { [field]: normalizedValue },
+    });
+    return { success: true, updatedCount: result.count };
+  }
+
+  const employeeId = typeof payload.employeeId === "string" ? payload.employeeId : "";
+  if (!employeeId) throw new Error("缺少参数 employeeId");
+  const updated = await prisma.employee.update({
+    where: { employeeId },
+    data: { [field]: normalizedValue },
+    select: { id: true, employeeId: true, name: true, [field]: true },
+  });
+  return { success: true, updated };
+}
+
+export const hrAgentProposalExecutors: ProposalExecutors = {
+  "hr.updateEmployee": executeHrAgentProposal,
+  "hr.batchUpdateEmployee": executeHrAgentProposal,
+};
+
+export const hrAgentTools: AgentTool[] = [
+  searchEmployeesTool,
+  updateEmployeeDraftTool,
+  batchUpdateEmployeeDraftTool,
+];
