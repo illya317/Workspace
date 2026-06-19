@@ -29,6 +29,18 @@ jobs:
       - name: Schema governance
         run: npm run schema:check
 
+      - name: Lint
+        run: npm run lint:full
+
+      - name: Dependency DAG
+        run: npm run lint:deps
+
+      - name: Module definitions
+        run: npm run module-check
+
+      - name: Test
+        run: npm test
+
       - name: Full CI
         run: npm run ci
         env:

@@ -7,6 +7,7 @@ export { default as FinanceFilters } from "./components/FinanceFilters";
 export { default as FinanceShell } from "./components/FinanceShell";
 export { default as Pagination } from "./components/Pagination";
 export { default as ReclassConfigRow } from "./components/ReclassConfigRow";
+export { ACCOUNT_COLUMNS } from "./components/AccountTable";
 export { BASE_ITEM_COLUMNS } from "./components/VoucherItemTable";
 export {
   getDefaultVisibleColumns as getDefaultVoucherItemVisibleColumns,

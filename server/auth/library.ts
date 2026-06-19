@@ -1,17 +1,17 @@
-import { checkPermission } from "@/server/rbac/check";
+import { authorize } from "./authorize";
 
 export async function checkLibraryAccess(userId: number): Promise<boolean> {
   return (
-    (await checkPermission(userId, "system", "admin")) ||
-    (await checkPermission(userId, "library", "access")) ||
-    (await checkPermission(userId, "library", "write"))
+    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await authorize({ user: userId, resourceKey: "library", action: "access" })) ||
+    (await authorize({ user: userId, resourceKey: "library", action: "write" }))
   );
 }
 
 export async function checkLibraryWrite(userId: number): Promise<boolean> {
   return (
-    (await checkPermission(userId, "system", "admin")) ||
-    (await checkPermission(userId, "library.write", "write")) ||
-    (await checkPermission(userId, "library", "write"))
+    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await authorize({ user: userId, resourceKey: "library.write", action: "write" })) ||
+    (await authorize({ user: userId, resourceKey: "library", action: "write" }))
   );
 }

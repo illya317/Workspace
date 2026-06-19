@@ -1,2 +1,2 @@
-export { libraryPackage } from "./module";
+export { libraryPackage, moduleDefinition } from "./module";
 export type * from "./types";

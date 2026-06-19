@@ -1,4 +1,4 @@
-import { scanLibrary } from "../server/services/library/scan";
+import { scanLibrary } from "@workspace/library/server/scan";
 
 async function main() {
   const result = await scanLibrary();

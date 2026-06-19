@@ -105,6 +105,15 @@ API route 只做：
 4. 调用 service。
 5. 返回 DTO。
 
+Level 1 起，权限入口统一为 `server/auth/authorize.ts` 的 `authorize()`。旧的 `withAuth`、`withFinance*`、`checkHRAccess`、`requireResourceAccess` 等兼容入口必须委托 `authorize()`，新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。
+
+`npm run auth:check` 会强制：
+
+- `server/auth/authorize.ts` 存在并导出 `authorize()`。
+- 核心 auth helper 委托 `authorize()`。
+- 新增 API route 必须有认证/授权 gate、明确代理到兼容 route、显式转调 package service，或是文档化的 public/disabled handler。
+- 新增 API route 不得新增裸 `checkPermission()` 或裸 `prisma.`。当前历史债由 `scripts/check/level1-api-baseline.json` 锁定，只能减少，不能新增。
+
 权限动作：
 
 | HTTP 方法 | 权限动作 |
@@ -168,6 +177,13 @@ app/* route shell
 - 模块注册的 `href` 和 `routes` 只写不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止把 `@workspace/*` package 名或 `/workspace` basePath 写入 URL。
 
 这些规则由 `npm run arch:check` 中的 module registry、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
+
+Level 1 额外硬约束：
+
+- `npm run lint:deps` 使用 `dependency-cruiser.config.cjs` 检查包级 DAG。`packages/platform/modules.tsx` 是业务包注册聚合点的唯一例外；Platform 其他文件禁止 import 业务包实现。
+- `npm run module-check` 要求每个业务包导出 `moduleDefinition`，并在 `packages/platform/modules.tsx` 注册。
+- ESLint 禁止 `antd`、`@mui/*`、`react-bootstrap` 等 UI 库 import。需要新基础 UI 时先补 `packages/core/ui`。
+- 业务包之间禁止直接互相 import；跨模块能力必须进入 Platform service/registry，或通过明确稳定的 package contract 暴露。
 
 ## 9. Agent 交付要求
 

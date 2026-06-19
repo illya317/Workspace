@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { formatHrMajorItems } from "@/lib/hr-field-options";
 
 interface PositionDescDetail {
   id: number; code: string; name: string;
@@ -55,6 +54,32 @@ function formatExperienceRequirements(value: unknown) {
     })
     .filter(Boolean)
     .join("；");
+}
+
+function formatMajorItems(value: unknown) {
+  let raw = value;
+  if (typeof value === "string") {
+    const text = value.trim();
+    if (!text) return "";
+    try {
+      raw = JSON.parse(text);
+    } catch {
+      return text;
+    }
+  }
+  if (!Array.isArray(raw)) return "";
+  return raw
+    .map((item) => {
+      if (typeof item === "string") return item.trim();
+      if (!item || typeof item !== "object" || Array.isArray(item)) return "";
+      const record = item as Record<string, unknown>;
+      return [record.category, record.specialty]
+        .map((part) => String(part || "").trim())
+        .filter(Boolean)
+        .join("/");
+    })
+    .filter(Boolean)
+    .join("、");
 }
 
 export default function GmpDetailClient({ code }: { code: string }) {
@@ -131,10 +156,10 @@ export default function GmpDetailClient({ code }: { code: string }) {
         </Section>
       )}
 
-      {!!(d.education || formatHrMajorItems(d.major) || formatExperienceRequirements(d.experienceRequirements) || d.training) && (
+      {!!(d.education || formatMajorItems(d.major) || formatExperienceRequirements(d.experienceRequirements) || d.training) && (
         <Section title="任职资格">
           <Pair label="教育水平" value={d.education} />
-          <Pair label="专业要求" value={formatHrMajorItems(d.major)} />
+          <Pair label="专业要求" value={formatMajorItems(d.major)} />
           <Pair label="工作经验" value={formatExperienceRequirements(d.experienceRequirements)} />
           <Pair label="培训经历" value={d.training} />
         </Section>

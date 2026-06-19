@@ -1,12 +1,7 @@
 import { requireAuth } from "@/server/auth/session";
-import AppShell from "@/app/components/AppShell";
-import GmpClient from "./GmpClient";
+import { GmpPositionsPage as PlatformGmpPositionsPage } from "@workspace/platform/ui/docs";
 
 export default async function GmpPositionsPage() {
   const user = await requireAuth();
-  return (
-    <AppShell title="岗位说明书" backHref="/docs" user={user}>
-      <GmpClient hideShell />
-    </AppShell>
-  );
+  return <PlatformGmpPositionsPage user={user} />;
 }

@@ -20,7 +20,7 @@ export const GET = withLibraryAccess(async (_req, user, ctx?: RouteContext) => {
 
   try {
     const file = await getLibraryFileByDocumentId(docId, user.userId);
-    return new NextResponse(file.buffer, {
+    return new NextResponse(new Uint8Array(file.buffer), {
       headers: {
         "Content-Type": file.contentType,
         "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,

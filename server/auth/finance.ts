@@ -1,18 +1,22 @@
-import { checkPermission } from "@/server/rbac/check";
+import { authorize, type AuthorizeAction } from "./authorize";
+
+function can(userId: number, resourceKey: string, action: AuthorizeAction) {
+  return authorize({ user: userId, resourceKey, action });
+}
 
 export async function checkFinanceAccess(
   userId: number,
-  roleKey: "access" | "write" | "delete" | "admin" = "access",
+  roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await checkPermission(userId, "system", "admin")) return true;
+  if (await can(userId, "system", "admin")) return true;
   if (roleKey === "access") {
     return (
-      (await checkPermission(userId, "finance", "access")) ||
-      (await checkPermission(userId, "finance", "write")) ||
-      (await checkPermission(userId, "finance", "delete"))
+      (await can(userId, "finance", "access")) ||
+      (await can(userId, "finance", "write")) ||
+      (await can(userId, "finance", "delete"))
     );
   }
-  return checkPermission(userId, "finance", roleKey);
+  return can(userId, "finance", roleKey);
 }
 
 export async function checkFinanceWrite(userId: number): Promise<boolean> {
@@ -25,22 +29,22 @@ export async function checkFinanceDelete(userId: number): Promise<boolean> {
 
 export async function checkFinanceCostAccess(
   userId: number,
-  roleKey: "access" | "write" | "delete" | "admin" = "access",
+  roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await checkPermission(userId, "system", "admin")) return true;
+  if (await can(userId, "system", "admin")) return true;
   if (roleKey === "access") {
     return (
-      (await checkPermission(userId, "finance.cost", "access")) ||
-      (await checkPermission(userId, "finance.cost", "write")) ||
-      (await checkPermission(userId, "finance.cost", "delete")) ||
-      (await checkPermission(userId, "finance", "access")) ||
-      (await checkPermission(userId, "finance", "write")) ||
-      (await checkPermission(userId, "finance", "delete"))
+      (await can(userId, "finance.cost", "access")) ||
+      (await can(userId, "finance.cost", "write")) ||
+      (await can(userId, "finance.cost", "delete")) ||
+      (await can(userId, "finance", "access")) ||
+      (await can(userId, "finance", "write")) ||
+      (await can(userId, "finance", "delete"))
     );
   }
   return (
-    (await checkPermission(userId, "finance.cost", roleKey)) ||
-    (await checkPermission(userId, "finance", roleKey))
+    (await can(userId, "finance.cost", roleKey)) ||
+    (await can(userId, "finance", roleKey))
   );
 }
 
@@ -54,22 +58,22 @@ export async function checkFinanceCostDelete(userId: number): Promise<boolean> {
 
 export async function checkFinanceLedgerAccess(
   userId: number,
-  roleKey: "access" | "write" | "delete" | "admin" = "access",
+  roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await checkPermission(userId, "system", "admin")) return true;
+  if (await can(userId, "system", "admin")) return true;
   if (roleKey === "access") {
     return (
-      (await checkPermission(userId, "finance.ledger", "access")) ||
-      (await checkPermission(userId, "finance.ledger", "write")) ||
-      (await checkPermission(userId, "finance.ledger", "delete")) ||
-      (await checkPermission(userId, "finance", "access")) ||
-      (await checkPermission(userId, "finance", "write")) ||
-      (await checkPermission(userId, "finance", "delete"))
+      (await can(userId, "finance.ledger", "access")) ||
+      (await can(userId, "finance.ledger", "write")) ||
+      (await can(userId, "finance.ledger", "delete")) ||
+      (await can(userId, "finance", "access")) ||
+      (await can(userId, "finance", "write")) ||
+      (await can(userId, "finance", "delete"))
     );
   }
   return (
-    (await checkPermission(userId, "finance.ledger", roleKey)) ||
-    (await checkPermission(userId, "finance", roleKey))
+    (await can(userId, "finance.ledger", roleKey)) ||
+    (await can(userId, "finance", roleKey))
   );
 }
 
@@ -83,22 +87,22 @@ export async function checkFinanceLedgerDelete(userId: number): Promise<boolean>
 
 export async function checkFinanceReportAccess(
   userId: number,
-  roleKey: "access" | "write" | "delete" | "admin" = "access",
+  roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await checkPermission(userId, "system", "admin")) return true;
+  if (await can(userId, "system", "admin")) return true;
   if (roleKey === "access") {
     return (
-      (await checkPermission(userId, "finance.statement", "access")) ||
-      (await checkPermission(userId, "finance.statement", "write")) ||
-      (await checkPermission(userId, "finance.statement", "delete")) ||
-      (await checkPermission(userId, "finance", "access")) ||
-      (await checkPermission(userId, "finance", "write")) ||
-      (await checkPermission(userId, "finance", "delete"))
+      (await can(userId, "finance.statement", "access")) ||
+      (await can(userId, "finance.statement", "write")) ||
+      (await can(userId, "finance.statement", "delete")) ||
+      (await can(userId, "finance", "access")) ||
+      (await can(userId, "finance", "write")) ||
+      (await can(userId, "finance", "delete"))
     );
   }
   return (
-    (await checkPermission(userId, "finance.statement", roleKey)) ||
-    (await checkPermission(userId, "finance", roleKey))
+    (await can(userId, "finance.statement", roleKey)) ||
+    (await can(userId, "finance", roleKey))
   );
 }
 
@@ -112,22 +116,22 @@ export async function checkFinanceReportDelete(userId: number): Promise<boolean>
 
 export async function checkFinanceBudgetAccess(
   userId: number,
-  roleKey: "access" | "write" | "delete" | "admin" = "access",
+  roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await checkPermission(userId, "system", "admin")) return true;
+  if (await can(userId, "system", "admin")) return true;
   if (roleKey === "access") {
     return (
-      (await checkPermission(userId, "finance.budget", "access")) ||
-      (await checkPermission(userId, "finance.budget", "write")) ||
-      (await checkPermission(userId, "finance.budget", "delete")) ||
-      (await checkPermission(userId, "finance", "access")) ||
-      (await checkPermission(userId, "finance", "write")) ||
-      (await checkPermission(userId, "finance", "delete"))
+      (await can(userId, "finance.budget", "access")) ||
+      (await can(userId, "finance.budget", "write")) ||
+      (await can(userId, "finance.budget", "delete")) ||
+      (await can(userId, "finance", "access")) ||
+      (await can(userId, "finance", "write")) ||
+      (await can(userId, "finance", "delete"))
     );
   }
   return (
-    (await checkPermission(userId, "finance.budget", roleKey)) ||
-    (await checkPermission(userId, "finance", roleKey))
+    (await can(userId, "finance.budget", roleKey)) ||
+    (await can(userId, "finance", roleKey))
   );
 }
 
@@ -141,22 +145,22 @@ export async function checkFinanceBudgetDelete(userId: number): Promise<boolean>
 
 export async function checkFinanceAnalysisAccess(
   userId: number,
-  roleKey: "access" | "write" | "delete" | "admin" = "access",
+  roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await checkPermission(userId, "system", "admin")) return true;
+  if (await can(userId, "system", "admin")) return true;
   if (roleKey === "access") {
     return (
-      (await checkPermission(userId, "finance.analysis", "access")) ||
-      (await checkPermission(userId, "finance.analysis", "write")) ||
-      (await checkPermission(userId, "finance.analysis", "delete")) ||
-      (await checkPermission(userId, "finance", "access")) ||
-      (await checkPermission(userId, "finance", "write")) ||
-      (await checkPermission(userId, "finance", "delete"))
+      (await can(userId, "finance.analysis", "access")) ||
+      (await can(userId, "finance.analysis", "write")) ||
+      (await can(userId, "finance.analysis", "delete")) ||
+      (await can(userId, "finance", "access")) ||
+      (await can(userId, "finance", "write")) ||
+      (await can(userId, "finance", "delete"))
     );
   }
   return (
-    (await checkPermission(userId, "finance.analysis", roleKey)) ||
-    (await checkPermission(userId, "finance", roleKey))
+    (await can(userId, "finance.analysis", roleKey)) ||
+    (await can(userId, "finance", roleKey))
   );
 }
 
@@ -170,22 +174,22 @@ export async function checkFinanceAnalysisDelete(userId: number): Promise<boolea
 
 export async function checkFinanceImportAccess(
   userId: number,
-  roleKey: "access" | "write" | "delete" | "admin" = "access",
+  roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await checkPermission(userId, "system", "admin")) return true;
+  if (await can(userId, "system", "admin")) return true;
   if (roleKey === "access") {
     return (
-      (await checkPermission(userId, "finance.import", "access")) ||
-      (await checkPermission(userId, "finance.import", "write")) ||
-      (await checkPermission(userId, "finance.import", "delete")) ||
-      (await checkPermission(userId, "finance", "access")) ||
-      (await checkPermission(userId, "finance", "write")) ||
-      (await checkPermission(userId, "finance", "delete"))
+      (await can(userId, "finance.import", "access")) ||
+      (await can(userId, "finance.import", "write")) ||
+      (await can(userId, "finance.import", "delete")) ||
+      (await can(userId, "finance", "access")) ||
+      (await can(userId, "finance", "write")) ||
+      (await can(userId, "finance", "delete"))
     );
   }
   return (
-    (await checkPermission(userId, "finance.import", roleKey)) ||
-    (await checkPermission(userId, "finance", roleKey))
+    (await can(userId, "finance.import", roleKey)) ||
+    (await can(userId, "finance", roleKey))
   );
 }
 

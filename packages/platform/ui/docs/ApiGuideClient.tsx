@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import ConfirmModal from "@/app/components/ConfirmModal";
-import { SessionUser } from '@/lib/types';
+import { ConfirmModal } from "@workspace/core/ui";
+import type { SessionUser } from "@workspace/platform/types";
 
 function MyApiKeyPanel({ apiKey, onApiKeyChange }: { apiKey: string | null; onApiKeyChange: (k: string | null) => void }) {
   const [loading, setLoading] = useState(false);

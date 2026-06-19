@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/server/auth/session";
 import { getLibraryFileByRelativePath } from "@workspace/library/server";
-import { checkPermission } from "@/server/rbac/check";
+import { authorize } from "@/server/auth/authorize";
 
 function fileErrorResponse(error: unknown) {
   const message = error instanceof Error ? error.message : "File not found";
@@ -16,15 +16,14 @@ function fileErrorResponse(error: unknown) {
 export async function GET(_req: Request, { params }: { params: Promise<{ path: string[] }> }) {
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!(await checkPermission(user.id, "library", "access"))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  if (!(await authorize({ user, resourceKey: "library", action: "access" }))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const { path: segments } = await params;
 
-  // 安全路径解析：防止 .. 路径穿越
-  const relativePath = segments.join(path.sep);
+  const relativePath = segments.join("/");
   try {
     const file = await getLibraryFileByRelativePath(relativePath, user.id);
-    return new NextResponse(file.buffer, {
+    return new NextResponse(new Uint8Array(file.buffer), {
       headers: {
         "Content-Type": file.contentType,
         "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,

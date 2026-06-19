@@ -8,4 +8,12 @@ export { default as ModuleHome } from "./ModuleHome";
 export { default as NavLink } from "./NavLink";
 export { default as PortalClient } from "./PortalClient";
 export { default as UserMenu } from "./UserMenu";
+export {
+  DocsApiGuidePage,
+  DocsHome,
+  DocsPlaceholderPage,
+  DocsPositionsIndex,
+  GmpPositionDetailPage,
+  GmpPositionsPage,
+} from "./docs";
 export { SettingsClient } from "./settings";

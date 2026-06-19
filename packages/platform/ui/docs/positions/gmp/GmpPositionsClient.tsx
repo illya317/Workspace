@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import UserMenu from "@/app/components/UserMenu";
-import { SessionUser } from '@/lib/types';
+import { SearchInput } from "@workspace/core/ui";
+import { matchText } from "@workspace/core/search";
+import UserMenu from "../../../UserMenu";
+import type { SessionUser } from "@workspace/platform/types";
 
 interface TreeNode {
   code: string; name: string; level: number;
@@ -91,7 +93,7 @@ export default function GmpPositionsPage({ hideShell }: { hideShell?: boolean })
         {showPositions && (
           <div className="ml-8 divide-y divide-gray-50 border-l-2 border-gray-100 pl-4">
             {ownPositions
-              .filter((p: string) => !search || p.toLowerCase().includes(search.toLowerCase()))
+              .filter((p: string) => matchText(p, search))
               .sort()
               .map(entry => {
                 const [code, name] = entry.split("|");
@@ -140,8 +142,12 @@ export default function GmpPositionsPage({ hideShell }: { hideShell?: boolean })
 
         <div className="mb-6 flex items-center justify-between">
           <h1 className="text-2xl font-bold text-gray-800">岗位说明书</h1>
-          <input type="text" value={search} onChange={e => setSearch(e.target.value)}
-            placeholder="搜索岗位..." className="w-64 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none" />
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="搜索岗位..."
+            className="w-64 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none"
+          />
         </div>
 
         {tree.length === 0 ? (

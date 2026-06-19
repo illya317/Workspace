@@ -12,6 +12,7 @@
 import "server-only";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "./session";
+import { authorize } from "./authorize";
 import type { SessionUser } from "@/lib/types";
 
 /**
@@ -21,8 +22,7 @@ import type { SessionUser } from "@/lib/types";
 export async function requireResourceAccess(resourceKey: string): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
-  if (user.isSuperAdmin) return user;
-  if (!user.visibleResourceKeys?.includes(resourceKey)) redirect("/portal");
+  if (!(await authorize({ user, resourceKey, action: "access" }))) redirect("/portal");
   return user;
 }
 

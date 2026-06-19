@@ -1,4 +1,4 @@
-import { checkPermission } from "@/server/rbac/check";
+import { authorize, type AuthorizeAction } from "./authorize";
 
 export {
   checkFinanceAccess,
@@ -33,17 +33,16 @@ export {
  */
 export async function checkHRAccess(
   userId: number,
-  roleKey: "access" | "write" | "delete" | "admin" = "access",
+  roleKey: AuthorizeAction = "access",
   resourceKey: string = "people",
 ): Promise<boolean> {
-  if (await checkPermission(userId, "system", "admin")) return true;
+  if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
 
-  // checkPermission already handles role inheritance (admin > delete > write > access)
-  const check = (rk: string) => checkPermission(userId, rk, roleKey);
-
-  if (await check(resourceKey)) return true;
-  // Broad "people" parent grant also grants access to sub-resources
-  if (resourceKey !== "people" && await check("people")) return true;
+  if (await authorize({ user: userId, resourceKey, action: roleKey })) return true;
+  if (
+    resourceKey !== "people" &&
+    await authorize({ user: userId, resourceKey: "people", action: roleKey })
+  ) return true;
   return false;
 }
 
@@ -63,37 +62,37 @@ export async function checkHRDelete(
 
 export async function checkWorksAccess(userId: number): Promise<boolean> {
   return (
-    (await checkPermission(userId, "system", "admin")) ||
-    (await checkPermission(userId, "work", "access"))
+    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await authorize({ user: userId, resourceKey: "work", action: "access" }))
   );
 }
 
 export async function checkInventoryAccess(userId: number): Promise<boolean> {
   return (
-    (await checkPermission(userId, "system", "admin")) ||
-    (await checkPermission(userId, "production.inventory", "access"))
+    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await authorize({ user: userId, resourceKey: "production.inventory", action: "access" }))
   );
 }
 
 export async function checkContractAccess(userId: number): Promise<boolean> {
   return (
-    (await checkPermission(userId, "system", "admin")) ||
-    (await checkPermission(userId, "administration.contract", "access"))
+    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await authorize({ user: userId, resourceKey: "administration.contract", action: "access" }))
   );
 }
 
 export async function checkLibraryAccess(userId: number): Promise<boolean> {
   return (
-    (await checkPermission(userId, "system", "admin")) ||
-    (await checkPermission(userId, "library", "access")) ||
-    (await checkPermission(userId, "library", "write"))
+    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await authorize({ user: userId, resourceKey: "library", action: "access" })) ||
+    (await authorize({ user: userId, resourceKey: "library", action: "write" }))
   );
 }
 
 export async function checkLibraryWrite(userId: number): Promise<boolean> {
   return (
-    (await checkPermission(userId, "system", "admin")) ||
-    (await checkPermission(userId, "library.write", "write")) ||
-    (await checkPermission(userId, "library", "write"))
+    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await authorize({ user: userId, resourceKey: "library.write", action: "write" })) ||
+    (await authorize({ user: userId, resourceKey: "library", action: "write" }))
   );
 }

@@ -12,6 +12,15 @@ export type { AuthPayload } from "./auth/token";
 
 // Session / authentication
 export { authenticate, isKicked } from "@/server/auth/authenticate";
+export {
+  authorize,
+  requireAuthorized,
+} from "@/server/auth/authorize";
+export type {
+  AuthorizeAction,
+  AuthorizeInput,
+  AuthorizeUser,
+} from "@/server/auth/authorize";
 
 // Admin helpers
 export { requireAdmin, isAdmin, isSuperAdmin } from "@/server/auth/admin";

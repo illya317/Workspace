@@ -1,6 +1,6 @@
 import type { WorkspacePackageRegistration } from "@workspace/core";
 
-export const hrPackage: WorkspacePackageRegistration = {
+export const moduleDefinition: WorkspacePackageRegistration = {
   packageName: "@workspace/hr",
   layer: "domain",
   moduleDef: {
@@ -32,3 +32,5 @@ export const hrPackage: WorkspacePackageRegistration = {
     { method: "DELETE", pathPrefix: "/api/hr", resourceKey: "people.roster", action: "delete" },
   ],
 };
+
+export const hrPackage = moduleDefinition;

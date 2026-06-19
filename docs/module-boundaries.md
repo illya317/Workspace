@@ -44,6 +44,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/platform/types` 已接收登录态平台契约类型，`lib/types.ts` 保留兼容 re-export。
 - `packages/platform/audit` 已接收审计展示字段标签和值格式化 helper，`lib/audit-field-labels.ts` 保留兼容 re-export。
 - `packages/platform/server/auth.ts` 已接收认证和 HR 权限检查的 server 契约；业务包需要鉴权时依赖 `@workspace/platform/server/auth`，不要直接依赖 `@/lib/auth`。
+- `server/auth/authorize.ts` 是 Level 1 权限单入口；平台 auth helper、page guard 和旧 wrapper 必须委托 `authorize()`，新增 API route 不得新增裸 `checkPermission()`。
 - `packages/platform/server/crud-factory.ts` 已接收通用 CRUD route helper；业务包需要复用字段级更新/创建/删除时通过本领域 wrapper 使用，不要直接依赖 `@/lib/crud`。
 - `packages/platform/server/prisma.ts` 已接收单库 Prisma runtime client，`lib/prisma.ts` 保留兼容 re-export；业务包应优先依赖 `@workspace/platform/server/prisma`，不要直接依赖 `@/lib/prisma` 或 generated client。
 - `packages/platform/server/history.ts` 已接收审计快照写入契约，`lib/history.ts` 保留兼容 re-export；业务包需要写 EditHistory 时依赖 `@workspace/platform/server/history`。
@@ -52,6 +53,8 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/platform/ui` 已接收登录后的 Portal、L1 模块首页、AppShell、跨页 NavLink、用户菜单、设置页和审计日志 UI；AppShell 必须复用 Core `PageShell`。`app/portal/PortalClient.tsx` 与 `app/components/{AppShell,AuditLogEntry,AuditLogModal,ModuleHome,NavLink,UserMenu}.tsx` 保留兼容 re-export。
 - `packages/administration` 已接收合同台账的 module、UI、server、types，`app/contracts/page.tsx` 和 `app/api/contracts/*` 只保留 Next 壳。
 - `packages/library` 已接收资料库 module、UI、server、types，`app/library/page.tsx` 和 `app/api/library/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。
+- 每个业务包的 `module.ts` 必须导出 `moduleDefinition`，同时保留领域兼容别名（例如 `financePackage`）。`npm run module-check` 会校验业务包导出和 `packages/platform/modules.tsx` 注册。
+- `packages/platform/ui/docs` 已接收文档中心和接入指南 UI；`app/docs/*` 与 `app/api-guide/page.tsx` 只保留鉴权/参数/挂载壳。
 - `app/lib/module-nav.tsx` 是兼容出口，现有页面暂时继续从这里导入。
 - `app/components/ConfirmModal.tsx`、`ConfirmProvider.tsx`、`DetailModal.tsx`、`FilterBar.tsx`、`FilterToolbar.tsx`、`Toast.tsx`、`SelectField.tsx`、`StatusBadge.tsx`、`StatusToggle.tsx`、`NumberCell.tsx`、`AmountCell.tsx`、`ColumnToggle.tsx`、`TabBar.tsx`、`DataTable.tsx`、`FilterField.tsx`、`EditToolbar.tsx` 和 `app/hooks/useToast.ts` 已降级为兼容 re-export。
 - `app/hooks/useCompanyOptions.ts` 已降级为 `@workspace/platform/hooks` 的兼容 re-export。
@@ -95,7 +98,14 @@ app/* route shell
   -> platform contracts only when needed
 ```
 
-`npm run arch:check` 会执行模块入口、资源注册和 package 边界检查，防止 Core 反向依赖平台或业务包，防止业务包之间直接互相引用，也防止 `packages/*` 反向 import `app/*` 路由壳或 app-root `lib/server/generated` runtime alias。它还会检查疑似重复基础组件文件名是否基于 Core/Platform 基建；新增例外必须写入脚本 allowlist。
+`npm run arch:check` 会执行模块入口、资源注册、package 边界和 Level 1 检查，防止 Core 反向依赖平台或业务包，防止业务包之间直接互相引用，也防止 `packages/*` 反向 import `app/*` 路由壳或 app-root `lib/server/generated` runtime alias。它还会检查疑似重复基础组件文件名是否基于 Core/Platform 基建；新增例外必须写入脚本 allowlist。
+
+Level 1 单独命令：
+
+- `npm run lint:deps`：dependency-cruiser DAG。`packages/platform/modules.tsx` 是平台聚合业务包注册的唯一例外。
+- `npm run module-check`：业务包必须导出 `moduleDefinition` 并注册到 Platform。
+- `npm run auth:check`：`authorize()` 必须存在，核心 auth helper 必须委托它；新增 API 不得新增裸 `checkPermission()` 或裸 Prisma。历史 route 债务由 `scripts/check/level1-api-baseline.json` 锁定，只能减少不能增加。
+- `npm run level1:check`：汇总以上三项，CI 和 `arch:check` 都会执行。
 
 ## 后续拆分顺序
 

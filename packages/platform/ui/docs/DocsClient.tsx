@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import NavLink from "@/app/components/NavLink";
-import UserMenu from "@/app/components/UserMenu";
-import { SessionUser } from "@/lib/types";
+import NavLink from "../NavLink";
+import UserMenu from "../UserMenu";
+import type { SessionUser } from "@workspace/platform/types";
 
 function getDocCategories(user: SessionUser): Record<string, Array<{ title: string; href: string }>> {
   const hasApiAccess = (user.visibleResourceKeys || []).includes("system.api");
@@ -17,7 +17,7 @@ function getDocCategories(user: SessionUser): Record<string, Array<{ title: stri
   "常用工具": [
     { title: "系统使用手册", href: "/docs/system-guide" },
     { title: "工作汇报填写说明", href: "/docs/report-guide" },
-    ...(hasApiAccess ? [{ title: "接入指南", href: "/api-guide" }] : []),
+    ...(hasApiAccess ? [{ title: "接入指南", href: "/docs/api-guide" }] : []),
   ],
   "规章制度": [
     { title: "考勤管理制度", href: "/docs/attendance" },

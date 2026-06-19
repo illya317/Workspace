@@ -1,1 +1,1 @@
-export { productionPackage } from "./module";
+export { moduleDefinition, productionPackage } from "./module";

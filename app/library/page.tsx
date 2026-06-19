@@ -1,5 +1,5 @@
 import { requireResourceAccess } from "@/server/auth/guard";
-import { checkPermission } from "@/server/rbac/check";
+import { authorize } from "@/server/auth/authorize";
 import { AppShell } from "@workspace/platform/ui";
 import { LibraryClient } from "@workspace/library/ui";
 
@@ -10,9 +10,9 @@ export const dynamic = "force-dynamic";
 export default async function LibraryPage() {
   const user = await requireResourceAccess("library");
   const [canWrite, canDelete, canAdmin] = await Promise.all([
-    checkPermission(user.id, "library.write", "write"),
-    checkPermission(user.id, "library.write", "delete"),
-    checkPermission(user.id, "library.write", "admin"),
+    authorize({ user, resourceKey: "library.write", action: "write" }),
+    authorize({ user, resourceKey: "library.write", action: "delete" }),
+    authorize({ user, resourceKey: "library.write", action: "admin" }),
   ]);
 
   return (

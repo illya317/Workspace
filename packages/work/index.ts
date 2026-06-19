@@ -1,2 +1,2 @@
-export { workPackage } from "./module";
+export { moduleDefinition, workPackage } from "./module";
 export type * from "./types";

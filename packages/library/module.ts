@@ -1,6 +1,6 @@
 import type { WorkspacePackageRegistration } from "@workspace/core";
 
-export const libraryPackage: WorkspacePackageRegistration = {
+export const moduleDefinition: WorkspacePackageRegistration = {
   packageName: "@workspace/library",
   layer: "domain",
   moduleDef: {
@@ -26,3 +26,5 @@ export const libraryPackage: WorkspacePackageRegistration = {
     { method: "DELETE", pathPrefix: "/api/library", resourceKey: "library.write", action: "delete" },
   ],
 };
+
+export const libraryPackage = moduleDefinition;
