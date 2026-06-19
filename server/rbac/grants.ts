@@ -1,5 +1,5 @@
 import { prisma } from "@workspace/platform/server/prisma";
-import { normalizeRoleKey } from "@/lib/permissions";
+import { normalizeRoleKey } from "@workspace/platform/permissions";
 
 export type SubjectType = "user" | "position" | "department";
 

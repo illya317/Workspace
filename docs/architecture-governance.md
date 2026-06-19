@@ -79,7 +79,7 @@ app/api/<domain>/
 1. 更新 `README.md` 的“当前业务模块”或“未来模块”说明。
 2. 更新 `AGENTS.md` 或 `docs/agent-handbook.md` 的模块规则。
 3. 创建 `app/<domain>/ARCHITECTURE.md`。
-4. 在 `lib/permissions.ts` 注册资源树。
+4. 在业务包 `module.ts` 的 `resourceDefs` 注册资源树；需要 RBAC 常量时使用 `@workspace/platform/permissions`。
 5. 设计 Prisma model，明确事实字段和计算字段。
 6. 在 `packages/<domain>/server/` 写业务逻辑。
 7. 在 `packages/<domain>/ui/` 写主要 UI。
@@ -184,6 +184,7 @@ app/* route shell
 - `@workspace/platform` 可以聚合业务包注册信息并拥有平台 server runtime 契约，例如 Prisma client、权限、审计；但禁止直接 import 业务页面或业务 service。
 - `@workspace/hr`、`@workspace/production`、`@workspace/finance`、`@workspace/work`、`@workspace/administration`、`@workspace/library` 等业务包之间禁止直接互相 import。
 - 业务包需要认证或权限检查时应通过 `@workspace/platform/server/auth`；旧 `lib/auth.ts` 聚合 hub 已删除，不得恢复或新增同类 re-export 入口。
+- 业务包或 server root 需要 RBAC 常量、角色 key 标准化或同步可选角色 helper 时应通过 `@workspace/platform/permissions`；不要直接 import `@/lib/permissions`，也不要在业务包内重复定义角色层级。
 - 业务包需要通用字段级 CRUD helper 时应通过 `@workspace/platform/server/crud-factory` 并在本领域封装，例如 HR 使用 `packages/hr/server/crud.ts`；不要直接 import `@/lib/crud`。
 - 业务包需要访问数据库时应通过 `@workspace/platform/server/prisma`，不要直接 import `@/lib/prisma` 或 generated Prisma client。
 - 业务包需要写审计快照时应通过 `@workspace/platform/server/history`，不要直接 import app-root `@/lib/history`。

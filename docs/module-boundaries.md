@@ -39,7 +39,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/production/types` 已接收生产 QC 模板、布局、批次和模板反馈领域类型。
 - `packages/platform/module-registry.ts` 是模块注册锁。`registeredModuleDefinitions` 是唯一有效注册源；`packages/platform/modules.tsx` 只消费 registry 并导出运行时聚合，不直接 import domain package。
 - `packages/platform/module-nav.tsx` 生成 `MODULES`、`getAccessibleModules`、`getSubModules`。
-- `packages/platform/resources.ts` 从各 package `resourceDefs` 派生 `RESOURCE_DEFS`、`RESOURCE_KEYS` 和 `RESOURCE_MAX_ROLE`，`lib/permissions.ts` 与 `scripts/seed-resources.ts` 复用这个出口。
+- `packages/platform/resources.ts` 从各 package `resourceDefs` 派生 `RESOURCE_DEFS`、`RESOURCE_KEYS` 和 `RESOURCE_MAX_ROLE`，`packages/platform/permissions.ts` 与 `scripts/seed-resources.ts` 复用这个出口；旧 `lib/permissions.ts` 只保留兼容 re-export。
 - `packages/platform/module-lifecycle.ts` 从模块注册的 `lifecycleStatus` 派生资源生命周期提示；`app/lib/module-lifecycle.ts` 保留兼容 re-export。
 - `packages/platform/types` 已接收登录态平台契约类型，`lib/types.ts` 保留兼容 re-export。
 - `packages/platform/audit` 已接收审计展示字段标签和值格式化 helper，`lib/audit-field-labels.ts` 保留兼容 re-export。

@@ -11,6 +11,7 @@
     "./module-nav": "./module-nav.tsx",
     "./module-registry": "./module-registry.ts",
     "./modules": "./modules.tsx",
+    "./permissions": "./permissions.ts",
     "./resources": "./resources.ts",
     "./server/account": "./server/account.ts",
     "./server/api": "./server/api.ts",

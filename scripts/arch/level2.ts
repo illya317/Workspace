@@ -124,6 +124,8 @@ type Level2Report = {
     legacyRootWithAuthImports: number;
     legacyRootPrismaFiles: number;
     legacyRootPrismaImports: number;
+    legacyRootPermissionsImplementationFiles: number;
+    legacyRootPermissionsImports: number;
   };
   registries: {
     modules: Array<{
@@ -161,6 +163,8 @@ type Level2Report = {
     legacyRootWithAuthImports: string[];
     legacyRootPrismaFiles: string[];
     legacyRootPrismaImports: string[];
+    legacyRootPermissionsImplementationFiles: string[];
+    legacyRootPermissionsImports: string[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -841,6 +845,39 @@ function findLegacyRootPrismaImports(files: SourceInfo[]) {
     .sort();
 }
 
+function isLegacyRootPermissionsSpecifier(specifier: string) {
+  return specifier === "@/lib/permissions" ||
+    specifier === "./lib/permissions" ||
+    /^(?:\.\.\/)+lib\/permissions$/.test(specifier);
+}
+
+function isPurePlatformPermissionsReExport(file: SourceInfo) {
+  return file.imports.length === 1 &&
+    file.imports[0]?.specifier === "@workspace/platform/permissions" &&
+    file.sourceFile.statements.every((statement) => (
+      ts.isExportDeclaration(statement) ||
+      statement.kind === ts.SyntaxKind.EndOfFileToken
+    ));
+}
+
+function findLegacyRootPermissionsImplementationFiles(files: SourceInfo[]) {
+  return files
+    .filter((file) => file.relPath === "lib/permissions.ts")
+    .filter((file) => !isPurePlatformPermissionsReExport(file))
+    .map((file) => file.relPath)
+    .sort();
+}
+
+function findLegacyRootPermissionsImports(files: SourceInfo[]) {
+  return files
+    .flatMap((file) => (
+      file.imports
+        .filter((item) => isLegacyRootPermissionsSpecifier(item.specifier))
+        .map((item) => `${file.relPath}: ${item.specifier}`)
+    ))
+    .sort();
+}
+
 function findAppHookFiles(hooks: HookPatternCandidate[]) {
   return hooks
     .filter((hook) => hook.file.startsWith("app/hooks/"))
@@ -899,6 +936,8 @@ export function createLevel2Report(): Level2Report {
   const legacyRootWithAuthImports = findLegacyRootWithAuthImports(sourceFiles);
   const legacyRootPrismaFiles = findLegacyRootPrismaFiles(sourceFiles);
   const legacyRootPrismaImports = findLegacyRootPrismaImports(sourceFiles);
+  const legacyRootPermissionsImplementationFiles = findLegacyRootPermissionsImplementationFiles(sourceFiles);
+  const legacyRootPermissionsImports = findLegacyRootPermissionsImports(sourceFiles);
 
   return {
     level: "2",
@@ -931,6 +970,8 @@ export function createLevel2Report(): Level2Report {
       legacyRootWithAuthImports: legacyRootWithAuthImports.length,
       legacyRootPrismaFiles: legacyRootPrismaFiles.length,
       legacyRootPrismaImports: legacyRootPrismaImports.length,
+      legacyRootPermissionsImplementationFiles: legacyRootPermissionsImplementationFiles.length,
+      legacyRootPermissionsImports: legacyRootPermissionsImports.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -970,6 +1011,8 @@ export function createLevel2Report(): Level2Report {
       legacyRootWithAuthImports,
       legacyRootPrismaFiles,
       legacyRootPrismaImports,
+      legacyRootPermissionsImplementationFiles,
+      legacyRootPermissionsImports,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,

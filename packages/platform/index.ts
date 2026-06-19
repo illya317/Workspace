@@ -12,6 +12,14 @@ export type {
 } from "./api-registry";
 export { workspacePackages } from "./modules";
 export {
+  ACTION,
+  getAvailableRoles,
+  isRoleAllowed,
+  normalizeRoleKey,
+  RES,
+  ROLE,
+} from "./permissions";
+export {
   getResourceDef,
   RESOURCE_DEFS,
   RESOURCE_KEYS,

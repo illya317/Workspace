@@ -25,7 +25,7 @@ prisma/models/<domain>.prisma  # 领域模型（按 schema 治理规则）
 
 ## 权限注册
 
-在 `lib/permissions.ts` 添加资源 key：
+在业务包 `module.ts` 的 `resourceDefs` 添加资源 key；需要同步 RBAC 常量时使用 `@workspace/platform/permissions`：
 
 ```
 <domain>
@@ -106,7 +106,7 @@ export async function GET(request: Request) {
 
 - [ ] 更新 `README.md` 模块地图
 - [ ] 创建 `app/<domain>/ARCHITECTURE.md`
-- [ ] 在 `lib/permissions.ts` 注册资源 key
+- [ ] 在 `packages/<domain>/module.ts` 的 `resourceDefs` 注册资源 key
 - [ ] 设计 `prisma/models/<domain>.prisma`（事实字段 + 审计字段）
 - [ ] 运行 `npm run db:validate && npm run schema:check`
 - [ ] 实现 `packages/<domain>/server/*`

@@ -1,6 +1,6 @@
 /**
  * 从 DB 读取资源最高角色（maxRoleKey），带缓存。
- * 替代 lib/permissions.ts 中硬编码的 RESOURCE_MAX_ROLE。
+ * 替代旧权限常量中的硬编码 RESOURCE_MAX_ROLE。
  */
 import { prisma } from "@workspace/platform/server/prisma";
 

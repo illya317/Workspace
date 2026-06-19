@@ -76,7 +76,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 | API 路由壳 | `app/api/<domain>/` | 鉴权、权限、参数校验、调用 package service、返回 DTO |
 | 开发辅助 | `app/api/dev-login-bypass/` | 开发环境快速登录，仅本地 |
 | 旧业务服务 | `server/services/<domain>/` | 存量兼容/待迁移旧代码；新增业务 service 不再优先放这里 |
-| 认证权限 | `@workspace/platform/server/auth`, `server/auth/`, `server/rbac/`, `lib/permissions.ts` | 登录、session、RBAC、资源树；新代码优先使用 Platform 契约 |
+| 认证权限 | `@workspace/platform/server/auth`, `@workspace/platform/permissions`, `server/auth/`, `server/rbac/` | 登录、session、RBAC、资源树；新代码优先使用 Platform 契约 |
 | 数据库 | `prisma/` | Prisma schema、migration、seed |
 | 共享前端兼容层 | `app/components/`, `app/hooks/` | 存量兼容 re-export；新增通用 UI/hook 必须进 Core 或 Platform |
 | 共享工具兼容层 | `lib/` | 存量兼容 re-export；新增 runtime 能力必须进 Core、Platform 或对应业务包 |
@@ -109,7 +109,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 
 仅适用于“新增业务模块 / 新 domain”。如果是在已有模块内新增 Tab、审核流、规则页、CRUD 能力，改看 `docs/existing-module-feature-checklist.md`。
 
-1. 在 `lib/permissions.ts` 或后续 Platform 资源入口注册资源 key，动作只用 `access / write / delete / admin`。
+1. 在业务包 `module.ts` 的 `resourceDefs` 注册资源 key，动作只用 `access / write / delete / admin`；需要 RBAC 常量时使用 `@workspace/platform/permissions`。
 2. 在 seed 中注册资源树，设置 `parentId / maxRoleKey / sortOrder`。
 3. 在 `packages/platform/module-registry.ts` 注册模块，并让 `packages/<domain>/module.ts` 导出 registry 中的 `moduleDefinition`。
 4. 创建 `app/<domain>/ARCHITECTURE.md`，写清楚数据来源、事实字段、计算字段、权限、页面。
@@ -125,7 +125,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 
 | 步骤 | 内容 |
 |------|------|
-| 1. RBAC | `lib/permissions.ts` + seed 注册资源树 |
+| 1. RBAC | 业务包 `resourceDefs` + seed 注册资源树 |
 | 2. 导航 | `packages/platform/module-registry.ts` 注册，`packages/<domain>/module.ts` 导出 `moduleDefinition`，配 `resourceKey` |
 | 3. 数据库 | `prisma/models/<domain>.prisma` + migration + seed |
 | 4. 页面 | facade server component + 子目录 `layout.tsx` 路由门禁 |
@@ -279,7 +279,7 @@ API 权限规则：
 | `@workspace/production` | 生产包 | 生产/QC 模块注册、类型和后续 UI/server |
 | `@workspace/finance` | 财务包 | 财务模块注册、类型和后续 UI/server |
 | `lib/security.ts` | 登录安全 | `checkBruteForce`, `recordAttempt` |
-| `lib/permissions.ts` | RBAC 常量 | `RES`, `ROLE`, `perm` |
+| `@workspace/platform/permissions` | RBAC 常量 | `RES`, `ROLE`, `ACTION`, `normalizeRoleKey` |
 | `lib/period.ts` | 周期计算 | `getCurrentPeriod`, `getPeriodRange`, `getPeriodOptions`, `PeriodType` |
 
 `lib/*` 中的旧 runtime 入口只用于兼容存量代码，新代码不要直接依赖；业务包必须通过 Platform server 契约或本包 service 访问。
