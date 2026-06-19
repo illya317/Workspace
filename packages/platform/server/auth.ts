@@ -1,5 +1,10 @@
 export { authenticate, isKicked } from "../../../server/auth/authenticate";
-export { getTokenFromCookie, verifyToken } from "../../../lib/auth/token";
+export {
+  createToken,
+  getTokenFromCookie,
+  SESSION_MAX_AGE_SECONDS,
+  verifyToken,
+} from "../../../lib/auth/token";
 export {
   authorize,
   requireAuthorized,
