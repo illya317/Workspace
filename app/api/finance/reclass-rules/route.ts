@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { scanCandidates } from "@/server/services/finance/ledger/reclass-rules";
-import { syncReclassRuleResults } from "@/server/services/finance/ledger/reclass-rules/sync";
-import { ensureReclassRulesForYear } from "@/server/services/finance/ledger/reclass-rules/ensure";
+import { scanCandidates } from "@workspace/finance/server/ledger/reclass-rules";
+import { syncReclassRuleResults } from "@workspace/finance/server/ledger/reclass-rules/sync";
+import { ensureReclassRulesForYear } from "@workspace/finance/server/ledger/reclass-rules/ensure";
 
 // ─── GET: 扫描候选 ────────────────────────────────────────
 

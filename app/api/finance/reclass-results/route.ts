@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
-import { listReclassResults } from "@/server/services/finance/ledger/reclass-results/list";
-import { buildReclassResults } from "@/server/services/finance/ledger/reclassify";
+import { listReclassResults } from "@workspace/finance/server/ledger/reclass-results/list";
+import { buildReclassResults } from "@workspace/finance/server/ledger/reclassify";
 
 export const GET = withFinanceLedgerAccess(async (request) => {
   const { searchParams } = new URL(request.url);

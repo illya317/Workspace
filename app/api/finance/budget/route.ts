@@ -7,11 +7,11 @@ import {
   loadRdBudgetFromDb,
   importDeptBudgetToDb,
   importRdBudgetToDb,
-} from "@/server/services/finance/budget/budget-data";
+} from "@workspace/finance/server/budget/budget-data";
 import {
   createBudgetVersion,
   getActiveVersion,
-} from "@/server/services/finance/budget/budget-version";
+} from "@workspace/finance/server/budget/budget-version";
 
 export const GET = withFinanceBudgetAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);

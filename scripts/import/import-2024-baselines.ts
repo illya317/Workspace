@@ -9,8 +9,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../../generated/prisma/client";
-import { parseBalanceSheet } from "../../server/services/finance/import/parsers/balance-parser";
-import { createSnapshotFromPreview } from "../../server/services/finance/ledger/annual-balances";
+import { parseBalanceSheet } from "@workspace/finance/server/import/parsers/balance-parser";
+import { createSnapshotFromPreview } from "@workspace/finance/server/ledger/annual-balances";
 
 const ROOT = path.resolve(__dirname, "../..");
 const dbPath = process.env.DATABASE_URL?.replace("file:", "") ?? path.join(ROOT, "data/dev.db");

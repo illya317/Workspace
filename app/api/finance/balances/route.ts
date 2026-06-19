@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { computeBalancesForPeriod } from "@/server/services/finance/ledger/balances";
+import { computeBalancesForPeriod } from "@workspace/finance/server/ledger/balances";
 import { parsePositiveInt, parseYear, parseMonth, parsePageParams } from "@/lib/validation";
 import { matchText } from "@/lib/search";
 

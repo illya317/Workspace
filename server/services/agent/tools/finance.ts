@@ -4,11 +4,11 @@
  */
 import type { SessionUser } from "@/lib/types";
 import type { AgentTool } from "./registry";
-import { getActiveVersion } from "@/server/services/finance/budget/budget-version";
+import { getActiveVersion } from "@workspace/finance/server/budget/budget-version";
 import {
   readDeptBudget, readRdBudget,
   loadDeptBudgetFromDb, loadRdBudgetFromDb,
-} from "@/server/services/finance/budget/budget-data";
+} from "@workspace/finance/server/budget/budget-data";
 
 export const queryBudgetTool: AgentTool = {
   key: "finance.queryBudget",

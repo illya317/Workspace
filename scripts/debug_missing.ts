@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../generated/prisma/client";
-import { parseBalanceSheet } from "../server/services/finance/import/parsers/balance-parser";
+import { parseBalanceSheet } from "@workspace/finance/server/import/parsers/balance-parser";
 import * as fs from "fs";
 import * as path from "path";
 

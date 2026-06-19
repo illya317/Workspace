@@ -1,5 +1,5 @@
-import { parseBalanceSheet } from "../server/services/finance/import/parsers/balance-parser";
-import { confirmFinanceImport } from "../server/services/finance/import/import-confirm";
+import { parseBalanceSheet } from "@workspace/finance/server/import/parsers/balance-parser";
+import { confirmFinanceImport } from "@workspace/finance/server/import/import-confirm";
 import { readFileSync } from "fs";
 
 const COMPANIES: Record<string, { code: string; file: string }> = {

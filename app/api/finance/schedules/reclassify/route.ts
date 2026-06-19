@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withFinanceReportAccess } from "@/lib/with-auth";
-import { computeReclassification } from "@/server/services/finance/schedules/reclassify";
+import { computeReclassification } from "@workspace/finance/server/schedules/reclassify";
 
 export const GET = withFinanceReportAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);

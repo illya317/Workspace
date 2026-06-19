@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withFinanceAnalysisAccess } from "@/lib/with-auth";
-import { getBudgetAnalysis } from "@/server/services/finance/analysis/budget-analysis";
+import { getBudgetAnalysis } from "@workspace/finance/server/analysis/budget-analysis";
 
 export const GET = withFinanceAnalysisAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);

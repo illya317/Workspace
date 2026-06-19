@@ -1,4 +1,4 @@
-import { computeBalancesForPeriod } from "../server/services/finance/ledger/balances";
+import { computeBalancesForPeriod } from "@workspace/finance/server/ledger/balances";
 import { prisma } from "../lib/prisma";
 
 async function main() {

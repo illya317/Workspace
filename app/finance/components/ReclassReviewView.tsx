@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import type { ReclassResultRow } from "@/server/services/finance/ledger/reclass-results/types";
+import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import ReclassReviewModal from "./ReclassReviewModal";
 import { REVIEW_HEADERS, fmt, targetDisplay } from "../ledger/reclassColumns";
 

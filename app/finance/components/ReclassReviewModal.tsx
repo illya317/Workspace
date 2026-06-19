@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { ReclassResultRow } from "@/server/services/finance/ledger/reclass-results/types";
+import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import AccountCodeInput from "./AccountCodeInput";
 
 interface Props {

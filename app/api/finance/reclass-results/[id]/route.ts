@@ -4,8 +4,8 @@ import {
   reviewReclassResult,
   createManualReclassResult,
   ReviewError,
-} from "@/server/services/finance/ledger/reclass-results/review";
-import type { ReviewPayload } from "@/server/services/finance/ledger/reclass-results/types";
+} from "@workspace/finance/server/ledger/reclass-results/review";
+import type { ReviewPayload } from "@workspace/finance/server/ledger/reclass-results/types";
 
 export async function PATCH(
   request: Request,

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withFinanceImportAccess } from "@/lib/with-auth";
-import { parseBalanceSheet, parseJournal, parseAccountTable } from "@/server/services/finance/import/import";
+import { parseBalanceSheet, parseJournal, parseAccountTable } from "@workspace/finance/server/import/import";
 
 export const POST = withFinanceImportAccess(async (request: Request) => {
   try {

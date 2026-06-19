@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import type { ReclassResultRow } from "@/server/services/finance/ledger/reclass-results/types";
+import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import ReclassReviewModal from "../components/ReclassReviewModal";
 
 const PAGE_SIZE = 200;

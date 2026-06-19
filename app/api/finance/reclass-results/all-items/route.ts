@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withFinanceLedgerAccess } from "@/lib/with-auth";
-import { deriveRows } from "@/server/services/finance/ledger/reclass-results/derived";
+import { deriveRows } from "@workspace/finance/server/ledger/reclass-results/derived";
 
 export const GET = withFinanceLedgerAccess(async (request) => {
   const { searchParams } = new URL(request.url);

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { withFinanceLedgerAccess, withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
-import { createVoucher } from "@/server/services/finance/ledger/voucher-service";
+import { createVoucher } from "@workspace/finance/server/ledger/voucher-service";
 import { parsePositiveInt, parseYear, parseMonth, parsePageParams } from "@/lib/validation";
 import { matchText } from "@/lib/search";
 

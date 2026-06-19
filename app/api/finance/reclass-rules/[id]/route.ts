@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { withFinanceLedgerWrite } from "@/lib/with-auth";
 import { prisma } from "@/lib/prisma";
-import { syncReclassRuleResults } from "@/server/services/finance/ledger/reclass-rules/sync";
+import { syncReclassRuleResults } from "@workspace/finance/server/ledger/reclass-rules/sync";
 
 /** 规则删除：仅允许通过 write 权限操作自己的规则 */
 export async function DELETE(

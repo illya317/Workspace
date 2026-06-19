@@ -6,7 +6,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../../generated/prisma/client";
-import { reconcileBalanceSheet } from "../../server/services/finance/ledger/balance-reconcile";
+import { reconcileBalanceSheet } from "@workspace/finance/server/ledger/balance-reconcile";
 async function getCompanyName(code: string): Promise<string> {
   const c = await prisma.company.findUnique({ where: { code }, select: { name: true } });
   return c?.name ?? code;

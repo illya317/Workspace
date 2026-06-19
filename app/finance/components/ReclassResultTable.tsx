@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReclassResultRow } from "@/server/services/finance/ledger/reclass-results/types";
+import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 
 const STATUS_MAP: Record<string, { label: string; cls: string }> = {
   pending: { label: "待审核", cls: "bg-yellow-100 text-yellow-700" },

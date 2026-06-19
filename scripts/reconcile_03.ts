@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "../generated/prisma/client";
-import { reconcileBalanceSheet, ReconcileResult } from "../server/services/finance/ledger/balance-reconcile";
+import { reconcileBalanceSheet, ReconcileResult } from "@workspace/finance/server/ledger/balance-reconcile";
 const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: "data/dev.db" }) });
 
 async function main() {

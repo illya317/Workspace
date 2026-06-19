@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { withFinanceBudgetWrite } from "@/lib/with-auth";
-import { activateBudgetVersion } from "@/server/services/finance/budget/budget-version";
+import { activateBudgetVersion } from "@workspace/finance/server/budget/budget-version";
 
 export const POST = withFinanceBudgetWrite(async (request: Request) => {
   // URL: .../versions/{id}/activate → 取倒数第二段
