@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { getCurrentUser } from "@/server/auth/session";
 import { cancelProposal } from "@workspace/platform/server/agent";
+
+const paramsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
 
 export async function POST(
   _request: Request,
@@ -9,12 +14,11 @@ export async function POST(
   const user = await getCurrentUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { id } = await params;
-  const proposalId = parseInt(id);
-  if (isNaN(proposalId)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+  const parsedParams = paramsSchema.safeParse(await params);
+  if (!parsedParams.success) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
   try {
-    const result = await cancelProposal(proposalId, user);
+    const result = await cancelProposal(parsedParams.data.id, user);
     return NextResponse.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : "取消失败";
