@@ -1,3 +1,4 @@
+export * from "./admin-departments";
 export * from "./autocomplete";
 export * from "./autocomplete-config";
 export * from "./companies";

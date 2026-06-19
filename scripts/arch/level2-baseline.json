@@ -1,7 +1,6 @@
 {
   "uncontractedApiRouteMethods": [],
   "apiRouteMethodsWithDirectPrismaSignal": [
-    "DELETE /api/admin/departments",
     "DELETE /api/finance/accounts/:param",
     "DELETE /api/finance/periods/:param",
     "DELETE /api/finance/reclass-rules/:param",
@@ -9,7 +8,6 @@
     "DELETE /api/finance/vouchers/:param",
     "DELETE /api/works/:param",
     "GET /api/admin/department-permissions",
-    "GET /api/admin/departments",
     "GET /api/admin/permissions",
     "GET /api/admin/position-permissions",
     "GET /api/admin/projects",
@@ -45,7 +43,6 @@
     "DELETE /api/admin/company-codes",
     "DELETE /api/admin/company-codes/:param",
     "DELETE /api/admin/company-relations/:param",
-    "DELETE /api/admin/departments",
     "DELETE /api/admin/position-codes",
     "DELETE /api/departments/:param",
     "DELETE /api/employee-positions/:param",
