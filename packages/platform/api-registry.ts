@@ -117,11 +117,21 @@ function buildApiContracts(
 
 function validateApiContracts(contracts: readonly ApiContract[]) {
   const seenKeys = new Set<string>();
+  const seenRouteOwners = new Map<string, ApiContract>();
   for (const contract of contracts) {
     if (seenKeys.has(contract.key)) {
       throw new Error(`Duplicate API contract key: ${contract.key}`);
     }
     seenKeys.add(contract.key);
+
+    const routeOwnerKey = `${contract.method} ${contract.pathPrefix}`;
+    const existing = seenRouteOwners.get(routeOwnerKey);
+    if (existing) {
+      throw new Error(
+        `Duplicate API contract route owner: ${routeOwnerKey} is registered by ${existing.ownerPackage} and ${contract.ownerPackage}`,
+      );
+    }
+    seenRouteOwners.set(routeOwnerKey, contract);
   }
 }
 
