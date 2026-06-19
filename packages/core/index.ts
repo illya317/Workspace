@@ -1,5 +1,7 @@
 export type {
   ApiGuardRegistration,
+  ApiRouteAccessMode,
+  ApiRouteRegistration,
   ModuleColor,
   ModuleDef,
   ModuleIconKey,

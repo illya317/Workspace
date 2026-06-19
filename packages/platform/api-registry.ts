@@ -1,17 +1,24 @@
-import type { ApiGuardRegistration, WorkspacePackageRegistration } from "@workspace/core";
+import type {
+  ApiGuardRegistration,
+  ApiRouteAccessMode,
+  ApiRouteRegistration,
+  WorkspacePackageRegistration,
+} from "@workspace/core";
 
 import { registeredModuleDefinitions } from "./module-registry";
 
 export type ApiMethod = ApiGuardRegistration["method"];
 export type ApiAction = ApiGuardRegistration["action"];
-export type ApiContractSource = "module-registry";
+export type ApiContractSource = "module-registry.apiGuards" | "module-registry.apiRoutes";
+export type { ApiRouteAccessMode };
 
 export interface ApiContract {
   key: string;
   method: ApiMethod;
   pathPrefix: string;
-  resourceKey: string;
-  action: ApiAction;
+  access: ApiRouteAccessMode;
+  resourceKey: string | null;
+  action: ApiAction | null;
   ownerPackage: string;
   ownerLayer: WorkspacePackageRegistration["layer"];
   ownerModuleKey: string | null;
@@ -30,14 +37,21 @@ function normalizeOwnerKey(definition: WorkspacePackageRegistration) {
 
 function createApiContractKey(
   definition: WorkspacePackageRegistration,
-  guard: ApiGuardRegistration,
+  route: Pick<ApiRouteRegistration, "method" | "pathPrefix" | "access" | "resourceKey" | "action">,
 ) {
   const owner = normalizeOwnerKey(definition);
-  const pathKey = guard.pathPrefix
+  const pathKey = route.pathPrefix
     .replace(/^\/+/, "")
     .replace(/[^a-zA-Z0-9]+/g, ".")
     .replace(/^\.+|\.+$/g, "");
-  return `${owner}.${guard.method.toLowerCase()}.${pathKey}.${guard.action}.${guard.resourceKey}`;
+  return [
+    owner,
+    route.method.toLowerCase(),
+    pathKey,
+    route.access,
+    route.action ?? "none",
+    route.resourceKey ?? "none",
+  ].join(".");
 }
 
 function normalizePathPrefix(pathPrefix: string) {
@@ -59,16 +73,41 @@ function buildApiContracts(
       }
 
       contracts.push({
-        key: createApiContractKey(definition, guard),
+        key: createApiContractKey(definition, { ...guard, access: "protected" }),
         method: guard.method,
         pathPrefix: normalizePathPrefix(guard.pathPrefix),
+        access: "protected",
         resourceKey: guard.resourceKey,
         action: guard.action,
         ownerPackage: definition.packageName,
         ownerLayer: definition.layer,
         ownerModuleKey: definition.moduleDef?.key ?? null,
         ownerResourceKey: definition.moduleDef?.resourceKey ?? null,
-        source: "module-registry",
+        source: "module-registry.apiGuards",
+      });
+    }
+
+    for (const route of definition.apiRoutes ?? []) {
+      if (!API_METHODS.has(route.method)) {
+        throw new Error(`Invalid API contract method: ${route.method}`);
+      }
+
+      if ((route.resourceKey && !route.action) || (!route.resourceKey && route.action)) {
+        throw new Error(`API route contract must set resourceKey and action together: ${route.method} ${route.pathPrefix}`);
+      }
+
+      contracts.push({
+        key: createApiContractKey(definition, route),
+        method: route.method,
+        pathPrefix: normalizePathPrefix(route.pathPrefix),
+        access: route.access,
+        resourceKey: route.resourceKey ?? null,
+        action: route.action ?? null,
+        ownerPackage: definition.packageName,
+        ownerLayer: definition.layer,
+        ownerModuleKey: definition.moduleDef?.key ?? null,
+        ownerResourceKey: definition.moduleDef?.resourceKey ?? null,
+        source: "module-registry.apiRoutes",
       });
     }
   }

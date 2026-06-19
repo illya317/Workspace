@@ -1,4 +1,9 @@
-import type { ApiGuardRegistration, WorkspacePackageRegistration } from "@workspace/core";
+import type {
+  ApiGuardRegistration,
+  ApiRouteAccessMode,
+  ApiRouteRegistration,
+  WorkspacePackageRegistration,
+} from "@workspace/core";
 
 const API_ACTION_BY_METHOD = {
   GET: "access",
@@ -18,6 +23,20 @@ function apiResourceGuards(
     pathPrefix,
     resourceKey,
     action: API_ACTION_BY_METHOD[method],
+  }));
+}
+
+function apiRoutes(
+  pathPrefix: string,
+  access: ApiRouteAccessMode,
+  methods: ApiRouteRegistration["method"][] = ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  resource?: Pick<ApiRouteRegistration, "resourceKey" | "action">,
+): ApiRouteRegistration[] {
+  return methods.map((method) => ({
+    method,
+    pathPrefix,
+    access,
+    ...resource,
   }));
 }
 
@@ -282,6 +301,21 @@ export const registeredModuleDefinitions = [
       { key: "system.audit", name: "审计日志", parentKey: "system", sortOrder: 0 },
       { key: "system.agent", name: "智能体", parentKey: "system", maxRoleKey: "access", sortOrder: 1 },
       { key: "system.api", name: "API接入", parentKey: "system", maxRoleKey: "access", sortOrder: 2 },
+    ],
+    apiRoutes: [
+      ...apiRoutes("/api/admin", "protected", ["GET", "POST", "PUT", "PATCH", "DELETE"], { resourceKey: "system", action: "admin" }),
+      ...apiRoutes("/api/agent", "protected", ["GET", "POST"], { resourceKey: "system.agent", action: "access" }),
+      ...apiRoutes("/api/auth/change-password", "protected", ["POST"]),
+      ...apiRoutes("/api/auth/dev-login", "dev", ["POST", "DELETE"]),
+      ...apiRoutes("/api/auth/gateway-check", "protected", ["GET"]),
+      ...apiRoutes("/api/auth/me", "protected", ["GET"]),
+      ...apiRoutes("/api/auth/wecom", "public", ["GET"]),
+      ...apiRoutes("/api/dev-login-bypass", "dev", ["GET"]),
+      ...apiRoutes("/api/inventory", "disabled", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiRoutes("/api/my-api-key", "protected", ["GET", "POST"], { resourceKey: "system.api", action: "access" }),
+      ...apiRoutes("/api/my-targets", "protected", ["GET"]),
+      ...apiRoutes("/api/user", "protected", ["GET", "PUT"]),
+      ...apiRoutes("/api/week-info", "public", ["GET"]),
     ],
   },
   {

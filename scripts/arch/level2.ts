@@ -2,7 +2,13 @@ import fs from "node:fs";
 import path from "node:path";
 import ts from "typescript";
 
-import { apiContracts, findApiContract, type ApiMethod } from "../../packages/platform/api-registry";
+import {
+  apiContracts,
+  findApiContract,
+  type ApiContractSource,
+  type ApiMethod,
+  type ApiRouteAccessMode,
+} from "../../packages/platform/api-registry";
 import { registeredModuleDefinitions } from "../../packages/platform/module-registry";
 
 type ImportRecord = {
@@ -33,6 +39,8 @@ type ApiRouteMethod = {
   path: string;
   method: ApiMethod;
   contractKey: string | null;
+  contractAccess: ApiRouteAccessMode | null;
+  contractSource: ApiContractSource | null;
   ownerPackage: string | null;
   resourceKey: string | null;
   action: string | null;
@@ -351,6 +359,8 @@ function findApiRouteMethods(files: SourceInfo[]) {
         path: apiPath,
         method,
         contractKey: contract?.key ?? null,
+        contractAccess: contract?.access ?? null,
+        contractSource: contract?.source ?? null,
         ownerPackage: contract?.ownerPackage ?? null,
         resourceKey: contract?.resourceKey ?? null,
         action: contract?.action ?? null,

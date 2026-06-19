@@ -72,6 +72,16 @@ export interface ApiGuardRegistration {
   action: "access" | "write" | "delete" | "admin";
 }
 
+export type ApiRouteAccessMode = "protected" | "public" | "dev" | "disabled";
+
+export interface ApiRouteRegistration {
+  method: ApiGuardRegistration["method"];
+  pathPrefix: string;
+  access: ApiRouteAccessMode;
+  resourceKey?: string;
+  action?: ApiGuardRegistration["action"];
+}
+
 export interface WorkspacePackageRegistration {
   packageName: string;
   layer: WorkspaceLayer;
@@ -79,4 +89,5 @@ export interface WorkspacePackageRegistration {
   resourceDefs?: ResourceRegistration[];
   routes?: string[];
   apiGuards?: ApiGuardRegistration[];
+  apiRoutes?: ApiRouteRegistration[];
 }
