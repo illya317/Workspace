@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import Toast from "@/app/components/Toast";
-import { useToast } from "@/app/hooks/useToast";
+import { useToast } from "@workspace/core/hooks";
 import { DataTable, getDefaultVisibleColumns } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";

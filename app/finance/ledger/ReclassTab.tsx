@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import FinanceFilters from "../components/FinanceFilters";
-import { useCSV } from "@/app/hooks/useCSV";
+import { useCSV } from "@workspace/core/hooks";
 
 const fmt = (n: number) => n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 

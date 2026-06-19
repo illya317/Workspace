@@ -1,7 +1,7 @@
 "use client";
 
 import { SelectField } from "@workspace/core/ui";
-import { useCompanyOptions } from "@/app/hooks/useCompanyOptions";
+import { useCompanyOptions } from "@workspace/platform/hooks";
 
 const YS = ["2024", "2025", "2026"];
 const MS = Array.from({ length: 12 }, (_, i) => ({ v: String(i + 1), l: `${i + 1}月` }));

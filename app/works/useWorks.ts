@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useToast } from "@/app/hooks/useToast";
+import { useToast } from "@workspace/core/hooks";
 import type { WorkItem } from "./types";
 
 export function useWorks() {

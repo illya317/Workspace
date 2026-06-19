@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Toast from "@/app/components/Toast";
-import { useToast } from "@/app/hooks/useToast";
+import { useToast } from "@workspace/core/hooks";
 import { getDefaultVisibleColumns } from "@workspace/core/ui";
 import FilterField from "@/app/components/FilterField";
 import StatusToggle from "@/app/components/StatusToggle";

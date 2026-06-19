@@ -7,7 +7,7 @@ import UnmappedTab from "./UnmappedTab";
 import BalanceCheckTab from "./BalanceCheckTab";
 import { StatementConfigProvider, useStatementConfig } from "./StatementConfigContext";
 import { SelectField } from "@workspace/core/ui";
-import { useCompanyOptions } from "@/app/hooks/useCompanyOptions";
+import { useCompanyOptions } from "@workspace/platform/hooks";
 
 const tabs = [
   { key: "lines", label: "报表项目配置" },

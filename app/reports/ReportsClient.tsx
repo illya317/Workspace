@@ -2,7 +2,7 @@
 
 import TargetSwitcher from "@/app/components/TargetSwitcher";
 import Toast from "@/app/components/Toast";
-import { useToast } from "@/app/hooks/useToast";
+import { useToast } from "@workspace/core/hooks";
 import ReportEditor from "./ReportEditor";
 import { useReports } from "./useReports";
 

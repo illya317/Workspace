@@ -8,7 +8,7 @@ import UserMenu from "@/app/components/UserMenu";
 import TabBar from "@/app/components/TabBar";
 import Toast from "@/app/components/Toast";
 import SelectField from "@/app/components/SelectField";
-import { useToast } from "@/app/hooks/useToast";
+import { useToast } from "@workspace/core/hooks";
 import AdminUsersTab from "./tabs/AdminUsersTab";
 import PermissionsTab from "./tabs/PermissionsTab";
 

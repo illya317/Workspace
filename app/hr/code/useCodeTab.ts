@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { workspacePath } from "@/app/lib/api-path";
-import { useToast } from "@/app/hooks/useToast";
+import { useToast } from "@workspace/core/hooks";
 import { useCodeData } from "./hooks/useCodeData";
 import { useCodeTable } from "./hooks/useCodeTable";
 import { useCodeEdit } from "./hooks/useCodeEdit";

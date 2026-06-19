@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import HRToolbar from "@/app/components/HRToolbar";
 import AuditLogModal from "@/app/components/AuditLogModal";
 import Toast from "@/app/components/Toast";
-import { useToast } from "@/app/hooks/useToast";
+import { useToast } from "@workspace/core/hooks";
 import FilterModal from "../components/FilterModal";
 import GenericFieldInput from "../components/GenericFieldInput";
 import GenericToolbarFilters from "../components/GenericToolbarFilters";

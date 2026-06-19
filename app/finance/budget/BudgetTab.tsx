@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Toast from "@/app/components/Toast";
-import { useToast } from "@/app/hooks/useToast";
+import { useToast } from "@workspace/core/hooks";
 import { useBudgetData } from "./hooks/useBudgetData";
 import { useBudgetFilters } from "./hooks/useBudgetFilters";
 import BudgetVersionSelector from "./components/BudgetVersionSelector";

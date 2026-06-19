@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { workspacePath } from "@/app/lib/api-path";
 import HRToolbar from "@/app/components/HRToolbar";
 import Toast from "@/app/components/Toast";
-import { useToast } from "@/app/hooks/useToast";
+import { useToast } from "@workspace/core/hooks";
 import { EntitySearchInput } from "@workspace/hr/ui";
 
 import type { HRUser as User, RosterEmployee as Employee } from "../types";
