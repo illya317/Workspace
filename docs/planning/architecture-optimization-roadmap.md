@@ -47,7 +47,7 @@
 
 后续补强：
 
-- 新增 `npm run api:check`，检查新 API 是否落在允许的 domain 下。
+- API route governance 已归入 `npm run arch:gate`，检查新 API 是否落在允许的 domain 下，并保证 legacy API 只做代理。
 - 新增 `npm run docs:check`，检查新增 domain 是否有 `ARCHITECTURE.md`。
 
 验收：

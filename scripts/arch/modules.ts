@@ -9,6 +9,7 @@ export function checkModules() {
     ["Resource registry", "node", ["scripts/check/check-resource-registry.js"]],
     ["Module page gates", "node", ["scripts/check/check-module-page-gates.js"]],
     ["Package boundaries", "node", ["scripts/check/check-package-boundaries.js"]],
+    ["API route governance", "node", ["scripts/check/check-api-routes.js"]],
     ["Architecture governance docs", "node", ["scripts/check/check-architecture-governance.js"]],
   ];
 

@@ -468,7 +468,7 @@ function hasCompatibilityProxySignal(file: SourceInfo) {
     item.specifier === "@/lib/proxy-route" ||
     item.specifier === "@workspace/platform/server/api"
   ));
-  const callsProxyHelper = /\bcreate(ValidatedId)?ProxyHandler\s*\(\s*["']\/api\//.test(file.text);
+  const callsProxyHelper = /\bcreate(Compatibility|ValidatedId)?ProxyHandler\s*\(\s*["']\/api\//.test(file.text);
   const proxiesWithFetch =
     /\bfetch\s*\(/.test(file.text) &&
     /new URL\(\s*["']\/api\//.test(file.text);
@@ -791,6 +791,7 @@ export function createLevel2Report(): Level2Report {
   const apiRouteMethodsWithoutValidationSignal = apiRouteMethods
     .filter((route) => route.method !== "GET")
     .filter((route) => !route.hasGoneRouteSignal)
+    .filter((route) => !route.hasCompatibilityProxySignal)
     .filter((route) => !route.hasValidationSignal);
   const apiRouteMethodsWithoutServiceSignal = apiRouteMethods
     .filter((route) => !route.hasServiceSignal)

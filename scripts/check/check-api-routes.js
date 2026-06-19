@@ -82,7 +82,7 @@ function isPureProxy(content) {
 
   // 检查是否有代理模式（inline 或 createProxyHandler）
   const hasProxy = codeLines.some((l) =>
-    /fetch\(|new URL\(|target|createProxyHandler/.test(l)
+    /fetch\(|new URL\(|target|create(?:Compatibility|ValidatedId)?ProxyHandler/.test(l)
   );
   return hasProxy;
 }

@@ -79,7 +79,7 @@ for (const file of walk(API_ROOT)) {
       /\bgetCurrentUser\s*\(/.test(code) ||
       /\brequireCurrentUser\s*\(/.test(code);
     const delegatesToPackageService = /\bfrom\s+["']@workspace\/[^"']+\/server["']/.test(code);
-    const delegatesToProxyRoute = /\bcreateProxyHandler\b/.test(code) ||
+    const delegatesToProxyRoute = /\bcreate(?:Compatibility|ValidatedId)?ProxyHandler\b/.test(code) ||
       /\bfetch\s*\(\s*target\b/.test(code) ||
       /\bnew\s+URL\s*\(\s*["']\/api\//.test(code);
     const usesSecretTokenGate = /x-qc-cache-warmup|NEXTAUTH_SECRET/.test(code);

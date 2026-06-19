@@ -125,6 +125,45 @@ export function createValidatedIdProxyHandler(targetPathPrefix: string, invalidI
   };
 }
 
+export type CompatibilityProxyOptions = {
+  defaultPageSize?: number;
+};
+
+export function createCompatibilityProxyHandler(
+  targetPath: string,
+  options: CompatibilityProxyOptions = {},
+) {
+  return async function handler(request: Request) {
+    const sourceUrl = new URL(request.url);
+    const target = new URL(targetPath, sourceUrl.origin);
+    target.search = sourceUrl.search;
+    if (options.defaultPageSize !== undefined && !sourceUrl.searchParams.has("pageSize")) {
+      target.searchParams.set("pageSize", String(options.defaultPageSize));
+    }
+
+    const headers = new Headers(request.headers);
+    headers.delete("host");
+    headers.delete("content-length");
+
+    const requestInit: RequestInit & { duplex?: "half" } = {
+      method: request.method,
+      headers,
+      redirect: "manual",
+    };
+    if (!["GET", "HEAD"].includes(request.method.toUpperCase())) {
+      requestInit.body = request.body;
+      requestInit.duplex = "half";
+    }
+
+    const response = await fetch(target, requestInit);
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+    });
+  };
+}
+
 export async function validateCompatibilityProxyBody(request: Request): Promise<ParsedJson<Record<string, unknown>>> {
   if (!["POST", "PUT", "PATCH"].includes(request.method.toUpperCase())) {
     return { ok: true, data: {} };
