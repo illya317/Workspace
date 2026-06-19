@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { TextField, getToolbarActionClassName } from "@workspace/core/ui";
 import DetailModal from "@workspace/core/ui/DetailModal";
 
 interface PasswordModalProps {
@@ -27,8 +28,7 @@ export default function PasswordModal({ open, onClose }: PasswordModalProps) {
     }
   }, [open]);
 
-  async function handleChangePassword(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleChangePassword() {
     setPwdError("");
     setPwdSuccess("");
 
@@ -66,38 +66,38 @@ export default function PasswordModal({ open, onClose }: PasswordModalProps) {
       onClose={onClose}
       maxWidth="max-w-sm"
     >
-      <form onSubmit={handleChangePassword} className="space-y-4">
+      <div className="space-y-4">
         <div>
           <label className="mb-1.5 block text-sm text-gray-500">旧密码</label>
-          <input
+          <TextField
             type="password"
             value={oldPwd}
-            onChange={(e) => setOldPwd(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            onChange={setOldPwd}
             required
             autoFocus
           />
         </div>
         <div>
           <label className="mb-1.5 block text-sm text-gray-500">新密码</label>
-          <input
+          <TextField
             type="password"
             value={newPwd}
-            onChange={(e) => setNewPwd(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            onChange={setNewPwd}
             required
             minLength={4}
           />
         </div>
         <div>
           <label className="mb-1.5 block text-sm text-gray-500">确认新密码</label>
-          <input
+          <TextField
             type="password"
             value={confirmPwd}
-            onChange={(e) => setConfirmPwd(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            onChange={setConfirmPwd}
             required
             minLength={4}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") void handleChangePassword();
+            }}
           />
         </div>
         {pwdError && <p className="text-sm text-red-500">{pwdError}</p>}
@@ -106,18 +106,19 @@ export default function PasswordModal({ open, onClose }: PasswordModalProps) {
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-gray-300 px-5 py-2 text-sm text-gray-600 hover:bg-gray-50"
+            className={getToolbarActionClassName("secondary")}
           >
             取消
           </button>
           <button
             type="submit"
-            className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+            onClick={() => void handleChangePassword()}
+            className={getToolbarActionClassName("primary")}
           >
             确认
           </button>
         </div>
-      </form>
+      </div>
     </DetailModal>
   );
 }

@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState, useRef, useMemo } from "react";
-import { Toast, useConfirmDelete } from "@workspace/core/ui";
+import { DataTable, PanelCard, Toast, getToolbarActionClassName, useConfirmDelete } from "@workspace/core/ui";
+import type { DataTableColumn } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import { matchText } from "@workspace/core/search";
 import type { RuleCandidate } from "@workspace/finance/types";
 import Pagination from "./Pagination";
-import ReclassConfigRow from "./ReclassConfigRow";
-import { RECLASS_HEADERS } from "../ledger/reclassColumns";
+import AccountCodeInput from "./AccountCodeInput";
+import { dirBadge, fmt, targetDisplay } from "../ledger/reclassColumns";
 
 function deriveAbnormalSide(bd: string) { return bd === "debit" ? "credit" : "debit"; }
 function suggestTarget(c: string) { return c.startsWith("1") ? "2241" : c.startsWith("2") ? "1463" : ""; }
@@ -133,25 +134,8 @@ export default function ReclassCandidateList({
 
   // ── Sort ─────────────────────────────────────────────
 
-  type ConfigSortKey = "accountCode" | "amount";
-  const [sortKey, setSortKey] = useState<ConfigSortKey>("amount");
-  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
-
-  const CONFIG_SORT: Record<string, ConfigSortKey> = {
-    "科目编码": "accountCode",
-    "金额": "amount",
-  };
-
-  function handleSort(label: string) {
-    const key = CONFIG_SORT[label];
-    if (!key) return;
-    if (sortKey === key) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    } else {
-      setSortKey(key);
-      setSortDir(key === "amount" ? "desc" : "asc");
-    }
-  }
+  const sortKey = "amount" as "accountCode" | "amount";
+  const sortDir = "desc" as "asc" | "desc";
 
   // ── Filter & Sort ─────────────────────────────────────
 
@@ -176,49 +160,166 @@ export default function ReclassCandidateList({
   const totalPages = Math.ceil(filtered.length / pageSize);
   const skip = (page - 1) * pageSize;
   const paged = filtered.slice(skip, skip + pageSize);
+  const columns: DataTableColumn<RuleCandidate>[] = [
+    {
+      key: "accountCode",
+      label: "科目编码",
+      required: true,
+      cellClassName: "font-mono text-slate-600",
+      render: (candidate) => candidate.accountCode,
+    },
+    {
+      key: "accountName",
+      label: "科目名称",
+      required: true,
+      render: (candidate) => candidate.accountName,
+    },
+    {
+      key: "side",
+      label: "借贷",
+      defaultVisible: true,
+      headerClassName: "text-center",
+      cellClassName: "text-center",
+      render: (candidate) => candidate.abnormalSide
+        ? dirBadge(candidate.abnormalSide)
+        : <span className="text-slate-400">{candidate.balanceDirection === "debit" ? "借" : candidate.balanceDirection === "credit" ? "贷" : "—"}</span>,
+    },
+    {
+      key: "amount",
+      label: "金额",
+      defaultVisible: true,
+      headerClassName: "text-right",
+      cellClassName: "text-right font-mono text-slate-700",
+      render: (candidate) => `¥${fmt(candidate.abnormalAmount)}`,
+    },
+    {
+      key: "target",
+      label: "建议科目",
+      defaultVisible: true,
+      render: (candidate) => {
+        const rowKey = candidate.accountCode + "::" + candidate.abnormalSide;
+        const hasRule = !!candidate.existingRuleId;
+        const displayTarget = candidate.existingTarget || candidate.suggestedTarget;
+        const targetClassName = hasRule
+          ? "inline-block cursor-pointer rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono text-xs text-emerald-700 hover:ring-1 hover:ring-emerald-300"
+          : displayTarget
+            ? "inline-block cursor-pointer rounded border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-xs text-slate-500 hover:ring-1 hover:ring-emerald-300"
+            : "inline-block cursor-pointer rounded border border-dashed border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-400 hover:border-emerald-300 hover:text-emerald-600";
+
+        return (
+          <div
+            className="cursor-pointer"
+            onClick={(event) => {
+              event.stopPropagation();
+              if (!editCode && canWrite) onStartEdit(candidate);
+            }}
+          >
+            {editCode === rowKey ? (
+              <div ref={editRef} onKeyDown={(event) => {
+                if (event.key === "Escape") onCancelEdit();
+                if (event.key === "Enter") void onCommitEdit(candidate);
+              }}>
+                <AccountCodeInput
+                  companyCode={companyCode}
+                  year={year}
+                  value={editValue}
+                  onChange={onEditValueChange}
+                />
+              </div>
+            ) : displayTarget ? (
+              <span className={targetClassName}>{targetDisplay(displayTarget)}</span>
+            ) : (
+              <span className={targetClassName}>选择科目</span>
+            )}
+          </div>
+        );
+      },
+    },
+    ...(canWrite ? [{
+      key: "actions",
+      label: "操作",
+      defaultVisible: true,
+      headerClassName: "text-center",
+      cellClassName: "text-center",
+      render: (candidate: RuleCandidate) => {
+        if (candidate.existingRuleId) {
+          return (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                void clearRule(candidate);
+              }}
+              className={getToolbarActionClassName("secondary").replace("px-4 py-2", "px-2 py-1").replace("text-sm", "text-xs")}
+            >
+              清除规则
+            </button>
+          );
+        }
+        if (candidate.suggestedTarget) {
+          return (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                void saveRule(candidate, candidate.suggestedTarget).then((saved) => {
+                  if (saved) showToast("已确认规则");
+                });
+              }}
+              className={getToolbarActionClassName("secondary").replace("px-4 py-2", "px-2 py-1").replace("text-sm", "text-xs")}
+            >
+              确认
+            </button>
+          );
+        }
+        return (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              startEdit(candidate);
+            }}
+            className={getToolbarActionClassName("secondary").replace("px-4 py-2", "px-2 py-1").replace("text-sm", "text-xs")}
+          >
+            调整
+          </button>
+        );
+      },
+    } satisfies DataTableColumn<RuleCandidate>] : []),
+  ];
+
+  function onStartEdit(candidate: RuleCandidate) {
+    startEdit(candidate);
+  }
+
+  function onCancelEdit() {
+    setEditCode(null);
+    setEditValue("");
+  }
+
+  function onEditValueChange(nextValue: string) {
+    setEditValue(nextValue);
+  }
+
+  async function onCommitEdit(candidate: RuleCandidate) {
+    await commitEdit(candidate);
+  }
+
   // ── Render ───────────────────────────────────────────
   if (loading) return <p className="py-8 text-center text-sm text-gray-400">扫描中...</p>;
   if (allAccounts.length === 0) return <p className="py-8 text-center text-sm text-gray-400">该年度无科目数据</p>;
 
   return (
     <div>
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-        <table className="w-full text-xs">
-          <thead className="border-b bg-gray-100">
-            <tr>
-              {RECLASS_HEADERS.map((h) => {
-                const canSort = h in CONFIG_SORT;
-                const active = CONFIG_SORT[h] === sortKey;
-                return (
-                  <th key={h}
-                    className={`px-3 py-1.5 font-medium text-gray-500 ${h === "金额" ? "text-right" : h === "借贷" ? "text-center" : "text-left"} ${canSort ? "cursor-pointer select-none hover:text-gray-700" : ""}`}
-                    onClick={canSort ? () => handleSort(h) : undefined}>
-                    {h}{active && <span className="text-gray-400">{sortDir === "asc" ? " ↑" : " ↓"}</span>}
-                  </th>
-                );
-              })}
-              {canWrite && <th className="px-3 py-1.5 text-center font-medium text-gray-500">操作</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {paged.map((c) => (
-              <ReclassConfigRow
-                key={c.accountCode + "::" + c.abnormalSide}
-                c={c} canWrite={canWrite}
-                companyCode={companyCode} year={year}
-                editing={editCode === c.accountCode + "::" + c.abnormalSide}
-                editValue={editValue} editRef={editRef}
-                onStartEdit={startEdit}
-                onCommitEdit={commitEdit}
-                onSaveRule={async (c, t) => { if (await saveRule(c, t)) showToast("已确认规则"); }}
-                onClearRule={clearRule}
-                onEditValueChange={setEditValue}
-                onCancelEdit={() => { setEditCode(null); setEditValue(""); }}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
+        <DataTable
+          rows={paged}
+          columns={columns}
+          visibleColumns={columns.map((column) => column.key)}
+          rowKey={(candidate) => candidate.accountCode + "::" + candidate.abnormalSide}
+          density="compact"
+        />
+      </PanelCard>
       <Pagination page={page} totalPages={totalPages} total={filtered.length} onPageChange={setPage} />
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>

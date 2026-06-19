@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { workspacePath } from "@/app/lib/api-path";
-import HRToolbar from "@/app/components/HRToolbar";
-import Toast from "@/app/components/Toast";
+import { workspacePath } from "@workspace/core/routing";
+import HRToolbar from "@workspace/hr/ui/components/HRToolbar";
+import Toast from "@workspace/core/ui/Toast";
 import { useToast } from "@workspace/core/hooks";
+import { PanelCard } from "@workspace/core/ui";
 import { EntitySearchInput } from "@workspace/hr/ui";
 
 import type { HRUser as User, RosterEmployee as Employee } from "../types";
@@ -133,21 +134,21 @@ export default function RosterTab({ user: _user, selectedCompany }: { user: User
         </button>
       </HRToolbar>
 
-      <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+      <PanelCard bodyClassName="overflow-x-auto">
         {loading ? (
           <p className="p-8 text-center text-gray-500">加载中...</p>
         ) : employees.length === 0 ? (
           <p className="p-8 text-center text-gray-500">暂无数据</p>
         ) : (
-          <table className="w-full text-xs">
-            <thead className="border-b bg-gray-50">
+          <table className="min-w-full text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
               <tr>
-                <th className="whitespace-nowrap px-3 py-2 text-left font-medium text-gray-600">序号</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">序号</th>
                 {displayFields.map((f) => (
                   <th
                     key={f.key}
                     onClick={() => toggleSort(f.key)}
-                    className="cursor-pointer whitespace-nowrap px-3 py-2 text-left font-medium text-gray-600 hover:bg-gray-100 select-none"
+                    className="cursor-pointer select-none whitespace-nowrap px-4 py-3 font-medium hover:bg-slate-100"
                   >
                     <span className="flex items-center gap-1">
                       {f.label}
@@ -159,7 +160,7 @@ export default function RosterTab({ user: _user, selectedCompany }: { user: User
                 ))}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {(() => {
                 let seq = 0;
                 let lastEmpId = "";
@@ -170,8 +171,8 @@ export default function RosterTab({ user: _user, selectedCompany }: { user: User
                   }
                   const empMerge = mergeInfo.get(rowIndex) || {};
                   return (
-                    <tr key={`${emp.employeeId}-${rowIndex}`} className={`border-b last:border-0 hover:bg-gray-50 ${emp.status === "离职" ? "bg-gray-100" : ""}`}>
-                      <td className="whitespace-nowrap px-3 py-2 text-gray-500">{seq}</td>
+                    <tr key={`${emp.employeeId}-${rowIndex}`} className={`hover:bg-slate-50/60 ${emp.status === "离职" ? "bg-slate-100" : ""}`}>
+                      <td className="whitespace-nowrap px-4 py-3 text-slate-500">{seq}</td>
                       {displayFields.map((f) => {
                       const merge = empMerge[f.key];
                       if (merge?.skip) return null;
@@ -181,7 +182,7 @@ export default function RosterTab({ user: _user, selectedCompany }: { user: User
                         <td
                           key={f.key}
                           rowSpan={rowSpan}
-                          className="whitespace-nowrap px-3 py-2 text-gray-700"
+                          className="whitespace-nowrap px-4 py-3"
                         >
                           {val || "-"}
                         </td>
@@ -194,7 +195,7 @@ export default function RosterTab({ user: _user, selectedCompany }: { user: User
             </tbody>
           </table>
         )}
-      </div>
+      </PanelCard>
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>
   );

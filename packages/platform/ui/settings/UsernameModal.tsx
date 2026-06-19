@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { TextField, getToolbarActionClassName } from "@workspace/core/ui";
 import DetailModal from "@workspace/core/ui/DetailModal";
 import type { SessionUser } from "@workspace/platform/types";
 
@@ -24,8 +25,7 @@ export default function UsernameModal({ open, onClose, user, onSuccess }: Userna
     }
   }, [open]);
 
-  async function handleChangeUsername(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleChangeUsername() {
     setUnameError("");
     setUnameSuccess("");
     if (!newUsername.trim()) { setUnameError("用户名不能为空"); return; }
@@ -51,20 +51,22 @@ export default function UsernameModal({ open, onClose, user, onSuccess }: Userna
       onClose={onClose}
       maxWidth="max-w-sm"
     >
-      <form onSubmit={handleChangeUsername} className="space-y-4">
+      <div className="space-y-4">
         <div>
           <label className="mb-1.5 block text-sm text-gray-500">当前用户名</label>
           <p className="text-base text-gray-700">{user?.username || "(未设置)"}</p>
         </div>
         <div>
           <label className="mb-1.5 block text-sm text-gray-500">新用户名</label>
-          <input
+          <TextField
             type="text"
             value={newUsername}
-            onChange={(e) => setNewUsername(e.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            onChange={setNewUsername}
             required
             autoFocus
+            onKeyDown={(event) => {
+              if (event.key === "Enter") void handleChangeUsername();
+            }}
           />
         </div>
         {unameError && <p className="text-sm text-red-500">{unameError}</p>}
@@ -73,18 +75,19 @@ export default function UsernameModal({ open, onClose, user, onSuccess }: Userna
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-gray-300 px-5 py-2 text-sm text-gray-600 hover:bg-gray-50"
+            className={getToolbarActionClassName("secondary")}
           >
             取消
           </button>
           <button
             type="submit"
-            className="rounded-lg bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+            onClick={() => void handleChangeUsername()}
+            className={getToolbarActionClassName("primary")}
           >
             确认
           </button>
         </div>
-      </form>
+      </div>
     </DetailModal>
   );
 }

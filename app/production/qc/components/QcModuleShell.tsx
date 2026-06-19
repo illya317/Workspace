@@ -1,5 +1,5 @@
-import AppShell from "@/app/components/AppShell";
-import type { SessionUser } from "@/lib/types";
+import AppShell from "@workspace/platform/ui/AppShell";
+import type { SessionUser } from "@workspace/platform/types";
 import type { ReactNode } from "react";
 
 interface QcPanel {

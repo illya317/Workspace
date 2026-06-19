@@ -1,6 +1,7 @@
 "use client";
 import { useMemo, useRef, useState } from "react";
 import type { QcTemplateDetail, QcTemplateFeedbackState } from "@workspace/production/server/qc";
+import { SearchInput } from "@workspace/core/ui";
 import TemplateFeedbackModal from "./template-workbench/TemplateFeedbackModal";
 import TemplatePreviewModal from "./template-workbench/TemplatePreviewModal";
 import StageRows, { testMatches } from "./template-workbench/WorkbenchRows";
@@ -103,7 +104,13 @@ export default function QcTemplateWorkbench({ templates, feedbackStates }: Props
       </aside>
       <div className="min-w-0 space-y-5">
         <div className="flex flex-wrap gap-3">
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索产品、阶段、项目" className="h-10 min-w-[260px] flex-1 rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-emerald-600" />
+          <SearchInput
+            value={query}
+            onChange={setQuery}
+            placeholder="搜索产品、阶段、项目"
+            size="toolbar"
+            className="min-w-[260px] flex-1"
+          />
         </div>
         {previewError && <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{previewError}</div>}
         {visibleTemplates.map((template) => (

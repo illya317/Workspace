@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import AgentProvider from "@/app/components/agent/AgentProvider";
-import ConfirmProvider from "@/app/components/ConfirmProvider";
+import AgentProvider from "@workspace/platform/ui/agent";
+import ConfirmProvider from "@workspace/core/ui/ConfirmProvider";
 
 export const metadata: Metadata = {
   title: process.env.NEXT_PUBLIC_APP_NAME || "工作台",

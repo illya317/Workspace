@@ -3,6 +3,15 @@
 import { useMemo, useState, type ReactNode } from "react";
 import EntitySearchInput, { type SearchOption } from "../components/EntitySearchInput";
 import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
+import {
+  SectionCard,
+  TextField,
+  TextareaField,
+  getFieldInputClassName,
+  getReadOnlyFieldClassName,
+  getTagInputShellClassName,
+  getTagPillClassName,
+} from "@workspace/core/ui";
 import EthnicityPicker from "../components/EthnicityPicker";
 import MajorPicker from "../components/MajorPicker";
 import OptionPicker from "../components/OptionPicker";
@@ -94,12 +103,12 @@ function AliasTagsInput({
 
   return (
     <div
-      className="flex min-h-10 w-full flex-wrap items-center gap-2 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 shadow-sm focus-within:border-slate-400 focus-within:ring-1 focus-within:ring-slate-400 disabled:bg-slate-100"
+      className={getTagInputShellClassName()}
     >
       {tags.map((tag, index) => (
         <span
           key={`${tag}-${index}`}
-          className="inline-flex max-w-full items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-800 shadow-sm"
+          className={getTagPillClassName()}
         >
           <span className="truncate">{tag}</span>
           {!disabled && (
@@ -117,9 +126,9 @@ function AliasTagsInput({
       {disabled ? (
         tags.length === 0 ? <span className="text-slate-400">未设置</span> : null
       ) : (
-        <input
+        <TextField
           value={draft}
-          onChange={(event) => setDraft(event.target.value)}
+          onChange={setDraft}
           onBlur={commitDraft}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
@@ -133,6 +142,7 @@ function AliasTagsInput({
             }
           }}
           placeholder={tags.length === 0 ? "添加别名" : ""}
+          unstyled
           className="min-w-24 flex-1 border-0 bg-transparent px-1 py-1 text-sm text-slate-800 outline-none placeholder:text-slate-400"
         />
       )}
@@ -151,7 +161,7 @@ export function ProfileFieldInput({
     return (
       <div
         aria-readonly="true"
-        className="w-full rounded-md border border-slate-300 bg-slate-100 px-3 py-2 text-sm text-slate-500 shadow-sm"
+        className={getReadOnlyFieldClassName()}
       >
         {solarToLunarBirthday(value) || <span className="text-slate-400">未设置</span>}
       </div>
@@ -223,6 +233,7 @@ export function ProfileFieldInput({
     return (
       <EntitySearchInput
         entity={field.entity}
+        fkKey={field.fkKey}
         value={value == null ? "" : String(value)}
         displayValue={display}
         disabled={disabled}
@@ -243,12 +254,11 @@ export function ProfileFieldInput({
 
   if (field.type === "textarea") {
     return (
-      <textarea
+      <TextareaField
         disabled={disabled}
         value={normalizeInputValue(value)}
-        onChange={(event) => onChange(field.key, event.target.value || null)}
+        onChange={(next) => onChange(field.key, next || null)}
         rows={3}
-        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500"
       />
     );
   }
@@ -291,35 +301,35 @@ export function ProfileFieldInput({
         disabled={disabled}
         value={normalizeInputValue(value)}
         onChange={(next) => onChange(field.key, next)}
-        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500"
+        className={getFieldInputClassName()}
       />
     );
   }
 
   if (field.type === "phone") {
     return (
-      <input
+      <TextField
         disabled={disabled}
         type="tel"
         value={formatPhoneNumber(value)}
-        onChange={(event) => onChange(field.key, normalizePhoneValue(event.target.value))}
+        onChange={(next) => onChange(field.key, normalizePhoneValue(next))}
         inputMode="tel"
-        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500"
       />
     );
   }
 
   if (field.type === "percent") {
     return (
-      <div className="flex w-full overflow-hidden rounded-md border border-slate-300 bg-white text-sm text-slate-800 shadow-sm focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-        <input
+      <div className={getFieldInputClassName("flex overflow-hidden px-0 py-0 focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500")}>
+        <TextField
           disabled={disabled}
           type="number"
           min={0}
           max={100}
           step="0.01"
           value={toPercentDisplay(value)}
-          onChange={(event) => onChange(field.key, fromPercentDisplay(event.target.value))}
+          onChange={(next) => onChange(field.key, fromPercentDisplay(next))}
+          unstyled
           className="min-w-0 flex-1 border-0 bg-transparent px-3 py-2 outline-none disabled:bg-slate-100 disabled:text-slate-500"
         />
         <span className="grid w-10 place-items-center border-l border-slate-200 bg-slate-50 text-slate-500">%</span>
@@ -329,28 +339,25 @@ export function ProfileFieldInput({
 
   if (field.type === "chineseId") {
     return (
-      <input
+      <TextField
         disabled={disabled}
         type="text"
         value={normalizeChineseIdNumber(value) ?? ""}
-        onChange={(event) => onChange(field.key, normalizeChineseIdNumber(event.target.value)?.slice(0, 18) ?? null)}
+        onChange={(next) => onChange(field.key, normalizeChineseIdNumber(next)?.slice(0, 18) ?? null)}
         inputMode="text"
         maxLength={18}
-        className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500"
       />
     );
   }
 
   return (
-    <input
+    <TextField
       disabled={disabled}
       type={field.type === "number" ? "number" : "text"}
       value={normalizeInputValue(value)}
-      onChange={(event) => {
-        const raw = event.target.value;
+      onChange={(raw) => {
         onChange(field.key, field.type === "number" ? (raw ? Number(raw) : null) : raw || null);
       }}
-      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500"
     />
   );
 }
@@ -369,16 +376,18 @@ export function SectionShell({
   children: ReactNode;
 }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white shadow-sm">
-      <div className="flex flex-col gap-3 border-b border-slate-200 px-5 py-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
-          <h2 className="text-base font-semibold text-slate-900">{title}</h2>
-          {subtitle && <p className="mt-1 text-xs text-slate-500">{subtitle}</p>}
+    <SectionCard
+      title={(
+        <div>
+          <div>{title}</div>
           {status && <div className="mt-2">{status}</div>}
         </div>
-        {actions && <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">{actions}</div>}
-      </div>
-      <div className="p-5">{children}</div>
-    </section>
+      )}
+      subtitle={subtitle}
+      actions={actions && <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">{actions}</div>}
+      bodyClassName="p-5"
+    >
+      {children}
+    </SectionCard>
   );
 }

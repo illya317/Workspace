@@ -3,6 +3,8 @@ import { extractFK, fk } from "./shared";
 
 const projectFields: FieldConfig[] = [
   { key: "name", label: "计划名称", editable: true, required: true },
+  { key: "leadingDepartmentId", label: "主导部门", type: "fk", editable: true, required: true },
+  { key: "parentId", label: "上级计划", type: "fk", editable: true },
   { key: "status", label: "状态", editable: true },
   { key: "priority", label: "优先级", editable: true },
   { key: "stage", label: "阶段", editable: true },
@@ -22,6 +24,10 @@ export const projectConfig: TabConfig = {
   apiPath: "/api/work/plans",
   entityType: "Project",
   fields: projectFields,
+  fkFields: {
+    leadingDepartmentId: fk("department", "leadingDepartmentName", "work.plan.leadingDepartment"),
+    parentId: fk("project", "parentName", "work.plan.parent"),
+  },
   canCreate: true,
   canDelete: true,
   listGetter: (d: unknown) => (d as Record<string, unknown>).projects as unknown[],
@@ -41,8 +47,8 @@ export const employeeProjectConfig: TabConfig = {
   entityType: "EmployeeProject",
   fields: employeeProjectFields,
   fkFields: {
-    employeeId: fk("employee", "employeeName"),
-    projectId: fk("project", "projectName"),
+    employeeId: fk("employee", "employeeName", "work.plan.member.employee"),
+    projectId: fk("project", "projectName", "work.plan.member.project"),
   },
   canCreate: false,
   canDelete: false,

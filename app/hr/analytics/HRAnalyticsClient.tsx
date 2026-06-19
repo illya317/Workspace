@@ -1,16 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import UserMenu from "@/app/components/UserMenu";
-import TabBar from "@/app/components/TabBar";
-import { SessionUser } from "@/lib/types";
+import { SessionUser } from "@workspace/platform/types";
 import { useAnalyticsData } from "./useAnalyticsData";
+import { EmptyStateCard, PageContent, TabBar } from "@workspace/core/ui";
 
-function hasKey(user: SessionUser, key: string) {
-  return (user.visibleResourceKeys || []).includes(key);
-}
 import EmployeeAnalytics from "./EmployeeAnalytics";
 import DepartmentAnalytics from "./DepartmentAnalytics";
 import PositionAnalytics from "./PositionAnalytics";
@@ -29,50 +23,21 @@ const tabs: { key: AnalyticsTab; label: string; desc: string }[] = [
   { key: "turnover", label: "离职分析", desc: "离职率与原因" },
 ];
 
-export default function HRAnalyticsClient({ user, hideShell }: { user: SessionUser; hideShell?: boolean }) {
-  const router = useRouter();
+export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; hideShell?: boolean }) {
   const [activeTab, setActiveTab] = useState<AnalyticsTab>("employee");
   const data = useAnalyticsData();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {!hideShell && (
-      <nav className="bg-white shadow-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Image src="/workspace/company/logo.png" alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"} width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
-            <span className="text-sm text-gray-400">|</span>
-            <span className="text-sm font-medium text-gray-700">人力分析</span>
-          </div>
-          <div className="flex items-center gap-4">
-            {hasKey(user, "people.roster") && <button onClick={() => router.push("/hr")} className="text-sm text-gray-500 hover:text-emerald-600">人事首页</button>}
-            {hasKey(user, "people.performance") && <button onClick={() => router.push("/hr/performance")} className="text-sm text-gray-500 hover:text-emerald-600">考勤绩效</button>}
-            <button
-              onClick={() => router.push("/portal")}
-              className="text-sm text-gray-500 hover:text-emerald-600"
-            >
-              返回入口
-            </button>
-            <UserMenu user={user} />
-          </div>
-        </div>
-      </nav>
-      )}
-
-      <main className="mx-auto max-w-5xl px-4 py-6">
+      <PageContent className="max-w-5xl">
         {/* Tabs */}
         <TabBar tabs={tabs} active={activeTab} onChange={(k) => setActiveTab(k as AnalyticsTab)} />
 
         {/* Data loading state */}
         {data.loading && (
-          <div className="flex min-h-[300px] items-center justify-center rounded-lg bg-white shadow-sm">
-            <p className="text-sm text-gray-400">数据加载中...</p>
-          </div>
+          <EmptyStateCard>数据加载中...</EmptyStateCard>
         )}
         {data.error && (
-          <div className="flex min-h-[300px] items-center justify-center rounded-lg bg-white shadow-sm">
-            <p className="text-sm text-red-500">{data.error}</p>
-          </div>
+          <EmptyStateCard className="text-red-500">{data.error}</EmptyStateCard>
         )}
 
         {/* Tab contents */}
@@ -98,7 +63,6 @@ export default function HRAnalyticsClient({ user, hideShell }: { user: SessionUs
             )}
           </>
         )}
-      </main>
-    </div>
+      </PageContent>
   );
 }

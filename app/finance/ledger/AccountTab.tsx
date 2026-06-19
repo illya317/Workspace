@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Toast from "@/app/components/Toast";
+import Toast from "@workspace/core/ui/Toast";
 import { useToast } from "@workspace/core/hooks";
-import { getDefaultVisibleColumns } from "@workspace/core/ui";
-import FilterField from "@/app/components/FilterField";
-import StatusToggle from "@/app/components/StatusToggle";
+import { getDefaultVisibleColumns, PanelCard } from "@workspace/core/ui";
+import FilterField from "@workspace/core/ui/FilterField";
+import StatusToggle from "@workspace/core/ui/StatusToggle";
 import { AccountTable, ACCOUNT_COLUMNS, type Account } from "@workspace/finance/ui";
 import ReclassConfigView from "../components/ReclassConfigView";
 import FinanceFilters from "../components/FinanceFilters";
@@ -147,9 +147,9 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
         )
       ) : (
         <>
-          <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+          <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
             <AccountTable accounts={accounts} loading={loading} visibleColumns={visibleColumns} />
-          </div>
+          </PanelCard>
           <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
         </>
       )}

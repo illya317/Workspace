@@ -9,7 +9,8 @@ export const GET = withHRAccess(async (request: Request) => {
   const keyword = searchParams.get("keyword") || "";
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
-  return NextResponse.json(await listDepartments({ keyword, page, pageSize }));
+  const archived = searchParams.get("archived") === "1" || searchParams.get("archived") === "true";
+  return NextResponse.json(await listDepartments({ keyword, page, pageSize, archived }));
 });
 
 export const POST = withHRWrite(async (request: Request, user) => {

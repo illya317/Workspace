@@ -13,8 +13,9 @@ export async function GET(request: Request) {
   const keyword = searchParams.get("keyword") || "";
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
+  const archived = searchParams.get("archived") === "1" || searchParams.get("archived") === "true";
 
-  const result = await getPositionList(keyword, page, pageSize);
+  const result = await getPositionList(keyword, page, pageSize, archived);
   return NextResponse.json(result);
 }
 
@@ -40,11 +41,11 @@ export async function PUT(request: Request) {
   if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
 
   const body = await request.json();
-  const { id, code, name, alias, departmentId, positionDescriptionId } = body;
+  const { id, code, name, alias, departmentId, positionDescriptionId, isArchived } = body;
   if (!id) return NextResponse.json({ error: "缺少id" }, { status: 400 });
 
   try {
-    const updated = await updatePosition(id, { code, name, alias, departmentId, positionDescriptionId }, payload.userId);
+    const updated = await updatePosition(id, { code, name, alias, departmentId, positionDescriptionId, isArchived }, payload.userId);
     return NextResponse.json({ success: true, position: updated });
   } catch (e: unknown) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
@@ -52,6 +53,9 @@ export async function PUT(request: Request) {
     }
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2025") {
       return NextResponse.json({ error: "岗位不存在" }, { status: 404 });
+    }
+    if (e instanceof Error) {
+      return NextResponse.json({ error: e.message }, { status: 400 });
     }
     throw e;
   }
@@ -75,6 +79,9 @@ export async function DELETE(request: Request) {
     }
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2003") {
       return NextResponse.json({ error: "该岗位下有关联员工，无法删除" }, { status: 409 });
+    }
+    if (e instanceof Error) {
+      return NextResponse.json({ error: e.message }, { status: 409 });
     }
     throw e;
   }

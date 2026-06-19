@@ -1,0 +1,39 @@
+/**
+ * Unified page-level permission gates.
+ *
+ * Every server component facade that corresponds to a resource-scoped page
+ * must use one of these instead of a bare `getCurrentUser() + redirect`.
+ *
+ * Usage:
+ *   const user = await requireResourceAccess("external.investor");
+ *   // user is guaranteed authenticated + has visibleResourceKeys including the argument.
+ */
+
+import "server-only";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "./session";
+import { authorize } from "./authorize";
+import type { SessionUser } from "../../types";
+
+/**
+ * Require the user to have `resourceKey` in their visibleResourceKeys.
+ * Redirects to /login if unauthenticated, /portal if unauthorized.
+ */
+export async function requireResourceAccess(resourceKey: string): Promise<SessionUser> {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  if (!(await authorize({ user, resourceKey, action: "access" }))) redirect("/portal");
+  return user;
+}
+
+/**
+ * Require the user to manage at least one resource.
+ * Resource admins can enter /admin without broad system access.
+ */
+export async function requireAdminManageAccess(): Promise<SessionUser> {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  if (user.isSuperAdmin) return user;
+  if ((user.manageableResourceKeys?.length ?? 0) === 0) redirect("/portal");
+  return user;
+}

@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { SessionUser } from "@/lib/types";
+import { SessionUser } from "@workspace/platform/types";
+import { EmptyStateCard, MetricCard, PageContent, SectionCard } from "@workspace/core/ui";
 
 interface BudgetOverview {
   hasBudget: boolean;
@@ -25,13 +26,9 @@ export default function FinanceAnalysisClient({ user: _user }: Props) {
   }, []);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6">
-      <h1 className="mb-2 text-2xl font-bold text-gray-800">财务分析</h1>
-      <p className="mb-6 text-sm text-gray-500">财务数据分析与指标看板</p>
-
+    <PageContent className="max-w-5xl space-y-6">
       {/* 预算概览卡片 */}
-      <div className="mb-6 rounded-lg bg-white p-5 shadow-sm">
-        <h2 className="mb-3 text-base font-semibold text-gray-800">预算概览</h2>
+      <SectionCard title="预算概览">
         {budget?.hasBudget ? (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <div>
@@ -54,30 +51,16 @@ export default function FinanceAnalysisClient({ user: _user }: Props) {
         ) : (
           <p className="text-sm text-gray-400">暂无生效预算版本</p>
         )}
-      </div>
+      </SectionCard>
 
       {/* 原有占位内容保留 */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="rounded-lg bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-gray-600">营业收入</h3>
-          <p className="mt-2 text-2xl font-bold text-gray-800">-</p>
-          <p className="text-xs text-gray-400">待接入数据</p>
-        </div>
-        <div className="rounded-lg bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-gray-600">毛利率</h3>
-          <p className="mt-2 text-2xl font-bold text-gray-800">-</p>
-          <p className="text-xs text-gray-400">待接入数据</p>
-        </div>
-        <div className="rounded-lg bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-medium text-gray-600">净利率</h3>
-          <p className="mt-2 text-2xl font-bold text-gray-800">-</p>
-          <p className="text-xs text-gray-400">待接入数据</p>
-        </div>
+        <MetricCard label="营业收入" value="-" />
+        <MetricCard label="毛利率" value="-" />
+        <MetricCard label="净利率" value="-" />
       </div>
 
-      <div className="mt-6 rounded-lg bg-white p-8 text-center shadow-sm">
-        <p className="text-sm text-gray-400">财务分析看板开发中</p>
-      </div>
-    </main>
+      <EmptyStateCard>财务分析看板开发中</EmptyStateCard>
+    </PageContent>
   );
 }

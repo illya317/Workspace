@@ -3,6 +3,9 @@
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { matchText } from "../search";
+import SearchInput from "./SearchInput";
+
+export type SelectFieldSize = "toolbar" | "compact";
 
 export interface SelectFieldProps {
   /** 标签文字，不传则不显示 label */
@@ -22,6 +25,7 @@ export interface SelectFieldProps {
   style?: CSSProperties;
   /** 直接应用到触发框的额外 className；兼容旧 selectClassName 命名 */
   selectClassName?: string;
+  size?: SelectFieldSize;
 }
 
 /**
@@ -43,6 +47,7 @@ export default function SelectField({
   className,
   style,
   selectClassName,
+  size = "compact",
 }: SelectFieldProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -86,9 +91,16 @@ export default function SelectField({
     setOpen(false);
   }
 
+  const labelClassName = size === "toolbar"
+    ? "shrink-0 whitespace-nowrap text-base text-slate-600"
+    : "shrink-0 whitespace-nowrap text-gray-500";
+  const triggerClassName = size === "toolbar"
+    ? "inline-flex min-h-12 w-full items-center justify-between rounded-xl border-2 border-emerald-500 bg-white px-4 py-2 text-left text-lg text-slate-900 shadow-sm transition focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+    : "inline-flex min-h-8 w-full items-center justify-between rounded border border-gray-200 bg-white px-2 py-1 text-left text-xs text-slate-900 shadow-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
+
   return (
     <label ref={rootRef} style={style} className={`${label ? "flex items-center gap-1.5" : "block w-full"} relative text-xs ${className ?? ""}`}>
-      {label && <span className="text-gray-500">{label}</span>}
+      {label && <span className={labelClassName}>{label}</span>}
       <button
         type="button"
         disabled={disabled}
@@ -97,7 +109,7 @@ export default function SelectField({
         aria-expanded={open}
         data-field-key={dataFieldKey}
         onClick={() => setOpen((current) => !current)}
-        className={`inline-flex min-h-8 w-full items-center justify-between rounded border border-gray-200 bg-white px-2 py-1 text-left text-xs text-slate-900 shadow-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500 ${selectClassName ?? ""}`}
+        className={`${triggerClassName} ${selectClassName ?? ""}`}
       >
         <span className="truncate">{selected?.label ?? placeholder ?? "未设置"}</span>
         <span className="ml-2 text-slate-500">⌄</span>
@@ -105,12 +117,13 @@ export default function SelectField({
       {open && !disabled && (
         <div className="absolute left-0 top-[calc(100%+0.25rem)] z-50 min-w-full rounded-lg border border-slate-200 bg-white p-1 shadow-xl">
           {shouldSearch && (
-            <input
+            <SearchInput
               ref={searchRef}
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={setQuery}
               placeholder="搜索..."
-              className="mb-1 h-8 w-full rounded-md border border-slate-200 px-2 text-xs focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              size="compact"
+              className="mb-1"
             />
           )}
           <div role="listbox" className="max-h-64 overflow-auto">

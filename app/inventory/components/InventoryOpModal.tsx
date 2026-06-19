@@ -1,6 +1,6 @@
 "use client";
 
-import { SelectField } from "@workspace/core/ui";
+import { DetailModal, SelectField } from "@workspace/core/ui";
 
 interface OpTypeOption {
   value: string;
@@ -21,9 +21,7 @@ export default function InventoryOpModal({
 }: InventoryOpModalProps) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
-        <h3 className="mb-4 text-sm font-semibold">库存操作</h3>
+    <DetailModal open title="库存操作" onClose={onCancel} maxWidth="max-w-sm">
         <div className="space-y-3">
           <div>
             <SelectField
@@ -61,7 +59,6 @@ export default function InventoryOpModal({
             取消
           </button>
         </div>
-      </div>
-    </div>
+    </DetailModal>
   );
 }

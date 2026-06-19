@@ -42,7 +42,7 @@ export default function DeptNode({
           <span className="text-xs text-gray-500 w-4 text-center select-none">{collapsed ? "▸" : "▾"}</span>
         )}
         {!hasChildren && <span className="w-4" />}
-        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${badgeCls}`}>
+        <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${badgeCls}`}>
           L{level + 1}
         </span>
         <span className="text-sm font-medium flex-1">{dept.name}</span>

@@ -3,6 +3,7 @@
 const { spawnSync } = require("node:child_process");
 
 const ESLINT_EXTENSIONS = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/i;
+const ESLINT_CACHE_ARGS = ["--cache", "--cache-location", ".cache/eslint/.eslintcache"];
 
 function runGit(args) {
   const result = spawnSync("git", args, { encoding: "utf8" });
@@ -37,7 +38,7 @@ if (files.length === 0) {
 
 const result = spawnSync(
   "npx",
-  ["eslint", "--cache", "--max-warnings=0", ...files],
+  ["eslint", ...ESLINT_CACHE_ARGS, "--max-warnings=0", ...files],
   { stdio: "inherit" },
 );
 

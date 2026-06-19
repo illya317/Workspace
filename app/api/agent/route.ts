@@ -4,7 +4,7 @@
  */
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getCurrentUser } from "@/server/auth/session";
+import { getCurrentUser } from "@workspace/platform/server/auth";
 import { financeAgentTools } from "@workspace/finance/server/agent-tools";
 import { hrAgentTools } from "@workspace/hr/server/agent-tools";
 import { authorize } from "@workspace/platform/server/auth";

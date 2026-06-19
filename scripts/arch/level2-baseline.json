@@ -19,6 +19,13 @@
   "legacyRootPeriodImplementationFiles": [],
   "legacyRootPeriodImports": [],
   "legacyRootSearchSchemaFiles": [],
+  "unregisteredCoreUiImports": [],
+  "unregisteredCoreUiExports": [],
+  "duplicateCoreUiRegistrations": [],
+  "nativeSearchInputFiles": [],
+  "pageDesignDriftFiles": [
+    "packages/hr/ui/tabs/DepartmentPositionTab.tsx: handwritten-action-button,handwritten-form-control,handwritten-layout-grid,handwritten-surface,handwritten-toolbar-layout"
+  ],
   "repeatedServiceGroups": [],
   "routePrimitiveSchemaDuplicates": [],
   "apiRouteHelperDuplicates": []

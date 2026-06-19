@@ -1,21 +1,35 @@
-export { authenticate, isKicked } from "../../../server/auth/authenticate";
+export { authenticate, isKicked } from "./auth/authenticate";
 export {
   createToken,
   getTokenFromCookie,
   SESSION_MAX_AGE_SECONDS,
   verifyToken,
-} from "../../../lib/auth/token";
+} from "./auth-token";
 export {
   authorize,
   requireAuthorized,
   type AuthorizeAction,
   type AuthorizeInput,
   type AuthorizeUser,
-} from "../../../server/auth/authorize";
+} from "./auth/authorize";
+export {
+  requireAdminManageAccess,
+  requireResourceAccess,
+} from "./auth/guard";
+export {
+  getCurrentUser,
+  requireAuth,
+  requireCurrentUser,
+} from "./auth/session";
+export {
+  isAdmin,
+  isSuperAdmin,
+  requireAdmin,
+} from "./auth/admin";
 export {
   canManageResourceGrant,
   getManageableResourceKeys,
-} from "../../../server/rbac/admin-scope";
+} from "./rbac/admin-scope";
 export {
   deleteUserResourceRoleAssignment,
   getGrants,
@@ -24,22 +38,22 @@ export {
   setGrant,
   type SubjectType,
   userResourceRoleAssignmentExists,
-} from "../../../server/rbac/grants";
-export { getPermissionContext, ensureGrantCache } from "../../../server/rbac/context";
-export { getVisibleResourceKeys } from "../../../server/rbac/visibility";
+} from "./rbac/grants";
+export { getPermissionContext, ensureGrantCache } from "./rbac/context";
+export { getVisibleResourceKeys } from "./rbac/visibility";
 export {
   getResourceAncestorKeys,
   getResourceSummariesByIds,
-} from "../../../server/rbac/resource";
+} from "./rbac/resource";
 export {
   clearMaxRoleCache,
   getResourceMaxRole,
   isRoleAllowedForResource,
-} from "../../../server/rbac/maxRole";
+} from "./rbac/maxRole";
 export {
   clearBypassCache,
   isSystemAdminBypassEnabled,
-} from "../../../server/rbac/bypass";
+} from "./rbac/bypass";
 export {
   checkHRAccess,
   checkHRWrite,
@@ -48,9 +62,9 @@ export {
   checkWorkWrite,
   checkWorkDelete,
   checkWorksAccess,
-} from "../../../server/auth/domain";
+} from "./auth/domain";
 export {
   getUserDepartmentAdmins,
   getUserPermissions,
-} from "../../../server/rbac/queries";
-export { listUsersWithEffectiveResourceRoles } from "../../../server/rbac/user-list";
+} from "./rbac/queries";
+export { listUsersWithEffectiveResourceRoles } from "./rbac/user-list";

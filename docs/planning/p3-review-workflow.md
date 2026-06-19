@@ -436,7 +436,7 @@ npx prisma validate
 npx prisma generate
 npx prisma db push
 npx tsc --noEmit
-npm run size:check
+npm run lint -- --max-warnings=0
 npm run build
 npm run finance:wp-smoke
 ```
@@ -457,4 +457,3 @@ npm run finance:review-smoke
 - 不修改资产负债表 mapping 计算。
 - 不让最终报表消费 review。
 - 不引入复杂审批流。
-

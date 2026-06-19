@@ -16,7 +16,6 @@
 - `git push origin main` 只触发 CNB CI 检查，不发布生产；不要依赖 push 自动部署。
 - 本地不直连服务器部署；正式发布必须先 commit 并 push 到 CNB，再用 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`。
 - CNB/API 部署使用 `./ops/deploy.sh`，在 CNB/Linux CI 容器里完成检查与构建，然后只把 `.next/standalone` 产物包上传到服务器；服务器不执行 `npm ci` / `npm run build`。
-- 云效 YAML 流水线样例在 `ops/yunxiao.pipeline.yml`；私密部署参数不要写入 YAML，优先通过云效变量组或流水线 UI 变量注入。
 - 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、`data/`、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先备份该目录。
 - `data/` 以服务器为准：本地 `data/` 不上传覆盖服务器。
 - 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL`、`WORKSPACE_CONFIG_DIR` 直接指向外部 data。
@@ -86,14 +85,15 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 
 ### Agent 接力和文件隔离
 
-开工前先读 `docs/agent-startup.md`，再按任务类型进入专题文档。Architecture、Feature、Data、Ops/CI 不能混用职责：
+开工前先读 `docs/agent-startup.md`，再按角色进入 `docs/roles/*.md`，最后按任务类型进入专题文档。Architecture、Feature、Data、Operations、Review 不能混用职责：
 
-| 角色 | 负责 | 交付时必须说明 |
-|---|---|---|
-| Architecture | 规则、文档、gate、registry、API contract、baseline ratchet、Platform/API/service 收敛 | 是否修改单一 `arch:gate`、是否 ratchet baseline、是否只减少历史债 |
-| Feature | 业务 UI、业务 service、页面/API route 薄壳 | 所属 domain、复用了哪些 Core/Platform 组件、是否避开其他业务包 |
-| Data | schema、seed、导入、生成脚本和生成物 | 数据来源、事实字段、migration/seed 影响、是否更新数据库文档 |
-| Ops/CI | CI、部署、环境、脚本运行态 | 是否仍通过单一 `arch:gate`，是否影响本地/生产运行 |
+| 角色 | 权威说明 |
+|---|---|
+| Architecture | `docs/roles/architecture.md` |
+| Feature | `docs/roles/feature.md` |
+| Data | `docs/roles/data.md` |
+| Operations | `docs/roles/operations.md` |
+| Review | `docs/roles/review.md` |
 
 并行时只 stage 自己的文件。`git status --short` 中出现其他 agent 的范围时，不要提交、回滚、格式化或改名。确实需要干净工作区验证时，先 stage 自己的文件，再用 `git stash push --keep-index --include-untracked` 临时隔离，验证后恢复 stash。
 
@@ -132,7 +132,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 | 5. API | 认证 -> 权限 -> 参数校验 -> 调 package service -> 返回 DTO |
 | 6. Service | `packages/<domain>/server/` 业务逻辑 |
 | 7. 文档 | `ARCHITECTURE.md` + README/AGENTS/docs/checklist |
-| 8. 硬约束 | `tsc --noEmit` / `lint --max-warnings=0` / `build` / `arch:gate` / `size:check` |
+| 8. 硬约束 | `tsc --noEmit` / `lint --max-warnings=0`（含文件行数红线） / `build` / `arch:gate` |
 
 ## 6. 数据库模型
 
@@ -290,7 +290,6 @@ API 权限规则：
 
 ```bash
 npm run arch:gate
-npm run size:check
 npm run lint -- --max-warnings=0
 npx tsc --noEmit
 npm run build

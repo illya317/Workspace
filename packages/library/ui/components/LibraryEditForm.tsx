@@ -1,4 +1,4 @@
-import { SelectField } from "@workspace/core/ui";
+import { SelectField, TextareaField, TextField } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 
 interface Props {
@@ -41,65 +41,55 @@ export default function LibraryEditForm({ doc, form, setForm, canWrite, canAdmin
     <div className="space-y-1">
       <div className="py-2">
         <label className="text-xs text-gray-400 block mb-1">文档编号（docId）</label>
-        <input
-          type="text"
+        <TextField
           value={form.docId !== undefined ? (form.docId ?? "") : (doc.docId ?? "")}
           disabled={!canWrite}
-          onChange={(e) => setForm((f) => ({ ...f, docId: e.target.value }))}
+          onChange={(value) => setForm((f) => ({ ...f, docId: value }))}
           placeholder="如 DOC-2024-001"
-          className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-gray-50"
         />
         <p className="text-xs text-gray-400 mt-1">改名后仍可通过此编号找到文档</p>
       </div>
       <div className="py-2">
         <label className="text-xs text-gray-400 block mb-1">标题</label>
-        <input
-          type="text"
+        <TextField
           value={form.title ?? doc.title ?? ""}
           disabled={!canWrite}
-          onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-          className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-gray-50"
+          onChange={(value) => setForm((f) => ({ ...f, title: value }))}
         />
       </div>
       <div className="py-2">
         <label className="text-xs text-gray-400 block mb-1">简介</label>
-        <textarea
+        <TextareaField
           value={form.summary ?? doc.summary ?? ""}
           disabled={!canWrite}
-          onChange={(e) => setForm((f) => ({ ...f, summary: e.target.value }))}
+          onChange={(value) => setForm((f) => ({ ...f, summary: value }))}
           rows={3}
-          className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-gray-50"
+          className="px-3 py-2 text-sm"
         />
       </div>
       <div className="py-2">
         <label className="text-xs text-gray-400 block mb-1">标签（用逗号分隔）</label>
-        <input
-          type="text"
+        <TextField
           value={tagsValue.join(", ")}
           disabled={!canWrite}
-          onChange={(e) => handleTagInput(e.target.value)}
+          onChange={handleTagInput}
           placeholder="如 年度报表, 已审计, 研发"
-          className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-gray-50"
         />
       </div>
       <div className="py-2">
         <label className="text-xs text-gray-400 block mb-1">分类编码</label>
-        <input
-          type="text"
+        <TextField
           value={form.categoryCode ?? doc.categoryCode ?? ""}
           disabled={!canWrite}
-          onChange={(e) => setForm((f) => ({ ...f, categoryCode: e.target.value }))}
-          className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-gray-50"
+          onChange={(value) => setForm((f) => ({ ...f, categoryCode: value }))}
         />
       </div>
       <div className="py-2">
         <label className="text-xs text-gray-400 block mb-1">分类名称</label>
-        <input
-          type="text"
+        <TextField
           value={form.categoryName ?? doc.categoryName ?? ""}
           disabled={!canWrite}
-          onChange={(e) => setForm((f) => ({ ...f, categoryName: e.target.value }))}
-          className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-gray-50"
+          onChange={(value) => setForm((f) => ({ ...f, categoryName: value }))}
         />
       </div>
       <div className="py-2">

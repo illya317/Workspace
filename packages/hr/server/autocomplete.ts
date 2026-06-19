@@ -44,7 +44,10 @@ export async function searchHrAutocomplete(entity: string, keyword: string, acti
 
   if (entity === "department") {
     const departments = await prisma.department.findMany({
-      where: keyword && !isShort ? { OR: [{ name: { contains: keyword } }, { code: { contains: keyword } }] } : {},
+      where: {
+        isArchived: false,
+        ...(keyword && !isShort ? { OR: [{ name: { contains: keyword } }, { code: { contains: keyword } }] } : {}),
+      },
       select: {
         id: true,
         code: true,
@@ -65,7 +68,14 @@ export async function searchHrAutocomplete(entity: string, keyword: string, acti
 
   if (entity === "position") {
     const positions = await prisma.position.findMany({
-      where: keyword && !isShort ? { OR: [{ name: { contains: keyword } }, { code: { contains: keyword } }] } : {},
+      where: {
+        isArchived: false,
+        OR: [
+          { departmentId: null },
+          { department: { isArchived: false } },
+        ],
+        ...(keyword && !isShort ? { AND: [{ OR: [{ name: { contains: keyword } }, { code: { contains: keyword } }] }] } : {}),
+      },
       select: {
         id: true,
         code: true,

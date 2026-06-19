@@ -2,6 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  DataTable,
+  FilterToolbar,
+  PanelCard,
+  Pagination,
+  TextField,
+  getToolbarActionClassName,
+  type DataTableColumn,
+} from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { hrCanEdit, type HRUser } from "@workspace/hr/types";
 
@@ -42,6 +51,45 @@ export default function EmployeeDirectory({ user }: { user: HRUser }) {
 
   const pageSize = 50;
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total]);
+  const columns = useMemo<DataTableColumn<DirectoryEmployee>[]>(
+    () => [
+      {
+        key: "employeeId",
+        label: "员工编号",
+        required: true,
+        render: (employee) => <span className="font-medium text-slate-900">{employee.employeeId}</span>,
+      },
+      { key: "name", label: "姓名", required: true, render: (employee) => employee.name },
+      { key: "gender", label: "性别", defaultVisible: true, render: (employee) => genderLabel(employee.gender) },
+      { key: "birthDate", label: "出生年月", defaultVisible: true, render: (employee) => employee.birthDate || "-" },
+      { key: "education", label: "学历", defaultVisible: true, render: (employee) => employee.education || "-" },
+      { key: "positionName", label: "岗位", defaultVisible: true, render: (employee) => employee.positionName || "-" },
+      {
+        key: "directDepartmentName",
+        label: "直属部门",
+        defaultVisible: true,
+        render: (employee) => employee.directDepartmentName || "-",
+      },
+      {
+        key: "action",
+        label: "操作",
+        required: true,
+        render: (employee) => (
+          <button
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation();
+              router.push(`/hr/roster/employees/${employee.employeeId}`);
+            }}
+            className={getToolbarActionClassName("secondary")}
+          >
+            编辑资料
+          </button>
+        ),
+      },
+    ],
+    [router]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -106,28 +154,20 @@ export default function EmployeeDirectory({ user }: { user: HRUser }) {
 
   return (
     <div className="space-y-5">
-      <section className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <input
-              value={draftKeyword}
-              onChange={(event) => setDraftKeyword(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  setKeyword(draftKeyword.trim());
-                  setPage(1);
-                }
-              }}
-              placeholder="搜索员工编号、姓名、拼音"
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 sm:w-72"
-            />
+      <PanelCard bodyClassName="p-4">
+        <FilterToolbar
+          keyword={draftKeyword}
+          onKeywordChange={setDraftKeyword}
+          searchPlaceholder="搜索员工编号、姓名、拼音"
+          extraRight={<span className="text-sm text-slate-500">共 {total} 人</span>}
+        >
             <button
               type="button"
               onClick={() => {
                 setKeyword(draftKeyword.trim());
                 setPage(1);
               }}
-              className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+              className={getToolbarActionClassName("secondary")}
             >
               搜索
             </button>
@@ -138,27 +178,24 @@ export default function EmployeeDirectory({ user }: { user: HRUser }) {
                 setKeyword("");
                 setPage(1);
               }}
-              className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50"
+              className={getToolbarActionClassName("secondary")}
             >
               重置
             </button>
-          </div>
-          <div className="text-sm text-slate-500">共 {total} 人</div>
-        </div>
+        </FilterToolbar>
 
         {canEdit && (
           <div className="mt-4 grid gap-3 border-t border-slate-200 pt-4 md:grid-cols-[220px_auto]">
-            <input
+            <TextField
               value={newEmployeeName}
-              onChange={(event) => setNewEmployeeName(event.target.value)}
+              onChange={setNewEmployeeName}
               placeholder="姓名"
-              className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
             />
             <button
               type="button"
               disabled={creating}
               onClick={createEmployee}
-              className="w-fit rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-300"
+              className={getToolbarActionClassName("primary")}
             >
               新建员工资料
             </button>
@@ -166,82 +203,27 @@ export default function EmployeeDirectory({ user }: { user: HRUser }) {
         )}
 
         {error && <div className="mt-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>}
-      </section>
+      </PanelCard>
 
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
-              <tr>
-                <th className="px-4 py-3 font-medium">员工编号</th>
-                <th className="px-4 py-3 font-medium">姓名</th>
-                <th className="px-4 py-3 font-medium">性别</th>
-                <th className="px-4 py-3 font-medium">出生年月</th>
-                <th className="px-4 py-3 font-medium">学历</th>
-                <th className="px-4 py-3 font-medium">岗位</th>
-                <th className="px-4 py-3 font-medium">直属部门</th>
-                <th className="px-4 py-3 font-medium">操作</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-800">
-              {loading ? (
-                <tr><td colSpan={8} className="px-4 py-12 text-center text-slate-400">加载中...</td></tr>
-              ) : employees.length === 0 ? (
-                <tr><td colSpan={8} className="px-4 py-12 text-center text-slate-400">暂无员工</td></tr>
-              ) : (
-                employees.map((employee) => (
-                  <tr
-                    key={employee.id}
-                    className="cursor-pointer transition hover:bg-emerald-50/60"
-                    onClick={() => router.push(`/hr/roster/employees/${employee.employeeId}`)}
-                  >
-                    <td className="whitespace-nowrap px-4 py-3 font-medium text-slate-900">{employee.employeeId}</td>
-                    <td className="whitespace-nowrap px-4 py-3">{employee.name}</td>
-                    <td className="whitespace-nowrap px-4 py-3">{genderLabel(employee.gender)}</td>
-                    <td className="whitespace-nowrap px-4 py-3">{employee.birthDate || "-"}</td>
-                    <td className="whitespace-nowrap px-4 py-3">{employee.education || "-"}</td>
-                    <td className="whitespace-nowrap px-4 py-3">{employee.positionName || "-"}</td>
-                    <td className="whitespace-nowrap px-4 py-3">{employee.directDepartmentName || "-"}</td>
-                    <td className="whitespace-nowrap px-4 py-3">
-                      <button
-                        type="button"
-                        onClick={(event) => {
-                          event.stopPropagation();
-                          router.push(`/hr/roster/employees/${employee.employeeId}`);
-                        }}
-                        className="rounded-md border border-emerald-200 px-3 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-50"
-                      >
-                        编辑资料
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3 text-sm text-slate-500">
-          <span>第 {page} / {totalPages} 页</span>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              disabled={page <= 1}
-              onClick={() => setPage((current) => Math.max(1, current - 1))}
-              className="rounded-md border border-slate-300 px-3 py-1.5 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              上一页
-            </button>
-            <button
-              type="button"
-              disabled={page >= totalPages}
-              onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
-              className="rounded-md border border-slate-300 px-3 py-1.5 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              下一页
-            </button>
-          </div>
-        </div>
-      </section>
+      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
+        <DataTable
+          rows={employees}
+          columns={columns}
+          visibleColumns={columns.map((column) => column.key)}
+          loading={loading}
+          emptyText="暂无员工"
+          rowKey={(employee) => employee.id}
+          onRowClick={(employee) => router.push(`/hr/roster/employees/${employee.employeeId}`)}
+        />
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          onPageChange={setPage}
+          className="border-t border-slate-200 px-4 py-3"
+          compact
+        />
+      </PanelCard>
     </div>
   );
 }

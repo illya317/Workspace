@@ -51,7 +51,6 @@
 
 ```bash
 npm run arch:gate
-npm run size:check
 npm run lint -- --max-warnings=0
 npm run typecheck:quick
 npm run build

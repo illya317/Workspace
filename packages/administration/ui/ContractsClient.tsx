@@ -1,11 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { ConfirmModal, Toast } from "@workspace/core/ui";
+import { ConfirmModal, PageContent, Toast } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
-import { UserMenu } from "@workspace/platform/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useContracts } from "./hooks/useContracts";
 import ContractFilters from "./components/ContractFilters";
@@ -14,8 +11,7 @@ import ContractPagination from "./components/ContractPagination";
 import ContractModal from "./components/ContractModal";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 
-export default function ContractsClient({ user, hideShell }: { user: SessionUser; hideShell?: boolean }) {
-  const router = useRouter();
+export default function ContractsClient({ user: _user, hideShell: _hideShell }: { user: SessionUser; hideShell?: boolean }) {
   const {
     contracts, total, page, setPage, totalPages,
     q, setQ, locationFilter, setLocationFilter,
@@ -97,23 +93,7 @@ export default function ContractsClient({ user, hideShell }: { user: SessionUser
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {!hideShell && (
-      <nav className="bg-white shadow-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Image src="/workspace/company/logo.png" alt="公司" width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
-            <span className="text-sm text-gray-400">|</span>
-            <span className="text-sm font-medium text-gray-700">合同台账</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <button onClick={() => router.push("/administration")} className="text-sm text-gray-500 hover:text-emerald-600">返回</button>
-            <UserMenu user={user} />
-          </div>
-        </div>
-      </nav>
-      )}
-
-      <main className="mx-auto max-w-7xl px-4 py-6">
+      <PageContent className="py-6">
         <ContractFilters
           q={q} onQChange={setQ}
           locationFilter={locationFilter} onLocationChange={setLocationFilter}
@@ -136,7 +116,7 @@ export default function ContractsClient({ user, hideShell }: { user: SessionUser
           totalPages={totalPages}
           onPageChange={setPage}
         />
-      </main>
+      </PageContent>
 
       <ContractModal
         mode={modalMode}

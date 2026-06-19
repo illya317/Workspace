@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { workspacePath } from "@/app/lib/api-path";
+import { workspacePath } from "@workspace/core/routing";
 import type { Employee, CodeItem } from "../types";
 
 export function useCodeData({

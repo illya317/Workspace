@@ -24,6 +24,11 @@ type Level2Baseline = {
   legacyRootPeriodImplementationFiles: string[];
   legacyRootPeriodImports: string[];
   legacyRootSearchSchemaFiles: string[];
+  unregisteredCoreUiImports: string[];
+  unregisteredCoreUiExports: string[];
+  duplicateCoreUiRegistrations: string[];
+  pageDesignDriftFiles: string[];
+  nativeSearchInputFiles: string[];
   repeatedServiceGroups: string[];
   routePrimitiveSchemaDuplicates: string[];
   apiRouteHelperDuplicates: string[];
@@ -54,6 +59,26 @@ function routePrimitiveSchemaKey(candidate: { primitive: string; file: string; s
 
 function apiRouteHelperKey(candidate: { kind: string; file: string; helperName: string }) {
   return `${candidate.kind}: ${candidate.file}#${candidate.helperName}`;
+}
+
+function unregisteredCoreUiImportKey(candidate: { file: string; importedName: string; specifier: string }) {
+  return `${candidate.file}: ${candidate.importedName} from ${candidate.specifier}`;
+}
+
+function unregisteredCoreUiExportKey(candidate: { exportedName: string }) {
+  return candidate.exportedName;
+}
+
+function duplicateCoreUiRegistrationKey(candidate: { name: string; count: number }) {
+  return `${candidate.name}: ${candidate.count}`;
+}
+
+function pageDesignDriftFileKey(candidate: { file: string; signals: string[] }) {
+  return `${candidate.file}: ${candidate.signals.join(",")}`;
+}
+
+function nativeSearchInputFileKey(candidate: { file: string; signals: string[] }) {
+  return `${candidate.file}: ${candidate.signals.join(",")}`;
 }
 
 function diff(left: string[], right: string[]) {
@@ -127,6 +152,26 @@ export function checkLevel2Ratchet() {
       ["legacyRootPeriodImplementationFiles", report.drift.legacyRootPeriodImplementationFiles],
       ["legacyRootPeriodImports", report.drift.legacyRootPeriodImports],
       ["legacyRootSearchSchemaFiles", report.drift.legacyRootSearchSchemaFiles],
+      [
+        "unregisteredCoreUiImports",
+        report.drift.unregisteredCoreUiImports.map(unregisteredCoreUiImportKey),
+      ],
+      [
+        "unregisteredCoreUiExports",
+        report.drift.unregisteredCoreUiExports.map(unregisteredCoreUiExportKey),
+      ],
+      [
+        "duplicateCoreUiRegistrations",
+        report.drift.duplicateCoreUiRegistrations.map(duplicateCoreUiRegistrationKey),
+      ],
+      [
+        "pageDesignDriftFiles",
+        report.drift.pageDesignDriftFiles.map(pageDesignDriftFileKey),
+      ],
+      [
+        "nativeSearchInputFiles",
+        report.drift.nativeSearchInputFiles.map(nativeSearchInputFileKey),
+      ],
       [
         "repeatedServiceGroups",
         report.drift.repeatedServiceGroups.map(repeatedServiceGroupKey),

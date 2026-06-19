@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { matchEmployee } from "@/lib/search";
-import FilterBar from "@/app/components/FilterBar";
-import SelectField from "@/app/components/SelectField";
+import { matchEmployee } from "@workspace/platform/search";
+import FilterBar from "@workspace/core/ui/FilterBar";
+import SelectField from "@workspace/core/ui/SelectField";
+import { SearchInput } from "@workspace/core/ui";
 
 export interface EmployeePerm {
   employeeId: string; name: string; userId: number | null; username: string | null;
@@ -72,16 +73,23 @@ export default function PermissionDrilldown({ drillKey, empPerms, empLoading, fC
           value={fCompany}
           onChange={(nextValue) => { setFCompany(nextValue); setFDept("全部"); }}
           options={allCompanies.map((c) => ({ value: c, label: c }))}
-          selectClassName="min-w-32 px-3 py-2 text-sm"
+          size="toolbar"
+          selectClassName="min-w-40"
         />
         <SelectField
           value={fDept}
           onChange={setFDept}
           options={allDepts.map((d) => ({ value: d, label: d }))}
-          selectClassName="min-w-32 px-3 py-2 text-sm"
+          size="toolbar"
+          selectClassName="min-w-40"
         />
-        <input type="text" value={fKeyword} onChange={e => setFKeyword(e.target.value)}
-          placeholder="搜索姓名/工号..." className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none" />
+        <SearchInput
+          value={fKeyword}
+          onChange={setFKeyword}
+          placeholder="搜索姓名/工号..."
+          size="toolbar"
+          className="min-w-0 sm:w-[22rem]"
+        />
       </FilterBar>
       {empLoading ? <p className="py-4 text-center text-sm text-gray-500">加载中...</p> : (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

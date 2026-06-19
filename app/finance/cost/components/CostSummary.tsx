@@ -1,5 +1,6 @@
 "use client";
 
+import { MetricCard, PanelCard } from "@workspace/core/ui";
 import { useCostSummary } from "../hooks/useFinanceCostData";
 import type { CostFiltersState } from "../types";
 
@@ -78,12 +79,7 @@ export default function CostSummary({ filters }: Props) {
 }
 
 function Card({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg bg-white p-4 shadow-sm">
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="mt-1 text-xl font-semibold text-gray-800">{value}</p>
-    </div>
-  );
+  return <MetricCard label={label} value={value} />;
 }
 
 function RankCard({
@@ -94,7 +90,7 @@ function RankCard({
   items?: { name: string; value: number }[];
 }) {
   return (
-    <div className="rounded-lg bg-white p-4 shadow-sm">
+    <PanelCard bodyClassName="p-4">
       <h4 className="mb-3 text-sm font-semibold text-gray-700">{title}</h4>
       {!items || items.length === 0 ? (
         <p className="text-xs text-gray-400">暂无数据</p>
@@ -112,6 +108,6 @@ function RankCard({
           ))}
         </ol>
       )}
-    </div>
+    </PanelCard>
   );
 }

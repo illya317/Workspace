@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { DetailModal, getFieldInputClassName, getReadOnlyFieldClassName, getToolbarActionClassName } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import AccountCodeInput from "./AccountCodeInput";
 
@@ -51,46 +52,42 @@ export default function ReclassReviewModal({ item, open, onClose, onSubmit, comp
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={handleClose}>
-      <div className="w-full max-w-sm rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="mb-4 text-sm font-semibold text-gray-800">调整重分类</h3>
-
+    <DetailModal open title="调整重分类" onClose={handleClose} maxWidth="max-w-sm">
         <div className="space-y-3">
           <div>
             <label className="block text-xs text-gray-400 mb-0.5">凭证号</label>
-            <p className="w-full rounded border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-sm font-mono text-gray-700">{item.voucherNo}</p>
+            <p className={getReadOnlyFieldClassName("font-mono text-gray-700")}>{item.voucherNo}</p>
           </div>
           {item.description && (
             <div>
               <label className="block text-xs text-gray-400 mb-0.5">摘要</label>
-              <p className="w-full rounded border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-sm text-gray-700">{item.description}</p>
+              <p className={getReadOnlyFieldClassName("text-gray-700")}>{item.description}</p>
             </div>
           )}
           <div>
             <label className="block text-xs text-gray-400 mb-0.5">调整科目</label>
-            <AccountCodeInput companyCode={companyCode} year={year} value={targetAccount} onChange={setTargetAccount} placeholder="搜索科目编码..." className="w-full rounded border border-gray-200 px-2.5 py-1.5 text-sm focus:border-emerald-400 focus:outline-none" />
+            <AccountCodeInput companyCode={companyCode} year={year} value={targetAccount} onChange={setTargetAccount} placeholder="搜索科目编码..." className="w-full" />
           </div>
           <div>
             <label className="block text-xs text-gray-400 mb-0.5">重分类金额</label>
             <input type="number" step="0.01" value={amount} {...(item.amount > 0 ? { max: item.amount } : {})}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded border border-gray-200 px-2.5 py-1.5 text-sm focus:border-emerald-400 focus:outline-none" />
+              className={getFieldInputClassName()} />
           </div>
           <div>
             <label className="block text-xs text-gray-400 mb-0.5">审核备注</label>
             <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={2}
-              className="w-full rounded border border-gray-200 px-2.5 py-1.5 text-sm focus:border-emerald-400 focus:outline-none resize-none" />
+              className={getFieldInputClassName("resize-none")} />
           </div>
         </div>
 
         <div className="mt-5 flex justify-end gap-2">
-          <button onClick={handleClose} className="rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-500 hover:bg-gray-50">取消</button>
+          <button onClick={handleClose} className={getToolbarActionClassName("secondary")}>取消</button>
           <button onClick={handleSubmit} disabled={saving}
-            className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-50">
+            className={getToolbarActionClassName("primary")}>
             {saving ? "提交中..." : "确认调整"}
           </button>
         </div>
-      </div>
-    </div>
+    </DetailModal>
   );
 }

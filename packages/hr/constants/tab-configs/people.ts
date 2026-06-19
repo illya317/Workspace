@@ -43,7 +43,10 @@ export const employeeConfig: TabConfig = {
   apiPath: "/api/hr/employees",
   entityType: "Employee",
   fields: employeeFields,
-  fkFields: { userId: fk("user", "userName") },
+  fkFields: { userId: fk("user", "userName", "platform.user") },
+  advancedFilters: [
+    { key: "name", label: "姓名", kind: "text", queryParam: "keyword", placeholder: "输入姓名关键字" },
+  ],
   canCreate: true,
   canDelete: false,
   listGetter: (d: unknown) => (d as Record<string, unknown>).employees as unknown[],
@@ -68,17 +71,21 @@ export const employmentConfig: TabConfig = {
   apiPath: "/api/hr/employments",
   entityType: "Employment",
   fields: employmentFields,
-  fkFields: { employeeId: fk("employee", "employeeName") },
+  fkFields: { employeeId: fk("employee", "employeeName", "hr.employee") },
   canCreate: true,
   canDelete: false,
   buildCreateBody: (form) => extractFK(form, ["employeeId"]),
   filters: [{ key: "isActive", label: "在职状态", type: "boolean", defaultValue: "true" }],
+  advancedFilters: [
+    { key: "employee", label: "员工", kind: "text", queryParam: "keyword", placeholder: "输入姓名或员工编号" },
+    { key: "isActive", label: "在职状态", kind: "boolean", queryParam: "isActive" },
+  ],
 };
 
 const edpFields: FieldConfig[] = [
   { key: "employeeId", label: "员工", type: "fk", editable: false, required: true },
   { key: "departmentId", label: "部门", type: "fk", editable: false },
-  { key: "positionId", label: "岗位", type: "fk", editable: true },
+  { key: "positionId", label: "岗位", type: "fk", editable: true, required: true },
   { key: "isPrimary", label: "主岗", editable: true, type: "boolean" },
   { key: "startDate", label: "开始日期", editable: true, type: "date" },
   { key: "endDate", label: "结束日期", editable: true, type: "date" },
@@ -92,14 +99,17 @@ export const edpConfig: TabConfig = {
   entityType: "EDP",
   fields: edpFields,
   fkFields: {
-    employeeId: fk("employee", "employeeName"),
-    departmentId: fk("department", "departmentName"),
-    positionId: fk("position", "positionName"),
+    employeeId: fk("employee", "employeeName", "hr.employee"),
+    departmentId: fk("department", "departmentName", "hr.department"),
+    positionId: fk("position", "positionName", "hr.edp.position"),
   },
   canCreate: true,
   canDelete: true,
   listGetter: (d: unknown) => (d as Record<string, unknown>).positions as unknown[],
   buildCreateBody: (form) => extractFK(form, ["employeeId", "positionId"]),
+  advancedFilters: [
+    { key: "keyword", label: "员工/部门/岗位", kind: "text", queryParam: "keyword", placeholder: "输入姓名、员工编号、部门或岗位" },
+  ],
 };
 
 const contractFields: FieldConfig[] = [
@@ -130,7 +140,11 @@ export const contractConfig: TabConfig = {
   fields: contractFields,
   canCreate: true,
   canDelete: true,
-  fkFields: { employeeId: fk("employee", "employeeName") },
+  fkFields: { employeeId: fk("employee", "employeeName", "hr.employee") },
   buildCreateBody: (form) => extractFK(form, ["employeeId"]),
   listGetter: (d: unknown) => (d as Record<string, unknown>).contracts as unknown[],
+  advancedFilters: [
+    { key: "employeeName", label: "姓名", kind: "text", queryParam: "keyword", placeholder: "输入姓名或员工编号" },
+    { key: "company", label: "公司", kind: "fk", queryParam: "company", entity: "company", fkKey: "hr.company", returnField: "name", placeholder: "搜索公司" },
+  ],
 };

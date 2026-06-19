@@ -5,8 +5,8 @@ import {
   buildWecomWebLoginUrl,
   getWecomUserByCode,
   getWecomUserDetail,
-} from "../../../server/auth/wecom";
-import { getCurrentUser } from "../../../server/auth/session";
+} from "./auth/wecom";
+import { getCurrentUser } from "./auth/session";
 import {
   createToken,
   ensureGrantCache,

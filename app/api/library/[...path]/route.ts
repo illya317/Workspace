@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/server/auth/session";
+import { getCurrentUser } from "@workspace/platform/server/auth";
 import { getLibraryFileByRelativePath } from "@workspace/library/server";
-import { authorize } from "@/server/auth/authorize";
+import { authorize } from "@workspace/platform/server/auth";
 
 function fileErrorResponse(error: unknown) {
   const message = error instanceof Error ? error.message : "File not found";

@@ -28,6 +28,7 @@ builds.
 | Database | `$WORKSPACE_CONFIG_DIR/data/dev.db` via `DATABASE_URL` |
 | QC batch store | `$WORKSPACE_CONFIG_DIR/data/qc-batches.json` via `WORKSPACE_CONFIG_DIR` |
 | QC feedback store | `$WORKSPACE_CONFIG_DIR/data/qc-template-feedback.json` via `WORKSPACE_CONFIG_DIR` |
+| QC template/config source | `$WORKSPACE_CONFIG_DIR/config/pharma-qc` |
 | `public/company` | `$WORKSPACE_CONFIG_DIR/assets/brand/company` |
 | `public/assets/agent/avatar` | `$WORKSPACE_CONFIG_DIR/assets/agent/avatar` |
 
@@ -112,31 +113,19 @@ WECHAT_REDIRECT_ORIGIN=https://fh-bio.cn
 
 ### `WORKSPACE_QC_CONFIG_ROOT`
 
-Optional absolute path to a Workspace QC config snapshot. By default Workspace reads the
-committed snapshot at `config/pharma-ops`, which contains the copied YAML/JSON config from
-`pharma-ops/config`.
+Optional absolute path to a Workspace QC config snapshot. By default Workspace reads
+`$WORKSPACE_CONFIG_DIR/config/pharma-qc`.
 
-Set this only when temporarily testing another config snapshot:
+Set this only when temporarily testing another external config snapshot:
 
 ```bash
-WORKSPACE_QC_CONFIG_ROOT=/home/ubuntu/workspace/config/pharma-ops
+WORKSPACE_QC_CONFIG_ROOT=/home/ubuntu/workspace/.workspace/config/pharma-qc
 ```
 
-### `PHARMA_OPS_ROOT`
-
-Optional absolute path to the `pharma-ops` checkout. This is now a fallback for the QC migration:
-Workspace first tries `WORKSPACE_QC_CONFIG_ROOT`, then the committed snapshot at
-`config/pharma-ops`, and only then external `pharma-ops` directories. When used, Workspace reads
-`config/products.yaml`, `config/record_templates/*.yaml`, `config/methods/*.yaml`, and
-`config/table_layouts/*.json` from this directory.
-
-If omitted, Workspace tries nearby deployment shapes such as `../pharma-ops`,
-`../../pharma-ops`, and `../../../pharma-ops` relative to the current process cwd.
-
-Production example:
-```
-PHARMA_OPS_ROOT=/home/ubuntu/pharma-ops
-```
+The old committed `config/pharma-ops` snapshot has been removed. Do not use it as a source of
+truth and do not add new pharma QC JSON/YAML under the repo `config/` directory. Runtime QC
+configuration lives in `.workspace/config/pharma-qc` locally and in
+`$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc` on the server.
 
 ## Check Script
 

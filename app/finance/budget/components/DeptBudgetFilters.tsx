@@ -1,6 +1,6 @@
 "use client";
 
-import { SelectField } from "@workspace/core/ui";
+import { PanelCard, SelectField } from "@workspace/core/ui";
 
 interface DeptBudgetFiltersProps {
   deptFilter: string;
@@ -31,7 +31,7 @@ export default function DeptBudgetFilters({
 }: DeptBudgetFiltersProps) {
   return (
     <>
-      <div className="flex flex-wrap items-center gap-3 rounded-lg bg-white p-3 shadow-sm">
+      <PanelCard bodyClassName="flex flex-wrap items-center gap-3 p-3">
         <div className="flex items-center gap-2">
           <label className="text-xs text-gray-500">部门</label>
           <SelectField
@@ -73,7 +73,7 @@ export default function DeptBudgetFilters({
         <span className="ml-auto text-xs text-gray-400">
           共 {count} 条，合计 {total.toFixed(2)} 万元
         </span>
-      </div>
+      </PanelCard>
       {(deptFilter || typeFilter || accountFilter) && (
         <div className="flex flex-wrap gap-2 text-xs text-gray-500">
           <span>当前筛选：</span>

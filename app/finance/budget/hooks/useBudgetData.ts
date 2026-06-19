@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { workspacePath } from "@/app/lib/api-path";
+import { workspacePath } from "@workspace/core/routing";
 import { DeptBudgetItem, RdBudgetItem } from "../BudgetTab";
 
 interface BudgetData {

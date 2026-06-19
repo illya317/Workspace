@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { SelectorCard, TreeNodeBranch, TreeNodeCard } from "@workspace/core/ui";
 import type { DirectoryNode } from "@workspace/library/types";
 
 interface Props {
@@ -38,47 +39,40 @@ function DirectoryItem({
   const isExpanded = expandedPaths.has(node.path);
 
   return (
-    <div>
-      <button
+    <div className={level > 0 ? "mt-2" : undefined}>
+      <TreeNodeCard
+        title={node.name}
+        code={node.count}
+        active={isSelected}
+        showToggle={hasChildren}
+        level={level + 1}
         onClick={() => {
           if (hasChildren) onToggle(node.path);
           onSelectPath(node.path);
         }}
-        className={`w-full text-left flex items-center justify-between rounded px-3 py-2 text-sm transition hover:bg-gray-100 ${
-          isSelected ? "bg-emerald-50 text-emerald-700 font-medium" : "text-gray-700"
-        }`}
-        style={{ paddingLeft: `${12 + level * 16}px` }}
+        toggle={{
+          enabled: hasChildren,
+          expanded: isExpanded,
+          label: isExpanded ? "收起目录" : "展开目录",
+          onClick: () => onToggle(node.path),
+        }}
       >
-        <span className="flex items-center gap-1">
-          {hasChildren && (
-            <svg
-              className={`h-3 w-3 text-gray-400 transition-transform ${isExpanded ? "rotate-90" : ""}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          )}
-          <span className="truncate">{node.name}</span>
-        </span>
-        <span className="shrink-0 text-xs text-gray-400 ml-2">{node.count}</span>
-      </button>
-      {isExpanded && hasChildren && (
-        <div>
-          {node.children.map((child) => (
-            <DirectoryItem
-              key={child.path}
-              node={child}
-              selectedPath={selectedPath}
-              onSelectPath={onSelectPath}
-              level={level + 1}
-              expandedPaths={expandedPaths}
-              onToggle={onToggle}
-            />
-          ))}
-        </div>
-      )}
+        {isExpanded && hasChildren && (
+          <TreeNodeBranch className="mt-2">
+            {node.children.map((child) => (
+              <DirectoryItem
+                key={child.path}
+                node={child}
+                selectedPath={selectedPath}
+                onSelectPath={onSelectPath}
+                level={level + 1}
+                expandedPaths={expandedPaths}
+                onToggle={onToggle}
+              />
+            ))}
+          </TreeNodeBranch>
+        )}
+      </TreeNodeCard>
     </div>
   );
 }
@@ -104,14 +98,12 @@ export default function LibrarySidebar({
 
   return (
     <div className="h-full overflow-y-auto py-2">
-      <button
+      <SelectorCard
+        title="全部"
+        active={selectedPath === null}
         onClick={() => onSelectPath(null)}
-        className={`w-full text-left rounded px-3 py-2 text-sm transition hover:bg-gray-100 ${
-          selectedPath === null ? "bg-emerald-50 text-emerald-700 font-medium" : "text-gray-700"
-        }`}
-      >
-        全部
-      </button>
+        className="mb-2"
+      />
       {loading && <div className="px-3 py-4 text-xs text-gray-400">加载中…</div>}
       {directories.map((d) => (
         <DirectoryItem

@@ -1,4 +1,4 @@
-import { requireResourceAccess } from "@/server/auth/guard";
+import { requireResourceAccess } from "@workspace/platform/server/auth";
 import { getQcTemplateSummaries, listQcTemplateFeedback } from "@workspace/production/server/qc";
 import QcModuleShell from "../components/QcModuleShell";
 import QcTemplateWorkbench from "../components/QcTemplateWorkbench";

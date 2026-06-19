@@ -30,7 +30,7 @@ export default function PermissionDetails({
       {details.map((d, i) => (
         <span
           key={i}
-          className="rounded bg-white px-2 py-1 text-xs text-gray-600 shadow-sm"
+          className="rounded border border-slate-200 bg-white px-2 py-1 text-xs text-gray-600"
         >
           {d}
         </span>

@@ -1,4 +1,4 @@
-import { requireResourceAccess } from "@/server/auth/guard";
+import { requireResourceAccess } from "@workspace/platform/server/auth";
 import { DocsHome } from "@workspace/platform/ui/docs";
 
 export default async function DocsPage() {

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
+import { DataTable, FileField, PanelCard, SectionCard, getToolbarActionClassName } from "@workspace/core/ui";
+import type { DataTableColumn } from "@workspace/core/ui";
 import SelectField from "@workspace/core/ui/SelectField";
 
 interface Company {
@@ -84,41 +86,32 @@ export default function FinanceBalanceReconcile({
   }
 
   return (
-    <div className="rounded-lg bg-white p-4 shadow-sm">
-      <h3 className="mb-3 text-base font-semibold text-gray-800">
-        余额核对（与会计软件年度余额表比对）
-      </h3>
-      <p className="mb-3 text-xs text-gray-500">
-        系统侧使用 2024
-        年度余额表作为基准，再叠加序时账凭证滚动计算；上传 2025/2026
-        年度余额表用于校验差异。
-      </p>
+    <SectionCard
+      title="余额核对（与会计软件年度余额表比对）"
+      subtitle={
+        <>
+          系统侧使用 2024
+          年度余额表作为基准，再叠加序时账凭证滚动计算；上传 2025/2026
+          年度余额表用于校验差异。
+        </>
+      }
+    >
       <div className="flex flex-wrap items-end gap-3">
-        <div>
-          <label className="mb-1 block text-xs text-gray-500">公司</label>
-          <SelectField
-            value={companyCode}
-            onChange={setCompanyCode}
-            options={companies.map((company) => ({
-              value: company.code,
-              label: company.name,
-            }))}
-            selectClassName="min-w-32 px-3 py-1.5 text-sm"
-          />
-        </div>
-        <div>
-          <label className="mb-1 block text-xs text-gray-500">余额表Excel</label>
-          <input
-            type="file"
-            accept=".xls,.xlsx"
-            onChange={(event) => setFile(event.target.files?.[0] || null)}
-            className="text-sm"
-          />
-        </div>
+        <SelectField
+          label="公司"
+          value={companyCode}
+          onChange={setCompanyCode}
+          options={companies.map((company) => ({
+            value: company.code,
+            label: company.name,
+          }))}
+          selectClassName="min-w-32 px-3 py-1.5 text-sm"
+        />
+        <FileField label="余额表Excel" accept=".xls,.xlsx" onChange={setFile} />
         <button
           onClick={handleReconcile}
           disabled={loading}
-          className="rounded-md bg-blue-600 px-4 py-1.5 text-sm text-white hover:bg-blue-700 disabled:opacity-50"
+          className={getToolbarActionClassName("primary")}
         >
           {loading ? "核对中..." : "开始核对"}
         </button>
@@ -185,7 +178,7 @@ export default function FinanceBalanceReconcile({
             )}
         </div>
       )}
-    </div>
+    </SectionCard>
   );
 }
 
@@ -213,56 +206,61 @@ function MissingList({
 }
 
 function DiffTable({ differences }: { differences: ReconcileDiff[] }) {
+  const columns: DataTableColumn<ReconcileDiff>[] = [
+    {
+      key: "accountCode",
+      label: "科目编码",
+      required: true,
+      cellClassName: "font-mono text-slate-700",
+      render: (difference) => difference.accountCode,
+    },
+    {
+      key: "accountName",
+      label: "科目名称",
+      required: true,
+      render: (difference) => difference.accountName,
+    },
+    {
+      key: "field",
+      label: "差异项",
+      defaultVisible: true,
+      cellClassName: "text-slate-600",
+      render: (difference) => difference.field,
+    },
+    {
+      key: "excelValue",
+      label: "Excel",
+      defaultVisible: true,
+      headerClassName: "text-right",
+      cellClassName: "text-right",
+      render: (difference) => difference.excelValue.toFixed(2),
+    },
+    {
+      key: "systemValue",
+      label: "系统",
+      defaultVisible: true,
+      headerClassName: "text-right",
+      cellClassName: "text-right",
+      render: (difference) => difference.systemValue.toFixed(2),
+    },
+    {
+      key: "diff",
+      label: "差额",
+      defaultVisible: true,
+      headerClassName: "text-right",
+      cellClassName: "text-right font-medium text-red-600",
+      render: (difference) => difference.diff.toFixed(2),
+    },
+  ];
+
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs">
-        <thead className="border-b bg-red-50">
-          <tr>
-            <th className="px-2 py-1.5 text-left font-medium text-red-800">
-              科目编码
-            </th>
-            <th className="px-2 py-1.5 text-left font-medium text-red-800">
-              科目名称
-            </th>
-            <th className="px-2 py-1.5 text-left font-medium text-red-800">
-              差异项
-            </th>
-            <th className="px-2 py-1.5 text-right font-medium text-red-800">
-              Excel
-            </th>
-            <th className="px-2 py-1.5 text-right font-medium text-red-800">
-              系统
-            </th>
-            <th className="px-2 py-1.5 text-right font-medium text-red-800">
-              差额
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {differences.map((difference, index) => (
-            <tr key={index} className="border-b last:border-0">
-              <td className="px-2 py-1.5 font-mono text-gray-700">
-                {difference.accountCode}
-              </td>
-              <td className="px-2 py-1.5 text-gray-700">
-                {difference.accountName}
-              </td>
-              <td className="px-2 py-1.5 text-gray-600">
-                {difference.field}
-              </td>
-              <td className="px-2 py-1.5 text-right text-gray-700">
-                {difference.excelValue.toFixed(2)}
-              </td>
-              <td className="px-2 py-1.5 text-right text-gray-700">
-                {difference.systemValue.toFixed(2)}
-              </td>
-              <td className="px-2 py-1.5 text-right font-medium text-red-600">
-                {difference.diff.toFixed(2)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
+      <DataTable
+        rows={differences}
+        columns={columns}
+        visibleColumns={columns.map((column) => column.key)}
+        rowKey={(difference) => `${difference.accountCode}-${difference.field}`}
+      />
+    </PanelCard>
   );
 }

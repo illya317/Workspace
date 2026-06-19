@@ -31,12 +31,12 @@ export default function UserRow({ user: u, resources, onToggleLogin, onResetPass
   return (
     <tr className="border-b hover:bg-gray-50">
       <td className="px-3 py-2 font-medium text-gray-800">
-        {u.name}{u.employeeId && <span className="text-gray-400 ml-1 text-[11px] font-normal">/ {u.employeeId}</span>}
+        {u.name}{u.employeeId && <span className="ml-1 text-xs font-normal text-gray-400">/ {u.employeeId}</span>}
       </td>
       <td className="px-3 py-2 text-gray-500 font-mono">{u.username || "-"}</td>
       <td className="px-3 py-2">
         <button onClick={() => onToggleLogin(u.id, u.canLogin)}
-          className={`whitespace-nowrap rounded px-2 py-0.5 text-[11px] font-medium cursor-pointer border ${u.canLogin ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" : "bg-red-50 text-red-600 border-red-200 hover:bg-red-100"}`}
+          className={`cursor-pointer whitespace-nowrap rounded border px-2 py-0.5 text-xs font-medium ${u.canLogin ? "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100" : "border-red-200 bg-red-50 text-red-600 hover:bg-red-100"}`}
         >
           {u.canLogin ? "启用" : "停用"}
         </button>
@@ -44,12 +44,12 @@ export default function UserRow({ user: u, resources, onToggleLogin, onResetPass
       <td className="px-3 py-2">
         <div className="flex flex-wrap gap-1">
           {u.isWorkListAdmin && (
-            <span className="rounded bg-purple-50 px-1 py-0.5 text-[10px] text-purple-600">管理员</span>
+            <span className="rounded bg-purple-50 px-1 py-0.5 text-xs text-purple-600">管理员</span>
           )}
           {summaries.map((s) => (
             <span
               key={s.key}
-              className={`rounded px-1 py-0.5 text-[10px] ${ROLE_BG[ROLE_COLORS[s.roleKey] || "gray"]}`}
+              className={`rounded px-1 py-0.5 text-xs ${ROLE_BG[ROLE_COLORS[s.roleKey] || "gray"]}`}
               title={formatSummaryTooltip(s)}
             >
               {s.label}

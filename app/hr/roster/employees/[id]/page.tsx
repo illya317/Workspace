@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import AppShell from "@/app/components/AppShell";
-import { requireResourceAccess } from "@/server/auth/guard";
+import AppShell from "@workspace/platform/ui/AppShell";
+import { requireResourceAccess } from "@workspace/platform/server/auth";
 import EmployeeProfileClient from "@/app/hr/profile/EmployeeProfileClient";
 import type { HRUser } from "@/app/hr/types";
 

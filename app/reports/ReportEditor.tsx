@@ -2,7 +2,8 @@
 
 import type { PeriodType } from "@workspace/core/period";
 import { getPeriodTypeName } from "@workspace/core/period";
-import SelectField from "@/app/components/SelectField";
+import { PanelCard, SectionCard } from "@workspace/core/ui";
+import SelectField from "@workspace/core/ui/SelectField";
 import WorkSection, { type ItemRow } from "./WorkSection";
 
 export interface Report {
@@ -154,7 +155,7 @@ export default function ReportEditor({
       <form onSubmit={onSubmit} className="space-y-8">
         {/* Version info bar */}
         {report && (
-          <div className="rounded-lg bg-white p-6 shadow-sm">
+          <PanelCard bodyClassName="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 text-sm text-gray-700">
                 <span>填写人：{report.user?.name || user?.name}</span>
@@ -178,7 +179,7 @@ export default function ReportEditor({
                 </div>
               )}
             </div>
-          </div>
+          </PanelCard>
         )}
 
         {/* Work sections */}
@@ -195,12 +196,11 @@ export default function ReportEditor({
           onMove={onMoveNonRoutine} />
 
         {/* Notes */}
-        <div className="rounded-lg bg-white p-6 shadow-sm">
-          <label className="mb-1 block text-sm font-medium text-gray-700">备注</label>
+        <SectionCard title="备注">
           <textarea value={notes} onChange={(e) => onNotesChange(e.target.value)} rows={2} disabled={viewingVersion !== 0}
             className={`w-full rounded-md border px-3 py-2 text-gray-900 placeholder:text-gray-500 focus:border-emerald-400 focus:outline-none ${viewingVersion !== 0 ? "border-gray-200 bg-gray-100 text-gray-500" : "border-gray-300"}`}
             placeholder="其他补充说明..." />
-        </div>
+        </SectionCard>
 
         {viewingVersion !== 0 && (
           <div className="rounded-md bg-amber-50 p-3 text-center text-sm text-amber-700">当前查看历史版本 V{viewingVersion}，不可编辑</div>

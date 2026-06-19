@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { authenticate, checkHRWrite } from "@workspace/platform/server/auth";
 import { parseJson } from "@workspace/platform/server/api";
+import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { formatDepartmentPath } from "@workspace/hr/utils/department-path";
 import { isValidDateValue, parseWorkPercent, rejectInvalidDateField } from "./field-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 import { EDPCreateSchema } from "./schemas";
 import { handleCreate, handleDelete } from "./hr-crud";
+import { HR_FK_REGISTRY } from "./fk-registry";
 
 const DATE_FIELDS = ["startDate", "endDate"];
 const EDP_FIELDS = ["positionId", "isPrimary", "startDate", "endDate", "reportTo", "workPercent"];
@@ -27,12 +29,20 @@ async function normalizeEdpFieldUpdate(field: string, value: unknown) {
     const name = String(value || "");
     const position = name ? await prisma.position.findFirst({ where: { name } }) : null;
     if (name && !position) return null;
-    return { field: "positionId", value: position?.id ?? null };
+    const validation = await validateFkValue(HR_FK_REGISTRY, { fkKey: "hr.edp.position", value: position?.id ?? null, requiredLabel: "岗位" });
+    if (!validation.ok) return { error: validation.error, status: validation.status };
+    return { field: "positionId", value: validation.value };
   }
-  if (field === "positionId" && typeof value === "string") {
-    const position = await prisma.position.findFirst({ where: { name: value } });
-    if (value && !position) return null;
-    return { field, value: position?.id ?? null };
+  if (field === "positionId") {
+    let nextValue = value;
+    if (typeof value === "string" && Number.isNaN(Number(value))) {
+      const position = await prisma.position.findFirst({ where: { name: value } });
+      if (value && !position) return null;
+      nextValue = position?.id ?? null;
+    }
+    const validation = await validateFkValue(HR_FK_REGISTRY, { fkKey: "hr.edp.position", value: nextValue, requiredLabel: "岗位" });
+    if (!validation.ok) return { error: validation.error, status: validation.status };
+    return { field, value: validation.value };
   }
   if (field === "workPercent") {
     const parsed = parseWorkPercent(value);
@@ -103,6 +113,17 @@ export async function createEdp(request: Request) {
   const workPercent = parseWorkPercent(parsed.data.workPercent);
   if (Number.isNaN(workPercent) || (workPercent !== null && (workPercent < 0 || workPercent > 1))) {
     return { ok: false as const, response: NextResponse.json({ error: "工作占比必须在 0 到 1 之间" }, { status: 400 }) };
+  }
+  const positionValidation = await validateFkValue(HR_FK_REGISTRY, {
+    fkKey: "hr.edp.position",
+    value: parsed.data.positionId ?? null,
+    requiredLabel: "岗位",
+  });
+  if (!positionValidation.ok) {
+    return {
+      ok: false as const,
+      response: NextResponse.json({ error: positionValidation.error }, { status: positionValidation.status || 400 }),
+    };
   }
   const response = await handleCreate(request, { entityType: "EDP", modelKey: "eDP" as const }, async () => {
     const positionId = parsed.data.positionId ?? null;

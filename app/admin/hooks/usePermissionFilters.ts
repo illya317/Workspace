@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { matchEmployee, matchText } from "@/lib/search";
+import { matchEmployee, matchText } from "@workspace/platform/search";
 import type { Subject, PermissionState, SubjectType } from "../types";
 import { ROLE_PRIORITY } from "../lib";
 

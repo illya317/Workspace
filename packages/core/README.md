@@ -19,10 +19,13 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 - `ui/ColumnToggle`
 - `ui/OptionPicker`
 - `ui/PickerShell`
+- `ui/PageContent`
 - `ui/TabBar`
 - `ui/DataTable`
 - `ui/FilterField`
 - `ui/EditToolbar`
+- `ui/SplitWorkspace`
+- `ui/SplitWorkspaceToolbar`
 - `hooks/useCSV`
 - `hooks/useToast`
 - `routing/workspacePath`

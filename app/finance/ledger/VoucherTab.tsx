@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import Toast from "@/app/components/Toast";
+import Toast from "@workspace/core/ui/Toast";
 import { useToast } from "@workspace/core/hooks";
-import { DataTable, getDefaultVisibleColumns } from "@workspace/core/ui";
+import { DataTable, getDefaultVisibleColumns, PanelCard } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
 import { BASE_ITEM_COLUMNS } from "@workspace/finance/ui";
@@ -11,7 +11,7 @@ import type { VoucherItemRow } from "@workspace/finance/ui";
 import { useReclassResults } from "./useReclassResults";
 import ReclassReviewView from "../components/ReclassReviewView";
 import { getVoucherColumns } from "./VoucherColumns";
-import StatusToggle from "@/app/components/StatusToggle";
+import StatusToggle from "@workspace/core/ui/StatusToggle";
 import type { Voucher, VoucherResponse } from "./types";
 
 // ─── Component ───────────────────────────────────────────
@@ -160,7 +160,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
           <p className="py-8 text-center text-sm text-gray-400">请选择公司、年度和月份以配置重分类规则</p>
         )
       ) : (
-        <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+        <PanelCard bodyClassName="overflow-x-auto">
           <DataTable
             rows={vouchers}
             columns={voucherColumns}
@@ -173,7 +173,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
             }
             expandedRowKey={expandedVoucherId}
             renderExpandedRow={(v) => (
-              <div className="rounded border border-gray-200 bg-white">
+              <div className="rounded-md border border-slate-200 bg-white">
                 <DataTable
                   rows={v.items.map((it, i) => ({ ...it, _idx: i, _voucherNo: v.voucherNo }))}
                   columns={itemColumns}
@@ -183,7 +183,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
               </div>
             )}
           />
-        </div>
+        </PanelCard>
       )}
       {viewMode !== "reclass" && (
         <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />

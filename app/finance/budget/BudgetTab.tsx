@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Toast from "@/app/components/Toast";
+import Toast from "@workspace/core/ui/Toast";
 import { useToast } from "@workspace/core/hooks";
 import { useBudgetData } from "./hooks/useBudgetData";
 import { useBudgetFilters } from "./hooks/useBudgetFilters";

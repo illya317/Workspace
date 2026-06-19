@@ -1,8 +1,9 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
+import { EmptyStateCard, ModuleGridPage } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { MODULES } from "@workspace/platform/module-nav";
 import AppShell from "../AppShell";
+import ModuleCard from "../ModuleCard";
 import ModuleHome from "../ModuleHome";
 import ApiGuideClient from "./ApiGuideClient";
 import GmpPositionDetailClient from "./positions/gmp/GmpPositionDetailClient";
@@ -30,10 +31,11 @@ export function DocsPlaceholderPage({
 }) {
   return (
     <AppShell title={title} backHref="/docs" user={user}>
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <h2 className="mb-4 text-lg font-semibold text-gray-800">{title}</h2>
-        <p className="text-sm text-gray-500">{description}</p>
-      </main>
+      <ModuleGridPage summary={description} centered>
+        <div className="col-span-full">
+          <EmptyStateCard compact={false}>内容建设中</EmptyStateCard>
+        </div>
+      </ModuleGridPage>
     </AppShell>
   );
 }
@@ -41,16 +43,19 @@ export function DocsPlaceholderPage({
 export function DocsPositionsIndex({ user }: { user: SessionUser }) {
   return (
     <AppShell title="岗位说明书" backHref="/docs" user={user}>
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <h2 className="mb-6 text-lg font-semibold text-gray-800">岗位说明书</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Link href="/docs/positions/GMP" className="rounded-lg bg-white p-5 shadow-sm transition hover:shadow-md">
-            <h3 className="text-base font-semibold text-gray-800">GMP 岗位说明书</h3>
-            <p className="mt-1 text-sm text-gray-500">GMP 体系岗位说明书</p>
-            <span className="mt-3 inline-block text-sm text-emerald-600">查看 -&gt;</span>
-          </Link>
-        </div>
-      </main>
+      <ModuleGridPage summary="岗位说明书" centered>
+        <ModuleCard
+          title="GMP 岗位说明书"
+          description="GMP 体系岗位说明书"
+          color="purple"
+          href="/docs/positions/GMP"
+          icon={
+            <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.75c-1.8-1.1-4.05-1.75-6.5-1.75v12c2.45 0 4.7.65 6.5 1.75m0-12c1.8-1.1 4.05-1.75 6.5-1.75v12c-2.45 0-4.7.65-6.5 1.75m0-12v12" />
+            </svg>
+          }
+        />
+      </ModuleGridPage>
     </AppShell>
   );
 }

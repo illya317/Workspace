@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnalysisBlock, SearchInput } from "@workspace/core/ui";
 import type { Contract } from "./useAnalyticsData";
 import StatCard from "./shared/StatCard";
 import { enrichContracts, computeStats, filterContracts, statusBadge, statusLabel } from "./contract-helpers";
@@ -24,8 +25,7 @@ export default function ContractAnalytics({ contracts }: { contracts: Contract[]
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-5">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">合同类型分布</h3>
+        <AnalysisBlock title="合同类型分布">
           <div className="space-y-2">
             {stats.types.map(([k, v]) => {
               const max = Math.max(...stats.types.map(([, x]) => x), 1);
@@ -41,10 +41,9 @@ export default function ContractAnalytics({ contracts }: { contracts: Contract[]
               );
             })}
           </div>
-        </div>
+        </AnalysisBlock>
 
-        <div className="bg-white rounded-lg shadow-sm p-5">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">公司合同分布</h3>
+        <AnalysisBlock title="公司合同分布">
           <div className="space-y-2">
             {stats.companies.map(([k, v]) => {
               const max = Math.max(...stats.companies.map(([, x]) => x), 1);
@@ -60,12 +59,13 @@ export default function ContractAnalytics({ contracts }: { contracts: Contract[]
               );
             })}
           </div>
-        </div>
+        </AnalysisBlock>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-5">
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
-          <h3 className="text-sm font-semibold text-gray-700">合同到期预警</h3>
+      <AnalysisBlock
+        title="合同到期预警"
+        toolbar={
+          <div className="flex flex-1 items-center gap-3">
           <div className="flex gap-1">
             {(["all", "expiring30", "expiring90", "expired"] as const).map((f) => (
               <button key={f} onClick={() => setFilter(f)}
@@ -75,34 +75,40 @@ export default function ContractAnalytics({ contracts }: { contracts: Contract[]
               </button>
             ))}
           </div>
-          <input type="text" placeholder="搜索姓名、工号、公司..." value={search} onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 max-w-xs ml-auto px-3 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:border-emerald-400"
+          <SearchInput
+            placeholder="搜索姓名、工号、公司..."
+            value={search}
+            onChange={setSearch}
+            size="toolbar"
+            className="ml-auto max-w-xs"
           />
           <span className="text-xs text-gray-400">{filtered.length} 人</span>
-        </div>
+          </div>
+        }
+      >
 
         <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b text-gray-500">
-                <th className="text-left py-2 px-2">工号</th>
-                <th className="text-left py-2 px-2">姓名</th>
-                <th className="text-left py-2 px-2">公司</th>
-                <th className="text-left py-2 px-2">合同类型</th>
-                <th className="text-left py-2 px-2">最近到期日</th>
-                <th className="text-left py-2 px-2">剩余天数</th>
-                <th className="text-left py-2 px-2">状态</th>
+          <table className="min-w-full text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-4 py-3 font-medium">工号</th>
+                <th className="px-4 py-3 font-medium">姓名</th>
+                <th className="px-4 py-3 font-medium">公司</th>
+                <th className="px-4 py-3 font-medium">合同类型</th>
+                <th className="px-4 py-3 font-medium">最近到期日</th>
+                <th className="px-4 py-3 font-medium">剩余天数</th>
+                <th className="px-4 py-3 font-medium">状态</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {filtered.slice(0, 100).map((c) => (
-                <tr key={c.id} className={`border-b border-gray-50 hover:bg-gray-50 ${c.status === "expired" ? "bg-red-50/40" : c.status === "expiring30" ? "bg-rose-50/30" : ""}`}>
-                  <td className="py-2 px-2 font-mono text-gray-500">{c.employeeId}</td>
-                  <td className="py-2 px-2 font-medium">{c.employeeName}</td>
-                  <td className="py-2 px-2 text-gray-500">{c.company || "—"}</td>
-                  <td className="py-2 px-2 text-gray-500">{c.contractType || "—"}</td>
-                  <td className="py-2 px-2 text-gray-700">{c.nearestEnd || "—"}</td>
-                  <td className="py-2 px-2">
+                <tr key={c.id} className={`hover:bg-emerald-50/20 ${c.status === "expired" ? "bg-red-50/40" : c.status === "expiring30" ? "bg-rose-50/30" : ""}`}>
+                  <td className="px-4 py-3 font-mono text-slate-500">{c.employeeId}</td>
+                  <td className="px-4 py-3 font-medium">{c.employeeName}</td>
+                  <td className="px-4 py-3 text-slate-500">{c.company || "—"}</td>
+                  <td className="px-4 py-3 text-slate-500">{c.contractType || "—"}</td>
+                  <td className="px-4 py-3 text-slate-700">{c.nearestEnd || "—"}</td>
+                  <td className="px-4 py-3">
                     {c.daysLeft === null || (typeof c.daysLeft === 'number' && isNaN(c.daysLeft)) ? (
                       <span className="text-gray-400">—</span>
                     ) : c.daysLeft < 0 ? (
@@ -113,15 +119,15 @@ export default function ContractAnalytics({ contracts }: { contracts: Contract[]
                       </span>
                     )}
                   </td>
-                  <td className="py-2 px-2">
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${statusBadge(c.status)}`}>
+                  <td className="px-4 py-3">
+                    <span className={`text-xs px-1.5 py-0.5 rounded ${statusBadge(c.status)}`}>
                       {statusLabel(c.status)}
                     </span>
                   </td>
                 </tr>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan={7} className="py-4 text-center text-gray-400">暂无数据</td></tr>
+                <tr><td colSpan={7} className="py-8 text-center text-gray-400">暂无数据</td></tr>
               )}
             </tbody>
           </table>
@@ -129,7 +135,7 @@ export default function ContractAnalytics({ contracts }: { contracts: Contract[]
             <p className="text-xs text-gray-400 text-center py-2">还有 {filtered.length - 100} 条，请使用搜索或筛选</p>
           )}
         </div>
-      </div>
+      </AnalysisBlock>
     </div>
   );
 }

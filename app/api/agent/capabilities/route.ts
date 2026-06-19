@@ -3,7 +3,7 @@
  * 前端用于动态生成提示词，无权限的工具不会出现。
  */
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/server/auth/session";
+import { getCurrentUser } from "@workspace/platform/server/auth";
 import { authorize } from "@workspace/platform/server/auth";
 import { financeAgentTools } from "@workspace/finance/server/agent-tools";
 import { hrAgentTools } from "@workspace/hr/server/agent-tools";

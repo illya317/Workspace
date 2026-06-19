@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnalysisBlock, SearchInput } from "@workspace/core/ui";
 import type { Employee, Employment } from "./useAnalyticsData";
 import StatCard from "./shared/StatCard";
 
@@ -12,10 +13,7 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
     const thisYear = now.getFullYear();
     const thisMonth = now.getMonth();
 
-    // 已离职记录
     const left = employments.filter((e) => !e.isActive && e.leaveDate);
-
-    // 离职总数
     const totalLeft = left.length;
 
     // 本月离职
@@ -112,14 +110,13 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-5">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">离职月度趋势（近12个月）</h3>
+        <AnalysisBlock title="离职月度趋势（近12个月）">
           <div className="flex items-end gap-1 h-40">
             {stats.monthCounts.map((c, i) => {
               const h = Math.round((c / stats.maxMonthCount) * 100);
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <span className="text-[10px] text-gray-500 font-medium">{c || ""}</span>
+                  <span className="text-xs text-gray-500 font-medium">{c || ""}</span>
                   <div
                     className="w-full bg-rose-400 rounded-t"
                     style={{ height: `${Math.max(h, c > 0 ? 4 : 1)}%` }}
@@ -129,10 +126,9 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
               );
             })}
           </div>
-        </div>
+        </AnalysisBlock>
 
-        <div className="bg-white rounded-lg shadow-sm p-5">
-          <h3 className="text-sm font-semibold text-gray-700 mb-4">离职司龄分布</h3>
+        <AnalysisBlock title="离职司龄分布">
           <div className="space-y-2">
             {stats.tenureDist.map(([k, v]) => {
               const max = Math.max(...stats.tenureDist.map(([, x]) => x), 1);
@@ -148,21 +144,24 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
               );
             })}
           </div>
-        </div>
+        </AnalysisBlock>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm p-5">
-        <div className="flex items-center gap-3 mb-4">
-          <h3 className="text-sm font-semibold text-gray-700">离职原因分布</h3>
-          <input
-            type="text"
+      <AnalysisBlock
+        title="离职原因分布"
+        toolbar={
+          <div className="flex flex-1 items-center gap-3">
+          <SearchInput
             placeholder="搜索原因..."
             value={reasonSearch}
-            onChange={(e) => setReasonSearch(e.target.value)}
-            className="flex-1 max-w-xs px-3 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:border-emerald-400"
+            onChange={setReasonSearch}
+            size="toolbar"
+            className="max-w-xs"
           />
           <span className="text-xs text-gray-400">{stats.totalLeft} 人</span>
-        </div>
+          </div>
+        }
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
           {filteredReasons.map(([k, v]) => {
             const max = Math.max(...filteredReasons.map(([, x]) => x), 1);
@@ -175,45 +174,44 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
                   <div className="h-full bg-rose-300 rounded" style={{ width: `${barPct}%` }} />
                 </div>
                 <span className="w-8 text-right text-xs font-medium text-gray-700">{v}</span>
-                <span className="w-8 text-right text-[10px] text-gray-400">{pct}%</span>
+                <span className="w-8 text-right text-xs text-gray-400">{pct}%</span>
               </div>
             );
           })}
         </div>
-      </div>
+      </AnalysisBlock>
 
-      <div className="bg-white rounded-lg shadow-sm p-5">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">最近离职（前20）</h3>
+      <AnalysisBlock title="最近离职（前20）">
         <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b text-gray-500">
-                <th className="text-left py-2 px-2">姓名</th>
-                <th className="text-left py-2 px-2">公司</th>
-                <th className="text-left py-2 px-2">入职日期</th>
-                <th className="text-left py-2 px-2">离职日期</th>
-                <th className="text-left py-2 px-2">原因</th>
-                <th className="text-left py-2 px-2">补充说明</th>
+          <table className="min-w-full text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-4 py-3 font-medium">姓名</th>
+                <th className="px-4 py-3 font-medium">公司</th>
+                <th className="px-4 py-3 font-medium">入职日期</th>
+                <th className="px-4 py-3 font-medium">离职日期</th>
+                <th className="px-4 py-3 font-medium">原因</th>
+                <th className="px-4 py-3 font-medium">补充说明</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {stats.recentLeaves.map((e) => (
-                <tr key={e.id} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="py-2 px-2 font-medium">{e.employeeName}</td>
-                  <td className="py-2 px-2 text-gray-500">{e.currentCompany || "—"}</td>
-                  <td className="py-2 px-2 text-gray-500">{e.joinDate || "—"}</td>
-                  <td className="py-2 px-2 text-gray-500">{e.leaveDate}</td>
-                  <td className="py-2 px-2 text-gray-500">{e.leaveReason || "—"}</td>
-                  <td className="py-2 px-2 text-gray-500">{e.leaveNote || "—"}</td>
+                <tr key={e.id} className="hover:bg-emerald-50/20">
+                  <td className="px-4 py-3 font-medium">{e.employeeName}</td>
+                  <td className="px-4 py-3 text-slate-500">{e.currentCompany || "—"}</td>
+                  <td className="px-4 py-3 text-slate-500">{e.joinDate || "—"}</td>
+                  <td className="px-4 py-3 text-slate-500">{e.leaveDate}</td>
+                  <td className="px-4 py-3 text-slate-500">{e.leaveReason || "—"}</td>
+                  <td className="px-4 py-3 text-slate-500">{e.leaveNote || "—"}</td>
                 </tr>
               ))}
               {stats.recentLeaves.length === 0 && (
-                <tr><td colSpan={6} className="py-4 text-center text-gray-400">暂无数据</td></tr>
+                <tr><td colSpan={6} className="py-8 text-center text-gray-400">暂无数据</td></tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      </AnalysisBlock>
     </div>
   );
 }

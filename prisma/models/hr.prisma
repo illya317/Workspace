@@ -99,25 +99,28 @@ model CompanyRelation {
 
 /// 部门树（含层级关系与负责人）
 model Department {
-  id            Int                      @id @default(autoincrement())
-  code          String
-  name          String
-  alias         String?
-  level         Int                      @default(1)
-  parentId      Int?
-  managerUserId Int?
-  endDate       DateTime?
-  editedBy      Int?
-  editedAt      DateTime?
-  version       Int                      @default(1)
-  manager       User?                    @relation("DepartmentManager", fields: [managerUserId], references: [id])
-  parent        Department?              @relation("DeptHierarchy", fields: [parentId], references: [id])
-  children      Department[]             @relation("DeptHierarchy")
-  descriptions  DepartmentDescription[]
-  resourceRoles DepartmentResourceRole[]
-  workAssignees DepartmentWorkAssignee[]
-  edps          EDP[]
-  positions     Position[]
+  id              Int                      @id @default(autoincrement())
+  code            String
+  name            String
+  alias           String?
+  level           Int                      @default(1)
+  parentId        Int?
+  managerUserId   Int?
+  isArchived      Boolean                  @default(false)
+  archivedAt      DateTime?
+  endDate         DateTime?
+  editedBy        Int?
+  editedAt        DateTime?
+  version         Int                      @default(1)
+  manager         User?                    @relation("DepartmentManager", fields: [managerUserId], references: [id])
+  parent          Department?              @relation("DeptHierarchy", fields: [parentId], references: [id])
+  children        Department[]             @relation("DeptHierarchy")
+  descriptions    DepartmentDescription[]
+  resourceRoles   DepartmentResourceRole[]
+  workAssignees   DepartmentWorkAssignee[]
+  leadingProjects Project[]                @relation("ProjectLeadingDepartment")
+  edps            EDP[]
+  positions       Position[]
 
   @@index([code])
   @@index([name])
@@ -150,6 +153,8 @@ model Position {
   name                   String
   departmentId           Int?
   positionDescriptionId  Int?
+  isArchived             Boolean                 @default(false)
+  archivedAt             DateTime?
   endDate                DateTime?
   editedBy               Int?
   editedAt               DateTime?
@@ -167,21 +172,21 @@ model Position {
 
 /// 员工-部门-岗位关联（EmployeePosition 别名）
 model EDP {
-  id            Int         @id @default(autoincrement())
-  employeeId    Int
-  departmentId  Int?
-  positionId    Int?
-  isPrimary     Boolean     @default(false)
-  startDate     String?
-  endDate       String?
-  reportTo      String?
-  workPercent   String?
-  editedBy      Int?
-  editedAt      DateTime?
-  version       Int         @default(1)
-  position      Position?   @relation(fields: [positionId], references: [id])
-  department    Department? @relation(fields: [departmentId], references: [id])
-  employee      Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  id           Int         @id @default(autoincrement())
+  employeeId   Int
+  departmentId Int?
+  positionId   Int?
+  isPrimary    Boolean     @default(false)
+  startDate    String?
+  endDate      String?
+  reportTo     String?
+  workPercent  String?
+  editedBy     Int?
+  editedAt     DateTime?
+  version      Int         @default(1)
+  position     Position?   @relation(fields: [positionId], references: [id])
+  department   Department? @relation(fields: [departmentId], references: [id])
+  employee     Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
 
   @@index([employeeId])
   @@index([departmentId])
@@ -191,29 +196,40 @@ model EDP {
 
 /// 项目/虚拟团队
 model Project {
-  id            Int                   @id @default(autoincrement())
-  name          String
-  type          String                @default("project")
-  description   String?
-  status        String?
-  priority      String?
-  stage         String?
-  plan          String?
-  goal          String?
-  milestones    String?
-  budgetAmount  Float?
-  budgetNote    String?
-  riskNote      String?
-  remark        String?
-  startDate     DateTime?
-  endDate       DateTime?
-  editedBy      Int?
-  editedAt      DateTime?
-  version       Int                   @default(1)
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @default(now()) @updatedAt
-  employees     EmployeeProject[]
-  workAssignees ProjectWorkAssignee[]
+  id                  Int                   @id @default(autoincrement())
+  code                String?               @unique
+  name                String
+  type                String                @default("project")
+  description         String?
+  status              String?
+  priority            String?
+  stage               String?
+  plan                String?
+  goal                String?
+  milestones          String?
+  budgetAmount        Float?
+  budgetNote          String?
+  riskNote            String?
+  remark              String?
+  startDate           DateTime?
+  endDate             DateTime?
+  parentId            Int?
+  leadingDepartmentId Int?
+  isArchived          Boolean               @default(false)
+  archivedAt          DateTime?
+  editedBy            Int?
+  editedAt            DateTime?
+  version             Int                   @default(1)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @default(now()) @updatedAt
+  parent              Project?              @relation("ProjectHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children            Project[]             @relation("ProjectHierarchy")
+  leadingDepartment   Department?           @relation("ProjectLeadingDepartment", fields: [leadingDepartmentId], references: [id], onDelete: SetNull)
+  employees           EmployeeProject[]
+  workAssignees       ProjectWorkAssignee[]
+
+  @@index([parentId])
+  @@index([leadingDepartmentId])
 }
 
 /// 员工-项目关联

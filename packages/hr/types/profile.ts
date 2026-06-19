@@ -21,6 +21,7 @@ export interface ProfileField {
   type?: ProfileFieldType;
   booleanLabels?: { true: string; false: string; unset?: string };
   entity?: "company" | "department" | "employee" | "position" | "project" | "user";
+  fkKey?: string;
   valueFrom?: "id" | "name" | "subtitle";
   activeOnly?: boolean;
   options?: string[];

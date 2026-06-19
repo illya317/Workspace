@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import { SelectField } from "@workspace/core/ui";
+import { PanelCard, SelectField } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import ReportLines from "./ReportLines";
 import ReportBanner from "./ReportBanner";
@@ -120,24 +120,24 @@ export default function ReportTab() {
       {loading && <p className="p-8 text-center text-gray-500">加载中...</p>}
 
       {data?.type === "balance" && (
-        <div className="rounded-lg bg-white shadow-sm p-4">
+        <PanelCard bodyClassName="p-4">
           <h3 className="text-base font-semibold text-gray-800 text-center mb-1">资 产 负 债 表</h3>
           <p className="text-xs text-gray-500 text-center mb-4">{data.period.year}年{data.period.month}月</p>
           <div className="grid grid-cols-2 gap-0">
             <div className="border-r border-gray-200 pr-4">
-              <table className="w-full text-xs">
-                <thead className="border-b"><tr>
-                  <th className="py-1 text-left font-medium text-gray-700">资  产</th>
-                  <th className="py-1 text-right font-medium text-gray-700">年末余额</th>
+              <table className="min-w-full text-left text-sm">
+                <thead className="border-b border-slate-200 text-slate-600"><tr>
+                  <th className="whitespace-nowrap py-2 font-medium">资  产</th>
+                  <th className="whitespace-nowrap py-2 text-right font-medium">年末余额</th>
                 </tr></thead>
                 <ReportLines items={data.assets || []} {...lineProps} />
               </table>
             </div>
             <div className="pl-4">
-              <table className="w-full text-xs">
-                <thead className="border-b"><tr>
-                  <th className="py-1 text-left font-medium text-gray-700">负债及所有者权益</th>
-                  <th className="py-1 text-right font-medium text-gray-700">年末余额</th>
+              <table className="min-w-full text-left text-sm">
+                <thead className="border-b border-slate-200 text-slate-600"><tr>
+                  <th className="whitespace-nowrap py-2 font-medium">负债及所有者权益</th>
+                  <th className="whitespace-nowrap py-2 text-right font-medium">年末余额</th>
                 </tr></thead>
                 <ReportLines items={data.liabilities || []} {...lineProps} />
                 <ReportLines items={data.equity || []} {...lineProps} />
@@ -152,11 +152,11 @@ export default function ReportTab() {
               )}
             </p>
           )}
-        </div>
+        </PanelCard>
       )}
 
       {data?.type === "income" && (
-        <div className="rounded-lg bg-white shadow-sm p-4">
+        <PanelCard bodyClassName="p-4">
           <h3 className="text-base font-semibold text-gray-800 text-center mb-1">利  润  表</h3>
           <p className="text-xs text-gray-500 text-center mb-4">{data.period.year}年{data.period.month}月</p>
           <ReportBanner
@@ -164,18 +164,18 @@ export default function ReportTab() {
             diagnostics={data.diagnostics}
             reviewHref={`/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=incomeStatement`}
           />
-          <table className="w-full text-xs max-w-2xl mx-auto">
-            <thead className="border-b"><tr>
-              <th className="py-1 text-left font-medium text-gray-700">项       目</th>
-              <th className="py-1 text-right font-medium text-gray-700">本年金额</th>
+          <table className="mx-auto min-w-full max-w-2xl text-left text-sm">
+            <thead className="border-b border-slate-200 text-slate-600"><tr>
+              <th className="whitespace-nowrap py-2 font-medium">项       目</th>
+              <th className="whitespace-nowrap py-2 text-right font-medium">本年金额</th>
             </tr></thead>
             <ReportLines items={data.lines || []} {...lineProps} />
           </table>
-        </div>
+        </PanelCard>
       )}
 
       {data?.type === "cashflow" && (
-        <div className="rounded-lg bg-white shadow-sm p-4">
+        <PanelCard bodyClassName="p-4">
           <h3 className="text-base font-semibold text-gray-800 text-center mb-1">现 金 流 量 表</h3>
           <p className="text-xs text-gray-500 text-center mb-4">{data.period.year}年{data.period.month}月</p>
           <ReportBanner
@@ -183,14 +183,14 @@ export default function ReportTab() {
             diagnostics={data.diagnostics}
             reviewHref={`/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=cashFlow`}
           />
-          <table className="w-full text-xs max-w-2xl mx-auto">
-            <thead className="border-b"><tr>
-              <th className="py-1 text-left font-medium text-gray-700">项       目</th>
-              <th className="py-1 text-right font-medium text-gray-700">金额</th>
+          <table className="mx-auto min-w-full max-w-2xl text-left text-sm">
+            <thead className="border-b border-slate-200 text-slate-600"><tr>
+              <th className="whitespace-nowrap py-2 font-medium">项       目</th>
+              <th className="whitespace-nowrap py-2 text-right font-medium">金额</th>
             </tr></thead>
             <ReportLines items={data.lines || []} {...lineProps} />
           </table>
-        </div>
+        </PanelCard>
       )}
     </div>
   );

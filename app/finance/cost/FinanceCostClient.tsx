@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { SessionUser } from "@/lib/types";
+import { SessionUser } from "@workspace/platform/types";
+import { PageContent, TabBar } from "@workspace/core/ui";
 import CostFilters from "./components/CostFilters";
 import CostSummary from "./components/CostSummary";
 import ShipmentTable from "./components/ShipmentTable";
@@ -32,29 +33,9 @@ export default function FinanceCostClient({ user: _user }: { user: SessionUser }
   });
 
   return (
-    <main className="mx-auto max-w-6xl space-y-4 px-4 py-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">成本管理</h1>
-        <p className="text-sm text-gray-500">生产成本归集与成本核算</p>
-      </div>
-
+    <PageContent className="max-w-6xl space-y-4">
+      <TabBar tabs={TABS} active={tab} onChange={(key) => setTab(key as CostTab)} />
       <CostFilters filters={filters} onChange={setFilters} />
-
-      <div className="flex gap-2 border-b border-gray-200 pb-1">
-        {TABS.map((t) => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`px-3 py-2 text-sm font-medium ${
-              tab === t.key
-                ? "border-b-2 border-emerald-600 text-emerald-700"
-                : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
-      </div>
 
       <div className="pt-2">
         {tab === "overview" && <CostSummary filters={filters} />}
@@ -65,6 +46,6 @@ export default function FinanceCostClient({ user: _user }: { user: SessionUser }
         {tab === "salary" && <SalesSalaryTable filters={filters} />}
         {tab === "imports" && <ImportHistoryTable filters={filters} />}
       </div>
-    </main>
+    </PageContent>
   );
 }

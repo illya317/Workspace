@@ -1,22 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import NavLink from "@/app/components/NavLink";
-import UserMenu from "@/app/components/UserMenu";
-import TabBar from "@/app/components/TabBar";
-import Toast from "@/app/components/Toast";
-import SelectField from "@/app/components/SelectField";
+import { PageContent, SectionCard, SelectField, TabBar, Toast } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import AdminUsersTab from "./tabs/AdminUsersTab";
 import PermissionsTab from "./tabs/PermissionsTab";
 
 import type { ResourceItem } from "./types";
-import { SessionUser } from "@/lib/types";
+import { SessionUser } from "@workspace/platform/types";
 
 export default function AdminClient({ user }: { user: SessionUser }) {
-  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const isSuperAdmin = user.isSuperAdmin ?? false;
   const [activeTab, setActiveTab] = useState<"users" | "permissions">(isSuperAdmin ? "users" : "permissions");
@@ -85,21 +78,8 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
-            <Image src="/workspace/company/logo.png" alt="logo" width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
-          </div>
-          <div className="flex items-center gap-5">
-            <button onClick={() => router.push("/portal")} className="text-sm text-gray-500 hover:text-emerald-600">返回入口</button>
-            <NavLink href="/hr">人事行政</NavLink>
-            <UserMenu user={user} />
-          </div>
-        </div>
-      </nav>
-
-      <main className="mx-auto max-w-5xl px-4 py-8">
+    <>
+      <PageContent className="py-8">
         <h1 className="mb-6 text-2xl font-bold text-gray-800">管理后台</h1>
 
         <TabBar tabs={tabs} active={activeTab} onChange={(k) => setActiveTab(k as typeof activeTab)} />
@@ -111,8 +91,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
 
         {/* System Config */}
         {isSuperAdmin && (
-          <div className="mt-8 rounded-lg border border-gray-200 bg-white p-6">
-            <h3 className="mb-3 text-sm font-semibold text-gray-700">系统配置</h3>
+          <SectionCard title="系统配置" className="mt-8">
             <div className="flex items-center gap-4">
               <label className="text-sm text-gray-600">权限冲突策略：</label>
               <SelectField
@@ -128,11 +107,11 @@ export default function AdminClient({ user }: { user: SessionUser }) {
                 {conflictStrategy === "union" ? "用户、岗位、部门任一授权即通过" : "任一来源拒绝则拒绝"}
               </span>
             </div>
-          </div>
+          </SectionCard>
         )}
-      </main>
+      </PageContent>
 
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
-    </div>
+    </>
   );
 }

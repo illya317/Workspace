@@ -1,17 +1,70 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import NavLink from "../NavLink";
-import UserMenu from "../UserMenu";
+import {
+  ModuleGridPage,
+} from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import UsernameModal from "./UsernameModal";
 import PasswordModal from "./PasswordModal";
+import ModuleCard from "../ModuleCard";
 
-export default function SettingsClient({ user: initialUser, hideShell }: { user: SessionUser; hideShell?: boolean }) {
-  const router = useRouter();
+type SettingsView = "home" | "account" | "governance";
+
+const governanceItems = [
+  {
+    title: "FK Registry",
+    description: "登记字段来源、目标对象、搜索解析、nullable 与生命周期默认范围。",
+    color: "blue",
+    icon: <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" /></svg>,
+  },
+  {
+    title: "Core UI 注册表",
+    description: "查看已注册 UI、中文分类、组合关系和当前消费文件。",
+    color: "emerald",
+    href: "/settings/governance/ui-registry",
+    icon: <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h7M14 18h6M8 9v6M16 3v6" /></svg>,
+  },
+  {
+    title: "生命周期规则",
+    description: "定义现用、归档、离职等状态，以及默认搜索和保存范围。",
+    color: "emerald",
+    icon: <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6l4 2M21 12a9 9 0 11-3.21-6.9M21 3v5h-5" /></svg>,
+  },
+  {
+    title: "字段必填策略",
+    description: "区分 UI 星号提示和后端 nullable 硬约束，避免关键关系被清空。",
+    color: "indigo",
+    icon: <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4M6 4h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2z" /></svg>,
+  },
+  {
+    title: "字段唯一性 / 编码规则",
+    description: "集中管理编码生成、唯一性校验、命名口径和冲突提示。",
+    color: "cyan",
+    icon: <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 7h10M7 12h10M7 17h6M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" /></svg>,
+  },
+  {
+    title: "引用阻断规则",
+    description: "目标归档、删除、离职前检查现用引用，并输出可处理的阻断说明。",
+    color: "purple",
+    icon: <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 13a5 5 0 007.07 0l1.41-1.41a5 5 0 00-7.07-7.07L10 5.93M14 11a5 5 0 00-7.07 0l-1.41 1.41a5 5 0 007.07 7.07L14 18.07" /></svg>,
+  },
+  {
+    title: "审计策略",
+    description: "自动清空、策略变更和生命周期操作必须留痕，支持追溯。",
+    color: "blue",
+    icon: <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5h6M9 9h6M9 13h3m-7 8h14a2 2 0 002-2V7.5a2 2 0 00-.586-1.414l-3.5-3.5A2 2 0 0015.5 2H5a2 2 0 00-2 2v15a2 2 0 002 2z" /></svg>,
+  },
+];
+
+export default function SettingsClient({
+  user: initialUser,
+  view = "home",
+}: {
+  user: SessionUser;
+  hideShell?: boolean;
+  view?: SettingsView;
+}) {
   const [user, setUser] = useState<SessionUser>(initialUser);
   const visibleResourceKeys = user.visibleResourceKeys || [];
   const hasApiAccess = visibleResourceKeys.includes("system.api");
@@ -28,94 +81,114 @@ export default function SettingsClient({ user: initialUser, hideShell }: { user:
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {!hideShell && (
-      <nav className="bg-white shadow-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
-            <Image src="/workspace/company/logo.png" alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"} width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
-          </div>
-          <div className="flex items-center gap-5">
-            <button onClick={() => router.push("/portal")} className="text-sm text-gray-500 hover:text-emerald-600">返回入口</button>
-            <NavLink href="/reports">工作汇报</NavLink>
-            <NavLink href="/works">工作清单</NavLink>
-            <NavLink href="/history">历史记录</NavLink>
-            <UserMenu user={user} />
-          </div>
-        </div>
-      </nav>
-      )}
+    <>
+      {view === "home" && (
+        <ModuleGridPage summary="个人设置、系统配置" centered>
+          <ModuleCard
+            title="账号与接入"
+            description="账号、安全密码、API 接入"
+            color="blue"
+            icon={
+              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 0115 0M17.25 11.25h1.5a2.25 2.25 0 012.25 2.25v4.5a2.25 2.25 0 01-2.25 2.25h-1.5M15 15.75h6" />
+              </svg>
+            }
+            href="/settings/account"
+          />
 
-      <main className="mx-auto max-w-3xl px-4 py-10">
-        <h1 className="mb-8 text-3xl font-bold text-gray-800">设置</h1>
-
-        <div className="space-y-6">
-          <div className="rounded-xl bg-white px-8 py-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-800">修改账号</h2>
-                <p className="mt-1 text-sm text-gray-500">
-                  当前用户名：<span className="text-gray-700">{user.username || "(未设置)"}</span>
-                </p>
-              </div>
-              <button
-                onClick={() => setShowUsernameModal(true)}
-                className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-              >
-                修改
-              </button>
-            </div>
-          </div>
-
-          <div className="rounded-xl bg-white px-8 py-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-800">修改密码</h2>
-                <p className="mt-1 text-sm text-gray-500">定期更换密码可提高账号安全性</p>
-              </div>
-              <button
-                onClick={() => setShowPasswordModal(true)}
-                className="rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
-              >
-                修改
-              </button>
-            </div>
-          </div>
-
-          {hasApiAccess && (
-            <div className="rounded-xl bg-white px-8 py-6 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-800">API 接入</h2>
-                  <p className="mt-1 text-sm text-gray-500">
-                    机器人或外部系统可通过 API 接入，与网页版权限一致。
-                  </p>
-                </div>
-                <Link href="/api-guide" className="shrink-0 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700">
-                  查看接入指南
-                </Link>
-              </div>
-            </div>
+          {hasAdminAccess && (
+            <ModuleCard
+              title="系统管理"
+              description="用户、权限、资源和管理员配置。"
+              color="indigo"
+              icon={
+                <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3l7.5 3v5.25c0 4.58-3.1 8.84-7.5 9.75-4.4-.91-7.5-5.17-7.5-9.75V6L12 3z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4" />
+                </svg>
+              }
+              href="/admin"
+            />
           )}
 
           {hasAdminAccess && (
-            <div className="rounded-xl bg-white px-8 py-6 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold text-gray-800">管理员</h2>
-                  <p className="mt-1 text-sm text-gray-500">系统管理与权限配置</p>
-                </div>
-                <Link href="/admin" className="shrink-0 rounded-lg bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-emerald-700">
-                  进入管理后台
-                </Link>
-              </div>
-            </div>
+            <ModuleCard
+              title="数据治理"
+              description="FK、生命周期、必填、编码、引用阻断和审计策略。"
+              color="cyan"
+              icon={
+                <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7c0-1.657 3.582-3 8-3s8 1.343 8 3-3.582 3-8 3-8-1.343-8-3z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7v5c0 1.657 3.582 3 8 3s8-1.343 8-3V7M4 12v5c0 1.657 3.582 3 8 3s8-1.343 8-3v-5" />
+                </svg>
+              }
+              badge="只读预览"
+              href="/settings/governance"
+            />
           )}
-        </div>
-      </main>
+        </ModuleGridPage>
+      )}
+
+      {view === "account" && (
+        <ModuleGridPage summary={`当前用户名：${user.username || "(未设置)"}`} centered>
+          <ModuleCard
+            title="修改账号"
+            description="维护登录用户名"
+            color="blue"
+            icon={
+              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 0115 0" />
+              </svg>
+            }
+            onClick={() => setShowUsernameModal(true)}
+          />
+          <ModuleCard
+            title="修改密码"
+            description="维护账号安全密码"
+            color="indigo"
+            icon={
+              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3l7.5 3v5.25c0 4.58-3.1 8.84-7.5 9.75-4.4-.91-7.5-5.17-7.5-9.75V6L12 3zM9 12l2 2 4-4" />
+              </svg>
+            }
+            onClick={() => setShowPasswordModal(true)}
+          />
+          {hasApiAccess && (
+            <ModuleCard
+              title="API 接入"
+              description="查看接入文档与示例"
+              color="cyan"
+              icon={
+                <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+              }
+              href="/docs/api-guide"
+            />
+          )}
+        </ModuleGridPage>
+      )}
+
+      {view === "governance" && hasAdminAccess && (
+        <ModuleGridPage
+          summary="FK、生命周期、必填、编码、引用阻断和审计策略"
+          centered
+        >
+          {governanceItems.map((item) => (
+            <ModuleCard
+              key={item.title}
+              title={item.title}
+              description={item.description}
+              icon={item.icon}
+              color={item.color}
+              href={item.href}
+            />
+          ))}
+        </ModuleGridPage>
+      )}
 
       <UsernameModal open={showUsernameModal} onClose={() => setShowUsernameModal(false)} user={user} onSuccess={handleUsernameSuccess} />
       <PasswordModal open={showPasswordModal} onClose={() => setShowPasswordModal(false)} />
-    </div>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { EmptyStateCard, PanelCard } from "@workspace/core/ui";
 import FinanceFilters from "../components/FinanceFilters";
 import { useCSV } from "@workspace/core/hooks";
 
@@ -71,42 +72,40 @@ export default function ReclassTab() {
 
       {loading ? <p className="p-8 text-center text-gray-500">加载中...</p> :
        entries.length === 0 ? (
-        <div className="rounded-lg bg-white p-8 text-center shadow-sm">
-          <p className="text-gray-400">未发现需重分类的科目</p>
-        </div>
+        <EmptyStateCard>未发现需重分类的科目</EmptyStateCard>
       ) : (
-        <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
-          <table className="w-full text-xs">
-            <thead className="border-b bg-gray-50">
+        <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
+          <table className="min-w-full text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
               <tr>
-                <th className="px-3 py-2 text-left font-medium text-gray-600">科目编码</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600">科目名称</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600">方向</th>
-                <th className="px-3 py-2 text-right font-medium text-gray-600">借方余额</th>
-                <th className="px-3 py-2 text-right font-medium text-gray-600">贷方余额</th>
-                <th className="px-3 py-2 text-right font-medium text-gray-600">净额</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600">说明</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">科目编码</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">科目名称</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">方向</th>
+                <th className="whitespace-nowrap px-4 py-3 text-right font-medium">借方余额</th>
+                <th className="whitespace-nowrap px-4 py-3 text-right font-medium">贷方余额</th>
+                <th className="whitespace-nowrap px-4 py-3 text-right font-medium">净额</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">说明</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {entries.map((e) => (
-                <tr key={e.accountCode} className="border-b hover:bg-gray-50">
-                  <td className="px-3 py-2 font-mono text-gray-700">{e.accountCode}</td>
-                  <td className="px-3 py-2 text-gray-700">{e.accountName}</td>
-                  <td className="px-3 py-2">
-                    <span className={`rounded px-1.5 py-0.5 text-[10px] ${
+                <tr key={e.accountCode} className="hover:bg-emerald-50/20">
+                  <td className="px-4 py-3 font-mono text-slate-700">{e.accountCode}</td>
+                  <td className="px-4 py-3 text-slate-800">{e.accountName}</td>
+                  <td className="px-4 py-3">
+                    <span className={`rounded px-1.5 py-0.5 text-xs ${
                       e.fromSide === "asset" ? "bg-orange-50 text-orange-600" : "bg-blue-50 text-blue-600"
                     }`}>{sideLabel(e.fromSide)}</span>
                   </td>
-                  <td className="px-3 py-2 text-right text-gray-600">{fmt(e.closingDebit)}</td>
-                  <td className="px-3 py-2 text-right text-gray-600">{fmt(e.closingCredit)}</td>
-                  <td className="px-3 py-2 text-right font-medium text-gray-800">{fmt(Math.abs(e.netAmount))}</td>
-                  <td className="px-3 py-2 text-gray-500 max-w-xs truncate" title={e.reason}>{e.reason}</td>
+                  <td className="px-4 py-3 text-right text-slate-600">{fmt(e.closingDebit)}</td>
+                  <td className="px-4 py-3 text-right text-slate-600">{fmt(e.closingCredit)}</td>
+                  <td className="px-4 py-3 text-right font-medium text-slate-800">{fmt(Math.abs(e.netAmount))}</td>
+                  <td className="max-w-xs truncate px-4 py-3 text-slate-500" title={e.reason}>{e.reason}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </PanelCard>
       )}
     </div>
   );

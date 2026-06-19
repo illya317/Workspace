@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import Toast from "@/app/components/Toast";
+import Toast from "@workspace/core/ui/Toast";
+import { PanelCard } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import FinanceFilters from "../components/FinanceFilters";
 import Pagination from "../components/Pagination";
@@ -104,39 +105,39 @@ export default function LedgerTab() {
         }
       />
 
-      <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
         {loading ? <p className="p-8 text-center text-gray-500">加载中...</p> : (
-          <table className="w-full text-xs">
-            <thead className="border-b bg-gray-50"><tr>
-              <th className="px-3 py-2 text-left font-medium text-gray-600">科目编码</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-600">科目名称</th>
-              <th className="px-3 py-2 text-left font-medium text-gray-600">类别</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-600">期初借方</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-600">期初贷方</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-600">本期借方</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-600">本期贷方</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-600">期末借方</th>
-              <th className="px-3 py-2 text-right font-medium text-gray-600">期末贷方</th>
+          <table className="min-w-full text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-slate-500"><tr>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">科目编码</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">科目名称</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">类别</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">期初借方</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">期初贷方</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">本期借方</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">本期贷方</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">期末借方</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">期末贷方</th>
             </tr></thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {balances.map((b) => (
-                <tr key={b.id} className="border-b last:border-0 hover:bg-gray-50">
-                  <td className="px-3 py-2 font-mono text-gray-700">{b.account.code}</td>
-                  <td className="px-3 py-2 text-gray-700">{b.account.name}</td>
-                  <td className="px-3 py-2 text-gray-600">{CATEGORIES[b.account.category]}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{fmt(b.openingDebit)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{fmt(b.openingCredit)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{fmt(b.currentDebit)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{fmt(b.currentCredit)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{fmt(b.closingDebit)}</td>
-                  <td className="px-3 py-2 text-right text-gray-700">{fmt(b.closingCredit)}</td>
+                <tr key={b.id} className="hover:bg-emerald-50/20">
+                  <td className="px-4 py-3 font-mono text-slate-700">{b.account.code}</td>
+                  <td className="px-4 py-3 text-slate-800">{b.account.name}</td>
+                  <td className="px-4 py-3 text-slate-600">{CATEGORIES[b.account.category]}</td>
+                  <td className="px-4 py-3 text-right text-slate-700">{fmt(b.openingDebit)}</td>
+                  <td className="px-4 py-3 text-right text-slate-700">{fmt(b.openingCredit)}</td>
+                  <td className="px-4 py-3 text-right text-slate-700">{fmt(b.currentDebit)}</td>
+                  <td className="px-4 py-3 text-right text-slate-700">{fmt(b.currentCredit)}</td>
+                  <td className="px-4 py-3 text-right text-slate-700">{fmt(b.closingDebit)}</td>
+                  <td className="px-4 py-3 text-right text-slate-700">{fmt(b.closingCredit)}</td>
                 </tr>
               ))}
-              {balances.length === 0 && <tr><td colSpan={9} className="px-3 py-8 text-center text-gray-400">暂无余额数据，请先录入凭证并计算余额</td></tr>}
+              {balances.length === 0 && <tr><td colSpan={9} className="px-4 py-8 text-center text-gray-400">暂无余额数据，请先录入凭证并计算余额</td></tr>}
             </tbody>
           </table>
         )}
-      </div>
+      </PanelCard>
 
       <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { DetailModal, getToolbarActionClassName } from "@workspace/core/ui";
 import GenericFieldInput from "./GenericFieldInput";
 import type { TabConfig } from "../types";
 
@@ -21,9 +22,7 @@ export default function GenericCreateModal({
   const visibleFields = config.fields.filter((f) => !f.hidden);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
-        <h3 className="mb-4 text-sm font-semibold text-gray-800">新建 {config.title}</h3>
+    <DetailModal open title={`新建 ${config.title}`} onClose={onCancel} maxWidth="max-w-lg">
         <div className="grid grid-cols-2 gap-3">
           {visibleFields.map((f) => (
             <div key={f.key} className={f.type === "textarea" ? "col-span-2" : ""}>
@@ -45,18 +44,17 @@ export default function GenericCreateModal({
         <div className="mt-4 flex gap-2">
           <button
             onClick={onSubmit}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700"
+            className={getToolbarActionClassName("primary")}
           >
             保存
           </button>
           <button
             onClick={onCancel}
-            className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+            className={getToolbarActionClassName("secondary")}
           >
             取消
           </button>
         </div>
-      </div>
-    </div>
+    </DetailModal>
   );
 }

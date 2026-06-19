@@ -3,6 +3,7 @@
 import WorkCard from "./WorkCard";
 import WorkForm from "./WorkForm";
 import SectionHeader from "./SectionHeader";
+import { EmptyStateCard } from "@workspace/core/ui";
 import type { WorkItem } from "./types";
 import type { WorkFormData } from "./WorkFormSection";
 
@@ -82,9 +83,7 @@ export default function WorksList({
               )
             )}
             {routineWorks.length === 0 && (
-              <div className="rounded-lg border border-dashed border-gray-300 bg-white p-6 text-center text-sm text-gray-500">
-                暂无日常工作项
-              </div>
+              <EmptyStateCard compact>暂无日常工作项</EmptyStateCard>
             )}
           </div>
         )}
@@ -123,9 +122,7 @@ export default function WorksList({
               )
             )}
             {nonRoutineWorks.length === 0 && (
-              <div className="rounded-lg border border-dashed border-gray-300 bg-white p-6 text-center text-sm text-gray-500">
-                暂无其他工作项
-              </div>
+              <EmptyStateCard compact>暂无其他工作项</EmptyStateCard>
             )}
           </div>
         )}

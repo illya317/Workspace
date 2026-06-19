@@ -100,7 +100,6 @@
 ## 7. 交付前硬检查
 
 ```bash
-npm run size:check
 npm run lint -- --max-warnings=0
 npx tsc --noEmit
 npm run build

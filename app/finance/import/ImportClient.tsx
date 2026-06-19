@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { SessionUser } from "@/lib/types";
+import { SessionUser } from "@workspace/platform/types";
 import ImportUploadForm from "./components/ImportUploadForm";
 import ImportPreview from "./components/ImportPreview";
 import ImportResult from "./components/ImportResult";

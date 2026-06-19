@@ -2,38 +2,11 @@
 
 这份文档是给人和 agent 共用的“放东西地图”。项目现在还小，正适合把边界一次定清楚；以后增加绩效、采购、生产、更多财务数据时，按这套规则扩展，不靠临时感觉堆文件。
 
-## 0. 文档索引和阅读条件
+## 0. 文档入口
 
-Agent 开工前先判断任务类型，再读对应文档。不要等改完才补文档。
+Agent 开工先读 `AGENTS.md` 和 `docs/README.md`，再进入自己的 `docs/roles/*.md`。本文件只保留架构放置规则，不再维护角色分流、并行线程或任务专题索引。
 
-| 什么时候必须读 | 先读哪些文档 | 读完要确认什么 |
-|---|---|---|
-| 不确定文件该放哪里、要跨多个目录改动 | `README.md`、`docs/architecture-governance.md` | 这个改动属于哪个 domain，是否需要 service/API/UI/schema 同步 |
-| 用户问”现状怎么优化”、整理目录、拆文件、处理治理债 | `docs/planning/architecture-optimization-roadmap.md` | 属于哪个 Phase，能否拆成独立 commit |
-| 新增绩效、采购、生产或其他业务模块 | `README.md`、本文件 | 是否建立 `packages/<domain>`、`app/<domain>/` 路由壳、`app/api/<domain>/` API 壳、`app/<domain>/ARCHITECTURE.md` |
-| 修改数据库 schema、Prisma、多文件 schema、seed | `docs/schema-governance.md`、`docs/database.md` | 是否只存事实字段，是否更新对应架构文档和检查脚本 |
-| 导入 Excel/JSON/外部数据 | `docs/schema-governance.md`、对应模块 `ARCHITECTURE.md` | raw/normalized/DB 分层是否清楚，计算字段是否避免入库 |
-| 修改权限、账号、后台授权、资源树 | `docs/security/rbac.md`、`docs/agent-handbook.md` 的 API 权限规则 | 页面权限和 API 权限是否一致，是否注册资源 key |
-| 修改 HR | `app/hr/ARCHITECTURE.md` | 是否符合 HR 数据、审计、组件拆分规则 |
-| 修改 Work、工作计划、工作清单、工作汇报、历史记录 | `docs/agent-coordination-work-split.md`、`app/work/ARCHITECTURE.md` | 是否仍归 `packages/work`，是否避开 HR Project 回流 |
-| 修改财务成本 | `app/finance/cost/ARCHITECTURE.md` | 是否保持 DB 存事实、Service 算结果、source 可追溯 |
-| 修改环境变量或部署 | `docs/ops/environment.md`、`docs/ops/deploy.md` | `.env.example`、CI、deploy 是否同步 |
-| 修改 Next.js 路由、构建、缓存、Server Component | `node_modules/next/dist/docs/` 相关文档 | 是否符合当前 Next.js 16 行为 |
-
-如果一个任务命中多个条件，必须读多个文档。交付时需要说明“参考文档”和“是否更新文档”。如果代码改动导致文档过期，任务不算完成。
-
-## 0.1 当前并行协作边界
-
-多 agent 并行时，先按文件范围判断归属，不能把别的线程的改动顺手提交或回滚。
-
-| 线程 | 负责范围 | 避让规则 |
-|---|---|---|
-| Architecture | `AGENTS.md`、`docs/*` 架构治理、`scripts/arch/*`、`scripts/check/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts`、API contract、迁移归属表、baseline ratchet 和可执行任务包 | 不实现业务功能，不改 Work 体验细节，不改 Production/QC 数据生成内容，不做运行时任务分派 |
-| Work Feature | `/work`、`app/work/*`、`app/api/work/*`、`packages/work/*`，以及 Work 体验需要的 Core UI 基建 | 不改 architecture gate、CI、auth/module enforcement；缺通用布局时优先补 Core UI |
-| Production/QC Data | `config/scripts/generate-product-stage-tests.mjs` 和生成的 pharma-qc JSON/cache | 只做数据生成和生成物；不改架构门禁、共享前端逻辑、权限和模块系统 |
-| Ops/CI | CI、部署、环境、package scripts、运行脚本 | 不改业务功能，不新增平行架构 gate，不绕过 `npm run arch:gate` |
-
-若两个线程都需要同一个 Core UI 或 Platform service，先让 Architecture/Owner 明确稳定入口，再由业务线程接入。`git status --short` 中出现对方范围文件时，只能保留，不能提交、回滚或格式化。
+如果代码改动导致文档过期，任务不算完成。并行时先看 `git status --short`，只提交自己负责的文件。
 
 ## 1. 判断一个改动属于哪一层
 
@@ -153,7 +126,7 @@ Level 1 起，权限入口统一为 `server/auth/authorize.ts` 的 `authorize()`
 | service | 260 行 | 按 queries/summary/import 拆 |
 | Prisma 单领域文件 | 350 行 | 按领域继续拆 |
 
-文件大小红线由 `npm run size:check` 强制执行，不设历史白名单。任何超限文件都必须先拆分到红线内，任务才允许继续交付或提交。
+文件大小红线由 ESLint `max-lines` 强制执行，不设历史白名单。任何超限文件都必须先拆分到红线内，任务才允许继续交付或提交。
 
 ## 7. 兼容入口规则
 
@@ -195,6 +168,14 @@ app/* route shell
 
 这些规则由 `npm run arch:gate` 中的 module registry、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
 
+页面组件注册表：
+
+- `packages/core/ui/component-registry.ts` 是 Core UI primitive 和页面骨架的注册表。非 Core 包只能消费 registry 中登记的 Core UI 名字；新增 Core UI 入口必须先由 Architecture/Core 任务登记，再导出给 Feature 使用。注册项必须填写中文 `description` 和中文 `example`，`/settings/governance/ui-registry` 会自动读取并展示注册名、分类、说明、使用案例、组合子组件和当前消费文件。
+- 该 registry 是 `scripts/arch/level2.ts` 的输入，仍通过唯一 `npm run arch:gate` 的 Level 2 ratchet 执行；不要新增独立组件检查脚本或第二套 CI。
+- Core UI 的 value export 必须全部出现在 `component-registry.ts`，或明确列入 `scripts/arch/level2.ts` 的非组件导出集合；注册名重复会直接进入 `duplicateCoreUiRegistrations`。这两类 baseline 为空，新增即失败。
+- 非 Core 包新增手写页面设计壳会进入 `pageDesignDriftFiles` 检测：在 `packages/*/ui` 中直接用原生 JSX 容器拼 `bg-white`、`rounded`、`shadow/border`、sticky header、页面级 grid 等页面结构时视为漂移。历史债由 `scripts/arch/level2-baseline.json` 锁定，Feature/UI 迁走后必须删对应 baseline 项。
+- 允许业务内容区域保留必要局部样式，例如文档/PDF 预览内容、打印模板、业务图表内部标记、表单字段间距；但页面骨架、卡片、筛选、表格、分栏、入口卡片必须优先使用已注册 Core primitive。
+
 Level 1/1.5 额外硬约束：
 
 - `npm run arch:gate` 是唯一架构入口，串行执行 AST 扫描、dependency-cruiser、module registry、资源注册、package boundary 和 auth/API 检查；任一阶段失败立即退出。
@@ -207,13 +188,13 @@ Level 1/1.5 额外硬约束：
 Level 2 结构智能层：
 
 - Level 2 不新增平行 hard gate；`npm run arch:gate` 仍是唯一 CI 架构门禁。
-- Level 2 当前由三件套组成：`scripts/arch/level2.ts` 做 AST/pattern scan，`packages/platform/module-registry.ts` 做模块注册锁，`packages/platform/api-registry.ts` 做 API Contract。任何新增检测或 contract 来源必须并入这三个入口或唯一 gate，不得另起旁路。
+- Level 2 当前由三件套组成：`scripts/arch/level2.ts` 做 AST/pattern scan，`packages/platform/module-registry.ts` 做模块注册锁，`packages/platform/api-registry.ts` 做 API Contract。`packages/core/ui/component-registry.ts` 是 AST/pattern scan 的 Core UI 白名单输入，不是独立 gate。任何新增检测或 contract 来源必须并入这三个入口或唯一 gate，不得另起旁路。
 - `npm run arch:level2` 生成确定性的结构报告，用于发现 UI pattern 重复、API route contract 覆盖缺口、API route 模板漂移、旧 service 迁移债和 app 层 JSX 存量。
 - API Contract 的单一来源是 `packages/platform/api-registry.ts`，它从 `packages/platform/module-registry.ts` 的 `apiGuards` 和 `apiRoutes` 派生，不允许业务包维护第二套 API 清单。
 - `apiGuards` 表示需要资源权限的 protected API；`apiRoutes` 表示显式 route contract，可标记为 `protected`、`public`、`dev` 或 `disabled`，用于登录/OAuth、开发入口、禁用兼容 API 等非资源权限入口。
-- Level 2 中已升级为强制规则的漂移项由 `scripts/arch/level2-baseline.json` 锁定，并通过唯一 `npm run arch:gate` 执行。baseline 只能减少：新增未注册 API route、API route 裸 `prisma.`、非 GET route 缺结构化 validation、API route 缺 service 调用、app-root hook 实现、未复用 Core 的业务选择器、旧 `server/services` 文件或重复 service group 都会失败；迁移删除后必须同步删 baseline 项。
+- Level 2 中已升级为强制规则的漂移项由 `scripts/arch/level2-baseline.json` 锁定，并通过唯一 `npm run arch:gate` 执行。baseline 只能减少：新增未注册 API route、API route 裸 `prisma.`、非 GET route 缺结构化 validation、API route 缺 service 调用、app-root hook 实现、未复用 Core 的业务选择器、未注册 Core UI import、Core UI 已导出但未登记、Core UI registry 重名、非 Core 包新增手写页面壳、搜索型原生 input、旧 `server/services` 文件或重复 service group 都会失败；迁移删除后必须同步删 baseline 项。页面设计漂移会读取 TSX JSX pattern，拦截手写 surface、sticky header、layout grid、table、form/control、modal overlay、toolbar layout、action button 和 table scroll shell。
 - Level 2 报告只读、不自动修复、不直接失败 CI。把某个发现升级为硬约束前，必须先进入 `scripts/arch/gate.ts` 所属的单 gate 系统，禁止在 CI 里新增旁路检查。
-- Feature/Data/Ops agent 使用 Level 2 报告拆迁移任务时，只能改对应业务文件；Architecture agent 才能修改 `scripts/arch/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts` 和相关治理文档。
+- Feature/Data/Operations agent 使用 Level 2 报告拆迁移任务时，只能改对应业务文件；Architecture agent 才能修改 `scripts/arch/*`、`packages/platform/module-registry.ts`、`packages/platform/api-registry.ts` 和相关治理文档。
 - Architecture agent 做 baseline ratchet 时只能减少历史债。若迁移删除了旧 route-local service、app hook 或 direct permission 文件，必须同步删 `scripts/arch/level2-baseline.json`、`scripts/arch/level15-baseline.json` 或 `scripts/check/level1-api-baseline.json` 中对应项；禁止为新违规扩写 baseline。
 
 Level 2 任务拆解规则：
@@ -222,7 +203,7 @@ Level 2 任务拆解规则：
 - 每个任务必须包含：目标、范围、目标文件、动作类型（move/delete/refactor/rewrite）、目标归属层、依赖顺序、禁止触碰范围、验证命令和风险。
 - 迁移顺序必须按依赖走：先稳定 Core/Platform 入口，再迁 route shell，再迁 domain service/UI，最后删除兼容旧代码和 ratchet baseline。
 - 如果一个发现同时涉及 boundary corruption、validation weakness、abstraction gap、migration debt、duplication，优先级固定为：边界污染 > 校验薄弱 > 抽象缺口 > 迁移债 > 重复代码。
-- Feature/Data/Ops agent 接到任务包后不再重新做全量架构分析，只执行目标文件动作。执行过程中发现需要修改 gate、registry、API contract 或 baseline 时，必须交回 Architecture，除非任务包明确授权。
+- Feature/Data/Operations agent 接到任务包后不再重新做全量架构分析，只执行目标文件动作。执行过程中发现需要修改 gate、registry、API contract 或 baseline 时，必须交回 Architecture，除非任务包明确授权。
 - 任务包示例：
 
 ```txt
@@ -232,12 +213,12 @@ Level 2 任务拆解规则：
 动作: refactor
 目标层: api-shell + package
 依赖: 先补 package service -> route 改调用 service -> 删除 route 内 Prisma/业务计算 -> ratchet baseline
-禁止触碰: packages/work, config/scripts/generate-product-stage-tests.mjs
+禁止触碰: packages/work, .workspace/config/scripts/generate-product-stage-tests.mjs
 验证: npm run arch:gate; npm run typecheck:quick
 风险: medium
 ```
 
-Feature/Data/Ops agent 的执行细则、baseline 权限和验证矩阵见 `docs/level2-agent-execution.md`。这份文档是任务包落地说明，不改变 `arch:gate` 的单一权威地位。
+Feature/Data/Operations agent 的执行细则、baseline 权限和验证矩阵见 `docs/level2-agent-execution.md`。这份文档是任务包落地说明，不改变 `arch:gate` 的单一权威地位。
 
 `app/` 层规则：
 

@@ -1,23 +1,14 @@
 "use client";
 
 import type React from "react";
-import Link from "next/link";
+import { EmptyStateCard, ModuleGridPage } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import {
   MODULE_LIFECYCLE_BY_RESOURCE,
   MODULE_LIFECYCLE_LABELS,
 } from "../module-lifecycle";
 import { getEmptyMessage, getSubModules, type ModuleDef } from "../module-nav";
-
-const subColors: Record<string, string> = {
-  emerald: "bg-emerald-100 text-emerald-600",
-  blue: "bg-blue-100 text-blue-600",
-  indigo: "bg-indigo-100 text-indigo-600",
-  purple: "bg-purple-100 text-purple-600",
-  amber: "bg-amber-100 text-amber-600",
-  cyan: "bg-cyan-100 text-cyan-600",
-  orange: "bg-orange-100 text-orange-600",
-};
+import ModuleCard from "./ModuleCard";
 
 /** 子模块图标映射，与 L0 风格一致的 SVG */
 const subIcons: Record<string, React.ReactNode> = {
@@ -60,43 +51,32 @@ interface Props {
 export default function ModuleHome({ module, user }: Props) {
   const children = getSubModules(user, module.key);
 
-  return (
-    <main className="mx-auto max-w-4xl px-4 py-10">
-      <p className="mb-6 text-center text-sm text-gray-500">{module.desc}</p>
+  if (children.length === 0) {
+    return (
+      <ModuleGridPage summary={module.desc} centered>
+        <div className="col-span-full">
+          <EmptyStateCard compact={false}>{getEmptyMessage(module.key)}</EmptyStateCard>
+        </div>
+      </ModuleGridPage>
+    );
+  }
 
-      {children.length === 0 ? (
-        <div className="rounded-xl bg-white py-16 text-center shadow-sm">
-          <p className="text-gray-400">{getEmptyMessage(module.key)}</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-          {children.map((child) => {
-            const colorCls = subColors[module.color] || subColors.emerald;
-            const [bgCls, textCls] = colorCls.split(" ");
-            const lifecycleStatus = child.lifecycleStatus || MODULE_LIFECYCLE_BY_RESOURCE[child.resourceKey];
-            return (
-              <Link
-                key={child.key}
-                href={child.href}
-                className="group flex flex-col items-center rounded-xl bg-white p-6 shadow-sm transition-all hover:shadow-md hover:ring-2 hover:ring-emerald-400"
-              >
-                <div className={`mb-3 flex h-14 w-14 items-center justify-center rounded-full ${bgCls} ${textCls}`}>
-                  {subIcons[child.key]}
-                </div>
-                <div className="flex flex-wrap items-center justify-center gap-2">
-                  <h3 className="text-base font-semibold text-gray-800">{child.label}</h3>
-                  {lifecycleStatus && lifecycleStatus !== "workspace-owned" && (
-                    <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] text-amber-700">
-                      {MODULE_LIFECYCLE_LABELS[lifecycleStatus]}
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 text-xs text-gray-500">{child.desc}</p>
-              </Link>
-            );
-          })}
-        </div>
-      )}
-    </main>
+  return (
+    <ModuleGridPage summary={module.desc} centered>
+      {children.map((child) => {
+        const lifecycleStatus = child.lifecycleStatus || MODULE_LIFECYCLE_BY_RESOURCE[child.resourceKey];
+        return (
+          <ModuleCard
+            key={child.key}
+            title={child.label}
+            description={child.desc}
+            icon={subIcons[child.key]}
+            color={module.color}
+            href={child.href}
+            badge={lifecycleStatus && lifecycleStatus !== "workspace-owned" ? MODULE_LIFECYCLE_LABELS[lifecycleStatus] : undefined}
+          />
+        );
+      })}
+    </ModuleGridPage>
   );
 }

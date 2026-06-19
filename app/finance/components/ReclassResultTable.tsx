@@ -29,46 +29,46 @@ export default function ReclassResultTable({
   }
 
   return (
-    <table className="w-full text-xs">
-      <thead className="border-b bg-gray-50">
+    <table className="min-w-full text-left text-sm">
+      <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
         <tr>
-          <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">凭证号</th>
-          <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">日期</th>
-          <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">关联实体</th>
-          <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">原科目</th>
-          <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">目标科目</th>
-          <th className="px-3 py-2 text-right font-medium text-gray-600 whitespace-nowrap">金额</th>
-          <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">状态</th>
-          <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap max-w-[120px]">备注</th>
-          <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">审核人</th>
-          <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">审核时间</th>
-          {canWrite && <th className="px-3 py-2 text-left font-medium text-gray-600 whitespace-nowrap">操作</th>}
+          <th className="whitespace-nowrap px-4 py-3 font-medium">凭证号</th>
+          <th className="whitespace-nowrap px-4 py-3 font-medium">日期</th>
+          <th className="whitespace-nowrap px-4 py-3 font-medium">关联实体</th>
+          <th className="whitespace-nowrap px-4 py-3 font-medium">原科目</th>
+          <th className="whitespace-nowrap px-4 py-3 font-medium">目标科目</th>
+          <th className="whitespace-nowrap px-4 py-3 text-right font-medium">金额</th>
+          <th className="whitespace-nowrap px-4 py-3 font-medium">状态</th>
+          <th className="max-w-[120px] whitespace-nowrap px-4 py-3 font-medium">备注</th>
+          <th className="whitespace-nowrap px-4 py-3 font-medium">审核人</th>
+          <th className="whitespace-nowrap px-4 py-3 font-medium">审核时间</th>
+          {canWrite && <th className="whitespace-nowrap px-4 py-3 font-medium">操作</th>}
         </tr>
       </thead>
-      <tbody>
+      <tbody className="divide-y divide-slate-100 text-slate-800">
         {items.map((r) => {
           const st = STATUS_MAP[r.status] || { label: r.status, cls: "" };
           return (
-            <tr key={r.id} className="border-b last:border-0 hover:bg-gray-50">
-              <td className="px-3 py-2 font-mono text-gray-700 whitespace-nowrap">{r.voucherNo}</td>
-              <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{r.voucherDate}</td>
-              <td className="px-3 py-2 text-gray-600 whitespace-nowrap max-w-[140px] truncate" title={r.relatedEntity || undefined}>{r.relatedEntity || "-"}</td>
-              <td className="px-3 py-2 font-mono text-gray-700 whitespace-nowrap">{r.sourceAccount}</td>
-              <td className="px-3 py-2 font-mono text-gray-700 whitespace-nowrap">{r.targetAccount}</td>
-              <td className="px-3 py-2 text-right text-gray-700 whitespace-nowrap">{fmt(r.amount)}</td>
-              <td className="px-3 py-2 whitespace-nowrap">
-                <span className={`rounded px-1.5 py-0.5 text-[11px] ${st.cls}`}>{st.label}</span>
+            <tr key={r.id} className="hover:bg-emerald-50/20">
+              <td className="whitespace-nowrap px-4 py-3 font-mono text-slate-700">{r.voucherNo}</td>
+              <td className="whitespace-nowrap px-4 py-3 text-slate-600">{r.voucherDate}</td>
+              <td className="max-w-[140px] truncate whitespace-nowrap px-4 py-3 text-slate-600" title={r.relatedEntity || undefined}>{r.relatedEntity || "-"}</td>
+              <td className="whitespace-nowrap px-4 py-3 font-mono text-slate-700">{r.sourceAccount}</td>
+              <td className="whitespace-nowrap px-4 py-3 font-mono text-slate-700">{r.targetAccount}</td>
+              <td className="whitespace-nowrap px-4 py-3 text-right text-slate-700">{fmt(r.amount)}</td>
+              <td className="whitespace-nowrap px-4 py-3">
+                <span className={`rounded px-1.5 py-0.5 text-xs ${st.cls}`}>{st.label}</span>
               </td>
-              <td className="px-3 py-2 text-gray-500 max-w-[120px] truncate" title={r.note || undefined}>{r.note || "-"}</td>
-              <td className="px-3 py-2 text-gray-600 whitespace-nowrap">{r.adjustedByName || "-"}</td>
-              <td className="px-3 py-2 text-gray-500 whitespace-nowrap">{r.adjustedAt ? r.adjustedAt.slice(0, 10) : "-"}</td>
+              <td className="max-w-[120px] truncate px-4 py-3 text-slate-500" title={r.note || undefined}>{r.note || "-"}</td>
+              <td className="whitespace-nowrap px-4 py-3 text-slate-600">{r.adjustedByName || "-"}</td>
+              <td className="whitespace-nowrap px-4 py-3 text-slate-500">{r.adjustedAt ? r.adjustedAt.slice(0, 10) : "-"}</td>
               {canWrite && (
-                <td className="px-3 py-2 whitespace-nowrap">
+                <td className="whitespace-nowrap px-4 py-3">
                   {r.status === "pending" && (
                     <div className="flex items-center gap-1">
-                      <button onClick={() => onApprove(r.id)} className="rounded px-1.5 py-0.5 text-[11px] text-emerald-600 hover:bg-emerald-50">通过</button>
-                      <button onClick={() => onAdjust(r)} className="rounded px-1.5 py-0.5 text-[11px] text-blue-600 hover:bg-blue-50">调整</button>
-                      <button onClick={() => onReject(r.id)} className="rounded px-1.5 py-0.5 text-[11px] text-red-500 hover:bg-red-50">驳回</button>
+                      <button onClick={() => onApprove(r.id)} className="rounded px-1.5 py-0.5 text-xs text-emerald-600 hover:bg-emerald-50">通过</button>
+                      <button onClick={() => onAdjust(r)} className="rounded px-1.5 py-0.5 text-xs text-blue-600 hover:bg-blue-50">调整</button>
+                      <button onClick={() => onReject(r.id)} className="rounded px-1.5 py-0.5 text-xs text-red-500 hover:bg-red-50">驳回</button>
                     </div>
                   )}
                 </td>
@@ -78,7 +78,7 @@ export default function ReclassResultTable({
         })}
         {items.length === 0 && (
           <tr>
-            <td colSpan={canWrite ? 11 : 10} className="px-3 py-8 text-center text-gray-400">
+            <td colSpan={canWrite ? 11 : 10} className="px-4 py-8 text-center text-gray-400">
               暂无重分类审核记录
             </td>
           </tr>

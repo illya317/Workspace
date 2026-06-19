@@ -1,4 +1,4 @@
-import { requireAuth } from "@/server/auth/session";
+import { requireAuth } from "@workspace/platform/server/auth";
 import { GmpPositionDetailPage as PlatformGmpPositionDetailPage } from "@workspace/platform/ui/docs";
 
 export default async function GmpPositionDetailPage({

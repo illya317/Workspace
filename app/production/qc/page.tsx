@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { requireResourceAccess } from "@/server/auth/guard";
+import { requireResourceAccess } from "@workspace/platform/server/auth";
 
 export default async function ProductionQcPage() {
   const user = await requireResourceAccess("production.qc");

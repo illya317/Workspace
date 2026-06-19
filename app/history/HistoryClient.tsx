@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { SessionUser } from '@/lib/types';
+import { EmptyStateCard, PageContent, PanelCard } from "@workspace/core/ui";
+import { SessionUser } from "@workspace/platform/types";
 
 interface ReportItemData {
   id: number;
@@ -116,20 +117,20 @@ export default function HistoryPage({ hideShell: _hideShell }: { hideShell?: boo
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="mx-auto max-w-4xl px-4 py-8">
+      <PageContent className="py-8">
         <h2 className="mb-6 text-xl font-semibold text-gray-800">历史报告</h2>
 
         {reports.length === 0 ? (
-          <div className="rounded-lg bg-white p-8 text-center shadow-sm">
-            <p className="text-gray-500">暂无报告记录</p>
+          <EmptyStateCard compact={false}>
+            暂无报告记录
             <Link href="/reports" className="mt-2 inline-block text-sm text-emerald-500 hover:underline">
               去填写第一份报告
             </Link>
-          </div>
+          </EmptyStateCard>
         ) : (
           <div className="space-y-4">
             {reports.map((report) => (
-              <div key={report.id} className="rounded-lg bg-white p-4 shadow-sm">
+              <PanelCard key={report.id} bodyClassName="p-4">
                 <div
                   className="flex cursor-pointer items-center justify-between"
                   onClick={() => setExpanded(expanded === report.id ? null : report.id)}
@@ -186,11 +187,11 @@ export default function HistoryPage({ hideShell: _hideShell }: { hideShell?: boo
                     )}
                   </div>
                 )}
-              </div>
+              </PanelCard>
             ))}
           </div>
         )}
-      </main>
+      </PageContent>
     </div>
   );
 }

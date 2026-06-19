@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import EditToolbar from "@/app/components/EditToolbar";
-import Toast from "@/app/components/Toast";
-import ConfirmModal from "@/app/components/ConfirmModal";
+import { ConfirmModal, EditToolbar, PanelCard, SearchInput, Toast, getToolbarActionClassName } from "@workspace/core/ui";
 import { useInventoryTab } from "../hooks/useInventoryTab";
 import InventoryCreateModal from "./InventoryCreateModal";
 import InventoryOpModal from "./InventoryOpModal";
@@ -63,16 +61,17 @@ export default function InventoryTableTab({ config }: { config: InventoryConfig 
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <input
+          <SearchInput
             value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            onChange={setKeyword}
             onKeyDown={(e) => e.key === "Enter" && load()}
             placeholder="搜索编码/名称"
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm"
+            size="toolbar"
+            className="min-w-0 sm:w-[22rem]"
           />
           <button
             onClick={load}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+            className={getToolbarActionClassName("secondary")}
           >
             搜索
           </button>
@@ -86,24 +85,24 @@ export default function InventoryTableTab({ config }: { config: InventoryConfig 
           />
           <button
             onClick={() => setCreating(true)}
-            className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700"
+            className={getToolbarActionClassName("primary")}
           >
             新增
           </button>
           <button
             onClick={() => setShowOp(true)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
+            className={getToolbarActionClassName("secondary")}
           >
             {config.opButtonLabel}
           </button>
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+      <PanelCard bodyClassName="overflow-x-auto">
         {loading ? (
           <p className="p-8 text-center text-gray-500">加载中...</p>
         ) : (
-          <table className="w-full text-xs">
+          <table className="w-full text-sm">
             <thead className="border-b bg-gray-50">
               <tr>
                 {config.fields.map((f) => (
@@ -174,7 +173,7 @@ export default function InventoryTableTab({ config }: { config: InventoryConfig 
             </tbody>
           </table>
         )}
-      </div>
+      </PanelCard>
 
       <InventoryCreateModal
         open={creating}

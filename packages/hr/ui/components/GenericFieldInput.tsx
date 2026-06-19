@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import FKInput from "./FKInput";
 import { AutoSizeInput } from "./AutoSizeInput";
+import { CheckboxField, TextareaField } from "@workspace/core/ui";
 import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
 import EthnicityPicker from "./EthnicityPicker";
 import MajorPicker from "./MajorPicker";
@@ -19,7 +20,7 @@ interface GenericFieldInputProps {
   onChange: (value: unknown) => void;
   onKeyDown?: (e: React.KeyboardEvent) => void;
   inputRef?: React.RefObject<HTMLInputElement | null>;
-  fkConfig?: { entity: string; displayField?: string };
+  fkConfig?: { entity: string; fkKey?: string; displayField?: string };
   mode: "edit" | "create";
   className?: string;
 }
@@ -61,6 +62,7 @@ export default function GenericFieldInput({
           value={(value as { id?: number } | undefined)?.id ?? null}
           displayValue={(value as { name?: string } | undefined)?.name ?? ""}
           entity={fkConfig.entity}
+          fkKey={fkConfig.fkKey}
           onChange={(opt) => onChange(opt)}
         />
       );
@@ -71,6 +73,7 @@ export default function GenericFieldInput({
         value={null}
         displayValue={String(value ?? "")}
         entity={fkConfig.entity}
+        fkKey={fkConfig.fkKey}
         onChange={(opt) => onChange(opt?.name ?? "")}
       />
     );
@@ -173,21 +176,16 @@ export default function GenericFieldInput({
       );
     }
     return (
-      <input
-        type="checkbox"
-        checked={!!value}
-        onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 rounded border-gray-300"
-      />
+      <CheckboxField checked={!!value} onChange={onChange} />
     );
   }
 
   if (field.type === "textarea") {
     return (
-      <textarea
+      <TextareaField
         value={(value as string) ?? ""}
-        onChange={(e) => onChange(e.target.value)}
-        className={`w-full rounded border border-gray-300 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none ${className || ""}`}
+        onChange={onChange}
+        className={className}
         rows={3}
       />
     );

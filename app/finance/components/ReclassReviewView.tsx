@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { PanelCard } from "@workspace/core/ui";
 import type { ReclassResultRow } from "@workspace/finance/server/ledger/reclass-results/types";
 import ReclassReviewModal from "./ReclassReviewModal";
 import { REVIEW_HEADERS, fmt, targetDisplay } from "../ledger/reclassColumns";
@@ -51,18 +52,18 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
 
   return (
     <div>
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-        <table className="w-full text-xs">
-          <thead className="border-b bg-gray-100">
+      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
+        <table className="min-w-full text-left text-sm">
+          <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
             <tr>
               {REVIEW_HEADERS.map((h) => {
                 const canSort = h in SORT_LABELS;
-                return <th key={h} className={`px-3 py-1.5 font-medium text-gray-500 ${h === "金额" ? "text-right" : "text-left"} ${canSort ? "cursor-pointer select-none hover:text-gray-700" : ""}`} onClick={canSort ? () => handleSort(h) : undefined}>{h}<span className="text-gray-400">{arrow(h)}</span></th>;
+                return <th key={h} className={`whitespace-nowrap px-4 py-3 font-medium ${h === "金额" ? "text-right" : "text-left"} ${canSort ? "cursor-pointer select-none hover:text-slate-700" : ""}`} onClick={canSort ? () => handleSort(h) : undefined}>{h}<span className="text-slate-400">{arrow(h)}</span></th>;
               })}
-              {canWrite && <th className="px-3 py-1.5 text-center font-medium text-gray-500">操作</th>}
+              {canWrite && <th className="whitespace-nowrap px-4 py-3 text-center font-medium">操作</th>}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-slate-100 text-slate-800">
             {filtered.map((r) => {
               const kind = r.kind as string || "normal";
               const isNormal = kind === "normal";
@@ -73,24 +74,24 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
               const displayTarget = r.suggestedTarget || r.targetAccount;
               const hasTarget = !!displayTarget;
               return (
-              <tr key={`${r.voucherItemId}-${r.voucherNo}`} className="border-b last:border-0">
-                <td className="px-3 py-1.5 font-mono text-gray-500">{r.voucherNo}</td>
-                <td className="px-3 py-1.5 font-mono text-gray-600">{r.sourceAccount}</td>
-                <td className="px-3 py-1.5 text-gray-700">{r.sourceAccountName}</td>
-                <td className="px-3 py-1.5 text-center">
+              <tr key={`${r.voucherItemId}-${r.voucherNo}`} className="hover:bg-emerald-50/20">
+                <td className="px-4 py-3 font-mono text-slate-500">{r.voucherNo}</td>
+                <td className="px-4 py-3 font-mono text-slate-600">{r.sourceAccount}</td>
+                <td className="px-4 py-3 text-slate-800">{r.sourceAccountName}</td>
+                <td className="px-4 py-3 text-center">
                   {itemSide ? isAbnormal
                     ? <span className="inline-block rounded px-1.5 py-0.5 text-xs font-medium bg-red-50 text-red-700">{itemSide === "debit" ? "借" : "贷"}</span>
                     : <span className="text-gray-400">{itemSide === "debit" ? "借" : "贷"}</span>
                   : <span className="text-gray-300">—</span>}
                 </td>
-                <td className="px-3 py-1.5 text-right font-mono text-gray-700">¥{fmt(itemAmount)}</td>
-                <td className="px-3 py-1.5">
+                <td className="px-4 py-3 text-right font-mono text-slate-700">¥{fmt(itemAmount)}</td>
+                <td className="px-4 py-3">
                   {isNormal && !hasTarget
                     ? <span className="inline-block rounded border border-dashed border-gray-200 bg-white px-2 py-0.5 text-xs text-gray-400 cursor-pointer hover:border-emerald-300 hover:text-emerald-600" onClick={() => canWrite && setAdjustItem(r)}>选择科目</span>
                     : <span className={`inline-block rounded border px-2 py-0.5 text-xs font-mono cursor-pointer hover:ring-1 hover:ring-emerald-300 ${isNormal ? "border-gray-200 bg-gray-50 text-gray-500" : isAdjusted ? "border-blue-200 bg-blue-50 text-blue-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`} onClick={() => canWrite && setAdjustItem(r)}>{targetDisplay(displayTarget)}</span>}
                 </td>
                 {canWrite && (
-                  <td className="px-3 py-1.5 text-center">
+                  <td className="px-4 py-3 text-center">
                     {isNormal && !hasTarget ? (
                       <button onClick={() => setAdjustItem(r)} className="rounded bg-blue-50 px-2 py-0.5 text-xs text-blue-700 hover:bg-blue-100">设置</button>
                     ) : isNormal ? (
@@ -102,10 +103,10 @@ export default function ReclassReviewView({ items, canWrite, statusFilter, onRev
                 )}
               </tr>);
             })}
-            {filtered.length === 0 && <tr><td colSpan={canWrite ? 7 : 6} className="px-3 py-8 text-center text-gray-400">无重分类条目</td></tr>}
+            {filtered.length === 0 && <tr><td colSpan={canWrite ? 7 : 6} className="px-4 py-8 text-center text-gray-400">无重分类条目</td></tr>}
           </tbody>
         </table>
-      </div>
+      </PanelCard>
       <ReclassReviewModal item={adjustItem} open={!!adjustItem} companyCode={companyCode} year={year} onClose={() => setAdjustItem(null)}
         onSubmit={async (id, targetAccount, amount, note) => {
           const extra = id === 0 && adjustItem ? { periodId: adjustItem.periodId, voucherItemId: adjustItem.voucherItemId, sourceAccount: adjustItem.sourceAccount } : undefined;

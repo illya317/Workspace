@@ -1,7 +1,8 @@
 "use client";
 
-import TargetSwitcher from "@/app/components/TargetSwitcher";
-import Toast from "@/app/components/Toast";
+import TargetSwitcher from "@workspace/platform/ui/TargetSwitcher";
+import Toast from "@workspace/core/ui/Toast";
+import { PageContent } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import ReportEditor from "./ReportEditor";
 import { useReports } from "./useReports";
@@ -57,7 +58,7 @@ export default function ReportPage({ hideShell: _hideShell }: { hideShell?: bool
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="mx-auto max-w-5xl px-4 py-8">
+      <PageContent className="py-8">
         <div className="mb-4">
           <TargetSwitcher
             value={targetId ? { targetType, targetId, targetName } : null}
@@ -101,7 +102,7 @@ export default function ReportPage({ hideShell: _hideShell }: { hideShell?: bool
           saving={saving}
           onSubmit={handleSubmit}
         />
-      </main>
+      </PageContent>
 
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
     </div>

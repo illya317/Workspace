@@ -129,7 +129,6 @@
     "app/hr/components/GenericCreateModal.tsx",
     "app/hr/components/GenericPagination.tsx",
     "app/hr/components/GenericToolbarFilters.tsx",
-    "app/hr/components/LocalAutocompleteInput.tsx",
     "app/hr/loading.tsx",
     "app/hr/page.tsx",
     "app/hr/performance/HRPerformanceClient.tsx",

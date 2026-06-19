@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { workspacePath } from "@/app/lib/api-path";
+import { workspacePath } from "@workspace/core/routing";
 import { useToast } from "@workspace/core/hooks";
 import { useCodeData } from "./hooks/useCodeData";
 import { useCodeTable } from "./hooks/useCodeTable";

@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import TabBar from "@/app/components/TabBar";
 import LineConfigTab from "./LineConfigTab";
 import UnmappedTab from "./UnmappedTab";
 import BalanceCheckTab from "./BalanceCheckTab";
 import { StatementConfigProvider, useStatementConfig } from "./StatementConfigContext";
-import { SelectField } from "@workspace/core/ui";
+import { FilterBar, PageContent, SelectField, TabBar } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 
 const tabs = [
@@ -20,24 +19,30 @@ function SharedFilters() {
   const years = [...new Set(availablePairs.map((p) => p.year))].sort((a, b) => b - a).map(String);
   const companyOptions = useCompanyOptions();
   return (
-    <div className="mt-4 flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white px-4 py-3">
-      <SelectField
-        label="公司（全部 tab 共享）"
-        options={companyOptions}
-        value={company}
-        onChange={setCompany}
-        placeholder="—"
-      />
-      <SelectField
-        label="年度（全部 tab 共享）"
-        options={years.map((y) => ({ value: y, label: y }))}
-        value={year}
-        onChange={setYear}
-        placeholder="—"
-      />
-      <span className="ml-2 text-[11px] text-gray-400">
-        {loading ? "加载可用期间…" : `已加载 ${availablePairs.length} 个 (公司, 年度) 组合`}
-      </span>
+    <div className="mt-4">
+      <FilterBar>
+        <SelectField
+          label="公司"
+          options={companyOptions}
+          value={company}
+          onChange={setCompany}
+          placeholder="—"
+          size="toolbar"
+          selectClassName="min-w-44"
+        />
+        <SelectField
+          label="年度"
+          options={years.map((y) => ({ value: y, label: y }))}
+          value={year}
+          onChange={setYear}
+          placeholder="—"
+          size="toolbar"
+          selectClassName="min-w-36"
+        />
+        <span className="text-sm text-slate-400">
+          {loading ? "加载可用期间…" : `已加载 ${availablePairs.length} 个 (公司, 年度) 组合`}
+        </span>
+      </FilterBar>
     </div>
   );
 }
@@ -59,10 +64,10 @@ function TabContent() {
 
 export default function StatementConfigClient() {
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
+    <PageContent className="max-w-6xl">
       <StatementConfigProvider>
         <TabContent />
       </StatementConfigProvider>
-    </main>
+    </PageContent>
   );
 }

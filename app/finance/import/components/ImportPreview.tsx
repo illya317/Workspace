@@ -1,5 +1,6 @@
 "use client";
 
+import { SectionCard } from "@workspace/core/ui";
 import { PreviewResult } from "./types";
 
 interface ImportPreviewProps {
@@ -15,31 +16,23 @@ export default function ImportPreview({
   typeLabel,
   onConfirm,
 }: ImportPreviewProps) {
+  const actions =
+    preview.errors.length === 0 ? (
+      <button
+        onClick={onConfirm}
+        disabled={importing}
+        className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:bg-gray-300"
+      >
+        {importing ? "导入中..." : "确认导入"}
+      </button>
+    ) : null;
+
   return (
-    <div className="rounded-lg bg-white p-6 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800">
-            预览：{typeLabel}（{preview.year}年）
-          </h3>
-          <p className="text-sm text-gray-500">
-            共 {preview.rows} 行原始数据，解析出 {preview.accounts.length} 个科目
-            {preview.balances && `，${preview.balances.length} 条余额`}
-            {preview.vouchers && `，${preview.vouchers.length} 张凭证`}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {preview.errors.length === 0 && (
-            <button
-              onClick={onConfirm}
-              disabled={importing}
-              className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:bg-gray-300"
-            >
-              {importing ? "导入中..." : "确认导入"}
-            </button>
-          )}
-        </div>
-      </div>
+    <SectionCard
+      title={`预览：${typeLabel}（${preview.year}年）`}
+      subtitle={`共 ${preview.rows} 行原始数据，解析出 ${preview.accounts.length} 个科目${preview.balances ? `，${preview.balances.length} 条余额` : ""}${preview.vouchers ? `，${preview.vouchers.length} 张凭证` : ""}`}
+      actions={actions}
+    >
 
       {/* Errors & Warnings */}
       {preview.errors.length > 0 && (
@@ -66,25 +59,25 @@ export default function ImportPreview({
       {/* Accounts Table */}
       <div className="mb-4">
         <h4 className="mb-2 text-sm font-semibold text-gray-700">科目列表</h4>
-        <div className="max-h-64 overflow-auto rounded-md border border-gray-200">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50">
+        <div className="max-h-64 overflow-auto rounded-md border border-slate-200">
+          <table className="min-w-full text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
               <tr>
-                <th className="px-3 py-2 text-left font-medium text-gray-600">编码</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600">名称</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600">父级</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600">类别</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600">余额方向</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">编码</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">名称</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">父级</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">类别</th>
+                <th className="whitespace-nowrap px-4 py-3 font-medium">余额方向</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {preview.accounts.map((acc) => (
-                <tr key={acc.code} className="hover:bg-gray-50">
-                  <td className="px-3 py-2 font-mono text-gray-700">{acc.code}</td>
-                  <td className="px-3 py-2 text-gray-700">{acc.name}</td>
-                  <td className="px-3 py-2 text-gray-500">{acc.parentCode || "—"}</td>
-                  <td className="px-3 py-2 text-gray-500">{acc.category}</td>
-                  <td className="px-3 py-2 text-gray-500">{acc.balanceDirection}</td>
+                <tr key={acc.code} className="hover:bg-slate-50/60">
+                  <td className="px-4 py-3 font-mono">{acc.code}</td>
+                  <td className="px-4 py-3">{acc.name}</td>
+                  <td className="px-4 py-3 text-slate-500">{acc.parentCode || "—"}</td>
+                  <td className="px-4 py-3 text-slate-500">{acc.category}</td>
+                  <td className="px-4 py-3 text-slate-500">{acc.balanceDirection}</td>
                 </tr>
               ))}
             </tbody>
@@ -96,31 +89,31 @@ export default function ImportPreview({
       {preview.balances && preview.balances.length > 0 && (
         <div className="mb-4">
           <h4 className="mb-2 text-sm font-semibold text-gray-700">余额预览（前20条）</h4>
-          <div className="max-h-64 overflow-auto rounded-md border border-gray-200">
-            <table className="w-full text-sm">
-              <thead className="bg-gray-50">
+          <div className="max-h-64 overflow-auto rounded-md border border-slate-200">
+            <table className="min-w-full text-left text-sm">
+              <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
                 <tr>
-                  <th className="px-3 py-2 text-left font-medium text-gray-600">科目</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-600">期初借</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-600">期初贷</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-600">本期借</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-600">本期贷</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-600">期末借</th>
-                  <th className="px-3 py-2 text-right font-medium text-gray-600">期末贷</th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium">科目</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-right font-medium">期初借</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-right font-medium">期初贷</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-right font-medium">本期借</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-right font-medium">本期贷</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-right font-medium">期末借</th>
+                  <th className="whitespace-nowrap px-4 py-3 text-right font-medium">期末贷</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-slate-100 text-slate-800">
                 {preview.balances.slice(0, 20).map((b) => (
-                  <tr key={b.accountCode} className="hover:bg-gray-50">
-                    <td className="px-3 py-2 text-gray-700">
+                  <tr key={b.accountCode} className="hover:bg-slate-50/60">
+                    <td className="px-4 py-3">
                       <span className="font-mono">{b.accountCode}</span> {b.accountName}
                     </td>
-                    <td className="px-3 py-2 text-right text-gray-600">{b.openingDebit.toFixed(2)}</td>
-                    <td className="px-3 py-2 text-right text-gray-600">{b.openingCredit.toFixed(2)}</td>
-                    <td className="px-3 py-2 text-right text-gray-600">{b.currentDebit.toFixed(2)}</td>
-                    <td className="px-3 py-2 text-right text-gray-600">{b.currentCredit.toFixed(2)}</td>
-                    <td className="px-3 py-2 text-right text-gray-600">{b.closingDebit.toFixed(2)}</td>
-                    <td className="px-3 py-2 text-right text-gray-600">{b.closingCredit.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-slate-600">{b.openingDebit.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-slate-600">{b.openingCredit.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-slate-600">{b.currentDebit.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-slate-600">{b.currentCredit.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-slate-600">{b.closingDebit.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right text-slate-600">{b.closingCredit.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -138,20 +131,20 @@ export default function ImportPreview({
           <h4 className="mb-2 text-sm font-semibold text-gray-700">凭证预览（前10张）</h4>
           <div className="max-h-96 overflow-auto space-y-3">
             {preview.vouchers.slice(0, 10).map((v) => (
-              <div key={v.voucherNo} className="rounded-md border border-gray-200">
-                <div className="flex items-center justify-between bg-gray-50 px-3 py-2">
-                  <span className="font-medium text-gray-700">{v.voucherNo}</span>
-                  <span className="text-xs text-gray-500">{v.date}</span>
-                  <span className="text-xs text-gray-500">借 {v.totalDebit.toFixed(2)} / 贷 {v.totalCredit.toFixed(2)}</span>
+              <div key={v.voucherNo} className="rounded-md border border-slate-200">
+                <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3">
+                  <span className="font-medium text-slate-800">{v.voucherNo}</span>
+                  <span className="text-xs text-slate-500">{v.date}</span>
+                  <span className="text-xs text-slate-500">借 {v.totalDebit.toFixed(2)} / 贷 {v.totalCredit.toFixed(2)}</span>
                 </div>
-                <table className="w-full text-sm">
-                  <tbody className="divide-y divide-gray-100">
+                <table className="min-w-full text-left text-sm">
+                  <tbody className="divide-y divide-slate-100 text-slate-800">
                     {v.items.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50">
-                        <td className="px-3 py-1.5 text-gray-600">{item.accountCode} {item.accountName}</td>
-                        <td className="px-3 py-1.5 text-gray-500">{item.description}</td>
-                        <td className="px-3 py-1.5 text-right text-gray-600">{item.debit > 0 ? item.debit.toFixed(2) : ""}</td>
-                        <td className="px-3 py-1.5 text-right text-gray-600">{item.credit > 0 ? item.credit.toFixed(2) : ""}</td>
+                      <tr key={idx} className="hover:bg-slate-50/60">
+                        <td className="px-4 py-2 text-slate-600">{item.accountCode} {item.accountName}</td>
+                        <td className="px-4 py-2 text-slate-500">{item.description}</td>
+                        <td className="px-4 py-2 text-right text-slate-600">{item.debit > 0 ? item.debit.toFixed(2) : ""}</td>
+                        <td className="px-4 py-2 text-right text-slate-600">{item.credit > 0 ? item.credit.toFixed(2) : ""}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -164,6 +157,6 @@ export default function ImportPreview({
           )}
         </div>
       )}
-    </div>
+    </SectionCard>
   );
 }

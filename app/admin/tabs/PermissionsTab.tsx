@@ -1,8 +1,7 @@
 "use client";
 
 import { usePermissionsTab } from "../hooks/usePermissionsTab";
-import FilterBar from "@/app/components/FilterBar";
-import SelectField from "@/app/components/SelectField";
+import { FilterBar, SearchInput, SelectField } from "@workspace/core/ui";
 import ResourceTree from "../components/permissions/ResourceTree";
 import MatrixTable from "../components/permissions/MatrixTable";
 import type { ResourceItem, SubjectType } from "../types";
@@ -72,7 +71,8 @@ export default function PermissionsTab({ resources, showToast }: Props) {
 	                  options={s.l1Options.flatMap((d) =>
 	                    d ? [{ value: d, label: d === "全部" ? "一级部门" : d }] : []
 	                  )}
-	                  selectClassName="min-w-28 px-3 py-1.5 text-sm"
+	                  size="toolbar"
+	                  selectClassName="min-w-40"
 	                />
 	                {s.l2Options.length > 1 && (
 	                  <SelectField
@@ -81,7 +81,8 @@ export default function PermissionsTab({ resources, showToast }: Props) {
 	                    options={s.l2Options.flatMap((d) =>
 	                      d ? [{ value: d, label: d === "全部" ? "二级部门" : d }] : []
 	                    )}
-	                    selectClassName="min-w-28 px-3 py-1.5 text-sm"
+	                    size="toolbar"
+	                    selectClassName="min-w-40"
 	                  />
 	                )}
 	                {s.l3Options.length > 1 && (
@@ -91,13 +92,13 @@ export default function PermissionsTab({ resources, showToast }: Props) {
 	                    options={s.l3Options.flatMap((d) =>
 	                      d ? [{ value: d, label: d === "全部" ? "三级部门" : d }] : []
 	                    )}
-	                    selectClassName="min-w-28 px-3 py-1.5 text-sm"
+	                    size="toolbar"
+	                    selectClassName="min-w-40"
 	                  />
                 )}
               </>
             )}
-            <input
-              type="text"
+            <SearchInput
               placeholder={
                 s.subjectType === "user"
                   ? "搜索姓名…"
@@ -106,8 +107,9 @@ export default function PermissionsTab({ resources, showToast }: Props) {
                     : "搜索部门…"
               }
               value={s.nameSearch}
-              onChange={(e) => s.setNameSearch(e.target.value)}
-              className="min-w-[160px] rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-emerald-400 focus:outline-none"
+              onChange={s.setNameSearch}
+              size="toolbar"
+              className="min-w-0 sm:w-[22rem]"
             />
           </FilterBar>
 

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, useMemo, Fragment } from "react";
-import { useConfirmDelete } from "@/app/components/ConfirmProvider";
-import { SelectField } from "@workspace/core/ui";
+import { useConfirmDelete } from "@workspace/core/ui/ConfirmProvider";
+import { PanelCard, SearchInput, SelectField, dataTableClassNames } from "@workspace/core/ui";
 import { useStatementConfig } from "./StatementConfigContext";
 
 interface LineCfg { lineCode: string; label: string; section: string; reclassSource: boolean; reclassTarget: boolean; isHeader: boolean; isTotal: boolean; isGrandTotal: boolean; }
@@ -112,57 +112,57 @@ export default function LineConfigTab() {
 
   return (
     <div className="space-y-4">
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white"><table className="w-full text-xs">
-        <thead className="border-b-2 border-gray-300 bg-gray-200"><tr className="text-gray-800"><th className="px-2 py-2 text-left w-8" /><th className="px-2 py-2 text-left font-semibold">报表项目</th><th className="px-2 py-2 text-left font-semibold w-24">Section</th><th className="px-2 py-2 text-center font-semibold w-20">科目</th></tr></thead>
-        <tbody>
+      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto"><table className={dataTableClassNames.table}>
+        <thead className={dataTableClassNames.head}><tr><th className="whitespace-nowrap px-4 py-3 text-left w-8" /><th className="whitespace-nowrap px-4 py-3 text-left font-medium">报表项目</th><th className="whitespace-nowrap px-4 py-3 text-left font-medium w-24">Section</th><th className="whitespace-nowrap px-4 py-3 text-center font-medium w-20">科目</th></tr></thead>
+        <tbody className={dataTableClassNames.body}>
           {SECTION_ORDER.map((sec) => {
             const secLines = lines.filter((l) => l.section === sec);
             if (!secLines.length) return null;
             return (<Fragment key={sec}>
-              <tr className="bg-gray-50"><td colSpan={4} className="px-2 py-1.5 text-[11px] font-medium text-gray-500">{SECTIONS[sec] || sec}</td></tr>
+              <tr className="bg-slate-50"><td colSpan={4} className="px-4 py-2 text-sm font-medium text-slate-500">{SECTIONS[sec] || sec}</td></tr>
               {secLines.map((l) => {
                 const special = l.isHeader || l.isTotal || l.isGrandTotal;
-                if (special) return (<tr key={l.lineCode} className="border-b bg-gray-50/50"><td /><td className={`px-2 py-1.5 font-medium ${l.isHeader ? "text-gray-500" : "text-gray-600"}`}>{l.label}</td><td className="px-2 py-1.5 text-gray-400 text-[11px]">{SECTIONS[l.section] || l.section}</td><td className="px-2 py-1.5 text-center text-gray-300">—</td></tr>);
+                if (special) return (<tr key={l.lineCode} className="bg-slate-50/50"><td /><td className={`px-4 py-2 font-medium ${l.isHeader ? "text-slate-500" : "text-slate-600"}`}>{l.label}</td><td className="px-4 py-2 text-sm text-slate-400">{SECTIONS[l.section] || l.section}</td><td className="px-4 py-2 text-center text-slate-300">—</td></tr>);
                 const isExp = expanded.has(l.lineCode);
                 const lineMappings = mappingsByLine.get(l.lineCode) || [];
                 const inhAccts = inheritedByLine.get(l.lineCode) || [];
                 const ctxAcctCount = lineMappings.filter((m) => m.operator !== "exclude").length + inhAccts.length;
                 return (<Fragment key={l.lineCode}>
-                  <tr className="border-b cursor-pointer hover:bg-gray-50" onClick={() => { setExpanded((p) => { const n = new Set(p); if (n.has(l.lineCode)) { n.delete(l.lineCode); } else { n.add(l.lineCode); } return n; }); }}>
-                    <td className="px-2 py-1.5 text-gray-300 text-[10px]">{ctxAcctCount > 0 ? (isExp ? "▼" : "▶") : ""}</td>
-                    <td className="px-2 py-1.5 font-medium text-gray-700">{l.label}</td>
-                    <td className="px-2 py-1.5 text-gray-400 text-[11px]">{SECTIONS[l.section] || l.section}</td>
-                    <td className="px-2 py-1.5 text-center text-gray-600">{ctxAcctCount || "—"}</td>
+                  <tr className="cursor-pointer transition hover:bg-slate-50/60" onClick={() => { setExpanded((p) => { const n = new Set(p); if (n.has(l.lineCode)) { n.delete(l.lineCode); } else { n.add(l.lineCode); } return n; }); }}>
+                    <td className="px-4 py-2 text-xs text-slate-300">{ctxAcctCount > 0 ? (isExp ? "▼" : "▶") : ""}</td>
+                    <td className="px-4 py-2 font-medium text-slate-700">{l.label}</td>
+                    <td className="px-4 py-2 text-sm text-slate-400">{SECTIONS[l.section] || l.section}</td>
+                    <td className="px-4 py-2 text-center text-slate-600">{ctxAcctCount || "—"}</td>
                   </tr>
                   {isExp && (<tr><td colSpan={4} className="bg-gray-50 px-4 py-2">
-                    {lineMappings.length > 0 && (<table className="w-full text-[11px] mb-1"><thead><tr className="text-gray-700 border-b-2 border-gray-200"><th className="text-left py-1 font-semibold w-20">操作</th><th className="text-left py-1 font-semibold">科目编码</th><th className="text-left py-1 font-semibold">科目名称</th><th className="text-right py-1 font-semibold w-24">借方</th><th className="text-right py-1 font-semibold w-24">贷方</th><th className="text-center py-1 font-semibold w-20" /></tr></thead>
-                    <tbody>{lineMappings.map((m) => { const a = acctMap.get(m.accountCode); const isSaving = saving.has(`${l.lineCode}:${m.accountCode}`) || saving.has(m.accountCode); const dflt = isDefault(m); const excl = m.operator === "exclude"; return (<tr key={m.accountCode} className={`border-b border-gray-100 ${excl ? "bg-gray-100/50" : ""}`}>
+                    {lineMappings.length > 0 && (<table className={`mb-1 ${dataTableClassNames.table}`}><thead className={dataTableClassNames.head}><tr><th className="whitespace-nowrap w-20 py-2 text-left font-medium">操作</th><th className="whitespace-nowrap py-2 text-left font-medium">科目编码</th><th className="whitespace-nowrap py-2 text-left font-medium">科目名称</th><th className="whitespace-nowrap w-24 py-2 text-right font-medium">借方</th><th className="whitespace-nowrap w-24 py-2 text-right font-medium">贷方</th><th className="whitespace-nowrap w-20 py-2 text-center font-medium" /></tr></thead>
+                    <tbody className="divide-y divide-slate-100">{lineMappings.map((m) => { const a = acctMap.get(m.accountCode); const isSaving = saving.has(`${l.lineCode}:${m.accountCode}`) || saving.has(m.accountCode); const dflt = isDefault(m); const excl = m.operator === "exclude"; return (<tr key={m.accountCode} className={excl ? "bg-slate-100/50" : ""}>
                       <td className="py-1">{excl
-                        ? <button onClick={() => handleRestoreDefault(m.accountCode)} disabled={isSaving} className="rounded bg-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-600 hover:bg-gray-300">{isSaving ? "..." : "恢复默认"}</button>
+                        ? <button onClick={() => handleRestoreDefault(m.accountCode)} disabled={isSaving} className="rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-600 hover:bg-gray-300">{isSaving ? "..." : "恢复默认"}</button>
                         : dflt
-                          ? <button onClick={() => handleExcludeDefault(m.accountCode, l.lineCode)} disabled={isSaving} className="rounded bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700 hover:bg-amber-100">{isSaving ? "..." : "排除默认"}</button>
-                          : <button onClick={() => toggleOperator(m.accountCode, l.lineCode, m.operator)} disabled={isSaving} className={`rounded px-2 py-0.5 text-[10px] font-medium ${m.operator === "subtract" ? "bg-red-50 text-red-700 hover:bg-red-100" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}>{isSaving ? "..." : m.operator === "subtract" ? "− 减" : "+ 加"}</button>}</td>
+                          ? <button onClick={() => handleExcludeDefault(m.accountCode, l.lineCode)} disabled={isSaving} className="rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 hover:bg-amber-100">{isSaving ? "..." : "排除默认"}</button>
+                          : <button onClick={() => toggleOperator(m.accountCode, l.lineCode, m.operator)} disabled={isSaving} className={`rounded px-2 py-0.5 text-xs font-medium ${m.operator === "subtract" ? "bg-red-50 text-red-700 hover:bg-red-100" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}>{isSaving ? "..." : m.operator === "subtract" ? "− 减" : "+ 加"}</button>}</td>
                       <td className={`py-1 font-mono ${excl ? "text-gray-400" : "text-gray-600"}`}>{m.accountCode}</td>
                       <td className={`py-1 ${excl ? "text-gray-400" : "text-gray-700"}`}>{a?.name || m.accountCode}</td>
                       <td className={`py-1 text-right ${excl ? "text-gray-300" : "text-gray-600"}`}>{a ? fmt(a.closingDebit) : "—"}</td>
                       <td className={`py-1 text-right ${excl ? "text-gray-300" : "text-gray-600"}`}>{a ? fmt(a.closingCredit) : "—"}</td>
                       <td className="py-1 text-center">
-                        {!excl && !dflt && <button onClick={() => handleRestoreDefault(m.accountCode)} disabled={isSaving} className="text-[10px] text-red-400 hover:text-red-600 hover:underline">{isSaving ? "..." : "删除配置"}</button>}
-                        {excl && <span className="rounded bg-gray-200 px-1.5 py-0.5 text-[10px] text-gray-500">已排除</span>}
-                        {dflt && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] text-amber-700">系统建议</span>}
+                        {!excl && !dflt && <button onClick={() => handleRestoreDefault(m.accountCode)} disabled={isSaving} className="text-xs text-red-400 hover:text-red-600 hover:underline">{isSaving ? "..." : "删除配置"}</button>}
+                        {excl && <span className="rounded bg-gray-200 px-1.5 py-0.5 text-xs text-gray-500">已排除</span>}
+                        {dflt && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-700">系统建议</span>}
                       </td></tr>); })}</tbody></table>)}
-                    {inhAccts.length > 0 && (<div className="mb-1"><p className="text-[10px] text-gray-400 mb-1">继承科目（来自 prefix/父级）</p>
-                      <table className="w-full text-[11px] mb-1"><tbody>{inhAccts.map((a) => { const isSaving = saving.has(`${l.lineCode}:${a.accountCode}`); return (<tr key={a.accountCode} className="border-b border-gray-100"><td className="py-1 w-20"><span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500">继承</span></td><td className="py-1 font-mono text-gray-500">{a.accountCode}</td><td className="py-1 text-gray-500">{a.accountName}</td><td className="py-1 text-right text-gray-400">{fmt(a.closingDebit)}</td><td className="py-1 text-right text-gray-400">{fmt(a.closingCredit)}</td><td className="py-1 text-center"><button onClick={() => saveMapping(a.accountCode, l.lineCode, "exclude")} disabled={isSaving} className="text-[10px] text-amber-500 hover:text-amber-700 hover:underline">{isSaving ? "..." : "排除"}</button></td></tr>); })}</tbody></table></div>)}
-                    {addingFor === l.lineCode ? (<div className="flex flex-col gap-1 mt-1"><input type="text" placeholder="搜索科目编码或名称..." value={acctSearch} onChange={(e) => setAcctSearch(e.target.value)} className="rounded border border-gray-200 px-2 py-1 text-[11px] focus:border-emerald-400 focus:outline-none w-64" />
-                      <div className="flex items-center gap-2"><SelectField value={newAccount} onChange={setNewAccount} placeholder={`选择科目 (${filteredAccts.length})`} options={filteredAccts.map((a) => ({ value: a.code, label: `${a.code} ${a.name}` }))} selectClassName="w-64 px-1.5 py-0.5 text-[11px]" />
-                        <div className="flex flex-col gap-1"><button onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "add"); setAddingFor(null); setNewAccount(""); setAcctSearch(""); }} disabled={!newAccount} className="rounded bg-emerald-600 px-2 py-0.5 text-[10px] text-white hover:bg-emerald-700 disabled:opacity-50">添加 (+)</button><button onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "subtract"); setAddingFor(null); setNewAccount(""); setAcctSearch(""); }} disabled={!newAccount} className="rounded bg-red-500 px-2 py-0.5 text-[10px] text-white hover:bg-red-600 disabled:opacity-50">添加 (−)</button><button onClick={() => { setAddingFor(null); setNewAccount(""); setAcctSearch(""); }} className="text-[10px] text-gray-400 hover:text-gray-600">取消</button></div></div></div>) : (<button onClick={() => setAddingFor(l.lineCode)} className="mt-1 text-[10px] text-emerald-600 hover:text-emerald-800 hover:underline">+ 添加科目</button>)}
+                    {inhAccts.length > 0 && (<div className="mb-1"><p className="text-xs text-gray-400 mb-1">继承科目（来自 prefix/父级）</p>
+                      <table className={`mb-1 ${dataTableClassNames.table}`}><tbody className="divide-y divide-slate-100">{inhAccts.map((a) => { const isSaving = saving.has(`${l.lineCode}:${a.accountCode}`); return (<tr key={a.accountCode}><td className="w-20 py-1"><span className="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-500">继承</span></td><td className="py-1 font-mono text-gray-500">{a.accountCode}</td><td className="py-1 text-gray-500">{a.accountName}</td><td className="py-1 text-right text-gray-400">{fmt(a.closingDebit)}</td><td className="py-1 text-right text-gray-400">{fmt(a.closingCredit)}</td><td className="py-1 text-center"><button onClick={() => saveMapping(a.accountCode, l.lineCode, "exclude")} disabled={isSaving} className="text-xs text-amber-500 hover:text-amber-700 hover:underline">{isSaving ? "..." : "排除"}</button></td></tr>); })}</tbody></table></div>)}
+                    {addingFor === l.lineCode ? (<div className="flex flex-col gap-1 mt-1"><SearchInput placeholder="搜索科目编码或名称..." value={acctSearch} onChange={setAcctSearch} size="compact" className="w-64" />
+                      <div className="flex items-center gap-2"><SelectField value={newAccount} onChange={setNewAccount} placeholder={`选择科目 (${filteredAccts.length})`} options={filteredAccts.map((a) => ({ value: a.code, label: `${a.code} ${a.name}` }))} selectClassName="w-64 px-2 py-1 text-sm" />
+                        <div className="flex flex-col gap-1"><button onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "add"); setAddingFor(null); setNewAccount(""); setAcctSearch(""); }} disabled={!newAccount} className="rounded bg-emerald-600 px-2 py-0.5 text-xs text-white hover:bg-emerald-700 disabled:opacity-50">添加 (+)</button><button onClick={() => { if (newAccount) saveMapping(newAccount, l.lineCode, "subtract"); setAddingFor(null); setNewAccount(""); setAcctSearch(""); }} disabled={!newAccount} className="rounded bg-red-500 px-2 py-0.5 text-xs text-white hover:bg-red-600 disabled:opacity-50">添加 (−)</button><button onClick={() => { setAddingFor(null); setNewAccount(""); setAcctSearch(""); }} className="text-xs text-gray-400 hover:text-gray-600">取消</button></div></div></div>) : (<button onClick={() => setAddingFor(l.lineCode)} className="mt-1 text-xs text-emerald-600 hover:text-emerald-800 hover:underline">+ 添加科目</button>)}
                   </td></tr>)}
                 </Fragment>);
               })}
             </Fragment>);
           })}
         </tbody>
-      </table></div>
+      </table></PanelCard>
     </div>
   );
 }

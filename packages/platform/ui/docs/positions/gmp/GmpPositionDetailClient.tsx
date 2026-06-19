@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { DataTable, PageContent, SectionCard, getToolbarActionClassName } from "@workspace/core/ui";
+import type { DataTableColumn } from "@workspace/core/ui";
 
 interface PositionDescDetail {
   id: number; code: string; name: string;
@@ -17,7 +19,7 @@ function s(val: unknown, fb = "—"): string {
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return <div className="mb-6"><h2 className="mb-3 border-l-4 border-emerald-600 bg-gray-50 px-3 py-2 text-sm font-bold text-gray-800">{title}</h2>{children}</div>;
+  return <SectionCard title={title} className="mb-6">{children}</SectionCard>;
 }
 
 function Pair({ label, value }: { label: string; value: unknown }) {
@@ -100,9 +102,15 @@ export default function GmpDetailClient({ code }: { code: string }) {
   if (error || !pos) return <div className="flex min-h-[300px] items-center justify-center"><div className="text-center"><p className="text-gray-500">{error || "未找到"}</p><button onClick={() => router.push("/docs/positions/GMP")} className="mt-4 text-sm text-emerald-600 hover:underline">返回列表</button></div></div>;
 
   const d = pos.details || {};
+  const historyRows = Array.isArray(d.changeHistory) ? d.changeHistory as Record<string, unknown>[] : [];
+  const historyColumns: DataTableColumn<Record<string, unknown>>[] = [
+    { key: "version", label: "版本", required: true, render: (row) => <span className="text-slate-700">{String(row.version ?? "")}</span> },
+    { key: "documentName", label: "文件名称", required: true, render: (row) => <span className="text-slate-700">{String(row.documentName ?? "")}</span> },
+    { key: "effectiveDate", label: "生效日期", required: true, render: (row) => <span className="text-slate-700">{String(row.effectiveDate ?? "")}</span> },
+  ];
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8">
+    <PageContent className="py-8">
       <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
         <button onClick={() => router.push("/docs")} className="hover:text-emerald-600">文档中心</button>
         <span>/</span>
@@ -110,7 +118,7 @@ export default function GmpDetailClient({ code }: { code: string }) {
         <span>/</span><span className="text-gray-700">{pos.name}</span>
       </div>
 
-      <div className="mb-6 border-b-2 border-gray-800 pb-4 text-center">
+      <div className="mb-6 border-b border-slate-200 pb-4 text-center">
         <h1 className="text-xl font-bold text-gray-900">岗位说明书</h1>
         <div className="mt-1 text-sm text-gray-500">
           文件编号：{s(pos.code)} &nbsp;|&nbsp; 版本：{s(pos.version)} &nbsp;|&nbsp; 生效日期：{s(pos.effectiveDate)}
@@ -173,29 +181,20 @@ export default function GmpDetailClient({ code }: { code: string }) {
       )}
 
       {Array.isArray(d.changeHistory) && d.changeHistory.length > 0 && (
-        <Section title="变更历史">
-          <table className="w-full border-collapse text-sm">
-            <thead><tr className="bg-gray-50">
-              <th className="border border-gray-200 px-3 py-2 text-left font-semibold text-gray-600">版本</th>
-              <th className="border border-gray-200 px-3 py-2 text-left font-semibold text-gray-600">文件名称</th>
-              <th className="border border-gray-200 px-3 py-2 text-left font-semibold text-gray-600">生效日期</th>
-            </tr></thead>
-            <tbody>
-              {d.changeHistory.map((h: Record<string, unknown>, i: number) => (
-                <tr key={i}>
-                  <td className="border border-gray-200 px-3 py-2 text-gray-700">{String(h.version ?? "")}</td>
-                  <td className="border border-gray-200 px-3 py-2 text-gray-700">{String(h.documentName ?? "")}</td>
-                  <td className="border border-gray-200 px-3 py-2 text-gray-700">{String(h.effectiveDate ?? "")}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Section>
+        <SectionCard title="变更历史" bodyClassName="overflow-x-auto p-0" className="mb-6">
+          <DataTable
+            rows={historyRows}
+            columns={historyColumns}
+            visibleColumns={[]}
+            density="compact"
+            rowKey={(row) => `${String(row.version ?? "")}:${String(row.documentName ?? "")}:${String(row.effectiveDate ?? "")}`}
+          />
+        </SectionCard>
       )}
 
       <div className="mt-8 text-center">
-        <button onClick={() => router.push("/docs/positions/GMP")} className="rounded-md bg-gray-100 px-6 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">← 返回列表</button>
+        <button onClick={() => router.push("/docs/positions/GMP")} className={getToolbarActionClassName("secondary")}>← 返回列表</button>
       </div>
-    </main>
+    </PageContent>
   );
 }

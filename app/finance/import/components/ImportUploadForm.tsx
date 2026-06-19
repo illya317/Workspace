@@ -1,6 +1,6 @@
 "use client";
 
-import { SelectField } from "@workspace/core/ui";
+import { SectionCard, SelectField, getToolbarActionClassName } from "@workspace/core/ui";
 import { Company } from "./types";
 
 interface ImportUploadFormProps {
@@ -60,9 +60,7 @@ export default function ImportUploadForm({
   };
 
   return (
-    <div className="mb-6 rounded-lg bg-white p-6 shadow-sm">
-      <h2 className="mb-4 text-lg font-semibold text-gray-800">上传文件</h2>
-
+    <SectionCard title="上传文件" className="mb-6" bodyClassName="p-6">
       <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {/* Company */}
         <div>
@@ -151,7 +149,7 @@ export default function ImportUploadForm({
         <button
           onClick={onPreview}
           disabled={!file || !companyCode || loading}
-          className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:bg-gray-300"
+          className={getToolbarActionClassName("primary")}
         >
           {loading ? "解析中..." : "预览数据"}
         </button>
@@ -161,6 +159,6 @@ export default function ImportUploadForm({
           </span>
         )}
       </div>
-    </div>
+    </SectionCard>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
-import { workspacePath } from "@/app/lib/api-path";
+import { workspacePath } from "@workspace/core/routing";
 import type { TabConfig } from "../types";
 
 export interface TabItem {

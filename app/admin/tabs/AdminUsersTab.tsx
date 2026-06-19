@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { getInitials } from "@/lib/search";
-import SelectField from "@/app/components/SelectField";
+import { getInitials } from "@workspace/platform/search";
+import { PanelCard, SearchInput, SelectField, getToolbarActionClassName } from "@workspace/core/ui";
 import type { ResourceItem } from "../types";
 import UserRow from "./UserRow";
 
@@ -116,13 +116,16 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <div className="flex rounded-md border border-gray-300 overflow-hidden">
-          <input value={keyword} onChange={(e) => onKeywordChange(e.target.value)}
+        <div className="flex items-center">
+          <SearchInput
+            value={keyword}
+            onChange={onKeywordChange}
             placeholder={searchMode === "name" ? "搜索姓名..." : "搜索全部..."}
-            className="px-3 py-2 text-sm w-48 focus:outline-none"
+            size="toolbar"
+            className="w-64 rounded-r-none"
           />
           <button onClick={() => setSearchMode((m) => (m === "name" ? "all" : "name"))}
-            className={`px-2 text-xs ${searchMode === "name" ? "bg-gray-50 text-gray-500" : "bg-emerald-50 text-emerald-600"}`}
+            className={`h-12 rounded-r-xl border-y-2 border-r-2 px-4 text-base font-medium shadow-sm ${searchMode === "name" ? "border-slate-200 bg-white text-slate-500" : "border-emerald-500 bg-emerald-50 text-emerald-700"}`}
           >
             {searchMode === "name" ? "姓名" : "全部"}
           </button>
@@ -133,14 +136,15 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
           value={String(pageSize)}
           onChange={(nextValue) => onPageSizeChange(Number(nextValue))}
           options={[20, 50, 100].map((n) => ({ value: String(n), label: `${n}条/页` }))}
-          selectClassName="min-w-20 px-2 py-1.5 text-xs text-gray-600"
+          size="toolbar"
+          selectClassName="min-w-32"
         />
         <button onClick={() => { setCreating(true); setTimeout(() => nameRef.current?.focus(), 50); }}
-          className="rounded-md bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-700">新建</button>
+          className={getToolbarActionClassName("primary")}>新建</button>
       </div>
 
       {creating && (
-        <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-white p-3">
+        <PanelCard bodyClassName="flex flex-wrap items-center gap-3 p-3">
           <input ref={nameRef} value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="姓名 *"
             className="rounded border border-gray-300 px-2 py-1 text-sm w-32 focus:border-emerald-400 focus:outline-none"
             onKeyDown={(e) => e.key === "Enter" && handleCreate()} />
@@ -150,22 +154,22 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
           <button onClick={handleCreate} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700">保存</button>
           <button onClick={() => { setCreating(false); setNewName(""); setNewUsername(""); }}
             className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50">取消</button>
-        </div>)}
+        </PanelCard>)}
 
       {loading ? (
         <p className="text-gray-500">加载中...</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
-          <table className="w-full text-xs">
+        <PanelCard bodyClassName="overflow-x-auto">
+          <table className="w-full text-sm">
             <thead className="border-b bg-gray-50">
               <tr>
                 <th className="px-3 py-2 text-left font-medium text-gray-600">姓名</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600">用户名</th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600 w-16">状态</th>
+                <th className="w-16 px-3 py-2 text-left font-medium text-gray-600">状态</th>
                 <th className="px-3 py-2 text-left font-medium text-gray-600">
                   权限 <span className="cursor-help text-gray-400" title="0=访问，1=编辑，2=删除，3=管理">ⓘ</span>
                 </th>
-                <th className="px-3 py-2 text-left font-medium text-gray-600 w-32">操作</th>
+                <th className="w-32 px-3 py-2 text-left font-medium text-gray-600">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -174,7 +178,7 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
               ))}
             </tbody>
           </table>
-        </div>
+        </PanelCard>
       )}
       {filtered.length > pageSize && (
         <div className="flex items-center justify-center gap-2">

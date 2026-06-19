@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { workspacePath } from "@/app/lib/api-path";
+import { workspacePath } from "@workspace/core/routing";
 import { buildFullCode } from "../useCodeHelpers";
 import type { CodeItem } from "../types";
 import { type HRUser as User, hrCanEdit } from "@/app/hr/types";

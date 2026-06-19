@@ -8,6 +8,7 @@ interface GenericToolbarFiltersProps {
   filterValues: Record<string, unknown>;
   onFilterChange: (key: string, value: string) => void;
   onShowAdvancedFilters: () => void;
+  hasAdvancedFilters?: boolean;
   canCreate: boolean;
   onCreate: () => void;
 }
@@ -17,6 +18,7 @@ export default function GenericToolbarFilters({
   filterValues,
   onFilterChange,
   onShowAdvancedFilters,
+  hasAdvancedFilters = true,
   canCreate,
   onCreate,
 }: GenericToolbarFiltersProps) {
@@ -56,12 +58,14 @@ export default function GenericToolbarFilters({
         )
       )}
 
-      <button
-        onClick={onShowAdvancedFilters}
-        className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
-      >
-        筛选
-      </button>
+      {hasAdvancedFilters && (
+        <button
+          onClick={onShowAdvancedFilters}
+          className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+        >
+          筛选
+        </button>
+      )}
 
       {canCreate && (
         <button

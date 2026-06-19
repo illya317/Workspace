@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { MetricCard, PanelCard } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
 import SourceTraceModal from "./SourceTraceModal";
@@ -40,31 +41,31 @@ export default function CostStructureTable({ filters }: Props) {
       {loading && <p className="text-sm text-gray-500">加载中…</p>}
       {error && <p className="text-sm text-red-500">{error}</p>}
 
-      <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left text-xs font-semibold text-gray-600">
+      <PanelCard bodyClassName="overflow-x-auto">
+        <table className="min-w-full text-left text-sm">
+          <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
             <tr>
-              <th className="px-3 py-2">年月</th>
-              <th className="px-3 py-2">产品</th>
-              <th className="px-3 py-2">类别</th>
-              <th className="px-3 py-2">项目</th>
-              <th className="px-3 py-2 text-right">金额</th>
-              <th className="px-3 py-2 text-right">数量</th>
-              <th className="px-3 py-2">来源</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">年月</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">产品</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">类别</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">项目</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">金额</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">数量</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">来源</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-slate-100 text-slate-800">
             {(data as Record<string, unknown>[]).map((row) => (
-              <tr key={String(row.id)} className="hover:bg-gray-50">
-                <td className="px-3 py-2 whitespace-nowrap">
+              <tr key={String(row.id)} className="hover:bg-slate-50/60">
+                <td className="whitespace-nowrap px-4 py-3">
                   {String(row.year)}-{row.month != null ? String(row.month) : "—"}
                 </td>
-                <td className="px-3 py-2">{String(row.productName ?? "—")}</td>
-                <td className="px-3 py-2">{String(row.category ?? "—")}</td>
-                <td className="px-3 py-2">{String(row.itemName ?? "—")}</td>
-                <td className="px-3 py-2 text-right">{fmt(row.amount as number)}</td>
-                <td className="px-3 py-2 text-right">{fmt(row.quantity as number)}</td>
-                <td className="px-3 py-2">
+                <td className="px-4 py-3">{String(row.productName ?? "—")}</td>
+                <td className="px-4 py-3">{String(row.category ?? "—")}</td>
+                <td className="px-4 py-3">{String(row.itemName ?? "—")}</td>
+                <td className="px-4 py-3 text-right">{fmt(row.amount as number)}</td>
+                <td className="px-4 py-3 text-right">{fmt(row.quantity as number)}</td>
+                <td className="px-4 py-3">
                   <button
                     className="text-xs text-emerald-600 hover:underline"
                     onClick={() =>
@@ -85,7 +86,7 @@ export default function CostStructureTable({ filters }: Props) {
             ))}
           </tbody>
         </table>
-      </div>
+      </PanelCard>
 
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">
@@ -122,10 +123,5 @@ export default function CostStructureTable({ filters }: Props) {
 }
 
 function SummaryCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg bg-white p-3 shadow-sm">
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="text-lg font-semibold text-gray-800">{value}</p>
-    </div>
-  );
+  return <MetricCard label={label} value={value} />;
 }

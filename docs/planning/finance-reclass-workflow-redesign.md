@@ -521,7 +521,6 @@ UI 改动：
 每个 batch 完成后运行：
 
 ```bash
-npm run size:check
 npm run lint -- --max-warnings=0
 npx tsc --noEmit
 npm run build

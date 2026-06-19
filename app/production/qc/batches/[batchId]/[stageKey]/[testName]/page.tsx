@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireResourceAccess } from "@/server/auth/guard";
+import { requireResourceAccess } from "@workspace/platform/server/auth";
 import { getQcBatch, getQcTemplateDetail } from "@workspace/production/server/qc";
 import QcBatchTestRecord from "../../../../components/QcBatchTestRecord";
 import QcModuleShell from "../../../../components/QcModuleShell";

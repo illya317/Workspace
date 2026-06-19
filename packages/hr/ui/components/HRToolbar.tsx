@@ -1,6 +1,6 @@
 "use client";
 
-import { EditToolbar, FilterBar } from "@workspace/core/ui";
+import { EditToolbar, FilterBar, SearchInput, getToolbarActionClassName } from "@workspace/core/ui";
 import type { EditToolbarProps } from "@workspace/core/ui";
 
 interface Props {
@@ -28,45 +28,40 @@ export default function HRToolbar({
   showEdit,
   editProps,
 }: Props) {
+  const rosterButtonClassName = (active: boolean) =>
+    active ? getToolbarActionClassName("primary") : getToolbarActionClassName("secondary");
+
   return (
     <FilterBar>
       {rosterFilter && onRosterChange && (
-        <div className="flex overflow-hidden rounded-md border border-gray-200">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => onRosterChange("在职")}
-            className={`px-3 py-1.5 text-sm ${
-              rosterFilter === "在职"
-                ? "bg-emerald-600 text-white"
-                : "bg-white text-gray-600 hover:bg-gray-50"
-            }`}
+            className={rosterButtonClassName(rosterFilter === "在职")}
           >
             在职
           </button>
           <button
             onClick={() => onRosterChange("离职")}
-            className={`px-3 py-1.5 text-sm ${
-              rosterFilter === "离职"
-                ? "bg-emerald-600 text-white"
-                : "bg-white text-gray-600 hover:bg-gray-50"
-            }`}
+            className={rosterButtonClassName(rosterFilter === "离职")}
           >
             离职
           </button>
         </div>
       )}
-      <input
-        type="text"
+      <SearchInput
         value={keyword}
-        onChange={(event) => onKeywordChange(event.target.value)}
+        onChange={onKeywordChange}
         onKeyDown={(event) => {
           if (event.key === "Enter" && onKeywordEnter) onKeywordEnter();
         }}
         placeholder={keywordPlaceholder}
-        className="w-24 rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-emerald-400 focus:outline-none"
+        size="toolbar"
+        className="min-w-0 sm:w-[22rem]"
       />
       <button
         onClick={onReset}
-        className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+        className={getToolbarActionClassName("secondary")}
       >
         重置
       </button>

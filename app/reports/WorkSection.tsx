@@ -1,7 +1,8 @@
 "use client";
 
-import { useConfirmDelete } from "@/app/components/ConfirmProvider";
-import SelectField from "@/app/components/SelectField";
+import { useConfirmDelete } from "@workspace/core/ui/ConfirmProvider";
+import { SectionCard } from "@workspace/core/ui";
+import SelectField from "@workspace/core/ui/SelectField";
 import AutoResizeTextarea from "./AutoResizeTextarea";
 
 export interface ItemRow {
@@ -63,14 +64,7 @@ export default function WorkSection({
   }
 
   return (
-    <div className="rounded-lg bg-white p-6 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h3 className="text-base font-semibold text-gray-800">{title}</h3>
-          <p className="text-xs text-gray-500">{subtitle}</p>
-        </div>
-      </div>
-
+    <SectionCard title={title} subtitle={subtitle}>
       <div className="space-y-3">
         {items.map((item, index) => (
           <div key={index} className={`rounded-md border p-3 ${category === "routine" ? "border-gray-100 bg-gray-50" : "border-gray-200"}`}>
@@ -133,6 +127,6 @@ export default function WorkSection({
           )}
         </div>
       )}
-    </div>
+    </SectionCard>
   );
 }

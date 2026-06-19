@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, StatusBadge, type DataTableColumn } from "@workspace/core/ui";
+import { DataTable, PanelCard, StatusBadge, type DataTableColumn } from "@workspace/core/ui";
 import type { Contract } from "@workspace/administration/types";
 
 interface ContractsTableProps {
@@ -48,7 +48,7 @@ export default function ContractsTable({ contracts, onEdit, onDelete }: Contract
   ];
 
   return (
-    <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+    <PanelCard bodyClassName="overflow-x-auto">
       <DataTable
         rows={contracts}
         columns={columns}
@@ -56,6 +56,6 @@ export default function ContractsTable({ contracts, onEdit, onDelete }: Contract
         rowKey={(contract) => contract.id}
         emptyText="暂无数据"
       />
-    </div>
+    </PanelCard>
   );
 }

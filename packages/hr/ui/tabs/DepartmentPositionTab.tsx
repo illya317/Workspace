@@ -1,13 +1,33 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import { SelectField, Toast } from "@workspace/core/ui";
+import {
+  ArchiveSelectorPanel,
+  ActionButton,
+  type ArchiveSelectorItem,
+  EmptyStateCard,
+  HierarchyBadge,
+  InlineCreatePanel,
+  PanelCard,
+  SearchInput,
+  SelectField,
+  SplitWorkspace,
+  SplitWorkspaceToolbar,
+  TextField,
+  Toast,
+  TreeNodeBranch,
+  TreeNodeCard,
+  getFieldInputClassName,
+  getReadOnlyFieldClassName,
+  getTagInputShellClassName,
+  getTagPillClassName,
+  getToolbarActionClassName,
+} from "@workspace/core/ui";
 import { useConfirmDelete } from "@workspace/core/ui";
 import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
 import EntitySearchInput, { type SearchOption } from "../components/EntitySearchInput";
 import OptionPicker, { type PickerOption } from "../components/OptionPicker";
 import RankPicker from "../components/RankPicker";
-import SplitWorkspace from "../components/SplitWorkspace";
 import { workspacePath } from "@workspace/core/routing";
 import { type HRUser, hrCanEdit } from "@workspace/hr/types";
 import {
@@ -32,6 +52,8 @@ type Department = {
   managerUserId: number | null;
   managerName: string | null;
   headcount: number;
+  isArchived: boolean;
+  archivedAt: string | null;
   children: { id: number; name: string }[];
   descriptions: DepartmentDescription[];
 };
@@ -68,6 +90,8 @@ type Position = {
   effectiveDate: string | null;
   sourceFile: string | null;
   headcount: number;
+  isArchived: boolean;
+  archivedAt: string | null;
 };
 
 type DepartmentPositionStats = {
@@ -130,6 +154,17 @@ type CreatePositionDraft = {
   name: string;
 };
 
+type DepartmentPositionMode = "organization" | "position";
+type ArchivedEntityTab = "departments" | "positions";
+
+const formInputClassName = getFieldInputClassName();
+const compactFormInputClassName = getFieldInputClassName("h-10 py-0");
+const readOnlyInputClassName = getReadOnlyFieldClassName("h-10 py-0");
+const compactReadOnlyInputClassName = getReadOnlyFieldClassName();
+const tagInputShellClassName = getTagInputShellClassName("content-start");
+const tagPillClassName = getTagPillClassName();
+const smallSecondaryActionClassName = getToolbarActionClassName("secondary").replace("px-4 py-2", "px-2 py-1").replace("text-sm", "text-xs");
+
 function parseAlias(alias: string | null) {
   if (!alias) return "";
   try {
@@ -177,31 +212,30 @@ function PositionAliasTagsInput({
   }
 
   return (
-    <div className="flex min-h-10 w-full flex-wrap content-start items-center gap-2 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 shadow-sm focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+    <div className={tagInputShellClassName}>
       {tags.map((tag, index) => (
         <span
           key={`${tag}-${index}`}
-          className="inline-flex max-w-full items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-800 shadow-sm"
+          className={tagPillClassName}
         >
           <span className="truncate">{tag}</span>
           {!disabled && (
-            <button
-              type="button"
+            <ActionButton
               aria-label={`删除别名 ${tag}`}
               onClick={() => void removeTag(index)}
-              className="grid size-4 place-items-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+              className="grid size-4 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-500 shadow-none hover:bg-slate-100 hover:text-slate-900"
             >
               ×
-            </button>
+            </ActionButton>
           )}
         </span>
       ))}
       {disabled ? (
         tags.length === 0 ? <span className="text-slate-400">未设置</span> : null
       ) : (
-        <input
+        <TextField
           value={draft}
-          onChange={(event) => setDraft(event.target.value)}
+          onChange={setDraft}
           onBlur={commitDraft}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
@@ -215,6 +249,7 @@ function PositionAliasTagsInput({
             }
           }}
           placeholder={tags.length === 0 ? "添加别名" : ""}
+          unstyled
           className="min-w-24 flex-1 border-0 bg-transparent px-1 py-1 text-sm text-slate-800 outline-none placeholder:text-slate-400"
         />
       )}
@@ -224,7 +259,7 @@ function PositionAliasTagsInput({
 
 function sectionTitle(title: string, extra?: ReactNode) {
   return (
-    <div className="mb-3 flex items-center justify-between border-b border-slate-200 pb-2">
+    <div className="mb-3 flex items-center gap-3 border-b border-slate-200 pb-2">
       <h4 className="text-sm font-semibold text-slate-900">{title}</h4>
       {extra}
     </div>
@@ -233,16 +268,16 @@ function sectionTitle(title: string, extra?: ReactNode) {
 
 function DetailStatsRow({ items }: { items: Array<{ label: string; value: ReactNode }> }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 md:col-span-2">
+    <PanelCard className="md:col-span-2" bodyClassName="px-3 py-2">
       <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
         {items.map((item) => (
           <div key={item.label} className="inline-flex items-baseline gap-2">
-            <span className="text-[11px] font-medium text-slate-500">{item.label}</span>
+            <span className="text-xs font-medium text-slate-500">{item.label}</span>
             <span className="text-sm font-semibold text-slate-900">{item.value}</span>
           </div>
         ))}
       </div>
-    </div>
+    </PanelCard>
   );
 }
 
@@ -257,6 +292,31 @@ function departmentPath(department: Department | undefined, departmentById: Map<
     current = current.parentId ? departmentById.get(current.parentId) : undefined;
   }
   return parts.join(" / ");
+}
+
+function departmentParentPath(department: Department | undefined, departmentById: Map<number, Department>) {
+  if (!department?.parentId) return "";
+  return departmentPath(departmentById.get(department.parentId), departmentById);
+}
+
+function archiveTimestamp(value: string | null) {
+  if (!value) return 0;
+  const time = new Date(value).getTime();
+  return Number.isNaN(time) ? 0 : time;
+}
+
+function formatArchiveTime(value: string | null) {
+  if (!value) return "未记录";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "未记录";
+  return date.toLocaleString("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 }
 
 function shortPositionCode(code: string) {
@@ -274,6 +334,11 @@ function positionCodeSuffix(code: string) {
 
 function positionCodePrefix(department: Department | undefined) {
   return department?.code ? `GW-${department.code}-` : "";
+}
+
+function positionCodePrefixFromCode(code: string) {
+  const suffix = positionCodeSuffix(code);
+  return suffix ? code.slice(0, -suffix.length) : "";
 }
 
 function composePositionCode(department: Department | undefined, suffix: string, fallbackCode: string) {
@@ -1034,32 +1099,30 @@ function StringListEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <div className="flex min-h-10 w-full flex-wrap content-start items-center gap-2 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 shadow-sm focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+      <div className={tagInputShellClassName}>
         {items.map((item, index) => (
           <span
             key={`${item}-${index}`}
-            className="inline-flex max-w-full items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-800 shadow-sm"
+            className={tagPillClassName}
           >
             <span className="truncate">{item}</span>
             {!disabled && (
-              <button
-                type="button"
+              <ActionButton
                 aria-label={`删除${label} ${item || index + 1}`}
-                title="删除"
                 onClick={() => void removeItem(index)}
-                className="grid size-4 place-items-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                className="grid size-4 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-500 shadow-none hover:bg-slate-100 hover:text-slate-900"
               >
                 ×
-              </button>
+              </ActionButton>
             )}
           </span>
         ))}
         {disabled ? (
           items.length === 0 ? <span className="text-slate-400">未设置</span> : null
         ) : (
-          <input
+          <TextField
             value={draft}
-            onChange={(event) => setDraft(event.target.value)}
+            onChange={setDraft}
             onBlur={commitDraft}
             onKeyDown={(event) => {
               if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
@@ -1073,6 +1136,7 @@ function StringListEditor({
               }
             }}
             placeholder={items.length === 0 ? placeholder : ""}
+            unstyled
             className={`${items.length === 0 ? "min-w-32 flex-1" : "w-6 flex-none"} border-0 bg-transparent px-1 py-1 text-sm text-slate-800 outline-none placeholder:text-slate-400`}
           />
         )}
@@ -1116,23 +1180,21 @@ function OptionTagListEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <div className="flex min-h-10 w-full flex-wrap content-start items-center gap-2 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 shadow-sm focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+      <div className={tagInputShellClassName}>
         {items.map((item, index) => (
           <span
             key={`${item}-${index}`}
-            className="inline-flex max-w-full items-center gap-1 rounded-full border border-slate-300 bg-white px-2.5 py-1 text-xs font-medium text-slate-800 shadow-sm"
+            className={tagPillClassName}
           >
             <span className="truncate">{item}</span>
             {!disabled && (
-              <button
-                type="button"
+              <ActionButton
                 aria-label={`删除${label} ${item}`}
-                title="删除"
                 onClick={() => void removeItem(index)}
-                className="grid size-4 place-items-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
+                className="grid size-4 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-500 shadow-none hover:bg-slate-100 hover:text-slate-900"
               >
                 ×
-              </button>
+              </ActionButton>
             )}
           </span>
         ))}
@@ -1213,11 +1275,11 @@ function WorkEnvironmentEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <div className="space-y-3 rounded-md border border-slate-300 bg-white p-3 shadow-sm">
+      <PanelCard bodyClassName="space-y-3 p-3">
         {items.map((item, index) => {
           const areaOptions = [item.area, ...availableAreas].filter((area, areaIndex, array) => array.indexOf(area) === areaIndex);
           return (
-            <div key={`${item.area}-${index}`} className="rounded-md border border-slate-200 bg-slate-50 p-3">
+            <PanelCard key={`${item.area}-${index}`} bodyClassName="p-3">
               <div className="mb-3 flex items-start gap-3">
                 <div className="min-w-48 flex-1">
                   <OptionPicker
@@ -1230,15 +1292,14 @@ function WorkEnvironmentEditor({
                   />
                 </div>
                 {!disabled && (
-                  <button
-                    type="button"
+                  <ActionButton
                     aria-label={`删除工作区域 ${item.area}`}
-                    title="删除"
                     onClick={() => void removeArea(index)}
-                    className="grid size-9 place-items-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-500"
+                    variant="danger"
+                    className="grid size-9 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-400 shadow-none hover:bg-red-50 hover:text-red-500"
                   >
                     ×
-                  </button>
+                  </ActionButton>
                 )}
               </div>
               <OptionTagListEditor
@@ -1249,10 +1310,10 @@ function WorkEnvironmentEditor({
                 placeholder="添加环境因素"
                 onChange={(factors) => updateItem(index, { factors })}
               />
-            </div>
+            </PanelCard>
           );
         })}
-        {items.length === 0 && <p className="rounded-md border border-dashed border-slate-200 px-3 py-4 text-sm text-slate-400">未设置</p>}
+        {items.length === 0 && <EmptyStateCard compact>未设置</EmptyStateCard>}
         {!disabled && (
           <div className="max-w-sm">
             <OptionPicker
@@ -1265,7 +1326,7 @@ function WorkEnvironmentEditor({
             />
           </div>
         )}
-      </div>
+      </PanelCard>
     </div>
   );
 }
@@ -1333,21 +1394,21 @@ function MajorRequirementsEditor({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
         <span className="text-xs font-medium text-slate-500">{label}</span>
         {!disabled && (
-          <button
-            type="button"
+          <ActionButton
             onClick={addItem}
-            className="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+            variant="secondary"
+            className="px-2 py-1 text-xs"
           >
             新增
-          </button>
+          </ActionButton>
         )}
       </div>
-      <div className="space-y-2 rounded-md border border-slate-300 bg-white p-3 shadow-sm">
+      <PanelCard bodyClassName="space-y-2 p-3">
         {items.map((item, index) => (
-          <div key={index} className="grid grid-cols-1 gap-2 rounded-md border border-slate-200 bg-slate-50 p-3 md:grid-cols-[minmax(0,1fr)_40px]">
+          <PanelCard key={index} bodyClassName="grid grid-cols-1 gap-2 p-3 md:grid-cols-[minmax(0,1fr)_40px]">
             <label className="space-y-1">
               <span className="text-xs font-medium text-slate-500">专业</span>
               <OptionPicker
@@ -1360,20 +1421,19 @@ function MajorRequirementsEditor({
               />
             </label>
             {!disabled && (
-              <button
-                type="button"
+              <ActionButton
                 aria-label={`删除${label} ${index + 1}`}
-                title="删除"
                 onClick={() => void removeItem(index)}
-                className="mt-5 grid size-9 place-items-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-500"
+                variant="danger"
+                className="mt-5 grid size-9 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-400 shadow-none hover:bg-red-50 hover:text-red-500"
               >
                 ×
-              </button>
+              </ActionButton>
             )}
-          </div>
+          </PanelCard>
         ))}
-        {items.length === 0 && <p className="rounded-md border border-dashed border-slate-200 px-3 py-4 text-sm text-slate-400">未设置</p>}
-      </div>
+        {items.length === 0 && <EmptyStateCard compact>未设置</EmptyStateCard>}
+      </PanelCard>
     </div>
   );
 }
@@ -1410,31 +1470,31 @@ function ExperienceRequirementsEditor({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
         <span className="text-xs font-medium text-slate-500">{label}</span>
         {!disabled && (
-          <button
-            type="button"
+          <ActionButton
             onClick={addItem}
-            className="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+            variant="secondary"
+            className="px-2 py-1 text-xs"
           >
             新增
-          </button>
+          </ActionButton>
         )}
       </div>
-      <div className="space-y-2 rounded-md border border-slate-300 bg-white p-3 shadow-sm">
+      <PanelCard bodyClassName="space-y-2 p-3">
         {items.map((item, index) => (
-          <div key={index} className="grid grid-cols-1 gap-2 rounded-md border border-slate-200 bg-slate-50 p-3 md:grid-cols-[150px_minmax(0,1fr)_40px]">
+          <PanelCard key={index} bodyClassName="grid grid-cols-1 gap-2 p-3 md:grid-cols-[150px_minmax(0,1fr)_40px]">
             <label className="space-y-1">
               <span className="text-xs font-medium text-slate-500">年限</span>
-              <div className="flex overflow-hidden rounded-md border border-slate-300 bg-white shadow-sm focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
-                <input
+              <div className="flex overflow-hidden rounded-md border border-slate-300 shadow-sm focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+                <TextField
                   value={item.years}
                   disabled={disabled}
                   inputMode="numeric"
-                  pattern="[1-9][0-9]*"
                   placeholder="1"
-                  onChange={(event) => updateItem(index, { years: positiveIntegerText(event.target.value) })}
+                  onChange={(next) => updateItem(index, { years: positiveIntegerText(next) })}
+                  unstyled
                   className="w-14 min-w-0 px-3 py-2 text-sm focus:outline-none disabled:bg-slate-100"
                 />
                 <span className="whitespace-nowrap border-l border-slate-200 bg-slate-50 px-2.5 py-2 text-sm text-slate-500">年以上</span>
@@ -1442,29 +1502,27 @@ function ExperienceRequirementsEditor({
             </label>
             <label className="space-y-1">
               <span className="text-xs font-medium text-slate-500">要求内容</span>
-              <input
+              <TextField
                 value={item.requirement}
                 disabled={disabled}
                 placeholder="经验要求"
-                onChange={(event) => updateItem(index, { requirement: event.target.value })}
-                className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100"
+                onChange={(next) => updateItem(index, { requirement: next })}
               />
             </label>
             {!disabled && (
-              <button
-                type="button"
+              <ActionButton
                 aria-label={`删除${label} ${index + 1}`}
-                title="删除"
                 onClick={() => void removeItem(index)}
-                className="mt-5 grid size-9 place-items-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-500"
+                variant="danger"
+                className="mt-5 grid size-9 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-400 shadow-none hover:bg-red-50 hover:text-red-500"
               >
                 ×
-              </button>
+              </ActionButton>
             )}
-          </div>
+          </PanelCard>
         ))}
-        {items.length === 0 && <p className="rounded-md border border-dashed border-slate-200 px-3 py-4 text-sm text-slate-400">未设置</p>}
-      </div>
+        {items.length === 0 && <EmptyStateCard compact>未设置</EmptyStateCard>}
+      </PanelCard>
     </div>
   );
 }
@@ -1506,7 +1564,7 @@ function EntityTagListEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <div className="flex min-h-10 w-full flex-wrap content-start items-center gap-2 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 shadow-sm focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+      <div className={tagInputShellClassName}>
         {items.map((item, index) => {
           const matched = !validNames || validNames.has(item);
           return (
@@ -1519,17 +1577,15 @@ function EntityTagListEditor({
             >
               <span className="truncate">{item}</span>
               {!disabled && (
-                <button
-                  type="button"
+                <ActionButton
                   aria-label={`删除${label} ${item}`}
-                  title="删除"
                   onClick={() => void removeItem(index)}
-                  className={`grid size-4 place-items-center rounded-full transition ${
+                  className={`grid size-4 place-items-center rounded-full border-0 bg-transparent p-0 shadow-none ${
                     matched ? "text-slate-500 hover:bg-slate-100 hover:text-slate-900" : "text-red-500 hover:bg-red-100 hover:text-red-700"
                   }`}
                 >
                   ×
-                </button>
+                </ActionButton>
               )}
             </span>
           );
@@ -1586,7 +1642,7 @@ function SubordinateTagsEditor({
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
-      <div className="flex min-h-10 w-full flex-wrap content-start items-center gap-2 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-800 shadow-sm focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+      <div className={tagInputShellClassName}>
         {items.map((item, index) => {
           const matched = item === "无" || positionNames.has(item);
           return (
@@ -1601,17 +1657,15 @@ function SubordinateTagsEditor({
             >
               <span className="truncate">{item}</span>
               {!disabled && (
-                <button
-                  type="button"
+                <ActionButton
                   aria-label={`删除下属岗位 ${item}`}
-                  title="删除"
                   onClick={() => void removeItem(index)}
-                  className={`grid size-4 place-items-center rounded-full transition ${
+                  className={`grid size-4 place-items-center rounded-full border-0 bg-transparent p-0 shadow-none ${
                     matched ? "text-slate-500 hover:bg-slate-100 hover:text-slate-900" : "text-red-500 hover:bg-red-100 hover:text-red-700"
                   }`}
                 >
                   ×
-                </button>
+                </ActionButton>
               )}
             </span>
           );
@@ -1854,7 +1908,7 @@ function PositionDescriptionDetailsEditor({
       );
     }
     const rows = detailFieldRows(fieldValue);
-    const className = "w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100";
+    const className = formInputClassName;
     return (
       <label key={key} className={`space-y-1 ${rows > 1 ? "md:col-span-2" : ""}`}>
         <span className="text-xs font-medium text-slate-500">{DETAIL_FIELD_LABELS[key] || key}</span>
@@ -1902,7 +1956,7 @@ function PositionDescriptionDetailsEditor({
             <button
               type="button"
               onClick={addDuty}
-              className="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-50"
+              className={smallSecondaryActionClassName}
             >
               新增
             </button>
@@ -1918,7 +1972,6 @@ function PositionDescriptionDetailsEditor({
                   <button
                     type="button"
                     aria-label={`删除${label} ${index + 1}`}
-                    title="删除"
                     onClick={() => void removeDuty(index)}
                     className="grid size-7 place-items-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-500"
                   >
@@ -1932,7 +1985,7 @@ function PositionDescriptionDetailsEditor({
                   disabled={disabled}
                   placeholder="职责标题"
                   onChange={(event) => updateDuty(index, { title: event.target.value })}
-                  className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100"
+                  className={formInputClassName}
                 />
                 <StringListEditor
                   label="职责条目"
@@ -2031,7 +2084,6 @@ function PositionDescriptionDetailsEditor({
               <button
                 type="button"
                 aria-label={`删除变更历史 ${index + 1}`}
-                title="删除"
                 onClick={() => void removeRecord(index)}
                 className="self-end grid size-8 place-items-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-500 md:col-span-4 md:justify-self-end"
               >
@@ -2217,7 +2269,6 @@ function DepartmentDescriptionDetailsEditor({
                   <button
                     type="button"
                     aria-label={`删除部门职责 ${index + 1}`}
-                    title="删除"
                     onClick={() => void removeRecord(index)}
                     className="grid size-7 place-items-center rounded-full text-slate-400 transition hover:bg-red-50 hover:text-red-500"
                   >
@@ -2322,13 +2373,7 @@ function normalizeDepartmentDescriptionSourceForCompare(department: Department) 
   return normalizeDepartmentDescriptionsForCompare(source);
 }
 
-function levelBadge(level: number) {
-  if (level === 1) return "bg-blue-100 text-blue-700";
-  if (level === 2) return "bg-emerald-100 text-emerald-700";
-  return "bg-amber-100 text-amber-700";
-}
-
-export default function DepartmentPositionTab({ user }: { user: HRUser }) {
+export default function DepartmentPositionTab({ user, mode = "position" }: { user: HRUser; mode?: DepartmentPositionMode }) {
   const [departments, setDepartments] = useState<Department[]>([]);
   const [positions, setPositions] = useState<Position[]>([]);
   const [loading, setLoading] = useState(true);
@@ -2351,11 +2396,17 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
   const [newDepartmentDraft, setNewDepartmentDraft] = useState<CreateDepartmentDraft>({ level: 1, parentId: null, code: "", name: "" });
   const [createPositionDraft, setCreatePositionDraft] = useState<CreatePositionDraft>({ departmentId: null, name: "" });
   const [collapsedDepartments, setCollapsedDepartments] = useState<Set<number>>(() => new Set());
+  const [activeOrganizationRootId, setActiveOrganizationRootId] = useState<number | null>(null);
+  const [showArchived, setShowArchived] = useState(false);
+  const [archivedTab, setArchivedTab] = useState<ArchivedEntityTab>("departments");
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const confirmDelete = useConfirmDelete();
 
   const canEdit = hrCanEdit(user);
+  const isOrganizationMode = mode === "organization";
+  const canEditDepartment = canEdit && !isOrganizationMode && !showArchived;
+  const canEditPosition = canEdit && !isOrganizationMode && !showArchived;
   const positionNames = useMemo(() => new Set(positions.map((position) => position.name).filter(Boolean)), [positions]);
   const departmentNames = useMemo(() => new Set(departments.map((department) => department.name).filter(Boolean)), [departments]);
 
@@ -2364,8 +2415,8 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
     setError(null);
     try {
       const [deptRes, posRes] = await Promise.all([
-        fetch(workspacePath("/api/hr/departments?pageSize=500")),
-        fetch(workspacePath("/api/hr/positions?pageSize=500")),
+        fetch(workspacePath(`/api/hr/departments?pageSize=500${showArchived ? "&archived=1" : ""}`)),
+        fetch(workspacePath(`/api/hr/positions?pageSize=500${showArchived ? "&archived=1" : ""}`)),
       ]);
       if (!deptRes.ok || !posRes.ok) throw new Error("加载失败");
       const [deptData, posData] = await Promise.all([deptRes.json(), posRes.json()]);
@@ -2373,17 +2424,33 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
       const nextPositions = posData.positions || [];
       setDepartments(nextDepartments);
       setPositions(nextPositions);
-      setSelection((prev) => prev ?? (nextDepartments[0] ? { type: "department", id: nextDepartments[0].id } : null));
+      if (!showArchived) {
+        setSelection((prev) => {
+          if (prev?.type === "department" && nextDepartments.some((department: Department) => department.id === prev.id)) return prev;
+          if (prev?.type === "position" && nextPositions.some((position: Position) => position.id === prev.id)) return prev;
+          return nextDepartments[0] ? { type: "department", id: nextDepartments[0].id } : null;
+        });
+      }
     } catch (_err) {
       setError("部门岗位加载失败");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showArchived]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  useEffect(() => {
+    if (!isOrganizationMode || selection?.type !== "position") return;
+    setSelection(departments[0] ? { type: "department", id: departments[0].id } : null);
+  }, [departments, isOrganizationMode, selection]);
+
+  useEffect(() => {
+    setCreatePanel(null);
+    if (mode === "organization") setShowArchived(false);
+  }, [mode]);
 
   useEffect(() => {
     if (newDepartmentDraft.code) return;
@@ -2525,6 +2592,7 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
   const selectedDepartmentStats = selectedDepartment
     ? departmentStats.get(selectedDepartment.id) ?? { directPositions: 0, totalPositions: 0, directHeadcount: 0, totalHeadcount: 0 }
     : null;
+  const selectedDepartmentParentPath = selectedDepartment ? departmentParentPath(selectedDepartment, departmentById) : "";
 
   useEffect(() => {
     setDraft(selectedPosition ? createDraft(selectedPosition) : null);
@@ -2565,33 +2633,75 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
         .map(String);
       if (haystack.some((item) => matchText(item, q))) addAncestors(department.id);
     }
-    for (const position of positions) {
-      const haystack = [
-        position.code,
-        position.codeRaw,
-        position.name,
-        position.alias,
-        position.positionDescriptionName,
-        position.positionDescriptionCode,
-        departmentPath(position.departmentId ? departmentById.get(position.departmentId) : undefined, departmentById),
-      ].filter(Boolean).map(String);
-      if (haystack.some((item) => matchText(item, q))) addAncestors(position.departmentId);
+    if (!isOrganizationMode) {
+      for (const position of positions) {
+        const haystack = [
+          position.code,
+          position.codeRaw,
+          position.name,
+          position.alias,
+          position.positionDescriptionName,
+          position.positionDescriptionCode,
+          departmentPath(position.departmentId ? departmentById.get(position.departmentId) : undefined, departmentById),
+        ].filter(Boolean).map(String);
+        if (haystack.some((item) => matchText(item, q))) addAncestors(position.departmentId);
+      }
     }
     return ids;
-  }, [departmentById, departments, positions, search]);
+  }, [departmentById, departments, isOrganizationMode, positions, search]);
 
-  function positionMatches(position: Position) {
-    if (!search.trim()) return true;
-    const q = search.trim();
-    return [
-      position.code,
-      position.codeRaw,
-      position.name,
-      position.alias,
-      position.positionDescriptionName,
-      position.positionDescriptionCode,
-    ].filter(Boolean).map(String).some((item) => matchText(item, q));
-  }
+  const visibleRootDepartments = useMemo(
+    () => rootDepartments.filter((department) => !visibleDepartmentIds || visibleDepartmentIds.has(department.id)),
+    [rootDepartments, visibleDepartmentIds]
+  );
+  const activeOrganizationRoot = useMemo(
+    () => (activeOrganizationRootId ? visibleRootDepartments.find((department) => department.id === activeOrganizationRootId) || null : null),
+    [activeOrganizationRootId, visibleRootDepartments]
+  );
+  const archivedDepartments = useMemo(() => {
+    const keyword = search.trim();
+    return departments
+      .filter((department) => {
+        if (!keyword) return true;
+        return [department.code, department.name, department.alias, department.parentName]
+          .filter(Boolean)
+          .map(String)
+          .some((item) => matchText(item, keyword));
+      })
+      .sort((a, b) => archiveTimestamp(b.archivedAt) - archiveTimestamp(a.archivedAt) || b.id - a.id);
+  }, [departments, search]);
+  const archivedPositions = useMemo(() => {
+    const keyword = search.trim();
+    return positions
+      .filter((position) => {
+        if (!keyword) return true;
+        return [
+          position.code,
+          position.codeRaw,
+          position.name,
+          position.alias,
+          position.departmentName,
+          position.positionDescriptionName,
+          position.positionDescriptionCode,
+        ]
+          .filter(Boolean)
+          .map(String)
+          .some((item) => matchText(item, keyword));
+      })
+      .sort((a, b) => archiveTimestamp(b.archivedAt) - archiveTimestamp(a.archivedAt) || b.id - a.id);
+  }, [positions, search]);
+
+  useEffect(() => {
+    if (!showArchived) return;
+    setSelection((prev) => {
+      if (archivedTab === "departments") {
+        if (prev?.type === "department" && archivedDepartments.some((department) => department.id === prev.id)) return prev;
+        return archivedDepartments[0] ? { type: "department", id: archivedDepartments[0].id } : null;
+      }
+      if (prev?.type === "position" && archivedPositions.some((position) => position.id === prev.id)) return prev;
+      return archivedPositions[0] ? { type: "position", id: archivedPositions[0].id } : null;
+    });
+  }, [archivedDepartments, archivedPositions, archivedTab, showArchived]);
 
   function selectItem(nextSelection: Selection) {
     setSelection(nextSelection);
@@ -2614,46 +2724,27 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
   function renderDepartmentNode(department: Department, level = 0): ReactNode {
     if (visibleDepartmentIds && !visibleDepartmentIds.has(department.id)) return null;
     const children = departments.filter((item) => item.parentId === department.id).sort((a, b) => a.id - b.id);
-    const directPositions = (positionsByDepartment.get(department.id) || []).filter(positionMatches);
     const isSelected = selection?.type === "department" && selection.id === department.id;
-    const hasChildren = children.length > 0 || directPositions.length > 0;
+    const hasChildren = children.length > 0;
     const isCollapsed = !search.trim() && collapsedDepartments.has(department.id);
     const stats = departmentStats.get(department.id) ?? { directPositions: 0, totalPositions: 0, directHeadcount: 0, totalHeadcount: 0 };
 
     return (
       <div key={department.id} className={level > 0 ? "ml-3 border-l border-slate-200 pl-2" : ""}>
-        <div
-          className={`my-2 flex w-full items-start gap-2 rounded-lg border px-2 py-2 text-left transition ${
-            isSelected
-              ? "border-emerald-400 bg-emerald-50"
-              : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-          }`}
-        >
-          <button
-            type="button"
-            aria-label={isCollapsed ? "展开部门" : "收起部门"}
-            disabled={!hasChildren}
-            onClick={(event) => {
-              event.stopPropagation();
-              toggleDepartmentCollapsed(department.id);
-            }}
-            className="mt-2 grid size-5 shrink-0 place-items-center rounded text-xs text-slate-500 transition hover:bg-slate-100 disabled:opacity-20"
-          >
-            {hasChildren ? (isCollapsed ? "›" : "⌄") : "·"}
-          </button>
-          <div className="min-w-0 flex-1">
-            <button
-              type="button"
-              onClick={() => selectItem({ type: "department", id: department.id })}
-              className="flex min-w-0 items-center gap-2 text-left"
-            >
-              <span className={`rounded px-2 py-0.5 text-xs font-semibold ${levelBadge(department.level)}`}>L{department.level}</span>
-              <span className="min-w-0 flex flex-1 items-baseline gap-2">
-                <span className="truncate font-semibold text-slate-900">{department.name}</span>
-                <span className="shrink-0 text-xs text-slate-400">{department.code}</span>
-              </span>
-            </button>
-            <div className="mt-2 flex flex-wrap gap-2">
+        <TreeNodeCard
+          title={department.name}
+          code={department.code}
+          level={department.level}
+          active={isSelected}
+          onClick={() => selectItem({ type: "department", id: department.id })}
+          toggle={{
+            enabled: hasChildren,
+            expanded: !isCollapsed,
+            label: isCollapsed ? "展开部门" : "收起部门",
+            onClick: () => toggleDepartmentCollapsed(department.id),
+          }}
+          meta={
+            <span className="flex flex-wrap gap-2">
               <span
                 className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600"
                 title="岗位数：直属岗位 / 含下级部门总岗位"
@@ -2666,39 +2757,76 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
               >
                 编 直属 {stats.directHeadcount} · 总 {stats.totalHeadcount}
               </span>
-            </div>
-          </div>
-        </div>
-
-        {!isCollapsed && directPositions.length > 0 && (
-          <div className="mb-2 ml-5 grid gap-1.5">
-            {directPositions.map((position) => {
-              const selected = selection?.type === "position" && selection.id === position.id;
-              return (
-                <button
-                  type="button"
-                  key={position.id}
-                  onClick={() => selectItem({ type: "position", id: position.id })}
-                  className={`flex items-center gap-2 rounded-md border px-2 py-2 text-left text-sm transition ${
-                    selected
-                      ? "border-blue-400 bg-blue-50"
-                      : "border-slate-200 bg-slate-50 hover:border-blue-200 hover:bg-blue-50/50"
-                  }`}
-                >
-                  <span className="w-9 rounded bg-white px-2 py-0.5 text-center font-mono text-xs text-blue-700" title={position.code}>
-                    {shortPositionCode(position.code)}
-                  </span>
-                  <span className="min-w-0 flex-1 truncate font-medium text-slate-800">{position.name}</span>
-                  {position.headcountPlan !== null && <span className="rounded bg-white px-1.5 py-0.5 text-xs text-slate-500">编 {position.headcountPlan}</span>}
-                  <span className="rounded bg-white px-1.5 py-0.5 text-xs text-slate-500">在 {position.headcount}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
+            </span>
+          }
+          className="my-2"
+        />
 
         {!isCollapsed && children.map((child) => renderDepartmentNode(child, level + 1))}
       </div>
+    );
+  }
+
+  function renderOrganizationBranch(department: Department, level = 0): ReactNode {
+    if (visibleDepartmentIds && !visibleDepartmentIds.has(department.id)) return null;
+    const children = departments.filter((item) => item.parentId === department.id).sort((a, b) => a.id - b.id);
+    const isCollapsed = !search.trim() && collapsedDepartments.has(department.id);
+    const hasChildren = children.length > 0;
+    const managerName = departmentManagerPositionName(department);
+    const childNodes = !isCollapsed ? children.map((child) => renderOrganizationBranch(child, level + 1)).filter(Boolean) : [];
+
+    return (
+      <TreeNodeBranch key={department.id}>
+        <TreeNodeCard
+          title={department.name}
+          code={department.code}
+          level={department.level}
+          tone={level === 1 ? "blue" : "amber"}
+          meta={managerName ? `负责人：${managerName} · 下级 ${children.length}` : `下级 ${children.length}`}
+          titleClassName="text-sm"
+          toggle={{
+            enabled: hasChildren,
+            expanded: !isCollapsed,
+            label: isCollapsed ? "展开部门" : "收起部门",
+            onClick: () => toggleDepartmentCollapsed(department.id),
+          }}
+          onClick={() => hasChildren && toggleDepartmentCollapsed(department.id)}
+        >
+          {childNodes.length > 0 ? childNodes : null}
+        </TreeNodeCard>
+      </TreeNodeBranch>
+    );
+  }
+
+  function renderOrganizationRoot(department: Department): ReactNode {
+    if (visibleDepartmentIds && !visibleDepartmentIds.has(department.id)) return null;
+    const children = departments.filter((item) => item.parentId === department.id).sort((a, b) => a.id - b.id);
+    const managerName = departmentManagerPositionName(department);
+    const active = activeOrganizationRoot?.id === department.id;
+
+    return (
+      <TreeNodeCard
+        key={department.id}
+        title={department.name}
+        code={department.code}
+        level={1}
+        showToggle={false}
+        active={active}
+        meta={
+          <span className="flex min-w-0 items-center gap-2">
+            {managerName && <span className="min-w-0 flex-1 truncate whitespace-nowrap" title={`负责人：${managerName}`}>负责人：{managerName}</span>}
+            <span className="shrink-0 whitespace-nowrap">下级 {children.length}</span>
+          </span>
+        }
+        onClick={() => {
+          setActiveOrganizationRootId(department.id);
+          setCollapsedDepartments((prev) => {
+            const next = new Set(prev);
+            next.delete(department.id);
+            return next;
+          });
+        }}
+      />
     );
   }
 
@@ -3105,15 +3233,96 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
     }
   }
 
+  async function setDepartmentArchived(departmentId: number, archived: boolean) {
+    setSaving(true);
+    try {
+      const res = await fetch(workspacePath("/api/hr/departments"), {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: departmentId, isArchived: archived }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "操作失败");
+      }
+      setToast({ type: "success", message: archived ? "部门已归档" : "部门已恢复" });
+      await loadData();
+    } catch (err) {
+      setToast({ type: "error", message: err instanceof Error ? err.message : "操作失败" });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function setPositionArchived(positionId: number, archived: boolean) {
+    setSaving(true);
+    try {
+      const res = await fetch(workspacePath("/api/hr/positions"), {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: positionId, isArchived: archived }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "操作失败");
+      }
+      setToast({ type: "success", message: archived ? "岗位已归档" : "岗位已恢复" });
+      await loadData();
+    } catch (err) {
+      setToast({ type: "error", message: err instanceof Error ? err.message : "操作失败" });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function renderDirectPositionPanel(departmentId: number) {
+    const directPositions = positionsByDepartment.get(departmentId) || [];
+
+    return (
+      <PanelCard bodyClassName="p-4">
+        {sectionTitle(
+          "直属岗位",
+          <span className="text-xs font-medium text-slate-500">{directPositions.length} 个</span>
+        )}
+        {directPositions.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {directPositions.map((position) => {
+              const active = selection?.type === "position" && selection.id === position.id;
+              return (
+                <button
+                  key={position.id}
+                  type="button"
+                  onClick={() => selectItem({ type: "position", id: position.id })}
+                  className={`inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium shadow-sm transition ${
+                    active
+                      ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                      : "border-slate-300 bg-white text-slate-800 hover:border-blue-300 hover:bg-blue-50"
+                  }`}
+                >
+                  <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs text-blue-700">{shortPositionCode(position.code)}</span>
+                  <span className="truncate">{position.name}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <EmptyStateCard compact>暂无直属岗位</EmptyStateCard>
+        )}
+      </PanelCard>
+    );
+  }
+
   function renderPositionEditor() {
     if (!selectedPosition) return null;
     const position = selectedPosition;
     const draftDepartment = draft?.departmentId ? departmentById.get(draft.departmentId) : undefined;
-    const draftCodePrefix = positionCodePrefix(draftDepartment);
+    const draftCodePrefix = positionCodePrefix(draftDepartment) || (showArchived ? positionCodePrefixFromCode(position.code) : "");
     const draftCodeSuffix = draft ? positionCodeSuffix(draft.code) : "";
+    const draftDepartmentDisplay = departmentPath(draftDepartment, departmentById) || position.departmentName || "";
     return (
       <div className="space-y-5">
-        <div className="rounded-lg border border-slate-200 bg-white p-4">
+        {position.departmentId ? renderDirectPositionPanel(position.departmentId) : null}
+        <PanelCard bodyClassName="p-4">
           {sectionTitle("岗位编辑", dirty && <span className="text-xs text-amber-600">有未保存修改</span>)}
           {draft && (
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -3125,13 +3334,13 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                   </span>
                   <input
                     value={draftCodeSuffix}
-                    disabled={!canEdit || !draftCodePrefix}
+                    disabled={!canEditPosition || !draftCodePrefix}
                     inputMode="numeric"
                     maxLength={2}
                     aria-label="岗位编码序号"
                     onChange={(event) => updateDraftCodeSuffix(event.target.value)}
                     onBlur={(event) => updateDraftCodeSuffix(event.target.value, true)}
-                    className="w-20 border-0 px-3 py-2 font-mono text-slate-900 outline-none placeholder:text-slate-400 disabled:bg-slate-100 disabled:text-slate-400"
+                    className="w-20 border-0 bg-white px-3 py-2 font-mono text-slate-900 outline-none placeholder:text-slate-400 disabled:bg-slate-100 disabled:text-slate-400"
                     placeholder="01"
                   />
                 </div>
@@ -3140,16 +3349,16 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                 <span className="text-xs font-medium text-slate-500">岗位名称</span>
                 <input
                   value={draft.name}
-                  disabled={!canEdit}
+                  disabled={!canEditPosition}
                   onChange={(event) => updateDraft("name", event.target.value)}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100"
+                  className={formInputClassName}
                 />
               </label>
               <label className="space-y-1 md:col-span-2">
                 <span className="text-xs font-medium text-slate-500">别名</span>
                 <PositionAliasTagsInput
                   value={draft.alias || ""}
-                  disabled={!canEdit}
+                  disabled={!canEditPosition}
                   onChange={(value) => updateDraft("alias", value)}
                 />
               </label>
@@ -3158,28 +3367,38 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                 <EntitySearchInput
                   entity="department"
                   value={draft.departmentId == null ? "" : String(draft.departmentId)}
-                  displayValue={departmentPath(draft.departmentId ? departmentById.get(draft.departmentId) : undefined, departmentById)}
-                  disabled={!canEdit}
+                  displayValue={draftDepartmentDisplay}
+                  disabled={!canEditPosition}
                   placeholder="搜索部门"
                   onChange={(_label, option?: SearchOption) => updateDraftDepartment(option?.id ?? null)}
                 />
               </label>
             </div>
           )}
-          <div className="mt-4 flex justify-end">
+          <div className="mt-4 flex justify-end gap-2">
+            {canEdit && (
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => void setPositionArchived(position.id, !showArchived)}
+                className={getToolbarActionClassName("secondary")}
+              >
+                {showArchived ? "恢复岗位" : "归档岗位"}
+              </button>
+            )}
             <button
               type="button"
-              disabled={!canEdit || !dirty || saving}
+              disabled={!canEditPosition || !dirty || saving}
               onClick={savePosition}
-              className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+              className={getToolbarActionClassName("primary")}
             >
               {saving ? "保存中..." : "保存岗位资料"}
             </button>
           </div>
-        </div>
+        </PanelCard>
 
         {descriptionDraft && (
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <PanelCard bodyClassName="p-4">
             {sectionTitle(
               "岗位说明书",
               <div className="flex items-center gap-3">
@@ -3201,7 +3420,7 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                   type="button"
                   disabled={selectedPositionDescriptionTemplate.id === "full"}
                   onClick={openPositionDescriptionTemplateEditor}
-                  className="rounded-md border border-slate-300 px-2 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-300 disabled:hover:bg-transparent"
+                  className={smallSecondaryActionClassName}
                 >
                   编辑模板
                 </button>
@@ -3211,7 +3430,7 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                     onClick={() => void deletePositionDescriptionTemplate()}
                     className={`rounded-md border px-2 py-1 text-xs font-medium transition ${
                       selectedPositionDescriptionTemplateDefault
-                        ? "border-slate-300 text-slate-600 hover:bg-slate-50"
+                        ? "border-slate-300 bg-white text-slate-600 shadow-sm hover:bg-slate-50"
                         : "border-red-200 text-red-600 hover:bg-red-50"
                     }`}
                   >
@@ -3228,21 +3447,21 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                     <input
                       value={templateDraftName}
                       onChange={(event) => setTemplateDraftName(event.target.value)}
-                      className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                      className={formInputClassName}
                     />
                   </label>
                   <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => void savePositionDescriptionTemplate()}
-                      className="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                      className={getToolbarActionClassName("primary")}
                     >
                       保存模板
                     </button>
                     <button
                       type="button"
                       onClick={() => setTemplateEditorOpen(false)}
-                      className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-white"
+                      className={getToolbarActionClassName("secondary")}
                     >
                       取消
                     </button>
@@ -3283,7 +3502,7 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                 <input
                   value={position.name}
                   disabled
-                  className="w-full rounded-md border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500"
+                  className={compactReadOnlyInputClassName}
                 />
               </label>
               <label className="space-y-1">
@@ -3291,7 +3510,7 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                 <input
                   value={position.departmentName || ""}
                   disabled
-                  className="w-full rounded-md border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500"
+                  className={compactReadOnlyInputClassName}
                 />
               </label>
               <label className="space-y-1">
@@ -3300,7 +3519,7 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                   entity="position"
                   value={descriptionDraft.reportTo}
                   displayValue={descriptionDraft.reportTo}
-                  disabled={!canEdit}
+                  disabled={!canEditPosition}
                   placeholder="搜索岗位"
                   onChange={(_label, option?: SearchOption) => updateDescriptionDraft("reportTo", selectedEntityName("position", option))}
                 />
@@ -3309,10 +3528,10 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                 <span className="text-xs font-medium text-slate-500">编制</span>
                 <input
                   value={descriptionDraft.headcount}
-                  disabled={!canEdit}
+                  disabled={!canEditPosition}
                   inputMode="numeric"
                   onChange={(event) => updateDescriptionDraft("headcount", event.target.value.replace(/\D/g, ""))}
-                  className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100"
+                  className={formInputClassName}
                 />
               </label>
               <label className="space-y-1">
@@ -3320,7 +3539,7 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                 <input
                   value={deriveDescriptionMeta(descriptionDraft.details, descriptionDraft.version, descriptionDraft.effectiveDate).version}
                   disabled
-                  className="w-full rounded-md border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500"
+                  className={compactReadOnlyInputClassName}
                 />
               </label>
               <label className="space-y-1">
@@ -3328,53 +3547,218 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                 <input
                   value={deriveDescriptionMeta(descriptionDraft.details, descriptionDraft.version, descriptionDraft.effectiveDate).effectiveDate}
                   disabled
-                  className="w-full rounded-md border border-slate-200 bg-slate-100 px-3 py-2 text-sm text-slate-500"
+                  className={compactReadOnlyInputClassName}
                 />
               </label>
               <label className="space-y-1 md:col-span-2">
                 <span className="text-xs font-medium text-slate-500">岗位目的</span>
                 <textarea
                   value={descriptionDraft.positionPurpose}
-                  disabled={!canEdit}
+                  disabled={!canEditPosition}
                   rows={3}
                   onChange={(event) => updateDescriptionDraft("positionPurpose", event.target.value)}
-                  className="w-full resize-y rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100"
+                  className={getFieldInputClassName("resize-y")}
                 />
               </label>
               <label className="space-y-1 md:col-span-2">
                 <span className="text-xs font-medium text-slate-500">摘要</span>
                 <textarea
                   value={descriptionDraft.summary}
-                  disabled={!canEdit}
+                  disabled={!canEditPosition}
                   rows={3}
                   onChange={(event) => updateDescriptionDraft("summary", event.target.value)}
-                  className="w-full resize-y rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100"
+                  className={getFieldInputClassName("resize-y")}
                 />
               </label>
               <PositionDescriptionDetailsEditor
                 value={descriptionDraft.details}
-                disabled={!canEdit}
+                disabled={!canEditPosition}
                 positionNames={positionNames}
                 departmentNames={departmentNames}
                 template={selectedPositionDescriptionTemplate}
                 onChange={(value) => updateDescriptionDraft("details", value)}
               />
             </div>
-          </div>
+          </PanelCard>
         )}
       </div>
     );
   }
 
+  function renderDetailPane() {
+    return (
+      <PanelCard className="min-h-[520px]" bodyClassName="p-4">
+        {!selection && <p className="py-12 text-center text-sm text-slate-400">选择部门或岗位查看详情</p>}
+        {selectedDepartment && (
+          <div className="space-y-4">
+            {!isOrganizationMode && (
+              renderDirectPositionPanel(selectedDepartment.id)
+            )}
+            <PanelCard bodyClassName="p-4">
+              {sectionTitle(
+                "部门信息",
+                <div className="flex items-center gap-2">
+                  {canEditDepartment && departmentDirty && <span className="text-xs text-amber-600">有未保存修改</span>}
+                  <HierarchyBadge level={selectedDepartment.level} />
+                </div>
+              )}
+              {departmentDraft && (
+                <div className="mt-4 space-y-4">
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(220px,0.65fr)_minmax(0,1.35fr)]">
+                    <label className="space-y-1">
+                      <span className="text-xs font-medium text-slate-500">部门编码</span>
+                      <input
+                        value={selectedDepartment.code}
+                        disabled
+                        className={readOnlyInputClassName}
+                      />
+                    </label>
+                    <label className="space-y-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-xs font-medium text-slate-500">完整路径 / 部门名称</span>
+                        <div className="flex items-center gap-2">
+                          <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${showArchived ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>
+                            {showArchived ? "已归档" : "现用"}
+                          </span>
+                          {canEdit && (
+                            <button
+                              type="button"
+                              disabled={saving}
+                              onClick={() => void setDepartmentArchived(selectedDepartment.id, !showArchived)}
+                              className={smallSecondaryActionClassName}
+                            >
+                              {showArchived ? "恢复部门" : "归档部门"}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex h-10 w-full overflow-hidden rounded-md border border-slate-300 bg-white text-sm shadow-sm focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+                        {selectedDepartmentParentPath && (
+                          <span
+                            title={selectedDepartmentParentPath}
+                            className="flex max-w-[60%] items-center truncate border-r border-slate-200 bg-slate-50 px-3 text-slate-500"
+                          >
+                            {selectedDepartmentParentPath} /
+                          </span>
+                        )}
+                        <input
+                          value={departmentDraft.name}
+                          disabled={!canEditDepartment}
+                          onChange={(event) => updateDepartmentDraft("name", event.target.value)}
+                          className="min-w-0 flex-1 border-0 bg-white px-3 text-sm text-slate-800 outline-none disabled:bg-slate-100 disabled:text-slate-500"
+                        />
+                      </div>
+                    </label>
+                  </div>
+                  <label className="block space-y-1">
+                    <span className="text-xs font-medium text-slate-500">别名</span>
+                    <PositionAliasTagsInput
+                      value={departmentDraft.alias}
+                      disabled={!canEditDepartment}
+                      onChange={(value) => updateDepartmentDraft("alias", value)}
+                    />
+                  </label>
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    <label className="space-y-1">
+                      <span className="text-xs font-medium text-slate-500">部门负责人</span>
+                      <EntitySearchInput
+                        entity="position"
+                        value={departmentDraft.managerPositionName}
+                        displayValue={departmentDraft.managerPositionName}
+                        disabled={!canEditDepartment}
+                        placeholder="搜索部门负责人"
+                        onChange={(_label, option?: SearchOption) => {
+                          updateDepartmentDraft("managerPositionName", selectedEntityName("position", option));
+                        }}
+                      />
+                    </label>
+                  </div>
+                  <DetailStatsRow
+                    items={[
+                      { label: "直属岗位", value: selectedDepartmentStats?.directPositions ?? 0 },
+                      { label: "总岗位", value: selectedDepartmentStats?.totalPositions ?? 0 },
+                      { label: "直属编制", value: selectedDepartmentStats?.directHeadcount ?? 0 },
+                      { label: "总编制", value: selectedDepartmentStats?.totalHeadcount ?? 0 },
+                    ]}
+                  />
+                  {canEditDepartment && (
+                    <div className="flex justify-end gap-2">
+                      {departmentDraft.managerPositionName && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateDepartmentDraft("managerPositionName", "");
+                          }}
+                          className={getToolbarActionClassName("secondary")}
+                        >
+                          清空负责人
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        disabled={!canEditDepartment || !departmentDirty || saving}
+                        onClick={saveDepartmentInfo}
+                        className={getToolbarActionClassName("primary")}
+                      >
+                        {saving ? "保存中..." : "保存部门信息"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </PanelCard>
+            {!isOrganizationMode && (
+              <PanelCard bodyClassName="p-4">
+                {sectionTitle(
+                  "部门说明书",
+                  departmentDescriptionDirty && <span className="text-xs text-amber-600">有未保存修改</span>
+                )}
+                <div className="space-y-5">
+                  {departmentDescriptionDrafts.map((departmentDescriptionDraft, index) => (
+                    <div key={departmentDescriptionDraft.id || `new-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+                      <div className="mb-3 text-sm font-semibold text-slate-900">{departmentDescriptionDraft.name || `部门说明书 ${index + 1}`}</div>
+                      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                        <DepartmentDescriptionDetailsEditor
+                          value={departmentDescriptionDraft.details}
+                          disabled={!canEditDepartment}
+                          managerPositionName={departmentDraft?.managerPositionName || ""}
+                          onChange={(value) => updateDepartmentDescriptionDraft(index, "details", value)}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                  {departmentDescriptionDrafts.length === 0 && (
+                    <EmptyStateCard compact>暂无部门说明书</EmptyStateCard>
+                  )}
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <button
+                    type="button"
+                    disabled={!canEditDepartment || !departmentDescriptionDirty || saving}
+                    onClick={saveDepartmentDescription}
+                    className={getToolbarActionClassName("primary")}
+                  >
+                    {saving ? "保存中..." : "保存部门说明书"}
+                  </button>
+                </div>
+              </PanelCard>
+            )}
+          </div>
+        )}
+        {!isOrganizationMode && selectedPosition && renderPositionEditor()}
+      </PanelCard>
+    );
+  }
+
   function renderTreePanel(mode: "desktop" | "drawer") {
     return (
-      <section className={`rounded-lg border border-slate-200 bg-white shadow-sm ${mode === "drawer" ? "h-full overflow-hidden" : ""}`}>
+      <PanelCard className={mode === "drawer" ? "h-full overflow-hidden" : ""}>
         <div className="border-b border-slate-200 p-3">
           <div className="space-y-3">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-base font-semibold text-slate-900">部门岗位架构</h3>
-                <p className="mt-1 text-xs text-slate-500">岗位显示在直属部门下。</p>
+                <h3 className="text-base font-semibold text-slate-900">{isOrganizationMode ? "组织架构" : "部门岗位架构"}</h3>
+                <p className="mt-1 text-xs text-slate-500">{isOrganizationMode ? "按层级展开部门树。" : "岗位显示在直属部门下。"}</p>
               </div>
               {mode === "drawer" && (
                 <button
@@ -3402,11 +3786,11 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                 全部收起
               </button>
             </div>
-            <input
+            <SearchInput
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="搜索部门、岗位、编码"
-              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              onChange={setSearch}
+              placeholder="搜索部门、编码"
+              size="page"
             />
           </div>
         </div>
@@ -3415,70 +3799,272 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
           {error && <p className="py-8 text-center text-sm text-red-500">{error}</p>}
           {!loading && !error && rootDepartments.map((department) => renderDepartmentNode(department))}
         </div>
-      </section>
+      </PanelCard>
     );
+  }
+
+  function renderOrganizationRootPanel(mode: "desktop" | "drawer") {
+    return (
+      <PanelCard className={mode === "drawer" ? "h-full overflow-hidden" : ""}>
+        <div className="border-b border-slate-200 p-3">
+          <div className="space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-base font-semibold text-slate-900">一级部门</h3>
+                <p className="mt-1 text-xs text-slate-500">选择 L1 后查看下级组织。</p>
+              </div>
+              {mode === "drawer" && (
+                <button
+                  type="button"
+                  onClick={() => setTreeDrawerOpen(false)}
+                  className="rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-500 hover:bg-slate-50"
+                >
+                  关闭
+                </button>
+              )}
+            </div>
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="搜索部门、编码"
+              size="page"
+            />
+          </div>
+        </div>
+        <div className={`${mode === "drawer" ? "h-[calc(100%-116px)]" : "max-h-[760px]"} overflow-auto p-3`}>
+          {loading && <p className="py-8 text-center text-sm text-slate-400">加载中...</p>}
+          {error && <p className="py-8 text-center text-sm text-red-500">{error}</p>}
+          {!loading && !error && visibleRootDepartments.length === 0 && (
+            <EmptyStateCard>暂无部门</EmptyStateCard>
+          )}
+          {!loading && !error && visibleRootDepartments.length > 0 && (
+            <div className="grid gap-2">
+              {visibleRootDepartments.map((department) => renderOrganizationRoot(department))}
+            </div>
+          )}
+        </div>
+      </PanelCard>
+    );
+  }
+
+  function renderArchivedBrowser() {
+    const archivedItems: ArchiveSelectorItem[] = archivedTab === "departments"
+      ? archivedDepartments.map((department) => ({
+        id: department.id,
+        title: department.name,
+        code: department.code,
+        badge: <HierarchyBadge level={department.level} />,
+        meta: `上级：${department.parentName || "-"} · 归档：${formatArchiveTime(department.archivedAt)}`,
+      }))
+      : archivedPositions.map((position) => ({
+        id: position.id,
+        title: position.name,
+        code: position.code,
+        badge: <span className="rounded bg-slate-100 px-2 py-1 font-mono text-xs text-blue-700">{shortPositionCode(position.code)}</span>,
+        meta: `部门：${position.departmentName || "-"} · 归档：${formatArchiveTime(position.archivedAt)}`,
+      }));
+    const activeItemId = archivedTab === "departments"
+      ? selection?.type === "department" ? selection.id : null
+      : selection?.type === "position" ? selection.id : null;
+
+    return (
+      <div className="space-y-5">
+        <SplitWorkspaceToolbar
+          sideOpen={treeOpen}
+          sideLabel="归档部门岗位"
+          onSideOpenChange={setTreeOpen}
+          onDrawerOpen={() => setTreeDrawerOpen(true)}
+        >
+          <button
+            type="button"
+            onClick={() => {
+              setShowArchived(false);
+              setSearch("");
+              setSelection(null);
+            }}
+            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+          >
+            现用部门岗位
+          </button>
+        </SplitWorkspaceToolbar>
+
+        <SplitWorkspace
+          sideOpen={treeOpen}
+          drawerOpen={treeDrawerOpen}
+          onDrawerOpenChange={setTreeDrawerOpen}
+          renderSide={(mode) => (
+            <ArchiveSelectorPanel
+              title="归档部门岗位"
+              subtitle="按归档时间倒序。"
+              className={mode === "drawer" ? "h-full overflow-hidden" : ""}
+              tabs={[
+                { id: "departments", label: "归档部门", count: archivedDepartments.length },
+                { id: "positions", label: "归档岗位", count: archivedPositions.length },
+              ]}
+              activeTab={archivedTab}
+              onTabChange={(tab) => setArchivedTab(tab)}
+              searchValue={search}
+              onSearchChange={setSearch}
+              searchPlaceholder="搜索名称、编码、所属部门"
+              items={archivedItems}
+              activeItemId={activeItemId}
+              emptyText={archivedTab === "departments" ? "暂无归档部门" : "暂无归档岗位"}
+              onClose={mode === "drawer" ? () => setTreeDrawerOpen(false) : undefined}
+              onItemSelect={(item) => {
+                selectItem({
+                  type: archivedTab === "departments" ? "department" : "position",
+                  id: Number(item.id),
+                });
+              }}
+            />
+          )}
+        >
+          {renderDetailPane()}
+        </SplitWorkspace>
+
+        <Toast
+          message={toast?.message || ""}
+          type={toast?.type}
+          show={!!toast}
+          onClose={() => setToast(null)}
+        />
+      </div>
+    );
+  }
+
+  if (isOrganizationMode) {
+    const activeOrganizationChildren = activeOrganizationRoot
+      ? departments.filter((item) => item.parentId === activeOrganizationRoot.id).sort((a, b) => a.id - b.id)
+      : [];
+
+    return (
+      <div className="space-y-5">
+        <SplitWorkspaceToolbar
+          sideOpen={treeOpen}
+          sideLabel="一级部门"
+          onSideOpenChange={setTreeOpen}
+          onDrawerOpen={() => setTreeDrawerOpen(true)}
+        >
+          <button
+            type="button"
+            onClick={() => setCollapsedDepartments((prev) => {
+              const next = new Set(prev);
+              if (activeOrganizationRoot) next.delete(activeOrganizationRoot.id);
+              return next;
+            })}
+            disabled={!activeOrganizationRoot}
+            className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
+          >
+            展开当前
+          </button>
+          <button
+            type="button"
+            onClick={() => setCollapsedDepartments((prev) => {
+              const next = new Set(prev);
+              if (activeOrganizationRoot) next.add(activeOrganizationRoot.id);
+              return next;
+            })}
+            disabled={!activeOrganizationRoot}
+            className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm hover:bg-slate-50 disabled:cursor-not-allowed disabled:text-slate-300"
+          >
+            收起当前
+          </button>
+        </SplitWorkspaceToolbar>
+
+        <SplitWorkspace
+          sideOpen={treeOpen}
+          drawerOpen={treeDrawerOpen}
+          onDrawerOpenChange={setTreeDrawerOpen}
+          renderSide={renderOrganizationRootPanel}
+        >
+          <PanelCard className="min-h-[520px]" bodyClassName="p-4">
+            {loading && <p className="py-10 text-center text-sm text-slate-400">加载中...</p>}
+            {error && <p className="py-10 text-center text-sm text-red-500">{error}</p>}
+            {!loading && !error && !activeOrganizationRoot && (
+              <EmptyStateCard>
+                {visibleRootDepartments.length === 0 ? "暂无部门" : "请选择左侧一级部门"}
+              </EmptyStateCard>
+            )}
+            {!loading && !error && activeOrganizationRoot && (
+              <>
+                <div className="mb-4 flex min-w-0 items-start justify-between gap-3 border-b border-slate-200 pb-4">
+                  <div className="min-w-0">
+                    <div className="flex min-w-0 items-baseline gap-3">
+                      <h3 className="truncate text-lg font-semibold text-slate-900">{activeOrganizationRoot.name}</h3>
+                      <span className="shrink-0 font-mono text-sm text-slate-400">{activeOrganizationRoot.code}</span>
+                    </div>
+                    <p className="mt-1 text-sm text-slate-500">右侧只展示组织层级；部门和岗位维护请到“部门岗位”。</p>
+                  </div>
+                  <HierarchyBadge level={activeOrganizationRoot.level} className="px-2.5 py-1" />
+                </div>
+                {collapsedDepartments.has(activeOrganizationRoot.id) ? (
+                  <EmptyStateCard>当前一级部门已收起</EmptyStateCard>
+                ) : activeOrganizationChildren.length > 0 ? (
+                  <div className="max-w-4xl">
+                    {activeOrganizationChildren.map((child) => renderOrganizationBranch(child, 1))}
+                  </div>
+                ) : (
+                  <EmptyStateCard>暂无下级部门</EmptyStateCard>
+                )}
+              </>
+            )}
+          </PanelCard>
+        </SplitWorkspace>
+      </div>
+    );
+  }
+
+  if (showArchived) {
+    return renderArchivedBrowser();
   }
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center gap-2 xl:hidden">
+      <SplitWorkspaceToolbar
+        sideOpen={treeOpen}
+        sideLabel="部门岗位"
+        onSideOpenChange={setTreeOpen}
+        onDrawerOpen={() => setTreeDrawerOpen(true)}
+      >
         <button
           type="button"
-          onClick={() => setTreeDrawerOpen(true)}
-          className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+          onClick={() => {
+            setShowArchived((value) => !value);
+            setCreatePanel(null);
+            setSelection(null);
+            setArchivedTab("departments");
+          }}
+          className={getToolbarActionClassName("secondary")}
         >
-          显示部门岗位
+          {showArchived ? "现用部门岗位" : "归档部门岗位"}
         </button>
         <button
           type="button"
-          disabled={!canEdit}
+          disabled={!canEditDepartment}
           onClick={() => setCreatePanel((panel) => panel === "department" ? null : "department")}
-          className="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className={getToolbarActionClassName("primary")}
         >
           新建部门
         </button>
         <button
           type="button"
-          disabled={!canEdit}
+          disabled={!canEditPosition}
           onClick={() => setCreatePanel((panel) => panel === "position" ? null : "position")}
-          className="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+          className={getToolbarActionClassName("primary")}
         >
           新建岗位
         </button>
-      </div>
+      </SplitWorkspaceToolbar>
 
-      <div className="hidden items-center gap-2 xl:flex">
-        <button
-          type="button"
-          onClick={() => setTreeOpen((open) => !open)}
-          className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50"
+      {createPanel === "department" && (
+        <InlineCreatePanel
+          title="新建部门"
+          onSubmit={() => void createDepartment()}
+          onCancel={() => setCreatePanel(null)}
+          submitDisabled={!newDepartmentDraft.name.trim() || Boolean(createDepartmentCodeError) || saving}
+          submitting={saving}
+          fieldsClassName="grid grid-cols-1 gap-3 lg:grid-cols-[110px_180px_180px_190px_auto] lg:items-start"
         >
-          {treeOpen ? "隐藏部门岗位" : "显示部门岗位"}
-        </button>
-        <button
-          type="button"
-          disabled={!canEdit}
-          onClick={() => setCreatePanel((panel) => panel === "department" ? null : "department")}
-          className="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-        >
-          新建部门
-        </button>
-        <button
-          type="button"
-          disabled={!canEdit}
-          onClick={() => setCreatePanel((panel) => panel === "position" ? null : "position")}
-          className="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-        >
-          新建岗位
-        </button>
-      </div>
-
-      {createPanel && (
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          {createPanel === "department" ? (
-            <div className="space-y-3">
-              {sectionTitle("新建部门")}
-              <div className="grid grid-cols-1 gap-3 lg:grid-cols-[110px_180px_180px_190px_auto] lg:items-start">
                 <label className="flex flex-col gap-1">
                   <span className="block h-5 text-xs font-medium leading-5 text-slate-500">部门层级</span>
                   <SelectField
@@ -3515,7 +4101,7 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                     value={newDepartmentDraft.name}
                     onChange={(event) => setNewDepartmentDraft((prev) => ({ ...prev, name: event.target.value }))}
                     placeholder="输入部门名"
-                    className="h-10 w-full rounded-md border border-slate-300 px-3 py-0 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className={compactFormInputClassName}
                   />
                 </label>
                 <label className="flex flex-col gap-1">
@@ -3548,29 +4134,17 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                     )}
                   </div>
                 </label>
-                <div className="flex gap-2 lg:pt-5">
-                  <button
-                    type="button"
-                    disabled={!newDepartmentDraft.name.trim() || Boolean(createDepartmentCodeError) || saving}
-                    onClick={() => void createDepartment()}
-                    className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-                  >
-                    新建
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCreatePanel(null)}
-                    className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-                  >
-                    取消
-                  </button>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {sectionTitle("新建岗位")}
-              <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(260px,1.3fr)_minmax(260px,1.7fr)_180px_auto] lg:items-end">
+        </InlineCreatePanel>
+      )}
+
+      {createPanel === "position" && (
+        <InlineCreatePanel
+          title="新建岗位"
+          onSubmit={() => void createPosition()}
+          onCancel={() => setCreatePanel(null)}
+          submitDisabled={!createPositionDraft.departmentId || !createPositionDraft.name.trim() || !createPositionCode || saving}
+          submitting={saving}
+        >
                 <label className="space-y-1">
                   <span className="text-xs font-medium text-slate-500">所属部门</span>
                   <EntitySearchInput
@@ -3587,7 +4161,7 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                     value={createPositionDraft.name}
                     onChange={(event) => setCreatePositionDraft((prev) => ({ ...prev, name: event.target.value }))}
                     placeholder="输入岗位名"
-                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className={formInputClassName}
                   />
                 </label>
                 <label className="space-y-1">
@@ -3595,30 +4169,10 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                   <input
                     value={createPositionCode}
                     disabled
-                    className="w-full rounded-md border border-slate-200 bg-slate-100 px-3 py-2 font-mono text-sm text-slate-500"
+                    className={getReadOnlyFieldClassName("font-mono")}
                   />
                 </label>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    disabled={!createPositionDraft.departmentId || !createPositionDraft.name.trim() || !createPositionCode || saving}
-                    onClick={() => void createPosition()}
-                    className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-                  >
-                    新建
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setCreatePanel(null)}
-                    className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-                  >
-                    取消
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        </InlineCreatePanel>
       )}
 
       <SplitWorkspace
@@ -3627,90 +4181,89 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
         onDrawerOpenChange={setTreeDrawerOpen}
         renderSide={renderTreePanel}
       >
-        <aside className="min-h-[520px] rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm">
+        <PanelCard className="min-h-[520px]" bodyClassName="p-4">
           {!selection && <p className="py-12 text-center text-sm text-slate-400">选择部门或岗位查看详情</p>}
           {selectedDepartment && (
             <div className="space-y-4">
-              <div className="rounded-lg border border-slate-200 bg-white p-4">
-                {sectionTitle(
-                  "直属岗位",
-                  <span className="text-xs font-medium text-slate-500">{positionsByDepartment.get(selectedDepartment.id)?.length || 0} 个</span>
-                )}
-                {(positionsByDepartment.get(selectedDepartment.id) || []).length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {(positionsByDepartment.get(selectedDepartment.id) || []).map((position) => (
-                      <button
-                        key={position.id}
-                        type="button"
-                        onClick={() => selectItem({ type: "position", id: position.id })}
-                        className="inline-flex max-w-full items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-800 shadow-sm transition hover:border-blue-300 hover:bg-blue-50"
-                      >
-                        <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs text-blue-700">{shortPositionCode(position.code)}</span>
-                        <span className="truncate">{position.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="rounded-md border border-dashed border-slate-200 px-3 py-6 text-center text-sm text-slate-400">暂无直属岗位</p>
-                )}
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-4">
+              {!isOrganizationMode && (
+                renderDirectPositionPanel(selectedDepartment.id)
+              )}
+              <PanelCard bodyClassName="p-4">
                 {sectionTitle(
                   "部门信息",
                   <div className="flex items-center gap-2">
-                    {departmentDirty && <span className="text-xs text-amber-600">有未保存修改</span>}
-                    <span className={`rounded px-2 py-0.5 text-xs font-semibold ${levelBadge(selectedDepartment.level)}`}>L{selectedDepartment.level}</span>
+                    {canEditDepartment && departmentDirty && <span className="text-xs text-amber-600">有未保存修改</span>}
+                    <HierarchyBadge level={selectedDepartment.level} />
                   </div>
                 )}
                 {departmentDraft && (
                   <div className="mt-4 space-y-4">
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-[minmax(220px,0.65fr)_minmax(0,1.35fr)]">
                       <label className="space-y-1">
                         <span className="text-xs font-medium text-slate-500">部门编码</span>
                         <input
                           value={selectedDepartment.code}
                           disabled
-                          className="h-10 w-full rounded-md border border-slate-300 bg-slate-100 px-3 text-sm text-slate-600 shadow-sm"
+                          className={readOnlyInputClassName}
                         />
                       </label>
                       <label className="space-y-1">
-                        <span className="text-xs font-medium text-slate-500">部门名称</span>
-                        <input
-                          value={departmentDraft.name}
-                          disabled={!canEdit}
-                          onChange={(event) => updateDepartmentDraft("name", event.target.value)}
-                          className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500"
-                        />
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-xs font-medium text-slate-500">完整路径 / 部门名称</span>
+                          <div className="flex items-center gap-2">
+                            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${showArchived ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>
+                              {showArchived ? "已归档" : "现用"}
+                            </span>
+                            {canEdit && (
+                              <button
+                                type="button"
+                                disabled={saving}
+                                onClick={() => void setDepartmentArchived(selectedDepartment.id, !showArchived)}
+                                className={smallSecondaryActionClassName}
+                              >
+                                {showArchived ? "恢复部门" : "归档部门"}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex h-10 w-full overflow-hidden rounded-md border border-slate-300 bg-white text-sm shadow-sm focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+                          {selectedDepartmentParentPath && (
+                            <span
+                              title={selectedDepartmentParentPath}
+                              className="flex max-w-[60%] items-center truncate border-r border-slate-200 bg-slate-50 px-3 text-slate-500"
+                            >
+                              {selectedDepartmentParentPath} /
+                            </span>
+                          )}
+                          <input
+                            value={departmentDraft.name}
+                            disabled={!canEditDepartment}
+                            onChange={(event) => updateDepartmentDraft("name", event.target.value)}
+                            className="min-w-0 flex-1 border-0 bg-white px-3 text-sm text-slate-800 outline-none disabled:bg-slate-100 disabled:text-slate-500"
+                          />
+                        </div>
                       </label>
                     </div>
                     <label className="block space-y-1">
                       <span className="text-xs font-medium text-slate-500">别名</span>
                       <PositionAliasTagsInput
                         value={departmentDraft.alias}
-                        disabled={!canEdit}
+                        disabled={!canEditDepartment}
                         onChange={(value) => updateDepartmentDraft("alias", value)}
                       />
                     </label>
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                       <label className="space-y-1">
-                        <span className="text-xs font-medium text-slate-500">负责人</span>
+                        <span className="text-xs font-medium text-slate-500">部门负责人</span>
                         <EntitySearchInput
                           entity="position"
                           value={departmentDraft.managerPositionName}
                           displayValue={departmentDraft.managerPositionName}
-                          disabled={!canEdit}
-                          placeholder="搜索负责人"
+                          disabled={!canEditDepartment}
+                          placeholder="搜索部门负责人"
                           onChange={(_label, option?: SearchOption) => {
                             updateDepartmentDraft("managerPositionName", selectedEntityName("position", option));
                           }}
-                        />
-                      </label>
-                      <label className="space-y-1">
-                        <span className="text-xs font-medium text-slate-500">完整路径</span>
-                        <input
-                          value={departmentPath({ ...selectedDepartment, name: departmentDraft.name.trim() || selectedDepartment.name }, departmentById)}
-                          disabled
-                          className="h-10 w-full rounded-md border border-slate-300 bg-slate-100 px-3 text-sm text-slate-600 shadow-sm"
                         />
                       </label>
                     </div>
@@ -3722,31 +4275,34 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                         { label: "总编制", value: selectedDepartmentStats?.totalHeadcount ?? 0 },
                       ]}
                     />
-                    <div className="flex justify-end gap-2">
-                      {canEdit && departmentDraft.managerPositionName && (
+                    {canEditDepartment && (
+                      <div className="flex justify-end gap-2">
+                      {canEditDepartment && departmentDraft.managerPositionName && (
                         <button
                           type="button"
                           onClick={() => {
                             updateDepartmentDraft("managerPositionName", "");
                           }}
-                          className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm hover:bg-slate-50"
+                          className={getToolbarActionClassName("secondary")}
                         >
                           清空负责人
                         </button>
                       )}
                       <button
                         type="button"
-                        disabled={!canEdit || !departmentDirty || saving}
+                        disabled={!canEditDepartment || !departmentDirty || saving}
                         onClick={saveDepartmentInfo}
-                        className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                        className={getToolbarActionClassName("primary")}
                       >
                         {saving ? "保存中..." : "保存部门信息"}
                       </button>
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-4">
+              </PanelCard>
+              {!isOrganizationMode && (
+                <PanelCard bodyClassName="p-4">
                 {sectionTitle(
                   "部门说明书",
                   departmentDescriptionDirty && <span className="text-xs text-amber-600">有未保存修改</span>
@@ -3758,7 +4314,7 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                         <DepartmentDescriptionDetailsEditor
                           value={departmentDescriptionDraft.details}
-                          disabled={!canEdit}
+                          disabled={!canEditDepartment}
                           managerPositionName={departmentDraft?.managerPositionName || ""}
                           onChange={(value) => updateDepartmentDescriptionDraft(index, "details", value)}
                         />
@@ -3766,24 +4322,25 @@ export default function DepartmentPositionTab({ user }: { user: HRUser }) {
                     </div>
                   ))}
                   {departmentDescriptionDrafts.length === 0 && (
-                    <p className="rounded-md border border-dashed border-slate-200 px-3 py-6 text-center text-sm text-slate-400">暂无部门说明书</p>
+                    <EmptyStateCard compact>暂无部门说明书</EmptyStateCard>
                   )}
                 </div>
                 <div className="mt-4 flex justify-end">
                   <button
                     type="button"
-                    disabled={!canEdit || !departmentDescriptionDirty || saving}
+                    disabled={!canEditDepartment || !departmentDescriptionDirty || saving}
                     onClick={saveDepartmentDescription}
-                    className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+                    className={getToolbarActionClassName("primary")}
                   >
                     {saving ? "保存中..." : "保存部门说明书"}
                   </button>
                 </div>
-              </div>
+                </PanelCard>
+              )}
             </div>
           )}
-          {selectedPosition && renderPositionEditor()}
-        </aside>
+          {!isOrganizationMode && selectedPosition && renderPositionEditor()}
+        </PanelCard>
       </SplitWorkspace>
 
       <Toast

@@ -6,6 +6,7 @@ import { prisma } from "./prisma";
 type PrismaModelKey = keyof typeof prisma;
 export type AccessChecker = (userId: number) => Promise<boolean>;
 type BeforeUpdateResult = { field: string; value: unknown } | { error: string; status?: number };
+type BeforeDeleteResult = { ok: true } | { error: string; status?: number };
 type CrudBuildData = (
   body: Record<string, unknown>,
 ) => Promise<Record<string, unknown> | null> | Record<string, unknown> | null;
@@ -18,6 +19,7 @@ export interface CrudFactoryConfig {
   deleteCheck?: AccessChecker;
   allowedFields?: string[];
   onBeforeUpdate?: (field: string, value: unknown, id?: number) => Promise<BeforeUpdateResult | null>;
+  onBeforeDelete?: (id: number) => Promise<BeforeDeleteResult | null>;
 }
 
 export type DomainCrudConfig = Omit<CrudFactoryConfig, "accessCheck" | "writeCheck" | "deleteCheck">;
@@ -82,10 +84,16 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
       if (!(await deleteCheck(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
       const { id } = await params;
-      await snapshotHistory(config.entityType, parseInt(id), payload.userId);
+      const recordId = parseInt(id);
+      if (config.onBeforeDelete) {
+        const result = await config.onBeforeDelete(recordId);
+        if (!result) return NextResponse.json({ error: "删除校验失败" }, { status: 400 });
+        if ("error" in result) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
+      }
+      await snapshotHistory(config.entityType, recordId, payload.userId);
 
       const model = prisma[config.modelKey] as unknown as { delete: (args: { where: { id: number } }) => Promise<unknown> };
-      await model.delete({ where: { id: parseInt(id) } });
+      await model.delete({ where: { id: recordId } });
 
       return NextResponse.json({ success: true });
     },

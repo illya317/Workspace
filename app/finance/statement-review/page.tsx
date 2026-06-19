@@ -1,7 +1,8 @@
 import { Suspense } from "react";
-import { requireResourceAccess } from "@/server/auth/guard";
-import AppShell from "@/app/components/AppShell";
+import { requireResourceAccess } from "@workspace/platform/server/auth";
+import AppShell from "@workspace/platform/ui/AppShell";
 import FinanceShell from "@/app/finance/components/FinanceShell";
+import { PageContent } from "@workspace/core/ui";
 import ReviewClient from "./ReviewClient";
 
 export default async function StatementReviewPage() {
@@ -9,11 +10,11 @@ export default async function StatementReviewPage() {
   return (
     <AppShell title="报表校对" backHref="/finance" user={user}>
       <FinanceShell activeNav="statementReview" user={user} hideShell>
-        <main className="mx-auto max-w-6xl px-4 py-6">
+        <PageContent className="max-w-6xl">
           <Suspense fallback={<div className="p-8 text-center text-gray-500">加载中...</div>}>
             <ReviewClient />
           </Suspense>
-        </main>
+        </PageContent>
       </FinanceShell>
     </AppShell>
   );

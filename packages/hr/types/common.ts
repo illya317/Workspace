@@ -83,6 +83,7 @@ export interface FieldConfig {
 
 export interface FKFieldConfig {
   entity: string;
+  fkKey?: string;
   displayField: string;
 }
 
@@ -92,6 +93,20 @@ export interface FilterConfig {
   type?: "select" | "boolean" | "text";
   options?: Array<{ label: string; value: string }>;
   defaultValue?: string;
+}
+
+export type AdvancedFilterKind = "text" | "boolean" | "select" | "date" | "fk";
+
+export interface AdvancedFilterConfig {
+  key: string;
+  label: string;
+  queryParam: string;
+  kind: AdvancedFilterKind;
+  placeholder?: string;
+  options?: SelectOption[];
+  entity?: string;
+  fkKey?: string;
+  returnField?: "id" | "name";
 }
 
 export interface TabConfig {
@@ -105,6 +120,7 @@ export interface TabConfig {
   listGetter?: (res: unknown) => unknown[];
   buildCreateBody?: (form: Record<string, unknown>) => Record<string, unknown>;
   filters?: FilterConfig[];
+  advancedFilters?: AdvancedFilterConfig[];
 }
 
 export interface FKOption {

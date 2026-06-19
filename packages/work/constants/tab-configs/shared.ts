@@ -11,6 +11,6 @@ export function extractFK(form: Record<string, unknown>, keys: string[]) {
   return out;
 }
 
-export function fk(entity: string, displayField: string): FKFieldConfig {
-  return { entity, displayField };
+export function fk(entity: string, displayField: string, fkKey?: string): FKFieldConfig {
+  return { entity, displayField, fkKey };
 }

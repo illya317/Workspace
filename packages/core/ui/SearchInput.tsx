@@ -1,28 +1,58 @@
 "use client";
 
+import { forwardRef, type FocusEventHandler, type KeyboardEventHandler } from "react";
+
+export type SearchInputSize = "page" | "toolbar" | "compact";
+
 export interface SearchInputProps {
   value?: string;
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
   autoFocus?: boolean;
+  disabled?: boolean;
+  size?: SearchInputSize;
+  ariaLabel?: string;
+  onFocus?: FocusEventHandler<HTMLInputElement>;
+  onBlur?: FocusEventHandler<HTMLInputElement>;
+  onKeyDown?: KeyboardEventHandler<HTMLInputElement>;
 }
 
-export default function SearchInput({
+const SIZE_CLASSES: Record<SearchInputSize, string> = {
+  page: "h-16 w-full rounded-xl border-2 border-emerald-500 bg-white px-6 text-2xl text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-100 disabled:bg-slate-100 disabled:text-slate-500",
+  toolbar: "h-12 w-full rounded-xl border-2 border-emerald-500 bg-white px-4 text-lg text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:bg-slate-100 disabled:text-slate-500",
+  compact: "h-9 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500",
+};
+
+const SearchInput = forwardRef<HTMLInputElement, SearchInputProps>(function SearchInput({
   value = "",
   onChange,
   placeholder = "搜索...",
-  className = "w-36 rounded border border-gray-200 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none",
+  className,
   autoFocus,
-}: SearchInputProps) {
+  disabled,
+  size = "toolbar",
+  ariaLabel,
+  onFocus,
+  onBlur,
+  onKeyDown,
+}, ref) {
   return (
     <input
+      ref={ref}
       type="search"
       value={value}
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
-      className={className}
+      aria-label={ariaLabel}
+      className={`${SIZE_CLASSES[size]} transition ${className ?? ""}`}
       autoFocus={autoFocus}
+      disabled={disabled}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onKeyDown={onKeyDown}
     />
   );
-}
+});
+
+export default SearchInput;

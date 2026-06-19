@@ -1,5 +1,6 @@
 "use client";
 
+import { DetailModal, getToolbarActionClassName } from "@workspace/core/ui";
 import type { SourceTraceInfo } from "../types";
 
 interface Props {
@@ -12,19 +13,7 @@ export default function SourceTraceModal({ open, info, onClose }: Props) {
   if (!open || !info) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-      <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-lg">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800">数据来源</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
-            aria-label="关闭"
-          >
-            ✕
-          </button>
-        </div>
-
+    <DetailModal open title="数据来源" onClose={onClose} maxWidth="max-w-lg">
         <div className="space-y-3 text-sm">
           <div className="flex justify-between border-b border-gray-100 pb-2">
             <span className="text-gray-500">源文件</span>
@@ -43,12 +32,11 @@ export default function SourceTraceModal({ open, info, onClose }: Props) {
         <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+            className={getToolbarActionClassName("primary")}
           >
             关闭
           </button>
         </div>
-      </div>
-    </div>
+    </DetailModal>
   );
 }

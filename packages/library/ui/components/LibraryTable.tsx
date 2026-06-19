@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable, type DataTableColumn } from "@workspace/core/ui";
+import { DataTable, EmptyStateCard, PanelCard, type DataTableColumn } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 import LibraryDetailModal from "./LibraryDetailModal";
 
@@ -103,12 +103,12 @@ export default function LibraryTable({
   }
 
   if (documents.length === 0) {
-    return <div className="py-16 text-center text-gray-400">暂无资料</div>;
+    return <EmptyStateCard compact={false}>暂无资料</EmptyStateCard>;
   }
 
   return (
     <>
-      <div className="rounded-lg bg-white shadow-sm overflow-hidden">
+      <PanelCard bodyClassName="overflow-hidden">
         <DataTable
           rows={documents}
           columns={columns}
@@ -116,7 +116,7 @@ export default function LibraryTable({
           rowKey={(document) => document.id}
           onRowClick={(document) => setDetailId(document.id)}
         />
-      </div>
+      </PanelCard>
       {detailId !== null && (
         <LibraryDetailModal
           documentId={detailId}

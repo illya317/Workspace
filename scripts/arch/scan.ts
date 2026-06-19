@@ -31,12 +31,15 @@ const FORBIDDEN_PATTERNS = [
   "rbacCheck",
 ];
 const FORBIDDEN_IMPORTS = [
+  "@/lib",
+  "@/server",
   "@/server/rbac",
   "@/server/auth/legacy",
   "antd",
   "@mui",
   "react-bootstrap",
 ];
+const FORBIDDEN_ROOT_DIRS = ["lib", "server"];
 const FORBIDDEN_UI_IN_APP = ["app/**/*.tsx"];
 const PERMISSION_FUNCTION_NAMES = new Set(FORBIDDEN_PATTERNS);
 const RBAC_TABLE_NAMES = new Set([
@@ -57,7 +60,7 @@ const baselineSets = {
 };
 
 function isRbacServiceFile(rel: string) {
-  return rel.startsWith("server/rbac/");
+  return rel.startsWith("packages/platform/server/rbac/");
 }
 
 class ArchViolation extends Error {
@@ -161,9 +164,9 @@ function importMatchesForbidden(specifier: string, forbidden: string) {
 }
 
 function isLegacyPermissionKernel(rel: string) {
-  return rel.startsWith("server/rbac/") ||
-    rel === "server/auth/authorize.ts" ||
-    rel === "server/auth/session.ts" ||
+  return rel.startsWith("packages/platform/server/rbac/") ||
+    rel === "packages/platform/server/auth/authorize.ts" ||
+    rel === "packages/platform/server/auth/session.ts" ||
     baselineSets.directPermissionFiles.has(rel) ||
     baselineSets.directRbacTableFiles.has(rel);
 }
@@ -193,6 +196,14 @@ function scanImport(filePath: string, rel: string, specifier: string) {
     fail(rel, "platform-domain-import", `Platform cannot import domain package ${specifier}; use module-registry data`);
   }
 
+  const resolved = resolveRelativeImport(filePath, specifier);
+  if (resolved) {
+    const rootPosix = toPosix(ROOT);
+    if (resolved.startsWith(`${rootPosix}/server/`) || resolved.startsWith(`${rootPosix}/lib/`)) {
+      fail(rel, "root-runtime-relative-import", `Root lib/ and server/ are removed; import packages/* entrypoints instead of "${specifier}"`);
+    }
+  }
+
   if (isBusinessPackageFile(rel)) {
     if (specifier.startsWith("@/server/") || specifier.startsWith("server/")) {
       fail(rel, "package-server-alias", `Domain packages cannot import server runtime alias "${specifier}"`);
@@ -204,8 +215,6 @@ function scanImport(filePath: string, rel: string, specifier: string) {
     ) {
       fail(rel, "cross-domain-import", `Domain package ${packageName} cannot import ${specifier}`);
     }
-
-    const resolved = resolveRelativeImport(filePath, specifier);
     if (resolved) {
       const rootPosix = toPosix(ROOT);
       if (resolved.startsWith(`${rootPosix}/server/`)) {
@@ -294,11 +303,20 @@ function checkBaselineFilesStillExist() {
   }
 }
 
+function checkRootRuntimeDirsAbsent() {
+  for (const dir of FORBIDDEN_ROOT_DIRS) {
+    if (fs.existsSync(path.join(ROOT, dir))) {
+      fail(dir, "root-runtime-dir", `root ${dir}/ is forbidden; move code to packages/core, packages/platform, or a domain package`);
+    }
+  }
+}
+
 export function scan() {
   try {
+    checkRootRuntimeDirsAbsent();
     checkBaselineFilesStillExist();
 
-    for (const rootName of ["app", "packages", "server", "lib"]) {
+    for (const rootName of ["app", "packages"]) {
       for (const file of walk(path.join(ROOT, rootName))) {
         scanFile(file);
       }

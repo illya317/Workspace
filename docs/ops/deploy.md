@@ -1,37 +1,20 @@
-# 丰华工作台 - 腾讯云 CloudBase 部署指南
+# 丰华工作台部署说明
 
-## 项目简介
+当前生产部署只有一条主链路：本地提交代码，push 到 CNB，由 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`，CNB/Linux CI 容器执行 `ops/deploy.sh` 构建 Next standalone 产物并上传到 CVM，服务器只解包、挂载运行态目录并用 PM2 重启。
 
-丰华工作台是一个企业内部工作管理平台，支持周报/月报/日报填写、部门工作清单管理、历史记录追踪等功能。
-
-## 技术栈
-
-- **框架**: Next.js 16 (App Router)
-- **数据库**: Prisma + SQLite
-- **样式**: Tailwind CSS
-- **语言**: TypeScript
-- **部署**: 腾讯云 CloudBase 云托管（容器）
+旧 CloudBase/tcb 云托管方案已经不是当前生产路径，不再作为部署参考。
 
 ## 本地开发
 
 ```bash
-# 1. 安装依赖
 npm install
-
-# 2. 初始化数据库
 npx prisma db push
-
-# 3. 启动开发服务
 npm run dev
 ```
 
-访问 http://localhost:3000
+访问 `http://localhost:3000`。
 
-## 腾讯云 CloudBase 部署
-
-> 当前生产环境使用腾讯云 CVM + Nginx + PM2，不走 CloudBase 云托管。CloudBase 段落保留为历史部署参考。
-
-## 当前生产部署（CVM + PM2）
+## 发布流程
 
 本地不直连服务器部署。`git push origin main` 只触发 CNB CI 检查，不发布生产；不要依赖 push 自动部署。
 
@@ -64,228 +47,84 @@ cnb build start-build \
 cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 ```
 
-部署脚本只读取 CNB imports/CI 环境变量，不读取本机 `ops/server.env.sh`。需要在 CNB 环境里配置：
+如果部署失败，用同一个 `sn` 和 pipeline/stage id 拉取失败 stage 日志；不要再额外 push 一次制造第二条部署记录。
 
-| 变量 | 说明 |
-|------|------|
-| `SERVER` | SSH 目标，例如 `ubuntu@<server-ip>` |
-| `REMOTE_DIR` | 服务器源码目录，例如 `/home/ubuntu/workspace` |
-| `PM2_NAME` | PM2 进程名，例如 `workspace` |
-| `KEY_CONTENT` / `KEY` | SSH 私钥内容或 CI 内部私钥路径，二选一 |
+## CNB 配置
 
-部署流程：
+当前仓库只保留 CNB 配置：
 
-1. 本地只提交并 push 到 CNB，push 本身不发布生产。
-2. 用 CNB API/CLI 触发 `api_trigger`。
-3. CNB/Linux 容器执行 `npm ci`、静态检查和 `npm run build`。
-4. CNB 将 `.next/standalone`、`.next/static`、`public` 打包为 standalone 产物。
-5. CNB 通过 SSH 上传产物到服务器，服务器解包到 `REMOTE_DIR/releases/<release>`。
-6. 服务器把 `.env`、数据库、品牌资源、Agent 头像等运行态资源继续指向 `$REMOTE_WORKSPACE_CONFIG_DIR`。
-7. 服务器在切换 release 前备份 `$REMOTE_WORKSPACE_CONFIG_DIR` 到 `workspace-runtime-backups/`。
-8. 服务器清空 `REMOTE_DIR` 里的旧源码、旧 `.next`、旧 `node_modules` 等杂物，只保留 `releases/` 和 `current`。
-9. 使用 PM2 重新启动 `server.js` 并保存进程列表。
+```bash
+.cnb.yml
+```
 
-这套策略把构建 CPU 放在 CNB/CI 容器里，CVM 只负责运行指定版本，避免生产服务器在部署时执行 `npm ci` 或 `npm run build`。
+CNB 容器内执行的部署命令由 `.cnb.yml` 固定为：
 
-## CNB / 云效远端部署
+```bash
+bash ./ops/deploy.sh
+```
 
-`ops/deploy.sh` 是给 CNB、云效或其他远端 Linux CI 机器使用的部署脚本：
+`ops/deploy.sh` 是给 CNB Linux CI 容器使用的部署脚本：
 
 - 不读取本机 `.workspace`，只依赖 CI 环境变量和服务器上已有的运行态目录。
 - 不把服务器 `data/` 反向拉回 CI 机器。
 - 在 CI 机器构建 standalone 产物，通过 SSH + rsync 上传到服务器，最后用 PM2 重启。
 
-建议在云效流水线里配置这些变量：
+部署变量来自 CNB imports/环境变量：
 
 | 变量 | 说明 |
 |------|------|
 | `SERVER` | SSH 目标，例如 `ubuntu@111.229.86.81` |
-| `REMOTE_DIR` | 服务器源码目录，例如 `/home/ubuntu/workspace` |
+| `REMOTE_DIR` | 服务器部署目录，例如 `/home/ubuntu/workspace` |
 | `PM2_NAME` | PM2 进程名，当前为 `workspace` |
 | `KEY_CONTENT` | SSH 私钥内容，推荐使用加密变量 |
 | `REMOTE_WORKSPACE_CONFIG_DIR` | 服务器运行态目录，默认 `$(dirname REMOTE_DIR)/.workspace` |
 | `HEALTHCHECK_URL` | 可选，部署后在服务器本机执行的健康检查地址，例如 `http://127.0.0.1:3000/` |
 | `RUN_LOCAL_CHECKS` | 可选，默认 `1`；设为 `0` 时跳过 CI 机上的静态检查 |
 
-当前仓库已提供 CNB 配置和一份云效 YAML 样例：
+## 部署行为
 
-```bash
-.cnb.yml
-```
+1. 本地只提交并 push 到 CNB，push 本身不发布生产。
+2. 用 CNB API/CLI 触发 `api_trigger`。
+3. CNB deploy job 先执行 `.cnb.yml` 里的部署前检查。
+4. CNB/Linux 容器执行 `npm ci`、静态检查和 `npm run build`。
+5. CNB 将 `.next/standalone`、`.next/static`、`public` 打包为 standalone 产物。
+6. CNB 通过 SSH 上传产物到服务器，服务器解包到 `REMOTE_DIR/releases/<release>`。
+7. 服务器把 `.env`、数据库、品牌资源、Agent 头像等运行态资源继续指向 `$REMOTE_WORKSPACE_CONFIG_DIR`。
+8. 服务器在切换 release 前备份 `$REMOTE_WORKSPACE_CONFIG_DIR` 到 `workspace-runtime-backups/`。
+9. 服务器清空 `REMOTE_DIR` 里的旧源码、旧 `.next`、旧 `node_modules` 等杂物，只保留 `releases/` 和 `current`。
+10. 使用 PM2 重新启动 `server.js` 并保存进程列表。
 
-```bash
-ops/yunxiao.pipeline.yml
-```
+这套策略把构建 CPU 放在 CNB/CI 容器里，CVM 只负责运行指定版本，避免生产服务器在部署时执行 `npm ci` 或 `npm run build`。
 
-说明：
+## 运行态目录
 
-1. 代码源连接由云效服务连接提供，YAML 内引用该连接。
-2. 私密变量推荐放在云效通用变量组或流水线 UI 变量里，不要直接写进 YAML。
-3. 如果通过 OpenAPI 创建流水线，建议采用“两步法”：
-   - 先用 `ops/yunxiao.pipeline.yml` 创建流水线本体；
-   - 再用流水线关联 API 给该流水线绑定变量组。
+生产数据库和品牌资源都在服务器外部运行态目录里，构建产物不得覆盖服务器运行态目录；部署脚本会在解包后重新挂载这些运行态资源。
 
-流水线命令最小示例，必须在 CNB/CI 容器内执行：
+运行态目录内容包括：
 
-```bash
-chmod +x ops/deploy.sh
-./ops/deploy.sh
-```
+- `.env`
+- `data/`
+- `public/company/`
+- `public/assets/agent/avatar/`
+- `.workspace/config/`
+- `.workspace/cache/`
 
-推荐触发方式：
-
-1. `main` 分支 push 只做 CI 检查。
-2. 需要生产发布时，用 CNB API/CLI 触发 `api_trigger`。
-3. 远端 CI 先执行 `ops/deploy.sh` 里的静态检查。
-4. 再在 CI 容器构建 standalone 产物并上传服务器。
-5. 最后健康检查。
-
-如果你想把 CI/CD 分成两个阶段，也可以：
-
-1. CI 阶段只跑检查，不部署。
-2. CD 阶段调用 `./ops/deploy.sh`。
-
-当前项目由于生产数据库和品牌资源都在服务器外部运行态目录里，构建产物不得覆盖服务器运行态目录；部署脚本会在解包后重新挂载这些运行态资源。
-
-### 前置条件
-
-- 腾讯云账号
-- 已开通 [CloudBase 云开发](https://console.cloud.tencent.com/tcb)
-- Node.js >= 18
-
-### 1. 安装 CloudBase CLI
-
-```bash
-npm i -g @cloudbase/cli
-
-# 验证安装
-tcb --version
-```
-
-### 2. 登录 CloudBase
-
-```bash
-# 交互式登录（打开浏览器扫码）
-tcb login
-
-# 或在 CI 环境中使用 API 密钥登录
-# tcb login --apiKeyId xxx --apiKey xxx
-```
-
-### 3. 创建云开发环境
-
-登录 [CloudBase 控制台](https://console.cloud.tencent.com/tcb)，创建一个环境，记录 **环境 ID**（如 `weekly-report-xxx`）。
-
-### 4. 配置环境变量
-
-```bash
-# 设置当前使用的环境
-tcb env use <你的环境ID>
-
-# 配置密钥（用于 cloudbaserc.json 中的变量替换）
-tcb credentials add
-```
-
-或者直接在 `cloudbaserc.json` 中修改 `envId`：
-
-```json
-{
-  "envId": "weekly-report-xxx"
-}
-```
-
-### 5. 配置数据库持久化存储（CFS）
-
-**重要**: SQLite 是文件型数据库，需要挂载持久化存储，否则容器重启后数据会丢失。
-
-1. 进入 [CloudBase 控制台 - 云托管](https://console.cloud.tencent.com/tcb)
-2. 找到「存储」→「文件存储（CFS）」
-3. 创建一个文件存储实例
-4. 在云托管服务的「存储挂载」中，将 CFS 挂载到 `/data`
-
-### 6. 首次部署
-
-```bash
-# 部署到 CloudBase 云托管
-tcb app deploy
-```
-
-部署完成后，控制台会输出访问地址。
-
-### 7. 初始化生产数据库
-
-首次部署后，需要初始化数据库 Schema：
-
-```bash
-# 进入云托管容器的 Web Shell
-# 控制台 → 云托管 → 服务列表 → weekly-report → 版本详情 → Web Shell
-
-# 在容器中执行：
-npx prisma db push
-```
-
-> **注意**：当前项目不使用 `prisma migrate deploy`。部分旧 migration（如 `20260530000000_add_budget_version_v1`）包含表重定义操作，在空库上会因目标表不存在而失败。SQLite 开发/生产环境统一使用 `prisma db push` 从 schema 直接同步，或从已有数据库备份恢复。修复 migration 历史需单独开任务处理。
-
-### 8. 后续更新部署
-
-```bash
-# 修改代码后重新构建并部署
-npm run build
-tcb app deploy
-```
-
-## 配置说明
-
-### Dockerfile
-
-- 使用多阶段构建，减小镜像体积
-- 基于 `node:22-alpine`
-- 生产环境使用 Next.js standalone 输出
-- 暴露端口 3000
-
-### cloudbaserc.json
-
-| 配置项 | 说明 |
-|--------|------|
-| `envId` | CloudBase 环境 ID |
-| `serviceName` | 云托管服务名称 |
-| `containerPort` | 容器内部端口（3000） |
-| `envVariables.DATABASE_URL` | 数据库路径，指向 CFS 挂载点 `/data/dev.db` |
-| `volumeMounts.cfs.mountPath` | CFS 挂载到容器的路径 `/data` |
-
-### next.config.ts
-
-已配置 `output: "standalone"`，使 Next.js 生成最小化的生产构建，适合容器部署。
-
-## 域名与 HTTPS
-
-1. 进入 CloudBase 控制台 → 云托管 → 访问设置
-2. 绑定自定义域名（或直接使用 CloudBase 提供的默认域名）
-3. 自动开通 HTTPS
-
-## 注意事项
-
-1. **数据库持久化**: 务必配置 CFS 挂载，否则 SQLite 数据在容器重启后会丢失
-2. **环境变量**: 生产环境的 `NEXTAUTH_SECRET` 应使用强随机字符串，不要在代码中硬编码
-3. **企微集成**: 如需对接企业微信，在 CloudBase 控制台配置 `WECHAT_CORP_ID` 等环境变量
-4. **日志查看**: 部署后可在 CloudBase 控制台查看容器日志进行调试
+运行态目录规则见 [environment.md](/Users/koito/Project/workspace/workspace/docs/ops/environment.md)。
 
 ## 常见问题
 
-### Q: 部署后页面显示 502？
+### Push 后为什么没有发布？
 
-A: 检查容器是否正常启动。进入控制台 → 云托管 → 日志，查看错误信息。常见原因是数据库路径不存在或权限问题。
+`git push origin main` 只触发 CI 检查。正式发布必须用 CNB API/CLI 触发 `api_trigger`。
 
-### Q: 数据库数据丢失？
+### 服务器为什么不执行 build？
 
-A: 确认 CFS 已正确挂载到 `/data`，且 `DATABASE_URL` 指向 `/data/dev.db`。
+构建统一在 CNB/Linux CI 容器中完成，服务器只运行 standalone 产物。这样可以避免服务器 CPU、内存被构建过程打满，也避免 `.next` 旧构建残留和源码目录混在一起。
 
-### Q: 如何备份数据库？
+### 部署失败后怎么查？
 
-A: CFS 中的文件可以手动下载备份，或配置定时任务自动备份到 COS。
+用触发部署时返回的 `sn` 查询状态和日志。不要为了看日志反复 push，因为那会产生新的部署记录，反而掩盖原始失败现场。
 
-## 相关文档
+### 数据库和头像会被覆盖吗？
 
-- [CloudBase CLI 官方文档](https://cloud.tencent.com/document/product/876/41539)
-- [CloudBase 云托管文档](https://cloud.tencent.com/document/product/1243)
-- [Next.js 部署文档](https://nextjs.org/docs/app/building-your-application/deploying)
+不会。`data/`、品牌图、Agent 头像、`.env` 等运行态资源来自 `$REMOTE_WORKSPACE_CONFIG_DIR`，不随构建产物覆盖。

@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import {
   authenticate,
   isKicked,
-} from "../../../server/auth/authenticate";
+} from "./auth/authenticate";
 import {
   checkContractAccess,
   checkFinanceAccess,
@@ -33,8 +33,8 @@ import {
   checkInventoryAccess,
   checkLibraryAccess,
   checkLibraryWrite,
-} from "../../../server/auth/domain";
-import type { AuthPayload } from "../../../lib/auth/token";
+} from "./auth/domain";
+import type { AuthPayload } from "./auth-token";
 
 export type { AuthPayload };
 

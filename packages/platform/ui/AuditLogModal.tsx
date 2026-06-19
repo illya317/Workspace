@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { DetailModal, Pagination } from "@workspace/core/ui";
 import SelectField from "@workspace/core/ui/SelectField";
 import AuditLogEntry, { type AuditEntry } from "./AuditLogEntry";
 
@@ -79,69 +80,61 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
     if (open) load(page, selectedDate);
   }, [open, page, selectedDate, load]);
 
-  if (!open) return null;
   const totalPages = Math.ceil(total / pageSize);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-2xl w-[max(92vw,900px)] max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between px-6 py-4 border-b shrink-0">
-          <h2 className="text-lg font-semibold text-gray-900">
-            编辑历史 · {entityType}{selectedDate && <span className="text-sm text-gray-400 ml-2">({selectedDate})</span>}
-          </h2>
-          <div className="flex items-center gap-3">
-            {dates.length > 0 && (
-              <SelectField
-                value={selectedDate}
-                onChange={(nextDate) => {
-                  setSelectedDate(nextDate);
-                  setPage(1);
-                }}
-                placeholder="全部日期"
-                options={dates.map((date) => ({ value: date, label: date }))}
-                className="w-32"
-                selectClassName="min-h-7 text-gray-600"
-              />
-            )}
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-auto px-6 py-2">
+    <DetailModal
+      open={open}
+      title={`编辑历史 · ${entityType}${selectedDate ? ` (${selectedDate})` : ""}`}
+      onClose={onClose}
+      maxWidth="max-w-5xl"
+    >
+      <div className="space-y-3">
+        {dates.length > 0 && (
+          <SelectField
+            value={selectedDate}
+            onChange={(nextDate) => {
+              setSelectedDate(nextDate);
+              setPage(1);
+            }}
+            placeholder="全部日期"
+            options={dates.map((date) => ({ value: date, label: date }))}
+            className="w-32"
+            selectClassName="min-h-7 text-gray-600"
+          />
+        )}
+        <div className="max-h-[58vh] overflow-auto">
           {loading ? (
             <div className="py-16 text-center text-gray-400">加载中...</div>
           ) : entries.length === 0 ? (
             <div className="py-16 text-center text-gray-400">暂无编辑记录</div>
           ) : (
             <div className="space-y-2 py-2">
-              {entries.map((e) => (
+              {entries.map((entry) => (
                 <AuditLogEntry
-                  key={e.id}
-                  entry={e}
-                  expanded={expandedId === e.id}
-                  restoring={restoring === e.id}
-                  onToggle={() => setExpandedId(expandedId === e.id ? null : e.id)}
-                  onRestore={(ev) => {
-                    ev.stopPropagation();
-                    restore(e.id);
+                  key={entry.id}
+                  entry={entry}
+                  expanded={expandedId === entry.id}
+                  restoring={restoring === entry.id}
+                  onToggle={() => setExpandedId(expandedId === entry.id ? null : entry.id)}
+                  onRestore={(event) => {
+                    event.stopPropagation();
+                    restore(entry.id);
                   }}
                 />
               ))}
             </div>
           )}
         </div>
-
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-3 border-t text-sm text-gray-500 shrink-0">
-            <span>共 {total} 条记录</span>
-            <div className="flex gap-2">
-              <button disabled={page <= 1} onClick={() => setPage((p) => p - 1)} className="px-3 py-1 rounded border disabled:opacity-30">上一页</button>
-              <span className="px-2 py-1">{page} / {totalPages}</span>
-              <button disabled={page >= totalPages} onClick={() => setPage((p) => p + 1)} className="px-3 py-1 rounded border disabled:opacity-30">下一页</button>
-            </div>
-          </div>
-        )}
+        <Pagination
+          page={page}
+          total={total}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          compact
+          className="border-t border-slate-200 pt-3"
+        />
       </div>
-    </div>
+    </DetailModal>
   );
 }

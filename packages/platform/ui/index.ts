@@ -4,9 +4,14 @@ export type { AuditChange, AuditEntry, AuditLogEntryProps } from "./AuditLogEntr
 export { default as AuditLogModal } from "./AuditLogModal";
 export type { AuditLogModalProps } from "./AuditLogModal";
 export { default as CompanyNameCell } from "./CompanyNameCell";
+export { default as DepartmentSwitcher } from "./DepartmentSwitcher";
+export { default as ModuleCard } from "./ModuleCard";
 export { default as ModuleHome } from "./ModuleHome";
+export { AnalysisPageFrame, DatabasePageFrame, ModuleGridPage, WorkspaceSplitPage } from "./PageFrames";
+export type { AnalysisPageFrameProps, DatabasePageFrameProps, ModuleGridPageProps, WorkspaceSplitPageProps } from "./PageFrames";
 export { default as NavLink } from "./NavLink";
 export { default as PortalClient } from "./PortalClient";
+export { default as TargetSwitcher } from "./TargetSwitcher";
 export { default as UserMenu } from "./UserMenu";
 export {
   DocsApiGuidePage,

@@ -22,7 +22,7 @@ const REQUIRED_README_SECTIONS = [
 
 const REQUIRED_AGENT_SECTIONS = [
   "## 项目速记",
-  "## 开工先读",
+  "## 文档入口",
   "## 开发红线",
   "## 交付前检查",
 ];

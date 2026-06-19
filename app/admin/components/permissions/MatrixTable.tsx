@@ -1,5 +1,6 @@
 "use client";
 
+import { EmptyStateCard, PanelCard } from "@workspace/core/ui";
 import MatrixRow from "./MatrixRow";
 import type { PermissionsTabState } from "../../hooks/usePermissionsTab";
 
@@ -10,22 +11,18 @@ interface MatrixTableProps {
 export default function MatrixTable({ s }: MatrixTableProps) {
   if (!s.selectedResource) {
     return (
-      <div className="mt-8 text-center">
-        <p className="text-sm text-gray-400">请选择左侧资源模块</p>
-      </div>
+      <EmptyStateCard className="mt-4">请选择左侧资源模块</EmptyStateCard>
     );
   }
 
   if (s.subjects.length === 0) {
     return (
-      <div className="mt-8 text-center">
-        <p className="text-sm text-gray-400">无匹配结果</p>
-      </div>
+      <EmptyStateCard className="mt-4">无匹配结果</EmptyStateCard>
     );
   }
 
   return (
-    <div className="mt-4 overflow-x-auto">
+    <PanelCard className="mt-4" bodyClassName="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-gray-200 text-left text-xs font-medium text-gray-500">
@@ -41,7 +38,7 @@ export default function MatrixTable({ s }: MatrixTableProps) {
                 {r.name}
               </th>
             ))}
-            <th className="whitespace-nowrap pb-2 pr-3 text-center text-[11px]">最高业务权限</th>
+            <th className="whitespace-nowrap pb-2 pr-3 text-center text-xs">最高业务权限</th>
             <th className="whitespace-nowrap pb-2"></th>
           </tr>
         </thead>
@@ -51,6 +48,6 @@ export default function MatrixTable({ s }: MatrixTableProps) {
           ))}
         </tbody>
       </table>
-    </div>
+    </PanelCard>
   );
 }

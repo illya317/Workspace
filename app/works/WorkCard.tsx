@@ -1,5 +1,6 @@
 "use client";
 
+import { PanelCard } from "@workspace/core/ui";
 import StarRating from "./StarRating";
 import type { WorkItem } from "./types";
 
@@ -25,7 +26,7 @@ export default function WorkCard({
   isLast: boolean;
 }) {
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+    <PanelCard bodyClassName="p-4">
       <div className="mb-2 flex items-start justify-between">
         <h4 className="text-sm font-semibold text-gray-800">{work.content}</h4>
         {isAdmin && (
@@ -95,6 +96,6 @@ export default function WorkCard({
       <div className="mt-1 text-xs text-gray-400">
         创建于 {new Date(work.createdAt).toLocaleDateString("zh-CN")}
       </div>
-    </div>
+    </PanelCard>
   );
 }

@@ -1,5 +1,5 @@
-import { requireResourceAccess } from "@/server/auth/guard";
-import { authorize } from "@/server/auth/authorize";
+import { requireResourceAccess } from "@workspace/platform/server/auth";
+import { authorize } from "@workspace/platform/server/auth";
 import { AppShell } from "@workspace/platform/ui";
 import { LibraryClient } from "@workspace/library/ui";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { SelectField } from "@workspace/core/ui";
+import { AnalysisBlock, SelectField } from "@workspace/core/ui";
 import type { DeptEntry, FilteredDept } from "./usePositionData";
 
 const LEVEL_LABEL: Record<number, string> = { 1: "L1 事业部", 2: "L2 部门", 3: "L3 子部门" };
@@ -72,14 +72,10 @@ export default function DeptBarChart({
   globalMax: number;
 }) {
   return (
-    <div className="bg-white rounded-lg shadow-sm p-5">
-      <div className="flex items-center gap-3 mb-4">
-        <h3 className="text-sm font-semibold text-gray-700">
-          各部门编制 vs 实际
-          <span className="ml-2 text-xs font-normal text-gray-400">
-            条形宽度跨层级统一比例
-          </span>
-        </h3>
+    <AnalysisBlock
+      title="各部门编制 vs 实际"
+      subtitle="条形宽度跨层级统一比例"
+      toolbar={
         <SelectField
           value={filterL1 == null ? "" : String(filterL1)}
           onChange={(value) => setFilterL1(value ? Number(value) : null)}
@@ -88,7 +84,8 @@ export default function DeptBarChart({
           className="ml-auto w-40"
           selectClassName="min-h-8"
         />
-      </div>
+      }
+    >
 
       <LevelSection level={1} entries={filteredDept.l1} globalMax={globalMax} />
       <LevelSection level={2} entries={filteredDept.l2} globalMax={globalMax} />
@@ -104,6 +101,6 @@ export default function DeptBarChart({
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-rose-400 inline-block" /> 超编</span>
         <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-gray-200 inline-block border-r-2 border-dashed border-gray-300" /> 编制参考线</span>
       </div>
-    </div>
+    </AnalysisBlock>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { SelectField } from "@workspace/core/ui";
+import { AnalysisBlock, SelectField } from "@workspace/core/ui";
 import type { DimKey } from "./constants";
 import { DIM_LABELS } from "./constants";
 import type { CrossMatrixData } from "./useEmployeeData";
@@ -42,9 +42,10 @@ export default function CrossMatrix({
     .map((feature) => ({ value: feature, label: DIM_LABELS[feature] }));
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-5">
-      <h3 className="text-sm font-semibold text-gray-700 mb-3">交叉分析</h3>
-      <div className="flex items-center gap-4 mb-4">
+    <AnalysisBlock
+      title="交叉分析"
+      toolbar={
+        <div className="flex flex-wrap items-center gap-4">
         <div className="flex items-center gap-2">
           <SelectField
             label="行："
@@ -65,51 +66,53 @@ export default function CrossMatrix({
           />
         </div>
         <span className="text-xs text-gray-400">共 {statsActive} 人</span>
-      </div>
+        </div>
+      }
+    >
 
       {crossMatrix.rowKeys.length === 0 ? (
         <p className="text-xs text-gray-400 py-4">无数据</p>
       ) : (
         <div className="overflow-x-auto max-h-[500px] overflow-y-auto">
-          <table className="w-full text-xs border-collapse">
-            <thead className="sticky top-0 bg-white">
+          <table className="min-w-full border-collapse text-left text-sm">
+            <thead className="sticky top-0 bg-slate-50 text-slate-500">
               <tr>
-                <th className="text-left py-2 px-2 border-b font-medium text-gray-600 sticky left-0 bg-white">
+                <th className="sticky left-0 border-b border-slate-200 bg-slate-50 px-4 py-3 font-medium">
                   {DIM_LABELS[crossRow]} \ {DIM_LABELS[crossCol]}
                 </th>
                 {crossMatrix.colKeys.map((ck) => (
-                  <th key={ck} className="text-center py-2 px-2 border-b font-medium text-gray-600 whitespace-nowrap">{ck}</th>
+                  <th key={ck} className="whitespace-nowrap border-b border-slate-200 px-4 py-3 text-center font-medium">{ck}</th>
                 ))}
-                <th className="text-center py-2 px-2 border-b font-medium text-gray-500 bg-gray-50">合计</th>
+                <th className="border-b border-slate-200 bg-slate-100 px-4 py-3 text-center font-medium">合计</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {crossMatrix.rowKeys.map((rk) => (
-                <tr key={rk} className="border-b border-gray-50 hover:bg-gray-50/50">
-                  <td className="py-2 px-2 font-medium text-gray-700 sticky left-0 bg-white whitespace-nowrap">{rk}</td>
+                <tr key={rk} className="hover:bg-emerald-50/20">
+                  <td className="sticky left-0 whitespace-nowrap bg-white px-4 py-3 font-medium text-slate-800">{rk}</td>
                   {crossMatrix.colKeys.map((ck) => {
                     const v = crossMatrix.matrix[rk]?.[ck] || 0;
                     return (
-                      <td key={ck} className={`text-center py-2 px-2 ${heatColor(v, crossMax)}`}>
+                      <td key={ck} className={`px-4 py-3 text-center ${heatColor(v, crossMax)}`}>
                         {v > 0 ? v : "—"}
                       </td>
                     );
                   })}
-                  <td className="text-center py-2 px-2 font-medium bg-gray-50 text-gray-700">{crossMatrix.rowTotals[rk] || 0}</td>
+                  <td className="bg-slate-50 px-4 py-3 text-center font-medium text-slate-800">{crossMatrix.rowTotals[rk] || 0}</td>
                 </tr>
               ))}
               {/* 列合计 */}
-              <tr className="border-t-2 border-gray-200 bg-gray-50 font-medium">
-                <td className="py-2 px-2 text-gray-700 sticky left-0 bg-gray-50">合计</td>
+              <tr className="border-t border-slate-200 bg-slate-50 font-medium">
+                <td className="sticky left-0 bg-slate-50 px-4 py-3 text-slate-800">合计</td>
                 {crossMatrix.colKeys.map((ck) => (
-                  <td key={ck} className="text-center py-2 px-2 text-gray-700">{crossMatrix.colTotals[ck] || 0}</td>
+                  <td key={ck} className="px-4 py-3 text-center text-slate-800">{crossMatrix.colTotals[ck] || 0}</td>
                 ))}
-                <td className="text-center py-2 px-2 text-gray-700">{statsActive}</td>
+                <td className="px-4 py-3 text-center text-slate-800">{statsActive}</td>
               </tr>
             </tbody>
           </table>
         </div>
       )}
-    </div>
+    </AnalysisBlock>
   );
 }

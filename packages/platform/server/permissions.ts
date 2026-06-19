@@ -1,2 +1,2 @@
-export { listPermissionResources } from "../../../server/rbac/permission-tree";
-export { updateResourceMaxRole } from "../../../server/rbac/maxRole";
+export { listPermissionResources } from "./rbac/permission-tree";
+export { updateResourceMaxRole } from "./rbac/maxRole";

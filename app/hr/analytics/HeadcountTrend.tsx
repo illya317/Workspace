@@ -1,5 +1,6 @@
 "use client";
 
+import { AnalysisBlock } from "@workspace/core/ui";
 import type { Employment } from "./useAnalyticsData";
 import { useHeadcountData } from "./useHeadcountData";
 import StatCard from "./shared/StatCard";
@@ -22,11 +23,7 @@ export default function HeadcountTrend({ employments }: { employments: Employmen
       </div>
 
       {/* 月度趋势图 */}
-      <div className="bg-white rounded-lg shadow-sm p-5">
-        <div className="flex items-center gap-4 mb-4">
-          <h3 className="text-sm font-semibold text-gray-700">人员流动趋势（近12个月）</h3>
-        </div>
-
+      <AnalysisBlock title="人员流动趋势（近12个月）">
         {/* 在职人数折线 */}
         <div className="mb-6">
           <h4 className="text-xs text-gray-500 mb-2">月均在职人数</h4>
@@ -36,7 +33,7 @@ export default function HeadcountTrend({ employments }: { employments: Employmen
               const h = Math.round(((m.active - stats.activeRange.min) / range) * 70 + 30);
               return (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                  <span className="text-[10px] text-gray-500 font-medium">{m.active}</span>
+                  <span className="text-xs text-gray-500 font-medium">{m.active}</span>
                   <div className="w-full bg-emerald-300 rounded-t" style={{ height: `${h}%` }} />
                   <span className="text-[9px] text-gray-400">{m.label.slice(2)}</span>
                 </div>
@@ -69,45 +66,44 @@ export default function HeadcountTrend({ employments }: { employments: Employmen
           </div>
         </div>
 
-        <div className="flex items-center gap-6 text-[10px] text-gray-400 border-t pt-3 mt-2">
+        <div className="flex items-center gap-6 text-xs text-gray-400 border-t pt-3 mt-2">
           <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-blue-400 inline-block" /> 入职</span>
           <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-rose-400 inline-block" /> 离职</span>
           <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-emerald-300 inline-block" /> 在职人数</span>
         </div>
-      </div>
+      </AnalysisBlock>
 
       {/* 月度明细表 */}
-      <div className="bg-white rounded-lg shadow-sm p-5">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">月度明细</h3>
+      <AnalysisBlock title="月度明细">
         <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b text-gray-500">
-                <th className="text-left py-2 px-2">月份</th>
-                <th className="text-right py-2 px-2">月初在职</th>
-                <th className="text-right py-2 px-2">入职</th>
-                <th className="text-right py-2 px-2">离职</th>
-                <th className="text-right py-2 px-2">净变动</th>
-                <th className="text-right py-2 px-2">月末在职</th>
+          <table className="min-w-full text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-4 py-3 font-medium">月份</th>
+                <th className="px-4 py-3 text-right font-medium">月初在职</th>
+                <th className="px-4 py-3 text-right font-medium">入职</th>
+                <th className="px-4 py-3 text-right font-medium">离职</th>
+                <th className="px-4 py-3 text-right font-medium">净变动</th>
+                <th className="px-4 py-3 text-right font-medium">月末在职</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {[...stats.months].reverse().map((m, _i) => (
-                <tr key={m.label} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="py-2 px-2 font-medium text-gray-700">{m.label}</td>
-                  <td className="py-2 px-2 text-right text-gray-500">{m.active - m.net}</td>
-                  <td className="py-2 px-2 text-right text-blue-600 font-medium">{m.joins}</td>
-                  <td className="py-2 px-2 text-right text-rose-600 font-medium">{m.leaves}</td>
-                  <td className={`py-2 px-2 text-right font-medium ${m.net > 0 ? "text-blue-600" : m.net < 0 ? "text-rose-600" : "text-gray-600"}`}>
+                <tr key={m.label} className="hover:bg-emerald-50/20">
+                  <td className="px-4 py-3 font-medium text-slate-800">{m.label}</td>
+                  <td className="px-4 py-3 text-right text-slate-500">{m.active - m.net}</td>
+                  <td className="px-4 py-3 text-right text-blue-600 font-medium">{m.joins}</td>
+                  <td className="px-4 py-3 text-right text-rose-600 font-medium">{m.leaves}</td>
+                  <td className={`px-4 py-3 text-right font-medium ${m.net > 0 ? "text-blue-600" : m.net < 0 ? "text-rose-600" : "text-gray-600"}`}>
                     {m.net > 0 ? `+${m.net}` : m.net === 0 ? "0" : m.net}
                   </td>
-                  <td className="py-2 px-2 text-right font-medium text-gray-700">{m.active}</td>
+                  <td className="px-4 py-3 text-right font-medium text-slate-800">{m.active}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </div>
+      </AnalysisBlock>
     </div>
   );
 }

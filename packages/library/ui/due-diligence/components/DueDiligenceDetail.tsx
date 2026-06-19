@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { SelectField } from "@workspace/core/ui";
+import { ActionButton, SectionCard, SelectField, TextareaField, Toast } from "@workspace/core/ui";
 import { useDueDiligenceDetail } from "../hooks/useDueDiligence";
 import QuestionCard from "./QuestionCard";
-import Toast from "@workspace/core/ui/Toast";
 
 interface Props {
   requestId: number;
@@ -89,43 +88,42 @@ export default function DueDiligenceDetail({ requestId, onBack }: Props) {
             selectClassName="min-h-8"
           />
           {detail.status === "approved" && (
-            <button
+            <ActionButton
               onClick={handleArchive}
               disabled={!canArchive}
-              className="rounded-md bg-blue-600 px-3 py-1.5 text-xs text-white hover:bg-blue-700 disabled:opacity-50"
+              variant="primary"
             >
               {archiving ? "归档中..." : "完成提供"}
-            </button>
+            </ActionButton>
           )}
         </div>
 
         {/* Split input */}
-        <div className="mb-4 rounded-lg border bg-white p-4 shadow-sm">
+        <SectionCard title="问卷文本拆分" className="mb-4">
           <label className="mb-1 block text-xs font-medium text-gray-500">粘贴问卷文本（按编号/换行拆分）</label>
-          <textarea
+          <TextareaField
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={setText}
             rows={4}
             placeholder="1. 请提供公司营业执照...&#10;2. 请说明近三年财务状况..."
-            className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+            className="px-3 py-2 text-sm"
           />
           <div className="mt-2 flex gap-2">
-            <button
+            <ActionButton
               onClick={handleSplit}
               disabled={splitting || !text.trim()}
-              className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-50"
+              variant="primary"
             >
               {splitting ? "拆分中..." : "拆成问题"}
-            </button>
-            <button
+            </ActionButton>
+            <ActionButton
               onClick={handleMatch}
               disabled={matching || detail.questions.length === 0}
-              className="rounded-md border border-emerald-600 px-3 py-1.5 text-sm text-emerald-600 hover:bg-emerald-50 disabled:opacity-50"
             >
               {matching ? "匹配中..." : "运行材料匹配"}
-            </button>
+            </ActionButton>
           </div>
-        </div>
+        </SectionCard>
 
         {/* Stats */}
         <div className="mb-4 text-sm text-gray-500">

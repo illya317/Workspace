@@ -6,7 +6,7 @@ import { useLibraryFilters } from "../hooks/useLibraryFilters";
 import { useLibraryDirectories } from "../hooks/useLibraryDirectories";
 import LibrarySidebar from "./LibrarySidebar";
 import LibraryTable from "./LibraryTable";
-import { FilterToolbar, Pagination, SearchInput, SelectField } from "@workspace/core/ui";
+import { ActionButton, ActionToolbar, FilterToolbar, PageContent, Pagination, SearchInput, SelectField } from "@workspace/core/ui";
 import GenerateDocumentModal from "./GenerateDocumentModal";
 
 const STATUS_OPTIONS = [
@@ -54,17 +54,11 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
   return (
     <div className="flex h-full">
       <div className={`${sidebarOpen ? "w-64" : "w-0"} shrink-0 overflow-hidden border-r bg-white transition-all`}>
-        <div className="flex items-center justify-between border-b px-3 py-2">
-          <span className="text-xs font-medium text-gray-500">目录</span>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-          >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-        </div>
+        <ActionToolbar
+          leftSlot={<span className="text-xs font-medium text-gray-500">目录</span>}
+          secondaryActions={[{ label: "收起", onClick: () => setSidebarOpen(false) }]}
+          className="rounded-none border-0 border-b px-3 py-2 shadow-none"
+        />
         {dirError && (
           <div className="px-3 py-2 text-xs text-red-500">目录加载失败: {dirError}</div>
         )}
@@ -78,38 +72,35 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
 
       <div className="relative flex-1 overflow-y-auto">
         {!sidebarOpen && (
-          <button
+          <ActionButton
             onClick={() => setSidebarOpen(true)}
-            className="fixed left-0 top-1/2 z-40 -translate-y-1/2 rounded-r bg-white px-2 py-4 shadow-md text-gray-500 hover:text-gray-700"
+            className="fixed left-0 top-1/2 z-40 -translate-y-1/2 rounded-l-none px-2 py-4"
           >
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
+            目录
+          </ActionButton>
         )}
 
-        <main className="mx-auto max-w-5xl px-6 py-6">
+        <PageContent className="py-6">
           <FilterToolbar
             extraRight={canWrite ? (
-              <button
-                onClick={() => setShowGenerate(true)}
-                className="rounded-md bg-emerald-600 px-3 py-2 text-sm text-white transition hover:bg-emerald-700"
-              >
+              <ActionButton onClick={() => setShowGenerate(true)} variant="primary">
                 + 生成文档
-              </button>
+              </ActionButton>
             ) : undefined}
           >
             <SearchInput
               value={filters.keyword || ""}
               onChange={(value) => setFilter("keyword", value || undefined)}
               placeholder="搜索标题、文件名、简介..."
-              className="w-56 rounded border px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              size="toolbar"
+              className="w-full sm:w-[22rem]"
             />
             <SearchInput
               value={filters.tag || ""}
               onChange={(value) => setFilter("tag", value || undefined)}
               placeholder="标签筛选"
-              className="w-28 rounded border px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              size="toolbar"
+              className="w-full sm:w-48"
             />
             <SelectField
               value={filters.status || ""}
@@ -117,7 +108,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
               options={STATUS_OPTIONS.slice(1)}
               placeholder={STATUS_OPTIONS[0]?.label}
               className="w-32"
-              selectClassName="min-h-9 text-sm"
+              size="toolbar"
             />
             <SelectField
               value={filters.confidentialityLevel !== undefined ? String(filters.confidentialityLevel) : ""}
@@ -127,14 +118,11 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
               options={CONFIDENTIALITY_OPTIONS.slice(1)}
               placeholder={CONFIDENTIALITY_OPTIONS[0]?.label}
               className="w-36"
-              selectClassName="min-h-9 text-sm"
+              size="toolbar"
             />
-            <button
-              onClick={clearFilters}
-              className="rounded px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition"
-            >
+            <ActionButton onClick={clearFilters}>
               清除筛选
-            </button>
+            </ActionButton>
           </FilterToolbar>
 
           {error && <div className="mt-4 rounded bg-red-50 px-4 py-2 text-sm text-red-600">{error}</div>}
@@ -160,7 +148,7 @@ export default function DocumentsTab({ canWrite, canDelete, canAdmin }: Props) {
               compact
             />
           )}
-        </main>
+        </PageContent>
       </div>
 
       {showGenerate && (

@@ -9,6 +9,10 @@ import {
   type ApiMethod,
   type ApiRouteAccessMode,
 } from "../../packages/platform/api-registry";
+import {
+  coreUiComponentRegistry,
+  registeredCoreUiComponentNames,
+} from "../../packages/core/ui/component-registry";
 import { registeredModuleDefinitions } from "../../packages/platform/module-registry";
 
 type ImportRecord = {
@@ -83,6 +87,31 @@ type HookPatternCandidate = {
   hasLocalImplementation: boolean;
 };
 
+type UnregisteredCoreUiImport = {
+  file: string;
+  importedName: string;
+  specifier: string;
+};
+
+type PageDesignDriftFile = {
+  file: string;
+  signals: string[];
+};
+
+type NativeSearchInputFile = {
+  file: string;
+  signals: string[];
+};
+
+type UnregisteredCoreUiExport = {
+  exportedName: string;
+};
+
+type DuplicateCoreUiRegistration = {
+  name: string;
+  count: number;
+};
+
 type ServicePatternGroup = {
   name: string;
   files: string[];
@@ -129,6 +158,11 @@ type Level2Report = {
     legacyRootPeriodImplementationFiles: number;
     legacyRootPeriodImports: number;
     legacyRootSearchSchemaFiles: number;
+    unregisteredCoreUiImports: number;
+    unregisteredCoreUiExports: number;
+    duplicateCoreUiRegistrations: number;
+    pageDesignDriftFiles: number;
+    nativeSearchInputFiles: number;
   };
   registries: {
     modules: Array<{
@@ -147,6 +181,11 @@ type Level2Report = {
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaCandidates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperCandidates: ApiRouteHelperCandidate[];
+    unregisteredCoreUiImports: UnregisteredCoreUiImport[];
+    unregisteredCoreUiExports: UnregisteredCoreUiExport[];
+    duplicateCoreUiRegistrations: DuplicateCoreUiRegistration[];
+    pageDesignDriftFiles: PageDesignDriftFile[];
+    nativeSearchInputFiles: NativeSearchInputFile[];
   };
   drift: {
     appJsxFiles: string[];
@@ -171,6 +210,11 @@ type Level2Report = {
     legacyRootPeriodImplementationFiles: string[];
     legacyRootPeriodImports: string[];
     legacyRootSearchSchemaFiles: string[];
+    unregisteredCoreUiImports: UnregisteredCoreUiImport[];
+    unregisteredCoreUiExports: UnregisteredCoreUiExport[];
+    duplicateCoreUiRegistrations: DuplicateCoreUiRegistration[];
+    pageDesignDriftFiles: PageDesignDriftFile[];
+    nativeSearchInputFiles: NativeSearchInputFile[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -206,6 +250,32 @@ const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
   { name: "tabs", regex: /tabs?|tabbar/i },
   { name: "date", regex: /date(input|picker|field)|calendar/i },
 ];
+const CORE_UI_NON_COMPONENT_EXPORTS = new Set([
+  "coreUiComponentRegistry",
+  "dataTableClassNames",
+  "getDefaultVisibleColumns",
+  "getModuleCardClassName",
+  "hierarchyBadgeClassName",
+  "moduleCardColorClasses",
+  "registeredCoreUiComponentNames",
+  "useConfirm",
+  "useConfirmDelete",
+]);
+const PAGE_DESIGN_INTRINSIC_TAGS = new Set([
+  "article",
+  "aside",
+  "button",
+  "div",
+  "form",
+  "header",
+  "input",
+  "main",
+  "nav",
+  "section",
+  "select",
+  "table",
+  "textarea",
+]);
 const LEGACY_ROOT_UTILITY_FILES = new Set([
   "lib/company-server.ts",
   "lib/crud-factory.ts",
@@ -698,6 +768,260 @@ function findHookPatternCandidates(files: SourceInfo[]) {
   return candidates.sort((left, right) => left.file.localeCompare(right.file));
 }
 
+function coreUiDeepImportName(specifier: string) {
+  const prefix = "@workspace/core/ui/";
+  if (!specifier.startsWith(prefix)) return null;
+  const name = specifier.slice(prefix.length).split("/")[0];
+  return name && name !== "component-registry" ? name : null;
+}
+
+function findUnregisteredCoreUiImports(files: SourceInfo[]) {
+  const candidates: UnregisteredCoreUiImport[] = [];
+
+  for (const file of files) {
+    if (file.relPath.startsWith("packages/core/")) continue;
+
+    for (const statement of file.sourceFile.statements) {
+      if (!ts.isImportDeclaration(statement)) continue;
+      if (!statement.moduleSpecifier || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+      const specifier = statement.moduleSpecifier.text;
+      const importClause = statement.importClause;
+      if (!importClause || importClause.isTypeOnly) continue;
+
+      if (specifier === "@workspace/core/ui") {
+        const namedBindings = importClause.namedBindings;
+        if (!namedBindings || !ts.isNamedImports(namedBindings)) continue;
+        for (const element of namedBindings.elements) {
+          if (element.isTypeOnly) continue;
+          const importedName = element.propertyName?.text ?? element.name.text;
+          if (
+            !registeredCoreUiComponentNames.has(importedName) &&
+            !CORE_UI_NON_COMPONENT_EXPORTS.has(importedName)
+          ) {
+            candidates.push({
+              file: file.relPath,
+              importedName,
+              specifier,
+            });
+          }
+        }
+        continue;
+      }
+
+      const deepImportName = coreUiDeepImportName(specifier);
+      if (deepImportName && !registeredCoreUiComponentNames.has(deepImportName)) {
+        candidates.push({
+          file: file.relPath,
+          importedName: deepImportName,
+          specifier,
+        });
+      }
+    }
+  }
+
+  return candidates.sort((left, right) => `${left.file}:${left.importedName}`.localeCompare(`${right.file}:${right.importedName}`));
+}
+
+function collectCoreUiValueExports(files: SourceInfo[]) {
+  const indexFile = files.find((file) => file.relPath === "packages/core/ui/index.ts");
+  if (!indexFile) return [];
+
+  const exports = new Set<string>();
+
+  for (const statement of indexFile.sourceFile.statements) {
+    if (!ts.isExportDeclaration(statement) || statement.isTypeOnly) continue;
+    if (!statement.exportClause || !ts.isNamedExports(statement.exportClause)) continue;
+
+    for (const element of statement.exportClause.elements) {
+      if (element.isTypeOnly) continue;
+      exports.add(element.name.text);
+    }
+  }
+
+  return [...exports].sort();
+}
+
+function findUnregisteredCoreUiExports(files: SourceInfo[]) {
+  return collectCoreUiValueExports(files)
+    .filter((exportedName) => !registeredCoreUiComponentNames.has(exportedName))
+    .filter((exportedName) => !CORE_UI_NON_COMPONENT_EXPORTS.has(exportedName))
+    .map((exportedName) => ({ exportedName }))
+    .sort((left, right) => left.exportedName.localeCompare(right.exportedName));
+}
+
+function findDuplicateCoreUiRegistrations() {
+  const counts = new Map<string, number>();
+
+  for (const component of coreUiComponentRegistry) {
+    counts.set(component.name, (counts.get(component.name) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .filter(([, count]) => count > 1)
+    .map(([name, count]) => ({ name, count }))
+    .sort((left, right) => left.name.localeCompare(right.name));
+}
+
+function classNameText(attribute: ts.JsxAttribute, sourceFile: ts.SourceFile) {
+  const initializer = attribute.initializer;
+  if (!initializer) return "";
+  if (ts.isStringLiteral(initializer)) return initializer.text;
+  if (!ts.isJsxExpression(initializer) || !initializer.expression) return initializer.getText(sourceFile);
+  if (ts.isStringLiteral(initializer.expression) || ts.isNoSubstitutionTemplateLiteral(initializer.expression)) {
+    return initializer.expression.text;
+  }
+  return initializer.expression.getText(sourceFile);
+}
+
+function jsxAttributeText(
+  attributes: ts.JsxAttributes,
+  sourceFile: ts.SourceFile,
+  attributeName: string,
+) {
+  for (const property of attributes.properties) {
+    if (!ts.isJsxAttribute(property) || !ts.isIdentifier(property.name)) continue;
+    if (property.name.text !== attributeName) continue;
+    const initializer = property.initializer;
+    if (!initializer) return "";
+    if (ts.isStringLiteral(initializer)) return initializer.text;
+    if (!ts.isJsxExpression(initializer) || !initializer.expression) return initializer.getText(sourceFile);
+    if (ts.isStringLiteral(initializer.expression) || ts.isNoSubstitutionTemplateLiteral(initializer.expression)) {
+      return initializer.expression.text;
+    }
+    return initializer.expression.getText(sourceFile);
+  }
+  return "";
+}
+
+function pageDesignSignals(tagName: string, className: string) {
+  const signals: string[] = [];
+  const hasSurfaceColor = /\bbg-white\b|\bbg-slate-50\b|\bbg-gray-50\b/.test(className);
+  const hasSurfaceShape = /\brounded(?:-[a-z0-9[\]/.-]+)?\b/.test(className);
+  const hasSurfaceDepth = /\bshadow(?:-[a-z0-9[\]/.-]+)?\b/.test(className);
+  const hasSurfaceBorder = /\bborder(?:-[a-z0-9[\]/.-]+)?\b/.test(className);
+  const hasSurfacePadding = /\bp(?:x|y|t|r|b|l)?-[0-9]/.test(className);
+
+  if (tagName === "table") {
+    signals.push("handwritten-table");
+  }
+  if (tagName === "form") {
+    signals.push("handwritten-form");
+  }
+  if (["input", "select", "textarea"].includes(tagName)) {
+    signals.push("handwritten-form-control");
+  }
+  if (hasSurfaceColor && hasSurfaceShape && (hasSurfaceDepth || hasSurfaceBorder) && hasSurfacePadding) {
+    signals.push("handwritten-surface");
+  }
+  if (/\bsticky\b/.test(className) && /\btop-/.test(className) && /\bbg-/.test(className)) {
+    signals.push("handwritten-sticky-header");
+  }
+  if (/\bgrid\b/.test(className) && /grid-cols-\[/.test(className) && hasSurfaceColor) {
+    signals.push("handwritten-layout-grid");
+  }
+  if (/\bfixed\b/.test(className) && /\binset-0\b/.test(className) && /\bbg-(black|slate|gray)-/.test(className)) {
+    signals.push("handwritten-modal-overlay");
+  }
+  if (/\boverflow-x-auto\b/.test(className)) {
+    signals.push("handwritten-table-scroll-shell");
+  }
+  if (/\bflex\b/.test(className) && /\bitems-center\b/.test(className) && /\bjustify-between\b/.test(className)) {
+    signals.push("handwritten-toolbar-layout");
+  }
+  if (tagName === "button" && hasSurfaceShape && /\b(px|py)-[0-9]/.test(className) && (hasSurfaceBorder || /\bbg-(emerald|red|blue|slate|gray)-/.test(className))) {
+    signals.push("handwritten-action-button");
+  }
+
+  return signals;
+}
+
+function findPageDesignDriftFiles(files: SourceInfo[]) {
+  const drift: PageDesignDriftFile[] = [];
+
+  for (const file of files) {
+    if (!file.relPath.endsWith(".tsx")) continue;
+    if (!file.relPath.startsWith("packages/")) continue;
+    if (file.relPath.startsWith("packages/core/")) continue;
+    if (!/\/ui\//.test(file.relPath)) continue;
+
+    const signals = new Set<string>();
+    const visit = (node: ts.Node) => {
+      if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+        const tagName = node.tagName.getText(file.sourceFile);
+        if (PAGE_DESIGN_INTRINSIC_TAGS.has(tagName)) {
+          for (const property of node.attributes.properties) {
+            if (!ts.isJsxAttribute(property) || !ts.isIdentifier(property.name) || property.name.text !== "className") continue;
+            for (const signal of pageDesignSignals(tagName, classNameText(property, file.sourceFile))) {
+              signals.add(signal);
+            }
+          }
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+
+    visit(file.sourceFile);
+    if (signals.size > 0) {
+      drift.push({
+        file: file.relPath,
+        signals: [...signals].sort(),
+      });
+    }
+  }
+
+  return drift.sort((left, right) => left.file.localeCompare(right.file));
+}
+
+function isAllowedNativeSearchInputFile(file: SourceInfo) {
+  return file.relPath === "packages/core/ui/SearchInput.tsx";
+}
+
+function nativeSearchInputSignals(attributes: ts.JsxAttributes, sourceFile: ts.SourceFile) {
+  const signals: string[] = [];
+  const typeText = jsxAttributeText(attributes, sourceFile, "type");
+  const placeholderText = jsxAttributeText(attributes, sourceFile, "placeholder");
+  const ariaLabelText = jsxAttributeText(attributes, sourceFile, "aria-label");
+
+  if (/^search$|["'`]search["'`]/i.test(typeText)) signals.push("native-type-search");
+  if (/搜索|search/i.test(placeholderText)) signals.push("search-placeholder");
+  if (/搜索|search/i.test(ariaLabelText)) signals.push("search-aria-label");
+
+  return signals;
+}
+
+function findNativeSearchInputFiles(files: SourceInfo[]) {
+  const drift: NativeSearchInputFile[] = [];
+
+  for (const file of files) {
+    if (!file.relPath.endsWith(".tsx")) continue;
+    if (!file.relPath.startsWith("app/") && !file.relPath.startsWith("packages/")) continue;
+    if (isAllowedNativeSearchInputFile(file)) continue;
+
+    const signals = new Set<string>();
+    const visit = (node: ts.Node) => {
+      if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+        const tagName = node.tagName.getText(file.sourceFile);
+        if (tagName === "input") {
+          for (const signal of nativeSearchInputSignals(node.attributes, file.sourceFile)) {
+            signals.add(signal);
+          }
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+
+    visit(file.sourceFile);
+    if (signals.size > 0) {
+      drift.push({
+        file: file.relPath,
+        signals: [...signals].sort(),
+      });
+    }
+  }
+
+  return drift.sort((left, right) => left.file.localeCompare(right.file));
+}
+
 function findRepeatedServiceGroups(files: SourceInfo[]) {
   const serviceFiles = files.filter((file) => {
     if (file.relPath.startsWith("server/services/")) return true;
@@ -962,6 +1286,11 @@ export function createLevel2Report(): Level2Report {
   const routePrimitiveSchemaCandidates = findRoutePrimitiveSchemaCandidates(sourceFiles);
   const apiRouteHelperCandidates = findApiRouteHelperCandidates(sourceFiles);
   const hookPatternCandidates = findHookPatternCandidates(sourceFiles);
+  const unregisteredCoreUiImports = findUnregisteredCoreUiImports(sourceFiles);
+  const unregisteredCoreUiExports = findUnregisteredCoreUiExports(sourceFiles);
+  const duplicateCoreUiRegistrations = findDuplicateCoreUiRegistrations();
+  const pageDesignDriftFiles = findPageDesignDriftFiles(sourceFiles);
+  const nativeSearchInputFiles = findNativeSearchInputFiles(sourceFiles);
   const repeatedServiceGroups = findRepeatedServiceGroups(sourceFiles);
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
   const apiRoutesWithDirectPrismaSignal = apiRouteMethods.filter((route) => route.hasDirectPrismaSignal);
@@ -1036,6 +1365,11 @@ export function createLevel2Report(): Level2Report {
       legacyRootPeriodImplementationFiles: legacyRootPeriodImplementationFiles.length,
       legacyRootPeriodImports: legacyRootPeriodImports.length,
       legacyRootSearchSchemaFiles: legacyRootSearchSchemaFiles.length,
+      unregisteredCoreUiImports: unregisteredCoreUiImports.length,
+      unregisteredCoreUiExports: unregisteredCoreUiExports.length,
+      duplicateCoreUiRegistrations: duplicateCoreUiRegistrations.length,
+      pageDesignDriftFiles: pageDesignDriftFiles.length,
+      nativeSearchInputFiles: nativeSearchInputFiles.length,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -1056,6 +1390,11 @@ export function createLevel2Report(): Level2Report {
       repeatedServiceGroups,
       routePrimitiveSchemaCandidates,
       apiRouteHelperCandidates,
+      unregisteredCoreUiImports,
+      unregisteredCoreUiExports,
+      duplicateCoreUiRegistrations,
+      pageDesignDriftFiles,
+      nativeSearchInputFiles,
     },
     drift: {
       appJsxFiles: findAppJsxFiles(sourceFiles),
@@ -1080,6 +1419,11 @@ export function createLevel2Report(): Level2Report {
       legacyRootPeriodImplementationFiles,
       legacyRootPeriodImports,
       legacyRootSearchSchemaFiles,
+      unregisteredCoreUiImports,
+      unregisteredCoreUiExports,
+      duplicateCoreUiRegistrations,
+      pageDesignDriftFiles,
+      nativeSearchInputFiles,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,

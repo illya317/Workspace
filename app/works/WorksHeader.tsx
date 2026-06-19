@@ -2,10 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import UserMenu from "@/app/components/UserMenu";
-import NavLink from "@/app/components/NavLink";
-import DepartmentSwitcher from "@/app/components/DepartmentSwitcher";
-import type { SessionUser } from "@/lib/types";
+import UserMenu from "@workspace/platform/ui/UserMenu";
+import NavLink from "@workspace/platform/ui/NavLink";
+import DepartmentSwitcher from "@workspace/platform/ui/DepartmentSwitcher";
+import type { SessionUser } from "@workspace/platform/types";
 
 export default function WorksHeader({
   user, onDeptChange, hideShell,

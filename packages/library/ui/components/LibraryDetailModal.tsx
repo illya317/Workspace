@@ -1,11 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import DetailModal from "@workspace/core/ui/DetailModal";
-import EditToolbar from "@workspace/core/ui/EditToolbar";
-import ConfirmModal from "@workspace/core/ui/ConfirmModal";
+import { ActionButton, ConfirmModal, DetailModal, EditToolbar, Toast } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
-import Toast from "@workspace/core/ui/Toast";
 import { useDocumentDetail, updateDocument, deleteDocument } from "../hooks/useLibraryDocuments";
 import LibraryEditForm from "./LibraryEditForm";
 import type { LibraryDocumentItem } from "@workspace/library/types";
@@ -180,12 +177,9 @@ export default function LibraryDetailModal({
                   )}
                   {canDelete && (
                     <div className="pt-4">
-                      <button
-                        onClick={() => setShowDeleteConfirm(true)}
-                        className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 hover:bg-red-100 transition"
-                      >
+                      <ActionButton onClick={() => setShowDeleteConfirm(true)} variant="danger">
                         删除
-                      </button>
+                      </ActionButton>
                     </div>
                   )}
                 </>

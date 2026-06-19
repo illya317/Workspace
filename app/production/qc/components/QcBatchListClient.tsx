@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { SelectField } from "@workspace/core/ui";
-import ConfirmModal from "@/app/components/ConfirmModal";
-import Toast from "@/app/components/Toast";
+import { SearchInput, SelectField } from "@workspace/core/ui";
+import ConfirmModal from "@workspace/core/ui/ConfirmModal";
+import Toast from "@workspace/core/ui/Toast";
 import type { QcBatchList, QcBatchSummary, QcRecordTemplateSummary } from "@workspace/production/server/qc";
 
 interface Props {
@@ -125,11 +125,11 @@ export default function QcBatchListClient({ initialData, products }: Props) {
           <div className="text-xs font-semibold text-slate-500">
             全部 {counts.total} · 草稿 {counts.draft} · 已提交 {counts.submitted}
           </div>
-          <input
+          <SearchInput
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={setQuery}
             placeholder="筛选批号、产品、检验者"
-            className="h-10 rounded-md border border-slate-300 px-3 text-sm outline-none focus:border-emerald-600"
+            size="toolbar"
           />
         </div>
         <div className="overflow-x-auto">

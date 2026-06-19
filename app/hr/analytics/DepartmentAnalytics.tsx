@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AnalysisBlock, MetricCard, SearchInput } from "@workspace/core/ui";
 import DeptNode from "./DeptNode";
 import type { Department, EDP } from "./useAnalyticsData";
 
@@ -57,40 +58,27 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
     <div className="space-y-6">
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-white rounded-lg p-4 shadow-sm">
-          <div className="text-2xl font-bold text-gray-800">{departments.length}</div>
-          <div className="mt-1 text-xs text-gray-500">部门总数</div>
-        </div>
-        <div className="bg-blue-50 rounded-lg p-4">
-          <div className="text-2xl font-bold text-blue-700">{stats.l1}</div>
-          <div className="mt-1 text-xs text-blue-600">事业部(L1)</div>
-        </div>
-        <div className="bg-emerald-50 rounded-lg p-4">
-          <div className="text-2xl font-bold text-emerald-700">{stats.l2}</div>
-          <div className="mt-1 text-xs text-emerald-600">部门(L2)</div>
-        </div>
-        <div className="bg-amber-50 rounded-lg p-4">
-          <div className="text-2xl font-bold text-amber-700">{stats.l3}</div>
-          <div className="mt-1 text-xs text-amber-600">子部门(L3)</div>
-        </div>
-        <div className="bg-purple-50 rounded-lg p-4">
-          <div className="text-2xl font-bold text-purple-700">{new Set(activeEdps.filter((e) => e.isPrimary).map((e) => e.employeeId)).size}</div>
-          <div className="mt-1 text-xs text-purple-600">在职主岗人数</div>
-        </div>
+        <MetricCard label="部门总数" value={departments.length} />
+        <MetricCard label="事业部(L1)" value={stats.l1} />
+        <MetricCard label="部门(L2)" value={stats.l2} />
+        <MetricCard label="子部门(L3)" value={stats.l3} />
+        <MetricCard label="在职主岗人数" value={new Set(activeEdps.filter((e) => e.isPrimary).map((e) => e.employeeId)).size} />
       </div>
 
       {/* Search */}
-      <div className="bg-white rounded-lg shadow-sm p-4">
-        <div className="flex items-center gap-3 mb-4">
-          <h3 className="text-sm font-semibold text-gray-700">部门架构</h3>
-          <input
-            type="text"
+      <AnalysisBlock
+        title="部门架构"
+        toolbar={
+          <SearchInput
             placeholder="搜索部门名称、编码、别名..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 max-w-sm px-3 py-1.5 text-xs border border-gray-300 rounded focus:outline-none focus:border-emerald-400"
+            onChange={setSearch}
+            size="toolbar"
+            className="max-w-sm"
           />
-        </div>
+        }
+        bodyClassName="p-4"
+      >
 
         <div className="max-h-[600px] overflow-y-auto pr-2">
           {rootDepts.map((d) => (
@@ -98,31 +86,30 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
           ))}
           {rootDepts.length === 0 && <p className="text-center text-gray-400 py-8 text-sm">无匹配部门</p>}
         </div>
-      </div>
+      </AnalysisBlock>
 
       {/* Dept headcount table */}
-      <div className="bg-white rounded-lg shadow-sm p-5">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">部门人数排行（主岗）</h3>
+      <AnalysisBlock title="部门人数排行（主岗）">
         <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
-          <table className="w-full text-xs">
-            <thead className="sticky top-0 bg-white">
-              <tr className="border-b text-gray-500">
-                <th className="text-left py-2 px-2">部门</th>
-                <th className="text-left py-2 px-2">层级</th>
-                <th className="text-left py-2 px-2">公司</th>
-                <th className="text-right py-2 px-2">实际人数</th>
-                <th className="text-right py-2 px-2">编制</th>
-                <th className="text-left py-2 px-2">差异</th>
+          <table className="min-w-full text-left text-sm">
+            <thead className="sticky top-0 border-b border-slate-200 bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-4 py-3 font-medium">部门</th>
+                <th className="px-4 py-3 font-medium">层级</th>
+                <th className="px-4 py-3 font-medium">公司</th>
+                <th className="px-4 py-3 text-right font-medium">实际人数</th>
+                <th className="px-4 py-3 text-right font-medium">编制</th>
+                <th className="px-4 py-3 font-medium">差异</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {stats.deptWithHeadcount.slice(0, 30).map((d) => {
                 const diff = d.actual - (d.headcount || 0);
                 return (
-                  <tr key={d.id} className="border-b border-gray-50 hover:bg-gray-50">
-                    <td className="py-2 px-2 font-medium">{d.name}</td>
-                    <td className="py-2 px-2">
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                  <tr key={d.id} className="hover:bg-emerald-50/20">
+                    <td className="px-4 py-3 font-medium">{d.name}</td>
+                    <td className="px-4 py-3">
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${
                         d.level === 1 ? "bg-blue-100 text-blue-700" :
                         d.level === 2 ? "bg-emerald-100 text-emerald-700" :
                         "bg-amber-100 text-amber-700"
@@ -130,10 +117,10 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
                         L{d.level}
                       </span>
                     </td>
-                    <td className="py-2 px-2 text-gray-500">{d.company}</td>
-                    <td className="py-2 px-2 text-right font-medium">{d.actual}</td>
-                    <td className="py-2 px-2 text-right text-gray-500">{d.headcount || "—"}</td>
-                    <td className="py-2 px-2">
+                    <td className="px-4 py-3 text-slate-500">{d.company}</td>
+                    <td className="px-4 py-3 text-right font-medium">{d.actual}</td>
+                    <td className="px-4 py-3 text-right text-slate-500">{d.headcount || "—"}</td>
+                    <td className="px-4 py-3">
                       {diff > 0 ? (
                         <span className="text-rose-600">+{diff} 超编</span>
                       ) : diff < 0 ? (
@@ -148,7 +135,7 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
             </tbody>
           </table>
         </div>
-      </div>
+      </AnalysisBlock>
     </div>
   );
 }

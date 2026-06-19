@@ -1,35 +1,26 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
+import { useAsyncResource } from "@workspace/core/hooks";
 import type { DirectoryNode } from "@workspace/library/types";
 
-export function useLibraryDirectories() {
-  const [directories, setDirectories] = useState<DirectoryNode[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const INITIAL_DIRECTORIES: DirectoryNode[] = [];
 
-  const refresh = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    fetch("/workspace/api/library/directories")
-      .then(async (r) => {
-        if (!r.ok) {
-          const text = await r.text().catch(() => "");
-          throw new Error(text || `HTTP ${r.status}`);
-        }
-        return r.json() as Promise<DirectoryNode[]>;
-      })
-      .then((data) => setDirectories(data))
-      .catch((e) => {
-        setDirectories([]);
-        setError(e instanceof Error ? e.message : "加载目录失败");
-      })
-      .finally(() => setLoading(false));
+export function useLibraryDirectories() {
+  const loadDirectories = useCallback(async () => {
+    const response = await fetch("/workspace/api/library/directories");
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      throw new Error(text || `HTTP ${response.status}`);
+    }
+    return response.json() as Promise<DirectoryNode[]>;
   }, []);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const { data: directories, loading, error, refresh } = useAsyncResource(loadDirectories, {
+    initialData: INITIAL_DIRECTORIES,
+    resetOnError: true,
+    errorMessage: "加载目录失败",
+  });
 
   return { directories, loading, error, refresh };
 }

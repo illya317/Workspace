@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ConfirmModal } from "@workspace/core/ui";
+import { CodeBlock, ConfirmModal, DataTable, PageContent, SectionCard, getToolbarActionClassName } from "@workspace/core/ui";
+import type { DataTableColumn } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 
 function MyApiKeyPanel({ apiKey, onApiKeyChange }: { apiKey: string | null; onApiKeyChange: (k: string | null) => void }) {
@@ -33,24 +34,30 @@ function MyApiKeyPanel({ apiKey, onApiKeyChange }: { apiKey: string | null; onAp
   }
 
   return (
-    <div className="mb-6 rounded-lg bg-white p-6 shadow-sm">
-      <h2 className="mb-3 text-lg font-semibold text-gray-800">我的 API Key</h2>
-      <p className="mb-4 text-sm text-gray-500">每人只有一个 Key，重新申请会覆盖旧的。</p>
+    <SectionCard title="我的 API Key" subtitle="每人只有一个 Key，重新申请会覆盖旧的。" className="mb-6">
       {apiKey ? (
         <div className="flex items-center gap-3">
           <code className="rounded-md bg-gray-100 px-3 py-2 font-mono text-sm text-gray-800">{apiKey}</code>
-          <button onClick={copyKey} className="rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50">{copied ? "已复制" : "复制"}</button>
-          <button onClick={applyApiKey} disabled={loading} className="rounded-md bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700 disabled:opacity-50">{loading ? "申请中..." : "重新申请"}</button>
+          <button onClick={copyKey} className={getToolbarActionClassName("secondary")}>{copied ? "已复制" : "复制"}</button>
+          <button onClick={applyApiKey} disabled={loading} className={getToolbarActionClassName("primary")}>{loading ? "申请中..." : "重新申请"}</button>
         </div>
       ) : (
-        <button onClick={applyApiKey} disabled={loading} className="rounded-md bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700 disabled:opacity-50">{loading ? "申请中..." : "申请 API Key"}</button>
+        <button onClick={applyApiKey} disabled={loading} className={getToolbarActionClassName("primary")}>{loading ? "申请中..." : "申请 API Key"}</button>
       )}
       <ConfirmModal open={confirmModal.show} title="确认覆盖" message="申请新的 API Key 将覆盖旧的 Key，确定继续？" onConfirm={() => confirmModal.onConfirm?.()} onCancel={closeConfirm} confirmDanger={false} />
-    </div>
+    </SectionCard>
   );
 }
 
-const ENDPOINTS = [
+type EndpointRow = {
+  method: string;
+  path: string;
+  note: string;
+  params?: string;
+  perm?: string;
+};
+
+const ENDPOINTS: EndpointRow[] = [
   { method: "GET", path: "/api/works", note: "查看工作清单", params: "targetType, targetId, ?category, ?includeArchived" },
   { method: "POST", path: "/api/works", note: "创建工作项", params: "category, content, importance, urgency" },
   { method: "PUT", path: "/api/works/:id", note: "更新工作项", params: "category, content, ..." },
@@ -91,6 +98,46 @@ const ENDPOINTS = [
   { method: "GET", path: "/api/admin/audit-log", note: "编辑历史", params: "?entityType=xxx", perm: "people.roster.access" },
 ];
 
+const endpointColumns: DataTableColumn<EndpointRow>[] = [
+  {
+    key: "method",
+    label: "方法",
+    required: true,
+    render: (ep) => (
+      <span className={`inline-block rounded px-1.5 py-0.5 font-mono text-xs font-medium ${
+        ep.method === "GET" ? "bg-blue-50 text-blue-700" :
+        ep.method === "POST" ? "bg-emerald-50 text-emerald-700" :
+        ep.method === "PUT" ? "bg-amber-50 text-amber-700" :
+        "bg-red-50 text-red-700"
+      }`}>{ep.method}</span>
+    ),
+  },
+  {
+    key: "path",
+    label: "路径",
+    required: true,
+    render: (ep) => <span className="font-mono text-xs text-slate-700">{ep.path}</span>,
+  },
+  {
+    key: "note",
+    label: "说明",
+    required: true,
+    render: (ep) => <span className="text-slate-700">{ep.note}</span>,
+  },
+  {
+    key: "params",
+    label: "参数",
+    required: true,
+    render: (ep) => <span className="text-xs text-slate-500">{ep.params || "—"}</span>,
+  },
+  {
+    key: "perm",
+    label: "权限",
+    required: true,
+    render: (ep) => <span className="text-xs text-slate-500">{ep.perm || "登录"}</span>,
+  },
+];
+
 export default function ApiGuidePage({ hideShell: _hideShell }: { hideShell?: boolean }) {
   const router = useRouter();
   const [user, setUser] = useState<SessionUser | null>(null);
@@ -128,56 +175,34 @@ export default function ApiGuidePage({ hideShell: _hideShell }: { hideShell?: bo
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <main className="mx-auto max-w-4xl px-4 py-8">
+      <PageContent className="py-8">
         <h1 className="mb-6 text-2xl font-bold text-gray-800">接入指南</h1>
 
         <MyApiKeyPanel apiKey={apiKey} onApiKeyChange={setApiKey} />
 
-        <div className="rounded-lg bg-white p-6 shadow-sm mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-gray-800">认证方式</h2>
-            <button onClick={copyForAgent} className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700">{copyAllCopied ? "已复制" : "一键复制（给 Agent）"}</button>
-          </div>
+        <SectionCard
+          title="认证方式"
+          className="mb-6"
+          actions={<button onClick={copyForAgent} className={getToolbarActionClassName("primary")}>{copyAllCopied ? "已复制" : "一键复制（给 Agent）"}</button>}
+        >
           <p className="mb-3 text-sm text-gray-600">所有请求携带以下两个 Header：</p>
-          <div className="rounded-md bg-emerald-50 p-4 font-mono text-sm text-emerald-800 space-y-1">
+          <CodeBlock className="space-y-1">
             <div>X-API-Key: {apiKey || "（先申请）"}</div>
             <div>X-Username: {user?.username || user?.name || "（未获取）"}</div>
-          </div>
+          </CodeBlock>
           <p className="mt-3 text-xs text-gray-400">Base URL: {BASE}</p>
-        </div>
+        </SectionCard>
 
-        <div className="rounded-lg bg-white shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-gray-600 w-16">方法</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">路径</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">说明</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600">参数</th>
-                <th className="px-4 py-3 text-left font-medium text-gray-600 w-20">权限</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {ENDPOINTS.map((ep, i) => (
-                <tr key={i} className="hover:bg-gray-50">
-                  <td className="px-4 py-2.5">
-                    <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-mono font-medium ${
-                      ep.method === "GET" ? "bg-blue-50 text-blue-700" :
-                      ep.method === "POST" ? "bg-emerald-50 text-emerald-700" :
-                      ep.method === "PUT" ? "bg-amber-50 text-amber-700" :
-                      "bg-red-50 text-red-700"
-                    }`}>{ep.method}</span>
-                  </td>
-                  <td className="px-4 py-2.5 font-mono text-xs text-gray-700">{ep.path}</td>
-                  <td className="px-4 py-2.5 text-gray-600">{ep.note}</td>
-                  <td className="px-4 py-2.5 text-xs text-gray-400">{ep.params || "—"}</td>
-                  <td className="px-4 py-2.5 text-xs text-gray-400">{ep.perm || "登录"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </main>
+        <SectionCard title="API Endpoints" bodyClassName="overflow-x-auto p-0">
+          <DataTable
+            rows={ENDPOINTS}
+            columns={endpointColumns}
+            visibleColumns={[]}
+            density="compact"
+            rowKey={(ep) => `${ep.method}:${ep.path}`}
+          />
+        </SectionCard>
+      </PageContent>
     </div>
   );
 }

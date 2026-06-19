@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useConfirmDelete } from "@/app/components/ConfirmProvider";
+import { useConfirmDelete } from "@workspace/core/ui/ConfirmProvider";
+import { PanelCard } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState } from "../types";
 
@@ -50,35 +51,35 @@ export default function ImportHistoryTable({ filters }: Props) {
       {error && <p className="text-sm text-red-500">{error}</p>}
       {localError && <p className="text-sm text-red-500">{localError}</p>}
 
-      <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-left text-xs font-semibold text-gray-600">
+      <PanelCard bodyClassName="overflow-x-auto">
+        <table className="min-w-full text-left text-sm">
+          <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
             <tr>
-              <th className="px-3 py-2">ID</th>
-              <th className="px-3 py-2">类型</th>
-              <th className="px-3 py-2">年份</th>
-              <th className="px-3 py-2">源文件</th>
-              <th className="px-3 py-2 text-right">记录数</th>
-              <th className="px-3 py-2 text-right">警告</th>
-              <th className="px-3 py-2">导入时间</th>
-              <th className="px-3 py-2">操作</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">ID</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">类型</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">年份</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">源文件</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">记录数</th>
+              <th className="whitespace-nowrap px-4 py-3 text-right font-medium">警告</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">导入时间</th>
+              <th className="whitespace-nowrap px-4 py-3 font-medium">操作</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-slate-100 text-slate-800">
             {(data as Record<string, unknown>[]).map((row) => (
-              <tr key={String(row.id)} className="hover:bg-gray-50">
-                <td className="px-3 py-2">{String(row.id)}</td>
-                <td className="px-3 py-2">{String(row.profile)}</td>
-                <td className="px-3 py-2">{row.year ? String(row.year) : "—"}</td>
-                <td className="px-3 py-2">{String(row.sourceFile)}</td>
-                <td className="px-3 py-2 text-right">{String(row.recordCount)}</td>
-                <td className="px-3 py-2 text-right">{String(row.warningCount)}</td>
-                <td className="px-3 py-2">
+              <tr key={String(row.id)} className="hover:bg-slate-50/60">
+                <td className="px-4 py-3">{String(row.id)}</td>
+                <td className="px-4 py-3">{String(row.profile)}</td>
+                <td className="px-4 py-3">{row.year ? String(row.year) : "—"}</td>
+                <td className="px-4 py-3">{String(row.sourceFile)}</td>
+                <td className="px-4 py-3 text-right">{String(row.recordCount)}</td>
+                <td className="px-4 py-3 text-right">{String(row.warningCount)}</td>
+                <td className="px-4 py-3">
                   {row.importedAt
                     ? new Date(String(row.importedAt)).toLocaleString("zh-CN")
                     : "—"}
                 </td>
-                <td className="px-3 py-2">
+                <td className="px-4 py-3">
                   <button
                     className="text-xs text-red-600 hover:underline disabled:opacity-50"
                     disabled={deleting === row.id}
@@ -91,7 +92,7 @@ export default function ImportHistoryTable({ filters }: Props) {
             ))}
           </tbody>
         </table>
-      </div>
+      </PanelCard>
 
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between text-sm">

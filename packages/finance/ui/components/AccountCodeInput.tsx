@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { SearchInput } from "@workspace/core/ui";
 
 interface AccountOption { code: string; name: string; }
 
@@ -65,16 +66,16 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
 
   return (
     <div className="relative">
-      <input
+      <SearchInput
         ref={inputRef}
-        type="text"
         value={query}
         placeholder={placeholder || "输入科目编码搜索..."}
-        onChange={(e) => onInput(e.target.value)}
+        onChange={onInput}
         onFocus={() => { if (options.length > 0) setOpen(true); }}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         onKeyDown={onKeyDown}
-        className={className || "w-24 rounded border border-emerald-400 px-2 py-0.5 text-xs focus:outline-none"}
+        size="compact"
+        className={className || "w-32"}
       />
       {open && (
         <div className="absolute left-0 top-full z-20 mt-0.5 max-h-40 w-56 overflow-auto rounded border border-gray-200 bg-white shadow-lg">

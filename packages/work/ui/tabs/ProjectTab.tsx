@@ -1,12 +1,29 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
-import { Toast } from "@workspace/core/ui";
+import {
+  ActionToolbar,
+  EmptyStateCard,
+  InlineCreatePanel,
+  PanelCard,
+  SectionCard,
+  SelectorCard,
+  SearchInput,
+  SplitWorkspace,
+  SplitWorkspaceToolbar,
+  TextareaField,
+  TextField,
+  Toast,
+  getFieldInputClassName,
+  getReadOnlyFieldClassName,
+  getTagInputShellClassName,
+  getTagPillClassName,
+  getToolbarActionClassName,
+  type SplitWorkspaceMode,
+} from "@workspace/core/ui";
 import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
 import EntitySearchInput, { type SearchOption } from "../components/EntitySearchInput";
 import OptionPicker, { type PickerOption } from "../components/OptionPicker";
-import SplitWorkspace, { type SplitWorkspaceMode } from "../components/SplitWorkspace";
 import { workspacePath } from "@workspace/core/routing";
 import { type WorkUser, workCanEdit } from "@workspace/work/types";
 import { matchText } from "@workspace/core/search";
@@ -14,6 +31,7 @@ import { WORK_PLAN_ROLES } from "@workspace/work/constants";
 
 type ProjectItem = {
   id: number;
+  code: string | null;
   name: string;
   description: string | null;
   status: string | null;
@@ -26,9 +44,16 @@ type ProjectItem = {
   budgetNote: string | null;
   riskNote: string | null;
   remark: string | null;
+  parentId: number | null;
+  parentName: string | null;
+  childPlans: { id: number; name: string }[];
+  leadingDepartmentId: number | null;
+  leadingDepartmentName: string | null;
+  leadingDepartmentCode: string | null;
   startDate: string | null;
   endDate: string | null;
   employeeCount: number;
+  isArchived: boolean;
 };
 
 type ProjectMemberEntry = {
@@ -55,6 +80,7 @@ const MULTI_PROJECT_ROLES = WORK_PLAN_ROLES.filter((role) => role !== "负责人
 
 type ProjectDraft = {
   id: number | null;
+  code: string | null;
   name: string;
   description: string | null;
   status: string | null;
@@ -67,10 +93,20 @@ type ProjectDraft = {
   budgetNote: string | null;
   riskNote: string | null;
   remark: string | null;
+  parentId: number | null;
+  leadingDepartmentId: number | null;
+  leadingDepartmentName: string | null;
+  leadingDepartmentCode: string | null;
   startDate: string | null;
   endDate: string | null;
   leader: EmployeeTag | null;
   roleGroups: Record<MultiProjectRole, EmployeeTag[]>;
+};
+
+type CreatePlanDraft = {
+  name: string;
+  leadingDepartmentId: number | null;
+  leadingDepartmentName: string | null;
 };
 
 const PROJECT_STATUS_OPTIONS = ["规划中", "进行中", "暂停", "已完成", "已取消"] as const;
@@ -86,8 +122,7 @@ const PROJECT_PRIORITY_PICKER_OPTIONS = toPickerOptions(PROJECT_PRIORITY_OPTIONS
 const PROJECT_STAGE_PICKER_OPTIONS = toPickerOptions(PROJECT_STAGE_OPTIONS);
 
 function projectCode(project: ProjectItem | null, draft: ProjectDraft | null) {
-  const id = project?.id ?? draft?.id;
-  return id ? `MK-${String(id).padStart(4, "0")}` : "保存后生成";
+  return project?.code || draft?.code || "保存后生成";
 }
 
 function FieldLabel({ children, required = false }: { children: string; required?: boolean }) {
@@ -99,18 +134,9 @@ function FieldLabel({ children, required = false }: { children: string; required
   );
 }
 
-function SectionCard({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h5 className="mb-3 text-sm font-semibold text-slate-900">{title}</h5>
-      {children}
-    </div>
-  );
-}
-
-const inputClassName = "h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500";
+const inputClassName = getFieldInputClassName("h-10");
 const pickerButtonClassName = `${inputClassName} text-left`;
-const textareaClassName = "min-h-24 w-full resize-y rounded-md border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500";
+const textareaClassName = getFieldInputClassName("min-h-24 resize-y");
 
 function employeeFromOption(option?: SearchOption): EmployeeTag | null {
   if (!option) return null;
@@ -174,6 +200,8 @@ function draftSnapshot(draft: ProjectDraft | null) {
     budgetNote: draft.budgetNote || null,
     riskNote: draft.riskNote || null,
     remark: draft.remark || null,
+    parentId: draft.parentId ?? null,
+    leadingDepartmentId: draft.leadingDepartmentId ?? null,
     startDate: draft.startDate || null,
     endDate: draft.endDate || null,
     leaderId: draft.leader?.id ?? null,
@@ -200,6 +228,7 @@ function createProjectDraft(project: ProjectItem | null, entries: ProjectMemberE
   }
   return {
     id: project?.id ?? null,
+    code: project?.code ?? null,
     name: project?.name ?? "",
     description: project?.description ?? null,
     status: project?.status ?? null,
@@ -212,6 +241,10 @@ function createProjectDraft(project: ProjectItem | null, entries: ProjectMemberE
     budgetNote: project?.budgetNote ?? null,
     riskNote: project?.riskNote ?? null,
     remark: project?.remark ?? null,
+    parentId: project?.parentId ?? null,
+    leadingDepartmentId: project?.leadingDepartmentId ?? null,
+    leadingDepartmentName: project?.leadingDepartmentName ?? null,
+    leadingDepartmentCode: project?.leadingDepartmentCode ?? null,
     startDate: project?.startDate ?? null,
     endDate: project?.endDate ?? null,
     leader: leaderEntry ? memberFromEntry(leaderEntry) : null,
@@ -239,12 +272,12 @@ function ProjectMemberTagsInput({
   }
 
   return (
-    <div className="min-h-10 rounded-md border border-slate-300 bg-white px-2 py-1.5 shadow-sm focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500">
+    <div className={getTagInputShellClassName()}>
       <div className="flex flex-wrap items-center gap-2">
         {value.map((member) => (
           <span
             key={member.id}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1 text-sm font-medium text-slate-700 shadow-sm"
+            className={getTagPillClassName("gap-2 px-3 text-sm text-slate-700")}
           >
             {member.name}
             {!disabled && (
@@ -263,6 +296,7 @@ function ProjectMemberTagsInput({
           <div className="min-w-48 flex-1">
             <EntitySearchInput
               entity="employee"
+              fkKey="work.plan.member.employee"
               value=""
               activeOnly
               placeholder={value.length ? "继续添加" : "搜索员工"}
@@ -279,10 +313,17 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
   const canEdit = workCanEdit(user);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [entries, setEntries] = useState<ProjectMemberEntry[]>([]);
-  const [selection, setSelection] = useState<number | "new" | null>(null);
+  const [selection, setSelection] = useState<number | null>(null);
   const [draft, setDraft] = useState<ProjectDraft | null>(null);
   const [baseline, setBaseline] = useState("");
+  const [createPanelOpen, setCreatePanelOpen] = useState(false);
+  const [createDraft, setCreateDraft] = useState<CreatePlanDraft>({
+    name: "",
+    leadingDepartmentId: null,
+    leadingDepartmentName: null,
+  });
   const [keyword, setKeyword] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [projectListOpen, setProjectListOpen] = useState(true);
@@ -306,17 +347,44 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
     return projects.filter((project) => matchText(project.name, q) || matchText(projectCode(project, null), q));
   }, [keyword, projects]);
 
-  const isCreating = selection === "new";
+  const childPlans = useMemo(() => selectedProject?.childPlans ?? [], [selectedProject]);
+  const draftId = draft?.id ?? null;
+
+  const parentPlanOptions = useMemo(() => {
+    const excluded = new Set<number>();
+    if (draftId) {
+      excluded.add(draftId);
+      const childrenByParent = new Map<number, ProjectItem[]>();
+      for (const project of projects) {
+        if (!project.parentId) continue;
+        const children = childrenByParent.get(project.parentId) || [];
+        children.push(project);
+        childrenByParent.set(project.parentId, children);
+      }
+      const stack = [...(childrenByParent.get(draftId) || [])];
+      while (stack.length > 0) {
+        const child = stack.pop()!;
+        if (excluded.has(child.id)) continue;
+        excluded.add(child.id);
+        stack.push(...(childrenByParent.get(child.id) || []));
+      }
+    }
+    return projects
+      .filter((project) => !excluded.has(project.id))
+      .map((project) => ({ value: String(project.id), label: project.name }));
+  }, [draftId, projects]);
+
   const dirty = draftSnapshot(draft) !== baseline;
-  const editorTitle = isCreating ? "新建工作计划" : selectedProject ? "工作计划信息" : "工作计划详情";
-  const canSave = !!draft && canEdit && !saving && (isCreating || dirty);
+  const editorTitle = selectedProject ? "工作计划信息" : "工作计划详情";
+  const canEditCurrent = canEdit && !showArchived;
+  const canSave = !!draft && canEditCurrent && !saving && dirty;
 
   const loadData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const [projectRes, entryRes] = await Promise.all([
-        fetch(workspacePath("/api/work/plans?pageSize=500")),
+        fetch(workspacePath(`/api/work/plans?pageSize=500${showArchived ? "&archived=1" : ""}`)),
         fetch(workspacePath("/api/work/plan-members?pageSize=500")),
       ]);
       if (!projectRes.ok || !entryRes.ok) throw new Error("加载失败");
@@ -325,24 +393,20 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
       const nextEntries = (entryData.entries || []) as ProjectMemberEntry[];
       setProjects(nextProjects);
       setEntries(nextEntries);
-      setSelection((prev) => prev ?? (nextProjects[0]?.id ?? null));
+      setSelection((prev) => nextProjects.some((project) => project.id === prev) ? prev : (nextProjects[0]?.id ?? null));
     } catch {
       setError("工作计划加载失败");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showArchived]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
 
   useEffect(() => {
-    const nextDraft = selection === "new"
-      ? createProjectDraft(null, [])
-      : selectedProject
-        ? createProjectDraft(selectedProject, selectedEntries)
-        : null;
+    const nextDraft = selectedProject ? createProjectDraft(selectedProject, selectedEntries) : null;
     setDraft(nextDraft);
     setBaseline(draftSnapshot(nextDraft));
   }, [selectedEntries, selectedProject, selection]);
@@ -399,25 +463,13 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
     }
   }
 
-  async function createProject(name: string) {
+  async function createProject(name: string, leadingDepartmentId: number) {
     const res = await fetch(workspacePath("/api/work/plans"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name,
-        description: draft?.description || null,
-        status: draft?.status || null,
-        priority: draft?.priority || null,
-        stage: draft?.stage || null,
-        plan: draft?.plan || null,
-        goal: draft?.goal || null,
-        milestones: draft?.milestones || null,
-        budgetAmount: draft?.budgetAmount ?? null,
-        budgetNote: draft?.budgetNote || null,
-        riskNote: draft?.riskNote || null,
-        remark: draft?.remark || null,
-        startDate: draft?.startDate || null,
-        endDate: draft?.endDate || null,
+        leadingDepartmentId,
       }),
     });
     if (!res.ok) {
@@ -426,6 +478,45 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
     }
     const data = await res.json();
     return Number(data.record?.id);
+  }
+
+  async function createPlanFromPanel() {
+    const name = createDraft.name.trim();
+    if (!name) {
+      setToast({ type: "error", message: "计划名称不能为空" });
+      return;
+    }
+    if (!createDraft.leadingDepartmentId) {
+      setToast({ type: "error", message: "请选择主导部门" });
+      return;
+    }
+    setSaving(true);
+    try {
+      const projectId = await createProject(name, createDraft.leadingDepartmentId);
+      if (!projectId) throw new Error("新建工作计划失败");
+      setCreateDraft({ name: "", leadingDepartmentId: null, leadingDepartmentName: null });
+      setCreatePanelOpen(false);
+      setToast({ type: "success", message: "工作计划已新建" });
+      await loadData();
+      setSelection(projectId);
+    } catch (err) {
+      setToast({ type: "error", message: err instanceof Error ? err.message : "新建工作计划失败" });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function setProjectArchived(projectId: number, archived: boolean) {
+    setSaving(true);
+    try {
+      await updateProjectField(projectId, "isArchived", archived);
+      setToast({ type: "success", message: archived ? "工作计划已归档" : "工作计划已恢复" });
+      await loadData();
+    } catch (err) {
+      setToast({ type: "error", message: err instanceof Error ? err.message : "操作失败" });
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function createMember(projectId: number, member: EmployeeTag, role: string | null) {
@@ -496,20 +587,23 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
   }
 
   async function saveProject() {
-    if (!draft || (!isCreating && !dirty)) return;
+    if (!draft || !draft.id || !dirty) return;
     const name = draft.name.trim();
     if (!name) {
       setToast({ type: "error", message: "计划名称不能为空" });
       return;
     }
+    if (!draft.leadingDepartmentId) {
+      setToast({ type: "error", message: "请选择主导部门" });
+      return;
+    }
     setSaving(true);
     try {
-      const projectId = draft.id ?? await createProject(name);
-      if (!projectId) throw new Error("新建工作计划失败");
-      if (draft.id && selectedProject && selectedProject.name !== name) {
+      const projectId = draft.id;
+      if (selectedProject && selectedProject.name !== name) {
         await updateProjectField(projectId, "name", name);
       }
-      if (draft.id && selectedProject) {
+      if (selectedProject) {
         const fields = [
           "description",
           "status",
@@ -522,6 +616,8 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
           "budgetNote",
           "riskNote",
           "remark",
+          "parentId",
+          "leadingDepartmentId",
           "startDate",
           "endDate",
         ] as const;
@@ -545,7 +641,7 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
 
   function renderProjectListPanel(mode: SplitWorkspaceMode) {
     return (
-      <section className={`rounded-lg border border-slate-200 bg-white shadow-sm ${mode === "drawer" ? "h-full overflow-hidden" : ""}`}>
+      <PanelCard className={mode === "drawer" ? "h-full overflow-hidden" : ""}>
         <div className="border-b border-slate-200 p-3">
           <div className="space-y-3">
             <div className="flex items-start justify-between gap-3">
@@ -557,30 +653,17 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
                 <button
                   type="button"
                   onClick={() => setProjectListDrawerOpen(false)}
-                  className="rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-500 hover:bg-slate-50"
+                  className={getToolbarActionClassName("secondary")}
                 >
                   关闭
                 </button>
               )}
             </div>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                disabled={!canEdit}
-                onClick={() => {
-                  setSelection("new");
-                  setProjectListDrawerOpen(false);
-                }}
-                className="rounded-md bg-emerald-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-              >
-                新建工作计划
-              </button>
-            </div>
-            <input
+            <SearchInput
               value={keyword}
-              onChange={(event) => setKeyword(event.target.value)}
+              onChange={setKeyword}
               placeholder="搜索计划名称、编码"
-              className="h-10 w-full rounded-md border border-slate-300 bg-white px-3 text-sm shadow-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+              size="page"
             />
           </div>
         </div>
@@ -588,68 +671,113 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
           {filteredProjects.map((project) => {
             const active = selection === project.id;
             return (
-              <button
+              <SelectorCard
                 key={project.id}
-                type="button"
+                title={project.name}
+                subtitle={projectCode(project, null)}
+                active={active}
+                archived={project.isArchived}
+                trailing={`人 ${project.employeeCount}`}
+                meta={[
+                  ...(project.status ? [project.status] : []),
+                  ...(project.priority ? [project.priority] : []),
+                ]}
                 onClick={() => {
                   setSelection(project.id);
                   setProjectListDrawerOpen(false);
                 }}
-                className={`w-full rounded-lg border px-3 py-3 text-left transition ${
-                  active
-                    ? "border-emerald-400 bg-emerald-50"
-                    : "border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white"
-                }`}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-semibold text-slate-900">{project.name}</div>
-                    <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-slate-400">
-                      <span>{projectCode(project, null)}</span>
-                      {project.status && <span className="rounded bg-white px-1.5 py-0.5 text-slate-500">{project.status}</span>}
-                      {project.priority && <span className="rounded bg-white px-1.5 py-0.5 text-slate-500">{project.priority}</span>}
-                    </div>
-                  </div>
-                  <span className="shrink-0 rounded bg-white px-2 py-1 text-xs text-slate-500">人 {project.employeeCount}</span>
-                </div>
-              </button>
+              />
             );
           })}
           {filteredProjects.length === 0 && (
-            <p className="rounded-md border border-dashed border-slate-200 px-3 py-8 text-center text-sm text-slate-400">暂无工作计划</p>
+            <EmptyStateCard compact>暂无工作计划</EmptyStateCard>
           )}
         </div>
-      </section>
+      </PanelCard>
     );
   }
 
-  if (loading) return <div className="rounded-lg border border-slate-200 bg-white p-8 text-center text-sm text-slate-400">加载中...</div>;
+  if (loading) return <EmptyStateCard>加载中...</EmptyStateCard>;
   if (error) return <div className="rounded-lg border border-red-200 bg-red-50 p-8 text-center text-sm text-red-600">{error}</div>;
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h3 className="text-base font-semibold text-slate-900">工作计划资料</h3>
-          <p className="mt-1 text-sm text-slate-500">计划主数据和参与人员维护。</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setProjectListDrawerOpen(true)}
-            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 xl:hidden"
-          >
-            显示工作计划列表
-          </button>
-          <button
-            type="button"
-            onClick={() => setProjectListOpen((open) => !open)}
-            className="hidden rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 xl:inline-flex"
-          >
-            {projectListOpen ? "隐藏工作计划列表" : "显示工作计划列表"}
-          </button>
-        </div>
-      </div>
+      <SplitWorkspaceToolbar
+        sideOpen={projectListOpen}
+        sideLabel="工作计划列表"
+        onSideOpenChange={setProjectListOpen}
+        onDrawerOpen={() => setProjectListDrawerOpen(true)}
+      >
+        <button
+          type="button"
+          disabled={!canEditCurrent}
+          onClick={() => setCreatePanelOpen((open) => !open)}
+          className={getToolbarActionClassName("primary")}
+        >
+          新建工作计划
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setShowArchived((value) => !value);
+            setCreatePanelOpen(false);
+          }}
+          className={getToolbarActionClassName("secondary")}
+        >
+          {showArchived ? "现用计划" : "归档计划"}
+        </button>
+      </SplitWorkspaceToolbar>
+
+      {createPanelOpen && (
+        <InlineCreatePanel
+          title="新建工作计划"
+          onSubmit={() => void createPlanFromPanel()}
+          onCancel={() => {
+            setCreatePanelOpen(false);
+            setCreateDraft({ name: "", leadingDepartmentId: null, leadingDepartmentName: null });
+          }}
+          submitDisabled={!createDraft.name.trim() || !createDraft.leadingDepartmentId}
+          submitting={saving}
+          fieldsClassName="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(260px,1.5fr)_minmax(320px,2fr)_180px_auto] lg:items-end"
+        >
+          <label className="space-y-1">
+            <FieldLabel required>计划名称</FieldLabel>
+            <TextField
+              value={createDraft.name}
+              disabled={!canEditCurrent || saving}
+              onChange={(value) => setCreateDraft((prev) => ({ ...prev, name: value }))}
+              placeholder="输入计划名称"
+              className={inputClassName}
+              unstyled
+            />
+          </label>
+          <label className="space-y-1">
+            <FieldLabel required>主导部门</FieldLabel>
+            <EntitySearchInput
+              entity="department"
+              fkKey="work.plan.leadingDepartment"
+              value={createDraft.leadingDepartmentId ? String(createDraft.leadingDepartmentId) : ""}
+              displayValue={createDraft.leadingDepartmentName || ""}
+              disabled={!canEditCurrent || saving}
+              placeholder="搜索部门名称、编码"
+              onChange={(_label, option) => setCreateDraft((prev) => ({
+                ...prev,
+                leadingDepartmentId: option?.id ?? null,
+                leadingDepartmentName: option?.name ?? null,
+              }))}
+            />
+          </label>
+          <label className="space-y-1">
+            <FieldLabel>计划编码</FieldLabel>
+            <TextField
+              value="保存后生成"
+              disabled
+              className={getReadOnlyFieldClassName("h-10 font-mono")}
+              unstyled
+            />
+          </label>
+        </InlineCreatePanel>
+      )}
 
       <SplitWorkspace
         sideOpen={projectListOpen}
@@ -657,23 +785,27 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
         onDrawerOpenChange={setProjectListDrawerOpen}
         renderSide={renderProjectListPanel}
       >
-        <section className="rounded-lg border border-slate-200 bg-slate-50 p-4 shadow-sm">
-          <div className="mb-4 flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4">
-            <div>
-              <h4 className="text-sm font-semibold text-slate-900">{editorTitle}</h4>
-              {dirty && <p className="mt-1 text-xs text-amber-600">有未保存修改</p>}
-            </div>
-            {draft && (
-              <button
-                type="button"
-                disabled={!canSave}
-                onClick={saveProject}
-                className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
-              >
-                {saving ? "保存中..." : "保存计划"}
-              </button>
-            )}
-          </div>
+        <PanelCard className="bg-slate-50" bodyClassName="p-4">
+          <ActionToolbar
+            className="mb-4"
+            leftSlot={
+              <div>
+                <h4 className="text-sm font-semibold text-slate-900">{editorTitle}</h4>
+                {showArchived && <p className="mt-1 text-xs text-slate-500">归档浏览为只读，可恢复后继续维护。</p>}
+                {dirty && <p className="mt-1 text-xs text-amber-600">有未保存修改</p>}
+              </div>
+            }
+            secondaryActions={draft && selectedProject ? [{
+              label: showArchived ? "恢复计划" : "归档计划",
+              disabled: saving || !canEdit,
+              onClick: () => void setProjectArchived(selectedProject.id, !showArchived),
+            }] : []}
+            primaryActions={draft && selectedProject && !showArchived ? [{
+              label: saving ? "保存中..." : "保存计划",
+              disabled: !canSave,
+              onClick: saveProject,
+            }] : []}
+          />
 
           {draft ? (
             <div className="space-y-4">
@@ -681,19 +813,37 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   <label className="space-y-1">
                     <FieldLabel>计划编码</FieldLabel>
-                    <input
+                    <TextField
                       value={projectCode(selectedProject, draft)}
                       readOnly
-                      className="h-10 w-full cursor-default rounded-md border border-slate-200 bg-slate-100 px-3 font-mono text-sm text-slate-600 shadow-sm"
+                      className={getReadOnlyFieldClassName("h-10 cursor-default font-mono text-slate-600")}
+                      unstyled
                     />
                   </label>
                   <label className="space-y-1">
                     <FieldLabel required>计划名称</FieldLabel>
-                    <input
+                    <TextField
                       value={draft.name}
-                      disabled={!canEdit}
-                      onChange={(event) => updateDraft("name", event.target.value)}
+                      disabled={!canEditCurrent}
+                      onChange={(value) => updateDraft("name", value)}
                       className={inputClassName}
+                      unstyled
+                    />
+                  </label>
+                  <label className="space-y-1 md:col-span-2">
+                    <FieldLabel required>主导部门</FieldLabel>
+                    <EntitySearchInput
+                      entity="department"
+                      fkKey="work.plan.leadingDepartment"
+                      value={draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : ""}
+                      displayValue={draft.leadingDepartmentName || ""}
+                      disabled={!canEditCurrent}
+                      placeholder="搜索部门名称、编码"
+                      onChange={(_label, option) => {
+                        updateDraft("leadingDepartmentId", option?.id ?? null);
+                        updateDraft("leadingDepartmentName", option?.name ?? null);
+                        updateDraft("leadingDepartmentCode", option?.subtitle ?? null);
+                      }}
                     />
                   </label>
                   <label className="space-y-1">
@@ -701,7 +851,7 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
                     <OptionPicker
                       value={draft.status}
                       options={PROJECT_STATUS_PICKER_OPTIONS}
-                      disabled={!canEdit}
+                      disabled={!canEditCurrent}
                       onChange={(value) => updateDraft("status", value)}
                       placeholder="未设置"
                       buttonClassName={pickerButtonClassName}
@@ -713,7 +863,7 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
                     <OptionPicker
                       value={draft.priority}
                       options={PROJECT_PRIORITY_PICKER_OPTIONS}
-                      disabled={!canEdit}
+                      disabled={!canEditCurrent}
                       onChange={(value) => updateDraft("priority", value)}
                       placeholder="未设置"
                       buttonClassName={pickerButtonClassName}
@@ -725,9 +875,23 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
                     <OptionPicker
                       value={draft.stage}
                       options={PROJECT_STAGE_PICKER_OPTIONS}
-                      disabled={!canEdit}
+                      disabled={!canEditCurrent}
                       onChange={(value) => updateDraft("stage", value)}
                       placeholder="未设置"
+                      buttonClassName={pickerButtonClassName}
+                      popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-72 rounded-lg border border-slate-200 bg-white p-3 shadow-xl"
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    <FieldLabel>上级计划</FieldLabel>
+                    <OptionPicker
+                      value={draft.parentId ? String(draft.parentId) : null}
+                      options={parentPlanOptions}
+                      disabled={!canEditCurrent}
+                      onChange={(value) => updateDraft("parentId", value ? Number(value) : null)}
+                      placeholder="无上级计划"
+                      searchPlaceholder="搜索工作计划"
+                      visibleCount={6}
                       buttonClassName={pickerButtonClassName}
                       popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-72 rounded-lg border border-slate-200 bg-white p-3 shadow-xl"
                     />
@@ -736,7 +900,7 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
                     <FieldLabel>计划开始时间</FieldLabel>
                     <CalendarDateInput
                       value={draft.startDate}
-                      disabled={!canEdit}
+                      disabled={!canEditCurrent}
                       onChange={(value) => updateDraft("startDate", value)}
                       className={inputClassName}
                     />
@@ -745,15 +909,31 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
                     <FieldLabel>计划结束时间</FieldLabel>
                     <CalendarDateInput
                       value={draft.endDate}
-                      disabled={!canEdit}
+                      disabled={!canEditCurrent}
                       onChange={(value) => updateDraft("endDate", value)}
                       className={inputClassName}
                     />
                   </label>
                   <label className="space-y-1 md:col-span-2">
                     <FieldLabel>说明</FieldLabel>
-                    <textarea value={draft.description || ""} disabled={!canEdit} onChange={(event) => updateDraft("description", event.target.value || null)} className={textareaClassName} />
+                    <TextareaField value={draft.description || ""} disabled={!canEditCurrent} onChange={(value) => updateDraft("description", value || null)} className={textareaClassName} />
                   </label>
+                  <div className="space-y-1 md:col-span-2">
+                    <FieldLabel>子计划</FieldLabel>
+                    <div className={getReadOnlyFieldClassName("min-h-10 bg-slate-50 text-slate-600")}>
+                      {childPlans.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {childPlans.map((child) => (
+                            <span key={child.id} className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+                              {child.name}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-slate-400">暂无子计划</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </SectionCard>
 
@@ -761,39 +941,40 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   <label className="space-y-1 md:col-span-2">
                     <FieldLabel>计划规划</FieldLabel>
-                    <textarea value={draft.plan || ""} disabled={!canEdit} onChange={(event) => updateDraft("plan", event.target.value || null)} className={textareaClassName} />
+                    <TextareaField value={draft.plan || ""} disabled={!canEditCurrent} onChange={(value) => updateDraft("plan", value || null)} className={textareaClassName} />
                   </label>
                   <label className="space-y-1 md:col-span-2">
                     <FieldLabel>计划目标</FieldLabel>
-                    <textarea value={draft.goal || ""} disabled={!canEdit} onChange={(event) => updateDraft("goal", event.target.value || null)} className={textareaClassName} />
+                    <TextareaField value={draft.goal || ""} disabled={!canEditCurrent} onChange={(value) => updateDraft("goal", value || null)} className={textareaClassName} />
                   </label>
                   <label className="space-y-1 md:col-span-2">
                     <FieldLabel>关键里程碑</FieldLabel>
-                    <textarea value={draft.milestones || ""} disabled={!canEdit} onChange={(event) => updateDraft("milestones", event.target.value || null)} className={textareaClassName} />
+                    <TextareaField value={draft.milestones || ""} disabled={!canEditCurrent} onChange={(value) => updateDraft("milestones", value || null)} className={textareaClassName} />
                   </label>
                   <label className="space-y-1">
                     <FieldLabel>预算金额</FieldLabel>
-                    <input
+                    <TextField
                       type="number"
                       min="0"
                       step="0.01"
-                      value={draft.budgetAmount ?? ""}
-                      disabled={!canEdit}
-                      onChange={(event) => updateDraft("budgetAmount", event.target.value === "" ? null : Number(event.target.value))}
+                      value={draft.budgetAmount === null || draft.budgetAmount === undefined ? "" : String(draft.budgetAmount)}
+                      disabled={!canEditCurrent}
+                      onChange={(value) => updateDraft("budgetAmount", value === "" ? null : Number(value))}
                       className={inputClassName}
+                      unstyled
                     />
                   </label>
                   <label className="space-y-1 md:col-span-2">
                     <FieldLabel>预算说明</FieldLabel>
-                    <textarea value={draft.budgetNote || ""} disabled={!canEdit} onChange={(event) => updateDraft("budgetNote", event.target.value || null)} className={textareaClassName} />
+                    <TextareaField value={draft.budgetNote || ""} disabled={!canEditCurrent} onChange={(value) => updateDraft("budgetNote", value || null)} className={textareaClassName} />
                   </label>
                   <label className="space-y-1 md:col-span-2">
                     <FieldLabel>风险说明</FieldLabel>
-                    <textarea value={draft.riskNote || ""} disabled={!canEdit} onChange={(event) => updateDraft("riskNote", event.target.value || null)} className={textareaClassName} />
+                    <TextareaField value={draft.riskNote || ""} disabled={!canEditCurrent} onChange={(value) => updateDraft("riskNote", value || null)} className={textareaClassName} />
                   </label>
                   <label className="space-y-1 md:col-span-2">
                     <FieldLabel>备注</FieldLabel>
-                    <textarea value={draft.remark || ""} disabled={!canEdit} onChange={(event) => updateDraft("remark", event.target.value || null)} className={textareaClassName} />
+                    <TextareaField value={draft.remark || ""} disabled={!canEditCurrent} onChange={(value) => updateDraft("remark", value || null)} className={textareaClassName} />
                   </label>
                 </div>
               </SectionCard>
@@ -804,10 +985,11 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
                     <FieldLabel>计划负责人</FieldLabel>
                     <EntitySearchInput
                       entity="employee"
+                      fkKey="work.plan.member.employee"
                       activeOnly
                       value={draft.leader?.employeeNumber || ""}
                       displayValue={draft.leader?.name || ""}
-                      disabled={!canEdit}
+                      disabled={!canEditCurrent}
                       placeholder="搜索负责人"
                       onChange={(_label, option) => setLeader(option)}
                     />
@@ -819,7 +1001,7 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
                         <FieldLabel>{role}</FieldLabel>
                         <ProjectMemberTagsInput
                           value={draft.roleGroups[role]}
-                          disabled={!canEdit}
+                          disabled={!canEditCurrent}
                           onChange={(members) => setRoleMembers(role, members)}
                         />
                       </label>
@@ -836,7 +1018,7 @@ function setRoleMembers(role: MultiProjectRole, members: EmployeeTag[]) {
               </div>
             </div>
           )}
-        </section>
+        </PanelCard>
       </SplitWorkspace>
 
       <Toast

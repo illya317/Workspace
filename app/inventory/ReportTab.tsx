@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { SectionCard } from "@workspace/core/ui";
 
 interface WarningItem {
   code: string;
@@ -63,9 +64,8 @@ export default function ReportTab() {
 
       {activeReport === "warning" && warningData && (
         <div className="space-y-4">
-          <div className="rounded-lg bg-white shadow-sm p-4">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3">原辅料预警</h3>
-            <table className="w-full text-xs">
+          <SectionCard title="原辅料预警" bodyClassName="overflow-x-auto p-0">
+            <table className="w-full text-sm">
               <thead className="border-b bg-gray-50"><tr><th className="px-3 py-2 text-left">编码</th><th className="px-3 py-2 text-left">名称</th><th className="px-3 py-2 text-right">当前库存</th></tr></thead>
               <tbody>
                 {warningData.rawMaterials?.map((r) => (
@@ -74,10 +74,9 @@ export default function ReportTab() {
                 {(!warningData.rawMaterials || warningData.rawMaterials.length === 0) && <tr><td colSpan={3} className="px-3 py-4 text-center text-gray-400">暂无预警</td></tr>}
               </tbody>
             </table>
-          </div>
-          <div className="rounded-lg bg-white shadow-sm p-4">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3">包装材料预警</h3>
-            <table className="w-full text-xs">
+          </SectionCard>
+          <SectionCard title="包装材料预警" bodyClassName="overflow-x-auto p-0">
+            <table className="w-full text-sm">
               <thead className="border-b bg-gray-50"><tr><th className="px-3 py-2 text-left">编码</th><th className="px-3 py-2 text-left">名称</th><th className="px-3 py-2 text-right">当前库存</th><th className="px-3 py-2 text-left">有效期</th></tr></thead>
               <tbody>
                 {warningData.packaging?.map((p) => (
@@ -86,10 +85,9 @@ export default function ReportTab() {
                 {(!warningData.packaging || warningData.packaging.length === 0) && <tr><td colSpan={4} className="px-3 py-4 text-center text-gray-400">暂无预警</td></tr>}
               </tbody>
             </table>
-          </div>
-          <div className="rounded-lg bg-white shadow-sm p-4">
-            <h3 className="text-sm font-semibold text-gray-800 mb-3">成品预警</h3>
-            <table className="w-full text-xs">
+          </SectionCard>
+          <SectionCard title="成品预警" bodyClassName="overflow-x-auto p-0">
+            <table className="w-full text-sm">
               <thead className="border-b bg-gray-50"><tr><th className="px-3 py-2 text-left">编码</th><th className="px-3 py-2 text-left">名称</th><th className="px-3 py-2 text-right">可发货库存</th></tr></thead>
               <tbody>
                 {warningData.finishedGoods?.map((f) => (
@@ -98,7 +96,7 @@ export default function ReportTab() {
                 {(!warningData.finishedGoods || warningData.finishedGoods.length === 0) && <tr><td colSpan={3} className="px-3 py-4 text-center text-gray-400">暂无预警</td></tr>}
               </tbody>
             </table>
-          </div>
+          </SectionCard>
         </div>
       )}
 
@@ -108,9 +106,8 @@ export default function ReportTab() {
             const title = cat === "rawMaterials" ? "原辅料台账" : cat === "packaging" ? "包装材料台账" : "成品台账";
             const data = ledgerData[cat] || [];
             return (
-              <div key={cat} className="rounded-lg bg-white shadow-sm p-4">
-                <h3 className="text-sm font-semibold text-gray-800 mb-3">{title}</h3>
-                <table className="w-full text-xs">
+              <SectionCard key={cat} title={title} bodyClassName="overflow-x-auto p-0">
+                <table className="w-full text-sm">
                   <thead className="border-b bg-gray-50"><tr><th className="px-3 py-2 text-left">编码</th><th className="px-3 py-2 text-left">名称</th><th className="px-3 py-2 text-right">上期结存</th><th className="px-3 py-2 text-right">本期入库</th><th className="px-3 py-2 text-right">本期出库</th><th className="px-3 py-2 text-right">当前库存</th></tr></thead>
                   <tbody>
                     {data.map((row) => (
@@ -119,7 +116,7 @@ export default function ReportTab() {
                     {data.length === 0 && <tr><td colSpan={6} className="px-3 py-4 text-center text-gray-400">暂无数据</td></tr>}
                   </tbody>
                 </table>
-              </div>
+              </SectionCard>
             );
           })}
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import TabBar from "@/app/components/TabBar";
+import { EmptyStateCard, PageContent, TabBar } from "@workspace/core/ui";
 import AccountTab from "./AccountTab";
 import VoucherTab from "./VoucherTab";
 import LedgerTab from "./LedgerTab";
@@ -19,7 +19,7 @@ export default function LedgerClient({ canWrite }: { canWrite: boolean }) {
   const [activeTab, setActiveTab] = useState("accounts");
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-6">
+    <PageContent className="max-w-5xl">
       <TabBar tabs={tabs} active={activeTab} onChange={setActiveTab} />
 
       {activeTab === "accounts" && <AccountTab canWrite={canWrite} />}
@@ -27,10 +27,8 @@ export default function LedgerClient({ canWrite }: { canWrite: boolean }) {
       {activeTab === "ledger" && <LedgerTab />}
       {activeTab === "reclass" && <ReclassTab />}
       {activeTab === "depreciation" && (
-        <div className="rounded-lg bg-white p-12 text-center shadow-sm">
-          <p className="text-sm text-gray-400">资产折旧表——开发中</p>
-        </div>
+        <EmptyStateCard>资产折旧表开发中</EmptyStateCard>
       )}
-    </main>
+    </PageContent>
   );
 }

@@ -26,5 +26,8 @@ jobs:
       - name: Architecture Gate
         run: npm run arch:gate
 
+      - name: Lint
+        run: npm run lint:full
+
       - name: Test
         run: npm test

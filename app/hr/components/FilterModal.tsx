@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import LocalAutocompleteInput from "./LocalAutocompleteInput";
+import { useState } from "react";
+import { DetailModal, SearchInput, getFieldInputClassName, getToolbarActionClassName } from "@workspace/core/ui";
 import FilterSearchInput from "./FilterSearchInput";
 import CalendarDateInput from "./CalendarDateInput";
 import OptionPicker from "./OptionPicker";
-import type { FieldConfig, FKFieldConfig } from "../types";
+import type { AdvancedFilterConfig } from "../types";
 
 interface FilterCondition {
   field: string;
@@ -14,35 +14,14 @@ interface FilterCondition {
 
 interface Props {
   open: boolean;
-  fields: FieldConfig[];
-  fkFields?: Record<string, FKFieldConfig>;
-  items: Record<string, unknown>[];
+  filters: AdvancedFilterConfig[];
   onClose: () => void;
   onApply: (conditions: Record<string, string>) => void;
   onReset: () => void;
 }
 
-export default function FilterModal({ open, fields, fkFields, items, onClose, onApply, onReset }: Props) {
+export default function FilterModal({ open, filters, onClose, onApply, onReset }: Props) {
   const [conditions, setConditions] = useState<FilterCondition[]>([{ field: "", value: "" }]);
-
-  const usableFields = fields.filter((f) => !f.hidden && f.type !== "textarea");
-
-  const fieldOptions = useMemo(() => {
-    const map: Record<string, string[]> = {};
-    for (const f of usableFields) {
-      // 有 filterEntity 或 fkFields 的字段不走本地选项
-      if (f.filterEntity || (f.type === "fk" && fkFields?.[f.key])) continue;
-      const vals = new Set<string>();
-      for (const item of items) {
-        const v = item[f.key];
-        if (v !== null && v !== undefined && v !== "") {
-          vals.add(String(v));
-        }
-      }
-      map[f.key] = Array.from(vals).sort();
-    }
-    return map;
-  }, [usableFields, fkFields, items]);
 
   if (!open) return null;
 
@@ -63,8 +42,9 @@ export default function FilterModal({ open, fields, fkFields, items, onClose, on
   function handleApply() {
     const result: Record<string, string> = {};
     for (const c of conditions) {
-      if (c.field && c.value !== "" && c.value !== undefined && c.value !== null) {
-        result[c.field] = c.value;
+      const filter = filters.find((item) => item.key === c.field);
+      if (filter && c.value !== "" && c.value !== undefined && c.value !== null) {
+        result[filter.queryParam] = c.value;
       }
     }
     onApply(result);
@@ -77,54 +57,23 @@ export default function FilterModal({ open, fields, fkFields, items, onClose, on
     onClose();
   }
 
-  function getInputType(fieldKey: string) {
-    const f = usableFields.find((x) => x.key === fieldKey);
-    if (!f) return "text";
-    if (f.type === "date") return "date";
-    if (f.type === "number") return "number";
-    if (f.type === "boolean") return "boolean";
-    return "text";
-  }
-
-  function getFieldEntity(fieldKey: string): { entity: string; returnField: "id" | "name" } | null {
-    const f = usableFields.find((x) => x.key === fieldKey);
-    if (!f) return null;
-    // FK 字段：从 fkFields 取 entity，返回 id
-    if (f.type === "fk" && fkFields?.[fieldKey]) {
-      return { entity: fkFields[fieldKey].entity, returnField: "id" };
-    }
-    // 非 FK 字段但配置了 filterEntity：返回 name
-    if (f.filterEntity) {
-      return { entity: f.filterEntity, returnField: "name" };
-    }
-    return null;
-  }
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-gray-800">高级筛选</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">✕</button>
-        </div>
-
+    <DetailModal open title="高级筛选" onClose={onClose} maxWidth="max-w-md">
         <div className="space-y-3 pr-1">
           {conditions.map((c, i) => {
-            const inputType = getInputType(c.field);
-            const entityInfo = c.field ? getFieldEntity(c.field) : null;
-            const options = c.field ? fieldOptions[c.field] || [] : [];
+            const filter = filters.find((item) => item.key === c.field);
             return (
               <div key={i} className="flex items-center gap-2">
                 <OptionPicker
                   value={c.field}
                   onChange={(value) => updateCondition(i, { field: value ?? "", value: "" })}
-                  options={usableFields.map((field) => ({ label: field.label, value: field.key }))}
+                  options={filters.map((filterItem) => ({ label: filterItem.label, value: filterItem.key }))}
                   placeholder="选择字段"
-                  buttonClassName="w-full rounded-lg border border-gray-300 px-3 py-2 text-left text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  buttonClassName={getFieldInputClassName("text-left text-gray-700")}
                   className="flex-1"
                 />
 
-                {inputType === "boolean" ? (
+                {filter?.kind === "boolean" ? (
                   <OptionPicker
                     value={c.value}
                     onChange={(value) => updateCondition(i, { value: value ?? "" })}
@@ -133,37 +82,42 @@ export default function FilterModal({ open, fields, fkFields, items, onClose, on
                       { label: "否", value: "false" },
                     ]}
                     placeholder="请选择"
-                    buttonClassName="w-full rounded-lg border border-gray-300 px-3 py-2 text-left text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    buttonClassName={getFieldInputClassName("text-left text-gray-700")}
                     className="flex-1"
                   />
-                ) : inputType === "date" ? (
+                ) : filter?.kind === "select" ? (
+                  <OptionPicker
+                    value={c.value}
+                    onChange={(value) => updateCondition(i, { value: value ?? "" })}
+                    options={filter.options ?? []}
+                    placeholder="请选择"
+                    buttonClassName={getFieldInputClassName("text-left text-gray-700")}
+                    className="flex-1"
+                  />
+                ) : filter?.kind === "date" ? (
                   <CalendarDateInput
                     value={c.value}
                     onChange={(value) => updateCondition(i, { value: value ?? "" })}
-                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    className={getFieldInputClassName("flex-1 text-gray-700")}
                   />
-                ) : entityInfo ? (
+                ) : filter?.kind === "fk" && filter.entity ? (
                   <FilterSearchInput
                     value={c.value}
                     onChange={(v) => updateCondition(i, { value: v })}
-                    entity={entityInfo.entity}
-                    returnField={entityInfo.returnField}
-                    placeholder="输入搜索..."
-                  />
-                ) : options.length > 0 ? (
-                  <LocalAutocompleteInput
-                    value={c.value}
-                    onChange={(v) => updateCondition(i, { value: v })}
-                    options={options}
-                    placeholder="输入搜索..."
+                    entity={filter.entity}
+                    fkKey={filter.fkKey}
+                    returnField={filter.returnField}
+                    placeholder={filter.placeholder ?? "输入搜索..."}
+                    size="compact"
+                    className="flex-1"
                   />
                 ) : (
-                  <input
-                    type="text"
+                  <SearchInput
                     value={c.value}
-                    onChange={(e) => updateCondition(i, { value: e.target.value })}
-                    placeholder="输入值"
-                    className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    onChange={(value) => updateCondition(i, { value })}
+                    placeholder={filter?.placeholder ?? "输入搜索..."}
+                    size="compact"
+                    className="flex-1"
                   />
                 )}
 
@@ -189,18 +143,17 @@ export default function FilterModal({ open, fields, fkFields, items, onClose, on
         <div className="mt-5 flex justify-end gap-3">
           <button
             onClick={handleReset}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+            className={getToolbarActionClassName("secondary")}
           >
             重置
           </button>
           <button
             onClick={handleApply}
-            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+            className={getToolbarActionClassName("primary")}
           >
             应用
           </button>
         </div>
-      </div>
-    </div>
+    </DetailModal>
   );
 }

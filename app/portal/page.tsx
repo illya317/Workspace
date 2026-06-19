@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/server/auth/session";
+import { getCurrentUser } from "@workspace/platform/server/auth";
 import PortalClient from "./PortalClient";
 
 export default async function PortalPage() {

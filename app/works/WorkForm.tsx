@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import SelectField from "@/app/components/SelectField";
+import SelectField from "@workspace/core/ui/SelectField";
 import StarRating from "./StarRating";
 import type { WorkItem } from "./types";
 

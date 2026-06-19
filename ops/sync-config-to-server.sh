@@ -66,9 +66,9 @@ if [ "$REMOTE_WORKSPACE_CONFIG_DIR" != "$REMOTE_DIR/.workspace" ]; then
   REMOTE_WORKSPACE_CONFIG_DIR="$REMOTE_DIR/.workspace"
 fi
 
-LOCAL_CONFIG_ROOT="$LOCAL_WORKSPACE_CONFIG_DIR/config/pharma-ops"
+LOCAL_CONFIG_ROOT="$LOCAL_WORKSPACE_CONFIG_DIR/config/pharma-qc"
 if [ ! -d "$LOCAL_CONFIG_ROOT" ]; then
-  echo "[错误] 本地 pharma-ops 配置目录不存在: $LOCAL_CONFIG_ROOT"
+  echo "[错误] 本地 pharma-qc 配置目录不存在: $LOCAL_CONFIG_ROOT"
   exit 1
 fi
 
@@ -110,7 +110,7 @@ fi
 
 echo "==> 生产服务器: $SERVER"
 echo "==> 本地配置: $LOCAL_CONFIG_ROOT"
-echo "==> 远端配置: $REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops"
+echo "==> 远端配置: $REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc"
 
 if [ "$DRY_RUN" = "0" ]; then
   echo "==> 生成本地 QC 模板缓存..."
@@ -118,11 +118,11 @@ if [ "$DRY_RUN" = "0" ]; then
 fi
 
 ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new "$SERVER" \
-  "mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops' '$REMOTE_WORKSPACE_CONFIG_DIR/cache/production/qc'"
+  "mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc' '$REMOTE_WORKSPACE_CONFIG_DIR/cache/production/qc'"
 
 rsync "${rsync_flags[@]}" -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
   "$LOCAL_CONFIG_ROOT/" \
-  "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops/"
+  "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/"
 
 if [ "$DRY_RUN" = "0" ] && [ -d "$LOCAL_WORKSPACE_CONFIG_DIR/cache/production/qc" ]; then
   rsync -az --delete -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
@@ -133,10 +133,10 @@ fi
 if [ "$DRY_RUN" = "0" ]; then
   ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new "$SERVER" "
     set -e
-    test -f '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops/table_layouts/layout_mapping.json'
-    test -f '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops/table_layouts/templates/parents/related_substances_hplc_full.json'
-    test -f '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops/products.yaml'
+    test -f '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/product_stage_tests.json'
+    test -d '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/full'
+    test -d '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/records'
   "
 fi
 
-echo "==> pharma-ops 配置同步完成"
+echo "==> pharma-qc 配置同步完成"

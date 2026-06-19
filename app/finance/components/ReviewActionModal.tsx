@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { DetailModal, getFieldInputClassName, getToolbarActionClassName } from "@workspace/core/ui";
 
 interface ReviewActionModalProps {
   open: boolean;
@@ -98,16 +99,7 @@ export default function ReviewActionModal({
   }
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
-      onClick={handleClose}
-    >
-      <div
-        className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="mb-4 text-sm font-semibold text-gray-800">{title}</h3>
-
+    <DetailModal open title={title} onClose={handleClose} maxWidth="max-w-md">
         <div className="space-y-3">
           {sourceAccount && (
             <div>
@@ -127,7 +119,7 @@ export default function ReviewActionModal({
               type="text"
               value={targetAccount}
               onChange={(e) => setTargetAccount(e.target.value)}
-              className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm font-mono focus:border-emerald-400 focus:outline-none"
+              className={getFieldInputClassName("font-mono")}
               placeholder="科目编码"
               autoFocus
             />
@@ -141,7 +133,7 @@ export default function ReviewActionModal({
               step="0.01"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-emerald-400 focus:outline-none"
+              className={getFieldInputClassName()}
               placeholder="0.00"
             />
           </div>
@@ -153,7 +145,7 @@ export default function ReviewActionModal({
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={2}
-              className="w-full rounded border border-gray-300 px-2 py-1.5 text-sm focus:border-emerald-400 focus:outline-none resize-none"
+              className={getFieldInputClassName("resize-none")}
             />
           </div>
           {error && (
@@ -165,19 +157,18 @@ export default function ReviewActionModal({
           <button
             onClick={handleClose}
             disabled={saving}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+            className={getToolbarActionClassName("secondary")}
           >
             取消
           </button>
           <button
             onClick={handleSubmit}
             disabled={saving}
-            className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-50"
+            className={getToolbarActionClassName("primary")}
           >
             {saving ? "提交中..." : "确认调整"}
           </button>
         </div>
-      </div>
-    </div>
+    </DetailModal>
   );
 }

@@ -23,7 +23,7 @@ export default function StatusToggle({ tabs, active, onChange }: StatusTogglePro
         <button
           key={t.key}
           onClick={() => onChange(t.key)}
-          className={`rounded px-1.5 py-0.5 text-[11px] transition-colors ${
+          className={`rounded px-1.5 py-0.5 text-xs transition-colors ${
             active === t.key
               ? "bg-emerald-600 text-white"
               : "text-gray-600 hover:bg-gray-100"

@@ -49,6 +49,8 @@ export type PositionMinAggregateOutputType = {
   name: string | null
   departmentId: number | null
   positionDescriptionId: number | null
+  isArchived: boolean | null
+  archivedAt: Date | null
   endDate: Date | null
   editedBy: number | null
   editedAt: Date | null
@@ -62,6 +64,8 @@ export type PositionMaxAggregateOutputType = {
   name: string | null
   departmentId: number | null
   positionDescriptionId: number | null
+  isArchived: boolean | null
+  archivedAt: Date | null
   endDate: Date | null
   editedBy: number | null
   editedAt: Date | null
@@ -75,6 +79,8 @@ export type PositionCountAggregateOutputType = {
   name: number
   departmentId: number
   positionDescriptionId: number
+  isArchived: number
+  archivedAt: number
   endDate: number
   editedBy: number
   editedAt: number
@@ -106,6 +112,8 @@ export type PositionMinAggregateInputType = {
   name?: true
   departmentId?: true
   positionDescriptionId?: true
+  isArchived?: true
+  archivedAt?: true
   endDate?: true
   editedBy?: true
   editedAt?: true
@@ -119,6 +127,8 @@ export type PositionMaxAggregateInputType = {
   name?: true
   departmentId?: true
   positionDescriptionId?: true
+  isArchived?: true
+  archivedAt?: true
   endDate?: true
   editedBy?: true
   editedAt?: true
@@ -132,6 +142,8 @@ export type PositionCountAggregateInputType = {
   name?: true
   departmentId?: true
   positionDescriptionId?: true
+  isArchived?: true
+  archivedAt?: true
   endDate?: true
   editedBy?: true
   editedAt?: true
@@ -232,6 +244,8 @@ export type PositionGroupByOutputType = {
   name: string
   departmentId: number | null
   positionDescriptionId: number | null
+  isArchived: boolean
+  archivedAt: Date | null
   endDate: Date | null
   editedBy: number | null
   editedAt: Date | null
@@ -268,6 +282,8 @@ export type PositionWhereInput = {
   name?: Prisma.StringFilter<"Position"> | string
   departmentId?: Prisma.IntNullableFilter<"Position"> | number | null
   positionDescriptionId?: Prisma.IntNullableFilter<"Position"> | number | null
+  isArchived?: Prisma.BoolFilter<"Position"> | boolean
+  archivedAt?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
   editedBy?: Prisma.IntNullableFilter<"Position"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
@@ -286,6 +302,8 @@ export type PositionOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   positionDescriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -307,6 +325,8 @@ export type PositionWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Position"> | string
   departmentId?: Prisma.IntNullableFilter<"Position"> | number | null
   positionDescriptionId?: Prisma.IntNullableFilter<"Position"> | number | null
+  isArchived?: Prisma.BoolFilter<"Position"> | boolean
+  archivedAt?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
   editedBy?: Prisma.IntNullableFilter<"Position"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
@@ -325,6 +345,8 @@ export type PositionOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   departmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   positionDescriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -346,6 +368,8 @@ export type PositionScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Position"> | string
   departmentId?: Prisma.IntNullableWithAggregatesFilter<"Position"> | number | null
   positionDescriptionId?: Prisma.IntNullableWithAggregatesFilter<"Position"> | number | null
+  isArchived?: Prisma.BoolWithAggregatesFilter<"Position"> | boolean
+  archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Position"> | Date | string | null
   endDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Position"> | Date | string | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"Position"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Position"> | Date | string | null
@@ -356,6 +380,8 @@ export type PositionCreateInput = {
   code: string
   alias?: string | null
   name: string
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -374,6 +400,8 @@ export type PositionUncheckedCreateInput = {
   name: string
   departmentId?: number | null
   positionDescriptionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -387,6 +415,8 @@ export type PositionUpdateInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -405,6 +435,8 @@ export type PositionUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positionDescriptionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -421,6 +453,8 @@ export type PositionCreateManyInput = {
   name: string
   departmentId?: number | null
   positionDescriptionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -431,6 +465,8 @@ export type PositionUpdateManyMutationInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -444,6 +480,8 @@ export type PositionUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positionDescriptionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -477,6 +515,8 @@ export type PositionCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   positionDescriptionId?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -498,6 +538,8 @@ export type PositionMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   positionDescriptionId?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -511,6 +553,8 @@ export type PositionMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   positionDescriptionId?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
@@ -659,6 +703,8 @@ export type PositionCreateWithoutResourceRolesInput = {
   code: string
   alias?: string | null
   name: string
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -676,6 +722,8 @@ export type PositionUncheckedCreateWithoutResourceRolesInput = {
   name: string
   departmentId?: number | null
   positionDescriptionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -704,6 +752,8 @@ export type PositionUpdateWithoutResourceRolesInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -721,6 +771,8 @@ export type PositionUncheckedUpdateWithoutResourceRolesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positionDescriptionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -733,6 +785,8 @@ export type PositionCreateWithoutFinanceWorkshopReportsInput = {
   code: string
   alias?: string | null
   name: string
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -750,6 +804,8 @@ export type PositionUncheckedCreateWithoutFinanceWorkshopReportsInput = {
   name: string
   departmentId?: number | null
   positionDescriptionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -778,6 +834,8 @@ export type PositionUpdateWithoutFinanceWorkshopReportsInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -795,6 +853,8 @@ export type PositionUncheckedUpdateWithoutFinanceWorkshopReportsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positionDescriptionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -807,6 +867,8 @@ export type PositionCreateWithoutDepartmentInput = {
   code: string
   alias?: string | null
   name: string
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -823,6 +885,8 @@ export type PositionUncheckedCreateWithoutDepartmentInput = {
   alias?: string | null
   name: string
   positionDescriptionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -867,6 +931,8 @@ export type PositionScalarWhereInput = {
   name?: Prisma.StringFilter<"Position"> | string
   departmentId?: Prisma.IntNullableFilter<"Position"> | number | null
   positionDescriptionId?: Prisma.IntNullableFilter<"Position"> | number | null
+  isArchived?: Prisma.BoolFilter<"Position"> | boolean
+  archivedAt?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
   endDate?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
   editedBy?: Prisma.IntNullableFilter<"Position"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
@@ -877,6 +943,8 @@ export type PositionCreateWithoutEdpsInput = {
   code: string
   alias?: string | null
   name: string
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -894,6 +962,8 @@ export type PositionUncheckedCreateWithoutEdpsInput = {
   name: string
   departmentId?: number | null
   positionDescriptionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -922,6 +992,8 @@ export type PositionUpdateWithoutEdpsInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -939,6 +1011,8 @@ export type PositionUncheckedUpdateWithoutEdpsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   positionDescriptionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -951,6 +1025,8 @@ export type PositionCreateWithoutPositionDescriptionInput = {
   code: string
   alias?: string | null
   name: string
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -967,6 +1043,8 @@ export type PositionUncheckedCreateWithoutPositionDescriptionInput = {
   alias?: string | null
   name: string
   departmentId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -1007,6 +1085,8 @@ export type PositionCreateManyDepartmentInput = {
   alias?: string | null
   name: string
   positionDescriptionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -1017,6 +1097,8 @@ export type PositionUpdateWithoutDepartmentInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1033,6 +1115,8 @@ export type PositionUncheckedUpdateWithoutDepartmentInput = {
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   positionDescriptionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1048,6 +1132,8 @@ export type PositionUncheckedUpdateManyWithoutDepartmentInput = {
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   positionDescriptionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1060,6 +1146,8 @@ export type PositionCreateManyPositionDescriptionInput = {
   alias?: string | null
   name: string
   departmentId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   endDate?: Date | string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -1070,6 +1158,8 @@ export type PositionUpdateWithoutPositionDescriptionInput = {
   code?: Prisma.StringFieldUpdateOperationsInput | string
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1086,6 +1176,8 @@ export type PositionUncheckedUpdateWithoutPositionDescriptionInput = {
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1101,6 +1193,8 @@ export type PositionUncheckedUpdateManyWithoutPositionDescriptionInput = {
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1163,6 +1257,8 @@ export type PositionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name?: boolean
   departmentId?: boolean
   positionDescriptionId?: boolean
+  isArchived?: boolean
+  archivedAt?: boolean
   endDate?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -1182,6 +1278,8 @@ export type PositionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   name?: boolean
   departmentId?: boolean
   positionDescriptionId?: boolean
+  isArchived?: boolean
+  archivedAt?: boolean
   endDate?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -1197,6 +1295,8 @@ export type PositionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   name?: boolean
   departmentId?: boolean
   positionDescriptionId?: boolean
+  isArchived?: boolean
+  archivedAt?: boolean
   endDate?: boolean
   editedBy?: boolean
   editedAt?: boolean
@@ -1212,13 +1312,15 @@ export type PositionSelectScalar = {
   name?: boolean
   departmentId?: boolean
   positionDescriptionId?: boolean
+  isArchived?: boolean
+  archivedAt?: boolean
   endDate?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
 }
 
-export type PositionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "alias" | "name" | "departmentId" | "positionDescriptionId" | "endDate" | "editedBy" | "editedAt" | "version", ExtArgs["result"]["position"]>
+export type PositionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "alias" | "name" | "departmentId" | "positionDescriptionId" | "isArchived" | "archivedAt" | "endDate" | "editedBy" | "editedAt" | "version", ExtArgs["result"]["position"]>
 export type PositionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   edps?: boolean | Prisma.Position$edpsArgs<ExtArgs>
   financeWorkshopReports?: boolean | Prisma.Position$financeWorkshopReportsArgs<ExtArgs>
@@ -1252,6 +1354,8 @@ export type $PositionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     name: string
     departmentId: number | null
     positionDescriptionId: number | null
+    isArchived: boolean
+    archivedAt: Date | null
     endDate: Date | null
     editedBy: number | null
     editedAt: Date | null
@@ -1690,6 +1794,8 @@ export interface PositionFieldRefs {
   readonly name: Prisma.FieldRef<"Position", 'String'>
   readonly departmentId: Prisma.FieldRef<"Position", 'Int'>
   readonly positionDescriptionId: Prisma.FieldRef<"Position", 'Int'>
+  readonly isArchived: Prisma.FieldRef<"Position", 'Boolean'>
+  readonly archivedAt: Prisma.FieldRef<"Position", 'DateTime'>
   readonly endDate: Prisma.FieldRef<"Position", 'DateTime'>
   readonly editedBy: Prisma.FieldRef<"Position", 'Int'>
   readonly editedAt: Prisma.FieldRef<"Position", 'DateTime'>

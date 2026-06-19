@@ -1,6 +1,6 @@
 "use client";
 
-import { FilterToolbar, SelectField } from "@workspace/core/ui";
+import { FilterToolbar, SelectField, getToolbarActionClassName } from "@workspace/core/ui";
 
 interface ContractFiltersProps {
   q: string;
@@ -34,7 +34,7 @@ export default function ContractFilters({
         extraRight={(
           <button
             onClick={onCreate}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+            className={getToolbarActionClassName("primary")}
           >
             + 新增合同
           </button>
@@ -45,21 +45,24 @@ export default function ContractFilters({
           onChange={onLocationChange}
           placeholder="全部位置"
           options={locations.map((value) => ({ value, label: value }))}
-          selectClassName="w-32 px-3 py-2 text-sm"
+          size="toolbar"
+          selectClassName="w-40"
         />
         <SelectField
           value={categoryFilter}
           onChange={onCategoryChange}
           placeholder="全部类型"
           options={categories.map((value) => ({ value, label: value }))}
-          selectClassName="w-32 px-3 py-2 text-sm"
+          size="toolbar"
+          selectClassName="w-40"
         />
         <SelectField
           value={statusFilter}
           onChange={onStatusChange}
           placeholder="全部状态"
           options={statuses.map((value) => ({ value, label: value }))}
-          selectClassName="w-32 px-3 py-2 text-sm"
+          size="toolbar"
+          selectClassName="w-40"
         />
       </FilterToolbar>
     </div>

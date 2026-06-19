@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDateInput, DetailModal } from "@workspace/core/ui";
+import { ActionButton, CalendarDateInput, DetailModal, TextareaField, TextField } from "@workspace/core/ui";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 
 const FORM_FIELDS = [
@@ -40,20 +40,19 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
           {FORM_FIELDS.map((f) => (
             <div key={f.key}>
               <label className="mb-1 block text-xs font-medium text-gray-600">{f.label}</label>
-              <input
-                type={f.type || "text"}
-                value={editing[f.key] ?? ""}
-                onChange={(e) =>
+              <TextField
+                type={f.type === "number" ? "number" : "text"}
+                value={editing[f.key] === null || editing[f.key] === undefined ? "" : String(editing[f.key])}
+                onChange={(value) =>
                   onChange(
                     f.key,
                     f.type === "number"
-                      ? e.target.value
-                        ? parseFloat(e.target.value)
+                      ? value
+                        ? parseFloat(value)
                         : null
-                      : e.target.value,
+                      : value,
                   )
                 }
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
               />
             </div>
           ))}
@@ -75,34 +74,34 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
           </div>
           <div className="col-span-2">
             <label className="mb-1 block text-xs font-medium text-gray-600">合同内容</label>
-            <textarea
+            <TextareaField
               value={editing.content ?? ""}
-              onChange={(e) => onChange("content", e.target.value)}
+              onChange={(value) => onChange("content", value)}
               rows={2}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className="px-3 py-2 text-sm"
             />
           </div>
           <div className="col-span-2">
             <label className="mb-1 block text-xs font-medium text-gray-600">备注</label>
-            <textarea
+            <TextareaField
               value={editing.remark ?? ""}
-              onChange={(e) => onChange("remark", e.target.value)}
+              onChange={(value) => onChange("remark", value)}
               rows={2}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+              className="px-3 py-2 text-sm"
             />
           </div>
         </div>
         <div className="mt-6 flex justify-end gap-3">
-          <button onClick={onClose} className="rounded-md border px-4 py-2 text-sm text-gray-600 hover:bg-gray-50">
+          <ActionButton onClick={onClose}>
             取消
-          </button>
-          <button
+          </ActionButton>
+          <ActionButton
             onClick={onSave}
             disabled={saving}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+            variant="primary"
           >
             {saving ? "保存中..." : "保存"}
-          </button>
+          </ActionButton>
         </div>
     </DetailModal>
   );

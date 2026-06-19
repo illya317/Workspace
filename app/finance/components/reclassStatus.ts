@@ -1,4 +1,4 @@
-import type { StatusBadgeProps } from "@/app/components/StatusBadge";
+import type { StatusBadgeProps } from "@workspace/core/ui/StatusBadge";
 
 /**
  * 重分类状态到全局 StatusBadge variant 的映射。

@@ -15,6 +15,7 @@ export function workCanEdit(user: WorkUser) {
 
 export interface FKFieldConfig {
   entity: string;
+  fkKey?: string;
   displayField: string;
 }
 

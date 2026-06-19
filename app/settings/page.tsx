@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/server/auth/session";
+import { getCurrentUser } from "@workspace/platform/server/auth";
 import { AppShell } from "@workspace/platform/ui";
 import { SettingsClient } from "@workspace/platform/ui/settings";
 

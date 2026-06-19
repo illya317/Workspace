@@ -1,25 +1,23 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
+import { useAsyncResource } from "@workspace/core/hooks";
 import type { CategoryGroup } from "@workspace/library/types";
 
-export function useLibraryCategories() {
-  const [categories, setCategories] = useState<CategoryGroup[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const INITIAL_CATEGORIES: CategoryGroup[] = [];
 
-  const refresh = useCallback(() => {
-    setLoading(true);
-    fetch("/workspace/api/library/categories")
-      .then((r) => (r.ok ? r.json() : []))
-      .then((data: CategoryGroup[]) => setCategories(data))
-      .catch((e) => setError(e instanceof Error ? e.message : "Failed"))
-      .finally(() => setLoading(false));
+export function useLibraryCategories() {
+  const loadCategories = useCallback(async () => {
+    const response = await fetch("/workspace/api/library/categories");
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json() as Promise<CategoryGroup[]>;
   }, []);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  const { data: categories, loading, error, refresh } = useAsyncResource(loadCategories, {
+    initialData: INITIAL_CATEGORIES,
+    resetOnError: true,
+    errorMessage: "加载分类失败",
+  });
 
   return { categories, loading, error, refresh };
 }

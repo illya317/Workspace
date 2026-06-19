@@ -16,7 +16,7 @@ export default function StatCard({ label, value, sub, color = "emerald" }: {
   return (
     <div className={`rounded-lg p-4 ${cm[color] || cm.emerald}`}>
       <div className="text-2xl font-bold">{value}</div>
-      {sub && <div className="mt-1 text-[10px] opacity-70">{sub}</div>}
+      {sub && <div className="mt-1 text-xs opacity-70">{sub}</div>}
       <div className="mt-0.5 text-xs opacity-80">{label}</div>
     </div>
   );

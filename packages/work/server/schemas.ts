@@ -15,4 +15,6 @@ export const WorkPlanCreateSchema = z.object({
   remark: z.string().optional().nullable(),
   startDate: z.string().optional().nullable(),
   endDate: z.string().optional().nullable(),
+  parentId: z.coerce.number().int().positive().optional().nullable(),
+  leadingDepartmentId: z.coerce.number().int().positive("主导部门不能为空"),
 });

@@ -1,7 +1,12 @@
-import { requireAdminManageAccess } from "@/server/auth/guard";
+import { requireAdminManageAccess } from "@workspace/platform/server/auth";
+import { AppShell } from "@workspace/platform/ui";
 import AdminClient from "./AdminClient";
 
 export default async function AdminPage() {
   const user = await requireAdminManageAccess();
-  return <AdminClient user={user} />;
+  return (
+    <AppShell title="管理后台" backHref="/settings" user={user}>
+      <AdminClient user={user} />
+    </AppShell>
+  );
 }

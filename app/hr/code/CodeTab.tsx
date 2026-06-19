@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import EditToolbar from "@/app/components/EditToolbar";
-import AuditLogModal from "@/app/components/AuditLogModal";
-import Toast from "@/app/components/Toast";
+import EditToolbar from "@workspace/core/ui/EditToolbar";
+import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
+import Toast from "@workspace/core/ui/Toast";
+import { PanelCard } from "@workspace/core/ui";
 import { useCodeTab } from "@/app/hr/code/useCodeTab";
 import CodeTable from "@/app/hr/code/CodeTable";
 
@@ -145,7 +146,7 @@ export default function CodeTab({
         )}
       </div>
 
-      <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
         {loading ? (
           <p className="p-8 text-center text-gray-500">加载中...</p>
         ) : (
@@ -179,7 +180,7 @@ export default function CodeTab({
             type={type}
           />
         )}
-      </div>
+      </PanelCard>
 
       <Toast
         message={toast?.message || ""}

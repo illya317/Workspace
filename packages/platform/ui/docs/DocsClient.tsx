@@ -1,10 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import NavLink from "../NavLink";
-import UserMenu from "../UserMenu";
+import { ModuleGridPage } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
+import ModuleCard from "../ModuleCard";
 
 function getDocCategories(user: SessionUser): Record<string, Array<{ title: string; href: string }>> {
   const hasApiAccess = (user.visibleResourceKeys || []).includes("system.api");
@@ -34,54 +33,25 @@ export default function DocsClient({ user, hideShell }: { user: SessionUser; hid
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {!hideShell && (
-      <nav className="bg-white shadow-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
-            <Image src="/workspace/company/logo.png" alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"} width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
-            <span className="text-sm text-gray-400">|</span>
-            <span className="text-sm font-medium text-gray-600">文档中心</span>
-          </div>
-          <div className="flex items-center gap-5">
-            <button onClick={() => router.push("/portal")} className="text-sm text-gray-500 hover:text-emerald-600">返回</button>
-            <NavLink href="/reports">工作汇报</NavLink>
-            <NavLink href="/works">工作清单</NavLink>
-            <NavLink href="/history">历史记录</NavLink>
-            <UserMenu user={user} />
-          </div>
-        </div>
-      </nav>
-      )}
-
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="mb-2 text-2xl font-bold text-gray-800">文档中心</h1>
-        <p className="mb-8 text-sm text-gray-500">
-          员工手册、操作指南、规章制度等文档汇总
-        </p>
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-          {Object.entries(getDocCategories(user)).map(([category, docs]) => (
-            <div key={category} className="rounded-lg bg-white p-6 shadow-sm">
-              <h2 className="mb-4 text-lg font-semibold text-gray-800">
-                {category}
-              </h2>
-              <ul className="space-y-2">
-                {docs.map((doc) => (
-                  <li key={doc.href}>
-                    <a
-                      href={doc.href}
-                      className="block rounded-md px-3 py-2 text-sm text-gray-600 transition-colors hover:bg-gray-50 hover:text-emerald-600"
-                    >
-                      {doc.title}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-      </main>
-    </div>
+    <ModuleGridPage
+      title={hideShell ? undefined : "文档中心"}
+      summary={hideShell ? undefined : "员工手册、操作指南、规章制度等文档汇总"}
+      centered={hideShell}
+    >
+      {Object.entries(getDocCategories(user)).map(([category, docs]) => (
+        <ModuleCard
+          key={category}
+          title={category}
+          description={docs.map((doc) => doc.title).join("、")}
+          color="purple"
+          onClick={() => router.push(docs[0]?.href || "/docs")}
+          icon={
+            <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.75c-1.8-1.1-4.05-1.75-6.5-1.75v12c2.45 0 4.7.65 6.5 1.75m0-12c1.8-1.1 4.05-1.75 6.5-1.75v12c-2.45 0-4.7.65-6.5 1.75m0-12v12" />
+            </svg>
+          }
+        />
+      ))}
+    </ModuleGridPage>
   );
 }

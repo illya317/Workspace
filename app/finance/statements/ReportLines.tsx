@@ -46,42 +46,42 @@ export default function ReportLines({ items, expandedCodes, details, loadingDeta
     return (
       <tbody key={i}>
         <tr
-          className={`border-b cursor-pointer hover:bg-gray-50 transition-colors ${
-            item.isGrandTotal ? "border-t-2 border-gray-300 font-bold" :
-            item.isTotal ? "font-medium bg-gray-50" :
+          className={`cursor-pointer border-b border-slate-100 transition-colors hover:bg-emerald-50/20 ${
+            item.isGrandTotal ? "border-t border-slate-200 font-bold" :
+            item.isTotal ? "font-medium bg-slate-50" :
             item.isHeader ? "font-medium text-gray-700" : "text-gray-600"
           }`}
           onClick={() => hasCode && onToggle(item.code!)}
         >
-          <td className={`py-1 ${item.isHeader ? "text-gray-700" : item.isTotal || item.isGrandTotal ? "text-gray-800" : "pl-4"}`}>
+          <td className={`py-2 ${item.isHeader ? "text-slate-700" : item.isTotal || item.isGrandTotal ? "text-slate-800" : "pl-4"}`}>
             <span className="flex items-center gap-1">
-              {hasCode && <span className="text-gray-300 text-[10px]">{isExpanded ? "▼" : "▶"}</span>}
+              {hasCode && <span className="text-gray-300 text-xs">{isExpanded ? "▼" : "▶"}</span>}
               {item.label}
             </span>
           </td>
-          <td className="py-1 text-right">{renderAmount(item.amount)}</td>
+          <td className="py-2 text-right">{renderAmount(item.amount)}</td>
         </tr>
         {isExpanded && (
           <tr key={`${i}-detail`}>
-            <td colSpan={2} className="bg-gray-50 px-4 py-2">
+            <td colSpan={2} className="bg-slate-50 px-4 py-2">
               {loadingDetail === item.code ? (
                 <p className="text-xs text-gray-400 py-2">加载明细...</p>
               ) : detailRows && detailRows.length > 0 ? (
-                <table className="w-full text-[11px]">
-                  <thead>
-                    <tr className="text-gray-500 border-b">
-                      <th className="text-left py-1 font-medium">科目编码</th>
-                      <th className="text-left py-1 font-medium">科目名称</th>
-                      <th className="text-right py-1 font-medium">期初借</th>
-                      <th className="text-right py-1 font-medium">期初贷</th>
-                      <th className="text-right py-1 font-medium">本期借</th>
-                      <th className="text-right py-1 font-medium">本期贷</th>
-                      <th className="text-right py-1 font-medium">期末余额</th>
+                <table className="min-w-full text-left text-sm">
+                  <thead className="border-b border-slate-200 bg-slate-100 text-slate-500">
+                    <tr>
+                      <th className="whitespace-nowrap py-1 font-medium">科目编码</th>
+                      <th className="whitespace-nowrap py-1 font-medium">科目名称</th>
+                      <th className="whitespace-nowrap py-1 text-right font-medium">期初借</th>
+                      <th className="whitespace-nowrap py-1 text-right font-medium">期初贷</th>
+                      <th className="whitespace-nowrap py-1 text-right font-medium">本期借</th>
+                      <th className="whitespace-nowrap py-1 text-right font-medium">本期贷</th>
+                      <th className="whitespace-nowrap py-1 text-right font-medium">期末余额</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-slate-100 text-slate-700">
                     {detailRows.map((d) => (
-                      <tr key={d.code} className="border-b border-gray-100">
+                      <tr key={d.code}>
                         <td className="py-1 font-mono text-gray-600">{d.code}</td>
                         <td className="py-1 text-gray-700">{d.name}</td>
                         <td className="py-1 text-right text-gray-600">{d.openingDebit > 0 ? fmt(d.openingDebit) : ""}</td>
@@ -93,7 +93,7 @@ export default function ReportLines({ items, expandedCodes, details, loadingDeta
                         </td>
                       </tr>
                     ))}
-                    <tr className="font-medium">
+                    <tr className="bg-slate-50 font-medium">
                       <td colSpan={6} className="py-1 text-right text-gray-600">合计</td>
                       <td className="py-1 text-right text-gray-800">{fmt(Math.abs(detailRows.reduce((s, d) => s + d.closing, 0)))}</td>
                     </tr>

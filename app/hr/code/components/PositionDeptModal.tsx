@@ -1,6 +1,6 @@
 "use client";
 
-import DetailModal from "@/app/components/DetailModal";
+import DetailModal from "@workspace/core/ui/DetailModal";
 
 interface PositionDeptModalProps {
   positionDeptModal: {

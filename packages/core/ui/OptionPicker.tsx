@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { matchText } from "../search";
 import PickerShell from "./PickerShell";
+import SearchInput from "./SearchInput";
 
 export interface PickerOption {
   label: string;
@@ -157,12 +158,13 @@ export default function OptionPicker({
 
             {showMore && moreOptions.length > 0 && (
               <div className="mt-3 border-t border-slate-100 pt-3">
-                <input
+                <SearchInput
                   autoFocus
                   value={query}
-                  onChange={(event) => setQuery(event.target.value)}
+                  onChange={setQuery}
                   placeholder={searchPlaceholder}
-                  className="mb-3 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                  size="compact"
+                  className="mb-3"
                 />
                 <div className="max-h-64 overflow-auto pr-1">
                   <div className="grid grid-cols-3 gap-2">

@@ -31,6 +31,7 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 .eslintcache
+.cache/
 
 # env files — .env.example is committed as documentation;
 # all other .env files (local secrets) must stay ignored.

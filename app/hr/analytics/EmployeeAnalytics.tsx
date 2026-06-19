@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { SelectField } from "@workspace/core/ui";
+import { AnalysisBlock, SelectField } from "@workspace/core/ui";
 import type { Employee, Employment, EDP } from "./useAnalyticsData";
 import StatCard from "./shared/StatCard";
 import type { DimKey } from "./employee/constants";
@@ -21,10 +21,6 @@ function DistributionBar({ label, count, total, color = "bg-emerald-500" }: { la
       <span className="w-10 text-right text-xs text-gray-400">{pct}%</span>
     </div>
   );
-}
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h3 className="text-sm font-semibold text-gray-700 mb-3">{children}</h3>;
 }
 
 export default function EmployeeAnalytics({ employees, employments, edps }: { employees: Employee[]; employments: Employment[]; edps: EDP[] }) {
@@ -51,9 +47,10 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
       </div>
 
       {/* 单维度特征分布 */}
-      <div className="bg-white rounded-lg shadow-sm p-5">
-        <div className="flex items-center gap-4 mb-4">
-          <h3 className="text-sm font-semibold text-gray-700">特征分布</h3>
+      <AnalysisBlock
+        title="特征分布"
+        toolbar={
+          <div className="flex flex-wrap items-center gap-4">
           <SelectField
             value={feature}
             onChange={(value) => setFeature(value as DimKey)}
@@ -61,12 +58,14 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
             selectClassName="min-h-8 w-32"
           />
           <span className="text-xs text-gray-400">基于 {stats.active} 位在职员工</span>
-        </div>
+          </div>
+        }
+      >
 
         {currentDist().map(([k, v]) => (
           <DistributionBar key={k} label={k} count={v} total={stats.active} color={DIM_COLORS[feature] || "bg-emerald-400"} />
         ))}
-      </div>
+      </AnalysisBlock>
 
       {/* 交叉分析 */}
       <CrossMatrix
@@ -81,57 +80,55 @@ export default function EmployeeAnalytics({ employees, employments, edps }: { em
 
       {/* Recent changes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-sm p-5">
-          <SectionTitle>最近入职（前10）</SectionTitle>
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b text-gray-500">
-                <th className="text-left py-2">姓名</th>
-                <th className="text-left py-2">公司</th>
-                <th className="text-left py-2">入职日期</th>
+        <AnalysisBlock title="最近入职（前10）">
+          <table className="min-w-full text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-4 py-3 font-medium">姓名</th>
+                <th className="px-4 py-3 font-medium">公司</th>
+                <th className="px-4 py-3 font-medium">入职日期</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {stats.recentJoins.map((e) => (
-                <tr key={e.id} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="py-2 font-medium">{e.employeeName}</td>
-                  <td className="py-2 text-gray-500">{e.currentCompany || "—"}</td>
-                  <td className="py-2 text-gray-500">{e.joinDate}</td>
+                <tr key={e.id} className="hover:bg-emerald-50/20">
+                  <td className="px-4 py-3 font-medium">{e.employeeName}</td>
+                  <td className="px-4 py-3 text-slate-500">{e.currentCompany || "—"}</td>
+                  <td className="px-4 py-3 text-slate-500">{e.joinDate}</td>
                 </tr>
               ))}
               {stats.recentJoins.length === 0 && (
-                <tr><td colSpan={3} className="py-4 text-center text-gray-400">暂无数据</td></tr>
+                <tr><td colSpan={3} className="py-8 text-center text-gray-400">暂无数据</td></tr>
               )}
             </tbody>
           </table>
-        </div>
+        </AnalysisBlock>
 
-        <div className="bg-white rounded-lg shadow-sm p-5">
-          <SectionTitle>最近离职（前10）</SectionTitle>
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b text-gray-500">
-                <th className="text-left py-2">姓名</th>
-                <th className="text-left py-2">公司</th>
-                <th className="text-left py-2">离职日期</th>
-                <th className="text-left py-2">原因</th>
+        <AnalysisBlock title="最近离职（前10）">
+          <table className="min-w-full text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-slate-500">
+              <tr>
+                <th className="px-4 py-3 font-medium">姓名</th>
+                <th className="px-4 py-3 font-medium">公司</th>
+                <th className="px-4 py-3 font-medium">离职日期</th>
+                <th className="px-4 py-3 font-medium">原因</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100 text-slate-800">
               {stats.recentLeaves.map((e) => (
-                <tr key={e.id} className="border-b border-gray-50 hover:bg-gray-50">
-                  <td className="py-2 font-medium">{e.employeeName}</td>
-                  <td className="py-2 text-gray-500">{e.currentCompany || "—"}</td>
-                  <td className="py-2 text-gray-500">{e.leaveDate}</td>
-                  <td className="py-2 text-gray-500">{e.leaveReason || "—"}</td>
+                <tr key={e.id} className="hover:bg-emerald-50/20">
+                  <td className="px-4 py-3 font-medium">{e.employeeName}</td>
+                  <td className="px-4 py-3 text-slate-500">{e.currentCompany || "—"}</td>
+                  <td className="px-4 py-3 text-slate-500">{e.leaveDate}</td>
+                  <td className="px-4 py-3 text-slate-500">{e.leaveReason || "—"}</td>
                 </tr>
               ))}
               {stats.recentLeaves.length === 0 && (
-                <tr><td colSpan={4} className="py-4 text-center text-gray-400">暂无数据</td></tr>
+                <tr><td colSpan={4} className="py-8 text-center text-gray-400">暂无数据</td></tr>
               )}
             </tbody>
           </table>
-        </div>
+        </AnalysisBlock>
       </div>
     </div>
   );

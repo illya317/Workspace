@@ -2,10 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { SearchInput } from "@workspace/core/ui";
+import {
+  ActionToolbar,
+  EmptyStateCard,
+  PageContent,
+  PanelCard,
+  SearchInput,
+  SelectorCard,
+  TreeNodeBranch,
+  TreeNodeCard,
+} from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
-import UserMenu from "../../../UserMenu";
 import type { SessionUser } from "@workspace/platform/types";
 
 interface TreeNode {
@@ -16,9 +23,9 @@ interface TreeNode {
   children?: TreeNode[];
 }
 
-export default function GmpPositionsPage({ hideShell }: { hideShell?: boolean }) {
+export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?: boolean }) {
   const router = useRouter();
-  const [user, setUser] = useState<SessionUser | null>(null);
+  const [_user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [tree, setTree] = useState<TreeNode[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -76,42 +83,45 @@ export default function GmpPositionsPage({ hideShell }: { hideShell?: boolean })
     const ownPositions: string[] = node.ownPositions || [];
     const showPositions = isOpen && totalPositions > 0;
 
-    const indent = { 0: "ml-0", 1: "ml-6", 2: "ml-12", 3: "ml-16" }[depth] || "ml-16";
-    const textSize = { 0: "text-base font-bold", 1: "text-sm font-semibold", 2: "text-sm", 3: "text-xs" }[depth] || "text-xs";
-    const bg = { 0: "bg-gray-50", 1: "", 2: "", 3: "" }[depth] || "";
+    const branchClassName = { 0: "", 1: "ml-4", 2: "ml-8", 3: "ml-12" }[depth] || "ml-12";
 
     return (
-      <div key={node.code} className={indent}>
-        <button onClick={() => toggle(node.code)}
-          className={`w-full flex items-center gap-2 px-3 py-2 ${bg} ${textSize} text-gray-800 hover:bg-gray-100 rounded`}
-        >
-          {(hasChildren || totalPositions > 0) && <span className="text-gray-400 text-xs w-3">{isOpen ? "▼" : "▶"}</span>}
-          {!hasChildren && totalPositions === 0 && <span className="w-3" />}
-          {node.name}
-          <span className="text-gray-400 font-normal text-xs">{totalPositions} 岗</span>
-        </button>
+      <TreeNodeBranch key={node.code} className={branchClassName}>
+        <TreeNodeCard
+          title={node.name}
+          code={node.code}
+          level={node.level}
+          meta={`${totalPositions} 岗`}
+          onClick={() => toggle(node.code)}
+          toggle={{
+            enabled: Boolean(hasChildren || totalPositions > 0),
+            expanded: isOpen,
+            label: isOpen ? "收起" : "展开",
+            onClick: () => toggle(node.code),
+          }}
+        />
         {showPositions && (
-          <div className="ml-8 divide-y divide-gray-50 border-l-2 border-gray-100 pl-4">
+          <div className="space-y-1 pl-8">
             {ownPositions
               .filter((p: string) => matchText(p, search))
               .sort()
               .map(entry => {
                 const [code, name] = entry.split("|");
                 return (
-                  <button key={code}
+                  <SelectorCard
+                    key={code}
+                    title={name || code}
+                    subtitle={code}
+                    trailing="→"
                     onClick={() => router.push(`/docs/positions/GMP/${code}`)}
-                    className="w-full flex items-center gap-3 py-1.5 text-left hover:bg-emerald-50 transition-colors"
-                  >
-                    <span className="text-xs text-gray-400 font-mono w-20 shrink-0">{code}</span>
-                    <span className="text-sm text-gray-700 flex-1">{name || code}</span>
-                    <span className="text-gray-300 text-xs">→</span>
-                  </button>
+                    className="py-2"
+                  />
                 );
               })}
           </div>
         )}
         {isOpen && hasChildren && node.children!.map(c => renderNode(c, depth + 1))}
-      </div>
+      </TreeNodeBranch>
     );
   }
 
@@ -119,45 +129,34 @@ export default function GmpPositionsPage({ hideShell }: { hideShell?: boolean })
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {!hideShell && (
-      <nav className="bg-white shadow-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-2">
-            <Image src="/workspace/company/logo.png" alt="logo" width={100} height={30} className="h-auto w-auto max-w-[100px] object-contain" />
-            <span className="text-sm text-gray-400">|</span><span className="text-sm font-medium text-gray-600">文档中心</span>
-          </div>
-          <div className="flex items-center gap-5">
-            <button onClick={() => router.push("/portal")} className="text-sm text-gray-500 hover:text-emerald-600">返回入口</button>
-            <UserMenu user={user} />
-          </div>
-        </div>
-      </nav>
-      )}
-
-      <main className="mx-auto max-w-5xl px-4 py-8">
+      <PageContent className="py-8">
         <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
           <button onClick={() => router.push("/docs")} className="hover:text-emerald-600">文档中心</button>
           <span>/</span><span className="text-gray-700">岗位说明书</span>
         </div>
 
-        <div className="mb-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-800">岗位说明书</h1>
-          <SearchInput
-            value={search}
-            onChange={setSearch}
-            placeholder="搜索岗位..."
-            className="w-64 rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none"
-          />
-        </div>
+        <ActionToolbar
+          className="mb-6"
+          leftSlot={<h1 className="text-2xl font-bold text-gray-800">岗位说明书</h1>}
+          rightSlot={
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="搜索岗位..."
+              size="toolbar"
+              className="w-80"
+            />
+          }
+        />
 
         {tree.length === 0 ? (
-          <div className="rounded-lg bg-white py-16 text-center shadow-sm"><p className="text-gray-500">暂无数据</p></div>
+          <EmptyStateCard compact={false}>暂无数据</EmptyStateCard>
         ) : (
-          <div className="bg-white rounded-lg shadow-sm p-4 space-y-1">
+          <PanelCard bodyClassName="p-4 space-y-1">
             {tree.map(n => renderNode(n, 0))}
-          </div>
+          </PanelCard>
         )}
-      </main>
+      </PageContent>
     </div>
   );
 }

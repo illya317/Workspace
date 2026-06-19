@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { ActionButton, ActionToolbar, EmptyStateCard, PanelCard, SectionCard, TextField, Toast, ConfirmModal } from "@workspace/core/ui";
 import { useDueDiligenceRequests } from "../hooks/useDueDiligence";
 import DueDiligenceDetail from "./DueDiligenceDetail";
-import ConfirmModal from "@workspace/core/ui/ConfirmModal";
-import Toast from "@workspace/core/ui/Toast";
 
 const STATUS_LABELS: Record<string, string> = {
   draft: "草稿",
@@ -59,77 +58,69 @@ export default function DueDiligencePanel() {
   return (
     <div className="h-full overflow-y-auto">
       <div className="mx-auto max-w-5xl px-6 py-6">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-800">尽调问卷</h2>
-          <button
-            onClick={() => setShowCreate(true)}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700"
-          >
-            + 新建问卷
-          </button>
-        </div>
+        <ActionToolbar
+          leftSlot={<h2 className="text-xl font-bold text-gray-800">尽调问卷</h2>}
+          primaryActions={[{ label: "+ 新建问卷", onClick: () => setShowCreate(true) }]}
+          className="mb-4"
+        />
 
         {error && <div className="mb-4 rounded bg-red-50 px-4 py-2 text-sm text-red-600">{error}</div>}
 
         {showCreate && (
-          <div className="mb-4 rounded-lg border bg-white p-4 shadow-sm">
+          <SectionCard title="新建问卷" className="mb-4">
             <div className="mb-3">
               <label className="mb-1 block text-xs text-gray-500">问卷标题</label>
-              <input
-                type="text"
+              <TextField
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={setTitle}
                 placeholder="例如：A轮投资人尽调清单"
-                className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
             <div className="mb-3">
               <label className="mb-1 block text-xs text-gray-500">尽调方</label>
-              <input
-                type="text"
+              <TextField
                 value={partyName}
-                onChange={(e) => setPartyName(e.target.value)}
+                onChange={setPartyName}
                 placeholder="例如：红杉资本"
-                className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
             <div className="flex gap-2">
-              <button
+              <ActionButton
                 onClick={handleCreate}
                 disabled={creating}
-                className="rounded-md bg-emerald-600 px-3 py-1.5 text-sm text-white hover:bg-emerald-700 disabled:opacity-50"
+                variant="primary"
               >
                 {creating ? "创建中..." : "创建"}
-              </button>
-              <button
-                onClick={() => setShowCreate(false)}
-                className="rounded-md border px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50"
-              >
+              </ActionButton>
+              <ActionButton onClick={() => setShowCreate(false)}>
                 取消
-              </button>
+              </ActionButton>
             </div>
-          </div>
+          </SectionCard>
         )}
 
         {loading ? (
           <div className="py-16 text-center text-gray-400">加载中…</div>
         ) : requests.length === 0 ? (
-          <div className="py-16 text-center text-gray-400">暂无问卷</div>
+          <EmptyStateCard compact={false}>暂无问卷</EmptyStateCard>
         ) : (
           <div className="space-y-2">
             {requests.map((req) => (
-              <div
+              <PanelCard
                 key={req.id}
-                onClick={() => setDetailId(req.id)}
-                className="flex cursor-pointer items-center justify-between rounded-lg border bg-white px-4 py-3 hover:shadow-sm transition"
+                bodyClassName="flex items-center justify-between gap-3 px-4 py-3"
               >
-                <div>
+                <button
+                  type="button"
+                  onClick={() => setDetailId(req.id)}
+                  className="min-w-0 flex-1 text-left"
+                >
                   <div className="font-medium text-gray-800">{req.title}</div>
                   <div className="mt-0.5 text-xs text-gray-400">
                     {req._count?.questions ?? 0} 个问题 · {new Date(req.updatedAt).toLocaleDateString("zh-CN")}
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
+                </button>
+                <div className="flex shrink-0 items-center gap-3">
                   <span className={`rounded px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[req.status] || "bg-gray-100 text-gray-600"}`}>
                     {STATUS_LABELS[req.status] || req.status}
                   </span>
@@ -146,7 +137,7 @@ export default function DueDiligencePanel() {
                     </svg>
                   </button>
                 </div>
-              </div>
+              </PanelCard>
             ))}
           </div>
         )}

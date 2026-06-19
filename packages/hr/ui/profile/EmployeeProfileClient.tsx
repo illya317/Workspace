@@ -3,7 +3,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { useConfirmDelete } from "@workspace/core/ui";
+import {
+  ActionButton,
+  ActionToolbar,
+  DataTable,
+  DisclosureRecordCard,
+  EmptyStateCard,
+  MetricCard,
+  PageContent,
+  PanelCard,
+  StatusBadge,
+  TabBar,
+  useConfirmDelete,
+  type DataTableColumn,
+} from "@workspace/core/ui";
 import { hrCanEdit, type HRUser } from "@workspace/hr/types";
 import {
   contractFields,
@@ -85,12 +98,6 @@ function validateCurrentWorkPercent(rows: EdpRow[]) {
     return { ok: false, message: "当前岗位工作占比合计不正确。" };
   }
   return { ok: true, message: "" };
-}
-
-function statusPill(isCurrent: boolean) {
-  return isCurrent
-    ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
-    : "bg-slate-100 text-slate-500 ring-1 ring-slate-200";
 }
 
 function formatAlias(value: string | null) {
@@ -175,16 +182,6 @@ function fieldGrid(
       })}
     </div>
   );
-}
-
-function sectionButtonClass(active: boolean) {
-  return `rounded-md px-3 py-2 text-sm font-medium transition ${
-    active ? "bg-emerald-600 text-white" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-  }`;
-}
-
-function primaryButtonClass() {
-  return "rounded-md bg-emerald-600 px-3 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none";
 }
 
 function normalizeForDirty(value: unknown): unknown {
@@ -471,37 +468,33 @@ export default function EmployeeProfileClient({
   }
 
   if (loading) {
-    return <main className="mx-auto max-w-7xl px-4 py-8 text-center text-sm text-slate-500">加载员工资料...</main>;
+    return (
+      <PageContent>
+        <EmptyStateCard>加载员工资料...</EmptyStateCard>
+      </PageContent>
+    );
   }
 
   if (!profile || !employeeDraft) {
     return (
-      <main className="mx-auto max-w-7xl px-4 py-8">
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {error || "员工资料不存在"}
-        </div>
-      </main>
+      <PageContent>
+        <EmptyStateCard compact>{error || "员工资料不存在"}</EmptyStateCard>
+      </PageContent>
     );
   }
 
   const aliasText = formatAlias(profile.employee.alias);
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-6">
-      <div className="mb-5 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <PageContent>
+      <PanelCard className="mb-5" bodyClassName="p-5">
+        <div className="space-y-4">
           <div>
             <div className="mb-2 flex flex-wrap items-center gap-2">
-              <span className="rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-                {profile.employee.employeeId}
-              </span>
-              <span className="rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
-                {profile.summary.status || "未设置状态"}
-              </span>
+              <StatusBadge label={profile.employee.employeeId} variant="gray" />
+              <StatusBadge label={profile.summary.status || "未设置状态"} variant="green" />
               {!canEdit && (
-                <span className="rounded-md bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-700">
-                  只读
-                </span>
+                <StatusBadge label="只读" variant="yellow" />
               )}
             </div>
             <h1 className="text-2xl font-semibold text-slate-950">{profile.employee.name}</h1>
@@ -509,52 +502,43 @@ export default function EmployeeProfileClient({
               {aliasText || "无别名"} · {profile.employee.title || "未设置职称"}
             </p>
           </div>
-          <div className="grid gap-3 sm:grid-cols-4 lg:min-w-[560px]">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {headerFacts.map((fact) => (
-              <div key={fact.label} className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
-                <div className="text-xs text-slate-400">{fact.label}</div>
-                <div className="mt-1 truncate text-sm font-medium text-slate-800">{fact.value}</div>
-              </div>
+              <MetricCard key={fact.label} label={fact.label} value={fact.value} />
             ))}
           </div>
         </div>
-      </div>
+      </PanelCard>
 
-      <div className="sticky top-[52px] z-20 mb-5 flex gap-2 overflow-x-auto border border-slate-200 bg-white p-2 shadow-sm">
-        {[
-          ["basic", "基本信息"],
-          ["employment", "雇佣关系"],
-          ["edp", "部门岗位"],
-          ["project", "项目"],
-          ["history", "历史记录"],
-        ].map(([key, label]) => (
-          <button key={key} type="button" onClick={() => setActiveSection(key as ProfileSection)} className={sectionButtonClass(activeSection === key)}>
-            {label}
-          </button>
-        ))}
-        <div className="ml-auto flex shrink-0 items-center gap-2">
-          {canEdit && activeSection !== "history" && (
-            <button
-              type="button"
-              disabled={saving !== null || !dirtyState.all}
-              onClick={saveAll}
-              className={primaryButtonClass()}
-            >
-              {saving === "all" ? "保存中..." : "保存全部"}
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => router.push("/hr/roster")}
-            className="rounded-md px-3 py-2 text-sm font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
-          >
-            返回列表
-          </button>
-        </div>
-      </div>
+      <ActionToolbar
+        className="sticky top-[52px] z-20 mb-5"
+        leftSlot={(
+          <TabBar
+            tabs={[
+              { key: "basic", label: "基本信息" },
+              { key: "employment", label: "雇佣关系" },
+              { key: "edp", label: "部门岗位" },
+              { key: "project", label: "项目" },
+              { key: "history", label: "历史记录" },
+            ]}
+            active={activeSection}
+            onChange={(key) => setActiveSection(key as ProfileSection)}
+            className="mb-0"
+          />
+        )}
+        primaryActions={canEdit && activeSection !== "history" ? [{
+          label: saving === "all" ? "保存中..." : "保存全部",
+          disabled: saving !== null || !dirtyState.all,
+          onClick: saveAll,
+        }] : []}
+        secondaryActions={[{
+          label: "返回列表",
+          onClick: () => router.push("/hr/roster"),
+        }]}
+      />
 
-      {error && <div className="mb-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
-      {message && <div className="mb-4 rounded-md bg-emerald-50 px-4 py-3 text-sm text-emerald-700">{message}</div>}
+      {error && <EmptyStateCard compact>{error}</EmptyStateCard>}
+      {message && <EmptyStateCard compact>{message}</EmptyStateCard>}
 
       <div className="space-y-5">
         {activeSection === "basic" && (
@@ -562,14 +546,13 @@ export default function EmployeeProfileClient({
             title="基本信息"
             subtitle="员工自身资料和关联 Workspace 账号。"
             actions={canEdit ? (
-              <button
-                type="button"
-                disabled={saving !== null || !dirtyState.basic}
-                onClick={saveBasic}
-                className={primaryButtonClass()}
-              >
-                {saving === "basic" ? "保存中..." : "保存基本信息"}
-              </button>
+          <ActionButton
+            disabled={saving !== null || !dirtyState.basic}
+            onClick={saveBasic}
+            variant="primary"
+          >
+            {saving === "basic" ? "保存中..." : "保存基本信息"}
+          </ActionButton>
             ) : null}
           >
             {fieldGrid(employeeFields, employeeDraft as unknown as EditableRecord, !canEdit, updateEmployeeField)}
@@ -725,7 +708,7 @@ export default function EmployeeProfileClient({
           />
         )}
       </div>
-    </main>
+    </PageContent>
   );
 }
 
@@ -765,55 +748,52 @@ function RowsSection<T extends RowBase>({
       subtitle={subtitle}
       actions={canEdit ? (
         <>
-          <button
-            type="button"
+          <ActionButton
             onClick={onAdd}
             disabled={saving !== null}
-            className="rounded-md border border-emerald-300 bg-white px-3 py-2 text-sm font-medium text-emerald-700 shadow-sm transition hover:bg-emerald-50 disabled:opacity-50"
+            variant="secondary"
           >
             {addLabel}
-          </button>
-          <button
-            type="button"
+          </ActionButton>
+          <ActionButton
             onClick={onSaveAll}
             disabled={saving !== null || !dirty}
-            className={primaryButtonClass()}
+            variant="primary"
           >
             {saving === "employment" || saving === "project" ? "保存中..." : saveLabel}
-          </button>
+          </ActionButton>
         </>
       ) : null}
     >
       <div className="space-y-4">
         {rows.length === 0 ? (
-          <div className="rounded-md border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-400">
-            暂无记录
-          </div>
+          <EmptyStateCard compact>暂无记录</EmptyStateCard>
         ) : (
           rows.map((row, index) => (
-            <div key={row.id ?? `new-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div className="text-sm font-semibold text-slate-800">
-                  {row.isNew ? "新增记录" : `记录 #${row.id}`}
-                </div>
-                {canEdit && allowDelete && onDelete && (
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      disabled={saving !== null}
-                      onClick={() => onDelete(row, index)}
-                      className="rounded-md border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
-                    >
-                      删除
-                    </button>
+            <PanelCard key={row.id ?? `new-${index}`} bodyClassName="p-4">
+              <ActionToolbar
+                className="mb-4 border-0 bg-transparent p-0 shadow-none"
+                leftSlot={(
+                  <div className="text-sm font-semibold text-slate-800">
+                    {row.isNew ? "新增记录" : `记录 #${row.id}`}
                   </div>
                 )}
-              </div>
+                rightSlot={canEdit && allowDelete && onDelete ? (
+                  <ActionButton
+                    disabled={saving !== null}
+                    onClick={() => onDelete(row, index)}
+                    variant="danger"
+                    className="px-3 py-1.5 text-xs"
+                  >
+                    删除
+                  </ActionButton>
+                ) : null}
+              />
               {fieldGrid(fields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
                 const field = fields.find((item) => item.key === key);
                 if (field) onChange(index, field, value, option);
               })}
-            </div>
+            </PanelCard>
           ))
         )}
       </div>
@@ -865,28 +845,22 @@ function EmploymentSection({
       title="雇佣关系"
       subtitle="在职状态、入离职、参保和合同信息。"
       actions={canEdit && employment ? (
-        <button
-          type="button"
+        <ActionButton
           onClick={onSaveAll}
           disabled={saving !== null || !dirty}
-          className={primaryButtonClass()}
+          variant="primary"
         >
           {saving === "employment" ? "保存中..." : "保存雇佣关系"}
-        </button>
+        </ActionButton>
       ) : null}
     >
       {!employment ? (
-        <div className="rounded-md border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-400">
-          暂无雇佣主档
-        </div>
+        <EmptyStateCard compact>暂无雇佣主档</EmptyStateCard>
       ) : (
         <div className="space-y-5">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {facts.map((fact) => (
-              <div key={fact.label} className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
-                <div className="text-xs font-medium text-slate-500">{fact.label}</div>
-                <div className="mt-1 truncate text-sm font-semibold text-slate-800">{fact.value}</div>
-              </div>
+              <MetricCard key={fact.label} label={fact.label} value={fact.value} />
             ))}
           </div>
           {fieldGrid(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
@@ -943,15 +917,15 @@ function RowActions({
   if (!canEdit) return null;
   const disabled = saving !== null;
   return (
-    <div className="flex gap-2">
-      <button
-        type="button"
+    <div>
+      <ActionButton
         disabled={disabled}
         onClick={onDelete}
-        className="rounded-md border border-red-200 bg-white px-3 py-1.5 text-xs font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+        variant="danger"
+        className="px-3 py-1.5 text-xs"
       >
         删除
-      </button>
+      </ActionButton>
     </div>
   );
 }
@@ -990,69 +964,62 @@ function ContractSection({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h3 className="text-base font-semibold text-slate-950">合同</h3>
-          <p className="mt-1 text-sm text-slate-500">合同概况和每次签订分开维护。</p>
-        </div>
-        {canEdit && (
-          <button
-            type="button"
-            onClick={onAdd}
-            disabled={saving !== null}
-            className="rounded-md border border-emerald-300 bg-white px-3 py-2 text-sm font-medium text-emerald-700 shadow-sm transition hover:bg-emerald-50 disabled:opacity-50"
-          >
-            新增合同
-          </button>
+      <ActionToolbar
+        className="border-0 bg-transparent p-0 shadow-none"
+        leftSlot={(
+          <div>
+            <h3 className="text-base font-semibold text-slate-950">合同</h3>
+            <p className="mt-1 text-sm text-slate-500">合同概况和每次签订分开维护。</p>
+          </div>
         )}
-      </div>
+        secondaryActions={canEdit ? [{
+          label: "新增合同",
+          disabled: saving !== null,
+          onClick: onAdd,
+        }] : []}
+      />
       <div className="space-y-4">
         {rows.length === 0 ? (
-          <div className="rounded-md border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-400">
-            暂无合同
-          </div>
+          <EmptyStateCard compact>暂无合同</EmptyStateCard>
         ) : (
           rows.map((row, index) => {
             const normalizedRow = normalizeContractRow(row);
             const current = isCurrentByEndDate(normalizedRow.permanentContractDate ? normalizedRow.endDate : contractPeriodEndDate(normalizedRow));
             return (
-              <div key={row.id ?? `new-contract-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-semibold text-slate-900">
-                        {row.isNew ? "新增合同" : `合同 #${row.id}`}
-                      </span>
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusPill(current)}`}>
-                        {current ? "当前合同" : "历史合同"}
-                      </span>
-                      {row.isPrimary && (
-                        <span className="rounded-full bg-sky-50 px-2 py-0.5 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
-                          主合同
+              <PanelCard key={row.id ?? `new-contract-${index}`} bodyClassName="p-4">
+                <ActionToolbar
+                  className="mb-4 border-0 bg-transparent p-0 shadow-none"
+                  leftSlot={(
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-900">
+                          {row.isNew ? "新增合同" : `合同 #${row.id}`}
                         </span>
-                      )}
+                        <StatusBadge label={current ? "当前合同" : "历史合同"} variant={current ? "green" : "gray"} />
+                        {row.isPrimary && <StatusBadge label="主合同" variant="blue" />}
+                      </div>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {row.company || "未设置公司"} · {row.contractType || "未设置合同类型"} · {row.legalRelation || "未设置法律关系"}
+                      </p>
                     </div>
-                    <p className="mt-1 text-xs text-slate-500">
-                      {row.company || "未设置公司"} · {row.contractType || "未设置合同类型"} · {row.legalRelation || "未设置法律关系"}
-                    </p>
-                  </div>
-                  <RowActions
-                    canEdit={canEdit}
-                    saving={saving}
-                    onDelete={() => onDelete(row, index)}
-                  />
-                </div>
-                <div className="rounded-md border border-slate-200 bg-white p-4">
-                  <div className="mb-3 text-xs font-semibold text-slate-500">合同概况</div>
+                  )}
+                  rightSlot={(
+                    <RowActions
+                      canEdit={canEdit}
+                      saving={saving}
+                      onDelete={() => onDelete(row, index)}
+                    />
+                  )}
+                />
+                <PanelCard title="合同概况" bodyClassName="p-4">
                   {fieldGrid(overviewFields, normalizedRow as unknown as EditableRecord, !canEdit, (key, value, option) => {
                     const field = contractFields.find((item) => item.key === key);
                     if (field) onChange(index, field, value, option);
                   })}
-                </div>
+                </PanelCard>
                 <div className="mt-3 grid gap-3 lg:grid-cols-2">
                   {signingGroups.map((group) => (
-                    <div key={group.title} className="rounded-md border border-slate-200 bg-white p-4">
-                      <div className="mb-3 text-xs font-semibold text-slate-500">{group.title}</div>
+                    <PanelCard key={group.title} title={group.title} bodyClassName="p-4">
                       {fieldGrid(group.fields, normalizedRow as unknown as EditableRecord, !canEdit, (key, value, option) => {
                         const field = contractFields.find((item) => item.key === key);
                         if (!field) return;
@@ -1064,10 +1031,10 @@ function ContractSection({
                         }
                         onChange(index, field, value, option);
                       })}
-                    </div>
+                    </PanelCard>
                   ))}
                 </div>
-              </div>
+              </PanelCard>
             );
           })
         )}
@@ -1111,76 +1078,69 @@ function EdpSection({
       title="部门岗位"
       subtitle="当前岗位与历史岗位分开标识。"
       status={(
-        <span className={`inline-flex rounded-md border px-2.5 py-1 text-xs font-medium ${
-          percentCheck.ok ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-red-200 bg-red-50 text-red-700"
-        }`}>
-          当前岗位 {currentRows.length} 条，工作占比合计 {currentTotal.toFixed(2)}
-        </span>
+        <StatusBadge
+          label={`当前岗位 ${currentRows.length} 条，工作占比合计 ${currentTotal.toFixed(2)}`}
+          variant={percentCheck.ok ? "green" : "red"}
+        />
       )}
       actions={canEdit ? (
         <>
-          <button
-            type="button"
+          <ActionButton
             onClick={onAdd}
             disabled={saving !== null}
-            className="rounded-md border border-emerald-300 bg-white px-3 py-2 text-sm font-medium text-emerald-700 shadow-sm transition hover:bg-emerald-50 disabled:opacity-50"
+            variant="secondary"
           >
             新增岗位记录
-          </button>
-          <button
-            type="button"
+          </ActionButton>
+          <ActionButton
             onClick={onSaveAll}
             disabled={saving !== null || !dirty}
-            className={primaryButtonClass()}
+            variant="primary"
           >
             {saving === "edp" ? "保存中..." : "保存部门岗位"}
-          </button>
+          </ActionButton>
         </>
       ) : null}
     >
       <div className="space-y-4">
         {rows.length === 0 ? (
-          <div className="rounded-md border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-400">
-            暂无岗位记录
-          </div>
+          <EmptyStateCard compact>暂无岗位记录</EmptyStateCard>
         ) : (
           rows.map((row, index) => {
             const current = isCurrentByEndDate(row.endDate);
             return (
-              <div key={row.id ?? `new-edp-${index}`} className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-semibold text-slate-900">
-                        {row.isNew ? "新增岗位记录" : row.positionName || `岗位记录 #${row.id}`}
-                      </span>
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusPill(current)}`}>
-                        {current ? "当前岗位" : "历史岗位"}
-                      </span>
-                      {row.isPrimary && (
-                        <span className="rounded-full bg-sky-50 px-2 py-0.5 text-xs font-medium text-sky-700 ring-1 ring-sky-200">
-                          主岗
+              <PanelCard key={row.id ?? `new-edp-${index}`} bodyClassName="p-4">
+                <ActionToolbar
+                  className="mb-4 border-0 bg-transparent p-0 shadow-none"
+                  leftSlot={(
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-900">
+                          {row.isNew ? "新增岗位记录" : row.positionName || `岗位记录 #${row.id}`}
                         </span>
-                      )}
+                        <StatusBadge label={current ? "当前岗位" : "历史岗位"} variant={current ? "green" : "gray"} />
+                        {row.isPrimary && <StatusBadge label="主岗" variant="blue" />}
+                      </div>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {row.departmentName || "未设置部门"} · 占比 {row.workPercent || "未设置"} · {row.startDate || "未设置开始"} 至 {row.endDate || "长期"}
+                      </p>
                     </div>
-                    <p className="mt-1 text-xs text-slate-500">
-                      {row.departmentName || "未设置部门"} · 占比 {row.workPercent || "未设置"} · {row.startDate || "未设置开始"} 至 {row.endDate || "长期"}
-                    </p>
-                  </div>
-                  <RowActions
-                    canEdit={canEdit}
-                    saving={saving}
-                    onDelete={() => onDelete(row, index)}
-                  />
-                </div>
-                <div className="rounded-md border border-slate-200 bg-white p-4">
-                  <div className="mb-3 text-xs font-semibold text-slate-500">岗位信息</div>
+                  )}
+                  rightSlot={(
+                    <RowActions
+                      canEdit={canEdit}
+                      saving={saving}
+                      onDelete={() => onDelete(row, index)}
+                    />
+                  )}
+                />
+                <PanelCard title="岗位信息" bodyClassName="p-4">
                   {fieldGrid(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
                     const field = edpFields.find((item) => item.key === key);
                     if (field) onChange(index, field, value, option);
                   })}
-                </div>
-              </div>
+                </PanelCard>
+              </PanelCard>
             );
           })
         )}
@@ -1202,74 +1162,73 @@ function HistorySection({
   onToggle: (id: number) => void;
   onRefresh: () => void;
 }) {
+  const changeColumns: DataTableColumn<ProfileHistoryEntry["changes"][number]>[] = [
+    {
+      key: "field",
+      label: "字段",
+      required: true,
+      render: (change) => <span className="font-medium text-slate-700">{change.label}</span>,
+    },
+    {
+      key: "from",
+      label: "原值",
+      required: true,
+      render: (change) => <span className="text-slate-500">{change.from}</span>,
+    },
+    {
+      key: "to",
+      label: "新值",
+      required: true,
+      render: (change) => <span className="text-slate-900">{change.to}</span>,
+    },
+  ];
+
   return (
     <SectionShell
       title="历史记录"
       subtitle="记录谁在什么时候修改了哪些字段。"
       actions={(
-        <button
-          type="button"
+        <ActionButton
           onClick={onRefresh}
-          className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm hover:bg-slate-50"
+          variant="secondary"
         >
           刷新
-        </button>
+        </ActionButton>
       )}
     >
       <div className="space-y-3">
         {loading ? (
-          <div className="rounded-md border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-400">
-            正在加载历史记录...
-          </div>
+          <EmptyStateCard compact>正在加载历史记录...</EmptyStateCard>
         ) : entries.length === 0 ? (
-          <div className="rounded-md border border-dashed border-slate-300 px-4 py-8 text-center text-sm text-slate-400">
-            暂无变更记录
-          </div>
+          <EmptyStateCard compact>暂无变更记录</EmptyStateCard>
         ) : (
           entries.map((entry) => {
             const expanded = expandedId === entry.id;
             return (
-              <div key={entry.id} className="rounded-lg border border-slate-200 bg-white">
-                <button
-                  type="button"
-                  onClick={() => onToggle(entry.id)}
-                  className="flex w-full flex-wrap items-center justify-between gap-3 px-4 py-3 text-left hover:bg-slate-50"
-                >
+              <DisclosureRecordCard
+                key={entry.id}
+                expanded={expanded}
+                onToggle={() => onToggle(entry.id)}
+                header={(
                   <div>
-                    <div className="text-sm font-semibold text-slate-900">
-                      {entry.editorName} 修改了 {entry.changes.length} 项
+                      <div className="text-sm font-semibold text-slate-900">
+                        {entry.editorName} 修改了 {entry.changes.length} 项
+                      </div>
+                      <div className="mt-1 text-xs text-slate-500">
+                        {new Date(entry.createdAt).toLocaleString("zh-CN", { hour12: false })} · {entry.entityType} #{entry.entityId} · v{entry.version}
+                      </div>
                     </div>
-                    <div className="mt-1 text-xs text-slate-500">
-                      {new Date(entry.createdAt).toLocaleString("zh-CN", { hour12: false })} · {entry.entityType} #{entry.entityId} · v{entry.version}
-                    </div>
-                  </div>
-                  <span className="text-xs text-slate-400">{expanded ? "收起" : "展开"}</span>
-                </button>
-                {expanded && (
-                  <div className="border-t border-slate-100 px-4 py-3">
-                    <div className="overflow-hidden rounded-md border border-slate-200">
-                      <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 text-xs text-slate-500">
-                          <tr>
-                            <th className="px-3 py-2">字段</th>
-                            <th className="px-3 py-2">原值</th>
-                            <th className="px-3 py-2">新值</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {entry.changes.map((change) => (
-                            <tr key={`${entry.id}-${change.field}`} className="border-t border-slate-100">
-                              <td className="px-3 py-2 font-medium text-slate-700">{change.label}</td>
-                              <td className="px-3 py-2 text-slate-500">{change.from}</td>
-                              <td className="px-3 py-2 text-slate-900">{change.to}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
                 )}
-              </div>
+                summary={<span className="text-xs text-slate-400">{expanded ? "收起" : "展开"}</span>}
+              >
+                    <DataTable
+                      rows={entry.changes}
+                      columns={changeColumns}
+                      visibleColumns={["field", "from", "to"]}
+                      density="compact"
+                      rowKey={(change) => `${entry.id}-${change.field}`}
+                    />
+              </DisclosureRecordCard>
             );
           })
         )}

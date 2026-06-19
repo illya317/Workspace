@@ -32,7 +32,7 @@ export const employeeFields: ProfileField[] = [
   { key: "workStartDate", label: "参加工作时间", type: "date" },
   { key: "idNumber", label: "身份证号", type: "chineseId" },
   { key: "otherId", label: "其他证件号" },
-  { key: "userId", label: "关联账号", type: "fk", entity: "user", displayKey: "userName", readOnly: true },
+  { key: "userId", label: "关联账号", type: "fk", entity: "user", fkKey: "platform.user", displayKey: "userName", readOnly: true },
 ];
 
 export const employmentFields: ProfileField[] = [
@@ -49,7 +49,7 @@ export const employmentFields: ProfileField[] = [
 ];
 
 export const contractFields: ProfileField[] = [
-  { key: "company", label: "公司", type: "fk", entity: "company", valueFrom: "name" },
+  { key: "company", label: "公司", type: "fk", entity: "company", fkKey: "hr.company", valueFrom: "name" },
   { key: "isPrimary", label: "主合同", type: "boolean" },
   { key: "insuranceStatus", label: "参保状态", type: "select", options: HR_INSURANCE_STATUSES },
   { key: "legalRelation", label: "法律关系", type: "select", options: HR_LEGAL_RELATIONS },
@@ -68,17 +68,17 @@ export const contractFields: ProfileField[] = [
 ];
 
 export const edpFields: ProfileField[] = [
-  { key: "departmentId", label: "部门", type: "fk", entity: "department", displayKey: "departmentPath", readOnly: true },
-  { key: "positionId", label: "岗位", type: "fk", entity: "position", displayKey: "positionName" },
+  { key: "departmentId", label: "部门", type: "fk", entity: "department", fkKey: "hr.department", displayKey: "departmentPath", readOnly: true },
+  { key: "positionId", label: "岗位", type: "fk", entity: "position", fkKey: "hr.edp.position", displayKey: "positionName", required: true },
   { key: "isPrimary", label: "主岗", type: "boolean" },
   { key: "startDate", label: "开始日期", type: "date" },
   { key: "endDate", label: "结束日期", type: "date" },
   { key: "workPercent", label: "工作占比", type: "percent" },
-  { key: "reportTo", label: "直接上级", type: "fk", entity: "employee", valueFrom: "name", activeOnly: true },
+  { key: "reportTo", label: "直接上级", type: "fk", entity: "employee", fkKey: "hr.edp.reportTo", valueFrom: "name", activeOnly: true },
 ];
 
 export const employeeProjectFields: ProfileField[] = [
-  { key: "projectId", label: "项目", type: "fk", entity: "project", displayKey: "projectName", required: true },
+  { key: "projectId", label: "项目", type: "fk", entity: "project", fkKey: "hr.employeeProject.project", displayKey: "projectName", required: true },
   { key: "role", label: "角色" },
   { key: "startDate", label: "开始日期", type: "date" },
   { key: "endDate", label: "结束日期", type: "date" },

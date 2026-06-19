@@ -373,15 +373,15 @@ async function main() {
   validateOptionalFile(workspaceDir, "data/qc-template-feedback.json", "QC feedback store");
   validateRequiredFile(
     workspaceDir,
-    "config/pharma-ops/table_layouts/layout_mapping.json",
-    "QC layout mapping"
+    "config/pharma-qc/product_stage_tests.json",
+    "QC product/stage test index"
   );
   validateRequiredFile(
     workspaceDir,
-    "config/pharma-ops/table_layouts/templates/parents/related_substances_hplc_full.json",
-    "QC layout parent template"
+    "config/pharma-qc/full",
+    "QC full template directory"
   );
-  validateRequiredFile(workspaceDir, "config/pharma-ops/products.yaml", "QC products config");
+  validateRequiredFile(workspaceDir, "config/pharma-qc/records", "QC records config directory");
 
   const workspaceEnv = parseKeyValueFile(workspaceEnvPath);
   const databasePath = validateEnv(workspaceDir, workspaceEnv);

@@ -198,9 +198,9 @@ validate_remote_runtime() {
   ssh_cmd "
     set -e
     test -f '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-    test -f '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops/table_layouts/layout_mapping.json'
-    test -f '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops/table_layouts/templates/parents/related_substances_hplc_full.json'
-    test -f '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-ops/products.yaml'
+    test -f '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/product_stage_tests.json'
+    test -d '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/full'
+    test -d '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/records'
     grep -q '^WORKSPACE_CONFIG_DIR=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^DATABASE_URL=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     python3 - <<'PY'

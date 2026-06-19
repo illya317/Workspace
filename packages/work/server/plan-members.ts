@@ -1,11 +1,13 @@
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { handleCreate, handleDelete, handleUpdateField } from "./work-crud";
+import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import {
   isValidDateValue,
   rejectInvalidDateField,
 } from "@workspace/platform/server/api";
 import { prisma } from "@workspace/platform/server/prisma";
 import { WORK_PLAN_ROLES } from "../constants/field-options";
+import { WORK_FK_REGISTRY } from "./fk-registry";
 
 type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
 type ProjectBodyRow = Record<string, unknown>;
@@ -53,12 +55,13 @@ async function normalizeEmployeeProjectFieldUpdate(field: string, value: unknown
     return role ? { field, value: role } : null;
   }
   if (field === "projectId") {
-    if (value === null || value === undefined || value === "") return { field, value: null };
-    const id = Number(value);
-    if (!Number.isInteger(id)) return null;
-    const project = await prisma.project.findUnique({ where: { id }, select: { id: true } });
-    if (!project) return null;
-    return { field, value: id };
+    const validation = await validateFkValue(WORK_FK_REGISTRY, {
+      fkKey: "work.plan.member.project",
+      value,
+      requiredLabel: "工作计划",
+    });
+    if (!validation.ok) return { error: validation.error, status: validation.status };
+    return { field, value: validation.value };
   }
   return { field, value };
 }
@@ -69,8 +72,12 @@ async function normalizeProjectRow(row: ProjectBodyRow, employeeId: number): Pro
 
   const projectId = nullableNumber(row.projectId);
   if (!projectId || Number.isNaN(projectId)) return null;
-  const project = await prisma.project.findUnique({ where: { id: projectId }, select: { id: true } });
-  if (!project) return null;
+  const projectValidation = await validateFkValue(WORK_FK_REGISTRY, {
+    fkKey: "work.plan.member.project",
+    value: projectId,
+    requiredLabel: "工作计划",
+  });
+  if (!projectValidation.ok) return null;
 
   const startDate = nullableString(row.startDate);
   const endDate = nullableString(row.endDate);
@@ -190,12 +197,24 @@ export async function createWorkPlanMember(request: Request) {
     const { employeeId, projectId, role, startDate, endDate } = body;
     if (!employeeId || !projectId) return null;
     for (const field of DATE_FIELDS) if (!isValidDateValue(body[field])) return null;
-    const employee = await prisma.employee.findUnique({ where: { employeeId: String(employeeId) }, select: { id: true } });
+    const employee = await prisma.employee.findUnique({
+      where: { employeeId: String(employeeId) },
+      select: { id: true },
+    });
     if (!employee) return null;
+    const employeeValidation = await validateFkValue(WORK_FK_REGISTRY, {
+      fkKey: "work.plan.member.employee",
+      value: employee.id,
+      requiredLabel: "员工",
+    });
+    if (!employeeValidation.ok) return null;
     const projectNumber = Number(projectId);
-    if (!Number.isInteger(projectNumber)) return null;
-    const project = await prisma.project.findUnique({ where: { id: projectNumber }, select: { id: true } });
-    if (!project) return null;
+    const projectValidation = await validateFkValue(WORK_FK_REGISTRY, {
+      fkKey: "work.plan.member.project",
+      value: projectNumber,
+      requiredLabel: "工作计划",
+    });
+    if (!projectValidation.ok) return null;
     const normalizedRole = normalizeProjectRole(role);
     if (!normalizedRole) return null;
     return {

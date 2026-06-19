@@ -42,6 +42,32 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  // File size governance. Keep this in ESLint so line budgets are part of lint, not a parallel check.
+  {
+    files: ["app/api/**/route.ts"],
+    rules: {
+      "max-lines": ["error", { max: 120, skipBlankLines: false, skipComments: false }],
+    },
+  },
+  {
+    files: ["app/**/page.tsx"],
+    rules: {
+      "max-lines": ["error", { max: 150, skipBlankLines: false, skipComments: false }],
+    },
+  },
+  {
+    files: ["app/**/*.tsx"],
+    ignores: ["app/api/**", "app/**/page.tsx"],
+    rules: {
+      "max-lines": ["error", { max: 220, skipBlankLines: false, skipComments: false }],
+    },
+  },
+  {
+    files: ["server/**/*.ts"],
+    rules: {
+      "max-lines": ["error", { max: 260, skipBlankLines: false, skipComments: false }],
+    },
+  },
   // Package boundaries: keep the Core -> Platform -> Apps direction enforceable through lint too.
   {
     files: ["packages/core/**/*.{ts,tsx}"],

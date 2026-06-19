@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import HRToolbar from "@/app/components/HRToolbar";
-import AuditLogModal from "@/app/components/AuditLogModal";
-import Toast from "@/app/components/Toast";
+import HRToolbar from "@workspace/hr/ui/components/HRToolbar";
+import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
+import Toast from "@workspace/core/ui/Toast";
+import { PanelCard } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import FilterModal from "../components/FilterModal";
 import GenericFieldInput from "../components/GenericFieldInput";
@@ -119,12 +120,13 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
           filterValues={filters}
           onFilterChange={(key, val) => setFilter(key, val)}
           onShowAdvancedFilters={() => setShowFilterModal(true)}
+          hasAdvancedFilters={(config.advancedFilters?.length ?? 0) > 0}
           canCreate={!!config.canCreate && canEdit}
           onCreate={() => setCreating(true)}
         />
       </HRToolbar>
 
-      <div className="overflow-x-auto rounded-lg bg-white shadow-sm">
+      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
         {loading ? (
           <p className="p-8 text-center text-gray-500">加载中...</p>
         ) : error ? (
@@ -155,7 +157,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
             onStartEdit={handleStartEdit}
           />
         )}
-      </div>
+      </PanelCard>
 
       {creating && (
         <GenericCreateModal
@@ -171,9 +173,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
 
       <FilterModal
         open={showFilterModal}
-        fields={config.fields}
-        fkFields={config.fkFields}
-        items={items}
+        filters={config.advancedFilters ?? []}
         onClose={() => setShowFilterModal(false)}
         onApply={applyFilters}
         onReset={resetFilters}

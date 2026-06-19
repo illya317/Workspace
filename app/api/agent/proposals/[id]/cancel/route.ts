@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@/server/auth/session";
+import { getCurrentUser } from "@workspace/platform/server/auth";
 import { cancelProposal } from "@workspace/platform/server/agent";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
 

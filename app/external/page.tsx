@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
-import { requireResourceAccess } from "@/server/auth/guard";
-import AppShell from "@/app/components/AppShell";
-import ModuleHome from "@/app/components/ModuleHome";
-import { MODULES } from "@/app/lib/module-nav";
+import { requireResourceAccess } from "@workspace/platform/server/auth";
+import AppShell from "@workspace/platform/ui/AppShell";
+import ModuleHome from "@workspace/platform/ui/ModuleHome";
+import { MODULES } from "@workspace/platform/module-nav";
 
 export default async function ExternalPage() {
   const user = await requireResourceAccess("external");

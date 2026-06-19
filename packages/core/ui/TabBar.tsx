@@ -9,11 +9,12 @@ export interface TabBarProps {
   tabs: TabDef[];
   active: string;
   onChange: (key: string) => void;
+  className?: string;
 }
 
-export default function TabBar({ tabs, active, onChange }: TabBarProps) {
+export default function TabBar({ tabs, active, onChange, className = "" }: TabBarProps) {
   return (
-    <div className="mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 pb-1">
+    <div className={`mb-6 flex gap-2 overflow-x-auto border-b border-gray-200 pb-1 ${className}`}>
       {tabs.map((t) => (
         <button
           key={t.key}

@@ -1,6 +1,8 @@
 import { snapshotHistory } from "@workspace/platform/server/history";
+import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { isValidDateValue, parseWorkPercent } from "./field-validation";
 import { prisma } from "@workspace/platform/server/prisma";
+import { HR_FK_REGISTRY } from "./fk-registry";
 
 type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
 type EdpBodyRow = Record<string, unknown>;
@@ -33,9 +35,8 @@ function isCurrentByEndDate(endDate: unknown) {
 }
 
 async function ensurePosition(id: number | null) {
-  if (id === null) return true;
-  const row = await prisma.position.findUnique({ where: { id }, select: { id: true } });
-  return Boolean(row);
+  const result = await validateFkValue(HR_FK_REGISTRY, { fkKey: "hr.edp.position", value: id, requiredLabel: "岗位" });
+  return result.ok;
 }
 
 async function departmentIdFromPosition(positionId: number | null) {

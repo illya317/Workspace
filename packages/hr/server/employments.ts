@@ -5,6 +5,7 @@ import { isValidDateValue, rejectInvalidDateField, validateEmploymentOption } fr
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchEmployee } from "./search";
 import { parseContracts } from "./contracts";
+import { guardEmployeeInactive } from "./reference-guards";
 
 const DATE_FIELDS = ["joinDate", "leaveDate"];
 const EMPLOYMENT_CONFIG = { entityType: "Employment", modelKey: "employment" as const };
@@ -29,11 +30,25 @@ function primaryContractCompany(contractsJson: string | null, fallback: string |
   return primaryCompany || firstCompany || fallback || null;
 }
 
-async function normalizeEmploymentFieldUpdate(field: string, value: unknown) {
+async function normalizeEmploymentFieldUpdate(field: string, value: unknown, id?: number) {
   const dateResult = rejectInvalidDateField(field, value, DATE_FIELDS);
   if (!dateResult) return null;
   const optionResult = validateEmploymentOption(field, value);
   if (!optionResult) return null;
+  if (field === "isActive" && (value === false || value === "false") && id) {
+    const employment = await prisma.employment.findUnique({
+      where: { id },
+      select: { employeeId: true },
+    });
+    if (!employment) return { error: "雇佣记录不存在", status: 404 };
+    const otherActiveCount = await prisma.employment.count({
+      where: { employeeId: employment.employeeId, id: { not: id }, isActive: true },
+    });
+    if (otherActiveCount === 0) {
+      const blockMessage = await guardEmployeeInactive(employment.employeeId);
+      if (blockMessage) return { error: blockMessage, status: 409 };
+    }
+  }
   return { field, value };
 }
 

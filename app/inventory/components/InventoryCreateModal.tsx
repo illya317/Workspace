@@ -1,6 +1,6 @@
 "use client";
 
-import { SelectField } from "@workspace/core/ui";
+import { DetailModal, SelectField } from "@workspace/core/ui";
 
 interface CreateFieldConfig {
   key: string;
@@ -27,9 +27,7 @@ export default function InventoryCreateModal({
 }: InventoryCreateModalProps) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-      <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl">
-        <h3 className="mb-4 text-sm font-semibold">{title}</h3>
+    <DetailModal open title={title} onClose={onCancel}>
         <div className="grid grid-cols-2 gap-3">
           {fields.map((f) => (
             <div key={f.key} className={f.span === "full" ? "col-span-2" : ""}>
@@ -61,7 +59,6 @@ export default function InventoryCreateModal({
             取消
           </button>
         </div>
-      </div>
-    </div>
+    </DetailModal>
   );
 }

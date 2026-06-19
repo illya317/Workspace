@@ -1,5 +1,5 @@
-import { requireResourceAccess } from "@/server/auth/guard";
-import AppShell from "@/app/components/AppShell";
+import { requireResourceAccess } from "@workspace/platform/server/auth";
+import AppShell from "@workspace/platform/ui/AppShell";
 import HRAnalyticsClient from "./HRAnalyticsClient";
 
 export default async function HRAnalyticsPage() {

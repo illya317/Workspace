@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { SelectField } from "@workspace/core/ui";
+import { ActionButton, DetailModal, SelectField, TextareaField, TextField } from "@workspace/core/ui";
 
 interface Source {
   key: string;
@@ -84,10 +84,7 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={onClose}>
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-        <h3 className="mb-4 text-lg font-bold text-gray-800">生成文档</h3>
-
+    <DetailModal open title="生成文档" onClose={onClose} maxWidth="max-w-md">
         {error && (
           <div className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>
         )}
@@ -111,23 +108,21 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
 
             <div className="mb-3">
               <label className="mb-1 block text-xs text-gray-500">标题</label>
-              <input
-                type="text"
+              <TextField
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={setTitle}
                 placeholder="文档标题"
-                className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
               />
             </div>
 
             <div className="mb-3">
               <label className="mb-1 block text-xs text-gray-500">简介</label>
-              <textarea
+              <TextareaField
                 value={summary}
-                onChange={(e) => setSummary(e.target.value)}
+                onChange={setSummary}
                 rows={3}
                 placeholder="可选"
-                className="w-full rounded border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                className="px-3 py-2 text-sm"
               />
             </div>
 
@@ -146,23 +141,19 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
             </div>
 
             <div className="flex gap-2">
-              <button
+              <ActionButton
                 onClick={handleGenerate}
                 disabled={generating || !title.trim()}
-                className="rounded-md bg-emerald-600 px-4 py-2 text-sm text-white hover:bg-emerald-700 disabled:opacity-50"
+                variant="primary"
               >
                 {generating ? "生成中..." : "生成"}
-              </button>
-              <button
-                onClick={onClose}
-                className="rounded-md border px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
-              >
+              </ActionButton>
+              <ActionButton onClick={onClose}>
                 取消
-              </button>
+              </ActionButton>
             </div>
           </>
         )}
-      </div>
-    </div>
+    </DetailModal>
   );
 }
