@@ -122,6 +122,7 @@ build_artifact() {
   npm run build
 
   rm -rf .next/standalone/.next/static
+  mkdir -p .next/standalone/.next
   cp -r .next/static .next/standalone/.next/static
   rm -rf .next/standalone/public
   cp -rL public .next/standalone/public
