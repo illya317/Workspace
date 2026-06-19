@@ -1,6 +1,22 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { authenticate, checkPermission } from "@workspace/platform/server/auth";
 import { createWorkPlanMember, listWorkPlanMembers } from "@workspace/work/server";
+
+const employeeProjectsQuerySchema = z.object({
+  projectId: z.coerce.number().int().positive().optional(),
+  keyword: z.string().catch(""),
+  page: z.coerce.number().int().min(1).catch(1),
+  pageSize: z.coerce.number().int().min(1).max(500).catch(50),
+}).passthrough();
+
+const createWorkPlanMemberSchema = z.object({
+  employeeId: z.unknown(),
+  projectId: z.unknown(),
+  role: z.unknown().optional(),
+  startDate: z.unknown().optional(),
+  endDate: z.unknown().optional(),
+}).passthrough();
 
 async function canUseWorkPlan(userId: number, role: "access" | "write" | "delete" = "access") {
   if (await checkPermission(userId, "system", "admin")) return true;
@@ -14,12 +30,11 @@ export async function GET(request: Request) {
   if (!(await canUseWorkPlan(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { searchParams } = new URL(request.url);
-  const projectId = searchParams.get("projectId");
-  const keyword = searchParams.get("keyword") || "";
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
+  const parsedQuery = employeeProjectsQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+  if (!parsedQuery.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  const { projectId, keyword, page, pageSize } = parsedQuery.data;
   return NextResponse.json(await listWorkPlanMembers({
-    projectId: projectId ? parseInt(projectId) : null,
+    projectId: projectId ?? null,
     keyword,
     page,
     pageSize,
@@ -27,5 +42,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const body = await request.clone().json().catch(() => null);
+  const parsedBody = createWorkPlanMemberSchema.safeParse(body);
+  if (!parsedBody.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
   return createWorkPlanMember(request);
 }
