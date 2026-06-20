@@ -12,7 +12,7 @@ export default function TemplateFooter({
   pageNumber: number;
   onPageChange: (page: number) => void;
 }) {
-  if (page.kind === "modal" || page.kind === "upload") return null;
+  if (page.kind === "modal") return null;
   if (page.kind === "home") {
     return (
       <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 shadow-sm">
@@ -20,11 +20,11 @@ export default function TemplateFooter({
       </div>
     );
   }
-  if (page.kind === "document" || page.kind === "production") {
+  if (page.kind === "document" || page.kind === "production" || page.kind === "upload") {
     return (
       <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 shadow-sm">
-        <span>预览</span>
-        <span>已保存</span>
+        <span>{page.kind === "upload" ? "待确认" : "预览"}</span>
+        <span>{page.kind === "upload" ? "3 条记录" : "已保存"}</span>
       </div>
     );
   }

@@ -1,10 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { PanelCard } from "../BaseCards";
 import PreviewToolbar from "./PreviewToolbar";
 import type { ModuleTemplate } from "./template-data";
 import TemplateFooter from "./TemplateFooter";
+import TemplateHeader from "./TemplateHeader";
 import { TemplateBody } from "./template-bodies";
 
 export default function ModuleTemplatePreview({
@@ -23,14 +23,7 @@ export default function ModuleTemplatePreview({
 
   return (
     <div className="space-y-3">
-      <PanelCard bodyClassName="p-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="min-w-0">
-            <h2 className="text-xl font-semibold text-slate-950">{module.label}</h2>
-            <p className="mt-1 text-sm text-slate-500">{page.title}</p>
-          </div>
-        </div>
-      </PanelCard>
+      <TemplateHeader module={module} page={page} />
 
       {page.kind !== "home" && (
         <PreviewToolbar
