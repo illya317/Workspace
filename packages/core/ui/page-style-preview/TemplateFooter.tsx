@@ -23,7 +23,6 @@ export default function TemplateFooter({
   pageNumber: number;
   onPageChange: (page: number) => void;
 }) {
-  if (page.kind === "modal") return null;
   if (page.kind !== "table") {
     const [left, right] = footerLabels(page);
     return (

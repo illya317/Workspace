@@ -44,6 +44,7 @@ export interface PreviewToolbarProps {
   onCreate?: () => void;
   totalLabel?: string;
   showMeta?: boolean;
+  showPreviewAction?: boolean;
 }
 
 export default function PreviewToolbar({
@@ -52,6 +53,7 @@ export default function PreviewToolbar({
   onCreate,
   totalLabel = "共 343 人",
   showMeta = true,
+  showPreviewAction = false,
 }: PreviewToolbarProps) {
   const [keyword, setKeyword] = useState("");
   const [mode, setMode] = useState("all");
@@ -95,7 +97,12 @@ export default function PreviewToolbar({
           <ActionButton>刷新</ActionButton>
         </>
       )}
-      selectionActions={<ActionButton>导出</ActionButton>}
+      selectionActions={(
+        <>
+          {showPreviewAction && <ActionButton>预览</ActionButton>}
+          <ActionButton>导出</ActionButton>
+        </>
+      )}
       editActions={(
         <EditToolbar
           editMode={editMode}

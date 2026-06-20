@@ -24,7 +24,6 @@ export function TemplateBody({
   if (page.kind === "document") return <DocumentBody page={page} listVisible={listVisible} />;
   if (page.kind === "production") return <ProductionBody page={page} />;
   if (page.kind === "upload") return <UploadBody page={page} />;
-  if (page.kind === "modal") return <ModalBody module={module} page={page} />;
   return <TableBody page={page} />;
 }
 
@@ -191,19 +190,6 @@ function UploadBody({ page }: { page: PageTemplate }) {
       <PanelCard title="导入预览" bodyClassName="p-0">
         <DataTable rows={previewRows} columns={previewColumns} visibleColumns={["owner", "type", "status", "updated"]} rowKey={(row) => row.id} density="compact" />
       </PanelCard>
-    </div>
-  );
-}
-
-function ModalBody({ module, page }: { module: ModuleTemplate; page: PageTemplate }) {
-  return (
-    <div className="relative rounded-lg border border-slate-200 bg-slate-50 p-6">
-      <TableBody page={{ ...page, title: module.label }} />
-      <div className="absolute inset-0 grid place-items-center bg-slate-900/10 p-6">
-        <PanelCard title={page.title} actions={<ActionButton variant="primary">确认</ActionButton>} bodyClassName="w-[34rem] max-w-full space-y-3 p-4">
-          <FormGrid fields={["名称", "类型", "负责人", "状态"]} columns="grid-cols-2" />
-        </PanelCard>
-      </div>
     </div>
   );
 }

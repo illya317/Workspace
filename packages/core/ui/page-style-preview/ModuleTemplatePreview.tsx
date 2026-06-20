@@ -73,6 +73,7 @@ export default function ModuleTemplatePreview({
           onToggleList={page.kind === "split" || page.kind === "document" ? () => setListVisible((value) => !value) : undefined}
           onCreate={() => {}}
           totalLabel={page.kind === "table" ? "共 86 条" : "共 12 条"}
+          showPreviewAction={page.previewAction}
         />
       )}
 

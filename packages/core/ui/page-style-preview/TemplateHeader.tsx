@@ -12,7 +12,6 @@ const kindLabels: Record<PageTemplate["kind"], string> = {
   analysis: "分析",
   document: "文档",
   production: "填写预览",
-  modal: "弹窗",
   upload: "上传",
 };
 
