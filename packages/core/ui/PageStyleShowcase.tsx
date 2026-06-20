@@ -27,11 +27,15 @@ export default function PageStyleShowcase() {
         <AccordionTabBar
           tabs={pageStyleTabs}
           activeTab={activeTab}
-          activeChild={activeChild}
           onTabChange={changeTab}
-          onChildChange={setActiveChild}
         />
-        {activeModule && <ModuleTemplatePreview module={activeModule} activeChild={activeChild} />}
+        {activeModule && (
+          <ModuleTemplatePreview
+            module={activeModule}
+            activeChild={activeChild}
+            onActiveChildChange={setActiveChild}
+          />
+        )}
       </PanelCard>
     </DatabasePageFrame>
   );
