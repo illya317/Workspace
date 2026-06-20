@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import AccordionTabBar from "../AccordionTabBar";
 import { PanelCard } from "../BaseCards";
 import PreviewToolbar from "./PreviewToolbar";
 import type { ModuleTemplate } from "./template-data";
@@ -19,7 +18,6 @@ export default function ModuleTemplatePreview({
     () => module.pages.find((item) => item.key === activeChild) ?? module.pages[0],
     [activeChild, module.pages],
   );
-  const [innerTab, setInnerTab] = useState(module.nav[0] ?? "总览");
   const [listVisible, setListVisible] = useState(true);
   const [pageNumber, setPageNumber] = useState(1);
 
@@ -33,14 +31,6 @@ export default function ModuleTemplatePreview({
           </div>
         </div>
       </PanelCard>
-
-      <AccordionTabBar
-        tabs={[{ key: "main", label: module.label, children: module.nav.map((label) => ({ key: label, label })) }]}
-        activeTab="main"
-        activeChild={innerTab}
-        onTabChange={() => {}}
-        onChildChange={setInnerTab}
-      />
 
       {page.kind !== "home" && (
         <PreviewToolbar
