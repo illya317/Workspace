@@ -8,6 +8,11 @@ import TemplateFooter from "./TemplateFooter";
 import TemplateHeader from "./TemplateHeader";
 import { TemplateBody } from "./template-bodies";
 
+function shouldShowToolbar(page: ModuleTemplate["pages"][number]) {
+  if (typeof page.toolbar === "boolean") return page.toolbar;
+  return ["table", "split", "analysis", "document", "production", "upload"].includes(page.kind);
+}
+
 export default function ModuleTemplatePreview({
   module,
   activeChild,
@@ -46,7 +51,7 @@ export default function ModuleTemplatePreview({
 
       <TemplateHeader module={module} page={page} />
 
-      {page.kind !== "home" && (
+      {shouldShowToolbar(page) && (
         <PreviewToolbar
           listVisible={listVisible}
           onToggleList={page.kind === "split" || page.kind === "document" ? () => setListVisible((value) => !value) : undefined}

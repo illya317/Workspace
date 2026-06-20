@@ -12,6 +12,7 @@ export interface PageTemplate {
   tableColumns?: string[];
   listItems?: string[];
   routes?: string[];
+  toolbar?: boolean;
 }
 
 export interface ModuleTemplate {

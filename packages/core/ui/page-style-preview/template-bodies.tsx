@@ -3,6 +3,7 @@
 import { ActionButton } from "../ActionControls";
 import { AnalysisBlock, MetricCard, PanelCard } from "../BaseCards";
 import DataTable from "../DataTable";
+import StatusBadge from "../StatusBadge";
 import { previewColumns, previewRows, PreviewTable } from "./sample-data";
 import { DetailStats, FormGrid } from "./template-fields";
 import type { ModuleTemplate, PageTemplate } from "./template-data";
@@ -28,21 +29,7 @@ export function TemplateBody({
 }
 
 function HomeBody({ module }: { module: ModuleTemplate }) {
-  return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-      {module.pages.slice(1, 9).map((page) => (
-        <PanelCard key={page.key} bodyClassName="p-4">
-          <div className="flex min-h-24 flex-col justify-between gap-4">
-            <div>
-              <h3 className="text-base font-semibold text-slate-950">{page.label}</h3>
-              <p className="mt-1 text-sm text-slate-500">{page.title}</p>
-            </div>
-            <span className="text-xs font-semibold text-emerald-600">进入</span>
-          </div>
-        </PanelCard>
-      ))}
-    </div>
-  );
+  return <TableBody page={{ ...module.pages[0], title: module.label, tableColumns: ["页面", "类型", "状态"] }} />;
 }
 
 export function TableBody({ page }: { page: PageTemplate }) {
@@ -59,11 +46,14 @@ function SplitBody({ module, page, listVisible }: { module: ModuleTemplate; page
   return (
     <div className={`grid gap-3 ${listVisible ? "lg:grid-cols-[3fr_7fr]" : "lg:grid-cols-1"}`}>
       {listVisible && (
-        <PanelCard title="目录" bodyClassName="space-y-2 p-3">
+        <PanelCard title={page.group ?? "目录"} bodyClassName="space-y-2 p-3">
           {listItems.map((name, index) => (
-            <button key={name} type="button" className="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 first:border-emerald-400 first:bg-emerald-50">
-              <span>{name}</span>
-              <span className="text-xs text-slate-400">{String(index + 1).padStart(2, "0")}</span>
+            <button key={name} type="button" className="flex w-full items-start justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 first:border-emerald-400 first:bg-emerald-50">
+              <span className="min-w-0">
+                <span className="block truncate">{name}</span>
+                <span className="mt-1 block text-xs font-medium text-slate-400">现用 · {index + 3} 项</span>
+              </span>
+              <span className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-500">{String(index + 1).padStart(2, "0")}</span>
             </button>
           ))}
         </PanelCard>
@@ -77,9 +67,18 @@ function SplitBody({ module, page, listVisible }: { module: ModuleTemplate; page
 }
 
 function FormBody({ page }: { page: PageTemplate }) {
+  const fields = page.fields ?? ["编码", "名称", "分类", "负责人", "开始日期", "结束日期", "状态", "来源", "级别", "范围", "备注", "更新人"];
+  const firstFields = fields.slice(0, 9);
+  const restFields = fields.slice(9);
+
   return (
-    <PanelCard title={page.title} actions={<ActionButton variant="primary">保存</ActionButton>} bodyClassName="p-4">
-      <FormGrid fields={page.fields ?? ["编码", "名称", "分类", "负责人", "开始日期", "结束日期", "状态", "来源", "级别", "范围", "备注", "更新人"]} />
+    <PanelCard title={page.title} actions={<ActionButton variant="primary">保存</ActionButton>} bodyClassName="space-y-4 p-4">
+      <FormGrid fields={firstFields} />
+      {restFields.length > 0 && (
+        <div className="border-t border-slate-200 pt-4">
+          <FormGrid fields={restFields} />
+        </div>
+      )}
     </PanelCard>
   );
 }
@@ -87,12 +86,13 @@ function FormBody({ page }: { page: PageTemplate }) {
 function AnalysisBody({ page }: { page: PageTemplate }) {
   return (
     <div className="space-y-3">
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-4">
         <MetricCard label="本月" value="128" />
         <MetricCard label="同比" value="+12%" />
         <MetricCard label="预警" value="3" />
+        <MetricCard label="覆盖率" value="96%" />
       </div>
-      <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid gap-3 lg:grid-cols-[6fr_4fr]">
         <AnalysisBlock title={page.title} bodyClassName="h-48 bg-slate-50">
           <ChartBars />
         </AnalysisBlock>
@@ -100,6 +100,9 @@ function AnalysisBody({ page }: { page: PageTemplate }) {
           <ChartBars compact />
         </AnalysisBlock>
       </div>
+      <PanelCard title="明细交叉表" bodyClassName="p-0">
+        <PreviewTable columns={["分类", "数量", "占比", "状态"]} />
+      </PanelCard>
     </div>
   );
 }
@@ -129,12 +132,17 @@ function DocumentBody({ page, listVisible }: { page: PageTemplate; listVisible: 
         </PanelCard>
       )}
       <PanelCard title={page.title} bodyClassName="space-y-3 p-4">
-        <div className="h-64 rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
-          <div className="mb-3 h-3 w-40 rounded bg-slate-300" />
+        <div className="min-h-80 rounded-lg border border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-600">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="h-3 w-40 rounded bg-slate-300" />
+            <StatusBadge label="预览" variant="blue" />
+          </div>
           <div className="space-y-2">
             <div className="h-2 rounded bg-slate-200" />
             <div className="h-2 w-5/6 rounded bg-slate-200" />
             <div className="h-2 w-2/3 rounded bg-slate-200" />
+            <div className="h-2 w-4/5 rounded bg-slate-200" />
+            <div className="h-2 w-3/5 rounded bg-slate-200" />
           </div>
         </div>
       </PanelCard>
@@ -145,8 +153,9 @@ function DocumentBody({ page, listVisible }: { page: PageTemplate; listVisible: 
 function ProductionBody({ page }: { page: PageTemplate }) {
   return (
     <div className="grid gap-3 lg:grid-cols-[4fr_6fr]">
-      <PanelCard title={page.title} bodyClassName="p-4">
+      <PanelCard title={page.title} actions={<ActionButton variant="primary">提交</ActionButton>} bodyClassName="space-y-4 p-4">
         <FormGrid fields={page.fields ?? ["批号", "检验项", "结果", "单位", "判定", "备注"]} columns="grid-cols-1" />
+        <DetailStats items={["已填", "待复核", "异常", "附件"]} />
       </PanelCard>
       <PanelCard title="预览" bodyClassName="p-0">
         <PreviewTable columns={["检验项", "结果", "单位", "限度", "判定"]} />
