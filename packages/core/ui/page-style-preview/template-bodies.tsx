@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { ActionButton } from "../ActionControls";
 import { AnalysisBlock, MetricCard, PanelCard } from "../BaseCards";
 import DataTable from "../DataTable";
@@ -7,7 +8,7 @@ import StatusBadge from "../StatusBadge";
 import QcPaperPreview from "./QcPaperPreview";
 import { previewColumns, previewRows, PreviewTable } from "./sample-data";
 import { DetailStats, FormGrid } from "./template-fields";
-import type { ModuleTemplate, PageTemplate } from "./template-data";
+import type { EmbeddedTemplate, ModuleTemplate, PageTemplate } from "./template-data";
 
 export function TemplateBody({
   module,
@@ -18,13 +19,63 @@ export function TemplateBody({
   page: PageTemplate;
   listVisible: boolean;
 }) {
-  if (page.kind === "split") return <SplitBody module={module} page={page} listVisible={listVisible} />;
-  if (page.kind === "form") return <FormBody page={page} />;
-  if (page.kind === "analysis") return <AnalysisBody page={page} />;
-  if (page.kind === "document") return <DocumentBody page={page} listVisible={listVisible} />;
-  if (page.kind === "production") return <ProductionBody page={page} />;
-  if (page.kind === "upload") return <UploadBody page={page} />;
-  return <TableBody page={page} />;
+  let body: ReactNode = <TableBody page={page} />;
+  if (page.kind === "split") body = <SplitBody module={module} page={page} listVisible={listVisible} />;
+  if (page.kind === "form") body = <FormBody page={page} />;
+  if (page.kind === "analysis") body = <AnalysisBody page={page} />;
+  if (page.kind === "document") body = <DocumentBody page={page} listVisible={listVisible} />;
+  if (page.kind === "production") body = <ProductionBody page={page} />;
+  if (page.kind === "upload") body = <UploadBody page={page} />;
+  return <BodyWithEmbedded page={page}>{body}</BodyWithEmbedded>;
+}
+
+function BodyWithEmbedded({ page, children }: { page: PageTemplate; children: ReactNode }) {
+  if (!page.embedded) return <>{children}</>;
+  return (
+    <div className="space-y-3">
+      {children}
+      <EmbeddedDetail detail={page.embedded} />
+    </div>
+  );
+}
+
+function EmbeddedDetail({ detail }: { detail: EmbeddedTemplate }) {
+  if (detail.kind === "production") {
+    const templateMode = detail.paperMode === "template";
+    return (
+      <PanelCard
+        title={detail.title}
+        actions={templateMode ? <ActionButton>开发模式</ActionButton> : <ActionButton>预览</ActionButton>}
+        bodyClassName="space-y-4 p-4"
+      >
+        <div className="flex flex-wrap gap-2">
+          {["检验前确认", "2.1 性状", "2.2 水分", "2.3 含量"].map((item, index) => (
+            <span key={item} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${index === 0 ? "bg-slate-200 text-slate-900" : "bg-slate-100 text-slate-500"}`}>
+              {item}
+            </span>
+          ))}
+        </div>
+        <QcPaperPreview mode={templateMode ? "template" : "record"} />
+      </PanelCard>
+    );
+  }
+  if (detail.kind === "document") {
+    return <PanelCard title={detail.title} bodyClassName="p-4"><DocumentSurface /></PanelCard>;
+  }
+  return (
+    <PanelCard title={detail.title} actions={<EmbeddedActions detail={detail} />} bodyClassName="space-y-4 p-4">
+      <FormGrid fields={detail.fields ?? ["编码", "名称", "负责人", "状态", "开始日期", "结束日期", "备注"]} />
+    </PanelCard>
+  );
+}
+
+function EmbeddedActions({ detail }: { detail: EmbeddedTemplate }) {
+  return (
+    <>
+      {detail.previewAction && <ActionButton>预览</ActionButton>}
+      <ActionButton variant="primary">保存</ActionButton>
+    </>
+  );
 }
 
 export function TableBody({ page }: { page: PageTemplate }) {
@@ -133,20 +184,26 @@ function DocumentBody({ page, listVisible }: { page: PageTemplate; listVisible: 
         </PanelCard>
       )}
       <PanelCard title={page.title} bodyClassName="space-y-3 p-4">
-        <div className="min-h-80 rounded-lg border border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-600">
-          <div className="mb-4 flex items-center justify-between gap-3">
-            <div className="h-3 w-40 rounded bg-slate-300" />
-            <StatusBadge label="预览" variant="blue" />
-          </div>
-          <div className="space-y-2">
-            <div className="h-2 rounded bg-slate-200" />
-            <div className="h-2 w-5/6 rounded bg-slate-200" />
-            <div className="h-2 w-2/3 rounded bg-slate-200" />
-            <div className="h-2 w-4/5 rounded bg-slate-200" />
-            <div className="h-2 w-3/5 rounded bg-slate-200" />
-          </div>
-        </div>
+        <DocumentSurface />
       </PanelCard>
+    </div>
+  );
+}
+
+function DocumentSurface() {
+  return (
+    <div className="min-h-80 rounded-lg border border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-600">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="h-3 w-40 rounded bg-slate-300" />
+        <StatusBadge label="预览" variant="blue" />
+      </div>
+      <div className="space-y-2">
+        <div className="h-2 rounded bg-slate-200" />
+        <div className="h-2 w-5/6 rounded bg-slate-200" />
+        <div className="h-2 w-2/3 rounded bg-slate-200" />
+        <div className="h-2 w-4/5 rounded bg-slate-200" />
+        <div className="h-2 w-3/5 rounded bg-slate-200" />
+      </div>
     </div>
   );
 }

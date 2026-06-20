@@ -1,6 +1,16 @@
 import type { AccordionTabItem } from "../AccordionTabBar";
 
 export type TemplateKind = "table" | "split" | "form" | "analysis" | "document" | "production" | "upload";
+export type EmbeddedKind = "form" | "document" | "production";
+
+export interface EmbeddedTemplate {
+  title: string;
+  kind: EmbeddedKind;
+  fields?: string[];
+  previewAction?: boolean;
+  paperMode?: "record" | "template";
+  routes?: string[];
+}
 
 export interface PageTemplate {
   key: string;
@@ -16,6 +26,7 @@ export interface PageTemplate {
   toolbar?: boolean;
   previewAction?: boolean;
   paperMode?: "record" | "template";
+  embedded?: EmbeddedTemplate;
 }
 
 export interface ModuleTemplate {
@@ -64,13 +75,9 @@ export const moduleTemplates: ModuleTemplate[] = [
     entryRoutes: ["production"],
     pages: [
       { key: "qc", label: "批次总览", title: "QC 工作台", kind: "table", section: "批次检验", group: "检验记录", routes: ["production/qc"], tableColumns: ["批号", "产品", "阶段", "待检项", "异常", "状态"] },
-      { key: "batches", label: "批次列表", title: "批次检验记录", kind: "table", section: "批次检验", group: "检验记录", routes: ["production/qc/batches"], tableColumns: ["批号", "产品", "规格", "阶段", "负责人", "状态"] },
+      { key: "batches", label: "批次列表", title: "批次检验记录", kind: "table", section: "批次检验", group: "检验记录", routes: ["production/qc/batches"], tableColumns: ["批号", "产品", "规格", "阶段", "负责人", "状态"], embedded: { title: "检验记录", kind: "production", paperMode: "record", previewAction: true, routes: ["production/qc/batches/[batchId]", "production/qc/batches/[batchId]/[stageKey]", "production/qc/batches/[batchId]/[stageKey]/[testName]"] } },
       { key: "batch-exception", label: "异常", title: "异常检验记录", kind: "table", section: "批次检验", group: "检验记录", tableColumns: ["批号", "阶段", "检验项", "异常值", "负责人", "状态"] },
-      { key: "batch-detail", label: "批次详情", title: "批次详情", kind: "split", section: "批次检验", group: "批次填写", routes: ["production/qc/batches/[batchId]"], fields: ["批号", "产品", "规格", "生产日期", "放行状态", "负责人"] },
-      { key: "stage", label: "阶段详情", title: "阶段检验", kind: "split", section: "批次检验", group: "批次填写", routes: ["production/qc/batches/[batchId]/[stageKey]"], fields: ["阶段", "检验项", "方法", "结果", "判定", "复核人"] },
-      { key: "test", label: "检验填写", title: "检验填写", kind: "production", section: "批次检验", group: "批次填写", routes: ["production/qc/batches/[batchId]/[stageKey]/[testName]"], fields: ["检验项", "结果", "单位", "限度", "判定", "备注"], previewAction: true, paperMode: "record" },
-      { key: "templates", label: "模板列表", title: "检验模板", kind: "table", section: "检验模板", group: "模板维护", routes: ["production/qc/templates"], tableColumns: ["模板", "产品", "版本", "阶段数", "状态", "更新时间"] },
-      { key: "template-detail", label: "模板编辑", title: "模板维护", kind: "production", section: "检验模板", group: "模板维护", routes: ["production/qc/templates/[templateId]"], fields: ["模板名称", "产品", "版本", "阶段", "字段数", "状态"], previewAction: true, paperMode: "template" },
+      { key: "templates", label: "模板列表", title: "检验模板", kind: "table", section: "检验模板", group: "模板维护", routes: ["production/qc/templates"], tableColumns: ["模板", "产品", "版本", "阶段数", "状态", "更新时间"], embedded: { title: "模板版式预览", kind: "production", paperMode: "template", previewAction: true, routes: ["production/qc/templates/[templateId]"] } },
       { key: "template-feedback", label: "反馈", title: "模板反馈", kind: "table", section: "检验模板", group: "模板反馈", tableColumns: ["位置", "问题", "反馈人", "状态", "处理人", "更新时间"] },
       { key: "inventory", label: "库存", title: "库存台账", kind: "table", section: "生产库存", group: "库存", routes: ["inventory"], tableColumns: ["物料", "批号", "库存", "单位", "库位", "状态"] },
     ],
@@ -82,10 +89,8 @@ export const moduleTemplates: ModuleTemplate[] = [
     overviewLabel: "人事基础资料",
     entryRoutes: ["hr"],
     pages: [
-      { key: "roster", label: "在职", title: "在职员工", kind: "table", section: "人事基础资料", group: "员工资料", routes: ["hr/roster"], tableColumns: ["员工编号", "姓名", "部门", "岗位", "状态", "入职日期"] },
+      { key: "roster", label: "在职", title: "在职员工", kind: "table", section: "人事基础资料", group: "员工资料", routes: ["hr/roster"], tableColumns: ["员工编号", "姓名", "部门", "岗位", "状态", "入职日期"], embedded: { title: "员工详情", kind: "form", previewAction: true, fields: ["员工编号", "姓名", "别名", "性别", "出生年月", "农历生日", "民族", "籍贯", "政治面貌", "学历", "职称", "毕业院校", "电话", "身份证号", "参加工作时间"], routes: ["hr/roster/employees/[id]"] } },
       { key: "employee-inactive", label: "离职", title: "离职员工", kind: "table", section: "人事基础资料", group: "员工资料", tableColumns: ["员工编号", "姓名", "离职日期", "原部门", "原岗位", "状态"] },
-      { key: "employee-detail", label: "员工详情", title: "员工详情", kind: "form", section: "人事基础资料", group: "员工资料", routes: ["hr/roster/employees/[id]"], fields: ["员工编号", "姓名", "别名", "性别", "出生年月", "农历生日", "民族", "籍贯", "政治面貌", "学历", "职称", "毕业院校", "电话", "身份证号", "参加工作时间"], previewAction: true },
-      { key: "profile", label: "基本信息", title: "员工基本信息", kind: "form", section: "人事基础资料", group: "员工资料", fields: ["员工编号", "姓名", "别名", "民族", "籍贯", "学历", "职称", "电话", "身份证号"] },
       { key: "employment", label: "雇佣", title: "雇佣信息", kind: "form", section: "人事基础资料", group: "雇佣合同", fields: ["员工", "雇佣类型", "入职日期", "转正日期", "状态", "用工主体", "合同编号", "到期日期", "负责人"] },
       { key: "contracts", label: "合同", title: "员工合同", kind: "table", section: "人事基础资料", group: "雇佣合同", tableColumns: ["员工", "合同编号", "主体", "开始日期", "到期日期", "状态"] },
       { key: "edp", label: "EDP", title: "EDP 信息", kind: "table", section: "人事基础资料", group: "雇佣合同", tableColumns: ["员工", "EDP 编号", "岗位", "生效日期", "状态"] },
@@ -109,9 +114,8 @@ export const moduleTemplates: ModuleTemplate[] = [
     overviewLabel: "工作管理",
     entryRoutes: ["work"],
     pages: [
-      { key: "plans", label: "现用", title: "计划列表", kind: "split", section: "工作计划", group: "计划台账", routes: ["work/plans"], fields: ["计划编码", "计划名称", "主导部门", "负责人", "预算金额", "风险等级"] },
+      { key: "plans", label: "现用", title: "计划列表", kind: "split", section: "工作计划", group: "计划台账", routes: ["work/plans"], fields: ["计划编码", "计划名称", "主导部门", "负责人", "预算金额", "风险等级"], embedded: { title: "计划详情", kind: "form", fields: ["计划编码", "计划名称", "主导部门", "负责人", "预算金额", "开始日期", "结束日期", "状态", "备注"] } },
       { key: "plans-archived", label: "归档", title: "归档计划", kind: "table", section: "工作计划", group: "计划台账", tableColumns: ["计划编码", "计划名称", "归档日期", "主导部门", "负责人", "状态"] },
-      { key: "plan-detail", label: "计划详情", title: "计划详情", kind: "form", section: "工作计划", group: "计划台账", fields: ["计划编码", "计划名称", "主导部门", "负责人", "预算金额", "开始日期", "结束日期", "状态", "备注"] },
       { key: "works", label: "待办", title: "待办任务", kind: "table", section: "工作清单", group: "任务台账", routes: ["works"], tableColumns: ["任务", "负责人", "计划", "优先级", "截止日", "状态"] },
       { key: "works-done", label: "已完成", title: "已完成任务", kind: "table", section: "工作清单", group: "任务台账", tableColumns: ["任务", "负责人", "计划", "完成日期", "确认人", "状态"] },
       { key: "reports", label: "周报", title: "周报记录", kind: "table", section: "工作汇报", group: "汇报台账", routes: ["reports"], tableColumns: ["周期", "填报人", "计划", "完成率", "风险", "状态"] },
@@ -126,10 +130,9 @@ export const moduleTemplates: ModuleTemplate[] = [
     overviewLabel: "行政管理",
     entryRoutes: ["administration"],
     pages: [
-      { key: "contracts", label: "现用", title: "合同列表", kind: "table", section: "合同台账", group: "合同台账", routes: ["contracts"], tableColumns: ["合同编号", "合同名称", "相对方", "金额", "到期日", "状态"] },
+      { key: "contracts", label: "现用", title: "合同列表", kind: "table", section: "合同台账", group: "合同台账", routes: ["contracts"], tableColumns: ["合同编号", "合同名称", "相对方", "金额", "到期日", "状态"], embedded: { title: "合同详情", kind: "form", fields: ["合同编号", "合同名称", "相对方", "合同金额", "签署日期", "到期日期", "负责人", "状态", "备注"] } },
       { key: "contracts-expiring", label: "到期", title: "即将到期合同", kind: "table", section: "合同台账", group: "合同台账", tableColumns: ["合同编号", "合同名称", "到期日", "负责人", "续签状态", "风险"] },
       { key: "contracts-archived", label: "归档", title: "归档合同", kind: "table", section: "合同台账", group: "合同台账", tableColumns: ["合同编号", "合同名称", "归档日期", "相对方", "负责人", "状态"] },
-      { key: "contract-detail", label: "合同详情", title: "合同详情", kind: "form", section: "合同台账", group: "合同台账", fields: ["合同编号", "合同名称", "相对方", "合同金额", "签署日期", "到期日期", "负责人", "状态", "备注"] },
       { key: "office", label: "办公事务", title: "办公事项", kind: "table", section: "办公事务", group: "办公事项", tableColumns: ["事项", "负责人", "类型", "截止日", "状态"] },
       { key: "archive", label: "归档", title: "归档资料", kind: "document", section: "归档资料", group: "归档资料" },
     ],
@@ -156,8 +159,7 @@ export const moduleTemplates: ModuleTemplate[] = [
     entryRoutes: ["docs"],
     pages: [
       { key: "positions", label: "岗位文档", title: "岗位文档", kind: "table", section: "岗位说明书", group: "岗位制度", routes: ["docs/positions"], tableColumns: ["岗位", "部门", "版本", "状态", "更新时间"] },
-      { key: "gmp-list", label: "GMP 列表", title: "GMP 岗位", kind: "table", section: "岗位说明书", group: "岗位制度", routes: ["docs/positions/GMP"], tableColumns: ["岗位编码", "岗位名称", "分类", "版本", "状态"] },
-      { key: "gmp-detail", label: "GMP 详情", title: "岗位详情", kind: "document", section: "岗位说明书", group: "岗位制度", routes: ["docs/positions/GMP/[code]"] },
+      { key: "gmp-list", label: "GMP 列表", title: "GMP 岗位", kind: "table", section: "岗位说明书", group: "岗位制度", routes: ["docs/positions/GMP"], tableColumns: ["岗位编码", "岗位名称", "分类", "版本", "状态"], embedded: { title: "岗位详情", kind: "document", routes: ["docs/positions/GMP/[code]"] } },
       { key: "company", label: "公司文档", title: "公司文档", kind: "document", section: "公司管理", group: "文档阅读", routes: ["docs/company"] },
       { key: "handbook", label: "员工手册", title: "员工手册", kind: "document", section: "公司管理", group: "文档阅读", routes: ["docs"] },
       { key: "guide", label: "操作指南", title: "操作指南", kind: "document", section: "公司管理", group: "文档阅读", routes: ["docs"] },
@@ -175,9 +177,8 @@ export const moduleTemplates: ModuleTemplate[] = [
     entryRoutes: ["library"],
     pages: [
       { key: "catalog", label: "目录", title: "资料目录", kind: "split", section: "资料管理", group: "资料浏览", routes: ["library"], listItems: ["01 公司基本情况", "02 生产资料", "03 财务资料", "04 合同资料"], fields: ["目录名称", "层级", "文件数", "负责人", "保密等级", "状态"] },
-      { key: "files", label: "现用文件", title: "资料文件", kind: "table", section: "资料管理", group: "资料浏览", routes: ["library"], tableColumns: ["文件名", "简介", "保密等级", "标签", "更新时间", "状态"] },
+      { key: "files", label: "现用文件", title: "资料文件", kind: "table", section: "资料管理", group: "资料浏览", routes: ["library"], tableColumns: ["文件名", "简介", "保密等级", "标签", "更新时间", "状态"], embedded: { title: "文件详情", kind: "document" } },
       { key: "files-missing", label: "缺失文件", title: "缺失资料", kind: "table", section: "资料管理", group: "资料浏览", tableColumns: ["资料项", "目录", "负责人", "截止日", "状态"] },
-      { key: "detail", label: "文件详情", title: "文件详情", kind: "document", section: "资料管理", group: "资料浏览" },
       { key: "upload", label: "上传", title: "上传资料", kind: "upload", section: "资料管理", group: "上传处理", fields: ["资料类型", "目录", "保密等级", "标签", "负责人", "状态"], previewAction: true },
     ],
   },
@@ -211,6 +212,32 @@ export function getPageGroupTabs(module: ModuleTemplate, sectionKey: string): Ac
     label: group.label,
     children: group.pages.map((page) => ({ key: page.key, label: page.label })),
   }));
+}
+
+export function isRecordRoute(route: string) {
+  return /\[[^\]]+\]/.test(route);
+}
+
+export function getTemplateRoutes(module: ModuleTemplate) {
+  const routes = new Set(module.entryRoutes ?? []);
+  for (const page of module.pages) {
+    for (const route of page.routes ?? []) routes.add(route);
+    for (const route of page.embedded?.routes ?? []) routes.add(route);
+  }
+  return [...routes];
+}
+
+export function validateTemplateHierarchy(modules = moduleTemplates) {
+  const errors: string[] = [];
+  for (const moduleItem of modules) {
+    for (const page of moduleItem.pages) {
+      for (const route of page.routes ?? []) {
+        if (isRecordRoute(route)) errors.push(`${moduleItem.key}.${page.key}: record route ${route} must be embedded`);
+      }
+      if (/详情|编辑|预览|弹窗/.test(page.label)) errors.push(`${moduleItem.key}.${page.key}: single-record label must be embedded`);
+    }
+  }
+  return errors;
 }
 
 export const pageStyleTabs: AccordionTabItem[] = moduleTemplates.map((module) => ({
