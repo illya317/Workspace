@@ -2,7 +2,7 @@
 
 import { PanelCard } from "../BaseCards";
 import StatusBadge from "../StatusBadge";
-import type { ModuleTemplate, PageTemplate } from "./template-data";
+import type { PageTemplate } from "./template-data";
 
 const kindLabels: Record<PageTemplate["kind"], string> = {
   overview: "结构",
@@ -17,10 +17,8 @@ const kindLabels: Record<PageTemplate["kind"], string> = {
 };
 
 export default function TemplateHeader({
-  module,
   page,
 }: {
-  module: ModuleTemplate;
   page: PageTemplate;
 }) {
   return (
@@ -28,10 +26,10 @@ export default function TemplateHeader({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h2 className="text-lg font-semibold text-slate-950">{module.label}</h2>
+            <h2 className="text-lg font-semibold text-slate-950">{page.title}</h2>
             <StatusBadge label={kindLabels[page.kind]} variant="blue" />
           </div>
-          <p className="mt-1 text-sm text-slate-500">{page.title}</p>
+          <p className="mt-1 text-sm text-slate-500">{page.label}</p>
         </div>
       </div>
     </PanelCard>

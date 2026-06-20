@@ -28,12 +28,12 @@ export default function ModuleTemplatePreview({
   const overviewPage: PageTemplate = useMemo(
     () => ({
       key: OVERVIEW_TAB_KEY,
-      label: module.overviewLabel,
-      title: module.overviewLabel,
+      label: "模板总览",
+      title: "模板层级",
       kind: "overview",
       toolbar: false,
     }),
-    [module.overviewLabel],
+    [],
   );
   const page = useMemo(
     () => activeChild === OVERVIEW_TAB_KEY ? overviewPage : previewPages.find((item) => item.key === activeChild) ?? previewPages[0] ?? module.pages[0],
@@ -47,7 +47,7 @@ export default function ModuleTemplatePreview({
 
   return (
     <div className="space-y-3">
-      <TemplateHeader module={module} page={page} />
+      <TemplateHeader page={page} />
 
       {activeGroup && (
         <AccordionTabBar
