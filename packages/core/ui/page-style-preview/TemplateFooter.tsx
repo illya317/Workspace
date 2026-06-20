@@ -3,6 +3,17 @@
 import Pagination from "../Pagination";
 import type { PageTemplate } from "./template-data";
 
+function footerLabels(page: PageTemplate) {
+  if (page.kind === "overview") return ["模板结构", "L3 / L4"];
+  if (page.kind === "form") return ["已保存草稿", "字段完整度 12 / 15"];
+  if (page.kind === "split") return ["当前详情", "4 项关联信息"];
+  if (page.kind === "analysis") return ["分析口径", "本期 / 同比 / 预警"];
+  if (page.kind === "document") return ["文档预览", "第 1 / 6 页"];
+  if (page.kind === "production") return ["填写预览", "已填 4 项"];
+  if (page.kind === "upload") return ["导入预览", "3 条待确认"];
+  return ["当前页面", "已同步"];
+}
+
 export default function TemplateFooter({
   page,
   pageNumber,
@@ -13,18 +24,12 @@ export default function TemplateFooter({
   onPageChange: (page: number) => void;
 }) {
   if (page.kind === "modal") return null;
-  if (page.kind === "home") {
+  if (page.kind !== "table") {
+    const [left, right] = footerLabels(page);
     return (
-      <div className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 shadow-sm">
-        共 {pageNumber + 7} 个入口
-      </div>
-    );
-  }
-  if (page.kind === "document" || page.kind === "production" || page.kind === "upload") {
-    return (
-      <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 shadow-sm">
-        <span>{page.kind === "upload" ? "待确认" : "预览"}</span>
-        <span>{page.kind === "upload" ? "3 条记录" : "已保存"}</span>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-500 shadow-sm">
+        <span>{left}</span>
+        <span>{right}</span>
       </div>
     );
   }

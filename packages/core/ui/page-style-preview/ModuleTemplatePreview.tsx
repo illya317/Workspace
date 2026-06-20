@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import AccordionTabBar from "../AccordionTabBar";
 import PreviewToolbar from "./PreviewToolbar";
-import { getPageGroups, getPageGroupTabs, getPreviewPages, type ModuleTemplate } from "./template-data";
+import { getPageGroups, getPageGroupTabs, getPreviewPages, OVERVIEW_TAB_KEY, type ModuleTemplate, type PageTemplate } from "./template-data";
 import TemplateFooter from "./TemplateFooter";
 import TemplateHeader from "./TemplateHeader";
 import { TemplateBody } from "./template-bodies";
@@ -25,22 +25,40 @@ export default function ModuleTemplatePreview({
   const previewPages = useMemo(() => getPreviewPages(module), [module]);
   const pageGroups = useMemo(() => getPageGroups(module), [module]);
   const pageGroupTabs = useMemo(() => getPageGroupTabs(module), [module]);
-  const page = useMemo(
-    () => previewPages.find((item) => item.key === activeChild) ?? previewPages[0] ?? module.pages[0],
-    [activeChild, module.pages, previewPages],
+  const overviewPage: PageTemplate = useMemo(
+    () => ({
+      key: OVERVIEW_TAB_KEY,
+      label: module.overviewLabel,
+      title: module.overviewLabel,
+      kind: "overview",
+      toolbar: false,
+    }),
+    [module.overviewLabel],
   );
-  const activeGroup = pageGroups.find((group) => group.pages.some((item) => item.key === page.key)) ?? pageGroups[0];
+  const page = useMemo(
+    () => activeChild === OVERVIEW_TAB_KEY ? overviewPage : previewPages.find((item) => item.key === activeChild) ?? previewPages[0] ?? module.pages[0],
+    [activeChild, module.pages, overviewPage, previewPages],
+  );
+  const activeGroup = activeChild === OVERVIEW_TAB_KEY
+    ? { key: OVERVIEW_TAB_KEY }
+    : pageGroups.find((group) => group.pages.some((item) => item.key === page.key)) ?? pageGroups[0];
   const [listVisible, setListVisible] = useState(true);
   const [pageNumber, setPageNumber] = useState(1);
 
   return (
     <div className="space-y-3">
+      <TemplateHeader module={module} page={page} />
+
       {activeGroup && (
         <AccordionTabBar
           tabs={pageGroupTabs}
           activeTab={activeGroup.key}
-          activeChild={page.key}
+          activeChild={activeChild === OVERVIEW_TAB_KEY ? undefined : page.key}
           onTabChange={(groupKey) => {
+            if (groupKey === OVERVIEW_TAB_KEY) {
+              onActiveChildChange(OVERVIEW_TAB_KEY);
+              return;
+            }
             const nextGroup = pageGroups.find((group) => group.key === groupKey);
             const nextPage = nextGroup?.pages[0];
             if (nextPage) onActiveChildChange(nextPage.key);
@@ -48,8 +66,6 @@ export default function ModuleTemplatePreview({
           onChildChange={onActiveChildChange}
         />
       )}
-
-      <TemplateHeader module={module} page={page} />
 
       {shouldShowToolbar(page) && (
         <PreviewToolbar

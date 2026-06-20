@@ -6,7 +6,7 @@ import DataTable from "../DataTable";
 import StatusBadge from "../StatusBadge";
 import { previewColumns, previewRows, PreviewTable } from "./sample-data";
 import { DetailStats, FormGrid } from "./template-fields";
-import type { ModuleTemplate, PageTemplate } from "./template-data";
+import { getPageGroups, type ModuleTemplate, type PageTemplate } from "./template-data";
 
 export function TemplateBody({
   module,
@@ -17,7 +17,7 @@ export function TemplateBody({
   page: PageTemplate;
   listVisible: boolean;
 }) {
-  if (page.kind === "home") return <HomeBody module={module} />;
+  if (page.kind === "overview") return <OverviewBody module={module} />;
   if (page.kind === "split") return <SplitBody module={module} page={page} listVisible={listVisible} />;
   if (page.kind === "form") return <FormBody page={page} />;
   if (page.kind === "analysis") return <AnalysisBody page={page} />;
@@ -28,8 +28,22 @@ export function TemplateBody({
   return <TableBody page={page} />;
 }
 
-function HomeBody({ module }: { module: ModuleTemplate }) {
-  return <TableBody page={{ ...module.pages[0], title: module.label, tableColumns: ["页面", "类型", "状态"] }} />;
+function OverviewBody({ module }: { module: ModuleTemplate }) {
+  return (
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      {getPageGroups(module).map((group) => (
+        <PanelCard key={group.key} title={group.label} bodyClassName="p-3">
+          <div className="flex flex-wrap gap-2">
+            {group.pages.map((page) => (
+              <span key={page.key} className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                {page.label}
+              </span>
+            ))}
+          </div>
+        </PanelCard>
+      ))}
+    </div>
+  );
 }
 
 export function TableBody({ page }: { page: PageTemplate }) {
