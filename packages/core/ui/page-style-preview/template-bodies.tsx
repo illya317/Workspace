@@ -83,9 +83,15 @@ function FormBody({ page }: { page: PageTemplate }) {
   const fields = page.fields ?? ["编码", "名称", "分类", "负责人", "开始日期", "结束日期", "状态", "来源", "级别", "范围", "备注", "更新人"];
   const firstFields = fields.slice(0, 9);
   const restFields = fields.slice(9);
+  const actions = (
+    <>
+      {page.previewAction && <ActionButton>预览</ActionButton>}
+      <ActionButton variant="primary">保存</ActionButton>
+    </>
+  );
 
   return (
-    <PanelCard title={page.title} actions={<ActionButton variant="primary">保存</ActionButton>} bodyClassName="space-y-4 p-4">
+    <PanelCard title={page.title} actions={actions} bodyClassName="space-y-4 p-4">
       <FormGrid fields={firstFields} />
       {restFields.length > 0 && (
         <div className="border-t border-slate-200 pt-4">
