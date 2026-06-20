@@ -44,7 +44,6 @@ export default function AccordionTabBar({
               type="button"
               onClick={() => {
                 onTabChange(tab.key);
-                if (children.length > 0) onChildChange?.(children[0].key);
               }}
               className={joinClassNames(
                 "h-9 rounded-md px-4 text-xs font-semibold transition",

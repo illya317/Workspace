@@ -4,9 +4,10 @@ import { ActionButton } from "../ActionControls";
 import { AnalysisBlock, MetricCard, PanelCard } from "../BaseCards";
 import DataTable from "../DataTable";
 import StatusBadge from "../StatusBadge";
+import QcPaperPreview from "./QcPaperPreview";
 import { previewColumns, previewRows, PreviewTable } from "./sample-data";
 import { DetailStats, FormGrid } from "./template-fields";
-import { getPageGroups, type ModuleTemplate, type PageTemplate } from "./template-data";
+import type { ModuleTemplate, PageTemplate } from "./template-data";
 
 export function TemplateBody({
   module,
@@ -17,7 +18,6 @@ export function TemplateBody({
   page: PageTemplate;
   listVisible: boolean;
 }) {
-  if (page.kind === "overview") return <OverviewBody module={module} />;
   if (page.kind === "split") return <SplitBody module={module} page={page} listVisible={listVisible} />;
   if (page.kind === "form") return <FormBody page={page} />;
   if (page.kind === "analysis") return <AnalysisBody page={page} />;
@@ -25,24 +25,6 @@ export function TemplateBody({
   if (page.kind === "production") return <ProductionBody page={page} />;
   if (page.kind === "upload") return <UploadBody page={page} />;
   return <TableBody page={page} />;
-}
-
-function OverviewBody({ module }: { module: ModuleTemplate }) {
-  return (
-    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-      {getPageGroups(module).map((group) => (
-        <PanelCard key={group.key} title={group.label} bodyClassName="p-3">
-          <div className="flex flex-wrap gap-2">
-            {group.pages.map((page) => (
-              <span key={page.key} className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
-                {page.label}
-              </span>
-            ))}
-          </div>
-        </PanelCard>
-      ))}
-    </div>
-  );
 }
 
 export function TableBody({ page }: { page: PageTemplate }) {
@@ -170,14 +152,30 @@ function DocumentBody({ page, listVisible }: { page: PageTemplate; listVisible: 
 }
 
 function ProductionBody({ page }: { page: PageTemplate }) {
+  const templateMode = page.paperMode === "template";
   return (
-    <div className="grid gap-3 lg:grid-cols-[4fr_6fr]">
-      <PanelCard title={page.title} actions={<ActionButton variant="primary">提交</ActionButton>} bodyClassName="space-y-4 p-4">
-        <FormGrid fields={page.fields ?? ["批号", "检验项", "结果", "单位", "判定", "备注"]} columns="grid-cols-1" />
-        <DetailStats items={["已填", "待复核", "异常", "附件"]} />
+    <div className="grid gap-3 lg:grid-cols-[3fr_7fr]">
+      <PanelCard title="产品" bodyClassName="space-y-2 p-3">
+        {["阿奇霉素胶囊", "阿替洛尔片", "别嘌醇片", "复方芦丁片", "甲硫咪唑片"].map((name, index) => (
+          <button key={name} type="button" className="flex w-full items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-left text-sm font-semibold text-slate-800 first:border-emerald-400 first:bg-emerald-50">
+            <span>{name}</span>
+            <span className="text-xs text-slate-400">{index === 0 ? "11" : "14"} 项</span>
+          </button>
+        ))}
       </PanelCard>
-      <PanelCard title="预览" bodyClassName="p-0">
-        <PreviewTable columns={["检验项", "结果", "单位", "限度", "判定"]} />
+      <PanelCard
+        title={templateMode ? "布局预览：阿奇霉素胶囊 · 中间体 · 检验前确认" : page.title}
+        actions={templateMode ? <ActionButton>开发模式</ActionButton> : <ActionButton variant="primary">提交</ActionButton>}
+        bodyClassName="space-y-4 p-4"
+      >
+        <div className="flex flex-wrap gap-2">
+          {["检验前确认", "2.1 性状", "2.2 水分", "2.3 含量"].map((item, index) => (
+            <span key={item} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${index === 0 ? "bg-slate-200 text-slate-900" : "bg-slate-100 text-slate-500"}`}>
+              {item}
+            </span>
+          ))}
+        </div>
+        <QcPaperPreview mode={templateMode ? "template" : "record"} />
       </PanelCard>
     </div>
   );

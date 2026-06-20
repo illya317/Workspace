@@ -5,7 +5,6 @@ import StatusBadge from "../StatusBadge";
 import type { PageTemplate } from "./template-data";
 
 const kindLabels: Record<PageTemplate["kind"], string> = {
-  overview: "结构",
   table: "数据库",
   split: "左右分栏",
   form: "详情表单",

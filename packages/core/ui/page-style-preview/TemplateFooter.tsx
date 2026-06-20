@@ -4,7 +4,6 @@ import Pagination from "../Pagination";
 import type { PageTemplate } from "./template-data";
 
 function footerLabels(page: PageTemplate) {
-  if (page.kind === "overview") return ["模板结构", "L3 / L4"];
   if (page.kind === "form") return ["已保存草稿", "字段完整度 12 / 15"];
   if (page.kind === "split") return ["当前详情", "4 项关联信息"];
   if (page.kind === "analysis") return ["分析口径", "本期 / 同比 / 预警"];
