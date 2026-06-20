@@ -3,9 +3,8 @@
 import { ActionButton } from "../ActionControls";
 import { AnalysisBlock, MetricCard, PanelCard } from "../BaseCards";
 import DataTable from "../DataTable";
-import FormField from "../FormField";
-import TextField from "../TextField";
 import { previewColumns, previewRows, PreviewTable } from "./sample-data";
+import { DetailStats, FormGrid } from "./template-fields";
 import type { ModuleTemplate, PageTemplate } from "./template-data";
 
 export function TemplateBody({
@@ -71,6 +70,7 @@ function SplitBody({ module, page, listVisible }: { module: ModuleTemplate; page
       )}
       <PanelCard title={page.title} subtitle={module.summary} bodyClassName="space-y-4 p-4">
         <FormGrid fields={page.fields ?? ["编码", "名称", "负责人", "状态", "范围", "类型", "级别", "更新时间"]} />
+        {/部门|岗位|架构/.test(page.title) && <DetailStats items={["直属岗位", "总岗位", "直属编制", "总编制"]} />}
       </PanelCard>
     </div>
   );
@@ -181,34 +181,6 @@ function ModalBody({ module, page }: { module: ModuleTemplate; page: PageTemplat
           <FormGrid fields={["名称", "类型", "负责人", "状态"]} columns="grid-cols-2" />
         </PanelCard>
       </div>
-    </div>
-  );
-}
-
-function getFieldPreviewValue(field: string, index: number) {
-  if (field.includes("编号") || field.includes("编码")) return "A001";
-  if (field.includes("姓名")) return "张慧君";
-  if (field.includes("部门")) return "轮执委员会";
-  if (field.includes("岗位") || field.includes("职称")) return "董事长";
-  if (field.includes("日期") || field.includes("时间")) return "2026-06-18";
-  if (field.includes("金额") || field.includes("预算") || field.includes("占比")) return "99.98";
-  if (field.includes("电话")) return "137 7004 3888";
-  if (field.includes("状态")) return "现用";
-  if (field.includes("范围")) return "内部";
-  if (field.includes("类型") || field.includes("分类")) return "标准";
-  if (field.includes("负责人") || field.includes("上级")) return "张明";
-  if (field.includes("名称")) return "月度主数据";
-  return index < 2 ? `值${index + 1}` : "";
-}
-
-function FormGrid({ fields, columns = "md:grid-cols-3 xl:grid-cols-4" }: { fields: string[]; columns?: string }) {
-  return (
-    <div className={`grid gap-3 ${columns}`}>
-      {fields.map((field, index) => (
-        <FormField key={field} label={field} required={index < 2}>
-          <TextField value={getFieldPreviewValue(field, index)} onChange={() => {}} placeholder={field} readOnly />
-        </FormField>
-      ))}
     </div>
   );
 }
