@@ -49,26 +49,28 @@ function HomeBody({ module }: { module: ModuleTemplate }) {
 export function TableBody({ page }: { page: PageTemplate }) {
   return (
     <PanelCard title={page.title} bodyClassName="p-0">
-      <PreviewTable />
+      <PreviewTable columns={page.tableColumns} />
     </PanelCard>
   );
 }
 
 function SplitBody({ module, page, listVisible }: { module: ModuleTemplate; page: PageTemplate; listVisible: boolean }) {
+  const listItems = page.listItems ?? previewRows.map((row) => row.name);
+
   return (
     <div className={`grid gap-3 ${listVisible ? "lg:grid-cols-[3fr_7fr]" : "lg:grid-cols-1"}`}>
       {listVisible && (
         <PanelCard title="目录" bodyClassName="space-y-2 p-3">
-          {previewRows.map((row) => (
-            <button key={row.id} type="button" className="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 first:border-emerald-400 first:bg-emerald-50">
-              <span>{row.name}</span>
-              <span className="text-xs text-slate-400">{row.updated}</span>
+          {listItems.map((name, index) => (
+            <button key={name} type="button" className="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm font-semibold text-slate-800 first:border-emerald-400 first:bg-emerald-50">
+              <span>{name}</span>
+              <span className="text-xs text-slate-400">{String(index + 1).padStart(2, "0")}</span>
             </button>
           ))}
         </PanelCard>
       )}
       <PanelCard title={page.title} subtitle={module.summary} bodyClassName="space-y-4 p-4">
-        <FormGrid fields={["编码", "名称", "负责人", "状态", "范围", "类型", "级别", "更新时间"]} />
+        <FormGrid fields={page.fields ?? ["编码", "名称", "负责人", "状态", "范围", "类型", "级别", "更新时间"]} />
       </PanelCard>
     </div>
   );
@@ -77,7 +79,7 @@ function SplitBody({ module, page, listVisible }: { module: ModuleTemplate; page
 function FormBody({ page }: { page: PageTemplate }) {
   return (
     <PanelCard title={page.title} actions={<ActionButton variant="primary">保存</ActionButton>} bodyClassName="p-4">
-      <FormGrid fields={["编码", "名称", "分类", "负责人", "开始日期", "结束日期", "状态", "来源", "级别", "范围", "备注", "更新人"]} />
+      <FormGrid fields={page.fields ?? ["编码", "名称", "分类", "负责人", "开始日期", "结束日期", "状态", "来源", "级别", "范围", "备注", "更新人"]} />
     </PanelCard>
   );
 }
@@ -144,10 +146,10 @@ function ProductionBody({ page }: { page: PageTemplate }) {
   return (
     <div className="grid gap-3 lg:grid-cols-[4fr_6fr]">
       <PanelCard title={page.title} bodyClassName="p-4">
-        <FormGrid fields={["批号", "检验项", "结果", "单位", "判定", "备注"]} columns="grid-cols-1" />
+        <FormGrid fields={page.fields ?? ["批号", "检验项", "结果", "单位", "判定", "备注"]} columns="grid-cols-1" />
       </PanelCard>
-      <PanelCard title="预览" bodyClassName="p-4">
-        <TableBody page={{ ...page, title: "记录明细" }} />
+      <PanelCard title="预览" bodyClassName="p-0">
+        <PreviewTable columns={["检验项", "结果", "单位", "限度", "判定"]} />
       </PanelCard>
     </div>
   );
@@ -161,7 +163,7 @@ function UploadBody({ page }: { page: PageTemplate }) {
           <div className="text-sm font-semibold text-slate-800">选择文件</div>
           <div className="mt-1 text-xs text-slate-400">Excel / PDF / Word</div>
         </div>
-        <FormGrid fields={["类型", "来源", "负责人", "范围"]} columns="grid-cols-2" />
+        <FormGrid fields={page.fields ?? ["类型", "来源", "负责人", "范围"]} columns="grid-cols-2" />
       </PanelCard>
       <PanelCard title="导入预览" bodyClassName="p-0">
         <DataTable rows={previewRows} columns={previewColumns} visibleColumns={["owner", "type", "status", "updated"]} rowKey={(row) => row.id} density="compact" />
@@ -183,12 +185,28 @@ function ModalBody({ module, page }: { module: ModuleTemplate; page: PageTemplat
   );
 }
 
+function getFieldPreviewValue(field: string, index: number) {
+  if (field.includes("编号") || field.includes("编码")) return "A001";
+  if (field.includes("姓名")) return "张慧君";
+  if (field.includes("部门")) return "轮执委员会";
+  if (field.includes("岗位") || field.includes("职称")) return "董事长";
+  if (field.includes("日期") || field.includes("时间")) return "2026-06-18";
+  if (field.includes("金额") || field.includes("预算") || field.includes("占比")) return "99.98";
+  if (field.includes("电话")) return "137 7004 3888";
+  if (field.includes("状态")) return "现用";
+  if (field.includes("范围")) return "内部";
+  if (field.includes("类型") || field.includes("分类")) return "标准";
+  if (field.includes("负责人") || field.includes("上级")) return "张明";
+  if (field.includes("名称")) return "月度主数据";
+  return index < 2 ? `值${index + 1}` : "";
+}
+
 function FormGrid({ fields, columns = "md:grid-cols-3 xl:grid-cols-4" }: { fields: string[]; columns?: string }) {
   return (
     <div className={`grid gap-3 ${columns}`}>
       {fields.map((field, index) => (
         <FormField key={field} label={field} required={index < 2}>
-          <TextField value={index < 2 ? `值${index + 1}` : ""} onChange={() => {}} placeholder={field} readOnly />
+          <TextField value={getFieldPreviewValue(field, index)} onChange={() => {}} placeholder={field} readOnly />
         </FormField>
       ))}
     </div>

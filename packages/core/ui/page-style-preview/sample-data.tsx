@@ -34,14 +34,49 @@ export const previewColumns: DataTableColumn<PreviewRow>[] = [
   { key: "updated", label: "更新时间", defaultVisible: true, render: (row) => row.updated },
 ];
 
-export function PreviewTable({ children }: { children?: ReactNode }) {
+const columnValueByLabel: Record<string, (row: PreviewRow) => ReactNode> = {
+  编码: (row) => row.code,
+  名称: (row) => <strong>{row.name}</strong>,
+  负责人: (row) => row.owner,
+  类型: (row) => row.type,
+  范围: (row) => row.scope,
+  状态: (row) => <StatusBadge label={row.status} variant={row.status === "归档" ? "gray" : "green"} />,
+  更新时间: (row) => row.updated,
+};
+
+function resolveColumnValue(label: string, row: PreviewRow, index: number) {
+  const explicit = columnValueByLabel[label];
+  if (explicit) return explicit(row);
+  if (label.includes("状态")) return <StatusBadge label={row.status} variant={row.status === "归档" ? "gray" : "green"} />;
+  if (label.includes("日期") || label.includes("时间") || label.includes("到期")) return row.updated;
+  if (label.includes("金额") || label.includes("预算") || label.includes("余额") || label.includes("差额")) return "12,800";
+  if (label.includes("编码") || label.includes("编号") || label.includes("批号")) return row.code;
+  if (label.includes("人") || label.includes("方")) return row.owner;
+  if (index === 0) return <strong>{row.name}</strong>;
+  return [row.type, row.scope, row.owner][index % 3];
+}
+
+function buildPreviewColumns(labels?: string[]) {
+  if (!labels?.length) return previewColumns;
+  return labels.map<DataTableColumn<PreviewRow>>((label, index) => ({
+    key: `field-${index}`,
+    label,
+    required: true,
+    render: (row) => resolveColumnValue(label, row, index),
+  }));
+}
+
+export function PreviewTable({ columns, children }: { columns?: string[]; children?: ReactNode }) {
+  const tableColumns = buildPreviewColumns(columns);
+  const visibleColumns = tableColumns.map((column) => column.key);
+
   return (
     <>
       {children}
       <DataTable
         rows={previewRows}
-        columns={previewColumns}
-        visibleColumns={["owner", "type", "scope", "status", "updated"]}
+        columns={tableColumns}
+        visibleColumns={visibleColumns}
         rowKey={(row) => row.id}
         density="compact"
       />
