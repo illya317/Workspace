@@ -5,17 +5,17 @@ import AccordionTabBar from "./AccordionTabBar";
 import { DatabasePageFrame } from "./PageFrames";
 import { PanelCard } from "./BaseCards";
 import ModuleTemplatePreview from "./page-style-preview/ModuleTemplatePreview";
-import { moduleTemplates, pageStyleTabs } from "./page-style-preview/template-data";
+import { getPreviewPages, moduleTemplates, pageStyleTabs } from "./page-style-preview/template-data";
 
 export default function PageStyleShowcase() {
   const [activeTab, setActiveTab] = useState(moduleTemplates[0]?.key ?? "");
-  const [activeChild, setActiveChild] = useState(moduleTemplates[0]?.pages[0]?.key ?? "");
+  const [activeChild, setActiveChild] = useState(getPreviewPages(moduleTemplates[0])?.[0]?.key ?? "");
   const activeModule = moduleTemplates.find((module) => module.key === activeTab) ?? moduleTemplates[0];
 
   function changeTab(nextKey: string) {
     const nextModule = moduleTemplates.find((module) => module.key === nextKey);
     setActiveTab(nextKey);
-    setActiveChild(nextModule?.pages[0]?.key ?? "");
+    setActiveChild(nextModule ? getPreviewPages(nextModule)[0]?.key ?? "" : "");
   }
 
   return (

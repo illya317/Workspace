@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import PreviewToolbar from "./PreviewToolbar";
-import type { ModuleTemplate } from "./template-data";
+import { getPreviewPages, type ModuleTemplate } from "./template-data";
 import TemplateFooter from "./TemplateFooter";
 import TemplateHeader from "./TemplateHeader";
 import { TemplateBody } from "./template-bodies";
@@ -14,9 +14,10 @@ export default function ModuleTemplatePreview({
   module: ModuleTemplate;
   activeChild: string;
 }) {
+  const previewPages = useMemo(() => getPreviewPages(module), [module]);
   const page = useMemo(
-    () => module.pages.find((item) => item.key === activeChild) ?? module.pages[0],
-    [activeChild, module.pages],
+    () => previewPages.find((item) => item.key === activeChild) ?? previewPages[0] ?? module.pages[0],
+    [activeChild, module.pages, previewPages],
   );
   const [listVisible, setListVisible] = useState(true);
   const [pageNumber, setPageNumber] = useState(1);

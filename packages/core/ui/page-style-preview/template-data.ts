@@ -149,8 +149,12 @@ export const moduleTemplates: ModuleTemplate[] = [
   },
 ];
 
+export function getPreviewPages(module: ModuleTemplate) {
+  return module.pages.filter((page) => page.key !== "home");
+}
+
 export const pageStyleTabs: AccordionTabItem[] = moduleTemplates.map((module) => ({
   key: module.key,
   label: module.label,
-  children: module.pages.map((page) => ({ key: page.key, label: page.label })),
+  children: getPreviewPages(module).map((page) => ({ key: page.key, label: page.label })),
 }));
