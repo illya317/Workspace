@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
-import { PageContent, RegistryBrowserCard } from "@workspace/core/ui";
+import { PageStyleShowcase, RegistryBrowserCard } from "@workspace/core/ui";
 import type { CoreUiRegistryUsageRow, SessionUser } from "@workspace/platform/types";
 import AppShell from "../AppShell";
+import { DatabasePageFrame } from "@workspace/core/ui";
 import SettingsClient from "./SettingsClient";
 
 export function SettingsAccountPage({ user }: { user: SessionUser }) {
@@ -37,13 +38,27 @@ export function SettingsGovernanceUiRegistryPage({
 
   return (
     <AppShell title="Core UI 注册表" backHref="/settings/governance" user={user}>
-      <PageContent className="py-8">
+      <DatabasePageFrame contentClassName="py-8">
         <RegistryBrowserCard
           title="Core UI 注册表（除了 FK Registry）"
           subtitle="自动读取 Core UI 注册表、中文分类说明和当前消费文件。"
           items={coreUiRegistryRows}
         />
-      </PageContent>
+      </DatabasePageFrame>
+    </AppShell>
+  );
+}
+
+export function SettingsGovernanceToolbarPreviewPage({
+  user,
+}: {
+  user: SessionUser;
+}) {
+  if ((user.manageableResourceKeys?.length ?? 0) === 0) redirect("/settings");
+
+  return (
+    <AppShell title="页面样式预览" backHref="/settings/governance" user={user}>
+      <PageStyleShowcase />
     </AppShell>
   );
 }

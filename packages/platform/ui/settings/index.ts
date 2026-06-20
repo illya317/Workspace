@@ -4,5 +4,6 @@ export { default as UsernameModal } from "./UsernameModal";
 export {
   SettingsAccountPage,
   SettingsGovernancePage,
+  SettingsGovernanceToolbarPreviewPage,
   SettingsGovernanceUiRegistryPage,
 } from "./pages";

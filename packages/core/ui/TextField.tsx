@@ -1,12 +1,12 @@
 "use client";
 
-import { forwardRef, type FocusEventHandler, type KeyboardEventHandler } from "react";
+import { forwardRef, type CSSProperties, type FocusEventHandler, type KeyboardEventHandler } from "react";
 import { getFieldInputClassName } from "./FormStyles";
 
 export interface TextFieldProps {
   value?: string;
   onChange?: (value: string) => void;
-  type?: "text" | "password" | "email" | "tel" | "url" | "number";
+  type?: "text" | "password" | "email" | "tel" | "url" | "number" | "date";
   placeholder?: string;
   className?: string;
   autoFocus?: boolean;
@@ -20,6 +20,9 @@ export interface TextFieldProps {
   maxLength?: number;
   inputMode?: "none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search";
   ariaLabel?: string;
+  dataFieldKey?: string;
+  style?: CSSProperties;
+  title?: string;
   onKeyDown?: KeyboardEventHandler<HTMLInputElement>;
   onBlur?: FocusEventHandler<HTMLInputElement>;
   unstyled?: boolean;
@@ -35,10 +38,16 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextFiel
   disabled,
   readOnly,
   required,
+  min,
+  max,
+  step,
   minLength,
   maxLength,
   inputMode,
   ariaLabel,
+  dataFieldKey,
+  style,
+  title,
   onKeyDown,
   onBlur,
   unstyled = false,
@@ -51,11 +60,17 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextFiel
       onChange={(event) => onChange?.(event.target.value)}
       placeholder={placeholder}
       aria-label={ariaLabel}
+      data-field-key={dataFieldKey}
       className={unstyled ? className : getFieldInputClassName(className)}
+      style={style}
+      title={title}
       autoFocus={autoFocus}
       disabled={disabled}
       readOnly={readOnly}
       required={required}
+      min={min}
+      max={max}
+      step={step}
       minLength={minLength}
       maxLength={maxLength}
       inputMode={inputMode}
