@@ -67,8 +67,7 @@ const hasFinance = financeKeys.some(ma);
 | `/settings/admin` | `canAccessAdmin` | `requireAdminManageAccess()` |
 | `/administration/contracts` | `canAccessContract` | `requireResourceAccess("administration.contracts")` |
 | `/docs` | `canAccessDocs` | `requireResourceAccess("docs")` |
-| 生产库存页面 | `canAccessInventory` | 当前无独立页面入口 |
-| `/production` | `canAccessInventory` | `requireResourceAccess("production")` |
+| `/production` | 旧生产入口判断 | `requireResourceAccess("production")` |
 | `/finance` | `canAccessFinance` | `requireResourceAccess("finance")` |
 | `/administration` | `canAccessContract` | `requireResourceAccess("administration")` |
 | `/external` | `canAccessExternal` | `requireResourceAccess("external")` |
@@ -115,7 +114,6 @@ export default async function Page() {
 - `canAccessFinanceBudget`
 - `canAccessFinanceAnalysis`
 - `canAccessFinanceImport`
-- `canAccessInventory`
 - `canAccessContract`
 - `canAccessDocs`
 - `canAccessExternal`
@@ -199,7 +197,7 @@ NODE_OPTIONS="--max-old-space-size=8192" npm run build
 |------|------|
 | `app/finance/page.tsx` | `canAccessFinance` → `requireResourceAccess("finance")` |
 | `app/external/page.tsx` | `canAccessExternal` → `requireResourceAccess("external")` |
-| `app/production/page.tsx` | `canAccessInventory` → `requireResourceAccess("production")` |
+| `app/production/page.tsx` | 旧生产入口判断 → `requireResourceAccess("production")` |
 | `app/(modules)/administration/page.tsx` | `canAccessContract` → `requireResourceAccess("administration")` |
 | `app/(modules)/administration/contracts/page.tsx` | `canAccessContract` → `requireResourceAccess("administration.contracts")` |
 | `app/docs/page.tsx` | `canAccessDocs` → `requireResourceAccess("docs")` |

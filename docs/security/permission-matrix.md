@@ -53,7 +53,6 @@
 | `/production` | `requireResourceAccess("production")` | redirect `/portal` |
 | `/production/qc-batches` | `requireResourceAccess("production.qcBatches")` | redirect `/portal` |
 | `/production/qc-templates` | `requireResourceAccess("production.qcTemplates")` | redirect `/portal` |
-| 生产库存页面 | 未开放独立页面入口 | 无页面 route |
 | `/work` | `requireResourceAccess("work")` + module enabled | redirect `/portal` 或模块未启用页 |
 | `/work/projects` | `requireResourceAccess("work.projects")` + module enabled + 项目对象级过滤 | redirect `/portal` 或模块未启用页 |
 | `/work/tasks` | `requireResourceAccess("work.tasks")` + module enabled | redirect `/portal` 或模块未启用页 |
@@ -104,7 +103,6 @@
 | `/api/modules/production/qc-batches/[batchId]` | PATCH | `production.qcBatches.write` |
 | `/api/modules/production/qc-batches/[batchId]` | DELETE | `production.qcBatches.delete` |
 | `/api/modules/production/qc-batches/[batchId]/submit` | POST | `production.qcBatches.write` |
-| `/api/modules/production/inventory/*` | GET/POST/PUT/DELETE | `410 Gone` |
 | `/api/modules/administration/contracts*` | GET | `administration.contracts.access` |
 | `/api/modules/administration/contracts*` | POST/PUT | `administration.contracts.write` |
 | `/api/modules/administration/contracts*` | DELETE | `administration.contracts.delete` |

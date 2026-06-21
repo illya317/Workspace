@@ -132,7 +132,6 @@ npm run build
 | HR | `/api/modules/hr/roster/*` |
 | 财务总账 | `/api/modules/finance/*` |
 | 财务成本 | `/api/modules/finance/cost/*` |
-| 库存 | `/api/modules/production/inventory/*` |
 | 合同 | `/api/modules/administration/contracts/*` |
 | 绩效 | `/api/performance/*` |
 | 采购 | `/api/procurement/*` |

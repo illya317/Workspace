@@ -96,9 +96,8 @@ for (const file of walk(API_ROOT)) {
       /\bfetch\s*\(\s*target\b/.test(code) ||
       /\bnew\s+URL\s*\(\s*["']\/api\//.test(code);
     const usesSecretTokenGate = /x-qc-cache-warmup|NEXTAUTH_SECRET/.test(code);
-    const usesDisabledHandler = /\binventoryApiGone\b/.test(code);
 
-    if (!hasAuthGate && !usesLegacyGate && !delegatesToPackageService && !delegatesToProxyRoute && !usesSecretTokenGate && !usesDisabledHandler) {
+    if (!hasAuthGate && !usesLegacyGate && !delegatesToPackageService && !delegatesToProxyRoute && !usesSecretTokenGate) {
       errors.push(`${rel} exports API handlers without an authentication/authorization gate`);
     }
   }

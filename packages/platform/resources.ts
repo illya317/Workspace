@@ -37,7 +37,8 @@ export function getCapabilityOwnerKey(resourceKey: string): string | null {
 }
 
 export function isMainRbacResource(resourceKey: string): boolean {
-  if (MODULE_RESOURCE_KEYS.has(resourceKey)) return true;
   const def = getResourceDef(resourceKey);
+  if (def?.hidden) return false;
+  if (MODULE_RESOURCE_KEYS.has(resourceKey)) return true;
   return Boolean(def && !def.parentKey && def.kind !== "capability" && !def.hidden);
 }

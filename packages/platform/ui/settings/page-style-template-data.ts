@@ -62,7 +62,7 @@ const baseModuleTemplates: ModuleTemplate[] = [
   {
     key: "production",
     label: "生产管理",
-    summary: "批次检验、检验模板、库存和填写",
+    summary: "批次检验、检验模板和填写",
     overviewLabel: "生产管理",
     entryRoutes: ["/production"],
     pages: [

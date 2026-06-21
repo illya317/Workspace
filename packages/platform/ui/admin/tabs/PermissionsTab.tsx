@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { usePermissionsTab } from "../hooks/usePermissionsTab";
 import { EmptyStateCard, FilterBar, PickerOptionButton, PickerSegmentedControl, SearchInput, SectionCard, SelectField } from "@workspace/core/ui";
-import ResourceTree from "../components/permissions/ResourceTree";
+import ResourceTree from "../components/ResourceTree";
 import MatrixTable from "../components/permissions/MatrixTable";
 import type { ResourceItem, SubjectType } from "../types";
 
@@ -66,7 +66,7 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row">
-        <div className="w-full shrink-0 lg:w-56">
+        <div className="w-full shrink-0 lg:w-72">
           <div className="mb-2 text-sm font-semibold text-gray-700">资源模块</div>
           {s.selectedResource && s.isSystemAdmin && (
             <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">

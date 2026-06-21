@@ -35,7 +35,6 @@ import {
   checkHRAccess,
   checkHRDelete,
   checkHRWrite,
-  checkInventoryAccess,
   checkLibraryAccess,
   checkLibraryWrite,
   checkWorkAccess,
@@ -254,12 +253,6 @@ export function withFinanceImportDelete(
   handler: AuthHandler,
 ): (req: Request) => Promise<Response> {
   return withAuth(handler, checkFinanceImportDelete);
-}
-
-export function withInventoryAccess(
-  handler: AuthHandler,
-): (req: Request) => Promise<Response> {
-  return withAuth(handler, checkInventoryAccess);
 }
 
 export function withContractAccess(

@@ -50,7 +50,6 @@ export function systemApiRoutes(): ApiRouteRegistration[] {
     ...apiRoutes("/api/auth/me", "protected", ["GET"]),
     ...apiRoutes("/api/auth/wecom", "public", ["GET"]),
     ...apiRoutes("/api/auth/dev-login-bypass", "dev", ["GET"]),
-    ...apiRoutes("/api/modules/production/inventory", "disabled", ["GET", "POST", "PUT", "DELETE"]),
     ...apiRoutes("/api/settings/account/targets", "protected", ["GET"]),
     ...apiRoutes("/api/settings/account/routine", "protected", ["GET", "PUT"]),
     ...apiRoutes("/api/settings/account/week-info", "public", ["GET"]),

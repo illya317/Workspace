@@ -178,16 +178,6 @@ export const registeredModuleDefinitions = [
         { key: "qcTemplates", label: "检验模板", desc: "模板结构浏览、版式预览、反馈收集", href: "/production/qc-templates", resourceKey: "production.qcTemplates", apiPrefixes: ["/api/modules/production/qc-templates"] },
       ],
     },
-    resourceDefs: [
-      {
-        key: "production.inventory",
-        name: "生产库存",
-        parentKey: "production",
-        hidden: true,
-        sortOrder: 99,
-        disabledReason: "库存旧入口已关闭，仅保留 disabled API contract 兼容历史请求",
-      },
-    ],
     routes: ["/production", "/production/qc-batches", "/production/qc-templates"],
     apiGuards: [
       ...apiResourceGuards("/api/modules/production/qc-batches", "production.qcBatches", ["GET", "POST", "PATCH", "DELETE"]),

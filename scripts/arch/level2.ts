@@ -456,10 +456,7 @@ function hasCompatibilityProxySignal(file: SourceInfo) {
 }
 
 function hasGoneRouteSignal(file: SourceInfo) {
-  if (/\bprisma\s*\./.test(file.text)) return false;
-
-  return file.imports.some((item) => item.specifier.endsWith("/disabled") || item.specifier === "../disabled" || item.specifier === "../../disabled") &&
-    /\binventoryApiGone\b/.test(file.text);
+  return false;
 }
 
 function findApiRouteMethods(files: SourceInfo[]) {

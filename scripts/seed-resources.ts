@@ -26,6 +26,7 @@ function resolveDatabasePath() {
 
 const databasePath = resolveDatabasePath();
 const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: databasePath }) });
+const activeResourceKeys = RESOURCE_DEFS.map((resource) => resource.key);
 
 async function upsertResource(
   key: string, name: string, parentKey?: string,
@@ -61,8 +62,25 @@ async function main() {
     );
   }
 
-  await p.resource.deleteMany({ where: { key: { startsWith: "system." } } });
-  await p.resource.deleteMany({ where: { key: "system" } });
+  const staleResources = await p.resource.findMany({
+    where: { key: { notIn: activeResourceKeys } },
+    select: { id: true },
+  });
+  const staleResourceIds = staleResources.map((resource) => resource.id);
+  if (staleResourceIds.length > 0) {
+    await p.userResourceRole.deleteMany({ where: { resourceId: { in: staleResourceIds } } });
+    await p.positionResourceRole.deleteMany({ where: { resourceId: { in: staleResourceIds } } });
+    await p.departmentResourceRole.deleteMany({ where: { resourceId: { in: staleResourceIds } } });
+    for (;;) {
+      const deleted = await p.resource.deleteMany({
+        where: {
+          key: { notIn: activeResourceKeys },
+          children: { none: {} },
+        },
+      });
+      if (deleted.count === 0) break;
+    }
+  }
 
   console.log(`✅ Resources seeded: ${databasePath}`);
   const all = await p.resource.findMany({ orderBy: { key: "asc" }, select: { key: true, name: true } });

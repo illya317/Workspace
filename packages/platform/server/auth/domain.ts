@@ -88,13 +88,6 @@ export async function checkWorksAccess(userId: number): Promise<boolean> {
   return checkWorkAccess(userId, "access");
 }
 
-export async function checkInventoryAccess(userId: number): Promise<boolean> {
-  return (
-    (await isSuperAdmin(userId)) ||
-    (await authorize({ user: userId, resourceKey: "production.inventory", action: "access" }))
-  );
-}
-
 export async function checkContractAccess(userId: number): Promise<boolean> {
   return (
     (await isSuperAdmin(userId)) ||

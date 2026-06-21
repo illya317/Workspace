@@ -85,7 +85,6 @@ export async function listPermissionResources(input: {
       },
     ]),
   );
-  const hiddenResourceKeys = new Set(RESOURCE_DEFS.filter((resource) => resource.hidden).map((resource) => resource.key));
   const capabilityKeys = new Set(RESOURCE_DEFS.filter((resource) => resource.kind === "capability").map((resource) => resource.key));
   const allResources = await prisma.resource.findMany({
     orderBy: { sortOrder: "asc" },
@@ -104,7 +103,7 @@ export async function listPermissionResources(input: {
   const treeResources = activeResources.filter((resource) => !capabilityKeys.has(resource.key));
   const renderableKeys = new Set(
     treeResources
-      .filter((resource) => isMainRbacResource(resource.key) || hiddenResourceKeys.has(resource.key))
+      .filter((resource) => isMainRbacResource(resource.key))
       .map((resource) => resource.key),
   );
 

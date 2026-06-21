@@ -50,7 +50,6 @@ export const RES = {
   },
   production: {
     root: "production",
-    inventory: "production.inventory",
     qcBatches: "production.qcBatches",
     qcTemplates: "production.qcTemplates",
   },

@@ -2,7 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { EmptyStateCard, FilterBar, FormField, PickerOptionButton, SearchInput, SectionCard, StatusBadge, SwitchField } from "@workspace/core/ui";
+import {
+  EmptyStateCard,
+  FilterBar,
+  FormField,
+  SearchInput,
+  SectionCard,
+  StatusBadge,
+  SwitchField,
+} from "@workspace/core/ui";
+import ResourceTree, { type ResourceTreeNode } from "../components/ResourceTree";
 
 type ModuleStatus = "enabled" | "hidden" | "disabled";
 
@@ -96,78 +105,11 @@ function DetailLine({ label, children }: { label: string; children: React.ReactN
   );
 }
 
-function ModuleTree({
-  modules,
-  selectedResourceKey,
-  query,
-  expandedKeys,
-  onToggle,
-  onSelect,
-}: {
-  modules: ModuleNode[];
-  selectedResourceKey: string | null;
-  query: string;
-  expandedKeys: Set<string>;
-  onToggle: (key: string) => void;
-  onSelect: (resourceKey: string) => void;
-}) {
-  const normalizedQuery = query.trim().toLowerCase();
-  return (
-    <div className="space-y-1">
-      {modules.map((module) => {
-        const filteredChildren = normalizedQuery
-          ? module.children.filter((child) => moduleMatches(child, normalizedQuery))
-          : module.children;
-        const visible = !normalizedQuery || moduleMatches(module, normalizedQuery) || filteredChildren.length > 0;
-        if (!visible) return null;
-        const expanded = expandedKeys.has(module.resourceKey) || normalizedQuery.length > 0;
-        return (
-          <div key={module.resourceKey}>
-            <PickerOptionButton
-              selected={selectedResourceKey === module.resourceKey}
-              onClick={() => {
-                onSelect(module.resourceKey);
-                if (module.children.length > 0) onToggle(module.resourceKey);
-              }}
-              align="left"
-              className="mb-1 w-full border-0"
-            >
-              <span className="grid w-full grid-cols-[1.5rem_1fr_auto] items-center gap-2">
-                <span className="text-slate-400" aria-hidden="true">
-                  {module.children.length > 0 ? (expanded ? "⌄" : "›") : ""}
-                </span>
-                <span className="truncate">{module.label}</span>
-                <StatusPill status={module.status} />
-              </span>
-            </PickerOptionButton>
-            {expanded && filteredChildren.map((child) => (
-              <PickerOptionButton
-                key={child.resourceKey}
-                selected={selectedResourceKey === child.resourceKey}
-                onClick={() => onSelect(child.resourceKey)}
-                align="left"
-                className="mb-1 w-full border-0"
-              >
-                <span className="grid w-full grid-cols-[1.5rem_1fr_auto] items-center gap-2 pl-4">
-                  <span className="text-slate-300">└</span>
-                  <span className="truncate">{child.label}</span>
-                  <StatusPill status={child.status} />
-                </span>
-              </PickerOptionButton>
-            ))}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 export default function ModuleManagementTab({ showToast }: Props) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [query, setQuery] = useState("");
   const [selectedResourceKey, setSelectedResourceKey] = useState<string | null>(null);
-  const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
   const [data, setData] = useState<ModuleManagementResponse | null>(null);
 
   useEffect(() => {
@@ -184,7 +126,6 @@ export default function ModuleManagementTab({ showToast }: Props) {
           setData(nextData);
           const firstModule = nextData.modules[0] ?? null;
           setSelectedResourceKey((current) => current ?? firstModule?.resourceKey ?? null);
-          setExpandedKeys(new Set(nextData.modules.map((module) => module.resourceKey)));
         }
       } catch {
         if (!cancelled) showToast("加载模块管理失败", "error");
@@ -202,6 +143,32 @@ export default function ModuleManagementTab({ showToast }: Props) {
     () => data ? findModule(data.modules, selectedResourceKey) : null,
     [data, selectedResourceKey],
   );
+  const moduleTree = useMemo(() => {
+    if (!data) return [];
+    const normalizedQuery = query.trim().toLowerCase();
+    function toTreeNode(module: ModuleNode): ResourceTreeNode | null {
+      const children = module.children.flatMap((child) => {
+        const node = toTreeNode(child);
+        return node ? [node] : [];
+      });
+      const visible = !normalizedQuery || moduleMatches(module, normalizedQuery) || children.length > 0;
+      if (!visible) return null;
+      return {
+        key: module.resourceKey,
+        name: module.label,
+        hidden: module.hidden,
+        enabled: module.enabled,
+        disabledReason: module.disabledReason,
+        statusLabel: STATUS_LABEL[module.status],
+        statusVariant: STATUS_VARIANT[module.status],
+        children,
+      };
+    }
+    return data.modules.flatMap((module) => {
+      const node = toTreeNode(module);
+      return node ? [node] : [];
+    });
+  }, [data, query]);
 
   async function updateModuleEnabled(enabled: boolean) {
     if (!selectedModule) return;
@@ -226,15 +193,6 @@ export default function ModuleManagementTab({ showToast }: Props) {
     }
   }
 
-  function toggleExpanded(key: string) {
-    setExpandedKeys((current) => {
-      const next = new Set(current);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
-  }
-
   if (loading) return <EmptyStateCard>加载模块管理...</EmptyStateCard>;
   if (!data) return <EmptyStateCard>暂无模块管理数据</EmptyStateCard>;
 
@@ -257,13 +215,11 @@ export default function ModuleManagementTab({ showToast }: Props) {
           />
         </FilterBar>
         <SectionCard title="模块树" bodyClassName="p-2">
-          <ModuleTree
-            modules={data.modules}
-            selectedResourceKey={selectedResourceKey}
-            query={query}
-            expandedKeys={expandedKeys}
-            onToggle={toggleExpanded}
+          <ResourceTree
+            resources={moduleTree}
+            selectedResource={selectedResourceKey}
             onSelect={setSelectedResourceKey}
+            forceExpanded={query.trim().length > 0}
           />
         </SectionCard>
       </div>

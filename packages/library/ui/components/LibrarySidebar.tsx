@@ -44,7 +44,6 @@ function DirectoryItem({
         title={node.name}
         code={node.count}
         active={isSelected}
-        showToggle={hasChildren}
         level={level + 1}
         onClick={() => {
           if (hasChildren) onToggle(node.path);
