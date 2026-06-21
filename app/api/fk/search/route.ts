@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
-import { HR_FK_DEFINITIONS } from "@workspace/hr/server/fk-registry";
 import { authenticate } from "@workspace/platform/server/auth";
-import { createFkRegistry, normalizeLifecycleScope, searchFkOptions } from "@workspace/platform/server/fk-registry";
-import { WORK_FK_DEFINITIONS } from "@workspace/work/server/fk-registry";
-
-const registry = createFkRegistry([...HR_FK_DEFINITIONS, ...WORK_FK_DEFINITIONS]);
+import { WORKSPACE_FK_REGISTRY } from "@workspace/platform/server/fk-registrations";
+import { normalizeLifecycleScope, searchFkOptions } from "@workspace/platform/server/fk-registry";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);
@@ -22,7 +19,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    const items = await searchFkOptions(registry, { fkKey, keyword, lifecycleScope });
+    const items = await searchFkOptions(WORKSPACE_FK_REGISTRY, { fkKey, keyword, lifecycleScope });
     return NextResponse.json({ items });
   } catch (error) {
     const message = error instanceof Error ? error.message : "FK 搜索失败";

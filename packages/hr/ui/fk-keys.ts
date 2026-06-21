@@ -4,7 +4,7 @@ export const HR_ENTITY_FK_KEYS: Record<string, string> = {
   employee: "hr.employee",
   position: "hr.position",
   positionDescription: "hr.positionDescription",
-  project: "work.plan",
+  project: "hr.employeeProject.project",
   user: "platform.user",
 };
 

@@ -50,10 +50,11 @@ prisma/models/<domain>.prisma  # 领域模型（按 schema 治理规则）
 | 类型 | 上限 | 超限处理 |
 |---|---|---|
 | 页面 facade | 150 行 | 拆 components/hooks |
-| 组件 | 220 行 | 拆子组件 |
-| hook | 220 行 | 拆辅助 hook |
+| UI 组件 | 新代码目标 220 行；迁移期 package TSX lint fallback 400 行 | 拆子组件 |
+| UI hook | 新代码目标 220 行；迁移期 package TSX lint fallback 400 行 | 拆辅助 hook |
 | API route | 120 行 | 下沉到 service |
-| service | 260 行 | 拆 queries/mutations/summary |
+| service | 新代码目标 260 行；迁移期 package TS lint fallback 450 行 | 拆 queries/mutations/summary |
+| Core package | 300 行 | Core UI/类型/配置都按 Core fallback |
 
 ## 最小可运行示例
 

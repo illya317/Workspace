@@ -82,6 +82,21 @@ export interface ApiRouteRegistration {
   action?: ApiGuardRegistration["action"];
 }
 
+export interface FkRegistryRegistration {
+  key: string;
+  source: {
+    entity: string;
+    field: string;
+  };
+  target: string;
+  targetLabel?: string;
+  nullable: boolean;
+  updatePolicy?: "allowed" | "readonly";
+  targetDeletePolicy?: "block" | "setNull" | "cascade";
+  targetArchivePolicy?: "block" | "setNull" | "cascade";
+  defaultLifecycleScope?: "active" | "all" | "archived";
+}
+
 export interface WorkspacePackageRegistration {
   packageName: string;
   layer: WorkspaceLayer;
@@ -90,4 +105,5 @@ export interface WorkspacePackageRegistration {
   routes?: string[];
   apiGuards?: ApiGuardRegistration[];
   apiRoutes?: ApiRouteRegistration[];
+  fkRegistrations?: FkRegistryRegistration[];
 }

@@ -1,6 +1,14 @@
 import { authorize } from "@workspace/platform/server/auth";
 import { prisma } from "@workspace/platform/server/prisma";
 
+export type WorkPlanRole = "access" | "write" | "delete";
+
+export async function canUseWorkPlan(userId: number, role: WorkPlanRole = "access") {
+  if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
+  if (await authorize({ user: userId, resourceKey: "work.plan", action: role })) return true;
+  return authorize({ user: userId, resourceKey: "work", action: role });
+}
+
 async function isMemberOfTarget(
   userId: number,
   targetType: string,

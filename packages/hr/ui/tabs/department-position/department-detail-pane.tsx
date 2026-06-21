@@ -1,34 +1,13 @@
 "use client";
 
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import {
-  ActionButton,
-  EmptyStateCard,
-  FkFieldInput,
-  FormField,
-  HierarchyBadge,
-  PanelCard,
-  TextField,
-} from "@workspace/core/ui";
+import { ActionButton, FkFieldInput, FormField, HierarchyBadge, MetricCard, PanelCard, TextField } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import PositionAliasTagsInput from "./PositionAliasTagsInput";
-import { DepartmentDescriptionDetailsEditor } from "./detail-editors";
-import {
-  DetailSectionHeader,
-  formInputClassName,
-  readOnlyInputClassName,
-  selectedEntityName,
-} from "./detail-editors";
+import { DetailSectionHeader, formInputClassName, readOnlyInputClassName, selectedEntityName } from "./detail-editors";
+import { DepartmentDescriptionsPanel } from "./department-descriptions-panel";
 import { DirectPositionPanel } from "./navigation-panels";
-import type {
-  Department,
-  DepartmentDescriptionDraft,
-  DepartmentDraft,
-  DepartmentPositionStats,
-  CreatePositionDraft,
-  Position,
-  Selection,
-} from "./types";
+import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, Position, Selection } from "./types";
 
 export function DepartmentDetailPane({
   selection,
@@ -193,11 +172,11 @@ export function DepartmentDetailPane({
                   </FormField>
                   <div className="block min-w-0">
                     <span className="mb-0.5 block text-xs font-semibold text-slate-500">状态</span>
-                    <div className="flex h-10 items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 shadow-sm">
+                    <PanelCard bodyClassName="flex h-10 items-center justify-between gap-2 px-3">
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${showArchived ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>
                         {showArchived ? "已归档" : "现用"}
                       </span>
-                    </div>
+                    </PanelCard>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
@@ -207,39 +186,19 @@ export function DepartmentDetailPane({
                     { label: "直属编制", value: selectedDepartmentStats?.directHeadcount ?? 0 },
                     { label: "总编制", value: selectedDepartmentStats?.totalHeadcount ?? 0 },
                   ].map((item) => (
-                    <div key={item.label} className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
-                      <div className="text-xs font-medium text-slate-500">{item.label}</div>
-                      <div className="mt-1 text-sm font-semibold text-slate-900">{item.value}</div>
-                    </div>
+                    <MetricCard key={item.label} label={item.label} value={item.value} className="px-3 py-2" />
                   ))}
                 </div>
               </div>
             )}
           </PanelCard>
           {!isOrganizationMode && (
-            <PanelCard bodyClassName="p-4">
-              <DetailSectionHeader
-                title="部门说明书"
-                meta={departmentDescriptionDirty && <span className="text-xs text-amber-600">有未保存修改</span>}
-              />
-              <div className="space-y-5">
-                {departmentDescriptionDrafts.map((departmentDescriptionDraft, index) => (
-                  <PanelCard key={departmentDescriptionDraft.id || `new-${index}`} bodyClassName="p-3">
-                    <div className="mb-3 text-sm font-semibold text-slate-900">{departmentDescriptionDraft.name || `部门说明书 ${index + 1}`}</div>
-                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                      <DepartmentDescriptionDetailsEditor
-                        value={departmentDescriptionDraft.details}
-                        disabled={!canEditDepartment}
-                        onChange={(value) => onUpdateDepartmentDescriptionDraft(index, "details", value)}
-                      />
-                    </div>
-                  </PanelCard>
-                ))}
-                {departmentDescriptionDrafts.length === 0 && (
-                  <EmptyStateCard compact>暂无部门说明书</EmptyStateCard>
-                )}
-              </div>
-            </PanelCard>
+            <DepartmentDescriptionsPanel
+              drafts={departmentDescriptionDrafts}
+              dirty={departmentDescriptionDirty}
+              canEditDepartment={canEditDepartment}
+              onUpdateDraft={onUpdateDepartmentDescriptionDraft}
+            />
           )}
         </div>
       )}

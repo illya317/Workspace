@@ -105,6 +105,7 @@ const KNOWN_PREFIXES = [
   "agent",
   "auth",
   "finance",
+  "fk",
   "hr",
   "inventory",
   "contracts",

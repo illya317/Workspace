@@ -1,5 +1,26 @@
 import type { WorkspacePackageRegistration } from "@workspace/core";
+import type { FkRegistration } from "./server/fk-targets";
 import { apiResourceGuards, systemApiRoutes, validateModuleRegistry } from "./module-registry-utils";
+
+const WORK_FK_REGISTRATIONS = [
+  { key: "work.plan.parent", source: { entity: "Project", field: "parentId" }, target: "project", targetLabel: "上级计划", nullable: true },
+  { key: "work.plan.leadingDepartment", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "主导部门", nullable: false },
+  { key: "work.plan.member.employee", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", nullable: false },
+  { key: "work.plan.member.project", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", nullable: false },
+] satisfies FkRegistration[];
+
+const HR_FK_REGISTRATIONS = [
+  { key: "hr.department", source: { entity: "Any", field: "departmentId" }, target: "department", nullable: true },
+  { key: "hr.position", source: { entity: "Any", field: "positionId" }, target: "position", nullable: true },
+  { key: "hr.employee", source: { entity: "Any", field: "employeeId" }, target: "employee", nullable: true },
+  { key: "hr.company", source: { entity: "Contract", field: "company" }, target: "company", nullable: true },
+  { key: "platform.user", source: { entity: "Any", field: "userId" }, target: "user", nullable: true },
+  { key: "hr.positionDescription", source: { entity: "Position", field: "positionDescriptionId" }, target: "positionDescription", nullable: true },
+  { key: "hr.edp.position", source: { entity: "EDP", field: "positionId" }, target: "position", nullable: false },
+  { key: "hr.edp.reportTo", source: { entity: "EDP", field: "reportTo" }, target: "employee", targetLabel: "直接上级", nullable: true },
+  { key: "hr.employeeProject.project", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", targetLabel: "项目", nullable: false },
+  { key: "hr.position.department", source: { entity: "Position", field: "departmentId" }, target: "department", targetLabel: "所属部门", nullable: false },
+] satisfies FkRegistration[];
 
 export const registeredModuleDefinitions = [
   {
@@ -28,6 +49,7 @@ export const registeredModuleDefinitions = [
       { key: "work.history", name: "历史记录", parentKey: "work", sortOrder: 3 },
     ],
     routes: ["/work", "/work/plans", "/works", "/reports", "/history"],
+    fkRegistrations: WORK_FK_REGISTRATIONS,
     apiGuards: [
       ...apiResourceGuards("/api/work", "work.plan"),
       ...apiResourceGuards("/api/projects", "work.plan", ["GET", "POST", "PUT", "DELETE"]),
@@ -60,6 +82,7 @@ export const registeredModuleDefinitions = [
       { key: "people.analytics", name: "人力分析", parentKey: "people", sortOrder: 2 },
     ],
     routes: ["/hr", "/hr/roster", "/hr/performance", "/hr/analytics"],
+    fkRegistrations: HR_FK_REGISTRATIONS,
     apiGuards: [
       ...apiResourceGuards("/api/hr", "people.roster"),
       ...apiResourceGuards("/api/departments", "people.roster", ["GET", "POST", "PUT", "DELETE"]),

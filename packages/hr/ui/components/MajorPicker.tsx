@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { SearchInput } from "@workspace/core/ui";
+import { ActionButton, PanelCard, SearchInput } from "@workspace/core/ui";
 import {
   HR_MAJOR_OPTIONS,
   normalizeHrMajorItems,
@@ -80,7 +80,7 @@ export default function MajorPicker({
         size="compact"
       />
       {searching && !disabled && (
-        <div className="absolute left-0 top-[calc(100%+0.35rem)] z-50 max-h-64 w-max min-w-full max-w-[min(34rem,calc(100vw-2rem))] overflow-auto rounded-lg border border-slate-200 bg-white p-2 shadow-xl">
+        <PanelCard className="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-max min-w-full max-w-[min(34rem,calc(100vw-2rem))]" bodyClassName="max-h-64 overflow-auto p-2">
           {!keyword.trim() ? (
             <div className="px-2 py-1.5 text-xs text-slate-400">输入专业名称搜索</div>
           ) : options.length === 0 ? (
@@ -90,23 +90,22 @@ export default function MajorPicker({
               {options.map((option) => {
                 const selected = current?.specialty === option.specialty;
                 return (
-                  <button
+                  <ActionButton
                     key={`${option.category}-${option.specialty}`}
-                    type="button"
                     onClick={() => choose(option)}
-                    className={`min-w-28 rounded-md border px-2.5 py-1.5 text-left text-xs transition ${
+                    className={`!h-auto min-w-28 !justify-start !px-2.5 !py-1.5 !text-left ${
                       selected
-                        ? "border-sky-400 bg-sky-50 text-sky-800"
-                        : "border-slate-200 bg-white text-slate-700 hover:border-sky-200 hover:bg-sky-50"
+                        ? "!border-sky-400 !bg-sky-50 !text-sky-800"
+                        : "!border-slate-200 !bg-white !text-slate-700 hover:!border-sky-200 hover:!bg-sky-50"
                     }`}
                   >
                     <span className="block truncate font-semibold">{option.specialty}</span>
-                  </button>
+                  </ActionButton>
                 );
               })}
             </div>
           )}
-        </div>
+        </PanelCard>
       )}
     </div>
   );

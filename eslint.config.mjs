@@ -43,6 +43,12 @@ const eslintConfig = defineConfig([
     },
   },
   // File size governance. Keep this in ESLint so line budgets are part of lint, not a parallel check.
+  // Canonical budgets:
+  // - API route shell: 120
+  // - page facade: 150
+  // - UI component / UI hook target: 220
+  // - server service target: 260
+  // - migration-compatible package fallback: 400 for TSX, 450 for TS, 300 for Core
   {
     files: ["app/api/**/route.ts"],
     rules: {

@@ -65,8 +65,10 @@ npm run arch:gate         # 唯一架构门禁：AST/DAG/module/auth/package 边
 
 | 类型 | 上限 |
 |------|------|
-| 组件/hook | 220 行 |
+| 页面 facade | 150 行 |
+| UI 组件/hook | 新代码目标 220 行；迁移期 package TSX lint fallback 400 行 |
 | API route | 120 行 |
-| Service | 260 行 |
+| Server service | 新代码目标 260 行；迁移期 package TS lint fallback 450 行 |
+| Core package | 300 行 |
 | Lint warning | 0 |
 | TypeScript error | 0 |

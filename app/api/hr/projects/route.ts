@@ -1,45 +1,7 @@
-import { NextResponse } from "next/server";
-import { z } from "zod";
-import { authenticate, authorize } from "@workspace/platform/server/auth";
-import { createWorkPlan, listWorkPlans } from "@workspace/work/server";
-import { WorkPlanCreateSchema } from "@workspace/work/server/schemas";
+// @deprecated 兼容入口，新代码请使用 /api/work/plans。本文件纯代理，不再新增业务逻辑。
+import { createCompatibilityProxyHandler } from "@workspace/platform/server/api";
 
-const projectsQuerySchema = z.object({
-  keyword: z.string().catch(""),
-  page: z.coerce.number().int().min(1).catch(1),
-  pageSize: z.coerce.number().int().min(1).max(500).catch(50),
-}).passthrough();
+const proxy = createCompatibilityProxyHandler("/api/work/plans");
 
-async function canUseWorkPlan(userId: number, role: "access" | "write" | "delete" = "access") {
-  if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
-  if (await authorize({ user: userId, resourceKey: "work.plan", action: role })) return true;
-  return authorize({ user: userId, resourceKey: "work", action: role });
-}
-
-export async function GET(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await canUseWorkPlan(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
-
-  const { searchParams } = new URL(request.url);
-  const parsedQuery = projectsQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
-  if (!parsedQuery.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
-  const { keyword, page, pageSize } = parsedQuery.data;
-  return NextResponse.json(await listWorkPlans({ keyword, page, pageSize }));
-}
-
-export async function POST(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await canUseWorkPlan(payload.userId, "write"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
-
-  const body = await request.clone().json().catch(() => null);
-  const parsedBody = WorkPlanCreateSchema.safeParse(body);
-  if (!parsedBody.success) {
-    return NextResponse.json({ error: parsedBody.error.issues[0]?.message || "参数错误" }, { status: 400 });
-  }
-
-  const result = await createWorkPlan(request, payload.userId);
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
-  return NextResponse.json(result.data);
-}
+export const GET = proxy;
+export const POST = proxy;

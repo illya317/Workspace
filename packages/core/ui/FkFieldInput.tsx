@@ -73,7 +73,7 @@ export default function FkFieldInput({
           keyword: q,
           lifecycleScope,
         });
-        const response = await fetch(workspacePath(`/api/platform/fk-search?${params.toString()}`));
+        const response = await fetch(workspacePath(`/api/fk/search?${params.toString()}`));
         if (response.ok) {
           const data = (await response.json()) as { items?: FkFieldOption[] };
           setOptions(data.items || []);

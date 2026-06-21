@@ -39,6 +39,7 @@ const ALLOWED_API_ROOTS = new Set([
   "employees",
   "employments",
   "finance",
+  "fk",
   "hr",
   "inventory",
   "library",

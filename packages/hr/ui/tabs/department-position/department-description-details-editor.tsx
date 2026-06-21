@@ -83,14 +83,13 @@ export function DepartmentDescriptionDetailsEditor({
               <div className="mb-2 flex items-center gap-3">
                 <span className="text-xs font-medium text-slate-500">职责 {index + 1}</span>
                 {!disabled && (
-                  <button
-                    type="button"
+                  <ActionButton
                     aria-label={`删除部门职责 ${index + 1}`}
                     onClick={() => void removeRecord(index)}
-                    className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-500 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
+                    className="!h-auto rounded-full !px-2 !py-0.5 text-[11px] hover:!border-rose-200 hover:!bg-rose-50 hover:!text-rose-600"
                   >
                     移除
-                  </button>
+                  </ActionButton>
                 )}
               </div>
               <div className="grid grid-cols-1 gap-2">

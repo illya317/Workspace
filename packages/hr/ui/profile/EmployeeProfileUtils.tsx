@@ -1,18 +1,18 @@
 "use client";
 
-import type { ReactNode } from "react";
 import {
   getFieldGridCellClassName,
   getFieldGridLabelClassName,
   getFieldGridValueClassName,
-  getFieldGroupTitleClassName,
 } from "@workspace/core/ui";
 import { ProfileFieldInput } from "./ProfileFormControls";
+import { FieldRegion } from "./EmployeeProfileFieldRegion";
 import type { ContractRow, EdpRow, ProfileField } from "@workspace/hr/types";
 import type { FkFieldOption } from "@workspace/core/ui";
 
 export type EditableRecord = Record<string, unknown> & { id?: number; isNew?: boolean };
 export type RowBase = { id?: number; isNew?: boolean };
+export { FieldRegion } from "./EmployeeProfileFieldRegion";
 
 export function toInputDate(value: unknown) {
   if (!value) return null;
@@ -117,30 +117,6 @@ export function fieldGrid(
         );
       })}
     </div>
-  );
-}
-
-export function FieldRegion({
-  title,
-  actions,
-  children,
-  className = "",
-}: {
-  title: ReactNode;
-  actions?: ReactNode;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <section className={`min-w-0 rounded-xl border border-sky-200 bg-sky-100/45 p-3 shadow-sm ${className}`}>
-      <div className="mb-3 flex min-h-7 items-center justify-between gap-3">
-        <div className={getFieldGroupTitleClassName("mb-0")}>
-          {title}
-        </div>
-        {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
-      </div>
-      {children}
-    </section>
   );
 }
 

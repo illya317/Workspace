@@ -27,6 +27,7 @@
     "./server/dal/pagination": "./server/dal/pagination.ts",
     "./server/department-admins": "./server/department-admins.ts",
     "./server/fk-registry": "./server/fk-registry.ts",
+    "./server/fk-registrations": "./server/fk-registrations.ts",
     "./server/fk-search": "./server/fk-search.ts",
     "./server/fk-targets": "./server/fk-targets.ts",
     "./server/history": "./server/history.ts",

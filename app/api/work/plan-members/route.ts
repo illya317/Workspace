@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server";
-import { authenticate, authorize } from "@workspace/platform/server/auth";
+import { authenticate } from "@workspace/platform/server/auth";
 import { validateCompatibilityProxyBody } from "@workspace/platform/server/api";
-import { createWorkPlanMember, listWorkPlanMembers } from "@workspace/work/server";
-
-async function canUseWorkPlan(userId: number, role: "access" | "write" | "delete" = "access") {
-  if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
-  if (await authorize({ user: userId, resourceKey: "work.plan", action: role })) return true;
-  return authorize({ user: userId, resourceKey: "work", action: role });
-}
+import { canUseWorkPlan, createWorkPlanMember, listWorkPlanMembers } from "@workspace/work/server";
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);

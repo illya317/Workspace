@@ -3,9 +3,8 @@ import { HR_FK_DEFINITIONS } from "@workspace/hr/server/fk-registry";
 import { createFkRegistry, normalizeLifecycleScope, searchFkOptions } from "@workspace/platform/server/fk-registry";
 import { authenticate, checkHRAccess } from "@workspace/platform/server/auth";
 import { searchHrAutocomplete } from "@workspace/hr/server";
-import { WORK_FK_DEFINITIONS } from "@workspace/work/server/fk-registry";
 
-const registry = createFkRegistry([...HR_FK_DEFINITIONS, ...WORK_FK_DEFINITIONS]);
+const registry = createFkRegistry(HR_FK_DEFINITIONS);
 
 export async function GET(request: Request) {
   const payload = await authenticate(request);

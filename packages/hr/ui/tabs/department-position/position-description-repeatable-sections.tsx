@@ -61,14 +61,13 @@ export function PositionDutyEditor({
             <div className="mb-2 flex items-center gap-3">
               <span className="text-xs font-medium text-slate-500">职责 {index + 1}</span>
               {!disabled && (
-                <button
-                  type="button"
+                <ActionButton
                   aria-label={`删除${label} ${index + 1}`}
                   onClick={() => void removeDuty(index)}
-                  className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-500 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600"
+                  className="!h-auto rounded-full !px-2 !py-0.5 text-[11px] hover:!border-rose-200 hover:!bg-rose-50 hover:!text-rose-600"
                 >
                   移除
-                </button>
+                </ActionButton>
               )}
             </div>
             <div className="grid grid-cols-1 gap-2">
@@ -174,14 +173,13 @@ export function PositionChangeHistoryEditor({
               onChange={(next) => updateRecord(index, { approver: next || "" })}
             />
             {!disabled && (
-              <button
-                type="button"
+              <ActionButton
                 aria-label={`删除变更历史 ${index + 1}`}
                 onClick={() => void removeRecord(index)}
-                className="self-end rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-500 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-600 md:col-span-4 md:justify-self-end"
+                className="!h-auto self-end rounded-full !px-2.5 !py-1 text-[11px] hover:!border-rose-200 hover:!bg-rose-50 hover:!text-rose-600 md:col-span-4 md:justify-self-end"
               >
                 移除
-              </button>
+              </ActionButton>
             )}
           </PanelCard>
         );
