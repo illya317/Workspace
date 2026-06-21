@@ -55,12 +55,12 @@ GET: 31 | POST: 10 | PUT: 19 | DELETE: 12
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | **GET** | `/api/me/targets` | 登录 | 获取我的汇报对象 |
-| **GET** | `/api/modules/work/projects` | 登录 + 项目权限 | 项目列表 |
-| **POST** | `/api/modules/work/projects` | 登录 + 项目权限 | 创建项目 |
-| **PUT** | `/api/modules/work/projects/:id` | 登录 + 项目权限 | 更新项目 |
-| **DELETE** | `/api/modules/work/projects/:id` | 登录 + 项目权限 | 删除项目 |
-| **GET** | `/api/modules/work/project-members` | 登录 + 项目权限 | 项目人员列表 |
-| **POST** | `/api/modules/work/project-members` | 登录 + 项目权限 | 创建项目人员 |
+| **GET** | `/api/modules/work/projects` | 登录 + 项目权限 | 项目管理列表 |
+| **POST** | `/api/modules/work/projects` | 登录 + 项目权限 | 新建项目管理记录 |
+| **PUT** | `/api/modules/work/projects/:id` | 登录 + 项目权限 | 更新项目管理记录 |
+| **DELETE** | `/api/modules/work/projects/:id` | 登录 + 项目权限 | 删除项目管理记录 |
+| **GET** | `/api/modules/work/project-members` | 登录 + 项目权限 | 项目管理人员列表 |
+| **POST** | `/api/modules/work/project-members` | 登录 + 项目权限 | 新建项目人员 |
 | **PUT** | `/api/modules/work/project-members/:id` | 登录 + 项目权限 | 更新项目人员 |
 | **DELETE** | `/api/modules/work/project-members/:id` | 登录 + 项目权限 | 删除项目人员 |
 

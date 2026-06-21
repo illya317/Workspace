@@ -29,6 +29,7 @@ export interface ProjectPermissionResult {
 type ProjectPermissionProject = {
   id: number;
   type: string | null;
+  createdBy: number | null;
   editedBy: number | null;
   leadingDepartment?: { managerUserId: number | null } | null;
   employees?: Array<{ employeeId: number; role: string | null }>;
@@ -47,7 +48,7 @@ export async function getUserEmployeeIds(userId: number) {
 }
 
 export async function hasProjectViewAll(userId: number) {
-  if (await hasProjectBroadAccess(userId, "access")) return true;
+  if (await isSystemAdminUser(userId)) return true;
   return authorize({ user: userId, resourceKey: PROJECT_VIEW_ALL_RESOURCE, action: "access" });
 }
 
@@ -56,7 +57,7 @@ export async function buildVisibleProjectWhere(userId: number) {
   const employeeIds = await getUserEmployeeIds(userId);
   return {
     OR: [
-      { editedBy: userId },
+      { createdBy: userId },
       { type: "department", leadingDepartment: { managerUserId: userId } },
       ...(employeeIds.length ? [{ employees: { some: { employeeId: { in: employeeIds } } } }] : []),
     ],
@@ -69,24 +70,22 @@ export async function getProjectPermissions(
 ): Promise<ProjectPermissionResult> {
   if (await isSystemAdminUser(userId)) return { canView: true, canEdit: true, canManage: true, canDelete: true };
 
-  const [employeeIds, canViewAll, canEditAll, canDeleteAll] = await Promise.all([
+  const [employeeIds, canViewAll] = await Promise.all([
     getUserEmployeeIds(userId),
     hasProjectViewAll(userId),
-    hasProjectBroadAccess(userId, "write"),
-    hasProjectBroadAccess(userId, "delete"),
   ]);
   const employeeIdSet = new Set(employeeIds);
   const memberRoles = (project.employees || [])
     .filter((member) => employeeIdSet.has(member.employeeId))
     .map((member) => member.role || "");
 
-  const isCreator = project.editedBy === userId;
+  const isCreator = project.createdBy === userId;
   const isDepartmentManager = project.type === "department" && project.leadingDepartment?.managerUserId === userId;
   const isProjectManager = memberRoles.some((role) => PROJECT_MANAGER_ROLES.has(role));
   const isProjectEditor = memberRoles.some((role) => PROJECT_EDITOR_ROLES.has(role));
   const isProjectViewer = memberRoles.some((role) => PROJECT_VIEWER_ROLES.has(role));
   const canManageByProject = isCreator || isDepartmentManager || isProjectManager;
-  const canManage = canEditAll || canManageByProject;
+  const canManage = canManageByProject;
   const canEdit = canManage || isProjectEditor;
   const canView = canViewAll || canEdit || isProjectViewer;
 
@@ -94,7 +93,7 @@ export async function getProjectPermissions(
     canView,
     canEdit,
     canManage,
-    canDelete: canDeleteAll || canManageByProject,
+    canDelete: canManageByProject,
   };
 }
 
@@ -104,6 +103,7 @@ async function loadProjectForPermission(projectId: number) {
     select: {
       id: true,
       type: true,
+      createdBy: true,
       editedBy: true,
       leadingDepartment: { select: { managerUserId: true } },
       employees: { select: { employeeId: true, role: true } },

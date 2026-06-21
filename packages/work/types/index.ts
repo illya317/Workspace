@@ -10,7 +10,7 @@ export interface WorkUser {
 export function workCanEdit(user: WorkUser) {
   if (user.isAdmin) return true;
   const keys = user.visibleWriteResourceKeys || [];
-  return keys.includes("work") || keys.some((key) => key.startsWith("work."));
+  return keys.includes("work") || keys.includes("work.project");
 }
 
 export interface FKFieldConfig {

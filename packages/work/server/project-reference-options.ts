@@ -1,3 +1,8 @@
+import { NextResponse } from "next/server";
+import {
+  createReferenceOptionsRoute,
+  referenceOptionsQuerySchema,
+} from "@workspace/platform/server/reference-options";
 import {
   archivedBooleanFilter,
   matchesFkKeyword,
@@ -5,6 +10,27 @@ import {
 } from "@workspace/platform/server/fk-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { buildVisibleProjectWhere } from "./access";
+
+const genericReferenceOptions = createReferenceOptionsRoute({
+  scope: "work",
+  validate: (input) => referenceOptionsQuerySchema.safeParse(input),
+});
+
+const PROJECT_FK_KEYS = new Set(["work.project.parent", "work.project.member.project"]);
+
+export async function listWorkReferenceOptions(request: Request, user: { userId: number }) {
+  const { searchParams } = new URL(request.url);
+  const parsed = referenceOptionsQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+  if (!parsed.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
+  if (!PROJECT_FK_KEYS.has(parsed.data.fkKey)) return genericReferenceOptions(request);
+
+  const items = await listVisibleProjectReferenceOptions({
+    userId: user.userId,
+    keyword: parsed.data.keyword,
+    lifecycleScope: parsed.data.lifecycleScope,
+  });
+  return NextResponse.json({ items });
+}
 
 export async function listVisibleProjectReferenceOptions(input: {
   userId: number;

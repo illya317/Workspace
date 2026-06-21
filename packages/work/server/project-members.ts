@@ -42,6 +42,15 @@ async function normalizeEmployeeProjectFieldUpdate(field: string, value: unknown
     if (!validation.ok) return { error: validation.error, status: validation.status };
     return { field, value: validation.value };
   }
+  if (field === "employeeId") {
+    const validation = await validateFkValue(WORK_FK_REGISTRY, {
+      fkKey: "work.project.member.employee",
+      value,
+      requiredLabel: "员工",
+    });
+    if (!validation.ok) return { error: validation.error, status: validation.status };
+    return { field, value: validation.value };
+  }
   return { field, value };
 }
 
@@ -155,7 +164,7 @@ export async function updateProjectMemberField(request: Request, params: Promise
   if (!Number.isInteger(recordId)) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
   const existing = await prisma.employeeProject.findUnique({
     where: { id: recordId },
-    select: { projectId: true },
+    select: { employeeId: true, projectId: true },
   });
   if (!existing) return NextResponse.json({ error: "记录不存在" }, { status: 404 });
   if (!(await canManageProject(payload.userId, existing.projectId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
@@ -170,6 +179,20 @@ export async function updateProjectMemberField(request: Request, params: Promise
   if (!EMPLOYEE_PROJECT_CONFIG.allowedFields.includes(field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
   if (field === "projectId" && Number(value) !== existing.projectId && !(await canManageProject(payload.userId, Number(value)))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
+  }
+  if (field === "projectId" && Number(value) !== existing.projectId) {
+    const duplicate = await prisma.employeeProject.findUnique({
+      where: { employeeId_projectId: { employeeId: existing.employeeId, projectId: Number(value) } },
+      select: { id: true },
+    });
+    if (duplicate && duplicate.id !== recordId) return NextResponse.json({ error: "项目成员已存在" }, { status: 409 });
+  }
+  if (field === "employeeId") {
+    const duplicate = await prisma.employeeProject.findUnique({
+      where: { employeeId_projectId: { employeeId: Number(value), projectId: existing.projectId } },
+      select: { id: true },
+    });
+    if (duplicate && duplicate.id !== recordId) return NextResponse.json({ error: "项目成员已存在" }, { status: 409 });
   }
 
   await prisma.employeeProject.update({

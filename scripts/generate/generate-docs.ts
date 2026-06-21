@@ -577,12 +577,12 @@ function generateDescription(path: string, method: string): string {
   if (p === "projects" && method === "POST") return "创建项目";
   if (p.startsWith("projects/") && method === "PUT") return "更新项目";
   if (p.startsWith("projects/") && method === "DELETE") return "删除项目";
-  if (p === "modules/work/projects" && method === "GET") return "项目列表";
-  if (p === "modules/work/projects" && method === "POST") return "创建项目";
-  if (p.startsWith("modules/work/projects/") && method === "PUT") return "更新项目";
-  if (p.startsWith("modules/work/projects/") && method === "DELETE") return "删除项目";
-  if (p === "modules/work/project-members" && method === "GET") return "项目人员列表";
-  if (p === "modules/work/project-members" && method === "POST") return "创建项目人员";
+  if (p === "modules/work/projects" && method === "GET") return "项目管理列表";
+  if (p === "modules/work/projects" && method === "POST") return "新建项目管理记录";
+  if (p.startsWith("modules/work/projects/") && method === "PUT") return "更新项目管理记录";
+  if (p.startsWith("modules/work/projects/") && method === "DELETE") return "删除项目管理记录";
+  if (p === "modules/work/project-members" && method === "GET") return "项目管理人员列表";
+  if (p === "modules/work/project-members" && method === "POST") return "新建项目人员";
   if (p.startsWith("modules/work/project-members/") && method === "PUT") return "更新项目人员";
   if (p.startsWith("modules/work/project-members/") && method === "DELETE") return "删除项目人员";
   if (p === "works" && method === "GET") return "工作清单列表";

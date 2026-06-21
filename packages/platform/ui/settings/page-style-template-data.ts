@@ -16,7 +16,7 @@ import {
   type TemplateKind,
 } from "@workspace/core/ui/page-style-preview/template-data";
 import { activeModuleDefinitions } from "../../effective-module-registry";
-import { registeredModuleDefinitions } from "../../module-registry";
+import { applyRouteRuntimeLabel, getRouteRuntimeMeta, type RouteRuntimeMeta } from "../../route-runtime-labels";
 
 export {
   getModuleSections,
@@ -174,37 +174,11 @@ const baseModuleTemplates: ModuleTemplate[] = [
   },
 ];
 
-type RouteRuntimeMeta = {
-  baseLabel: string;
-  label: string;
-};
-
-function normalizeTemplateRoute(route: string) {
-  return isRecordRoute(route) ? route.replace(/\/\[[^\]]+\]/g, "") : route;
-}
-
-function getBaseRouteLabel(route: string) {
-  const normalizedRoute = normalizeTemplateRoute(route);
-  for (const { moduleDef } of registeredModuleDefinitions) {
-    if (!moduleDef) continue;
-    if (moduleDef.href === normalizedRoute) return moduleDef.label;
-    const child = moduleDef.children?.find((item) => item.href === normalizedRoute);
-    if (child) return child.label;
-  }
-  return null;
-}
-
 function getRuntimeRouteMeta(route: string): RouteRuntimeMeta | null {
-  const normalizedRoute = normalizeTemplateRoute(route);
-  for (const { moduleDef } of activeModuleDefinitions) {
-    if (!moduleDef) continue;
-    if (moduleDef.href === normalizedRoute) {
-      return { baseLabel: getBaseRouteLabel(normalizedRoute) ?? moduleDef.label, label: moduleDef.label };
-    }
-    const child = moduleDef.children?.find((item) => item.href === normalizedRoute);
-    if (child) return { baseLabel: getBaseRouteLabel(normalizedRoute) ?? child.label, label: child.label };
-  }
-  return null;
+  return getRouteRuntimeMeta(route, activeModuleDefinitions, {
+    normalizeRecordRoute: isRecordRoute(route),
+    respectVisibility: false,
+  });
 }
 
 function isTemplateRouteVisible(route: string) {
@@ -216,8 +190,7 @@ function hasVisibleRoute(routes: string[] | undefined) {
 }
 
 function applyRouteLabel(value: string | undefined, meta: RouteRuntimeMeta) {
-  if (!value || !meta.baseLabel || meta.baseLabel === meta.label) return value;
-  return value.replaceAll(meta.baseLabel, meta.label);
+  return value ? applyRouteRuntimeLabel(value, meta) : value;
 }
 
 function applyRuntimePageLabels(page: PageTemplate): PageTemplate {

@@ -172,6 +172,7 @@ export async function createProject(request: Request, userId: number) {
         leadingDepartmentId: leadingDepartmentResult && !("error" in leadingDepartmentResult) ? leadingDepartmentResult.value : null,
         startDate,
         endDate: parseDate(parsed.data.endDate),
+        createdBy: userId,
         editedBy: userId,
       },
     });
