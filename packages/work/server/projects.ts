@@ -126,8 +126,12 @@ export async function createProject(request: Request, userId: number) {
   const projectType = normalizeProjectType(parsed.data.projectType);
   const parentResult = await normalizeProjectParentId(parsed.data.parentId);
   if ("error" in parentResult) return { ok: false as const, error: parentResult.error };
+  if (projectType === "subproject" && !parentResult.value) return { ok: false as const, error: "子项目必须关联上级项目" };
   if (parentResult.value && !(await canViewProject(userId, parentResult.value))) {
     return { ok: false as const, error: "上级项目无权限", status: 403 };
+  }
+  if (projectType === "subproject" && parentResult.value && !(await canManageProject(userId, parentResult.value))) {
+    return { ok: false as const, error: "无权限创建子项目", status: 403 };
   }
   const leadingDepartmentResult = parsed.data.leadingDepartmentId
     ? await normalizeLeadingDepartmentId(parsed.data.leadingDepartmentId)
@@ -147,10 +151,14 @@ export async function createProject(request: Request, userId: number) {
   const code = projectType === "department" && leadingDepartmentResult && !("error" in leadingDepartmentResult)
     ? await generateProjectCode(leadingDepartmentResult.department.code, startDate)
     : null;
-  const userEmployee = await prisma.employee.findFirst({
+  const leaderEmployee = parsed.data.leaderEmployeeId ? await prisma.employee.findUnique({
+    where: { id: parsed.data.leaderEmployeeId },
+    select: { id: true },
+  }) : await prisma.employee.findFirst({
     where: { userId },
     select: { id: true },
   });
+  if (parsed.data.leaderEmployeeId && !leaderEmployee) return { ok: false as const, error: "负责人不存在" };
   const record = await prisma.$transaction(async (tx) => {
     const created = await tx.project.create({
       data: {
@@ -176,10 +184,10 @@ export async function createProject(request: Request, userId: number) {
         editedBy: userId,
       },
     });
-    if (userEmployee) {
+    if (leaderEmployee) {
       await tx.employeeProject.create({
         data: {
-          employeeId: userEmployee.id,
+          employeeId: leaderEmployee.id,
           projectId: created.id,
           role: "负责人",
           editedBy: userId,
@@ -284,12 +292,12 @@ export async function updateProjectField(request: Request, params: Promise<{ id:
 }
 
 async function syncProjectChildren(projectId: number, value: unknown, userId: number) {
-  if (!Array.isArray(value)) return { ok: false as const, error: "下级项目无效" };
+  if (!Array.isArray(value)) return { ok: false as const, error: "子项目无效" };
   const childIds = Array.from(new Set(value.map((item) => Number(item))));
   if (childIds.some((id) => !Number.isInteger(id) || id <= 0)) {
-    return { ok: false as const, error: "下级项目无效" };
+    return { ok: false as const, error: "子项目无效" };
   }
-  if (childIds.includes(projectId)) return { ok: false as const, error: "下级项目不能选择当前项目" };
+  if (childIds.includes(projectId)) return { ok: false as const, error: "子项目不能选择当前项目" };
 
   const children = childIds.length > 0
     ? await prisma.project.findMany({
@@ -300,9 +308,9 @@ async function syncProjectChildren(projectId: number, value: unknown, userId: nu
   const childById = new Map(children.map((child) => [child.id, child]));
   for (const childId of childIds) {
     const child = childById.get(childId);
-    if (!child) return { ok: false as const, error: "下级项目不存在" };
-    if (child.isArchived) return { ok: false as const, error: "归档项目不能设为下级项目" };
-    if (!(await canViewProject(userId, childId))) return { ok: false as const, error: "下级项目无权限", status: 403 };
+    if (!child) return { ok: false as const, error: "子项目不存在" };
+    if (child.isArchived) return { ok: false as const, error: "归档项目不能设为子项目" };
+    if (!(await canViewProject(userId, childId))) return { ok: false as const, error: "子项目无权限", status: 403 };
     const hierarchy = await normalizeProjectParentId(projectId, childId);
     if ("error" in hierarchy) return { ok: false as const, error: hierarchy.error };
   }

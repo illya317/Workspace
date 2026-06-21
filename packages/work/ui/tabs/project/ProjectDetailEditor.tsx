@@ -7,20 +7,23 @@ import {
   OptionPicker,
   PanelCard,
   SectionCard,
-  TextareaField,
   TextField,
   getFieldInputClassName,
   getReadOnlyFieldClassName,
 } from "@workspace/core/ui";
-import type { FkFieldOption, PickerOption, SearchableOption } from "@workspace/core/ui";
+import type { FkFieldOption, PickerOption } from "@workspace/core/ui";
 import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
 import ProjectChildTagsInput from "./ProjectChildTagsInput";
+import ProjectGanttSection from "./ProjectGanttSection";
 import ProjectMemberTagsInput from "./ProjectMemberTagsInput";
+import ProjectRasciMatrix from "./ProjectRasciMatrix";
+import type { ProjectRasciRow } from "./ProjectRasciMatrix";
 import {
   MULTI_PROJECT_ROLES,
   PROJECT_PRIORITY_PICKER_OPTIONS,
   PROJECT_STATUS_PICKER_OPTIONS,
   PROJECT_TYPE_OPTIONS,
+  TOP_LEVEL_PROJECT_TYPE_OPTIONS,
   projectCode,
   type EmployeeTag,
   type MultiProjectRole,
@@ -32,7 +35,6 @@ import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 
 const inputClassName = getFieldInputClassName("h-10");
 const pickerButtonClassName = `${inputClassName} text-left`;
-const textareaClassName = getFieldInputClassName("min-h-24 resize-y");
 const pickerPopoverClassName = "absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-72 rounded-lg border border-slate-200 bg-white p-3 shadow-xl";
 
 export default function ProjectDetailEditor({
@@ -40,18 +42,19 @@ export default function ProjectDetailEditor({
   dirty,
   draft,
   selectedProject,
-  canCreateProject,
   canEditCurrent,
   canManageCurrent,
+  canDeleteCurrent,
   saving,
   canSave,
   childProjects,
-  childProjectOptions,
+  rasciRows,
   creating,
   onCancelCreate,
-  onCreate,
+  onDeleteProject,
   onSave,
   onChildProjectsChange,
+  onCreateChildProject,
   onDraftChange,
   onLeaderChange,
   onRoleMembersChange,
@@ -60,18 +63,19 @@ export default function ProjectDetailEditor({
   dirty: boolean;
   draft: ProjectDraft | null;
   selectedProject: ProjectItem | null;
-  canCreateProject: boolean;
   canEditCurrent: boolean;
   canManageCurrent: boolean;
+  canDeleteCurrent: boolean;
   saving: boolean;
   canSave: boolean;
-  childProjects: { id: number; name: string }[];
-  childProjectOptions: SearchableOption[];
+  childProjects: { id: number; name: string; status?: string | null; startDate?: string | null; endDate?: string | null }[];
+  rasciRows: ProjectRasciRow[];
   creating: boolean;
   onCancelCreate: () => void;
-  onCreate: () => void;
+  onDeleteProject: () => void;
   onSave: () => void;
   onChildProjectsChange: (value: { id: number; name: string }[]) => void;
+  onCreateChildProject: (name: string, leadingDepartmentId?: number | null, leader?: EmployeeTag | null, endDate?: string | null) => Promise<void> | void;
   onDraftChange: <K extends keyof ProjectDraft>(key: K, value: ProjectDraft[K]) => void;
   onLeaderChange: (option?: FkFieldOption) => void;
   onRoleMembersChange: (role: MultiProjectRole, members: EmployeeTag[]) => void;
@@ -87,7 +91,7 @@ export default function ProjectDetailEditor({
           </div>
         }
         secondaryActions={[
-          ...(canCreateProject && !creating ? [{ label: "新建项目", onClick: onCreate }] : []),
+          ...(!creating && selectedProject && canDeleteCurrent ? [{ label: "删除项目", onClick: onDeleteProject, disabled: saving, variant: "danger" as const }] : []),
           ...(creating ? [{ label: "取消", onClick: onCancelCreate }] : []),
         ]}
         primaryActions={draft && (selectedProject || creating) ? [{
@@ -112,7 +116,7 @@ export default function ProjectDetailEditor({
               <OptionField
                 label="项目类型"
                 value={draft.projectType}
-                options={PROJECT_TYPE_OPTIONS}
+                options={creating ? TOP_LEVEL_PROJECT_TYPE_OPTIONS : PROJECT_TYPE_OPTIONS}
                 disabled={!creating}
                 onChange={(value) => onDraftChange("projectType", (value || "department") as ProjectType)}
                 placeholder="选择项目类型"
@@ -132,7 +136,7 @@ export default function ProjectDetailEditor({
                   endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
                   value={draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : ""}
                   displayValue={draft.leadingDepartmentName || ""}
-                  disabled={!canManageCurrent || draft.projectType === "personal"}
+                  disabled={!canManageCurrent || draft.projectType !== "department"}
                   placeholder="搜索部门名称、编码"
                   onChange={(_label, option) => {
                     onDraftChange("leadingDepartmentId", option?.id ?? null);
@@ -145,19 +149,20 @@ export default function ProjectDetailEditor({
               <OptionField label="优先级" value={draft.priority} options={PROJECT_PRIORITY_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("priority", value)} popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-56 rounded-lg border border-slate-200 bg-white p-3 shadow-xl" />
               <DateField label="项目开始时间" value={draft.startDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("startDate", value)} />
               <DateField label="项目结束时间" value={draft.endDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("endDate", value)} />
-              <FormField label="下级项目">
+              <FormField label="子项目" className="md:col-span-2">
                 <ProjectChildTagsInput
                   value={childProjects}
-                  options={childProjectOptions}
                   disabled={!canManageCurrent || creating}
+                  creating={saving}
                   onChange={onChildProjectsChange}
+                  onCreate={onCreateChildProject}
                 />
               </FormField>
             </div>
           </SectionCard>
 
           <SectionCard title="项目人员">
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
               <FormField label="项目负责人">
                 <FkFieldInput
                   fkKey="work.projects.member.employee"
@@ -170,42 +175,30 @@ export default function ProjectDetailEditor({
                 />
               </FormField>
 
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {MULTI_PROJECT_ROLES.map((role) => (
-                  <FormField key={role} label={role}>
-                    <ProjectMemberTagsInput
-                      value={draft.roleGroups[role]}
-                      disabled={!canManageCurrent || creating}
-                      onChange={(members) => onRoleMembersChange(role, members)}
-                    />
-                  </FormField>
-                ))}
-              </div>
+              {MULTI_PROJECT_ROLES.map((role) => (
+                <FormField key={role} label={role} className={role === "知会" ? "md:col-span-2" : undefined}>
+                  <ProjectMemberTagsInput
+                    value={draft.roleGroups[role]}
+                    disabled={!canManageCurrent || creating}
+                    onChange={(members) => onRoleMembersChange(role, members)}
+                  />
+                </FormField>
+              ))}
             </div>
           </SectionCard>
 
-          <SectionCard title="规划与预算">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <TextareaDraftField label="项目规划" value={draft.plan || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("plan", value || null)} />
-              <TextareaDraftField label="项目目标" value={draft.goal || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("goal", value || null)} />
-              <TextareaDraftField label="关键里程碑" value={draft.milestones || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("milestones", value || null)} />
-              <FormField label="预算金额">
-                <TextField
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={draft.budgetAmount === null || draft.budgetAmount === undefined ? "" : String(draft.budgetAmount)}
-                  disabled={!canEditCurrent}
-                  onChange={(value) => onDraftChange("budgetAmount", value === "" ? null : Number(value))}
-                  className={inputClassName}
-                  unstyled
-                />
-              </FormField>
-              <TextareaDraftField label="预算说明" value={draft.budgetNote || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("budgetNote", value || null)} />
-              <TextareaDraftField label="风险说明" value={draft.riskNote || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("riskNote", value || null)} />
-              <TextareaDraftField label="备注" value={draft.remark || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("remark", value || null)} />
-            </div>
-          </SectionCard>
+          <ProjectRasciMatrix rows={rasciRows} />
+
+          <ProjectGanttSection
+            parentProject={{
+              id: draft.id ?? 0,
+              name: draft.name || "当前项目",
+              status: draft.status,
+              startDate: draft.startDate,
+              endDate: draft.endDate,
+            }}
+            projects={childProjects}
+          />
         </div>
       ) : (
         <div className="flex min-h-64 items-center justify-center p-8">
@@ -273,29 +266,6 @@ function DateField({
         disabled={disabled}
         onChange={onChange}
         className={inputClassName}
-      />
-    </FormField>
-  );
-}
-
-function TextareaDraftField({
-  label,
-  value,
-  disabled,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  disabled: boolean;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <FormField label={label}>
-      <TextareaField
-        value={value}
-        disabled={disabled}
-        onChange={onChange}
-        className={textareaClassName}
       />
     </FormField>
   );

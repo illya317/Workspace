@@ -7,7 +7,7 @@ import { guardProjectArchive } from "./reference-guards";
 const DATE_FIELDS = ["startDate", "endDate"];
 const NUMBER_FIELDS = ["budgetAmount"];
 const NUMBER_OR_NULL_FIELDS = ["parentId"];
-export const PROJECT_TYPES = ["department", "personal"] as const;
+export const PROJECT_TYPES = ["department", "personal", "subproject"] as const;
 export type ProjectType = (typeof PROJECT_TYPES)[number];
 
 export const PROJECT_STATUSES = ["规划中", "进行中", "暂停", "已完成", "已取消"];
@@ -70,7 +70,8 @@ export function isAllowedProjectOption(value: unknown, options: readonly string[
 }
 
 export function normalizeProjectType(value: unknown): ProjectType {
-  return value === "personal" ? "personal" : "department";
+  if (value === "personal" || value === "subproject") return value;
+  return "department";
 }
 
 function normalizeBudgetAmount(value: unknown) {

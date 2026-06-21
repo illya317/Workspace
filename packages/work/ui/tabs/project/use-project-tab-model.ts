@@ -2,10 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FkFieldOption } from "@workspace/core/ui";
-import type { SearchableOption } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { type WorkUser, workCanEdit } from "@workspace/work/types";
-import { createProject, syncChildProjects, syncMembers, updateProjectField } from "./api";
+import { createProject, createSubproject, deleteProject, syncChildProjects, syncMembers, updateProjectField } from "./api";
 import {
   MULTI_PROJECT_ROLES,
   createEmptyProjectDraft,
@@ -13,7 +12,11 @@ import {
   dedupeMembers,
   draftSnapshot,
   employeeFromOption,
+  emptyRoleGroups,
+  memberFromEntry,
+  normalizeProjectRole,
   type EmployeeTag,
+  type ProjectListFilter,
   type MultiProjectRole,
   type ProjectDraft,
   type ProjectItem,
@@ -50,9 +53,14 @@ export function useProjectTabModel(user: WorkUser) {
   const [saving, setSaving] = useState(false);
   const [projectListOpen, setProjectListOpen] = useState(true);
   const [projectListDrawerOpen, setProjectListDrawerOpen] = useState(false);
+  const [projectListFilter, setProjectListFilter] = useState<ProjectListFilter>("department");
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
+  const filteredProjects = useMemo(
+    () => projects.filter((project) => projectMatchesFilter(project, projectListFilter)),
+    [projectListFilter, projects]
+  );
   const selectedProject = useMemo(
     () => typeof selection === "number" ? projects.find((project) => project.id === selection) || null : null,
     [projects, selection]
@@ -62,13 +70,14 @@ export function useProjectTabModel(user: WorkUser) {
     [entries, selectedProject]
   );
   const childProjects = useMemo(() => buildChildProjectTags(projects, draft?.childProjectIds ?? []), [draft?.childProjectIds, projects]);
-  const childProjectOptions = useMemo(
-    () => buildChildProjectOptions(projects, draft?.id ?? null, draft?.childProjectIds ?? []),
-    [draft?.childProjectIds, draft?.id, projects]
+  const rasciRows = useMemo(
+    () => buildRasciRows(draft, childProjects, entries),
+    [childProjects, draft, entries]
   );
   const dirty = draftSnapshot(draft) !== baseline;
   const canEditCurrent = draft?.id ? Boolean(selectedProject?.permissions.canEdit) : canEdit;
   const canManageCurrent = draft?.id ? Boolean(selectedProject?.permissions.canManage) : canEdit;
+  const canDeleteCurrent = draft?.id ? Boolean(selectedProject?.permissions.canDelete) : false;
   const canSave = !!draft && canEditCurrent && !saving && dirty;
 
   const loadData = useCallback(async () => {
@@ -84,7 +93,7 @@ export function useProjectTabModel(user: WorkUser) {
       const nextProjects = (projectData.projects || []) as ProjectItem[];
       setProjects(nextProjects);
       setEntries((entryData.entries || []) as ProjectMemberEntry[]);
-      setSelection((prev) => nextProjects.some((project) => project.id === prev) ? prev : (nextProjects[0]?.id ?? null));
+      setSelection((prev) => nextProjects.some((project) => project.id === prev) ? prev : null);
     } catch {
       setError("项目加载失败");
     } finally {
@@ -93,6 +102,11 @@ export function useProjectTabModel(user: WorkUser) {
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  useEffect(() => {
+    if (creating || loading) return;
+    setSelection((prev) => filteredProjects.some((project) => project.id === prev) ? prev : (filteredProjects[0]?.id ?? null));
+  }, [creating, filteredProjects, loading]);
 
   useEffect(() => {
     if (creating) return;
@@ -104,10 +118,10 @@ export function useProjectTabModel(user: WorkUser) {
   function updateDraft<K extends keyof ProjectDraft>(key: K, value: ProjectDraft[K]) {
     setDraft((prev) => {
       if (!prev) return prev;
-      if (key === "projectType" && value === "personal") {
+      if (key === "projectType" && (value === "personal" || value === "subproject")) {
         return {
           ...prev,
-          projectType: "personal",
+          projectType: value,
           code: null,
           leadingDepartmentId: null,
           leadingDepartmentName: null,
@@ -168,6 +182,7 @@ export function useProjectTabModel(user: WorkUser) {
         setToast({ type: "success", message: "项目已新建" });
         setCreating(false);
         await loadData();
+        setProjectListFilter(filterForProjectType(draft.projectType));
         setSelection(projectId);
         return;
       }
@@ -194,8 +209,45 @@ export function useProjectTabModel(user: WorkUser) {
     }
   }
 
+  async function createChildProject(name: string, leadingDepartmentId?: number | null, leader?: EmployeeTag | null, endDate?: string | null) {
+    const parentId = draft?.id;
+    const trimmedName = name.trim();
+    if (!parentId || !trimmedName) return;
+    setSaving(true);
+    try {
+      const childId = await createSubproject({ name: trimmedName, parentId, leadingDepartmentId, leader, endDate });
+      if (!childId) throw new Error("新建子项目失败");
+      setToast({ type: "success", message: "子项目已新建" });
+      await loadData();
+      setSelection(parentId);
+    } catch (err) {
+      setToast({ type: "error", message: err instanceof Error ? err.message : "新建子项目失败" });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteSelectedProject() {
+    if (!selectedProject || saving) return;
+    setSaving(true);
+    try {
+      await deleteProject(selectedProject.id);
+      setToast({ type: "success", message: "项目已删除" });
+      setCreating(false);
+      setDraft(null);
+      setBaseline("");
+      setSelection(null);
+      await loadData();
+    } catch (err) {
+      setToast({ type: "error", message: err instanceof Error ? err.message : "删除项目失败" });
+    } finally {
+      setSaving(false);
+    }
+  }
+
   function startCreateProject() {
     const nextDraft = createEmptyProjectDraft();
+    setProjectListFilter("department");
     setCreating(true);
     setSelection(null);
     setDraft(nextDraft);
@@ -209,13 +261,60 @@ export function useProjectTabModel(user: WorkUser) {
   }
 
   return {
-    canCreateProject: canEdit, canEditCurrent, canManageCurrent, canSave, childProjects, creating, dirty, draft, error,
-    childProjectOptions, loading, projectListDrawerOpen, projectListOpen, projects, saving,
+    canCreateProject: canEdit, canDeleteCurrent, canEditCurrent, canManageCurrent, canSave, childProjects, creating, dirty, draft, error,
+    filteredProjects, loading, projectListDrawerOpen, projectListFilter, projectListOpen, projects, rasciRows, saving,
     selectedProject, selection, toast,
-    cancelCreateProject, saveProject, setChildProjects, setCreating, setLeader, startCreateProject,
-    setProjectListDrawerOpen, setProjectListOpen, setRoleMembers, setSelection,
+    cancelCreateProject, createChildProject, deleteSelectedProject, saveProject, setChildProjects, setCreating, setLeader, startCreateProject,
+    setProjectListDrawerOpen, setProjectListFilter, setProjectListOpen, setRoleMembers, setSelection,
     setToast, updateDraft,
   };
+}
+
+function projectMatchesFilter(project: ProjectItem, filter: ProjectListFilter) {
+  if (filter === "all") return true;
+  if (filter === "department") return project.projectType === "department";
+  if (filter === "subproject") return project.projectType === "subproject";
+  return project.projectType !== "department" && project.projectType !== "subproject";
+}
+
+function filterForProjectType(projectType: ProjectItem["projectType"]): ProjectListFilter {
+  if (projectType === "department" || projectType === "subproject") return projectType;
+  return "other";
+}
+
+function buildRasciRows(
+  draft: ProjectDraft | null,
+  childProjects: { id: number; name: string }[],
+  entries: ProjectMemberEntry[],
+) {
+  if (!draft) return [];
+  return [
+    {
+      id: draft.id ?? 0,
+      name: draft.name || "当前项目",
+      subtitle: "主项目",
+      leader: draft.leader,
+      roleGroups: draft.roleGroups,
+    },
+    ...childProjects.map((project) => buildRasciRowFromEntries(project, entries)),
+  ];
+}
+
+function buildRasciRowFromEntries(project: { id: number; name: string }, entries: ProjectMemberEntry[]) {
+  let leader: EmployeeTag | null = null;
+  const roleGroups = emptyRoleGroups();
+  for (const entry of entries) {
+    if (entry.projectId !== project.id) continue;
+    const role = normalizeProjectRole(entry.role);
+    const member = memberFromEntry(entry);
+    if (role === "负责人") {
+      leader = member;
+    } else {
+      roleGroups[role].push(member);
+    }
+  }
+  for (const role of MULTI_PROJECT_ROLES) roleGroups[role] = dedupeMembers(roleGroups[role]);
+  return { id: project.id, name: project.name, subtitle: null, leader, roleGroups };
 }
 
 function buildChildProjectTags(projects: ProjectItem[], childProjectIds: number[]) {
@@ -223,28 +322,15 @@ function buildChildProjectTags(projects: ProjectItem[], childProjectIds: number[
   return childProjectIds
     .map((id) => {
       const project = projectById.get(id);
-      return project ? { id: project.id, name: project.name } : null;
+      return project
+        ? {
+            id: project.id,
+            name: project.name,
+            status: project.status,
+            startDate: project.startDate,
+            endDate: project.endDate,
+          }
+        : null;
     })
-    .filter((project): project is { id: number; name: string } => Boolean(project));
-}
-
-function buildChildProjectOptions(projects: ProjectItem[], draftId: number | null, childProjectIds: number[]): SearchableOption[] {
-  const excluded = new Set<number>(childProjectIds);
-  if (draftId) {
-    excluded.add(draftId);
-    let cursor = projects.find((project) => project.id === draftId)?.parentId ?? null;
-    while (cursor) {
-      if (excluded.has(cursor)) break;
-      excluded.add(cursor);
-      cursor = projects.find((project) => project.id === cursor)?.parentId ?? null;
-    }
-  }
-  return projects
-    .filter((project) => !excluded.has(project.id))
-    .map((project) => ({
-      value: String(project.id),
-      label: project.name,
-      subtitle: project.code ?? undefined,
-      searchText: [project.name, project.code, project.parentName].filter(Boolean).join(" "),
-    }));
+    .filter((project): project is { id: number; name: string; status: string | null; startDate: string | null; endDate: string | null } => Boolean(project));
 }

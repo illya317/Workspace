@@ -40,6 +40,27 @@ export async function createProject(draft: ProjectDraft) {
   return Number(data.record?.id);
 }
 
+export async function createSubproject(input: { name: string; parentId: number; leadingDepartmentId?: number | null; leader?: EmployeeTag | null; endDate?: string | null }) {
+  const res = await fetch(workspacePath("/api/modules/work/projects"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      projectType: "subproject",
+      name: input.name,
+      parentId: input.parentId,
+      leadingDepartmentId: input.leadingDepartmentId ?? null,
+      leaderEmployeeId: input.leader?.id ?? null,
+      endDate: input.endDate ?? null,
+    }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "新建子项目失败");
+  }
+  const data = await res.json();
+  return Number(data.record?.id);
+}
+
 export async function updateProjectField(projectId: number, field: string, value: unknown) {
   const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}`), {
     method: "PUT",
@@ -52,6 +73,14 @@ export async function updateProjectField(projectId: number, field: string, value
   }
 }
 
+export async function deleteProject(projectId: number) {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}`), { method: "DELETE" });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "删除项目失败");
+  }
+}
+
 export async function syncChildProjects(projectId: number, childProjectIds: number[]) {
   const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}`), {
     method: "PUT",
@@ -60,7 +89,7 @@ export async function syncChildProjects(projectId: number, childProjectIds: numb
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "保存下级项目失败");
+    throw new Error(data.error || "保存子项目失败");
   }
 }
 

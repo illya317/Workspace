@@ -1,7 +1,8 @@
 import type { FkFieldOption, PickerOption } from "@workspace/core/ui";
 import { PROJECT_ROLES } from "@workspace/work/constants";
 
-export type ProjectType = "department" | "personal";
+export type ProjectType = "department" | "personal" | "subproject";
+export type ProjectListFilter = "all" | "department" | "subproject" | "other";
 
 export type ProjectPermissions = {
   canEdit: boolean;
@@ -91,7 +92,15 @@ export type ProjectDraft = {
 export const PROJECT_TYPE_OPTIONS = [
   { value: "department", label: "部门项目" },
   { value: "personal", label: "个人项目" },
+  { value: "subproject", label: "子项目" },
 ] satisfies PickerOption[];
+export const TOP_LEVEL_PROJECT_TYPE_OPTIONS = PROJECT_TYPE_OPTIONS.filter((option) => option.value !== "subproject");
+export const PROJECT_LIST_FILTER_OPTIONS = [
+  { value: "all", label: "全部" },
+  { value: "department", label: "部门项目" },
+  { value: "subproject", label: "子项目" },
+  { value: "other", label: "其他项目" },
+] satisfies { value: ProjectListFilter; label: string }[];
 export const PROJECT_STATUS_OPTIONS = ["规划中", "进行中", "暂停", "已完成", "已取消"] as const;
 export const PROJECT_PRIORITY_OPTIONS = ["高", "中", "低"] as const;
 export const PROJECT_STAGE_OPTIONS = ["立项", "规划", "执行", "验收", "收尾"] as const;
@@ -106,6 +115,7 @@ export const PROJECT_STAGE_PICKER_OPTIONS = toPickerOptions(PROJECT_STAGE_OPTION
 
 export function projectCode(project: ProjectItem | null, draft: ProjectDraft | null) {
   if ((project?.projectType || draft?.projectType) === "personal") return "个人项目无编号";
+  if ((project?.projectType || draft?.projectType) === "subproject") return "子项目无编号";
   return project?.code || draft?.code || "保存后生成";
 }
 
