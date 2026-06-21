@@ -1,16 +1,4 @@
 main:
-  api_trigger_ci:
-    - name: ci-check
-      docker:
-        image: node:22-bookworm
-      stages:
-        - name: install-deps
-          script: |
-            npm ci --no-audit --fund=false --loglevel=error
-        - name: validate
-          script: |
-            npm run ci:cnb
-
   api_trigger:
     - name: deploy-prod
       docker:

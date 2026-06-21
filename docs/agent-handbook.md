@@ -7,15 +7,16 @@
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
 - **数据库**: Prisma ORM + SQLite (`data/dev.db`)
 - **认证**: JWT Cookie + API Key (个人)
-- **部署**: CNB API/CLI 触发发布，CNB/Linux CI 构建 standalone 产物，CVM + PM2 只解包产物并重启
+- **CI/CD**: GitHub Actions 负责公开 CI；CNB API/CLI 只触发私有生产发布，CNB/Linux CD 容器构建 standalone 产物，CVM + PM2 只解包产物并重启
 
 ## 2. 部署与运行态同步
 
-仓库默认远端 `origin` 使用 CNB：`https://cnb.cool/illya317/Workspace.git`。
+仓库有两个主要远端：`github` 用于公开 CI，`origin` 使用 CNB 用于私有 CD/生产发布。
 
-- `git push origin main` 只触发 CNB CI 检查，不发布生产；不要依赖 push 自动部署。
-- 本地不直连服务器部署；正式发布必须先 commit 并 push 到 CNB，再用 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`。
-- CNB/API 部署使用 `./ops/deploy.sh`，在 CNB/Linux CI 容器里完成检查与构建，然后只把 `.next/standalone` 产物包上传到服务器；服务器不执行 `npm ci` / `npm run build`。
+- `git push github main` 触发 GitHub Actions CI；CI 执行 `npm run ci`。
+- `git push origin main` 只同步 CNB 源码，不触发生产发布，也不作为常规 CI 使用。
+- 本地不直连服务器部署；正式发布必须先 commit，并同步 push 到 GitHub 与 CNB，再用 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`。
+- CNB/API 部署使用 `./ops/deploy.sh`，在 CNB/Linux CD 容器里完成部署构建，然后只把 `.next/standalone` 产物包上传到服务器；服务器不执行 `npm ci` / `npm run build`。
 - 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、`data/`、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先备份该目录。
 - `data/` 以服务器为准：本地 `data/` 不上传覆盖服务器。
 - 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL`、`WORKSPACE_CONFIG_DIR` 直接指向外部 data。
@@ -27,6 +28,7 @@
 git status --short
 git add <files>
 git commit -m "<message>"
+git push github main
 git push origin main
 ```
 

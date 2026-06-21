@@ -2,7 +2,7 @@
 /**
  * Architecture Documentation Check
  *
- * 规则：app/ 下的业务模块目录必须有 ARCHITECTURE.md
+ * 规则：app/ 下的页面域必须在实际 route shell 位置提供 ARCHITECTURE.md
  */
 
 const fs = require("fs");
@@ -10,47 +10,42 @@ const path = require("path");
 
 const APP_DIR = path.resolve(__dirname, "../../app");
 
-// 需要 ARCHITECTURE.md 的业务模块
-const REQUIRED_DOMAINS = [
-  "admin",
-  "contracts",
-  "finance",
-  "hr",
-  "history",
-  "inventory",
-  "portal",
-  "production",
-  "reports",
-  "settings",
-  "work",
-  "works",
+const REQUIRED_ARCHITECTURE_FILES = [
+  "app/(modules)/administration/contracts/ARCHITECTURE.md",
+  "app/(modules)/external/ARCHITECTURE.md",
+  "app/(modules)/finance/ARCHITECTURE.md",
+  "app/(modules)/finance/budget/ARCHITECTURE.md",
+  "app/(modules)/finance/cost/ARCHITECTURE.md",
+  "app/(modules)/hr/ARCHITECTURE.md",
+  "app/(modules)/library/ARCHITECTURE.md",
+  "app/(modules)/production/ARCHITECTURE.md",
+  "app/(modules)/work/ARCHITECTURE.md",
+  "app/(system)/portal/ARCHITECTURE.md",
+  "app/(system)/settings/ARCHITECTURE.md",
+  "app/(system)/settings/admin/ARCHITECTURE.md",
 ];
 
 // 可选/辅助目录，不需要 ARCHITECTURE.md
 const OPTIONAL_DIRS = [
-  "administration",
   "api",
-  "api-guide",
+  "(auth)",
+  "(docs)",
+  "(modules)",
+  "(system)",
   "components",
-  "docs",
-  "external",
   "hooks",
   "lib",
-  "library",
-  "login",
 ];
 
 let errors = 0;
 
-for (const domain of REQUIRED_DOMAINS) {
-  const domainDir = path.join(APP_DIR, domain);
-  const archFile = path.join(domainDir, "ARCHITECTURE.md");
-
+for (const rel of REQUIRED_ARCHITECTURE_FILES) {
+  const archFile = path.resolve(__dirname, "../..", rel);
   if (!fs.existsSync(archFile)) {
-    console.error(`❌ app/${domain}/ 缺少 ARCHITECTURE.md`);
+    console.error(`❌ ${rel} 缺失`);
     errors++;
   } else {
-    console.log(`✓ app/${domain}/ARCHITECTURE.md`);
+    console.log(`✓ ${rel}`);
   }
 }
 
@@ -60,7 +55,6 @@ for (const entry of entries) {
   const full = path.join(APP_DIR, entry);
   if (!fs.statSync(full).isDirectory()) continue;
   if (OPTIONAL_DIRS.includes(entry)) continue;
-  if (REQUIRED_DOMAINS.includes(entry)) continue;
   if (entry.startsWith(".") || entry.startsWith("_")) continue;
 
   // 未知目录，给警告

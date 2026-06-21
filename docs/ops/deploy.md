@@ -1,6 +1,6 @@
 # 丰华工作台部署说明
 
-当前生产部署只有一条主链路：本地提交代码，push 到 CNB，由 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`，CNB/Linux CI 容器执行 `ops/deploy.sh` 构建 Next standalone 产物并上传到 CVM，服务器只解包、挂载运行态目录并用 PM2 重启。
+当前流水线分工：GitHub Actions 负责公开 CI，CNB 只负责私有 CD/生产发布。生产部署只有一条主链路：本地提交代码，同步 push 到 GitHub 与 CNB，通过 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`，CNB/Linux CD 容器执行 `ops/deploy.sh` 构建 Next standalone 产物并上传到 CVM，服务器只解包、挂载运行态目录并用 PM2 重启。
 
 旧 CloudBase/tcb 云托管方案已经不是当前生产路径，不再作为部署参考。
 
@@ -16,7 +16,7 @@ npm run dev
 
 ## 发布流程
 
-本地不直连服务器部署。`git push origin main` 只触发 CNB CI 检查，不发布生产；不要依赖 push 自动部署。
+本地不直连服务器部署。`git push github main` 触发 GitHub Actions CI；`git push origin main` 只同步 CNB 源码，不触发生产发布，也不作为常规 CI 使用。不要依赖 push 自动部署。
 
 源码同步流程：
 
@@ -24,10 +24,11 @@ npm run dev
 git status --short
 git add <files>
 git commit -m "<message>"
+git push github main
 git push origin main
 ```
 
-生产发布必须基于已 push 到 CNB 的 commit，通过 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`：
+生产发布必须基于已同步到 GitHub 与 CNB 的 commit，通过 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`：
 
 ```bash
 sha="$(git rev-parse HEAD)"
@@ -51,7 +52,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 
 ## CNB 配置
 
-当前仓库只保留 CNB 配置：
+当前仓库的 CD 只保留 CNB 配置：
 
 ```bash
 .cnb.yml
@@ -63,11 +64,11 @@ CNB 容器内执行的部署命令由 `.cnb.yml` 固定为：
 bash ./ops/deploy.sh
 ```
 
-`ops/deploy.sh` 是给 CNB Linux CI 容器使用的部署脚本：
+`ops/deploy.sh` 是给 CNB Linux CD 容器使用的部署脚本：
 
-- 不读取本机 `.workspace`，只依赖 CI 环境变量和服务器上已有的运行态目录。
-- 不把服务器 `data/` 反向拉回 CI 机器。
-- 在 CI 机器构建 standalone 产物，通过 SSH + rsync 上传到服务器，最后用 PM2 重启。
+- 不读取本机 `.workspace`，只依赖 CD 环境变量和服务器上已有的运行态目录。
+- 不把服务器 `data/` 反向拉回 CD 机器。
+- 在 CNB/CD 容器构建 standalone 产物，通过 SSH + rsync 上传到服务器，最后用 PM2 重启。
 
 部署变量来自 CNB imports/环境变量：
 
@@ -83,10 +84,10 @@ bash ./ops/deploy.sh
 
 ## 部署行为
 
-1. 本地只提交并 push 到 CNB，push 本身不发布生产。
+1. 本地提交后先 push 到 GitHub 跑 CI，再 push 到 CNB 同步发布源码；push 本身不发布生产。
 2. 用 CNB API/CLI 触发 `api_trigger`。
 3. CNB deploy job 先执行 `.cnb.yml` 里的部署前检查。
-4. CNB/Linux 容器执行 `npm ci`、静态检查和 `npm run build`。
+4. CNB/Linux CD 容器执行 `npm ci`、部署前检查和 `npm run build`。
 5. CNB 将 `.next/standalone`、`.next/static`、`public` 打包为 standalone 产物。
 6. CNB 通过 SSH 上传产物到服务器，服务器解包到 `REMOTE_DIR/releases/<release>`。
 7. 服务器把 `.env`、数据库、品牌资源、Agent 头像等运行态资源继续指向 `$REMOTE_WORKSPACE_CONFIG_DIR`。
@@ -94,7 +95,7 @@ bash ./ops/deploy.sh
 9. 服务器清空 `REMOTE_DIR` 里的旧源码、旧 `.next`、旧 `node_modules` 等杂物，只保留 `releases/` 和 `current`。
 10. 使用 PM2 重新启动 `server.js` 并保存进程列表。
 
-这套策略把构建 CPU 放在 CNB/CI 容器里，CVM 只负责运行指定版本，避免生产服务器在部署时执行 `npm ci` 或 `npm run build`。
+这套策略把发布构建放在 CNB/CD 容器里，CVM 只负责运行指定版本；日常 CI 消耗放在 GitHub Actions，避免 CNB 私有项目消耗核时。
 
 ## 运行态目录
 
@@ -115,11 +116,11 @@ bash ./ops/deploy.sh
 
 ### Push 后为什么没有发布？
 
-`git push origin main` 只触发 CI 检查。正式发布必须用 CNB API/CLI 触发 `api_trigger`。
+`git push github main` 触发 GitHub Actions CI；`git push origin main` 只同步 CNB 源码。正式发布必须用 CNB API/CLI 触发 `api_trigger`。
 
 ### 服务器为什么不执行 build？
 
-构建统一在 CNB/Linux CI 容器中完成，服务器只运行 standalone 产物。这样可以避免服务器 CPU、内存被构建过程打满，也避免 `.next` 旧构建残留和源码目录混在一起。
+发布构建统一在 CNB/Linux CD 容器中完成，服务器只运行 standalone 产物。这样可以避免服务器 CPU、内存被构建过程打满，也避免 `.next` 旧构建残留和源码目录混在一起。
 
 ### 部署失败后怎么查？
 

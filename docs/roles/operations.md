@@ -11,8 +11,8 @@ Operations 负责 CI、部署、环境和脚本运行态。
 
 ## 职责
 
-- 维护 GitHub/CNB CI、部署流程、环境变量检查和运行脚本。
-- 确保 CI 使用单一 `arch:gate`，并正确执行 lint、typecheck、build 等验证。
+- 维护 GitHub Actions CI、CNB CD、部署流程、环境变量检查和运行脚本。
+- 确保 CI 只在 GitHub Actions 执行，并使用单一 `arch:gate`，正确执行 lint、typecheck、build 等验证。
 - 调查 CI 失败、构建失败和部署失败。
 
 ## 禁止
