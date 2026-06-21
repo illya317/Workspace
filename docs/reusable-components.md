@@ -91,6 +91,8 @@ Work 是业务包，不是 Platform。项目、工作清单、工作汇报、历
 
 当前 `/work/projects` 的项目列表展开目标是左右分栏：左侧保留项目列表，右侧继续展示当前详情编辑区。列表展开不应遮罩整页、不应灰掉主内容，也不要做成覆盖详情区的临时 drawer。若这个交互需要通用布局，应先在 Core UI 增加可复用分栏组件，再让 Work 传入业务列表、详情和状态；Work 包只承接项目字段、DTO、服务和业务规则。
 
+Work Project 的可见、可写、可管理和可删除是对象级业务规则，入口在 `packages/work/server/access.ts`。Core/Platform 只能提供模块导航、页面壳、权限 wrapper 和通用 FK 基建，不承载“谁能看哪个项目”的判断；`work.project.access/write/delete` 也不能在 UI 中被解释成项目全量可见或全量管理。
+
 ## Finance 复用方向
 
 Finance 当前已经有第一层统一模板，但业务页面还在渐进迁移：

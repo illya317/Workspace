@@ -113,6 +113,7 @@ function collectResourceDefsFromObject(sourceFile, filePath, moduleObj, output) 
       filePath,
       name: getStringProperty(resourceDef, "name"),
       parentKey: getStringProperty(resourceDef, "parentKey") ?? null,
+      runtimeParentKey: getStringProperty(resourceDef, "runtimeParentKey") ?? null,
       maxRoleKey: getStringProperty(resourceDef, "maxRoleKey") ?? null,
     });
   }

@@ -76,8 +76,8 @@ function applyModuleOverride(moduleDef: ModuleRegistration): ModuleRegistration 
   };
 }
 
-const rawResourceDefs = registeredModuleDefinitions.flatMap((definition) => definition.resourceDefs ?? []);
-const resourceParentByKey = new Map(rawResourceDefs.map((resource) => [resource.key, resource.parentKey ?? null]));
+const rawResourceDefs: ResourceRegistration[] = registeredModuleDefinitions.flatMap((definition) => definition.resourceDefs ?? []);
+const resourceRuntimeParentByKey = new Map(rawResourceDefs.map((resource) => [resource.key, resource.runtimeParentKey ?? resource.parentKey ?? null]));
 const moduleByResourceKey = new Map<string, ModuleRegistration>();
 const childByResourceKey = new Map<string, { moduleDef: ModuleRegistration; child: SubModuleRegistration }>();
 
@@ -94,7 +94,7 @@ export function getResourceRuntimeState(resourceKey: string): RuntimeState {
   const cached = resourceStateCache.get(resourceKey);
   if (cached) return cached;
 
-  const parentKey = resourceParentByKey.get(resourceKey) ?? null;
+  const parentKey = resourceRuntimeParentByKey.get(resourceKey) ?? null;
   const parentState = parentKey ? getResourceRuntimeState(parentKey) : undefined;
   const moduleDef = moduleByResourceKey.get(resourceKey);
   const childEntry = childByResourceKey.get(resourceKey);

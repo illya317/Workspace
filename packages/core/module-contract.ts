@@ -67,6 +67,7 @@ export interface ResourceRegistration {
   key: string;
   name: string;
   parentKey?: string;
+  runtimeParentKey?: string;
   maxRoleKey?: "access" | "write" | "delete" | "admin";
   sortOrder?: number;
   enabled?: boolean;

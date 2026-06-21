@@ -15,7 +15,8 @@
 - [ ] `scripts/seed-resources.ts` 注册资源树：
   - L1 模块资源：`maxRoleKey: "admin"`（业务动作上线后改）
   - 子页面/子功能按需加子资源
-- [ ] 新增的子资源必须设 `parentKey` 指向正确的父资源
+- [ ] 新增的子资源必须设 `parentKey` 指向正确的父资源；只有不应继承父权限的独立能力例外
+- [ ] 独立业务能力如果不能继承父资源权限，但仍归属某模块启停，必须保持 `parentKey` 为空并设置 `runtimeParentKey` 指向模块资源，例如全量查看、导出或跨对象辅助权限
 - [ ] `packages/platform/module-registry.ts` 注册模块，不能只在业务包本地定义
 - [ ] `packages/<domain>/module.ts` 导出来自 registry 的 `moduleDefinition` / `resourceDefs` / `routes`
 - [ ] `packages/platform/modules.tsx` 只消费 registry；`app/lib/module-nav.tsx` 只作为兼容出口

@@ -176,6 +176,7 @@ app/* route shell
 - 模块注册的 `href` 和 `routes` 只写不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止把 `@workspace/*` package 名或 `/workspace` basePath 写入 URL。
 - `moduleDef.href` 必须是 L1 根路径，例如 `/work`；`moduleDef.children[*].href` 与 `routes` 必须留在该 L1 下，例如 Work 只能注册 `/work/tasks`、`/work/reports` 这类子路径。
 - `app` 真实页面路径必须落在注册过的 L1 module 或系统保留 route 下。源码可以使用 route groups，例如 `app/(modules)/work/tasks/page.tsx`，但对外 route 仍必须是 `/work/tasks`。禁止重新创建绕开 L1 的顶层 route shell。
+- 资源注册中的 `parentKey` 只表达权限树继承；模块启停级联使用 `runtimeParentKey`。不要用 `parentKey` 同时表达权限继承和运行态归属；当一个资源不能继承父权限、但必须随模块 disable 一起失效时，保持 `parentKey` 为空并设置 `runtimeParentKey`。典型例子是 `work.project.view_all`：它不能继承 `work.project` 模块权限，但必须随 `work.project` disabled 一起失效。
 
 这些规则由 `npm run arch:gate` 中的 module registry、app route hierarchy、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
 

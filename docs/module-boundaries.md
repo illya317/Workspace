@@ -39,6 +39,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/production/types` 已接收生产 QC 模板、布局、批次和模板反馈领域类型。
 - `packages/platform/module-registry.ts` 是模块注册锁。`registeredModuleDefinitions` 是唯一有效注册源；`packages/platform/modules.tsx` 只消费 registry 并导出运行时聚合，不直接 import domain package。
 - `packages/platform/module-overrides.ts` 是模块运行态覆盖层。模块中文名、描述、隐藏和启停优先在这里改；不要为了展示 rename 去散改页面文案、resource name、API path 或 FK key。运行时消费方使用 effective registry，资源和 FK 使用 active registry 自动过滤 disabled 模块。
+- `ResourceRegistration.parentKey` 只用于 RBAC 权限树继承；`runtimeParentKey` 只用于模块启停级联。不要为了让 disabled 级联而把独立权限挂进父资源树。像 `work.project.view_all` 这类不能继承父权限、但必须随项目模块失效的资源，应保持 `parentKey` 为空并设置 `runtimeParentKey: "work.project"`。
 - `packages/platform/module-nav.tsx` 生成 `MODULES`、`getAccessibleModules`、`getSubModules`。
 - `packages/platform/resources.ts` 从各 package `resourceDefs` 派生 `RESOURCE_DEFS`、`RESOURCE_KEYS` 和 `RESOURCE_MAX_ROLE`，`packages/platform/permissions.ts` 与 `scripts/seed-resources.ts` 复用这个出口；旧 `lib/permissions.ts` 只保留兼容 re-export。
 - `packages/platform/module-lifecycle.ts` 从模块注册的 `lifecycleStatus` 派生资源生命周期提示；`app/lib/module-lifecycle.ts` 保留兼容 re-export。
@@ -112,6 +113,14 @@ Level 1/1.5 只有一个硬门禁入口：
 - 页面 route 可以做鉴权、必要预取和挂载 package component。
 - API route 可以做认证、权限、参数校验、调用 package service 和返回 DTO。
 - 新增 UI layout、filter、modal、form、table、toolbar、business rendering 都必须进入 `packages/platform/ui` 或对应 `packages/<domain>/ui`；旧 app UI 文件只作为 baseline 债务迁移，不能作为新增范式。
+
+## Work Project 权限边界
+
+- 模块启停优先于项目对象权限：`work` 或 `work.project` disabled 后，项目入口、`/work/projects`、相关 API、FK 目标和 `work.project.view_all` 都必须统一失效。子项目不需要逐个配置 disable。
+- `work.project.access/write/delete` 是模块功能门禁，表示用户可以进入、发起或使用项目功能；它们不能被解释为查看全部项目、管理全部项目或删除全部项目。
+- 项目对象权限由 `packages/work/server/access.ts` 计算：创建人、主导部门负责人、项目 RASCI 成员、显式 `work.project.view_all` 和 system admin 决定可见、可写、可管理、可删除。`editedBy` 是审计字段，不参与所有权和管理权判断。
+- `work.project.view_all` 是独立资源，不使用 `parentKey: "work.project"`，避免继承模块权限；它使用 `runtimeParentKey: "work.project"`，保证模块 disabled 后一起失效。
+- 项目 FK 候选过滤属于 Work 业务规则。`app/api/modules/work/reference-options` 只做路由壳和权限壳，项目 FK 分支必须留在 `@workspace/work/server`。
 
 ## 后续拆分顺序
 

@@ -55,6 +55,13 @@ function runCheck() {
         message: `资源 "${resource.key}" 的 parentKey 未注册: ${resource.parentKey}`,
       });
     }
+    if (resource.runtimeParentKey && !byKey.has(resource.runtimeParentKey)) {
+      violations.push({
+        filePath: resource.filePath,
+        line: resource.line,
+        message: `资源 "${resource.key}" 的 runtimeParentKey 未注册: ${resource.runtimeParentKey}`,
+      });
+    }
   }
 
   for (const moduleDef of modules) {

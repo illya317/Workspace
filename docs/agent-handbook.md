@@ -115,14 +115,15 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 2. 在 seed 中注册资源树，设置 `parentId / maxRoleKey / sortOrder`。
 3. 在 `packages/platform/module-registry.ts` 注册模块，并让 `packages/<domain>/module.ts` 导出 registry 中的 `moduleDefinition`。
 4. 模块展示名、描述、隐藏和启停优先改 `packages/platform/module-overrides.ts`；不要为了中文 rename 改 `resourceKey`、FK key、API path 或 URL path。
-5. 创建 `app/<domain>/ARCHITECTURE.md`，写清楚数据来源、事实字段、计算字段、权限、页面。
-6. 如需新表，创建 `prisma/models/<domain>.prisma`，同步 migration/seed，并更新数据库文档。
-7. 在 `packages/<domain>/server/` 写业务逻辑；`server/services/<domain>/` 只用于尚未迁移的存量代码。API route 只做认证、权限、参数校验、调用 service、返回 DTO。
-8. 在 `app/api/<domain>/` 写 route handler，GET/POST/PUT/PATCH/DELETE 必须匹配权限动作。
-9. 在 `packages/<domain>/ui/` 写主要 UI；`app/<domain>/` 只放 Next route facade。模块首页用 Platform 的 `ModuleHome`，子页面用 Platform 的 `AppShell`。
-10. 对需要独立权限的子页面，在对应子目录加 `layout.tsx`，调用 `requireResourceAccess("<resourceKey>")` 做路由门禁。
-11. 同步更新 `README.md`、`AGENTS.md` 或 docs、`docs/new-module-checklist.md` 和对应模块文档。
-12. 交付前运行硬约束，并提交一个清晰 commit。
+5. `parentKey` 只表达 RBAC 权限继承；不能继承父权限、但必须随模块启停的资源使用 `runtimeParentKey`，例如 `work.project.view_all`。
+6. 创建 `app/<domain>/ARCHITECTURE.md`，写清楚数据来源、事实字段、计算字段、权限、页面。
+7. 如需新表，创建 `prisma/models/<domain>.prisma`，同步 migration/seed，并更新数据库文档。
+8. 在 `packages/<domain>/server/` 写业务逻辑；`server/services/<domain>/` 只用于尚未迁移的存量代码。API route 只做认证、权限、参数校验、调用 service、返回 DTO。
+9. 在 `app/api/<domain>/` 写 route handler，GET/POST/PUT/PATCH/DELETE 必须匹配权限动作。
+10. 在 `packages/<domain>/ui/` 写主要 UI；`app/<domain>/` 只放 Next route facade。模块首页用 Platform 的 `ModuleHome`，子页面用 Platform 的 `AppShell`。
+11. 对需要独立权限的子页面，在对应子目录加 `layout.tsx`，调用 `requireResourceAccess("<resourceKey>")` 做路由门禁。
+12. 同步更新 `README.md`、`AGENTS.md` 或 docs、`docs/new-module-checklist.md` 和对应模块文档。
+13. 交付前运行硬约束，并提交一个清晰 commit。
 
 摘要：
 

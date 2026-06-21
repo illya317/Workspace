@@ -71,9 +71,13 @@ external            delete  外部关系
   external.customer delete  客户管理
   external.supplier delete  供应商管理
 
-work                admin   工作汇报
+work                admin   工作管理
+  work.project      admin   项目
   work.task         admin   工作清单
   work.report       admin   工作汇报
+  work.history      admin   历史记录
+
+work.project.view_all access 项目全局查看（独立资源，runtimeParentKey=work.project）
 
 legal               access  法务
   legal.chat        access  法务咨询
@@ -192,6 +196,22 @@ model DepartmentResourceRole {
 ## 工作模块数据权限（业务规则）
 
 工作模块（汇报/清单）的数据访问不走 scope RBAC，改用业务规则 + 指派表。
+
+模块 disabled 优先于所有业务对象权限：`work` disabled 后 `/work` 及子页面、`/api/modules/work/*`、Work FK 目标和 Work 资源均不可用；`work.project` disabled 后项目入口、项目页面、项目 API、项目 FK 和 `work.project.view_all` 一起失效。
+
+### 项目资料（/work/projects）
+
+项目资料使用对象级权限，不使用模块权限放大全量项目范围。`work.project.access` 只表示可以进入项目功能，`work.project.write` 只表示可以发起项目；它们不会授予查看全部项目、管理全部项目或删除全部项目。查看全部项目必须显式授予 `work.project.view_all`，或由 system admin bypass 获得。
+
+| 能力 | 来源 |
+|------|------|
+| 可查看 | 创建人、主导部门负责人、项目 RASCI 成员、`work.project.view_all`、system admin |
+| 可编辑内容 | 可管理者、项目执行负责/支持协作等编辑角色、system admin |
+| 可管理 | 创建人、主导部门负责人、项目负责人/负责人、system admin |
+| 可删除 | 创建人、主导部门负责人、项目负责人/负责人 |
+| 查看全部 | 显式 `work.project.view_all` 或 system admin |
+
+`editedBy` 仅用于审计最近编辑人，不代表项目所有权、管理权或可见性。`work.project.view_all` 不设置 `parentKey`，避免继承 `work.project` 模块权限；它通过 `runtimeParentKey: "work.project"` 随项目模块启停。
 
 ### 规则
 
