@@ -6,6 +6,7 @@ import { getPermissionContext } from "../rbac/context";
 import { evaluatePermissionWithContext } from "../rbac/check";
 import { getManageableResourceKeys } from "../rbac/admin-scope";
 import { prisma } from "@workspace/platform/server/prisma";
+import { isRootAdminUsername } from "./root";
 import type { SessionUser } from "../../types";
 
 async function _getCurrentUser(): Promise<SessionUser | null> {
@@ -48,8 +49,8 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
   });
   const isActiveEmployee = employee?.employments?.[0]?.isActive ?? false;
 
+  const isAdmin = isRootAdminUsername(userWithPerms.username);
   const ctx = await getPermissionContext(payload.userId);
-  const isAdmin = ctx.isAdmin;
 
   const { getVisibleResourceKeys } = await import("../rbac/visibility");
   const { ensureGrantCache } = await import("../rbac/context");

@@ -13,6 +13,7 @@ import {
   getManageableResourceKeys,
   getPermissionContext,
   getVisibleResourceKeys,
+  isRootAdminUsername,
   isKicked,
 } from "./auth";
 import { prisma } from "./prisma";
@@ -128,6 +129,7 @@ export async function loginWithPassword(
     select: {
       id: true,
       name: true,
+      username: true,
       wxUserId: true,
       password: true,
       canLogin: true,
@@ -164,7 +166,16 @@ export async function loginWithPassword(
     getVisibleResourceKeys(ctx, "write"),
   ]);
   const manageableKeys = await getManageableResourceKeys(user.id);
-  const isAdmin = ctx.isAdmin;
+  const isAdmin = isRootAdminUsername(user.username);
+  const { RESOURCE_KEYS } = await import("@workspace/platform/resources");
+  const activeResourceKeySet = new Set(RESOURCE_KEYS);
+  const activeVisibleAccess = [...visibleAccess].filter((key) => activeResourceKeySet.has(key));
+  const activeVisibleWrite = [...visibleWrite].filter((key) => activeResourceKeySet.has(key));
+  const allResourceKeys = new Set([
+    ...RESOURCE_KEYS,
+    ...activeVisibleAccess,
+    ...activeVisibleWrite,
+  ]);
 
   return {
     success: true,
@@ -175,10 +186,10 @@ export async function loginWithPassword(
       departmentId: 0,
       isWorkListAdmin: isAdmin,
       isSuperAdmin: isAdmin,
-      canSelectAnyWeek: visibleWrite.has("work.reports"),
-      visibleResourceKeys: [...visibleAccess],
-      visibleWriteResourceKeys: [...visibleWrite],
-      manageableResourceKeys: [...manageableKeys],
+      canSelectAnyWeek: isAdmin || visibleWrite.has("work.reports"),
+      visibleResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleAccess,
+      visibleWriteResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleWrite,
+      manageableResourceKeys: isAdmin ? [...new Set([...manageableKeys, ...RESOURCE_KEYS])] : [...manageableKeys],
     },
   };
 }

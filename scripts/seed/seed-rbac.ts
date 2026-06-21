@@ -12,7 +12,6 @@ async function main() {
   // ─── Step 1: Resource ───────────────────────────────────
   console.log("1. Seeding Resource...");
   const resources = [
-    { key: "system", name: "系统功能", description: "登录、用户权限等系统级功能" },
     { key: "module.hr", name: "人事行政", description: "访问人事行政管理 /hr" },
     { key: "module.works", name: "工作清单", description: "访问工作清单 /work/tasks" },
     { key: "department", name: "部门", description: "部门管理权限" },
@@ -79,8 +78,6 @@ async function main() {
 
   const userIdToPerms = new Map<number, string[]>();
   const fieldMap: Record<string, string> = {
-    isWorkListAdmin: "system",
-    canLogin: "system",
     canAccessHR: "module.hr",
     canAccessWorks: "module.works",
   };
@@ -89,9 +86,6 @@ async function main() {
   const backupPermKeyToResource = new Map<string, string>();
   // Map old Permission keys → new Resource keys
   for (const [old, res] of Object.entries({
-    "system.login": "system",
-    "system.admin": "system",
-    "system.any_week": "system",
     "module.hr": "module.hr",
     "module.works": "module.works",
     "report.admin": "report_group",
@@ -104,9 +98,6 @@ async function main() {
 
   const backupPermKeyToRole = new Map<string, string>();
   for (const [old, role] of Object.entries({
-    "system.login": "access",
-    "system.admin": "access",  // admin means both access + admin on system
-    "system.any_week": "access",
     "module.hr": "access",
     "module.works": "access",
     "report.admin": "admin",
@@ -118,8 +109,6 @@ async function main() {
   }
 
   const boolToRole: Record<string, string> = {
-    isWorkListAdmin: "admin",
-    canLogin: "access",
     canAccessHR: "access",
     canAccessWorks: "access",
   };

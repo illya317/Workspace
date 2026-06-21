@@ -1,6 +1,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { isResourceEnabled } from "@workspace/platform/effective-module-registry";
 import { normalizeRoleKey } from "@workspace/platform/permissions";
+import { isRootAdminUser } from "../auth/root";
 
 export type SubjectType = "user" | "position" | "department";
 
@@ -89,14 +90,8 @@ export async function setGrant(
     throw new Error(`Invalid resourceKey(${resourceKey}) or roleKey(${roleKey})`);
   }
 
-  // Only one system.admin allowed
-  if (value && resourceKey === "system" && normalizedRole === "admin") {
-    const count = await prisma.userResourceRole.count({
-      where: { resource: { key: "system" }, role: { key: "admin" } },
-    });
-    if (count > 0) {
-      throw new Error("系统管理员只能有一位");
-    }
+  if (subjectType === "user" && await isRootAdminUser(subjectId)) {
+    throw new Error("内置 admin 账号不参与 RBAC 授权");
   }
 
   // Self-protection: cannot revoke own admin grant (system or any resource)

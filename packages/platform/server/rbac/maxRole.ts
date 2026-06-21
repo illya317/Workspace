@@ -89,11 +89,8 @@ export async function updateResourceMaxRole(
   resourceKey: string,
   maxRoleKey: string,
 ): Promise<UpdateResourceMaxRoleResult> {
-  if (resourceKey !== "system" && !["access", "write", "delete"].includes(maxRoleKey)) {
+  if (!["access", "write", "delete"].includes(maxRoleKey)) {
     return { success: false, status: 400, error: "最高业务权限仅支持访问/编辑/删除" };
-  }
-  if (resourceKey === "system" && maxRoleKey !== "admin") {
-    return { success: false, status: 400, error: "系统资源最高权限不可低于管理" };
   }
 
   const resource = await prisma.resource.findUnique({

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
-import { authenticate, authorize } from "@workspace/platform/server/auth";
+import { authenticate, isSuperAdmin } from "@workspace/platform/server/auth";
 import {
   resetAdminUserPassword,
   updateAdminUserField,
@@ -37,7 +37,7 @@ export async function PUT(
 
   const targetUserId = parsedParams.data.id;
   const isSelf = payload.userId === targetUserId;
-  const canAdmin = await authorize({ user: payload.userId, resourceKey: "system", action: "admin" });
+  const canAdmin = await isSuperAdmin(payload.userId);
 
   if (!isSelf && !canAdmin) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
@@ -83,7 +83,7 @@ export async function POST(
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  if (!(await authorize({ user: payload.userId, resourceKey: "system", action: "admin" }))) {
+  if (!(await isSuperAdmin(payload.userId))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 

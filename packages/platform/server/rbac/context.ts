@@ -1,13 +1,13 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
-import { evaluatePermission } from "./check";
+import { isRootAdminUser } from "../auth/root";
 import type { PermissionContext } from "./types";
 
 export async function getPermissionContext(userId: number): Promise<PermissionContext> {
   const [positionIds, departmentIds, isAdmin] = await Promise.all([
     getUserPositionIds(userId),
     getUserDepartmentIds(userId),
-    evaluatePermission(userId, "system", "admin"),
+    isRootAdminUser(userId),
   ]);
   return { userId, isAdmin, positionIds, departmentIds };
 }

@@ -458,7 +458,6 @@ const METHOD_COLOR: Record<string, string> = {
 };
 
 function permLabel(resource: string, role: string): string {
-  if (resource === "system" && role === "admin") return "系统管理员";
   if (resource === "hr" && role === "access") return "人事权限";
   if (resource === "work.tasks" && role === "admin") return "工作清单管理";
   if (resource === "work.tasks" && role === "access") return "工作清单权限";

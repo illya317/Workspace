@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
-import { authenticate, authorize, checkHRAccess } from "@workspace/platform/server/auth";
+import { authenticate, checkHRAccess, isSuperAdmin } from "@workspace/platform/server/auth";
 import {
   ROSTER_FIELDS,
   buildRosterExcel,
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
   const dept = searchParams.get("dept") || "";
   const keyword = searchParams.get("keyword") || "";
   const exportExcel = searchParams.get("export") === "1";
-  const isAdmin = await authorize({ user: payload.userId, resourceKey: "system", action: "admin" });
+  const isAdmin = await isSuperAdmin(payload.userId);
 
   if (raw) {
     const employees = await queryRawEmployees(keyword);

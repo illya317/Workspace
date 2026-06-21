@@ -51,11 +51,11 @@ export const ROLE_COLORS: Record<string, string> = {
   admin: "purple", delete: "red", write: "emerald", access: "gray",
 };
 
-const SKIP_KEYS = new Set(["system"]);
+const SKIP_KEYS = new Set<string>();
 const LABEL_OVERRIDES: Record<string, string> = { work: "工作汇报" };
 const MODULE_ORDER: Record<string, number> = {
   work: 0, people: 1, administration: 2, finance: 3, production: 4,
-  external: 5, docs: 6, library: 7, legal: 8,
+  external: 5, docs: 6, library: 7,
 };
 
 export function summarizeResourcePermissions(

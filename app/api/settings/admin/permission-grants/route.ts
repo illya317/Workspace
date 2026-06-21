@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate, authorize } from "@workspace/platform/server/auth";
+import { authenticate, isSuperAdmin } from "@workspace/platform/server/auth";
 import { isResourceEnabled } from "@workspace/platform/effective-module-registry";
 import {
   getManageableResourceKeys,
@@ -26,7 +26,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const isSysAdmin = await authorize({ user: payload.userId, resourceKey: "system", action: "admin" });
+  const isSysAdmin = await isSuperAdmin(payload.userId);
   const manageableKeys = await getManageableResourceKeys(payload.userId);
 
   if (!isSysAdmin && manageableKeys.size === 0) {
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
   const resourceKey = searchParams.get("resourceKey") || undefined;
   const scopeId = searchParams.get("scopeId") || undefined;
 
-  const empty = { subjects: [], directGrants: [], positionGrants: [], departmentGrants: [], ancestorResourceKeys: [], maxRoleKey: "admin", isSystemAdmin: false, systemAdminBusinessBypass: false };
+  const empty = { subjects: [], directGrants: [], positionGrants: [], departmentGrants: [], ancestorResourceKeys: [], maxRoleKey: "admin", isSystemAdmin: false };
   if (resourceKey && !isResourceEnabled(resourceKey)) return NextResponse.json(empty);
   if (!isSysAdmin && resourceKey && !manageableKeys.has(resourceKey)) return NextResponse.json(empty);
 
@@ -50,12 +50,8 @@ export async function GET(request: Request) {
     maxRoleKey = await getResourceMaxRole(resourceKey);
   }
 
-  const { isSystemAdminBypassEnabled } = await import("@workspace/platform/server/auth");
-  const bypassEnabled = await isSystemAdminBypassEnabled();
-
   return NextResponse.json({
     ...data, maxRoleKey, isSystemAdmin: isSysAdmin,
-    systemAdminBusinessBypass: bypassEnabled,
   });
 }
 
@@ -76,7 +72,7 @@ export async function PUT(request: Request) {
   }
 
   if (roleKey === "admin") {
-    const isSysAdmin = await authorize({ user: payload.userId, resourceKey: "system", action: "admin" });
+    const isSysAdmin = await isSuperAdmin(payload.userId);
     if (!isSysAdmin) {
       return NextResponse.json({ error: "仅系统管理员可管理 admin 权限" }, { status: 403 });
     }

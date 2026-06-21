@@ -50,7 +50,7 @@ Admin API 在 `app/api/settings/admin/` 下：
 
 ## 权限标准
 
-- `system.admin` — 系统管理员，拥有全部权限
+- 内置 `admin` root 账号 — 拥有全部权限，不属于 RBAC resource
 - `hr.roster.access` — 可进入管理后台（用户账号 Tab 可见性）
 - 资源级权限通过 RBAC 矩阵管理，支持用户/岗位/部门三种授权对象
 

@@ -113,7 +113,7 @@ HR 页面和 API 使用同一套 RBAC 权限：
 - `hr.roster.access` — 控制进入页面和查看数据（GET）
 - `hr.roster.write` — 控制新增、编辑（POST / PUT / PATCH）
 - `hr.roster.delete` — 控制删除（DELETE）
-- `system.admin` — 拥有全部 HR 权限
+- 内置 `admin` root 账号 — 拥有全部 HR 权限，不属于 RBAC resource
 
 **权限继承规则**：
 - 岗位授权和部门授权也会生效（通过 `positionResourceRole` / `departmentResourceRole`）

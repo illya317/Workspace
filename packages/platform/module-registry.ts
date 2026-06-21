@@ -318,19 +318,7 @@ export const registeredModuleDefinitions = [
   {
     packageName: "@workspace/platform:system",
     layer: "platform",
-    resourceDefs: [
-      { key: "system", name: "系统超级管理", sortOrder: 99 },
-    ],
     apiRoutes: systemApiRoutes(),
-  },
-  {
-    packageName: "@workspace/platform:legal",
-    layer: "platform",
-    resourceDefs: [
-      { key: "legal", name: "法务", maxRoleKey: "access", sortOrder: 8 },
-      { key: "legal.chat", name: "法务咨询", parentKey: "legal", maxRoleKey: "access", sortOrder: 0 },
-      { key: "legal.document", name: "法律文书", parentKey: "legal", maxRoleKey: "access", sortOrder: 1 },
-    ],
   },
 ] satisfies WorkspacePackageRegistration[];
 

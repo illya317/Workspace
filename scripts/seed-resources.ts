@@ -61,6 +61,9 @@ async function main() {
     );
   }
 
+  await p.resource.deleteMany({ where: { key: { startsWith: "system." } } });
+  await p.resource.deleteMany({ where: { key: "system" } });
+
   console.log(`✅ Resources seeded: ${databasePath}`);
   const all = await p.resource.findMany({ orderBy: { key: "asc" }, select: { key: true, name: true } });
   all.forEach((r) => console.log(`  ${r.key} — ${r.name}`));

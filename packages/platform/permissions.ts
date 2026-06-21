@@ -5,9 +5,6 @@ import { RESOURCE_MAX_ROLE } from "./resources";
 // ============================================================
 
 export const RES = {
-  system: {
-    root: "system",
-  },
   settings: {
     root: "settings",
     account: "settings.account",
@@ -73,11 +70,6 @@ export const RES = {
     investors: "external.investors",
     customers: "external.customers",
     suppliers: "external.suppliers",
-  },
-  legal: {
-    root: "legal",
-    chat: "legal.chat",
-    document: "legal.document",
   },
 } as const;
 

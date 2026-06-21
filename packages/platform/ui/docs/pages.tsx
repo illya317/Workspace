@@ -1,24 +1,10 @@
-import { redirect } from "next/navigation";
 import { EmptyStateCard, ModuleGridPage } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
-import { MODULES } from "@workspace/platform/module-nav";
 import AppShell from "../AppShell";
 import ModuleCard from "../ModuleCard";
-import ModuleHome from "../ModuleHome";
 import ApiGuideClient from "./ApiGuideClient";
 import GmpPositionDetailClient from "./positions/gmp/GmpPositionDetailClient";
 import GmpPositionsClient from "./positions/gmp/GmpPositionsClient";
-
-export function DocsHome({ user }: { user: SessionUser }) {
-  const mod = MODULES.find((m) => m.key === "docs");
-  if (!mod) redirect("/portal");
-
-  return (
-    <AppShell title={mod.label} backHref="/portal" user={user}>
-      <ModuleHome module={mod} user={user} />
-    </AppShell>
-  );
-}
 
 export function DocsPlaceholderPage({
   user,

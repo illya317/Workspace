@@ -28,6 +28,9 @@ export type PermissionResourceNode = {
   effectiveMaxRoleKey: string;
   scopeTypes: string | null;
   scopeInheritanceMode: string | null;
+  enabled?: boolean;
+  hidden?: boolean;
+  disabledReason?: string | null;
   children?: PermissionResourceNode[];
 };
 
@@ -41,10 +44,12 @@ function toPermissionNode(
   visibleKeys: Set<string>,
   renderableKeys: Set<string>,
   maxRoleMap: Map<string, string>,
+  resourceMetaMap: Map<string, { enabled?: boolean; hidden?: boolean; disabledReason?: string | null }>,
 ): PermissionResourceNode {
   const children = (resource.children || [])
-    .map((child) => toPermissionNode(child, countMap, visibleKeys, renderableKeys, maxRoleMap))
+    .map((child) => toPermissionNode(child, countMap, visibleKeys, renderableKeys, maxRoleMap, resourceMetaMap))
     .filter((child) => visibleKeys.has(child.key) && renderableKeys.has(child.key));
+  const meta = resourceMetaMap.get(resource.key);
 
   return {
     id: resource.id,
@@ -58,6 +63,9 @@ function toPermissionNode(
     effectiveMaxRoleKey: maxRoleMap.get(resource.key) || resource.maxRoleKey,
     scopeTypes: resource.scopeTypes,
     scopeInheritanceMode: resource.scopeInheritanceMode,
+    enabled: meta?.enabled,
+    hidden: meta?.hidden,
+    disabledReason: meta?.disabledReason,
     children,
   };
 }
@@ -67,6 +75,16 @@ export async function listPermissionResources(input: {
   manageableResourceKeys: Iterable<string>;
 }) {
   const activeResourceKeys = new Set(RESOURCE_KEYS);
+  const resourceMetaMap = new Map(
+    RESOURCE_DEFS.map((resource) => [
+      resource.key,
+      {
+        enabled: resource.enabled,
+        hidden: resource.hidden,
+        disabledReason: resource.disabledReason ?? null,
+      },
+    ]),
+  );
   const hiddenResourceKeys = new Set(RESOURCE_DEFS.filter((resource) => resource.hidden).map((resource) => resource.key));
   const capabilityKeys = new Set(RESOURCE_DEFS.filter((resource) => resource.kind === "capability").map((resource) => resource.key));
   const allResources = await prisma.resource.findMany({
@@ -83,8 +101,12 @@ export async function listPermissionResources(input: {
     },
   });
   const activeResources = allResources.filter((resource) => activeResourceKeys.has(resource.key));
-  const treeResources = activeResources.filter((resource) => !hiddenResourceKeys.has(resource.key) && !capabilityKeys.has(resource.key));
-  const renderableKeys = new Set(treeResources.filter((resource) => isMainRbacResource(resource.key)).map((resource) => resource.key));
+  const treeResources = activeResources.filter((resource) => !capabilityKeys.has(resource.key));
+  const renderableKeys = new Set(
+    treeResources
+      .filter((resource) => isMainRbacResource(resource.key) || hiddenResourceKeys.has(resource.key))
+      .map((resource) => resource.key),
+  );
 
   const allowedKeys = input.isSystemAdmin
     ? new Set(activeResources.map((resource) => resource.key))
@@ -126,12 +148,12 @@ export async function listPermissionResources(input: {
 
   const resources = treeResources
     .filter((resource) => resource.parentId === null && visibleKeys.has(resource.key) && renderableKeys.has(resource.key))
-    .map((resource) => toPermissionNode(resource, countMap, visibleKeys, renderableKeys, effectiveMaxRoleMap));
+    .map((resource) => toPermissionNode(resource, countMap, visibleKeys, renderableKeys, effectiveMaxRoleMap, resourceMetaMap));
 
   const fullTreeVisibleKeys = new Set(renderableKeys);
   const resourceTree = treeResources
     .filter((resource) => resource.parentId === null && renderableKeys.has(resource.key))
-    .map((resource) => toPermissionNode(resource, countMap, fullTreeVisibleKeys, renderableKeys, effectiveMaxRoleMap));
+    .map((resource) => toPermissionNode(resource, countMap, fullTreeVisibleKeys, renderableKeys, effectiveMaxRoleMap, resourceMetaMap));
 
   const resourceByKey = new Map(activeResources.map((resource) => [resource.key, resource]));
   const capabilitiesByOwner: Record<string, PermissionCapabilityNode[]> = {};
@@ -139,7 +161,7 @@ export async function listPermissionResources(input: {
     const ownerKey = getCapabilityOwnerKey(capability.key);
     if (!ownerKey || !allowedKeys.has(ownerKey)) continue;
     if (!capabilitiesByOwner[ownerKey]) capabilitiesByOwner[ownerKey] = [];
-    const node = toPermissionNode(capability, countMap, new Set([capability.key]), new Set([capability.key]), effectiveMaxRoleMap);
+    const node = toPermissionNode(capability, countMap, new Set([capability.key]), new Set([capability.key]), effectiveMaxRoleMap, resourceMetaMap);
     capabilitiesByOwner[ownerKey].push({
       id: node.id,
       key: node.key,

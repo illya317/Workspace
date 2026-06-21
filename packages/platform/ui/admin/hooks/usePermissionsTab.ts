@@ -5,7 +5,6 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import type { ResourceItem, Subject, Grant, SubjectType } from "../types";
 import { ROLE_META, computePermissionState } from "../lib";
 import { usePermissionFilters } from "./usePermissionFilters";
-import { useSystemAdminIds } from "./useSystemAdminIds";
 
 function findResourceInTree(nodes: ResourceItem[], key: string): ResourceItem | null {
   for (const n of nodes) {
@@ -34,10 +33,7 @@ export function usePermissionsTab(
   const [ancestorResourceKeys, setAncestorResourceKeys] = useState<string[]>([]);
   const [maxRoleKey, setMaxRoleKey] = useState("admin");
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
-  const [bypassEnabled, setBypassEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
-
-  const systemAdminIds = useSystemAdminIds();
 
   const roles = useMemo(() => {
     // DB-driven: business roles capped by maxRoleKey, admin always available
@@ -71,7 +67,6 @@ export function usePermissionsTab(
         setAncestorResourceKeys(data.ancestorResourceKeys || []);
         setMaxRoleKey(data.maxRoleKey || "admin");
         setIsSystemAdmin(data.isSystemAdmin || false);
-        setBypassEnabled(data.systemAdminBusinessBypass !== false);
       } else {
         showToast("加载权限数据失败", "error");
       }
@@ -97,12 +92,11 @@ export function usePermissionsTab(
     (subject: Subject, roleKey: string) =>
       computePermissionState(
         subject, roleKey, selectedResource, ancestorResourceKeys,
-        systemAdminIds, bypassEnabled,
         directGrants, positionGrants, departmentGrants, subjectType,
         childResourceKeys,
       ),
     [
-      selectedResource, ancestorResourceKeys, systemAdminIds, bypassEnabled,
+      selectedResource, ancestorResourceKeys,
       directGrants, positionGrants, departmentGrants, subjectType, childResourceKeys,
     ]
   );
@@ -187,6 +181,6 @@ export function usePermissionsTab(
     expandedRows: filters.expandedRows, toggleRowExpand: filters.toggleRowExpand,
     roles,
     getPermissionState, toggleGrant,
-    maxRoleKey, isSystemAdmin, updateMaxRole, systemAdminIds,
+    maxRoleKey, isSystemAdmin, updateMaxRole,
   };
 }

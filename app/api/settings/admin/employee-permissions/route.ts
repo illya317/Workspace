@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate, authorize, getManageableResourceKeys } from "@workspace/platform/server/auth";
+import { authenticate, isSuperAdmin, getManageableResourceKeys } from "@workspace/platform/server/auth";
 import { getEmployeesWithPermissions, syncUserGrants } from "@workspace/hr/server/employee-permissions";
 
 const grantSchema = z.object({
@@ -21,7 +21,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const isSysAdmin = await authorize({ user: payload.userId, resourceKey: "system", action: "admin" });
+  const isSysAdmin = await isSuperAdmin(payload.userId);
   const manageableKeys = await getManageableResourceKeys(payload.userId);
 
   if (!isSysAdmin && manageableKeys.size === 0) {
@@ -48,13 +48,13 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  // Bulk sync is too complex for resource admins; only system.admin allowed
+  // Bulk sync is too complex for resource admins; only root admin is allowed.
   const payload = await authenticate(request);
   if (!payload) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  if (!(await authorize({ user: payload.userId, resourceKey: "system", action: "admin" }))) {
+  if (!(await isSuperAdmin(payload.userId))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 

@@ -38,7 +38,7 @@ Feature 线程正在优先处理 `/work` 模板和项目页面体验。`/work/pr
 
 - 模块大于项目对象：`work` disabled 后 `/work` 和所有子页面、`/api/modules/work/*`、Work FK 目标都不可用；`work.projects` disabled 后项目入口、项目页面、项目 API、项目 FK 和 `work.projects.viewAll` 一起失效。
 - `work.projects.access/write/delete` 只表示能进入、发起或使用项目功能，不表示能查看全部项目、管理全部项目或删除全部项目。
-- 项目对象级权限统一由 `packages/work/server/access.ts` 计算。可见来源是创建人、主导部门负责人、项目 RASCI 成员、显式 `work.projects.viewAll` 和 system admin；可写/管理/删除继续按项目角色和负责人规则收敛。
+- 项目对象级权限统一由 `packages/work/server/access.ts` 计算。可见来源是创建人、主导部门负责人、项目 RASCI 成员、显式 `work.projects.viewAll` 和 root admin；可写/管理/删除继续按项目角色和负责人规则收敛。
 - `work.projects.viewAll` 是独立全量可见资源，不能设置 `parentKey: "work.projects"`；它只能通过 `runtimeParentKey: "work.projects"` 跟随模块启停。
 - `Project.editedBy` 是审计字段，不得用于可见、管理、删除或所有权判断。
 - 项目 FK 候选过滤留在 `@workspace/work/server`，`app/api/modules/work/projects/reference-options` 只做路由壳和权限壳。

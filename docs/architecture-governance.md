@@ -92,12 +92,12 @@ API route 只做：
 4. 调用 service。
 5. 返回 DTO。
 
-Level 1 起，权限入口统一为 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。`withAuth`、`withFinance*`、`checkHRAccess`、`requireResourceAccess` 等平台 wrapper 必须委托 `authorize()`，新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。
+Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。`withAuth`、`withFinance*`、`checkHRAccess`、`requireResourceAccess` 等平台 wrapper 必须委托 `authorize()`，新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
 
 `npm run arch:gate` 的 auth 阶段会强制：
 
 - `packages/platform/server/auth/authorize.ts` 存在并导出 `authorize()`。
-- 核心 auth helper 委托 `authorize()`。
+- 核心业务 auth helper 委托 `authorize()`；root admin helper 委托 `isRootAdminUser()`。
 - 新增 API route 必须有认证/授权 gate、明确代理到兼容 route、显式转调 package service，或是文档化的 public/disabled handler。
 - 新增 API route 不得新增裸 `checkPermission()` 或裸 `prisma.`。当前历史债由 `scripts/check/level1-api-baseline.json` 锁定，只能减少，不能新增。
 
@@ -113,7 +113,7 @@ Level 1 起，权限入口统一为 `packages/platform/server/auth/authorize.ts`
 | PATCH | `write` |
 | DELETE | `delete` |
 
-授权、系统配置、权限管理使用 `admin` 或 `system.admin`。
+授权和权限管理使用对应资源的 `admin` 角色；系统配置仅内置 root admin 可操作。
 
 ## 6. 文件大小红线
 

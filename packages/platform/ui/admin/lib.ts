@@ -20,7 +20,6 @@ export function sourceLabel(source: string): string {
     case "position": return "岗位继承";
     case "department": return "部门继承";
     case "ancestor": return "父资源继承";
-    case "system.admin": return "系统管理员";
     case "implied": return "高级权限隐含";
     case "child": return "子资源已授权";
     default: return source;
@@ -42,24 +41,12 @@ export function computePermissionState(
   roleKey: string,
   selectedResource: string | null,
   ancestorResourceKeys: string[],
-  systemAdminIds: Set<number>,
-  bypassEnabled: boolean,
   directGrants: Grant[],
   positionGrants: Grant[],
   departmentGrants: Grant[],
   subjectType: SubjectType,
   childResourceKeys?: string[],
 ): PermissionState {
-  // Batch 5.1: system.admin only bypasses business resources when toggle is ON
-  if (systemAdminIds.has(subject.id)) {
-    if (!selectedResource || selectedResource.startsWith("system.") || selectedResource === "system") {
-      return { has: true, source: "system.admin" };
-    }
-    if (bypassEnabled) {
-      return { has: true, source: "system.admin" };
-    }
-  }
-
   const extra = subject.extra;
   const impliedRoles = impliedRoleKeys(roleKey);
 
@@ -150,7 +137,6 @@ export function computePermissionState(
 
 export function isTopLevelResource(key: string): boolean {
   return [
-    "system",
     "hr",
     "work",
     "docs",
@@ -159,7 +145,6 @@ export function isTopLevelResource(key: string): boolean {
     "administration",
     "library",
     "external",
-    "legal",
   ].includes(key);
 }
 

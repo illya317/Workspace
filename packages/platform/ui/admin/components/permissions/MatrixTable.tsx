@@ -62,7 +62,7 @@ export default function MatrixTable({ s }: MatrixTableProps) {
         const state = s.getPermissionState(subject, role.key);
         const roleLevel = ROLE_HIERARCHY[role.key] ?? 0;
         const exceeds = (role.key !== "admin" && roleLevel > maxLevel)
-          || (role.key === "admin" && (!s.isSystemAdmin || s.selectedResource === "system"));
+          || (role.key === "admin" && !s.isSystemAdmin);
 
         if (exceeds) {
           return (

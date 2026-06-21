@@ -28,6 +28,11 @@ export {
   requireAdmin,
 } from "./auth/admin";
 export {
+  isRootAdminUser,
+  isRootAdminUsername,
+  ROOT_ADMIN_USERNAME,
+} from "./auth/root";
+export {
   canManageResourceGrant,
   getManageableResourceKeys,
 } from "./rbac/admin-scope";
@@ -51,10 +56,6 @@ export {
   getResourceMaxRole,
   isRoleAllowedForResource,
 } from "./rbac/maxRole";
-export {
-  clearBypassCache,
-  isSystemAdminBypassEnabled,
-} from "./rbac/bypass";
 export {
   checkHRAccess,
   checkHRWrite,

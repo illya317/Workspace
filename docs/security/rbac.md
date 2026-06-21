@@ -23,14 +23,11 @@
 | 岗位 | `position` | 该岗位下所有人自动继承 |
 | 部门 | `department` | 该部门下所有人自动继承 |
 
-优先级：直接授权 > 岗位继承 > 部门继承。`system.admin` 额外有 bypass 开关。
+优先级：直接授权 > 岗位继承 > 部门继承。内置 `admin` 账号是 root identity，不属于 RBAC 授权对象。
 
 ## 资源树
 
 ```
-system              admin   系统管理
-  system.audit      admin   审计日志
-
 settings            access  设置
   settings.account  access  账号与接入（自助，授权矩阵隐藏）
   settings.admin    admin   系统管理
@@ -86,10 +83,6 @@ work                admin   工作管理
   work.history      admin   历史记录
 
 work.projects.viewAll access 项目全局查看（独立资源，runtimeParentKey=work.projects）
-
-legal               access  法务
-  legal.chat        access  法务咨询
-  legal.document    access  法律文书
 ```
 
 每行末尾是该资源的 `maxRoleKey`（可授予的最高角色）。
@@ -106,8 +99,7 @@ legal               access  法务
 
 - admin = 授权管理权，不受业务动作上限限制。例如 `docs.maxRoleKey=access` 时，仍可授予 `docs.admin` 来管理资料库权限。
 - 子资源受**父资源有效上限**约束（沿 DB `parentId` 链取最严）。
-- `system` 的 `maxRoleKey` 锁定 `admin`，不可降级。
-- 只有 `system.admin` 可修改 `maxRoleKey`。
+- 只有内置 root admin 可修改 `maxRoleKey`。
 - 后台 UI 下拉改名为"最高业务权限"，仅含 访问/编辑/删除。
 
 ## 登录 vs 权限
@@ -120,30 +112,20 @@ legal               access  法务
 
 网页登录和企业微信登录允许多端共存；登录不会递增 `sessionVersion`。改密码、管理员重置密码或账号停用会让旧会话失效。JWT 和 Cookie 默认有效期为 30 天。
 
-## system.admin 与业务权限
+## 内置 root admin
 
-### systemAdminBusinessBypass 开关
+`username = "admin"` 的内置账号是 root identity，用于初始化、应急维护和系统配置。它不获得任何 RBAC resource，不进入用户/岗位/部门授权矩阵，也不能通过普通 RBAC mutation 被授权或取消授权。
 
-存储在 `SystemConfig` 表，key=`systemAdminBusinessBypass`，默认 `true`。
-
-| 开关 | system.admin 行为 |
-|------|------------------|
-| ON（默认） | 对所有业务资源拥有 access/write/delete/admin |
-| OFF | 只保证进入 `/settings/admin`；业务模块需单独授权 |
-
-### 始终保留
-
-- `system.*` 资源不受开关影响（管理员始终能管理系统后台）。
-- `/settings/admin`、权限矩阵、用户管理、系统配置始终可进入。
-- `system.admin` 不可被 `maxRoleKey` 降级。
+- root admin 在 auth/session 层设置 `isSuperAdmin = true`。
+- root admin 可绕过 RBAC 检查访问所有已启用资源；模块 disabled 仍优先生效。
+- 普通自然人管理员只通过具体资源的 `admin` 角色获得授权管理能力，例如 `settings.admin.admin` 或 `work.projects.admin`。
 
 ## 权限判断流程
 
 ```
 checkPermission(userId, resourceKey, roleKey)
-  → isSystemAdminBypassEnabled()?
-    → ON + 业务资源 → return true
-    → ON/OFF + system.* → return true
+  → isRootAdminUser(userId)?
+    → true
   → capability?
     → owner L1/L2 未授权或已禁用 → false
   → DB 查 Resource
@@ -199,7 +181,7 @@ model DepartmentResourceRole {
 
 ## 后台矩阵 UI
 
-- 左侧：资源树 + 最高权限选择器（仅 system.admin 可见）
+- 左侧：资源树 + 最高权限选择器（仅内置 root admin 可见）
 - 顶部：员工 / 岗位 / 部门切换
 - 筛选：部门层级 + 姓名搜索
 - 列：访问 / 编辑 / 删除 / 管理 / 最高权限
@@ -213,15 +195,15 @@ model DepartmentResourceRole {
 
 ### 项目资料（/work/projects）
 
-项目资料使用对象级权限，不使用模块权限放大全量项目范围。`work.projects.access` 只表示可以进入项目功能，`work.projects.write` 只表示可以发起项目；它们不会授予查看全部项目、管理全部项目或删除全部项目。查看全部项目必须显式授予 `work.projects.viewAll`，或由 system admin bypass 获得。
+项目资料使用对象级权限，不使用模块权限放大全量项目范围。`work.projects.access` 只表示可以进入项目功能，`work.projects.write` 只表示可以发起项目；它们不会授予查看全部项目、管理全部项目或删除全部项目。查看全部项目必须显式授予 `work.projects.viewAll`，root admin 例外。
 
 | 能力 | 来源 |
 |------|------|
-| 可查看 | 创建人、主导部门负责人、项目 RASCI 成员、`work.projects.viewAll`、system admin |
-| 可编辑内容 | 可管理者、项目执行负责/支持协作等编辑角色、system admin |
-| 可管理 | 创建人、主导部门负责人、项目负责人/负责人、system admin |
+| 可查看 | 创建人、主导部门负责人、项目 RASCI 成员、`work.projects.viewAll`、root admin |
+| 可编辑内容 | 可管理者、项目执行负责/支持协作等编辑角色、root admin |
+| 可管理 | 创建人、主导部门负责人、项目负责人/负责人、root admin |
 | 可删除 | 创建人、主导部门负责人、项目负责人/负责人 |
-| 查看全部 | 显式 `work.projects.viewAll` 或 system admin |
+| 查看全部 | 显式 `work.projects.viewAll` 或 root admin |
 
 `editedBy` 仅用于审计最近编辑人，不代表项目所有权、管理权或可见性。`work.projects.viewAll` 不设置 `parentKey`，避免继承 `work.projects` 模块权限；它通过 `runtimeParentKey: "work.projects"` 随项目模块启停。
 
@@ -259,5 +241,5 @@ work.reports.admin → 管理所有工作汇报
 
 - v2026-05 Batch 5.1: getUserTargets 合并 scoped 目标、项目 scope、矩阵 bypass 显示、scope 未选防误授、work.tasks 边界、deniedTargetIds。
 - v2026-05 Batch 5: Scoped 权限。checkScopedPermission、scopeId 过滤、后台范围选择器、API scoped 校验。
-- v2026-05 Batch 1-4: Resource.maxRoleKey、DB parent 链、运行时上限、systemAdminBusinessBypass 开关、员工/岗位/部门统一授权。
+- v2026-05 Batch 1-4: Resource.maxRoleKey、DB parent 链、运行时上限、员工/岗位/部门统一授权。
 - v2025-05: RBAC 基础模型上线。Resource/Role/UserResourceRole 三表。

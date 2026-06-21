@@ -14,7 +14,6 @@ export { default as TargetSwitcher } from "./TargetSwitcher";
 export { default as UserMenu } from "./UserMenu";
 export {
   DocsApiGuidePage,
-  DocsHome,
   DocsPlaceholderPage,
   DocsPositionsIndex,
   GmpPositionDetailPage,

@@ -6,6 +6,7 @@ import { EmptyStateCard, FormField, SectionCard, SelectField, Toast } from "@wor
 import { useToast } from "@workspace/core/hooks";
 import { DatabasePageFrame } from "@workspace/core/ui";
 import AdminUsersTab from "./tabs/AdminUsersTab";
+import ModuleManagementTab from "./tabs/ModuleManagementTab";
 import PermissionsTab from "./tabs/PermissionsTab";
 
 import type { ResourceItem } from "./types";
@@ -14,7 +15,7 @@ import { SessionUser } from "@workspace/platform/types";
 export default function AdminClient({ user }: { user: SessionUser }) {
   const [loading, setLoading] = useState(true);
   const isSuperAdmin = user.isSuperAdmin ?? false;
-  const [activeTab, setActiveTab] = useState<"users" | "permissions">(isSuperAdmin ? "users" : "permissions");
+  const [activeTab, setActiveTab] = useState<"users" | "permissions" | "modules">(isSuperAdmin ? "users" : "permissions");
 
   const [resources, setResources] = useState<ResourceItem[]>([]);
   const [fullResourceTree, setFullResourceTree] = useState<ResourceItem[]>([]);
@@ -79,6 +80,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   const tabs = [
     ...(isSuperAdmin ? [{ key: "users" as const, label: "用户账号" }] : []),
     { key: "permissions" as const, label: "权限管理" },
+    ...(isSuperAdmin ? [{ key: "modules" as const, label: "模块管理" }] : []),
   ];
 
   return (
@@ -91,6 +93,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
       >
         <div className="space-y-4">
           {activeTab === "users" && <AdminUsersTab showToast={showToast} resources={fullResourceTree} />}
+          {activeTab === "modules" && <ModuleManagementTab showToast={showToast} />}
           {activeTab === "permissions" && (
             <PermissionsTab
               resources={resources}

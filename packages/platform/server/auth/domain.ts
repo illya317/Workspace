@@ -1,4 +1,5 @@
 import { authorize, type AuthorizeAction } from "./authorize";
+import { isSuperAdmin } from "./admin";
 
 export {
   checkFinanceAccess,
@@ -40,7 +41,7 @@ export async function checkHRAccess(
   roleKey: AuthorizeAction = "access",
   resourceKey: string = "hr",
 ): Promise<boolean> {
-  if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
+  if (await isSuperAdmin(userId)) return true;
 
   if (await authorize({ user: userId, resourceKey, action: roleKey })) return true;
   if (
@@ -69,7 +70,7 @@ export async function checkWorkAccess(
   roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
   return (
-    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await isSuperAdmin(userId)) ||
     (await authorize({ user: userId, resourceKey: "work.projects", action: roleKey })) ||
     (await authorize({ user: userId, resourceKey: "work", action: roleKey }))
   );
@@ -89,28 +90,28 @@ export async function checkWorksAccess(userId: number): Promise<boolean> {
 
 export async function checkInventoryAccess(userId: number): Promise<boolean> {
   return (
-    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await isSuperAdmin(userId)) ||
     (await authorize({ user: userId, resourceKey: "production.inventory", action: "access" }))
   );
 }
 
 export async function checkContractAccess(userId: number): Promise<boolean> {
   return (
-    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await isSuperAdmin(userId)) ||
     (await authorize({ user: userId, resourceKey: "administration.contracts", action: "access" }))
   );
 }
 
 export async function checkLibraryAccess(userId: number): Promise<boolean> {
   return (
-    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await isSuperAdmin(userId)) ||
     (await authorize({ user: userId, resourceKey: "library.basicInfo", action: "access" }))
   );
 }
 
 export async function checkLibraryWrite(userId: number): Promise<boolean> {
   return (
-    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await isSuperAdmin(userId)) ||
     (await authorize({ user: userId, resourceKey: "library.basicInfo.write", action: "write" }))
   );
 }

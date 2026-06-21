@@ -3,7 +3,7 @@ import { normalizeRoleKey } from "@workspace/platform/permissions";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
 import { getResourceAncestors } from "./resource";
 import { isRoleAllowedForResource } from "./maxRole";
-import { isSystemAdminBypassEnabled } from "./bypass";
+import { isRootAdminUser } from "../auth/root";
 import type { PermissionContext } from "./types";
 import { getCapabilityOwnerKey } from "../../resources";
 import { isResourceEnabled } from "../../effective-module-registry";
@@ -23,23 +23,7 @@ export async function evaluatePermission(
   resourceKey: string,
   roleKey: string,
 ): Promise<boolean> {
-  // 0. system.admin bypass（受开关控制）
-  const isSelfCheck = resourceKey === "system" && normalizeRoleKey(roleKey) === "admin";
-  if (!isSelfCheck) {
-    const isSysAdmin = await evaluatePermission(userId, "system", "admin");
-    if (isSysAdmin) {
-      // system.* 资源始终 bypass（保证后台管理不受影响）
-      if (
-        resourceKey === "system" ||
-        resourceKey.startsWith("system.") ||
-        resourceKey === "settings" ||
-        resourceKey.startsWith("settings.") ||
-        resourceKey === "agent"
-      ) return true;
-      // 业务资源：开关 ON 时 bypass，OFF 时走正常 grant 检查
-      if (await isSystemAdminBypassEnabled()) return true;
-    }
-  }
+  if (await isRootAdminUser(userId)) return true;
 
   // 1. Resolve resource
   const capabilityOwnerKey = getCapabilityOwnerKey(resourceKey);
@@ -104,16 +88,7 @@ export async function evaluatePermissionWithContext(
   resourceKey: string,
   roleKey: string,
 ): Promise<boolean> {
-  if (ctx.isAdmin && !(resourceKey === "system" && normalizeRoleKey(roleKey) === "admin")) {
-    if (
-      resourceKey === "system" ||
-      resourceKey.startsWith("system.") ||
-      resourceKey === "settings" ||
-      resourceKey.startsWith("settings.") ||
-      resourceKey === "agent"
-    ) return true;
-    if (await isSystemAdminBypassEnabled()) return true;
-  }
+  if (ctx.isAdmin) return true;
 
   const normalized = normalizeRoleKey(roleKey);
   const capabilityOwnerKey = getCapabilityOwnerKey(resourceKey);

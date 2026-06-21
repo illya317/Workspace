@@ -68,7 +68,7 @@ export default function PermissionsTab({ resources, capabilitiesByOwner, showToa
       <div className="flex flex-col gap-4 lg:flex-row">
         <div className="w-full shrink-0 lg:w-56">
           <div className="mb-2 text-sm font-semibold text-gray-700">资源模块</div>
-          {s.selectedResource && s.isSystemAdmin && s.selectedResource !== "system" && (
+          {s.selectedResource && s.isSystemAdmin && (
             <div className="mb-2 flex items-center gap-2 text-xs text-gray-500">
               最高业务权限：
               <SelectField

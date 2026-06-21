@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
-import { authenticate, authorize } from "@workspace/platform/server/auth";
+import { authenticate, isSuperAdmin } from "@workspace/platform/server/auth";
 import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import {
   canSubmitToTarget,
@@ -53,7 +53,7 @@ export async function PUT(
   const userId = payload.userId;
 
   async function canEdit(report: NonNullable<typeof existing>) {
-    if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
+    if (await isSuperAdmin(userId)) return true;
 
     if (report.targetType && report.targetId != null) {
       return canSubmitToTarget(userId, report.targetType, report.targetId);

@@ -64,7 +64,7 @@ const hasFinance = financeKeys.some(ma);
 |------|---------|--------|
 | `/work/reports` | `canAccessWorks` | `requireResourceAccess("work.reports")` |
 | `/work/tasks` | `canAccessWorks` | `requireResourceAccess("work.tasks")` |
-| `/settings/admin` | `canAccessAdmin` | `requireResourceAccess("system")` 或保留仅登录 |
+| `/settings/admin` | `canAccessAdmin` | `requireAdminManageAccess()` |
 | `/administration/contracts` | `canAccessContract` | `requireResourceAccess("administration.contracts")` |
 | `/docs` | `canAccessDocs` | `requireResourceAccess("docs")` |
 | 生产库存页面 | `canAccessInventory` | 当前无独立页面入口 |
@@ -205,7 +205,7 @@ NODE_OPTIONS="--max-old-space-size=8192" npm run build
 | `app/docs/page.tsx` | `canAccessDocs` → `requireResourceAccess("docs")` |
 | `app/(modules)/work/reports/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.reports")` |
 | `app/(modules)/work/tasks/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.tasks")` |
-| `app/(system)/settings/admin/page.tsx` | `canAccessAdmin` → `requireResourceAccess("system")` 或仅登录 |
+| `app/(system)/settings/admin/page.tsx` | `canAccessAdmin` → `requireAdminManageAccess()` |
 | `app/hr/page.tsx` | `visibleResourceKeys` OR 链 → `requireResourceAccess("hr")` |
 | `packages/platform/ui/settings/SettingsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("settings.api")` |
 | `app/docs/DocsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("settings.api")` |
@@ -218,4 +218,4 @@ NODE_OPTIONS="--max-old-space-size=8192" npm run build
 
 - **TypeScript 类型删除是破坏性变更**：所有引用 `canAccess*` 的类型都需要同步改。改动量大，但模式统一，适合派 agent 并行处理。
 - **Work 子页面权限**：`work.reports` 和 `work.tasks` 在工作管理体系里是独立资源，必须分别使用对应 resourceKey。
-- **/settings/admin 的权限**：当前用 `canAccessAdmin`（含 `isAdmin || canManagePermissions`）。如果改为 `requireResourceAccess("system")`，需要确认后台权限矩阵中 `system` 资源是否被正确授予。
+- **/settings/admin 的权限**：使用 `requireAdminManageAccess()`；内置 root admin 或可管理任一资源的用户可进入，`system` 不再是 RBAC resource。

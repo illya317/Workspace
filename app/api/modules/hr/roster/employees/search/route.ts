@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
-import { authenticate, authorize } from "@workspace/platform/server/auth";
+import { authenticate, isSuperAdmin } from "@workspace/platform/server/auth";
 import { searchEmployeesForAccountLink } from "@workspace/hr/server";
 
 export async function GET(request: Request) {
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  if (!(await authorize({ user: payload.userId, resourceKey: "system", action: "admin" }))) {
+  if (!(await isSuperAdmin(payload.userId))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
 

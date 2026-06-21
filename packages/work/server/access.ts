@@ -1,4 +1,5 @@
 import { authorize } from "@workspace/platform/server/auth";
+import { isSuperAdmin } from "@workspace/platform/server/auth";
 import { prisma } from "@workspace/platform/server/prisma";
 import { PROJECT_ROLES } from "../constants/field-options";
 
@@ -9,7 +10,7 @@ export async function canUseProject(userId: number, role: ProjectAccessRole = "a
 }
 
 export async function hasProjectBroadAccess(userId: number, role: ProjectAccessRole = "access") {
-  if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
+  if (await isSuperAdmin(userId)) return true;
   if (await authorize({ user: userId, resourceKey: "work.projects", action: role })) return true;
   return authorize({ user: userId, resourceKey: "work", action: role });
 }
@@ -41,7 +42,7 @@ type ProjectPermissionProject = {
 };
 
 export async function isSystemAdminUser(userId: number) {
-  return authorize({ user: userId, resourceKey: "system", action: "admin" });
+  return isSuperAdmin(userId);
 }
 
 export async function getUserEmployeeIds(userId: number) {

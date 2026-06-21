@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { deleteAdminDepartment, listAdminDepartments } from "@workspace/hr/server/admin-departments";
-import { authenticate, authorize } from "@workspace/platform/server/auth";
+import { authenticate, isSuperAdmin } from "@workspace/platform/server/auth";
 
 const deleteDepartmentSchema = z.object({
   departmentId: z.coerce.number().int().positive(),
 });
 
 async function canAdminSystem(userId: number) {
-  return authorize({ user: userId, resourceKey: "system", action: "admin" });
+  return isSuperAdmin(userId);
 }
 
 export async function GET(request: Request) {

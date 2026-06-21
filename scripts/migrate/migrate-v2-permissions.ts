@@ -12,8 +12,6 @@ async function main() {
   // ─── Step 1: Resources (tree) ─────────────────────────
   console.log("1. Seeding Resources (tree)...");
   const resDefs = [
-    { key: "system", name: "系统管理", sortOrder: 0 },
-    { key: "system.audit", name: "审计日志", sortOrder: 2, parentKey: "system" },
     { key: "hr", name: "人事管理", sortOrder: 10 },
     { key: "hr.roster", name: "人事基础资料", sortOrder: 11, parentKey: "hr" },
     { key: "hr.performance", name: "考勤绩效", sortOrder: 12, parentKey: "hr" },
@@ -83,51 +81,8 @@ async function main() {
   });
   console.log("   ✓ perm.conflict_strategy = union");
 
-  // ─── Step 4: Grant admin permissions ─────────────────
-  console.log("\n4. Granting admin permissions...");
-  const adminUsers = await prisma.user.findMany({
-    where: { username: "admin" },
-    select: { id: true, username: true },
-  });
-
-  const sysAdminResId = resourceMap.get("system")!;
-  const adminRoleId = roleMap.get("admin")!;
-  const accessRoleId = roleMap.get("access")!;
-
-  for (const u of adminUsers) {
-    // system.admin
-    await prisma.userResourceRole.upsert({
-      where: { id: 0 },
-      update: {},
-      create: { userId: u.id, resourceId: sysAdminResId, roleId: adminRoleId, scopeId: null },
-    });
-    // system.access (deprecated — login now uses User.canLogin)
-    await prisma.userResourceRole.upsert({
-      where: { id: 0 },
-      update: {},
-      create: { userId: u.id, resourceId: sysAdminResId, roleId: accessRoleId, scopeId: null },
-    });
-    console.log(`   ✓ ${u.username} (id=${u.id}) → system.admin + system.access`);
-  }
-
-  // Also grant all users system.access (can login) if they had canLogin=true
-  const loginUsers = await prisma.user.findMany({
-    where: { canLogin: true },
-    select: { id: true },
-  });
-  let accessCount = 0;
-  for (const u of loginUsers) {
-    const exists = await prisma.userResourceRole.findFirst({
-      where: { userId: u.id, resourceId: sysAdminResId, roleId: accessRoleId, scopeId: null },
-    });
-    if (!exists) {
-      await prisma.userResourceRole.create({
-        data: { userId: u.id, resourceId: sysAdminResId, roleId: accessRoleId, scopeId: null },
-      });
-      accessCount++;
-    }
-  }
-  console.log(`   ✓ ${accessCount} additional users granted system.access`);
+  // ─── Step 4: Built-in admin is root by username ──────
+  console.log("\n4. Built-in admin uses root identity, no RBAC grant needed.");
 
   // ─── Summary ─────────────────────────────────────────
   console.log("\n=== Migration Complete ===");

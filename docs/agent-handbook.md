@@ -215,7 +215,7 @@ rm data/dev.db && npx prisma db push
 API 权限规则：
 
 - 页面按钮隐藏不是安全边界，所有写入和删除必须在 API 层校验。
-- GET 使用 `access`；POST/PUT/PATCH 使用 `write`；DELETE 使用 `delete`；授权和系统配置使用 `admin` 或 `system.admin`。
+- GET 使用 `access`；POST/PUT/PATCH 使用 `write`；DELETE 使用 `delete`；授权使用对应资源的 `admin`，系统配置仅内置 root admin 可操作。
 - 新 API route 只允许做四件事：认证、参数校验、调用 service、返回 DTO。
 - 复杂查询、导入、汇总、派生字段计算必须放到 `packages/<domain>/server/`；旧 `server/services/<domain>/` 只作为存量兼容位置。
 - 旧兼容 API 可以保留代理，但新功能必须走领域入口，例如 HR 新接口走 `app/api/modules/hr/roster/*`，财务成本走 `app/api/modules/finance/cost/*`。

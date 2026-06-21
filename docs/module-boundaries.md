@@ -46,7 +46,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/platform/types` 已接收登录态平台契约类型，`lib/types.ts` 保留兼容 re-export。
 - `packages/platform/audit` 已接收审计展示字段标签和值格式化 helper，`lib/audit-field-labels.ts` 保留兼容 re-export。
 - `packages/platform/server/auth.ts` 已接收认证和权限检查的 server 契约；旧 `lib/auth.ts` 聚合 hub 与 root `server/auth` 已删除。业务包和 app route 需要鉴权时依赖 `@workspace/platform/server/auth`，不要新增 `@/lib/auth` 或 root `server/auth` 入口。
-- `packages/platform/server/auth/authorize.ts` 是 Level 1 权限单入口；平台 auth helper、page guard 和 wrapper 必须委托 `authorize()`，新增 API route 不得新增裸 `checkPermission()`。
+- `packages/platform/server/auth/authorize.ts` 是业务资源权限单入口；平台 auth helper、page guard 和 wrapper 必须委托 `authorize()`，新增 API route 不得新增裸 `checkPermission()`。内置 root admin 不属于 RBAC resource，必须走 `isRootAdminUser()`。
 - `packages/platform/server/crud-factory.ts` 已接收通用 CRUD route helper；业务包需要复用字段级更新/创建/删除时通过本领域 wrapper 使用，不要直接依赖 `@/lib/crud`。
 - `packages/platform/server/prisma.ts` 已接收单库 Prisma runtime client，`lib/prisma.ts` 已删除；业务包、server root 和 app route 需要数据库访问时必须依赖 `@workspace/platform/server/prisma`，不要直接依赖 `@/lib/prisma` 或 generated client。
 - `packages/platform/server/history.ts` 已接收审计快照写入契约，`lib/history.ts` 保留兼容 re-export；业务包需要写 EditHistory 时依赖 `@workspace/platform/server/history`。
@@ -118,7 +118,7 @@ Level 1/1.5 只有一个硬门禁入口：
 
 - 模块启停优先于项目对象权限：`work` 或 `work.projects` disabled 后，项目入口、`/work/projects`、相关 API、FK 目标和 `work.projects.viewAll` 都必须统一失效。子项目不需要逐个配置 disable。
 - `work.projects.access/write/delete` 是模块功能门禁，表示用户可以进入、发起或使用项目功能；它们不能被解释为查看全部项目、管理全部项目或删除全部项目。
-- 项目对象权限由 `packages/work/server/access.ts` 计算：创建人、主导部门负责人、项目 RASCI 成员、显式 `work.projects.viewAll` 和 system admin 决定可见、可写、可管理、可删除。`editedBy` 是审计字段，不参与所有权和管理权判断。
+- 项目对象权限由 `packages/work/server/access.ts` 计算：创建人、主导部门负责人、项目 RASCI 成员、显式 `work.projects.viewAll` 和 root admin 决定可见、可写、可管理、可删除。`editedBy` 是审计字段，不参与所有权和管理权判断。
 - `work.projects.viewAll` 是独立资源，不使用 `parentKey: "work.projects"`，避免继承模块权限；它使用 `runtimeParentKey: "work.projects"`，保证模块 disabled 后一起失效。
 - 项目 FK 候选过滤属于 Work 业务规则。`app/api/modules/work/projects/reference-options` 只做路由壳和权限壳，项目 FK 分支必须留在 `@workspace/work/server`。
 

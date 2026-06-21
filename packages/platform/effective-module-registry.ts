@@ -7,7 +7,7 @@ import type {
 } from "@workspace/core";
 import { registeredModuleDefinitions } from "./module-registry";
 import { deriveWorkspaceResourceDefs } from "./module-registry-utils";
-import { moduleRuntimeOverrides, type ModuleRuntimeOverride, type ModuleRuntimeOverrideMap } from "./module-overrides";
+import { getModuleRuntimeOverrides, type ModuleRuntimeOverride, type ModuleRuntimeOverrideMap } from "./module-overrides";
 
 type RuntimeState = Required<Pick<ModuleRuntimeOverride, "enabled" | "hidden">> & {
   disabledReason?: string;
@@ -21,7 +21,7 @@ const TARGET_RESOURCE_KEYS: Record<string, string> = {
 };
 
 function overrideFor(...keys: Array<string | undefined | null>) {
-  const overrides: ModuleRuntimeOverrideMap = moduleRuntimeOverrides;
+  const overrides: ModuleRuntimeOverrideMap = getModuleRuntimeOverrides();
   for (const key of keys) {
     if (key && overrides[key]) return overrides[key];
   }
@@ -78,6 +78,7 @@ function applyModuleOverride(moduleDef: ModuleRegistration): ModuleRegistration 
 }
 
 const rawResourceDefs: ResourceRegistration[] = deriveWorkspaceResourceDefs(registeredModuleDefinitions);
+const resourceByKey = new Map(rawResourceDefs.map((resource) => [resource.key, resource]));
 const resourceRuntimeParentByKey = new Map(rawResourceDefs.map((resource) => [resource.key, resource.runtimeParentKey ?? resource.parentKey ?? null]));
 const moduleByResourceKey = new Map<string, ModuleRegistration>();
 const childByResourceKey = new Map<string, { moduleDef: ModuleRegistration; child: SubModuleRegistration }>();
@@ -90,6 +91,10 @@ for (const definition of registeredModuleDefinitions) {
 }
 
 const resourceStateCache = new Map<string, RuntimeState>();
+
+export function clearResourceRuntimeStateCache() {
+  resourceStateCache.clear();
+}
 
 export function getResourceRuntimeState(resourceKey: string): RuntimeState {
   const cached = resourceStateCache.get(resourceKey);
@@ -105,9 +110,20 @@ export function getResourceRuntimeState(resourceKey: string): RuntimeState {
     : childEntry
       ? childState(childEntry.moduleDef, childEntry.child)
       : normalizeState(override, parentState);
+  const resource = resourceByKey.get(resourceKey);
+  const resourceEnabled = resource?.enabled ?? true;
+  const mergedState = {
+    ...state,
+    enabled: state.enabled && resourceEnabled,
+    hidden: state.hidden || resource?.hidden === true,
+    disabledReason:
+      state.enabled && resourceEnabled
+        ? resource?.disabledReason
+        : resource?.disabledReason ?? state.disabledReason,
+  };
 
-  resourceStateCache.set(resourceKey, state);
-  return state;
+  resourceStateCache.set(resourceKey, mergedState);
+  return mergedState;
 }
 
 export function isResourceEnabled(resourceKey: string) {

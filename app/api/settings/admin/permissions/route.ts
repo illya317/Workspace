@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { listPermissionResources } from "@workspace/platform/server/permissions";
 import {
   authenticate,
-  authorize,
+  isSuperAdmin,
   getManageableResourceKeys,
 } from "@workspace/platform/server/auth";
 
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 
   const [isSystemAdmin, manageableKeys] = await Promise.all([
-    authorize({ user: payload.userId, resourceKey: "system", action: "admin" }),
+    isSuperAdmin(payload.userId),
     getManageableResourceKeys(payload.userId),
   ]);
 

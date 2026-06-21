@@ -1,4 +1,5 @@
 import { authorize, type AuthorizeAction } from "./authorize";
+import { isSuperAdmin } from "./admin";
 
 function can(userId: number, resourceKey: string, action: AuthorizeAction) {
   return authorize({ user: userId, resourceKey, action });
@@ -8,7 +9,7 @@ export async function checkFinanceAccess(
   userId: number,
   roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await can(userId, "system", "admin")) return true;
+  if (await isSuperAdmin(userId)) return true;
   if (roleKey === "access") {
     return (
       (await can(userId, "finance", "access")) ||
@@ -31,7 +32,7 @@ export async function checkFinanceCostAccess(
   userId: number,
   roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await can(userId, "system", "admin")) return true;
+  if (await isSuperAdmin(userId)) return true;
   if (roleKey === "access") {
     return (
       (await can(userId, "finance.cost", "access")) ||
@@ -60,7 +61,7 @@ export async function checkFinanceLedgerAccess(
   userId: number,
   roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await can(userId, "system", "admin")) return true;
+  if (await isSuperAdmin(userId)) return true;
   if (roleKey === "access") {
     return (
       (await can(userId, "finance.ledger", "access")) ||
@@ -90,7 +91,7 @@ async function checkFinanceStatementResourceAccess(
   resourceKey: "finance.statementConfig" | "finance.statementReview" | "finance.statements",
   roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await can(userId, "system", "admin")) return true;
+  if (await isSuperAdmin(userId)) return true;
   if (roleKey === "access") {
     return (
       (await can(userId, resourceKey, "access")) ||
@@ -148,7 +149,7 @@ export async function checkFinanceBudgetAccess(
   userId: number,
   roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await can(userId, "system", "admin")) return true;
+  if (await isSuperAdmin(userId)) return true;
   if (roleKey === "access") {
     return (
       (await can(userId, "finance.budget", "access")) ||
@@ -177,7 +178,7 @@ export async function checkFinanceAnalysisAccess(
   userId: number,
   roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await can(userId, "system", "admin")) return true;
+  if (await isSuperAdmin(userId)) return true;
   if (roleKey === "access") {
     return (
       (await can(userId, "finance.analysis", "access")) ||
@@ -206,7 +207,7 @@ export async function checkFinanceImportAccess(
   userId: number,
   roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
-  if (await can(userId, "system", "admin")) return true;
+  if (await isSuperAdmin(userId)) return true;
   if (roleKey === "access") {
     return (
       (await can(userId, "finance.import", "access")) ||

@@ -1,18 +1,5 @@
-import { redirect } from "next/navigation";
-import { requireResourceAccess } from "@workspace/platform/server/auth";
-import { MODULES } from "@workspace/platform/module-nav";
-import AppShell from "@workspace/platform/ui/AppShell";
-import ModuleHome from "@workspace/platform/ui/ModuleHome";
+import ModuleHomePage from "@workspace/platform/ui/ModuleHomePage";
 
 export default async function FinancePage() {
-  const user = await requireResourceAccess("finance");
-
-  const mod = MODULES.find((m) => m.key === "finance");
-  if (!mod) redirect("/portal");
-
-  return (
-    <AppShell title={mod.label} backHref="/portal" user={user}>
-      <ModuleHome module={mod} user={user} />
-    </AppShell>
-  );
+  return <ModuleHomePage moduleKey="finance" />;
 }

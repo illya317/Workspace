@@ -1,5 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
-import { isSystemAdminBypassEnabled } from "./bypass";
+import { RESOURCE_KEYS } from "@workspace/platform/resources";
+import { isRootAdminUsername } from "../auth/root";
 
 type RoleKey = "access" | "write";
 
@@ -61,6 +62,7 @@ function buildResourceMaps(resources: ResourceLite[]) {
 
 export async function listUsersWithEffectiveResourceRoles() {
   const users = await prisma.user.findMany({
+    where: { username: { not: "admin" } },
     orderBy: { id: "asc" },
     select: { id: true, username: true, name: true, canLogin: true },
   });
@@ -108,7 +110,7 @@ export async function listUsersWithEffectiveResourceRoles() {
     departmentIdsByUser.set(employee.userId, departmentSet);
   }
 
-  const [positionRows, departmentRows, bypassEnabled] = await Promise.all([
+  const [positionRows, departmentRows] = await Promise.all([
     allPositionIds.size > 0
       ? prisma.positionResourceRole.findMany({
           where: { positionId: { in: [...allPositionIds] } },
@@ -121,12 +123,11 @@ export async function listUsersWithEffectiveResourceRoles() {
           select: { departmentId: true, resourceId: true, role: { select: { key: true } } },
         })
       : [],
-    isSystemAdminBypassEnabled(),
   ]);
 
+  const activeResourceKeys = new Set(RESOURCE_KEYS);
   const { byId, descendants, ancestors } = buildResourceMaps(resources);
   const grantsByUser = new Map<number, Map<string, RoleKey>>();
-  const adminUserIds = new Set<number>();
 
   function addGrant(userId: number, resourceId: number, roleKey: string) {
     const role = visibleRole(roleKey);
@@ -136,13 +137,11 @@ export async function listUsersWithEffectiveResourceRoles() {
       for (const id of ancestors.get(targetId) || [targetId]) {
         const resource = byId.get(id);
         if (!resource) continue;
+        if (!activeResourceKeys.has(resource.key)) continue;
         map.set(resource.key, maxVisibleRole(map.get(resource.key), role));
       }
     }
     grantsByUser.set(userId, map);
-
-    const resource = byId.get(resourceId);
-    if (resource?.key === "system" && roleKey === "admin") adminUserIds.add(userId);
   }
 
   for (const row of userRows) addGrant(row.userId, row.resourceId, row.role.key);
@@ -158,15 +157,7 @@ export async function listUsersWithEffectiveResourceRoles() {
     }
   }
 
-  if (bypassEnabled) {
-    for (const userId of adminUserIds) {
-      const map = grantsByUser.get(userId) || new Map<string, RoleKey>();
-      for (const resource of resources) map.set(resource.key, "write");
-      grantsByUser.set(userId, map);
-    }
-  }
-
-  return users.map((user) => {
+  return users.filter((user) => !isRootAdminUsername(user.username)).map((user) => {
     const grants = grantsByUser.get(user.id) || new Map<string, RoleKey>();
     const resourceRoles = [...grants].map(([resourceKey, roleKey]) => ({ resourceKey, roleKey }));
 
@@ -176,7 +167,7 @@ export async function listUsersWithEffectiveResourceRoles() {
       name: empByUser[user.id]?.name || user.name,
       employeeId: empByUser[user.id]?.employeeId || null,
       canLogin: user.canLogin,
-      isWorkListAdmin: adminUserIds.has(user.id),
+      isWorkListAdmin: false,
       resourceRoles,
     };
   });

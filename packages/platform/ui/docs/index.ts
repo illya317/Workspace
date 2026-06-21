@@ -2,7 +2,6 @@ export { default as ApiGuideClient } from "./ApiGuideClient";
 export { default as DocsClient } from "./DocsClient";
 export {
   DocsApiGuidePage,
-  DocsHome,
   DocsPlaceholderPage,
   DocsPositionsIndex,
   GmpPositionDetailPage,

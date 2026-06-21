@@ -49,13 +49,13 @@ const errors = [];
 
 const AUTHORIZE_ENTRY = "packages/platform/server/auth/authorize.ts";
 const REQUIRED_DELEGATE_FILES = [
-  "packages/platform/server/auth/admin.ts",
   "packages/platform/server/auth/domain.ts",
   "packages/platform/server/auth/finance.ts",
   "packages/platform/server/auth/authenticate.ts",
   "packages/platform/server/auth/guard.ts",
   "packages/platform/server/auth/library.ts",
 ];
+const ROOT_ADMIN_GATE_FILE = "packages/platform/server/auth/admin.ts";
 
 const authorizePath = path.join(ROOT, AUTHORIZE_ENTRY);
 if (!fs.existsSync(authorizePath)) {
@@ -69,6 +69,14 @@ for (const requiredFile of REQUIRED_DELEGATE_FILES) {
   if (!/\bauthorize\b/.test(text)) {
     errors.push(`${requiredFile} must delegate permission decisions to authorize()`);
   }
+}
+
+const rootAdminGateText = fs.readFileSync(path.join(ROOT, ROOT_ADMIN_GATE_FILE), "utf8");
+if (!/\bisRootAdminUser\b/.test(rootAdminGateText)) {
+  errors.push(`${ROOT_ADMIN_GATE_FILE} must delegate root admin decisions to isRootAdminUser()`);
+}
+if (/resourceKey:\s*["']system["']/.test(rootAdminGateText)) {
+  errors.push(`${ROOT_ADMIN_GATE_FILE} must not use system as an RBAC resource`);
 }
 
 for (const file of walk(API_ROOT)) {

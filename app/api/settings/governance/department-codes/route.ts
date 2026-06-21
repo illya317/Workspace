@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { authenticate, authorize } from "@workspace/platform/server/auth";
+import { authenticate, authorize, isSuperAdmin } from "@workspace/platform/server/auth";
 import {
   deleteDepartmentCode,
   getDepartmentCodes,
@@ -26,7 +26,7 @@ const deleteDepartmentCodeSchema = z.object({
 
 async function canUsePeopleRoster(userId: number, action: "access" | "write" | "delete") {
   return (
-    (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
+    (await isSuperAdmin(userId)) ||
     (await authorize({ user: userId, resourceKey: "hr.roster", action })) ||
     (await authorize({ user: userId, resourceKey: "hr", action }))
   );

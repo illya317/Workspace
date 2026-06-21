@@ -117,7 +117,7 @@
 ## Work Project 对象级范围
 
 - `work.projects.access/write/delete` 只控制项目模块入口和发起能力，不代表查看全部、管理全部或删除全部项目。
-- 项目可见范围由创建人、主导部门负责人、项目 RASCI 成员、显式 `work.projects.viewAll` 和 system admin 共同决定。
+- 项目可见范围由创建人、主导部门负责人、项目 RASCI 成员、显式 `work.projects.viewAll` 和 root admin 共同决定。
 - `work.projects.viewAll` 只授予全量可见，不授予全量管理或删除；需要管理/删除具体项目仍按对象级规则计算。
 - `work.projects.viewAll` 不挂 `parentKey`，因此不会继承 `work.projects` 模块权限；它通过 `runtimeParentKey` 跟随 `work.projects` disabled。
 - `work` 或 `work.projects` disabled 后，模块入口、页面、API、FK 暴露和 `work.projects.viewAll` 一起失效。
@@ -125,6 +125,6 @@
 ## 继承规则
 
 - 父资源 `access` 覆盖所有子资源 `access`
-- `system.admin` 覆盖所有资源的所有动作
+- 内置 `admin` 账号是 root identity，不属于 RBAC resource，覆盖所有已启用资源的所有动作。
 - 子资源 checker 先查子资源，未命中回退父资源
 - `runtimeParentKey` 不参与 RBAC 继承，只参与模块运行态 enabled/disabled 级联。

@@ -2,6 +2,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { RESOURCE_DEFS, RESOURCE_KEYS, getCapabilityOwnerKey } from "@workspace/platform/resources";
 import { getResourceDescendants } from "./resource";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
+import { isRootAdminUser } from "../auth/root";
 
 /**
  * Find all resource IDs where the user (or their positions/departments)
@@ -46,14 +47,7 @@ async function findAdminResourceIds(userId: number): Promise<number[]> {
  */
 export async function getManageableResourceKeys(userId: number): Promise<Set<string>> {
   const activeResourceKeys = new Set(RESOURCE_KEYS);
-  // system.admin can manage everything
-  const sysAdmin = await prisma.userResourceRole.findFirst({
-    where: { userId, resource: { key: "system" }, role: { key: "admin" } },
-  });
-  if (sysAdmin) {
-    const all = await prisma.resource.findMany({ select: { key: true } });
-    return new Set(all.map((r) => r.key).filter((key) => activeResourceKeys.has(key)));
-  }
+  if (await isRootAdminUser(userId)) return new Set(activeResourceKeys);
 
   const adminResourceIds = await findAdminResourceIds(userId);
   const manageableIds = new Set<number>();
@@ -85,23 +79,15 @@ export async function canManageResourceGrant(
   resourceKey: string,
   roleKey: string
 ): Promise<boolean> {
-  const normalizedRole = roleKey === "read" ? "access" : roleKey;
+  void roleKey;
   const activeResourceKeys = new Set(RESOURCE_KEYS);
   if (!activeResourceKeys.has(resourceKey)) return false;
+  if (await isRootAdminUser(userId)) return true;
   const manageable = await getManageableResourceKeys(userId);
 
   const capabilityOwnerKey = getCapabilityOwnerKey(resourceKey);
   if (capabilityOwnerKey) {
     return manageable.has(capabilityOwnerKey);
-  }
-
-  // Only system.admin can manage system.* or grant system.admin
-  const isSystemScope = resourceKey === "system" || resourceKey.startsWith("system.");
-  const isGrantingSystemAdmin = resourceKey === "system" && normalizedRole === "admin";
-
-  if (isSystemScope || isGrantingSystemAdmin) {
-    // Must be system.admin
-    return manageable.has("system"); // system.admin implies manageable has "system"
   }
 
   return manageable.has(resourceKey);
