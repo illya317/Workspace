@@ -108,27 +108,6 @@ const KNOWN_PREFIXES = [
   "system",
 ];
 
-const COMPATIBILITY_PREFIXES = [
-  "admin",
-  "agent",
-  "finance",
-  "hr",
-  "inventory",
-  "contracts",
-  "library",
-  "dev-login-bypass",
-  "reports",
-  "user",
-  "week-info",
-  "works",
-  "work",
-  "my-api-key",
-  "my-targets",
-  "position-descriptions",
-  "employments",
-  "production",
-];
-
 const KNOWN_MODULES = [
   "administration",
   "finance",
@@ -167,9 +146,9 @@ for (const file of allRoutes) {
     continue;
   }
 
-  // 非 legacy：检查是否在已知 API 能力前缀或兼容 baseline 下
+  // 非 legacy：检查是否在已知 API 能力前缀下
   const firstSegment = rel.split("/")[0];
-  if (!KNOWN_PREFIXES.includes(firstSegment) && !COMPATIBILITY_PREFIXES.includes(firstSegment)) {
+  if (!KNOWN_PREFIXES.includes(firstSegment)) {
     console.error(`❌ ${rel} 缺少 API 能力前缀，应放到 /api/{auth,me,system,modules,integrations}/*`);
     errors++;
     continue;

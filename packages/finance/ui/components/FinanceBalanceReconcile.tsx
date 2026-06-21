@@ -45,7 +45,7 @@ export default function FinanceBalanceReconcile({
   const [result, setResult] = useState<ReconcileResult | null>(null);
 
   useEffect(() => {
-    fetch(workspacePath("/api/hr/companies"))
+    fetch(workspacePath("/api/modules/hr/companies"))
       .then((response) => response.json())
       .then((data) => {
         const list = (data.companies || []) as Company[];
@@ -69,7 +69,7 @@ export default function FinanceBalanceReconcile({
 
     try {
       const response = await fetch(
-        workspacePath("/api/finance/balances/reconcile"),
+        workspacePath("/api/modules/finance/balances/reconcile"),
         {
           method: "POST",
           body: formData,

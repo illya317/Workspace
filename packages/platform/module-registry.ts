@@ -36,9 +36,9 @@ export const registeredModuleDefinitions = [
       resourceKey: "work",
       children: [
         { key: "plans", label: "工作计划", desc: "计划信息、角色分工、预算和风险", href: "/work/plans", resourceKey: "work.plan" },
-        { key: "tasks", label: "工作清单", desc: "待办任务和执行跟踪", href: "/works", resourceKey: "work.task" },
-        { key: "reports", label: "工作汇报", desc: "周报、月报、季报、年报", href: "/reports", resourceKey: "work.report" },
-        { key: "history", label: "历史记录", desc: "变更和操作记录", href: "/history", resourceKey: "work.history" },
+        { key: "tasks", label: "工作清单", desc: "待办任务和执行跟踪", href: "/work/tasks", resourceKey: "work.task" },
+        { key: "reports", label: "工作汇报", desc: "周报、月报、季报、年报", href: "/work/reports", resourceKey: "work.report" },
+        { key: "history", label: "历史记录", desc: "变更和操作记录", href: "/work/history", resourceKey: "work.history" },
       ],
     },
     resourceDefs: [
@@ -48,15 +48,14 @@ export const registeredModuleDefinitions = [
       { key: "work.report", name: "工作汇报", parentKey: "work", sortOrder: 2 },
       { key: "work.history", name: "历史记录", parentKey: "work", sortOrder: 3 },
     ],
-    routes: ["/work", "/work/plans", "/works", "/reports", "/history"],
+    routes: ["/work", "/work/plans", "/work/tasks", "/work/reports", "/work/history"],
     fkRegistrations: WORK_FK_REGISTRATIONS,
     apiGuards: [
-      ...apiResourceGuards("/api/modules/work", "work.plan"),
-      ...apiResourceGuards("/api/work", "work.plan"),
-      ...apiResourceGuards("/api/projects", "work.plan", ["GET", "POST", "PUT", "DELETE"]),
-      ...apiResourceGuards("/api/employee-projects", "work.plan", ["GET", "POST", "PUT", "DELETE"]),
-      ...apiResourceGuards("/api/works", "work.task", ["GET", "POST", "PUT", "DELETE"]),
-      ...apiResourceGuards("/api/reports", "work.report", ["GET", "POST", "PUT"]),
+      ...apiResourceGuards("/api/modules/work/plans", "work.plan", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/modules/work/plan-members", "work.plan", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/modules/work/reference-options", "work.plan", ["GET"]),
+      ...apiResourceGuards("/api/modules/work/tasks", "work.task", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/modules/work/reports", "work.report", ["GET", "POST", "PUT"]),
     ],
   },
   {
@@ -86,12 +85,6 @@ export const registeredModuleDefinitions = [
     fkRegistrations: HR_FK_REGISTRATIONS,
     apiGuards: [
       ...apiResourceGuards("/api/modules/hr", "people.roster"),
-      ...apiResourceGuards("/api/hr", "people.roster"),
-      ...apiResourceGuards("/api/departments", "people.roster", ["GET", "POST", "PUT", "DELETE"]),
-      ...apiResourceGuards("/api/employee-positions", "people.roster", ["GET", "POST", "PUT", "DELETE"]),
-      ...apiResourceGuards("/api/employees", "people.roster", ["GET"]),
-      ...apiResourceGuards("/api/positions", "people.roster", ["GET", "POST", "PUT", "DELETE"]),
-      ...apiResourceGuards("/api/position-descriptions", "people.roster", ["GET", "PUT"]),
     ],
   },
   {
@@ -110,7 +103,7 @@ export const registeredModuleDefinitions = [
           key: "contracts",
           label: "合同台账",
           desc: "合同录入、查询、到期预警",
-          href: "/contracts",
+          href: "/administration/contracts",
           resourceKey: "administration.contract",
         },
       ],
@@ -119,10 +112,9 @@ export const registeredModuleDefinitions = [
       { key: "administration", name: "行政管理", sortOrder: 2 },
       { key: "administration.contract", name: "合同台账", parentKey: "administration", sortOrder: 0 },
     ],
-    routes: ["/administration", "/contracts"],
+    routes: ["/administration", "/administration/contracts"],
     apiGuards: [
-      ...apiResourceGuards("/api/modules/administration", "administration.contract", ["GET", "POST", "PATCH", "DELETE"]),
-      ...apiResourceGuards("/api/contracts", "administration.contract", ["GET", "POST", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/modules/administration/contracts", "administration.contract", ["GET", "POST", "PATCH", "DELETE"]),
     ],
   },
   {
@@ -176,7 +168,6 @@ export const registeredModuleDefinitions = [
     ],
     apiGuards: [
       ...apiResourceGuards("/api/modules/finance", "finance"),
-      ...apiResourceGuards("/api/finance", "finance"),
     ],
   },
   {
@@ -205,7 +196,6 @@ export const registeredModuleDefinitions = [
     routes: ["/production", "/production/qc/batches", "/production/qc/templates"],
     apiGuards: [
       ...apiResourceGuards("/api/modules/production", "production"),
-      ...apiResourceGuards("/api/production", "production"),
     ],
   },
   {
@@ -258,7 +248,7 @@ export const registeredModuleDefinitions = [
       { key: "docs.company", name: "公司管理", parentKey: "docs", maxRoleKey: "access", sortOrder: 1 },
       { key: "docs.expense", name: "报销规范", parentKey: "docs", maxRoleKey: "access", sortOrder: 2 },
     ],
-    routes: ["/docs", "/docs/positions", "/docs/positions/GMP", "/docs/company", "/docs/expense", "/docs/api-guide", "/api-guide"],
+    routes: ["/docs", "/docs/positions", "/docs/positions/GMP", "/docs/company", "/docs/expense", "/docs/api-guide"],
   },
   {
     packageName: "@workspace/library",
@@ -282,8 +272,6 @@ export const registeredModuleDefinitions = [
     apiGuards: [
       ...apiResourceGuards("/api/modules/library", "library", ["GET"]),
       ...apiResourceGuards("/api/modules/library", "library.write", ["POST", "PATCH", "DELETE"]),
-      ...apiResourceGuards("/api/library", "library", ["GET"]),
-      ...apiResourceGuards("/api/library", "library.write", ["POST", "PATCH", "DELETE"]),
     ],
   },
   {

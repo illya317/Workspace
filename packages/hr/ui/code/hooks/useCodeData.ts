@@ -23,7 +23,7 @@ export function useCodeData({
   const resolvedApiPath = workspacePath(apiPath);
 
   useEffect(() => {
-    fetch(workspacePath("/api/hr/companies?active=1"))
+    fetch(workspacePath("/api/modules/hr/companies?active=1"))
       .then((r) => r.json())
       .then((data) => setCompanies(data.companies || []))
       .catch(() => {});
@@ -87,7 +87,7 @@ export function useCodeData({
     const [codesRes, empRes] = await Promise.all([
       fetch(url),
       fetch(
-        workspacePath(`/api/hr/roster?company=${encodeURIComponent(selectedCompany || "")}`)
+        workspacePath(`/api/modules/hr/roster?company=${encodeURIComponent(selectedCompany || "")}`)
       ),
     ]);
     if (codesRes.ok) {

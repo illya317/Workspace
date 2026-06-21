@@ -42,19 +42,19 @@ export function apiRoutes(
 
 export function systemApiRoutes(): ApiRouteRegistration[] {
   return [
-    ...apiRoutes("/api/admin", "protected", ["GET", "POST", "PUT", "PATCH", "DELETE"], { resourceKey: "system", action: "admin" }),
-    ...apiRoutes("/api/agent", "protected", ["GET", "POST"], { resourceKey: "system.agent", action: "access" }),
+    ...apiRoutes("/api/system/admin", "protected", ["GET", "POST", "PUT", "PATCH", "DELETE"], { resourceKey: "system", action: "admin" }),
+    ...apiRoutes("/api/system/agent", "protected", ["GET", "POST"], { resourceKey: "system.agent", action: "access" }),
     ...apiRoutes("/api/auth/change-password", "protected", ["POST"]),
     ...apiRoutes("/api/auth/dev-login", "dev", ["POST", "DELETE"]),
     ...apiRoutes("/api/auth/gateway-check", "protected", ["GET"]),
     ...apiRoutes("/api/auth/me", "protected", ["GET"]),
     ...apiRoutes("/api/auth/wecom", "public", ["GET"]),
-    ...apiRoutes("/api/dev-login-bypass", "dev", ["GET"]),
-    ...apiRoutes("/api/inventory", "disabled", ["GET", "POST", "PUT", "DELETE"]),
-    ...apiRoutes("/api/my-api-key", "protected", ["GET", "POST"], { resourceKey: "system.api", action: "access" }),
-    ...apiRoutes("/api/my-targets", "protected", ["GET"]),
-    ...apiRoutes("/api/user", "protected", ["GET", "PUT"]),
-    ...apiRoutes("/api/week-info", "public", ["GET"]),
+    ...apiRoutes("/api/auth/dev-login-bypass", "dev", ["GET"]),
+    ...apiRoutes("/api/modules/production/inventory", "disabled", ["GET", "POST", "PUT", "DELETE"]),
+    ...apiRoutes("/api/me/api-key", "protected", ["GET", "POST"], { resourceKey: "system.api", action: "access" }),
+    ...apiRoutes("/api/me/targets", "protected", ["GET"]),
+    ...apiRoutes("/api/me/routine", "protected", ["GET", "PUT"]),
+    ...apiRoutes("/api/me/week-info", "public", ["GET"]),
   ];
 }
 

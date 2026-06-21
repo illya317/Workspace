@@ -86,9 +86,9 @@ export function useDepartmentPositionActions({
     if (descriptionDraft && !isPositiveIntegerText(descriptionDraft.headcount)) return setToast({ type: "error", message: "编制必须是正整数" });
     if (descriptionDraft?.details.trim() && !isJson(descriptionDraft.details)) return setToast({ type: "error", message: "说明书明细 JSON 不是合法格式" });
     await withSaving(setSaving, setToast, async () => {
-      if (draft && positionDirty) await putJson("/api/hr/positions", draftPayload(draft), "保存岗位失败");
+      if (draft && positionDirty) await putJson("/api/modules/hr/positions", draftPayload(draft), "保存岗位失败");
       if (descriptionDraft && descriptionDirty && selectedPosition) {
-        await putJson("/api/position-descriptions", {
+        await putJson("/api/modules/hr/position-descriptions", {
           ...descriptionPayload(descriptionDraft),
           name: selectedPosition.name,
           departmentName: selectedPosition.departmentName || null,
@@ -105,7 +105,7 @@ export function useDepartmentPositionActions({
     if (!name) return setToast({ type: "error", message: "岗位名不能为空" });
     if (!createPositionCode) return setToast({ type: "error", message: "无法生成岗位编码，请检查所属部门" });
     await withSaving(setSaving, setToast, async () => {
-      const data = await postJson<CreateResponse>("/api/hr/positions", { code: createPositionCode, name, departmentId: createPositionDraft.departmentId }, "新建岗位失败");
+      const data = await postJson<CreateResponse>("/api/modules/hr/positions", { code: createPositionCode, name, departmentId: createPositionDraft.departmentId }, "新建岗位失败");
       setCreatePositionDraft({ departmentId: createPositionDraft.departmentId, name: "" });
       setCreatePanel(null);
       await loadData();
@@ -119,7 +119,7 @@ export function useDepartmentPositionActions({
     const departmentName = departmentDraft.name.trim();
     if (!departmentName) return setToast({ type: "error", message: "部门名称不能为空" });
     await withSaving(setSaving, setToast, async () => {
-      await putJson("/api/hr/departments", {
+      await putJson("/api/modules/hr/departments", {
         id: selectedDepartment.id,
         name: departmentName,
         alias: serializeAlias(departmentDraft.alias || ""),
@@ -139,7 +139,7 @@ export function useDepartmentPositionActions({
     if (departmentDescriptionDrafts.some((draft) => !draft.code.trim() || !draft.name.trim())) return setToast({ type: "error", message: "部门说明书编码和名称不能为空" });
     if (departmentDescriptionDrafts.some((draft) => draft.details.trim() && !isJson(draft.details))) return setToast({ type: "error", message: "部门说明书 JSON 不是合法格式" });
     await withSaving(setSaving, setToast, async () => {
-      await putJson("/api/hr/departments", {
+      await putJson("/api/modules/hr/departments", {
         id: selectedDepartment.id,
         descriptions: departmentDescriptionDrafts.slice(0, 1).map((draft) => departmentDescriptionPayload({
           ...draft,
@@ -153,11 +153,11 @@ export function useDepartmentPositionActions({
   }
 
   async function setDepartmentArchived(departmentId: number, archived: boolean) {
-    await setArchived("/api/hr/departments", departmentId, archived, "部门", loadData, setSaving, setToast);
+    await setArchived("/api/modules/hr/departments", departmentId, archived, "部门", loadData, setSaving, setToast);
   }
 
   async function setPositionArchived(positionId: number, archived: boolean) {
-    await setArchived("/api/hr/positions", positionId, archived, "岗位", loadData, setSaving, setToast);
+    await setArchived("/api/modules/hr/positions", positionId, archived, "岗位", loadData, setSaving, setToast);
   }
 
   return { createPosition, saveDepartmentDescription, saveDepartmentInfo, savePosition, setDepartmentArchived, setPositionArchived };

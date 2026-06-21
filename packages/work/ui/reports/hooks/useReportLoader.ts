@@ -42,9 +42,9 @@ export async function fetchReportData(
   const prevDate = prev.date;
 
   const [reportsRes, prevRes, worksRes] = await Promise.all([
-    fetch(workspacePath(`/api/reports?date=${date}${targetParam}`)),
-    fetch(workspacePath(`/api/reports?date=${prevDate}${targetParam}`)),
-    fetch(workspacePath(targetType && targetId ? `/api/works?targetType=${targetType}&targetId=${targetId}` : `/api/works?deptId=${user.departmentId}`)),
+    fetch(workspacePath(`/api/modules/work/reports?date=${date}${targetParam}`)),
+    fetch(workspacePath(`/api/modules/work/reports?date=${prevDate}${targetParam}`)),
+    fetch(workspacePath(targetType && targetId ? `/api/modules/work/tasks?targetType=${targetType}&targetId=${targetId}` : `/api/modules/work/tasks?deptId=${user.departmentId}`)),
   ]);
 
   const reportsData = await reportsRes.json();
@@ -54,7 +54,7 @@ export async function fetchReportData(
 
   if (reportsData.reports?.length > 0) {
     const r = reportsData.reports[0] as Report;
-    const vRes = await fetch(workspacePath(`/api/reports/${r.id}/versions`));
+    const vRes = await fetch(workspacePath(`/api/modules/work/reports/${r.id}/versions`));
     const vData = await vRes.json();
 
     const mapItems = (cat: string) =>
@@ -164,7 +164,7 @@ export function useReportLoader() {
 
   const loadVersion = useCallback(
     async (reportId: number, version: number) => {
-      const res = await fetch(workspacePath(`/api/reports/${reportId}/versions/${version}`));
+      const res = await fetch(workspacePath(`/api/modules/work/reports/${reportId}/versions/${version}`));
       const data = await res.json();
       if (data.report) {
         const r = data.report as Report;

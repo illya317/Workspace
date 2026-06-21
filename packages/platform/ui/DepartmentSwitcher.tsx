@@ -27,7 +27,7 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
         if (u?.isWorkListAdmin) {
           const saved = localStorage.getItem("selectedDeptId");
           if (saved) setSelectedDeptId(parseInt(saved));
-          fetch(workspacePath("/api/hr/departments"))
+          fetch(workspacePath("/api/modules/hr/departments"))
             .then((r) => r.json())
             .then((d) => {
               const list = (d.departments || []) as Dept[];

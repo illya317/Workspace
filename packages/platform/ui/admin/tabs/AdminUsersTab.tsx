@@ -67,7 +67,7 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
   async function load() {
     setLoading(true);
     try {
-      const res = await fetch(workspacePath("/api/admin/users"));
+      const res = await fetch(workspacePath("/api/system/admin/users"));
       if (res.ok) {
         const data = await res.json();
         setUsers(data.users || []);
@@ -80,7 +80,7 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
   async function handleCreate() {
     if (!newName.trim()) { showToast("请输入姓名", "error"); return; }
     try {
-      const res = await fetch(workspacePath("/api/admin/users"), {
+      const res = await fetch(workspacePath("/api/system/admin/users"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: newName.trim(), username: newUsername.trim() || null }),
@@ -97,7 +97,7 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
 
   async function resetPassword(user: UserItem) {
     try {
-      const res = await fetch(workspacePath("/api/admin/users/") + user.id, { method: "POST" });
+      const res = await fetch(workspacePath("/api/system/admin/users/") + user.id, { method: "POST" });
       if (res.ok) {
         const data = await res.json();
         const msg = `${user.name}您好，用户:${user.username || "(未设置)"}，密码:${data.password}`;
@@ -109,7 +109,7 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
 
   async function toggleLogin(id: number, current: boolean) {
     try {
-      const res = await fetch(workspacePath("/api/admin/users/") + id, {
+      const res = await fetch(workspacePath("/api/system/admin/users/") + id, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ field: "canLogin", value: !current }),

@@ -13,7 +13,7 @@ export function useReclassResults(companyCode: string, year: string, month: stri
   const [adjustItem, setAdjustItem] = useState<ReclassResultRow | null>(null);
 
   async function lookupPeriodId(): Promise<number | null> {
-    const pRes = await fetch(workspacePath(`/api/finance/reclass-results/lookup-period?companyCode=${companyCode}&year=${year}&month=${month}`));
+    const pRes = await fetch(workspacePath(`/api/modules/finance/reclass-results/lookup-period?companyCode=${companyCode}&year=${year}&month=${month}`));
     const { periodId } = await pRes.json();
     return periodId || null;
   }
@@ -27,7 +27,7 @@ export function useReclassResults(companyCode: string, year: string, month: stri
       const map = new Map<number, ReclassResultRow>();
       let page = 1;
       while (true) {
-        const rRes = await fetch(workspacePath(`/api/finance/reclass-results?periodId=${periodId}&status=all&page=${page}&pageSize=${PAGE_SIZE}`));
+        const rRes = await fetch(workspacePath(`/api/modules/finance/reclass-results?periodId=${periodId}&status=all&page=${page}&pageSize=${PAGE_SIZE}`));
         if (!rRes.ok) break;
         const data = await rRes.json();
         for (const r of (data.items || [])) map.set(r.voucherItemId, r);
@@ -43,7 +43,7 @@ export function useReclassResults(companyCode: string, year: string, month: stri
 
   async function loadAllItemsForPeriod(periodId: number) {
     try {
-      const res = await fetch(workspacePath(`/api/finance/reclass-results/all-items?periodId=${periodId}`));
+      const res = await fetch(workspacePath(`/api/modules/finance/reclass-results/all-items?periodId=${periodId}`));
       if (!res.ok) return;
       const data = await res.json();
       setAllItems(data.items || []);
@@ -61,7 +61,7 @@ export function useReclassResults(companyCode: string, year: string, month: stri
       payload.voucherItemId = extra.voucherItemId;
       payload.sourceAccount = extra.sourceAccount;
     }
-    const res = await fetch(workspacePath(`/api/finance/reclass-results/${resultId}`), {
+    const res = await fetch(workspacePath(`/api/modules/finance/reclass-results/${resultId}`), {
       method: "PATCH", headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
@@ -89,10 +89,10 @@ export function useReclassResults(companyCode: string, year: string, month: stri
   async function handleGenerate(silent = false) {
     try {
       // 确保该年度有规则（无则从上年继承）
-      await fetch(workspacePath(`/api/finance/reclass-rules?companyCode=${companyCode}&year=${year}`), { method: "GET" });
+      await fetch(workspacePath(`/api/modules/finance/reclass-rules?companyCode=${companyCode}&year=${year}`), { method: "GET" });
       const periodId = await lookupPeriodId();
       if (!periodId) { if (!silent) showToast("期间不存在", "error"); return; }
-      const res = await fetch(workspacePath("/api/finance/reclass-results"), {
+      const res = await fetch(workspacePath("/api/modules/finance/reclass-results"), {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ periodId, dryRun: false }),
       });

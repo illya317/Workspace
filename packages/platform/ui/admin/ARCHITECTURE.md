@@ -28,25 +28,25 @@ page.tsx
 
 ## 数据流
 
-1. **AdminClient** 加载权限资源树 `/api/admin/permissions`
+1. **AdminClient** 加载权限资源树 `/api/system/admin/permissions`
 2. **PermissionsTab** 按 `subjectType`（user/position/department）切换，加载对应授权数据
-3. **API 路由** 在 `app/api/admin/` 下，分功能子目录（permissions、permission-grants、users 等）
+3. **API 路由** 在 `app/api/system/admin/` 下，分功能子目录（permissions、permission-grants、users 等）
 
 ## API 规范
 
-Admin API 在 `app/api/admin/` 下：
+Admin API 在 `app/api/system/admin/` 下：
 
 | 端点 | 说明 |
 |------|------|
-| `/api/admin/permissions` | 权限资源树 |
-| `/api/admin/permission-grants` | 统一授权设置 |
-| `/api/admin/user-permissions` | 用户权限切换 |
-| `/api/admin/position-permissions` | 岗位权限切换 |
-| `/api/admin/department-permissions` | 部门权限切换 |
-| `/api/admin/users` | 用户列表/更新 |
-| `/api/admin/audit-log` | 审计日志查询 |
-| `/api/admin/edit-history` | 编辑历史查询 |
-| `/api/admin/system-config` | 系统配置（冲突策略） |
+| `/api/system/admin/permissions` | 权限资源树 |
+| `/api/system/admin/permission-grants` | 统一授权设置 |
+| `/api/system/admin/user-permissions` | 用户权限切换 |
+| `/api/system/admin/position-permissions` | 岗位权限切换 |
+| `/api/system/admin/department-permissions` | 部门权限切换 |
+| `/api/system/admin/users` | 用户列表/更新 |
+| `/api/system/admin/audit-log` | 审计日志查询 |
+| `/api/system/admin/edit-history` | 编辑历史查询 |
+| `/api/system/admin/system-config` | 系统配置（冲突策略） |
 
 ## 权限标准
 

@@ -48,7 +48,7 @@ export async function persistBasic(
   const idNumberResult = validateChineseIdNumber(employeeDraft.idNumber);
   if (!idNumberResult.ok) throw new Error(idNumberResult.error);
   await updateChangedFields(
-    "/api/hr/employees",
+    "/api/modules/hr/employees",
     profile.employee.id,
     profile.employee as unknown as EditableRecord,
     employeeDraft as unknown as EditableRecord,
@@ -59,7 +59,7 @@ export async function persistBasic(
 export async function persistEmployment(profile: EmployeeProfile, row: EmploymentRow) {
   const normalizedRow = row.isActive ? { ...row, leaveDate: null, leaveReason: null, leaveNote: null } : row;
   if (row.isNew) {
-    await requestJson("/api/hr/employments", {
+    await requestJson("/api/modules/hr/employments", {
       method: "POST",
       body: JSON.stringify({
         employeeId: profile.employee.id,
@@ -81,7 +81,7 @@ export async function persistEmployment(profile: EmployeeProfile, row: Employmen
   const original = profile.employments.find((item) => item.id === row.id);
   if (!original) return;
   await updateChangedFields(
-    "/api/hr/employments",
+    "/api/modules/hr/employments",
     row.id,
     original as unknown as EditableRecord,
     normalizedRow as unknown as EditableRecord,
@@ -100,7 +100,7 @@ function serializeContract(row: ContractRow) {
 }
 
 export async function persistContracts(profile: EmployeeProfile, rows: ContractRow[]) {
-  await requestJson(`/api/hr/employee-profiles/${profile.employee.id}/contracts`, {
+  await requestJson(`/api/modules/hr/employee-profiles/${profile.employee.id}/contracts`, {
     method: "PUT",
     body: JSON.stringify({
       rows: rows.map((row) => ({
@@ -115,7 +115,7 @@ export async function persistContracts(profile: EmployeeProfile, rows: ContractR
 export async function persistEdps(profile: EmployeeProfile, rows: EdpRow[]) {
   const percentCheck = validateCurrentWorkPercent(rows);
   if (!percentCheck.ok) throw new Error(percentCheck.message);
-  await requestJson(`/api/hr/employee-profiles/${profile.employee.id}/edps`, {
+  await requestJson(`/api/modules/hr/employee-profiles/${profile.employee.id}/edps`, {
     method: "PUT",
     body: JSON.stringify({ rows }),
   });
@@ -126,7 +126,7 @@ export async function persistEmployeeProjects(
   rows: EmployeeProjectRow[],
 ) {
   if (rows.some((row) => !row.projectId)) throw new Error("请选择项目");
-  await requestJson(`/api/hr/employee-profiles/${profile.employee.id}/projects`, {
+  await requestJson(`/api/modules/hr/employee-profiles/${profile.employee.id}/projects`, {
     method: "PUT",
     body: JSON.stringify({ rows }),
   });

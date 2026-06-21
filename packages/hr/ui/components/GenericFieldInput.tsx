@@ -41,7 +41,7 @@ export default function GenericFieldInput({
   const [dynamicOptions, setDynamicOptions] = useState<SelectOption[]>([]);
   useEffect(() => {
     if (field.optionsSource === "companies") {
-      fetch(workspacePath("/api/hr/companies?active=1"))
+      fetch(workspacePath("/api/modules/hr/companies?active=1"))
         .then((r) => r.json())
         .then((data) => {
           const companies = (data.companies || []) as Array<{ code: string; name: string }>;

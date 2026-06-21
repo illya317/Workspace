@@ -29,7 +29,7 @@ export default function PermissionDrilldown({ drillKey, empPerms, empLoading, fC
   const [companyMap, setCompanyMap] = useState<Map<string, { name: string; managementGroup: string }>>(new Map());
 
   useEffect(() => {
-    fetch(workspacePath("/api/hr/companies?active=1"))
+    fetch(workspacePath("/api/modules/hr/companies?active=1"))
       .then((r) => r.json())
       .then((data) => {
         const map = new Map<string, { name: string; managementGroup: string }>();

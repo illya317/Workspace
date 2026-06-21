@@ -94,7 +94,7 @@ export default function GmpDetailClient({ code }: { code: string }) {
 
   useEffect(() => {
     if (!code) return;
-    fetch(workspacePath(`/api/position-descriptions?code=${encodeURIComponent(code)}`))
+    fetch(workspacePath(`/api/modules/hr/position-descriptions?code=${encodeURIComponent(code)}`))
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(d => { setPos(d.positionDescription); setLoading(false); })
       .catch(() => { setError("获取失败"); setLoading(false); });

@@ -20,7 +20,7 @@
 
 - Prisma schema：新增科目映射表
 - Service：映射解析、映射预览、余额校对、诊断
-- API：扩展 `/api/finance/statement-config`
+- API：扩展 `/api/modules/finance/statement-config`
 - UI：重做 `/finance/statement-config`
 - 报表计算：逐步从 `prefixesJson` 切换到 mapping resolver
 - 文档：更新 `app/finance/ARCHITECTURE.md`
@@ -500,8 +500,8 @@ interface StatementLineMappingPreview {
 扩展现有：
 
 ```text
-GET /api/finance/statement-config
-PUT /api/finance/statement-config
+GET /api/modules/finance/statement-config
+PUT /api/modules/finance/statement-config
 ```
 
 ### GET
@@ -687,7 +687,7 @@ npx tsc --noEmit
 
 改动：
 
-- 扩展 `GET /api/finance/statement-config`
+- 扩展 `GET /api/modules/finance/statement-config`
 - 返回 `config/accountTree/l1Checks/mappingPreview/diagnostics`
 - 增加 mapping upsert/delete action
 
@@ -830,8 +830,8 @@ API：
 
 | API | 权限 |
 |---|---|
-| GET `/api/finance/statement-config` | `finance.statement.access` |
-| PUT `/api/finance/statement-config` | `finance.statement.write` 或现有报表写 wrapper |
+| GET `/api/modules/finance/statement-config` | `finance.statement.access` |
+| PUT `/api/modules/finance/statement-config` | `finance.statement.write` 或现有报表写 wrapper |
 
 如果当前没有 `withFinanceReportWrite`，建议新增 wrapper，不要复用 ledger write。
 

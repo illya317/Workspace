@@ -43,7 +43,7 @@ export default function HistoryPage({ hideShell: _hideShell }: { hideShell?: boo
     async function fetchReports() {
       try {
         // 获取所有报告（无过滤 = 用户自己的报告）
-        const res = await fetch(workspacePath("/api/reports"));
+        const res = await fetch(workspacePath("/api/modules/work/reports"));
         if (!res.ok) {
           setReports([]);
           setLoading(false);
@@ -123,7 +123,7 @@ export default function HistoryPage({ hideShell: _hideShell }: { hideShell?: boo
         {reports.length === 0 ? (
           <EmptyStateCard compact={false}>
             暂无报告记录
-            <Link href="/reports" className="mt-2 inline-block text-sm text-emerald-500 hover:underline">
+            <Link href="/work/reports" className="mt-2 inline-block text-sm text-emerald-500 hover:underline">
               去填写第一份报告
             </Link>
           </EmptyStateCard>

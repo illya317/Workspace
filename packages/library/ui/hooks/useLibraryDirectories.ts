@@ -9,7 +9,7 @@ const INITIAL_DIRECTORIES: DirectoryNode[] = [];
 
 export function useLibraryDirectories() {
   const loadDirectories = useCallback(async () => {
-    const response = await fetch(workspacePath("/api/library/directories"));
+    const response = await fetch(workspacePath("/api/modules/library/directories"));
     if (!response.ok) {
       const text = await response.text().catch(() => "");
       throw new Error(text || `HTTP ${response.status}`);

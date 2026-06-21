@@ -26,7 +26,7 @@ export function useLibraryDocuments(filters: LibraryFilters, page: number, pageS
     if (filters.keyword) params.set("keyword", filters.keyword);
     if (filters.docId) params.set("docId", filters.docId);
 
-    const res = await fetch(workspacePath(`/api/library/documents?${params.toString()}`));
+    const res = await fetch(workspacePath(`/api/modules/library/documents?${params.toString()}`));
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json() as Promise<DocumentsResult>;
   }, [filters, page, pageSize]);
@@ -42,7 +42,7 @@ export function useLibraryDocuments(filters: LibraryFilters, page: number, pageS
 export function useDocumentDetail(id: number | null) {
   const fetchDoc = useCallback(async () => {
     if (!id) return null;
-    const response = await fetch(workspacePath(`/api/library/documents/${id}`));
+    const response = await fetch(workspacePath(`/api/modules/library/documents/${id}`));
     return response.ok ? response.json() as Promise<LibraryDocumentItem> : null;
   }, [id]);
 
@@ -55,7 +55,7 @@ export function useDocumentDetail(id: number | null) {
 }
 
 export async function updateDocument(id: number, body: Record<string, unknown>): Promise<LibraryDocumentItem> {
-  const res = await fetch(workspacePath(`/api/library/documents/${id}`), {
+  const res = await fetch(workspacePath(`/api/modules/library/documents/${id}`), {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -68,7 +68,7 @@ export async function updateDocument(id: number, body: Record<string, unknown>):
 }
 
 export async function deleteDocument(id: number): Promise<void> {
-  const res = await fetch(workspacePath(`/api/library/documents/${id}`), { method: "DELETE" });
+  const res = await fetch(workspacePath(`/api/modules/library/documents/${id}`), { method: "DELETE" });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: "Delete failed" }));
     throw new Error(err.error || `HTTP ${res.status}`);

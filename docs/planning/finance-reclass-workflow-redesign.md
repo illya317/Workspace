@@ -315,9 +315,9 @@ UI 改动：
 
 API：
 
-- `GET /api/finance/reclass-rules/candidates`
-- `PUT /api/finance/reclass-rules`
-- `DELETE /api/finance/reclass-rules/[id]`
+- `GET /api/modules/finance/reclass-rules/candidates`
+- `PUT /api/modules/finance/reclass-rules`
+- `DELETE /api/modules/finance/reclass-rules/[id]`
 
 权限：
 

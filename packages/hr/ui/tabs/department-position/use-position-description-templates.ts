@@ -38,7 +38,7 @@ export function usePositionDescriptionTemplates({
     let cancelled = false;
     async function loadTemplates() {
       try {
-        const res = await fetch(workspacePath("/api/hr/position-description-templates"));
+        const res = await fetch(workspacePath("/api/modules/hr/position-description-templates"));
         if (!res.ok) return;
         const data = await res.json();
         const templates = Array.isArray(data.templates)
@@ -170,7 +170,7 @@ export function usePositionDescriptionTemplates({
     onSuccess: (templates: PositionDescriptionTemplate[]) => void,
   ) {
     try {
-      const res = await fetch(workspacePath("/api/hr/position-description-templates"), {
+      const res = await fetch(workspacePath("/api/modules/hr/position-description-templates"), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ templates: nextTemplates }),

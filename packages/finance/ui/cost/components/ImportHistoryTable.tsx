@@ -32,7 +32,7 @@ export default function ImportHistoryTable({ filters }: Props) {
     setDeleting(id);
     setLocalError(null);
     try {
-      const res = await fetch(workspacePath(`/api/finance/cost/imports/${id}`), { method: "DELETE" });
+      const res = await fetch(workspacePath(`/api/modules/finance/cost/imports/${id}`), { method: "DELETE" });
       const json = await res.json();
       if (!res.ok || !json.success) {
         setLocalError(json.error || "删除失败");

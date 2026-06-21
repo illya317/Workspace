@@ -9,7 +9,7 @@ const INITIAL_CATEGORIES: CategoryGroup[] = [];
 
 export function useLibraryCategories() {
   const loadCategories = useCallback(async () => {
-    const response = await fetch(workspacePath("/api/library/categories"));
+    const response = await fetch(workspacePath("/api/modules/library/categories"));
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return response.json() as Promise<CategoryGroup[]>;
   }, []);

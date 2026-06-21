@@ -26,7 +26,7 @@ export function useBudgetData(year: number, companyCode?: string) {
 
   // 加载版本列表
   useEffect(() => {
-    fetch(workspacePath(`/api/finance/budget/versions?year=${year}${companyCode ? `&companyCode=${companyCode}` : ""}`))
+    fetch(workspacePath(`/api/modules/finance/budget/versions?year=${year}${companyCode ? `&companyCode=${companyCode}` : ""}`))
       .then((r) => r.json())
       .then((d: { versions: Version[] }) => {
         setVersions(d.versions);
@@ -40,8 +40,8 @@ export function useBudgetData(year: number, companyCode?: string) {
   useEffect(() => {
     setLoading(true);
     const url = activeVersionId
-      ? workspacePath(`/api/finance/budget?year=${year}&versionId=${activeVersionId}`)
-      : workspacePath(`/api/finance/budget?year=${year}${companyCode ? `&companyCode=${companyCode}` : ""}`);
+      ? workspacePath(`/api/modules/finance/budget?year=${year}&versionId=${activeVersionId}`)
+      : workspacePath(`/api/modules/finance/budget?year=${year}${companyCode ? `&companyCode=${companyCode}` : ""}`);
 
     fetch(url)
       .then((r) => r.json())

@@ -35,7 +35,7 @@ export default function TargetSwitcher({ value, onChange }: Props) {
   const [targetType, setTargetType] = useState(value?.targetType || "department");
 
   useEffect(() => {
-    fetch(workspacePath("/api/my-targets"))
+    fetch(workspacePath("/api/me/targets"))
       .then((r) => r.json())
       .then((d) => {
         setData(d);

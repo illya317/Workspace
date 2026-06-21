@@ -21,7 +21,7 @@ const projectFields: FieldConfig[] = [
 
 export const projectConfig: TabConfig = {
   title: "工作计划",
-  apiPath: "/api/work/plans",
+  apiPath: "/api/modules/work/plans",
   entityType: "Project",
   fields: projectFields,
   fkFields: {
@@ -43,7 +43,7 @@ const employeeProjectFields: FieldConfig[] = [
 
 export const employeeProjectConfig: TabConfig = {
   title: "计划人员",
-  apiPath: "/api/work/plan-members",
+  apiPath: "/api/modules/work/plan-members",
   entityType: "EmployeeProject",
   fields: employeeProjectFields,
   fkFields: {

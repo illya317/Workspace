@@ -14,7 +14,7 @@ async function main() {
   const resources = [
     { key: "system", name: "系统功能", description: "登录、用户权限等系统级功能" },
     { key: "module.hr", name: "人事行政", description: "访问人事行政管理 /hr" },
-    { key: "module.works", name: "工作清单", description: "访问工作清单 /works" },
+    { key: "module.works", name: "工作清单", description: "访问工作清单 /work/tasks" },
     { key: "department", name: "部门", description: "部门管理权限" },
     { key: "report", name: "周报", description: "周报填写、补填与查看权限" },
     { key: "report_group", name: "周报分组", description: "周报分组管理权限" },

@@ -63,7 +63,7 @@ export function usePermissionsTab(
       params.set("subjectType", subjectType);
       if (selectedResource) params.set("resourceKey", selectedResource);
 
-      const res = await fetch(workspacePath(`/api/admin/permission-grants?${params.toString()}`)
+      const res = await fetch(workspacePath(`/api/system/admin/permission-grants?${params.toString()}`)
       );
       if (res.ok) {
         const data = await res.json();
@@ -128,7 +128,7 @@ export function usePermissionsTab(
     }
 
     try {
-      const res = await fetch(workspacePath("/api/admin/permission-grants"), {
+      const res = await fetch(workspacePath("/api/system/admin/permission-grants"), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -154,7 +154,7 @@ export function usePermissionsTab(
   const updateMaxRole = useCallback(async (newMax: string) => {
     if (!selectedResource) return;
     try {
-      const res = await fetch(workspacePath("/api/admin/permission-grants/max-role"), {
+      const res = await fetch(workspacePath("/api/system/admin/permission-grants/max-role"), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resourceKey: selectedResource, maxRoleKey: newMax }),

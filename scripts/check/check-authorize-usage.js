@@ -18,8 +18,8 @@ const PUBLIC_API_ROUTES = new Set([
   "app/api/auth/me/route.ts",
   "app/api/auth/wecom/callback/route.ts",
   "app/api/auth/wecom/start/route.ts",
-  "app/api/dev-login-bypass/route.ts",
-  "app/api/week-info/route.ts",
+  "app/api/auth/dev-login-bypass/route.ts",
+  "app/api/me/week-info/route.ts",
 ]);
 
 function walk(dir, files = []) {

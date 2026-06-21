@@ -119,7 +119,7 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
     setError("");
     setItems([]);
     setLoading(true);
-    fetch(workspacePath(`/api/production/qc/template-feedback?key=${encodeURIComponent(key)}`))
+    fetch(workspacePath(`/api/modules/production/qc/template-feedback?key=${encodeURIComponent(key)}`))
       .then((res) => res.json() as Promise<FeedbackResponse>)
       .then((body) => {
         setItems(body.items ?? []);
@@ -134,7 +134,7 @@ export default function TemplateFeedbackModal({ target, onClose, onSaved }: Prop
     setResolvingKey(row.id);
     setError("");
     try {
-      const response = await fetch(workspacePath("/api/production/qc/template-feedback"), {
+      const response = await fetch(workspacePath("/api/modules/production/qc/template-feedback"), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

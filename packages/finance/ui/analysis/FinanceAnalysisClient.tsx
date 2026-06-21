@@ -21,7 +21,7 @@ export default function FinanceAnalysisClient({ user: _user }: Props) {
   const [budget, setBudget] = useState<BudgetOverview | null>(null);
 
   useEffect(() => {
-    fetch(workspacePath("/api/finance/analysis/budget?year=2026"))
+    fetch(workspacePath("/api/modules/finance/analysis/budget?year=2026"))
       .then((response) => response.json())
       .then(setBudget)
       .catch(() => setBudget({ hasBudget: false }));

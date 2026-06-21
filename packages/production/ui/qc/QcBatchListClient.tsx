@@ -83,7 +83,7 @@ export default function QcBatchListClient({ initialData, products }: Props) {
       return;
     }
     startTransition(async () => {
-      const res = await fetch(workspacePath("/api/production/qc/batches"), {
+      const res = await fetch(workspacePath("/api/modules/production/qc/batches"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productKey, batchNumber }),
@@ -103,7 +103,7 @@ export default function QcBatchListClient({ initialData, products }: Props) {
     const target = pendingDelete;
     setPendingDelete(null);
     startTransition(async () => {
-      const res = await fetch(workspacePath(`/api/production/qc/batches/${target.id}`), { method: "DELETE" });
+      const res = await fetch(workspacePath(`/api/modules/production/qc/batches/${target.id}`), { method: "DELETE" });
       if (!res.ok) {
         setToast({ message: "删除失败", type: "error" });
         return;

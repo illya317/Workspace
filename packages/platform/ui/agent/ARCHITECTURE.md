@@ -8,7 +8,7 @@
 
 ```text
 app/components/agent/       # 浮窗、面板、输入、报告抽屉、确认弹窗
-app/api/agent/              # 对话入口 + capabilities + proposals
+app/api/system/agent/              # 对话入口 + capabilities + proposals
 packages/platform/server/agent/ # 编排、能力清单、工具契约、prompt、proposal、LLM provider
 packages/hr/server/agent-tools.ts # HR 工具适配器与 HR proposal 执行器
 packages/finance/server/agent-tools.ts # Finance 工具适配器
@@ -19,7 +19,7 @@ public/assets/agent/avatar/ # 头像图片资产
 
 ```txt
 AgentPanel
-  → POST /api/agent {message, history}
+  → POST /api/system/agent {message, history}
     → authenticate (getCurrentUser)
     → inject domain agent tools
     → buildCapabilities(user, tools) → 白名单工具列表
@@ -30,14 +30,14 @@ AgentPanel
     → 写入: createProposal → proposal (不写库)
   → AgentPanel 展示
     → 查询: 气泡 + 查看报告 → AgentReportDrawer
-    → 写入: AgentConfirmModal → confirm → POST /api/agent/proposals/:id/confirm
+    → 写入: AgentConfirmModal → confirm → POST /api/system/agent/proposals/:id/confirm
 ```
 
 ## 权限原则
 
 - Agent 只能使用当前登录人的权限
 - Platform 只拥有 Agent 内核；HR/Finance 工具适配器由对应业务包暴露
-- 所有工具通过 app/api/agent 注入，mutates=true 只能返回 proposal
+- 所有工具通过 app/api/system/agent 注入，mutates=true 只能返回 proposal
 - confirm 时二次鉴权（同用户 + pending + 未过期 + write 权限）
 - 永无删除能力
 

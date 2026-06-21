@@ -35,50 +35,50 @@
 | `/finance/cost` | `requireResourceAccess("finance.cost")` | redirect `/portal` |
 | `/finance/import` | `requireResourceAccess("finance.import")` | redirect `/portal` |
 | `/administration` | `requireResourceAccess("administration")` | redirect `/portal` |
-| `/contracts` | `requireResourceAccess("administration.contract")` | redirect `/portal` |
+| `/administration/contracts` | `requireResourceAccess("administration.contract")` | redirect `/portal` |
 | `/production` | `requireResourceAccess("production")` | redirect `/portal` |
-| `/inventory` | 旧库存入口已关闭 | redirect `/production` |
-| `/reports` | `requireResourceAccess("work")` | redirect `/portal` |
+| 生产库存页面 | 未开放独立页面入口 | 无页面 route |
+| `/work/reports` | `requireResourceAccess("work.report")` | redirect `/portal` |
 | `/docs` | `requireResourceAccess("docs")` | redirect `/portal` |
 
 ## API Guard
 
 | API | 方法 | 所需权限 |
 |-----|------|---------|
-| `/api/hr/*` | GET | `people.access` |
-| `/api/hr/*` | POST/PUT/PATCH | `people.write` |
-| `/api/hr/*` | DELETE | `people.delete` |
-| `/api/finance/accounts*` | GET | `finance.ledger.access` |
-| `/api/finance/accounts*` | POST/PUT | `finance.ledger.write` |
-| `/api/finance/accounts*` | DELETE | `finance.ledger.delete` |
-| `/api/finance/vouchers*` | GET | `finance.ledger.access` |
-| `/api/finance/vouchers*` | POST/PUT | `finance.ledger.write` |
-| `/api/finance/vouchers*` | DELETE | `finance.ledger.delete` |
-| `/api/finance/balances*` | GET/POST | `finance.ledger.access` (read/compute) |
-| `/api/finance/balances/reconcile` | POST | `finance.ledger.write` (upload + compare) |
-| `/api/finance/periods*` | GET/PUT | `finance.ledger.access/write` |
-| `/api/finance/init` | POST | `finance.ledger.write` |
-| `/api/finance/reports` | GET | `finance.statement.access` |
-| `/api/finance/budget` | GET/POST | `finance.budget.access/write` |
-| `/api/finance/import/preview` | POST | `finance.import.access` |
-| `/api/finance/import/confirm` | POST | `finance.import.write` |
-| `/api/finance/cost/*` | GET | `finance.cost.access` |
-| `/api/finance/cost/*` | POST/PUT | `finance.cost.write` |
-| `/api/finance/cost/*` | DELETE | `finance.cost.delete` |
-| `/api/production/qc/config` | GET | `production.qc.access` |
-| `/api/production/qc/templates/[templateId]` | GET | `production.qc.templates.access` |
-| `/api/production/qc/template-feedback` | GET | `production.qc.templates.access` |
-| `/api/production/qc/template-feedback` | POST | `production.qc.templates.write` |
-| `/api/production/qc/batches` | GET | `production.qc.batches.access` |
-| `/api/production/qc/batches` | POST | `production.qc.batches.write` |
-| `/api/production/qc/batches/[batchId]` | GET | `production.qc.batches.access` |
-| `/api/production/qc/batches/[batchId]` | PATCH | `production.qc.batches.write` |
-| `/api/production/qc/batches/[batchId]` | DELETE | `production.qc.batches.delete` |
-| `/api/production/qc/batches/[batchId]/submit` | POST | `production.qc.batches.write` |
+| `/api/modules/hr/*` | GET | `people.access` |
+| `/api/modules/hr/*` | POST/PUT/PATCH | `people.write` |
+| `/api/modules/hr/*` | DELETE | `people.delete` |
+| `/api/modules/finance/accounts*` | GET | `finance.ledger.access` |
+| `/api/modules/finance/accounts*` | POST/PUT | `finance.ledger.write` |
+| `/api/modules/finance/accounts*` | DELETE | `finance.ledger.delete` |
+| `/api/modules/finance/vouchers*` | GET | `finance.ledger.access` |
+| `/api/modules/finance/vouchers*` | POST/PUT | `finance.ledger.write` |
+| `/api/modules/finance/vouchers*` | DELETE | `finance.ledger.delete` |
+| `/api/modules/finance/balances*` | GET/POST | `finance.ledger.access` (read/compute) |
+| `/api/modules/finance/balances/reconcile` | POST | `finance.ledger.write` (upload + compare) |
+| `/api/modules/finance/periods*` | GET/PUT | `finance.ledger.access/write` |
+| `/api/modules/finance/init` | POST | `finance.ledger.write` |
+| `/api/modules/finance/reports` | GET | `finance.statement.access` |
+| `/api/modules/finance/budget` | GET/POST | `finance.budget.access/write` |
+| `/api/modules/finance/import/preview` | POST | `finance.import.access` |
+| `/api/modules/finance/import/confirm` | POST | `finance.import.write` |
+| `/api/modules/finance/cost/*` | GET | `finance.cost.access` |
+| `/api/modules/finance/cost/*` | POST/PUT | `finance.cost.write` |
+| `/api/modules/finance/cost/*` | DELETE | `finance.cost.delete` |
+| `/api/modules/production/qc/config` | GET | `production.qc.access` |
+| `/api/modules/production/qc/templates/[templateId]` | GET | `production.qc.templates.access` |
+| `/api/modules/production/qc/template-feedback` | GET | `production.qc.templates.access` |
+| `/api/modules/production/qc/template-feedback` | POST | `production.qc.templates.write` |
+| `/api/modules/production/qc/batches` | GET | `production.qc.batches.access` |
+| `/api/modules/production/qc/batches` | POST | `production.qc.batches.write` |
+| `/api/modules/production/qc/batches/[batchId]` | GET | `production.qc.batches.access` |
+| `/api/modules/production/qc/batches/[batchId]` | PATCH | `production.qc.batches.write` |
+| `/api/modules/production/qc/batches/[batchId]` | DELETE | `production.qc.batches.delete` |
+| `/api/modules/production/qc/batches/[batchId]/submit` | POST | `production.qc.batches.write` |
 | `/api/inventory/*` | GET/POST/PUT/DELETE | `410 Gone` |
-| `/api/contracts*` | GET | `administration.contract.access` |
-| `/api/contracts*` | POST/PUT | `administration.contract.write` |
-| `/api/contracts*` | DELETE | `administration.contract.delete` |
+| `/api/modules/administration/contracts*` | GET | `administration.contract.access` |
+| `/api/modules/administration/contracts*` | POST/PUT | `administration.contract.write` |
+| `/api/modules/administration/contracts*` | DELETE | `administration.contract.delete` |
 
 ## 继承规则
 

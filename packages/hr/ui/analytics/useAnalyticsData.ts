@@ -136,12 +136,12 @@ export function useAnalyticsData() {
     async function load() {
       try {
         const [empRes, deptRes, posRes, edpRes, emtRes, conRes] = await Promise.all([
-          fetch(workspacePath("/api/hr/employees?pageSize=500")).then((r) => r.json()),
-          fetch(workspacePath("/api/hr/departments?pageSize=500")).then((r) => r.json()),
-          fetch(workspacePath("/api/hr/positions?pageSize=500")).then((r) => r.json()),
-          fetch(workspacePath("/api/hr/edps?pageSize=500")).then((r) => r.json()),
-          fetch(workspacePath("/api/hr/employments?pageSize=500")).then((r) => r.json()),
-          fetch(workspacePath("/api/hr/contracts?pageSize=500")).then((r) => r.json()),
+          fetch(workspacePath("/api/modules/hr/employees?pageSize=500")).then((r) => r.json()),
+          fetch(workspacePath("/api/modules/hr/departments?pageSize=500")).then((r) => r.json()),
+          fetch(workspacePath("/api/modules/hr/positions?pageSize=500")).then((r) => r.json()),
+          fetch(workspacePath("/api/modules/hr/edps?pageSize=500")).then((r) => r.json()),
+          fetch(workspacePath("/api/modules/hr/employments?pageSize=500")).then((r) => r.json()),
+          fetch(workspacePath("/api/modules/hr/contracts?pageSize=500")).then((r) => r.json()),
         ]);
 
         setData({

@@ -24,7 +24,7 @@ export default function QcBatchTestRecord({ batch, productName, stage, test }: P
   function save() {
     setSaveState("idle");
     startTransition(async () => {
-      const response = await fetch(workspacePath(`/api/production/qc/batches/${batch.id}`), {
+      const response = await fetch(workspacePath(`/api/modules/production/qc/batches/${batch.id}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ fields: form.values }),

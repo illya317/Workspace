@@ -13,8 +13,8 @@ const inflight = new Map<boolean, Promise<CompanyOption[]>>();
 
 async function fetchCompanies(activeOnly: boolean): Promise<CompanyOption[]> {
   const url = activeOnly
-    ? workspacePath("/api/hr/companies?active=1")
-    : workspacePath("/api/hr/companies");
+    ? workspacePath("/api/modules/hr/companies?active=1")
+    : workspacePath("/api/modules/hr/companies");
   const res = await fetch(url);
   const data = await res.json();
   const companies = (data.companies || []) as Array<{ code: string; name: string }>;

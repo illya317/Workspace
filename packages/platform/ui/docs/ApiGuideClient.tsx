@@ -19,7 +19,7 @@ function MyApiKeyPanel({ apiKey, onApiKeyChange }: { apiKey: string | null; onAp
   async function applyApiKey() {
     const doApply = async () => {
       setLoading(true);
-      const res = await fetch(workspacePath("/api/my-api-key"), { method: "POST" });
+      const res = await fetch(workspacePath("/api/me/api-key"), { method: "POST" });
       if (res.ok) { const data = await res.json(); onApiKeyChange(data.apiKey || null); }
       setLoading(false);
       closeConfirm();
@@ -60,44 +60,44 @@ type EndpointRow = {
 };
 
 const ENDPOINTS: EndpointRow[] = [
-  { method: "GET", path: "/api/works", note: "查看工作清单", params: "targetType, targetId, ?category, ?includeArchived" },
-  { method: "POST", path: "/api/works", note: "创建工作项", params: "category, content, importance, urgency" },
-  { method: "PUT", path: "/api/works/:id", note: "更新工作项", params: "category, content, ..." },
-  { method: "DELETE", path: "/api/works/:id", note: "删除工作项" },
-  { method: "GET", path: "/api/reports", note: "查看汇报", params: "date, targetType, targetIds" },
-  { method: "POST", path: "/api/reports", note: "提交汇报", params: "taskName, date, targetType, targetId, items" },
-  { method: "PUT", path: "/api/reports/:id", note: "更新汇报", params: "taskName, notes, items" },
-  { method: "GET", path: "/api/hr/employees", note: "员工列表", params: "?keyword, ?company", perm: "people.roster.access" },
-  { method: "PUT", path: "/api/hr/employees/:id", note: "更新员工单字段", params: "{field, value}", perm: "people.write" },
-  { method: "DELETE", path: "/api/hr/employees/:id", note: "删除员工", perm: "people.delete" },
-  { method: "GET", path: "/api/hr/employments", note: "雇佣关系列表", perm: "people.roster.access" },
-  { method: "POST", path: "/api/hr/employments", note: "新建雇佣关系", perm: "people.write" },
-  { method: "PUT", path: "/api/hr/employments/:id", note: "更新雇佣关系", perm: "people.write" },
-  { method: "DELETE", path: "/api/hr/employments/:id", note: "删除雇佣关系", perm: "people.delete" },
-  { method: "GET", path: "/api/hr/departments", note: "部门列表", params: "?keyword", perm: "people.roster.access" },
-  { method: "POST", path: "/api/hr/departments", note: "新建部门", perm: "people.write" },
-  { method: "PUT", path: "/api/hr/departments/:id", note: "更新部门", perm: "people.write" },
-  { method: "DELETE", path: "/api/hr/departments/:id", note: "删除部门", perm: "people.delete" },
-  { method: "GET", path: "/api/hr/positions", note: "岗位列表", params: "?keyword", perm: "people.roster.access" },
-  { method: "POST", path: "/api/hr/positions", note: "新建岗位", perm: "people.write" },
-  { method: "PUT", path: "/api/hr/positions/:id", note: "更新岗位", perm: "people.write" },
-  { method: "DELETE", path: "/api/hr/positions/:id", note: "删除岗位", perm: "people.delete" },
-  { method: "GET", path: "/api/hr/edps", note: "EDP 列表", perm: "people.roster.access" },
-  { method: "POST", path: "/api/hr/edps", note: "新建 EDP", perm: "people.write" },
-  { method: "PUT", path: "/api/hr/edps/:id", note: "更新 EDP", perm: "people.write" },
-  { method: "DELETE", path: "/api/hr/edps/:id", note: "删除 EDP", perm: "people.delete" },
-  { method: "GET", path: "/api/hr/companies", note: "公司列表", perm: "people.roster.access" },
-  { method: "POST", path: "/api/hr/companies", note: "新建公司", perm: "people.write" },
-  { method: "PUT", path: "/api/hr/companies/:id", note: "更新公司", perm: "people.write" },
-  { method: "DELETE", path: "/api/hr/companies/:id", note: "删除公司", perm: "people.delete" },
-  { method: "GET", path: "/api/work/plans", note: "工作计划列表", perm: "work.plan.access" },
-  { method: "POST", path: "/api/work/plans", note: "新建工作计划", perm: "work.plan.write" },
-  { method: "DELETE", path: "/api/work/plans/:id", note: "删除工作计划", perm: "work.plan.delete" },
-  { method: "GET", path: "/api/work/plan-members", note: "计划人员列表", perm: "work.plan.access" },
-  { method: "POST", path: "/api/work/plan-members", note: "新建计划人员", perm: "work.plan.write" },
-  { method: "DELETE", path: "/api/work/plan-members/:id", note: "删除计划人员", perm: "work.plan.delete" },
-  { method: "GET", path: "/api/position-descriptions", note: "岗位说明书列表", params: "?code=xxx 查单个" },
-  { method: "GET", path: "/api/admin/audit-log", note: "编辑历史", params: "?entityType=xxx", perm: "people.roster.access" },
+  { method: "GET", path: "/api/modules/work/tasks", note: "查看工作清单", params: "targetType, targetId, ?category, ?includeArchived" },
+  { method: "POST", path: "/api/modules/work/tasks", note: "创建工作项", params: "category, content, importance, urgency" },
+  { method: "PUT", path: "/api/modules/work/tasks/:id", note: "更新工作项", params: "category, content, ..." },
+  { method: "DELETE", path: "/api/modules/work/tasks/:id", note: "删除工作项" },
+  { method: "GET", path: "/api/modules/work/reports", note: "查看汇报", params: "date, targetType, targetIds" },
+  { method: "POST", path: "/api/modules/work/reports", note: "提交汇报", params: "taskName, date, targetType, targetId, items" },
+  { method: "PUT", path: "/api/modules/work/reports/:id", note: "更新汇报", params: "taskName, notes, items" },
+  { method: "GET", path: "/api/modules/hr/employees", note: "员工列表", params: "?keyword, ?company", perm: "people.roster.access" },
+  { method: "PUT", path: "/api/modules/hr/employees/:id", note: "更新员工单字段", params: "{field, value}", perm: "people.write" },
+  { method: "DELETE", path: "/api/modules/hr/employees/:id", note: "删除员工", perm: "people.delete" },
+  { method: "GET", path: "/api/modules/hr/employments", note: "雇佣关系列表", perm: "people.roster.access" },
+  { method: "POST", path: "/api/modules/hr/employments", note: "新建雇佣关系", perm: "people.write" },
+  { method: "PUT", path: "/api/modules/hr/employments/:id", note: "更新雇佣关系", perm: "people.write" },
+  { method: "DELETE", path: "/api/modules/hr/employments/:id", note: "删除雇佣关系", perm: "people.delete" },
+  { method: "GET", path: "/api/modules/hr/departments", note: "部门列表", params: "?keyword", perm: "people.roster.access" },
+  { method: "POST", path: "/api/modules/hr/departments", note: "新建部门", perm: "people.write" },
+  { method: "PUT", path: "/api/modules/hr/departments/:id", note: "更新部门", perm: "people.write" },
+  { method: "DELETE", path: "/api/modules/hr/departments/:id", note: "删除部门", perm: "people.delete" },
+  { method: "GET", path: "/api/modules/hr/positions", note: "岗位列表", params: "?keyword", perm: "people.roster.access" },
+  { method: "POST", path: "/api/modules/hr/positions", note: "新建岗位", perm: "people.write" },
+  { method: "PUT", path: "/api/modules/hr/positions/:id", note: "更新岗位", perm: "people.write" },
+  { method: "DELETE", path: "/api/modules/hr/positions/:id", note: "删除岗位", perm: "people.delete" },
+  { method: "GET", path: "/api/modules/hr/edps", note: "EDP 列表", perm: "people.roster.access" },
+  { method: "POST", path: "/api/modules/hr/edps", note: "新建 EDP", perm: "people.write" },
+  { method: "PUT", path: "/api/modules/hr/edps/:id", note: "更新 EDP", perm: "people.write" },
+  { method: "DELETE", path: "/api/modules/hr/edps/:id", note: "删除 EDP", perm: "people.delete" },
+  { method: "GET", path: "/api/modules/hr/companies", note: "公司列表", perm: "people.roster.access" },
+  { method: "POST", path: "/api/modules/hr/companies", note: "新建公司", perm: "people.write" },
+  { method: "PUT", path: "/api/modules/hr/companies/:id", note: "更新公司", perm: "people.write" },
+  { method: "DELETE", path: "/api/modules/hr/companies/:id", note: "删除公司", perm: "people.delete" },
+  { method: "GET", path: "/api/modules/work/plans", note: "工作计划列表", perm: "work.plan.access" },
+  { method: "POST", path: "/api/modules/work/plans", note: "新建工作计划", perm: "work.plan.write" },
+  { method: "DELETE", path: "/api/modules/work/plans/:id", note: "删除工作计划", perm: "work.plan.delete" },
+  { method: "GET", path: "/api/modules/work/plan-members", note: "计划人员列表", perm: "work.plan.access" },
+  { method: "POST", path: "/api/modules/work/plan-members", note: "新建计划人员", perm: "work.plan.write" },
+  { method: "DELETE", path: "/api/modules/work/plan-members/:id", note: "删除计划人员", perm: "work.plan.delete" },
+  { method: "GET", path: "/api/modules/hr/position-descriptions", note: "岗位说明书列表", params: "?code=xxx 查单个" },
+  { method: "GET", path: "/api/system/admin/audit-log", note: "编辑历史", params: "?entityType=xxx", perm: "people.roster.access" },
 ];
 
 const endpointColumns: DataTableColumn<EndpointRow>[] = [
@@ -147,7 +147,7 @@ export default function ApiGuidePage({ hideShell: _hideShell }: { hideShell?: bo
 
   useEffect(() => {
     fetch(workspacePath("/api/auth/me")).then(r => r.ok ? r.json() : Promise.reject()).then(d => setUser(d.user)).catch(() => router.push("/login"));
-    fetch(workspacePath("/api/my-api-key")).then(r => r.json()).then(d => setApiKey(d.apiKey || null)).catch(() => {});
+    fetch(workspacePath("/api/me/api-key")).then(r => r.json()).then(d => setApiKey(d.apiKey || null)).catch(() => {});
   }, [router]);
 
   const BASE = "http://49.235.213.225:3000";

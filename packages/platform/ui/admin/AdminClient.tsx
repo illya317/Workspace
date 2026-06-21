@@ -26,7 +26,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     let cancelled = false;
     async function loadInitial() {
       try {
-        const resRes = await fetch(workspacePath("/api/admin/permissions"));
+        const resRes = await fetch(workspacePath("/api/system/admin/permissions"));
         if (!cancelled) {
           if (!resRes.ok) showToast("加载权限资源失败: " + resRes.status, "error");
           const resData = await resRes.json();
@@ -35,7 +35,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
           // Full tree for badge computation (unscoped)
           setFullResourceTree((resData.resourceTree || resData.resources || []) as ResourceItem[]);
           try {
-            const cfgRes = await fetch(workspacePath("/api/admin/system-config"));
+            const cfgRes = await fetch(workspacePath("/api/system/admin/system-config"));
             if (cfgRes.ok) {
               const cfgData = await cfgRes.json();
               setConflictStrategy(cfgData.conflictStrategy || "union");
@@ -53,7 +53,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   }, [showToast, isSuperAdmin]);
 
   async function saveConflictStrategy(strategy: string) {
-    const res = await fetch(workspacePath("/api/admin/system-config"), {
+    const res = await fetch(workspacePath("/api/system/admin/system-config"), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ conflictStrategy: strategy }),

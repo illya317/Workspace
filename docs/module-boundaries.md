@@ -51,20 +51,22 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/platform/server/resolve-fk.ts` 已接收 FK 显示名解析契约，`lib/resolve-fk.ts` 保留兼容 re-export；审计日志和业务包需要展示 FK 快照时依赖 `@workspace/platform/server/resolve-fk`。
 - `packages/hr/server/crud.ts` 已接收 HR 字段级 CRUD wrapper，统一注入 `people.roster` 读写删除权限；HR server service 使用这个 wrapper 而不是 app-root `@/lib/crud`。
 - `packages/platform/ui` 已接收登录后的 Portal、L1 模块首页、AppShell、跨页 NavLink、用户菜单、设置页和审计日志 UI；AppShell 必须复用 Core `PageShell`。根 `app/components/*` 与 `app/portal/PortalClient.tsx` 兼容出口已删除，route 直接挂载 Platform UI。
-- `packages/administration` 已接收合同台账的 module、UI、server、types，`app/contracts/page.tsx` 和 `app/api/contracts/*` 只保留 Next 壳。
-- `packages/library` 已接收资料库 module、UI、server、types，`app/library/page.tsx` 和 `app/api/library/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。
+- `packages/administration` 已接收合同台账的 module、UI、server、types，`app/(modules)/administration/contracts/page.tsx` 和 `app/api/modules/administration/contracts/*` 只保留 Next 壳。
+- `packages/library` 已接收资料库 module、UI、server、types，`app/library/page.tsx` 和 `app/api/modules/library/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。
 - 每个业务包的 `module.ts` 必须导出 `moduleDefinition`，同时保留领域兼容别名（例如 `financePackage`）。`moduleDefinition` 必须来自 `packages/platform/module-registry.ts` 的 `getRegisteredModuleDefinition("@workspace/<domain>")`；`npm run arch:gate` 会校验业务包导出、registry 注册和重复 module key。
-- `packages/platform/ui/docs` 已接收文档中心和接入指南 UI；`app/docs/*` 与 `app/api-guide/page.tsx` 只保留鉴权/参数/挂载壳。
+- `packages/platform/ui/docs` 已接收文档中心和接入指南 UI；`app/(docs)/docs/*` 只保留鉴权/参数/挂载壳。
 - `app/lib/module-nav.tsx` 是兼容出口，现有页面暂时继续从这里导入。
 - `app/components/ConfirmModal.tsx`、`ConfirmProvider.tsx`、`DetailModal.tsx`、`FilterBar.tsx`、`FilterToolbar.tsx`、`Toast.tsx`、`SelectField.tsx`、`StatusBadge.tsx`、`StatusToggle.tsx`、`NumberCell.tsx`、`AmountCell.tsx`、`ColumnToggle.tsx`、`TabBar.tsx`、`DataTable.tsx`、`EditToolbar.tsx` 和 `app/hooks/useCSV.tsx`、`app/hooks/useToast.ts` 已降级为兼容 re-export。
 - `app/hooks/useCompanyOptions.ts` 已降级为 `@workspace/platform/hooks` 的兼容 re-export。
 - `app/hr/types.ts`、`app/hr/profile/types.ts`、`app/hr/tabConfigs.ts`、`app/hr/tab-configs/*`、`app/hr/profile/fields.ts`、`app/hr/profile/lunar-birthday.ts`、`app/hr/analytics/*`、`app/hr/profile/*`、第一批 `app/hr/components/*` HR 专用字段组件、`app/hr/code/*` 编码表实现和第一批 `app/hr/tabs/*` 大组件已迁入或降级为兼容 re-export。
-- `app/api/hr/autocomplete`、`app/api/hr/companies`、`app/api/hr/company-relations`、`app/api/hr/contracts`、`app/api/hr/departments`、`app/api/hr/edps`、`app/api/hr/employees`、`app/api/hr/employee-projects`、`app/api/hr/employee-profiles/*`、`app/api/hr/employments`、`app/api/hr/position-description-templates`、`app/api/hr/positions`、`app/api/hr/projects`、`app/api/hr/roster` 和 `app/api/position-descriptions` 已降级为认证/权限/响应壳，业务逻辑下沉到 `@workspace/hr/server`。
+- `app/api/modules/hr/autocomplete`、`app/api/modules/hr/companies`、`app/api/modules/hr/company-relations`、`app/api/modules/hr/contracts`、`app/api/modules/hr/departments`、`app/api/modules/hr/edps`、`app/api/modules/hr/employees`、`app/api/modules/hr/employee-projects`、`app/api/modules/hr/employee-profiles/*`、`app/api/modules/hr/employments`、`app/api/modules/hr/position-description-templates`、`app/api/modules/hr/positions`、`app/api/modules/hr/projects`、`app/api/modules/hr/roster` 和 `app/api/modules/hr/position-descriptions` 已降级为认证/权限/响应壳，业务逻辑下沉到 `@workspace/hr/server`。
 - 模块注册中的 `href` 与 `routes` 必须使用不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止写 `@workspace/...` package 名或 `/workspace/...`，这个规则由 `npm run arch:gate` 校验。
+- `moduleDef.href` 必须是 L1 根路径；`children[*].href` 与 `routes` 必须留在该 L1 下。真实 app page 也必须落在注册 L1 或系统保留 route 下，不允许重新创建绕开 L1 的顶层 route shell。
+- 页面源码使用 Next route groups 收口：业务页放 `app/(modules)/*`，平台/设置/管理放 `app/(system)/*`，登录放 `app/(auth)/*`，文档放 `app/(docs)/*`。这些 group 不改变 URL；不要再新增顶层 `app/<module>` 页面目录。
 
 ## 路由和服务迁移原则
 
-- `app/<domain>` 保留为 Next 路由壳。后续新增复杂 UI 时，优先放入对应 `packages/<domain>/ui` 后再由页面引用。
+- `app/(modules)/<domain>` 保留为 Next 路由壳，对外仍暴露 `/domain` URL。后续新增复杂 UI 时，优先放入对应 `packages/<domain>/ui` 后再由页面引用。
 - `app/api/<domain>` 保留为 API route 壳，只做认证、权限、参数校验、调用 package service、返回 DTO。
 - 业务查询、导入、校验和计算必须优先进入 `packages/<domain>/server`。旧 `server/services/<domain>` 只作为存量兼容位置，不再作为新增业务 service 的默认落点。
 - Prisma 仍使用单一 schema/client；`prisma/models/*.prisma` 继续按领域归属，不拆库。

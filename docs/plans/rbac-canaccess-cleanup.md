@@ -139,7 +139,7 @@ export default async function Page() {
 - `app/admin/page.tsx`：`canAccessAdmin` → Phase 1 已改
 - `app/finance/lib/nav-utils.ts`：`canAccessFinanceCost/Ledger/Report/Budget/Analysis/Import` → 改为 `visibleResourceKeys.includes("finance.cost")` 等
 - `server/services/agent/tools/finance.ts`：`canAccessFinanceBudget` → 改为 `visibleResourceKeys.includes("finance.budget")`
-- `app/api/library/[...path]/route.ts`：`canAccessLibrary` → 改为 `visibleResourceKeys.includes("library")`
+- `app/api/modules/library/[...path]/route.ts`：`canAccessLibrary` → 改为 `visibleResourceKeys.includes("library")`
 
 **3d. 删除未使用的守卫函数**
 `server/auth/session.ts` 中 11 个 `require*Access` 函数完全未被调用，直接删除：

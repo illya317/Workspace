@@ -16,7 +16,7 @@ export function useWorks() {
   const fetchWorks = useCallback(async () => {
     const selectedDept = typeof window !== "undefined" ? localStorage.getItem("selectedDeptId") : null;
     const deptParam = selectedDept ? `&deptId=${selectedDept}` : "";
-    const res = await fetch(workspacePath(`/api/works?includeArchived=true${deptParam}`));
+    const res = await fetch(workspacePath(`/api/modules/work/tasks?includeArchived=true${deptParam}`));
     const data = await res.json();
     setWorks(data.works || []);
     setLoading(false);
@@ -32,7 +32,7 @@ export function useWorks() {
   }) {
     const selectedDept = typeof window !== "undefined" ? localStorage.getItem("selectedDeptId") : null;
     const body = selectedDept ? { ...data, deptId: parseInt(selectedDept) } : data;
-    const res = await fetch(workspacePath("/api/works"), {
+    const res = await fetch(workspacePath("/api/modules/work/tasks"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -55,7 +55,7 @@ export function useWorks() {
     sortOrder: number;
   }) {
     if (!editingWork) return;
-    const res = await fetch(workspacePath(`/api/works/${editingWork.id}`), {
+    const res = await fetch(workspacePath(`/api/modules/work/tasks/${editingWork.id}`), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -70,7 +70,7 @@ export function useWorks() {
   }
 
   async function handleDelete(id: number) {
-    const res = await fetch(workspacePath(`/api/works/${id}`), { method: "DELETE" });
+    const res = await fetch(workspacePath(`/api/modules/work/tasks/${id}`), { method: "DELETE" });
     if (res.ok) {
       fetchWorks();
     } else {
@@ -80,7 +80,7 @@ export function useWorks() {
   }
 
   async function handleArchive(id: number) {
-    const res = await fetch(workspacePath(`/api/works/${id}`), {
+    const res = await fetch(workspacePath(`/api/modules/work/tasks/${id}`), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isArchived: true }),
@@ -90,7 +90,7 @@ export function useWorks() {
   }
 
   async function handleRestore(id: number) {
-    const res = await fetch(workspacePath(`/api/works/${id}`), {
+    const res = await fetch(workspacePath(`/api/modules/work/tasks/${id}`), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ isArchived: false }),
@@ -112,12 +112,12 @@ export function useWorks() {
     const targetWork = sorted[target];
 
     await Promise.all([
-      fetch(workspacePath(`/api/works/${currentWork.id}`), {
+      fetch(workspacePath(`/api/modules/work/tasks/${currentWork.id}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sortOrder: targetWork.sortOrder }),
       }),
-      fetch(workspacePath(`/api/works/${targetWork.id}`), {
+      fetch(workspacePath(`/api/modules/work/tasks/${targetWork.id}`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sortOrder: currentWork.sortOrder }),

@@ -47,7 +47,7 @@ export default function AccountTab({ canWrite }: { canWrite: boolean }) {
     params.set("pageSize", String(pageSize));
 
     try {
-      const res = await fetch(workspacePath(`/api/finance/accounts?${params.toString()}`));
+      const res = await fetch(workspacePath(`/api/modules/finance/accounts?${params.toString()}`));
       if (res.ok) {
         const data = await res.json();
         setAccounts(data.data || data.accounts || []);

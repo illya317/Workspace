@@ -1,8 +1,0 @@
-// @deprecated 兼容入口，新代码请使用 /api/work/plans 替代。此文件不再新增业务逻辑。
-// ⚠️ 已迁移到 /api/work/plans，本文件保留兼容期
-import { createCompatibilityProxyHandler } from "@workspace/platform/server/api";
-
-const proxy = createCompatibilityProxyHandler("/api/work/plans", { defaultPageSize: 99999 });
-
-export const GET = proxy;
-export const POST = proxy;

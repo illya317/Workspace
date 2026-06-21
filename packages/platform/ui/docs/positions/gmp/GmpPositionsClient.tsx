@@ -42,7 +42,7 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
   }, [router]);
 
   useEffect(() => {
-    fetch(workspacePath("/api/position-descriptions?tree=1"))
+    fetch(workspacePath("/api/modules/hr/position-descriptions?tree=1"))
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => {
         const allNodes = data.tree as TreeNode[];

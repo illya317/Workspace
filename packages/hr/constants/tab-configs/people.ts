@@ -50,7 +50,7 @@ const employeeFields: FieldConfig[] = [
 
 export const employeeConfig: TabConfig = {
   title: "员工信息",
-  apiPath: "/api/hr/employees",
+  apiPath: "/api/modules/hr/employees",
   entityType: "Employee",
   fields: employeeFields,
   fkFields: { userId: fk("user", "userName", "platform.user") },
@@ -78,7 +78,7 @@ const employmentFields: FieldConfig[] = [
 
 export const employmentConfig: TabConfig = {
   title: "雇佣关系",
-  apiPath: "/api/hr/employments",
+  apiPath: "/api/modules/hr/employments",
   entityType: "Employment",
   fields: employmentFields,
   fkFields: { employeeId: fk("employee", "employeeName", "hr.employee") },
@@ -105,7 +105,7 @@ const edpFields: FieldConfig[] = [
 
 export const edpConfig: TabConfig = {
   title: "部门岗位",
-  apiPath: "/api/hr/edps",
+  apiPath: "/api/modules/hr/edps",
   entityType: "EDP",
   fields: edpFields,
   fkFields: {
@@ -148,7 +148,7 @@ const contractFields: FieldConfig[] = [
 
 export const contractConfig: TabConfig = {
   title: "合同",
-  apiPath: "/api/hr/contracts",
+  apiPath: "/api/modules/hr/contracts",
   entityType: "contract",
   fields: contractFields,
   canCreate: true,

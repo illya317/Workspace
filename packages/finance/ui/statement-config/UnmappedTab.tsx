@@ -108,7 +108,7 @@ export default function UnmappedTab() {
 
   async function load() {
     setLoading(true); setError(null);
-    const res = await fetch(workspacePath(`/api/finance/statement-config?companyCode=${company}&year=${year}`));
+    const res = await fetch(workspacePath(`/api/modules/finance/statement-config?companyCode=${company}&year=${year}`));
     if (!res.ok) { setError(`请求失败 (${res.status})`); setLoading(false); return; }
     const data = await res.json();
     // Build lineCode → label map

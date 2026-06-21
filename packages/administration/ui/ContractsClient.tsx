@@ -49,7 +49,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
     setSaving(true);
     try {
       if (modalMode === "create") {
-        const res = await fetch(workspacePath("/api/contracts"), {
+        const res = await fetch(workspacePath("/api/modules/administration/contracts"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(editing),
@@ -57,7 +57,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
         if (!res.ok) throw new Error("创建失败");
         showToast("创建成功", "success");
       } else if (editing.id) {
-        const res = await fetch(workspacePath(`/api/contracts/${editing.id}`), {
+        const res = await fetch(workspacePath(`/api/modules/administration/contracts/${editing.id}`), {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(editing),
@@ -77,7 +77,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
   const confirmDelete = async () => {
     if (!deleteId) return;
     try {
-      const res = await fetch(workspacePath(`/api/contracts/${deleteId}`), { method: "DELETE" });
+      const res = await fetch(workspacePath(`/api/modules/administration/contracts/${deleteId}`), { method: "DELETE" });
       if (!res.ok) throw new Error("删除失败");
       showToast("删除成功", "success");
       refresh();

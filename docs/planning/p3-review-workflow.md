@@ -191,7 +191,7 @@ else:
 
 ## 5. Batch 3 API
 
-### 5.1 POST `/api/finance/statement-reviews`
+### 5.1 POST `/api/modules/finance/statement-reviews`
 
 用途：从 workpaper 生成 review。
 
@@ -222,7 +222,7 @@ Body：
 9. `finalAmount = workpaperAmount`。
 10. 返回 DTO。
 
-### 5.2 GET `/api/finance/statement-reviews`
+### 5.2 GET `/api/modules/finance/statement-reviews`
 
 用途：读取 review。
 
@@ -251,7 +251,7 @@ companyCode=02&year=2025&month=12&reportType=incomeStatement
 - 返回 review + lines。
 - 没有 review 时返回 `{ review: null }`，不要自动创建。
 
-### 5.3 PUT `/api/finance/statement-reviews/[id]`
+### 5.3 PUT `/api/modules/finance/statement-reviews/[id]`
 
 用途：局部更新 review 行。
 
@@ -285,7 +285,7 @@ Body：
 - 更新后重新计算该行 `finalAmount`。
 - 如果 review 已 confirmed，Batch 3 先禁止修改，返回 409。
 
-### 5.4 POST `/api/finance/statement-reviews/[id]/confirm`
+### 5.4 POST `/api/modules/finance/statement-reviews/[id]/confirm`
 
 用途：最终确认 review。
 
@@ -423,9 +423,9 @@ prisma/models/finance-ledger.prisma
 prisma/models/auth-rbac.prisma
 server/services/finance/statements/reviews/types.ts
 server/services/finance/statements/reviews/service.ts
-app/api/finance/statement-reviews/route.ts
-app/api/finance/statement-reviews/[id]/route.ts
-app/api/finance/statement-reviews/[id]/confirm/route.ts
+app/api/modules/finance/statement-reviews/route.ts
+app/api/modules/finance/statement-reviews/[id]/route.ts
+app/api/modules/finance/statement-reviews/[id]/confirm/route.ts
 app/finance/ARCHITECTURE.md
 ```
 

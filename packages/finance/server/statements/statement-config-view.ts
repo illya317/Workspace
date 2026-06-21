@@ -1,7 +1,7 @@
 /**
  * M5: 报表配置视图服务
  *
- * 组装 GET /api/finance/statement-config 的完整 DTO：
+ * 组装 GET /api/modules/finance/statement-config 的完整 DTO：
  * - lineConfigs: 报表项目配置
  * - accountTree: L1→L2→L3 科目余额树
  * - mappingPreview: 每个科目节点的报表项目归属

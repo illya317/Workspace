@@ -22,7 +22,7 @@ export function CodesTab({
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(workspacePath("/api/hr/companies?active=1"))
+    fetch(workspacePath("/api/modules/hr/companies?active=1"))
       .then((r) => r.json())
       .then((data) => {
         const found = (data.companies || []).find(
@@ -38,7 +38,7 @@ export function CodesTab({
         <CodeTab
           user={user}
           type="department"
-          apiPath="/api/admin/department-codes"
+          apiPath="/api/system/admin/department-codes"
           title="部门编码"
           companyCode={companyCode}
           selectedCompany={selectedCompany}
@@ -52,7 +52,7 @@ export function CodesTab({
         <CodeTab
           user={user}
           type="position"
-          apiPath="/api/admin/position-codes"
+          apiPath="/api/system/admin/position-codes"
           title="岗位编码"
           companyCode={companyCode}
           selectedCompany={selectedCompany}

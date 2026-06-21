@@ -24,7 +24,7 @@ export default function BalanceCheckTab() {
   const load = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const res = await fetch(workspacePath(`/api/finance/statement-config?companyCode=${company}&year=${year}`));
+      const res = await fetch(workspacePath(`/api/modules/finance/statement-config?companyCode=${company}&year=${year}`));
       if (!res.ok) { setError(`请求失败 (${res.status})`); setTree(null); }
       else {
         const d = await res.json();

@@ -73,7 +73,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 | Apps 业务包 | `packages/hr/`, `packages/production/`, `packages/finance/`, `packages/<domain>/` | 各业务模块自己的 UI、server、types、constants、import、module 注册 |
 | 业务页面壳 | `app/<domain>/` | Next 路由 facade，只组合 package UI，保留领域 `ARCHITECTURE.md` |
 | API 路由壳 | `app/api/<domain>/` | 鉴权、权限、参数校验、调用 package service、返回 DTO |
-| 开发辅助 | `app/api/dev-login-bypass/` | 开发环境快速登录，仅本地 |
+| 开发辅助 | `app/api/auth/dev-login-bypass/` | 开发环境快速登录，仅本地 |
 | 旧业务服务 | `server/services/<domain>/` | 存量兼容/待迁移旧代码；新增业务 service 不再优先放这里 |
 | 认证权限 | `@workspace/platform/server/auth`, `@workspace/platform/permissions`, `packages/platform/server/auth/`, `packages/platform/server/rbac/` | 登录、session、RBAC、资源树；新代码使用 Platform 契约 |
 | 数据库 | `prisma/` | Prisma schema、migration、seed |
@@ -186,14 +186,14 @@ rm data/dev.db && npx prisma db push
 |------|------|------|
 | 登录 | `/login` | 公开 |
 | 入口 | `/portal` | 登录 |
-| 工作汇报 | `/reports` | 登录 |
-| 历史记录 | `/history` | 登录 |
-| 工作清单 | `/works` | 登录 |
+| 工作汇报 | `/work/reports` | 登录 |
+| 历史记录 | `/work/history` | 登录 |
+| 工作清单 | `/work/tasks` | 登录 |
 | 人事行政 | `/hr` | `people.access` |
 | 管理后台 | `/admin` | `system.admin` 或 `people.access` |
-| 接入指南 | `/api-guide` | `system.api.access` |
+| 接入指南 | `/docs/api-guide` | `system.api.access` |
 | 设置 | `/settings` | 登录 |
-| 智能助手 | `/api/agent` | 登录，权限随用户 |
+| 智能助手 | `/api/system/agent` | 登录，权限随用户 |
 | 外部关系 | `/external` | 登录 |
 | 文档中心 | `/docs` | 登录 |
 | 资料库 | `/library` | 登录 |
@@ -214,7 +214,7 @@ API 权限规则：
 - GET 使用 `access`；POST/PUT/PATCH 使用 `write`；DELETE 使用 `delete`；授权和系统配置使用 `admin` 或 `system.admin`。
 - 新 API route 只允许做四件事：认证、参数校验、调用 service、返回 DTO。
 - 复杂查询、导入、汇总、派生字段计算必须放到 `packages/<domain>/server/`；旧 `server/services/<domain>/` 只作为存量兼容位置。
-- 旧兼容 API 可以保留代理，但新功能必须走领域入口，例如 HR 新接口走 `app/api/hr/*`，财务成本走 `app/api/finance/cost/*`。
+- 旧兼容 API 可以保留代理，但新功能必须走领域入口，例如 HR 新接口走 `app/api/modules/hr/*`，财务成本走 `app/api/modules/finance/cost/*`。
 
 ## 11. 业务规则
 

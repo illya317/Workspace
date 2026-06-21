@@ -121,7 +121,7 @@ export function useReports(showToast: (message: string, type?: "success" | "erro
       ? { taskName: autoTaskName, notes: loader.notes, items }
       : { taskName: autoTaskName, notes: loader.notes, items, date: pInfo.date, targetType, targetId };
 
-    const res = await fetch(workspacePath(loader.report ? `/api/reports/${loader.report.id}` : "/api/reports"), {
+    const res = await fetch(workspacePath(loader.report ? `/api/modules/work/reports/${loader.report.id}` : "/api/modules/work/reports"), {
       method: loader.report ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -133,7 +133,7 @@ export function useReports(showToast: (message: string, type?: "success" | "erro
       if (d.report) {
         loader.setReport(d.report);
         if (loader.report) {
-          const vRes = await fetch(workspacePath(`/api/reports/${loader.report.id}/versions`));
+          const vRes = await fetch(workspacePath(`/api/modules/work/reports/${loader.report.id}/versions`));
           const vData = await vRes.json();
           loader.setVersions(vData.history || []);
         }

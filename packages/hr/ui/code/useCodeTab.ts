@@ -78,7 +78,7 @@ export function useCodeTab({
       return;
     }
     const res = await fetch(
-      workspacePath(`/api/admin/position-codes?positionCode=${encodeURIComponent(item.code)}`)
+      workspacePath(`/api/system/admin/position-codes?positionCode=${encodeURIComponent(item.code)}`)
     );
     if (res.ok) {
       const data = await res.json();

@@ -58,8 +58,8 @@ export default function LineConfigTab() {
       return;
     }
     const [configResponse, mappingResponse] = await Promise.all([
-      fetch(workspacePath(`/api/finance/statement-config?companyCode=${company}&year=${yearNum}`)),
-      fetch(workspacePath(`/api/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance`)),
+      fetch(workspacePath(`/api/modules/finance/statement-config?companyCode=${company}&year=${yearNum}`)),
+      fetch(workspacePath(`/api/modules/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance`)),
     ]);
     if (!configResponse.ok || !mappingResponse.ok) {
       setError(`加载失败 (${configResponse.status}/${mappingResponse.status})`);
@@ -121,7 +121,7 @@ export default function LineConfigTab() {
     }
     const key = `${lineCode}:${accountCode}`;
     setSaving((previous) => new Set(previous).add(key));
-    const response = await fetch(workspacePath("/api/finance/statement-mappings"), {
+    const response = await fetch(workspacePath("/api/modules/finance/statement-mappings"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ companyCode: company, year: yearNum, statementType: "balance", accountCode, lineCode, operator }),
@@ -155,7 +155,7 @@ export default function LineConfigTab() {
     });
     if (!confirmed) return;
     setSaving((previous) => new Set(previous).add(accountCode));
-    const response = await fetch(workspacePath(`/api/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance&accountCode=${encodeURIComponent(accountCode)}`),
+    const response = await fetch(workspacePath(`/api/modules/finance/statement-mappings?companyCode=${company}&year=${yearNum}&statementType=balance&accountCode=${encodeURIComponent(accountCode)}`),
       { method: "DELETE" },
     );
     setSaving((previous) => {

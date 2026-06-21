@@ -35,38 +35,7 @@ const API_CAPABILITY_ROOTS = new Set([
   "system",
 ]);
 
-const COMPATIBILITY_API_ROOTS = new Set([
-  "admin",
-  "agent",
-  "auth",
-  "contracts",
-  "departments",
-  "dev-login-bypass",
-  "employee-positions",
-  "employee-projects",
-  "employees",
-  "employments",
-  "finance",
-  "hr",
-  "inventory",
-  "library",
-  "my-api-key",
-  "my-targets",
-  "position-descriptions",
-  "positions",
-  "production",
-  "projects",
-  "reports",
-  "user",
-  "week-info",
-  "work",
-  "works",
-]);
-
-const ALLOWED_API_ROOTS = new Set([
-  ...API_CAPABILITY_ROOTS,
-  ...COMPATIBILITY_API_ROOTS,
-]);
+const ALLOWED_API_ROOTS = API_CAPABILITY_ROOTS;
 
 const REGISTERED_MODULE_API_ROOTS = new Set([
   "administration",
