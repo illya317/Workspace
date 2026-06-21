@@ -11,6 +11,8 @@ const baseline = JSON.parse(
 
 const directPermissionBaseline = new Set(baseline.directPermissionFiles);
 const directPrismaBaseline = new Set(baseline.directPrismaFiles);
+const seenDirectPermissionFiles = new Set();
+const seenDirectPrismaFiles = new Set();
 
 const PUBLIC_API_ROUTES = new Set([
   "app/api/auth/dev-login/route.ts",
@@ -96,20 +98,32 @@ for (const file of walk(API_ROOT)) {
   if (/\bcheckPermission\s*\(/.test(code) && !directPermissionBaseline.has(rel)) {
     errors.push(`${rel} uses direct checkPermission(); use authorize() or a wrapper that delegates to authorize()`);
   }
+  if (/\bcheckPermission\s*\(/.test(code)) {
+    seenDirectPermissionFiles.add(rel);
+  }
 
   if (/\bprisma\./.test(code) && !directPrismaBaseline.has(rel)) {
     errors.push(`${rel} uses Prisma directly in app/api; move business logic to package server service`);
   }
+  if (/\bprisma\./.test(code)) {
+    seenDirectPrismaFiles.add(rel);
+  }
 }
 
 for (const rel of directPermissionBaseline) {
-  if (fs.existsSync(path.join(ROOT, rel))) continue;
-  directPermissionBaseline.delete(rel);
+  if (!fs.existsSync(path.join(ROOT, rel))) {
+    errors.push(`${rel} is listed in directPermissionFiles baseline but no longer exists`);
+  } else if (!seenDirectPermissionFiles.has(rel)) {
+    errors.push(`${rel} is listed in directPermissionFiles baseline but no longer uses checkPermission()`);
+  }
 }
 
 for (const rel of directPrismaBaseline) {
-  if (fs.existsSync(path.join(ROOT, rel))) continue;
-  directPrismaBaseline.delete(rel);
+  if (!fs.existsSync(path.join(ROOT, rel))) {
+    errors.push(`${rel} is listed in directPrismaFiles baseline but no longer exists`);
+  } else if (!seenDirectPrismaFiles.has(rel)) {
+    errors.push(`${rel} is listed in directPrismaFiles baseline but no longer uses Prisma directly`);
+  }
 }
 
 if (errors.length > 0) {

@@ -1,4 +1,5 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { canAccessTarget, canSubmitToTarget } from "./access";
 
 interface ReportFilters {
   date?: string;
@@ -45,6 +46,76 @@ interface CreateReportInput {
   targetType?: string;
   targetId?: number;
   items: ReportItemInput[];
+}
+
+interface AuthenticatedWorkUser {
+  userId: number;
+  departmentId: number;
+}
+
+export async function listReportsForUser(
+  user: Pick<AuthenticatedWorkUser, "userId">,
+  filters: ReportFilters,
+) {
+  let targetType: string;
+  let targetIds: string;
+  let deniedTargetIds: number[] = [];
+
+  if (filters.targetType && filters.targetIds) {
+    const ids = filters.targetIds.split(",").map(Number);
+    const checks = await Promise.all(ids.map(async (id) => ({
+      id,
+      allowed: await canAccessTarget(user.userId, filters.targetType as string, id),
+    })));
+    const accessible = checks.filter((result) => result.allowed).map((result) => result.id);
+    deniedTargetIds = checks.filter((result) => !result.allowed).map((result) => result.id);
+    if (accessible.length === 0) {
+      return { ok: false as const, error: "无权限访问该目标", status: 403, deniedTargetIds };
+    }
+    targetType = filters.targetType;
+    targetIds = accessible.join(",");
+  } else {
+    targetType = "user";
+    targetIds = String(user.userId);
+  }
+
+  const reports = await listReports({ date: filters.date, targetType, targetIds });
+  return { ok: true as const, reports, deniedTargetIds };
+}
+
+export async function createReportForUser(
+  user: AuthenticatedWorkUser,
+  input: Omit<CreateReportInput, "userId" | "date"> & {
+    date?: string;
+  },
+) {
+  const targetType = input.targetType ?? "department";
+  const targetId = input.targetId ?? user.departmentId;
+  const allowed = await canSubmitToTarget(user.userId, targetType, targetId);
+  if (!allowed) {
+    return { ok: false as const, error: "无权限提交该目标周报", status: 403 };
+  }
+
+  const date = input.date ?? new Date().toISOString().slice(0, 10);
+  const items = await enrichWithRoutineItems([...input.items], targetType, targetId);
+
+  try {
+    const report = await createReport({
+      userId: user.userId,
+      taskName: input.taskName,
+      notes: input.notes || null,
+      date,
+      targetType,
+      targetId,
+      items,
+    });
+    return { ok: true as const, report };
+  } catch (error: unknown) {
+    if (isDuplicateReportError(error)) {
+      return { ok: false as const, error: "该目标该时段已提交过报告，请使用更新功能", status: 409 };
+    }
+    throw error;
+  }
 }
 
 export async function enrichWithRoutineItems(

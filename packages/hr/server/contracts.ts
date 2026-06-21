@@ -118,6 +118,28 @@ export async function addContract(
   return { success: true };
 }
 
+export async function createEmployeeContract(input: {
+  employeeId: unknown;
+  contractData: Record<string, unknown>;
+  editorId: number;
+}) {
+  for (const field of CONTRACT_DATE_FIELDS) {
+    if (!isValidDateValue(input.contractData[field])) {
+      return { success: false, error: "日期格式无效", status: 400 };
+    }
+  }
+  if (!(await isValidCompanyName(input.contractData.company))) {
+    return { success: false, error: "公司不存在", status: 400 };
+  }
+  for (const field of ["legalRelation", "contractType", "employmentForm", "insuranceStatus"]) {
+    if (!validateContractOption(field, input.contractData[field])) {
+      return { success: false, error: "字段值不在允许范围内", status: 400 };
+    }
+  }
+
+  return addContract(input.employeeId, input.contractData, input.editorId);
+}
+
 function decodeSyntheticContractId(contractId: number) {
   return {
     employmentId: Math.floor(contractId / 1000),

@@ -2,20 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate, checkHRAccess, checkHRWrite } from "@workspace/platform/server/auth";
 import {
-  addContract,
+  createEmployeeContract,
   getContracts,
-  isValidCompanyName,
-  isValidDateValue,
-  validateContractOption,
 } from "@workspace/hr/server";
-
-const DATE_FIELDS = [
-  "firstContractStartDate", "firstContractEndDate",
-  "secondContractStartDate", "secondContractEndDate",
-  "thirdContractStartDate", "thirdContractEndDate",
-  "permanentContractDate", "confidentialityDate",
-  "nonCompeteDate", "endDate",
-];
 
 const contractsQuerySchema = z.object({
   company: z.string().optional(),
@@ -51,21 +40,8 @@ export async function POST(request: Request) {
   const parsedBody = createContractSchema.safeParse(body);
   if (!parsedBody.success) return NextResponse.json({ error: "请求体必须为 JSON" }, { status: 400 });
   const { employeeId, ...contractData } = parsedBody.data;
-  for (const field of DATE_FIELDS) {
-    if (!isValidDateValue(contractData[field])) {
-      return NextResponse.json({ error: "日期格式无效" }, { status: 400 });
-    }
-  }
-  if (!(await isValidCompanyName(contractData.company))) {
-    return NextResponse.json({ error: "公司不存在" }, { status: 400 });
-  }
-  for (const field of ["legalRelation", "contractType", "employmentForm", "insuranceStatus"]) {
-    if (!validateContractOption(field, contractData[field])) {
-      return NextResponse.json({ error: "字段值不在允许范围内" }, { status: 400 });
-    }
-  }
 
-  const result = await addContract(employeeId, contractData, payload.userId);
+  const result = await createEmployeeContract({ employeeId, contractData, editorId: payload.userId });
 
   if (!result.success) {
     return NextResponse.json(

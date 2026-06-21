@@ -37,14 +37,13 @@ const API_CAPABILITY_ROOTS = new Set([
 
 const ALLOWED_API_ROOTS = API_CAPABILITY_ROOTS;
 
-const REGISTERED_MODULE_API_ROOTS = new Set([
-  "administration",
-  "finance",
-  "hr",
-  "library",
-  "production",
-  "work",
-]);
+function registeredModuleApiRoots() {
+  const source = fs.readFileSync(rel("packages", "platform", "module-registry.ts"), "utf8");
+  return new Set(
+    Array.from(source.matchAll(/apiResourceGuards\(\s*["']\/api\/modules\/([^/"']+)/g))
+      .map((match) => match[1])
+  );
+}
 
 const LOCAL_ONLY_TRACKED = [
   ".DS_Store",
@@ -130,6 +129,7 @@ try {
 
 const apiDir = rel("app", "api");
 if (fs.existsSync(apiDir)) {
+  const registeredModuleApiRootsSet = registeredModuleApiRoots();
   for (const entry of fs.readdirSync(apiDir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
     if (entry.name.startsWith(".")) continue;
@@ -147,8 +147,8 @@ if (fs.existsSync(apiDir)) {
       if (!entry.isDirectory()) continue;
       if (entry.name.startsWith(".")) continue;
       if (!hasRouteFile(path.join(modulesDir, entry.name))) continue;
-      if (!REGISTERED_MODULE_API_ROOTS.has(entry.name)) {
-        fail(`app/api/modules/${entry.name} is not a registered business module API root.`);
+      if (!registeredModuleApiRootsSet.has(entry.name)) {
+        fail(`app/api/modules/${entry.name} is not registered in module-registry apiGuards.`);
       }
     }
   }

@@ -1,44 +1,4 @@
 {
-  "directPermissionFiles": [
-    "app/api/system/admin/employee-permissions/route.ts",
-    "app/api/system/admin/permission-grants/route.ts",
-    "app/api/system/admin/projects/route.ts",
-    "app/api/system/admin/system-config/route.ts",
-    "app/api/system/agent/capabilities/route.ts",
-    "app/api/system/agent/route.ts",
-    "app/api/modules/hr/employee-projects/route.ts",
-    "app/api/modules/hr/employees/search/route.ts",
-    "app/api/modules/hr/projects/route.ts",
-    "app/api/modules/hr/roster/route.ts",
-    "app/api/me/api-key/route.ts",
-    "app/api/modules/production/qc/batches/[batchId]/route.ts",
-    "app/api/modules/production/qc/batches/[batchId]/submit/route.ts",
-    "app/api/modules/production/qc/batches/route.ts",
-    "app/api/modules/production/qc/config/route.ts",
-    "app/api/modules/production/qc/template-feedback/route.ts",
-    "app/api/modules/production/qc/templates/[templateId]/route.ts",
-    "app/api/modules/work/reports/[id]/route.ts",
-    "app/api/modules/work/plan-members/route.ts",
-    "app/api/modules/work/plans/route.ts"
-  ],
-  "directPrismaFiles": [
-    "app/api/system/admin/audit-log/restore/route.ts",
-    "app/api/system/admin/department-admins/route.ts",
-    "app/api/system/admin/edit-history/route.ts",
-    "app/api/system/admin/projects/route.ts",
-    "app/api/system/admin/system-config/route.ts",
-    "app/api/system/agent/proposals/[id]/confirm/route.ts",
-    "app/api/auth/change-password/route.ts",
-    "app/api/auth/dev-login/route.ts",
-    "app/api/auth/gateway-check/route.ts",
-    "app/api/auth/wecom/callback/route.ts",
-    "app/api/auth/dev-login-bypass/route.ts",
-    "app/api/modules/hr/positions/route.ts",
-    "app/api/me/api-key/route.ts",
-    "app/api/modules/work/reports/[id]/route.ts",
-    "app/api/modules/work/reports/[id]/versions/[version]/route.ts",
-    "app/api/modules/work/reports/[id]/versions/route.ts",
-    "app/api/me/routine/route.ts",
-    "app/api/modules/work/tasks/[id]/route.ts"
-  ]
+  "directPermissionFiles": [],
+  "directPrismaFiles": []
 }
