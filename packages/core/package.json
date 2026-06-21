@@ -15,6 +15,7 @@
     "./search": "./search/index.ts",
     "./search/*": "./search/*.ts",
     "./ui/component-registry": "./ui/component-registry.ts",
+    "./ui/page-style-preview/template-data": "./ui/page-style-preview/template-data.ts",
     "./ui": "./ui/index.ts",
     "./ui/*": "./ui/*.tsx"
   }

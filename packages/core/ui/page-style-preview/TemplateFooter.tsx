@@ -8,6 +8,7 @@ function footerLabels(page: PageTemplate) {
   if (page.kind === "split") return ["当前详情", "4 项关联信息"];
   if (page.kind === "analysis") return ["分析口径", "本期 / 同比 / 预警"];
   if (page.kind === "document") return ["文档预览", "第 1 / 6 页"];
+  if (page.kind === "production" && page.paperMode === "template") return ["模板预览", "产品 / 阶段 / 项目"];
   if (page.kind === "production") return ["填写预览", "已填 4 项"];
   if (page.kind === "upload") return ["导入预览", "3 条待确认"];
   return ["当前页面", "已同步"];
@@ -32,9 +33,6 @@ export default function TemplateFooter({
     );
   }
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white p-3 shadow-sm">
-      <span className="text-xs font-semibold text-slate-500">第 {pageNumber} / 8 页，共 86 条</span>
-      <Pagination page={pageNumber} totalPages={8} total={86} onPageChange={onPageChange} compact />
-    </div>
+    <Pagination page={pageNumber} totalPages={8} total={86} onPageChange={onPageChange} compact className="rounded-lg border border-slate-200 shadow-sm" />
   );
 }

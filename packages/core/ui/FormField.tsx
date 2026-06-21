@@ -26,23 +26,23 @@ export default function FormField({
 
   if (inline) {
     return (
-      <label className={joinClassNames("grid min-w-0 grid-cols-[4rem_minmax(0,1fr)] items-center gap-x-2 gap-y-1 text-sm", className)}>
-        <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-slate-500">
+      <label className={joinClassNames("inline-flex h-10 min-w-0 items-center gap-1.5 text-xs leading-none", className)}>
+        <span className="inline-flex h-10 shrink-0 items-center whitespace-nowrap text-xs font-semibold leading-none text-slate-500">
           {label}
           {required && <span className="ml-0.5 text-red-500">*</span>}
         </span>
-        <span className="min-w-0 text-sm [&_button]:text-sm [&_input]:font-sans [&_input]:text-sm [&_input]:tabular-nums">
+        <span className="inline-flex h-10 min-w-0 items-center text-xs leading-none [&_button]:text-xs [&_input]:font-sans [&_input]:text-xs [&_input]:leading-none [&_input]:tabular-nums">
           {children}
         </span>
-        {hint && !error && <span className="col-start-2 text-xs text-slate-400">{hint}</span>}
-        {error && <span className="col-start-2 text-xs text-red-500">{error}</span>}
+        {hint && !error && <span className="text-xs text-slate-400">{hint}</span>}
+        {error && <span className="text-xs text-red-500">{error}</span>}
       </label>
     );
   }
 
   return (
     <label className={joinClassNames("block min-w-0", className)}>
-      <span className="mb-1 block text-sm font-medium text-slate-500">
+      <span className="mb-0.5 block text-xs font-semibold text-slate-500">
         {label}
         {required && <span className="ml-0.5 text-red-500">*</span>}
       </span>

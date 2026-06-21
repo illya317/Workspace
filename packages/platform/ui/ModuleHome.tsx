@@ -53,7 +53,7 @@ export default function ModuleHome({ module, user }: Props) {
 
   if (children.length === 0) {
     return (
-      <ModuleGridPage summary={module.desc} centered>
+      <ModuleGridPage title={module.label} summary={module.desc} centered>
         <div className="col-span-full">
           <EmptyStateCard compact={false}>{getEmptyMessage(module.key)}</EmptyStateCard>
         </div>
@@ -62,7 +62,7 @@ export default function ModuleHome({ module, user }: Props) {
   }
 
   return (
-    <ModuleGridPage summary={module.desc} centered>
+    <ModuleGridPage title={module.label} summary={module.desc} centered>
       {children.map((child) => {
         const lifecycleStatus = child.lifecycleStatus || MODULE_LIFECYCLE_BY_RESOURCE[child.resourceKey];
         return (

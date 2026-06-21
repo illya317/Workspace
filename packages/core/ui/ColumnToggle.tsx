@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import type { ReactNode } from "react";
+import { getToolbarActionClassName } from "./ActionControls";
+import { joinClassNames } from "./card-utils";
 
 export interface ColumnDef {
   key: string;
-  label: string;
+  label: ReactNode;
   defaultVisible?: boolean;
   /** 必选列，不可隐藏。如科目编码、凭证号。 */
   required?: boolean;
@@ -14,9 +17,10 @@ export interface ColumnToggleProps {
   columns: ColumnDef[];
   visible: string[];
   onChange: (visible: string[]) => void;
+  label?: string;
 }
 
-export default function ColumnToggle({ columns, visible, onChange }: ColumnToggleProps) {
+export default function ColumnToggle({ columns, visible, onChange, label = "字段" }: ColumnToggleProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -30,6 +34,9 @@ export default function ColumnToggle({ columns, visible, onChange }: ColumnToggl
 
   const optional = columns.filter((c) => !c.required);
   const visibleOptional = optional.filter((c) => visible.includes(c.key));
+  const defaultVisible = columns
+    .filter((c) => c.required || c.defaultVisible)
+    .map((c) => c.key);
 
   function toggle(key: string, req: boolean | undefined) {
     if (req) return;
@@ -41,40 +48,57 @@ export default function ColumnToggle({ columns, visible, onChange }: ColumnToggl
   if (optional.length === 0) return null;
 
   return (
-    <label className="flex items-center gap-1.5 text-xs">
-      <span className="text-gray-500">字段</span>
-      <div ref={ref} className="relative">
-        <button
-          onClick={() => setOpen(!open)}
-          className="rounded border border-gray-200 px-1.5 py-1 text-xs focus:border-emerald-400 focus:outline-none"
-        >
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className={joinClassNames(getToolbarActionClassName("secondary"), "gap-2 px-3")}
+      >
+        <span>{label}</span>
+        <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[11px] font-semibold text-slate-600">
           {visibleOptional.length}/{optional.length}
-        </button>
+        </span>
+      </button>
       {open && (
-        <div className="absolute right-0 top-full z-20 mt-1 rounded border border-gray-200 bg-white p-1 shadow-lg min-w-[150px]">
-          {columns.map((c) => {
-            const checked = c.required || visible.includes(c.key);
-            return (
-              <label
-                key={c.key}
-                className={`flex items-center gap-1.5 rounded px-2 py-1 text-xs cursor-pointer ${
-                  c.required ? "text-gray-400" : "text-gray-600 hover:bg-gray-50"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={checked}
-                  disabled={c.required}
-                  onChange={() => toggle(c.key, c.required)}
-                  className="h-3 w-3 accent-emerald-600"
-                />
-                {c.label}
-              </label>
-            );
-          })}
+        <div className="absolute right-0 top-full z-30 mt-2 w-56 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl">
+          <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
+            <span className="text-xs font-semibold text-slate-700">显示字段</span>
+            <button
+              type="button"
+              onClick={() => onChange(defaultVisible)}
+              className="rounded px-2 py-1 text-[11px] font-semibold text-emerald-700 transition hover:bg-emerald-50"
+            >
+              恢复默认
+            </button>
+          </div>
+          <div className="max-h-72 overflow-auto p-1">
+            {columns.map((c) => {
+              const checked = c.required || visible.includes(c.key);
+              return (
+                <label
+                  key={c.key}
+                  className={joinClassNames(
+                    "flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-xs transition",
+                    c.required ? "text-slate-400" : "text-slate-700 hover:bg-slate-50",
+                  )}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    disabled={c.required}
+                    onChange={() => toggle(c.key, c.required)}
+                    className="h-3.5 w-3.5 rounded border-slate-300 accent-emerald-600"
+                  />
+                  <span className="min-w-0 flex-1 truncate">{c.label}</span>
+                  {c.required && <span className="text-[10px] font-semibold text-slate-400">必选</span>}
+                </label>
+              );
+            })}
+          </div>
         </div>
       )}
-      </div>
-    </label>
+    </div>
   );
 }

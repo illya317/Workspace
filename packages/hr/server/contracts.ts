@@ -1,104 +1,27 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { Prisma } from "@workspace/platform/server/prisma";
-import { getInitials } from "@workspace/core/search";
-import { matchEmployee } from "./search";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { isValidCompanyName, isValidDateValue, validateContractOption } from "./field-validation";
-
-interface RawContract {
-  company?: unknown;
-  isPrimary?: unknown;
-  isInsuredHere?: unknown;
-  insuranceStatus?: unknown;
-  legalRelation?: unknown;
-  contractType?: unknown;
-  employmentForm?: unknown;
-  firstContractStartDate?: unknown;
-  firstContractEndDate?: unknown;
-  secondContractStartDate?: unknown;
-  secondContractEndDate?: unknown;
-  thirdContractStartDate?: unknown;
-  thirdContractEndDate?: unknown;
-  permanentContractDate?: unknown;
-  confidentialityDate?: unknown;
-  nonCompeteDate?: unknown;
-  endDate?: unknown;
-}
-
-export interface ContractRow {
-  id: number;
-  employmentId: number;
-  employeeId: string;
-  employeeName: string;
-  company: string;
-  isPrimary: boolean;
-  isInsuredHere: boolean;
-  insuranceStatus: string | null;
-  legalRelation: string;
-  contractType: string;
-  employmentForm: string;
-  firstContractStartDate: string | null;
-  firstContractEndDate: string | null;
-  secondContractStartDate: string | null;
-  secondContractEndDate: string | null;
-  thirdContractStartDate: string | null;
-  thirdContractEndDate: string | null;
-  permanentContractDate: string | null;
-  confidentialityDate: string | null;
-  nonCompeteDate: string | null;
-  endDate: string | null;
-}
-
-export function parseContracts(json: string | null): Record<string, unknown>[] {
-  if (!json) return [];
-  try {
-    const parsed = JSON.parse(json) as unknown;
-    if (Array.isArray(parsed)) return parsed as Record<string, unknown>[];
-    return [parsed as Record<string, unknown>];
-  } catch {
-    return [];
-  }
-}
-
-export function clearPrimaryContractFlags(
-  contracts: Record<string, unknown>[],
-  keepIndex?: number,
-) {
-  let changed = false;
-  const next = contracts.map((contract, index) => {
-    if (index === keepIndex) return contract;
-    if (contract.isPrimary !== true) return contract;
-    changed = true;
-    return { ...contract, isPrimary: false };
-  });
-  return { contracts: next, changed };
-}
-
-function normalizedString(value: unknown) {
-  if (value === null || value === undefined || value === "") return null;
-  return String(value);
-}
-
-export function normalizeContractRecord(contract: Record<string, unknown>) {
-  const next = { ...contract };
-  if (!next.insuranceStatus && typeof next.isInsuredHere === "boolean") {
-    next.insuranceStatus = next.isInsuredHere ? "已参保" : "未参保";
-  }
-  delete next.isInsuredHere;
-  const endDate = normalizedString(next.endDate);
-  const permanentContractDate = normalizedString(next.permanentContractDate);
-  const periodEndDates = [
-    normalizedString(next.firstContractEndDate),
-    normalizedString(next.secondContractEndDate),
-    normalizedString(next.thirdContractEndDate),
-  ].filter(Boolean);
-
-  if (endDate && (permanentContractDate || periodEndDates.includes(endDate))) {
-    next.endDate = null;
-  }
-
-  return next;
-}
+import {
+  ALLOWED_CONTRACT_FIELDS,
+  CONTRACT_DATE_FIELDS,
+  buildContractRows,
+  clearPrimaryContractFlags,
+  filterContracts,
+  normalizeContractRecord,
+  paginateContracts,
+  parseContracts,
+  type PaginatedContracts,
+} from "./contract-records";
+export {
+  buildContractRows,
+  clearPrimaryContractFlags,
+  filterContracts,
+  normalizeContractRecord,
+  paginateContracts,
+  parseContracts,
+};
+export type { ContractRow, PaginatedContracts } from "./contract-records";
 
 export async function clearPrimaryContractsForEmployee(
   employeeId: number,
@@ -125,118 +48,6 @@ export async function clearPrimaryContractsForEmployee(
     });
     await snapshotHistory("Employment", employment.id, editorId);
   }
-}
-
-export function buildContractRows(
-  employments: Array<{
-    id: number;
-    contracts: string | null;
-    employee: { employeeId: string | null; name: string | null } | null;
-  }>
-): ContractRow[] {
-  const rows: ContractRow[] = [];
-
-  for (const emp of employments) {
-    const list = parseContracts(emp.contracts).map(normalizeContractRecord);
-    for (let i = 0; i < list.length; i++) {
-      const c = list[i] as RawContract;
-      rows.push({
-        id: emp.id * 1000 + i,
-        employmentId: emp.id,
-        employeeId: emp.employee?.employeeId || "",
-        employeeName: emp.employee?.name || "",
-        company: String(c.company || ""),
-        isPrimary: Boolean(c.isPrimary ?? false),
-        isInsuredHere: c.insuranceStatus === "已参保",
-        insuranceStatus: c.insuranceStatus == null ? null : String(c.insuranceStatus),
-        legalRelation: String(c.legalRelation || ""),
-        contractType: String(c.contractType || ""),
-        employmentForm: String(c.employmentForm || ""),
-        firstContractStartDate: c.firstContractStartDate == null ? null : String(c.firstContractStartDate),
-        firstContractEndDate: c.firstContractEndDate == null ? null : String(c.firstContractEndDate),
-        secondContractStartDate: c.secondContractStartDate == null ? null : String(c.secondContractStartDate),
-        secondContractEndDate: c.secondContractEndDate == null ? null : String(c.secondContractEndDate),
-        thirdContractStartDate: c.thirdContractStartDate == null ? null : String(c.thirdContractStartDate),
-        thirdContractEndDate: c.thirdContractEndDate == null ? null : String(c.thirdContractEndDate),
-        permanentContractDate: c.permanentContractDate == null ? null : String(c.permanentContractDate),
-        confidentialityDate: c.confidentialityDate == null ? null : String(c.confidentialityDate),
-        nonCompeteDate: c.nonCompeteDate == null ? null : String(c.nonCompeteDate),
-        endDate: c.endDate == null ? null : String(c.endDate),
-      });
-    }
-  }
-
-  return rows;
-}
-
-const SEARCH_FIELDS = ["company", "legalRelation", "contractType", "employmentForm"];
-
-const DATE_FIELDS = [
-  "firstContractStartDate",
-  "firstContractEndDate",
-  "secondContractStartDate",
-  "secondContractEndDate",
-  "thirdContractStartDate",
-  "thirdContractEndDate",
-  "permanentContractDate",
-  "confidentialityDate",
-  "nonCompeteDate",
-  "endDate",
-];
-
-const ALLOWED_CONTRACT_FIELDS = [
-  "company",
-  "isPrimary",
-  "isInsuredHere",
-  "insuranceStatus",
-  "legalRelation",
-  "contractType",
-  "employmentForm",
-  "firstContractStartDate",
-  "firstContractEndDate",
-  "secondContractStartDate",
-  "secondContractEndDate",
-  "thirdContractStartDate",
-  "thirdContractEndDate",
-  "permanentContractDate",
-  "confidentialityDate",
-  "nonCompeteDate",
-  "endDate",
-];
-
-export function filterContracts(rows: ContractRow[], keyword: string): ContractRow[] {
-  const query = keyword.toLowerCase();
-
-  return rows.filter((c) => {
-    if (matchEmployee({ name: c.employeeName, employeeId: c.employeeId }, keyword)) return true;
-
-    for (const f of SEARCH_FIELDS) {
-      const val = String((c as unknown as Record<string, unknown>)[f] || "").toLowerCase();
-      if (val.includes(query)) return true;
-      if (getInitials(String((c as unknown as Record<string, unknown>)[f] || "")).includes(query)) return true;
-    }
-
-    for (const f of DATE_FIELDS) {
-      if (String((c as unknown as Record<string, unknown>)[f] || "").toLowerCase().includes(query)) return true;
-    }
-
-    return false;
-  });
-}
-
-export interface PaginatedContracts {
-  contracts: ContractRow[];
-  total: number;
-}
-
-export function paginateContracts(
-  rows: ContractRow[],
-  page: number,
-  pageSize: number
-): PaginatedContracts {
-  const total = rows.length;
-  const start = (page - 1) * pageSize;
-  return { contracts: rows.slice(start, start + pageSize), total };
 }
 
 export async function getContracts(options: {
@@ -339,7 +150,7 @@ export async function updateContractField(
   userId: number,
 ) {
   if (!ALLOWED_CONTRACT_FIELDS.includes(field)) return { ok: false as const, error: "非法字段", status: 400 };
-  if (DATE_FIELDS.includes(field) && !isValidDateValue(value)) {
+  if (CONTRACT_DATE_FIELDS.includes(field) && !isValidDateValue(value)) {
     return { ok: false as const, error: "日期格式无效", status: 400 };
   }
   if (field === "company" && !(await isValidCompanyName(value))) {

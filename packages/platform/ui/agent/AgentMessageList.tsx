@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
+import { ActionButton } from "@workspace/core/ui";
 import type { AgentMood, AgentMessage } from "./types";
 import AgentAvatar from "./AgentAvatar";
 
@@ -33,10 +34,9 @@ export default function AgentMessageList({ messages, mood, loading, hints, hints
               <span className="text-xs text-gray-300">加载中...</span>
             ) : hints.length > 0 ? (
               hints.map((h) => (
-                <button key={h} onClick={() => onHintClick(h)}
-                  className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition">
+                <ActionButton key={h} onClick={() => onHintClick(h)} className="rounded-full px-2 py-1 text-xs">
                   {h}
-                </button>
+                </ActionButton>
               ))
             ) : (
               <span className="text-xs text-gray-400">暂无可用功能，请联系管理员</span>
@@ -60,10 +60,9 @@ export default function AgentMessageList({ messages, mood, loading, hints, hints
                 {stripMd(msg.content)}
               </div>
               {msg.role === "agent" && !!msg.data && (
-                <button onClick={() => onOpenDrawer(msg)}
-                  className="mt-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium">
+                <ActionButton onClick={() => onOpenDrawer(msg)} className="mt-1 px-2 py-1 text-xs">
                   查看报告 →
-                </button>
+                </ActionButton>
               )}
             </div>
           </div>

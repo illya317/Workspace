@@ -1,5 +1,6 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useCallback } from "react";
 import { useAsyncResource } from "@workspace/core/hooks";
 import type { DirectoryNode } from "@workspace/library/types";
@@ -8,7 +9,7 @@ const INITIAL_DIRECTORIES: DirectoryNode[] = [];
 
 export function useLibraryDirectories() {
   const loadDirectories = useCallback(async () => {
-    const response = await fetch("/workspace/api/library/directories");
+    const response = await fetch(workspacePath("/api/library/directories"));
     if (!response.ok) {
       const text = await response.text().catch(() => "");
       throw new Error(text || `HTTP ${response.status}`);

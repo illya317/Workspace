@@ -1,40 +1,27 @@
 /** P3 Batch 2: workpaper read/write service. */
 import { prisma } from "@workspace/platform/server/prisma";
-import { loadIncomeStatementConfig, loadCashFlowConfig } from "../config/load-config-reports";
-import type { IncomeStatementLineRow, CashFlowLineRow } from "../config/load-config-reports";
 import type {
   WorkpaperReportType,
   WorkpaperOutput, WorkpaperLineOutput,
   GetWorkpaperParams, SaveWorkpaperInput,
 } from "./types";
+import {
+  loadLineConfig,
+  validateReportType,
+  type ReviewLineConfigRow,
+} from "../shared/report-config";
 
 // ─── helpers ─────────────────────────────────────────────────
 
-function validateReportType(rt: string): WorkpaperReportType {
-  if (rt !== "incomeStatement" && rt !== "cashFlow") {
-    throw new Error(`不支持的 reportType: ${rt}，仅支持 incomeStatement / cashFlow`);
-  }
-  return rt;
-}
-
-async function loadLineConfig(companyCode: string, year: number, reportType: WorkpaperReportType) {
-  if (reportType === "incomeStatement") {
-    return loadIncomeStatementConfig(companyCode, year);
-  }
-  return loadCashFlowConfig(companyCode, year);
-}
-
-type LineConfigRow = IncomeStatementLineRow | CashFlowLineRow;
-
-function configLineCode(row: LineConfigRow): string {
+function configLineCode(row: ReviewLineConfigRow): string {
   return row.lineCode;
 }
 
-function configSortOrder(_row: LineConfigRow, index: number): number {
+function configSortOrder(_row: ReviewLineConfigRow, index: number): number {
   return index;
 }
 
-function buildDraftLines(config: LineConfigRow[]): WorkpaperLineOutput[] {
+function buildDraftLines(config: ReviewLineConfigRow[]): WorkpaperLineOutput[] {
   return config.map((row, i) => ({
     id: 0,
     lineCode: configLineCode(row),

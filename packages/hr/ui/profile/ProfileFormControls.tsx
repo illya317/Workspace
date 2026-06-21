@@ -1,153 +1,35 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
-import EntitySearchInput, { type SearchOption } from "../components/EntitySearchInput";
+import type { ReactNode } from "react";
 import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
 import {
+  FkFieldInput,
+  OptionPicker,
   SectionCard,
   TextField,
   TextareaField,
   getFieldInputClassName,
   getReadOnlyFieldClassName,
-  getTagInputShellClassName,
-  getTagPillClassName,
 } from "@workspace/core/ui";
+import type { FkFieldOption } from "@workspace/core/ui";
 import EthnicityPicker from "../components/EthnicityPicker";
 import MajorPicker from "../components/MajorPicker";
-import OptionPicker from "../components/OptionPicker";
 import ProfessionalTitlePicker from "../components/ProfessionalTitlePicker";
 import RankPicker from "../components/RankPicker";
 import SchoolPicker from "../components/SchoolPicker";
 import type { ProfileField } from "@workspace/hr/types";
+import { fkKeyForEntity } from "../fk-keys";
 import { solarToLunarBirthday } from "./lunar-birthday";
 import { formatPhoneNumber, normalizeChineseIdNumber, normalizePhoneValue } from "@workspace/hr/utils/identity";
+import { AliasTagsInput } from "./ProfileAliasTagsInput";
+import { fromPercentDisplay, normalizeInputValue, toPercentDisplay } from "./profile-input-utils";
 
 interface FieldInputProps {
   field: ProfileField;
   value: unknown;
   displayValue?: string | null;
   disabled?: boolean;
-  onChange: (key: string, value: unknown, option?: SearchOption) => void;
-}
-
-function normalizeInputValue(value: unknown) {
-  if (value === null || value === undefined) return "";
-  return String(value);
-}
-
-function toPercentDisplay(value: unknown) {
-  if (value === null || value === undefined || value === "") return "";
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return "";
-  return String(Number((parsed * 100).toFixed(4)));
-}
-
-function fromPercentDisplay(value: string) {
-  const trimmed = value.trim();
-  if (!trimmed) return null;
-  const parsed = Number(trimmed);
-  if (!Number.isFinite(parsed)) return null;
-  return String(parsed / 100);
-}
-
-function normalizeAliasTags(tags: unknown[]) {
-  const seen = new Set<string>();
-  const normalized: string[] = [];
-  for (const item of tags) {
-    const tag = String(item).trim();
-    if (!tag || seen.has(tag)) continue;
-    seen.add(tag);
-    normalized.push(tag);
-  }
-  return normalized;
-}
-
-function readAliasTags(value: unknown) {
-  if (!value) return [];
-  try {
-    const parsed = JSON.parse(String(value));
-    return Array.isArray(parsed) ? normalizeAliasTags(parsed) : [];
-  } catch {
-    return [];
-  }
-}
-
-function splitDraftTags(value: string) {
-  return normalizeAliasTags(value.split(/[,，、;；\n]+/));
-}
-
-function serializeAliasTags(tags: unknown[]) {
-  const normalized = normalizeAliasTags(tags);
-  return normalized.length > 0 ? JSON.stringify(normalized) : null;
-}
-
-function AliasTagsInput({
-  field,
-  value,
-  disabled,
-  onChange,
-}: FieldInputProps) {
-  const [draft, setDraft] = useState("");
-  const tags = useMemo(() => readAliasTags(value), [value]);
-
-  function commitDraft() {
-    const nextTags = splitDraftTags(draft);
-    if (nextTags.length === 0) return;
-    onChange(field.key, serializeAliasTags([...tags, ...nextTags]));
-    setDraft("");
-  }
-
-  function removeTag(index: number) {
-    onChange(field.key, serializeAliasTags(tags.filter((_, tagIndex) => tagIndex !== index)));
-  }
-
-  return (
-    <div
-      className={getTagInputShellClassName()}
-    >
-      {tags.map((tag, index) => (
-        <span
-          key={`${tag}-${index}`}
-          className={getTagPillClassName()}
-        >
-          <span className="truncate">{tag}</span>
-          {!disabled && (
-            <button
-              type="button"
-              aria-label={`删除别名 ${tag}`}
-              onClick={() => removeTag(index)}
-              className="grid size-4 place-items-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900"
-            >
-              ×
-            </button>
-          )}
-        </span>
-      ))}
-      {disabled ? (
-        tags.length === 0 ? <span className="text-slate-400">未设置</span> : null
-      ) : (
-        <TextField
-          value={draft}
-          onChange={setDraft}
-          onBlur={commitDraft}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === "Tab" || event.key === "," || event.key === "，" || event.key === "、") {
-              if (draft.trim()) {
-                event.preventDefault();
-                commitDraft();
-              }
-            }
-            if (event.key === "Backspace" && !draft && tags.length > 0) {
-              removeTag(tags.length - 1);
-            }
-          }}
-          placeholder={tags.length === 0 ? "添加别名" : ""}
-          unstyled
-          className="min-w-24 flex-1 border-0 bg-transparent px-1 py-1 text-sm text-slate-800 outline-none placeholder:text-slate-400"
-        />
-      )}
-    </div>
-  );
+  onChange: (key: string, value: unknown, option?: FkFieldOption) => void;
 }
 
 export function ProfileFieldInput({
@@ -173,7 +55,6 @@ export function ProfileFieldInput({
       <AliasTagsInput
         field={field}
         value={value}
-        displayValue={displayValue}
         disabled={disabled}
         onChange={onChange}
       />
@@ -230,15 +111,26 @@ export function ProfileFieldInput({
 
   if (field.type === "fk" && field.entity) {
     const display = displayValue || (field.valueFrom === "name" ? normalizeInputValue(value) : undefined);
+    if (disabled) {
+      return (
+        <div
+          aria-readonly="true"
+          className={getReadOnlyFieldClassName()}
+        >
+          {display || normalizeInputValue(value) || <span className="text-slate-400">未设置</span>}
+        </div>
+      );
+    }
     return (
-      <EntitySearchInput
-        entity={field.entity}
-        fkKey={field.fkKey}
+      <FkFieldInput
+        fkKey={fkKeyForEntity(field.entity, field.fkKey)}
         value={value == null ? "" : String(value)}
         displayValue={display}
         disabled={disabled}
-        activeOnly={field.activeOnly}
+        lifecycleScope={field.activeOnly ? "active" : undefined}
         placeholder={`搜索${field.label}`}
+        size="compact"
+        className="w-full"
         onChange={(_label, option) => {
           const next =
             field.valueFrom === "name"
@@ -301,7 +193,6 @@ export function ProfileFieldInput({
         disabled={disabled}
         value={normalizeInputValue(value)}
         onChange={(next) => onChange(field.key, next)}
-        className={getFieldInputClassName()}
       />
     );
   }
@@ -367,25 +258,30 @@ export function SectionShell({
   subtitle,
   status,
   actions,
+  className,
   children,
 }: {
-  title: string;
-  subtitle?: string;
+  title: ReactNode;
+  subtitle?: ReactNode;
   status?: ReactNode;
   actions?: ReactNode;
+  className?: string;
   children: ReactNode;
 }) {
+  const headerTitle = title ? (
+    <div>
+      <div>{title}</div>
+      {status && <div className="mt-2">{status}</div>}
+    </div>
+  ) : status ? <div>{status}</div> : null;
+
   return (
     <SectionCard
-      title={(
-        <div>
-          <div>{title}</div>
-          {status && <div className="mt-2">{status}</div>}
-        </div>
-      )}
+      title={headerTitle}
       subtitle={subtitle}
       actions={actions && <div className="flex shrink-0 flex-wrap gap-2 lg:justify-end">{actions}</div>}
-      bodyClassName="p-5"
+      className={className}
+      bodyClassName="p-3"
     >
       {children}
     </SectionCard>

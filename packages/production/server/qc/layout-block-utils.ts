@@ -1,4 +1,5 @@
 import path from "path";
+import { readFile } from "fs/promises";
 import type { QcRecommendedRange } from "./types";
 
 export type LayoutParams = Record<string, unknown>;
@@ -9,8 +10,21 @@ export function asRecord(value: unknown): Record<string, unknown> {
 
 export function asArray(value: unknown): unknown[] { return Array.isArray(value) ? value : []; }
 
+export function values(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : Object.values(asRecord(value));
+}
+
 export function asString(value: unknown, fallback = "") {
   return typeof value === "string" || typeof value === "number" ? String(value) : fallback;
+}
+
+export async function readJson(filePath: string): Promise<unknown> {
+  return JSON.parse(await readFile(filePath, "utf8")) as unknown;
+}
+
+export async function readOptionalJson(filePath: string): Promise<unknown> {
+  const raw = await readFile(filePath, "utf8").catch(() => "");
+  return raw ? JSON.parse(raw) as unknown : undefined;
 }
 
 export function asBoolean(value: unknown) { return typeof value === "boolean" ? value : undefined; }

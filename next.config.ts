@@ -13,10 +13,14 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ["pinyin-pro"],
   basePath,
-  // Allow LAN access in development via env (e.g. ALLOWED_DEV_ORIGINS=192.168.31.243)
-  allowedDevOrigins: process.env.ALLOWED_DEV_ORIGINS
-    ? process.env.ALLOWED_DEV_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean)
-    : [],
+  // Allow local aliases in development; LAN access can still be added via env.
+  allowedDevOrigins: [
+    "localhost",
+    "127.0.0.1",
+    ...(process.env.ALLOWED_DEV_ORIGINS
+      ? process.env.ALLOWED_DEV_ORIGINS.split(",").map((s) => s.trim()).filter(Boolean)
+      : []),
+  ],
   outputFileTracingRoot: workspaceRoot,
   turbopack: {
     root: workspaceRoot,

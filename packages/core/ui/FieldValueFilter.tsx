@@ -3,11 +3,22 @@
 import type { CSSProperties } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import SearchInput from "./SearchInput";
+import FkFieldInput, { type LifecycleScope } from "./FkFieldInput";
 import { PickerOptionButton } from "./PickerParts";
 import type { SelectFieldOption } from "./SelectField";
 
+export type FieldValueFilterValueKind = "text" | "fk";
+
+export interface FieldValueFilterField extends SelectFieldOption {
+  valueKind?: FieldValueFilterValueKind;
+  fkKey?: string;
+  fkReturnField?: "id" | "name";
+  lifecycleScope?: LifecycleScope;
+  placeholder?: string;
+}
+
 export interface FieldValueFilterProps {
-  fields: SelectFieldOption[];
+  fields: FieldValueFilterField[];
   valueOptions: Record<string, SelectFieldOption[]>;
   fieldKey: string;
   onFieldKeyChange: (key: string) => void;
@@ -33,10 +44,14 @@ export default function FieldValueFilter({
 }: FieldValueFilterProps) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<"field" | "value">("field");
+  const [draftFieldKey, setDraftFieldKey] = useState(fieldKey);
+  const [draftValue, setDraftValue] = useState(value);
   const rootRef = useRef<HTMLSpanElement | null>(null);
   const selectedField = fields.find((field) => field.value === fieldKey);
   const currentOptions = valueOptions[fieldKey] ?? [];
   const selectedValue = currentOptions.find((option) => option.value === value);
+  const draftField = fields.find((field) => field.value === draftFieldKey);
+  const draftOptions = valueOptions[draftFieldKey] ?? [];
   const displayValue = useMemo(() => selectedValue?.label ?? (value || "全部"), [selectedValue, value]);
 
   useEffect(() => {
@@ -55,15 +70,17 @@ export default function FieldValueFilter({
     };
   }, [open]);
 
-  function changeField(nextKey: string) {
-    onFieldKeyChange(nextKey);
-    onValueChange("");
+  function selectField(nextKey: string) {
+    setDraftFieldKey(nextKey);
+    setDraftValue("");
     setStep("value");
   }
 
-  function changeValue(nextValue: string) {
+  function commitValue(nextValue: string, closeAfterCommit = draftOptions.length > 0) {
+    setDraftValue(nextValue);
+    onFieldKeyChange(draftFieldKey);
     onValueChange(nextValue);
-    if (currentOptions.length > 0) {
+    if (closeAfterCommit) {
       setOpen(false);
       setStep("field");
     }
@@ -72,10 +89,16 @@ export default function FieldValueFilter({
   function toggleOpen() {
     setOpen((current) => {
       const next = !current;
-      if (next) setStep("field");
+      if (next) {
+        setDraftFieldKey(fieldKey);
+        setDraftValue(value);
+        setStep("field");
+      }
       return next;
     });
   }
+
+  const valuePlaceholder = draftField?.placeholder ?? (draftField?.label ? `搜索${draftField.label}` : "输入搜索...");
 
   return (
     <span ref={rootRef} style={style} className={`relative inline-block ${className ?? ""}`}>
@@ -98,16 +121,16 @@ export default function FieldValueFilter({
       </button>
 
       {open && !disabled && (
-        <div className="absolute left-0 top-[calc(100%+0.25rem)] z-50 w-max min-w-full max-w-72 rounded-lg border border-slate-200 bg-white p-2 shadow-xl">
+        <div className="absolute left-0 top-[calc(100%+0.25rem)] z-50 w-max min-w-full max-w-[min(28rem,calc(100vw-2rem))] rounded-lg border border-slate-200 bg-white p-2 shadow-xl">
           {step === "field" ? (
             <div className="space-y-1.5">
               <div className="text-[11px] font-semibold text-slate-400">字段</div>
-              <div className="grid auto-cols-max grid-flow-col gap-1.5">
+              <div className="flex max-w-full flex-wrap gap-1.5">
                 {fields.map((field) => (
                   <PickerOptionButton
                     key={field.value}
-                    selected={field.value === fieldKey}
-                    onClick={() => changeField(field.value)}
+                    selected={field.value === draftFieldKey}
+                    onClick={() => selectField(field.value)}
                     align="center"
                     size="compact"
                     className="min-h-8"
@@ -128,16 +151,16 @@ export default function FieldValueFilter({
                   字段
                 </button>
                 <div className="min-w-0 flex-1 text-right text-[11px] font-semibold text-slate-400">
-                  {selectedField?.label ?? "值"}
+                  {draftField?.label ?? "值"}
                 </div>
               </div>
-              {currentOptions.length > 0 ? (
-                <div className="grid auto-cols-max grid-flow-col gap-1.5">
-                  {currentOptions.map((option) => (
+              {draftOptions.length > 0 ? (
+                <div className="flex max-w-full flex-wrap gap-1.5">
+                  {draftOptions.map((option) => (
                     <PickerOptionButton
                       key={option.value}
-                      selected={option.value === value}
-                      onClick={() => changeValue(option.value)}
+                      selected={option.value === draftValue}
+                      onClick={() => commitValue(option.value)}
                       align="center"
                       size="compact"
                       className="min-h-8"
@@ -146,11 +169,36 @@ export default function FieldValueFilter({
                     </PickerOptionButton>
                   ))}
                 </div>
+              ) : draftField?.valueKind === "fk" && draftField.fkKey ? (
+                <div className="space-y-1.5">
+                  <PickerOptionButton
+                    selected={draftValue === ""}
+                    onClick={() => commitValue("", true)}
+                    align="center"
+                    size="compact"
+                    className="min-h-8"
+                  >
+                    全部
+                  </PickerOptionButton>
+                  <FkFieldInput
+                    fkKey={draftField.fkKey}
+                    value={draftValue}
+                    displayValue={draftValue}
+                    onChange={(_label, option) => {
+                      if (!option) return;
+                      commitValue(draftField.fkReturnField === "id" ? String(option.id) : option.name, true);
+                    }}
+                    placeholder={valuePlaceholder}
+                    lifecycleScope={draftField.lifecycleScope ?? "all"}
+                    size="compact"
+                    className="w-full"
+                  />
+                </div>
               ) : (
                 <SearchInput
-                  value={value}
-                  onChange={changeValue}
-                  placeholder="输入搜索..."
+                  value={draftValue}
+                  onChange={(nextValue) => commitValue(nextValue, false)}
+                  placeholder={valuePlaceholder}
                   size="compact"
                   className="w-full"
                 />

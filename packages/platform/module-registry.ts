@@ -1,44 +1,5 @@
-import type {
-  ApiGuardRegistration,
-  ApiRouteAccessMode,
-  ApiRouteRegistration,
-  WorkspacePackageRegistration,
-} from "@workspace/core";
-
-const API_ACTION_BY_METHOD = {
-  GET: "access",
-  POST: "write",
-  PUT: "write",
-  PATCH: "write",
-  DELETE: "delete",
-} satisfies Record<ApiGuardRegistration["method"], ApiGuardRegistration["action"]>;
-
-function apiResourceGuards(
-  pathPrefix: string,
-  resourceKey: string,
-  methods: ApiGuardRegistration["method"][] = ["GET", "POST", "PUT", "PATCH", "DELETE"],
-): ApiGuardRegistration[] {
-  return methods.map((method) => ({
-    method,
-    pathPrefix,
-    resourceKey,
-    action: API_ACTION_BY_METHOD[method],
-  }));
-}
-
-function apiRoutes(
-  pathPrefix: string,
-  access: ApiRouteAccessMode,
-  methods: ApiRouteRegistration["method"][] = ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  resource?: Pick<ApiRouteRegistration, "resourceKey" | "action">,
-): ApiRouteRegistration[] {
-  return methods.map((method) => ({
-    method,
-    pathPrefix,
-    access,
-    ...resource,
-  }));
-}
+import type { WorkspacePackageRegistration } from "@workspace/core";
+import { apiResourceGuards, systemApiRoutes, validateModuleRegistry } from "./module-registry-utils";
 
 export const registeredModuleDefinitions = [
   {
@@ -174,7 +135,19 @@ export const registeredModuleDefinitions = [
       { key: "finance.import", name: "数据导入", parentKey: "finance", sortOrder: 7 },
       { key: "finance.schedules", name: "附注明细", parentKey: "finance", sortOrder: 8 },
     ],
-    routes: ["/finance"],
+    routes: [
+      "/finance",
+      "/finance/ledger",
+      "/finance/statement-config",
+      "/finance/statement-review",
+      "/finance/statements",
+      "/finance/analysis",
+      "/finance/budget",
+      "/finance/cost",
+      "/finance/tax",
+      "/finance/treasury",
+      "/finance/import",
+    ],
     apiGuards: [
       ...apiResourceGuards("/api/finance", "finance"),
     ],
@@ -208,8 +181,8 @@ export const registeredModuleDefinitions = [
     ],
   },
   {
-    packageName: "@workspace/platform:external",
-    layer: "platform",
+    packageName: "@workspace/external",
+    layer: "domain",
     moduleDef: {
       key: "external",
       label: "外部关系",
@@ -231,6 +204,7 @@ export const registeredModuleDefinitions = [
       { key: "external.customer", name: "客户管理", parentKey: "external", maxRoleKey: "delete", sortOrder: 1 },
       { key: "external.supplier", name: "供应商管理", parentKey: "external", maxRoleKey: "delete", sortOrder: 2 },
     ],
+    routes: ["/external", "/external/investors", "/external/customers", "/external/suppliers"],
   },
   {
     packageName: "@workspace/platform:docs",
@@ -256,6 +230,7 @@ export const registeredModuleDefinitions = [
       { key: "docs.company", name: "公司管理", parentKey: "docs", maxRoleKey: "access", sortOrder: 1 },
       { key: "docs.expense", name: "报销规范", parentKey: "docs", maxRoleKey: "access", sortOrder: 2 },
     ],
+    routes: ["/docs", "/docs/positions", "/docs/positions/GMP", "/docs/company", "/docs/expense", "/docs/api-guide", "/api-guide"],
   },
   {
     packageName: "@workspace/library",
@@ -302,21 +277,7 @@ export const registeredModuleDefinitions = [
       { key: "system.agent", name: "智能体", parentKey: "system", maxRoleKey: "access", sortOrder: 1 },
       { key: "system.api", name: "API接入", parentKey: "system", maxRoleKey: "access", sortOrder: 2 },
     ],
-    apiRoutes: [
-      ...apiRoutes("/api/admin", "protected", ["GET", "POST", "PUT", "PATCH", "DELETE"], { resourceKey: "system", action: "admin" }),
-      ...apiRoutes("/api/agent", "protected", ["GET", "POST"], { resourceKey: "system.agent", action: "access" }),
-      ...apiRoutes("/api/auth/change-password", "protected", ["POST"]),
-      ...apiRoutes("/api/auth/dev-login", "dev", ["POST", "DELETE"]),
-      ...apiRoutes("/api/auth/gateway-check", "protected", ["GET"]),
-      ...apiRoutes("/api/auth/me", "protected", ["GET"]),
-      ...apiRoutes("/api/auth/wecom", "public", ["GET"]),
-      ...apiRoutes("/api/dev-login-bypass", "dev", ["GET"]),
-      ...apiRoutes("/api/inventory", "disabled", ["GET", "POST", "PUT", "DELETE"]),
-      ...apiRoutes("/api/my-api-key", "protected", ["GET", "POST"], { resourceKey: "system.api", action: "access" }),
-      ...apiRoutes("/api/my-targets", "protected", ["GET"]),
-      ...apiRoutes("/api/user", "protected", ["GET", "PUT"]),
-      ...apiRoutes("/api/week-info", "public", ["GET"]),
-    ],
+    apiRoutes: systemApiRoutes(),
   },
   {
     packageName: "@workspace/platform:legal",
@@ -333,42 +294,7 @@ export const registeredModules = registeredModuleDefinitions
   .map((definition) => definition.moduleDef?.key)
   .filter((key): key is string => Boolean(key));
 
-function validateModuleRegistry() {
-  const seenPackages = new Set<string>();
-  const seenModuleKeys = new Set<string>();
-  const seenRoutes = new Map<string, string>();
-
-  for (const definition of registeredModuleDefinitions) {
-    if (seenPackages.has(definition.packageName)) {
-      throw new Error(`DUPLICATE MODULE PACKAGE: ${definition.packageName}`);
-    }
-    seenPackages.add(definition.packageName);
-
-    for (const route of definition.routes ?? []) {
-      const existingPackage = seenRoutes.get(route);
-      if (existingPackage) {
-        throw new Error(`DUPLICATE MODULE ROUTE: ${route} is registered by ${existingPackage} and ${definition.packageName}`);
-      }
-      seenRoutes.set(route, definition.packageName);
-    }
-  }
-
-  for (const moduleKey of registeredModules) {
-    if (seenModuleKeys.has(moduleKey)) {
-      throw new Error(`DUPLICATE MODULE KEY: ${moduleKey}`);
-    }
-    seenModuleKeys.add(moduleKey);
-  }
-
-  for (const definition of registeredModuleDefinitions) {
-    const moduleKey = definition.moduleDef?.key;
-    if (moduleKey && !registeredModules.includes(moduleKey)) {
-      throw new Error(`MODULE NOT REGISTERED: ${moduleKey}`);
-    }
-  }
-}
-
-validateModuleRegistry();
+validateModuleRegistry(registeredModuleDefinitions, registeredModules);
 
 export const registeredDomainPackageNames = registeredModuleDefinitions
   .filter((definition) => definition.layer === "domain")

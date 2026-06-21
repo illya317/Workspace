@@ -7,46 +7,25 @@ import { getTagInputShellClassName, getTagPillClassName } from "../FormStyles";
 import OptionPicker from "../OptionPicker";
 import SearchableOptionInput from "../SearchableOptionInput";
 import TextField from "../TextField";
+import { usePageStylePreviewSamples } from "./sample-context";
 
-const basicOptions = [
-  { value: "全部", label: "全部" },
-  { value: "现用", label: "现用" },
-  { value: "归档", label: "归档" },
-  { value: "内部", label: "内部" },
-  { value: "公开", label: "公开" },
-  { value: "博士", label: "博士" },
-  { value: "硕士", label: "硕士" },
-  { value: "本科", label: "本科" },
-  { value: "男", label: "男" },
-  { value: "女", label: "女" },
-  { value: "是", label: "是" },
-  { value: "否", label: "否" },
-];
-
-const fkOptions = [
-  { value: "轮执委员会", label: "轮执委员会", searchText: "lun zhi wei yuan hui" },
-  { value: "董事长", label: "董事长", searchText: "dong shi zhang" },
-  { value: "张明", label: "张明", searchText: "zhang ming" },
-  { value: "张慧君", label: "张慧君", searchText: "zhang hui jun" },
-  { value: "月度主数据", label: "月度主数据", searchText: "yue du zhu shu ju" },
-];
-
-function fieldValue(field: string, index: number) {
+function fieldValue(field: string, index: number, values: Record<string, string>) {
+  if (values[field]) return values[field];
   if (field.includes("编号") || field.includes("编码")) return "A001";
-  if (field.includes("姓名")) return "张慧君";
-  if (field.includes("部门")) return "轮执委员会";
-  if (field.includes("岗位") || field.includes("职称")) return "董事长";
+  if (field.includes("姓名")) return "示例姓名";
+  if (field.includes("部门")) return "示例组织";
+  if (field.includes("岗位") || field.includes("职称")) return "示例岗位";
   if (field.includes("日期") || field.includes("时间") || field.includes("出生年月")) return "2026-06-18";
   if (field.includes("金额") || field.includes("预算") || field.includes("占比")) return "99.98";
-  if (field.includes("电话")) return "137 7004 3888";
+  if (field.includes("电话")) return "137 0000 0000";
   if (field.includes("状态")) return "现用";
   if (field.includes("范围") || field.includes("保密")) return "内部";
-  if (field.includes("性别")) return "男";
-  if (field.includes("学历")) return "博士";
-  if (field.includes("政治")) return "党员";
+  if (field.includes("性别")) return "未设置";
+  if (field.includes("学历")) return "未设置";
+  if (field.includes("政治")) return "未设置";
   if (field.includes("类型") || field.includes("分类")) return "标准";
-  if (field.includes("负责人") || field.includes("上级")) return "张明";
-  if (field.includes("名称")) return "月度主数据";
+  if (field.includes("负责人") || field.includes("上级")) return "示例负责人";
+  if (field.includes("名称")) return "示例名称";
   return index < 2 ? `值${index + 1}` : "";
 }
 
@@ -89,7 +68,8 @@ function PercentField({ value }: { value: string }) {
 }
 
 function PreviewField({ field, index }: { field: string; index: number }) {
-  const initial = fieldValue(field, index);
+  const { fieldValues, optionValues, referenceValues } = usePageStylePreviewSamples();
+  const initial = fieldValue(field, index, fieldValues);
   const [value, setValue] = useState(initial);
 
   if (field.includes("别名")) return <PreviewTags />;
@@ -100,7 +80,7 @@ function PreviewField({ field, index }: { field: string; index: number }) {
       <SearchableOptionInput
         value={value}
         onChange={(next) => setValue(next ?? "")}
-        options={fkOptions}
+        options={referenceValues}
         placeholder={`搜索${field}`}
       />
     );
@@ -110,7 +90,7 @@ function PreviewField({ field, index }: { field: string; index: number }) {
       <OptionPicker
         value={value}
         onChange={(next) => setValue(next ?? "")}
-        options={basicOptions}
+        options={optionValues}
         placeholder="未设置"
         visibleCount={6}
       />

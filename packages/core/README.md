@@ -12,6 +12,7 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 - `ui/Toast`
 - `ui/CalendarDateInput`
 - `ui/SelectField`
+- `ui/FieldValueFilter`
 - `ui/StatusBadge`
 - `ui/StatusToggle`
 - `ui/NumberCell`
@@ -22,7 +23,6 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 - `ui/PageContent`
 - `ui/TabBar`
 - `ui/DataTable`
-- `ui/FilterField`
 - `ui/EditToolbar`
 - `ui/SplitWorkspace`
 - `ui/SplitWorkspaceToolbar`

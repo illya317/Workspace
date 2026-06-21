@@ -1,9 +1,11 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { DataTable, PageContent, SectionCard, getToolbarActionClassName } from "@workspace/core/ui";
+import { ActionButton, DataTable, EmptyStateCard, SectionCard } from "@workspace/core/ui";
 import type { DataTableColumn } from "@workspace/core/ui";
+import { DatabasePageFrame } from "@workspace/core/ui";
 
 interface PositionDescDetail {
   id: number; code: string; name: string;
@@ -92,14 +94,32 @@ export default function GmpDetailClient({ code }: { code: string }) {
 
   useEffect(() => {
     if (!code) return;
-    fetch(`/workspace/api/position-descriptions?code=${encodeURIComponent(code)}`)
+    fetch(workspacePath(`/api/position-descriptions?code=${encodeURIComponent(code)}`))
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(d => { setPos(d.positionDescription); setLoading(false); })
       .catch(() => { setError("获取失败"); setLoading(false); });
   }, [code]);
 
-  if (loading) return <div className="flex min-h-[300px] items-center justify-center"><p className="text-gray-500">加载中...</p></div>;
-  if (error || !pos) return <div className="flex min-h-[300px] items-center justify-center"><div className="text-center"><p className="text-gray-500">{error || "未找到"}</p><button onClick={() => router.push("/docs/positions/GMP")} className="mt-4 text-sm text-emerald-600 hover:underline">返回列表</button></div></div>;
+  if (loading) {
+    return (
+      <DatabasePageFrame contentClassName="py-8">
+        <EmptyStateCard compact={false}>加载中...</EmptyStateCard>
+      </DatabasePageFrame>
+    );
+  }
+
+  if (error || !pos) return (
+    <DatabasePageFrame contentClassName="py-8">
+      <EmptyStateCard compact={false}>
+        <div className="space-y-4">
+          <div>{error || "未找到"}</div>
+        <ActionButton onClick={() => router.push("/docs/positions/GMP")} className="mt-4">
+          返回列表
+        </ActionButton>
+      </div>
+      </EmptyStateCard>
+    </DatabasePageFrame>
+  );
 
   const d = pos.details || {};
   const historyRows = Array.isArray(d.changeHistory) ? d.changeHistory as Record<string, unknown>[] : [];
@@ -110,20 +130,16 @@ export default function GmpDetailClient({ code }: { code: string }) {
   ];
 
   return (
-    <PageContent className="py-8">
-      <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
-        <button onClick={() => router.push("/docs")} className="hover:text-emerald-600">文档中心</button>
-        <span>/</span>
-        <button onClick={() => router.push("/docs/positions/GMP")} className="hover:text-emerald-600">岗位说明书</button>
-        <span>/</span><span className="text-gray-700">{pos.name}</span>
-      </div>
-
-      <div className="mb-6 border-b border-slate-200 pb-4 text-center">
-        <h1 className="text-xl font-bold text-gray-900">岗位说明书</h1>
-        <div className="mt-1 text-sm text-gray-500">
+    <DatabasePageFrame contentClassName="py-8">
+      <SectionCard
+        title="岗位说明书"
+        className="mb-6"
+        actions={<ActionButton onClick={() => router.push("/docs/positions/GMP")}>返回列表</ActionButton>}
+      >
+        <div className="text-sm text-gray-500">
           文件编号：{s(pos.code)} &nbsp;|&nbsp; 版本：{s(pos.version)} &nbsp;|&nbsp; 生效日期：{s(pos.effectiveDate)}
         </div>
-      </div>
+      </SectionCard>
 
       <Section title="基本信息">
         <Pair label="岗位名称" value={pos.name} />
@@ -192,9 +208,9 @@ export default function GmpDetailClient({ code }: { code: string }) {
         </SectionCard>
       )}
 
-      <div className="mt-8 text-center">
-        <button onClick={() => router.push("/docs/positions/GMP")} className={getToolbarActionClassName("secondary")}>← 返回列表</button>
+      <div className="mt-8 flex justify-end">
+        <ActionButton onClick={() => router.push("/docs/positions/GMP")}>返回列表</ActionButton>
       </div>
-    </PageContent>
+    </DatabasePageFrame>
   );
 }

@@ -1,10 +1,12 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CodeBlock, ConfirmModal, DataTable, PageContent, SectionCard, getToolbarActionClassName } from "@workspace/core/ui";
+import { ActionButton, CodeBlock, ConfirmModal, DataTable, SectionCard } from "@workspace/core/ui";
 import type { DataTableColumn } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
+import { DatabasePageFrame } from "@workspace/core/ui";
 
 function MyApiKeyPanel({ apiKey, onApiKeyChange }: { apiKey: string | null; onApiKeyChange: (k: string | null) => void }) {
   const [loading, setLoading] = useState(false);
@@ -17,7 +19,7 @@ function MyApiKeyPanel({ apiKey, onApiKeyChange }: { apiKey: string | null; onAp
   async function applyApiKey() {
     const doApply = async () => {
       setLoading(true);
-      const res = await fetch("/workspace/api/my-api-key", { method: "POST" });
+      const res = await fetch(workspacePath("/api/my-api-key"), { method: "POST" });
       if (res.ok) { const data = await res.json(); onApiKeyChange(data.apiKey || null); }
       setLoading(false);
       closeConfirm();
@@ -38,11 +40,11 @@ function MyApiKeyPanel({ apiKey, onApiKeyChange }: { apiKey: string | null; onAp
       {apiKey ? (
         <div className="flex items-center gap-3">
           <code className="rounded-md bg-gray-100 px-3 py-2 font-mono text-sm text-gray-800">{apiKey}</code>
-          <button onClick={copyKey} className={getToolbarActionClassName("secondary")}>{copied ? "已复制" : "复制"}</button>
-          <button onClick={applyApiKey} disabled={loading} className={getToolbarActionClassName("primary")}>{loading ? "申请中..." : "重新申请"}</button>
+          <ActionButton onClick={copyKey}>{copied ? "已复制" : "复制"}</ActionButton>
+          <ActionButton onClick={applyApiKey} disabled={loading} variant="primary">{loading ? "申请中..." : "重新申请"}</ActionButton>
         </div>
       ) : (
-        <button onClick={applyApiKey} disabled={loading} className={getToolbarActionClassName("primary")}>{loading ? "申请中..." : "申请 API Key"}</button>
+        <ActionButton onClick={applyApiKey} disabled={loading} variant="primary">{loading ? "申请中..." : "申请 API Key"}</ActionButton>
       )}
       <ConfirmModal open={confirmModal.show} title="确认覆盖" message="申请新的 API Key 将覆盖旧的 Key，确定继续？" onConfirm={() => confirmModal.onConfirm?.()} onCancel={closeConfirm} confirmDanger={false} />
     </SectionCard>
@@ -144,8 +146,8 @@ export default function ApiGuidePage({ hideShell: _hideShell }: { hideShell?: bo
   const [apiKey, setApiKey] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/workspace/api/auth/me").then(r => r.ok ? r.json() : Promise.reject()).then(d => setUser(d.user)).catch(() => router.push("/login"));
-    fetch("/workspace/api/my-api-key").then(r => r.json()).then(d => setApiKey(d.apiKey || null)).catch(() => {});
+    fetch(workspacePath("/api/auth/me")).then(r => r.ok ? r.json() : Promise.reject()).then(d => setUser(d.user)).catch(() => router.push("/login"));
+    fetch(workspacePath("/api/my-api-key")).then(r => r.json()).then(d => setApiKey(d.apiKey || null)).catch(() => {});
   }, [router]);
 
   const BASE = "http://49.235.213.225:3000";
@@ -174,35 +176,31 @@ export default function ApiGuidePage({ hideShell: _hideShell }: { hideShell?: bo
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PageContent className="py-8">
-        <h1 className="mb-6 text-2xl font-bold text-gray-800">接入指南</h1>
+    <DatabasePageFrame contentClassName="py-8">
+      <MyApiKeyPanel apiKey={apiKey} onApiKeyChange={setApiKey} />
 
-        <MyApiKeyPanel apiKey={apiKey} onApiKeyChange={setApiKey} />
+      <SectionCard
+        title="认证方式"
+        className="mb-6"
+        actions={<ActionButton onClick={copyForAgent} variant="primary">{copyAllCopied ? "已复制" : "一键复制（给 Agent）"}</ActionButton>}
+      >
+        <p className="mb-3 text-sm text-gray-600">所有请求携带以下两个 Header：</p>
+        <CodeBlock className="space-y-1">
+          <div>X-API-Key: {apiKey || "（先申请）"}</div>
+          <div>X-Username: {user?.username || user?.name || "（未获取）"}</div>
+        </CodeBlock>
+        <p className="mt-3 text-xs text-gray-400">Base URL: {BASE}</p>
+      </SectionCard>
 
-        <SectionCard
-          title="认证方式"
-          className="mb-6"
-          actions={<button onClick={copyForAgent} className={getToolbarActionClassName("primary")}>{copyAllCopied ? "已复制" : "一键复制（给 Agent）"}</button>}
-        >
-          <p className="mb-3 text-sm text-gray-600">所有请求携带以下两个 Header：</p>
-          <CodeBlock className="space-y-1">
-            <div>X-API-Key: {apiKey || "（先申请）"}</div>
-            <div>X-Username: {user?.username || user?.name || "（未获取）"}</div>
-          </CodeBlock>
-          <p className="mt-3 text-xs text-gray-400">Base URL: {BASE}</p>
-        </SectionCard>
-
-        <SectionCard title="API Endpoints" bodyClassName="overflow-x-auto p-0">
-          <DataTable
-            rows={ENDPOINTS}
-            columns={endpointColumns}
-            visibleColumns={[]}
-            density="compact"
-            rowKey={(ep) => `${ep.method}:${ep.path}`}
-          />
-        </SectionCard>
-      </PageContent>
-    </div>
+      <SectionCard title="API Endpoints" bodyClassName="overflow-x-auto p-0">
+        <DataTable
+          rows={ENDPOINTS}
+          columns={endpointColumns}
+          visibleColumns={[]}
+          density="compact"
+          rowKey={(ep) => `${ep.method}:${ep.path}`}
+        />
+      </SectionCard>
+    </DatabasePageFrame>
   );
 }

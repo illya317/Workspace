@@ -7,7 +7,7 @@ import { normalizeHrSchoolValue } from "@workspace/hr/constants/school-options";
 import { prisma } from "@workspace/platform/server/prisma";
 import { fkDisplay, resolveFkValues } from "@workspace/platform/server/resolve-fk";
 import { handleDelete, handleUpdateField } from "./hr-crud";
-import { matchAnyField, matchEmployee } from "./search";
+import { matchAnyField, matchEmployee } from "@workspace/platform/search";
 
 const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -31,6 +31,7 @@ const EMPLOYEE_FIELDS = [
   "userId",
 ];
 const DATE_FIELDS = ["birthDate", "workStartDate"];
+const EMPLOYEE_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education", "positionName", "directDepartmentName"]);
 
 function randomUsername() {
   const bytes = randomBytes(8);
@@ -120,9 +121,29 @@ async function normalizeEmployeeFieldUpdate(field: string, value: unknown) {
   return { field, value };
 }
 
-export async function listEmployees(input: { keyword: string; page: number; pageSize: number }) {
+function getEmployeeDirectoryFilterValue(employee: Record<string, unknown>, field: string) {
+  if (field === "gender") {
+    if (employee.gender === true) return "男";
+    if (employee.gender === false) return "女";
+    return "";
+  }
+  return String(employee[field] ?? "");
+}
+
+export async function listEmployees(input: {
+  employmentStatus?: "active" | "inactive";
+  keyword: string;
+  filterField?: string;
+  filterValue?: string;
+  page: number;
+  pageSize: number;
+}) {
   let employees = await prisma.employee.findMany({
     include: {
+      employments: {
+        select: { isActive: true },
+        orderBy: [{ isActive: "desc" }, { id: "desc" }],
+      },
       positions: {
         include: {
           department: true,
@@ -133,7 +154,23 @@ export async function listEmployees(input: { keyword: string; page: number; page
     },
     orderBy: { id: "asc" },
   });
+  for (const employee of employees) {
+    const primaryPosition = employee.positions[0];
+    (employee as Record<string, unknown>).positionName = primaryPosition?.position?.name ?? null;
+    (employee as Record<string, unknown>).directDepartmentName =
+      primaryPosition?.position?.department?.name ?? primaryPosition?.department?.name ?? null;
+  }
+  if (input.employmentStatus) {
+    employees = employees.filter((employee) => {
+      const hasActiveEmployment = employee.employments.some((employment) => employment.isActive);
+      return input.employmentStatus === "active" ? hasActiveEmployment : !hasActiveEmployment;
+    });
+  }
   if (input.keyword) employees = employees.filter((employee) => matchAnyField(employee, input.keyword, "Employee"));
+  if (input.filterField && input.filterValue && EMPLOYEE_DIRECTORY_FILTER_FIELDS.has(input.filterField)) {
+    const query = input.filterValue.trim().toLowerCase();
+    employees = employees.filter((employee) => getEmployeeDirectoryFilterValue(employee as unknown as Record<string, unknown>, input.filterField!).toLowerCase().includes(query));
+  }
 
   const total = employees.length;
   const start = (input.page - 1) * input.pageSize;
@@ -141,11 +178,7 @@ export async function listEmployees(input: { keyword: string; page: number; page
 
   const fkMap = await resolveFkValues(paged as unknown as Record<string, unknown>[]);
   for (const employee of paged) {
-    const primaryPosition = employee.positions[0];
     (employee as Record<string, unknown>).userIdName = fkDisplay("userId", String(employee.userId ?? ""), fkMap);
-    (employee as Record<string, unknown>).positionName = primaryPosition?.position?.name ?? null;
-    (employee as Record<string, unknown>).directDepartmentName =
-      primaryPosition?.position?.department?.name ?? primaryPosition?.department?.name ?? null;
   }
 
   return { employees: paged, total };

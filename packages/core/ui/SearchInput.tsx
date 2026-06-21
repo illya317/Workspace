@@ -20,8 +20,8 @@ export interface SearchInputProps {
 
 const SIZE_CLASSES: Record<SearchInputSize, string> = {
   page: "h-16 w-full rounded-xl border-2 border-emerald-500 bg-white px-6 text-2xl text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-4 focus:ring-emerald-100 disabled:bg-slate-100 disabled:text-slate-500",
-  toolbar: "h-10 w-36 rounded-lg border-2 border-emerald-500 bg-white px-3 text-xs font-semibold text-slate-900 shadow-sm placeholder:font-semibold placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:bg-slate-100 disabled:text-slate-500",
-  compact: "h-9 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-800 placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:bg-slate-100 disabled:text-slate-500",
+  toolbar: "h-10 w-36 rounded-lg border-2 border-emerald-500 bg-white px-3 py-0 text-xs font-semibold leading-none text-slate-900 shadow-sm placeholder:font-semibold placeholder:text-slate-400 focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-100 disabled:bg-slate-100 disabled:text-slate-500",
+  compact: "h-9 w-full rounded-md border border-sky-200 bg-white px-3 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-sky-100/60 disabled:text-slate-500",
 };
 
 function getDisplayPlaceholder(placeholder: string, size: SearchInputSize) {

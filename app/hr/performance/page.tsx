@@ -1,6 +1,6 @@
 import { requireResourceAccess } from "@workspace/platform/server/auth";
 import AppShell from "@workspace/platform/ui/AppShell";
-import HRPerformanceClient from "./HRPerformanceClient";
+import { HRPerformanceClient } from "@workspace/hr/ui";
 
 export default async function HRPerformancePage() {
   const user = await requireResourceAccess("people.performance");

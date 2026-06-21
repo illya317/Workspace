@@ -30,6 +30,7 @@
 当前已接入：
 
 1. `packages/production/server/qc/` 默认从 `WORKSPACE_CONFIG_DIR/config/pharma-qc/` 读取 QC 配置；旧的源码内 `config/pharma-ops` 快照不再作为真源。
+1. `packages/production/ui/qc/` 承载 QC 批次、模板、纸面布局和反馈 UI；`app/production/qc/*` route 只做鉴权、必要预取和挂载 package component。
 2. `/api/production/qc/config` 返回产品、record templates、methods、layout mapping 的只读概览，并暴露配置源 revision/dirty 状态。
 3. `/production/qc/batches` 提供批次创建、批次台账、草稿/提交状态和记录入口。
 4. `/production/qc/batches/[batchId]` 展示批次检验记录阶段入口。
@@ -49,7 +50,7 @@ QC 配置概览和模板详情展开会读取并组合 YAML/JSON、layout templa
 2. `prisma/models/production-qc.prisma` 承接批次记录、字段值和审计。
 3. 模板反馈进入可查询、可审核的建议流。
 4. 把 pharma-ops 的完整公式引擎、规则字段和布局 renderer 迁移为 Workspace 原生实现。
-5. `app/production/qc/*` 逐步替换 Flask/Jinja 页面。
+5. `packages/production/ui/qc/*` 逐步替换 Flask/Jinja 页面。
 
 ## 权限标准
 

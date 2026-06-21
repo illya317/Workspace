@@ -1,6 +1,6 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { prisma } from "@workspace/platform/server/prisma";
-import { matchAnyField } from "./search";
+import { matchAnyField } from "@workspace/platform/search";
 import * as XLSX from "xlsx";
 import { getCompanyNameSync, isPharmaSync, listActiveCompanies, loadCompanyMap } from "./company-directory";
 

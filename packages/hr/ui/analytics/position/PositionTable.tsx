@@ -1,0 +1,88 @@
+"use client";
+
+import { AnalysisBlock, DataTable, SearchInput, type DataTableColumn } from "@workspace/core/ui";
+import type { EnrichedPosition, SortKey } from "./usePositionData";
+
+export default function PositionTable({
+  filtered,
+  search,
+  setSearch,
+  sortKey: _sortKey,
+  sortDesc: _sortDesc,
+  handleSort,
+  sortIcon,
+}: {
+  filtered: EnrichedPosition[];
+  search: string;
+  setSearch: (v: string) => void;
+  sortKey: SortKey;
+  sortDesc: boolean;
+  handleSort: (key: SortKey) => void;
+  sortIcon: (key: SortKey) => string;
+}) {
+  const columns: DataTableColumn<EnrichedPosition>[] = [
+    { key: "code", label: `编码 ${sortIcon("code")}`, required: true, onHeaderClick: () => handleSort("code"), cellClassName: "font-mono text-slate-500", render: (position) => position.code },
+    { key: "name", label: `岗位名 ${sortIcon("name")}`, required: true, onHeaderClick: () => handleSort("name"), cellClassName: "font-medium", render: (position) => position.name },
+    { key: "dept", label: `部门 ${sortIcon("dept")}`, required: true, onHeaderClick: () => handleSort("dept"), cellClassName: "text-slate-500", render: (position) => position.departmentName || "—" },
+    { key: "headcount", label: `编制 ${sortIcon("headcount")}`, required: true, onHeaderClick: () => handleSort("headcount"), headerClassName: "text-right", cellClassName: "text-right text-slate-500", render: (position) => position.headcount || "—" },
+    { key: "actual", label: `实际 ${sortIcon("actual")}`, required: true, onHeaderClick: () => handleSort("actual"), headerClassName: "text-right", cellClassName: "text-right font-medium", render: (position) => position.actual || "—" },
+    {
+      key: "diff",
+      label: `差异 ${sortIcon("diff")}`,
+      required: true,
+      onHeaderClick: () => handleSort("diff"),
+      headerClassName: "text-right",
+      cellClassName: "text-right",
+      render: (position) => position.headcount > 0 ? (
+        <span className={`font-medium ${position.diff > 0 ? "text-rose-600" : position.diff < 0 ? "text-amber-600" : "text-emerald-600"}`}>
+          {position.diff > 0 ? `+${position.diff}` : position.diff}
+        </span>
+      ) : <span className="text-gray-400">—</span>,
+    },
+    {
+      key: "status",
+      label: "状态",
+      required: true,
+      render: (position) => (
+        <span className={`text-xs px-1.5 py-0.5 rounded ${
+          position.status === "超编" ? "bg-rose-100 text-rose-700" :
+          position.status === "缺编" ? "bg-purple-100 text-purple-700" :
+          position.status === "满编" ? "bg-emerald-100 text-emerald-700" :
+          position.status === "有任职" ? "bg-blue-100 text-blue-700" :
+          "bg-amber-100 text-amber-700"
+        }`}>{position.status}</span>
+      ),
+    },
+  ];
+  return (
+    <AnalysisBlock
+      title="岗位明细"
+      toolbar={
+        <div className="flex items-center gap-3">
+        <SearchInput
+          placeholder="搜索岗位名、编码、部门..."
+          value={search}
+          onChange={setSearch}
+          size="toolbar"
+          className="max-w-sm"
+        />
+        <span className="text-xs text-gray-400">共 {filtered.length} 个岗位</span>
+        </div>
+      }
+    >
+
+      <DataTable
+        rows={filtered}
+        columns={columns}
+        visibleColumns={columns.map((column) => column.key)}
+        rowKey={(position) => position.id}
+        emptyText="暂无匹配数据"
+        rowClassName={(position) =>
+          position.status === "空岗" ? "bg-amber-50/30" :
+          position.status === "超编" ? "bg-rose-50/30" :
+          position.status === "缺编" ? "bg-purple-50/20" : ""
+        }
+      />
+    </AnalysisBlock>
+  );
+}

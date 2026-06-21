@@ -4,6 +4,8 @@ import ts from "typescript";
 
 type Baseline = {
   appUiFiles: string[];
+  appImplementationFiles?: string[];
+  appImplementationDirs?: string[];
   directPermissionFiles: string[];
   directRbacTableFiles: string[];
 };
@@ -41,6 +43,12 @@ const FORBIDDEN_IMPORTS = [
 ];
 const FORBIDDEN_ROOT_DIRS = ["lib", "server"];
 const FORBIDDEN_UI_IN_APP = ["app/**/*.tsx"];
+const APP_IMPLEMENTATION_DIR_NAMES = new Set(["components", "hooks", "lib"]);
+const FORBIDDEN_APP_SHARED_IMPLEMENTATION_DIRS = new Set([
+  "app/components",
+  "app/hooks",
+  "app/lib",
+]);
 const PERMISSION_FUNCTION_NAMES = new Set(FORBIDDEN_PATTERNS);
 const RBAC_TABLE_NAMES = new Set([
   "userResourceRole",
@@ -55,6 +63,8 @@ const baseline = JSON.parse(
 
 const baselineSets = {
   appUiFiles: new Set(baseline.appUiFiles),
+  appImplementationFiles: new Set(baseline.appImplementationFiles ?? []),
+  appImplementationDirs: new Set(baseline.appImplementationDirs ?? []),
   directPermissionFiles: new Set(baseline.directPermissionFiles),
   directRbacTableFiles: new Set(baseline.directRbacTableFiles),
 };
@@ -94,6 +104,19 @@ function walk(dir: string, files: string[] = []) {
     }
   }
   return files;
+}
+
+function walkDirs(dir: string, dirs: string[] = []) {
+  if (!fs.existsSync(dir)) return dirs;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith(".")) continue;
+    const fullPath = path.join(dir, entry.name);
+    if (!entry.isDirectory()) continue;
+    if (["node_modules", ".next", "tmp", "generated"].includes(entry.name)) continue;
+    dirs.push(fullPath);
+    walkDirs(fullPath, dirs);
+  }
+  return dirs;
 }
 
 function isBusinessPackageFile(rel: string) {
@@ -175,6 +198,12 @@ function appUiViolation(sourceFile: ts.SourceFile, rel: string) {
   if (!rel.startsWith("app/") || rel.startsWith("app/api/") || !rel.endsWith(".tsx")) return false;
   if (!hasJsx(sourceFile)) return false;
   return FORBIDDEN_UI_IN_APP.length > 0;
+}
+
+function isNextRouteEntryFile(rel: string) {
+  if (!rel.startsWith("app/") || rel.startsWith("app/api/")) return true;
+  if (!/\.(ts|tsx)$/.test(rel)) return true;
+  return /\/(page|layout|loading|error|global-error|not-found|route|template|default)\.(ts|tsx)$/.test(rel);
 }
 
 function scanImport(filePath: string, rel: string, specifier: string) {
@@ -303,6 +332,30 @@ function checkBaselineFilesStillExist() {
   }
 }
 
+function checkAppImplementationDirs() {
+  for (const dirPath of walkDirs(path.join(ROOT, "app"))) {
+    const rel = toRelative(dirPath);
+    if (!APP_IMPLEMENTATION_DIR_NAMES.has(path.basename(dirPath))) continue;
+    if (rel.startsWith("app/api/")) continue;
+    if (FORBIDDEN_APP_SHARED_IMPLEMENTATION_DIRS.has(rel)) {
+      fail(rel, "app-shared-implementation-dir", "app shared components/hooks/lib directories are forbidden; use packages/core or packages/platform");
+    }
+    if (!baselineSets.appImplementationDirs.has(rel)) {
+      fail(rel, "app-implementation-dir", "app/ is routing-only; move implementation directories to packages/* and keep only route shells");
+    }
+  }
+}
+
+function checkAppImplementationFiles() {
+  for (const filePath of walk(path.join(ROOT, "app"))) {
+    const rel = toRelative(filePath);
+    if (isNextRouteEntryFile(rel)) continue;
+    if (baselineSets.appUiFiles.has(rel)) continue;
+    if (baselineSets.appImplementationFiles.has(rel)) continue;
+    fail(rel, "app-implementation-file", "app/ is routing-only; move implementation files to packages/* and keep only Next route entries");
+  }
+}
+
 function checkRootRuntimeDirsAbsent() {
   for (const dir of FORBIDDEN_ROOT_DIRS) {
     if (fs.existsSync(path.join(ROOT, dir))) {
@@ -315,6 +368,8 @@ export function scan() {
   try {
     checkRootRuntimeDirsAbsent();
     checkBaselineFilesStillExist();
+    checkAppImplementationDirs();
+    checkAppImplementationFiles();
 
     for (const rootName of ["app", "packages"]) {
       for (const file of walk(path.join(ROOT, rootName))) {

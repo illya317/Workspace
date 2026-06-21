@@ -2,7 +2,7 @@ import { Prisma } from "@workspace/platform/server/prisma";
 import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
-import { matchAnyField } from "./search";
+import { matchAnyField } from "@workspace/platform/search";
 import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
 import { handleDelete, handleUpdateField } from "./hr-crud";
 import { HR_FK_REGISTRY } from "./fk-registry";

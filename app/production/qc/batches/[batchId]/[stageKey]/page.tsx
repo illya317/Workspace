@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireResourceAccess } from "@workspace/platform/server/auth";
 import { getQcBatch, getQcTemplateDetail } from "@workspace/production/server/qc";
-import QcBatchStagePrecheck from "../../../components/QcBatchStagePrecheck";
-import QcModuleShell from "../../../components/QcModuleShell";
+import { QcBatchStagePrecheck, QcModuleShell } from "@workspace/production/ui";
 
 interface Props {
   params: Promise<{ batchId: string; stageKey: string }>;
@@ -23,6 +22,7 @@ export default async function QcBatchStagePage({ params }: Props) {
       title={`${batch.productName} ${stage.label}`}
       description="检验前确认和检测项目导航。"
       activeResourceKey="production.qc.batches"
+      backHref={`/production/qc/batches/${batch.id}`}
     >
       <QcBatchStagePrecheck batch={batch} productName={detail.productName} stage={stage} stageIndex={stageIndex} />
     </QcModuleShell>

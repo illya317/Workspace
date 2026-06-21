@@ -18,7 +18,6 @@ export default async function LibraryPage() {
   return (
     <AppShell title={ROOT_LABEL} backHref="/portal" user={user}>
       <LibraryClient
-        rootLabel={ROOT_LABEL}
         canWrite={canWrite}
         canDelete={canDelete}
         canAdmin={canAdmin}

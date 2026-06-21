@@ -1,3 +1,4 @@
+import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { useAsyncResource } from "@workspace/core/hooks";
 import type { Contract } from "@workspace/administration/types";
@@ -35,7 +36,7 @@ export function useContracts() {
     if (locationFilter) params.set("location", locationFilter);
     if (categoryFilter) params.set("category", categoryFilter);
     if (statusFilter) params.set("status", statusFilter);
-    const res = await fetch(`/workspace/api/contracts?${params.toString()}`);
+    const res = await fetch(workspacePath(`/api/contracts?${params.toString()}`));
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     return {

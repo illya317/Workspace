@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 function joinClassNames(...classNames: Array<string | false | null | undefined>) {
   return classNames.filter(Boolean).join(" ");
@@ -18,7 +18,7 @@ export function PickerActionRow({ children, align = "between", className = "" }:
   );
 }
 
-export interface PickerOptionButtonProps {
+export interface PickerOptionButtonProps extends Pick<ButtonHTMLAttributes<HTMLButtonElement>, "onMouseDown" | "onMouseEnter"> {
   children: ReactNode;
   selected?: boolean;
   onClick: () => void;
@@ -31,6 +31,8 @@ export function PickerOptionButton({
   children,
   selected = false,
   onClick,
+  onMouseDown,
+  onMouseEnter,
   className = "",
   align = "center",
   size = "normal",
@@ -39,6 +41,8 @@ export function PickerOptionButton({
     <button
       type="button"
       onClick={onClick}
+      onMouseDown={onMouseDown}
+      onMouseEnter={onMouseEnter}
       className={joinClassNames(
         "rounded-md border font-medium transition",
         size === "compact" ? "px-3 py-1.5 text-xs" : "px-3 py-2 text-sm",

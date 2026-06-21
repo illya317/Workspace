@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable, PanelCard, StatusBadge, type DataTableColumn } from "@workspace/core/ui";
+import { ActionButton, DataTable, PanelCard, StatusBadge, type DataTableColumn } from "@workspace/core/ui";
 import type { Contract } from "@workspace/administration/types";
 
 interface ContractsTableProps {
@@ -39,10 +39,10 @@ export default function ContractsTable({ contracts, onEdit, onDelete }: Contract
       headerClassName: "text-center",
       cellClassName: "text-center",
       render: (c) => (
-        <>
-          <button onClick={() => onEdit(c)} className="mr-2 text-xs text-emerald-600 hover:underline">编辑</button>
-          <button onClick={() => onDelete(c.id)} className="text-xs text-red-500 hover:underline">删除</button>
-        </>
+        <div className="flex justify-center gap-2">
+          <ActionButton onClick={() => onEdit(c)} className="px-2 py-1 text-xs">编辑</ActionButton>
+          <ActionButton onClick={() => onDelete(c.id)} variant="danger" className="px-2 py-1 text-xs">删除</ActionButton>
+        </div>
       ),
     },
   ];

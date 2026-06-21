@@ -1,14 +1,13 @@
-# Library — 资料库（文件系统 + 元数据索引 + 尽调材料选择/存档）
+# Library — 资料库（文件系统 + 元数据索引）
 
-## 状态：Phase 1-6 完成（Schema、权限、扫描服务、元数据 API、页面重构、尽调问卷、存档闭环、自动生成接口）
+## 状态：资料文档浏览、元数据管理、扫描同步、版本记录和自动生成接口保留；尽调问卷运行功能已移除。
 
 ## 架构演进
 
-从纯文件浏览器升级为三层架构：
+从纯文件浏览器升级为两层架构：
 
 1. **文件系统层**：资料库目录（`LIBRARY_ROOT`）保留文件本体，不进入主代码仓库。
 2. **元数据索引层**：DB 记录 `LibraryDocument` + `LibraryDocumentVersion`，含路径、大小、校验和、分类、保密等级、版本。
-3. **尽调业务层**：`DueDiligenceRequest` / `DueDiligenceQuestion` / `DueDiligenceMaterialSelection` 支持问卷拆分、材料推荐、用户确认、存档闭环。
 
 ## 目录结构
 
@@ -16,13 +15,9 @@
 app/library/
   page.tsx                    # 服务端组件：加载元数据列表，渲染 AppShell + LibraryClient
   LibraryClient.tsx           # 客户端组件：筛选 + 分类树 + 资料表 + 分页
-  types.ts                    # 领域类型：LibraryDocumentItem, LibraryFilters, CategoryGroup
   ARCHITECTURE.md             # 本文件
   hooks/                      # useLibraryDocuments, useLibraryFilters, useLibraryCategories
   components/                 # LibrarySidebar, LibraryTable, LibraryDetailModal
-  due-diligence/              # 尽调问卷组件（Phase 4，以 Tab 嵌入 LibraryClient）
-    components/                 # DueDiligencePanel, DueDiligenceDetail
-    hooks/                      # useDueDiligence
 
 app/api/library/
   [...path]/route.ts          # 文件下载 API（保留，增加 documentId 权限校验）
@@ -30,25 +25,15 @@ app/api/library/
   scan/route.ts               # POST /api/library/scan（Phase 2）
   documents/[id]/route.ts     # GET / PATCH（Phase 2）
   documents/[id]/versions/route.ts  # GET（Phase 2）
-  due-diligence/route.ts      # POST / GET（Phase 4）
-  due-diligence/[id]/route.ts # GET / PATCH / DELETE（Phase 4）
-  due-diligence/[id]/split/route.ts # POST 拆分问卷（Phase 4）
-  due-diligence/[id]/match/route.ts # POST 运行材料匹配（Phase 4）
-  due-diligence/[id]/questions/route.ts # GET 问题列表（Phase 4）
-  due-diligence/[id]/questions/[questionId]/materials/route.ts # GET / PATCH（Phase 4）
-  due-diligence/[id]/archive/route.ts # POST（Phase 5）
   generated-sources/route.ts            # GET 已启用生成来源列表（Phase 6）
   generated-sources/[key]/generate/route.ts # POST 执行生成并入库（Phase 6）
 
-server/services/library/
+packages/library/server/
   config.ts                   # 配置 + 路径安全 + readDirectory + buildTree（保留）
   scan.ts                     # 幂等扫描：文件系统 → LibraryDocument / Version（Phase 2）
   metadata.ts                 # 元数据 CRUD（Phase 2）
   permissions.ts              # 保密等级过滤 + 权限校验（Phase 2）
   versions.ts                 # 版本管理（Phase 2）
-  due-diligence.ts            # 尽调 Request/Question/MaterialSelection CRUD（Phase 4）
-  matching.ts                 # 规则匹配推荐（Phase 4）
-  archive.ts                  # 归档校验与状态转换（Phase 5）
   generators/                 # 文档生成器（Phase 6）
     types.ts                    # GeneratorOutput / GeneratorFn 类型
     registry.ts                 # 生成器注册表
@@ -56,9 +41,7 @@ server/services/library/
     finance-report.ts           # 财务报表 Markdown 生成器
     generated-document.ts       # 统一入库：写文件 → upsert LibraryDocument → 创建 Version
 
-prisma/models/library.prisma  # LibraryDocument, LibraryDocumentVersion, DueDiligenceParty,
-                              # DueDiligenceRequest, DueDiligenceQuestion,
-                              # DueDiligenceMaterialSelection, LibraryGeneratedSource
+prisma/models/library.prisma  # LibraryDocument, LibraryDocumentVersion, LibraryGeneratedSource
 ```
 
 ## 配置
@@ -96,15 +79,6 @@ prisma/models/library.prisma  # LibraryDocument, LibraryDocumentVersion, DueDili
 ### LibraryDocumentTag（文档标签）
 
 关联表：`documentId + tag` 复合唯一键。支持多标签精确筛选、标签云统计。删除文档时级联清标签。
-
-### DueDiligenceParty / Request / Question / MaterialSelection
-
-尽调业务闭环：
-- **Party**: 尽调参与方（投资人、律所等），含 NDA 状态
-- **Request**: 一次尽调请求/问卷，含默认保密等级
-- **Question**: 问卷拆分为问题列表，含回答草稿、状态
-- **MaterialSelection**: 问题与文档的推荐关联，含匹配分数、推荐理由、用户确认状态
-  - **一致性约束**：`documentVersionId` 与 `documentId` 的对应关系由 service 层校验保证。Prisma 不支持 nullable 字段参与复合 FK，因此 DB 层不强制 version 必须属于同一 document。归档/确认操作前，service 必须验证 `documentVersion.documentId == selection.documentId`。
 
 ### LibraryGeneratedSource（生成来源配置）
 
@@ -177,26 +151,9 @@ Phase 6 自动生成接口配置表。每个来源定义：
 - 详情弹窗：编辑简介、分类、保密等级、版本备注
 - 下载链接走 `/api/library/documents/:id/download`，后端按 `doc.id` 查 DB 取当前 `relativePath` 再返回文件流，权限和路径校验都在服务端完成，前端不再拼接路径
 
-## 尽调流程（Phase 4-5）
-
-1. 上传或粘贴尽调问卷 → 拆成问题列表
-2. 每个问题显示推荐材料（规则匹配：分词/关键词/同义词字典）
-3. 默认只推荐 `confidentialityLevel <= 2` 的材料；API 和 service 双重过滤
-4. 用户可勾选/取消推荐材料，前端按问题逐个校验覆盖状态
-5. **归档（Phase 5）**：
-   - 校验 request 状态为 `approved`
-   - service 层按用户 `maxConfidentialityLevel` 过滤 selected 材料，防止越权归档高保密文档
-   - 校验每个问题至少有一份已选材料
-   - 校验 `documentVersion.documentId === selection.documentId`
-   - 更新 request 状态为 `provided`，写入 `archivedAt` / `archivedBy`
-   - 返回归档快照（不含超限材料）
-6. 问卷回复状态机：`draft` → `reviewing` → `approved` → `provided` / `cancelled`
-7. 无材料时可"补充上传"，上传后自动进入 `LibraryDocument.status = draft`，再参与当前问题选择
-
 ## 未来扩展方向
 
-1. **语义匹配**：规则匹配稳定后，可引入 agent 辅助解释推荐理由，但最终选择必须由用户确认并由 DB 存档
-2. **远程适配器**：将 `readDirectory` / `readFile` 抽象为接口，实现 S3/OSS adapter
-3. **预览**：图片/PDF 内嵌预览而非直接下载
-4. **多根目录**：`getLibraryRoots()` 已支持逗号分隔的多路径，前端可加根目录切换
-5. **生成器扩展**：接入真实业务数据（如财务科目余额、项目信息）替代 mock 内容
+1. **远程适配器**：将 `readDirectory` / `readFile` 抽象为接口，实现 S3/OSS adapter
+2. **预览**：图片/PDF 内嵌预览而非直接下载
+3. **多根目录**：`getLibraryRoots()` 已支持逗号分隔的多路径，前端可加根目录切换
+4. **生成器扩展**：接入真实业务数据（如财务科目余额、项目信息）替代 mock 内容

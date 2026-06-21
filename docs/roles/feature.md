@@ -13,6 +13,7 @@ Feature 负责用户可见业务功能、业务 UI、业务 service 和 route sh
 
 - 修改 `packages/<domain>/ui`、`packages/<domain>/server`、`app/<domain>` 薄壳和 `app/api/<domain>` 薄壳。
 - 业务页面只组合 Core / Platform primitive，不重复画页面壳、筛选、表格、弹窗、搜索和分栏。
+- 业务长文件瘦身时，只拆同 package 的业务子组件、hook、mapper 和 service helper；拆出的私有函数不登记 registry，也不要从 package 根导出。
 - 清理历史 UI 债时，减少 `scripts/arch/level2-baseline.json` 中对应项，并回传 Architecture 确认。
 
 ## 禁止

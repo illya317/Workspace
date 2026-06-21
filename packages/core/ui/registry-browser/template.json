@@ -16,7 +16,7 @@
         "OptionPicker",
         "GroupedOptionPicker",
         "SearchableOptionInput",
-        "FKSearchInput",
+        "FkFieldInput",
         "ChoiceGroup",
         "CheckboxField",
         "CheckboxChip",

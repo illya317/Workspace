@@ -1,7 +1,7 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
-import { matchAnyField } from "./search";
+import { matchAnyField } from "@workspace/platform/search";
 import { handleCreate, handleDelete, handleUpdateField } from "./hr-crud";
 import { invalidateCompanyCache } from "./company-directory";
 

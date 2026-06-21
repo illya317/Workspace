@@ -20,6 +20,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import type { ReclassEntry } from "../report-helpers";
 import { ensureStatementMappings } from "./seed-from-config";
+import { resolveMappedLineCode } from "../shared/mapping-resolver";
 
 export type UnresolvedReclassReason = "noSourceLine" | "noTargetLine";
 
@@ -73,8 +74,8 @@ export async function resolveReclassEntriesToLines(
   const unresolved: UnresolvedReclassEntry[] = [];
 
   for (const entry of entries) {
-    const sourceLineCode = resolveLineCode(entry.sourceAccount, parentMap, mappingMap);
-    const targetLineCode = resolveLineCode(entry.targetAccount, parentMap, mappingMap);
+    const sourceLineCode = resolveMappedLineCode(entry.sourceAccount, parentMap, mappingMap);
+    const targetLineCode = resolveMappedLineCode(entry.targetAccount, parentMap, mappingMap);
 
     if (!sourceLineCode) {
       unresolved.push({ entry, reason: "noSourceLine" });
@@ -118,37 +119,4 @@ function applyReclassDelta(
     additionsByLine.set(targetLineCode, a);
   }
   // 3xxx/4xxx/...: no movement (matches reclassifyFromEntries which only acts on 1xxx/2xxx)
-}
-
-// ─── In-memory lineCode resolver (mirrors mapping-based-balances.ts) ───
-// Kept in this file for now; if a third caller needs it, extract to a shared
-// line-resolver module.
-
-function buildParentChain(
-  code: string,
-  parentMap: Map<string, string | null>,
-): string[] {
-  const chain: string[] = [code];
-  const parent = parentMap.get(code);
-  if (parent) return [...chain, ...buildParentChain(parent, parentMap)];
-  // Prefix fallback for accounts without parentId links
-  let c = code;
-  while (c.length > 1) {
-    c = c.slice(0, -1);
-    if (c.length > 0) chain.push(c);
-  }
-  return chain;
-}
-
-function resolveLineCode(
-  accountCode: string,
-  parentMap: Map<string, string | null>,
-  mappingMap: Map<string, string>,
-): string | null {
-  const chain = buildParentChain(accountCode, parentMap);
-  for (const code of chain) {
-    const line = mappingMap.get(code);
-    if (line) return line;
-  }
-  return null;
 }

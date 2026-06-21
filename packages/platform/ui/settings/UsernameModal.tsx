@@ -1,7 +1,8 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
-import { TextField, getToolbarActionClassName } from "@workspace/core/ui";
+import { ActionToolbar, FormField, TextField } from "@workspace/core/ui";
 import DetailModal from "@workspace/core/ui/DetailModal";
 import type { SessionUser } from "@workspace/platform/types";
 
@@ -29,7 +30,7 @@ export default function UsernameModal({ open, onClose, user, onSuccess }: Userna
     setUnameError("");
     setUnameSuccess("");
     if (!newUsername.trim()) { setUnameError("用户名不能为空"); return; }
-    const res = await fetch("/workspace/api/admin/users/" + user.id, {
+    const res = await fetch(workspacePath("/api/admin/users/") + user.id, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ field: "username", value: newUsername.trim() }),
@@ -52,12 +53,10 @@ export default function UsernameModal({ open, onClose, user, onSuccess }: Userna
       maxWidth="max-w-sm"
     >
       <div className="space-y-4">
-        <div>
-          <label className="mb-1.5 block text-sm text-gray-500">当前用户名</label>
+        <FormField label="当前用户名">
           <p className="text-base text-gray-700">{user?.username || "(未设置)"}</p>
-        </div>
-        <div>
-          <label className="mb-1.5 block text-sm text-gray-500">新用户名</label>
+        </FormField>
+        <FormField label="新用户名" required>
           <TextField
             type="text"
             value={newUsername}
@@ -68,25 +67,14 @@ export default function UsernameModal({ open, onClose, user, onSuccess }: Userna
               if (event.key === "Enter") void handleChangeUsername();
             }}
           />
-        </div>
+        </FormField>
         {unameError && <p className="text-sm text-red-500">{unameError}</p>}
         {unameSuccess && <p className="text-sm text-emerald-600">{unameSuccess}</p>}
-        <div className="flex justify-end gap-3 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className={getToolbarActionClassName("secondary")}
-          >
-            取消
-          </button>
-          <button
-            type="submit"
-            onClick={() => void handleChangeUsername()}
-            className={getToolbarActionClassName("primary")}
-          >
-            确认
-          </button>
-        </div>
+        <ActionToolbar
+          className="justify-end border-0 p-0 pt-2 shadow-none"
+          secondaryActions={[{ label: "取消", onClick: onClose }]}
+          primaryActions={[{ label: "确认", onClick: () => void handleChangeUsername() }]}
+        />
       </div>
     </DetailModal>
   );

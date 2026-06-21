@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { PageShell } from "@workspace/core/ui";
+import { workspacePath } from "@workspace/core/routing";
+import { ActionButton, PageShell } from "@workspace/core/ui";
 import {
   MODULE_LIFECYCLE_BY_RESOURCE,
   MODULE_LIFECYCLE_LABELS,
@@ -38,15 +39,15 @@ export default function FinanceShell({
           backLabel="返回入口"
           actions={navItems.map((item) => ({ label: item.label, onClick: () => router.push(item.href) }))}
           leading={(
-            <button type="button" onClick={() => router.push("/finance")} className="flex items-center gap-3">
+            <ActionButton onClick={() => router.push("/finance")} className="border-0 bg-transparent p-0 shadow-none hover:bg-transparent">
               <Image
-                src="/workspace/company/logo.png"
+                src={workspacePath("/company/logo.png")}
                 alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"}
                 width={100}
                 height={30}
                 className="h-auto w-auto max-w-[100px] object-contain"
               />
-            </button>
+            </ActionButton>
           )}
           trailing={<UserMenu user={user} />}
         >

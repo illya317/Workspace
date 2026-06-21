@@ -9,7 +9,7 @@ import {
 } from "@workspace/platform/server/api";
 import { prisma } from "@workspace/platform/server/prisma";
 import { handleDelete, handleUpdateField } from "./work-crud";
-import { matchAnyField } from "./search";
+import { matchAnyField } from "@workspace/platform/search";
 import { WorkPlanCreateSchema } from "./schemas";
 import { WORK_FK_REGISTRY } from "./fk-registry";
 import { guardProjectArchive } from "./reference-guards";

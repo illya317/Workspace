@@ -37,7 +37,7 @@
 
 - [ ] `app/api/<domain>/route.ts` — 四件事：认证、参数校验、调 package service、返回 DTO
 - [ ] GET → 至少 `access`；POST/PUT → `write`；DELETE → `delete`
-- [ ] 权限入口必须使用 `server/auth/authorize.ts` 的 `authorize()`，或委托给已经使用 `authorize()` 的 Platform wrapper
+- [ ] 权限入口必须使用 `packages/platform/server/auth/authorize.ts` 的 `authorize()`，或委托给 `@workspace/platform/server/auth` 中已经使用 `authorize()` 的 Platform wrapper
 - [ ] API route 不超过 120 行，超了拆 service
 - [ ] 复杂查询、导入、计算必须在 service 层
 

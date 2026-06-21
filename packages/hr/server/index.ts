@@ -24,4 +24,3 @@ export * from "./permission-subjects";
 export * from "./permission-grants";
 export * from "./roster";
 export * from "./schemas";
-export * from "./search";

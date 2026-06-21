@@ -15,7 +15,6 @@ export const GET = withLibraryAccess(async (request: Request, user) => {
       : undefined,
     keyword: searchParams.get("keyword") || undefined,
     docId: searchParams.get("docId") || undefined,
-    tag: searchParams.get("tag") || undefined,
     page: parseInt(searchParams.get("page") || "1", 10),
     pageSize: parseInt(searchParams.get("pageSize") || "50", 10),
   };

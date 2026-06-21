@@ -1,6 +1,6 @@
 import { requireResourceAccess } from "@workspace/platform/server/auth";
 import AppShell from "@workspace/platform/ui/AppShell";
-import WorksClient from "./WorksClient";
+import { WorksClient } from "@workspace/work/ui";
 
 export default async function WorksPage() {
   const user = await requireResourceAccess("work.task");

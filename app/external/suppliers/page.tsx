@@ -1,9 +1,9 @@
-import { requireAuth } from "@workspace/platform/server/auth";
+import { requireResourceAccess } from "@workspace/platform/server/auth";
 import AppShell from "@workspace/platform/ui/AppShell";
-import SuppliersClient from "./SuppliersClient";
+import { SuppliersClient } from "@workspace/external/ui";
 
 export default async function SuppliersPage() {
-  const user = await requireAuth();
+  const user = await requireResourceAccess("external.supplier");
 
   return (
     <AppShell title="供应商管理" backHref="/external" user={user}>

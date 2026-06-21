@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable, EmptyStateCard, PanelCard, type DataTableColumn } from "@workspace/core/ui";
+import { workspacePath } from "@workspace/core/routing";
+import { DataTable, EmptyStateCard, PanelCard, StatusBadge, type DataTableColumn } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 import LibraryDetailModal from "./LibraryDetailModal";
 
@@ -65,9 +66,7 @@ export default function LibraryTable({
       render: (d) => d.tags && d.tags.length > 0 ? (
         <div className="flex flex-wrap gap-1">
           {d.tags.map((tag) => (
-            <span key={tag} className="inline-block rounded bg-emerald-50 px-1.5 py-0.5 text-xs text-emerald-700">
-              {tag}
-            </span>
+            <StatusBadge key={tag} label={tag} variant="green" />
           ))}
         </div>
       ) : <span className="text-gray-300">—</span>,
@@ -78,7 +77,7 @@ export default function LibraryTable({
       required: true,
       render: (d) => d.status === "active" ? (
         <a
-          href={`/api/library/documents/${d.id}/download`}
+          href={workspacePath(`/api/library/documents/${d.id}/download`)}
           className="inline-flex items-center text-emerald-600 hover:text-emerald-700"
           title="下载"
           target="_blank"
@@ -99,7 +98,7 @@ export default function LibraryTable({
   ];
 
   if (loading) {
-    return <div className="py-16 text-center text-gray-400">加载中…</div>;
+    return <EmptyStateCard compact={false}>加载中...</EmptyStateCard>;
   }
 
   if (documents.length === 0) {

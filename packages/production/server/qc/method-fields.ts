@@ -2,23 +2,12 @@ import "server-only";
 import path from "path";
 import { readdir, readFile } from "fs/promises";
 import { parse as parseYaml } from "yaml";
+import { asArray, asRecord, asString } from "./layout-block-utils";
 import type { QcTemplateMethodField, QcTemplateMethodGroup } from "./types";
 
 type MethodIndex = Record<string, { fileName: string; definition: unknown }>;
 type MethodFieldDraft = Omit<QcTemplateMethodField, "fieldKey">;
 type MethodGroupDraft = { name: string; fields: MethodFieldDraft[] };
-
-function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
-}
-
-function asArray(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : [];
-}
-
-function asString(value: unknown, fallback = "") {
-  return typeof value === "string" || typeof value === "number" ? String(value) : fallback;
-}
 
 function maybeString(value: unknown) {
   const str = asString(value);

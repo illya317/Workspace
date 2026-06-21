@@ -1,0 +1,223 @@
+"use client";
+
+import { workspacePath } from "@workspace/core/routing";
+import { useCallback, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { EmptyStateCard } from "@workspace/core/ui";
+import ReviewAlerts from "./ReviewAlerts";
+import ReviewFilters from "./ReviewFilters";
+import ReviewTable, { type LineState } from "./ReviewTable";
+import ReviewToolbar from "./ReviewToolbar";
+import type { RvLine } from "@workspace/finance/types";
+
+interface WpLine { id: number; lineCode: string; manualAmount: number; importedAmount: number; }
+interface Workpaper { id: number; lines: WpLine[]; }
+interface Review { id: number; status: string; isStale: boolean; lines: RvLine[]; }
+type Edits = Map<string, { adjustedAmount: number | null; status: string; comment: string | null }>;
+
+const RT_SET = new Set(["incomeStatement", "cashFlow"]);
+
+export default function ReviewClient() {
+  const searchParams = useSearchParams();
+  const rtFromQuery = searchParams.get("reportType");
+  const [co, setCo] = useState(searchParams.get("companyCode") || "02");
+  const [yr, setYr] = useState(searchParams.get("year") || "2025");
+  const [mo, setMo] = useState(searchParams.get("month") || "6");
+  const [rt, setRt] = useState(rtFromQuery && RT_SET.has(rtFromQuery) ? rtFromQuery : "incomeStatement");
+  const [wp, setWp] = useState<Workpaper | null>(null);
+  const [rv, setRv] = useState<Review | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [editingAmt, setEditingAmt] = useState<string | null>(null);
+  const [editAmt, setEditAmt] = useState("");
+  const [editingCmt, setEditingCmt] = useState<string | null>(null);
+  const [editCmt, setEditCmt] = useState("");
+  const [edits, setEdits] = useState<Edits>(new Map());
+
+  function clear() {
+    setWp(null);
+    setRv(null);
+    setEdits(new Map());
+    setError(null);
+  }
+
+  const loadWp = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    clear();
+    const response = await fetch(workspacePath(`/api/finance/statement-workpapers?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt}`));
+    if (!response.ok) {
+      setError(`加载底稿失败 (${response.status})`);
+      setLoading(false);
+      return;
+    }
+    const result = await response.json();
+    setWp(result.id ? result : { ...result, id: 0 });
+    if (result.id) {
+      const reviewResponse = await fetch(workspacePath(`/api/finance/statement-reviews?workpaperId=${result.id}`));
+      if (reviewResponse.ok) {
+        const reviewResult = await reviewResponse.json();
+        if (reviewResult.review) setRv(reviewResult.review);
+      }
+    }
+    setLoading(false);
+  }, [co, mo, rt, yr]);
+
+  const generate = async () => {
+    if (!wp?.id) return;
+    setLoading(true);
+    setError(null);
+    const response = await fetch(workspacePath("/api/finance/statement-reviews"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ workpaperId: wp.id }),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      setError(result.error || "生成校对失败");
+      setLoading(false);
+      return;
+    }
+    setRv(result.review);
+    setEdits(new Map());
+    setLoading(false);
+  };
+
+  const saveEdits = async () => {
+    if (!rv || edits.size === 0) return;
+    setSaving(true);
+    setError(null);
+    const lines = [...edits.entries()].map(([lineCode, edit]) => ({ lineCode, ...edit }));
+    const response = await fetch(workspacePath(`/api/finance/statement-reviews/${rv.id}`), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lines }),
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      setError(result.error || "保存失败");
+      setSaving(false);
+      return;
+    }
+    setRv(result.review);
+    setEdits(new Map());
+    setSaving(false);
+  };
+
+  const doConfirm = async () => {
+    if (!rv) return;
+    setSaving(true);
+    setError(null);
+    const response = await fetch(workspacePath(`/api/finance/statement-reviews/${rv.id}/confirm`), { method: "POST" });
+    const result = await response.json();
+    if (!response.ok) {
+      setError(result.error || "确认失败");
+      setSaving(false);
+      return;
+    }
+    setRv(result.review);
+    setSaving(false);
+  };
+
+  function getLineState(line: RvLine): LineState {
+    const edit = edits.get(line.lineCode);
+    return {
+      adjustedAmount: edit ? edit.adjustedAmount : line.adjustedAmount,
+      status: edit ? edit.status : line.status,
+      comment: edit ? edit.comment : line.comment,
+      finalAmount: edit && edit.adjustedAmount != null ? edit.adjustedAmount : (edit && edit.adjustedAmount === null ? line.workpaperAmount : line.finalAmount),
+    };
+  }
+
+  function upsertEdit(line: RvLine, patch: Partial<{ adjustedAmount: number | null; status: string; comment: string | null }>) {
+    setEdits((previous) => {
+      const next = new Map(previous);
+      const current = getLineState(line);
+      const base = next.get(line.lineCode) || { adjustedAmount: current.adjustedAmount, status: current.status, comment: current.comment };
+      if (patch.adjustedAmount !== undefined) base.adjustedAmount = patch.adjustedAmount;
+      if (patch.status !== undefined) base.status = patch.status;
+      if (patch.comment !== undefined) base.comment = patch.comment;
+      next.set(line.lineCode, base);
+      return next;
+    });
+  }
+
+  const commitAmt = (line: RvLine) => {
+    const value = editAmt.trim();
+    const adjustedAmount: number | null = value === "" ? null : parseFloat(value);
+    if (value !== "" && (Number.isNaN(adjustedAmount) || !Number.isFinite(adjustedAmount))) {
+      setEditingAmt(null);
+      return;
+    }
+    const current = getLineState(line);
+    const status = adjustedAmount != null ? "adjusted" : (current.status === "adjusted" ? "confirmed" : undefined);
+    upsertEdit(line, { adjustedAmount, ...(status !== undefined ? { status } : {}) });
+    setEditingAmt(null);
+  };
+
+  const commitCmt = (line: RvLine) => {
+    upsertEdit(line, { comment: editCmt.trim() || null });
+    setEditingCmt(null);
+  };
+
+  const toggleStatus = (line: RvLine) => {
+    if (rv?.status === "confirmed") return;
+    const current = getLineState(line).status;
+    const next = current === "pending" ? "confirmed" : current === "confirmed" ? "flagged" : "pending";
+    upsertEdit(line, { status: next });
+  };
+
+  const isReadOnly = rv?.status === "confirmed";
+  const changedCount = edits.size;
+  const hasFlaggedWithoutComment = rv ? rv.lines.some((line) => {
+    const state = getLineState(line);
+    return state.status === "flagged" && !state.comment;
+  }) : false;
+
+  return (
+    <div className="space-y-4">
+      <ReviewFilters co={co} yr={yr} mo={mo} rt={rt} setCo={setCo} setYr={setYr} setMo={setMo} setRt={setRt} loading={loading} onLoad={loadWp} />
+
+      <ReviewAlerts error={error} isStale={rv?.isStale} hasFlaggedWithoutComment={hasFlaggedWithoutComment} />
+
+      <ReviewToolbar
+        wp={wp}
+        rv={rv}
+        changedCount={changedCount}
+        saving={saving}
+        loading={loading}
+        isReadOnly={isReadOnly}
+        co={co}
+        yr={yr}
+        mo={mo}
+        rt={rt}
+        onGenerate={generate}
+        onSave={saveEdits}
+        onConfirm={doConfirm}
+      />
+
+      {rv && (
+        <ReviewTable
+          rv={rv}
+          getLineState={getLineState}
+          isReadOnly={isReadOnly}
+          editingAmt={editingAmt}
+          setEditingAmt={setEditingAmt}
+          editAmt={editAmt}
+          setEditAmt={setEditAmt}
+          commitAmt={commitAmt}
+          editingCmt={editingCmt}
+          setEditingCmt={setEditingCmt}
+          editCmt={editCmt}
+          setEditCmt={setEditCmt}
+          commitCmt={commitCmt}
+          toggleStatus={toggleStatus}
+        />
+      )}
+
+      {!wp && !loading && <EmptyStateCard>选择筛选条件后点击「读取底稿」</EmptyStateCard>}
+      {loading && <EmptyStateCard>加载中...</EmptyStateCard>}
+    </div>
+  );
+}

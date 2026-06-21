@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  ActionButton,
   ModuleCardBody,
   getModuleCardClassName,
   type ModuleCardAction,
@@ -34,9 +35,12 @@ export default function ModuleCard({ href, onClick, className = "", ...props }: 
 
   if (onClick && !props.actions?.length) {
     return (
-      <button type="button" onClick={onClick} className={mergedClassName}>
+      <ActionButton
+        onClick={onClick}
+        className={`${mergedClassName} border-0 text-inherit`}
+      >
         {body}
-      </button>
+      </ActionButton>
     );
   }
 

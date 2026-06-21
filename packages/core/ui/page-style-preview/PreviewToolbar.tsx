@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ActionButton, IconActionButton } from "../ActionControls";
+import { ActionButton, IconActionButton, RefreshActionButton } from "../ActionControls";
 import CommandToolbar from "../CommandToolbar";
 import EditToolbar from "../EditToolbar";
 import FieldValueFilter from "../FieldValueFilter";
@@ -94,7 +94,7 @@ export default function PreviewToolbar({
             value={fieldValue}
             onValueChange={setFieldValue}
           />
-          <ActionButton>刷新</ActionButton>
+          <RefreshActionButton />
         </>
       )}
       selectionActions={(

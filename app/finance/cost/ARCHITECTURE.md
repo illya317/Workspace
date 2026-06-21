@@ -82,6 +82,8 @@ RBAC 资源：
 
 ## 6. UI Tab 对应数据表
 
+`app/finance/cost/page.tsx` 只做鉴权、用户预取和挂载 `FinanceShell`/`FinanceCostClient`。成本页面真实 UI、hooks、表格壳和局部组件位于 `packages/finance/ui/cost/*`，其中成本表格必须通过 Core `DataTable` / `Pagination` / `ActionButton` 组合，不得在 route 目录手写表格和分页。
+
 | Tab | 数据表 | API |
 |-----|--------|-----|
 | 总览 | 全部（service 汇总计算） | `/api/finance/cost/summary` |

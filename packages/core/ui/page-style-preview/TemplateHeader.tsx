@@ -14,6 +14,11 @@ const kindLabels: Record<PageTemplate["kind"], string> = {
   upload: "上传",
 };
 
+function getKindLabel(page: PageTemplate) {
+  if (page.kind === "production" && page.paperMode === "template") return "模板工作台";
+  return kindLabels[page.kind];
+}
+
 export default function TemplateHeader({
   page,
 }: {
@@ -25,7 +30,7 @@ export default function TemplateHeader({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-lg font-semibold text-slate-950">{page.title}</h2>
-            <StatusBadge label={kindLabels[page.kind]} variant="blue" />
+            <StatusBadge label={getKindLabel(page)} variant="blue" />
           </div>
           <p className="mt-1 text-sm text-slate-500">{page.label}</p>
         </div>

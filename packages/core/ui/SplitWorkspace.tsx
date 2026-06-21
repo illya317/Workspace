@@ -17,6 +17,7 @@ export interface SplitWorkspaceToolbarProps {
   sideLabel: string;
   onSideOpenChange: (open: boolean) => void;
   onDrawerOpen: () => void;
+  showSideControls?: boolean;
   children?: ReactNode;
 }
 
@@ -25,24 +26,31 @@ export function SplitWorkspaceToolbar({
   sideLabel,
   onSideOpenChange,
   onDrawerOpen,
+  showSideControls = true,
   children,
 }: SplitWorkspaceToolbarProps) {
+  if (!showSideControls && !children) return null;
+
   return (
     <div className="flex w-full flex-wrap items-center justify-start gap-2">
-      <button
-        type="button"
-        onClick={onDrawerOpen}
-        className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 lg:hidden"
-      >
-        显示{sideLabel}
-      </button>
-      <button
-        type="button"
-        onClick={() => onSideOpenChange(!sideOpen)}
-        className="hidden rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
-      >
-        {sideOpen ? "隐藏" : "显示"}{sideLabel}
-      </button>
+      {showSideControls && (
+        <>
+          <button
+            type="button"
+            onClick={onDrawerOpen}
+            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 lg:hidden"
+          >
+            显示{sideLabel}
+          </button>
+          <button
+            type="button"
+            onClick={() => onSideOpenChange(!sideOpen)}
+            className="hidden rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm hover:bg-slate-50 lg:inline-flex"
+          >
+            {sideOpen ? "隐藏" : "显示"}{sideLabel}
+          </button>
+        </>
+      )}
       {children}
     </div>
   );
@@ -71,9 +79,9 @@ export default function SplitWorkspace({
         </div>
       )}
 
-      <div className={`grid grid-cols-1 gap-5 ${sideOpen ? "lg:grid-cols-[3fr_7fr]" : ""}`}>
-        {sideOpen && <div className="hidden lg:block">{renderSide("desktop")}</div>}
-        {children}
+      <div className={`grid grid-cols-1 gap-5 ${sideOpen ? "lg:grid-cols-[minmax(0,3fr)_minmax(0,7fr)]" : ""}`}>
+        {sideOpen && <div className="hidden min-w-0 lg:block">{renderSide("desktop")}</div>}
+        <div className="min-w-0">{children}</div>
       </div>
     </>
   );

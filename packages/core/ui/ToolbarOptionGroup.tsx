@@ -28,7 +28,7 @@ export default function ToolbarOptionGroup({
     <div
       role="group"
       aria-label={ariaLabel}
-      className={joinClassNames("inline-flex min-h-10 items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1", className)}
+      className={joinClassNames("inline-flex h-10 items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1 align-middle", className)}
     >
       {options.map((option) => {
         const active = option.value === value;
@@ -39,13 +39,13 @@ export default function ToolbarOptionGroup({
             disabled={option.disabled}
             onClick={() => onChange(option.value)}
             className={joinClassNames(
-              "min-h-8 rounded-md px-3 text-xs font-semibold transition disabled:cursor-not-allowed disabled:text-slate-300",
+              "grid h-8 place-items-center rounded-md px-3 text-xs font-semibold leading-none transition disabled:cursor-not-allowed disabled:text-slate-300",
               active
                 ? "bg-emerald-600 text-white shadow-sm"
                 : "text-slate-600 hover:bg-white hover:text-slate-900",
             )}
           >
-            {option.label}
+            <span className="-translate-y-px">{option.label}</span>
           </button>
         );
       })}

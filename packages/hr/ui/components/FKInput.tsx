@@ -1,7 +1,8 @@
 "use client";
 
-import { FKSearchInput } from "@workspace/core/ui";
+import { FkFieldInput } from "@workspace/core/ui";
 import type { FKOption } from "@workspace/hr/types";
+import { fkKeyForEntity } from "../fk-keys";
 
 interface FKInputProps {
   value: number | null;
@@ -13,16 +14,6 @@ interface FKInputProps {
   placeholder?: string;
 }
 
-const ENTITY_FK_KEYS: Record<string, string> = {
-  company: "hr.company",
-  department: "hr.department",
-  employee: "hr.employee",
-  position: "hr.position",
-  positionDescription: "hr.positionDescription",
-  project: "work.plan",
-  user: "platform.user",
-};
-
 export default function FKInput({
   value,
   displayValue,
@@ -32,9 +23,9 @@ export default function FKInput({
   disabled,
   placeholder = "输入搜索...",
 }: FKInputProps) {
-  const resolvedFkKey = fkKey || ENTITY_FK_KEYS[entity] || entity;
+  const resolvedFkKey = fkKeyForEntity(entity, fkKey);
   return (
-    <FKSearchInput
+    <FkFieldInput
       fkKey={resolvedFkKey}
       value={value ? String(value) : ""}
       displayValue={displayValue}

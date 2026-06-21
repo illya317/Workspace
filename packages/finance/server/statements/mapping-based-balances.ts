@@ -1,6 +1,7 @@
 /** M10a: mapping-based balance aggregation with residual leaf. residual = own - children sum. */
 import { prisma } from "@workspace/platform/server/prisma";
 import { ensureStatementMappings } from "./mapping/seed-from-config";
+import { resolveMappedLineWithOperator } from "./shared/mapping-resolver";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -145,7 +146,7 @@ export async function aggregateMappingBasedBalances(
   const residualParents: ResidualParent[] = [];
 
   for (const r of residuals) {
-    const resolved = resolveLineCodeWithOperator(r.code, parentMap, mappingMap, operatorMap);
+    const resolved = resolveMappedLineWithOperator(r.code, parentMap, mappingMap, operatorMap);
     if (resolved) {
       const { lineCode, operator } = resolved;
       const side = lineSideMap.get(lineCode) || "debit";
@@ -216,40 +217,4 @@ function buildResidualParent(r: { code: string; name: string; debit: number; cre
   let cD = 0, cC = 0;
   for (const cc of childCodes) { const c = ownByCode.get(cc); if (c) { cD += c.debit; cC += c.credit; } }
   return { accountCode: r.code, accountName: r.name, lineCode, residualDebit: r.debit, residualCredit: r.credit, ownDebit: own.debit, ownCredit: own.credit, childrenDebit: cD, childrenCredit: cC };
-}
-
-// ─── Resolver ──────────────────────────────────────────────
-
-function buildParentChain(
-  code: string,
-  parentMap: Map<string, string | null>,
-): string[] {
-  const chain: string[] = [code];
-  const parent = parentMap.get(code);
-  if (parent) return [...chain, ...buildParentChain(parent, parentMap)];
-  // Prefix fallback
-  let c = code;
-  while (c.length > 1) {
-    c = c.slice(0, -1);
-    if (c.length > 0) chain.push(c);
-  }
-  return chain;
-}
-
-function resolveLineCodeWithOperator(
-  accountCode: string,
-  parentMap: Map<string, string | null>,
-  mappingMap: Map<string, string>,
-  operatorMap: Map<string, "add" | "subtract" | "exclude">,
-): { lineCode: string; operator: "add" | "subtract" } | null {
-  const chain = buildParentChain(accountCode, parentMap);
-  for (const code of chain) {
-    const line = mappingMap.get(code);
-    if (line) {
-      const op = operatorMap.get(code) || "add";
-      if (op === "exclude") return null; // excluded — don't aggregate
-      return { lineCode: line, operator: op };
-    }
-  }
-  return null;
 }

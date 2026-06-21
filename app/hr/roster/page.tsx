@@ -1,6 +1,6 @@
 import { requireResourceAccess } from "@workspace/platform/server/auth";
 import AppShell from "@workspace/platform/ui/AppShell";
-import HRClient from "../HRClient";
+import { HRClient } from "@workspace/hr/ui";
 
 export default async function HRRosterPage() {
   const user = await requireResourceAccess("people.roster");

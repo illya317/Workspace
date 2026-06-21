@@ -4,15 +4,15 @@
 
 | 页面 | 路由 | 组件 |
 |------|------|------|
-| 预算管理 | `/finance/budget` | `page.tsx` → `BudgetClient.tsx` → `BudgetTab.tsx` |
+| 预算管理 | `/finance/budget` | `page.tsx` → `@workspace/finance/ui` 的 `BudgetTab` |
 
-由 `FinanceShell` 统一包裹。
+`app/finance/budget/page.tsx` 只做鉴权、用户预取和挂载 `FinanceShell`/`BudgetTab`。预算页面真实 UI、hooks 和局部组件位于 `packages/finance/ui/budget/*`。
 
 生命周期状态：`workspace-owned`。预算事实来源以 Workspace 版本表、Excel 导入和本地数据库为准；不再通过 ERP/ERPNext API 取数。
 
 ## 页面结构
 
-`BudgetTab` 渲染两个视图切换：
+`packages/finance/ui/budget/BudgetTab.tsx` 渲染两个视图切换：
 
 | 视图 | 组件 | 说明 |
 |------|------|------|

@@ -8,6 +8,7 @@ export interface CommandToolbarProps {
   editActions?: ReactNode;
   meta?: ReactNode;
   className?: string;
+  onSubmit?: () => void;
 }
 
 function ToolbarSection({
@@ -36,9 +37,16 @@ export default function CommandToolbar({
   editActions,
   meta,
   className = "",
+  onSubmit,
 }: CommandToolbarProps) {
   return (
-    <div className={joinClassNames("relative z-20 flex min-h-14 flex-wrap items-center gap-3 overflow-visible rounded-lg border border-slate-200 bg-white p-3 shadow-sm", className)}>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        onSubmit?.();
+      }}
+      className={joinClassNames("relative z-20 flex min-h-14 flex-wrap items-center gap-3 overflow-visible rounded-lg border border-slate-200 bg-white p-3 shadow-sm", className)}
+    >
       <ToolbarSection className="shrink-0">{viewControls}</ToolbarSection>
       {viewControls && filters && <Divider />}
       <ToolbarSection>{filters}</ToolbarSection>
@@ -48,6 +56,6 @@ export default function CommandToolbar({
       <ToolbarSection className="shrink-0">{editActions}</ToolbarSection>
       <div className="min-w-4 flex-1 basis-4" />
       {meta && <div className="flex shrink-0 items-center gap-3 text-xs font-semibold text-slate-500">{meta}</div>}
-    </div>
+    </form>
   );
 }

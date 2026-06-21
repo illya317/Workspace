@@ -14,7 +14,8 @@ type HRProfessionalTitleConfig = {
 
 type HRUndergraduateMajorRecord = {
   categoryName: string;
-  className: string;
+  className?: string;
+  name?: string;
 };
 
 type HRUndergraduateMajorCatalog = {
@@ -74,13 +75,27 @@ export type HRMajorItem = {
   specialty: string;
 };
 
+function cleanHrMajorName(value: unknown) {
+  return String(value || "")
+    .replace(/（注：[^）]*）/g, "")
+    .trim();
+}
+
 export const HR_MAJOR_GROUPS = buildHrMajorGroups(HR_UNDERGRADUATE_MAJOR_CATALOG.records);
+export const HR_MAJOR_OPTIONS = HR_MAJOR_GROUPS.flatMap((group) =>
+  group.specialties.map((specialty) => ({
+    category: group.category,
+    specialty,
+  })),
+);
+const HR_MAJOR_SPECIALTIES = new Set(HR_MAJOR_OPTIONS.map((option) => option.specialty));
+const HR_MAJOR_CLASS_DEFAULTS = buildHrMajorClassDefaults(HR_UNDERGRADUATE_MAJOR_CATALOG.records);
 
 function buildHrMajorGroups(records: HRUndergraduateMajorRecord[]) {
   const groups = new Map<string, Set<string>>();
   for (const record of records) {
     const category = record.categoryName.trim();
-    const specialty = record.className.trim();
+    const specialty = cleanHrMajorName(record.name || record.className || "");
     if (!category || !specialty) continue;
     if (!groups.has(category)) groups.set(category, new Set());
     groups.get(category)?.add(specialty);
@@ -89,6 +104,33 @@ function buildHrMajorGroups(records: HRUndergraduateMajorRecord[]) {
     category,
     specialties: [...specialties],
   }));
+}
+
+function buildHrMajorClassDefaults(records: HRUndergraduateMajorRecord[]) {
+  const classMap = new Map<string, string[]>();
+  for (const record of records) {
+    const className = String(record.className || "").trim();
+    const specialty = cleanHrMajorName(record.name || "");
+    if (!className || !specialty) continue;
+    if (!classMap.has(className)) classMap.set(className, []);
+    classMap.get(className)?.push(specialty);
+  }
+
+  const defaults = new Map<string, string>();
+  for (const [className, specialties] of classMap.entries()) {
+    const stem = className.replace(/类$/, "");
+    defaults.set(className, specialties.includes(stem) ? stem : specialties[0] || stem);
+  }
+  return defaults;
+}
+
+function normalizeLegacyMajorSpecialty(value: unknown) {
+  const text = cleanHrMajorName(value);
+  if (!text) return "";
+  if (HR_MAJOR_SPECIALTIES.has(text)) return text;
+  const classDefault = HR_MAJOR_CLASS_DEFAULTS.get(text);
+  if (classDefault) return classDefault;
+  return text.endsWith("类") ? text.slice(0, -1) : text;
 }
 
 export function normalizeHrMajorItems(value: unknown): HRMajorItem[] {
@@ -106,12 +148,14 @@ export function normalizeHrMajorItems(value: unknown): HRMajorItem[] {
   if (!Array.isArray(raw)) return [];
   return raw
     .map((item) => {
-      if (typeof item === "string") return { category: "", specialty: item.trim() };
+      if (typeof item === "string") return parseHrMajorPickerValue(item);
       if (!item || typeof item !== "object" || Array.isArray(item)) return null;
       const record = item as Record<string, unknown>;
+      const specialty = normalizeLegacyMajorSpecialty(record.specialty || record.name || "");
+      const parsed = parseHrMajorPickerValue(specialty);
       return {
-        category: String(record.category || "").trim(),
-        specialty: String(record.specialty || "").trim(),
+        category: String(record.category || parsed.category || "").trim(),
+        specialty,
       };
     })
     .filter((item): item is HRMajorItem => Boolean(item && (item.category || item.specialty)));
@@ -125,14 +169,16 @@ export function isValidHrMajorItem(item: HRMajorItem) {
 export function serializeHrMajorItems(value: unknown) {
   const seen = new Set<string>();
   const items = normalizeHrMajorItems(value)
-    .filter(isValidHrMajorItem)
     .filter((item) => {
-      const key = `${item.category}/${item.specialty}`;
+      if (!item.specialty) return false;
+      const key = item.specialty;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
     });
-  return items.length > 0 ? JSON.stringify(items) : null;
+  if (items.length === 0) return null;
+  if (items.length === 1) return items[0]?.specialty ?? null;
+  return JSON.stringify(items.map((item) => item.specialty));
 }
 
 const HR_MAJOR_PICKER_SEPARATOR = "\u001F";
@@ -145,11 +191,12 @@ export function parseHrMajorPickerValue(value: string | null | undefined): HRMaj
   const text = String(value || "").trim();
   if (!text) return { category: "", specialty: "" };
   const [category, specialty] = text.split(HR_MAJOR_PICKER_SEPARATOR);
-  if (specialty !== undefined) return { category: category.trim(), specialty: specialty.trim() };
+  if (specialty !== undefined) return { category: category.trim(), specialty: normalizeLegacyMajorSpecialty(specialty) };
+  const normalized = normalizeLegacyMajorSpecialty(text);
   for (const group of HR_MAJOR_GROUPS) {
-    if (group.specialties.includes(text)) return { category: group.category, specialty: text };
+    if (group.specialties.includes(normalized)) return { category: group.category, specialty: normalized };
   }
-  return { category: "", specialty: text };
+  return { category: "", specialty: normalized };
 }
 
 export function getHrMajorPickerOptions(extraItems: HRMajorItem[] = []) {

@@ -2,9 +2,35 @@
 
 import type { ReactNode } from "react";
 import PageContent from "./PageContent";
+import AccordionTabBar, { type AccordionTabItem } from "./AccordionTabBar";
 import SplitWorkspace, { SplitWorkspaceToolbar, type SplitWorkspaceMode } from "./SplitWorkspace";
-import TabBar, { type TabDef } from "./TabBar";
 import { joinClassNames } from "./card-utils";
+
+type PageFrameTab = AccordionTabItem;
+
+function PageFrameTabs({
+  tabs,
+  activeTab,
+  activeChild,
+  onTabChange,
+  onChildChange,
+}: {
+  tabs: PageFrameTab[];
+  activeTab: string;
+  activeChild?: string;
+  onTabChange: (tab: string) => void;
+  onChildChange?: (child: string) => void;
+}) {
+  return (
+    <AccordionTabBar
+      tabs={tabs}
+      activeTab={activeTab}
+      activeChild={activeChild}
+      onTabChange={onTabChange}
+      onChildChange={onChildChange}
+    />
+  );
+}
 
 export interface WorkspaceSplitPageProps {
   sideOpen: boolean;
@@ -19,6 +45,7 @@ export interface WorkspaceSplitPageProps {
   beforeSplit?: ReactNode;
   className?: string;
   contentClassName?: string;
+  showSideControls?: boolean;
 }
 
 export function WorkspaceSplitPage({
@@ -34,6 +61,7 @@ export function WorkspaceSplitPage({
   beforeSplit,
   className = "",
   contentClassName = "",
+  showSideControls = true,
 }: WorkspaceSplitPageProps) {
   return (
     <PageContent className={contentClassName}>
@@ -44,6 +72,7 @@ export function WorkspaceSplitPage({
           sideLabel={sideLabel}
           onSideOpenChange={onSideOpenChange}
           onDrawerOpen={() => onDrawerOpenChange(true)}
+          showSideControls={showSideControls}
         >
           {toolbar}
         </SplitWorkspaceToolbar>
@@ -62,9 +91,11 @@ export function WorkspaceSplitPage({
 }
 
 export interface DatabasePageFrameProps {
-  tabs?: TabDef[];
+  tabs?: PageFrameTab[];
   activeTab?: string;
+  activeChild?: string;
   onTabChange?: (tab: string) => void;
+  onChildChange?: (child: string) => void;
   toolbar?: ReactNode;
   summary?: ReactNode;
   children: ReactNode;
@@ -75,7 +106,9 @@ export interface DatabasePageFrameProps {
 export function DatabasePageFrame({
   tabs,
   activeTab,
+  activeChild,
   onTabChange,
+  onChildChange,
   toolbar,
   summary,
   children,
@@ -86,7 +119,13 @@ export function DatabasePageFrame({
     <PageContent className={contentClassName}>
       <div className={joinClassNames("space-y-5", className)}>
         {tabs && activeTab && onTabChange && (
-          <TabBar tabs={tabs} active={activeTab} onChange={onTabChange} />
+          <PageFrameTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            activeChild={activeChild}
+            onTabChange={onTabChange}
+            onChildChange={onChildChange}
+          />
         )}
         {summary}
         {toolbar}
@@ -97,9 +136,11 @@ export function DatabasePageFrame({
 }
 
 export interface AnalysisPageFrameProps {
-  tabs?: TabDef[];
+  tabs?: PageFrameTab[];
   activeTab?: string;
+  activeChild?: string;
   onTabChange?: (tab: string) => void;
+  onChildChange?: (child: string) => void;
   metrics?: ReactNode;
   children: ReactNode;
   className?: string;
@@ -109,7 +150,9 @@ export interface AnalysisPageFrameProps {
 export function AnalysisPageFrame({
   tabs,
   activeTab,
+  activeChild,
   onTabChange,
+  onChildChange,
   metrics,
   children,
   className = "",
@@ -119,7 +162,13 @@ export function AnalysisPageFrame({
     <PageContent className={contentClassName}>
       <div className={joinClassNames("space-y-6", className)}>
         {tabs && activeTab && onTabChange && (
-          <TabBar tabs={tabs} active={activeTab} onChange={onTabChange} />
+          <PageFrameTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            activeChild={activeChild}
+            onTabChange={onTabChange}
+            onChildChange={onChildChange}
+          />
         )}
         {metrics}
         {children}

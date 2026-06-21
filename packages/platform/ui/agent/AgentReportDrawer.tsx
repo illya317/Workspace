@@ -1,5 +1,6 @@
 "use client";
 
+import { DataTable, DetailModal, EmptyStateCard, PanelCard, type DataTableColumn } from "@workspace/core/ui";
 import type { AgentMessage } from "./types";
 
 function stripMd(t: string): string {
@@ -44,6 +45,8 @@ interface Props {
   onClose: () => void;
 }
 
+type AgentReportRow = Record<string, unknown> & { __rowIndex: number };
+
 export default function AgentReportDrawer({ message, onClose }: Props) {
   if (!message?.data) return null;
 
@@ -56,6 +59,14 @@ export default function AgentReportDrawer({ message, onClose }: Props) {
     ? Object.keys(items[0] as Record<string, unknown>).filter((k) => !HIDDEN_FIELDS.has(k))
     : [];
 
+  const rows = (items as Record<string, unknown>[]).map((item, index) => ({ ...item, __rowIndex: index }));
+  const columns: DataTableColumn<AgentReportRow>[] = visibleKeys.map((key) => ({
+    key,
+    label: fieldLabel(key),
+    required: true,
+    render: (row) => fmt(row[key]),
+  }));
+
   // 格式化值
   function fmt(val: unknown): string {
     if (val == null) return "-";
@@ -65,62 +76,25 @@ export default function AgentReportDrawer({ message, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/30" onClick={onClose}>
-      <div
-        className="bg-white rounded-2xl shadow-2xl max-w-5xl w-[95vw] max-h-[92vh] flex flex-col overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center gap-3 px-5 py-4 border-b bg-gradient-to-r from-emerald-50 to-white shrink-0">
-          <div className="flex-1">
-            <div className="text-base font-semibold text-gray-800">查询报告</div>
-            <div className="text-xs text-gray-500">共 {total} 条记录</div>
-          </div>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition"
-          >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Summary */}
-        <div className="px-5 py-3 border-b bg-gray-50 shrink-0">
-          <p className="text-sm text-gray-700 whitespace-pre-wrap">{stripMd(message.content)}</p>
-        </div>
-
-        {/* Table */}
-        <div className="flex-1 overflow-auto">
-          {items.length > 0 ? (
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-gray-100 text-left">
-                <tr>
-                  {visibleKeys.map((key) => (
-                    <th key={key} className="px-4 py-2.5 font-medium text-gray-600 whitespace-nowrap">
-                      {fieldLabel(key)}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {items.map((item, i) => (
-                  <tr key={i} className="hover:bg-gray-50">
-                    {visibleKeys.map((key) => (
-                      <td key={key} className="px-4 py-2.5 text-gray-700 whitespace-nowrap max-w-[250px] truncate">
-                        {fmt((item as Record<string, unknown>)[key])}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <div className="p-12 text-center text-sm text-gray-400">无详细数据</div>
-          )}
-        </div>
+    <DetailModal open title={`查询报告 · 共 ${total} 条记录`} onClose={onClose} maxWidth="max-w-5xl">
+      <div className="space-y-3">
+        <PanelCard bodyClassName="p-3">
+          <p className="whitespace-pre-wrap text-sm text-slate-700">{stripMd(message.content)}</p>
+        </PanelCard>
+        {rows.length > 0 ? (
+          <PanelCard>
+            <DataTable
+              rows={rows}
+              columns={columns}
+              visibleColumns={columns.map((column) => column.key)}
+              density="compact"
+              rowKey={(row) => row.__rowIndex}
+            />
+          </PanelCard>
+        ) : (
+          <EmptyStateCard>无详细数据</EmptyStateCard>
+        )}
       </div>
-    </div>
+    </DetailModal>
   );
 }

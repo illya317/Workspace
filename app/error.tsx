@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { PanelCard } from "@workspace/core/ui";
 
 export default function ErrorBoundary({
   error,
@@ -19,10 +20,9 @@ export default function ErrorBoundary({
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="rounded-lg bg-white p-8 shadow-md text-center">
-        <h2 className="text-xl font-bold text-gray-800 mb-2">出错了</h2>
+      <PanelCard title="出错了" bodyClassName="p-8 pt-4 text-center">
         <p className="text-gray-600">{error.message}</p>
-      </div>
+      </PanelCard>
     </div>
   );
 }

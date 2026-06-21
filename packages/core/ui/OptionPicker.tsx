@@ -86,6 +86,7 @@ export default function OptionPicker({
 
   const isUnset = current === "" && !hasExplicitEmptyOption;
   const currentLabel = isUnset ? "" : (valueToLabel.get(current) ?? current);
+  const visibleColumnCount = Math.min(3, Math.max(1, visibleOptions.length));
 
   function resetPopup() {
     setShowMore(false);
@@ -99,7 +100,10 @@ export default function OptionPicker({
       disabled={disabled}
       className={className}
       buttonClassName={buttonClassName}
-      popoverClassName={popoverClassName}
+      popoverClassName={
+        popoverClassName ||
+        "absolute left-0 top-[calc(100%+0.35rem)] z-50 w-max min-w-0 max-w-[min(36rem,calc(100vw-2rem))] rounded-lg border border-slate-200 bg-white p-2.5 shadow-xl"
+      }
       onOpenChange={(open) => {
         if (!open) resetPopup();
       }}
@@ -113,11 +117,11 @@ export default function OptionPicker({
 
         return (
           <>
-            <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="mb-2 flex items-center justify-between gap-2">
               <button
                 type="button"
                 onClick={() => choose(null)}
-                className={`rounded-md border px-3 py-1.5 text-xs font-medium transition ${isUnset ? "border-slate-300 bg-slate-100 text-slate-900" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
+                className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${isUnset ? "border-slate-300 bg-slate-100 text-slate-900" : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}
               >
                 {placeholder}
               </button>
@@ -125,7 +129,7 @@ export default function OptionPicker({
                 <button
                   type="button"
                   onClick={() => setShowMore((next) => !next)}
-                  className={`rounded-md border px-3 py-1.5 text-xs font-medium transition ${
+                  className={`whitespace-nowrap rounded-md border px-2.5 py-1.5 text-xs font-medium transition ${
                     showMore
                       ? "border-emerald-500 bg-emerald-50 text-emerald-700"
                       : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
@@ -136,7 +140,10 @@ export default function OptionPicker({
               )}
             </div>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div
+              className="grid gap-2"
+              style={{ gridTemplateColumns: `repeat(${visibleColumnCount}, max-content)` }}
+            >
               {visibleOptions.map((option) => {
                 const selected = !isUnset && option.value === current;
                 return (
@@ -144,7 +151,7 @@ export default function OptionPicker({
                     key={option.value}
                     type="button"
                     onClick={() => choose(option.value)}
-                    className={`rounded-md border px-3 py-2 text-sm font-medium transition ${
+                    className={`min-w-0 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-xs font-medium transition ${
                       selected
                         ? "border-emerald-500 bg-emerald-50 text-emerald-700"
                         : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"
@@ -157,17 +164,20 @@ export default function OptionPicker({
             </div>
 
             {showMore && moreOptions.length > 0 && (
-              <div className="mt-3 border-t border-slate-100 pt-3">
+              <div className="mt-2 border-t border-slate-100 pt-2">
                 <SearchInput
                   autoFocus
                   value={query}
                   onChange={setQuery}
                   placeholder={searchPlaceholder}
                   size="compact"
-                  className="mb-3"
+                  className="mb-2"
                 />
                 <div className="max-h-64 overflow-auto pr-1">
-                  <div className="grid grid-cols-3 gap-2">
+                  <div
+                    className="grid gap-2"
+                    style={{ gridTemplateColumns: `repeat(${Math.min(3, Math.max(1, filteredMore.length))}, max-content)` }}
+                  >
                     {filteredMore.map((option) => {
                       const selected = !isUnset && option.value === current;
                       return (
@@ -175,7 +185,7 @@ export default function OptionPicker({
                           key={option.value}
                           type="button"
                           onClick={() => choose(option.value)}
-                          className={`rounded-md border px-2 py-2 text-sm transition ${
+                          className={`min-w-0 whitespace-nowrap rounded-md border px-2.5 py-1.5 text-center text-xs transition ${
                             selected
                               ? "border-emerald-500 bg-emerald-50 font-medium text-emerald-700"
                               : "border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50"

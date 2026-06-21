@@ -1,0 +1,197 @@
+"use client";
+
+import { workspacePath } from "@workspace/core/routing";
+import { useEffect, useState, useCallback } from "react";
+import Toast from "@workspace/core/ui/Toast";
+import { DataTable, PanelCard, type DataTableColumn } from "@workspace/core/ui";
+import { useToast } from "@workspace/core/hooks";
+import FinanceFilters from "../components/FinanceFilters";
+import { Pagination } from "@workspace/core/ui";
+import FinanceBalanceReconcile from "../components/FinanceBalanceReconcile";
+import { formatFinanceAmount } from "../formatters";
+
+interface Period {
+  id: number;
+  year: number;
+  month: number;
+  isClosed: boolean;
+}
+
+interface Balance {
+  id: number;
+  account: { code: string; name: string; category: string; balanceDirection: string };
+  openingDebit: number;
+  openingCredit: number;
+  currentDebit: number;
+  currentCredit: number;
+  closingDebit: number;
+  closingCredit: number;
+}
+
+export default function LedgerTab() {
+  const [_periods, setPeriods] = useState<Period[]>([]);
+  const [_selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
+  const [balances, setBalances] = useState<Balance[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const { toast, showToast, closeToast } = useToast();
+
+  // 筛选
+  const [companyFilter, setCompanyFilter] = useState("");
+  const [yearFilter, setYearFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState("");
+
+  useEffect(() => {
+    fetch(workspacePath("/api/finance/periods")).then((r) => r.json()).then((d) => {
+      const list = d.periods || [];
+      setPeriods(list);
+      // 默认选中第一个期间
+      if (list.length && !companyFilter && !yearFilter && !monthFilter) {
+        const first = list[0];
+        if (first.companyCode) setCompanyFilter(first.companyCode);
+        setYearFilter(String(first.year));
+        setMonthFilter(String(first.month));
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const loadBalances = useCallback(async () => {
+    if (!companyFilter || !yearFilter || !monthFilter) {
+      setBalances([]);
+      setSelectedPeriodId(null);
+      setTotal(0);
+      setTotalPages(1);
+      return;
+    }
+    setLoading(true);
+    const params = new URLSearchParams();
+    params.set("companyCode", companyFilter);
+    params.set("year", yearFilter);
+    params.set("month", monthFilter);
+    params.set("page", String(page));
+    params.set("pageSize", String(pageSize));
+    const res = await fetch(workspacePath(`/api/finance/balances?${params.toString()}`));
+    if (res.ok) {
+      const data = await res.json();
+      setBalances(data.data || data.balances || []);
+      setTotal(data.total || 0);
+      setTotalPages(data.totalPages || 1);
+      setSelectedPeriodId(data.periodId || null);
+    }
+    setLoading(false);
+  }, [companyFilter, yearFilter, monthFilter, page, pageSize]);
+
+  useEffect(() => { loadBalances(); }, [loadBalances]);
+
+  const CATEGORIES: Record<string, string> = { asset: "资产", liability: "负债", equity: "权益", cost: "成本", revenue: "损益" };
+  const columns: DataTableColumn<Balance>[] = [
+    {
+      key: "accountCode",
+      label: "科目编码",
+      required: true,
+      cellClassName: "font-mono text-slate-700",
+      render: (balance) => balance.account.code,
+    },
+    {
+      key: "accountName",
+      label: "科目名称",
+      required: true,
+      cellClassName: "text-slate-800",
+      render: (balance) => balance.account.name,
+    },
+    {
+      key: "category",
+      label: "类别",
+      required: true,
+      cellClassName: "text-slate-600",
+      render: (balance) => CATEGORIES[balance.account.category] ?? balance.account.category,
+    },
+    {
+      key: "openingDebit",
+      label: "期初借方",
+      required: true,
+      headerClassName: "text-right",
+      cellClassName: "text-right text-slate-700",
+      render: (balance) => formatFinanceAmount(balance.openingDebit),
+    },
+    {
+      key: "openingCredit",
+      label: "期初贷方",
+      required: true,
+      headerClassName: "text-right",
+      cellClassName: "text-right text-slate-700",
+      render: (balance) => formatFinanceAmount(balance.openingCredit),
+    },
+    {
+      key: "currentDebit",
+      label: "本期借方",
+      required: true,
+      headerClassName: "text-right",
+      cellClassName: "text-right text-slate-700",
+      render: (balance) => formatFinanceAmount(balance.currentDebit),
+    },
+    {
+      key: "currentCredit",
+      label: "本期贷方",
+      required: true,
+      headerClassName: "text-right",
+      cellClassName: "text-right text-slate-700",
+      render: (balance) => formatFinanceAmount(balance.currentCredit),
+    },
+    {
+      key: "closingDebit",
+      label: "期末借方",
+      required: true,
+      headerClassName: "text-right",
+      cellClassName: "text-right text-slate-700",
+      render: (balance) => formatFinanceAmount(balance.closingDebit),
+    },
+    {
+      key: "closingCredit",
+      label: "期末贷方",
+      required: true,
+      headerClassName: "text-right",
+      cellClassName: "text-right text-slate-700",
+      render: (balance) => formatFinanceAmount(balance.closingCredit),
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <FinanceFilters
+        companyFilter={companyFilter}
+        yearFilter={yearFilter}
+        monthFilter={monthFilter}
+        pageSize={pageSize}
+        onCompanyChange={(v) => { setCompanyFilter(v); setPage(1); }}
+        onYearChange={(v) => { setYearFilter(v); setPage(1); }}
+        onMonthChange={(v) => { setMonthFilter(v); setPage(1); }}
+        onPageSizeChange={(v) => { setPageSize(v); setPage(1); }}
+        extra={
+          <span className="ml-auto text-xs text-gray-400">共 {total} 条</span>
+        }
+      />
+
+      <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
+        <DataTable
+          rows={balances}
+          columns={columns}
+          visibleColumns={columns.map((column) => column.key)}
+          loading={loading}
+          emptyText="暂无余额数据，请先录入凭证并计算余额"
+          rowKey={(balance) => balance.id}
+        />
+      </PanelCard>
+
+      <Pagination page={page} totalPages={totalPages} total={total} onPageChange={setPage} />
+
+      <FinanceBalanceReconcile showToast={showToast} />
+
+      <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
+    </div>
+  );
+}

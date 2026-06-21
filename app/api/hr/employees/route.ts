@@ -5,6 +5,9 @@ import { createEmployeeWithAccount, listEmployees } from "@workspace/hr/server";
 
 const employeesQuerySchema = z.object({
   keyword: z.string().catch(""),
+  employmentStatus: z.enum(["active", "inactive"]).optional().catch(undefined),
+  filterField: z.string().catch(""),
+  filterValue: z.string().catch(""),
   page: z.coerce.number().int().min(1).catch(1),
   pageSize: z.coerce.number().int().min(1).max(500).catch(50),
 }).passthrough();
@@ -17,8 +20,8 @@ export const GET = withHRAccess(async (request: Request, _user) => {
   const { searchParams } = new URL(request.url);
   const parsedQuery = employeesQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
   if (!parsedQuery.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
-  const { keyword, page, pageSize } = parsedQuery.data;
-  return NextResponse.json(await listEmployees({ keyword, page, pageSize }));
+  const { employmentStatus, keyword, filterField, filterValue, page, pageSize } = parsedQuery.data;
+  return NextResponse.json(await listEmployees({ employmentStatus, keyword, filterField, filterValue, page, pageSize }));
 });
 
 export const POST = withHRWrite(async (request: Request, user) => {

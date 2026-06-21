@@ -33,7 +33,6 @@ export interface LibraryFilters {
   confidentialityLevel?: number;
   keyword?: string;
   docId?: string;
-  tag?: string;
 }
 
 export interface CategoryGroup {

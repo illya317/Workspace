@@ -1,5 +1,6 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
 import { DetailModal, Pagination } from "@workspace/core/ui";
 import SelectField from "@workspace/core/ui/SelectField";
@@ -25,7 +26,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
 
   const loadDates = useCallback(async () => {
     try {
-      const res = await fetch(`/workspace/api/admin/audit-log?entityType=${entityType}&dates=1`);
+      const res = await fetch(workspacePath(`/api/admin/audit-log?entityType=${entityType}&dates=1`));
       if (res.ok) {
         const d = await res.json();
         setDates(d.dates || []);
@@ -38,7 +39,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
     try {
       const params = new URLSearchParams({ entityType, page: String(p), pageSize: String(pageSize) });
       if (d) params.set("date", d);
-      const res = await fetch(`/workspace/api/admin/audit-log?${params}`);
+      const res = await fetch(workspacePath(`/api/admin/audit-log?${params}`));
       if (res.ok) {
         const data = await res.json();
         setEntries(data.entries || []);
@@ -52,7 +53,7 @@ export default function AuditLogModal({ open, onClose, entityType, onRestored }:
   const restore = useCallback(async (historyId: number) => {
     setRestoring(historyId);
     try {
-      const res = await fetch("/workspace/api/admin/audit-log/restore", {
+      const res = await fetch(workspacePath("/api/admin/audit-log/restore"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ historyId }),

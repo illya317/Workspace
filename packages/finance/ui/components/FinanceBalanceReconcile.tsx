@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { DataTable, FileField, PanelCard, SectionCard, getToolbarActionClassName } from "@workspace/core/ui";
+import { ActionButton, DataTable, EmptyStateCard, FileField, PanelCard, SectionCard } from "@workspace/core/ui";
 import type { DataTableColumn } from "@workspace/core/ui";
 import SelectField from "@workspace/core/ui/SelectField";
 
@@ -108,13 +108,13 @@ export default function FinanceBalanceReconcile({
           selectClassName="min-w-32 px-3 py-1.5 text-sm"
         />
         <FileField label="余额表Excel" accept=".xls,.xlsx" onChange={setFile} />
-        <button
+        <ActionButton
           onClick={handleReconcile}
           disabled={loading}
-          className={getToolbarActionClassName("primary")}
+          variant="primary"
         >
           {loading ? "核对中..." : "开始核对"}
-        </button>
+        </ActionButton>
       </div>
 
       {result && (
@@ -172,9 +172,9 @@ export default function FinanceBalanceReconcile({
           {result.differences.length === 0 &&
             result.missingInSystem.length === 0 &&
             result.missingInExcel.length === 0 && (
-              <p className="rounded-md bg-green-50 p-3 text-sm font-medium text-green-700">
+              <EmptyStateCard compact className="border-emerald-100 bg-emerald-50 text-emerald-700">
                 核对通过，所有科目余额完全一致
-              </p>
+              </EmptyStateCard>
             )}
         </div>
       )}
@@ -193,15 +193,15 @@ function MissingList({
 }) {
   const styles =
     tone === "yellow"
-      ? "bg-yellow-50 text-yellow-800 [&_p:last-child]:text-yellow-700"
-      : "bg-blue-50 text-blue-800 [&_p:last-child]:text-blue-700";
+      ? "border-amber-100 bg-amber-50 text-amber-800 [&_p:last-child]:text-amber-700"
+      : "border-blue-100 bg-blue-50 text-blue-800 [&_p:last-child]:text-blue-700";
   return (
-    <div className={`rounded-md p-3 text-sm ${styles}`}>
+    <PanelCard className={styles} bodyClassName="p-3 text-sm">
       <p className="font-medium">{title}</p>
       <p className="mt-1">
         {items.map((item) => `${item.code} ${item.name}`).join("、 ")}
       </p>
-    </div>
+    </PanelCard>
   );
 }
 

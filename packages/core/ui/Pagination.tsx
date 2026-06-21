@@ -1,5 +1,7 @@
 "use client";
 
+import { joinClassNames } from "./card-utils";
+
 export interface PaginationProps {
   page: number;
   totalPages: number;
@@ -19,14 +21,14 @@ export default function Pagination({
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
-  const buttonClass = "rounded border border-gray-300 px-2 py-1 text-xs hover:bg-gray-50 disabled:opacity-40";
+  const buttonClass = "inline-flex h-8 items-center justify-center rounded-md px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent";
 
   return (
-    <div className={className ?? "flex items-center justify-between rounded-lg bg-white p-3 shadow-sm"}>
-      <span className="text-xs text-gray-500">
+    <div className={joinClassNames("flex min-h-12 w-full flex-nowrap items-center justify-between gap-3 bg-white px-4 py-2", className)}>
+      <span className="shrink-0 whitespace-nowrap text-xs font-medium text-slate-500">
         第 {page} / {totalPages} 页{typeof total === "number" ? `，共 ${total} 条` : ""}
       </span>
-      <div className="flex items-center gap-1">
+      <div className="flex shrink-0 items-center gap-1">
         {!compact && (
           <button type="button" onClick={() => onPageChange(1)} disabled={page <= 1} className={buttonClass}>
             首页

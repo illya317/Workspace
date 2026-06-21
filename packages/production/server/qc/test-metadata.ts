@@ -1,14 +1,4 @@
-function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
-}
-
-function asArray(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : [];
-}
-
-function asString(value: unknown, fallback = "") {
-  return typeof value === "string" || typeof value === "number" ? String(value) : fallback;
-}
+import { asArray, asRecord, asString } from "./layout-block-utils";
 
 export function summarizeStandard(test: Record<string, unknown>) {
   if (typeof test["标准规定"] === "string") return test["标准规定"];

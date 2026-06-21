@@ -9,20 +9,21 @@
 ```text
 app/external/
   page.tsx                 # L1 首页，ModuleHome 展示子模块卡片
-  types.ts                 # 共享类型：Customer, Investor, Supplier
   ARCHITECTURE.md          # 本文件
 
 app/external/customers/
   page.tsx                 # 服务端组件，AppShell + CustomersClient
-  CustomersClient.tsx      # 客户列表、新增、搜索
 
 app/external/investors/
   page.tsx                 # 服务端组件，AppShell + InvestorsClient
-  InvestorsClient.tsx      # 投资人列表、新增、搜索
 
 app/external/suppliers/
   page.tsx                 # 服务端组件，AppShell + SuppliersClient
-  SuppliersClient.tsx      # 供应商列表、新增、搜索
+
+packages/external/
+  module.ts                # 从 Platform module registry 读取外部关系 moduleDefinition
+  types/index.ts           # 共享类型：Customer, Investor, Supplier
+  ui/*                     # 客户、投资人、供应商占位页面 UI
 ```
 
 ## 数据模型（待建）

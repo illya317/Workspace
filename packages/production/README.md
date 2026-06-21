@@ -12,6 +12,7 @@ import/    # 生产导入解析、清洗和校验流程
 
 已迁入：
 
+- `ui/qc/`：生产 QC 批次、阶段、检测记录、模板工作台、纸面布局和反馈 UI；旧 `app/production/qc/components` 已迁入生产业务包，route 只负责鉴权/预取/挂载。
 - `types/qc/types.ts`：生产 QC 模板、布局、批次等领域类型。
 - `types/qc/feedback.ts`：QC 模板反馈上下文、反馈项和解决状态类型。
 - `server/qc/`：生产 QC 配置读取、模板缓存、批次台账和模板反馈服务；旧 `server/services/production/qc` 已收口到生产业务包。

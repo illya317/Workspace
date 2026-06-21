@@ -1,5 +1,6 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
 import { SelectField } from "@workspace/core/ui";
 
@@ -34,7 +35,7 @@ export default function TargetSwitcher({ value, onChange }: Props) {
   const [targetType, setTargetType] = useState(value?.targetType || "department");
 
   useEffect(() => {
-    fetch("/workspace/api/my-targets")
+    fetch(workspacePath("/api/my-targets"))
       .then((r) => r.json())
       .then((d) => {
         setData(d);

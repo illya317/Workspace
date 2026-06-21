@@ -1,0 +1,249 @@
+"use client";
+
+import type { Dispatch, ReactNode, SetStateAction } from "react";
+import {
+  ActionButton,
+  EmptyStateCard,
+  FkFieldInput,
+  FormField,
+  HierarchyBadge,
+  PanelCard,
+  TextField,
+} from "@workspace/core/ui";
+import type { FkFieldOption } from "@workspace/core/ui";
+import PositionAliasTagsInput from "./PositionAliasTagsInput";
+import { DepartmentDescriptionDetailsEditor } from "./detail-editors";
+import {
+  DetailSectionHeader,
+  formInputClassName,
+  readOnlyInputClassName,
+  selectedEntityName,
+} from "./detail-editors";
+import { DirectPositionPanel } from "./navigation-panels";
+import type {
+  Department,
+  DepartmentDescriptionDraft,
+  DepartmentDraft,
+  DepartmentPositionStats,
+  CreatePositionDraft,
+  Position,
+  Selection,
+} from "./types";
+
+export function DepartmentDetailPane({
+  selection,
+  selectedDepartment,
+  selectedDepartmentParentPath,
+  selectedDepartmentStats,
+  departmentDraft,
+  departmentDescriptionDrafts,
+  positionsByDepartment,
+  isOrganizationMode,
+  canEdit,
+  canEditDepartment,
+  canEditPosition,
+  createPanel,
+  createPositionCode,
+  createPositionDepartment,
+  createPositionDraft,
+  departmentById,
+  departmentDirty,
+  departmentDescriptionDirty,
+  saving,
+  showArchived,
+  positionEditor,
+  setCreatePanel,
+  setCreatePositionDraft,
+  onSelect,
+  onCreatePosition,
+  onUpdateDepartmentDraft,
+  onUpdateDepartmentDescriptionDraft,
+  onSaveDepartmentInfo,
+  onSaveDepartmentDescription,
+  onArchiveDepartment,
+}: {
+  selection: Selection;
+  selectedDepartment: Department | undefined;
+  selectedDepartmentParentPath: string;
+  selectedDepartmentStats: DepartmentPositionStats | null | undefined;
+  departmentDraft: DepartmentDraft | null;
+  departmentDescriptionDrafts: DepartmentDescriptionDraft[];
+  positionsByDepartment: Map<number, Position[]>;
+  isOrganizationMode: boolean;
+  canEdit: boolean;
+  canEditDepartment: boolean;
+  canEditPosition: boolean;
+  createPanel: "position" | null;
+  createPositionCode: string;
+  createPositionDepartment: Department | undefined;
+  createPositionDraft: CreatePositionDraft;
+  departmentById: Map<number, Department>;
+  departmentDirty: boolean;
+  departmentDescriptionDirty: boolean;
+  saving: boolean;
+  showArchived: boolean;
+  positionEditor: ReactNode;
+  setCreatePanel: (panel: "position" | null) => void;
+  setCreatePositionDraft: Dispatch<SetStateAction<CreatePositionDraft>>;
+  onSelect: (selection: Selection) => void;
+  onCreatePosition: () => void | Promise<void>;
+  onUpdateDepartmentDraft: <K extends keyof DepartmentDraft>(key: K, value: DepartmentDraft[K]) => void;
+  onUpdateDepartmentDescriptionDraft: <K extends keyof DepartmentDescriptionDraft>(index: number, key: K, value: DepartmentDescriptionDraft[K]) => void;
+  onSaveDepartmentInfo: () => void | Promise<void>;
+  onSaveDepartmentDescription: () => void | Promise<void>;
+  onArchiveDepartment: (departmentId: number, archived: boolean) => void | Promise<void>;
+}) {
+  async function saveDepartment() {
+    if (departmentDirty) await onSaveDepartmentInfo();
+    if (departmentDescriptionDirty) await onSaveDepartmentDescription();
+  }
+
+  return (
+    <PanelCard className="min-h-[520px]" bodyClassName="p-4">
+      {!selection && <p className="py-12 text-center text-sm text-slate-400">选择部门或岗位查看详情</p>}
+      {selectedDepartment && (
+        <div className="space-y-4">
+          {!isOrganizationMode && (
+            <DirectPositionPanel
+              canCreatePosition={canEditPosition}
+              createPanel={createPanel}
+              createPositionCode={createPositionCode}
+              createPositionDepartment={createPositionDepartment}
+              createPositionDraft={createPositionDraft}
+              departmentId={selectedDepartment.id}
+              departmentById={departmentById}
+              positionsByDepartment={positionsByDepartment}
+              saving={saving}
+              selection={selection}
+              setCreatePanel={setCreatePanel}
+              setCreatePositionDraft={setCreatePositionDraft}
+              onSelect={onSelect}
+              onCreatePosition={onCreatePosition}
+            />
+          )}
+          <PanelCard bodyClassName="p-4">
+            <DetailSectionHeader
+              title="部门信息"
+              meta={<HierarchyBadge level={selectedDepartment.level} />}
+              actions={
+                <div className="flex items-center gap-2">
+                  {canEditDepartment && (departmentDirty || departmentDescriptionDirty) && (
+                    <span className="text-xs text-amber-600">有未保存修改</span>
+                  )}
+                  {canEditDepartment && (
+                    <ActionButton
+                      disabled={!canEditDepartment || (!departmentDirty && !departmentDescriptionDirty) || saving}
+                      onClick={() => void saveDepartment()}
+                      variant="primary"
+                    >
+                      {saving ? "保存中..." : "保存"}
+                    </ActionButton>
+                  )}
+                  {canEdit && (
+                    <ActionButton
+                      disabled={saving}
+                      onClick={() => void onArchiveDepartment(selectedDepartment.id, !showArchived)}
+                    >
+                      {showArchived ? "恢复" : "归档"}
+                    </ActionButton>
+                  )}
+                </div>
+              }
+            />
+            {departmentDraft && (
+              <div className="mt-4 space-y-3">
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                  <FormField label="部门编码">
+                    <TextField value={selectedDepartment.code} disabled className={readOnlyInputClassName} />
+                  </FormField>
+                  <FormField label="部门名称">
+                    <TextField
+                      value={departmentDraft.name}
+                      disabled={!canEditDepartment}
+                      onChange={(next) => onUpdateDepartmentDraft("name", next)}
+                      className={formInputClassName}
+                    />
+                  </FormField>
+                  <FormField label="上级路径">
+                    <TextField
+                      value={selectedDepartmentParentPath || "无"}
+                      disabled
+                      className={readOnlyInputClassName}
+                    />
+                  </FormField>
+                  <FormField label="别名">
+                    <PositionAliasTagsInput
+                      value={departmentDraft.alias}
+                      disabled={!canEditDepartment}
+                      onChange={(value) => onUpdateDepartmentDraft("alias", value)}
+                    />
+                  </FormField>
+                  <FormField label="部门负责人">
+                    <FkFieldInput
+                      fkKey="hr.position"
+                      value={departmentDraft.managerPositionName}
+                      displayValue={departmentDraft.managerPositionName}
+                      disabled={!canEditDepartment}
+                      placeholder="搜索部门负责人"
+                      size="compact"
+                      onChange={(_label, option?: FkFieldOption) => {
+                        onUpdateDepartmentDraft("managerPositionName", selectedEntityName("position", option));
+                      }}
+                    />
+                  </FormField>
+                  <div className="block min-w-0">
+                    <span className="mb-0.5 block text-xs font-semibold text-slate-500">状态</span>
+                    <div className="flex h-10 items-center justify-between gap-2 rounded-md border border-slate-300 bg-white px-3 shadow-sm">
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${showArchived ? "bg-amber-50 text-amber-700" : "bg-emerald-50 text-emerald-700"}`}>
+                        {showArchived ? "已归档" : "现用"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2 lg:grid-cols-4">
+                  {[
+                    { label: "直属岗位", value: selectedDepartmentStats?.directPositions ?? 0 },
+                    { label: "总岗位", value: selectedDepartmentStats?.totalPositions ?? 0 },
+                    { label: "直属编制", value: selectedDepartmentStats?.directHeadcount ?? 0 },
+                    { label: "总编制", value: selectedDepartmentStats?.totalHeadcount ?? 0 },
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+                      <div className="text-xs font-medium text-slate-500">{item.label}</div>
+                      <div className="mt-1 text-sm font-semibold text-slate-900">{item.value}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </PanelCard>
+          {!isOrganizationMode && (
+            <PanelCard bodyClassName="p-4">
+              <DetailSectionHeader
+                title="部门说明书"
+                meta={departmentDescriptionDirty && <span className="text-xs text-amber-600">有未保存修改</span>}
+              />
+              <div className="space-y-5">
+                {departmentDescriptionDrafts.map((departmentDescriptionDraft, index) => (
+                  <PanelCard key={departmentDescriptionDraft.id || `new-${index}`} bodyClassName="p-3">
+                    <div className="mb-3 text-sm font-semibold text-slate-900">{departmentDescriptionDraft.name || `部门说明书 ${index + 1}`}</div>
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                      <DepartmentDescriptionDetailsEditor
+                        value={departmentDescriptionDraft.details}
+                        disabled={!canEditDepartment}
+                        onChange={(value) => onUpdateDepartmentDescriptionDraft(index, "details", value)}
+                      />
+                    </div>
+                  </PanelCard>
+                ))}
+                {departmentDescriptionDrafts.length === 0 && (
+                  <EmptyStateCard compact>暂无部门说明书</EmptyStateCard>
+                )}
+              </div>
+            </PanelCard>
+          )}
+        </div>
+      )}
+      {!isOrganizationMode && positionEditor}
+    </PanelCard>
+  );
+}

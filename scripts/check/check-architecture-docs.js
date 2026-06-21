@@ -16,9 +16,13 @@ const REQUIRED_DOMAINS = [
   "contracts",
   "finance",
   "hr",
+  "history",
   "inventory",
+  "portal",
   "production",
   "reports",
+  "settings",
+  "work",
   "works",
 ];
 
@@ -30,13 +34,10 @@ const OPTIONAL_DIRS = [
   "components",
   "docs",
   "external",
-  "history",
   "hooks",
   "lib",
   "library",
   "login",
-  "portal",
-  "settings",
 ];
 
 let errors = 0;

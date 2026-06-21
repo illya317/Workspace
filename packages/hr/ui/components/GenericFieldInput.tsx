@@ -1,16 +1,18 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
 import FKInput from "./FKInput";
 import { AutoSizeInput } from "./AutoSizeInput";
-import { CheckboxField, TextareaField } from "@workspace/core/ui";
+import { CheckboxField, SwitchField, TextareaField } from "@workspace/core/ui";
 import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
 import EthnicityPicker from "./EthnicityPicker";
 import MajorPicker from "./MajorPicker";
-import OptionPicker from "./OptionPicker";
+import { OptionPicker } from "@workspace/core/ui";
 import ProfessionalTitlePicker from "./ProfessionalTitlePicker";
 import RankPicker from "./RankPicker";
 import SchoolPicker from "./SchoolPicker";
+import { AliasTagEditor } from "../profile/ProfileAliasTagsInput";
 import type { FieldConfig, SelectOption } from "@workspace/hr/types";
 import { formatPhoneNumber, normalizeChineseIdNumber, normalizePhoneValue } from "@workspace/hr/utils/identity";
 
@@ -39,7 +41,7 @@ export default function GenericFieldInput({
   const [dynamicOptions, setDynamicOptions] = useState<SelectOption[]>([]);
   useEffect(() => {
     if (field.optionsSource === "companies") {
-      fetch("/workspace/api/hr/companies?active=1")
+      fetch(workspacePath("/api/hr/companies?active=1"))
         .then((r) => r.json())
         .then((data) => {
           const companies = (data.companies || []) as Array<{ code: string; name: string }>;
@@ -85,6 +87,15 @@ export default function GenericFieldInput({
         value={value}
         onChange={onChange}
         buttonClassName={`w-full rounded border border-emerald-400 bg-white px-2 py-1.5 text-left text-sm focus:outline-none ${className || ""}`}
+      />
+    );
+  }
+
+  if (field.type === "tags") {
+    return (
+      <AliasTagEditor
+        value={value}
+        onChange={onChange}
       />
     );
   }
@@ -164,15 +175,7 @@ export default function GenericFieldInput({
   if (field.type === "boolean") {
     if (mode === "edit") {
       return (
-        <button
-          type="button"
-          onClick={() => onChange(!value)}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 ${value ? "bg-emerald-500" : "bg-gray-300"}`}
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${value ? "translate-x-6" : "translate-x-1"}`}
-          />
-        </button>
+        <SwitchField checked={!!value} onChange={onChange} ariaLabel={field.label || field.key} />
       );
     }
     return (

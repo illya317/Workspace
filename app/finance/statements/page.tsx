@@ -1,7 +1,6 @@
 import { requireResourceAccess } from "@workspace/platform/server/auth";
 import AppShell from "@workspace/platform/ui/AppShell";
-import FinanceShell from "@/app/finance/components/FinanceShell";
-import StatementsClient from "./StatementsClient";
+import { FinanceShell, StatementsClient } from "@workspace/finance/ui";
 
 export default async function StatementsPage() {
   const user = await requireResourceAccess("finance.statement");

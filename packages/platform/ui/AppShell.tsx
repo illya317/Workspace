@@ -2,8 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { workspacePath } from "@workspace/core/routing";
 import UserMenu from "./UserMenu";
-import { PageShell } from "@workspace/core/ui";
+import { ActionButton, PageShell } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import type { ReactNode } from "react";
 
@@ -29,15 +30,19 @@ export default function AppShell({ title, backHref, backLabel, navLinks, user, c
       onBack={() => router.push(backHref)}
       actions={navLinks?.map((link) => ({ label: link.label, onClick: () => router.push(link.href) }))}
       leading={(
-        <button type="button" onClick={() => router.push("/portal")} className="flex-shrink-0">
+        <ActionButton
+          onClick={() => router.push("/portal")}
+          className="flex-shrink-0 border-0 bg-transparent p-0 shadow-none hover:bg-transparent"
+          aria-label="返回入口"
+        >
           <Image
-            src="/workspace/company/logo.png"
+            src={workspacePath("/company/logo.png")}
             alt="Logo"
             width={28}
             height={28}
             className="h-7 w-auto object-contain"
           />
-        </button>
+        </ActionButton>
       )}
       trailing={<UserMenu user={user} />}
     >

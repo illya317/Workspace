@@ -1,11 +1,11 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ActionToolbar,
   EmptyStateCard,
-  PageContent,
   PanelCard,
   SearchInput,
   SelectorCard,
@@ -14,6 +14,7 @@ import {
 } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { SessionUser } from "@workspace/platform/types";
+import { WorkspaceSplitPage } from "@workspace/core/ui";
 
 interface TreeNode {
   code: string; name: string; level: number;
@@ -29,17 +30,19 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
   const [loading, setLoading] = useState(true);
   const [tree, setTree] = useState<TreeNode[]>([]);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [sideOpen, setSideOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [search, setSearch] = useState(() => {
     if (typeof window !== "undefined") return new URLSearchParams(window.location.search).get("search") || "";
     return "";
   });
 
   useEffect(() => {
-    fetch("/workspace/api/auth/me").then(r => r.ok ? r.json() : Promise.reject()).then(d => setUser(d.user)).catch(() => router.push("/login"));
+    fetch(workspacePath("/api/auth/me")).then(r => r.ok ? r.json() : Promise.reject()).then(d => setUser(d.user)).catch(() => router.push("/login"));
   }, [router]);
 
   useEffect(() => {
-    fetch("/workspace/api/position-descriptions?tree=1")
+    fetch(workspacePath("/api/position-descriptions?tree=1"))
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => {
         const allNodes = data.tree as TreeNode[];
@@ -125,38 +128,53 @@ export default function GmpPositionsPage({ hideShell: _hideShell }: { hideShell?
     );
   }
 
-  if (loading) return <div className="flex min-h-screen items-center justify-center"><p className="text-gray-500">加载中...</p></div>;
+  if (loading) {
+    return (
+      <WorkspaceSplitPage
+        sideOpen={sideOpen}
+        drawerOpen={drawerOpen}
+        onSideOpenChange={setSideOpen}
+        onDrawerOpenChange={setDrawerOpen}
+        sideLabel="岗位目录"
+        renderSide={() => <EmptyStateCard compact={false}>加载中...</EmptyStateCard>}
+      >
+        <EmptyStateCard compact={false}>加载中...</EmptyStateCard>
+      </WorkspaceSplitPage>
+    );
+  }
+
+  const renderPositionTree = () => (
+    <PanelCard bodyClassName="p-4 space-y-4">
+      <ActionToolbar
+        leftSlot={
+          <SearchInput
+            value={search}
+            onChange={setSearch}
+            placeholder="搜索岗位..."
+            size="toolbar"
+          />
+        }
+      />
+      {tree.length === 0 ? (
+        <EmptyStateCard compact={false}>暂无数据</EmptyStateCard>
+      ) : (
+        <div className="space-y-1">
+          {tree.map(n => renderNode(n, 0))}
+        </div>
+      )}
+    </PanelCard>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PageContent className="py-8">
-        <div className="mb-4 flex items-center gap-2 text-sm text-gray-500">
-          <button onClick={() => router.push("/docs")} className="hover:text-emerald-600">文档中心</button>
-          <span>/</span><span className="text-gray-700">岗位说明书</span>
-        </div>
-
-        <ActionToolbar
-          className="mb-6"
-          leftSlot={<h1 className="text-2xl font-bold text-gray-800">岗位说明书</h1>}
-          rightSlot={
-            <SearchInput
-              value={search}
-              onChange={setSearch}
-              placeholder="搜索岗位..."
-              size="toolbar"
-              className="w-80"
-            />
-          }
-        />
-
-        {tree.length === 0 ? (
-          <EmptyStateCard compact={false}>暂无数据</EmptyStateCard>
-        ) : (
-          <PanelCard bodyClassName="p-4 space-y-1">
-            {tree.map(n => renderNode(n, 0))}
-          </PanelCard>
-        )}
-      </PageContent>
-    </div>
+    <WorkspaceSplitPage
+      sideOpen={sideOpen}
+      drawerOpen={drawerOpen}
+      onSideOpenChange={setSideOpen}
+      onDrawerOpenChange={setDrawerOpen}
+      sideLabel="岗位目录"
+      renderSide={renderPositionTree}
+    >
+      <EmptyStateCard compact={false}>选择左侧岗位查看说明书。</EmptyStateCard>
+    </WorkspaceSplitPage>
   );
 }

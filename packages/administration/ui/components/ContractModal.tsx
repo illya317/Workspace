@@ -1,11 +1,11 @@
 "use client";
 
-import { ActionButton, CalendarDateInput, DetailModal, TextareaField, TextField } from "@workspace/core/ui";
+import { ActionToolbar, CalendarDateInput, DetailModal, FormField, TextareaField, TextField } from "@workspace/core/ui";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 
 const FORM_FIELDS = [
   { label: "合同编号", key: "contractNo" as keyof Contract },
-  { label: "合同名称 *", key: "name" as keyof Contract, required: true },
+  { label: "合同名称", key: "name" as keyof Contract, required: true },
   { label: "签署方", key: "partyA" as keyof Contract },
   { label: "签署对方", key: "partyB" as keyof Contract },
   { label: "股东方", key: "shareholder" as keyof Contract },
@@ -36,10 +36,9 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
       onClose={onClose}
       maxWidth="max-w-2xl"
     >
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {FORM_FIELDS.map((f) => (
-            <div key={f.key}>
-              <label className="mb-1 block text-xs font-medium text-gray-600">{f.label}</label>
+            <FormField key={f.key} label={f.label} required={f.required}>
               <TextField
                 type={f.type === "number" ? "number" : "text"}
                 value={editing[f.key] === null || editing[f.key] === undefined ? "" : String(editing[f.key])}
@@ -54,55 +53,40 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
                   )
                 }
               />
-            </div>
+            </FormField>
           ))}
-          <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">签订日期</label>
+          <FormField label="签订日期">
             <CalendarDateInput
               value={editing.signDate}
               onChange={(value) => onChange("signDate", value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
             />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">结束日期</label>
+          </FormField>
+          <FormField label="结束日期">
             <CalendarDateInput
               value={editing.endDate}
               onChange={(value) => onChange("endDate", value)}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
             />
-          </div>
-          <div className="col-span-2">
-            <label className="mb-1 block text-xs font-medium text-gray-600">合同内容</label>
+          </FormField>
+          <FormField label="合同内容" className="md:col-span-2">
             <TextareaField
               value={editing.content ?? ""}
               onChange={(value) => onChange("content", value)}
               rows={2}
-              className="px-3 py-2 text-sm"
             />
-          </div>
-          <div className="col-span-2">
-            <label className="mb-1 block text-xs font-medium text-gray-600">备注</label>
+          </FormField>
+          <FormField label="备注" className="md:col-span-2">
             <TextareaField
               value={editing.remark ?? ""}
               onChange={(value) => onChange("remark", value)}
               rows={2}
-              className="px-3 py-2 text-sm"
             />
-          </div>
+          </FormField>
         </div>
-        <div className="mt-6 flex justify-end gap-3">
-          <ActionButton onClick={onClose}>
-            取消
-          </ActionButton>
-          <ActionButton
-            onClick={onSave}
-            disabled={saving}
-            variant="primary"
-          >
-            {saving ? "保存中..." : "保存"}
-          </ActionButton>
-        </div>
+        <ActionToolbar
+          className="mt-6 justify-end"
+          secondaryActions={[{ label: "取消", onClick: onClose }]}
+          primaryActions={[{ label: saving ? "保存中..." : "保存", onClick: onSave, disabled: saving }]}
+        />
     </DetailModal>
   );
 }

@@ -8,33 +8,34 @@
 - **Platform** 放平台能力：登录、权限、用户、导航、审计、模块注册、Portal、设置、历史记录、真正跨业务的工作台能力。
 - **Apps** 放业务能力：HR、Finance、Production、Work、Administration、Library 等各自拥有 `ui / server / types / constants / import / module`。
 - 原 Project / EmployeeProject 业务层归入 Work；不要新增 `packages/project`。DB 表名 `Project` / `EmployeeProject` 暂时保留只是存量 schema 名，不代表业务包归属。
-- 旧 `app/components`、`app/hooks`、`lib`、`server/services` 只能保留兼容 re-export 或 Next 必须入口；真实逻辑必须逐步下沉。
+- `app/` 只保留 Next route/API 壳；根 `app/components`、`app/hooks`、`app/lib` 已删除，禁止恢复。业务子目录中的 `components/hooks/lib` 和 route-local 实现文件历史债由 `scripts/arch/level15-baseline.json` 锁定，只能减少不能新增。
 
 ## 归属表
 
 | 功能 | 目标包 | 当前文件 | 迁移后文件 | app 是否只剩薄壳 | 旧代码是否删除 |
 |---|---|---|---|---|---|
-| 通用下拉、日期、确认、Toast、表格、筛选、分页、Tag、搜索匹配 | `packages/core` | `app/components/*`, `app/hooks/useToast.ts`, app 内一次性控件 | `packages/core/ui/*`, `packages/core/hooks/*`, `packages/core/search/*` | 部分完成：`app/components` 仍有兼容壳和少量真实实现 | 进行中；旧 `SearchBox/useSearch` 已删除并被 `arch:gate` 禁止复活 |
-| 平台壳、模块首页、导航、用户菜单、Portal、审计 UI | `packages/platform` | `app/components/AppShell.tsx`, `ModuleHome.tsx`, `NavLink.tsx`, `UserMenu.tsx`, `AuditLog*`, `app/portal/*` | `packages/platform/ui/*`, `packages/platform/module-registry.ts`, `packages/platform/modules.tsx`, `packages/platform/audit/*` | 部分完成：app 层仍大量通过兼容壳引用 | 未完成；应逐页改为 `@workspace/platform/ui` |
-| 平台认证、权限、Prisma 入口、CRUD 工厂、历史、FK 解析 | `packages/platform/server` + `packages/platform/permissions.ts` | `lib/history.ts`, `lib/resolve-fk.ts`；低层 token 仍在 `lib/auth/token.ts` | `packages/platform/server/*`, `packages/platform/resources.ts`, `packages/platform/permissions.ts` | 部分完成：`lib/auth.ts`、`lib/with-auth.ts`、`lib/access.ts`、`lib/prisma.ts`、`lib/crud*.ts`、`lib/schemas.ts`、`lib/company-server.ts`、`lib/validation.ts` 已删除；`lib/permissions.ts` 已降级为 re-export；`lib` 仍有少量兼容 re-export 和领域旧 helper | 未完成；迁移后 `lib` 只保留 re-export 或 Next 必需工具 |
-| HR 资料、部门岗位、员工项目、导入、校验、搜索 | `packages/hr` | `app/hr/*`, `app/api/hr/*`, `server/services/hr/*`, `lib/hr-*`, `lib/autocomplete-config.ts` | `packages/hr/ui/*`, `packages/hr/server/*`, `packages/hr/types/*`, `packages/hr/constants/*`, `packages/hr/import/*` | 大部分完成：HR 页面仍有旧薄壳和少量 app 组件引用 | 进行中；需继续删除旧 app HR 真实实现 |
-| Finance 页面模板、筛选、公司期间、分页、表格工具栏、导入面板、重分类 UI | `packages/finance` + `packages/core` | `app/finance/components/*`, `app/finance/*/components/*`, `server/services/finance*` | `packages/finance/ui/*`, `packages/finance/server/*`, `packages/finance/types/*`, `packages/finance/constants/*`, `packages/finance/import/*` | 半完成：`FinanceShell/FinanceFilters/CompanyPeriodPicker/Pagination/ReclassConfig*` 已下沉，仍有多处旧路径和真实组件 | 未完成；下一组优先迁移 |
-| Production / QC 模板、批次、布局、反馈、运行态数据 | `packages/production` | `app/production/*`, `app/api/production/*`, `server/services/production/*` | `packages/production/ui/*`, `packages/production/server/*`, `packages/production/types/*`, `packages/production/constants/*`, `packages/production/import/*` | 未完成：当前主要仍在 app/server | 未完成 |
-| Reports 工作汇报 | `packages/work` | `app/reports/*`, `server/services/reports.ts` | `packages/work/ui/reports/*`, `packages/work/server/reports/*`, `packages/work/types/reports.ts` | 未完成 | 未完成 |
-| Works 工作清单 | `packages/work` | `app/works/*`, `server/services/works.ts` | `packages/work/ui/works/*`, `packages/work/server/works/*`, `packages/work/types/works.ts` | 未完成 | 未完成 |
-| Settings 设置 | `packages/platform` | `app/settings/*` | `packages/platform/ui/settings/*`, `packages/platform/server/settings/*` | 是：page 鉴权后挂载 package component | app 旧 UI 已改兼容 re-export |
-| History 历史记录 | `packages/work` | `app/history/*`, `lib/history.ts` | `packages/work/ui/history/*`, `packages/work/server/history.ts` | 未完成 | 未完成 |
+| 通用下拉、日期、确认、Toast、表格、筛选、分页、Tag、搜索匹配 | `packages/core` | 旧 `app/components/*`, `app/hooks/useToast.ts`, app 内一次性控件 | `packages/core/ui/*`, `packages/core/hooks/*`, `packages/core/search/*` | 根 `app/components`、`app/hooks` 已删除；业务子目录仍有历史实现目录 | 进行中；旧共享入口已删并被 `arch:gate` 禁止复活 |
+| 平台壳、模块首页、导航、用户菜单、Portal、审计 UI、Admin 管理后台、Agent 浮窗 | `packages/platform` | 旧 `app/components/AppShell.tsx`, `ModuleHome.tsx`, `NavLink.tsx`, `UserMenu.tsx`, `AuditLog*`, `app/admin/*`, `app/portal/*` | `packages/platform/ui/*`, `packages/platform/ui/admin/*`, `packages/platform/ui/agent/*`, `packages/platform/module-registry.ts`, `packages/platform/modules.tsx`, `packages/platform/audit/*` | `app/admin/page.tsx`、`app/portal/page.tsx` 已只做鉴权和挂载；根 app 共享 UI 已删除 | 进行中；Portal 兼容壳已删，Platform UI 仍有 Level 2 页面设计债务 baseline，后续以 Core primitive 收敛 |
+| 平台认证、权限、Prisma 入口、CRUD 工厂、历史、FK 解析 | `packages/platform/server` + `packages/platform/permissions.ts` | 旧 `server/auth/*`, `server/rbac/*`, `server/dal/*`, `lib/auth/token.ts`, `lib/history.ts`, `lib/resolve-fk.ts` | `packages/platform/server/*`, `packages/platform/server/auth/*`, `packages/platform/server/rbac/*`, `packages/platform/resources.ts`, `packages/platform/permissions.ts` | 完成：root `server/` 与 root `lib/` 已删除；app/API 统一使用 `@workspace/platform/server/*` | 旧代码已删除；`arch:gate` 禁止恢复 root `server/`、root `lib/` 和旧 alias |
+| HR 资料、部门岗位、员工项目、导入、校验、搜索 | `packages/hr` | `app/hr/*`, `app/api/hr/*`, `server/services/hr/*`, `lib/hr-*`, `lib/autocomplete-config.ts` | `packages/hr/ui/*`, `packages/hr/server/*`, `packages/hr/types/*`, `packages/hr/constants/*`, `packages/hr/import/*` | 大部分完成：`app/hr/components`、`app/hr/code/components`、`app/hr/code/hooks`、`app/hr/hooks` 已删除，HR 页面仍有旧 tabs/profile/analytics 待迁 | 进行中；继续把 HR route 下真实页面实现迁到 package |
+| Finance 页面模板、筛选、公司期间、分页、表格工具栏、预算、成本、导入面板、重分类 UI | `packages/finance` + `packages/core` | `app/finance/*/components/*`, `server/services/finance*` | `packages/finance/ui/*`, `packages/finance/server/*`, `packages/finance/types/*`, `packages/finance/constants/*`, `packages/finance/import/*` | 基本完成：`app/finance/components`、`app/finance/budget/{components,hooks}`、`app/finance/cost/{components,hooks}` 和 `app/finance/import/components` 已删除，页面壳/筛选/分页/表格/预算/成本/导入/重分类共享 UI 直接从 `@workspace/finance/ui` 消费 | 旧 app 真实实现已删除；后续只允许 route 薄壳 |
+| Production / QC 模板、批次、布局、反馈、运行态数据 | `packages/production` | `app/production/*`, `app/api/production/*`, `server/services/production/*` | `packages/production/ui/*`, `packages/production/server/*`, `packages/production/types/*`, `packages/production/constants/*`, `packages/production/import/*` | 进行中：`app/production/qc/components` 已迁入 `packages/production/ui/qc`；QC route 只做鉴权、预取和挂载 package component | UI 迁移完成；后续按 gate 继续收敛 QC 内部重复控件 |
+| Reports 工作汇报 | `packages/work` | `app/reports/*`, `server/services/reports.ts` | `packages/work/ui/reports/*`, `packages/work/server/reports.ts`, `app/reports/page.tsx` 薄壳 | 是 | 是 |
+| Works 工作清单 | `packages/work` | `app/works/*`, `server/services/works.ts` | `packages/work/ui/works/*`, `packages/work/server/works.ts`, `app/works/page.tsx` 薄壳 | 是 | 是 |
+| Settings 设置 | `packages/platform` | `app/settings/*` | `packages/platform/ui/settings/*`, `app/settings/**/page.tsx` 薄壳 | 是：page 鉴权后挂载 package component | app 旧 UI / modal re-export 已删除 |
+| History 历史记录 | `packages/work` | `app/history/*`, `lib/history.ts` | `packages/work/ui/history/*`, `packages/platform/server/history.ts`, `app/history/page.tsx` 薄壳 | 是 | 是 |
 | Docs 静态/平台文档入口 | `packages/platform` | `app/docs/*` | `packages/platform/ui/docs/*`，`app/docs/*` 只保留 route/layout | 未完成 | 未完成 |
 | Contracts 合同模块 | `packages/administration` | `app/contracts/*`, `app/api/contracts/*` | `packages/administration/ui/*`, `packages/administration/server/*`, `packages/administration/types/*`, `packages/administration/module.ts` | 是：page/API route 均为薄壳 | app 旧 UI 已移动，API 逻辑已下沉 |
 | Library 资料库模块 | `packages/library` | `app/library/*`, `app/api/library/*`, `server/services/library/*` | `packages/library/ui/*`, `packages/library/server/*`, `packages/library/types/*`, `packages/library/module.ts` | 基本是：page/API route 调 package service | 旧 server service 已移动到包 |
 | Administration 行政模块 | `packages/administration` | `app/administration/*`, `app/contracts/*` | `packages/administration/ui/*`, `packages/administration/server/*`, `packages/administration/module.ts` | 合同页已完成；行政首页待薄壳化 | 合同旧代码已收口 |
-| Inventory 库存模块 | `packages/inventory` | `app/inventory/*`, `app/api/inventory/*` | `packages/inventory/ui/*`, `packages/inventory/server/*`, `packages/inventory/module.ts` | 未完成 | 未完成 |
+| External 外部关系 | `packages/external` | `app/external/types.ts`, `app/external/*/*Client.tsx` | `packages/external/types/*`, `packages/external/ui/*`, `packages/external/module.ts` | 是：外部关系子页只做鉴权、AppShell 和挂载 package component | 类型与占位 UI 旧代码已删除 |
+| Inventory 库存旧入口 | 无独立包；归入 Production 后续范围 | 旧 `app/inventory/*`，当前 `/inventory` 只 redirect 到 `/production` | 无运行 UI；后续若恢复库存能力，应放入 `packages/production` 或明确新业务包 | 是：`app/inventory/page.tsx` 仅 redirect | 旧未引用 UI/hook 已删除 |
 | Agent 工具与模型接入 | `packages/platform` 或后续独立 `packages/agent` | `server/services/agent/*` | 若作为平台助手：`packages/platform/server/agent/*`；若独立模块：`packages/agent/*` | 未完成 | 未完成 |
 
 ## 当前优先级
 
-1. **Finance**：继续下沉真实 UI 与服务，统一页面模板、筛选栏、表格、分页、弹窗、导入面板，减少 `app/finance/components` 真实实现。
-2. **Work 业务包**：由并行线程承接 Project / EmployeeProject / reports / works / history；本线程只把它纳入边界表和硬约束，不改 Work 具体实现。
+1. **Production / QC**：继续按 gate 结果收敛 `packages/production/ui/qc` 内部重复控件，尤其纸面输入、模板反馈弹窗和 QC 表格 primitive。
+2. **Work 业务包**：`reports`、`history` 与 `works` 已下沉到 `packages/work/ui`；工作计划相关体验仍由 Work/Feature 线程继续收口。
 3. **Platform 平台能力**：迁移 settings / docs 和平台壳，避免只注册模块但 UI/server 仍留在 app/server。
 4. **Contracts / Library 独立包**：不要塞进 Platform；按业务包拆 `ui/server/types/module`。
 5. **硬约束升级**：`arch:gate` 已扩大检查范围，禁止业务包之间直接 import，禁止非 Core 包新增未基于 Core/Platform 的疑似基础组件。Work 的临时搜索组件在 allowlist 中记录为并行拆分债务。

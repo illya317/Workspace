@@ -1,6 +1,7 @@
 import "server-only";
 import path from "path";
-import { readdir, readFile } from "fs/promises";
+import { readdir } from "fs/promises";
+import { asArray, asRecord, asString, readJson, values } from "./layout-block-utils";
 import { resolvePharmaOpsRoot } from "./source";
 import type {
   QcConfigOverview,
@@ -9,26 +10,6 @@ import type {
   QcProductSummary,
   QcRecordTemplateSummary,
 } from "./types";
-
-function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
-}
-
-function asArray(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : [];
-}
-
-function values(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : Object.values(asRecord(value));
-}
-
-function asString(value: unknown, fallback = "") {
-  return typeof value === "string" || typeof value === "number" ? String(value) : fallback;
-}
-
-async function readJson(filePath: string): Promise<unknown> {
-  return JSON.parse(await readFile(filePath, "utf8")) as unknown;
-}
 
 function emptyLayoutMapping(): QcLayoutMappingSummary {
   return {

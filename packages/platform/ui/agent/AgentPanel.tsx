@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { ActionButton, PanelCard, SelectorCard, TextField } from "@workspace/core/ui";
 import type { AgentMood, AgentMessage } from "./types";
 import type { SavedConversation } from "./useAgentSession";
 import AgentAvatar from "./AgentAvatar";
@@ -94,81 +95,95 @@ export default function AgentPanel({
     <>
       <div
         data-panel
-        className="fixed z-50 flex flex-col bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden"
+        className="fixed z-50"
         style={panelPos
           ? { left: panelPos.x, top: panelPos.y, width: 380, maxHeight: "70vh" }
           : { right: 24, bottom: 96, width: 380, maxHeight: "70vh" }
         }
       >
-        {/* Header — 可拖动 */}
-        <div
-          className="flex items-center gap-3 px-4 py-3 border-b bg-gradient-to-r from-emerald-50 to-white cursor-grab active:cursor-grabbing select-none"
-          onPointerDown={onHeaderDown}
-          onPointerMove={onHeaderMove}
-          onPointerUp={onHeaderUp}
+        <PanelCard
+          className="flex h-full flex-col overflow-hidden"
+          bodyClassName="flex min-h-0 flex-1 flex-col"
         >
-          <AgentAvatar mood={mood} size={32} />
-          <div className="flex-1">
-            <div className="text-sm font-semibold text-gray-800">小助手</div>
-            <div className="text-xs text-gray-500">{moodLabels[mood]}</div>
-          </div>
-          {/* History */}
-          <div className="relative">
-            <button onClick={() => setShowHistory(!showHistory)}
-              className="rounded-lg p-1.5 text-gray-300 hover:text-gray-500 transition disabled:opacity-30"
-              disabled={!savedConversations || savedConversations.length === 0}
-              title="历史对话">
+          {/* Header — 可拖动 */}
+          <div
+            className="flex cursor-grab select-none items-center gap-3 border-b bg-gradient-to-r from-emerald-50 to-white px-4 py-3 active:cursor-grabbing"
+            onPointerDown={onHeaderDown}
+            onPointerMove={onHeaderMove}
+            onPointerUp={onHeaderUp}
+          >
+            <AgentAvatar mood={mood} size={32} />
+            <div className="flex-1">
+              <div className="text-sm font-semibold text-gray-800">小助手</div>
+              <div className="text-xs text-gray-500">{moodLabels[mood]}</div>
+            </div>
+            {/* History */}
+            <div className="relative">
+              <ActionButton
+                onClick={() => setShowHistory(!showHistory)}
+                className="p-1.5"
+                disabled={!savedConversations || savedConversations.length === 0}
+                title="历史对话"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </ActionButton>
+              {showHistory && savedConversations && savedConversations.length > 0 && (
+                <PanelCard
+                  className="absolute right-0 top-8 z-50 max-h-64 w-64 overflow-y-auto"
+                  title="历史对话"
+                  bodyClassName="space-y-2 p-2"
+                >
+                  {savedConversations.map((c) => (
+                    <SelectorCard
+                      key={c.id}
+                      title={c.title}
+                      subtitle={c.preview || c.messages.slice(-1)[0]?.content.slice(0, 40)}
+                      meta={[new Date(c.updatedAt).toLocaleString("zh-CN")]}
+                      onClick={() => { onLoadConversation?.(c); setShowHistory(false); }}
+                    />
+                  ))}
+                </PanelCard>
+              )}
+            </div>
+            <ActionButton onClick={onClear} className="p-1.5" title="新对话">
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
-            </button>
-            {showHistory && savedConversations && savedConversations.length > 0 && (
-              <div ref={historyRef} className="absolute right-0 top-8 w-64 bg-white rounded-xl shadow-xl border z-50 max-h-64 overflow-y-auto">
-                <div className="px-3 py-2 text-xs font-medium text-gray-400 border-b">历史对话</div>
-                {savedConversations.map((c) => (
-                  <button key={c.id}
-                    onClick={() => { onLoadConversation?.(c); setShowHistory(false); }}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition border-b last:border-0">
-                    <div className="truncate font-medium">{c.title}</div>
-                    <div className="truncate text-xs text-gray-400">{c.preview || c.messages.slice(-1)[0]?.content.slice(0, 40)}</div>
-                    <div className="text-xs text-gray-300">{new Date(c.updatedAt).toLocaleString("zh-CN")}</div>
-                  </button>
-                ))}
-              </div>
-            )}
+            </ActionButton>
+            <ActionButton onClick={onClose} className="p-1.5" title="关闭">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </ActionButton>
           </div>
-          <button onClick={onClear} className="rounded-lg p-1.5 text-gray-300 hover:text-gray-500 transition" title="新对话">
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
-          <button onClick={onClose} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition">
-            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
 
-        {/* Messages */}
-        <AgentMessageList
-          messages={messages} mood={mood} loading={loading}
-          hints={hints || []} hintsLoaded={hintsLoaded || false}
-          onHintClick={(h) => { setInput(h); inputRef.current?.focus(); }}
-          onOpenDrawer={onOpenDrawer}
-        />
+          {/* Messages */}
+          <AgentMessageList
+            messages={messages} mood={mood} loading={loading}
+            hints={hints || []} hintsLoaded={hintsLoaded || false}
+            onHintClick={(h) => { setInput(h); inputRef.current?.focus(); }}
+            onOpenDrawer={onOpenDrawer}
+          />
 
-        {/* Input */}
-        <div className="border-t px-4 py-3">
-          <div className="flex items-center gap-2 rounded-xl border bg-gray-50 px-3 py-2 focus-within:border-emerald-400 transition-colors">
-            <input ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown} placeholder="输入消息..." disabled={loading}
-              className="flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400 disabled:opacity-50" maxLength={2000} />
-            <button onClick={handleSend} disabled={loading || !input.trim()}
-              className="rounded-lg bg-emerald-500 px-3 py-1 text-xs text-white font-medium hover:bg-emerald-600 disabled:opacity-40 transition">
+          {/* Input */}
+          <div className="flex items-center gap-2 border-t px-4 py-3">
+            <TextField
+              ref={inputRef}
+              value={input}
+              onChange={setInput}
+              onKeyDown={handleKeyDown}
+              placeholder="输入消息..."
+              disabled={loading}
+              className="flex-1"
+              maxLength={2000}
+            />
+            <ActionButton variant="primary" onClick={handleSend} disabled={loading || !input.trim()}>
               发送
-            </button>
+            </ActionButton>
           </div>
-        </div>
+        </PanelCard>
       </div>
 
       {/* Report Drawer */}

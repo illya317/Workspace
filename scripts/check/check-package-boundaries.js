@@ -13,13 +13,14 @@ const WORKSPACE_PACKAGES = {
   "@workspace/hr": "hr",
   "@workspace/production": "production",
   "@workspace/finance": "finance",
+  "@workspace/external": "external",
   "@workspace/work": "work",
 };
 
 const PACKAGE_RULES = {
   core: {
     forbidden: [
-      { pattern: /^@workspace\/(platform|administration|library|hr|production|finance|work)(\/|$)/, reason: "core must not depend on platform or domain packages" },
+      { pattern: /^@workspace\/(platform|administration|library|hr|production|finance|external|work)(\/|$)/, reason: "core must not depend on platform or domain packages" },
       { pattern: /^@\//, reason: "core must not import app/server/lib aliases" },
     ],
   },
@@ -27,62 +28,71 @@ const PACKAGE_RULES = {
     forbidden: [
       { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
       { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "platform package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(administration|library|hr|finance|production|work)(\/|$)/, reason: "platform must not import domain UI directly" },
-      { pattern: /^@\/server\/services\/(administration|library|hr|finance|production|work)(\/|$)/, reason: "platform must not import domain services directly" },
+      { pattern: /^@\/app\/(administration|library|hr|finance|production|external|work)(\/|$)/, reason: "platform must not import domain UI directly" },
+      { pattern: /^@\/server\/services\/(administration|library|hr|finance|production|external|work)(\/|$)/, reason: "platform must not import domain services directly" },
     ],
   },
   administration: {
     forbidden: [
-      { pattern: /^@workspace\/(library|hr|finance|production|work)(\/|$)/, reason: "administration must not depend on other domain packages" },
+      { pattern: /^@workspace\/(library|hr|finance|production|external|work)(\/|$)/, reason: "administration must not depend on other domain packages" },
       { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
       { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "administration package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(library|hr|finance|production|work)(\/|$)/, reason: "administration must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(library|hr|finance|production|work)(\/|$)/, reason: "administration must not import other domain services" },
+      { pattern: /^@\/app\/(library|hr|finance|production|external|work)(\/|$)/, reason: "administration must not import other domain UI" },
+      { pattern: /^@\/server\/services\/(library|hr|finance|production|external|work)(\/|$)/, reason: "administration must not import other domain services" },
     ],
   },
   library: {
     forbidden: [
-      { pattern: /^@workspace\/(hr|finance|production|work|administration)(\/|$)/, reason: "library must not depend on other domain packages" },
+      { pattern: /^@workspace\/(hr|finance|production|external|work|administration)(\/|$)/, reason: "library must not depend on other domain packages" },
       { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
       { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "library package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(hr|finance|production|work|administration)(\/|$)/, reason: "library must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(hr|finance|production|work|administration)(\/|$)/, reason: "library must not import other domain services" },
+      { pattern: /^@\/app\/(hr|finance|production|external|work|administration)(\/|$)/, reason: "library must not import other domain UI" },
+      { pattern: /^@\/server\/services\/(hr|finance|production|external|work|administration)(\/|$)/, reason: "library must not import other domain services" },
     ],
   },
   hr: {
     forbidden: [
-      { pattern: /^@workspace\/(administration|library|finance|production|work)(\/|$)/, reason: "hr must not depend on other domain packages" },
+      { pattern: /^@workspace\/(administration|library|finance|production|external|work)(\/|$)/, reason: "hr must not depend on other domain packages" },
       { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
       { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "hr package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(administration|library|finance|production|work)(\/|$)/, reason: "hr must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(administration|library|finance|production|work)(\/|$)/, reason: "hr must not import other domain services" },
+      { pattern: /^@\/app\/(administration|library|finance|production|external|work)(\/|$)/, reason: "hr must not import other domain UI" },
+      { pattern: /^@\/server\/services\/(administration|library|finance|production|external|work)(\/|$)/, reason: "hr must not import other domain services" },
     ],
   },
   finance: {
     forbidden: [
-      { pattern: /^@workspace\/(administration|library|hr|production|work)(\/|$)/, reason: "finance must not depend on other domain packages" },
+      { pattern: /^@workspace\/(administration|library|hr|production|external|work)(\/|$)/, reason: "finance must not depend on other domain packages" },
       { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
       { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "finance package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(administration|library|hr|production|work)(\/|$)/, reason: "finance must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(administration|library|hr|production|work)(\/|$)/, reason: "finance must not import other domain services" },
+      { pattern: /^@\/app\/(administration|library|hr|production|external|work)(\/|$)/, reason: "finance must not import other domain UI" },
+      { pattern: /^@\/server\/services\/(administration|library|hr|production|external|work)(\/|$)/, reason: "finance must not import other domain services" },
     ],
   },
   production: {
     forbidden: [
-      { pattern: /^@workspace\/(administration|library|hr|finance|work)(\/|$)/, reason: "production must not depend on other domain packages" },
+      { pattern: /^@workspace\/(administration|library|hr|finance|external|work)(\/|$)/, reason: "production must not depend on other domain packages" },
       { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
       { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "production package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(administration|library|hr|finance|work)(\/|$)/, reason: "production must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(administration|library|hr|finance|work)(\/|$)/, reason: "production must not import other domain services" },
+      { pattern: /^@\/app\/(administration|library|hr|finance|external|work)(\/|$)/, reason: "production must not import other domain UI" },
+      { pattern: /^@\/server\/services\/(administration|library|hr|finance|external|work)(\/|$)/, reason: "production must not import other domain services" },
+    ],
+  },
+  external: {
+    forbidden: [
+      { pattern: /^@workspace\/(administration|library|hr|finance|production|work)(\/|$)/, reason: "external must not depend on other domain packages" },
+      { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
+      { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "external package must use package-owned contracts instead of app-root runtime aliases" },
+      { pattern: /^@\/app\/(administration|library|hr|finance|production|work)(\/|$)/, reason: "external must not import other domain UI" },
+      { pattern: /^@\/server\/services\/(administration|library|hr|finance|production|work)(\/|$)/, reason: "external must not import other domain services" },
     ],
   },
   work: {
     forbidden: [
-      { pattern: /^@workspace\/(administration|library|hr|finance|production)(\/|$)/, reason: "work must not depend on other domain packages" },
+      { pattern: /^@workspace\/(administration|library|hr|finance|production|external)(\/|$)/, reason: "work must not depend on other domain packages" },
       { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
       { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "work package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(administration|library|hr|finance|production)(\/|$)/, reason: "work must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(administration|library|hr|finance|production)(\/|$)/, reason: "work must not import other domain services" },
+      { pattern: /^@\/app\/(administration|library|hr|finance|production|external)(\/|$)/, reason: "work must not import other domain UI" },
+      { pattern: /^@\/server\/services\/(administration|library|hr|finance|production|external)(\/|$)/, reason: "work must not import other domain services" },
     ],
   },
 };

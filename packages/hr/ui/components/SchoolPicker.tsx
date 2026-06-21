@@ -2,14 +2,7 @@
 
 import { SearchableOptionInput, type SearchableOption } from "@workspace/core/ui";
 import { HR_SCHOOL_OPTIONS } from "@workspace/hr/constants/school-options";
-
-interface SchoolPickerProps {
-  value: unknown;
-  disabled?: boolean;
-  onChange: (value: string | null) => void;
-  className?: string;
-  buttonClassName?: string;
-}
+import type { HrPickerProps } from "./HrPicker";
 
 const schoolOptions: SearchableOption[] = HR_SCHOOL_OPTIONS.map((option) => ({
   value: option.value,
@@ -23,7 +16,7 @@ export default function SchoolPicker({
   onChange,
   className,
   buttonClassName,
-}: SchoolPickerProps) {
+}: HrPickerProps) {
   return (
     <SearchableOptionInput
       value={value}

@@ -68,6 +68,36 @@ const eslintConfig = defineConfig([
       "max-lines": ["error", { max: 260, skipBlankLines: false, skipComments: false }],
     },
   },
+  {
+    files: ["packages/**/*.tsx"],
+    rules: {
+      "max-lines": ["error", { max: 400, skipBlankLines: false, skipComments: false }],
+    },
+  },
+  {
+    files: ["packages/**/*.ts"],
+    rules: {
+      "max-lines": ["error", { max: 450, skipBlankLines: false, skipComments: false }],
+    },
+  },
+  {
+    files: ["packages/core/**/*.tsx"],
+    rules: {
+      "max-lines": ["error", { max: 300, skipBlankLines: false, skipComments: false }],
+    },
+  },
+  {
+    files: ["packages/core/**/*.ts"],
+    rules: {
+      "max-lines": ["error", { max: 300, skipBlankLines: false, skipComments: false }],
+    },
+  },
+  {
+    files: ["scripts/**/*.{ts,tsx,js,mjs,cjs}", "config/scripts/**/*.{ts,tsx,js,mjs,cjs}"],
+    rules: {
+      "max-lines": ["error", { max: 900, skipBlankLines: false, skipComments: false }],
+    },
+  },
   // Package boundaries: keep the Core -> Platform -> Apps direction enforceable through lint too.
   {
     files: ["packages/core/**/*.{ts,tsx}"],

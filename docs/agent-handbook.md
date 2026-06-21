@@ -75,7 +75,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 | API 路由壳 | `app/api/<domain>/` | 鉴权、权限、参数校验、调用 package service、返回 DTO |
 | 开发辅助 | `app/api/dev-login-bypass/` | 开发环境快速登录，仅本地 |
 | 旧业务服务 | `server/services/<domain>/` | 存量兼容/待迁移旧代码；新增业务 service 不再优先放这里 |
-| 认证权限 | `@workspace/platform/server/auth`, `@workspace/platform/permissions`, `server/auth/`, `server/rbac/` | 登录、session、RBAC、资源树；新代码优先使用 Platform 契约 |
+| 认证权限 | `@workspace/platform/server/auth`, `@workspace/platform/permissions`, `packages/platform/server/auth/`, `packages/platform/server/rbac/` | 登录、session、RBAC、资源树；新代码使用 Platform 契约 |
 | 数据库 | `prisma/` | Prisma schema、migration、seed |
 | 共享前端兼容层 | `app/components/`, `app/hooks/` | 存量兼容 re-export；新增通用 UI/hook 必须进 Core 或 Platform |
 | 共享工具兼容层 | `lib/` | 存量兼容 re-export；新增 runtime 能力必须进 Core、Platform 或对应业务包 |

@@ -1,29 +1,17 @@
 /** P3 Batch 3: review CRUD + confirm service. */
 import { prisma } from "@workspace/platform/server/prisma";
-import { loadIncomeStatementConfig, loadCashFlowConfig } from "../config/load-config-reports";
 import { computeIncomeSystemAmounts } from "./system-amounts";
 import type {
   ReviewReportType, ReviewLineInput, ReviewLineStatus,
   ReviewOutput, ReviewLineOutput, ReviewRecord, ReviewLineRecord,
 } from "./types";
 import { isValidLineStatus } from "./types";
+import { loadLineConfig, validateReportType } from "../shared/report-config";
 
 // ─── helpers ─────────────────────────────────────────────────
 
-function validateReportType(rt: string): ReviewReportType {
-  if (rt !== "incomeStatement" && rt !== "cashFlow") {
-    throw new Error(`不支持的 reportType: ${rt}，仅支持 incomeStatement / cashFlow`);
-  }
-  return rt;
-}
-
 function resolveFinal(adjusted: number | null | undefined, workpaper: number): number {
   return adjusted != null ? adjusted : workpaper;
-}
-
-async function loadLineConfig(companyCode: string, year: number, reportType: ReviewReportType) {
-  if (reportType === "incomeStatement") return loadIncomeStatementConfig(companyCode, year);
-  return loadCashFlowConfig(companyCode, year);
 }
 
 function toReviewOutput(r: ReviewRecord, workpaperVersion?: number): ReviewOutput {

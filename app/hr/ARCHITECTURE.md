@@ -4,23 +4,22 @@
 
 | 页面 | 路由 | 组件 |
 |------|------|------|
-| 人事管理主页 | `/hr` | `app/hr/page.tsx` (Tab式页面) |
-| 人事基础资料 | `/hr/roster` | `app/hr/roster/page.tsx` + `HRClient` |
-| 员工详情表单 | `/hr/roster/employees/[id]` | `app/hr/profile/EmployeeProfileClient.tsx` |
-| 人力分析 | `/hr/analytics` | `app/hr/analytics/page.tsx` |
-| 考勤绩效 | `/hr/performance` | `app/hr/performance/page.tsx` (占位) |
+| 人事管理主页 | `/hr` | `app/hr/page.tsx` → Platform `ModuleHome` |
+| 人事基础资料 | `/hr/roster` | `app/hr/roster/page.tsx` → `@workspace/hr/ui` 的 `HRClient` |
+| 员工详情表单 | `/hr/roster/employees/[id]` | route shell + `@workspace/hr/ui` |
+| 人力分析 | `/hr/analytics` | `app/hr/analytics/page.tsx` → `@workspace/hr/ui` 的 `HRAnalyticsClient` |
+| 考勤绩效 | `/hr/performance` | `app/hr/performance/page.tsx` → `@workspace/hr/ui` 的 `HRPerformanceClient` |
 
 ## HR 基础资料结构
 
-`/hr/roster` 现在采用主数据拆分入口：
+`/hr/roster` 现在由 `packages/hr/ui/HRClient.tsx` 渲染，route 只做鉴权和挂载。页面采用主数据拆分入口：
 
 - `员工资料`：默认入口，先显示员工列表，再进入 `/hr/roster/employees/[id]` 维护单个员工的多维资料。
-- `部门`：部门主数据维护。
-- `岗位`：岗位主数据维护。
-- `项目`：项目/虚拟团队主数据维护。
-- `员工信息表`：保留原有多人表格编辑方式，用于集中修正员工、雇佣、合同、部门岗位、项目员工数据。
+- `组织架构`：通过 `DepartmentPositionTab` 的组织模式维护部门树。
+- `部门岗位`：通过 `DepartmentPositionTab` 的岗位模式维护岗位与说明书。
+- `员工信息表`：保留原有多人表格编辑方式，用于集中修正员工、雇佣、合同、部门岗位数据。
 
-员工详情页只维护员工相关维度：基本信息、雇佣关系、合同、部门岗位、项目员工、历史记录。部门、岗位、项目仍作为主数据独立维护，详情页只通过 FK 搜索选择。
+员工详情页只维护员工相关维度：基本信息、雇佣关系、合同、部门岗位、历史记录。部门、岗位作为主数据独立维护，详情页只通过 FK 搜索选择。原 Project / EmployeeProject 已剥离到 Work，HR 不再维护项目入口。
 
 员工详情页的合同与部门岗位使用专用卡片布局：
 
@@ -33,40 +32,30 @@
 
 | Tab | 组件 | 说明 |
 |-----|------|------|
-| 员工信息 | EmployeeTab | 基于 `GenericTableTab`，employeeConfig |
-| 雇佣记录 | EmploymentTab | 基于 `GenericTableTab`，employmentConfig |
-| 用户账号 | RosterTab | 独立实现，关联Employee.userId |
-| 部门管理 | DepartmentTab | 基于 `CodeTab`（编码管理） |
-| 岗位管理 | PositionTab | 基于 `CodeTab` |
-| 员工岗位 | EDPTab | 基于 `GenericTableTab` |
-| 合同信息 | ContractTab | 基于 `GenericTableTab` |
-| 公司管理 | CompanyTab | 基于 `CodeTab` |
-| 公司关系 | CompanyRelationTab | 基于 `GenericTableTab` |
+| 员工信息 | GenericTableTab + employeeConfig | 批量维护员工主数据 |
+| 雇佣记录 | GenericTableTab + employmentConfig | 批量维护雇佣关系 |
+| 员工岗位 | GenericTableTab + edpConfig | 批量维护员工-部门-岗位关系 |
+| 合同信息 | GenericTableTab + contractConfig | 批量维护合同信息 |
 | 工作计划 | - | 已剥离到 `@workspace/work`，HR 不再维护入口 |
 
 ## 核心组件链
 
 ```
-page.tsx
-  └─ TabConfig (tabConfigs.ts)
-       ├─ GenericTableTab (GenericTableTab.tsx + useGenericTab.ts)
-       │    ├─ EditableTable (EditableTable.tsx)        — 表格渲染+编辑
+roster/page.tsx
+  └─ @workspace/hr/ui HRClient
+       ├─ EmployeeDirectory (packages/hr/ui/profile/EmployeeDirectory.tsx)
+       ├─ DepartmentPositionTab (packages/hr/ui/tabs/DepartmentPositionTab.tsx)
+       └─ GenericTableTab (packages/hr/ui/tabs/GenericTableTab.tsx + packages/hr/ui/hooks/useGenericTab.ts)
+            ├─ EditableTable (packages/hr/ui/tabs/EditableTable.tsx) — 表格渲染+编辑
        │    ├─ FilterModal (FilterModal.tsx)            — 筛选弹窗
        │    ├─ FKInput (FKInput.tsx)                    — 外键字段输入
        │    └─ EntitySearchInput / FilterSearchInput     — 搜索输入
-       │
-       ├─ CodeTab (code/CodeTab.tsx + code/useCodeTab.ts)
-       │    ├─ CodeTable (code/CodeTable.tsx)           — 编码表格
-       │    ├─ EditToolbar                              — 编辑工具栏
-       │    └─ AuditLogModal                            — 历史记录弹窗
-       │
-       └─ RosterTab (RosterTab.tsx)                     — 独立员工账号关联
 ```
 
 ## 数据流
 
 1. **tabConfigs.ts** 定义每个 Tab 的字段配置（FieldConfig[]）、FK 映射、API 端点
-2. **useGenericTab.ts** 提供通用 CRUD hook：加载/创建/更新/搜索/筛选/审计日志
+2. **packages/hr/ui/hooks/useGenericTab.ts** 提供 HR 批量表 CRUD hook：加载/创建/更新/搜索/筛选/审计日志
 3. **GenericTableTab.tsx** 消费 hook，渲染表格 + 工具栏 + 弹窗
 4. **API 路由** 在 `app/api/hr/` 下，统一通过 `packages/hr/server` service 和 `@workspace/platform/server/crud-factory` 的领域 wrapper 处理字段级 CRUD，搜索使用 HR server helper
 

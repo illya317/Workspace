@@ -1,8 +1,7 @@
 import { notFound } from "next/navigation";
 import { requireResourceAccess } from "@workspace/platform/server/auth";
 import { getQcTemplateDetail } from "@workspace/production/server/qc";
-import QcModuleShell from "../../components/QcModuleShell";
-import QcTemplateDetailPanel from "../../components/QcTemplateDetail";
+import { QcModuleShell, QcTemplateDetailPanel } from "@workspace/production/ui";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

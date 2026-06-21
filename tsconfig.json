@@ -34,6 +34,8 @@
       "@workspace/production/*": ["./packages/production/*"],
       "@workspace/finance": ["./packages/finance/index.ts"],
       "@workspace/finance/*": ["./packages/finance/*"],
+      "@workspace/external": ["./packages/external/index.ts"],
+      "@workspace/external/*": ["./packages/external/*"],
       "@workspace/work": ["./packages/work/index.ts"],
       "@workspace/work/*": ["./packages/work/*"]
     }

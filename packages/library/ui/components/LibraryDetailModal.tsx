@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { workspacePath } from "@workspace/core/routing";
 import { ActionButton, ConfirmModal, DetailModal, EditToolbar, Toast } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import { useDocumentDetail, updateDocument, deleteDocument } from "../hooks/useLibraryDocuments";
@@ -164,7 +165,7 @@ export default function LibraryDetailModal({
                     <div className="py-2 border-b border-gray-100 last:border-0">
                       <span className="text-xs text-gray-400 block mb-0.5">下载</span>
                       <a
-                        href={`/api/library/documents/${doc.id}/download`}
+                        href={workspacePath(`/api/library/documents/${doc.id}/download`)}
                         className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:text-emerald-700"
                         target="_blank" rel="noopener noreferrer"
                       >

@@ -1,7 +1,6 @@
 import { requireResourceAccess } from "@workspace/platform/server/auth";
 import { getQcTemplateSummaries, listQcTemplateFeedback } from "@workspace/production/server/qc";
-import QcModuleShell from "../components/QcModuleShell";
-import QcTemplateWorkbench from "../components/QcTemplateWorkbench";
+import { QcModuleShell, QcTemplateWorkbench } from "@workspace/production/ui";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

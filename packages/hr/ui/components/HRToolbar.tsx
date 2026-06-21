@@ -1,7 +1,15 @@
 "use client";
 
-import { EditToolbar, FilterBar, SearchInput, getToolbarActionClassName } from "@workspace/core/ui";
-import type { EditToolbarProps } from "@workspace/core/ui";
+import {
+  ActionButton,
+  ColumnToggle,
+  CommandToolbar,
+  EditToolbar,
+  IconActionButton,
+  RefreshActionButton,
+  SearchInput,
+} from "@workspace/core/ui";
+import type { ColumnDef, EditToolbarProps } from "@workspace/core/ui";
 
 interface Props {
   rosterFilter?: "在职" | "离职";
@@ -12,6 +20,11 @@ interface Props {
   onKeywordEnter?: () => void;
   onReset: () => void;
   children?: React.ReactNode;
+  columns?: ColumnDef[];
+  visibleColumns?: string[];
+  onColumnsChange?: (visible: string[]) => void;
+  canCreate?: boolean;
+  onCreate?: () => void;
   showEdit?: boolean;
   editProps?: EditToolbarProps;
 }
@@ -25,48 +38,60 @@ export default function HRToolbar({
   onKeywordEnter,
   onReset,
   children,
+  columns,
+  visibleColumns,
+  onColumnsChange,
+  canCreate,
+  onCreate,
   showEdit,
   editProps,
 }: Props) {
-  const rosterButtonClassName = (active: boolean) =>
-    active ? getToolbarActionClassName("primary") : getToolbarActionClassName("secondary");
-
-  return (
-    <FilterBar>
+  const viewControls = (canCreate && onCreate) || (rosterFilter && onRosterChange) ? (
+    <>
+      {canCreate && onCreate && (
+        <IconActionButton label="新建" variant="primary" onClick={onCreate}>
+          +
+        </IconActionButton>
+      )}
       {rosterFilter && onRosterChange && (
-        <div className="flex flex-wrap gap-2">
-          <button
+        <>
+          <ActionButton
             onClick={() => onRosterChange("在职")}
-            className={rosterButtonClassName(rosterFilter === "在职")}
+            variant={rosterFilter === "在职" ? "primary" : "secondary"}
           >
             在职
-          </button>
-          <button
+          </ActionButton>
+          <ActionButton
             onClick={() => onRosterChange("离职")}
-            className={rosterButtonClassName(rosterFilter === "离职")}
+            variant={rosterFilter === "离职" ? "primary" : "secondary"}
           >
             离职
-          </button>
-        </div>
+          </ActionButton>
+        </>
       )}
-      <SearchInput
-        value={keyword}
-        onChange={onKeywordChange}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" && onKeywordEnter) onKeywordEnter();
-        }}
-        placeholder={keywordPlaceholder}
-        size="toolbar"
-        className="min-w-0 sm:w-[22rem]"
-      />
-      <button
-        onClick={onReset}
-        className={getToolbarActionClassName("secondary")}
-      >
-        重置
-      </button>
-      {children}
-      {showEdit && editProps && <EditToolbar {...editProps} />}
-    </FilterBar>
+    </>
+  ) : undefined;
+
+  return (
+    <CommandToolbar
+      onSubmit={onKeywordEnter}
+      viewControls={viewControls}
+      filters={
+        <>
+          <SearchInput
+            value={keyword}
+            onChange={onKeywordChange}
+            placeholder={keywordPlaceholder}
+            size="toolbar"
+          />
+          {children}
+          {columns && visibleColumns && onColumnsChange && (
+            <ColumnToggle columns={columns} visible={visibleColumns} onChange={onColumnsChange} />
+          )}
+          <RefreshActionButton onClick={onReset} label="重置" />
+        </>
+      }
+      editActions={showEdit && editProps ? <EditToolbar {...editProps} /> : null}
+    />
   );
 }

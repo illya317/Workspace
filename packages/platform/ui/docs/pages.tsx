@@ -31,7 +31,7 @@ export function DocsPlaceholderPage({
 }) {
   return (
     <AppShell title={title} backHref="/docs" user={user}>
-      <ModuleGridPage summary={description} centered>
+      <ModuleGridPage title={title} summary={description} centered>
         <div className="col-span-full">
           <EmptyStateCard compact={false}>内容建设中</EmptyStateCard>
         </div>
@@ -43,7 +43,7 @@ export function DocsPlaceholderPage({
 export function DocsPositionsIndex({ user }: { user: SessionUser }) {
   return (
     <AppShell title="岗位说明书" backHref="/docs" user={user}>
-      <ModuleGridPage summary="岗位说明书" centered>
+      <ModuleGridPage title="岗位说明书" summary="GMP 体系岗位说明书" centered>
         <ModuleCard
           title="GMP 岗位说明书"
           description="GMP 体系岗位说明书"

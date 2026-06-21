@@ -1,8 +1,9 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { TextField, getToolbarActionClassName } from "@workspace/core/ui";
+import { ActionToolbar, FormField, TextField } from "@workspace/core/ui";
 import DetailModal from "@workspace/core/ui/DetailModal";
 
 interface PasswordModalProps {
@@ -37,7 +38,7 @@ export default function PasswordModal({ open, onClose }: PasswordModalProps) {
       return;
     }
 
-    const res = await fetch("/workspace/api/auth/change-password", {
+    const res = await fetch(workspacePath("/api/auth/change-password"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ oldPassword: oldPwd, newPassword: newPwd }),
@@ -67,8 +68,7 @@ export default function PasswordModal({ open, onClose }: PasswordModalProps) {
       maxWidth="max-w-sm"
     >
       <div className="space-y-4">
-        <div>
-          <label className="mb-1.5 block text-sm text-gray-500">旧密码</label>
+        <FormField label="旧密码" required>
           <TextField
             type="password"
             value={oldPwd}
@@ -76,9 +76,8 @@ export default function PasswordModal({ open, onClose }: PasswordModalProps) {
             required
             autoFocus
           />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-sm text-gray-500">新密码</label>
+        </FormField>
+        <FormField label="新密码" required>
           <TextField
             type="password"
             value={newPwd}
@@ -86,9 +85,8 @@ export default function PasswordModal({ open, onClose }: PasswordModalProps) {
             required
             minLength={4}
           />
-        </div>
-        <div>
-          <label className="mb-1.5 block text-sm text-gray-500">确认新密码</label>
+        </FormField>
+        <FormField label="确认新密码" required>
           <TextField
             type="password"
             value={confirmPwd}
@@ -99,25 +97,14 @@ export default function PasswordModal({ open, onClose }: PasswordModalProps) {
               if (event.key === "Enter") void handleChangePassword();
             }}
           />
-        </div>
+        </FormField>
         {pwdError && <p className="text-sm text-red-500">{pwdError}</p>}
         {pwdSuccess && <p className="text-sm text-emerald-600">{pwdSuccess}</p>}
-        <div className="flex justify-end gap-3 pt-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className={getToolbarActionClassName("secondary")}
-          >
-            取消
-          </button>
-          <button
-            type="submit"
-            onClick={() => void handleChangePassword()}
-            className={getToolbarActionClassName("primary")}
-          >
-            确认
-          </button>
-        </div>
+        <ActionToolbar
+          className="justify-end border-0 p-0 pt-2 shadow-none"
+          secondaryActions={[{ label: "取消", onClick: onClose }]}
+          primaryActions={[{ label: "确认", onClick: () => void handleChangePassword() }]}
+        />
       </div>
     </DetailModal>
   );

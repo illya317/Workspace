@@ -1,13 +1,14 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useState } from "react";
-import { ConfirmModal, PageContent, Toast } from "@workspace/core/ui";
+import { ConfirmModal, Pagination, Toast } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
+import { DatabasePageFrame } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useContracts } from "./hooks/useContracts";
 import ContractFilters from "./components/ContractFilters";
 import ContractsTable from "./components/ContractsTable";
-import ContractPagination from "./components/ContractPagination";
 import ContractModal from "./components/ContractModal";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 
@@ -48,7 +49,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
     setSaving(true);
     try {
       if (modalMode === "create") {
-        const res = await fetch("/workspace/api/contracts", {
+        const res = await fetch(workspacePath("/api/contracts"), {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(editing),
@@ -56,7 +57,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
         if (!res.ok) throw new Error("创建失败");
         showToast("创建成功", "success");
       } else if (editing.id) {
-        const res = await fetch(`/workspace/api/contracts/${editing.id}`, {
+        const res = await fetch(workspacePath(`/api/contracts/${editing.id}`), {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(editing),
@@ -76,7 +77,7 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
   const confirmDelete = async () => {
     if (!deleteId) return;
     try {
-      const res = await fetch(`/workspace/api/contracts/${deleteId}`, { method: "DELETE" });
+      const res = await fetch(workspacePath(`/api/contracts/${deleteId}`), { method: "DELETE" });
       if (!res.ok) throw new Error("删除失败");
       showToast("删除成功", "success");
       refresh();
@@ -92,18 +93,21 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <PageContent className="py-6">
-        <ContractFilters
+    <>
+      <DatabasePageFrame
+        contentClassName="py-6"
+        toolbar={(
+          <ContractFilters
           q={q} onQChange={setQ}
           locationFilter={locationFilter} onLocationChange={setLocationFilter}
           categoryFilter={categoryFilter} onCategoryChange={setCategoryFilter}
           statusFilter={statusFilter} onStatusChange={setStatusFilter}
           locations={locations} categories={categories} statuses={statuses}
           onCreate={openCreate}
-        />
-
-        <p className="mb-2 text-xs text-gray-500">共 {total} 条记录</p>
+          />
+        )}
+        summary={<p className="text-sm text-slate-500">共 {total} 条记录</p>}
+      >
 
         <ContractsTable
           contracts={contracts}
@@ -111,12 +115,14 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
           onDelete={setDeleteId}
         />
 
-        <ContractPagination
+        <Pagination
           page={page}
           totalPages={totalPages}
           onPageChange={setPage}
+          compact
+          className="mt-4 flex items-center justify-center gap-3"
         />
-      </PageContent>
+      </DatabasePageFrame>
 
       <ContractModal
         mode={modalMode}
@@ -136,6 +142,6 @@ export default function ContractsClient({ user: _user, hideShell: _hideShell }: 
       />
 
       <Toast message={toast?.message || ""} type={toast?.type} show={!!toast} onClose={closeToast} />
-    </div>
+    </>
   );
 }

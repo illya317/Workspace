@@ -2,14 +2,7 @@
 
 import { OptionPicker } from "@workspace/core/ui";
 import { HR_COMMON_ETHNICITIES, HR_ETHNICITIES } from "@workspace/hr/constants/field-options";
-
-interface EthnicityPickerProps {
-  value: unknown;
-  disabled?: boolean;
-  onChange: (value: string | null) => void;
-  className?: string;
-  buttonClassName?: string;
-}
+import type { HrPickerProps } from "./HrPicker";
 
 export default function EthnicityPicker({
   value,
@@ -17,7 +10,7 @@ export default function EthnicityPicker({
   onChange,
   className,
   buttonClassName,
-}: EthnicityPickerProps) {
+}: HrPickerProps) {
   return (
     <OptionPicker
       value={value}

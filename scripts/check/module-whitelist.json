@@ -11,16 +11,14 @@
   "finance-filters": {
     "description": "财务页面手写筛选栏，应改用 FinanceFilters",
     "entries": {
-      "app/finance/statements/ReportTab.tsx": "豁免: 有独特的报表类型选择器和生成按钮",
-      "app/finance/budget/components/DeptBudgetFilters.tsx": "豁免: 费用类型/科目筛选格式不同",
-      "app/finance/budget/components/RdBudgetFilters.tsx": "豁免: RD预算筛选格式不同"
+      "app/finance/statements/ReportTab.tsx": "豁免: 有独特的报表类型选择器和生成按钮"
     }
   },
   "hr-toolbar": {
     "description": "HR 页面手写工具栏，应改用 HRToolbar",
     "entries": {
       "app/hr/HRClient.tsx": "待迁移",
-      "app/hr/code/CodeTab.tsx": "待迁移",
+      "packages/hr/ui/code/CodeTab.tsx": "待迁移: 旧编码表已迁入 HR package，后续确认是否仍被消费并继续收敛到 Core 表格/工具栏 primitive",
       "app/hr/performance/HRPerformanceClient.tsx": "待迁移",
       "app/hr/analytics/HRAnalyticsClient.tsx": "待迁移"
     }

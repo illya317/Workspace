@@ -4,7 +4,7 @@ import { parseJson } from "@workspace/platform/server/api";
 import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
-import { matchAnyField } from "./search";
+import { matchAnyField } from "@workspace/platform/search";
 import { PositionCreateSchema } from "./schemas";
 import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
 import { HR_FK_REGISTRY } from "./fk-registry";

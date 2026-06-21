@@ -3,10 +3,10 @@
 import type { ReactNode } from "react";
 import { ActionButton } from "../ActionControls";
 import { AnalysisBlock, MetricCard, PanelCard } from "../BaseCards";
-import DataTable from "../DataTable";
 import StatusBadge from "../StatusBadge";
 import QcPaperPreview from "./QcPaperPreview";
-import { previewColumns, previewRows, PreviewTable } from "./sample-data";
+import { PreviewTable } from "./sample-data";
+import { usePageStylePreviewSamples } from "./sample-context";
 import { DetailStats, FormGrid } from "./template-fields";
 import type { EmbeddedTemplate, ModuleTemplate, PageTemplate } from "./template-data";
 
@@ -40,6 +40,7 @@ function BodyWithEmbedded({ page, children }: { page: PageTemplate; children: Re
 }
 
 function EmbeddedDetail({ detail }: { detail: EmbeddedTemplate }) {
+  const { qcPaper } = usePageStylePreviewSamples();
   if (detail.kind === "production") {
     const templateMode = detail.paperMode === "template";
     return (
@@ -49,7 +50,7 @@ function EmbeddedDetail({ detail }: { detail: EmbeddedTemplate }) {
         bodyClassName="space-y-4 p-4"
       >
         <div className="flex flex-wrap gap-2">
-          {["检验前确认", "2.1 性状", "2.2 水分", "2.3 含量"].map((item, index) => (
+          {qcPaper.stageTabs.map((item, index) => (
             <span key={item} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${index === 0 ? "bg-slate-200 text-slate-900" : "bg-slate-100 text-slate-500"}`}>
               {item}
             </span>
@@ -87,6 +88,7 @@ export function TableBody({ page }: { page: PageTemplate }) {
 }
 
 function SplitBody({ module, page, listVisible }: { module: ModuleTemplate; page: PageTemplate; listVisible: boolean }) {
+  const { previewRows } = usePageStylePreviewSamples();
   const listItems = page.listItems ?? previewRows.map((row) => row.name);
 
   return (
@@ -174,11 +176,12 @@ function ChartBars({ compact = false }: { compact?: boolean }) {
 }
 
 function DocumentBody({ page, listVisible }: { page: PageTemplate; listVisible: boolean }) {
+  const { documentItems } = usePageStylePreviewSamples();
   return (
     <div className={`grid gap-3 ${listVisible ? "lg:grid-cols-[3fr_7fr]" : "lg:grid-cols-1"}`}>
       {listVisible && (
         <PanelCard title="目录" bodyClassName="space-y-2 p-3">
-          {["01 基本制度", "02 操作规范", "03 附件资料"].map((name) => (
+          {documentItems.map((name) => (
             <div key={name} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-800">{name}</div>
           ))}
         </PanelCard>
@@ -209,24 +212,26 @@ function DocumentSurface() {
 }
 
 function ProductionBody({ page }: { page: PageTemplate }) {
+  const { qcPaper } = usePageStylePreviewSamples();
   const templateMode = page.paperMode === "template";
+
   return (
     <div className="grid gap-3 lg:grid-cols-[3fr_7fr]">
       <PanelCard title="产品" bodyClassName="space-y-2 p-3">
-        {["阿奇霉素胶囊", "阿替洛尔片", "别嘌醇片", "复方芦丁片", "甲硫咪唑片"].map((name, index) => (
-          <button key={name} type="button" className="flex w-full items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-left text-sm font-semibold text-slate-800 first:border-emerald-400 first:bg-emerald-50">
-            <span>{name}</span>
-            <span className="text-xs text-slate-400">{index === 0 ? "11" : "14"} 项</span>
+        {qcPaper.products.map((item) => (
+          <button key={item.name} type="button" className="flex w-full items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-left text-sm font-semibold text-slate-800 first:border-emerald-400 first:bg-emerald-50">
+            <span>{item.name}</span>
+            <span className="text-xs text-slate-400">{item.count} 项</span>
           </button>
         ))}
       </PanelCard>
       <PanelCard
-        title={templateMode ? "布局预览：阿奇霉素胶囊 · 中间体 · 检验前确认" : page.title}
+        title={templateMode ? `布局预览：${qcPaper.title.replace(/^一、/, "")}` : page.title}
         actions={templateMode ? <ActionButton>开发模式</ActionButton> : <ActionButton variant="primary">提交</ActionButton>}
         bodyClassName="space-y-4 p-4"
       >
         <div className="flex flex-wrap gap-2">
-          {["检验前确认", "2.1 性状", "2.2 水分", "2.3 含量"].map((item, index) => (
+          {qcPaper.stageTabs.map((item, index) => (
             <span key={item} className={`rounded-md px-3 py-1.5 text-xs font-semibold ${index === 0 ? "bg-slate-200 text-slate-900" : "bg-slate-100 text-slate-500"}`}>
               {item}
             </span>
@@ -237,7 +242,6 @@ function ProductionBody({ page }: { page: PageTemplate }) {
     </div>
   );
 }
-
 function UploadBody({ page }: { page: PageTemplate }) {
   return (
     <div className="grid gap-3 lg:grid-cols-[4fr_6fr]">
@@ -249,7 +253,7 @@ function UploadBody({ page }: { page: PageTemplate }) {
         <FormGrid fields={page.fields ?? ["类型", "来源", "负责人", "范围"]} columns="grid-cols-2" />
       </PanelCard>
       <PanelCard title="导入预览" bodyClassName="p-0">
-        <DataTable rows={previewRows} columns={previewColumns} visibleColumns={["owner", "type", "status", "updated"]} rowKey={(row) => row.id} density="compact" />
+        <PreviewTable columns={["负责人", "类型", "状态", "更新时间"]} />
       </PanelCard>
     </div>
   );

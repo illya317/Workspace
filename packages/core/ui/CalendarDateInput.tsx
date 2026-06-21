@@ -1,6 +1,8 @@
 "use client";
 
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import { joinClassNames } from "./card-utils";
+import { getFieldInputClassName } from "./FormStyles";
 
 interface CalendarDateInputProps {
   value: string | null | undefined;
@@ -139,36 +141,39 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
           onKeyDown={onKeyDown}
           disabled={disabled}
           placeholder={placeholder}
-          className={`${className || ""} cursor-pointer caret-transparent`}
+          className={joinClassNames(
+            getFieldInputClassName("cursor-pointer caret-transparent text-slate-900"),
+            className,
+          )}
         />
         {open && !disabled && (
-          <div className="absolute left-0 z-50 mt-1 w-80 rounded-lg border border-slate-200 bg-white p-3 shadow-xl">
-            <div className="mb-3 flex items-center gap-2">
+          <div className="absolute left-0 z-50 mt-1 w-60 rounded-lg border border-slate-200 bg-white p-2 shadow-xl">
+            <div className="mb-2 flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={() => move(-1)}
-                className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50"
+                className="flex size-7 items-center justify-center rounded-md border border-slate-200 text-sm text-slate-600 hover:bg-slate-50"
               >
                 ‹
               </button>
               <button
                 type="button"
                 onClick={() => setMode(mode === "day" ? "month" : "year")}
-                className="flex-1 rounded-md px-3 py-1.5 text-sm font-semibold text-slate-800 hover:bg-slate-50"
+                className="flex-1 rounded-md px-2 py-1 text-xs font-semibold text-slate-800 hover:bg-slate-50"
               >
                 {headerLabel()}
               </button>
               <button
                 type="button"
                 onClick={() => move(1)}
-                className="flex h-8 w-8 items-center justify-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50"
+                className="flex size-7 items-center justify-center rounded-md border border-slate-200 text-sm text-slate-600 hover:bg-slate-50"
               >
                 ›
               </button>
             </div>
 
             {mode === "year" && (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5">
                 {yearCells.map((year) => (
                   <button
                     key={year}
@@ -177,10 +182,10 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
                       setViewYear(year);
                       setMode("month");
                     }}
-                    className={`rounded-md px-3 py-2 text-sm transition ${
+                    className={`rounded-md px-2 py-1.5 text-xs transition ${
                       year === viewYear
-                        ? "bg-emerald-600 font-semibold text-white"
-                        : "text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
+                        ? "bg-sky-600 font-semibold text-white"
+                        : "text-slate-700 hover:bg-sky-50 hover:text-sky-700"
                     }`}
                   >
                     {year}
@@ -190,7 +195,7 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
             )}
 
             {mode === "month" && (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-1.5">
                 {MONTH_LABELS.map((label, index) => (
                   <button
                     key={label}
@@ -199,10 +204,10 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
                       setViewMonth(index);
                       setMode("day");
                     }}
-                    className={`rounded-md px-3 py-2 text-sm transition ${
+                    className={`rounded-md px-2 py-1.5 text-xs transition ${
                       index === viewMonth
-                        ? "bg-emerald-600 font-semibold text-white"
-                        : "text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
+                        ? "bg-sky-600 font-semibold text-white"
+                        : "text-slate-700 hover:bg-sky-50 hover:text-sky-700"
                     }`}
                   >
                     {label}
@@ -213,10 +218,10 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
 
             {mode === "day" && (
               <>
-                <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-slate-400">
-                  {WEEK_LABELS.map((label) => <div key={label} className="py-1">{label}</div>)}
+                <div className="grid grid-cols-7 gap-0.5 text-center text-[11px] font-medium text-slate-400">
+                  {WEEK_LABELS.map((label) => <div key={label} className="py-0.5">{label}</div>)}
                 </div>
-                <div className="mt-1 grid grid-cols-7 gap-1">
+                <div className="mt-1 grid grid-cols-7 gap-0.5">
                   {dayCells.map((day, index) => {
                     const dateValue = day ? formatDate(viewYear, viewMonth, day) : "";
                     const active = day && value === dateValue;
@@ -228,10 +233,10 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
                           onChange(dateValue);
                           setOpen(false);
                         }}
-                        className={`rounded-md px-2 py-1.5 text-sm transition ${
+                        className={`rounded-md px-1 py-1 text-xs transition ${
                           active
-                            ? "bg-emerald-600 font-semibold text-white"
-                            : "text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
+                            ? "bg-sky-600 font-semibold text-white"
+                            : "text-slate-700 hover:bg-sky-50 hover:text-sky-700"
                         }`}
                       >
                         {day}
@@ -244,14 +249,14 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
               </>
             )}
 
-            <div className="mt-3 flex justify-between border-t border-slate-100 pt-3">
+            <div className="mt-2 flex justify-between border-t border-slate-100 pt-2">
               <button
                 type="button"
                 onClick={() => {
                   onChange(null);
                   setOpen(false);
                 }}
-                className="text-sm text-slate-500 hover:text-red-600"
+                className="text-xs text-slate-500 hover:text-red-600"
               >
                 清空
               </button>
@@ -262,7 +267,7 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
                   onChange(formatDate(now.getFullYear(), now.getMonth(), now.getDate()));
                   setOpen(false);
                 }}
-                className="text-sm font-medium text-emerald-700 hover:text-emerald-800"
+                className="text-xs font-medium text-sky-700 hover:text-sky-800"
               >
                 今天
               </button>

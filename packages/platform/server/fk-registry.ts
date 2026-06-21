@@ -1,3 +1,5 @@
+import { matchText } from "@workspace/core/search";
+
 export type LifecycleScope = "active" | "all" | "archived";
 
 export type FkLifecycleStatus = "active" | "archived" | "inactive";
@@ -52,6 +54,29 @@ export interface FkRegistry {
 
 export function normalizeLifecycleScope(value: unknown, fallback: LifecycleScope = "active"): LifecycleScope {
   return value === "active" || value === "all" || value === "archived" ? value : fallback;
+}
+
+export function matchesFkKeyword(parts: Array<string | null | undefined>, keyword: string) {
+  if (!keyword.trim()) return true;
+  return parts.some((part) => part && matchText(part, keyword));
+}
+
+export function archivedBooleanFilter(scope: LifecycleScope, field = "isArchived") {
+  if (scope === "active") return { [field]: false };
+  if (scope === "archived") return { [field]: true };
+  return {};
+}
+
+export function employeeActiveLifecycleStatus(active: boolean): FkLifecycleStatus {
+  return active ? "active" : "inactive";
+}
+
+export function currentOpenEndedDateWhere<T extends Record<string, unknown>>(extra: T) {
+  const today = new Date().toISOString().slice(0, 10);
+  return {
+    ...extra,
+    OR: [{ endDate: null }, { endDate: "" }, { endDate: { gte: today } }],
+  };
 }
 
 export function createFkRegistry(definitions: FkDefinition[]): FkRegistry {

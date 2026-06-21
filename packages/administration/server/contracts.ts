@@ -1,4 +1,8 @@
 import { z } from "zod";
+import {
+  buildContainsWhere,
+  buildFilterWhere,
+} from "@workspace/platform/server/dal/pagination";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 
 export const ContractCreateSchema = z.object({
@@ -59,23 +63,21 @@ function contractData(data: ContractCreateInput | ContractUpdateInput) {
 }
 
 function buildWhere(filters: ContractListFilters): Prisma.ContractWhereInput {
-  const where: Prisma.ContractWhereInput = {};
-  const q = filters.q?.trim();
-  if (q) {
-    where.OR = [
-      { name: { contains: q } },
-      { partyA: { contains: q } },
-      { partyB: { contains: q } },
-      { content: { contains: q } },
-      { contractNo: { contains: q } },
-      { handler: { contains: q } },
-      { shareholder: { contains: q } },
-      { remark: { contains: q } },
-    ];
-  }
-  if (filters.location) where.location = filters.location;
-  if (filters.category) where.category = filters.category;
-  if (filters.status) where.status = filters.status;
+  const where = buildFilterWhere<Prisma.ContractWhereInput>(filters as Record<string, unknown>, [
+    "location",
+    "category",
+    "status",
+  ]);
+  Object.assign(where, buildContainsWhere(filters.q, [
+    "name",
+    "partyA",
+    "partyB",
+    "content",
+    "contractNo",
+    "handler",
+    "shareholder",
+    "remark",
+  ]));
   return where;
 }
 

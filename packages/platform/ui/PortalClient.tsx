@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { workspacePath } from "@workspace/core/routing";
 import { ModuleGridPage } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import { getAccessibleModules } from "../module-nav";
@@ -14,7 +15,7 @@ export default function PortalClient({ user }: { user: SessionUser }) {
       fullScreen
       leading={
         <Image
-          src="/workspace/company/logo.png"
+          src={workspacePath("/company/logo.png")}
           alt={process.env.NEXT_PUBLIC_COMPANY_NAME || "公司"}
           width={200}
           height={60}

@@ -1,7 +1,6 @@
 import { requireResourceAccess } from "@workspace/platform/server/auth";
 import AppShell from "@workspace/platform/ui/AppShell";
-import FinanceShell from "@/app/finance/components/FinanceShell";
-import FinanceCostClient from "./FinanceCostClient";
+import { FinanceCostClient, FinanceShell } from "@workspace/finance/ui";
 
 export default async function FinanceCostPage() {
   const user = await requireResourceAccess("finance.cost");

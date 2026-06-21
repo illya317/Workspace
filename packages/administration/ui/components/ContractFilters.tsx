@@ -1,6 +1,6 @@
 "use client";
 
-import { FilterToolbar, SelectField, getToolbarActionClassName } from "@workspace/core/ui";
+import { ActionButton, FilterToolbar, SelectField } from "@workspace/core/ui";
 
 interface ContractFiltersProps {
   q: string;
@@ -32,12 +32,9 @@ export default function ContractFilters({
         onKeywordChange={onQChange}
         searchPlaceholder="搜索合同名称、签署方、内容..."
         extraRight={(
-          <button
-            onClick={onCreate}
-            className={getToolbarActionClassName("primary")}
-          >
+          <ActionButton onClick={onCreate} variant="primary">
             + 新增合同
-          </button>
+          </ActionButton>
         )}
       >
         <SelectField

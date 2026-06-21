@@ -1,7 +1,8 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback } from "react";
-import { ActionButton, DetailModal, SelectField, TextareaField, TextField } from "@workspace/core/ui";
+import { ActionToolbar, DetailModal, EmptyStateCard, FormField, SelectField, TextareaField, TextField } from "@workspace/core/ui";
 
 interface Source {
   key: string;
@@ -34,7 +35,7 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
 
   useEffect(() => {
     setLoadingSources(true);
-    fetch("/workspace/api/library/generated-sources")
+    fetch(workspacePath("/api/library/generated-sources"))
       .then((r) => (r.ok ? r.json() : []))
       .then((data: Source[]) => {
         setSources(data);
@@ -61,7 +62,7 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
     setGenerating(true);
     setError(null);
     try {
-      const res = await fetch(`/workspace/api/library/generated-sources/${selectedKey}/generate`, {
+      const res = await fetch(workspacePath(`/api/library/generated-sources/${selectedKey}/generate`), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -85,14 +86,12 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
 
   return (
     <DetailModal open title="生成文档" onClose={onClose} maxWidth="max-w-md">
-        {error && (
-          <div className="mb-3 rounded bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>
-        )}
+        {error && <EmptyStateCard compact className="mb-3 border-red-100 bg-red-50 text-red-600">{error}</EmptyStateCard>}
 
         {loadingSources ? (
-          <div className="py-8 text-center text-gray-400">加载中…</div>
+          <EmptyStateCard compact>加载中...</EmptyStateCard>
         ) : sources.length === 0 ? (
-          <div className="py-8 text-center text-gray-400">暂无可用生成来源</div>
+          <EmptyStateCard compact>暂无可用生成来源</EmptyStateCard>
         ) : (
           <>
             <div className="mb-3">
@@ -106,25 +105,22 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
               />
             </div>
 
-            <div className="mb-3">
-              <label className="mb-1 block text-xs text-gray-500">标题</label>
+            <FormField label="标题" className="mb-3">
               <TextField
                 value={title}
                 onChange={setTitle}
                 placeholder="文档标题"
               />
-            </div>
+            </FormField>
 
-            <div className="mb-3">
-              <label className="mb-1 block text-xs text-gray-500">简介</label>
+            <FormField label="简介" className="mb-3">
               <TextareaField
                 value={summary}
                 onChange={setSummary}
                 rows={3}
                 placeholder="可选"
-                className="px-3 py-2 text-sm"
               />
-            </div>
+            </FormField>
 
             <div className="mb-4">
               <SelectField
@@ -140,18 +136,11 @@ export default function GenerateDocumentModal({ onClose, onSuccess }: Props) {
               />
             </div>
 
-            <div className="flex gap-2">
-              <ActionButton
-                onClick={handleGenerate}
-                disabled={generating || !title.trim()}
-                variant="primary"
-              >
-                {generating ? "生成中..." : "生成"}
-              </ActionButton>
-              <ActionButton onClick={onClose}>
-                取消
-              </ActionButton>
-            </div>
+            <ActionToolbar
+              className="justify-end border-0 p-0 shadow-none"
+              secondaryActions={[{ label: "取消", onClick: onClose }]}
+              primaryActions={[{ label: generating ? "生成中..." : "生成", onClick: handleGenerate, disabled: generating || !title.trim() }]}
+            />
           </>
         )}
     </DetailModal>

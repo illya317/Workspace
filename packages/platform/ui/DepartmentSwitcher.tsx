@@ -1,5 +1,6 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState } from "react";
 import { SessionUser } from "@workspace/platform/types";
 import { SelectField } from "@workspace/core/ui";
@@ -18,7 +19,7 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
   const [selectedDeptId, setSelectedDeptId] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch("/workspace/api/auth/me")
+    fetch(workspacePath("/api/auth/me"))
       .then((r) => r.json())
       .then((data) => {
         const u = data.user as SessionUser;
@@ -26,7 +27,7 @@ export default function DepartmentSwitcher({ onChange }: { onChange?: (deptId: n
         if (u?.isWorkListAdmin) {
           const saved = localStorage.getItem("selectedDeptId");
           if (saved) setSelectedDeptId(parseInt(saved));
-          fetch("/workspace/api/hr/departments")
+          fetch(workspacePath("/api/hr/departments"))
             .then((r) => r.json())
             .then((d) => {
               const list = (d.departments || []) as Dept[];

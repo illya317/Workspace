@@ -1,6 +1,31 @@
 {
   "specialSchools": [
     { "name": "不限", "label": "不限", "aliases": [] },
-    { "name": "其他", "label": "其他", "aliases": [] }
+    { "name": "其他", "label": "其他", "aliases": [] },
+    {
+      "name": "山东医药大学",
+      "label": "山东医药大学",
+      "aliases": ["Shandong Medical University"]
+    },
+    {
+      "name": "韩国大邱大学",
+      "label": "韩国大邱大学",
+      "aliases": ["Daegu University", "Daegu"]
+    },
+    {
+      "name": "VU管理学院",
+      "label": "VU管理学院",
+      "aliases": ["VU School of Management", "VU"]
+    },
+    {
+      "name": "军事医学科学院",
+      "label": "军事医学科学院",
+      "aliases": ["Academy of Military Medical Sciences"]
+    },
+    {
+      "name": "中国农业科学院",
+      "label": "中国农业科学院",
+      "aliases": ["Chinese Academy of Agricultural Sciences", "Graduate School of Chinese Academy of Agricultural Sciences"]
+    }
   ]
 }

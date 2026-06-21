@@ -2,6 +2,7 @@
 
 import type { DataTableColumn } from "@workspace/core/ui/DataTable";
 import { getDefaultVisibleColumns } from "@workspace/core/ui/DataTable";
+import { formatFinanceAmount } from "../formatters";
 
 interface VoucherItem {
   id: number;
@@ -11,12 +12,6 @@ interface VoucherItem {
   description: string | null;
   relatedEntity?: string | null;
 }
-
-const fmt = (value: number) =>
-  value.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
 
 export interface VoucherItemRow extends VoucherItem {
   _idx?: number;
@@ -54,14 +49,14 @@ export const BASE_ITEM_COLUMNS: DataTableColumn<VoucherItemRow>[] = [
     label: "借方",
     className: "text-right text-gray-700",
     headerClassName: "text-right",
-    render: (row) => (row.debit > 0 ? fmt(row.debit) : ""),
+    render: (row) => (row.debit > 0 ? formatFinanceAmount(row.debit) : ""),
   },
   {
     key: "credit",
     label: "贷方",
     className: "text-right text-gray-700",
     headerClassName: "text-right",
-    render: (row) => (row.credit > 0 ? fmt(row.credit) : ""),
+    render: (row) => (row.credit > 0 ? formatFinanceAmount(row.credit) : ""),
   },
   {
     key: "relatedEntity",

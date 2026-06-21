@@ -48,7 +48,7 @@ export default function SelectField({
   className,
   style,
   selectClassName,
-  size: _size,
+  size = "compact",
 }: SelectFieldProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -94,12 +94,17 @@ export default function SelectField({
     setOpen(false);
   }
 
-  const labelClassName = "shrink-0 whitespace-nowrap text-gray-500";
-  const triggerClassName = "inline-flex min-h-10 min-w-32 items-center justify-between rounded-lg border border-gray-200 bg-white px-2 py-1 text-left text-xs font-semibold text-slate-900 shadow-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
+  const toolbarMode = size === "toolbar";
+  const labelClassName = toolbarMode
+    ? "inline-flex h-10 shrink-0 items-center whitespace-nowrap text-xs font-semibold leading-none text-slate-500"
+    : "inline-flex h-10 shrink-0 items-center whitespace-nowrap text-gray-500";
+  const triggerClassName = toolbarMode
+    ? "inline-flex h-10 min-w-24 items-center justify-between rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-0 text-left text-xs font-semibold leading-none text-slate-900 transition hover:border-slate-300 hover:bg-white focus:border-emerald-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
+    : "inline-flex h-10 min-w-32 items-center justify-between rounded-lg border border-gray-200 bg-white px-2 py-0 text-left text-xs font-semibold leading-none text-slate-900 shadow-sm transition focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500";
 
   const rootClassName = toolbarFieldLabel
-    ? "inline-flex items-center gap-1.5"
-    : "inline-block min-w-32";
+    ? "inline-flex h-10 items-center gap-1.5 align-middle"
+    : "inline-block h-10 min-w-32 align-middle";
 
   return (
     <label ref={rootRef} style={style} className={`${rootClassName} relative text-xs ${className ?? ""}`}>
@@ -115,13 +120,13 @@ export default function SelectField({
           onClick={() => setOpen((current) => !current)}
           className={`${triggerClassName} ${selectClassName ?? ""}`}
         >
-          <span className="min-w-0 flex-1 truncate text-center">
-            <span className="inline-block truncate">{selected?.label ?? placeholder ?? "未设置"}</span>
+          <span className="flex min-w-0 flex-1 items-center justify-center truncate">
+            <span className="truncate">{selected?.label ?? placeholder ?? "未设置"}</span>
           </span>
-          <span className="ml-2 text-slate-500">⌄</span>
+          <span className="ml-2 inline-flex h-full items-center text-slate-500">⌄</span>
         </button>
         {open && !disabled && (
-          <div className="absolute left-0 top-[calc(100%+0.25rem)] z-50 w-full rounded-lg border border-slate-200 bg-white p-1 shadow-xl">
+          <div className="absolute left-0 top-[calc(100%+0.25rem)] z-50 min-w-full rounded-lg border border-slate-200 bg-white p-1 shadow-xl">
             {shouldSearch && (
               <SearchInput
                 ref={searchRef}

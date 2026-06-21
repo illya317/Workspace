@@ -38,3 +38,39 @@ export function buildKeywordWhere(
     })),
   };
 }
+
+export function buildFilterWhere<TWhere extends Record<string, unknown>>(
+  filters: Record<string, unknown>,
+  exactFields: string[],
+): TWhere {
+  const where: Record<string, unknown> = {};
+  for (const field of exactFields) {
+    const value = filters[field];
+    if (value !== null && value !== undefined && value !== "") where[field] = value;
+  }
+  return where as TWhere;
+}
+
+export function buildContainsWhere(
+  keyword: string | null | undefined,
+  searchableFields: string[],
+): Record<string, unknown> | undefined {
+  const q = keyword?.trim();
+  if (!q) return undefined;
+  return {
+    OR: searchableFields.map((field) => ({ [field]: { contains: q } })),
+  };
+}
+
+export function addAndConditions<TWhere extends Record<string, unknown>>(
+  where: TWhere,
+  conditions: Array<Record<string, unknown> | undefined | null | false>,
+): TWhere {
+  const active = conditions.filter(Boolean) as Record<string, unknown>[];
+  if (active.length > 0) {
+    const target = where as Record<string, unknown>;
+    const existing = Array.isArray(target.AND) ? target.AND as Record<string, unknown>[] : [];
+    target.AND = [...existing, ...active];
+  }
+  return where;
+}

@@ -33,20 +33,20 @@ export default function AccordionTabBar({
   return (
     <nav
       aria-label="页面标签"
-      className={joinClassNames("flex w-full flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-white p-1 shadow-sm", className)}
+      className={joinClassNames("flex w-full flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-2 shadow-sm", className)}
     >
       {tabs.map((tab) => {
         const active = tab.key === activeTab;
         const children = tab.children ?? [];
         return (
-          <div key={tab.key} className="flex min-h-10 items-center gap-1">
+          <div key={tab.key} className="flex min-h-12 items-center gap-1.5">
             <button
               type="button"
               onClick={() => {
                 onTabChange(tab.key);
               }}
               className={joinClassNames(
-                "h-9 rounded-md px-4 text-xs font-semibold transition",
+                "h-11 rounded-lg px-6 text-sm font-semibold transition",
                 active
                   ? "bg-emerald-600 text-white shadow-sm"
                   : "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
@@ -55,7 +55,7 @@ export default function AccordionTabBar({
               {tab.label}
             </button>
             {active && children.length > 0 && (
-              <div className="flex h-9 items-center gap-1 rounded-md border border-emerald-100 bg-emerald-50/60 px-1">
+              <div className="flex h-11 items-center gap-1.5 rounded-lg border border-emerald-100 bg-emerald-50/60 px-1.5">
                 {children.map((child) => {
                   const childActive = child.key === activeChild;
                   return (
@@ -64,7 +64,7 @@ export default function AccordionTabBar({
                       type="button"
                       onClick={() => onChildChange?.(child.key)}
                       className={joinClassNames(
-                        "h-7 rounded px-3 text-xs font-semibold transition",
+                        "h-8 rounded-md px-4 text-sm font-semibold transition",
                         childActive
                           ? "bg-white text-emerald-700 shadow-sm"
                           : "text-slate-500 hover:bg-white/80 hover:text-slate-900",

@@ -134,7 +134,7 @@ export default async function Page() {
 - `app/hr/HRClient.tsx`：`(user.visibleResourceKeys || []).includes(key)` → 已正确，保留
 - `app/hr/performance/HRPerformanceClient.tsx`：同上，已正确
 - `app/hr/analytics/HRAnalyticsClient.tsx`：同上，已正确
-- `app/settings/SettingsClient.tsx`：`canAccessApi`、`canAccessAdmin` → 改为检查 `visibleResourceKeys`
+- `packages/platform/ui/settings/SettingsClient.tsx`：`canAccessApi`、`canAccessAdmin` → 改为检查 `visibleResourceKeys`
 - `app/docs/DocsClient.tsx`：`canAccessApi` → 改为检查 `visibleResourceKeys`
 - `app/admin/page.tsx`：`canAccessAdmin` → Phase 1 已改
 - `app/finance/lib/nav-utils.ts`：`canAccessFinanceCost/Ledger/Report/Budget/Analysis/Import` → 改为 `visibleResourceKeys.includes("finance.cost")` 等
@@ -178,7 +178,7 @@ export default async function Page() {
 ```bash
 # 1. 检查所有 page.tsx 不再引用 canAccess*
 grep -rn "canAccess" app --include="*.tsx" | grep -v "visibleResourceKeys"
-# 期望：只有 SettingsClient.tsx 等需要改的文件还有残留
+# 期望：只有已知兼容路径或历史计划文档有残留
 
 # 2. 检查 session.ts 不再生成 canAccess*
 grep -n "canAccess" server/auth/session.ts
@@ -208,7 +208,7 @@ NODE_OPTIONS="--max-old-space-size=8192" npm run build
 | `app/works/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.task")` 或仅登录 |
 | `app/admin/page.tsx` | `canAccessAdmin` → `requireResourceAccess("system")` 或仅登录 |
 | `app/hr/page.tsx` | `visibleResourceKeys` OR 链 → `requireResourceAccess("people")` |
-| `app/settings/SettingsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("system.api")` |
+| `packages/platform/ui/settings/SettingsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("system.api")` |
 | `app/docs/DocsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("system.api")` |
 | `lib/types.ts` | 删除所有 `canAccess*` 字段 |
 | `server/auth/session.ts` | 删除旧字段生成逻辑 |

@@ -86,6 +86,18 @@ export async function getEmployeeProfileByKey(key: string) {
     edps.find((item) => !item.endDate) ??
     edps[0] ??
     null;
+  const reportToEmployeeIds = Array.from(new Set(
+    edps
+      .map((edp) => edp.reportTo?.trim())
+      .filter((value): value is string => typeof value === "string" && /^\d{5}$/.test(value)),
+  ));
+  const reportToEmployees = reportToEmployeeIds.length > 0
+    ? await prisma.employee.findMany({
+        where: { employeeId: { in: reportToEmployeeIds } },
+        select: { employeeId: true, name: true },
+      })
+    : [];
+  const reportToNameByEmployeeId = new Map(reportToEmployees.map((item) => [item.employeeId, item.name]));
 
   return {
     status: "ok" as const,
@@ -146,7 +158,7 @@ export async function getEmployeeProfileByKey(key: string) {
         isPrimary: edp.isPrimary,
         startDate: edp.startDate,
         endDate: edp.endDate,
-        reportTo: edp.reportTo,
+        reportTo: reportToNameByEmployeeId.get(edp.reportTo ?? "") ?? edp.reportTo,
         workPercent: edp.workPercent,
       })),
       employeeProjects: employeeProjects.map((entry) => ({

@@ -45,21 +45,24 @@ function stripComments(text) {
 
 const errors = [];
 
-const authorizePath = path.join(ROOT, "server/auth/authorize.ts");
+const AUTHORIZE_ENTRY = "packages/platform/server/auth/authorize.ts";
+const REQUIRED_DELEGATE_FILES = [
+  "packages/platform/server/auth/admin.ts",
+  "packages/platform/server/auth/domain.ts",
+  "packages/platform/server/auth/finance.ts",
+  "packages/platform/server/auth/authenticate.ts",
+  "packages/platform/server/auth/guard.ts",
+  "packages/platform/server/auth/library.ts",
+];
+
+const authorizePath = path.join(ROOT, AUTHORIZE_ENTRY);
 if (!fs.existsSync(authorizePath)) {
-  errors.push("server/auth/authorize.ts is missing");
+  errors.push(`${AUTHORIZE_ENTRY} is missing`);
 } else if (!/\bexport\s+async\s+function\s+authorize\b/.test(fs.readFileSync(authorizePath, "utf8"))) {
-  errors.push("server/auth/authorize.ts must export async function authorize");
+  errors.push(`${AUTHORIZE_ENTRY} must export async function authorize`);
 }
 
-for (const requiredFile of [
-  "server/auth/admin.ts",
-  "server/auth/domain.ts",
-  "server/auth/finance.ts",
-  "server/auth/authenticate.ts",
-  "server/auth/guard.ts",
-  "server/auth/library.ts",
-]) {
+for (const requiredFile of REQUIRED_DELEGATE_FILES) {
   const text = fs.readFileSync(path.join(ROOT, requiredFile), "utf8");
   if (!/\bauthorize\b/.test(text)) {
     errors.push(`${requiredFile} must delegate permission decisions to authorize()`);

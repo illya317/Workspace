@@ -1,14 +1,16 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useRef, useMemo } from "react";
-import { DataTable, PanelCard, Toast, getToolbarActionClassName, useConfirmDelete } from "@workspace/core/ui";
+import { ActionButton, DataTable, PanelCard, Toast, useConfirmDelete } from "@workspace/core/ui";
 import type { DataTableColumn } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import { matchText } from "@workspace/core/search";
 import type { RuleCandidate } from "@workspace/finance/types";
-import Pagination from "./Pagination";
+import { Pagination } from "@workspace/core/ui";
 import AccountCodeInput from "./AccountCodeInput";
-import { dirBadge, fmt, targetDisplay } from "../ledger/reclassColumns";
+import { formatFinanceAmount } from "../formatters";
+import { dirBadge, targetDisplay } from "../ledger/reclassColumns";
 
 function deriveAbnormalSide(bd: string) { return bd === "debit" ? "credit" : "debit"; }
 function suggestTarget(c: string) { return c.startsWith("1") ? "2241" : c.startsWith("2") ? "1463" : ""; }
@@ -53,8 +55,8 @@ export default function ReclassCandidateList({
     setLoading(true);
     try {
       const [scanRes, accRes] = await Promise.all([
-        fetch(`/workspace/api/finance/reclass-rules?companyCode=${companyCode}&year=${year}`),
-        fetch(`/workspace/api/finance/accounts?companyCode=${companyCode}&year=${year}&scope=all&pageSize=2000`),
+        fetch(workspacePath(`/api/finance/reclass-rules?companyCode=${companyCode}&year=${year}`)),
+        fetch(workspacePath(`/api/finance/accounts?companyCode=${companyCode}&year=${year}&scope=all&pageSize=2000`)),
       ]);
 
       if (!scanRes.ok) { showToast("加载失败", "error"); return; }
@@ -103,7 +105,7 @@ export default function ReclassCandidateList({
   async function saveRule(c: RuleCandidate, target: string) {
     if (!target.trim()) { showToast("请选择目标科目", "error"); return false; }
     const body = JSON.stringify({ companyCode, year: parseInt(year), sourceAccountCode: c.accountCode, abnormalSide: c.abnormalSide, targetAccountCode: target });
-    const res = await fetch("/workspace/api/finance/reclass-rules", { method: "PUT", headers: { "Content-Type": "application/json" }, body });
+    const res = await fetch(workspacePath("/api/finance/reclass-rules"), { method: "PUT", headers: { "Content-Type": "application/json" }, body });
     if (!res.ok) { showToast("保存失败", "error"); return false; }
     const data = await res.json();
     updateCandidate(c.accountCode, data.rule.id, data.rule.targetAccountCode, data.rule.source, data.rule.enabled);
@@ -117,7 +119,7 @@ export default function ReclassCandidateList({
       confirmLabel: "清除",
     });
     if (!ok) return;
-    if (!(await fetch(`/workspace/api/finance/reclass-rules/${c.existingRuleId}`, { method: "DELETE" })).ok) { showToast("清除失败", "error"); return; }
+    if (!(await fetch(workspacePath(`/api/finance/reclass-rules/${c.existingRuleId}`), { method: "DELETE" })).ok) { showToast("清除失败", "error"); return; }
     updateCandidate(c.accountCode, null, null, null, null);
     showToast("已清除规则");
   }
@@ -190,7 +192,7 @@ export default function ReclassCandidateList({
       defaultVisible: true,
       headerClassName: "text-right",
       cellClassName: "text-right font-mono text-slate-700",
-      render: (candidate) => `¥${fmt(candidate.abnormalAmount)}`,
+      render: (candidate) => `¥${formatFinanceAmount(candidate.abnormalAmount)}`,
     },
     {
       key: "target",
@@ -244,45 +246,42 @@ export default function ReclassCandidateList({
       render: (candidate: RuleCandidate) => {
         if (candidate.existingRuleId) {
           return (
-            <button
-              type="button"
+            <ActionButton
               onClick={(event) => {
                 event.stopPropagation();
                 void clearRule(candidate);
               }}
-              className={getToolbarActionClassName("secondary").replace("px-4 py-2", "px-2 py-1").replace("text-sm", "text-xs")}
+              className="px-2 py-1 text-xs"
             >
               清除规则
-            </button>
+            </ActionButton>
           );
         }
         if (candidate.suggestedTarget) {
           return (
-            <button
-              type="button"
+            <ActionButton
               onClick={(event) => {
                 event.stopPropagation();
                 void saveRule(candidate, candidate.suggestedTarget).then((saved) => {
                   if (saved) showToast("已确认规则");
                 });
               }}
-              className={getToolbarActionClassName("secondary").replace("px-4 py-2", "px-2 py-1").replace("text-sm", "text-xs")}
+              className="px-2 py-1 text-xs"
             >
               确认
-            </button>
+            </ActionButton>
           );
         }
         return (
-          <button
-            type="button"
+          <ActionButton
             onClick={(event) => {
               event.stopPropagation();
               startEdit(candidate);
             }}
-            className={getToolbarActionClassName("secondary").replace("px-4 py-2", "px-2 py-1").replace("text-sm", "text-xs")}
+            className="px-2 py-1 text-xs"
           >
             调整
-          </button>
+          </ActionButton>
         );
       },
     } satisfies DataTableColumn<RuleCandidate>] : []),

@@ -1,5 +1,9 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import type { LibraryDocument, LibraryDocumentVersion } from "@workspace/platform/server/prisma";
+import {
+  addAndConditions,
+  buildFilterWhere,
+} from "@workspace/platform/server/dal/pagination";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -11,7 +15,6 @@ export interface ListFilters {
   confidentialityLevel?: number | { lte: number };
   keyword?: string;
   docId?: string;
-  tag?: string;
   page?: number;
   pageSize?: number;
 }
@@ -41,22 +44,20 @@ export interface UpdateMetadataInput {
 // ─── Helpers ─────────────────────────────────────────────────
 
 function buildWhere(filters: ListFilters) {
-  const where: Record<string, unknown> = {};
+  const where = buildFilterWhere<Record<string, unknown>>(filters as Record<string, unknown>, [
+    "categoryCode",
+    "status",
+    "origin",
+  ]);
+  const andConditions: Record<string, unknown>[] = [];
 
-  if (filters.categoryCode) {
-    where.categoryCode = filters.categoryCode;
-  }
   if (filters.directoryPath) {
-    where.OR = [
+    andConditions.push({
+      OR: [
       { directoryPath: filters.directoryPath },
       { directoryPath: { startsWith: filters.directoryPath + "/" } },
-    ];
-  }
-  if (filters.status) {
-    where.status = filters.status;
-  }
-  if (filters.origin) {
-    where.origin = filters.origin;
+      ],
+    });
   }
   if (typeof filters.confidentialityLevel === "number") {
     where.confidentialityLevel = filters.confidentialityLevel;
@@ -66,21 +67,21 @@ function buildWhere(filters: ListFilters) {
   if (filters.docId?.trim()) {
     where.docId = { contains: filters.docId.trim() };
   }
-  if (filters.tag?.trim()) {
-    where.tags = { some: { tag: filters.tag.trim() } };
-  }
   if (filters.keyword?.trim()) {
     const kw = filters.keyword.trim();
-    where.OR = [
-      { title: { contains: kw } },
-      { fileName: { contains: kw } },
-      { summary: { contains: kw } },
-      { categoryName: { contains: kw } },
-      { docId: { contains: kw } },
-    ];
+    andConditions.push({
+      OR: [
+        { title: { contains: kw } },
+        { fileName: { contains: kw } },
+        { summary: { contains: kw } },
+        { categoryName: { contains: kw } },
+        { docId: { contains: kw } },
+        { tags: { some: { tag: { contains: kw } } } },
+      ],
+    });
   }
 
-  return where;
+  return addAndConditions(where, andConditions);
 }
 
 function getPagination(filters: ListFilters) {

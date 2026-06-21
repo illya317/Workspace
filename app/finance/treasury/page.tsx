@@ -6,7 +6,7 @@ export default async function TreasuryPage() {
   const user = await requireResourceAccess("finance.treasury");
   return (
     <AppShell title="司库管理" backHref="/finance" user={user}>
-      <ModuleGridPage summary="银行账户、资金日报、收付款计划、现金流预测、授信管理" centered>
+      <ModuleGridPage title="司库管理" summary="银行账户、资金日报、收付款计划、现金流预测、授信管理" centered>
         <div className="col-span-full">
           <EmptyStateCard>
             <span className="block">司库管理规划中</span>

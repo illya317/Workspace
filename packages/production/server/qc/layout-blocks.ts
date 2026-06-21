@@ -1,6 +1,5 @@
 import "server-only";
 import path from "path";
-import { readFile } from "fs/promises";
 import { mapCustomLayoutBlock } from "./layout-custom-blocks";
 import {
   asArray,
@@ -14,6 +13,7 @@ import {
   maybePositiveNumber,
   normalizeKey,
   paramString,
+  readOptionalJson,
   safeFile,
   stringArrayRecord,
   stringRecord,
@@ -144,11 +144,6 @@ function mapBlock(value: unknown, params: Params = {}): QcLayoutBlock | null {
   };
 }
 
-async function readJson(filePath: string) {
-  const raw = await readFile(filePath, "utf8").catch(() => "");
-  return raw ? JSON.parse(raw) as unknown : undefined;
-}
-
 function sorted(items: Array<{ order?: unknown; module_order?: unknown; moduleOrder?: unknown; params?: unknown }>) {
   const entryOrder = (item: typeof items[number], key: "order" | "module_order" | "moduleOrder") => Number(item[key] ?? asRecord(item.params)[key] ?? 0);
   return items.sort((a, b) => (
@@ -162,7 +157,7 @@ async function expandTemplate(configRoot: string, templateId: string, params: Pa
   if (seen.has(id)) return [];
   seen.add(id);
   const templatesRoot = path.resolve(configRoot, "table_layouts", "templates");
-  const data = asRecord(await readJson(safeFile(templatesRoot, id)));
+  const data = asRecord(await readOptionalJson(safeFile(templatesRoot, id)));
   const mergedParams = { ...asRecord(data.params), ...params };
   const entries = sorted([...asArray(data.includes), ...asArray(data.blocks)] as Record<string, unknown>[]);
   const blocks: QcLayoutBlock[] = [];

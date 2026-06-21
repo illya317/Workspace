@@ -1,9 +1,12 @@
 import { redirect } from "next/navigation";
 import { PageStyleShowcase, RegistryBrowserCard } from "@workspace/core/ui";
 import type { CoreUiRegistryUsageRow, SessionUser } from "@workspace/platform/types";
+import { getPageStyleRouteModules, pageViewDefinitions } from "@workspace/platform/view-registry";
 import AppShell from "../AppShell";
 import { DatabasePageFrame } from "@workspace/core/ui";
 import SettingsClient from "./SettingsClient";
+import { pageStylePreviewSamples } from "./page-style-sample-data";
+import { getTemplateRoutes, moduleTemplates } from "./page-style-template-data";
 
 export function SettingsAccountPage({ user }: { user: SessionUser }) {
   return (
@@ -55,10 +58,24 @@ export function SettingsGovernanceToolbarPreviewPage({
   user: SessionUser;
 }) {
   if ((user.manageableResourceKeys?.length ?? 0) === 0) redirect("/settings");
+  const templateRoutesByModule = new Map(
+    moduleTemplates.map((module) => [module.key, new Set(getTemplateRoutes(module))]),
+  );
+  const routeModules = getPageStyleRouteModules()
+    .map((module) => ({
+      ...module,
+      children: module.children.filter((child) => templateRoutesByModule.get(module.key)?.has(child.route)),
+    }))
+    .filter((module) => module.children.length > 0);
 
   return (
     <AppShell title="页面样式预览" backHref="/settings/governance" user={user}>
-      <PageStyleShowcase />
+      <PageStyleShowcase
+        modules={moduleTemplates}
+        routeModules={routeModules}
+        viewDefinitions={pageViewDefinitions}
+        samples={pageStylePreviewSamples}
+      />
     </AppShell>
   );
 }

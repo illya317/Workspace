@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { DataTable, PanelCard, type DataTableColumn } from "@workspace/core/ui";
+import { ActionButton, DataTable, PanelCard, StatusBadge, type DataTableColumn } from "@workspace/core/ui";
 
 export interface BalanceCheckAccountNode {
   code: string;
@@ -66,12 +66,12 @@ function DifferenceCell({ node, side }: { node: BalanceCheckAccountNode; side: "
 
 function StatusCell({ node }: { node: BalanceCheckAccountNode }) {
   if (node.children.length === 0) {
-    return <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-500">明细</span>;
+    return <StatusBadge label="明细" variant="gray" />;
   }
   return node.isBalanced ? (
-    <span className="rounded bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600">平衡</span>
+    <StatusBadge label="平衡" variant="green" />
   ) : (
-    <span className="rounded bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">不一致</span>
+    <StatusBadge label="不一致" variant="red" />
   );
 }
 
@@ -99,16 +99,16 @@ export default function BalanceCheckTable({
       render: ({ node, depth }) => (
         <span className="flex items-center gap-1" style={{ paddingLeft: `${depth * 16 + 8}px` }}>
           {hasVisibleChildren(node, maxLevel) ? (
-            <button
-              type="button"
+            <ActionButton
               onClick={(event) => {
                 event.stopPropagation();
                 onToggleNode(node.code);
               }}
-              className="w-4 text-xs leading-none text-slate-300 hover:text-slate-600"
+              aria-label={expanded.has(node.code) ? "收起科目" : "展开科目"}
+              className="w-4 border-0 bg-transparent px-0 py-0 text-base leading-none text-slate-300 shadow-none hover:bg-transparent hover:text-slate-600"
             >
               {expanded.has(node.code) ? "▼" : "▶"}
-            </button>
+            </ActionButton>
           ) : (
             <span className="w-4" />
           )}
@@ -134,6 +134,7 @@ export default function BalanceCheckTable({
         visibleColumns={visibleColumns}
         rowKey={({ node }) => node.code}
         density="compact"
+        tableClassName="text-base"
         rowClassName={({ node }) => (!node.isBalanced && node.children.length > 0 ? "bg-red-50/60" : "")}
       />
     </PanelCard>

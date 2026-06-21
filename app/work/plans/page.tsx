@@ -1,6 +1,5 @@
 import { requireResourceAccess } from "@workspace/platform/server/auth";
 import AppShell from "@workspace/platform/ui/AppShell";
-import { PageContent } from "@workspace/core/ui";
 import { WorkPlanTab } from "@workspace/work/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import type { WorkUser } from "@workspace/work/types";
@@ -24,9 +23,7 @@ export default async function WorkPlansPage() {
       backHref="/work"
       user={user}
     >
-      <PageContent>
-        <WorkPlanTab user={toWorkUser(user)} />
-      </PageContent>
+      <WorkPlanTab user={toWorkUser(user)} />
     </AppShell>
   );
 }

@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import AppShell from "@workspace/platform/ui/AppShell";
 import { requireResourceAccess } from "@workspace/platform/server/auth";
-import EmployeeProfileClient from "@/app/hr/profile/EmployeeProfileClient";
-import type { HRUser } from "@/app/hr/types";
+import { EmployeeProfileClient } from "@workspace/hr/ui";
+import type { HRUser } from "@workspace/hr/types";
 
 interface Props {
   params: Promise<{ id: string }>;

@@ -54,6 +54,7 @@ export type FieldType =
   | "fk"
   | "textarea"
   | "select"
+  | "tags"
   | "major"
   | "school"
   | "professionalTitle"
@@ -73,6 +74,7 @@ export interface FieldConfig {
   width?: string;
   createOnly?: boolean;
   required?: boolean;
+  defaultVisible?: boolean;
   hidden?: boolean;
   displayField?: string;
   filterEntity?: string;

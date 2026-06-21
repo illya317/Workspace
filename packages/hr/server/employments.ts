@@ -3,7 +3,7 @@ import { Prisma } from "@workspace/platform/server/prisma";
 import { handleCreate, handleUpdateField } from "./hr-crud";
 import { isValidDateValue, rejectInvalidDateField, validateEmploymentOption } from "./field-validation";
 import { prisma } from "@workspace/platform/server/prisma";
-import { matchEmployee } from "./search";
+import { matchEmployee } from "@workspace/platform/search";
 import { parseContracts } from "./contracts";
 import { guardEmployeeInactive } from "./reference-guards";
 
@@ -55,6 +55,8 @@ async function normalizeEmploymentFieldUpdate(field: string, value: unknown, id?
 export async function listEmployments(input: {
   keyword: string;
   isActive: string | null;
+  company: string;
+  personnelType: string;
   page: number;
   pageSize: number;
 }) {
@@ -93,6 +95,12 @@ export async function listEmployments(input: {
         matchEmployee({ name: employment.employeeName, employeeId: String(employment.employeeId) }, input.keyword) ||
         employment.employeeName?.includes(input.keyword),
     );
+  }
+  if (input.company) {
+    filtered = filtered.filter((employment) => employment.currentCompany === input.company);
+  }
+  if (input.personnelType) {
+    filtered = filtered.filter((employment) => employment.personnelType === input.personnelType);
   }
 
   const total = filtered.length;

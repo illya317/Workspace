@@ -10,6 +10,11 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { loadBalanceSheetConfig } from "./config/load-config";
 import { checkAccountBalanceTree, type AccountNode } from "./account-balance-check";
 import { ensureStatementMappings } from "./mapping/seed-from-config";
+import {
+  resolveInMemoryAccountMapping,
+  type InMemoryMappingResult,
+  type StatementMappingEntry,
+} from "./shared/mapping-resolver";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -98,7 +103,7 @@ export async function getStatementConfigView(
     where: { companyCode, year, statementType },
     select: { accountCode: true, lineCode: true, operator: true },
   });
-  const mappingMap = new Map<string, { lineCode: string; operator: "add" | "subtract" | "exclude" }>();
+  const mappingMap = new Map<string, StatementMappingEntry>();
   for (const m of mappings) mappingMap.set(m.accountCode, { lineCode: m.lineCode, operator: (m.operator as "add" | "subtract" | "exclude") || "add" });
 
   // 7. Build mapping preview
@@ -135,66 +140,14 @@ export async function saveStatementConfigLines(input: SaveStatementConfigLinesIn
   return { success: true, updated: input.lines.length };
 }
 
-// ─── Mapping resolution ────────────────────────────────────
-
-function buildParentChain(
-  accountCode: string,
-  parentMap: Map<string, string | null>,
-): string[] {
-  const chain: string[] = [accountCode];
-  const parent = parentMap.get(accountCode);
-  if (parent) {
-    return [...chain, ...buildParentChain(parent, parentMap)];
-  }
-  // Prefix fallback for accounts without parentId linkage
-  let code = accountCode;
-  while (code.length > 1) {
-    code = code.slice(0, -1);
-    if (code.length > 0) chain.push(code);
-  }
-  return chain;
-}
-
-interface MappingResult {
-  resolvedLineCode: string | null;
-  explicitLineCode: string | null;
-  mappingSource: "explicit" | "inherited" | "none";
-  ancestorAccountCode: string | null;
-  effectiveOperator: "add" | "subtract" | "exclude" | null;
-}
-
-function resolveAccountMapping(
-  accountCode: string,
-  parentMap: Map<string, string | null>,
-  mappingMap: Map<string, { lineCode: string; operator: "add" | "subtract" | "exclude" }>,
-): MappingResult {
-  const chain = buildParentChain(accountCode, parentMap);
-  for (const code of chain) {
-    const entry = mappingMap.get(code);
-    if (entry) {
-      if (entry.operator === "exclude") {
-        return { explicitLineCode: null, resolvedLineCode: null, mappingSource: "explicit", ancestorAccountCode: null, effectiveOperator: "exclude" };
-      }
-      return {
-        explicitLineCode: code === accountCode ? entry.lineCode : null,
-        resolvedLineCode: entry.lineCode,
-        mappingSource: code === accountCode ? "explicit" : "inherited",
-        ancestorAccountCode: code === accountCode ? null : code,
-        effectiveOperator: entry.operator,
-      };
-    }
-  }
-  return { explicitLineCode: null, resolvedLineCode: null, mappingSource: "none", ancestorAccountCode: null, effectiveOperator: null };
-}
-
 // ─── Tree conversion ───────────────────────────────────────
 
 function toMappingNode(
   node: AccountNode,
   parentMap: Map<string, string | null>,
-  mappingMap: Map<string, { lineCode: string; operator: "add" | "subtract" | "exclude" }>,
+  mappingMap: Map<string, StatementMappingEntry>,
 ): MappingNode {
-  const mapping = resolveAccountMapping(node.code, parentMap, mappingMap);
+  const mapping: InMemoryMappingResult = resolveInMemoryAccountMapping(node.code, parentMap, mappingMap);
   return {
     accountCode: node.code,
     accountName: node.name,

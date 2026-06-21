@@ -4,6 +4,7 @@
  */
 import { prisma } from "@workspace/platform/server/prisma";
 import type { BalanceSheetLineConfig } from "./config/balance-sheet-lines";
+import { resolveMappedLineCode } from "./shared/mapping-resolver";
 
 export interface UnresolvedAccountDetail {
   accountCode: string;
@@ -103,7 +104,7 @@ export async function aggregateMappedAccountCodes(
 
   const allCodesToLine = new Map<string, string[]>();
   for (const code of parentMap.keys()) {
-    const line = resolveInMemory(code, parentMap, mappingMap);
+    const line = resolveMappedLineCode(code, parentMap, mappingMap);
     if (line && mappingByLine.has(line)) {
       const arr = allCodesToLine.get(line) || [];
       arr.push(code);
@@ -137,32 +138,4 @@ export function bucketUnresolvedByLegacyPrefix(
     }
   }
   return out;
-}
-
-function buildParentChain(
-  code: string,
-  parentMap: Map<string, string | null>,
-): string[] {
-  const chain: string[] = [code];
-  const parent = parentMap.get(code);
-  if (parent) return [...chain, ...buildParentChain(parent, parentMap)];
-  let c = code;
-  while (c.length > 1) {
-    c = c.slice(0, -1);
-    if (c.length > 0) chain.push(c);
-  }
-  return chain;
-}
-
-function resolveInMemory(
-  accountCode: string,
-  parentMap: Map<string, string | null>,
-  mappingMap: Map<string, string>,
-): string | null {
-  const chain = buildParentChain(accountCode, parentMap);
-  for (const code of chain) {
-    const line = mappingMap.get(code);
-    if (line) return line;
-  }
-  return null;
 }

@@ -1,0 +1,132 @@
+"use client";
+
+import DataTable, { type DataTableColumn } from "@workspace/core/ui/DataTable";
+import { formatFinanceAmount } from "../formatters";
+
+export interface ReportLine {
+  label: string;
+  code?: string;
+  amount: number;
+  isHeader?: boolean;
+  isTotal?: boolean;
+  isGrandTotal?: boolean;
+}
+
+export interface AccountDetail {
+  code: string;
+  name: string;
+  category: string;
+  balanceDirection: string;
+  openingDebit: number;
+  openingCredit: number;
+  currentDebit: number;
+  currentCredit: number;
+  closing: number;
+}
+
+function renderAmount(value: number) {
+  if (Math.abs(value) < 0.01) return <span className="text-gray-300">—</span>;
+  const isNegative = value < 0;
+  return (
+    <span className={isNegative ? "text-red-600" : "text-gray-800"}>
+      {isNegative ? "-" : ""}{formatFinanceAmount(Math.abs(value))}
+    </span>
+  );
+}
+
+interface Props {
+  items: ReportLine[];
+  labelHeader: string;
+  amountHeader: string;
+  expandedCodes: Set<string>;
+  details: Record<string, AccountDetail[]>;
+  loadingDetail: string | null;
+  onToggle: (code: string) => void;
+}
+
+const detailColumns: DataTableColumn<AccountDetail>[] = [
+  { key: "code", label: "科目编码", required: true, className: "font-mono text-gray-600", render: (row) => row.code },
+  { key: "name", label: "科目名称", required: true, render: (row) => row.name },
+  { key: "openingDebit", label: "期初借", required: true, className: "text-right", render: (row) => row.openingDebit > 0 ? formatFinanceAmount(row.openingDebit) : "" },
+  { key: "openingCredit", label: "期初贷", required: true, className: "text-right", render: (row) => row.openingCredit > 0 ? formatFinanceAmount(row.openingCredit) : "" },
+  { key: "currentDebit", label: "本期借", required: true, className: "text-right", render: (row) => row.currentDebit > 0 ? formatFinanceAmount(row.currentDebit) : "" },
+  { key: "currentCredit", label: "本期贷", required: true, className: "text-right", render: (row) => row.currentCredit > 0 ? formatFinanceAmount(row.currentCredit) : "" },
+  {
+    key: "closing",
+    label: "期末余额",
+    required: true,
+    className: "text-right font-medium",
+    render: (row) => (
+      <span className={row.closing < 0 ? "text-red-600" : "text-gray-800"}>
+        {formatFinanceAmount(Math.abs(row.closing))}{row.balanceDirection === "credit" && row.closing !== 0 ? " (贷)" : ""}
+      </span>
+    ),
+  },
+];
+
+function DetailRows({ rows }: { rows: AccountDetail[] }) {
+  const total = rows.reduce((sum, detail) => sum + detail.closing, 0);
+  return (
+    <div className="space-y-2">
+      <DataTable
+        rows={rows}
+        columns={detailColumns}
+        visibleColumns={detailColumns.map((column) => column.key)}
+        density="compact"
+        rowKey={(row) => row.code}
+      />
+      <p className="text-right text-xs font-medium text-gray-800">合计：{formatFinanceAmount(Math.abs(total))}</p>
+    </div>
+  );
+}
+
+export default function ReportLines({ items, labelHeader, amountHeader, expandedCodes, details, loadingDetail, onToggle }: Props) {
+  const columns: DataTableColumn<ReportLine>[] = [
+    {
+      key: "label",
+      label: labelHeader,
+      required: true,
+      render: (item) => {
+        const hasCode = !!item.code;
+        const isExpanded = hasCode && expandedCodes.has(item.code!);
+        return (
+          <span className={`flex items-center gap-1 ${item.isHeader || item.isTotal || item.isGrandTotal ? "" : "pl-4"}`}>
+            {hasCode && <span className="text-xs text-gray-300">{isExpanded ? "▼" : "▶"}</span>}
+            {item.label}
+          </span>
+        );
+      },
+    },
+    {
+      key: "amount",
+      label: amountHeader,
+      required: true,
+      className: "text-right",
+      headerClassName: "text-right",
+      render: (item) => renderAmount(item.amount),
+    },
+  ];
+
+  return (
+    <DataTable
+      rows={items}
+      columns={columns}
+      visibleColumns={["label", "amount"]}
+      density="compact"
+      rowKey={(_, index) => index}
+      onRowClick={(item) => item.code && onToggle(item.code)}
+      rowClassName={(item) =>
+        item.isGrandTotal ? "border-t border-slate-200 font-bold" :
+        item.isTotal ? "bg-slate-50 font-medium" :
+        item.isHeader ? "font-medium text-gray-700" : "text-gray-600"
+      }
+      expandedRowKeys={items.map((item, index) => item.code && expandedCodes.has(item.code) ? index : null).filter((key): key is number => key !== null)}
+      renderExpandedRow={(item) => {
+        if (!item.code) return null;
+        const detailRows = details[item.code];
+        if (loadingDetail === item.code) return <p className="py-2 text-xs text-gray-400">加载明细...</p>;
+        return detailRows?.length ? <DetailRows rows={detailRows} /> : <p className="py-2 text-xs text-gray-400">无明细数据</p>;
+      }}
+    />
+  );
+}

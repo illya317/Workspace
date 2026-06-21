@@ -16,6 +16,19 @@ interface QcTemplateCacheFile {
 }
 
 let buildPromise: Promise<QcTemplateCacheFile> | null = null;
+let memoryCache: QcTemplateCacheFile | null = null;
+let memoryCacheValidatedAt = 0;
+
+function cacheValidationIntervalMs() {
+  const configured = Number(process.env.QC_TEMPLATE_CACHE_VALIDATE_MS);
+  return Number.isFinite(configured) && configured >= 0 ? configured : 30_000;
+}
+
+function rememberCache(cache: QcTemplateCacheFile) {
+  memoryCache = cache;
+  memoryCacheValidatedAt = Date.now();
+  return cache;
+}
 
 function workspaceCachePath() {
   const workspaceDir = process.env.WORKSPACE_CONFIG_DIR?.trim();
@@ -97,16 +110,17 @@ async function currentContentHash() {
 }
 
 async function ensureTemplateCache(): Promise<QcTemplateCacheFile> {
+  if (memoryCache && Date.now() - memoryCacheValidatedAt < cacheValidationIntervalMs()) return memoryCache;
   const [cache, contentHash] = await Promise.all([readCache(), currentContentHash()]);
-  if (cache?.contentHash === contentHash) return cache;
+  if (cache?.contentHash === contentHash) return rememberCache(cache);
   if (cache && !buildPromise) buildPromise = buildCacheWithHash(contentHash).finally(() => { buildPromise = null; });
-  if (cache) return cache;
+  if (cache) return rememberCache(cache);
   buildPromise ||= buildCacheWithHash(contentHash).finally(() => { buildPromise = null; });
-  return buildPromise;
+  return rememberCache(await buildPromise);
 }
 
 export async function buildQcTemplateCache() {
-  return buildCacheWithHash(await currentContentHash());
+  return rememberCache(await buildCacheWithHash(await currentContentHash()));
 }
 
 export async function getQcConfigOverviewCached() {

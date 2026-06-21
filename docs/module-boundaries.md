@@ -20,7 +20,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 ## 当前落地状态
 
 - `packages/core/module-contract.ts` 定义模块注册、资源注册和 API guard 的契约。
-- `packages/core/ui` 已接收第一批纯通用 UI：PageShell、确认弹窗、确认上下文、详情弹窗、筛选栏、搜索输入、Toast、日期选择、通用下拉、分页、状态徽标/切换、数字/金额单元格、列显隐、TabBar、DataTable、二段式筛选字段、编辑工具条。
+- `packages/core/ui` 已接收第一批纯通用 UI：PageShell、确认弹窗、确认上下文、详情弹窗、筛选栏、搜索输入、Toast、日期选择、通用下拉、字段和值筛选、分页、状态徽标/切换、数字/金额单元格、列显隐、TabBar、DataTable、编辑工具条。二段式筛选统一由 `FieldValueFilter` 承载。
 - `docs/reusable-components.md` 是 Core/Platform/App 组件复用清单。下拉、搜索、筛选、日期、确认弹窗、tag、表格和页面模板必须先查这个文档；业务包不能绕开 Core/Platform 重复造通用控件。
 - `packages/core/hooks/useToast.ts` 已接收通用 Toast hook。
 - `packages/hr`、`packages/production`、`packages/finance` 各自导出本领域 `WorkspacePackageRegistration`。
@@ -28,11 +28,11 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/hr/types` 已接收 HR 通用类型、员工详情 DTO、编码表类型。
 - `packages/hr/constants` 已接收 HR 人力分析维度常量、员工详情字段配置、学校库、HR 字段选项和批量表格 Tab 配置。
 - `packages/hr/utils` 已接收员工身份字段格式化/校验和部门路径格式化 helper。
-- `packages/hr/ui` 已接收 HR 合同分析、编码表、农历生日 helper、HR 专用字段/选择组件、HR 批量表工具栏，以及员工资料、员工详情、部门岗位、项目资料等第一批 HR UI 页面组件。
+- `packages/hr/ui` 已接收 HR 合同分析、编码表、批量表 hook、农历生日 helper、HR 专用字段/选择组件、HR 批量表工具栏，以及员工资料、员工详情、部门岗位、项目资料等第一批 HR UI 页面组件。
 - `packages/hr/server` 已接收 HR autocomplete 与搜索配置、字段校验、创建参数 schema、公司、公司关系、部门、员工、雇佣、合同、EDP、项目、员工项目、名册、岗位、岗位说明书模板、员工详情聚合、员工合同/岗位/项目保存、员工历史记录和岗位说明书查询/保存 service。
 - `packages/hr/server/search.ts` 已接收 HR 员工和 HR 主数据搜索语义。
 - `packages/finance/ui` 已接收财务重分类配置视图及其局部组件、列配置。
-- `packages/finance/ui` 已接收财务页面壳 `FinanceShell`、财务全域筛选模板 `FinanceFilters`、公司期间选择器 `CompanyPeriodPicker` 和财务子模块导航 helper；旧 `app/finance/components/*` 保留兼容 re-export。
+- `packages/finance/ui` 已接收财务页面壳 `FinanceShell`、财务全域筛选模板 `FinanceFilters`、公司期间选择器 `CompanyPeriodPicker`、分页/重分类共享 UI 和财务子模块导航 helper；旧 `app/finance/components/*` 兼容出口已删除，页面直接消费 `@workspace/finance/ui`。
 - `packages/finance/types` 已接收重分类配置 UI 的候选 DTO 类型；后续服务下沉时与 server DTO 合并。
 - `packages/core/routing` 已接收 Workspace base path 拼接 helper，app 旧路径仅作兼容 re-export。
 - `packages/core/search` 已接收通用拼音首字母、全拼和文本匹配 helper；员工语义匹配仍留在 HR/兼容层。
@@ -43,22 +43,22 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/platform/module-lifecycle.ts` 从模块注册的 `lifecycleStatus` 派生资源生命周期提示；`app/lib/module-lifecycle.ts` 保留兼容 re-export。
 - `packages/platform/types` 已接收登录态平台契约类型，`lib/types.ts` 保留兼容 re-export。
 - `packages/platform/audit` 已接收审计展示字段标签和值格式化 helper，`lib/audit-field-labels.ts` 保留兼容 re-export。
-- `packages/platform/server/auth.ts` 已接收认证和 HR 权限检查的 server 契约；旧 `lib/auth.ts` 聚合 hub 已删除。业务包和 app route 需要鉴权时依赖 `@workspace/platform/server/auth`，不要新增 `@/lib/auth` 入口。
-- `server/auth/authorize.ts` 是 Level 1 权限单入口；平台 auth helper、page guard 和旧 wrapper 必须委托 `authorize()`，新增 API route 不得新增裸 `checkPermission()`。
+- `packages/platform/server/auth.ts` 已接收认证和权限检查的 server 契约；旧 `lib/auth.ts` 聚合 hub 与 root `server/auth` 已删除。业务包和 app route 需要鉴权时依赖 `@workspace/platform/server/auth`，不要新增 `@/lib/auth` 或 root `server/auth` 入口。
+- `packages/platform/server/auth/authorize.ts` 是 Level 1 权限单入口；平台 auth helper、page guard 和 wrapper 必须委托 `authorize()`，新增 API route 不得新增裸 `checkPermission()`。
 - `packages/platform/server/crud-factory.ts` 已接收通用 CRUD route helper；业务包需要复用字段级更新/创建/删除时通过本领域 wrapper 使用，不要直接依赖 `@/lib/crud`。
 - `packages/platform/server/prisma.ts` 已接收单库 Prisma runtime client，`lib/prisma.ts` 已删除；业务包、server root 和 app route 需要数据库访问时必须依赖 `@workspace/platform/server/prisma`，不要直接依赖 `@/lib/prisma` 或 generated client。
 - `packages/platform/server/history.ts` 已接收审计快照写入契约，`lib/history.ts` 保留兼容 re-export；业务包需要写 EditHistory 时依赖 `@workspace/platform/server/history`。
 - `packages/platform/server/resolve-fk.ts` 已接收 FK 显示名解析契约，`lib/resolve-fk.ts` 保留兼容 re-export；审计日志和业务包需要展示 FK 快照时依赖 `@workspace/platform/server/resolve-fk`。
 - `packages/hr/server/crud.ts` 已接收 HR 字段级 CRUD wrapper，统一注入 `people.roster` 读写删除权限；HR server service 使用这个 wrapper 而不是 app-root `@/lib/crud`。
-- `packages/platform/ui` 已接收登录后的 Portal、L1 模块首页、AppShell、跨页 NavLink、用户菜单、设置页和审计日志 UI；AppShell 必须复用 Core `PageShell`。`app/portal/PortalClient.tsx` 与 `app/components/{AppShell,AuditLogEntry,AuditLogModal,ModuleHome,NavLink,UserMenu}.tsx` 保留兼容 re-export。
+- `packages/platform/ui` 已接收登录后的 Portal、L1 模块首页、AppShell、跨页 NavLink、用户菜单、设置页和审计日志 UI；AppShell 必须复用 Core `PageShell`。根 `app/components/*` 与 `app/portal/PortalClient.tsx` 兼容出口已删除，route 直接挂载 Platform UI。
 - `packages/administration` 已接收合同台账的 module、UI、server、types，`app/contracts/page.tsx` 和 `app/api/contracts/*` 只保留 Next 壳。
 - `packages/library` 已接收资料库 module、UI、server、types，`app/library/page.tsx` 和 `app/api/library/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。
 - 每个业务包的 `module.ts` 必须导出 `moduleDefinition`，同时保留领域兼容别名（例如 `financePackage`）。`moduleDefinition` 必须来自 `packages/platform/module-registry.ts` 的 `getRegisteredModuleDefinition("@workspace/<domain>")`；`npm run arch:gate` 会校验业务包导出、registry 注册和重复 module key。
 - `packages/platform/ui/docs` 已接收文档中心和接入指南 UI；`app/docs/*` 与 `app/api-guide/page.tsx` 只保留鉴权/参数/挂载壳。
 - `app/lib/module-nav.tsx` 是兼容出口，现有页面暂时继续从这里导入。
-- `app/components/ConfirmModal.tsx`、`ConfirmProvider.tsx`、`DetailModal.tsx`、`FilterBar.tsx`、`FilterToolbar.tsx`、`Toast.tsx`、`SelectField.tsx`、`StatusBadge.tsx`、`StatusToggle.tsx`、`NumberCell.tsx`、`AmountCell.tsx`、`ColumnToggle.tsx`、`TabBar.tsx`、`DataTable.tsx`、`FilterField.tsx`、`EditToolbar.tsx` 和 `app/hooks/useCSV.tsx`、`app/hooks/useToast.ts` 已降级为兼容 re-export。
+- `app/components/ConfirmModal.tsx`、`ConfirmProvider.tsx`、`DetailModal.tsx`、`FilterBar.tsx`、`FilterToolbar.tsx`、`Toast.tsx`、`SelectField.tsx`、`StatusBadge.tsx`、`StatusToggle.tsx`、`NumberCell.tsx`、`AmountCell.tsx`、`ColumnToggle.tsx`、`TabBar.tsx`、`DataTable.tsx`、`EditToolbar.tsx` 和 `app/hooks/useCSV.tsx`、`app/hooks/useToast.ts` 已降级为兼容 re-export。
 - `app/hooks/useCompanyOptions.ts` 已降级为 `@workspace/platform/hooks` 的兼容 re-export。
-- `app/hr/types.ts`、`app/hr/profile/types.ts`、`app/hr/code/types.ts`、`app/hr/tabConfigs.ts`、`app/hr/tab-configs/*`、`app/hr/profile/fields.ts`、`app/hr/profile/lunar-birthday.ts`、`app/hr/code/useCodeHelpers.ts`、`app/hr/analytics/*`、`app/hr/profile/*`、第一批 `app/hr/components/*` HR 专用字段组件和第一批 `app/hr/tabs/*` 大组件已降级为兼容 re-export。
+- `app/hr/types.ts`、`app/hr/profile/types.ts`、`app/hr/tabConfigs.ts`、`app/hr/tab-configs/*`、`app/hr/profile/fields.ts`、`app/hr/profile/lunar-birthday.ts`、`app/hr/analytics/*`、`app/hr/profile/*`、第一批 `app/hr/components/*` HR 专用字段组件、`app/hr/code/*` 编码表实现和第一批 `app/hr/tabs/*` 大组件已迁入或降级为兼容 re-export。
 - `app/api/hr/autocomplete`、`app/api/hr/companies`、`app/api/hr/company-relations`、`app/api/hr/contracts`、`app/api/hr/departments`、`app/api/hr/edps`、`app/api/hr/employees`、`app/api/hr/employee-projects`、`app/api/hr/employee-profiles/*`、`app/api/hr/employments`、`app/api/hr/position-description-templates`、`app/api/hr/positions`、`app/api/hr/projects`、`app/api/hr/roster` 和 `app/api/position-descriptions` 已降级为认证/权限/响应壳，业务逻辑下沉到 `@workspace/hr/server`。
 - 模块注册中的 `href` 与 `routes` 必须使用不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止写 `@workspace/...` package 名或 `/workspace/...`，这个规则由 `npm run arch:gate` 校验。
 

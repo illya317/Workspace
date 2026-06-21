@@ -4,14 +4,24 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DataTable,
-  FilterToolbar,
+  DataTableActionsCell,
+  EmptyStateCard,
+  FieldValueFilter,
+  FormField,
+  IconActionButton,
+  InlineCreatePanel,
   PanelCard,
   Pagination,
+  RefreshActionButton,
+  SearchInput,
+  SelectField,
   TextField,
-  getToolbarActionClassName,
+  Toolbar,
   type DataTableColumn,
+  type SelectFieldOption,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
+import { HR_EDUCATIONS } from "@workspace/hr/constants";
 import { hrCanEdit, type HRUser } from "@workspace/hr/types";
 
 interface DirectoryEmployee {
@@ -30,27 +40,53 @@ interface EmployeeListResponse {
   total: number;
 }
 
+const pageSizeOptions = [20, 50, 100, 200].map((size) => ({
+  value: String(size),
+  label: `${size}条/页`,
+}));
+const directoryFilterFields = [
+  { value: "gender", label: "性别" },
+  { value: "education", label: "学历" },
+  { value: "positionName", label: "岗位" },
+  { value: "directDepartmentName", label: "直属部门" },
+];
+const directoryFilterValueOptions: Record<string, SelectFieldOption[]> = {
+  gender: [
+    { value: "男", label: "男" },
+    { value: "女", label: "女" },
+  ],
+  education: HR_EDUCATIONS.map((item) => ({ value: item, label: item })),
+};
+
 function genderLabel(value: boolean | null) {
   if (value === true) return "男";
   if (value === false) return "女";
   return "-";
 }
 
-export default function EmployeeDirectory({ user }: { user: HRUser }) {
+export default function EmployeeDirectory({
+  user,
+  employmentStatus,
+}: {
+  user: HRUser;
+  employmentStatus?: "active" | "inactive";
+}) {
   const router = useRouter();
   const canEdit = hrCanEdit(user);
   const [keyword, setKeyword] = useState("");
-  const [draftKeyword, setDraftKeyword] = useState("");
   const [employees, setEmployees] = useState<DirectoryEmployee[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [newEmployeeName, setNewEmployeeName] = useState("");
+  const [filterField, setFilterField] = useState("");
+  const [filterValue, setFilterValue] = useState("");
 
-  const pageSize = 50;
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total]);
+  const [pageSize, setPageSize] = useState(50);
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [pageSize, total]);
   const columns = useMemo<DataTableColumn<DirectoryEmployee>[]>(
     () => [
       {
@@ -75,16 +111,16 @@ export default function EmployeeDirectory({ user }: { user: HRUser }) {
         label: "操作",
         required: true,
         render: (employee) => (
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              router.push(`/hr/roster/employees/${employee.employeeId}`);
-            }}
-            className={getToolbarActionClassName("secondary")}
-          >
-            编辑资料
-          </button>
+          <DataTableActionsCell
+            actions={[
+              {
+                key: "view",
+                label: "查看员工资料",
+                kind: "view",
+                onClick: () => router.push(`/hr/roster/employees/${employee.employeeId}`),
+              },
+            ]}
+          />
         ),
       },
     ],
@@ -101,6 +137,11 @@ export default function EmployeeDirectory({ user }: { user: HRUser }) {
         pageSize: String(pageSize),
       });
       if (keyword) params.set("keyword", keyword);
+      if (employmentStatus) params.set("employmentStatus", employmentStatus);
+      if (filterField && filterValue) {
+        params.set("filterField", filterField);
+        params.set("filterValue", filterValue);
+      }
       try {
         const res = await fetch(workspacePath(`/api/hr/employees?${params.toString()}`));
         if (!res.ok) throw new Error(`加载失败 (${res.status})`);
@@ -119,7 +160,7 @@ export default function EmployeeDirectory({ user }: { user: HRUser }) {
     return () => {
       cancelled = true;
     };
-  }, [keyword, page]);
+  }, [employmentStatus, filterField, filterValue, keyword, page, pageSize]);
 
   async function createEmployee() {
     if (!newEmployeeName.trim()) {
@@ -140,6 +181,7 @@ export default function EmployeeDirectory({ user }: { user: HRUser }) {
       if (!res.ok) throw new Error(data.error || `新建失败 (${res.status})`);
       const employeeId = data.employee?.employeeId as string | undefined;
       setNewEmployeeName("");
+      setCreateOpen(false);
       if (employeeId) router.push(`/hr/roster/employees/${employeeId}`);
       else {
         setKeyword("");
@@ -154,56 +196,98 @@ export default function EmployeeDirectory({ user }: { user: HRUser }) {
 
   return (
     <div className="space-y-5">
-      <PanelCard bodyClassName="p-4">
-        <FilterToolbar
-          keyword={draftKeyword}
-          onKeywordChange={setDraftKeyword}
-          searchPlaceholder="搜索员工编号、姓名、拼音"
-          extraRight={<span className="text-sm text-slate-500">共 {total} 人</span>}
-        >
-            <button
-              type="button"
-              onClick={() => {
-                setKeyword(draftKeyword.trim());
+      <Toolbar
+        viewControls={canEdit ? (
+          <IconActionButton
+            label="新建员工资料"
+            variant="primary"
+            onClick={() => setCreateOpen((open) => !open)}
+            disabled={creating}
+          >
+            +
+          </IconActionButton>
+        ) : undefined}
+        filters={(
+          <>
+          <SearchInput
+            value={keyword}
+            onChange={(value) => {
+              setKeyword(value.trim());
+              setPage(1);
+            }}
+            placeholder="搜索员工编号、姓名、拼音"
+            ariaLabel="搜索员工编号、姓名、拼音"
+            size="toolbar"
+            className="min-w-0"
+          />
+          <FieldValueFilter
+            fields={directoryFilterFields}
+            valueOptions={directoryFilterValueOptions}
+            fieldKey={filterField}
+            onFieldKeyChange={(key) => {
+              setFilterField(key);
+              setPage(1);
+            }}
+            value={filterValue}
+            onValueChange={(value) => {
+              setFilterValue(value);
+              setPage(1);
+            }}
+          />
+          </>
+        )}
+        selectionActions={(
+          <RefreshActionButton
+            label="重置"
+            onClick={() => {
+              setKeyword("");
+              setFilterField("");
+              setFilterValue("");
+              setPage(1);
+            }}
+          />
+        )}
+        meta={(
+          <>
+            <span>共 {total} 人</span>
+            <SelectField
+              options={pageSizeOptions}
+              value={String(pageSize)}
+              onChange={(value) => {
+                setPageSize(Number(value));
                 setPage(1);
               }}
-              className={getToolbarActionClassName("secondary")}
-            >
-              搜索
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setDraftKeyword("");
-                setKeyword("");
-                setPage(1);
-              }}
-              className={getToolbarActionClassName("secondary")}
-            >
-              重置
-            </button>
-        </FilterToolbar>
+              size="toolbar"
+              selectClassName="!w-[6.5rem] !min-w-[6.5rem]"
+              ariaLabel="每页条数"
+            />
+          </>
+        )}
+      />
 
-        {canEdit && (
-          <div className="mt-4 grid gap-3 border-t border-slate-200 pt-4 md:grid-cols-[220px_auto]">
+      {canEdit && createOpen && (
+        <InlineCreatePanel
+          title="新建员工资料"
+          onSubmit={() => void createEmployee()}
+          onCancel={() => {
+            setCreateOpen(false);
+            setNewEmployeeName("");
+          }}
+          submitDisabled={creating || !newEmployeeName.trim()}
+          submitting={creating}
+        >
+          <FormField label="姓名" required layout="inline" className="w-44 max-w-full">
             <TextField
               value={newEmployeeName}
               onChange={setNewEmployeeName}
-              placeholder="姓名"
+              placeholder="输入姓名"
+              className="h-10"
             />
-            <button
-              type="button"
-              disabled={creating}
-              onClick={createEmployee}
-              className={getToolbarActionClassName("primary")}
-            >
-              新建员工资料
-            </button>
-          </div>
-        )}
+          </FormField>
+        </InlineCreatePanel>
+      )}
 
-        {error && <div className="mt-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">{error}</div>}
-      </PanelCard>
+      {error && <EmptyStateCard compact className="border-red-100 text-red-600">{error}</EmptyStateCard>}
 
       <PanelCard className="overflow-hidden" bodyClassName="overflow-x-auto">
         <DataTable

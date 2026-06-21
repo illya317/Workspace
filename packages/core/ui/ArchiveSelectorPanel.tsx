@@ -36,6 +36,8 @@ export interface ArchiveSelectorPanelProps<T extends string> {
   emptyText?: ReactNode;
   onClose?: () => void;
   className?: string;
+  showHeader?: boolean;
+  showSearch?: boolean;
 }
 
 export default function ArchiveSelectorPanel<T extends string>({
@@ -53,24 +55,32 @@ export default function ArchiveSelectorPanel<T extends string>({
   emptyText = "暂无归档数据",
   onClose,
   className = "",
+  showHeader = true,
+  showSearch = true,
 }: ArchiveSelectorPanelProps<T>) {
   return (
     <PanelCard className={className} bodyClassName="p-3">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-base font-semibold text-slate-900">{title}</h3>
-          {subtitle && <p className="mt-1 text-xs text-slate-500">{subtitle}</p>}
+      {(showHeader || onClose) && (
+        <div className="flex items-start justify-between gap-3">
+          {showHeader ? (
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+              {subtitle && <p className="mt-1 text-xs text-slate-500">{subtitle}</p>}
+            </div>
+          ) : (
+            <span />
+          )}
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-500 hover:bg-slate-50"
+            >
+              关闭
+            </button>
+          )}
         </div>
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-md border border-slate-200 px-2 py-1 text-sm text-slate-500 hover:bg-slate-50"
-          >
-            关闭
-          </button>
-        )}
-      </div>
+      )}
 
       <div className="mt-3 inline-flex rounded-lg border border-slate-200 bg-slate-100 p-1">
         {tabs.map((tab) => (
@@ -89,13 +99,15 @@ export default function ArchiveSelectorPanel<T extends string>({
         ))}
       </div>
 
-      <SearchInput
-        value={searchValue}
-        onChange={onSearchChange}
-        placeholder={searchPlaceholder}
-        size="page"
-        className="mt-3"
-      />
+      {showSearch && (
+        <SearchInput
+          value={searchValue}
+          onChange={onSearchChange}
+          placeholder={searchPlaceholder}
+          size="page"
+          className="mt-3"
+        />
+      )}
 
       <div className="mt-3 max-h-[620px] space-y-2 overflow-auto">
         {items.length === 0 ? (

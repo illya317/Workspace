@@ -5,6 +5,7 @@ import CheckboxField from "../../CheckboxField";
 import { PanelCard, SelectorCard } from "../../Card";
 import DataTable from "../../DataTable";
 import FieldValueFilter from "../../FieldValueFilter";
+import FormField from "../../FormField";
 import InlineCreatePanel from "../../InlineCreatePanel";
 import OptionPicker from "../../OptionPicker";
 import Pagination from "../../Pagination";
@@ -181,7 +182,7 @@ export function ComponentPreview({ item }: { item: RegistryBrowserItem }) {
     case "DetailModal":
       preview = <DetailPreview />;
       break;
-    case "FKSearchInput":
+    case "FkFieldInput":
       preview = <EntitySearchPreview mode="single" />;
       break;
     case "OptionPicker":
@@ -271,16 +272,17 @@ function InlineCreatePreview() {
       title="快速新建"
       onSubmit={() => {}}
       onCancel={() => {}}
-      fieldsClassName="grid grid-cols-1 gap-2"
-      submitLabel="新建"
     >
-      <SearchInput value="" onChange={() => {}} placeholder="输入名称" size="compact" />
-      <SelectField
-        value="active"
-        onChange={() => {}}
-        options={[{ value: "active", label: "现用" }, { value: "draft", label: "草稿" }]}
-        size="compact"
-      />
+      <FormField label="名称" required layout="inline" className="w-64">
+        <TextField value="" onChange={() => {}} placeholder="输入名称" className="h-10" />
+      </FormField>
+      <FormField label="状态" required layout="inline" className="w-56">
+        <SelectField
+          value="active"
+          onChange={() => {}}
+          options={[{ value: "active", label: "现用" }, { value: "draft", label: "草稿" }]}
+        />
+      </FormField>
     </InlineCreatePanel>
   );
 }

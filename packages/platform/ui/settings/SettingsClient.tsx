@@ -1,5 +1,6 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useState, useCallback } from "react";
 import {
   ModuleGridPage,
@@ -24,6 +25,13 @@ const governanceItems = [
     color: "emerald",
     href: "/settings/governance/ui-registry",
     icon: <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h7M14 18h6M8 9v6M16 3v6" /></svg>,
+  },
+  {
+    title: "页面样式预览",
+    description: "查看八大板块的页眉、Tab、Toolbar、主体、页脚、预览和弹出框样式。",
+    color: "cyan",
+    href: "/settings/governance/toolbar-preview",
+    icon: <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 7h16M7 12h10M9 17h6M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z" /></svg>,
   },
   {
     title: "生命周期规则",
@@ -74,7 +82,7 @@ export default function SettingsClient({
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   const handleUsernameSuccess = useCallback(() => {
-    fetch("/workspace/api/auth/me")
+    fetch(workspacePath("/api/auth/me"))
       .then((r) => r.json())
       .then((d) => { if (d.user) setUser(d.user); })
       .catch(() => {});
@@ -83,7 +91,7 @@ export default function SettingsClient({
   return (
     <>
       {view === "home" && (
-        <ModuleGridPage summary="个人设置、系统配置" centered>
+        <ModuleGridPage title="设置" summary="个人设置、系统配置" centered>
           <ModuleCard
             title="账号与接入"
             description="账号、安全密码、API 接入"
@@ -130,47 +138,28 @@ export default function SettingsClient({
       )}
 
       {view === "account" && (
-        <ModuleGridPage summary={`当前用户名：${user.username || "(未设置)"}`} centered>
+        <ModuleGridPage title="账号与接入" summary={`当前用户名：${user.username || "(未设置)"}`} centered>
           <ModuleCard
-            title="修改账号"
-            description="维护登录用户名"
+            title="账号与接入"
+            description="登录账号、安全密码和 API 接入"
             color="blue"
             icon={
               <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 0115 0" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 7.5a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a7.5 7.5 0 0115 0M17.25 11.25h1.5a2.25 2.25 0 012.25 2.25v4.5a2.25 2.25 0 01-2.25 2.25h-1.5M15 15.75h6" />
               </svg>
             }
-            onClick={() => setShowUsernameModal(true)}
+            actions={[
+              { label: "修改账号", onClick: () => setShowUsernameModal(true), variant: "primary" },
+              { label: "修改密码", onClick: () => setShowPasswordModal(true), variant: "secondary" },
+              ...(hasApiAccess ? [{ label: "API 指南", href: "/docs/api-guide", variant: "secondary" as const }] : []),
+            ]}
           />
-          <ModuleCard
-            title="修改密码"
-            description="维护账号安全密码"
-            color="indigo"
-            icon={
-              <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3l7.5 3v5.25c0 4.58-3.1 8.84-7.5 9.75-4.4-.91-7.5-5.17-7.5-9.75V6L12 3zM9 12l2 2 4-4" />
-              </svg>
-            }
-            onClick={() => setShowPasswordModal(true)}
-          />
-          {hasApiAccess && (
-            <ModuleCard
-              title="API 接入"
-              description="查看接入文档与示例"
-              color="cyan"
-              icon={
-                <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                </svg>
-              }
-              href="/docs/api-guide"
-            />
-          )}
         </ModuleGridPage>
       )}
 
       {view === "governance" && hasAdminAccess && (
         <ModuleGridPage
+          title="数据治理"
           summary="FK、生命周期、必填、编码、引用阻断和审计策略"
           centered
         >

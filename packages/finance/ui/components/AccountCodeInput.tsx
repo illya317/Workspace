@@ -1,7 +1,8 @@
 "use client";
 
+import { workspacePath } from "@workspace/core/routing";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { SearchInput } from "@workspace/core/ui";
+import { PickerOptionButton, SearchInput } from "@workspace/core/ui";
 
 interface AccountOption { code: string; name: string; }
 
@@ -29,7 +30,7 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
     if (q.length < 2) { setOptions([]); setOpen(false); return; }
     try {
       const params = new URLSearchParams({ keyword: q, companyCode, year, scope: "all", pageSize: "10" });
-      const res = await fetch(`/workspace/api/finance/accounts?${params}`);
+      const res = await fetch(workspacePath(`/api/finance/accounts?${params}`));
       if (res.ok) {
         const data = await res.json();
         const items: AccountOption[] = (data.data || data.accounts || []).map(
@@ -83,18 +84,22 @@ export default function AccountCodeInput({ companyCode, year, value, onChange, p
             <div className="px-3 py-2 text-xs text-gray-400">无匹配科目</div>
           ) : (
             options.map((opt, i) => (
-              <button
+              <PickerOptionButton
                 key={opt.code}
-                type="button"
-                onMouseDown={() => select(opt)}
+                onClick={() => select(opt)}
+                onMouseDown={(event) => {
+                  event.preventDefault();
+                  select(opt);
+                }}
                 onMouseEnter={() => setHighlight(i)}
-                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs ${
-                  i === highlight ? "bg-emerald-50 text-emerald-800" : "text-gray-700 hover:bg-gray-50"
-                }`}
+                selected={i === highlight}
+                align="left"
+                size="compact"
+                className="flex w-full items-center gap-2 border-0 shadow-none"
               >
                 <span className="font-mono text-gray-500">{opt.code}</span>
                 <span className="truncate">{opt.name}</span>
-              </button>
+              </PickerOptionButton>
             ))
           )}
         </div>

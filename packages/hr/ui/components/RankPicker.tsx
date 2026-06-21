@@ -2,14 +2,10 @@
 
 import { useMemo } from "react";
 import { GroupedOptionPicker } from "@workspace/core/ui";
+import { hrGroupedPickerLabels, type HrPickerProps } from "./HrPicker";
 
-interface RankPickerProps {
-  value: unknown;
+interface RankPickerProps extends HrPickerProps {
   options: string[];
-  disabled?: boolean;
-  onChange: (value: string | null) => void;
-  className?: string;
-  buttonClassName?: string;
 }
 
 function normalizeValue(value: unknown) {
@@ -61,13 +57,9 @@ export default function RankPicker({
       groups={groups}
       disabled={disabled}
       onChange={onChange}
-      placeholder="未设置"
-      groupLabel="职级序列"
-      optionLabel="等级"
-      changeGroupLabel="更换序列"
+      {...hrGroupedPickerLabels({ groupLabel: "职级序列", optionLabel: "等级", changeGroupLabel: "更换序列" })}
       className={className}
       buttonClassName={buttonClassName}
-      popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-72 rounded-lg border border-slate-200 bg-white p-3 shadow-xl"
       groupColumnsClassName="grid-cols-3"
       optionColumnsClassName="grid-cols-5"
       formatValueLabel={(nextValue) => nextValue}

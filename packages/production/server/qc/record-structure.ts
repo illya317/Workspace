@@ -1,6 +1,6 @@
 import "server-only";
 import path from "path";
-import { readFile } from "fs/promises";
+import { asArray, asRecord, asString, readJson, values } from "./layout-block-utils";
 import { resolvePharmaOpsRoot } from "./source";
 import type {
   QcLayoutBlock,
@@ -13,22 +13,6 @@ import type {
 
 const TEMPLATE_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 
-function asRecord(value: unknown): Record<string, unknown> {
-  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
-}
-
-function asArray(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : [];
-}
-
-function values(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : Object.values(asRecord(value));
-}
-
-function asString(value: unknown, fallback = "") {
-  return typeof value === "string" || typeof value === "number" ? String(value) : fallback;
-}
-
 function asBoolean(value: unknown) {
   return value === true;
 }
@@ -40,10 +24,6 @@ function sourceRef(value: unknown) {
     type: asString(source.type) || undefined,
     fieldKey: asString(source.field_key || source.fieldKey) || undefined,
   };
-}
-
-async function readJson(filePath: string): Promise<unknown> {
-  return JSON.parse(await readFile(filePath, "utf8")) as unknown;
 }
 
 function standardText(recordConfig: Record<string, unknown>) {
