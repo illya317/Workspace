@@ -4,7 +4,7 @@
  *
  * 规则：
  * 1. 已废弃的兼容路由（旧入口）只能包含纯代理逻辑
- * 2. 新 API 必须放在对应域名的子目录下（/api/hr/*、/api/finance/* 等）
+ * 2. 新业务 API 必须放在 /api/modules/<module>/* 下；旧一级业务目录仅作为兼容期 baseline
  */
 
 const fs = require("fs");
@@ -101,9 +101,16 @@ function walkRoutes(dir) {
 }
 
 const KNOWN_PREFIXES = [
+  "auth",
+  "integrations",
+  "me",
+  "modules",
+  "system",
+];
+
+const COMPATIBILITY_PREFIXES = [
   "admin",
   "agent",
-  "auth",
   "finance",
   "hr",
   "inventory",
@@ -120,6 +127,15 @@ const KNOWN_PREFIXES = [
   "position-descriptions",
   "employments",
   "production",
+];
+
+const KNOWN_MODULES = [
+  "administration",
+  "finance",
+  "hr",
+  "library",
+  "production",
+  "work",
 ];
 
 let errors = 0;
@@ -151,11 +167,20 @@ for (const file of allRoutes) {
     continue;
   }
 
-  // 非 legacy：检查是否在已知域名前缀下
+  // 非 legacy：检查是否在已知 API 能力前缀或兼容 baseline 下
   const firstSegment = rel.split("/")[0];
-  if (!KNOWN_PREFIXES.includes(firstSegment)) {
-    console.error(`❌ ${rel} 缺少域名前缀，应放到 /api/<domain>/*`);
+  if (!KNOWN_PREFIXES.includes(firstSegment) && !COMPATIBILITY_PREFIXES.includes(firstSegment)) {
+    console.error(`❌ ${rel} 缺少 API 能力前缀，应放到 /api/{auth,me,system,modules,integrations}/*`);
     errors++;
+    continue;
+  }
+
+  if (firstSegment === "modules") {
+    const moduleName = rel.split("/")[1];
+    if (!KNOWN_MODULES.includes(moduleName)) {
+      console.error(`❌ ${rel} 的模块名未登记，应放到 /api/modules/<registered-module>/*`);
+      errors++;
+    }
   }
 }
 

@@ -51,6 +51,7 @@ export const registeredModuleDefinitions = [
     routes: ["/work", "/work/plans", "/works", "/reports", "/history"],
     fkRegistrations: WORK_FK_REGISTRATIONS,
     apiGuards: [
+      ...apiResourceGuards("/api/modules/work", "work.plan"),
       ...apiResourceGuards("/api/work", "work.plan"),
       ...apiResourceGuards("/api/projects", "work.plan", ["GET", "POST", "PUT", "DELETE"]),
       ...apiResourceGuards("/api/employee-projects", "work.plan", ["GET", "POST", "PUT", "DELETE"]),
@@ -84,6 +85,7 @@ export const registeredModuleDefinitions = [
     routes: ["/hr", "/hr/roster", "/hr/performance", "/hr/analytics"],
     fkRegistrations: HR_FK_REGISTRATIONS,
     apiGuards: [
+      ...apiResourceGuards("/api/modules/hr", "people.roster"),
       ...apiResourceGuards("/api/hr", "people.roster"),
       ...apiResourceGuards("/api/departments", "people.roster", ["GET", "POST", "PUT", "DELETE"]),
       ...apiResourceGuards("/api/employee-positions", "people.roster", ["GET", "POST", "PUT", "DELETE"]),
@@ -119,6 +121,7 @@ export const registeredModuleDefinitions = [
     ],
     routes: ["/administration", "/contracts"],
     apiGuards: [
+      ...apiResourceGuards("/api/modules/administration", "administration.contract", ["GET", "POST", "PATCH", "DELETE"]),
       ...apiResourceGuards("/api/contracts", "administration.contract", ["GET", "POST", "PATCH", "DELETE"]),
     ],
   },
@@ -172,6 +175,7 @@ export const registeredModuleDefinitions = [
       "/finance/import",
     ],
     apiGuards: [
+      ...apiResourceGuards("/api/modules/finance", "finance"),
       ...apiResourceGuards("/api/finance", "finance"),
     ],
   },
@@ -200,6 +204,7 @@ export const registeredModuleDefinitions = [
     ],
     routes: ["/production", "/production/qc/batches", "/production/qc/templates"],
     apiGuards: [
+      ...apiResourceGuards("/api/modules/production", "production"),
       ...apiResourceGuards("/api/production", "production"),
     ],
   },
@@ -275,6 +280,8 @@ export const registeredModuleDefinitions = [
     ],
     routes: ["/library"],
     apiGuards: [
+      ...apiResourceGuards("/api/modules/library", "library", ["GET"]),
+      ...apiResourceGuards("/api/modules/library", "library.write", ["POST", "PATCH", "DELETE"]),
       ...apiResourceGuards("/api/library", "library", ["GET"]),
       ...apiResourceGuards("/api/library", "library.write", ["POST", "PATCH", "DELETE"]),
     ],

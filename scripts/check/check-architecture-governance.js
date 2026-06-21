@@ -27,7 +27,15 @@ const REQUIRED_AGENT_SECTIONS = [
   "## 交付前检查",
 ];
 
-const ALLOWED_API_ROOTS = new Set([
+const API_CAPABILITY_ROOTS = new Set([
+  "auth",
+  "integrations",
+  "me",
+  "modules",
+  "system",
+]);
+
+const COMPATIBILITY_API_ROOTS = new Set([
   "admin",
   "agent",
   "auth",
@@ -53,6 +61,20 @@ const ALLOWED_API_ROOTS = new Set([
   "week-info",
   "work",
   "works",
+]);
+
+const ALLOWED_API_ROOTS = new Set([
+  ...API_CAPABILITY_ROOTS,
+  ...COMPATIBILITY_API_ROOTS,
+]);
+
+const REGISTERED_MODULE_API_ROOTS = new Set([
+  "administration",
+  "finance",
+  "hr",
+  "library",
+  "production",
+  "work",
 ]);
 
 const LOCAL_ONLY_TRACKED = [
@@ -145,8 +167,20 @@ if (fs.existsSync(apiDir)) {
     if (!hasRouteFile(path.join(apiDir, entry.name))) continue;
     if (!ALLOWED_API_ROOTS.has(entry.name)) {
       fail(
-        `app/api/${entry.name} is not registered. Add the domain to README.md, AGENTS.md, and scripts/check-architecture-governance.js.`
+        `app/api/${entry.name} is not registered. API root must be one of auth, me, system, modules, integrations, or an explicit compatibility baseline.`
       );
+    }
+  }
+
+  const modulesDir = path.join(apiDir, "modules");
+  if (fs.existsSync(modulesDir)) {
+    for (const entry of fs.readdirSync(modulesDir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      if (entry.name.startsWith(".")) continue;
+      if (!hasRouteFile(path.join(modulesDir, entry.name))) continue;
+      if (!REGISTERED_MODULE_API_ROOTS.has(entry.name)) {
+        fail(`app/api/modules/${entry.name} is not a registered business module API root.`);
+      }
     }
   }
 }
