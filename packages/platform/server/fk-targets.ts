@@ -58,7 +58,7 @@ const targetSpecs: Record<FkTargetKind, FkTargetSpec> = {
     resolve: resolveFkPositionDescription,
   },
   project: {
-    target: { entity: "Project", label: "工作计划" },
+    target: { entity: "Project", label: "项目" },
     search: ({ keyword, lifecycleScope }) => searchFkProjects(keyword, lifecycleScope),
     resolve: resolveFkProject,
   },

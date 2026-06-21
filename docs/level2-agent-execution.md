@@ -130,7 +130,7 @@ baseline 是历史债锁，不是白名单。
 
 ## 7. 当前并行避让
 
-- Work 业务包是 `packages/work`，不是 `packages/project`。工作计划、工作清单、工作汇报、历史记录归 Work；不要把 Project / EmployeeProject 修回 HR。
+- Work 业务包是 `packages/work`，不是 `packages/project`。项目、工作清单、工作汇报、历史记录归 Work；不要把 Project / EmployeeProject 修回 HR。
 - Work Feature 线程可能改 `/work`、`app/(modules)/work/*`、`app/api/modules/work/*`、`packages/work/*`，以及必要的 Core 分栏/页面骨架入口。其他 agent 避免提交这些范围。
 - Production/QC Data 线程可能改 `.workspace/config/scripts/generate-product-stage-tests.mjs` 和 pharma-qc 生成物。其他 agent 不要提交、格式化或回滚这些文件。
 - Architecture 线程改文档、gate、registry、API contract 和 baseline。Feature/Data/Operations 不要私自修改这些文件。

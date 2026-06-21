@@ -87,10 +87,9 @@ export async function getEmployeeProfileHistoryByKey(key: string) {
   if (!employee) return { status: "not_found" as const };
   const employeeId = employee.id;
 
-  const [employments, edps, employeeProjects] = await Promise.all([
+  const [employments, edps] = await Promise.all([
     prisma.employment.findMany({ where: { employeeId }, select: { id: true } }),
     prisma.eDP.findMany({ where: { employeeId }, select: { id: true } }),
-    prisma.employeeProject.findMany({ where: { employeeId }, select: { id: true } }),
   ]);
 
   const edpHistoryRows = await prisma.editHistory.findMany({
@@ -108,7 +107,6 @@ export async function getEmployeeProfileHistoryByKey(key: string) {
     ...employments.map((item) => ({ entityType: "Employment", entityId: String(item.id) })),
     ...edps.map((item) => ({ entityType: "EDP", entityId: String(item.id) })),
     ...[...historicalEdpIds].map((entityId) => ({ entityType: "EDP", entityId })),
-    ...employeeProjects.map((item) => ({ entityType: "EmployeeProject", entityId: String(item.id) })),
   ];
 
   const rows = await prisma.editHistory.findMany({

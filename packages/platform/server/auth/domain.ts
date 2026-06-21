@@ -66,7 +66,7 @@ export async function checkWorkAccess(
 ): Promise<boolean> {
   return (
     (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
-    (await authorize({ user: userId, resourceKey: "work.plan", action: roleKey })) ||
+    (await authorize({ user: userId, resourceKey: "work.project", action: roleKey })) ||
     (await authorize({ user: userId, resourceKey: "work", action: roleKey }))
   );
 }

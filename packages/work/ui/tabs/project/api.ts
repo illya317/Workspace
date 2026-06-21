@@ -9,60 +9,46 @@ import {
 } from "./model";
 
 export async function updateProjectField(projectId: number, field: string, value: unknown) {
-  const res = await fetch(workspacePath(`/api/modules/work/plans/${projectId}`), {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}`), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ field, value }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "保存工作计划失败");
+    throw new Error(data.error || "保存项目失败");
   }
-}
-
-export async function createProject(name: string, leadingDepartmentId: number) {
-  const res = await fetch(workspacePath("/api/modules/work/plans"), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, leadingDepartmentId }),
-  });
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "新建工作计划失败");
-  }
-  const data = await res.json();
-  return Number(data.record?.id);
 }
 
 async function createMember(projectId: number, member: EmployeeTag, role: string | null) {
-  const res = await fetch(workspacePath("/api/modules/work/plan-members"), {
+  const res = await fetch(workspacePath("/api/modules/work/project-members"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ employeeId: member.employeeNumber, projectId, role }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "保存计划参与人失败");
+    throw new Error(data.error || "保存项目参与人失败");
   }
 }
 
 async function updateMemberRole(entryId: number, role: string | null) {
-  const res = await fetch(workspacePath(`/api/modules/work/plan-members/${entryId}`), {
+  const res = await fetch(workspacePath(`/api/modules/work/project-members/${entryId}`), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ field: "role", value: role }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "保存计划负责人失败");
+    throw new Error(data.error || "保存项目负责人失败");
   }
 }
 
 async function deleteMember(entryId: number) {
-  const res = await fetch(workspacePath(`/api/modules/work/plan-members/${entryId}`), { method: "DELETE" });
+  const res = await fetch(workspacePath(`/api/modules/work/project-members/${entryId}`), { method: "DELETE" });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
-    throw new Error(data.error || "删除计划参与人失败");
+    throw new Error(data.error || "删除项目参与人失败");
   }
 }
 

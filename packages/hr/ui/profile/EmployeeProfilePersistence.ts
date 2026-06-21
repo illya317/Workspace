@@ -9,7 +9,6 @@ import type {
   EdpRow,
   EmployeeProfile,
   EmployeeProfileEmployee,
-  EmployeeProjectRow,
   EmploymentRow,
   ProfileField,
 } from "@workspace/hr/types";
@@ -116,17 +115,6 @@ export async function persistEdps(profile: EmployeeProfile, rows: EdpRow[]) {
   const percentCheck = validateCurrentWorkPercent(rows);
   if (!percentCheck.ok) throw new Error(percentCheck.message);
   await requestJson(`/api/modules/hr/employee-profiles/${profile.employee.id}/edps`, {
-    method: "PUT",
-    body: JSON.stringify({ rows }),
-  });
-}
-
-export async function persistEmployeeProjects(
-  profile: EmployeeProfile,
-  rows: EmployeeProjectRow[],
-) {
-  if (rows.some((row) => !row.projectId)) throw new Error("请选择项目");
-  await requestJson(`/api/modules/hr/employee-profiles/${profile.employee.id}/projects`, {
     method: "PUT",
     body: JSON.stringify({ rows }),
   });

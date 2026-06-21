@@ -31,6 +31,7 @@
     "./server/fk-search": "./server/fk-search.ts",
     "./server/fk-targets": "./server/fk-targets.ts",
     "./server/history": "./server/history.ts",
+    "./server/module-runtime": "./server/module-runtime.ts",
     "./server/permissions": "./server/permissions.ts",
     "./server/prisma": "./server/prisma.ts",
     "./server/reference-guards": "./server/reference-guards.ts",

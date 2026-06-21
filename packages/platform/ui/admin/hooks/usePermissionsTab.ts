@@ -40,7 +40,7 @@ export function usePermissionsTab(
 
   const roles = useMemo(() => {
     // Work collaboration subresources only need module-level admin grants in this matrix.
-    if (selectedResource === "work.task" || selectedResource === "work.report" || selectedResource === "work.plan" || selectedResource === "work.history") {
+    if (selectedResource === "work.task" || selectedResource === "work.report" || selectedResource === "work.project" || selectedResource === "work.history") {
       return [{ key: "admin", ...(ROLE_META.admin || { name: "管理", color: "purple" }) }];
     }
     // DB-driven: business roles capped by maxRoleKey, admin always available

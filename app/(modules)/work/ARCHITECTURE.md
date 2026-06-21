@@ -1,6 +1,6 @@
 # Work Architecture
 
-Work 是工作管理业务域，承接工作计划、工作清单、工作汇报和历史记录。
+Work 是工作管理业务域，承接项目、工作清单、工作汇报和历史记录。
 
 ## 边界
 
@@ -13,7 +13,7 @@ Work 是工作管理业务域，承接工作计划、工作清单、工作汇报
 
 | Concern | Route shell | Package implementation |
 | --- | --- | --- |
-| 工作计划 | `app/(modules)/work/plans/page.tsx` | `packages/work/ui/plans/*` |
+| 项目 | `app/(modules)/work/projects/page.tsx` | `packages/work/ui/tabs/project/*` |
 | 工作清单 | `app/(modules)/work/tasks/page.tsx` | `packages/work/ui/works/*` |
 | 工作汇报 | `app/(modules)/work/reports/page.tsx` | `packages/work/ui/reports/*` |
 | 历史记录 | `app/(modules)/work/history/page.tsx` | `packages/work/ui/history/*` |
@@ -22,7 +22,7 @@ Work 不保留顶层兼容 route shell；所有页面都挂在 `/work/*` 下。
 
 ## 当前数据表
 
-- `Project`：当前作为“工作计划”事实表，暂不在本次拆分中改 DB 表名。
-- `EmployeeProject`：当前作为“计划人员/计划角色”关联表，暂不在本次拆分中改 DB 表名。
+- `Project`：项目事实表。
+- `EmployeeProject`：项目人员/项目角色关联表。
 
-表名后续若要改为 WorkPlan / WorkPlanMember，需要单独做 migration、历史记录实体名和导入脚本迁移。
+表名已经使用 Project / EmployeeProject；若后续要继续重命名字段，需要单独做 migration、历史记录实体名和导入脚本迁移。

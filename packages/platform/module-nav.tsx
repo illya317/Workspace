@@ -7,13 +7,14 @@ function toModuleDef(moduleDef: ModuleRegistration): ModuleDef {
   return {
     ...moduleDef,
     icon: moduleIcons[moduleDef.iconKey],
-    children: moduleDef.children as SubModuleDef[] | undefined,
+    children: moduleDef.children?.filter((child) => child.enabled !== false && !child.hidden) as SubModuleDef[] | undefined,
   };
 }
 
 export const MODULES: ModuleDef[] = workspacePackages
   .map((pkg) => pkg.moduleDef)
   .filter((moduleDef): moduleDef is ModuleRegistration => Boolean(moduleDef))
+  .filter((moduleDef) => moduleDef.enabled !== false && !moduleDef.hidden)
   .map(toModuleDef);
 
 function isResourceVisible(user: SessionUser, resourceKey?: string): boolean {

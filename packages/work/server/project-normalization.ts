@@ -43,7 +43,7 @@ export const PROJECT_CONFIG = {
   ],
   onBeforeUpdate: normalizeProjectFieldUpdate,
   onBeforeDelete: async (id: number) => {
-    const blockMessage = await guardProjectArchive(id, "删除工作计划");
+    const blockMessage = await guardProjectArchive(id, "删除项目");
     return blockMessage ? { error: blockMessage, status: 409 } : { ok: true as const };
   },
 };
@@ -82,13 +82,13 @@ function normalizeNullablePositiveInt(value: unknown) {
 
 export async function normalizeProjectParentId(value: unknown, currentProjectId?: number): Promise<ParentIdResult> {
   const parentId = normalizeNullablePositiveInt(value);
-  if (Number.isNaN(parentId)) return { error: "上级计划无效" };
+  if (Number.isNaN(parentId)) return { error: "上级项目无效" };
   if (!parentId) return { value: null };
-  if (currentProjectId && parentId === currentProjectId) return { error: "上级计划不能选择自己" };
+  if (currentProjectId && parentId === currentProjectId) return { error: "上级项目不能选择自己" };
   const validation = await validateFkValue(WORK_FK_REGISTRY, {
-    fkKey: "work.plan.parent",
+    fkKey: "work.project.parent",
     value: parentId,
-    requiredLabel: "上级计划",
+    requiredLabel: "上级项目",
   });
   if (!validation.ok) return { error: validation.error };
 
@@ -98,8 +98,8 @@ export async function normalizeProjectParentId(value: unknown, currentProjectId?
       where: { id: cursor },
       select: { id: true, parentId: true },
     });
-    if (!parent) return { error: "上级计划不存在" };
-    if (currentProjectId && parent.parentId === currentProjectId) return { error: "不能形成计划层级循环" };
+    if (!parent) return { error: "上级项目不存在" };
+    if (currentProjectId && parent.parentId === currentProjectId) return { error: "不能形成项目层级循环" };
     cursor = parent.parentId;
   }
 
@@ -110,7 +110,7 @@ export async function normalizeLeadingDepartmentId(value: unknown): Promise<Lead
   const leadingDepartmentId = normalizeNullablePositiveInt(value);
   if (Number.isNaN(leadingDepartmentId) || !leadingDepartmentId) return { error: "主导部门不能为空" };
   const validation = await validateFkValue(WORK_FK_REGISTRY, {
-    fkKey: "work.plan.leadingDepartment",
+    fkKey: "work.project.leadingDepartment",
     value: leadingDepartmentId,
     requiredLabel: "主导部门",
   });
@@ -129,7 +129,7 @@ function planCodePrefix(departmentCode: string, dateValue?: Date | string | null
   return `${departmentCode.trim()}-${String(year % 100).padStart(2, "0")}`;
 }
 
-export async function generateWorkPlanCode(departmentCode: string, dateValue?: Date | string | null) {
+export async function generateProjectCode(departmentCode: string, dateValue?: Date | string | null) {
   const prefix = planCodePrefix(departmentCode, dateValue);
   const existing = await prisma.project.findMany({
     where: { code: { startsWith: `${prefix}-` } },
@@ -171,6 +171,6 @@ async function normalizeProjectFieldUpdate(field: string, value: unknown, id?: n
   return { field, value };
 }
 
-export function hasValidWorkPlanDates(startDate?: string | null, endDate?: string | null) {
+export function hasValidProjectDates(startDate?: string | null, endDate?: string | null) {
   return isValidDateValue(startDate) && isValidDateValue(endDate);
 }

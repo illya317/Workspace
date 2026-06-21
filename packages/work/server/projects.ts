@@ -5,7 +5,7 @@ import { parseJson } from "@workspace/platform/server/api";
 import { prisma } from "@workspace/platform/server/prisma";
 import { handleDelete, handleUpdateField } from "./work-crud";
 import { matchAnyField } from "@workspace/platform/search";
-import { WorkPlanCreateSchema } from "./schemas";
+import { ProjectCreateSchema } from "./schemas";
 import { guardProjectArchive } from "./reference-guards";
 import {
   PROJECT_CONFIG,
@@ -13,16 +13,16 @@ import {
   PROJECT_STAGES,
   PROJECT_STATUSES,
   formatDate,
-  generateWorkPlanCode,
-  hasValidWorkPlanDates,
+  generateProjectCode,
+  hasValidProjectDates,
   isAllowedProjectOption,
   normalizeLeadingDepartmentId,
   normalizeProjectParentId,
   nullableString,
   parseDate,
-} from "./work-plan-normalization";
+} from "./project-normalization";
 
-export async function listWorkPlans(input: { keyword: string; page: number; pageSize: number; archived?: boolean }) {
+export async function listProjects(input: { keyword: string; page: number; pageSize: number; archived?: boolean }) {
   const projects = await prisma.project.findMany({
     where: { isArchived: Boolean(input.archived) },
     orderBy: input.archived ? [{ archivedAt: "desc" }, { id: "desc" }] : { id: "asc" },
@@ -40,12 +40,12 @@ export async function listWorkPlans(input: { keyword: string; page: number; page
       })
     : [];
   const departmentById = new Map(departments.map((department) => [department.id, department]));
-  const childPlansByParentId = new Map<number, { id: number; name: string }[]>();
+  const childProjectsByParentId = new Map<number, { id: number; name: string }[]>();
   for (const project of projects) {
     if (!project.parentId) continue;
-    const children = childPlansByParentId.get(project.parentId) || [];
+    const children = childProjectsByParentId.get(project.parentId) || [];
     children.push({ id: project.id, name: project.name });
-    childPlansByParentId.set(project.parentId, children);
+    childProjectsByParentId.set(project.parentId, children);
   }
 
   const mapped = projects.map((project) => {
@@ -67,7 +67,7 @@ export async function listWorkPlans(input: { keyword: string; page: number; page
     remark: project.remark,
     parentId: project.parentId,
     parentName: project.parentId ? projectNameById.get(project.parentId) ?? null : null,
-    childPlans: childPlansByParentId.get(project.id) || [],
+    childProjects: childProjectsByParentId.get(project.id) || [],
     isArchived: project.isArchived,
     archivedAt: project.archivedAt?.toISOString() || null,
     leadingDepartmentId: project.leadingDepartmentId,
@@ -85,21 +85,21 @@ export async function listWorkPlans(input: { keyword: string; page: number; page
   return { projects: result.slice(start, start + input.pageSize), total };
 }
 
-export async function createWorkPlan(request: Request, userId: number) {
-  const parsed = await parseJson(request, WorkPlanCreateSchema);
+export async function createProject(request: Request, userId: number) {
+  const parsed = await parseJson(request, ProjectCreateSchema);
   if (!parsed.ok) return { ok: false as const, error: parsed.error };
-  if (!hasValidWorkPlanDates(parsed.data.startDate, parsed.data.endDate)) {
+  if (!hasValidProjectDates(parsed.data.startDate, parsed.data.endDate)) {
     return { ok: false as const, error: "日期格式错误" };
   }
-  if (!isAllowedProjectOption(parsed.data.status, PROJECT_STATUSES)) return { ok: false as const, error: "计划状态无效" };
+  if (!isAllowedProjectOption(parsed.data.status, PROJECT_STATUSES)) return { ok: false as const, error: "项目状态无效" };
   if (!isAllowedProjectOption(parsed.data.priority, PROJECT_PRIORITIES)) return { ok: false as const, error: "优先级无效" };
-  if (!isAllowedProjectOption(parsed.data.stage, PROJECT_STAGES)) return { ok: false as const, error: "计划阶段无效" };
+  if (!isAllowedProjectOption(parsed.data.stage, PROJECT_STAGES)) return { ok: false as const, error: "项目阶段无效" };
   const parentResult = await normalizeProjectParentId(parsed.data.parentId);
   if ("error" in parentResult) return { ok: false as const, error: parentResult.error };
   const leadingDepartmentResult = await normalizeLeadingDepartmentId(parsed.data.leadingDepartmentId);
   if ("error" in leadingDepartmentResult) return { ok: false as const, error: leadingDepartmentResult.error };
   const startDate = parseDate(parsed.data.startDate);
-  const code = await generateWorkPlanCode(leadingDepartmentResult.department.code, startDate);
+  const code = await generateProjectCode(leadingDepartmentResult.department.code, startDate);
   const record = await prisma.project.create({
     data: {
       code,
@@ -126,7 +126,7 @@ export async function createWorkPlan(request: Request, userId: number) {
   return { ok: true as const, data: { success: true, record } };
 }
 
-export async function updateWorkPlanField(request: Request, params: Promise<{ id: string }>) {
+export async function updateProjectField(request: Request, params: Promise<{ id: string }>) {
   const body = (await request.clone().json()) as { field: string; value: unknown };
   if (body.field === "isArchived") {
     const payload = await authenticate(request);
@@ -167,7 +167,7 @@ export async function updateWorkPlanField(request: Request, params: Promise<{ id
       select: { id: true, startDate: true },
     });
     if (!project) return NextResponse.json({ error: "记录不存在" }, { status: 404 });
-    const code = await generateWorkPlanCode(result.department.code, project.startDate);
+    const code = await generateProjectCode(result.department.code, project.startDate);
     await prisma.project.update({
       where: { id: projectId },
       data: {
@@ -184,11 +184,6 @@ export async function updateWorkPlanField(request: Request, params: Promise<{ id
   return handleUpdateField(request, params, PROJECT_CONFIG);
 }
 
-export async function deleteWorkPlan(request: Request, params: Promise<{ id: string }>) {
+export async function deleteProject(request: Request, params: Promise<{ id: string }>) {
   return handleDelete(request, params, PROJECT_CONFIG);
 }
-
-export const listProjects = listWorkPlans;
-export const createProject = createWorkPlan;
-export const updateProjectField = updateWorkPlanField;
-export const deleteProject = deleteWorkPlan;

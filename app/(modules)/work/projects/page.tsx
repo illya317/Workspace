@@ -1,6 +1,7 @@
 import { requireResourceAccess } from "@workspace/platform/server/auth";
+import { getResourceDef } from "@workspace/platform/resources";
 import AppShell from "@workspace/platform/ui/AppShell";
-import { WorkPlanTab } from "@workspace/work/ui";
+import { ProjectTab } from "@workspace/work/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import type { WorkUser } from "@workspace/work/types";
 
@@ -15,15 +16,16 @@ function toWorkUser(user: SessionUser): WorkUser {
   };
 }
 
-export default async function WorkPlansPage() {
-  const user = await requireResourceAccess("work.plan");
+export default async function WorkProjectsPage() {
+  const user = await requireResourceAccess("work.project");
+  const title = getResourceDef("work.project")?.name ?? "项目管理";
   return (
     <AppShell
-      title="工作计划"
+      title={title}
       backHref="/work"
       user={user}
     >
-      <WorkPlanTab user={toWorkUser(user)} />
+      <ProjectTab user={toWorkUser(user)} />
     </AppShell>
   );
 }

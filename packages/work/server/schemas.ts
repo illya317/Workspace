@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const WorkPlanCreateSchema = z.object({
+export const ProjectCreateSchema = z.object({
   name: z.string().min(1, "名称不能为空"),
   description: z.string().optional().nullable(),
   status: z.string().optional().nullable(),

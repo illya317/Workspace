@@ -22,12 +22,12 @@ async function resolveRecordNames(entityType: string, ids: number[]): Promise<Re
     });
     for (const edp of edps) map[String(edp.id)] = edp.employee?.name || String(edp.id);
   } else if (entityType === "EmployeeProject") {
-    const employeeProjects = await prisma.employeeProject.findMany({
+    const projectMembers = await prisma.employeeProject.findMany({
       where: { id: { in: ids } },
       include: { employee: { select: { name: true } }, project: { select: { name: true } } },
     });
-    for (const employeeProject of employeeProjects) {
-      map[String(employeeProject.id)] = `${employeeProject.employee?.name || "?"} / ${employeeProject.project?.name || "?"}`;
+    for (const projectMember of projectMembers) {
+      map[String(projectMember.id)] = `${projectMember.employee?.name || "?"} / ${projectMember.project?.name || "?"}`;
     }
   } else if (entityType === "Employment") {
     const employments = await prisma.employment.findMany({

@@ -1,6 +1,8 @@
 import type { WorkspacePackageRegistration } from "@workspace/core";
-import { registeredModuleDefinitions } from "./module-registry";
+import { activeModuleDefinitions, effectiveModuleDefinitions } from "./effective-module-registry";
 
-export const platformPackages: WorkspacePackageRegistration[] = registeredModuleDefinitions;
+export const platformPackages: WorkspacePackageRegistration[] = effectiveModuleDefinitions;
 
 export const workspacePackages: WorkspacePackageRegistration[] = platformPackages;
+
+export const activeWorkspacePackages: WorkspacePackageRegistration[] = activeModuleDefinitions;

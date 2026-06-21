@@ -1,5 +1,6 @@
 import "server-only";
 import { evaluatePermission } from "../rbac/check";
+import { isResourceEnabled } from "../../effective-module-registry";
 
 export type AuthorizeAction = "access" | "write" | "delete" | "admin";
 
@@ -31,6 +32,7 @@ export async function authorize({
   action,
 }: AuthorizeInput): Promise<boolean> {
   if (!resourceKey) return false;
+  if (!isResourceEnabled(resourceKey)) return false;
   if (typeof user !== "number" && user?.isSuperAdmin) return true;
 
   const userId = getAuthorizeUserId(user);

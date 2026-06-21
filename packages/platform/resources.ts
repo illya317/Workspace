@@ -1,9 +1,9 @@
 import type { ResourceRegistration } from "@workspace/core";
-import { workspacePackages } from "./modules";
+import { activeWorkspacePackages } from "./modules";
 
 const DEFAULT_MAX_ROLE = "admin";
 
-export const RESOURCE_DEFS: ResourceRegistration[] = workspacePackages.flatMap(
+export const RESOURCE_DEFS: ResourceRegistration[] = activeWorkspacePackages.flatMap(
   (pkg) => pkg.resourceDefs ?? [],
 );
 

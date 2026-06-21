@@ -3,17 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
-import { matchText } from "@workspace/core/search";
 import { type WorkUser, workCanEdit } from "@workspace/work/types";
-import { createProject, syncMembers, updateProjectField } from "./api";
+import { syncMembers, updateProjectField } from "./api";
 import {
   MULTI_PROJECT_ROLES,
   createProjectDraft,
   dedupeMembers,
   draftSnapshot,
   employeeFromOption,
-  projectCode,
-  type CreatePlanDraft,
   type EmployeeTag,
   type MultiProjectRole,
   type ProjectDraft,
@@ -46,10 +43,6 @@ export function useProjectTabModel(user: WorkUser) {
   const [selection, setSelection] = useState<number | null>(null);
   const [draft, setDraft] = useState<ProjectDraft | null>(null);
   const [baseline, setBaseline] = useState("");
-  const [createPanelOpen, setCreatePanelOpen] = useState(false);
-  const [createDraft, setCreateDraft] = useState<CreatePlanDraft>({ name: "", leadingDepartmentId: null, leadingDepartmentName: null });
-  const [keyword, setKeyword] = useState("");
-  const [showArchived, setShowArchived] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [projectListOpen, setProjectListOpen] = useState(true);
@@ -65,15 +58,10 @@ export function useProjectTabModel(user: WorkUser) {
     () => selectedProject ? entries.filter((entry) => entry.projectId === selectedProject.id) : [],
     [entries, selectedProject]
   );
-  const filteredProjects = useMemo(() => {
-    const q = keyword.trim();
-    if (!q) return projects;
-    return projects.filter((project) => matchText(project.name, q) || matchText(projectCode(project, null), q));
-  }, [keyword, projects]);
-  const childPlans = useMemo(() => selectedProject?.childPlans ?? [], [selectedProject]);
-  const parentPlanOptions = useMemo(() => buildParentPlanOptions(projects, draft?.id ?? null), [draft?.id, projects]);
+  const childProjects = useMemo(() => selectedProject?.childProjects ?? [], [selectedProject]);
+  const parentProjectOptions = useMemo(() => buildParentProjectOptions(projects, draft?.id ?? null), [draft?.id, projects]);
   const dirty = draftSnapshot(draft) !== baseline;
-  const canEditCurrent = canEdit && !showArchived;
+  const canEditCurrent = canEdit;
   const canSave = !!draft && canEditCurrent && !saving && dirty;
 
   const loadData = useCallback(async () => {
@@ -81,8 +69,8 @@ export function useProjectTabModel(user: WorkUser) {
     setError(null);
     try {
       const [projectRes, entryRes] = await Promise.all([
-        fetch(workspacePath(`/api/modules/work/plans?pageSize=500${showArchived ? "&archived=1" : ""}`)),
-        fetch(workspacePath("/api/modules/work/plan-members?pageSize=500")),
+        fetch(workspacePath("/api/modules/work/projects?pageSize=500")),
+        fetch(workspacePath("/api/modules/work/project-members?pageSize=500")),
       ]);
       if (!projectRes.ok || !entryRes.ok) throw new Error("加载失败");
       const [projectData, entryData] = await Promise.all([projectRes.json(), entryRes.json()]);
@@ -91,11 +79,11 @@ export function useProjectTabModel(user: WorkUser) {
       setEntries((entryData.entries || []) as ProjectMemberEntry[]);
       setSelection((prev) => nextProjects.some((project) => project.id === prev) ? prev : (nextProjects[0]?.id ?? null));
     } catch {
-      setError("工作计划加载失败");
+      setError("项目加载失败");
     } finally {
       setLoading(false);
     }
-  }, [showArchived]);
+  }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -132,43 +120,10 @@ export function useProjectTabModel(user: WorkUser) {
     });
   }
 
-  async function createPlanFromPanel() {
-    const name = createDraft.name.trim();
-    if (!name) return setToast({ type: "error", message: "计划名称不能为空" });
-    if (!createDraft.leadingDepartmentId) return setToast({ type: "error", message: "请选择主导部门" });
-    setSaving(true);
-    try {
-      const projectId = await createProject(name, createDraft.leadingDepartmentId);
-      if (!projectId) throw new Error("新建工作计划失败");
-      setCreateDraft({ name: "", leadingDepartmentId: null, leadingDepartmentName: null });
-      setCreatePanelOpen(false);
-      setToast({ type: "success", message: "工作计划已新建" });
-      await loadData();
-      setSelection(projectId);
-    } catch (err) {
-      setToast({ type: "error", message: err instanceof Error ? err.message : "新建工作计划失败" });
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function setProjectArchived(projectId: number, archived: boolean) {
-    setSaving(true);
-    try {
-      await updateProjectField(projectId, "isArchived", archived);
-      setToast({ type: "success", message: archived ? "工作计划已归档" : "工作计划已恢复" });
-      await loadData();
-    } catch (err) {
-      setToast({ type: "error", message: err instanceof Error ? err.message : "操作失败" });
-    } finally {
-      setSaving(false);
-    }
-  }
-
   async function saveProject() {
     if (!draft || !draft.id || !dirty) return;
     const name = draft.name.trim();
-    if (!name) return setToast({ type: "error", message: "计划名称不能为空" });
+    if (!name) return setToast({ type: "error", message: "项目名称不能为空" });
     if (!draft.leadingDepartmentId) return setToast({ type: "error", message: "请选择主导部门" });
     setSaving(true);
     try {
@@ -181,7 +136,7 @@ export function useProjectTabModel(user: WorkUser) {
         }
       }
       await syncMembers(projectId, { ...draft, id: projectId, name }, entries);
-      setToast({ type: "success", message: "工作计划信息已保存" });
+      setToast({ type: "success", message: "项目信息已保存" });
       await loadData();
       setSelection(projectId);
     } catch (err) {
@@ -192,16 +147,16 @@ export function useProjectTabModel(user: WorkUser) {
   }
 
   return {
-    canEdit, canEditCurrent, canSave, childPlans, createDraft, createPanelOpen, dirty, draft, error,
-    filteredProjects, keyword, loading, parentPlanOptions, projectListDrawerOpen, projectListOpen, saving,
-    selectedProject, selection, showArchived, toast,
-    createPlanFromPanel, saveProject, setCreateDraft, setCreatePanelOpen, setKeyword, setLeader,
-    setProjectArchived, setProjectListDrawerOpen, setProjectListOpen, setRoleMembers, setSelection,
-    setShowArchived, setToast, updateDraft,
+    canEditCurrent, canSave, childProjects, dirty, draft, error,
+    loading, parentProjectOptions, projectListDrawerOpen, projectListOpen, projects, saving,
+    selectedProject, selection, toast,
+    saveProject, setLeader,
+    setProjectListDrawerOpen, setProjectListOpen, setRoleMembers, setSelection,
+    setToast, updateDraft,
   };
 }
 
-function buildParentPlanOptions(projects: ProjectItem[], draftId: number | null) {
+function buildParentProjectOptions(projects: ProjectItem[], draftId: number | null) {
   const excluded = new Set<number>();
   if (draftId) {
     excluded.add(draftId);

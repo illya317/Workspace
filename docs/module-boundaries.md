@@ -13,7 +13,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 | `@workspace/hr` | 业务 | HR 模块注册、HR UI/server/import/types/constants 的归属入口 | 直接依赖财务或生产 |
 | `@workspace/production` | 业务 | 生产/QC 模块注册、生产 UI/server/import/types/constants 的归属入口 | 直接依赖 HR 或财务 |
 | `@workspace/finance` | 业务 | 财务模块注册、财务 UI/server/import/types/constants 的归属入口 | 直接依赖 HR 或生产 |
-| `@workspace/work` | 业务 | 工作管理：工作计划、工作清单、工作汇报、历史记录 | 直接依赖 HR、Finance、Production、Administration、Library |
+| `@workspace/work` | 业务 | 工作管理：项目、工作清单、工作汇报、历史记录 | 直接依赖 HR、Finance、Production、Administration、Library |
 | `@workspace/administration` | 业务 | 行政管理：合同台账等行政能力 | 直接依赖其他业务包 |
 | `@workspace/library` | 业务 | 资料库、资料检索、尽调问卷、生成资料 | 直接依赖其他业务包 |
 
@@ -38,6 +38,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/core/search` 已接收通用拼音首字母、全拼和文本匹配 helper；员工语义匹配仍留在 HR/兼容层。
 - `packages/production/types` 已接收生产 QC 模板、布局、批次和模板反馈领域类型。
 - `packages/platform/module-registry.ts` 是模块注册锁。`registeredModuleDefinitions` 是唯一有效注册源；`packages/platform/modules.tsx` 只消费 registry 并导出运行时聚合，不直接 import domain package。
+- `packages/platform/module-overrides.ts` 是模块运行态覆盖层。模块中文名、描述、隐藏和启停优先在这里改；不要为了展示 rename 去散改页面文案、resource name、API path 或 FK key。运行时消费方使用 effective registry，资源和 FK 使用 active registry 自动过滤 disabled 模块。
 - `packages/platform/module-nav.tsx` 生成 `MODULES`、`getAccessibleModules`、`getSubModules`。
 - `packages/platform/resources.ts` 从各 package `resourceDefs` 派生 `RESOURCE_DEFS`、`RESOURCE_KEYS` 和 `RESOURCE_MAX_ROLE`，`packages/platform/permissions.ts` 与 `scripts/seed-resources.ts` 复用这个出口；旧 `lib/permissions.ts` 只保留兼容 re-export。
 - `packages/platform/module-lifecycle.ts` 从模块注册的 `lifecycleStatus` 派生资源生命周期提示；`app/lib/module-lifecycle.ts` 保留兼容 re-export。
@@ -59,7 +60,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `app/components/ConfirmModal.tsx`、`ConfirmProvider.tsx`、`DetailModal.tsx`、`FilterBar.tsx`、`FilterToolbar.tsx`、`Toast.tsx`、`SelectField.tsx`、`StatusBadge.tsx`、`StatusToggle.tsx`、`NumberCell.tsx`、`AmountCell.tsx`、`ColumnToggle.tsx`、`TabBar.tsx`、`DataTable.tsx`、`EditToolbar.tsx` 和 `app/hooks/useCSV.tsx`、`app/hooks/useToast.ts` 已降级为兼容 re-export。
 - `app/hooks/useCompanyOptions.ts` 已降级为 `@workspace/platform/hooks` 的兼容 re-export。
 - `app/hr/types.ts`、`app/hr/profile/types.ts`、`app/hr/tabConfigs.ts`、`app/hr/tab-configs/*`、`app/hr/profile/fields.ts`、`app/hr/profile/lunar-birthday.ts`、`app/hr/analytics/*`、`app/hr/profile/*`、第一批 `app/hr/components/*` HR 专用字段组件、`app/hr/code/*` 编码表实现和第一批 `app/hr/tabs/*` 大组件已迁入或降级为兼容 re-export。
-- `app/api/modules/hr/autocomplete`、`app/api/modules/hr/companies`、`app/api/modules/hr/company-relations`、`app/api/modules/hr/contracts`、`app/api/modules/hr/departments`、`app/api/modules/hr/edps`、`app/api/modules/hr/employees`、`app/api/modules/hr/employee-projects`、`app/api/modules/hr/employee-profiles/*`、`app/api/modules/hr/employments`、`app/api/modules/hr/position-description-templates`、`app/api/modules/hr/positions`、`app/api/modules/hr/projects`、`app/api/modules/hr/roster` 和 `app/api/modules/hr/position-descriptions` 已降级为认证/权限/响应壳，业务逻辑下沉到 `@workspace/hr/server`。
+- `app/api/modules/hr/autocomplete`、`app/api/modules/hr/companies`、`app/api/modules/hr/company-relations`、`app/api/modules/hr/contracts`、`app/api/modules/hr/departments`、`app/api/modules/hr/edps`、`app/api/modules/hr/employees`、`app/api/modules/hr/employee-profiles/*`、`app/api/modules/hr/employments`、`app/api/modules/hr/position-description-templates`、`app/api/modules/hr/positions`、`app/api/modules/hr/roster` 和 `app/api/modules/hr/position-descriptions` 已降级为认证/权限/响应壳，业务逻辑下沉到 `@workspace/hr/server`。
 - 模块注册中的 `href` 与 `routes` 必须使用不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止写 `@workspace/...` package 名或 `/workspace/...`，这个规则由 `npm run arch:gate` 校验。
 - `moduleDef.href` 必须是 L1 根路径；`children[*].href` 与 `routes` 必须留在该 L1 下。真实 app page 也必须落在注册 L1 或系统保留 route 下，不允许重新创建绕开 L1 的顶层 route shell。
 - 页面源码使用 Next route groups 收口：业务页放 `app/(modules)/*`，平台/设置/管理放 `app/(system)/*`，登录放 `app/(auth)/*`，文档放 `app/(docs)/*`。这些 group 不改变 URL；不要再新增顶层 `app/<module>` 页面目录。

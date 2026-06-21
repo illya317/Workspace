@@ -4,6 +4,7 @@ import {
   authenticate,
   isKicked,
 } from "./auth/authenticate";
+import { disabledApiResponseForRequest } from "./module-runtime";
 import {
   checkContractAccess,
   checkFinanceAccess,
@@ -56,6 +57,9 @@ export function withAuth(
   checkAccess?: AccessChecker,
 ): (req: Request, ctx?: RouteContext) => Promise<Response> {
   return async (req: Request, ctx?: RouteContext) => {
+    const disabledResponse = disabledApiResponseForRequest(req);
+    if (disabledResponse) return disabledResponse;
+
     const payload = await authenticate(req);
     if (!payload) {
       if (await isKicked(req)) {

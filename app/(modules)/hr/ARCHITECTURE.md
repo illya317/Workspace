@@ -36,7 +36,7 @@
 | 雇佣记录 | GenericTableTab + employmentConfig | 批量维护雇佣关系 |
 | 员工岗位 | GenericTableTab + edpConfig | 批量维护员工-部门-岗位关系 |
 | 合同信息 | GenericTableTab + contractConfig | 批量维护合同信息 |
-| 工作计划 | - | 已剥离到 `@workspace/work`，HR 不再维护入口 |
+| 项目 | - | 已剥离到 `@workspace/work`，HR 不再维护入口 |
 
 ## 核心组件链
 
@@ -61,9 +61,9 @@ roster/page.tsx
 
 员工详情页的数据流：
 
-1. `GET /api/modules/hr/employee-profiles/[id]` 聚合读取员工、雇佣、合同、部门岗位、项目员工。
+1. `GET /api/modules/hr/employee-profiles/[id]` 聚合读取员工、雇佣、合同、部门岗位。
 2. 基本信息保存复用 `PUT /api/modules/hr/employees/[id]`。
-3. 雇佣、合同、部门岗位、项目员工写入复用现有行级 CRUD API。
+3. 雇佣、合同、部门岗位写入复用现有行级 CRUD API。
 4. 员工详情页的部门岗位保存走 `PUT /api/modules/hr/employee-profiles/[id]/edps`，按员工整组保存并校验当前岗位工作占比合计为 1。
 5. 合同仍读取并写入 `Employment.contracts` JSON，前端沿用 `employmentId * 1000 + index` 的合成合同 ID。
 

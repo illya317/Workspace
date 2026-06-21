@@ -24,16 +24,18 @@ export default function InlineCreatePanel({
   className = "",
 }: InlineCreatePanelProps) {
   return (
-    <section className={joinClassNames("relative z-10 border-y border-slate-100 bg-white px-3 py-2", className)}>
+    <section className={joinClassNames("relative z-10 border-y border-slate-100 bg-white px-6 py-2", className)}>
       <form
         onSubmit={(event) => {
           event.preventDefault();
           if (!submitDisabled && !submitting) onSubmit();
         }}
-        className="flex min-h-10 flex-wrap items-center justify-start gap-2 leading-none [&_button]:!h-10 [&_button]:!text-xs [&_button]:!leading-none [&_input]:!h-10 [&_input]:!py-0 [&_input]:!text-xs [&_input]:!leading-none [&_label]:!h-10"
+        className="flex min-h-10 flex-wrap items-center justify-start gap-x-3 gap-y-2 leading-none [&_button]:!h-9 [&_button]:!text-[11px] [&_button]:!leading-none [&_input]:!h-9 [&_input]:!py-0 [&_input]:!text-[11px] [&_input]:!leading-none [&_label]:!h-9"
       >
-        <h4 className="flex h-10 shrink-0 items-center border-l-4 border-emerald-500 pl-2 pr-1 text-xs font-semibold leading-none text-slate-900">{title}</h4>
-        <div className="flex w-fit max-w-full shrink-0 flex-wrap items-center gap-1.5">{children}</div>
+        <h4 className="flex h-9 shrink-0 items-center border-l-4 border-emerald-500 pl-3 pr-2 text-xs font-semibold leading-none text-slate-900">{title}</h4>
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-x-3 gap-y-2 [&_[data-field-control]]:w-28 [&_[data-field-control]>*]:w-full [&_[data-field-label]]:text-xs [&>label]:!w-auto [&>label]:!max-w-none [&>label]:gap-2">
+          {children}
+        </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           <ActionButton
             type="submit"

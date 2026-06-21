@@ -20,7 +20,7 @@ export interface ProfileField {
   label: string;
   type?: ProfileFieldType;
   booleanLabels?: { true: string; false: string; unset?: string };
-  entity?: "company" | "department" | "employee" | "position" | "project" | "user";
+  entity?: "company" | "department" | "employee" | "position" | "user";
   fkKey?: string;
   valueFrom?: "id" | "name" | "subtitle";
   activeOnly?: boolean;
@@ -37,7 +37,6 @@ export interface EmployeeProfile {
   employments: EmploymentRow[];
   contracts: ContractRow[];
   edps: EdpRow[];
-  employeeProjects: EmployeeProjectRow[];
 }
 
 export interface EmployeeProfileEmployee {
@@ -126,17 +125,5 @@ export interface EdpRow {
   endDate: string | null;
   reportTo: string | null;
   workPercent: string | null;
-  isNew?: boolean;
-}
-
-export interface EmployeeProjectRow {
-  id?: number;
-  employeeId: number;
-  projectId: number | null;
-  projectName: string | null;
-  projectType: string | null;
-  role: string | null;
-  startDate: string | null;
-  endDate: string | null;
   isNew?: boolean;
 }

@@ -5,7 +5,7 @@ import type {
   WorkspacePackageRegistration,
 } from "@workspace/core";
 
-import { registeredModuleDefinitions } from "./module-registry";
+import { effectiveModuleDefinitions, isApiGuardEnabled } from "./effective-module-registry";
 
 export type ApiMethod = ApiGuardRegistration["method"];
 export type ApiAction = ApiGuardRegistration["action"];
@@ -73,10 +73,10 @@ function buildApiContracts(
       }
 
       contracts.push({
-        key: createApiContractKey(definition, { ...guard, access: "protected" }),
+        key: createApiContractKey(definition, { ...guard, access: isApiGuardEnabled(guard) ? "protected" : "disabled" }),
         method: guard.method,
         pathPrefix: normalizePathPrefix(guard.pathPrefix),
-        access: "protected",
+        access: isApiGuardEnabled(guard) ? "protected" : "disabled",
         resourceKey: guard.resourceKey,
         action: guard.action,
         ownerPackage: definition.packageName,
@@ -139,7 +139,7 @@ function pathMatchesPrefix(apiPath: string, pathPrefix: string) {
   return apiPath === pathPrefix || apiPath.startsWith(`${pathPrefix}/`);
 }
 
-export const apiContracts = buildApiContracts(registeredModuleDefinitions);
+export const apiContracts = buildApiContracts(effectiveModuleDefinitions);
 
 validateApiContracts(apiContracts);
 

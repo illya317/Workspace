@@ -1,4 +1,4 @@
-import { registeredModuleDefinitions } from "../module-registry";
+import { activeModuleDefinitions } from "../effective-module-registry";
 import {
   createFkRegistryFromRegistrations,
   type FkRegistration,
@@ -6,7 +6,7 @@ import {
 
 export function getRegisteredFkRegistrations(): FkRegistration[] {
   const registrations: FkRegistration[] = [];
-  for (const definition of registeredModuleDefinitions) {
+  for (const definition of activeModuleDefinitions) {
     registrations.push(...((definition.fkRegistrations ?? []) as FkRegistration[]));
   }
   return registrations;

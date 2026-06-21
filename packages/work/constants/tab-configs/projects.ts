@@ -2,15 +2,15 @@ import type { FieldConfig, TabConfig } from "../../types";
 import { extractFK, fk } from "./shared";
 
 const projectFields: FieldConfig[] = [
-  { key: "name", label: "计划名称", editable: true, required: true },
+  { key: "name", label: "项目名称", editable: true, required: true },
   { key: "leadingDepartmentId", label: "主导部门", type: "fk", editable: true, required: true },
-  { key: "parentId", label: "上级计划", type: "fk", editable: true },
+  { key: "parentId", label: "上级项目", type: "fk", editable: true },
   { key: "status", label: "状态", editable: true },
   { key: "priority", label: "优先级", editable: true },
   { key: "stage", label: "阶段", editable: true },
   { key: "description", label: "说明", editable: true, type: "textarea" },
-  { key: "plan", label: "计划规划", editable: true, type: "textarea" },
-  { key: "goal", label: "计划目标", editable: true, type: "textarea" },
+  { key: "plan", label: "项目规划", editable: true, type: "textarea" },
+  { key: "goal", label: "项目目标", editable: true, type: "textarea" },
   { key: "milestones", label: "关键里程碑", editable: true, type: "textarea" },
   { key: "budgetAmount", label: "预算金额", editable: true, type: "number" },
   { key: "budgetNote", label: "预算说明", editable: true, type: "textarea" },
@@ -20,35 +20,35 @@ const projectFields: FieldConfig[] = [
 ];
 
 export const projectConfig: TabConfig = {
-  title: "工作计划",
-  apiPath: "/api/modules/work/plans",
+  title: "项目",
+  apiPath: "/api/modules/work/projects",
   entityType: "Project",
   fields: projectFields,
   fkFields: {
-    leadingDepartmentId: fk("department", "leadingDepartmentName", "work.plan.leadingDepartment"),
-    parentId: fk("project", "parentName", "work.plan.parent"),
+    leadingDepartmentId: fk("department", "leadingDepartmentName", "work.project.leadingDepartment"),
+    parentId: fk("project", "parentName", "work.project.parent"),
   },
   canCreate: true,
   canDelete: true,
   listGetter: (d: unknown) => (d as Record<string, unknown>).projects as unknown[],
 };
 
-const employeeProjectFields: FieldConfig[] = [
+const projectMemberFields: FieldConfig[] = [
   { key: "employeeId", label: "员工", type: "fk", editable: false, required: true },
-  { key: "projectId", label: "工作计划", type: "fk", editable: false, required: true },
+  { key: "projectId", label: "项目", type: "fk", editable: false, required: true },
   { key: "role", label: "角色", editable: false },
   { key: "startDate", label: "开始日期", editable: false, type: "date" },
   { key: "endDate", label: "结束日期", editable: false, type: "date" },
 ];
 
 export const employeeProjectConfig: TabConfig = {
-  title: "计划人员",
-  apiPath: "/api/modules/work/plan-members",
+  title: "项目人员",
+  apiPath: "/api/modules/work/project-members",
   entityType: "EmployeeProject",
-  fields: employeeProjectFields,
+  fields: projectMemberFields,
   fkFields: {
-    employeeId: fk("employee", "employeeName", "work.plan.member.employee"),
-    projectId: fk("project", "projectName", "work.plan.member.project"),
+    employeeId: fk("employee", "employeeName", "work.project.member.employee"),
+    projectId: fk("project", "projectName", "work.project.member.project"),
   },
   canCreate: false,
   canDelete: false,

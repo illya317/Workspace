@@ -2,12 +2,6 @@ import { formatDepartmentPath } from "@workspace/hr/utils/department-path";
 import { prisma } from "@workspace/platform/server/prisma";
 import { buildContractRows } from "./contracts";
 
-function serializeDate(value: Date | string | null | undefined) {
-  if (!value) return null;
-  if (typeof value === "string") return value;
-  return value.toISOString();
-}
-
 function findPrimaryContractCompany(
   contracts: Array<{ employmentId?: number; company?: string | null; isPrimary?: boolean }>,
   employmentId?: number,
@@ -39,7 +33,7 @@ export async function getEmployeeProfileByKey(key: string) {
   if (!employee) return { status: "not_found" as const };
   const employeeId = employee.id;
 
-  const [employments, edps, employeeProjects] = await Promise.all([
+  const [employments, edps] = await Promise.all([
     prisma.employment.findMany({
       where: { employeeId },
       orderBy: [{ isActive: "desc" }, { id: "desc" }],
@@ -59,11 +53,6 @@ export async function getEmployeeProfileByKey(key: string) {
         position: { select: { id: true, code: true, name: true } },
       },
       orderBy: [{ isPrimary: "desc" }, { id: "asc" }],
-    }),
-    prisma.employeeProject.findMany({
-      where: { employeeId },
-      include: { project: { select: { id: true, name: true, type: true } } },
-      orderBy: { id: "asc" },
     }),
   ]);
 
@@ -160,18 +149,6 @@ export async function getEmployeeProfileByKey(key: string) {
         endDate: edp.endDate,
         reportTo: reportToNameByEmployeeId.get(edp.reportTo ?? "") ?? edp.reportTo,
         workPercent: edp.workPercent,
-      })),
-      employeeProjects: employeeProjects.map((entry) => ({
-        id: entry.id,
-        employeeId: entry.employeeId,
-        projectId: entry.projectId,
-        projectName: entry.project?.name ?? null,
-        projectType: entry.project?.type ?? null,
-        role: entry.role,
-        startDate: entry.startDate,
-        endDate: entry.endDate,
-        createdAt: serializeDate(entry.createdAt),
-        updatedAt: serializeDate(entry.updatedAt),
       })),
     },
   };

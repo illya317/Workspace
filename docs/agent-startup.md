@@ -43,8 +43,8 @@
 
 ## 4. 当前并行注意
 
-- Work 已确定为 `packages/work`，不是 `packages/project`。工作计划、工作清单、工作汇报、历史记录归 Work；不要把 Project / EmployeeProject 修回 HR。
-- Work Feature 线程正在处理 `/work/plans` 左右分栏体验。若需要通用分栏，只补 Core UI 稳定入口，Work 只接业务数据。
+- Work 已确定为 `packages/work`，不是 `packages/project`。项目、工作清单、工作汇报、历史记录归 Work；不要把 Project / EmployeeProject 修回 HR。
+- Work Feature 线程正在处理 `/work/projects` 左右分栏体验。若需要通用分栏，只补 Core UI 稳定入口，Work 只接业务数据。
 - Production/QC Data 线程可能修改 `.workspace/config/scripts/generate-product-stage-tests.mjs` 和生成的 pharma-qc JSON/cache。其他 agent 不要提交这些文件。
 
 ## 5. Level 2 使用方式

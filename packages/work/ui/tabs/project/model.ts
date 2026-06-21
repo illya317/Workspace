@@ -1,5 +1,5 @@
 import type { FkFieldOption, PickerOption } from "@workspace/core/ui";
-import { WORK_PLAN_ROLES } from "@workspace/work/constants";
+import { PROJECT_ROLES } from "@workspace/work/constants";
 
 export type ProjectItem = {
   id: number;
@@ -18,7 +18,7 @@ export type ProjectItem = {
   remark: string | null;
   parentId: number | null;
   parentName: string | null;
-  childPlans: { id: number; name: string }[];
+  childProjects: { id: number; name: string }[];
   leadingDepartmentId: number | null;
   leadingDepartmentName: string | null;
   leadingDepartmentCode: string | null;
@@ -46,9 +46,9 @@ export type EmployeeTag = {
   name: string;
 };
 
-export type ProjectRole = (typeof WORK_PLAN_ROLES)[number];
+export type ProjectRole = (typeof PROJECT_ROLES)[number];
 export type MultiProjectRole = Exclude<ProjectRole, "负责人">;
-export const MULTI_PROJECT_ROLES = WORK_PLAN_ROLES.filter((role) => role !== "负责人") as MultiProjectRole[];
+export const MULTI_PROJECT_ROLES = PROJECT_ROLES.filter((role) => role !== "负责人") as MultiProjectRole[];
 
 export type ProjectDraft = {
   id: number | null;
@@ -73,12 +73,6 @@ export type ProjectDraft = {
   endDate: string | null;
   leader: EmployeeTag | null;
   roleGroups: Record<MultiProjectRole, EmployeeTag[]>;
-};
-
-export type CreatePlanDraft = {
-  name: string;
-  leadingDepartmentId: number | null;
-  leadingDepartmentName: string | null;
 };
 
 export const PROJECT_STATUS_OPTIONS = ["规划中", "进行中", "暂停", "已完成", "已取消"] as const;
@@ -126,7 +120,7 @@ export function dedupeMembers(members: EmployeeTag[]) {
 }
 
 export function isLeaderRole(role: string | null | undefined) {
-  return role === "负责人" || role === "计划负责人";
+  return role === "负责人" || role === "项目负责人";
 }
 
 export function emptyRoleGroups(): Record<MultiProjectRole, EmployeeTag[]> {
@@ -140,7 +134,7 @@ export function emptyRoleGroups(): Record<MultiProjectRole, EmployeeTag[]> {
 
 export function normalizeProjectRole(role: string | null | undefined): ProjectRole {
   if (isLeaderRole(role)) return "负责人";
-  return WORK_PLAN_ROLES.includes(role as ProjectRole) ? role as ProjectRole : "执行负责";
+  return PROJECT_ROLES.includes(role as ProjectRole) ? role as ProjectRole : "执行负责";
 }
 
 export function draftSnapshot(draft: ProjectDraft | null) {

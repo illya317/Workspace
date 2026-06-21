@@ -7,13 +7,12 @@ import {
   EmptyStateCard,
 } from "@workspace/core/ui";
 import { DatabasePageFrame } from "@workspace/core/ui";
-import { employeeFields, employeeProjectFields } from "@workspace/hr/constants";
+import { employeeFields } from "@workspace/hr/constants";
 import type {
   ContractRow,
   EdpRow,
   EmployeeProfile,
   EmployeeProfileEmployee,
-  EmployeeProjectRow,
   EmploymentRow,
   ProfileField,
 } from "@workspace/hr/types";
@@ -23,7 +22,6 @@ import {
   EdpSection,
   EmploymentSection,
   HistorySection,
-  RowsSection,
   type ProfileHistoryEntry,
 } from "./EmployeeProfileSections";
 import {
@@ -33,13 +31,12 @@ import {
   type EditableRecord,
 } from "./EmployeeProfileUtils";
 
-type ProfileSection = "basic" | "employment" | "edp" | "project" | "history";
+type ProfileSection = "basic" | "employment" | "edp" | "history";
 
 export interface EmployeeProfileDirtyState {
   basic: boolean;
   employment: boolean;
   edp: boolean;
-  project: boolean;
   all: boolean;
 }
 
@@ -57,14 +54,12 @@ export default function EmployeeProfileView({
   employments,
   contracts,
   edps,
-  employeeProjects,
   historyEntries,
   historyLoading,
   expandedHistoryId,
   setEmployments,
   setContracts,
   setEdps,
-  setEmployeeProjects,
   setError,
   onBack,
   onSaveAll,
@@ -86,14 +81,12 @@ export default function EmployeeProfileView({
   employments: EmploymentRow[];
   contracts: ContractRow[];
   edps: EdpRow[];
-  employeeProjects: EmployeeProjectRow[];
   historyEntries: ProfileHistoryEntry[];
   historyLoading: boolean;
   expandedHistoryId: number | null;
   setEmployments: Dispatch<SetStateAction<EmploymentRow[]>>;
   setContracts: Dispatch<SetStateAction<ContractRow[]>>;
   setEdps: Dispatch<SetStateAction<EdpRow[]>>;
-  setEmployeeProjects: Dispatch<SetStateAction<EmployeeProjectRow[]>>;
   setError: (message: string | null) => void;
   onBack: () => void;
   onSaveAll: () => Promise<void>;
@@ -124,7 +117,6 @@ export default function EmployeeProfileView({
         { key: "basic", label: "基本信息" },
         { key: "employment", label: "雇佣关系" },
         { key: "edp", label: "部门岗位" },
-        { key: "project", label: "项目" },
         { key: "history", label: "历史记录" },
       ]}
       activeTab={activeSection}
@@ -186,20 +178,6 @@ export default function EmployeeProfileView({
               if (!percentCheck.ok) return setError(percentCheck.message);
               setEdps(nextRows);
             }}
-          />
-        )}
-
-        {activeSection === "project" && (
-          <RowsSection
-            title="项目"
-            rows={employeeProjects}
-            fields={employeeProjectFields}
-            canEdit={false}
-            saving={saving}
-            onChange={(index, field, value, option) => setEmployeeProjects((rows) => updateProfileRow(rows, index, field, value, option) as EmployeeProjectRow[])}
-            onDelete={(row, index) => removeRow(row.projectName, "项目记录", index, setEmployeeProjects, confirmDelete)}
-            allowDelete
-            className={sectionCardClassName}
           />
         )}
 

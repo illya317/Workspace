@@ -25,7 +25,7 @@ export const RES = {
   },
   work: {
     root: "work",
-    plan: "work.plan",
+    project: "work.project",
     report: "work.report",
     task: "work.task",
     history: "work.history",

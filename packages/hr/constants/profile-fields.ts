@@ -76,10 +76,3 @@ export const edpFields: ProfileField[] = [
   { key: "workPercent", label: "工作占比", type: "percent" },
   { key: "reportTo", label: "直接上级", type: "fk", entity: "employee", fkKey: "hr.edp.reportTo", valueFrom: "name", activeOnly: true },
 ];
-
-export const employeeProjectFields: ProfileField[] = [
-  { key: "projectId", label: "项目", type: "fk", entity: "project", fkKey: "hr.employeeProject.project", displayKey: "projectName", required: true },
-  { key: "role", label: "角色" },
-  { key: "startDate", label: "开始日期", type: "date" },
-  { key: "endDate", label: "结束日期", type: "date" },
-];

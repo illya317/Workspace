@@ -33,12 +33,16 @@ export default function PositionAliasTagsInput({
     setDraft("");
   }
 
-  async function removeTag(index: number) {
+  function removeTag(index: number) {
+    onChange(tags.filter((_, tagIndex) => tagIndex !== index).join("、"));
+  }
+
+  async function confirmRemoveTag(index: number) {
     const confirmed = await confirmDelete({
       message: `确定删除别名「${tags[index]}」吗？删除后需要保存才会生效。`,
     });
     if (!confirmed) return;
-    onChange(tags.filter((_, tagIndex) => tagIndex !== index).join("、"));
+    removeTag(index);
   }
 
   return (
@@ -49,7 +53,8 @@ export default function PositionAliasTagsInput({
           {!disabled && (
             <TagRemoveButton
               label={`删除别名 ${tag}`}
-              onClick={() => void removeTag(index)}
+              confirmMessage={`确定删除别名「${tag}」吗？删除后需要保存才会生效。`}
+              onConfirm={() => removeTag(index)}
             />
           )}
         </span>
@@ -69,7 +74,7 @@ export default function PositionAliasTagsInput({
               }
             }
             if (event.key === "Backspace" && !draft && tags.length > 0) {
-              void removeTag(tags.length - 1);
+              void confirmRemoveTag(tags.length - 1);
             }
           }}
           placeholder={tags.length === 0 ? "添加别名" : ""}

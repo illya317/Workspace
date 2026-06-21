@@ -22,7 +22,7 @@ export function LayoutPreview({ variant }: { variant: "page" | "module" | "split
       <div className="grid grid-cols-[3fr_7fr] gap-2">
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-2">
           <div className="text-xs font-semibold text-slate-500">列表</div>
-          <SelectorCard title="计划 A" subtitle="进行中" active />
+          <SelectorCard title="项目 A" subtitle="进行中" active />
         </div>
         <div className="rounded-lg border border-slate-200 bg-white p-2">
           <div className="text-xs font-semibold text-slate-500">详情</div>

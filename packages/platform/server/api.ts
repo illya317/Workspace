@@ -28,7 +28,7 @@ export async function parseJson<T>(
   return { ok: true, data: result.data };
 }
 
-const compatibilityProxyBodySchema = z.object({}).passthrough();
+const passthroughBodySchema = z.object({}).passthrough();
 
 export const routeIdParamsSchema = z.object({
   id: z.coerce.number().int().positive(),
@@ -165,11 +165,15 @@ export function createCompatibilityProxyHandler(
 }
 
 export async function validateCompatibilityProxyBody(request: Request): Promise<ParsedJson<Record<string, unknown>>> {
+  return validatePassthroughBody(request);
+}
+
+export async function validatePassthroughBody(request: Request): Promise<ParsedJson<Record<string, unknown>>> {
   if (!["POST", "PUT", "PATCH"].includes(request.method.toUpperCase())) {
     return { ok: true, data: {} };
   }
 
-  return parseJson(request.clone(), compatibilityProxyBodySchema);
+  return parseJson(request.clone(), passthroughBodySchema);
 }
 
 export function isValidDateValue(value: unknown) {

@@ -577,6 +577,14 @@ function generateDescription(path: string, method: string): string {
   if (p === "projects" && method === "POST") return "创建项目";
   if (p.startsWith("projects/") && method === "PUT") return "更新项目";
   if (p.startsWith("projects/") && method === "DELETE") return "删除项目";
+  if (p === "modules/work/projects" && method === "GET") return "项目列表";
+  if (p === "modules/work/projects" && method === "POST") return "创建项目";
+  if (p.startsWith("modules/work/projects/") && method === "PUT") return "更新项目";
+  if (p.startsWith("modules/work/projects/") && method === "DELETE") return "删除项目";
+  if (p === "modules/work/project-members" && method === "GET") return "项目人员列表";
+  if (p === "modules/work/project-members" && method === "POST") return "创建项目人员";
+  if (p.startsWith("modules/work/project-members/") && method === "PUT") return "更新项目人员";
+  if (p.startsWith("modules/work/project-members/") && method === "DELETE") return "删除项目人员";
   if (p === "works" && method === "GET") return "工作清单列表";
   if (p === "works" && method === "POST") return "创建工作项";
   if (p.startsWith("works/") && method === "PUT") return "更新工作项";
@@ -641,7 +649,7 @@ function groupEndpoints(endpoints: ApiEndpoint[]): Map<string, ApiEndpoint[]> {
       group = "roster";
     } else if (["works", "reports", "week-info"].includes(firstPart)) {
       group = "work";
-    } else if (["projects", "my-targets"].includes(firstPart)) {
+    } else if (["projects", "my-targets"].includes(firstPart) || ep.path.startsWith("/api/modules/work/projects") || ep.path.startsWith("/api/modules/work/project-members")) {
       group = "project";
     } else if (["auth", "my-api-key", "user"].includes(firstPart)) {
       group = "auth";

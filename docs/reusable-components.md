@@ -35,7 +35,7 @@
 | Tab | `@workspace/core/ui` 的 `TabBar` | 模块内平级页签 | 页面内临时拼 tab |
 | 页面骨架 | `@workspace/core/ui` 的 `PageShell` | 登录后页面的标题栏、返回动作、页面内容容器 | Platform/App 里重复手写 sticky header、返回按钮、横向表头 |
 | 页面内容容器 | `@workspace/core/ui` 的 `PageContent`、`PanelCard`、`SectionCard` | 页面内容留白、卡片、章节、空态 | 在业务包里直接拼 `bg-white + rounded + shadow/border` 页面壳 |
-| 可折叠左右分栏 | Core UI 新增稳定入口后统一使用 | 列表 + 详情编辑、工作计划列表 + 当前详情、主从记录浏览 | 用遮罩式整屏 overlay 灰掉主内容，或在业务包重复写抽屉/分栏状态机 |
+| 可折叠左右分栏 | Core UI 新增稳定入口后统一使用 | 列表 + 详情编辑、项目列表 + 当前详情、主从记录浏览 | 用遮罩式整屏 overlay 灰掉主内容，或在业务包重复写抽屉/分栏状态机 |
 
 ## 业务字段组件
 
@@ -87,9 +87,9 @@ C 渲染：<CoreTemplate {...viewModel} />
 
 ## Work 体验统一方向
 
-Work 是业务包，不是 Platform。工作计划、工作清单、工作汇报、历史记录统一归 `packages/work` 和 `/work` 路由壳；不要把 Project / EmployeeProject 修回 HR，也不要新增 `packages/project`。
+Work 是业务包，不是 Platform。项目、工作清单、工作汇报、历史记录统一归 `packages/work` 和 `/work` 路由壳；不要把 Project / EmployeeProject 修回 HR，也不要新增 `packages/project`。
 
-当前 `/work/plans` 的计划列表展开目标是左右分栏：左侧保留计划列表，右侧继续展示当前详情编辑区。列表展开不应遮罩整页、不应灰掉主内容，也不要做成覆盖详情区的临时 drawer。若这个交互需要通用布局，应先在 Core UI 增加可复用分栏组件，再让 Work 传入业务列表、详情和状态；Work 包只承接工作计划字段、DTO、服务和业务规则。
+当前 `/work/projects` 的项目列表展开目标是左右分栏：左侧保留项目列表，右侧继续展示当前详情编辑区。列表展开不应遮罩整页、不应灰掉主内容，也不要做成覆盖详情区的临时 drawer。若这个交互需要通用布局，应先在 Core UI 增加可复用分栏组件，再让 Work 传入业务列表、详情和状态；Work 包只承接项目字段、DTO、服务和业务规则。
 
 ## Finance 复用方向
 

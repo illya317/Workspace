@@ -21,7 +21,7 @@
 | HR 资料、部门岗位、员工项目、导入、校验、搜索 | `packages/hr` | `app/hr/*`, `app/api/modules/hr/*`, `server/services/hr/*`, `lib/hr-*`, `lib/autocomplete-config.ts` | `packages/hr/ui/*`, `packages/hr/server/*`, `packages/hr/types/*`, `packages/hr/constants/*`, `packages/hr/import/*` | 大部分完成：`app/hr/components`、`app/hr/code/components`、`app/hr/code/hooks`、`app/hr/hooks` 已删除，HR 页面仍有旧 tabs/profile/analytics 待迁 | 进行中；继续把 HR route 下真实页面实现迁到 package |
 | Finance 页面模板、筛选、公司期间、分页、表格工具栏、预算、成本、导入面板、重分类 UI | `packages/finance` + `packages/core` | `app/finance/*/components/*`, `server/services/finance*` | `packages/finance/ui/*`, `packages/finance/server/*`, `packages/finance/types/*`, `packages/finance/constants/*`, `packages/finance/import/*` | 基本完成：`app/finance/components`、`app/finance/budget/{components,hooks}`、`app/finance/cost/{components,hooks}` 和 `app/finance/import/components` 已删除，页面壳/筛选/分页/表格/预算/成本/导入/重分类共享 UI 直接从 `@workspace/finance/ui` 消费 | 旧 app 真实实现已删除；后续只允许 route 薄壳 |
 | Production / QC 模板、批次、布局、反馈、运行态数据 | `packages/production` | `app/production/*`, `app/api/modules/production/*`, `server/services/production/*` | `packages/production/ui/*`, `packages/production/server/*`, `packages/production/types/*`, `packages/production/constants/*`, `packages/production/import/*` | 进行中：`app/production/qc/components` 已迁入 `packages/production/ui/qc`；QC route 只做鉴权、预取和挂载 package component | UI 迁移完成；后续按 gate 继续收敛 QC 内部重复控件 |
-| Work 工作计划/清单/汇报/历史 | `packages/work` | Work 存量 route 与 `server/services/{works,reports}.ts` | `packages/work/ui/*`, `packages/work/server/*`, `app/(modules)/work/**/page.tsx` 薄壳 | 是 | 是 |
+| Work 项目/清单/汇报/历史 | `packages/work` | Work 存量 route 与 `server/services/{works,reports}.ts` | `packages/work/ui/*`, `packages/work/server/*`, `app/(modules)/work/**/page.tsx` 薄壳 | 是 | 是 |
 | Settings 设置 | `packages/platform` | 旧 `app/settings/*` | `packages/platform/ui/settings/*`, `app/(system)/settings/**/page.tsx` 薄壳 | 是：page 鉴权后挂载 package component | app 旧 UI / modal re-export 已删除 |
 | Docs 静态/平台文档入口 | `packages/platform` | 文档中心存量 route | `packages/platform/ui/docs/*`，`app/(docs)/docs/*` 只保留 route/layout | 基本是 | 顶层独立接入指南 route shell 已删除 |
 | Contracts 合同模块 | `packages/administration` | 合同存量 route 与 `app/api/modules/administration/contracts/*` | `packages/administration/ui/*`, `packages/administration/server/*`, `packages/administration/types/*`, `packages/administration/module.ts`, `app/(modules)/administration/contracts/page.tsx` 薄壳 | 是：page/API route 均为薄壳 | app 旧顶层 route 已删除，API 逻辑已下沉 |
@@ -34,7 +34,7 @@
 ## 当前优先级
 
 1. **Production / QC**：继续按 gate 结果收敛 `packages/production/ui/qc` 内部重复控件，尤其纸面输入、模板反馈弹窗和 QC 表格 primitive。
-2. **Work 业务包**：`reports`、`history` 与 `works` 已下沉到 `packages/work/ui`；工作计划相关体验仍由 Work/Feature 线程继续收口。
+2. **Work 业务包**：`reports`、`history` 与 `works` 已下沉到 `packages/work/ui`；项目相关体验仍由 Work/Feature 线程继续收口。
 3. **Platform 平台能力**：迁移 settings / docs 和平台壳，避免只注册模块但 UI/server 仍留在 app/server。
 4. **Contracts / Library 独立包**：不要塞进 Platform；按业务包拆 `ui/server/types/module`。
 5. **硬约束升级**：`arch:gate` 已扩大检查范围，禁止业务包之间直接 import，禁止非 Core 包新增未基于 Core/Platform 的疑似基础组件。Work 的临时搜索组件在 allowlist 中记录为并行拆分债务。

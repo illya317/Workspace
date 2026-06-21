@@ -9,7 +9,6 @@ import {
   contractFields,
   edpFields,
   employeeFields,
-  employeeProjectFields,
   employmentFields,
 } from "@workspace/hr/constants";
 import type { ProfileHistoryEntry } from "./EmployeeProfileSections";
@@ -23,7 +22,6 @@ import {
   persistBasic,
   persistContracts,
   persistEdps,
-  persistEmployeeProjects,
   persistEmployment,
 } from "./EmployeeProfilePersistence";
 import type {
@@ -31,12 +29,11 @@ import type {
   EdpRow,
   EmployeeProfile,
   EmployeeProfileEmployee,
-  EmployeeProjectRow,
   EmploymentRow,
 } from "@workspace/hr/types";
 import type { FkFieldOption } from "@workspace/core/ui";
 
-type ProfileSection = "basic" | "employment" | "edp" | "project" | "history";
+type ProfileSection = "basic" | "employment" | "edp" | "history";
 
 export default function EmployeeProfileClient({
   employeeId,
@@ -53,7 +50,6 @@ export default function EmployeeProfileClient({
   const [employments, setEmployments] = useState<EmploymentRow[]>([]);
   const [contracts, setContracts] = useState<ContractRow[]>([]);
   const [edps, setEdps] = useState<EdpRow[]>([]);
-  const [employeeProjects, setEmployeeProjects] = useState<EmployeeProjectRow[]>([]);
   const [historyEntries, setHistoryEntries] = useState<ProfileHistoryEntry[]>([]);
   const [expandedHistoryId, setExpandedHistoryId] = useState<number | null>(null);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -76,7 +72,6 @@ export default function EmployeeProfileClient({
       setEmployments(nextProfile.employments.map((item) => applyDateFields(item as unknown as EditableRecord, employmentFields) as unknown as EmploymentRow));
       setContracts(nextProfile.contracts.map((item) => applyDateFields(item as unknown as EditableRecord, contractFields) as unknown as ContractRow));
       setEdps(nextProfile.edps.map((item) => applyDateFields(item as unknown as EditableRecord, edpFields) as unknown as EdpRow));
-      setEmployeeProjects(nextProfile.employeeProjects.map((item) => applyDateFields(item as unknown as EditableRecord, employeeProjectFields) as unknown as EmployeeProjectRow));
     } catch (err) {
       setError(err instanceof Error ? err.message : "加载失败");
     } finally {
@@ -111,15 +106,13 @@ export default function EmployeeProfileClient({
     const basic = Boolean(profile && employeeDraft && !sameDraft(employeeDraft, profile.employee));
     const employment = Boolean(profile && (!sameDraft(employments, profile.employments) || !sameDraft(contracts, profile.contracts)));
     const edp = Boolean(profile && !sameDraft(edps, profile.edps));
-    const project = Boolean(profile && !sameDraft(employeeProjects, profile.employeeProjects));
     return {
       basic,
       employment,
       edp,
-      project,
-      all: basic || employment || edp || project,
+      all: basic || employment || edp,
     };
-  }, [contracts, edps, employeeDraft, employeeProjects, employments, profile]);
+  }, [contracts, edps, employeeDraft, employments, profile]);
 
   function showMessage(text: string) {
     setMessage(text);
@@ -147,7 +140,6 @@ export default function EmployeeProfileClient({
       for (const row of employments) await persistEmployment(profile, row);
       await persistContracts(profile, contracts);
       await persistEdps(profile, edps);
-      await persistEmployeeProjects(profile, employeeProjects);
     }, "员工资料已全部保存");
   }
 
@@ -178,14 +170,12 @@ export default function EmployeeProfileClient({
       employments={employments}
       contracts={contracts}
       edps={edps}
-      employeeProjects={employeeProjects}
       historyEntries={historyEntries}
       historyLoading={historyLoading}
       expandedHistoryId={expandedHistoryId}
       setEmployments={setEmployments}
       setContracts={setContracts}
       setEdps={setEdps}
-      setEmployeeProjects={setEmployeeProjects}
       setError={setError}
       onBack={() => router.push("/hr/roster")}
       onSaveAll={saveAll}

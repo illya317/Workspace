@@ -3,10 +3,10 @@ import type { FkRegistration } from "./server/fk-targets";
 import { apiResourceGuards, systemApiRoutes, validateModuleRegistry } from "./module-registry-utils";
 
 const WORK_FK_REGISTRATIONS = [
-  { key: "work.plan.parent", scope: "work", source: { entity: "Project", field: "parentId" }, target: "project", targetLabel: "上级计划", nullable: true, permission: { resourceKey: "work.plan", action: "access" } },
-  { key: "work.plan.leadingDepartment", scope: "work", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "主导部门", nullable: false, permission: { resourceKey: "work.plan", action: "access" } },
-  { key: "work.plan.member.employee", scope: "work", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", nullable: false, permission: { resourceKey: "work.plan", action: "access" } },
-  { key: "work.plan.member.project", scope: "work", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", nullable: false, permission: { resourceKey: "work.plan", action: "access" } },
+  { key: "work.project.parent", scope: "work", source: { entity: "Project", field: "parentId" }, target: "project", targetLabel: "上级项目", nullable: true, permission: { resourceKey: "work.project", action: "access" } },
+  { key: "work.project.leadingDepartment", scope: "work", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "主导部门", nullable: false, permission: { resourceKey: "work.project", action: "access" } },
+  { key: "work.project.member.employee", scope: "work", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", nullable: false, permission: { resourceKey: "work.project", action: "access" } },
+  { key: "work.project.member.project", scope: "work", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", nullable: false, permission: { resourceKey: "work.project", action: "access" } },
 ] satisfies FkRegistration[];
 
 const HR_FK_REGISTRATIONS = [
@@ -18,7 +18,6 @@ const HR_FK_REGISTRATIONS = [
   { key: "hr.positionDescription", scope: "hr", source: { entity: "Position", field: "positionDescriptionId" }, target: "positionDescription", nullable: true, permission: { resourceKey: "people.roster", action: "access" } },
   { key: "hr.edp.position", scope: "hr", source: { entity: "EDP", field: "positionId" }, target: "position", nullable: false, permission: { resourceKey: "people.roster", action: "access" } },
   { key: "hr.edp.reportTo", scope: "hr", source: { entity: "EDP", field: "reportTo" }, target: "employee", targetLabel: "直接上级", nullable: true, permission: { resourceKey: "people.roster", action: "access" } },
-  { key: "hr.employeeProject.project", scope: "hr", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", targetLabel: "项目", nullable: false, permission: { resourceKey: "people.roster", action: "access" } },
   { key: "hr.position.department", scope: "hr", source: { entity: "Position", field: "departmentId" }, target: "department", targetLabel: "所属部门", nullable: false, permission: { resourceKey: "people.roster", action: "access" } },
 ] satisfies FkRegistration[];
 
@@ -29,13 +28,13 @@ export const registeredModuleDefinitions = [
     moduleDef: {
       key: "work",
       label: "工作管理",
-      desc: "工作计划、清单、汇报和历史记录",
+      desc: "项目、清单、汇报和历史记录",
       href: "/work",
       iconKey: "reports",
       color: "emerald",
       resourceKey: "work",
       children: [
-        { key: "plans", label: "工作计划", desc: "计划信息、角色分工、预算和风险", href: "/work/plans", resourceKey: "work.plan" },
+        { key: "projects", label: "项目", desc: "项目信息、角色分工、预算和风险", href: "/work/projects", resourceKey: "work.project" },
         { key: "tasks", label: "工作清单", desc: "待办任务和执行跟踪", href: "/work/tasks", resourceKey: "work.task" },
         { key: "reports", label: "工作汇报", desc: "周报、月报、季报、年报", href: "/work/reports", resourceKey: "work.report" },
         { key: "history", label: "历史记录", desc: "变更和操作记录", href: "/work/history", resourceKey: "work.history" },
@@ -43,17 +42,17 @@ export const registeredModuleDefinitions = [
     },
     resourceDefs: [
       { key: "work", name: "工作管理", sortOrder: 0 },
-      { key: "work.plan", name: "工作计划", parentKey: "work", sortOrder: 0 },
+      { key: "work.project", name: "项目", parentKey: "work", sortOrder: 0 },
       { key: "work.task", name: "工作清单", parentKey: "work", sortOrder: 1 },
       { key: "work.report", name: "工作汇报", parentKey: "work", sortOrder: 2 },
       { key: "work.history", name: "历史记录", parentKey: "work", sortOrder: 3 },
     ],
-    routes: ["/work", "/work/plans", "/work/tasks", "/work/reports", "/work/history"],
+    routes: ["/work", "/work/projects", "/work/tasks", "/work/reports", "/work/history"],
     fkRegistrations: WORK_FK_REGISTRATIONS,
     apiGuards: [
-      ...apiResourceGuards("/api/modules/work/plans", "work.plan", ["GET", "POST", "PUT", "DELETE"]),
-      ...apiResourceGuards("/api/modules/work/plan-members", "work.plan", ["GET", "POST", "PUT", "DELETE"]),
-      ...apiResourceGuards("/api/modules/work/reference-options", "work.plan", ["GET"]),
+      ...apiResourceGuards("/api/modules/work/projects", "work.project", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/modules/work/project-members", "work.project", ["GET", "POST", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/modules/work/reference-options", "work.project", ["GET"]),
       ...apiResourceGuards("/api/modules/work/tasks", "work.task", ["GET", "POST", "PUT", "DELETE"]),
       ...apiResourceGuards("/api/modules/work/reports", "work.report", ["GET", "POST", "PUT"]),
     ],

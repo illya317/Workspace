@@ -37,15 +37,6 @@ GET: 31 | POST: 10 | PUT: 19 | DELETE: 12
 | **POST** | `/api/modules/hr/departments` | 登录 + 系统管理员 | 创建部门 |
 | **PUT** | `/api/modules/hr/departments/:id` | 登录 + 系统管理员 | 更新部门 |
 | **DELETE** | `/api/modules/hr/departments/:id` | 登录 + 系统管理员 | 删除部门 |
-| **GET** | `/api/modules/hr/projects` | 登录 + HR权限 | 项目列表 |
-| **POST** | `/api/modules/hr/projects` | 登录 + HR权限 | 创建项目 |
-| **PUT** | `/api/modules/hr/projects/:id` | 登录 + HR权限 | 更新项目 |
-| **DELETE** | `/api/modules/hr/projects/:id` | 登录 + HR权限 | 删除项目 |
-| **GET** | `/api/modules/hr/employee-projects` | 登录 + HR权限 | 员工项目关联列表 |
-| **POST** | `/api/modules/hr/employee-projects` | 登录 + HR权限 | 创建员工项目关联 |
-| **PUT** | `/api/modules/hr/employee-projects/:id` | 登录 + HR权限 | 更新员工项目关联 |
-| **DELETE** | `/api/modules/hr/employee-projects/:id` | 登录 + HR权限 | 删除员工项目关联 |
-
 ## 花名册与组织架构（兼容层，已废弃）
 
 以下入口仍保留纯代理，供旧调用方过渡，**新代码禁止直接使用**。
@@ -58,14 +49,20 @@ GET: 31 | POST: 10 | PUT: 19 | DELETE: 12
 | **GET/POST/PUT/DELETE** | `/api/modules/hr/positions` | `/api/modules/hr/positions` |
 | **GET/POST** | `/api/modules/hr/edps` | `/api/modules/hr/edps` |
 | **GET/POST/PUT/DELETE** | `/api/modules/hr/departments` | `/api/modules/hr/departments` |
-| **GET/POST/PUT/DELETE** | `/api/modules/work/plans` | `/api/modules/hr/projects` |
-| **GET/POST/PUT/DELETE** | `/api/modules/work/plan-members` | `/api/modules/hr/employee-projects` |
 
 ## 项目管理
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | **GET** | `/api/me/targets` | 登录 | 获取我的汇报对象 |
+| **GET** | `/api/modules/work/projects` | 登录 + 项目权限 | 项目列表 |
+| **POST** | `/api/modules/work/projects` | 登录 + 项目权限 | 创建项目 |
+| **PUT** | `/api/modules/work/projects/:id` | 登录 + 项目权限 | 更新项目 |
+| **DELETE** | `/api/modules/work/projects/:id` | 登录 + 项目权限 | 删除项目 |
+| **GET** | `/api/modules/work/project-members` | 登录 + 项目权限 | 项目人员列表 |
+| **POST** | `/api/modules/work/project-members` | 登录 + 项目权限 | 创建项目人员 |
+| **PUT** | `/api/modules/work/project-members/:id` | 登录 + 项目权限 | 更新项目人员 |
+| **DELETE** | `/api/modules/work/project-members/:id` | 登录 + 项目权限 | 删除项目人员 |
 
 ## 工作与报告
 

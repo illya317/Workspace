@@ -60,10 +60,13 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
     getVisibleResourceKeys(ctx, "access"),
     getVisibleResourceKeys(ctx, "write"),
   ]);
+  const activeResourceKeySet = new Set(RESOURCE_KEYS);
+  const activeVisibleAccess = [...visibleAccess].filter((key) => activeResourceKeySet.has(key));
+  const activeVisibleWrite = [...visibleWrite].filter((key) => activeResourceKeySet.has(key));
   const allResourceKeys = new Set([
     ...RESOURCE_KEYS,
-    ...visibleAccess,
-    ...visibleWrite,
+    ...activeVisibleAccess,
+    ...activeVisibleWrite,
   ]);
 
   const canAnyWeek = isAdmin || await evaluatePermissionWithContext(ctx, "work.report", "write");
@@ -75,8 +78,8 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
     isWorkListAdmin: isAdmin,
     isSuperAdmin: isAdmin,
     canSelectAnyWeek: canAnyWeek,
-    visibleResourceKeys: isAdmin ? [...allResourceKeys] : [...visibleAccess],
-    visibleWriteResourceKeys: isAdmin ? [...allResourceKeys] : [...visibleWrite],
+    visibleResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleAccess,
+    visibleWriteResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleWrite,
     manageableResourceKeys: isAdmin ? [...new Set([...manageableKeys, ...RESOURCE_KEYS])] : [...manageableKeys],
     employeeId: employee?.employeeId ?? null,
     isActiveEmployee,

@@ -192,7 +192,7 @@ Level 1/1.5 额外硬约束：
 - `npm run arch:gate` 是唯一架构入口，串行执行 AST 扫描、dependency-cruiser、module registry、app route hierarchy、资源注册、package boundary 和 auth/API 检查；任一阶段失败立即退出。
 - AST 阶段阻断 UI 库 import、app 层新增 UI、权限绕过、RBAC 表直查、业务包 server alias 绕过和跨业务包 import。
 - dependency-cruiser 阶段检查包级 DAG 和循环依赖。Core 不能 import Platform/Apps，Platform 不能 import domain package，domain package 不能互相 import，生成目录不参与依赖图。
-- module registry 阶段要求每个业务包通过 `packages/platform/module-registry.ts` 注册并导出来自 registry 的 `moduleDefinition`；未注册、重复 key、从业务包反向聚合到 Platform 都会失败。
+- module registry 阶段要求每个业务包通过 `packages/platform/module-registry.ts` 注册并导出来自 registry 的 `moduleDefinition`；未注册、重复 key、从业务包反向聚合到 Platform 都会失败。运行态 rename/disable 通过 `packages/platform/module-overrides.ts` 进入 effective registry，禁止为展示改名散改技术 key、API path 或 FK key。
 - ESLint 禁止 `antd`、`@mui/*`、`react-bootstrap` 等 UI 库 import。需要新基础 UI 时先补 `packages/core/ui`。
 - 业务包之间禁止直接互相 import；跨模块能力必须进入 Platform service/registry，或通过明确稳定的 package contract 暴露。
 
@@ -201,7 +201,7 @@ Level 2 结构智能层：
 - Level 2 不新增平行 hard gate；`npm run arch:gate` 仍是唯一 CI 架构门禁。
 - Level 2 当前由三件套组成：`scripts/arch/level2.ts` 做 AST/pattern scan，`packages/platform/module-registry.ts` 做模块注册锁，`packages/platform/api-registry.ts` 做 API Contract。`packages/core/ui/component-registry.ts` 是 AST/pattern scan 的 Core UI 白名单输入，不是独立 gate。任何新增检测或 contract 来源必须并入这三个入口或唯一 gate，不得另起旁路。
 - `npm run arch:level2` 生成确定性的结构报告，用于发现 UI pattern 重复、API route contract 覆盖缺口、API route 模板漂移、旧 service 迁移债和 app 层 JSX 存量。
-- API Contract 的单一来源是 `packages/platform/api-registry.ts`，它从 `packages/platform/module-registry.ts` 的 `apiGuards` 和 `apiRoutes` 派生，不允许业务包维护第二套 API 清单。
+- API Contract 的单一来源是 `packages/platform/api-registry.ts`，它从 effective module registry 的 `apiGuards` 和 `apiRoutes` 派生，不允许业务包维护第二套 API 清单。
 - `apiGuards` 表示需要资源权限的 protected API；`apiRoutes` 表示显式 route contract，可标记为 `protected`、`public`、`dev` 或 `disabled`，用于登录/OAuth、开发入口、禁用兼容 API 等非资源权限入口。
 - Level 2 中已升级为强制规则的漂移项由 `scripts/arch/level2-baseline.json` 锁定，并通过唯一 `npm run arch:gate` 执行。baseline 只能减少：新增未注册 API route、API route 裸 `prisma.`、非 GET route 缺结构化 validation、API route 缺 service 调用、app-root hook 实现、未复用 Core 的业务选择器、未注册 Core UI import、Core UI 已导出但未登记、Core UI registry 重名、非 Core 包新增手写页面壳、搜索型原生 input、旧 `server/services` 文件或重复 service group 都会失败；迁移删除后必须同步删 baseline 项。页面设计漂移会读取 TSX JSX pattern，拦截手写 surface、sticky header、layout grid、table、form/control、modal overlay、toolbar layout、action button 和 table scroll shell。
 - Level 2 报告只读、不自动修复、不直接失败 CI。把某个发现升级为硬约束前，必须先进入 `scripts/arch/gate.ts` 所属的单 gate 系统，禁止在 CI 里新增旁路检查。

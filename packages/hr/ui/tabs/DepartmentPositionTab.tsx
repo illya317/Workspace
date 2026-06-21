@@ -111,6 +111,22 @@ export default function DepartmentPositionTab({
     search,
     selection,
   });
+  useEffect(() => {
+    if (!isOrganizationMode) return;
+    setActiveOrganizationRootId((prev) => {
+      if (prev && visibleRootDepartments.some((department) => department.id === prev)) return prev;
+      return visibleRootDepartments[0]?.id ?? null;
+    });
+  }, [isOrganizationMode, setActiveOrganizationRootId, visibleRootDepartments]);
+  useEffect(() => {
+    if (!isOrganizationMode || activeOrganizationRootId === null) return;
+    setCollapsedDepartments((prev) => {
+      if (!prev.has(activeOrganizationRootId)) return prev;
+      const next = new Set(prev);
+      next.delete(activeOrganizationRootId);
+      return next;
+    });
+  }, [activeOrganizationRootId, isOrganizationMode, setCollapsedDepartments]);
   const {
     renderDepartmentNode,
     renderOrganizationBranch,

@@ -36,6 +36,9 @@ export interface SubModuleRegistration {
   href: string;
   resourceKey: string;
   lifecycleStatus?: ModuleLifecycleStatus;
+  enabled?: boolean;
+  hidden?: boolean;
+  disabledReason?: string;
 }
 
 export interface ModuleRegistration {
@@ -48,6 +51,9 @@ export interface ModuleRegistration {
   resourceKey?: string;
   lifecycleStatus?: ModuleLifecycleStatus;
   children?: SubModuleRegistration[];
+  enabled?: boolean;
+  hidden?: boolean;
+  disabledReason?: string;
 }
 
 export type SubModuleDef = SubModuleRegistration;
@@ -63,6 +69,9 @@ export interface ResourceRegistration {
   parentKey?: string;
   maxRoleKey?: "access" | "write" | "delete" | "admin";
   sortOrder?: number;
+  enabled?: boolean;
+  hidden?: boolean;
+  disabledReason?: string;
 }
 
 export interface ApiGuardRegistration {

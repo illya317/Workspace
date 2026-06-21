@@ -13,6 +13,7 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "./session";
 import { authorize } from "./authorize";
+import { getDisabledReasonForResource, isResourceEnabled } from "../../effective-module-registry";
 import type { SessionUser } from "../../types";
 
 /**
@@ -22,6 +23,13 @@ import type { SessionUser } from "../../types";
 export async function requireResourceAccess(resourceKey: string): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) redirect("/login");
+  if (!isResourceEnabled(resourceKey)) {
+    const params = new URLSearchParams({
+      resourceKey,
+      reason: getDisabledReasonForResource(resourceKey) ?? "模块未启用",
+    });
+    redirect(`/module-disabled?${params.toString()}`);
+  }
   if (!(await authorize({ user, resourceKey, action: "access" }))) redirect("/portal");
   return user;
 }

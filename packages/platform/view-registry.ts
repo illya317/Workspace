@@ -1,6 +1,6 @@
 import type { AccordionTabItem } from "@workspace/core/ui";
 import type { PageStyleRouteModule, PageViewDefinition, PageViewNode } from "@workspace/core/ui/page-style-preview/template-data";
-import { registeredModuleDefinitions } from "./module-registry";
+import { effectiveModuleDefinitions } from "./effective-module-registry";
 
 export type { PageStyleRouteModule, PageViewDefinition, PageViewNode };
 
@@ -153,12 +153,12 @@ export const pageViewDefinitions: PageViewDefinition[] = [
     views: [],
   },
   {
-    route: "/work/plans",
+    route: "/work/projects",
     moduleKey: "work",
-    label: "工作计划",
-    recordRoutes: ["/work/plans/[id]"],
+    label: "项目",
+    recordRoutes: ["/work/projects/[id]"],
     views: [
-      { key: "plans", label: "计划台账", children: [{ key: "plans", label: "现用" }, { key: "plans-archived", label: "归档" }] },
+      { key: "projects", label: "项目台账", children: [{ key: "projects", label: "现用" }, { key: "projects-archived", label: "归档" }] },
     ],
   },
   {
@@ -296,10 +296,10 @@ export const pageViewDefinitions: PageViewDefinition[] = [
 ];
 
 export function getPageStyleRouteModules(): PageStyleRouteModule[] {
-  return registeredModuleDefinitions.flatMap(({ moduleDef }) => {
-    if (!moduleDef) return [];
+  return effectiveModuleDefinitions.flatMap(({ moduleDef }) => {
+    if (!moduleDef || moduleDef.enabled === false || moduleDef.hidden) return [];
     const children = moduleDef.children?.length
-      ? moduleDef.children.map((child) => ({
+      ? moduleDef.children.filter((child) => child.enabled !== false && !child.hidden).map((child) => ({
           key: child.key,
           label: child.label,
           route: child.href,

@@ -1,12 +1,8 @@
+import { createElement } from "react";
 import { requireAdminManageAccess } from "@workspace/platform/server/auth";
-import { AppShell } from "@workspace/platform/ui";
-import { AdminClient } from "@workspace/platform/ui/admin";
+import { AdminManagePageView } from "@workspace/platform/ui/system/SystemPages";
 
 export default async function AdminPage() {
   const user = await requireAdminManageAccess();
-  return (
-    <AppShell title="管理后台" backHref="/settings" user={user}>
-      <AdminClient user={user} />
-    </AppShell>
-  );
+  return createElement(AdminManagePageView, { user });
 }

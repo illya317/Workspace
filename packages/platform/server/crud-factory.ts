@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { authenticate } from "./auth";
 import { snapshotHistory } from "./history";
+import { disabledApiResponseForRequest } from "./module-runtime";
 import { prisma } from "./prisma";
 
 type PrismaModelKey = keyof typeof prisma;
@@ -44,6 +45,9 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
 
   return {
     async handleUpdateField(request: Request, params: Promise<{ id: string }>) {
+      const disabledResponse = disabledApiResponseForRequest(request);
+      if (disabledResponse) return disabledResponse;
+
       const payload = await authenticate(request);
       if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
       if (!(await writeCheck(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
@@ -79,6 +83,9 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
     },
 
     async handleDelete(request: Request, params: Promise<{ id: string }>) {
+      const disabledResponse = disabledApiResponseForRequest(request);
+      if (disabledResponse) return disabledResponse;
+
       const payload = await authenticate(request);
       if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
       if (!(await deleteCheck(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
@@ -104,6 +111,9 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
         body: Record<string, unknown>,
       ) => Promise<Record<string, unknown> | null> | Record<string, unknown> | null,
     ) {
+      const disabledResponse = disabledApiResponseForRequest(request);
+      if (disabledResponse) return disabledResponse;
+
       const payload = await authenticate(request);
       if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
       if (!(await writeCheck(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });

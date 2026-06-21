@@ -55,4 +55,4 @@ import/    # HR 导入解析、清洗和校验流程
 旧的 `app/hr/*` 类型和 helper 文件保留为 re-export，避免一次性改动大量页面引用。
 旧的 HR UI 大组件和第一批字段组件路径保留为 re-export，Next route 和现有页面入口保持不变。
 旧的 HR API route 保留为认证、权限和 HTTP 响应薄壳，业务查询和校验从 `@workspace/hr/server` 引入。
-项目/计划相关能力已从 HR 剥离到 `@workspace/work`，HR 不再维护 Project / EmployeeProject 入口。
+项目相关能力已从 HR 剥离到 `@workspace/work`，HR 不再维护 Project / EmployeeProject 入口。

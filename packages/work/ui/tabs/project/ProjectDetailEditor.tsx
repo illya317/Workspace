@@ -35,34 +35,28 @@ const pickerPopoverClassName = "absolute left-0 top-[calc(100%+0.35rem)] z-50 w-
 
 export default function ProjectDetailEditor({
   editorTitle,
-  showArchived,
   dirty,
   draft,
   selectedProject,
-  canEdit,
   canEditCurrent,
   saving,
   canSave,
-  childPlans,
-  parentPlanOptions,
-  onArchive,
+  childProjects,
+  parentProjectOptions,
   onSave,
   onDraftChange,
   onLeaderChange,
   onRoleMembersChange,
 }: {
   editorTitle: string;
-  showArchived: boolean;
   dirty: boolean;
   draft: ProjectDraft | null;
   selectedProject: ProjectItem | null;
-  canEdit: boolean;
   canEditCurrent: boolean;
   saving: boolean;
   canSave: boolean;
-  childPlans: { id: number; name: string }[];
-  parentPlanOptions: PickerOption[];
-  onArchive: () => void;
+  childProjects: { id: number; name: string }[];
+  parentProjectOptions: PickerOption[];
   onSave: () => void;
   onDraftChange: <K extends keyof ProjectDraft>(key: K, value: ProjectDraft[K]) => void;
   onLeaderChange: (option?: FkFieldOption) => void;
@@ -75,17 +69,11 @@ export default function ProjectDetailEditor({
         leftSlot={
           <div>
             <div className="text-sm font-semibold text-slate-900">{editorTitle}</div>
-            {showArchived && <p className="mt-1 text-xs text-slate-500">归档浏览为只读，可恢复后继续维护。</p>}
             {dirty && <p className="mt-1 text-xs text-amber-600">有未保存修改</p>}
           </div>
         }
-        secondaryActions={draft && selectedProject ? [{
-          label: showArchived ? "恢复计划" : "归档计划",
-          disabled: saving || !canEdit,
-          onClick: onArchive,
-        }] : []}
-        primaryActions={draft && selectedProject && !showArchived ? [{
-          label: saving ? "保存中..." : "保存计划",
+        primaryActions={draft && selectedProject ? [{
+          label: saving ? "保存中..." : "保存项目",
           disabled: !canSave,
           onClick: onSave,
         }] : []}
@@ -95,7 +83,7 @@ export default function ProjectDetailEditor({
         <div className="space-y-4">
           <SectionCard title="基础信息">
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <FormField label="计划编码">
+              <FormField label="项目编码">
                 <TextField
                   value={projectCode(selectedProject, draft)}
                   readOnly
@@ -103,7 +91,7 @@ export default function ProjectDetailEditor({
                   unstyled
                 />
               </FormField>
-              <FormField label="计划名称" required>
+              <FormField label="项目名称" required>
                 <TextField
                   value={draft.name}
                   disabled={!canEditCurrent}
@@ -114,7 +102,7 @@ export default function ProjectDetailEditor({
               </FormField>
               <FormField label="主导部门" required className="md:col-span-2">
                 <FkFieldInput
-                  fkKey="work.plan.leadingDepartment"
+                  fkKey="work.project.leadingDepartment"
                   endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
                   value={draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : ""}
                   displayValue={draft.leadingDepartmentName || ""}
@@ -127,67 +115,44 @@ export default function ProjectDetailEditor({
                   }}
                 />
               </FormField>
-              <OptionField label="计划状态" value={draft.status} options={PROJECT_STATUS_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("status", value)} />
+              <OptionField label="项目状态" value={draft.status} options={PROJECT_STATUS_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("status", value)} />
               <OptionField label="优先级" value={draft.priority} options={PROJECT_PRIORITY_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("priority", value)} popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-56 rounded-lg border border-slate-200 bg-white p-3 shadow-xl" />
-              <OptionField label="计划阶段" value={draft.stage} options={PROJECT_STAGE_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("stage", value)} />
+              <OptionField label="项目阶段" value={draft.stage} options={PROJECT_STAGE_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("stage", value)} />
               <OptionField
-                label="上级计划"
+                label="上级项目"
                 value={draft.parentId ? String(draft.parentId) : null}
-                options={parentPlanOptions}
+                options={parentProjectOptions}
                 disabled={!canEditCurrent}
                 onChange={(value) => onDraftChange("parentId", value ? Number(value) : null)}
-                placeholder="无上级计划"
-                searchPlaceholder="搜索工作计划"
+                placeholder="无上级项目"
+                searchPlaceholder="搜索项目"
               />
-              <DateField label="计划开始时间" value={draft.startDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("startDate", value)} />
-              <DateField label="计划结束时间" value={draft.endDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("endDate", value)} />
+              <DateField label="项目开始时间" value={draft.startDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("startDate", value)} />
+              <DateField label="项目结束时间" value={draft.endDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("endDate", value)} />
               <TextareaDraftField label="说明" value={draft.description || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("description", value || null)} />
-              <FormField label="子计划" className="md:col-span-2">
+              <FormField label="子项目" className="md:col-span-2">
                 <div className={getReadOnlyFieldClassName("min-h-10 bg-slate-50 text-slate-600")}>
-                  {childPlans.length > 0 ? (
+                  {childProjects.length > 0 ? (
                     <div className="flex flex-wrap gap-2">
-                      {childPlans.map((child) => (
+                      {childProjects.map((child) => (
                         <span key={child.id} className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
                           {child.name}
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <span className="text-sm text-slate-400">暂无子计划</span>
+                    <span className="text-sm text-slate-400">暂无子项目</span>
                   )}
                 </div>
               </FormField>
             </div>
           </SectionCard>
 
-          <SectionCard title="规划与预算">
-            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <TextareaDraftField label="计划规划" value={draft.plan || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("plan", value || null)} />
-              <TextareaDraftField label="计划目标" value={draft.goal || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("goal", value || null)} />
-              <TextareaDraftField label="关键里程碑" value={draft.milestones || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("milestones", value || null)} />
-              <FormField label="预算金额">
-                <TextField
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={draft.budgetAmount === null || draft.budgetAmount === undefined ? "" : String(draft.budgetAmount)}
-                  disabled={!canEditCurrent}
-                  onChange={(value) => onDraftChange("budgetAmount", value === "" ? null : Number(value))}
-                  className={inputClassName}
-                  unstyled
-                />
-              </FormField>
-              <TextareaDraftField label="预算说明" value={draft.budgetNote || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("budgetNote", value || null)} />
-              <TextareaDraftField label="风险说明" value={draft.riskNote || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("riskNote", value || null)} />
-              <TextareaDraftField label="备注" value={draft.remark || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("remark", value || null)} />
-            </div>
-          </SectionCard>
-
-          <SectionCard title="计划人员">
+          <SectionCard title="项目人员">
             <div className="space-y-3">
-              <FormField label="计划负责人">
+              <FormField label="项目负责人">
                 <FkFieldInput
-                  fkKey="work.plan.member.employee"
+                  fkKey="work.project.member.employee"
                   endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
                   value={draft.leader?.employeeNumber || ""}
                   displayValue={draft.leader?.name || ""}
@@ -210,12 +175,35 @@ export default function ProjectDetailEditor({
               </div>
             </div>
           </SectionCard>
+
+          <SectionCard title="规划与预算">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <TextareaDraftField label="项目规划" value={draft.plan || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("plan", value || null)} />
+              <TextareaDraftField label="项目目标" value={draft.goal || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("goal", value || null)} />
+              <TextareaDraftField label="关键里程碑" value={draft.milestones || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("milestones", value || null)} />
+              <FormField label="预算金额">
+                <TextField
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={draft.budgetAmount === null || draft.budgetAmount === undefined ? "" : String(draft.budgetAmount)}
+                  disabled={!canEditCurrent}
+                  onChange={(value) => onDraftChange("budgetAmount", value === "" ? null : Number(value))}
+                  className={inputClassName}
+                  unstyled
+                />
+              </FormField>
+              <TextareaDraftField label="预算说明" value={draft.budgetNote || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("budgetNote", value || null)} />
+              <TextareaDraftField label="风险说明" value={draft.riskNote || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("riskNote", value || null)} />
+              <TextareaDraftField label="备注" value={draft.remark || ""} disabled={!canEditCurrent} onChange={(value) => onDraftChange("remark", value || null)} />
+            </div>
+          </SectionCard>
         </div>
       ) : (
         <div className="flex min-h-64 items-center justify-center p-8">
           <div className="text-center">
-            <p className="text-sm font-medium text-slate-600">暂无可编辑工作计划</p>
-            <p className="mt-1 text-sm text-slate-400">请选择左侧计划，或新建工作计划后维护资料。</p>
+            <p className="text-sm font-medium text-slate-600">暂无可编辑项目</p>
+            <p className="mt-1 text-sm text-slate-400">请选择左侧项目后维护资料。</p>
           </div>
         </div>
       )}

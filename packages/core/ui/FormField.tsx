@@ -27,11 +27,11 @@ export default function FormField({
   if (inline) {
     return (
       <label className={joinClassNames("inline-flex h-10 min-w-0 items-center gap-1.5 text-xs leading-none", className)}>
-        <span className="inline-flex h-10 shrink-0 items-center whitespace-nowrap text-xs font-semibold leading-none text-slate-500">
+        <span data-field-label="true" className="inline-flex h-10 shrink-0 items-center whitespace-nowrap text-xs font-semibold leading-none text-slate-500">
           {label}
           {required && <span className="ml-0.5 text-red-500">*</span>}
         </span>
-        <span className="inline-flex h-10 min-w-0 items-center text-xs leading-none [&_button]:text-xs [&_input]:font-sans [&_input]:text-xs [&_input]:leading-none [&_input]:tabular-nums">
+        <span data-field-control="true" className="inline-flex h-10 min-w-0 items-center text-xs leading-none [&_button]:text-xs [&_input]:font-sans [&_input]:text-xs [&_input]:leading-none [&_input]:tabular-nums">
           {children}
         </span>
         {hint && !error && <span className="text-xs text-slate-400">{hint}</span>}

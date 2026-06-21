@@ -4,7 +4,7 @@ import { registeredModuleDefinitions } from "../../packages/platform/module-regi
 
 const ROOT = path.resolve(__dirname, "../..");
 const APP_ROOT = path.join(ROOT, "app");
-const SYSTEM_ROUTE_ROOTS = new Set(["api", "login", "portal"]);
+const SYSTEM_ROUTE_ROOTS = new Set(["api", "login", "module-disabled", "portal"]);
 const PAGE_FILE = "page.tsx";
 
 type Violation = {
