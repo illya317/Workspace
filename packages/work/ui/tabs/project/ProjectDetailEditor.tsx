@@ -26,6 +26,7 @@ import {
   type ProjectDraft,
   type ProjectItem,
 } from "./model";
+import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 
 const inputClassName = getFieldInputClassName("h-10");
 const pickerButtonClassName = `${inputClassName} text-left`;
@@ -114,6 +115,7 @@ export default function ProjectDetailEditor({
               <FormField label="主导部门" required className="md:col-span-2">
                 <FkFieldInput
                   fkKey="work.plan.leadingDepartment"
+                  endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
                   value={draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : ""}
                   displayValue={draft.leadingDepartmentName || ""}
                   disabled={!canEditCurrent}
@@ -186,6 +188,7 @@ export default function ProjectDetailEditor({
               <FormField label="计划负责人">
                 <FkFieldInput
                   fkKey="work.plan.member.employee"
+                  endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
                   value={draft.leader?.employeeNumber || ""}
                   displayValue={draft.leader?.name || ""}
                   disabled={!canEditCurrent}

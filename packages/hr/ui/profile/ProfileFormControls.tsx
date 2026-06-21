@@ -18,7 +18,7 @@ import ProfessionalTitlePicker from "../components/ProfessionalTitlePicker";
 import RankPicker from "../components/RankPicker";
 import SchoolPicker from "../components/SchoolPicker";
 import type { ProfileField } from "@workspace/hr/types";
-import { fkKeyForEntity } from "../fk-keys";
+import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 import { solarToLunarBirthday } from "./lunar-birthday";
 import { formatPhoneNumber, normalizeChineseIdNumber, normalizePhoneValue } from "@workspace/hr/utils/identity";
 import { AliasTagsInput } from "./ProfileAliasTagsInput";
@@ -124,6 +124,7 @@ export function ProfileFieldInput({
     return (
       <FkFieldInput
         fkKey={fkKeyForEntity(field.entity, field.fkKey)}
+        endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
         value={value == null ? "" : String(value)}
         displayValue={display}
         disabled={disabled}

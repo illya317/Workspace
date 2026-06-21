@@ -8,6 +8,7 @@ import {
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { dedupeMembers, employeeFromOption, type EmployeeTag } from "./model";
+import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 
 export default function ProjectMemberTagsInput({
   value,
@@ -52,6 +53,7 @@ export default function ProjectMemberTagsInput({
           <div className="min-w-48 flex-1">
             <FkFieldInput
               fkKey="work.plan.member.employee"
+              endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
               value=""
               placeholder={value.length ? "继续添加" : "搜索员工"}
               onChange={(_label, option) => add(option)}

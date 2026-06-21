@@ -84,6 +84,7 @@ export interface ApiRouteRegistration {
 
 export interface FkRegistryRegistration {
   key: string;
+  scope: string;
   source: {
     entity: string;
     field: string;
@@ -95,6 +96,10 @@ export interface FkRegistryRegistration {
   targetDeletePolicy?: "block" | "setNull" | "cascade";
   targetArchivePolicy?: "block" | "setNull" | "cascade";
   defaultLifecycleScope?: "active" | "all" | "archived";
+  permission: {
+    resourceKey: string;
+    action: ApiGuardRegistration["action"];
+  };
 }
 
 export interface WorkspacePackageRegistration {

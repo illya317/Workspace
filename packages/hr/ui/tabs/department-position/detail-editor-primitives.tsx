@@ -15,7 +15,7 @@ import {
   useConfirmDelete,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
-import { fkKeyForEntity } from "../../fk-keys";
+import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { primitiveListItems } from "./description-details";
 
 export const formInputClassName = getFieldInputClassName();
@@ -126,6 +126,7 @@ export function EntityValueInput({
     >
       <FkFieldInput
         fkKey={fkKeyForEntity(entity)}
+        endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
         value={current}
         displayValue={current}
         disabled={disabled}

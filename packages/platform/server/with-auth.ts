@@ -33,6 +33,9 @@ import {
   checkInventoryAccess,
   checkLibraryAccess,
   checkLibraryWrite,
+  checkWorkAccess,
+  checkWorkDelete,
+  checkWorkWrite,
 } from "./auth/domain";
 import type { AuthPayload } from "./auth-token";
 
@@ -243,4 +246,22 @@ export function withLibraryWrite(
   handler: AuthHandler,
 ): (req: Request) => Promise<Response> {
   return withAuth(handler, checkLibraryWrite);
+}
+
+export function withWorkAccess(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkWorkAccess);
+}
+
+export function withWorkWrite(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkWorkWrite);
+}
+
+export function withWorkDelete(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkWorkDelete);
 }

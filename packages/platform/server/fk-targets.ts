@@ -72,7 +72,7 @@ const targetSpecs: Record<FkTargetKind, FkTargetSpec> = {
 export interface FkRegistration
   extends Pick<
     FkDefinition,
-    "key" | "source" | "nullable" | "updatePolicy" | "targetDeletePolicy" | "targetArchivePolicy"
+    "key" | "scope" | "source" | "nullable" | "updatePolicy" | "targetDeletePolicy" | "targetArchivePolicy" | "permission"
   > {
   target: FkTargetKind;
   targetLabel?: string;
@@ -83,6 +83,7 @@ export function defineFkRegistration(input: FkRegistration): FkDefinition {
   const spec = targetSpecs[input.target];
   return {
     key: input.key,
+    scope: input.scope,
     source: input.source,
     target: {
       ...spec.target,
@@ -93,6 +94,7 @@ export function defineFkRegistration(input: FkRegistration): FkDefinition {
     targetDeletePolicy: input.targetDeletePolicy,
     targetArchivePolicy: input.targetArchivePolicy,
     defaultLifecycleScope: input.defaultLifecycleScope ?? "active",
+    permission: input.permission,
     search: spec.search,
     resolve: spec.resolve,
   };

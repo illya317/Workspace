@@ -25,6 +25,7 @@ import {
 } from "./detail-editors";
 import { deriveDescriptionMeta } from "./draft-utils";
 import { PositionDescriptionTemplateEditor } from "./position-description-template-editor";
+import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { DescriptionDraft, Position } from "./types";
 
 export function PositionDescriptionPanel({
@@ -131,6 +132,7 @@ export function PositionDescriptionPanel({
         <FormField label="汇报对象">
           <FkFieldInput
             fkKey="hr.position"
+            endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
             value={descriptionDraft.reportTo}
             displayValue={descriptionDraft.reportTo}
             disabled={!canEditPosition}

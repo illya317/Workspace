@@ -3,23 +3,23 @@ import type { FkRegistration } from "./server/fk-targets";
 import { apiResourceGuards, systemApiRoutes, validateModuleRegistry } from "./module-registry-utils";
 
 const WORK_FK_REGISTRATIONS = [
-  { key: "work.plan.parent", source: { entity: "Project", field: "parentId" }, target: "project", targetLabel: "上级计划", nullable: true },
-  { key: "work.plan.leadingDepartment", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "主导部门", nullable: false },
-  { key: "work.plan.member.employee", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", nullable: false },
-  { key: "work.plan.member.project", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", nullable: false },
+  { key: "work.plan.parent", scope: "work", source: { entity: "Project", field: "parentId" }, target: "project", targetLabel: "上级计划", nullable: true, permission: { resourceKey: "work.plan", action: "access" } },
+  { key: "work.plan.leadingDepartment", scope: "work", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "主导部门", nullable: false, permission: { resourceKey: "work.plan", action: "access" } },
+  { key: "work.plan.member.employee", scope: "work", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", nullable: false, permission: { resourceKey: "work.plan", action: "access" } },
+  { key: "work.plan.member.project", scope: "work", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", nullable: false, permission: { resourceKey: "work.plan", action: "access" } },
 ] satisfies FkRegistration[];
 
 const HR_FK_REGISTRATIONS = [
-  { key: "hr.department", source: { entity: "Any", field: "departmentId" }, target: "department", nullable: true },
-  { key: "hr.position", source: { entity: "Any", field: "positionId" }, target: "position", nullable: true },
-  { key: "hr.employee", source: { entity: "Any", field: "employeeId" }, target: "employee", nullable: true },
-  { key: "hr.company", source: { entity: "Contract", field: "company" }, target: "company", nullable: true },
-  { key: "platform.user", source: { entity: "Any", field: "userId" }, target: "user", nullable: true },
-  { key: "hr.positionDescription", source: { entity: "Position", field: "positionDescriptionId" }, target: "positionDescription", nullable: true },
-  { key: "hr.edp.position", source: { entity: "EDP", field: "positionId" }, target: "position", nullable: false },
-  { key: "hr.edp.reportTo", source: { entity: "EDP", field: "reportTo" }, target: "employee", targetLabel: "直接上级", nullable: true },
-  { key: "hr.employeeProject.project", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", targetLabel: "项目", nullable: false },
-  { key: "hr.position.department", source: { entity: "Position", field: "departmentId" }, target: "department", targetLabel: "所属部门", nullable: false },
+  { key: "hr.department", scope: "hr", source: { entity: "Any", field: "departmentId" }, target: "department", nullable: true, permission: { resourceKey: "people.roster", action: "access" } },
+  { key: "hr.position", scope: "hr", source: { entity: "Any", field: "positionId" }, target: "position", nullable: true, permission: { resourceKey: "people.roster", action: "access" } },
+  { key: "hr.employee", scope: "hr", source: { entity: "Any", field: "employeeId" }, target: "employee", nullable: true, permission: { resourceKey: "people.roster", action: "access" } },
+  { key: "hr.company", scope: "hr", source: { entity: "Contract", field: "company" }, target: "company", nullable: true, permission: { resourceKey: "people.roster", action: "access" } },
+  { key: "platform.user", scope: "hr", source: { entity: "Any", field: "userId" }, target: "user", nullable: true, permission: { resourceKey: "people.roster", action: "access" } },
+  { key: "hr.positionDescription", scope: "hr", source: { entity: "Position", field: "positionDescriptionId" }, target: "positionDescription", nullable: true, permission: { resourceKey: "people.roster", action: "access" } },
+  { key: "hr.edp.position", scope: "hr", source: { entity: "EDP", field: "positionId" }, target: "position", nullable: false, permission: { resourceKey: "people.roster", action: "access" } },
+  { key: "hr.edp.reportTo", scope: "hr", source: { entity: "EDP", field: "reportTo" }, target: "employee", targetLabel: "直接上级", nullable: true, permission: { resourceKey: "people.roster", action: "access" } },
+  { key: "hr.employeeProject.project", scope: "hr", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", targetLabel: "项目", nullable: false, permission: { resourceKey: "people.roster", action: "access" } },
+  { key: "hr.position.department", scope: "hr", source: { entity: "Position", field: "departmentId" }, target: "department", targetLabel: "所属部门", nullable: false, permission: { resourceKey: "people.roster", action: "access" } },
 ] satisfies FkRegistration[];
 
 export const registeredModuleDefinitions = [

@@ -3,6 +3,7 @@
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { ActionButton, FkFieldInput, FormField, HierarchyBadge, MetricCard, PanelCard, TextField } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
+import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import PositionAliasTagsInput from "./PositionAliasTagsInput";
 import { DetailSectionHeader, formInputClassName, readOnlyInputClassName, selectedEntityName } from "./detail-editors";
 import { DepartmentDescriptionsPanel } from "./department-descriptions-panel";
@@ -160,6 +161,7 @@ export function DepartmentDetailPane({
                   <FormField label="部门负责人">
                     <FkFieldInput
                       fkKey="hr.position"
+                      endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
                       value={departmentDraft.managerPositionName}
                       displayValue={departmentDraft.managerPositionName}
                       disabled={!canEditDepartment}

@@ -1,4 +1,4 @@
-// @deprecated 兼容入口，新代码请使用 /api/fk/search 或 Core FkFieldInput。本文件纯代理，不再新增业务逻辑。
+// @deprecated 兼容入口，新代码请使用 /api/hr/reference-options 或 Core FkFieldInput。本文件纯代理，不再新增业务逻辑。
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const target = new URL("/api/hr/autocomplete", url.origin);

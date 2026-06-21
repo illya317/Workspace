@@ -7,6 +7,7 @@ import { type PositionDescriptionTemplate, type PositionDescriptionTemplateId } 
 import { DetailSectionHeader, formInputClassName } from "./detail-editors";
 import { DirectPositionPanel } from "./navigation-panels";
 import { PositionDescriptionPanel } from "./position-description-panel";
+import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { Department, DescriptionDraft, Position, PositionDraft, Selection } from "./types";
 import {
   departmentPath,
@@ -168,6 +169,7 @@ export function PositionEditor({
             <FormField label="直属部门">
               <FkFieldInput
                 fkKey="hr.department"
+                endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
                 value={draft.departmentId == null ? "" : String(draft.departmentId)}
                 displayValue={draftDepartmentDisplay}
                 disabled={!canEditPosition}

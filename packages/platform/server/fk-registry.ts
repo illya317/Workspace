@@ -29,6 +29,7 @@ export interface ReferenceBlock {
 
 export interface FkDefinition {
   key: string;
+  scope: string;
   source: {
     entity: string;
     field: string;
@@ -42,6 +43,10 @@ export interface FkDefinition {
   targetDeletePolicy?: FkTargetPolicy;
   targetArchivePolicy?: FkTargetPolicy;
   defaultLifecycleScope?: LifecycleScope;
+  permission: {
+    resourceKey: string;
+    action: "access" | "write" | "delete" | "admin";
+  };
   search: (input: { keyword: string; lifecycleScope: LifecycleScope }) => Promise<FkOption[]>;
   resolve: (id: number) => Promise<FkTargetRecord | null>;
 }

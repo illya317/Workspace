@@ -47,6 +47,7 @@ export default function GenericToolbarFilters({
         valueKind: filter.kind === "fk" ? "fk" : "text",
         fkKey: filter.fkKey ?? filter.entity,
         fkReturnField: filter.returnField,
+        referenceEndpoint: filter.kind === "fk" ? "/api/hr/reference-options" : undefined,
         lifecycleScope: filter.kind === "fk" ? "all" : undefined,
         placeholder: filter.placeholder,
       })),
@@ -144,6 +145,7 @@ export default function GenericToolbarFilters({
         <FieldValueFilter
           fields={advancedFields}
           valueOptions={advancedValueOptions}
+          referenceEndpoint="/api/hr/reference-options"
           fieldKey={advancedFieldKey}
           onFieldKeyChange={handleAdvancedFieldChange}
           value={selectedAdvancedFilter ? ((filterValues[selectedAdvancedFilter.queryParam] as string) ?? "") : ""}

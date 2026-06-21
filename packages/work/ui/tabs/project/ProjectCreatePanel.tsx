@@ -8,6 +8,7 @@ import {
   getFieldInputClassName,
 } from "@workspace/core/ui";
 import type { CreatePlanDraft } from "./model";
+import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 
 const inputClassName = getFieldInputClassName("h-10");
 
@@ -47,6 +48,7 @@ export default function ProjectCreatePanel({
       <FormField label="主导部门" required layout="inline" className="w-72 max-w-full">
         <FkFieldInput
           fkKey="work.plan.leadingDepartment"
+          endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
           value={draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : ""}
           displayValue={draft.leadingDepartmentName || ""}
           disabled={!canEdit || saving}

@@ -2,7 +2,7 @@
 
 import { FkFieldInput } from "@workspace/core/ui";
 import type { FKOption } from "@workspace/hr/types";
-import { fkKeyForEntity } from "../fk-keys";
+import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../fk-keys";
 
 interface FKInputProps {
   value: number | null;
@@ -27,6 +27,7 @@ export default function FKInput({
   return (
     <FkFieldInput
       fkKey={resolvedFkKey}
+      endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
       value={value ? String(value) : ""}
       displayValue={displayValue}
       onChange={(_label, option) => onChange(option ? { id: option.id, name: option.name, subtitle: option.subtitle } : null)}

@@ -13,6 +13,7 @@ export interface FieldValueFilterField extends SelectFieldOption {
   valueKind?: FieldValueFilterValueKind;
   fkKey?: string;
   fkReturnField?: "id" | "name";
+  referenceEndpoint?: string;
   lifecycleScope?: LifecycleScope;
   placeholder?: string;
 }
@@ -26,6 +27,7 @@ export interface FieldValueFilterProps {
   onValueChange: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  referenceEndpoint?: string;
   className?: string;
   style?: CSSProperties;
 }
@@ -39,6 +41,7 @@ export default function FieldValueFilter({
   onValueChange,
   placeholder = "选择筛选",
   disabled = false,
+  referenceEndpoint,
   className,
   style,
 }: FieldValueFilterProps) {
@@ -52,6 +55,7 @@ export default function FieldValueFilter({
   const selectedValue = currentOptions.find((option) => option.value === value);
   const draftField = fields.find((field) => field.value === draftFieldKey);
   const draftOptions = valueOptions[draftFieldKey] ?? [];
+  const draftReferenceEndpoint = draftField?.referenceEndpoint ?? referenceEndpoint;
   const displayValue = useMemo(() => selectedValue?.label ?? (value || "全部"), [selectedValue, value]);
 
   useEffect(() => {
@@ -169,7 +173,7 @@ export default function FieldValueFilter({
                     </PickerOptionButton>
                   ))}
                 </div>
-              ) : draftField?.valueKind === "fk" && draftField.fkKey ? (
+              ) : draftField?.valueKind === "fk" && draftField.fkKey && draftReferenceEndpoint ? (
                 <div className="space-y-1.5">
                   <PickerOptionButton
                     selected={draftValue === ""}
@@ -182,6 +186,7 @@ export default function FieldValueFilter({
                   </PickerOptionButton>
                   <FkFieldInput
                     fkKey={draftField.fkKey}
+                    endpoint={draftReferenceEndpoint}
                     value={draftValue}
                     displayValue={draftValue}
                     onChange={(_label, option) => {

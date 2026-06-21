@@ -1,3 +1,5 @@
+export const HR_REFERENCE_OPTIONS_ENDPOINT = "/api/hr/reference-options";
+
 export const HR_ENTITY_FK_KEYS: Record<string, string> = {
   company: "hr.company",
   department: "hr.department",

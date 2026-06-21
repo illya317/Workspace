@@ -50,7 +50,6 @@ export function systemApiRoutes(): ApiRouteRegistration[] {
     ...apiRoutes("/api/auth/me", "protected", ["GET"]),
     ...apiRoutes("/api/auth/wecom", "public", ["GET"]),
     ...apiRoutes("/api/dev-login-bypass", "dev", ["GET"]),
-    ...apiRoutes("/api/fk", "protected", ["GET"]),
     ...apiRoutes("/api/inventory", "disabled", ["GET", "POST", "PUT", "DELETE"]),
     ...apiRoutes("/api/my-api-key", "protected", ["GET", "POST"], { resourceKey: "system.api", action: "access" }),
     ...apiRoutes("/api/my-targets", "protected", ["GET"]),

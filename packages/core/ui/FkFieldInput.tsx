@@ -17,6 +17,7 @@ export interface FkFieldOption {
 
 export interface FkFieldInputProps {
   fkKey: string;
+  endpoint: string;
   value: string;
   displayValue?: string;
   onChange: (value: string, option?: FkFieldOption) => void;
@@ -29,6 +30,7 @@ export interface FkFieldInputProps {
 
 export default function FkFieldInput({
   fkKey,
+  endpoint,
   value,
   displayValue,
   onChange,
@@ -73,7 +75,7 @@ export default function FkFieldInput({
           keyword: q,
           lifecycleScope,
         });
-        const response = await fetch(workspacePath(`/api/fk/search?${params.toString()}`));
+        const response = await fetch(workspacePath(`${endpoint}?${params.toString()}`));
         if (response.ok) {
           const data = (await response.json()) as { items?: FkFieldOption[] };
           setOptions(data.items || []);
@@ -84,7 +86,7 @@ export default function FkFieldInput({
         setLoading(false);
       }
     },
-    [fkKey, lifecycleScope],
+    [endpoint, fkKey, lifecycleScope],
   );
 
   function handleInputChange(nextValue: string) {

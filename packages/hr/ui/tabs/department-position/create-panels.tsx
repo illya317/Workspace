@@ -9,6 +9,7 @@ import {
   getReadOnlyFieldClassName,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
+import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { compactFormInputClassName } from "./detail-editors";
 import type { CreatePositionDraft, Department } from "./types";
 import { departmentPath } from "./utils";
@@ -58,6 +59,7 @@ export function PositionCreatePanel({
         ) : (
           <FkFieldInput
             fkKey="hr.department"
+            endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
             value={createPositionDraft.departmentId == null ? "" : String(createPositionDraft.departmentId)}
             displayValue={departmentDisplayName}
             placeholder="搜索所属部门"

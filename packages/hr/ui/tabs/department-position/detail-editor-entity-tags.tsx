@@ -2,7 +2,7 @@
 
 import { FkFieldInput, useConfirmDelete } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
-import { fkKeyForEntity } from "../../fk-keys";
+import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { primitiveListItems } from "./description-details";
 import { selectedEntityName } from "./detail-editor-primitives";
 
@@ -99,6 +99,7 @@ export function EntityTagListEditor({
           <div className="min-w-40 flex-1">
             <FkFieldInput
               fkKey={fkKeyForEntity(entity)}
+              endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
               value=""
               displayValue=""
               disabled={disabled}
@@ -175,6 +176,7 @@ export function SubordinateTagsEditor({
           <div className="min-w-40 flex-1">
             <FkFieldInput
               fkKey="hr.position"
+              endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
               value=""
               displayValue=""
               disabled={disabled}
