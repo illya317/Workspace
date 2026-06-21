@@ -5,6 +5,10 @@ import { PROJECT_ROLES } from "../constants/field-options";
 export type ProjectAccessRole = "access" | "write" | "delete";
 
 export async function canUseProject(userId: number, role: ProjectAccessRole = "access") {
+  return hasProjectBroadAccess(userId, role);
+}
+
+export async function hasProjectBroadAccess(userId: number, role: ProjectAccessRole = "access") {
   if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
   if (await authorize({ user: userId, resourceKey: "work.project", action: role })) return true;
   return authorize({ user: userId, resourceKey: "work", action: role });
@@ -43,7 +47,7 @@ export async function getUserEmployeeIds(userId: number) {
 }
 
 export async function hasProjectViewAll(userId: number) {
-  if (await isSystemAdminUser(userId)) return true;
+  if (await hasProjectBroadAccess(userId, "access")) return true;
   return authorize({ user: userId, resourceKey: PROJECT_VIEW_ALL_RESOURCE, action: "access" });
 }
 
@@ -65,9 +69,11 @@ export async function getProjectPermissions(
 ): Promise<ProjectPermissionResult> {
   if (await isSystemAdminUser(userId)) return { canView: true, canEdit: true, canManage: true, canDelete: true };
 
-  const [employeeIds, canViewAll] = await Promise.all([
+  const [employeeIds, canViewAll, canEditAll, canDeleteAll] = await Promise.all([
     getUserEmployeeIds(userId),
     hasProjectViewAll(userId),
+    hasProjectBroadAccess(userId, "write"),
+    hasProjectBroadAccess(userId, "delete"),
   ]);
   const employeeIdSet = new Set(employeeIds);
   const memberRoles = (project.employees || [])
@@ -79,7 +85,8 @@ export async function getProjectPermissions(
   const isProjectManager = memberRoles.some((role) => PROJECT_MANAGER_ROLES.has(role));
   const isProjectEditor = memberRoles.some((role) => PROJECT_EDITOR_ROLES.has(role));
   const isProjectViewer = memberRoles.some((role) => PROJECT_VIEWER_ROLES.has(role));
-  const canManage = isCreator || isDepartmentManager || isProjectManager;
+  const canManageByProject = isCreator || isDepartmentManager || isProjectManager;
+  const canManage = canEditAll || canManageByProject;
   const canEdit = canManage || isProjectEditor;
   const canView = canViewAll || canEdit || isProjectViewer;
 
@@ -87,7 +94,7 @@ export async function getProjectPermissions(
     canView,
     canEdit,
     canManage,
-    canDelete: canManage,
+    canDelete: canDeleteAll || canManageByProject,
   };
 }
 

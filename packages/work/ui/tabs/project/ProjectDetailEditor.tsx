@@ -180,7 +180,7 @@ export default function ProjectDetailEditor({
                   endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
                   value={draft.leader?.employeeNumber || ""}
                   displayValue={draft.leader?.name || ""}
-                  disabled={!canManageCurrent}
+                  disabled={!canManageCurrent || creating}
                   placeholder="搜索负责人"
                   onChange={(_label, option) => onLeaderChange(option)}
                 />
@@ -191,7 +191,7 @@ export default function ProjectDetailEditor({
                   <FormField key={role} label={role}>
                     <ProjectMemberTagsInput
                       value={draft.roleGroups[role]}
-                      disabled={!canManageCurrent}
+                      disabled={!canManageCurrent || creating}
                       onChange={(members) => onRoleMembersChange(role, members)}
                     />
                   </FormField>

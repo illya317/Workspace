@@ -11,6 +11,7 @@ import {
   canDeleteProject,
   canEditProject,
   canManageProject,
+  canViewProject,
   getProjectPermissions,
   isSystemAdminUser,
 } from "./access";
@@ -125,6 +126,9 @@ export async function createProject(request: Request, userId: number) {
   const projectType = normalizeProjectType(parsed.data.projectType);
   const parentResult = await normalizeProjectParentId(parsed.data.parentId);
   if ("error" in parentResult) return { ok: false as const, error: parentResult.error };
+  if (parentResult.value && !(await canViewProject(userId, parentResult.value))) {
+    return { ok: false as const, error: "上级项目无权限", status: 403 };
+  }
   const leadingDepartmentResult = parsed.data.leadingDepartmentId
     ? await normalizeLeadingDepartmentId(parsed.data.leadingDepartmentId)
     : null;
@@ -256,6 +260,9 @@ export async function updateProjectField(request: Request, params: Promise<{ id:
   if (!result) return NextResponse.json({ error: "非法字段" }, { status: 400 });
   if ("error" in result) return NextResponse.json({ error: result.error }, { status: 400 });
   if (!PROJECT_CONFIG.allowedFields.includes(result.field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
+  if (result.field === "parentId" && result.value && !(await canViewProject(payload.userId, Number(result.value)))) {
+    return NextResponse.json({ error: "上级项目无权限" }, { status: 403 });
+  }
   await prisma.project.update({
     where: { id: projectId },
     data: {

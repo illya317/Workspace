@@ -16,6 +16,7 @@ import {
   type TemplateKind,
 } from "@workspace/core/ui/page-style-preview/template-data";
 import { activeModuleDefinitions } from "../../effective-module-registry";
+import { registeredModuleDefinitions } from "../../module-registry";
 
 export {
   getModuleSections,
@@ -173,41 +174,65 @@ const baseModuleTemplates: ModuleTemplate[] = [
   },
 ];
 
-function getRuntimeRouteLabel(route: string) {
-  for (const { moduleDef } of activeModuleDefinitions) {
+type RouteRuntimeMeta = {
+  baseLabel: string;
+  label: string;
+};
+
+function normalizeTemplateRoute(route: string) {
+  return isRecordRoute(route) ? route.replace(/\/\[[^\]]+\]/g, "") : route;
+}
+
+function getBaseRouteLabel(route: string) {
+  const normalizedRoute = normalizeTemplateRoute(route);
+  for (const { moduleDef } of registeredModuleDefinitions) {
     if (!moduleDef) continue;
-    if (moduleDef.href === route) return moduleDef.label;
-    const child = moduleDef.children?.find((item) => item.href === route);
+    if (moduleDef.href === normalizedRoute) return moduleDef.label;
+    const child = moduleDef.children?.find((item) => item.href === normalizedRoute);
     if (child) return child.label;
   }
   return null;
 }
 
-function isTemplateRouteVisible(route: string) {
-  if (isRecordRoute(route)) {
-    const parentRoute = route.replace(/\/\[[^\]]+\]/g, "");
-    return Boolean(getRuntimeRouteLabel(parentRoute));
+function getRuntimeRouteMeta(route: string): RouteRuntimeMeta | null {
+  const normalizedRoute = normalizeTemplateRoute(route);
+  for (const { moduleDef } of activeModuleDefinitions) {
+    if (!moduleDef) continue;
+    if (moduleDef.href === normalizedRoute) {
+      return { baseLabel: getBaseRouteLabel(normalizedRoute) ?? moduleDef.label, label: moduleDef.label };
+    }
+    const child = moduleDef.children?.find((item) => item.href === normalizedRoute);
+    if (child) return { baseLabel: getBaseRouteLabel(normalizedRoute) ?? child.label, label: child.label };
   }
-  return Boolean(getRuntimeRouteLabel(route));
+  return null;
+}
+
+function isTemplateRouteVisible(route: string) {
+  return Boolean(getRuntimeRouteMeta(route));
 }
 
 function hasVisibleRoute(routes: string[] | undefined) {
   return !routes || routes.some(isTemplateRouteVisible);
 }
 
+function applyRouteLabel(value: string | undefined, meta: RouteRuntimeMeta) {
+  if (!value || !meta.baseLabel || meta.baseLabel === meta.label) return value;
+  return value.replaceAll(meta.baseLabel, meta.label);
+}
+
 function applyRuntimePageLabels(page: PageTemplate): PageTemplate {
-  const runtimeLabel = page.routes?.map(getRuntimeRouteLabel).find((label): label is string => Boolean(label));
-  if (!runtimeLabel || !page.routes?.includes("/work/projects")) return page;
+  const meta = page.routes?.map(getRuntimeRouteMeta).find((item): item is RouteRuntimeMeta => Boolean(item));
+  if (!meta) return page;
 
   return {
     ...page,
-    title: page.key === "projects-archived" ? `归档${runtimeLabel}` : `${runtimeLabel}列表`,
-    section: runtimeLabel,
-    group: `${runtimeLabel}台账`,
+    title: applyRouteLabel(page.title, meta) ?? page.title,
+    section: applyRouteLabel(page.section, meta),
+    group: applyRouteLabel(page.group, meta),
     embedded: page.embedded
       ? {
           ...page.embedded,
-          title: `${runtimeLabel}详情`,
+          title: applyRouteLabel(page.embedded.title, meta) ?? page.embedded.title,
         }
       : page.embedded,
   };

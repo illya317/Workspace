@@ -1,6 +1,7 @@
 import type { AccordionTabItem } from "@workspace/core/ui";
 import type { PageStyleRouteModule, PageViewDefinition, PageViewNode } from "@workspace/core/ui/page-style-preview/template-data";
 import { effectiveModuleDefinitions } from "./effective-module-registry";
+import { registeredModuleDefinitions } from "./module-registry";
 
 export type { PageStyleRouteModule, PageViewDefinition, PageViewNode };
 
@@ -295,29 +296,59 @@ const basePageViewDefinitions: PageViewDefinition[] = [
   },
 ];
 
-function getRuntimeRouteLabel(route: string) {
-  for (const { moduleDef } of effectiveModuleDefinitions) {
-    if (!moduleDef || moduleDef.enabled === false || moduleDef.hidden) continue;
+type RouteRuntimeMeta = {
+  baseLabel: string;
+  label: string;
+};
+
+function getBaseRouteLabel(route: string) {
+  for (const { moduleDef } of registeredModuleDefinitions) {
+    if (!moduleDef) continue;
     if (moduleDef.href === route) return moduleDef.label;
     const child = moduleDef.children?.find((item) => item.href === route);
-    if (child && child.enabled !== false && !child.hidden) return child.label;
+    if (child) return child.label;
+  }
+  return null;
+}
+
+function getRuntimeRouteMeta(route: string): RouteRuntimeMeta | null {
+  for (const { moduleDef } of effectiveModuleDefinitions) {
+    if (!moduleDef || moduleDef.enabled === false || moduleDef.hidden) continue;
+    if (moduleDef.href === route) {
+      return { baseLabel: getBaseRouteLabel(route) ?? moduleDef.label, label: moduleDef.label };
+    }
+    const child = moduleDef.children?.find((item) => item.href === route);
+    if (child && child.enabled !== false && !child.hidden) {
+      return { baseLabel: getBaseRouteLabel(route) ?? child.label, label: child.label };
+    }
   }
   return null;
 }
 
 function isRuntimeRouteVisible(route: string) {
-  return Boolean(getRuntimeRouteLabel(route));
+  return Boolean(getRuntimeRouteMeta(route));
+}
+
+function applyRouteLabel(value: string, meta: RouteRuntimeMeta) {
+  if (!meta.baseLabel || meta.baseLabel === meta.label) return value;
+  return value.replaceAll(meta.baseLabel, meta.label);
+}
+
+function applyRuntimeViewLabels(nodes: PageViewNode[], meta: RouteRuntimeMeta): PageViewNode[] {
+  return nodes.map((node) => ({
+    ...node,
+    label: applyRouteLabel(node.label, meta),
+    children: node.children ? applyRuntimeViewLabels(node.children, meta) : undefined,
+  }));
 }
 
 function applyRuntimeDefinition(definition: PageViewDefinition): PageViewDefinition {
-  const label = getRuntimeRouteLabel(definition.route) ?? definition.label;
-  if (definition.route !== "/work/projects") return { ...definition, label };
+  const meta = getRuntimeRouteMeta(definition.route);
+  if (!meta) return definition;
   return {
     ...definition,
-    label,
-    views: definition.views.map((view) => (
-      view.key === "projects" ? { ...view, label: `${label}台账` } : view
-    )),
+    label: meta.label,
+    views: applyRuntimeViewLabels(definition.views, meta),
   };
 }
 
