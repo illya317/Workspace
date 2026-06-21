@@ -52,7 +52,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/hr/server/crud.ts` 已接收 HR 字段级 CRUD wrapper，统一注入 `people.roster` 读写删除权限；HR server service 使用这个 wrapper 而不是 app-root `@/lib/crud`。
 - `packages/platform/ui` 已接收登录后的 Portal、L1 模块首页、AppShell、跨页 NavLink、用户菜单、设置页和审计日志 UI；AppShell 必须复用 Core `PageShell`。根 `app/components/*` 与 `app/portal/PortalClient.tsx` 兼容出口已删除，route 直接挂载 Platform UI。
 - `packages/administration` 已接收合同台账的 module、UI、server、types，`app/(modules)/administration/contracts/page.tsx` 和 `app/api/modules/administration/contracts/*` 只保留 Next 壳。
-- `packages/library` 已接收资料库 module、UI、server、types，`app/library/page.tsx` 和 `app/api/modules/library/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。
+- `packages/library` 已接收资料库 module、UI、server、types，`app/(modules)/library/page.tsx` 和 `app/api/modules/library/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。
 - 每个业务包的 `module.ts` 必须导出 `moduleDefinition`，同时保留领域兼容别名（例如 `financePackage`）。`moduleDefinition` 必须来自 `packages/platform/module-registry.ts` 的 `getRegisteredModuleDefinition("@workspace/<domain>")`；`npm run arch:gate` 会校验业务包导出、registry 注册和重复 module key。
 - `packages/platform/ui/docs` 已接收文档中心和接入指南 UI；`app/(docs)/docs/*` 只保留鉴权/参数/挂载壳。
 - `app/lib/module-nav.tsx` 是兼容出口，现有页面暂时继续从这里导入。
@@ -67,7 +67,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 ## 路由和服务迁移原则
 
 - `app/(modules)/<domain>` 保留为 Next 路由壳，对外仍暴露 `/domain` URL。后续新增复杂 UI 时，优先放入对应 `packages/<domain>/ui` 后再由页面引用。
-- `app/api/<domain>` 保留为 API route 壳，只做认证、权限、参数校验、调用 package service、返回 DTO。
+- `app/api/modules/<domain>` 保留为业务 API route 壳，只做认证、权限、参数校验、调用 package service、返回 DTO；不要新增一级业务 API 目录。
 - 业务查询、导入、校验和计算必须优先进入 `packages/<domain>/server`。旧 `server/services/<domain>` 只作为存量兼容位置，不再作为新增业务 service 的默认落点。
 - Prisma 仍使用单一 schema/client；`prisma/models/*.prisma` 继续按领域归属，不拆库。
 
