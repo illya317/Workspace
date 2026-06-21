@@ -8,7 +8,7 @@ import { useProjectTabModel } from "./project/use-project-tab-model";
 
 export default function ProjectTab({ user }: { user: WorkUser }) {
   const model = useProjectTabModel(user);
-  const editorTitle = model.selectedProject ? "项目信息" : "项目详情";
+  const editorTitle = model.creating ? "新建项目" : model.selectedProject ? "项目信息" : "项目详情";
 
   if (model.loading || model.error) {
     return (
@@ -43,6 +43,7 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
             projects={model.projects}
             selection={model.selection}
             onSelect={(projectId) => {
+              model.setCreating(false);
               model.setSelection(projectId);
               model.setProjectListDrawerOpen(false);
             }}
@@ -54,11 +55,16 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
           dirty={model.dirty}
           draft={model.draft}
           selectedProject={model.selectedProject}
+          canCreateProject={model.canCreateProject}
           canEditCurrent={model.canEditCurrent}
+          canManageCurrent={model.canManageCurrent}
           saving={model.saving}
           canSave={model.canSave}
           childProjects={model.childProjects}
           parentProjectOptions={model.parentProjectOptions}
+          creating={model.creating}
+          onCancelCreate={model.cancelCreateProject}
+          onCreate={model.startCreateProject}
           onSave={() => void model.saveProject()}
           onDraftChange={model.updateDraft}
           onLeaderChange={model.setLeader}

@@ -8,6 +8,38 @@ import {
   type ProjectRole,
 } from "./model";
 
+export async function createProject(draft: ProjectDraft) {
+  const res = await fetch(workspacePath("/api/modules/work/projects"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      projectType: draft.projectType,
+      name: draft.name,
+      description: draft.description,
+      status: draft.status,
+      priority: draft.priority,
+      stage: draft.stage,
+      plan: draft.plan,
+      goal: draft.goal,
+      milestones: draft.milestones,
+      budgetAmount: draft.budgetAmount,
+      budgetNote: draft.budgetNote,
+      riskNote: draft.riskNote,
+      remark: draft.remark,
+      parentId: draft.parentId,
+      leadingDepartmentId: draft.leadingDepartmentId,
+      startDate: draft.startDate,
+      endDate: draft.endDate,
+    }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "新建项目失败");
+  }
+  const data = await res.json();
+  return Number(data.record?.id);
+}
+
 export async function updateProjectField(projectId: number, field: string, value: unknown) {
   const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}`), {
     method: "PUT",

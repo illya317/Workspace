@@ -1,4 +1,5 @@
 import { prisma } from "@workspace/platform/server/prisma";
+import { RESOURCE_KEYS } from "@workspace/platform/resources";
 
 import { getResourceMaxRole } from "./maxRole";
 
@@ -60,6 +61,7 @@ export async function listPermissionResources(input: {
   isSystemAdmin: boolean;
   manageableResourceKeys: Iterable<string>;
 }) {
+  const activeResourceKeys = new Set(RESOURCE_KEYS);
   const allResources = await prisma.resource.findMany({
     orderBy: { sortOrder: "asc" },
     include: {
@@ -73,14 +75,15 @@ export async function listPermissionResources(input: {
       },
     },
   });
+  const activeResources = allResources.filter((resource) => activeResourceKeys.has(resource.key));
 
   const allowedKeys = input.isSystemAdmin
-    ? new Set(allResources.map((resource) => resource.key))
-    : new Set(input.manageableResourceKeys);
+    ? new Set(activeResources.map((resource) => resource.key))
+    : new Set([...input.manageableResourceKeys].filter((key) => activeResourceKeys.has(key)));
 
   const countMap = new Map<number, number>();
   await Promise.all(
-    allResources.map(async (resource) => {
+    activeResources.map(async (resource) => {
       const rows = await prisma.userResourceRole.findMany({
         where: { resourceId: resource.id, scopeId: null },
         select: { userId: true },
@@ -92,7 +95,7 @@ export async function listPermissionResources(input: {
 
   const effectiveMaxRoleMap = new Map<string, string>();
   await Promise.all(
-    allResources.map(async (resource) => {
+    activeResources.map(async (resource) => {
       if (allowedKeys.has(resource.key)) {
         effectiveMaxRoleMap.set(resource.key, await getResourceMaxRole(resource.key));
       }
@@ -112,12 +115,12 @@ export async function listPermissionResources(input: {
     }
   }
 
-  const resources = allResources
+  const resources = activeResources
     .filter((resource) => resource.parentId === null && visibleKeys.has(resource.key))
     .map((resource) => toPermissionNode(resource, countMap, visibleKeys, effectiveMaxRoleMap));
 
-  const fullTreeVisibleKeys = new Set(allResources.map((resource) => resource.key));
-  const resourceTree = allResources
+  const fullTreeVisibleKeys = new Set(activeResources.map((resource) => resource.key));
+  const resourceTree = activeResources
     .filter((resource) => resource.parentId === null)
     .map((resource) => toPermissionNode(resource, countMap, fullTreeVisibleKeys, effectiveMaxRoleMap));
 

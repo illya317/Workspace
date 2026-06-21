@@ -4,7 +4,7 @@ import { effectiveModuleDefinitions } from "./effective-module-registry";
 
 export type { PageStyleRouteModule, PageViewDefinition, PageViewNode };
 
-export const pageViewDefinitions: PageViewDefinition[] = [
+const basePageViewDefinitions: PageViewDefinition[] = [
   {
     route: "/hr/roster",
     moduleKey: "hr",
@@ -294,6 +294,36 @@ export const pageViewDefinitions: PageViewDefinition[] = [
     ],
   },
 ];
+
+function getRuntimeRouteLabel(route: string) {
+  for (const { moduleDef } of effectiveModuleDefinitions) {
+    if (!moduleDef || moduleDef.enabled === false || moduleDef.hidden) continue;
+    if (moduleDef.href === route) return moduleDef.label;
+    const child = moduleDef.children?.find((item) => item.href === route);
+    if (child && child.enabled !== false && !child.hidden) return child.label;
+  }
+  return null;
+}
+
+function isRuntimeRouteVisible(route: string) {
+  return Boolean(getRuntimeRouteLabel(route));
+}
+
+function applyRuntimeDefinition(definition: PageViewDefinition): PageViewDefinition {
+  const label = getRuntimeRouteLabel(definition.route) ?? definition.label;
+  if (definition.route !== "/work/projects") return { ...definition, label };
+  return {
+    ...definition,
+    label,
+    views: definition.views.map((view) => (
+      view.key === "projects" ? { ...view, label: `${label}台账` } : view
+    )),
+  };
+}
+
+export const pageViewDefinitions: PageViewDefinition[] = basePageViewDefinitions
+  .filter((definition) => isRuntimeRouteVisible(definition.route))
+  .map(applyRuntimeDefinition);
 
 export function getPageStyleRouteModules(): PageStyleRouteModule[] {
   return effectiveModuleDefinitions.flatMap(({ moduleDef }) => {

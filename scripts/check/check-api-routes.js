@@ -14,6 +14,24 @@ const path = require("path");
 const WORKSPACE_ROOT = path.resolve(__dirname, "../..");
 const ROOT = path.join(WORKSPACE_ROOT, "app/api");
 const MODULE_REGISTRY = path.join(WORKSPACE_ROOT, "packages/platform/module-registry.ts");
+const DIRECT_AUTH_DISABLED_GUARD_BASELINE = new Set([
+  "modules/hr/autocomplete/route.ts",
+  "modules/hr/companies/route.ts",
+  "modules/hr/company-relations/route.ts",
+  "modules/hr/contracts/[id]/route.ts",
+  "modules/hr/contracts/route.ts",
+  "modules/hr/edps/route.ts",
+  "modules/hr/employee-profiles/[id]/contracts/route.ts",
+  "modules/hr/employee-profiles/[id]/edps/route.ts",
+  "modules/hr/employee-profiles/[id]/history/route.ts",
+  "modules/hr/employee-profiles/[id]/route.ts",
+  "modules/hr/employees/search/route.ts",
+  "modules/hr/employments/route.ts",
+  "modules/hr/position-description-templates/route.ts",
+  "modules/hr/position-descriptions/route.ts",
+  "modules/hr/positions/route.ts",
+  "modules/hr/roster/route.ts",
+]);
 
 function walkRoutes(dir) {
   const results = [];
@@ -66,6 +84,19 @@ for (const file of allRoutes) {
     const moduleName = rel.split("/")[1];
     if (!KNOWN_MODULES.has(moduleName)) {
       console.error(`❌ ${rel} 的模块名未在 module-registry apiGuards 登记，应放到 /api/modules/<registered-module>/*`);
+      errors++;
+    }
+
+    const usesDirectAuthenticate = content.includes("authenticate(");
+    const hasDisabledRuntimeGuard = content.includes("disabledApiResponseForRequest");
+    const usesAuthWrapper = /with[A-Za-z]*Access\s*\(/.test(content) || /withAuth\s*\(/.test(content);
+    if (
+      usesDirectAuthenticate &&
+      !hasDisabledRuntimeGuard &&
+      !usesAuthWrapper &&
+      !DIRECT_AUTH_DISABLED_GUARD_BASELINE.has(rel)
+    ) {
+      console.error(`❌ ${rel} 手写 authenticate() 时必须先调用 disabledApiResponseForRequest()，避免 contract disabled 后仍进入业务逻辑`);
       errors++;
     }
   }

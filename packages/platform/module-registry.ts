@@ -43,6 +43,7 @@ export const registeredModuleDefinitions = [
     resourceDefs: [
       { key: "work", name: "工作管理", sortOrder: 0 },
       { key: "work.project", name: "项目", parentKey: "work", sortOrder: 0 },
+      { key: "work.project.view_all", name: "项目全局查看", parentKey: "work.project", maxRoleKey: "access", sortOrder: 4 },
       { key: "work.task", name: "工作清单", parentKey: "work", sortOrder: 1 },
       { key: "work.report", name: "工作汇报", parentKey: "work", sortOrder: 2 },
       { key: "work.history", name: "历史记录", parentKey: "work", sortOrder: 3 },

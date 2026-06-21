@@ -31,6 +31,7 @@ export type ProjectAvgAggregateOutputType = {
   budgetAmount: number | null
   parentId: number | null
   leadingDepartmentId: number | null
+  createdBy: number | null
   editedBy: number | null
   version: number | null
 }
@@ -40,6 +41,7 @@ export type ProjectSumAggregateOutputType = {
   budgetAmount: number | null
   parentId: number | null
   leadingDepartmentId: number | null
+  createdBy: number | null
   editedBy: number | null
   version: number | null
 }
@@ -66,6 +68,7 @@ export type ProjectMinAggregateOutputType = {
   leadingDepartmentId: number | null
   isArchived: boolean | null
   archivedAt: Date | null
+  createdBy: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -95,6 +98,7 @@ export type ProjectMaxAggregateOutputType = {
   leadingDepartmentId: number | null
   isArchived: boolean | null
   archivedAt: Date | null
+  createdBy: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -124,6 +128,7 @@ export type ProjectCountAggregateOutputType = {
   leadingDepartmentId: number
   isArchived: number
   archivedAt: number
+  createdBy: number
   editedBy: number
   editedAt: number
   version: number
@@ -138,6 +143,7 @@ export type ProjectAvgAggregateInputType = {
   budgetAmount?: true
   parentId?: true
   leadingDepartmentId?: true
+  createdBy?: true
   editedBy?: true
   version?: true
 }
@@ -147,6 +153,7 @@ export type ProjectSumAggregateInputType = {
   budgetAmount?: true
   parentId?: true
   leadingDepartmentId?: true
+  createdBy?: true
   editedBy?: true
   version?: true
 }
@@ -173,6 +180,7 @@ export type ProjectMinAggregateInputType = {
   leadingDepartmentId?: true
   isArchived?: true
   archivedAt?: true
+  createdBy?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -202,6 +210,7 @@ export type ProjectMaxAggregateInputType = {
   leadingDepartmentId?: true
   isArchived?: true
   archivedAt?: true
+  createdBy?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -231,6 +240,7 @@ export type ProjectCountAggregateInputType = {
   leadingDepartmentId?: true
   isArchived?: true
   archivedAt?: true
+  createdBy?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -347,6 +357,7 @@ export type ProjectGroupByOutputType = {
   leadingDepartmentId: number | null
   isArchived: boolean
   archivedAt: Date | null
+  createdBy: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number
@@ -399,6 +410,7 @@ export type ProjectWhereInput = {
   leadingDepartmentId?: Prisma.IntNullableFilter<"Project"> | number | null
   isArchived?: Prisma.BoolFilter<"Project"> | boolean
   archivedAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
+  createdBy?: Prisma.IntNullableFilter<"Project"> | number | null
   editedBy?: Prisma.IntNullableFilter<"Project"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   version?: Prisma.IntFilter<"Project"> | number
@@ -433,6 +445,7 @@ export type ProjectOrderByWithRelationInput = {
   leadingDepartmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -470,6 +483,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   leadingDepartmentId?: Prisma.IntNullableFilter<"Project"> | number | null
   isArchived?: Prisma.BoolFilter<"Project"> | boolean
   archivedAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
+  createdBy?: Prisma.IntNullableFilter<"Project"> | number | null
   editedBy?: Prisma.IntNullableFilter<"Project"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   version?: Prisma.IntFilter<"Project"> | number
@@ -504,6 +518,7 @@ export type ProjectOrderByWithAggregationInput = {
   leadingDepartmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -541,6 +556,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   leadingDepartmentId?: Prisma.IntNullableWithAggregatesFilter<"Project"> | number | null
   isArchived?: Prisma.BoolWithAggregatesFilter<"Project"> | boolean
   archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
+  createdBy?: Prisma.IntNullableWithAggregatesFilter<"Project"> | number | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"Project"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"Project"> | number
@@ -567,6 +583,7 @@ export type ProjectCreateInput = {
   endDate?: Date | string | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -601,6 +618,7 @@ export type ProjectUncheckedCreateInput = {
   leadingDepartmentId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -630,6 +648,7 @@ export type ProjectUpdateInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -664,6 +683,7 @@ export type ProjectUncheckedUpdateInput = {
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -696,6 +716,7 @@ export type ProjectCreateManyInput = {
   leadingDepartmentId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -722,6 +743,7 @@ export type ProjectUpdateManyMutationInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -751,6 +773,7 @@ export type ProjectUncheckedUpdateManyInput = {
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -795,6 +818,7 @@ export type ProjectCountOrderByAggregateInput = {
   leadingDepartmentId?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -807,6 +831,7 @@ export type ProjectAvgOrderByAggregateInput = {
   budgetAmount?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   leadingDepartmentId?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -833,6 +858,7 @@ export type ProjectMaxOrderByAggregateInput = {
   leadingDepartmentId?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -862,6 +888,7 @@ export type ProjectMinOrderByAggregateInput = {
   leadingDepartmentId?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -874,6 +901,7 @@ export type ProjectSumOrderByAggregateInput = {
   budgetAmount?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   leadingDepartmentId?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -1030,6 +1058,7 @@ export type ProjectCreateWithoutLeadingDepartmentInput = {
   endDate?: Date | string | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1062,6 +1091,7 @@ export type ProjectUncheckedCreateWithoutLeadingDepartmentInput = {
   parentId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1122,6 +1152,7 @@ export type ProjectScalarWhereInput = {
   leadingDepartmentId?: Prisma.IntNullableFilter<"Project"> | number | null
   isArchived?: Prisma.BoolFilter<"Project"> | boolean
   archivedAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
+  createdBy?: Prisma.IntNullableFilter<"Project"> | number | null
   editedBy?: Prisma.IntNullableFilter<"Project"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
   version?: Prisma.IntFilter<"Project"> | number
@@ -1148,6 +1179,7 @@ export type ProjectCreateWithoutChildrenInput = {
   endDate?: Date | string | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1181,6 +1213,7 @@ export type ProjectUncheckedCreateWithoutChildrenInput = {
   leadingDepartmentId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1214,6 +1247,7 @@ export type ProjectCreateWithoutParentInput = {
   endDate?: Date | string | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1246,6 +1280,7 @@ export type ProjectUncheckedCreateWithoutParentInput = {
   leadingDepartmentId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1295,6 +1330,7 @@ export type ProjectUpdateWithoutChildrenInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1328,6 +1364,7 @@ export type ProjectUncheckedUpdateWithoutChildrenInput = {
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1372,6 +1409,7 @@ export type ProjectCreateWithoutEmployeesInput = {
   endDate?: Date | string | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1405,6 +1443,7 @@ export type ProjectUncheckedCreateWithoutEmployeesInput = {
   leadingDepartmentId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1449,6 +1488,7 @@ export type ProjectUpdateWithoutEmployeesInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1482,6 +1522,7 @@ export type ProjectUncheckedUpdateWithoutEmployeesInput = {
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1510,6 +1551,7 @@ export type ProjectCreateWithoutWorkAssigneesInput = {
   endDate?: Date | string | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1543,6 +1585,7 @@ export type ProjectUncheckedCreateWithoutWorkAssigneesInput = {
   leadingDepartmentId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1587,6 +1630,7 @@ export type ProjectUpdateWithoutWorkAssigneesInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1620,6 +1664,7 @@ export type ProjectUncheckedUpdateWithoutWorkAssigneesInput = {
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1650,6 +1695,7 @@ export type ProjectCreateManyLeadingDepartmentInput = {
   parentId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1676,6 +1722,7 @@ export type ProjectUpdateWithoutLeadingDepartmentInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1708,6 +1755,7 @@ export type ProjectUncheckedUpdateWithoutLeadingDepartmentInput = {
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1739,6 +1787,7 @@ export type ProjectUncheckedUpdateManyWithoutLeadingDepartmentInput = {
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1767,6 +1816,7 @@ export type ProjectCreateManyParentInput = {
   leadingDepartmentId?: number | null
   isArchived?: boolean
   archivedAt?: Date | string | null
+  createdBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1793,6 +1843,7 @@ export type ProjectUpdateWithoutParentInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1825,6 +1876,7 @@ export type ProjectUncheckedUpdateWithoutParentInput = {
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1856,6 +1908,7 @@ export type ProjectUncheckedUpdateManyWithoutParentInput = {
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1934,6 +1987,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   leadingDepartmentId?: boolean
   isArchived?: boolean
   archivedAt?: boolean
+  createdBy?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1969,6 +2023,7 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   leadingDepartmentId?: boolean
   isArchived?: boolean
   archivedAt?: boolean
+  createdBy?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -2000,6 +2055,7 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   leadingDepartmentId?: boolean
   isArchived?: boolean
   archivedAt?: boolean
+  createdBy?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -2031,6 +2087,7 @@ export type ProjectSelectScalar = {
   leadingDepartmentId?: boolean
   isArchived?: boolean
   archivedAt?: boolean
+  createdBy?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -2038,7 +2095,7 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "type" | "description" | "status" | "priority" | "stage" | "plan" | "goal" | "milestones" | "budgetAmount" | "budgetNote" | "riskNote" | "remark" | "startDate" | "endDate" | "parentId" | "leadingDepartmentId" | "isArchived" | "archivedAt" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "type" | "description" | "status" | "priority" | "stage" | "plan" | "goal" | "milestones" | "budgetAmount" | "budgetNote" | "riskNote" | "remark" | "startDate" | "endDate" | "parentId" | "leadingDepartmentId" | "isArchived" | "archivedAt" | "createdBy" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   parent?: boolean | Prisma.Project$parentArgs<ExtArgs>
   children?: boolean | Prisma.Project$childrenArgs<ExtArgs>
@@ -2087,6 +2144,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     leadingDepartmentId: number | null
     isArchived: boolean
     archivedAt: Date | null
+    createdBy: number | null
     editedBy: number | null
     editedAt: Date | null
     version: number
@@ -2541,6 +2599,7 @@ export interface ProjectFieldRefs {
   readonly leadingDepartmentId: Prisma.FieldRef<"Project", 'Int'>
   readonly isArchived: Prisma.FieldRef<"Project", 'Boolean'>
   readonly archivedAt: Prisma.FieldRef<"Project", 'DateTime'>
+  readonly createdBy: Prisma.FieldRef<"Project", 'Int'>
   readonly editedBy: Prisma.FieldRef<"Project", 'Int'>
   readonly editedAt: Prisma.FieldRef<"Project", 'DateTime'>
   readonly version: Prisma.FieldRef<"Project", 'Int'>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate } from "@workspace/platform/server/auth";
+import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import {
   createReportForUser,
   listReportsForUser,
@@ -25,6 +26,9 @@ const createReportSchema = z.object({
 }).passthrough();
 
 export async function GET(request: Request) {
+  const disabledResponse = disabledApiResponseForRequest(request);
+  if (disabledResponse) return disabledResponse;
+
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 
@@ -45,6 +49,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const disabledResponse = disabledApiResponseForRequest(request);
+  if (disabledResponse) return disabledResponse;
+
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 

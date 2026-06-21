@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate } from "@workspace/platform/server/auth";
+import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { getReportAccessMetadata, getReportVersion } from "@workspace/work/server";
 
 const paramsSchema = z.object({
@@ -12,6 +13,9 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string; version: string }> }
 ) {
+  const disabledResponse = disabledApiResponseForRequest(request);
+  if (disabledResponse) return disabledResponse;
+
   const payload = await authenticate(request);
   if (!payload) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });

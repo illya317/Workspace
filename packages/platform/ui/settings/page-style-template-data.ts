@@ -15,6 +15,7 @@ import {
   type PageTemplate,
   type TemplateKind,
 } from "@workspace/core/ui/page-style-preview/template-data";
+import { activeModuleDefinitions } from "../../effective-module-registry";
 
 export {
   getModuleSections,
@@ -34,7 +35,7 @@ export {
   type TemplateKind,
 };
 
-export const moduleTemplates: ModuleTemplate[] = [
+const baseModuleTemplates: ModuleTemplate[] = [
   {
     key: "finance",
     label: "财务管理",
@@ -171,6 +172,68 @@ export const moduleTemplates: ModuleTemplate[] = [
     ],
   },
 ];
+
+function getRuntimeRouteLabel(route: string) {
+  for (const { moduleDef } of activeModuleDefinitions) {
+    if (!moduleDef) continue;
+    if (moduleDef.href === route) return moduleDef.label;
+    const child = moduleDef.children?.find((item) => item.href === route);
+    if (child) return child.label;
+  }
+  return null;
+}
+
+function isTemplateRouteVisible(route: string) {
+  if (isRecordRoute(route)) {
+    const parentRoute = route.replace(/\/\[[^\]]+\]/g, "");
+    return Boolean(getRuntimeRouteLabel(parentRoute));
+  }
+  return Boolean(getRuntimeRouteLabel(route));
+}
+
+function hasVisibleRoute(routes: string[] | undefined) {
+  return !routes || routes.some(isTemplateRouteVisible);
+}
+
+function applyRuntimePageLabels(page: PageTemplate): PageTemplate {
+  const runtimeLabel = page.routes?.map(getRuntimeRouteLabel).find((label): label is string => Boolean(label));
+  if (!runtimeLabel || !page.routes?.includes("/work/projects")) return page;
+
+  return {
+    ...page,
+    title: page.key === "projects-archived" ? `归档${runtimeLabel}` : `${runtimeLabel}列表`,
+    section: runtimeLabel,
+    group: `${runtimeLabel}台账`,
+    embedded: page.embedded
+      ? {
+          ...page.embedded,
+          title: `${runtimeLabel}详情`,
+        }
+      : page.embedded,
+  };
+}
+
+function applyRuntimeModuleTemplate(module: ModuleTemplate): ModuleTemplate | null {
+  const runtimeModule = activeModuleDefinitions.find((definition) => definition.moduleDef?.key === module.key)?.moduleDef;
+  if (!runtimeModule) return null;
+
+  const pages = module.pages
+    .filter((page) => hasVisibleRoute(page.routes) && hasVisibleRoute(page.embedded?.routes))
+    .map(applyRuntimePageLabels);
+
+  if (pages.length === 0) return null;
+  return {
+    ...module,
+    label: runtimeModule.label,
+    summary: runtimeModule.desc,
+    overviewLabel: runtimeModule.label,
+    pages,
+  };
+}
+
+export const moduleTemplates: ModuleTemplate[] = baseModuleTemplates
+  .map(applyRuntimeModuleTemplate)
+  .filter((module): module is ModuleTemplate => Boolean(module));
 
 export const pageStyleTabs = moduleTemplates.map((module) => ({
   key: module.key,

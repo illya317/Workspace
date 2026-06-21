@@ -7,6 +7,8 @@ import { guardProjectArchive } from "./reference-guards";
 const DATE_FIELDS = ["startDate", "endDate"];
 const NUMBER_FIELDS = ["budgetAmount"];
 const NUMBER_OR_NULL_FIELDS = ["parentId"];
+export const PROJECT_TYPES = ["department", "personal"] as const;
+export type ProjectType = (typeof PROJECT_TYPES)[number];
 
 export const PROJECT_STATUSES = ["规划中", "进行中", "暂停", "已完成", "已取消"];
 export const PROJECT_PRIORITIES = ["高", "中", "低"];
@@ -14,7 +16,7 @@ export const PROJECT_STAGES = ["立项", "规划", "执行", "验收", "收尾"]
 
 type ParentIdResult = { value: number | null } | { error: string };
 type LeadingDepartmentResult =
-  | { value: number; department: { id: number; code: string; name: string } }
+  | { value: number; department: { id: number; code: string; name: string; managerUserId: number | null } }
   | { error: string };
 type ProjectFieldUpdateResult = { field: string; value: unknown } | { error: string } | null;
 
@@ -67,6 +69,10 @@ export function isAllowedProjectOption(value: unknown, options: readonly string[
   return value === null || value === undefined || value === "" || (typeof value === "string" && options.includes(value));
 }
 
+export function normalizeProjectType(value: unknown): ProjectType {
+  return value === "personal" ? "personal" : "department";
+}
+
 function normalizeBudgetAmount(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
   const number = typeof value === "number" ? value : Number(String(value).replace(/,/g, ""));
@@ -117,7 +123,7 @@ export async function normalizeLeadingDepartmentId(value: unknown): Promise<Lead
   if (!validation.ok) return { error: validation.error };
   const department = await prisma.department.findUnique({
     where: { id: leadingDepartmentId },
-    select: { id: true, code: true, name: true },
+    select: { id: true, code: true, name: true, managerUserId: true },
   });
   if (!department) return { error: "主导部门不存在" };
   return { value: leadingDepartmentId, department };
@@ -141,7 +147,7 @@ export async function generateProjectCode(departmentCode: string, dateValue?: Da
     if (!match) continue;
     maxSequence = Math.max(maxSequence, Number(match[1]));
   }
-  return `${prefix}-${String(maxSequence + 1).padStart(2, "0")}`;
+  return `${prefix}-${String(maxSequence + 1).padStart(3, "0")}`;
 }
 
 async function normalizeProjectFieldUpdate(field: string, value: unknown, id?: number): Promise<ProjectFieldUpdateResult> {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate } from "@workspace/platform/server/auth";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import {
   canEditWorkTask,
   deleteWorkItem,
@@ -21,6 +22,9 @@ const updateWorkItemSchema = z.object({
 });
 
 export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const disabledResponse = disabledApiResponseForRequest(request);
+  if (disabledResponse) return disabledResponse;
+
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 
@@ -50,6 +54,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const disabledResponse = disabledApiResponseForRequest(request);
+  if (disabledResponse) return disabledResponse;
+
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
 

@@ -6913,6 +6913,7 @@ export const ProjectScalarFieldEnum = {
   leadingDepartmentId: 'leadingDepartmentId',
   isArchived: 'isArchived',
   archivedAt: 'archivedAt',
+  createdBy: 'createdBy',
   editedBy: 'editedBy',
   editedAt: 'editedAt',
   version: 'version',

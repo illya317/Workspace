@@ -4,9 +4,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { type WorkUser, workCanEdit } from "@workspace/work/types";
-import { syncMembers, updateProjectField } from "./api";
+import { createProject, syncMembers, updateProjectField } from "./api";
 import {
   MULTI_PROJECT_ROLES,
+  createEmptyProjectDraft,
   createProjectDraft,
   dedupeMembers,
   draftSnapshot,
@@ -18,7 +19,7 @@ import {
   type ProjectMemberEntry,
 } from "./model";
 
-const PROJECT_SYNC_FIELDS = [
+const PROJECT_CONTENT_SYNC_FIELDS = [
   "description",
   "status",
   "priority",
@@ -30,11 +31,11 @@ const PROJECT_SYNC_FIELDS = [
   "budgetNote",
   "riskNote",
   "remark",
-  "parentId",
-  "leadingDepartmentId",
   "startDate",
   "endDate",
 ] as const;
+
+const PROJECT_MANAGE_SYNC_FIELDS = ["parentId", "leadingDepartmentId"] as const;
 
 export function useProjectTabModel(user: WorkUser) {
   const canEdit = workCanEdit(user);
@@ -43,6 +44,7 @@ export function useProjectTabModel(user: WorkUser) {
   const [selection, setSelection] = useState<number | null>(null);
   const [draft, setDraft] = useState<ProjectDraft | null>(null);
   const [baseline, setBaseline] = useState("");
+  const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [projectListOpen, setProjectListOpen] = useState(true);
@@ -61,7 +63,8 @@ export function useProjectTabModel(user: WorkUser) {
   const childProjects = useMemo(() => selectedProject?.childProjects ?? [], [selectedProject]);
   const parentProjectOptions = useMemo(() => buildParentProjectOptions(projects, draft?.id ?? null), [draft?.id, projects]);
   const dirty = draftSnapshot(draft) !== baseline;
-  const canEditCurrent = canEdit;
+  const canEditCurrent = draft?.id ? Boolean(selectedProject?.permissions.canEdit) : canEdit;
+  const canManageCurrent = draft?.id ? Boolean(selectedProject?.permissions.canManage) : canEdit;
   const canSave = !!draft && canEditCurrent && !saving && dirty;
 
   const loadData = useCallback(async () => {
@@ -88,13 +91,27 @@ export function useProjectTabModel(user: WorkUser) {
   useEffect(() => { loadData(); }, [loadData]);
 
   useEffect(() => {
+    if (creating) return;
     const nextDraft = selectedProject ? createProjectDraft(selectedProject, selectedEntries) : null;
     setDraft(nextDraft);
     setBaseline(draftSnapshot(nextDraft));
-  }, [selectedEntries, selectedProject, selection]);
+  }, [creating, selectedEntries, selectedProject, selection]);
 
   function updateDraft<K extends keyof ProjectDraft>(key: K, value: ProjectDraft[K]) {
-    setDraft((prev) => prev ? { ...prev, [key]: value } : prev);
+    setDraft((prev) => {
+      if (!prev) return prev;
+      if (key === "projectType" && value === "personal") {
+        return {
+          ...prev,
+          projectType: "personal",
+          code: null,
+          leadingDepartmentId: null,
+          leadingDepartmentName: null,
+          leadingDepartmentCode: null,
+        };
+      }
+      return { ...prev, [key]: value };
+    });
   }
 
   function setLeader(option?: FkFieldOption) {
@@ -121,21 +138,33 @@ export function useProjectTabModel(user: WorkUser) {
   }
 
   async function saveProject() {
-    if (!draft || !draft.id || !dirty) return;
+    if (!draft || !dirty) return;
     const name = draft.name.trim();
     if (!name) return setToast({ type: "error", message: "项目名称不能为空" });
-    if (!draft.leadingDepartmentId) return setToast({ type: "error", message: "请选择主导部门" });
+    if (draft.projectType === "department" && !draft.leadingDepartmentId) return setToast({ type: "error", message: "请选择主导部门" });
     setSaving(true);
     try {
+      if (!draft.id) {
+        const projectId = await createProject({ ...draft, name });
+        if (!projectId) throw new Error("新建项目失败");
+        setToast({ type: "success", message: "项目已新建" });
+        setCreating(false);
+        await loadData();
+        setSelection(projectId);
+        return;
+      }
       const projectId = draft.id;
-      if (selectedProject && selectedProject.name !== name) await updateProjectField(projectId, "name", name);
+      if (selectedProject && selectedProject.name !== name && canManageCurrent) await updateProjectField(projectId, "name", name);
       if (selectedProject) {
-        for (const field of PROJECT_SYNC_FIELDS) {
+        const fields = canManageCurrent
+          ? [...PROJECT_CONTENT_SYNC_FIELDS, ...PROJECT_MANAGE_SYNC_FIELDS]
+          : [...PROJECT_CONTENT_SYNC_FIELDS];
+        for (const field of fields) {
           const value = draft[field] ?? null;
           if ((selectedProject[field] ?? null) !== value) await updateProjectField(projectId, field, value);
         }
       }
-      await syncMembers(projectId, { ...draft, id: projectId, name }, entries);
+      if (canManageCurrent) await syncMembers(projectId, { ...draft, id: projectId, name }, entries);
       setToast({ type: "success", message: "项目信息已保存" });
       await loadData();
       setSelection(projectId);
@@ -146,11 +175,25 @@ export function useProjectTabModel(user: WorkUser) {
     }
   }
 
+  function startCreateProject() {
+    const nextDraft = createEmptyProjectDraft();
+    setCreating(true);
+    setSelection(null);
+    setDraft(nextDraft);
+    setBaseline(draftSnapshot(nextDraft));
+  }
+
+  function cancelCreateProject() {
+    setCreating(false);
+    setDraft(null);
+    setBaseline("");
+  }
+
   return {
-    canEditCurrent, canSave, childProjects, dirty, draft, error,
+    canCreateProject: canEdit, canEditCurrent, canManageCurrent, canSave, childProjects, creating, dirty, draft, error,
     loading, parentProjectOptions, projectListDrawerOpen, projectListOpen, projects, saving,
     selectedProject, selection, toast,
-    saveProject, setLeader,
+    cancelCreateProject, saveProject, setCreating, setLeader, startCreateProject,
     setProjectListDrawerOpen, setProjectListOpen, setRoleMembers, setSelection,
     setToast, updateDraft,
   };

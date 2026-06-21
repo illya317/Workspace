@@ -3,7 +3,7 @@ model Project {
   id                  Int                   @id @default(autoincrement())
   code                String?               @unique
   name                String
-  type                String                @default("project")
+  type                String                @default("department")
   description         String?
   status              String?
   priority            String?
@@ -21,6 +21,7 @@ model Project {
   leadingDepartmentId Int?
   isArchived          Boolean               @default(false)
   archivedAt          DateTime?
+  createdBy           Int?
   editedBy            Int?
   editedAt            DateTime?
   version             Int                   @default(1)

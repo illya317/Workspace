@@ -20,11 +20,13 @@ import {
   PROJECT_PRIORITY_PICKER_OPTIONS,
   PROJECT_STAGE_PICKER_OPTIONS,
   PROJECT_STATUS_PICKER_OPTIONS,
+  PROJECT_TYPE_OPTIONS,
   projectCode,
   type EmployeeTag,
   type MultiProjectRole,
   type ProjectDraft,
   type ProjectItem,
+  type ProjectType,
 } from "./model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 
@@ -38,11 +40,16 @@ export default function ProjectDetailEditor({
   dirty,
   draft,
   selectedProject,
+  canCreateProject,
   canEditCurrent,
+  canManageCurrent,
   saving,
   canSave,
   childProjects,
   parentProjectOptions,
+  creating,
+  onCancelCreate,
+  onCreate,
   onSave,
   onDraftChange,
   onLeaderChange,
@@ -52,11 +59,16 @@ export default function ProjectDetailEditor({
   dirty: boolean;
   draft: ProjectDraft | null;
   selectedProject: ProjectItem | null;
+  canCreateProject: boolean;
   canEditCurrent: boolean;
+  canManageCurrent: boolean;
   saving: boolean;
   canSave: boolean;
   childProjects: { id: number; name: string }[];
   parentProjectOptions: PickerOption[];
+  creating: boolean;
+  onCancelCreate: () => void;
+  onCreate: () => void;
   onSave: () => void;
   onDraftChange: <K extends keyof ProjectDraft>(key: K, value: ProjectDraft[K]) => void;
   onLeaderChange: (option?: FkFieldOption) => void;
@@ -72,8 +84,12 @@ export default function ProjectDetailEditor({
             {dirty && <p className="mt-1 text-xs text-amber-600">有未保存修改</p>}
           </div>
         }
-        primaryActions={draft && selectedProject ? [{
-          label: saving ? "保存中..." : "保存项目",
+        secondaryActions={[
+          ...(canCreateProject && !creating ? [{ label: "新建项目", onClick: onCreate }] : []),
+          ...(creating ? [{ label: "取消", onClick: onCancelCreate }] : []),
+        ]}
+        primaryActions={draft && (selectedProject || creating) ? [{
+          label: saving ? "保存中..." : creating ? "创建项目" : "保存项目",
           disabled: !canSave,
           onClick: onSave,
         }] : []}
@@ -91,22 +107,30 @@ export default function ProjectDetailEditor({
                   unstyled
                 />
               </FormField>
+              <OptionField
+                label="项目类型"
+                value={draft.projectType}
+                options={PROJECT_TYPE_OPTIONS}
+                disabled={!creating}
+                onChange={(value) => onDraftChange("projectType", (value || "department") as ProjectType)}
+                placeholder="选择项目类型"
+              />
               <FormField label="项目名称" required>
                 <TextField
                   value={draft.name}
-                  disabled={!canEditCurrent}
+                  disabled={!canManageCurrent}
                   onChange={(value) => onDraftChange("name", value)}
                   className={inputClassName}
                   unstyled
                 />
               </FormField>
-              <FormField label="主导部门" required className="md:col-span-2">
+              <FormField label="主导部门" required={draft.projectType === "department"} className="md:col-span-2">
                 <FkFieldInput
                   fkKey="work.project.leadingDepartment"
                   endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
                   value={draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : ""}
                   displayValue={draft.leadingDepartmentName || ""}
-                  disabled={!canEditCurrent}
+                  disabled={!canManageCurrent || draft.projectType === "personal"}
                   placeholder="搜索部门名称、编码"
                   onChange={(_label, option) => {
                     onDraftChange("leadingDepartmentId", option?.id ?? null);
@@ -122,7 +146,7 @@ export default function ProjectDetailEditor({
                 label="上级项目"
                 value={draft.parentId ? String(draft.parentId) : null}
                 options={parentProjectOptions}
-                disabled={!canEditCurrent}
+                disabled={!canManageCurrent}
                 onChange={(value) => onDraftChange("parentId", value ? Number(value) : null)}
                 placeholder="无上级项目"
                 searchPlaceholder="搜索项目"
@@ -156,7 +180,7 @@ export default function ProjectDetailEditor({
                   endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
                   value={draft.leader?.employeeNumber || ""}
                   displayValue={draft.leader?.name || ""}
-                  disabled={!canEditCurrent}
+                  disabled={!canManageCurrent}
                   placeholder="搜索负责人"
                   onChange={(_label, option) => onLeaderChange(option)}
                 />
@@ -167,7 +191,7 @@ export default function ProjectDetailEditor({
                   <FormField key={role} label={role}>
                     <ProjectMemberTagsInput
                       value={draft.roleGroups[role]}
-                      disabled={!canEditCurrent}
+                      disabled={!canManageCurrent}
                       onChange={(members) => onRoleMembersChange(role, members)}
                     />
                   </FormField>
@@ -203,7 +227,7 @@ export default function ProjectDetailEditor({
         <div className="flex min-h-64 items-center justify-center p-8">
           <div className="text-center">
             <p className="text-sm font-medium text-slate-600">暂无可编辑项目</p>
-            <p className="mt-1 text-sm text-slate-400">请选择左侧项目后维护资料。</p>
+            <p className="mt-1 text-sm text-slate-400">请选择左侧项目，或新建项目后维护资料。</p>
           </div>
         </div>
       )}

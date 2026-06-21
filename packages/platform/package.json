@@ -9,6 +9,7 @@
     "./hooks": "./hooks/index.ts",
     "./module-lifecycle": "./module-lifecycle.ts",
     "./module-nav": "./module-nav.tsx",
+    "./effective-module-registry": "./effective-module-registry.ts",
     "./module-registry": "./module-registry.ts",
     "./view-registry": "./view-registry.ts",
     "./modules": "./modules.tsx",

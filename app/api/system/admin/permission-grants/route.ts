@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate, authorize } from "@workspace/platform/server/auth";
+import { isResourceEnabled } from "@workspace/platform/effective-module-registry";
 import {
   getManageableResourceKeys,
   canManageResourceGrant,
@@ -38,18 +39,17 @@ export async function GET(request: Request) {
   const scopeId = searchParams.get("scopeId") || undefined;
 
   const empty = { subjects: [], directGrants: [], positionGrants: [], departmentGrants: [], ancestorResourceKeys: [], maxRoleKey: "admin", isSystemAdmin: false, systemAdminBusinessBypass: false };
+  if (resourceKey && !isResourceEnabled(resourceKey)) return NextResponse.json(empty);
   if (!isSysAdmin && resourceKey && !manageableKeys.has(resourceKey)) return NextResponse.json(empty);
 
   const data = await getPermissionGrantData(subjectType, resourceKey, scopeId ?? null);
 
-  // 附上当前资源及祖先的 maxRoleKey
   let maxRoleKey = "admin";
   if (resourceKey) {
     const { getResourceMaxRole } = await import("@workspace/platform/server/auth");
     maxRoleKey = await getResourceMaxRole(resourceKey);
   }
 
-  // Batch 5.1: bypass toggle for frontend matrix display
   const { isSystemAdminBypassEnabled } = await import("@workspace/platform/server/auth");
   const bypassEnabled = await isSystemAdminBypassEnabled();
 
@@ -71,8 +71,10 @@ export async function PUT(request: Request) {
   }
 
   const { subjectType, subjectId, resourceKey, roleKey, value, scopeId } = parsedBody.data;
+  if (!isResourceEnabled(resourceKey)) {
+    return NextResponse.json({ error: "模块未启用，不能配置该资源权限" }, { status: 403 });
+  }
 
-  // Only system.admin can grant/revoke admin role
   if (roleKey === "admin") {
     const isSysAdmin = await authorize({ user: payload.userId, resourceKey: "system", action: "admin" });
     if (!isSysAdmin) {

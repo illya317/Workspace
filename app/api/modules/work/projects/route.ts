@@ -17,7 +17,7 @@ export async function GET(request: Request) {
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
   const archived = searchParams.get("archived") === "1" || searchParams.get("archived") === "true";
-  return NextResponse.json(await listProjects({ keyword, page, pageSize, archived }));
+  return NextResponse.json(await listProjects({ userId: payload.userId, keyword, page, pageSize, archived }));
 }
 
 export async function POST(request: Request) {
@@ -32,6 +32,6 @@ export async function POST(request: Request) {
   if (!validation.ok) return NextResponse.json({ error: validation.error }, { status: 400 });
 
   const result = await createProject(request, payload.userId);
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: 400 });
+  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
   return NextResponse.json(result.data);
 }

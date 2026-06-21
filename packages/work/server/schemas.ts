@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const ProjectCreateSchema = z.object({
+  projectType: z.enum(["department", "personal"]).optional().default("department"),
   name: z.string().min(1, "名称不能为空"),
   description: z.string().optional().nullable(),
   status: z.string().optional().nullable(),
@@ -16,5 +17,5 @@ export const ProjectCreateSchema = z.object({
   startDate: z.string().optional().nullable(),
   endDate: z.string().optional().nullable(),
   parentId: z.coerce.number().int().positive().optional().nullable(),
-  leadingDepartmentId: z.coerce.number().int().positive("主导部门不能为空"),
+  leadingDepartmentId: z.coerce.number().int().positive("主导部门不能为空").optional().nullable(),
 });

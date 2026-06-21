@@ -1,12 +1,16 @@
 import { NextResponse } from "next/server";
 import { authenticate } from "@workspace/platform/server/auth";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { getReportAccessMetadata, listReportHistory } from "@workspace/work/server";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const disabledResponse = disabledApiResponseForRequest(request);
+  if (disabledResponse) return disabledResponse;
+
   const payload = await authenticate(request);
   if (!payload) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });

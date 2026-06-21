@@ -1,10 +1,21 @@
 import type { FkFieldOption, PickerOption } from "@workspace/core/ui";
 import { PROJECT_ROLES } from "@workspace/work/constants";
 
+export type ProjectType = "department" | "personal";
+
+export type ProjectPermissions = {
+  canEdit: boolean;
+  canManage: boolean;
+  canDelete: boolean;
+};
+
 export type ProjectItem = {
   id: number;
   code: string | null;
   name: string;
+  projectType: ProjectType;
+  createdBy: number | null;
+  permissions: ProjectPermissions;
   description: string | null;
   status: string | null;
   priority: string | null;
@@ -53,6 +64,7 @@ export const MULTI_PROJECT_ROLES = PROJECT_ROLES.filter((role) => role !== "负�
 export type ProjectDraft = {
   id: number | null;
   code: string | null;
+  projectType: ProjectType;
   name: string;
   description: string | null;
   status: string | null;
@@ -75,6 +87,10 @@ export type ProjectDraft = {
   roleGroups: Record<MultiProjectRole, EmployeeTag[]>;
 };
 
+export const PROJECT_TYPE_OPTIONS = [
+  { value: "department", label: "部门项目" },
+  { value: "personal", label: "个人项目" },
+] satisfies PickerOption[];
 export const PROJECT_STATUS_OPTIONS = ["规划中", "进行中", "暂停", "已完成", "已取消"] as const;
 export const PROJECT_PRIORITY_OPTIONS = ["高", "中", "低"] as const;
 export const PROJECT_STAGE_OPTIONS = ["立项", "规划", "执行", "验收", "收尾"] as const;
@@ -88,6 +104,7 @@ export const PROJECT_PRIORITY_PICKER_OPTIONS = toPickerOptions(PROJECT_PRIORITY_
 export const PROJECT_STAGE_PICKER_OPTIONS = toPickerOptions(PROJECT_STAGE_OPTIONS);
 
 export function projectCode(project: ProjectItem | null, draft: ProjectDraft | null) {
+  if ((project?.projectType || draft?.projectType) === "personal") return "个人项目无编号";
   return project?.code || draft?.code || "保存后生成";
 }
 
@@ -141,6 +158,7 @@ export function draftSnapshot(draft: ProjectDraft | null) {
   if (!draft) return "";
   return JSON.stringify({
     id: draft.id,
+    projectType: draft.projectType,
     name: draft.name.trim(),
     description: draft.description || null,
     status: draft.status || null,
@@ -182,6 +200,7 @@ export function createProjectDraft(project: ProjectItem | null, entries: Project
   return {
     id: project?.id ?? null,
     code: project?.code ?? null,
+    projectType: project?.projectType ?? "department",
     name: project?.name ?? "",
     description: project?.description ?? null,
     status: project?.status ?? null,
@@ -202,5 +221,33 @@ export function createProjectDraft(project: ProjectItem | null, entries: Project
     endDate: project?.endDate ?? null,
     leader: leaderEntry ? memberFromEntry(leaderEntry) : null,
     roleGroups,
+  };
+}
+
+export function createEmptyProjectDraft(): ProjectDraft {
+  return {
+    id: null,
+    code: null,
+    projectType: "department",
+    name: "",
+    description: null,
+    status: null,
+    priority: null,
+    stage: null,
+    plan: null,
+    goal: null,
+    milestones: null,
+    budgetAmount: null,
+    budgetNote: null,
+    riskNote: null,
+    remark: null,
+    parentId: null,
+    leadingDepartmentId: null,
+    leadingDepartmentName: null,
+    leadingDepartmentCode: null,
+    startDate: null,
+    endDate: null,
+    leader: null,
+    roleGroups: emptyRoleGroups(),
   };
 }

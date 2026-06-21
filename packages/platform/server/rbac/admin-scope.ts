@@ -1,4 +1,5 @@
 import { prisma } from "@workspace/platform/server/prisma";
+import { RESOURCE_KEYS } from "@workspace/platform/resources";
 import { getResourceDescendants } from "./resource";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
 
@@ -44,13 +45,14 @@ async function findAdminResourceIds(userId: number): Promise<number[]> {
  * Includes the admin resource itself and all its descendants.
  */
 export async function getManageableResourceKeys(userId: number): Promise<Set<string>> {
+  const activeResourceKeys = new Set(RESOURCE_KEYS);
   // system.admin can manage everything
   const sysAdmin = await prisma.userResourceRole.findFirst({
     where: { userId, resource: { key: "system" }, role: { key: "admin" } },
   });
   if (sysAdmin) {
     const all = await prisma.resource.findMany({ select: { key: true } });
-    return new Set(all.map((r) => r.key));
+    return new Set(all.map((r) => r.key).filter((key) => activeResourceKeys.has(key)));
   }
 
   const adminResourceIds = await findAdminResourceIds(userId);
@@ -67,7 +69,7 @@ export async function getManageableResourceKeys(userId: number): Promise<Set<str
     select: { key: true },
   });
 
-  return new Set(resources.map((r) => r.key));
+  return new Set(resources.map((r) => r.key).filter((key) => activeResourceKeys.has(key)));
 }
 
 /**
@@ -79,6 +81,8 @@ export async function canManageResourceGrant(
   roleKey: string
 ): Promise<boolean> {
   const normalizedRole = roleKey === "read" ? "access" : roleKey;
+  const activeResourceKeys = new Set(RESOURCE_KEYS);
+  if (!activeResourceKeys.has(resourceKey)) return false;
 
   // Only system.admin can manage system.* or grant system.admin
   const isSystemScope = resourceKey === "system" || resourceKey.startsWith("system.");

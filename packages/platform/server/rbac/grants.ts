@@ -1,4 +1,5 @@
 import { prisma } from "@workspace/platform/server/prisma";
+import { isResourceEnabled } from "@workspace/platform/effective-module-registry";
 import { normalizeRoleKey } from "@workspace/platform/permissions";
 
 export type SubjectType = "user" | "position" | "department";
@@ -19,6 +20,7 @@ export type UserResourceRoleAssignment = {
 };
 
 export async function resourceRoleExists(resourceKey: string, roleKey: string) {
+  if (!isResourceEnabled(resourceKey)) return false;
   const normalizedRole = normalizeRoleKey(roleKey);
   const [resource, role] = await Promise.all([
     prisma.resource.findUnique({ where: { key: resourceKey } }),
@@ -31,6 +33,7 @@ export async function getUserResourceRoleAssignments(
   resourceKey: string,
   roleKey: string,
 ): Promise<UserResourceRoleAssignment[]> {
+  if (!isResourceEnabled(resourceKey)) return [];
   const normalizedRole = normalizeRoleKey(roleKey);
   return prisma.userResourceRole.findMany({
     where: {
@@ -49,6 +52,7 @@ export async function userResourceRoleAssignmentExists(
   roleKey: string,
   scopeId: string | null,
 ) {
+  if (!isResourceEnabled(resourceKey)) return false;
   const normalizedRole = normalizeRoleKey(roleKey);
   const existing = await prisma.userResourceRole.findFirst({
     where: {
@@ -74,6 +78,9 @@ export async function setGrant(
   opts?: { scopeId?: string | null; actorUserId?: number }
 ): Promise<void> {
   const normalizedRole = normalizeRoleKey(roleKey);
+  if (!isResourceEnabled(resourceKey)) {
+    throw new Error("模块未启用，不能配置该资源权限");
+  }
 
   const resource = await prisma.resource.findUnique({ where: { key: resourceKey } });
   const role = await prisma.role.findUnique({ where: { key: normalizedRole } });
@@ -212,12 +219,14 @@ export async function getGrants(
     return r.departmentId!;
   };
 
-  return rows.map((r) => ({
-    subjectId: getSubjectId(r),
-    resourceKey: r.resource.key,
-    roleKey: r.role.key,
-    resourceId: r.resourceId,
-    roleId: r.roleId,
-    scopeId: r.scopeId,
-  }));
+  return rows
+    .filter((r) => isResourceEnabled(r.resource.key))
+    .map((r) => ({
+      subjectId: getSubjectId(r),
+      resourceKey: r.resource.key,
+      roleKey: r.role.key,
+      resourceId: r.resourceId,
+      roleId: r.roleId,
+      scopeId: r.scopeId,
+    }));
 }

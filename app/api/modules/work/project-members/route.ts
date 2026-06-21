@@ -18,6 +18,7 @@ export async function GET(request: Request) {
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
   const pageSize = Math.min(500, Math.max(1, parseInt(searchParams.get("pageSize") || "50", 10)));
   return NextResponse.json(await listProjectMembers({
+    userId: payload.userId,
     projectId: projectId ? parseInt(projectId) : null,
     keyword,
     page,
