@@ -8,9 +8,9 @@
 - 新包为 `packages/work`，模块名为“工作管理”。
 - Work 下先承接：
   - 工作计划：原 HR Project / EmployeeProject 的归属迁移。
-  - 工作清单：现有 `/works` 能力后续归并。
-  - 工作汇报：现有 `/reports` 能力后续归并。
-  - 历史记录：现有 `/history` 能力后续归并。
+  - 工作清单：`/work/tasks`。
+  - 工作汇报：`/work/reports`。
+  - 历史记录：`/work/history`。
 - HR 页面不再展示“项目”入口。
 - HR 的批量表格不再展示“项目员工”分组；相关表格迁到 Work 侧独立分组。
 

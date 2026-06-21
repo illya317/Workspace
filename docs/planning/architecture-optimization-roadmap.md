@@ -132,7 +132,7 @@ npm run build
 | HR | `/api/modules/hr/*` |
 | 财务总账 | `/api/modules/finance/*` |
 | 财务成本 | `/api/modules/finance/cost/*` |
-| 库存 | `/api/inventory/*` |
+| 库存 | `/api/modules/production/inventory/*` |
 | 合同 | `/api/modules/administration/contracts/*` |
 | 绩效 | `/api/performance/*` |
 | 采购 | `/api/procurement/*` |
@@ -176,8 +176,8 @@ rg '/api/modules/hr/roster|/api/modules/hr/positions|/api/modules/hr/departments
 
 | 优先级 | 文件 | 建议 |
 |---|---|---|
-| P1 | `app/admin/tabs/PermissionsTab.tsx` | 拆资源树、矩阵表、详情抽屉、单元格 |
-| P1 | `app/admin/hooks/usePermissionsTab.ts` | 拆 subjects、grants、filters、mutations |
+| P1 | `packages/platform/ui/admin/tabs/PermissionsTab.tsx` | 拆资源树、矩阵表、详情抽屉、单元格 |
+| P1 | `packages/platform/ui/admin/hooks/usePermissionsTab.ts` | 拆 subjects、grants、filters、mutations |
 | P2 | `app/hr/code/CodeTable.tsx` | 拆表头、行、分页、弹窗调度 |
 | P2 | `app/hr/tabConfigs.ts` | 按 HR 实体拆配置 |
 | P3 | 旧 admin ByUser/ByPosition/ByDepartment 文件 | 新矩阵稳定后删除 |

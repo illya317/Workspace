@@ -18,7 +18,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - **当前改造方向**: Workspace 正在按 `Core -> Platform -> Apps` 拆成 `packages/core`、`packages/platform`、`packages/hr`、`packages/work`、`packages/production`、`packages/finance` 等包。旧 `app/`、`app/api/`、`lib/`、`server/services/` 只作为路由壳或兼容层逐步收口，新代码必须顺着包边界走，不要按旧思路继续把业务、平台和通用组件混在一起。
 - **并行协作提醒**: 原 Project / EmployeeProject 已定向剥离到 Work 业务包，相关边界见 `docs/agent-coordination-work-split.md`；其他 agent 不要继续在 HR 中新增 Project / EmployeeProject 能力，也不要新增 `packages/project`。
 - **核心原则**: DB 存事实，Service 算结果，API 返回 DTO，UI 展示结果，文档解释边界，CI 拦住越界。
-- **Level 1/1.5 硬门禁**: `npm run arch:gate` 是唯一架构入口，会串行执行 AST 扫描、dependency-cruiser DAG、`moduleDefinition` 注册校验、`authorize()`/API 结构校验和包边界检查，任一失败立即退出。新增代码绕过 Core UI、跨业务包 import、缺模块注册、API 新增裸 `checkPermission` 或裸 Prisma，都会失败。Level 1.5 的历史债由 `scripts/arch/level15-baseline.json` 锁定，只能随迁移减少，不能新增。
+- **Level 1/1.5 硬门禁**: `npm run arch:gate` 是唯一架构入口，会串行执行 AST 扫描、dependency-cruiser DAG、`moduleDefinition` 注册校验、app route hierarchy、`authorize()`/API 结构校验和包边界检查，任一失败立即退出。新增代码绕过 Core UI、跨业务包 import、缺模块注册、API 新增裸 `checkPermission` 或裸 Prisma，都会失败。Level 1.5 的历史债由 `scripts/arch/level15-baseline.json` 锁定，只能随迁移减少，不能新增。
 - **Level 2 结构智能**: `npm run arch:level2` 输出确定性结构报告，覆盖 UI pattern 重复、API Contract 覆盖、API route 模板漂移、旧 service 迁移债和 app 层 JSX 存量。已升级为强制的 Level 2 漂移通过 `scripts/arch/level2-baseline.json` 接入唯一 `arch:gate`，baseline 只能减少，不能新增；搜索型原生 input 的 baseline 为 0，只允许 Core `SearchInput` 内部实现。
 - **部署**: 本地不直连服务器部署；生产发布必须先 commit/push 到 CNB，再用 CNB API/CLI 触发 `api_trigger`。细节见 `docs/ops/deploy.md`。
 

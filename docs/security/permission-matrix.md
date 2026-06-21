@@ -75,7 +75,7 @@
 | `/api/modules/production/qc/batches/[batchId]` | PATCH | `production.qc.batches.write` |
 | `/api/modules/production/qc/batches/[batchId]` | DELETE | `production.qc.batches.delete` |
 | `/api/modules/production/qc/batches/[batchId]/submit` | POST | `production.qc.batches.write` |
-| `/api/inventory/*` | GET/POST/PUT/DELETE | `410 Gone` |
+| `/api/modules/production/inventory/*` | GET/POST/PUT/DELETE | `410 Gone` |
 | `/api/modules/administration/contracts*` | GET | `administration.contract.access` |
 | `/api/modules/administration/contracts*` | POST/PUT | `administration.contract.write` |
 | `/api/modules/administration/contracts*` | DELETE | `administration.contract.delete` |

@@ -55,8 +55,8 @@ model Employee {
 
 修改 schema 时：
 1. 同步更新对应 `ARCHITECTURE.md`：
-   - HR → `app/hr/ARCHITECTURE.md`
-   - Finance Cost → `app/finance/cost/ARCHITECTURE.md`
+   - HR → `app/(modules)/hr/ARCHITECTURE.md`
+   - Finance Cost → `app/(modules)/finance/cost/ARCHITECTURE.md`
 2. 运行验证：
    ```bash
    npm run db:validate && npm run schema:check && npx prisma generate && npx tsc --noEmit

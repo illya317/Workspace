@@ -162,7 +162,7 @@ export const pageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/works",
+    route: "/work/tasks",
     moduleKey: "work",
     label: "工作清单",
     views: [
@@ -170,7 +170,7 @@ export const pageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/reports",
+    route: "/work/reports",
     moduleKey: "work",
     label: "工作汇报",
     views: [
@@ -178,7 +178,7 @@ export const pageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/history",
+    route: "/work/history",
     moduleKey: "work",
     label: "历史记录",
     views: [
@@ -186,10 +186,10 @@ export const pageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/contracts",
+    route: "/administration/contracts",
     moduleKey: "administration",
     label: "合同台账",
-    recordRoutes: ["/contracts/[id]"],
+    recordRoutes: ["/administration/contracts/[id]"],
     views: [
       {
         key: "contracts",
