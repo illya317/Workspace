@@ -317,7 +317,7 @@ deploy_remote_artifact() {
     pm2 start \"\$release_dir/\$server_entry\" --name '$PM2_NAME' --cwd \"\$app_dir\" --update-env
     qc_cache_ready=0
     for i in \$(seq 1 20); do
-      if curl -fsS -X POST -H \"x-qc-cache-warmup: \$NEXTAUTH_SECRET\" 'http://127.0.0.1:3000/workspace/api/production/qc/cache' >/dev/null; then
+      if curl -fsS -X POST -H \"x-qc-cache-warmup: \$NEXTAUTH_SECRET\" 'http://127.0.0.1:3000/workspace/api/modules/production/qc/cache' >/dev/null; then
         qc_cache_ready=1
         break
       fi
