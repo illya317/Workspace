@@ -23,7 +23,9 @@ interface Props {
   compact?: boolean;
   test?: QcTemplateTestItem;
   values?: QcFieldValues;
+  referenceValues?: QcFieldValues;
   onFieldChange?: (key: string, value: string) => void;
+  readOnly?: boolean;
   advancedMode?: boolean;
 }
 
@@ -36,10 +38,18 @@ const EMPTY_TEST: QcTemplateTestItem = {
   methodGroups: [],
 };
 
-export default function QcLayoutPaper({ blocks, compact: _compact, test, values: controlledValues, onFieldChange, advancedMode = false }: Props) {
+function fixedReferenceSourceKey(fieldKey: string) {
+  if (fieldKey === "batch_number") return "__qc_ref/batch_number";
+  if (fieldKey.endsWith("/signature/inspector")) return "__qc_ref/inspector";
+  if (fieldKey.endsWith("/signature/reviewer")) return "__qc_ref/reviewer";
+  return undefined;
+}
+
+export default function QcLayoutPaper({ blocks, compact: _compact, test, values: controlledValues, referenceValues, onFieldChange, readOnly = false, advancedMode = false }: Props) {
   const engineTest = test || EMPTY_TEST;
   const form = useQcFormulaEngine(engineTest);
-  const values = controlledValues || form.values;
+  const inputValues = controlledValues || form.values;
+  const values = useMemo(() => ({ ...(referenceValues || {}), ...inputValues }), [inputValues, referenceValues]);
   const setValue = onFieldChange || form.setValue;
   const [activeAdvancedOutputKey, setActiveAdvancedOutputKey] = useState<string | null>(null);
   const dateDefaults = useMemo(() => collectDateDefaults(blocks), [blocks]);
@@ -54,9 +64,9 @@ export default function QcLayoutPaper({ blocks, compact: _compact, test, values:
   const advancedPartMetadata = useMemo(() => collectAdvancedPartMetadata(blocks, test), [blocks, test]);
   const packagingReference = useMemo(() => reusedPackagingSource(test), [test]);
   const referenceSourceKeyFor = useMemo(() => (
-    packagingReference
-      ? (fieldKey: string) => referenceSourceKey(packagingReference, test, fieldKey)
-      : undefined
+    (fieldKey: string) => fixedReferenceSourceKey(fieldKey) || (
+      packagingReference ? referenceSourceKey(packagingReference, test, fieldKey) : undefined
+    )
   ), [packagingReference, test]);
 
   useEffect(() => {
@@ -79,6 +89,7 @@ export default function QcLayoutPaper({ blocks, compact: _compact, test, values:
     formulaDependencies,
     advancedPartMetadata,
     sectionAliases: numbered.sectionAliases,
+    readOnly,
     advancedMode,
     activeAdvancedOutputKey,
     onAdvancedOutputHover: setActiveAdvancedOutputKey,

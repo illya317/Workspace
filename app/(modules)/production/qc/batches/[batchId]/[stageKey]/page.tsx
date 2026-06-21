@@ -24,7 +24,7 @@ export default async function QcBatchStagePage({ params }: Props) {
       activeResourceKey="production.qc.batches"
       backHref={`/production/qc/batches/${batch.id}`}
     >
-      <QcBatchStagePrecheck batch={batch} productName={detail.productName} stage={stage} stageIndex={stageIndex} />
+      <QcBatchStagePrecheck batch={batch} productName={detail.productName} detail={detail} stage={stage} stageIndex={stageIndex} />
     </QcModuleShell>
   );
 }

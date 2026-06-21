@@ -14,6 +14,7 @@ export interface LayoutRenderContext {
   advancedPartMetadata?: Map<string, QcLayoutPart>;
   sectionAliases?: Record<string, string>;
   inTable?: boolean;
+  readOnly?: boolean;
   advancedMode?: boolean;
   activeAdvancedOutputKey?: string | null;
   onAdvancedOutputHover?: (fieldKey: string | null) => void;

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ActionButton, HiddenDataField } from "@workspace/core/ui";
+import { HiddenDataField } from "@workspace/core/ui";
 import type { QcLayoutCell, QcLayoutPart } from "@workspace/production/server/qc";
 import QcConfirmationTable from "../QcConfirmationTable";
 import { Part, TableBlock } from "../QcLayoutTable";
@@ -96,14 +96,20 @@ export function RenderBlock({ block, context }: { block: NumberedBlock; context:
 
 function renderAttachment(block: NumberedBlock, context: LayoutRenderContext) {
   const key = block.fieldKey || "layout/raw_data/attachments";
+  const text = block.text || "原始数据、图谱、待包装品检验报告单见数据图谱粘贴页。";
   return (
     <PostSection block={block} title="原始数据">
-      <span>{block.text}</span>
+      <button
+        type="button"
+        className="inline rounded-sm bg-transparent px-0.5 text-left align-baseline text-inherit transition hover:bg-sky-50 focus:bg-sky-50 focus:outline-none focus:ring-1 focus:ring-sky-200"
+        disabled={context.readOnly}
+        onClick={() => context.onFieldChange(key, context.values[key] || "待上传")}
+        title="点击上传数据图谱"
+      >
+        {text}
+      </button>
       {context.advancedMode ? <Part part={{ type: "line", fieldKey: key, underline: true }} context={context} /> : (
-        <>
-          <ActionButton className="ml-4 px-3 py-1 text-sm" onClick={() => context.onFieldChange(key, context.values[key] || "待上传")}>{block.buttonText || "上传"}</ActionButton>
-          <HiddenDataField fieldKey={key} value={context.values[key]} />
-        </>
+        <HiddenDataField fieldKey={key} value={context.values[key]} />
       )}
     </PostSection>
   );
@@ -111,19 +117,19 @@ function renderAttachment(block: NumberedBlock, context: LayoutRenderContext) {
 
 function renderCleanroomExit(block: NumberedBlock, context: LayoutRenderContext) {
   const key = block.fieldKey || "layout/microbiology/cleanroom_exit_confirmed";
-  return <PostSection block={block} title="清场"><span>{block.text}</span><span className="ml-8">{context.advancedMode ? <Part part={{ type: "radio", fieldKey: key, options: ["是", "否"] }} context={context} /> : <QcPaperChoiceInput fieldKey={key} value={context.values[key]} onChange={(value) => context.onFieldChange(key, value)} />}</span></PostSection>;
+  return <PostSection block={block} title="清场"><span>{block.text}</span><span className="ml-8">{context.advancedMode ? <Part part={{ type: "radio", fieldKey: key, options: ["是", "否"] }} context={context} /> : <QcPaperChoiceInput fieldKey={key} value={context.values[key]} disabled={context.readOnly} onChange={(value) => context.onFieldChange(key, value)} />}</span></PostSection>;
 }
 
 function renderAbnormal(block: NumberedBlock, context: LayoutRenderContext) {
   const prefix = block.fieldPrefix || "layout/abnormal";
-  return <PostSection block={block} title="实验结果异常处理">{context.advancedMode ? <Part part={{ type: "radio", fieldKey: `${prefix}/occurred`, options: ["是", "否"] }} context={context} /> : <QcPaperChoiceInput fieldKey={`${prefix}/occurred`} value={context.values[`${prefix}/occurred`]} onChange={(value) => context.onFieldChange(`${prefix}/occurred`, value)} />} <span className="ml-8">实验室异常情况编号</span>{context.advancedMode ? <Part part={{ type: "line", fieldKey: `${prefix}/code`, width: "14rem", underline: true }} context={context} /> : <QcPaperLineInput part={{ type: "line", fieldKey: `${prefix}/code`, width: "14rem" }} value={context.values[`${prefix}/code`]} onChange={(value) => context.onFieldChange(`${prefix}/code`, value)} />}</PostSection>;
+  return <PostSection block={block} title="实验结果异常处理">{context.advancedMode ? <Part part={{ type: "radio", fieldKey: `${prefix}/occurred`, options: ["是", "否"] }} context={context} /> : <QcPaperChoiceInput fieldKey={`${prefix}/occurred`} value={context.values[`${prefix}/occurred`]} disabled={context.readOnly} onChange={(value) => context.onFieldChange(`${prefix}/occurred`, value)} />} <span className="ml-8">实验室异常情况编号</span>{context.advancedMode ? <Part part={{ type: "line", fieldKey: `${prefix}/code`, width: "14rem", underline: true }} context={context} /> : <QcPaperLineInput part={{ type: "line", fieldKey: `${prefix}/code`, width: "14rem" }} readOnly={context.readOnly} value={context.values[`${prefix}/code`]} onChange={(value) => context.onFieldChange(`${prefix}/code`, value)} />}</PostSection>;
 }
 
 function renderCleanup(block: NumberedBlock, context: LayoutRenderContext) {
   const items = context.test?.cleanupItems?.length ? context.test.cleanupItems : block.items || ["YAML 未配置清场项目"];
   return <PostSection block={block} title="清场">{items.map((item, index) => {
     const key = `${block.fieldPrefix || "layout/cleanup"}/item_${index + 1}`;
-    return <div key={`${key}-${item}`} className="flex items-center gap-6 border-b border-slate-950 py-1"><span className="min-w-0 flex-1">{item.replace(/[。.]?$/, "。")}</span><span className="inline-flex w-44 justify-center">{context.advancedMode ? <Part part={{ type: "radio", fieldKey: key, options: ["是", "否"] }} context={context} /> : <QcPaperChoiceInput fieldKey={key} value={context.values[key]} onChange={(value) => context.onFieldChange(key, value)} />}</span></div>;
+    return <div key={`${key}-${item}`} className="flex items-center gap-6 border-b border-slate-950 py-1"><span className="min-w-0 flex-1">{item.replace(/[。.]?$/, "。")}</span><span className="inline-flex w-44 justify-center">{context.advancedMode ? <Part part={{ type: "radio", fieldKey: key, options: ["是", "否"] }} context={context} /> : <QcPaperChoiceInput fieldKey={key} value={context.values[key]} disabled={context.readOnly} onChange={(value) => context.onFieldChange(key, value)} />}</span></div>;
   })}</PostSection>;
 }
 

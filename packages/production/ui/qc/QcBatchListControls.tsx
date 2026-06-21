@@ -11,13 +11,18 @@ import {
   Toolbar,
   ToolbarOptionGroup,
 } from "@workspace/core/ui";
-import type { QcRecordTemplateSummary } from "@workspace/production/server/qc";
+
+interface QcProductOption {
+  id: string;
+  productName: string;
+}
 
 const statusOptions = [
   { value: "all", label: "全部" },
-  { value: "pending", label: "待检" },
-  { value: "submitted", label: "已提交" },
   { value: "exception", label: "异常" },
+  { value: "accepted", label: "已验收" },
+  { value: "inspecting", label: "检验中" },
+  { value: "reviewing", label: "待复核" },
 ];
 
 const pageSizeOptions = [20, 50, 100, 200].map((size) => ({
@@ -30,8 +35,6 @@ interface QcBatchToolbarProps {
   productFilter: string;
   productOptions: Array<{ value: string; label: string }>;
   pageSize: number;
-  filteredCount: number;
-  counts: { total: number; draft: number; submitted: number };
   onToggleCreate: () => void;
   onStatusFilterChange: (value: string) => void;
   onProductFilterChange: (value: string) => void;
@@ -45,8 +48,6 @@ export function QcBatchToolbar({
   productFilter,
   productOptions,
   pageSize,
-  filteredCount,
-  counts,
   onToggleCreate,
   onStatusFilterChange,
   onProductFilterChange,
@@ -79,17 +80,14 @@ export function QcBatchToolbar({
       )}
       selectionActions={<ActionButton onClick={onExport}>导出</ActionButton>}
       meta={(
-        <>
-          <span>共 {filteredCount} 条 · 全部 {counts.total} · 待检 {counts.draft} · 已提交 {counts.submitted}</span>
-          <SelectField
-            options={pageSizeOptions}
-            value={String(pageSize)}
-            onChange={(value) => onPageSizeChange(Number(value))}
-            size="toolbar"
-            selectClassName="!w-[6.5rem] !min-w-[6.5rem]"
-            ariaLabel="每页条数"
-          />
-        </>
+        <SelectField
+          options={pageSizeOptions}
+          value={String(pageSize)}
+          onChange={(value) => onPageSizeChange(Number(value))}
+          size="toolbar"
+          selectClassName="!w-[6.5rem] !min-w-[6.5rem]"
+          ariaLabel="每页条数"
+        />
       )}
     />
   );
@@ -97,7 +95,7 @@ export function QcBatchToolbar({
 
 interface QcBatchCreatePanelProps {
   open: boolean;
-  products: QcRecordTemplateSummary[];
+  products: QcProductOption[];
   productKey: string;
   batchNumber: string;
   submitting: boolean;

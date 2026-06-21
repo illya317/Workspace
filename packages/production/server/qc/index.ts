@@ -11,6 +11,7 @@ export {
   listQcBatches,
   submitQcBatch,
   updateQcBatch,
+  updateQcBatchWorkflow,
 } from "./batches";
 export {
   getQcTemplateFeedback,

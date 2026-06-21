@@ -8,6 +8,7 @@
     "./constants": "./constants/index.ts",
     "./import": "./import/index.ts",
     "./module": "./module.ts",
+    "./qc/*": "./qc/*.ts",
     "./server": "./server/index.ts",
     "./server/qc": "./server/qc/index.ts",
     "./server/qc/*": "./server/qc/*.ts",

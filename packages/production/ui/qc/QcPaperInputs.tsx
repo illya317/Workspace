@@ -1,6 +1,6 @@
 "use client";
-import type { CSSProperties } from "react";
-import { ChoiceGroup, SelectField, TextareaField, TextField } from "@workspace/core/ui";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { ChoiceGroup, TextareaField, TextField } from "@workspace/core/ui";
 import type { QcLayoutPart } from "@workspace/production/server/qc";
 
 const PAPER_INPUT_TEXT_CLASS = "text-[15px]";
@@ -71,8 +71,14 @@ export function qcRangeError(part: QcLayoutPart, value?: string) {
   return undefined;
 }
 
-function underlineClass(_part: QcLayoutPart) {
-  return _part.underline === true ? "border-b border-slate-950" : "border-b-0";
+function underlineClass(part: QcLayoutPart, inTable?: boolean) {
+  if (inTable) return "border-b-0";
+  return part.underline === true ? "border-b border-slate-950" : "border-b-0";
+}
+
+function selectRootBorderClass(part: QcLayoutPart, inTable?: boolean) {
+  if (inTable || part.underline !== true) return "!border-0";
+  return "border-b border-slate-950";
 }
 
 function textInputType(part: QcLayoutPart) {
@@ -110,7 +116,7 @@ export function QcPaperLineInput({
         rows={part.rows || 2}
         title={error}
         unstyled
-        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-[8em] resize-y border-0 bg-transparent ${inputPaddingClass(part, currentValue)} ${inputAlignClass(part, currentValue)} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-[8em] resize-y border-0 bg-transparent ${inputPaddingClass(part, currentValue)} ${inputAlignClass(part, currentValue)} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
         style={inputWidth(part, inTable, currentValue)}
       />
     );
@@ -127,7 +133,7 @@ export function QcPaperLineInput({
       type={textInputType(part)}
       title={error}
       unstyled
-      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass(part, currentValue)} ${inputAlignClass(part, currentValue)} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass(part, currentValue)} ${inputAlignClass(part, currentValue)} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
       style={inputWidth(part, inTable, currentValue)}
     />
   );
@@ -149,19 +155,67 @@ export function QcPaperSelectInput({
   inTable?: boolean;
 }) {
   const error = qcRangeError(part, value ?? part.defaultValue);
+  const currentValue = value ?? part.defaultValue ?? "";
+  const rootRef = useRef<HTMLSpanElement | null>(null);
+  const [open, setOpen] = useState(false);
+  const display = options.find((option) => option === currentValue) || currentValue || "";
+
+  useEffect(() => {
+    if (!open) return;
+    function handlePointerDown(event: MouseEvent) {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) setOpen(false);
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpen(false);
+    }
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open]);
+
+  function choose(nextValue: string) {
+    onChange?.(nextValue);
+    setOpen(false);
+  }
+
   return (
-    <SelectField
-      ariaLabel={part.fieldKey || part.field || part.name || "选择项"}
-      dataFieldKey={part.fieldKey || part.field || part.name}
-      value={value ?? part.defaultValue ?? ""}
-      onChange={(nextValue) => onChange?.(nextValue)}
-      disabled={readOnly || part.readonlyDisplay}
-      placeholder=" "
-      options={options.map((option) => ({ value: option, label: option }))}
-      className={`${inTable ? "mx-0" : "mx-1"} inline-block align-middle`}
-      selectClassName={`${PAPER_INPUT_TEXT_CLASS} h-7 min-h-7 rounded-none border-0 bg-transparent px-0.5 text-center tabular-nums leading-7 shadow-none disabled:opacity-100 ${error ? "text-red-700" : ""} ${underlineClass(part)}`}
+    <span
+      ref={rootRef}
+      className={`${inTable ? "mx-0" : "mx-1"} relative inline-flex h-7 items-center justify-center align-middle ${selectRootBorderClass(part, inTable)} ${error ? "text-red-700" : ""}`}
       style={selectWidth(part, options, value ?? part.defaultValue, inTable)}
-    />
+    >
+      <button
+        type="button"
+        aria-label={part.fieldKey || part.field || part.name || "选择项"}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        data-field-key={part.fieldKey || part.field || part.name}
+        disabled={readOnly || part.readonlyDisplay}
+        onClick={() => setOpen((current) => !current)}
+        className={`${PAPER_INPUT_TEXT_CLASS} h-7 w-full border-0 bg-transparent px-0.5 text-center font-normal tabular-nums leading-7 outline-none disabled:cursor-default disabled:opacity-100`}
+      >
+        {display || "\u00A0"}
+      </button>
+      {open && !readOnly && !part.readonlyDisplay ? (
+        <div className="absolute left-0 top-[calc(100%+0.25rem)] z-50 min-w-full border border-slate-200 bg-white p-1 font-sans" role="listbox">
+          {options.map((option) => (
+            <button
+              key={option}
+              type="button"
+              role="option"
+              aria-selected={option === currentValue}
+              onClick={() => choose(option)}
+              className={`block w-full whitespace-nowrap px-2 py-1 text-center text-xs ${option === currentValue ? "bg-slate-100 font-semibold text-slate-900" : "text-slate-700 hover:bg-slate-50"}`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </span>
   );
 }
 

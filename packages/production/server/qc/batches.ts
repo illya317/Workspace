@@ -3,6 +3,7 @@ import path from "path";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { getQcTemplateDetail } from "./template-cache";
 import { qcRuntimeDataPath } from "./runtime-data-path";
+import { buildQcBatchWorkflow, qcSignatureKeys } from "../../qc/workflow";
 import type { QcBatchCreateInput, QcBatchList, QcBatchSummary, QcBatchStatus } from "./types";
 
 interface QcBatchStore {
@@ -42,6 +43,11 @@ function normalizeStatus(value: unknown): QcBatchStatus {
 
 function sortBatches(batches: QcBatchSummary[]) {
   return [...batches].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
+}
+
+function assertWritableInspectionField(key: string, stageKey: string, testName: string) {
+  if (key.includes("/signature/")) throw new Error("签名字段只能由服务端流程写入");
+  if (!key.startsWith(`${stageKey}/${testName}/`)) throw new Error(`字段不属于当前检验项目：${key}`);
 }
 
 export async function listQcBatches(): Promise<QcBatchList> {
@@ -99,6 +105,50 @@ export async function updateQcBatch(batchId: number, fields: Record<string, unkn
     for (const [key, value] of Object.entries(fields.fields)) {
       batch.fields[key] = value == null ? "" : String(value);
     }
+  }
+  batch.updatedAt = new Date().toISOString();
+  await writeStore(store);
+  return batch;
+}
+
+export async function updateQcBatchWorkflow(batchId: number, input: {
+  action: "save_inspection" | "approve_review";
+  stageKey: string;
+  testName: string;
+  actorName: string;
+  fields?: Record<string, unknown>;
+}): Promise<QcBatchSummary | null> {
+  const store = await readStore();
+  const batch = store.batches.find((item) => item.id === batchId);
+  if (!batch) return null;
+  const detail = await getQcTemplateDetail(batch.productKey);
+  const stage = detail.stages.find((item) => item.key === input.stageKey);
+  const test = stage?.tests.find((item) => item.englishName === input.testName);
+  if (!stage || !test) throw new Error("检验项目不存在");
+
+  const workflow = buildQcBatchWorkflow(detail, batch, input.actorName);
+  const current = workflow.tests.find((item) => item.stageKey === input.stageKey && item.testName === input.testName);
+  if (!current) throw new Error("检验项目不存在");
+  if (!workflow.stages[current.stageIndex]?.unlocked) throw new Error("前一阶段尚未全部复核完成");
+  if (current.automatic) throw new Error("该成品项目引用待包装品结果，不能手工保存或复核");
+
+  const keys = qcSignatureKeys(input.stageKey, input.testName);
+  if (input.action === "save_inspection") {
+    if (current.reviewed) throw new Error("该项目已复核，不能继续修改");
+    if (!current.canSaveInspection) throw new Error("该项目已由其他检验者完成检验，请进入复核流程");
+    if (input.fields && typeof input.fields === "object" && !Array.isArray(input.fields)) {
+      for (const [key, value] of Object.entries(input.fields)) {
+        assertWritableInspectionField(key, input.stageKey, input.testName);
+        batch.fields[key] = value == null ? "" : String(value);
+      }
+    }
+    batch.fields[keys.inspector] = input.actorName.trim();
+  }
+  if (input.action === "approve_review") {
+    if (!current.inspected) throw new Error("该项目尚未完成检验，不能复核");
+    if (current.reviewed) throw new Error("该项目已复核");
+    if (!current.canApproveReview) throw new Error("检验者不能复核本人检验的项目");
+    batch.fields[keys.reviewer] = input.actorName.trim();
   }
   batch.updatedAt = new Date().toISOString();
   await writeStore(store);

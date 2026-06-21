@@ -5,20 +5,28 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import ConfirmModal from "@workspace/core/ui/ConfirmModal";
 import Toast from "@workspace/core/ui/Toast";
-import type { QcBatchList, QcBatchSummary, QcRecordTemplateSummary } from "@workspace/production/server/qc";
+import type { QcBatchSummary } from "@workspace/production/server/qc";
 import { QcBatchCreatePanel, QcBatchToolbar } from "./QcBatchListControls";
-import { QcBatchTable, formatQcBatchDate, qcBatchStatusLabel } from "./QcBatchTable";
+import { QcBatchTable, formatQcBatchDate, qcBatchStatusText, type QcBatchTableRow } from "./QcBatchTable";
 
 interface Props {
-  initialData: QcBatchList;
-  products: QcRecordTemplateSummary[];
+  initialRows: QcBatchTableRow[];
+  products: Array<{ id: string; productName: string }>;
 }
 
-export default function QcBatchListClient({ initialData, products }: Props) {
+function todayBatchNumber() {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}${month}${day}`;
+}
+
+export default function QcBatchListClient({ initialRows, products }: Props) {
   const router = useRouter();
-  const [batches, setBatches] = useState(initialData.batches);
+  const [rows, setRows] = useState(initialRows);
   const [productKey, setProductKey] = useState(products[0]?.id ?? "");
-  const [batchNumber, setBatchNumber] = useState("");
+  const [batchNumber, setBatchNumber] = useState(() => todayBatchNumber());
   const [statusFilter, setStatusFilter] = useState("all");
   const [productFilter, setProductFilter] = useState("");
   const [page, setPage] = useState(1);
@@ -28,25 +36,20 @@ export default function QcBatchListClient({ initialData, products }: Props) {
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
   const [isPending, startTransition] = useTransition();
 
-  const counts = useMemo(() => ({
-    total: batches.length,
-    draft: batches.filter((batch) => batch.status === "draft").length,
-    submitted: batches.filter((batch) => batch.status === "submitted").length,
-  }), [batches]);
-
   const productFilterOptions = useMemo(
     () => products.map((product) => ({ value: product.id, label: product.productName })),
     [products],
   );
 
   const filtered = useMemo(() => {
-    let next = batches;
-    if (statusFilter === "pending") next = next.filter((batch) => batch.status === "draft");
-    if (statusFilter === "submitted") next = next.filter((batch) => batch.status === "submitted");
-    if (statusFilter === "exception") next = [];
+    let next = rows;
+    if (statusFilter === "inspecting") next = next.filter((batch) => batch.statusLabels.includes("检验中"));
+    if (statusFilter === "reviewing") next = next.filter((batch) => batch.statusLabels.includes("待复核"));
+    if (statusFilter === "accepted") next = next.filter((batch) => batch.statusLabels.includes("已验收"));
+    if (statusFilter === "exception") next = next.filter((batch) => batch.statusLabels.includes("异常"));
     if (productFilter) next = next.filter((batch) => batch.productKey === productFilter);
     return next;
-  }, [batches, productFilter, statusFilter]);
+  }, [productFilter, rows, statusFilter]);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(filtered.length / pageSize)), [filtered.length, pageSize]);
   const visibleBatches = useMemo(() => filtered.slice((page - 1) * pageSize, page * pageSize), [filtered, page, pageSize]);
@@ -56,13 +59,14 @@ export default function QcBatchListClient({ initialData, products }: Props) {
   }
 
   function exportBatches() {
-    const header = ["ID", "批号", "产品", "检验者", "状态", "创建时间"];
+    const header = ["ID", "批号", "产品", "检验者", "复核者", "状态", "创建时间"];
     const rows = filtered.map((batch) => [
       String(batch.id),
       batch.batchNumber,
       batch.productName,
-      batch.inspector || "-",
-      qcBatchStatusLabel(batch.status),
+      batch.inspectorNames.join("、") || "-",
+      batch.reviewerNames.join("、") || "-",
+      qcBatchStatusText(batch),
       formatQcBatchDate(batch.createdAt),
     ]);
     const csv = [header, ...rows]
@@ -108,7 +112,7 @@ export default function QcBatchListClient({ initialData, products }: Props) {
         setToast({ message: "删除失败", type: "error" });
         return;
       }
-      setBatches((items) => items.filter((batch) => batch.id !== target.id));
+      setRows((items) => items.filter((batch) => batch.id !== target.id));
       setToast({ message: "已删除批次", type: "success" });
     });
   }
@@ -120,8 +124,6 @@ export default function QcBatchListClient({ initialData, products }: Props) {
         productFilter={productFilter}
         productOptions={productFilterOptions}
         pageSize={pageSize}
-        filteredCount={filtered.length}
-        counts={counts}
         onToggleCreate={() => setCreateOpen((open) => !open)}
         onStatusFilterChange={(value) => {
           setStatusFilter(value);
@@ -150,7 +152,7 @@ export default function QcBatchListClient({ initialData, products }: Props) {
         onSubmit={() => void createBatch()}
         onCancel={() => {
           setCreateOpen(false);
-          setBatchNumber("");
+          setBatchNumber(todayBatchNumber());
         }}
       />
 

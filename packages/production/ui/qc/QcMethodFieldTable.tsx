@@ -10,16 +10,19 @@ interface Props {
   compact?: boolean;
   values?: QcFieldValues;
   onFieldChange?: (key: string, value: string) => void;
+  readOnly?: boolean;
 }
 
 function FieldInput({
   field,
   value,
   onChange,
+  readOnly,
 }: {
   field: QcTemplateMethodField;
   value: string;
   onChange: (value: string) => void;
+  readOnly?: boolean;
 }) {
   const calculated = field.attr === "calculated" || !!field.formula || !!field.rule;
   if (field.type === "radio" || field.type === "checkbox") {
@@ -29,7 +32,7 @@ function FieldInput({
           fieldKey={field.fieldKey}
           options={field.options}
           type={field.type}
-          disabled={calculated || field.attr === "prefilled"}
+          disabled={readOnly || calculated || field.attr === "prefilled"}
           value={value}
           onChange={onChange}
         />
@@ -45,7 +48,7 @@ function FieldInput({
           dataFieldKey={field.fieldKey}
           value={value}
           onChange={onChange}
-          disabled={calculated || field.attr === "prefilled"}
+          disabled={readOnly || calculated || field.attr === "prefilled"}
           placeholder=" "
           options={(field.options ?? []).map((option) => ({ value: option, label: option }))}
           className="inline-block min-w-16"
@@ -61,7 +64,7 @@ function FieldInput({
         dataFieldKey={field.fieldKey}
         value={value}
         onChange={onChange}
-        readOnly={calculated || field.attr === "prefilled"}
+        readOnly={readOnly || calculated || field.attr === "prefilled"}
         inputMode={field.type === "number" ? "decimal" : "text"}
         unstyled
         className={`h-8 min-w-24 border-0 border-b border-slate-950 bg-transparent px-2 text-center text-sm outline-none ${calculated ? "text-slate-950" : ""}`}
@@ -71,7 +74,7 @@ function FieldInput({
   );
 }
 
-export default function QcMethodFieldTable({ test, compact, values: controlledValues, onFieldChange }: Props) {
+export default function QcMethodFieldTable({ test, compact, values: controlledValues, onFieldChange, readOnly = false }: Props) {
   const form = useQcFormulaEngine(test);
   const values = controlledValues || form.values;
   const setValue = onFieldChange || form.setValue;
@@ -95,6 +98,7 @@ export default function QcMethodFieldTable({ test, compact, values: controlledVa
                   <FieldInput
                     field={field}
                     value={values[field.fieldKey] ?? ""}
+                    readOnly={readOnly}
                     onChange={(value) => setValue(field.fieldKey, value)}
                   />
                 ),

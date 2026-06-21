@@ -24,7 +24,7 @@ export default async function QcBatchTestPage({ params }: Props) {
       activeResourceKey="production.qc.batches"
       backHref={`/production/qc/batches/${batch.id}/${stage.key}`}
     >
-      <QcBatchTestRecord batch={batch} productName={detail.productName} stage={stage} test={test} />
+      <QcBatchTestRecord batch={batch} productName={detail.productName} detail={detail} stage={stage} test={test} currentUserName={user.name} />
     </QcModuleShell>
   );
 }

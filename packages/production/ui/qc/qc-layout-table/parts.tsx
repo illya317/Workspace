@@ -26,6 +26,7 @@ import type { LayoutRenderContext } from "./types";
 
 export function Part({ part, context }: { part: QcLayoutPart; context: LayoutRenderContext }) {
   const { test, values, onFieldChange, fieldByName, fieldByKey, advancedMode, activeAdvancedOutputKey, onAdvancedOutputHover } = context;
+  const readOnly = !!context.readOnly;
   const activeAdvancedPart = activeAdvancedOutputKey ? context.advancedPartMetadata?.get(activeAdvancedOutputKey) : undefined;
   const advancedDependencyKeys = activeAdvancedPart ? resolveAdvancedDependencyKeys(activeAdvancedPart) : new Set<string>();
   if (part.type === "br") return <br />;
@@ -57,12 +58,12 @@ export function Part({ part, context }: { part: QcLayoutPart; context: LayoutRen
     const hasLayoutFormula = hasAdvancedFormulaMetadata(part);
     if (advancedMode) return renderAdvancedField({ part, key, field, fieldType, sourceKey, hasLayoutFormula, context, advancedDependencyKeys });
     if (fieldType === "radio" || fieldType === "checkbox") {
-      return <QcPaperChoiceInput fieldKey={key} options={part.options?.length ? part.options : field?.options} type={fieldType} disabled={isWholeTestReference || part.readonlyDisplay || field?.attr === "calculated"} value={referenceDisplayValue(context, key) ?? values[key]} onChange={(value) => onFieldChange(key, value)} />;
+      return <QcPaperChoiceInput fieldKey={key} options={part.options?.length ? part.options : field?.options} type={fieldType} disabled={readOnly || isWholeTestReference || part.readonlyDisplay || field?.attr === "calculated"} value={referenceDisplayValue(context, key) ?? values[key]} onChange={(value) => onFieldChange(key, value)} />;
     }
     if (fieldType === "select" || (!!part.options?.length && fieldType !== "radio" && fieldType !== "checkbox")) {
-      return <QcPaperSelectInput part={mergedPart} options={part.options?.length ? part.options : field?.options} readOnly={isWholeTestReference || part.readonlyDisplay || field?.attr === "calculated"} value={referenceDisplayValue(context, key) ?? values[key]} onChange={(value) => onFieldChange(key, value)} inTable={context.inTable} />;
+      return <QcPaperSelectInput part={mergedPart} options={part.options?.length ? part.options : field?.options} readOnly={readOnly || isWholeTestReference || part.readonlyDisplay || field?.attr === "calculated"} value={referenceDisplayValue(context, key) ?? values[key]} onChange={(value) => onFieldChange(key, value)} inTable={context.inTable} />;
     }
-    return <QcPaperLineInput part={mergedPart} readOnly={isWholeTestReference || part.readonlyDisplay || field?.attr === "calculated"} value={referenceDisplayValue(context, key) ?? values[key]} onChange={(value) => onFieldChange(key, value)} inTable={context.inTable} />;
+    return <QcPaperLineInput part={mergedPart} readOnly={readOnly || isWholeTestReference || part.readonlyDisplay || field?.attr === "calculated"} value={referenceDisplayValue(context, key) ?? values[key]} onChange={(value) => onFieldChange(key, value)} inTable={context.inTable} />;
   }
   if (part.type === "date") return renderDatePart(part, context, advancedDependencyKeys);
   if (part.type === "radio" || part.type === "checkbox") {
@@ -70,7 +71,7 @@ export function Part({ part, context }: { part: QcLayoutPart; context: LayoutRen
     const sourceKey = key ? context.referenceSourceKeyFor?.(key) : undefined;
     const hasLayoutFormula = hasAdvancedFormulaMetadata(part);
     if (advancedMode) return renderAdvancedField({ part, key, field, fieldType: part.type, sourceKey, hasLayoutFormula, context, advancedDependencyKeys });
-    return <QcPaperChoiceInput fieldKey={key} options={part.options?.length ? part.options : field?.options} type={part.type} disabled={!!sourceKey || part.readonlyDisplay || field?.attr === "calculated"} value={referenceDisplayValue(context, key) ?? values[key]} onChange={(value) => onFieldChange(key, value)} />;
+    return <QcPaperChoiceInput fieldKey={key} options={part.options?.length ? part.options : field?.options} type={part.type} disabled={readOnly || !!sourceKey || part.readonlyDisplay || field?.attr === "calculated"} value={referenceDisplayValue(context, key) ?? values[key]} onChange={(value) => onFieldChange(key, value)} />;
   }
   if (part.type === "param") {
     if (advancedMode) {
@@ -134,5 +135,5 @@ function renderDatePart(part: QcLayoutPart, context: LayoutRenderContext, advanc
     const isReferenceOutput = !!sourceKey || isReadonlyReferencePart(part, field);
     return <AdvancedFieldBadge label={isReferenceOutput ? "ref" : "date"} kind={isReferenceOutput ? "reference" : "date"} title={key} formulaText={referenceFormulaText(sourceKey)} highlighted={highlightedInputKey(context.activeAdvancedOutputKey, context.formulaDependencies, key, advancedDependencyKeys)} fieldKey={isReferenceOutput ? key : undefined} anchorKey={key} active={isReferenceOutput && context.activeAdvancedOutputKey === key} onToggle={isReferenceOutput ? context.onAdvancedOutputHover : undefined} />;
   }
-  return <QcPaperDateInput part={{ ...part, fieldKey: key }} value={contextSourceKey ? context.values[contextSourceKey] : context.values[key]} hourValue={contextSourceKey ? context.values[`${contextSourceKey}_hour`] : context.values[`${key}_hour`]} onChange={(value) => context.onFieldChange(key, value)} onHourChange={(value) => context.onFieldChange(`${key}_hour`, value)} readOnly={!!contextSourceKey || part.readonlyDisplay} />;
+  return <QcPaperDateInput part={{ ...part, fieldKey: key }} value={contextSourceKey ? context.values[contextSourceKey] : context.values[key]} hourValue={contextSourceKey ? context.values[`${contextSourceKey}_hour`] : context.values[`${key}_hour`]} onChange={(value) => context.onFieldChange(key, value)} onHourChange={(value) => context.onFieldChange(`${key}_hour`, value)} readOnly={context.readOnly || !!contextSourceKey || part.readonlyDisplay} inTable={context.inTable} />;
 }

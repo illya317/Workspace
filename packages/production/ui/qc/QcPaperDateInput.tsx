@@ -51,6 +51,7 @@ function DatePartInput({
   onBlur: () => void;
   readOnly?: boolean;
 }) {
+  const widthClass = width === "4ch" ? "w-[4ch]" : "w-[2ch]";
   return (
     <TextField
       aria-label={label}
@@ -60,7 +61,7 @@ function DatePartInput({
       onChange={(nextValue) => onChange(nextValue.replace(/\D/g, "").slice(0, maxLength))}
       onBlur={onBlur}
       readOnly={readOnly}
-      className={`border-0 bg-transparent p-0 text-center tabular-nums outline-none ${width === "4ch" ? "w-[4ch]" : "w-[2ch]"}`}
+      className={`border-0 bg-transparent p-0 text-center tabular-nums outline-none ${widthClass}`}
       unstyled
     />
   );
@@ -73,6 +74,7 @@ export function QcPaperDateInput({
   onChange,
   onHourChange,
   readOnly,
+  inTable,
 }: {
   part: QcLayoutPart;
   value?: string;
@@ -80,6 +82,7 @@ export function QcPaperDateInput({
   onChange?: (value: string) => void;
   onHourChange?: (value: string) => void;
   readOnly?: boolean;
+  inTable?: boolean;
 }) {
   const fallbackValue = part.defaultValue || offsetDateValue(part.defaultOffsetDays) || todayValue();
   const [date, setDate] = useState(() => normalizeDateParts(...(value || fallbackValue).split("-") as [string, string, string]));
@@ -99,7 +102,7 @@ export function QcPaperDateInput({
   const key = part.fieldKey || "date";
   const isReadOnly = readOnly || part.readonlyDisplay;
   return (
-    <span className="inline-flex items-center gap-1 whitespace-nowrap align-baseline">
+    <span className={`inline-flex max-w-full items-center whitespace-nowrap align-baseline ${inTable ? "gap-0.5 text-[14px] leading-7" : "gap-1"}`}>
       <DatePartInput label="年" maxLength={4} value={date.year} width="4ch" onChange={(year) => setDate((current) => ({ ...current, year }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
       <span>年</span>
       <DatePartInput label="月" maxLength={2} value={date.month} width="2ch" onChange={(month) => setDate((current) => ({ ...current, month }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
