@@ -1,7 +1,7 @@
 // Login session contract returned by /api/auth/me.
 export interface SessionUser {
   id: number;
-  name: string;
+  nickname: string;
   username?: string | null;
   wxUserId?: string | null;
   avatar?: string | null;
@@ -15,6 +15,7 @@ export interface SessionUser {
   manageableResourceKeys?: string[];
   isActiveEmployee?: boolean;
   employeeId?: string | null;
+  employeeName?: string | null;
   company?: string | null;
   managementGroup?: string | null;
   departmentId?: number;

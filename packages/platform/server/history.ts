@@ -79,7 +79,7 @@ export async function listEditHistoryVersions(entityType: string, entityId: stri
   return prisma.editHistory.findMany({
     where: { entityType, entityId },
     orderBy: { version: "desc" },
-    select: { version: true, createdAt: true, editor: { select: { name: true } } },
+    select: { version: true, createdAt: true, editor: { select: { nickname: true, employees: { select: { name: true }, take: 1 } } } },
     take: 50,
   });
 }

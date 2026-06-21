@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { authorize } from "@workspace/platform/server/auth";
 import { withAuth } from "@workspace/platform/server/with-auth";
 import { computeReclassification } from "@workspace/finance/server/schedules/reclassify";
 
@@ -15,4 +14,4 @@ export const GET = withAuth(async (request: Request) => {
 
   const result = await computeReclassification(companyCode, parseInt(year), parseInt(month));
   return NextResponse.json(result);
-}, (userId) => authorize({ user: userId, resourceKey: "finance.ledger", action: "access" }));
+});

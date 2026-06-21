@@ -31,8 +31,6 @@
 settings            access  设置
   settings.account  access  账号与接入（自助，授权矩阵隐藏）
   settings.admin    admin   系统管理
-  settings.governance access 数据治理
-  settings.api      access  API接入
 
 agent               access  智能体（headless）
 
@@ -62,7 +60,6 @@ docs                access  文档中心
   docs.positions    access  岗位说明书
   docs.company      access  公司管理
   docs.expense      access  报销规范
-  docs.api          access  API文档
 
 library              write   资料库
   library.basicInfo  write   基本资料

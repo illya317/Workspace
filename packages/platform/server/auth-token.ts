@@ -14,7 +14,7 @@ function getSecret() {
 export async function createToken(payload: {
   userId: number;
   wxUserId: string;
-  name: string;
+  nickname: string;
   departmentId: number;
   departmentName?: string | null;
   sessionVersion: number;
@@ -34,7 +34,7 @@ export async function verifyToken(token: string) {
     return payload as unknown as {
       userId: number;
       wxUserId: string;
-      name: string;
+      nickname: string;
       departmentId: number;
       departmentName?: string | null;
       sessionVersion: number;
@@ -54,7 +54,7 @@ export function getTokenFromCookie(request: Request) {
 export type AuthPayload = {
   userId: number;
   wxUserId: string;
-  name: string;
+  nickname: string;
   departmentId: number;
   departmentName?: string | null;
 };

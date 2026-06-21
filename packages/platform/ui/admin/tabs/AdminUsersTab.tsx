@@ -32,6 +32,7 @@ function copyFallback(text: string) {
 interface UserItem {
   id: number;
   name: string;
+  nickname: string;
   username: string | null;
   employeeId: string | null;
   canLogin: boolean;
@@ -60,7 +61,7 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(20);
   const [creating, setCreating] = useState(false);
-  const [newName, setNewName] = useState("");
+  const [newNickname, setNewNickname] = useState("");
   const [newUsername, setNewUsername] = useState("");
   const nameRef = useRef<HTMLInputElement>(null);
 
@@ -78,16 +79,16 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
   useEffect(() => { load(); }, []);
 
   async function handleCreate() {
-    if (!newName.trim()) { showToast("请输入姓名", "error"); return; }
+    if (!newNickname.trim()) { showToast("请输入昵称", "error"); return; }
     try {
       const res = await fetch(workspacePath("/api/settings/admin/users"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newName.trim(), username: newUsername.trim() || null }),
+        body: JSON.stringify({ nickname: newNickname.trim(), username: newUsername.trim() || null }),
       });
       if (res.ok) {
         showToast("已创建", "success");
-        setNewName(""); setNewUsername(""); setCreating(false);
+        setNewNickname(""); setNewUsername(""); setCreating(false);
         load();
       } else {
         showToast((await res.json().catch(() => ({}))).error || "创建失败", "error");
@@ -125,8 +126,8 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
     ? users.filter((u) => {
         const q = keyword.toLowerCase();
         if (searchMode === "name") return u.name.toLowerCase().includes(q) || getInitials(u.name).includes(q);
-        return u.name.toLowerCase().includes(q) || (u.username || "").toLowerCase().includes(q)
-          || (u.employeeId || "").toLowerCase().includes(q) || getInitials(u.name).includes(q);
+        return u.name.toLowerCase().includes(q) || u.nickname.toLowerCase().includes(q) || (u.username || "").toLowerCase().includes(q)
+          || (u.employeeId || "").toLowerCase().includes(q) || getInitials(u.name).includes(q) || getInitials(u.nickname).includes(q);
       })
     : users;
 
@@ -142,10 +143,13 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
       label: "姓名",
       required: true,
       render: (u) => (
-        <span className="font-medium text-slate-800">
-          {u.name}
-          {u.employeeId && <span className="ml-1 text-xs font-normal text-slate-400">/ {u.employeeId}</span>}
-        </span>
+        <div>
+          <span className="font-medium text-slate-800">
+            {u.name}
+            {u.employeeId && <span className="ml-1 text-xs font-normal text-slate-400">/ {u.employeeId}</span>}
+          </span>
+          {u.nickname !== u.name && <div className="text-xs text-slate-400">昵称：{u.nickname}</div>}
+        </div>
       ),
     },
     {
@@ -243,9 +247,9 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
         <PanelCard bodyClassName="flex flex-wrap items-center gap-3 p-3">
           <TextField
             ref={nameRef}
-            value={newName}
-            onChange={setNewName}
-            placeholder="姓名 *"
+            value={newNickname}
+            onChange={setNewNickname}
+            placeholder="昵称 *"
             className="w-40"
             onKeyDown={(e) => e.key === "Enter" && handleCreate()}
           />
@@ -257,7 +261,7 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
             onKeyDown={(e) => e.key === "Enter" && handleCreate()}
           />
           <ActionButton variant="primary" onClick={handleCreate}>保存</ActionButton>
-          <ActionButton onClick={() => { setCreating(false); setNewName(""); setNewUsername(""); }}>
+          <ActionButton onClick={() => { setCreating(false); setNewNickname(""); setNewUsername(""); }}>
             取消
           </ActionButton>
         </PanelCard>)}

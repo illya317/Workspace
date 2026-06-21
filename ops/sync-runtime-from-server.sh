@@ -160,10 +160,11 @@ fi
 
 if [ "$DRY_RUN" = "0" ] && [ "$SYNC_PUBLIC_ASSETS" = "1" ]; then
   echo "==> 链接本地 public 预览资产..."
-  rm -rf public/company public/assets/agent/avatar
-  mkdir -p public/assets/agent
+  rm -rf public/company public/assets/agent/avatar public/assets/user/avatar
+  mkdir -p public/assets/agent public/assets/user
   ln -s "$(relative_link_target "$LOCAL_WORKSPACE_CONFIG_DIR/assets/brand/company" public/company)" public/company
   ln -s "$(relative_link_target "$LOCAL_WORKSPACE_CONFIG_DIR/assets/agent/avatar" public/assets/agent/avatar)" public/assets/agent/avatar
+  ln -s "$(relative_link_target "$LOCAL_WORKSPACE_CONFIG_DIR/assets/user/avatar" public/assets/user/avatar)" public/assets/user/avatar
 fi
 
 if [ "$DRY_RUN" = "0" ] && [ "$RUN_WORKSPACE_CHECK" = "1" ]; then

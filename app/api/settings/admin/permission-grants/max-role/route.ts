@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { authenticate, isSuperAdmin } from "@workspace/platform/server/auth";
+import { requireAdminApiAccess, isSuperAdmin } from "@workspace/platform/server/auth";
 import { updateResourceMaxRole } from "@workspace/platform/server/permissions";
 
 const updateMaxRoleSchema = z.object({
@@ -10,8 +10,9 @@ const updateMaxRoleSchema = z.object({
 });
 
 export async function PATCH(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   const isSystemAdmin = await isSuperAdmin(payload.userId);
   if (!isSystemAdmin) return NextResponse.json({ error: "仅系统管理员可修改" }, { status: 403 });

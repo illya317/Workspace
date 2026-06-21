@@ -10,6 +10,10 @@ import type {
   ListReclassResultsOutput,
 } from "./types";
 
+function userEmployeeName(user: { nickname: string; employees?: Array<{ name: string }> } | null | undefined) {
+  return user?.employees?.[0]?.name ?? user?.nickname ?? null;
+}
+
 export async function listReclassResults(
   params: ListReclassResultsParams,
 ): Promise<ListReclassResultsOutput> {
@@ -51,7 +55,7 @@ export async function listReclassResults(
           },
         },
         rule: { select: { abnormalSide: true } },
-        reviewer: { select: { name: true } },
+        reviewer: { select: { nickname: true, employees: { select: { name: true }, take: 1 } } },
       },
     }),
     prisma.reclassResult.count({ where }),
@@ -77,7 +81,7 @@ export async function listReclassResults(
     status: r.status as ReclassResultRow["status"],
     note: r.note,
     adjustedBy: r.adjustedBy,
-    adjustedByName: r.reviewer?.name ?? null,
+    adjustedByName: userEmployeeName(r.reviewer),
     adjustedAt: r.adjustedAt?.toISOString() ?? null,
   }));
 

@@ -43,15 +43,11 @@ export function apiRoutes(
 
 export function systemApiRoutes(): ApiRouteRegistration[] {
   return [
-    ...apiRoutes("/api/settings/account", "protected", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
-    ...apiRoutes("/api/settings/account/password", "protected", ["POST"]),
     ...apiRoutes("/api/auth/dev-login", "dev", ["POST", "DELETE"]),
     ...apiRoutes("/api/auth/gateway-check", "protected", ["GET"]),
     ...apiRoutes("/api/auth/me", "protected", ["GET"]),
     ...apiRoutes("/api/auth/wecom", "public", ["GET"]),
     ...apiRoutes("/api/auth/dev-login-bypass", "dev", ["GET"]),
-    ...apiRoutes("/api/settings/account/targets", "protected", ["GET"]),
-    ...apiRoutes("/api/settings/account/routine", "protected", ["GET", "PUT"]),
     ...apiRoutes("/api/settings/account/week-info", "public", ["GET"]),
   ];
 }

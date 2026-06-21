@@ -64,7 +64,7 @@ export async function listUsersWithEffectiveResourceRoles() {
   const users = await prisma.user.findMany({
     where: { username: { not: "admin" } },
     orderBy: { id: "asc" },
-    select: { id: true, username: true, name: true, canLogin: true },
+    select: { id: true, username: true, nickname: true, canLogin: true },
   });
   const userIds = users.map((u) => u.id);
 
@@ -163,8 +163,9 @@ export async function listUsersWithEffectiveResourceRoles() {
 
     return {
       id: user.id,
+      name: empByUser[user.id]?.name || user.nickname,
       username: user.username,
-      name: empByUser[user.id]?.name || user.name,
+      nickname: user.nickname,
       employeeId: empByUser[user.id]?.employeeId || null,
       canLogin: user.canLogin,
       isWorkListAdmin: false,

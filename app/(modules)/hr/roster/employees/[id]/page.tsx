@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import AppShell from "@workspace/platform/ui/AppShell";
-import { requireResourceAccess } from "@workspace/platform/server/auth";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { EmployeeProfileClient } from "@workspace/hr/ui";
 import type { HRUser } from "@workspace/hr/types";
 
@@ -8,10 +8,10 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
-function toHRUser(user: Awaited<ReturnType<typeof requireResourceAccess>>): HRUser {
+function toHRUser(user: Awaited<ReturnType<typeof requireRouteAccess>>): HRUser {
   return {
     id: user.id,
-    name: user.name,
+    name: user.employeeName || user.nickname,
     visibleResourceKeys: user.visibleResourceKeys || [],
     visibleWriteResourceKeys: user.visibleWriteResourceKeys || [],
     isAdmin: user.isSuperAdmin ?? false,
@@ -20,7 +20,7 @@ function toHRUser(user: Awaited<ReturnType<typeof requireResourceAccess>>): HRUs
 }
 
 export default async function EmployeeProfilePage({ params }: Props) {
-  const [{ id }, user] = await Promise.all([params, requireResourceAccess("hr.roster")]);
+  const [{ id }, user] = await Promise.all([params, requireRouteAccess("/hr/roster")]);
   const employeeKey = decodeURIComponent(id).trim();
   if (!employeeKey) notFound();
 

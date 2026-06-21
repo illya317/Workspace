@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate } from "@workspace/platform/server/auth";
+import { requireApiAccess } from "@workspace/platform/server/auth";
 import {
   getUserRoutineItems,
   updateUserRoutineItems,
@@ -16,20 +16,18 @@ const updateRoutineSchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   const routineItems = await getUserRoutineItems(payload.userId);
   return NextResponse.json({ routineItems });
 }
 
 export async function PUT(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   const body = await request.json().catch(() => null);
   const parsed = updateRoutineSchema.safeParse(body);

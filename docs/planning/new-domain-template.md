@@ -61,11 +61,11 @@ prisma/models/<domain>.prisma  # 领域模型（按 schema 治理规则）
 ### page.tsx
 
 ```tsx
-import { requireResourceAccess } from "@/server/auth/guard";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { DomainClient } from "@workspace/<domain>/ui";
 
 export default async function DomainPage() {
-  const user = await requireResourceAccess("<domain>");
+  const user = await requireRouteAccess("/<domain>/<l2>");
   return <DomainClient user={user} />;
 }
 ```
@@ -75,7 +75,7 @@ export default async function DomainPage() {
 ```ts
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate, requireAuthorized } from "@workspace/platform/server/auth";
+import { requireApiAccess } from "@workspace/platform/server/auth";
 import * as service from "@workspace/<domain>/server";
 
 const querySchema = z.object({
@@ -83,14 +83,8 @@ const querySchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-
-  try {
-    await requireAuthorized({ user: payload.userId, resourceKey: "<domain>", action: "access" });
-  } catch {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
-  }
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
 
   const { searchParams } = new URL(request.url);
   const parsed = querySchema.safeParse({
@@ -107,10 +101,10 @@ export async function GET(request: Request) {
 
 - [ ] 更新 `README.md` 模块地图
 - [ ] 创建 `app/<domain>/ARCHITECTURE.md`
-- [ ] 在 `packages/<domain>/module.ts` 的 `resourceDefs` 注册资源 key
+- [ ] 在 `packages/platform/module-registry.ts` 注册 L1/L2 的 `href`、`resourceKey`、`apiPrefixes` 或 `noApiReason`
 - [ ] 设计 `prisma/models/<domain>.prisma`（事实字段 + 审计字段）
 - [ ] 运行 `npm run db:validate && npm run schema:check`
 - [ ] 实现 `packages/<domain>/server/*`
-- [ ] 实现 `app/api/<domain>/route.ts`
+- [ ] 实现 `app/api/modules/<domain>/<l2>/route.ts`
 - [ ] 实现 `packages/<domain>/ui` 组件，再由 `app/<domain>/page.tsx` 挂载
 - [ ] 运行硬约束：`npm run arch:gate && npm run lint -- --max-warnings=0 && npx tsc --noEmit && npm run build`

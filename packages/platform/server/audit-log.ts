@@ -13,6 +13,10 @@ const RESOLVERS: Record<string, { model: string; field: string; fallback: string
   EmployeeProject: { model: "employeeProject", field: "id", fallback: "未知关联" },
 };
 
+function userEmployeeName(user: { nickname: string; employees?: Array<{ name: string }> } | null | undefined) {
+  return user?.employees?.[0]?.name ?? user?.nickname ?? null;
+}
+
 async function resolveRecordNames(entityType: string, ids: number[]): Promise<Record<string, string>> {
   const map: Record<string, string> = {};
   if (entityType === "EDP") {
@@ -83,7 +87,7 @@ export async function getAuditLogEntries(
     orderBy: { createdAt: "desc" },
     take: pageSize,
     skip: (page - 1) * pageSize,
-    include: { editor: { select: { name: true } } },
+    include: { editor: { select: { nickname: true, employees: { select: { name: true }, take: 1 } } } },
   });
   const total = await prisma.editHistory.count({ where: pageWhere });
 
@@ -93,10 +97,10 @@ export async function getAuditLogEntries(
   const allVersions = await prisma.editHistory.findMany({
     where: { entityType, entityId: { in: recordIdStrs } },
     orderBy: { version: "asc" },
-    include: { editor: { select: { name: true } } },
+    include: { editor: { select: { nickname: true, employees: { select: { name: true }, take: 1 } } } },
   });
 
-  type VersionWithEditor = Prisma.EditHistoryGetPayload<{ include: { editor: { select: { name: true } } } }>;
+  type VersionWithEditor = Prisma.EditHistoryGetPayload<{ include: { editor: { select: { nickname: true; employees: { select: { name: true }; take: 1 } } } } }>;
   const prevMap = new Map<number, VersionWithEditor>();
   const groupMap = new Map<string, VersionWithEditor[]>();
   for (const version of allVersions) {
@@ -174,7 +178,7 @@ export async function getAuditLogEntries(
         entityId: version.entityId,
         entityName: recordMap[version.entityId] || version.entityId,
         version: version.version,
-        editorName: version.editor?.name || `用户#${version.editedBy}`,
+        editorName: userEmployeeName(version.editor) || `用户#${version.editedBy}`,
         createdAt: version.createdAt,
         tag: version.tag || null,
         changes,

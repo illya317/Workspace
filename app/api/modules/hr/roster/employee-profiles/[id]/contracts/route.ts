@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { jsonServiceResponse, routeIdParamsSchema, rowsRequestBodySchema } from "@workspace/platform/server/api";
-import { authenticate, checkHRWrite } from "@workspace/platform/server/auth";
+import { requireApiAccess, checkHRWrite } from "@workspace/platform/server/auth";
 import { updateEmployeeProfileContracts } from "@workspace/hr/server";
 
 interface Props {
@@ -9,10 +8,9 @@ interface Props {
 }
 
 export async function PUT(request: Request, { params }: Props) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await checkHRWrite(payload.userId, "hr.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const parsedParams = routeIdParamsSchema.safeParse(await params);

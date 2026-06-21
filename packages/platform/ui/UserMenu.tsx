@@ -8,6 +8,7 @@ const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 
 export default function UserMenu({ user }: { user: SessionUser | null }) {
   const router = useRouter();
+  const displayName = user?.employeeName || user?.nickname;
 
   async function handleLogout() {
     await fetch(`${BASE_PATH}/api/auth/dev-login`, { method: "DELETE" }).catch(() => {});
@@ -28,10 +29,10 @@ export default function UserMenu({ user }: { user: SessionUser | null }) {
           />
         ) : (
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-xs font-medium text-emerald-700">
-            {user?.name?.slice(0, 1) || "?"}
+            {displayName?.slice(0, 1) || "?"}
           </span>
         )}
-        <span>{user?.name}</span>
+        <span>{displayName}</span>
         </>
       }
       items={[

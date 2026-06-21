@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { authenticate, authorize, isSuperAdmin } from "@workspace/platform/server/auth";
+import { requireApiAccess, authorize, isSuperAdmin } from "@workspace/platform/server/auth";
 import {
   deleteDepartmentCode,
   getDepartmentCodes,
@@ -17,6 +17,7 @@ const upsertDepartmentCodeSchema = z.object({
   code: z.string().min(1),
   name: z.string().min(1),
   company: z.string().optional(),
+  companyCode: z.string().optional(),
   originalCode: z.string().optional(),
 });
 
@@ -24,7 +25,7 @@ const deleteDepartmentCodeSchema = z.object({
   code: z.string().min(1),
 });
 
-async function canUsePeopleRoster(userId: number, action: "access" | "write" | "delete") {
+async function canUseRoster(userId: number, action: "access" | "write" | "delete") {
   return (
     (await isSuperAdmin(userId)) ||
     (await authorize({ user: userId, resourceKey: "hr.roster", action })) ||
@@ -33,11 +34,11 @@ async function canUsePeopleRoster(userId: number, action: "access" | "write" | "
 }
 
 export async function GET(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await canUsePeopleRoster(payload.userId, "access"))) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
-  }
+
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
+  if (!(await canUseRoster(payload.userId, "access"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { searchParams } = new URL(request.url);
   const parsed = querySchema.safeParse({
@@ -50,11 +51,11 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await canUsePeopleRoster(payload.userId, "write"))) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
-  }
+
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
+  if (!(await canUseRoster(payload.userId, "write"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const parsed = upsertDepartmentCodeSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "缺少参数" }, { status: 400 });
@@ -65,11 +66,11 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await canUsePeopleRoster(payload.userId, "delete"))) {
-    return NextResponse.json({ error: "无权限" }, { status: 403 });
-  }
+
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
+  if (!(await canUseRoster(payload.userId, "delete"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { searchParams } = new URL(request.url);
   const parsed = deleteDepartmentCodeSchema.safeParse({

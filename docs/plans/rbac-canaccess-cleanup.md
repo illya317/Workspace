@@ -205,8 +205,8 @@ NODE_OPTIONS="--max-old-space-size=8192" npm run build
 | `app/(modules)/work/tasks/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.tasks")` |
 | `app/(system)/settings/admin/page.tsx` | `canAccessAdmin` → `requireAdminManageAccess()` |
 | `app/hr/page.tsx` | `visibleResourceKeys` OR 链 → `requireResourceAccess("hr")` |
-| `packages/platform/ui/settings/SettingsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("settings.api")` |
-| `app/docs/DocsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("settings.api")` |
+| `packages/platform/ui/settings/SettingsClient.tsx` | API 接入并入 `settings.account` 正文 |
+| `app/docs/DocsClient.tsx` | API 文档/接入不再依赖独立设置 API 资源 |
 | `lib/types.ts` | 删除所有 `canAccess*` 字段 |
 | `server/auth/session.ts` | 删除旧字段生成逻辑 |
 | `scripts/check/check-module-page-gates.js` | 缩减 LEGACY_EXCEPTIONS |

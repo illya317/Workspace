@@ -1,11 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate, isSuperAdmin } from "@workspace/platform/server/auth";
+import { requireAdminApiAccess, isSuperAdmin, getManageableResourceKeys, canManageResourceGrant } from "@workspace/platform/server/auth";
 import { isResourceEnabled } from "@workspace/platform/effective-module-registry";
-import {
-  getManageableResourceKeys,
-  canManageResourceGrant,
-} from "@workspace/platform/server/auth";
 import { getPermissionGrantData } from "@workspace/hr/server/permission-subjects";
 import type { SubjectType } from "@workspace/platform/server/auth";
 
@@ -21,10 +17,9 @@ const permissionGrantSchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   const isSysAdmin = await isSuperAdmin(payload.userId);
   const manageableKeys = await getManageableResourceKeys(payload.userId);
@@ -56,10 +51,9 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   const parsedBody = permissionGrantSchema.safeParse(await request.json());
   if (!parsedBody.success) {

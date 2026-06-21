@@ -1,11 +1,14 @@
 "use client";
 
+import { useRef, useState } from "react";
+
 export interface FileFieldProps {
   label?: string;
   accept?: string;
   disabled?: boolean;
   className?: string;
   inputClassName?: string;
+  showFileName?: boolean;
   onChange: (file: File | null) => void;
 }
 
@@ -15,23 +18,44 @@ export default function FileField({
   disabled = false,
   className = "",
   inputClassName = "",
+  showFileName = true,
   onChange,
 }: FileFieldProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState("");
+
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+    setFileName(file?.name ?? "");
+    onChange(file);
+  }
+
   return (
-    <label className={`block text-xs ${className}`}>
+    <div className={`block text-xs ${className}`}>
       {label && <span className="mb-1 block text-gray-500">{label}</span>}
       <input
+        ref={inputRef}
         type="file"
         accept={accept}
         disabled={disabled}
-        onChange={(event) => onChange(event.target.files?.[0] ?? null)}
-        className={[
-          "block w-full text-sm text-slate-700 file:mr-3 file:rounded-md file:border-0",
-          "file:bg-emerald-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-emerald-700",
-          "hover:file:bg-emerald-100 disabled:cursor-not-allowed disabled:text-slate-400",
+        onChange={handleChange}
+        className="sr-only"
+      />
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={() => inputRef.current?.click()}
+          className={[
+            "rounded-md border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-700 transition",
+            "hover:border-emerald-200 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400",
           inputClassName,
         ].filter(Boolean).join(" ")}
-      />
-    </label>
+        >
+          选择文件
+        </button>
+        {showFileName && fileName && <span className="max-w-full truncate text-sm text-slate-500">{fileName}</span>}
+      </div>
+    </div>
   );
 }

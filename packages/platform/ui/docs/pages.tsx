@@ -2,7 +2,6 @@ import { EmptyStateCard, ModuleGridPage } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import AppShell from "../AppShell";
 import ModuleCard from "../ModuleCard";
-import ApiGuideClient from "./ApiGuideClient";
 import GmpPositionDetailClient from "./positions/gmp/GmpPositionDetailClient";
 import GmpPositionsClient from "./positions/gmp/GmpPositionsClient";
 
@@ -42,14 +41,6 @@ export function DocsPositionsIndex({ user }: { user: SessionUser }) {
           }
         />
       </ModuleGridPage>
-    </AppShell>
-  );
-}
-
-export function DocsApiGuidePage({ user }: { user: SessionUser }) {
-  return (
-    <AppShell title="接入指南" backHref="/docs" user={user}>
-      <ApiGuideClient hideShell initialUser={user} />
     </AppShell>
   );
 }

@@ -35,7 +35,7 @@ const rosterViews = getPageViewTabs("/hr/roster") as HRViewTab[];
 function toHRUser(user: SessionUser): HRUser {
   return {
     id: user.id,
-    name: user.name,
+    name: user.employeeName || user.nickname,
     visibleResourceKeys: user.visibleResourceKeys || [],
     visibleWriteResourceKeys: user.visibleWriteResourceKeys || [],
     isAdmin: user.isSuperAdmin ?? false,

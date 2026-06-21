@@ -4,16 +4,19 @@
  * 按 actionKey dispatch，不盲执行。
  */
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@workspace/platform/server/auth";
+import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
 import { hrAgentProposalExecutors } from "@workspace/hr/server/agent-tools";
 import { confirmProposalAction } from "@workspace/platform/server/agent";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
 
 export async function POST(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const user = await getCurrentUser();
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+
+  const user = await getSessionUserFromAuthPayload(auth.user);
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const parsedParams = routeIdParamsSchema.safeParse(await params);

@@ -41,7 +41,7 @@ export type UserMinAggregateOutputType = {
   wxUserId: string | null
   username: string | null
   password: string | null
-  name: string | null
+  nickname: string | null
   avatar: string | null
   routineItems: string | null
   canLogin: boolean | null
@@ -56,7 +56,7 @@ export type UserMaxAggregateOutputType = {
   wxUserId: string | null
   username: string | null
   password: string | null
-  name: string | null
+  nickname: string | null
   avatar: string | null
   routineItems: string | null
   canLogin: boolean | null
@@ -71,7 +71,7 @@ export type UserCountAggregateOutputType = {
   wxUserId: number
   username: number
   password: number
-  name: number
+  nickname: number
   avatar: number
   routineItems: number
   canLogin: number
@@ -98,7 +98,7 @@ export type UserMinAggregateInputType = {
   wxUserId?: true
   username?: true
   password?: true
-  name?: true
+  nickname?: true
   avatar?: true
   routineItems?: true
   canLogin?: true
@@ -113,7 +113,7 @@ export type UserMaxAggregateInputType = {
   wxUserId?: true
   username?: true
   password?: true
-  name?: true
+  nickname?: true
   avatar?: true
   routineItems?: true
   canLogin?: true
@@ -128,7 +128,7 @@ export type UserCountAggregateInputType = {
   wxUserId?: true
   username?: true
   password?: true
-  name?: true
+  nickname?: true
   avatar?: true
   routineItems?: true
   canLogin?: true
@@ -230,7 +230,7 @@ export type UserGroupByOutputType = {
   wxUserId: string | null
   username: string | null
   password: string | null
-  name: string
+  nickname: string
   avatar: string | null
   routineItems: string | null
   canLogin: boolean
@@ -268,7 +268,7 @@ export type UserWhereInput = {
   wxUserId?: Prisma.StringNullableFilter<"User"> | string | null
   username?: Prisma.StringNullableFilter<"User"> | string | null
   password?: Prisma.StringNullableFilter<"User"> | string | null
-  name?: Prisma.StringFilter<"User"> | string
+  nickname?: Prisma.StringFilter<"User"> | string
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   routineItems?: Prisma.StringNullableFilter<"User"> | string | null
   canLogin?: Prisma.BoolFilter<"User"> | boolean
@@ -306,7 +306,7 @@ export type UserOrderByWithRelationInput = {
   wxUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   username?: Prisma.SortOrderInput | Prisma.SortOrder
   password?: Prisma.SortOrderInput | Prisma.SortOrder
-  name?: Prisma.SortOrder
+  nickname?: Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   routineItems?: Prisma.SortOrderInput | Prisma.SortOrder
   canLogin?: Prisma.SortOrder
@@ -348,7 +348,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.UserWhereInput[]
   NOT?: Prisma.UserWhereInput | Prisma.UserWhereInput[]
   password?: Prisma.StringNullableFilter<"User"> | string | null
-  name?: Prisma.StringFilter<"User"> | string
+  nickname?: Prisma.StringFilter<"User"> | string
   avatar?: Prisma.StringNullableFilter<"User"> | string | null
   routineItems?: Prisma.StringNullableFilter<"User"> | string | null
   canLogin?: Prisma.BoolFilter<"User"> | boolean
@@ -385,7 +385,7 @@ export type UserOrderByWithAggregationInput = {
   wxUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   username?: Prisma.SortOrderInput | Prisma.SortOrder
   password?: Prisma.SortOrderInput | Prisma.SortOrder
-  name?: Prisma.SortOrder
+  nickname?: Prisma.SortOrder
   avatar?: Prisma.SortOrderInput | Prisma.SortOrder
   routineItems?: Prisma.SortOrderInput | Prisma.SortOrder
   canLogin?: Prisma.SortOrder
@@ -408,7 +408,7 @@ export type UserScalarWhereWithAggregatesInput = {
   wxUserId?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   username?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   password?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
-  name?: Prisma.StringWithAggregatesFilter<"User"> | string
+  nickname?: Prisma.StringWithAggregatesFilter<"User"> | string
   avatar?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   routineItems?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   canLogin?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
@@ -422,7 +422,7 @@ export type UserCreateInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -460,7 +460,7 @@ export type UserUncheckedCreateInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -497,7 +497,7 @@ export type UserUpdateInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -535,7 +535,7 @@ export type UserUncheckedUpdateInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -573,7 +573,7 @@ export type UserCreateManyInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -587,7 +587,7 @@ export type UserUpdateManyMutationInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -602,7 +602,7 @@ export type UserUncheckedUpdateManyInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -617,7 +617,7 @@ export type UserCountOrderByAggregateInput = {
   wxUserId?: Prisma.SortOrder
   username?: Prisma.SortOrder
   password?: Prisma.SortOrder
-  name?: Prisma.SortOrder
+  nickname?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
   routineItems?: Prisma.SortOrder
   canLogin?: Prisma.SortOrder
@@ -637,7 +637,7 @@ export type UserMaxOrderByAggregateInput = {
   wxUserId?: Prisma.SortOrder
   username?: Prisma.SortOrder
   password?: Prisma.SortOrder
-  name?: Prisma.SortOrder
+  nickname?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
   routineItems?: Prisma.SortOrder
   canLogin?: Prisma.SortOrder
@@ -652,7 +652,7 @@ export type UserMinOrderByAggregateInput = {
   wxUserId?: Prisma.SortOrder
   username?: Prisma.SortOrder
   password?: Prisma.SortOrder
-  name?: Prisma.SortOrder
+  nickname?: Prisma.SortOrder
   avatar?: Prisma.SortOrder
   routineItems?: Prisma.SortOrder
   canLogin?: Prisma.SortOrder
@@ -1045,7 +1045,7 @@ export type UserCreateWithoutResourceRolesInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1082,7 +1082,7 @@ export type UserUncheckedCreateWithoutResourceRolesInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1134,7 +1134,7 @@ export type UserUpdateWithoutResourceRolesInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1171,7 +1171,7 @@ export type UserUncheckedUpdateWithoutResourceRolesInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1207,7 +1207,7 @@ export type UserCreateWithoutEditedContractsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1244,7 +1244,7 @@ export type UserUncheckedCreateWithoutEditedContractsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1296,7 +1296,7 @@ export type UserUpdateWithoutEditedContractsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1333,7 +1333,7 @@ export type UserUncheckedUpdateWithoutEditedContractsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1369,7 +1369,7 @@ export type UserCreateWithoutEditedFinanceAccountsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1406,7 +1406,7 @@ export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1458,7 +1458,7 @@ export type UserUpdateWithoutEditedFinanceAccountsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1495,7 +1495,7 @@ export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1531,7 +1531,7 @@ export type UserCreateWithoutEditedFinanceVouchersInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1568,7 +1568,7 @@ export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1620,7 +1620,7 @@ export type UserUpdateWithoutEditedFinanceVouchersInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1657,7 +1657,7 @@ export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1693,7 +1693,7 @@ export type UserCreateWithoutLedgerImportsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1730,7 +1730,7 @@ export type UserUncheckedCreateWithoutLedgerImportsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1782,7 +1782,7 @@ export type UserUpdateWithoutLedgerImportsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1819,7 +1819,7 @@ export type UserUncheckedUpdateWithoutLedgerImportsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1855,7 +1855,7 @@ export type UserCreateWithoutSnapshotImportsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1892,7 +1892,7 @@ export type UserUncheckedCreateWithoutSnapshotImportsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1933,7 +1933,7 @@ export type UserCreateWithoutSnapshotEditsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -1970,7 +1970,7 @@ export type UserUncheckedCreateWithoutSnapshotEditsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -2022,7 +2022,7 @@ export type UserUpdateWithoutSnapshotImportsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2059,7 +2059,7 @@ export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2106,7 +2106,7 @@ export type UserUpdateWithoutSnapshotEditsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2143,7 +2143,7 @@ export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2179,7 +2179,7 @@ export type UserCreateWithoutConfirmedReclassRulesInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -2216,7 +2216,7 @@ export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -2268,7 +2268,7 @@ export type UserUpdateWithoutConfirmedReclassRulesInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2305,7 +2305,7 @@ export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2341,7 +2341,7 @@ export type UserCreateWithoutReviewedReclassResultsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -2378,7 +2378,7 @@ export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -2430,7 +2430,7 @@ export type UserUpdateWithoutReviewedReclassResultsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2467,7 +2467,7 @@ export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2503,7 +2503,7 @@ export type UserCreateWithoutEditedWorkpapersInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -2540,7 +2540,7 @@ export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -2592,7 +2592,7 @@ export type UserUpdateWithoutEditedWorkpapersInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2629,7 +2629,7 @@ export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2665,7 +2665,7 @@ export type UserCreateWithoutEditedReviewsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -2702,7 +2702,7 @@ export type UserUncheckedCreateWithoutEditedReviewsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -2743,7 +2743,7 @@ export type UserCreateWithoutReviewedReviewsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -2780,7 +2780,7 @@ export type UserUncheckedCreateWithoutReviewedReviewsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -2832,7 +2832,7 @@ export type UserUpdateWithoutEditedReviewsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2869,7 +2869,7 @@ export type UserUncheckedUpdateWithoutEditedReviewsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2916,7 +2916,7 @@ export type UserUpdateWithoutReviewedReviewsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2953,7 +2953,7 @@ export type UserUncheckedUpdateWithoutReviewedReviewsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2989,7 +2989,7 @@ export type UserCreateWithoutEmployeesInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3026,7 +3026,7 @@ export type UserUncheckedCreateWithoutEmployeesInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3078,7 +3078,7 @@ export type UserUpdateWithoutEmployeesInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3115,7 +3115,7 @@ export type UserUncheckedUpdateWithoutEmployeesInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3151,7 +3151,7 @@ export type UserCreateWithoutManagedDepartmentsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3188,7 +3188,7 @@ export type UserUncheckedCreateWithoutManagedDepartmentsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3240,7 +3240,7 @@ export type UserUpdateWithoutManagedDepartmentsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3277,7 +3277,7 @@ export type UserUncheckedUpdateWithoutManagedDepartmentsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3313,7 +3313,7 @@ export type UserCreateWithoutEditHistoriesInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3350,7 +3350,7 @@ export type UserUncheckedCreateWithoutEditHistoriesInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3402,7 +3402,7 @@ export type UserUpdateWithoutEditHistoriesInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3439,7 +3439,7 @@ export type UserUncheckedUpdateWithoutEditHistoriesInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3475,7 +3475,7 @@ export type UserCreateWithoutEditedStockRawMaterialsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3512,7 +3512,7 @@ export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3564,7 +3564,7 @@ export type UserUpdateWithoutEditedStockRawMaterialsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3601,7 +3601,7 @@ export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3637,7 +3637,7 @@ export type UserCreateWithoutEditedStockPackagingsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3674,7 +3674,7 @@ export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3726,7 +3726,7 @@ export type UserUpdateWithoutEditedStockPackagingsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3763,7 +3763,7 @@ export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3799,7 +3799,7 @@ export type UserCreateWithoutEditedStockFinishedGoodsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3836,7 +3836,7 @@ export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3888,7 +3888,7 @@ export type UserUpdateWithoutEditedStockFinishedGoodsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3925,7 +3925,7 @@ export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -3961,7 +3961,7 @@ export type UserCreateWithoutStockOperationsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -3998,7 +3998,7 @@ export type UserUncheckedCreateWithoutStockOperationsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -4050,7 +4050,7 @@ export type UserUpdateWithoutStockOperationsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4087,7 +4087,7 @@ export type UserUncheckedUpdateWithoutStockOperationsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4123,7 +4123,7 @@ export type UserCreateWithoutEditedLibraryDocumentsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -4160,7 +4160,7 @@ export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -4212,7 +4212,7 @@ export type UserUpdateWithoutEditedLibraryDocumentsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4249,7 +4249,7 @@ export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4285,7 +4285,7 @@ export type UserCreateWithoutReportsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -4322,7 +4322,7 @@ export type UserUncheckedCreateWithoutReportsInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -4374,7 +4374,7 @@ export type UserUpdateWithoutReportsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4411,7 +4411,7 @@ export type UserUncheckedUpdateWithoutReportsInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4447,7 +4447,7 @@ export type UserCreateWithoutDepartmentAssigneesInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -4484,7 +4484,7 @@ export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -4536,7 +4536,7 @@ export type UserUpdateWithoutDepartmentAssigneesInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4573,7 +4573,7 @@ export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4609,7 +4609,7 @@ export type UserCreateWithoutProjectAssigneesInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -4646,7 +4646,7 @@ export type UserUncheckedCreateWithoutProjectAssigneesInput = {
   wxUserId?: string | null
   username?: string | null
   password?: string | null
-  name: string
+  nickname: string
   avatar?: string | null
   routineItems?: string | null
   canLogin?: boolean
@@ -4698,7 +4698,7 @@ export type UserUpdateWithoutProjectAssigneesInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -4735,7 +4735,7 @@ export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
   wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
   avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -5001,7 +5001,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   wxUserId?: boolean
   username?: boolean
   password?: boolean
-  name?: boolean
+  nickname?: boolean
   avatar?: boolean
   routineItems?: boolean
   canLogin?: boolean
@@ -5040,7 +5040,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   wxUserId?: boolean
   username?: boolean
   password?: boolean
-  name?: boolean
+  nickname?: boolean
   avatar?: boolean
   routineItems?: boolean
   canLogin?: boolean
@@ -5055,7 +5055,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   wxUserId?: boolean
   username?: boolean
   password?: boolean
-  name?: boolean
+  nickname?: boolean
   avatar?: boolean
   routineItems?: boolean
   canLogin?: boolean
@@ -5070,7 +5070,7 @@ export type UserSelectScalar = {
   wxUserId?: boolean
   username?: boolean
   password?: boolean
-  name?: boolean
+  nickname?: boolean
   avatar?: boolean
   routineItems?: boolean
   canLogin?: boolean
@@ -5080,7 +5080,7 @@ export type UserSelectScalar = {
   sessionVersion?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "wxUserId" | "username" | "password" | "name" | "avatar" | "routineItems" | "canLogin" | "apiKey" | "employeeId" | "createdAt" | "sessionVersion", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "wxUserId" | "username" | "password" | "nickname" | "avatar" | "routineItems" | "canLogin" | "apiKey" | "employeeId" | "createdAt" | "sessionVersion", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editedContracts?: boolean | Prisma.User$editedContractsArgs<ExtArgs>
   managedDepartments?: boolean | Prisma.User$managedDepartmentsArgs<ExtArgs>
@@ -5142,7 +5142,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     wxUserId: string | null
     username: string | null
     password: string | null
-    name: string
+    nickname: string
     avatar: string | null
     routineItems: string | null
     canLogin: boolean
@@ -5600,7 +5600,7 @@ export interface UserFieldRefs {
   readonly wxUserId: Prisma.FieldRef<"User", 'String'>
   readonly username: Prisma.FieldRef<"User", 'String'>
   readonly password: Prisma.FieldRef<"User", 'String'>
-  readonly name: Prisma.FieldRef<"User", 'String'>
+  readonly nickname: Prisma.FieldRef<"User", 'String'>
   readonly avatar: Prisma.FieldRef<"User", 'String'>
   readonly routineItems: Prisma.FieldRef<"User", 'String'>
   readonly canLogin: Prisma.FieldRef<"User", 'Boolean'>

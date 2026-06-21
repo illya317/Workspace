@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
-import { authenticate, checkHRAccess, isSuperAdmin } from "@workspace/platform/server/auth";
+import { requireApiAccess, checkHRAccess, isSuperAdmin } from "@workspace/platform/server/auth";
 import {
   ROSTER_FIELDS,
   buildRosterExcel,
@@ -11,10 +10,9 @@ import {
 } from "@workspace/hr/server";
 
 export async function GET(request: Request) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { searchParams } = new URL(request.url);

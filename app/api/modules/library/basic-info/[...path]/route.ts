@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { getCurrentUser } from "@workspace/platform/server/auth";
+import { requireApiAccess } from "@workspace/platform/server/auth";
 import { getLibraryFileByRelativePath } from "@workspace/library/server";
-import { authorize } from "@workspace/platform/server/auth";
-import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 
 function fileErrorResponse(error: unknown) {
   const message = error instanceof Error ? error.message : "File not found";
@@ -15,18 +13,14 @@ function fileErrorResponse(error: unknown) {
 }
 
 export async function GET(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-
-  const user = await getCurrentUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  if (!(await authorize({ user, resourceKey: "library.basicInfo", action: "access" }))) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
 
   const { path: segments } = await params;
 
   const relativePath = segments.join("/");
   try {
-    const file = await getLibraryFileByRelativePath(relativePath, user.id);
+    const file = await getLibraryFileByRelativePath(relativePath, auth.user.userId);
     return new NextResponse(new Uint8Array(file.buffer), {
       headers: {
         "Content-Type": file.contentType,

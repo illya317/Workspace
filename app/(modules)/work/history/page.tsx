@@ -1,9 +1,9 @@
-import { requireResourceAccess } from "@workspace/platform/server/auth";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
 import AppShell from "@workspace/platform/ui/AppShell";
 import { WorkHistoryPage } from "@workspace/work/ui";
 
 export default async function WorkHistoryServerPage() {
-  const user = await requireResourceAccess("work.history");
+  const user = await requireRouteAccess("/work/history");
   return (
     <AppShell title="历史记录" backHref="/work" user={user}>
       <WorkHistoryPage hideShell />

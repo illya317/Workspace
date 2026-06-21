@@ -5,12 +5,7 @@ import {
   listSubjectPermissionGrants,
   setSubjectPermissionGrant,
 } from "@workspace/hr/server/permission-grants";
-import {
-  authenticate,
-  isSuperAdmin,
-  canManageResourceGrant,
-  getManageableResourceKeys,
-} from "@workspace/platform/server/auth";
+import { requireAdminApiAccess, isSuperAdmin, canManageResourceGrant, getManageableResourceKeys } from "@workspace/platform/server/auth";
 
 const positionPermissionSchema = z.object({
   positionId: z.coerce.number().int().positive(),
@@ -20,8 +15,9 @@ const positionPermissionSchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   const [isSystemAdmin, manageableKeys] = await Promise.all([
     isSuperAdmin(payload.userId),
@@ -42,8 +38,9 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   const parsed = positionPermissionSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {

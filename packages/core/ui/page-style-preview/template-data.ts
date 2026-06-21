@@ -33,7 +33,7 @@ export interface PageTemplate {
 export interface ModuleTemplate {
   key: string;
   label: string;
-  summary: string;
+  summary?: string;
   overviewLabel: string;
   entryRoutes?: string[];
   pages: PageTemplate[];

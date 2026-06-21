@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate, isSuperAdmin, getManageableResourceKeys } from "@workspace/platform/server/auth";
+import { requireAdminApiAccess, isSuperAdmin, getManageableResourceKeys } from "@workspace/platform/server/auth";
 import { getEmployeesWithPermissions, syncUserGrants } from "@workspace/hr/server/employee-permissions";
 
 const grantSchema = z.object({
@@ -16,10 +16,9 @@ const syncUserGrantsSchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   const isSysAdmin = await isSuperAdmin(payload.userId);
   const manageableKeys = await getManageableResourceKeys(payload.userId);
@@ -49,10 +48,9 @@ export async function GET(request: Request) {
 
 export async function PUT(request: Request) {
   // Bulk sync is too complex for resource admins; only root admin is allowed.
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   if (!(await isSuperAdmin(payload.userId))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });

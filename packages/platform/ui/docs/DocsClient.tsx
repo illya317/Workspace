@@ -5,9 +5,7 @@ import { ModuleGridPage } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import ModuleCard from "../ModuleCard";
 
-function getDocCategories(user: SessionUser): Record<string, Array<{ title: string; href: string }>> {
-  const visibleResourceKeys = user.visibleResourceKeys || [];
-  const hasApiAccess = visibleResourceKeys.includes("docs.api") || visibleResourceKeys.includes("settings.api");
+function getDocCategories(): Record<string, Array<{ title: string; href: string }>> {
   return {
   "入职指南": [
     { title: "入职流程说明", href: "/docs/onboarding" },
@@ -17,7 +15,6 @@ function getDocCategories(user: SessionUser): Record<string, Array<{ title: stri
   "常用工具": [
     { title: "系统使用手册", href: "/docs/system-guide" },
     { title: "工作汇报填写说明", href: "/docs/report-guide" },
-    ...(hasApiAccess ? [{ title: "接入指南", href: "/docs/api-guide" }] : []),
   ],
   "规章制度": [
     { title: "考勤管理制度", href: "/docs/attendance" },
@@ -30,7 +27,7 @@ function getDocCategories(user: SessionUser): Record<string, Array<{ title: stri
   };
 }
 
-export default function DocsClient({ user, hideShell }: { user: SessionUser; hideShell?: boolean }) {
+export default function DocsClient({ user: _user, hideShell }: { user: SessionUser; hideShell?: boolean }) {
   const router = useRouter();
 
   return (
@@ -39,7 +36,7 @@ export default function DocsClient({ user, hideShell }: { user: SessionUser; hid
       summary={hideShell ? undefined : "员工手册、操作指南、规章制度等文档汇总"}
       centered={hideShell}
     >
-      {Object.entries(getDocCategories(user)).map(([category, docs]) => (
+      {Object.entries(getDocCategories()).map(([category, docs]) => (
         <ModuleCard
           key={category}
           title={category}

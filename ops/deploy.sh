@@ -305,6 +305,12 @@ deploy_remote_artifact() {
       ln -sfn \"\$(realpath --relative-to=\"\$app_dir/public/assets/agent\" '$REMOTE_WORKSPACE_CONFIG_DIR/assets/agent/avatar')\" \"\$app_dir/public/assets/agent/avatar\"
     fi
 
+    if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR/assets/user/avatar' ]; then
+      mkdir -p \"\$app_dir/public/assets/user\"
+      rm -rf \"\$app_dir/public/assets/user/avatar\"
+      ln -sfn \"\$(realpath --relative-to=\"\$app_dir/public/assets/user\" '$REMOTE_WORKSPACE_CONFIG_DIR/assets/user/avatar')\" \"\$app_dir/public/assets/user/avatar\"
+    fi
+
     grep -q '^WORKSPACE_CONFIG_DIR=' \"\$release_dir/.env\"
     grep -q '^DATABASE_URL=' \"\$release_dir/.env\"
 

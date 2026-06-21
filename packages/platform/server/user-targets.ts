@@ -23,14 +23,14 @@ export async function getUserTargets(userId: number): Promise<{
       prisma.position.findMany({ select: { id: true, code: true, name: true } }),
       prisma.user.findMany({
         where: { employees: { some: { employments: { some: { isActive: true } } } } },
-        select: { id: true, name: true },
+        select: { id: true, nickname: true, employees: { select: { name: true }, take: 1 } },
       }),
     ]);
     return {
       departments,
       projects,
       positions,
-      users: users.map((user) => ({ id: user.id, name: user.name || `用户#${user.id}` })),
+      users: users.map((user) => ({ id: user.id, name: user.employees[0]?.name || user.nickname || `用户#${user.id}` })),
     };
   }
 

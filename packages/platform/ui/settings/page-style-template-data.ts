@@ -40,7 +40,6 @@ const baseModuleTemplates: ModuleTemplate[] = [
   {
     key: "finance",
     label: "财务管理",
-    summary: "总账、凭证、报表、预算、成本、导入和分析",
     overviewLabel: "财务管理",
     entryRoutes: ["/finance"],
     pages: [
@@ -62,7 +61,6 @@ const baseModuleTemplates: ModuleTemplate[] = [
   {
     key: "production",
     label: "生产管理",
-    summary: "批次检验、检验模板和填写",
     overviewLabel: "生产管理",
     entryRoutes: ["/production"],
     pages: [
@@ -74,7 +72,6 @@ const baseModuleTemplates: ModuleTemplate[] = [
   {
     key: "hr",
     label: "人事管理",
-    summary: "花名册、组织架构、岗位任职、绩效和人力分析",
     overviewLabel: "人事基础资料",
     entryRoutes: ["/hr"],
     pages: [
@@ -100,7 +97,6 @@ const baseModuleTemplates: ModuleTemplate[] = [
   {
     key: "work",
     label: "工作管理",
-    summary: "项目、清单、汇报和历史记录",
     overviewLabel: "工作管理",
     entryRoutes: ["/work"],
     pages: [
@@ -116,7 +112,6 @@ const baseModuleTemplates: ModuleTemplate[] = [
   {
     key: "administration",
     label: "行政管理",
-    summary: "合同台账、办公事务和证照归档",
     overviewLabel: "行政管理",
     entryRoutes: ["/administration"],
     pages: [
@@ -130,7 +125,6 @@ const baseModuleTemplates: ModuleTemplate[] = [
   {
     key: "external",
     label: "外部关系",
-    summary: "客户、投资人、供应商和联系记录",
     overviewLabel: "外部关系",
     entryRoutes: ["/external"],
     pages: [
@@ -144,7 +138,6 @@ const baseModuleTemplates: ModuleTemplate[] = [
   {
     key: "docs",
     label: "文档中心",
-    summary: "员工手册、操作指南和规章制度",
     overviewLabel: "文档中心",
     entryRoutes: ["/docs"],
     pages: [
@@ -154,7 +147,6 @@ const baseModuleTemplates: ModuleTemplate[] = [
       { key: "handbook", label: "员工手册", title: "员工手册", kind: "document", section: "公司管理", group: "文档阅读", routes: ["/docs"] },
       { key: "guide", label: "操作指南", title: "操作指南", kind: "document", section: "公司管理", group: "文档阅读", routes: ["/docs"] },
       { key: "expense", label: "费用制度", title: "费用制度", kind: "document", section: "报销规范", group: "文档阅读", routes: ["/docs/expense"] },
-      { key: "api-guide", label: "API 指南", title: "API 指南", kind: "document", section: "接入指南", group: "文档阅读", routes: ["/docs/api-guide"] },
       { key: "policy", label: "规章制度", title: "规章制度", kind: "table", section: "公司管理", group: "发布流程", routes: ["/docs/company"], tableColumns: ["制度名称", "分类", "发布人", "版本", "状态"] },
       { key: "drafts", label: "草稿", title: "文档草稿", kind: "table", section: "公司管理", group: "发布流程", routes: ["/docs/company"], tableColumns: ["文档", "分类", "编辑人", "更新时间", "状态"] },
     ],
@@ -162,7 +154,6 @@ const baseModuleTemplates: ModuleTemplate[] = [
   {
     key: "library",
     label: "资料库",
-    summary: "目录、文件列表、详情和上传",
     overviewLabel: "资料库",
     entryRoutes: ["/library/basic-info"],
     pages: [
@@ -223,7 +214,6 @@ function applyRuntimeModuleTemplate(module: ModuleTemplate): ModuleTemplate | nu
   return {
     ...module,
     label: runtimeModule.label,
-    summary: runtimeModule.desc,
     overviewLabel: runtimeModule.label,
     pages,
   };

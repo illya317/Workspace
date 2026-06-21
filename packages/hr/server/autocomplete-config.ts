@@ -49,9 +49,9 @@ export const SEARCH_CONFIG: Record<string, {
   },
   user: {
     model: "user",
-    searchFields: ["name", "username"],
-    select: { id: true, name: true, username: true },
-    labelField: "name",
+    searchFields: ["nickname", "username"],
+    select: { id: true, nickname: true, username: true },
+    labelField: "nickname",
     subtitleField: "username",
     take: 100,
   },

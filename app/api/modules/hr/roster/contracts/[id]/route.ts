@@ -1,17 +1,15 @@
 import { NextResponse } from "next/server";
-import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
-import { authenticate, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
+import { requireApiAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
 import { deleteContract, updateContractField } from "@workspace/hr/server";
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await checkHRWrite(payload.userId, "hr.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const parsedParams = routeIdParamsSchema.safeParse(await params);
@@ -30,10 +28,9 @@ export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await checkHRDelete(payload.userId, "hr.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const parsedParams = routeIdParamsSchema.safeParse(await params);

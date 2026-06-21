@@ -13,7 +13,7 @@ export interface Report {
   notes: string | null;
   version: number;
   items: Array<{ id?: number; workItemId?: number | null; category: string; plan: string; completion: string; nextGoal: string; sortOrder: number }>;
-  user?: { name: string; departmentName: string | null };
+  user?: { nickname: string; employees?: Array<{ name: string }> };
 }
 
 interface ReportEditorProps {
@@ -37,7 +37,7 @@ interface ReportEditorProps {
   viewingVersion: number;
   versions: Array<{ version: number; createdAt: string }>;
   onLoadVersion: (version: number) => void;
-  user: { id: number; name: string; departmentId: number } | null;
+  user: { id: number; nickname?: string; employeeName?: string | null; name?: string; departmentId: number } | null;
 
   // Items
   routineItems: ItemRow[];
@@ -168,7 +168,7 @@ export default function ReportEditor({
           <PanelCard bodyClassName="p-6">
             <div className="flex flex-wrap items-center gap-3">
               <div className="flex items-center gap-3 text-sm text-gray-700">
-                <span>填写人：{report.user?.name || user?.name}</span>
+                <span>填写人：{report.user?.employees?.[0]?.name || report.user?.nickname || user?.employeeName || user?.name || user?.nickname}</span>
                 {report.version > 1 && <StatusBadge label={`V${report.version}`} variant="green" className="rounded-full" />}
               </div>
               {versions.length > 0 && (

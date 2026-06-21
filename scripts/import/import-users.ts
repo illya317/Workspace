@@ -76,9 +76,9 @@ async function importUsers() {
 
   // 预加载所有现有用户，用于重名递增
   const existingUsers = await prisma.user.findMany({
-    select: { username: true, name: true },
+    select: { username: true, nickname: true },
   });
-  const usernameToName = new Map(existingUsers.map((u) => [u.username, u.name]));
+  const usernameToName = new Map(existingUsers.map((u) => [u.username, u.nickname]));
 
   for (const row of rows) {
     let username = row.username;
@@ -107,7 +107,7 @@ async function importUsers() {
       await prisma.user.update({
         where: { id: existing.id },
         data: {
-          name: row.name,
+          nickname: row.name,
           password: row.password,
           wxUserId,
           // isWorkListAdmin/canSelectAnyWeek use RBAC: see admin user-permissions API
@@ -120,7 +120,7 @@ async function importUsers() {
           wxUserId,
           username,
           password: row.password,
-          name: row.name,
+          nickname: row.name,
           // isWorkListAdmin/canSelectAnyWeek use RBAC: see admin user-permissions API
         },
       });
@@ -137,7 +137,7 @@ async function importUsers() {
     await prisma.user.update({
       where: { id: adminUser.id },
       data: {
-        name: CONFIG.admin.name,
+        nickname: CONFIG.admin.name,
         password: CONFIG.admin.password,
         // isWorkListAdmin/canSelectAnyWeek use RBAC: seed-rbac.ts or admin UI
       },
@@ -148,7 +148,7 @@ async function importUsers() {
         wxUserId: `${CONFIG.admin.wxUserIdPrefix}${CONFIG.admin.username}`,
         username: CONFIG.admin.username,
         password: CONFIG.admin.password,
-        name: CONFIG.admin.name,
+        nickname: CONFIG.admin.name,
         // isWorkListAdmin/canSelectAnyWeek use RBAC: seed-rbac.ts or admin UI
       },
     });

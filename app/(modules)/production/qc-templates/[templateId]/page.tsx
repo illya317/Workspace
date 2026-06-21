@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireResourceAccess } from "@workspace/platform/server/auth";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { getQcTemplateDetail } from "@workspace/production/server/qc";
 import { QcModuleShell, QcTemplateDetailPanel } from "@workspace/production/ui";
 
@@ -13,7 +13,7 @@ interface Props {
 export default async function QcTemplateDetailPage({ params }: Props) {
   const [{ templateId }, user] = await Promise.all([
     params,
-    requireResourceAccess("production.qcTemplates"),
+    requireRouteAccess("/production/qc-templates"),
   ]);
   const detail = await getQcTemplateDetail(templateId).catch(() => null);
   if (!detail || !detail.source.available) notFound();

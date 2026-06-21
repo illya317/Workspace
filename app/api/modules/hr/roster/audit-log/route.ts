@@ -1,0 +1,37 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+import { requireApiAccess, checkHRAccess } from "@workspace/platform/server/auth";
+import { getAuditLogDates, getAuditLogEntries } from "@workspace/platform/server/audit-log";
+
+const auditLogQuerySchema = z.object({
+  entityType: z.string().min(1),
+  date: z.string().optional(),
+  dates: z.string().optional(),
+  page: z.coerce.number().int().min(1).catch(1),
+  pageSize: z.coerce.number().int().min(1).max(200).catch(50),
+});
+
+export async function GET(request: Request) {
+
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
+  if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+
+  const { searchParams } = new URL(request.url);
+  const parsed = auditLogQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
+  if (!parsed.success) return NextResponse.json({ error: "缺少 entityType" }, { status: 400 });
+
+  if (parsed.data.dates === "1") {
+    const dates = await getAuditLogDates(parsed.data.entityType);
+    return NextResponse.json({ dates });
+  }
+
+  const result = await getAuditLogEntries(
+    parsed.data.entityType,
+    parsed.data.date,
+    parsed.data.page,
+    parsed.data.pageSize,
+  );
+  return NextResponse.json(result);
+}

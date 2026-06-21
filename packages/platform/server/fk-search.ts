@@ -140,12 +140,12 @@ export async function searchFkCompanies(keyword: string, lifecycleScope: Lifecyc
 
 export async function searchFkUsers(keyword: string) {
   const rows = await prisma.user.findMany({
-    select: { id: true, name: true, username: true },
+    select: { id: true, nickname: true, username: true },
     orderBy: { id: "asc" },
     take: resultLimit(keyword),
   });
   return rows
-    .map((row) => ({ id: row.id, name: row.name, subtitle: row.username ?? undefined, lifecycleStatus: "active" as const }))
+    .map((row) => ({ id: row.id, name: row.nickname, subtitle: row.username ?? undefined, lifecycleStatus: "active" as const }))
     .filter((row) => matchesFkKeyword([row.name, row.subtitle], keyword))
     .slice(0, MAX_RESULTS);
 }
@@ -214,8 +214,8 @@ export async function resolveFkCompany(id: number) {
 }
 
 export async function resolveFkUser(id: number) {
-  const row = await prisma.user.findUnique({ where: { id }, select: { id: true, name: true } });
-  return row ? { id: row.id, label: row.name, lifecycleStatus: "active" as const } : null;
+  const row = await prisma.user.findUnique({ where: { id }, select: { id: true, nickname: true } });
+  return row ? { id: row.id, label: row.nickname, lifecycleStatus: "active" as const } : null;
 }
 
 export async function resolveFkPositionDescription(id: number) {

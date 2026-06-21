@@ -44,8 +44,6 @@ Admin API 在 `app/api/settings/admin/` 下：
 | `/api/settings/admin/position-permissions` | 岗位权限切换 |
 | `/api/settings/admin/department-permissions` | 部门权限切换 |
 | `/api/settings/admin/users` | 用户列表/更新 |
-| `/api/settings/governance/audit-log` | 审计日志查询 |
-| `/api/settings/governance/edit-history` | 编辑历史查询 |
 | `/api/settings/admin/system-config` | 系统配置（冲突策略） |
 
 ## 权限标准

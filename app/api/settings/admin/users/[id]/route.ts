@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
-import { authenticate, isSuperAdmin } from "@workspace/platform/server/auth";
+import { requireAdminApiAccess, isSuperAdmin } from "@workspace/platform/server/auth";
 import {
   resetAdminUserPassword,
   updateAdminUserField,
@@ -10,7 +10,7 @@ import {
 } from "@workspace/platform/server/users";
 
 const fieldUpdateSchema = updateFieldBodySchema.extend({
-  field: z.enum(["canLogin", "name", "username", "employeeId"]),
+  field: z.enum(["canLogin", "nickname", "username", "employeeId"]),
   value: z.unknown(),
 });
 
@@ -21,16 +21,15 @@ const grantUpdateSchema = z.object({
 });
 
 const selfAllowedFields = new Set<AdminUserField>(["username"]);
-const adminAllowedFields = new Set<AdminUserField>(["canLogin", "name", "username", "employeeId"]);
+const adminAllowedFields = new Set<AdminUserField>(["canLogin", "nickname", "username", "employeeId"]);
 
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   const parsedParams = routeIdParamsSchema.safeParse(await params);
   if (!parsedParams.success) return NextResponse.json({ error: "用户ID无效" }, { status: 400 });
@@ -78,10 +77,9 @@ export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   if (!(await isSuperAdmin(payload.userId))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });

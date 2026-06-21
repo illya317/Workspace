@@ -1,15 +1,13 @@
 import { NextResponse } from "next/server";
-import { authenticate } from "@workspace/platform/server/auth";
+import { requireApiAccess } from "@workspace/platform/server/auth";
 import { validatePassthroughBody } from "@workspace/platform/server/api";
-import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { canUseProject, createProject, listProjects } from "@workspace/work/server";
 
 export async function GET(request: Request) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
 
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await canUseProject(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { searchParams } = new URL(request.url);
@@ -21,11 +19,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
 
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await canUseProject(payload.userId, "write"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const validation = await validatePassthroughBody(request);

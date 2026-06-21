@@ -82,6 +82,10 @@ function parseDetails(details: string | null) {
   }
 }
 
+function userEmployeeName(user: { nickname: string; employees?: Array<{ name: string }> } | null | undefined) {
+  return user?.employees?.[0]?.name ?? user?.nickname ?? null;
+}
+
 function departmentPrefix(code: string) {
   const prefix = code.slice(0, 3);
   return /^[A-Z]{3}$/.test(prefix) ? prefix : "";
@@ -140,7 +144,7 @@ export async function listDepartments(input: { keyword: string; page: number; pa
         _count: { select: { edps: true } },
         parent: { select: { id: true, name: true } },
         children: { select: { id: true, name: true } },
-        manager: { select: { id: true, name: true } },
+        manager: { select: { id: true, nickname: true, employees: { select: { name: true }, take: 1 } } },
         descriptions: {
           select: { id: true, code: true, name: true, sourceFile: true, codeRaw: true, details: true },
           orderBy: { id: "asc" },
@@ -162,7 +166,7 @@ export async function listDepartments(input: { keyword: string; page: number; pa
     parentId: department.parentId,
     parentName: department.parent?.name || null,
     managerUserId: department.managerUserId,
-    managerName: department.manager?.name || null,
+    managerName: userEmployeeName(department.manager),
     isArchived: department.isArchived,
     archivedAt: department.archivedAt?.toISOString() || null,
     headcount: department._count.edps,

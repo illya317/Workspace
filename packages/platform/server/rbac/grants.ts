@@ -17,7 +17,7 @@ interface GrantItem {
 export type UserResourceRoleAssignment = {
   id: number;
   scopeId: string | null;
-  user: { id: number; name: string; username: string | null };
+  user: { id: number; nickname: string; username: string | null };
 };
 
 export async function resourceRoleExists(resourceKey: string, roleKey: string) {
@@ -42,7 +42,7 @@ export async function getUserResourceRoleAssignments(
       role: { key: normalizedRole },
     },
     include: {
-      user: { select: { id: true, name: true, username: true } },
+      user: { select: { id: true, nickname: true, username: true } },
     },
   });
 }

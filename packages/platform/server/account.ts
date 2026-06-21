@@ -23,13 +23,21 @@ export type ChangePasswordResult =
   | { success: true }
   | { success: false; status: number; error: string };
 
+export type ChangeAvatarResult =
+  | { success: true }
+  | { success: false; status: number; error: string };
+
+export type ChangeProfileResult =
+  | { success: true }
+  | { success: false; status: number; error: string };
+
 export type PasswordLoginResult =
   | {
       success: true;
       token: string;
       user: {
         id: number;
-        name: string;
+        nickname: string;
         departmentId: number;
         isWorkListAdmin: boolean;
         isSuperAdmin: boolean;
@@ -102,6 +110,44 @@ export async function changeUserPassword(
   return { success: true };
 }
 
+export async function changeUserProfile(
+  userId: number,
+  input: { username: string; nickname: string },
+): Promise<ChangeProfileResult> {
+  const existing = await prisma.user.findFirst({
+    where: {
+      username: input.username,
+      NOT: { id: userId },
+    },
+    select: { id: true },
+  });
+  if (existing) {
+    return { success: false, status: 409, error: "用户名已被占用" };
+  }
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      username: input.username,
+      nickname: input.nickname,
+    },
+  });
+
+  return { success: true };
+}
+
+export async function changeUserAvatar(
+  userId: number,
+  avatar: string | null,
+): Promise<ChangeAvatarResult> {
+  await prisma.user.update({
+    where: { id: userId },
+    data: { avatar },
+  });
+
+  return { success: true };
+}
+
 export async function isUserSessionActive(userId: number, sessionVersion: number) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -128,7 +174,7 @@ export async function loginWithPassword(
     where: { username },
     select: {
       id: true,
-      name: true,
+      nickname: true,
       username: true,
       wxUserId: true,
       password: true,
@@ -154,7 +200,7 @@ export async function loginWithPassword(
   const token = await createToken({
     userId: user.id,
     wxUserId: user.wxUserId ?? "",
-    name: user.name,
+    nickname: user.nickname,
     departmentId: 0,
     sessionVersion: user.sessionVersion,
   });
@@ -182,7 +228,7 @@ export async function loginWithPassword(
     token,
     user: {
       id: user.id,
-      name: user.name,
+      nickname: user.nickname,
       departmentId: 0,
       isWorkListAdmin: isAdmin,
       isSuperAdmin: isAdmin,
@@ -198,7 +244,7 @@ export async function loginWithWecomCode(code: string): Promise<WecomLoginResult
   const { userId: wxUserId, userTicket } = await getWecomUserByCode(code);
   const user = await prisma.user.findUnique({
     where: { wxUserId },
-    select: { id: true, name: true, wxUserId: true, canLogin: true, sessionVersion: true },
+    select: { id: true, nickname: true, wxUserId: true, canLogin: true, sessionVersion: true },
   });
 
   if (!user) return { success: false, error: `企业微信账号 ${wxUserId} 尚未绑定` };
@@ -217,7 +263,7 @@ export async function loginWithWecomCode(code: string): Promise<WecomLoginResult
   const token = await createToken({
     userId: user.id,
     wxUserId: user.wxUserId ?? "",
-    name: user.name,
+    nickname: user.nickname,
     departmentId: 0,
     sessionVersion: user.sessionVersion,
   });
@@ -228,7 +274,7 @@ export async function loginWithWecomCode(code: string): Promise<WecomLoginResult
 export async function loginWithDevUserId(userId: number): Promise<DevUserLoginResult> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { id: true, name: true, sessionVersion: true },
+    select: { id: true, nickname: true, sessionVersion: true },
   });
 
   if (!user) return { success: false, status: 404, error: "User not found" };
@@ -236,10 +282,10 @@ export async function loginWithDevUserId(userId: number): Promise<DevUserLoginRe
   const token = await createToken({
     userId: user.id,
     wxUserId: "",
-    name: user.name,
+    nickname: user.nickname,
     departmentId: 0,
     sessionVersion: user.sessionVersion,
   });
 
-  return { success: true, token, message: `已登录为 ${user.name}` };
+  return { success: true, token, message: `已登录为 ${user.nickname}` };
 }

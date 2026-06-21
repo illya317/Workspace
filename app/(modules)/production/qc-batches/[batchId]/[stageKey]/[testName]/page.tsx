@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireResourceAccess } from "@workspace/platform/server/auth";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { getQcBatch, getQcTemplateDetail } from "@workspace/production/server/qc";
 import { QcBatchTestRecord, QcModuleShell } from "@workspace/production/ui";
 
@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default async function QcBatchTestPage({ params }: Props) {
-  const [{ batchId, stageKey, testName }, user] = await Promise.all([params, requireResourceAccess("production.qcBatches")]);
+  const [{ batchId, stageKey, testName }, user] = await Promise.all([params, requireRouteAccess("/production/qc-batches")]);
   const batch = await getQcBatch(Number(batchId));
   if (!batch) notFound();
   const detail = await getQcTemplateDetail(batch.productKey).catch(() => null);
@@ -24,7 +24,7 @@ export default async function QcBatchTestPage({ params }: Props) {
       activeResourceKey="production.qcBatches"
       backHref={`/production/qc-batches/${batch.id}/${stage.key}`}
     >
-      <QcBatchTestRecord batch={batch} productName={detail.productName} detail={detail} stage={stage} test={test} currentUserName={user.name} />
+      <QcBatchTestRecord batch={batch} productName={detail.productName} detail={detail} stage={stage} test={test} currentUserName={user.employeeName || user.nickname} />
     </QcModuleShell>
   );
 }

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth, type RouteContext } from "@workspace/platform/server/with-auth";
-import { authorize } from "@workspace/platform/server/auth";
+import { getUserEmployeeSignatureName } from "@workspace/platform/server/user-identity";
 import { deleteQcBatch, getQcBatch, updateQcBatch, updateQcBatchWorkflow } from "@workspace/production/server/qc";
 
 const paramsSchema = z.object({
@@ -28,7 +28,7 @@ export const GET = withAuth(async (_request, _user, ctx) => {
   const batch = await getQcBatch(batchId);
   if (!batch) return NextResponse.json({ error: "批次不存在" }, { status: 404 });
   return NextResponse.json({ data: batch });
-}, (userId) => authorize({ user: userId, resourceKey: "production.qcBatches", action: "access" }));
+});
 
 export const PATCH = withAuth(async (request, user, ctx) => {
   const batchId = await parseBatchId(ctx);
@@ -46,11 +46,12 @@ export const PATCH = withAuth(async (request, user, ctx) => {
       const fields = rawFields && typeof rawFields === "object" && !Array.isArray(rawFields)
         ? rawFields as Record<string, unknown>
         : undefined;
+      const actorName = await getUserEmployeeSignatureName(user.userId, user.nickname);
       const batch = await updateQcBatchWorkflow(batchId, {
         action: parsed.data.action,
         stageKey: parsed.data.stageKey,
         testName: parsed.data.testName,
-        actorName: user.name,
+        actorName,
         fields,
       });
       if (!batch) return NextResponse.json({ error: "批次不存在" }, { status: 404 });
@@ -66,7 +67,7 @@ export const PATCH = withAuth(async (request, user, ctx) => {
     const message = error instanceof Error ? error.message : "批次更新失败";
     return NextResponse.json({ error: message }, { status: 400 });
   }
-}, (userId) => authorize({ user: userId, resourceKey: "production.qcBatches", action: "write" }));
+});
 
 export const DELETE = withAuth(async (_request, _user, ctx) => {
   const batchId = await parseBatchId(ctx);
@@ -74,4 +75,4 @@ export const DELETE = withAuth(async (_request, _user, ctx) => {
   const deleted = await deleteQcBatch(batchId);
   if (!deleted) return NextResponse.json({ error: "批次不存在" }, { status: 404 });
   return NextResponse.json({ ok: true });
-}, (userId) => authorize({ user: userId, resourceKey: "production.qcBatches", action: "delete" }));
+});

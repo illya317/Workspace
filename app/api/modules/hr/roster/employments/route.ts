@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { z } from "zod";
-import { authenticate, checkHRAccess } from "@workspace/platform/server/auth";
+import { requireApiAccess, checkHRAccess } from "@workspace/platform/server/auth";
 import { createEmployment, listEmployments } from "@workspace/hr/server";
 
 const employmentsQuerySchema = z.object({
@@ -18,10 +17,9 @@ const createEmploymentSchema = z.object({
 }).passthrough();
 
 export async function GET(request: Request) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { searchParams } = new URL(request.url);
@@ -32,6 +30,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+
   const body = await request.clone().json().catch(() => null);
   const parsedBody = createEmploymentSchema.safeParse(body);
   if (!parsedBody.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { z } from "zod";
-import { authenticate, checkHRAccess, checkHRWrite } from "@workspace/platform/server/auth";
+import { requireApiAccess, checkHRAccess, checkHRWrite } from "@workspace/platform/server/auth";
 import {
   normalizePositionDescriptionTemplates,
   readPositionDescriptionTemplates,
@@ -13,10 +12,9 @@ const updateTemplatesSchema = z.object({
 }).passthrough();
 
 export async function GET(request: Request) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
@@ -26,10 +24,9 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await checkHRWrite(payload.userId, "hr.roster"))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }

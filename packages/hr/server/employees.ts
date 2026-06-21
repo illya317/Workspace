@@ -197,12 +197,12 @@ export async function createEmployeeWithAccount(name: string, editorUserId: numb
     const result = await prisma.$transaction(async (tx) => {
       const linkedUser = await tx.user.create({
         data: {
-          name: cleanName,
+          nickname: cleanName,
           username,
           employeeId,
           canLogin: true,
         },
-        select: { id: true, name: true, username: true, employeeId: true },
+        select: { id: true, nickname: true, username: true, employeeId: true },
       });
       const employee = await tx.employee.create({
         data: {

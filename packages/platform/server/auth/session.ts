@@ -8,37 +8,38 @@ import { getManageableResourceKeys } from "../rbac/admin-scope";
 import { prisma } from "@workspace/platform/server/prisma";
 import { isRootAdminUsername } from "./root";
 import type { SessionUser } from "../../types";
+import type { AuthPayload } from "../auth-token";
 
-async function _getCurrentUser(): Promise<SessionUser | null> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-  if (!token) return null;
-
-  const payload = await verifyToken(token);
-  if (!payload) return null;
-
+async function buildSessionUser(userId: number, expectedSessionVersion?: number): Promise<SessionUser | null> {
   const userWithPerms = await prisma.user.findUnique({
-    where: { id: payload.userId },
+    where: { id: userId },
     select: {
       id: true,
-      name: true,
+      nickname: true,
       username: true,
       wxUserId: true,
       avatar: true,
       apiKey: true,
+      employeeId: true,
       canLogin: true,
       sessionVersion: true,
     },
   });
   if (!userWithPerms) return null;
   if (!userWithPerms.canLogin) return null;
-  if (userWithPerms.sessionVersion !== payload.sessionVersion) {
+  if (expectedSessionVersion != null && userWithPerms.sessionVersion !== expectedSessionVersion) {
     return null;
   }
 
   const employee = await prisma.employee.findFirst({
-    where: { userId: payload.userId },
+    where: {
+      OR: [
+        { userId },
+        ...(userWithPerms.employeeId ? [{ employeeId: userWithPerms.employeeId }] : []),
+      ],
+    },
     select: {
+      name: true,
       employeeId: true,
       employments: {
         select: { isActive: true },
@@ -50,7 +51,7 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
   const isActiveEmployee = employee?.employments?.[0]?.isActive ?? false;
 
   const isAdmin = isRootAdminUsername(userWithPerms.username);
-  const ctx = await getPermissionContext(payload.userId);
+  const ctx = await getPermissionContext(userId);
 
   const { getVisibleResourceKeys } = await import("../rbac/visibility");
   const { ensureGrantCache } = await import("../rbac/context");
@@ -72,7 +73,7 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
 
   const canAnyWeek = isAdmin || await evaluatePermissionWithContext(ctx, "work.reports", "write");
 
-  const manageableKeys = await getManageableResourceKeys(payload.userId);
+  const manageableKeys = await getManageableResourceKeys(userId);
 
   return {
     ...userWithPerms,
@@ -82,13 +83,30 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
     visibleResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleAccess,
     visibleWriteResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleWrite,
     manageableResourceKeys: isAdmin ? [...new Set([...manageableKeys, ...RESOURCE_KEYS])] : [...manageableKeys],
-    employeeId: employee?.employeeId ?? null,
+    employeeId: employee?.employeeId ?? userWithPerms.employeeId ?? null,
+    employeeName: employee?.name ?? null,
     isActiveEmployee,
   };
 }
 
+async function _getCurrentUser(): Promise<SessionUser | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token")?.value;
+  if (!token) return null;
+
+  const payload = await verifyToken(token);
+  if (!payload) return null;
+
+  return buildSessionUser(payload.userId, payload.sessionVersion);
+}
+
 /** Cached per-request: layout + page can both call without double DB queries. */
 export const getCurrentUser = cache(_getCurrentUser);
+
+export async function getSessionUserFromAuthPayload(payload: AuthPayload): Promise<SessionUser | null> {
+  const expectedSessionVersion = (payload as AuthPayload & { sessionVersion?: number }).sessionVersion;
+  return buildSessionUser(payload.userId, expectedSessionVersion);
+}
 
 /** For API routes: throws on unauthenticated. */
 export async function requireCurrentUser(): Promise<SessionUser> {

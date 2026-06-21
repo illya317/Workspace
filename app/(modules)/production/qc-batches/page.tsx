@@ -1,10 +1,10 @@
-import { requireResourceAccess } from "@workspace/platform/server/auth";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { getQcTemplateSummaries, listQcBatches } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import { QcBatchListClient, QcModuleShell } from "@workspace/production/ui";
 
 export default async function QcBatchesPage() {
-  const user = await requireResourceAccess("production.qcBatches");
+  const user = await requireRouteAccess("/production/qc-batches");
   const [templates, batchList] = await Promise.all([getQcTemplateSummaries(), listQcBatches()]);
   const templateById = new Map(templates.map((template) => [template.id, template]));
   const initialRows = batchList.batches.map((batch) => {

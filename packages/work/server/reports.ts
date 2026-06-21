@@ -7,6 +7,11 @@ interface ReportFilters {
   targetIds?: string;
 }
 
+const reportUserSelect = {
+  nickname: true,
+  employees: { select: { name: true }, take: 1 },
+} as const;
+
 export async function listReports(filters: ReportFilters) {
   const where: Prisma.ReportWhereInput = {};
 
@@ -23,7 +28,7 @@ export async function listReports(filters: ReportFilters) {
       items: {
         orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
       },
-      user: { select: { name: true } },
+      user: { select: reportUserSelect },
     },
     orderBy: { date: "desc" },
   });
@@ -170,7 +175,7 @@ export async function createReport(data: CreateReportInput) {
       items: {
         orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
       },
-      user: { select: { name: true } },
+      user: { select: reportUserSelect },
     },
   });
 }
@@ -261,7 +266,7 @@ export async function getReportVersion(reportId: number, version: number) {
           orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
         },
         user: {
-          select: { name: true },
+          select: reportUserSelect,
         },
       },
     });

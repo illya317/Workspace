@@ -9,11 +9,11 @@ import {
 import { prisma } from "./prisma";
 
 export type CreateAdminUserInput = {
-  name: string;
+  nickname: string;
   username?: string | null;
 };
 
-export type AdminUserField = "canLogin" | "name" | "username" | "employeeId";
+export type AdminUserField = "canLogin" | "nickname" | "username" | "employeeId";
 
 export type UpdateAdminUserFieldInput = {
   userId: number;
@@ -49,7 +49,7 @@ export async function listAdminUsers() {
 export async function createAdminUser(input: CreateAdminUserInput) {
   return prisma.user.create({
     data: {
-      name: input.name,
+      nickname: input.nickname,
       username: input.username || null,
       canLogin: true,
     },

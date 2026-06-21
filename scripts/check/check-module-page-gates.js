@@ -2,8 +2,8 @@
 
 /**
  * 硬约束：包注册表中声明了 resourceKey 的模块/子模块，
- * 如果存在对应的 app/<path>/page.tsx，则该 page.tsx 或上游 layout.tsx
- * 必须调用 requireResourceAccess("<同一个 resourceKey>")。
+ * 如果存在对应的 app route，则该 page.tsx 或上游 layout.tsx
+ * 必须调用 requireRouteAccess("<同一个 href>")。
  */
 
 const fs = require("fs");
@@ -29,20 +29,43 @@ function isWhitelisted(href) {
   return WHITELIST_PATHS.has(href);
 }
 
-function hrefToPagePath(href) {
-  const relative = href.replace(/^\//, "");
-  if (!relative) return null;
-  return path.join(APP_DIR, relative, "page.tsx");
+function walkPages(dir) {
+  const output = [];
+  for (const entry of fs.readdirSync(dir)) {
+    const full = path.join(dir, entry);
+    if (fs.statSync(full).isDirectory()) {
+      output.push(...walkPages(full));
+    } else if (entry === "page.tsx") {
+      output.push(full);
+    }
+  }
+  return output;
 }
 
-function hasResourceGate(filePath, expectedResourceKey) {
+function routeFromPagePath(pagePath) {
+  const relativeDir = path.relative(APP_DIR, path.dirname(pagePath)).replace(/\\/g, "/");
+  const segments = relativeDir
+    .split("/")
+    .filter(Boolean)
+    .filter((segment) => !segment.startsWith("(") || !segment.endsWith(")"));
+  return `/${segments.join("/")}`.replace(/\/+$/g, "") || "/";
+}
+
+const PAGE_BY_ROUTE = new Map(walkPages(APP_DIR).map((pagePath) => [routeFromPagePath(pagePath), pagePath]));
+
+function hrefToPagePath(href) {
+  return PAGE_BY_ROUTE.get(href) ?? null;
+}
+
+function hasRouteGate(filePath, expectedHref, expectedKey) {
   if (!fs.existsSync(filePath)) return false;
   const text = readText(filePath);
-  if (expectedResourceKey === "settings.admin" && /\brequireAdminManageAccess\s*\(/.test(text)) {
+  if (expectedKey === "settings.admin" && /\brequireAdminManageAccess\s*\(/.test(text)) {
     return true;
   }
+  if (new RegExp(`ModuleHomePage\\s+moduleKey=["']${expectedKey.replace(/\./g, "\\.")}["']`).test(text)) return true;
   const regex = new RegExp(
-    `requireResourceAccess\\s*\\(\\s*["']${expectedResourceKey.replace(/\./g, "\\.")}["']\\s*\\)`,
+    `requireRouteAccess\\s*\\(\\s*["']${expectedHref.replace(/\//g, "\\/")}["']\\s*\\)`,
   );
   return regex.test(text);
 }
@@ -59,11 +82,11 @@ function findLayoutFiles(pageDir) {
   return layouts;
 }
 
-function checkPageGate(pagePath, expectedResourceKey) {
+function checkPageGate(pagePath, expectedHref, expectedKey) {
   if (!fs.existsSync(pagePath)) return null;
-  if (hasResourceGate(pagePath, expectedResourceKey)) return true;
+  if (hasRouteGate(pagePath, expectedHref, expectedKey)) return true;
   const pageDir = path.dirname(pagePath);
-  return findLayoutFiles(pageDir).some((layout) => hasResourceGate(layout, expectedResourceKey));
+  return findLayoutFiles(pageDir).some((layout) => hasRouteGate(layout, expectedHref, expectedKey));
 }
 
 const violations = [];
@@ -75,7 +98,7 @@ for (const def of collectModuleDefs()) {
   const pagePath = hrefToPagePath(def.href);
   if (!pagePath) continue;
 
-  const hasGate = checkPageGate(pagePath, def.resourceKey);
+  const hasGate = checkPageGate(pagePath, def.href, def.key);
   if (hasGate === null) continue;
 
   const pageRelative = path.relative(ROOT, pagePath).replace(/\\/g, "/");
@@ -85,7 +108,7 @@ for (const def of collectModuleDefs()) {
       sourcePath: path.relative(ROOT, def.filePath).replace(/\\/g, "/"),
       sourceLine: def.line,
       key: def.key,
-      expectedResourceKey: def.resourceKey,
+      expectedHref: def.href,
     });
   }
 }
@@ -94,7 +117,7 @@ if (violations.length > 0) {
   console.error("✗ Module page gate check failed.");
   for (const v of violations) {
     console.error(
-      `  ${v.pagePath} — missing requireResourceAccess("${v.expectedResourceKey}") in page.tsx or upstream layout.tsx (declared at ${v.sourcePath}:${v.sourceLine} for ${v.key})`,
+      `  ${v.pagePath} — missing requireRouteAccess("${v.expectedHref}") in page.tsx or upstream layout.tsx (declared at ${v.sourcePath}:${v.sourceLine} for ${v.key})`,
     );
   }
   process.exit(1);

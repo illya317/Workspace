@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
-import { authenticate, checkHRAccess } from "@workspace/platform/server/auth";
+import { requireApiAccess, checkHRAccess } from "@workspace/platform/server/auth";
 import { getEmployeeProfileHistoryByKey } from "@workspace/hr/server";
 
 interface Props {
@@ -8,10 +7,9 @@ interface Props {
 }
 
 export async function GET(request: Request, { params }: Props) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }

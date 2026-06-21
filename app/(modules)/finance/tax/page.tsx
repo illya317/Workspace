@@ -1,9 +1,9 @@
-import { requireResourceAccess } from "@workspace/platform/server/auth";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
 import AppShell from "@workspace/platform/ui/AppShell";
 import { EmptyStateCard, ModuleGridPage } from "@workspace/core/ui";
 
 export default async function TaxPage() {
-  const user = await requireResourceAccess("finance.tax");
+  const user = await requireRouteAccess("/finance/tax");
   return (
     <AppShell title="税务管理" backHref="/finance" user={user}>
       <ModuleGridPage title="税务管理" summary="销项/进项、税负分析、发票管理、纳税申报辅助" centered>

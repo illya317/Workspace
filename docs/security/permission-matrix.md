@@ -25,41 +25,17 @@
 | `work.history` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `system` | `manageableResourceKeys` | admin |
 | `settings.admin` | `manageableResourceKeys` | admin |
-| `settings.governance` | `visibleResourceKeys` | access |
-| `settings.api` | `visibleResourceKeys` | access |
-| `docs.api` | `visibleResourceKeys` | access |
 | `agent` | `visibleResourceKeys` | access |
 
 ## 页面 Guard
 
+页面入口统一调用 `requireRouteAccess("<href>")`，由 registry 将 route 解析到 L1/L2 resource，再检查 RBAC 与 runtime enabled/disabled。页面不得直接手写 resource key 作为主门禁。
+
 | 页面 | 权限检查 | 无权限行为 |
 |------|---------|-----------|
 | `/portal` | 无（入口页） | — |
-| `/hr` | `requireResourceAccess("hr")` | redirect `/portal` |
-| `/hr/roster` | `requireResourceAccess("hr.roster")` | redirect `/portal` |
-| `/hr/performance` | `requireResourceAccess("hr.performance")` | redirect `/portal` |
-| `/hr/analytics` | `requireResourceAccess("hr.analytics")` | redirect `/portal` |
-| `/finance` | `requireResourceAccess("finance")` | redirect `/portal` |
-| `/finance/ledger` | `requireResourceAccess("finance.ledger")` | redirect `/portal` |
-| `/finance/statement-config` | `requireResourceAccess("finance.statementConfig")` | redirect `/portal` |
-| `/finance/statement-review` | `requireResourceAccess("finance.statementReview")` | redirect `/portal` |
-| `/finance/statements` | `requireResourceAccess("finance.statements")` | redirect `/portal` |
-| `/finance/budget` | `requireResourceAccess("finance.budget")` | redirect `/portal` |
-| `/finance/analysis` | `requireResourceAccess("finance.analysis")` | redirect `/portal` |
-| `/finance/cost` | `requireResourceAccess("finance.cost")` | redirect `/portal` |
-| `/finance/import` | `requireResourceAccess("finance.import")` | redirect `/portal` |
-| `/administration` | `requireResourceAccess("administration")` | redirect `/portal` |
-| `/administration/contracts` | `requireResourceAccess("administration.contracts")` | redirect `/portal` |
-| `/production` | `requireResourceAccess("production")` | redirect `/portal` |
-| `/production/qc-batches` | `requireResourceAccess("production.qcBatches")` | redirect `/portal` |
-| `/production/qc-templates` | `requireResourceAccess("production.qcTemplates")` | redirect `/portal` |
-| `/work` | `requireResourceAccess("work")` + module enabled | redirect `/portal` 或模块未启用页 |
-| `/work/projects` | `requireResourceAccess("work.projects")` + module enabled + 项目对象级过滤 | redirect `/portal` 或模块未启用页 |
-| `/work/tasks` | `requireResourceAccess("work.tasks")` + module enabled | redirect `/portal` 或模块未启用页 |
-| `/work/reports` | `requireResourceAccess("work.reports")` + module enabled | redirect `/portal` 或模块未启用页 |
-| `/work/history` | `requireResourceAccess("work.history")` + module enabled | redirect `/portal` 或模块未启用页 |
-| `/docs` | `requireResourceAccess("docs")` | redirect `/portal` |
-| `/docs/api-guide` | `docs.api.access OR settings.api.access` | redirect `/portal` |
+| L1/L2 页面 | `requireRouteAccess("<href>")` | redirect `/portal` 或模块未启用页 |
+| `/settings/admin` | `requireAdminManageAccess()` | redirect `/portal` |
 
 ## API Guard
 

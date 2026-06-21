@@ -30,6 +30,10 @@ function parseJson(value: string) {
   }
 }
 
+function userEmployeeName(user: { nickname: string; employees?: Array<{ name: string }> } | null | undefined) {
+  return user?.employees?.[0]?.name ?? user?.nickname ?? null;
+}
+
 function parseContracts(value: unknown) {
   if (!value || typeof value !== "string") return [];
   try {
@@ -111,7 +115,7 @@ export async function getEmployeeProfileHistoryByKey(key: string) {
 
   const rows = await prisma.editHistory.findMany({
     where: { OR: filters, tag: null },
-    include: { editor: { select: { name: true } } },
+    include: { editor: { select: { nickname: true, employees: { select: { name: true }, take: 1 } } } },
     orderBy: [{ entityType: "asc" }, { entityId: "asc" }, { version: "asc" }],
   });
 
@@ -134,7 +138,7 @@ export async function getEmployeeProfileHistoryByKey(key: string) {
         entityType: row.entityType,
         entityId: row.entityId,
         version: row.version,
-        editorName: row.editor?.name || `用户#${row.editedBy}`,
+        editorName: userEmployeeName(row.editor) || `用户#${row.editedBy}`,
         createdAt: row.createdAt,
         changes: diffSnapshot(prev, curr),
       };

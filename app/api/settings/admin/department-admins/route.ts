@@ -6,26 +6,26 @@ import {
   listDepartmentAdmins,
   removeDepartmentAdmin,
 } from "@workspace/platform/server/department-admins";
-import { authenticate } from "@workspace/platform/server/auth";
+import { requireAdminApiAccess } from "@workspace/platform/server/auth";
 
 const departmentAdminBodySchema = z.object({
   departmentId: z.coerce.number().int().positive(),
   userId: z.coerce.number().int().positive(),
 });
 
-// GET - 获取所有部门及其管理员（登录即可访问）
+// GET - 获取所有部门及其管理员
 export async function GET(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
 
   const { departments, admins } = await listDepartmentAdmins();
   return NextResponse.json({ departments, admins });
 }
 
-// PUT - 添加部门管理员（登录即可）
+// PUT - 添加部门管理员
 export async function PUT(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
 
   const parsed = departmentAdminBodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "缺少参数" }, { status: 400 });
@@ -35,10 +35,10 @@ export async function PUT(request: Request) {
   return NextResponse.json(result);
 }
 
-// DELETE - 删除部门管理员（登录即可）
+// DELETE - 删除部门管理员
 export async function DELETE(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
 
   const { searchParams } = new URL(request.url);
   const parsed = routeIdParamsSchema.safeParse(Object.fromEntries(searchParams));

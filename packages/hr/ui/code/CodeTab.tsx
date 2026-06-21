@@ -38,7 +38,7 @@ export function CodesTab({
         <CodeTab
           user={user}
           type="department"
-          apiPath="/api/settings/governance/department-codes"
+          apiPath="/api/modules/hr/roster/department-codes"
           title="部门编码"
           companyCode={companyCode}
           selectedCompany={selectedCompany}
@@ -52,7 +52,7 @@ export function CodesTab({
         <CodeTab
           user={user}
           type="position"
-          apiPath="/api/settings/governance/position-codes"
+          apiPath="/api/modules/hr/roster/position-codes"
           title="岗位编码"
           companyCode={companyCode}
           selectedCompany={selectedCompany}

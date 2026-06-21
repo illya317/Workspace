@@ -4,7 +4,7 @@ model User {
   wxUserId                 String?                  @unique
   username                 String?                  @unique
   password                 String?
-  name                     String
+  nickname                 String
   avatar                   String?
   routineItems             String?
   canLogin                 Boolean                  @default(true)

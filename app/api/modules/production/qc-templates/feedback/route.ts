@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@workspace/platform/server/with-auth";
-import { authorize } from "@workspace/platform/server/auth";
+import { getUserEmployeeSignatureName } from "@workspace/platform/server/user-identity";
 import {
   getQcTemplateFeedback,
   listQcTemplateFeedbackByContext,
@@ -43,7 +43,7 @@ export const GET = withAuth(async (request, user) => {
     return NextResponse.json({ data, items });
   }
   return NextResponse.json({ data: await listQcTemplateFeedback() });
-}, (userId) => authorize({ user: userId, resourceKey: "production.qcTemplates", action: "access" }));
+});
 
 export const POST = withAuth(async (request, user) => {
   const body = await request.json().catch(() => null);
@@ -54,9 +54,10 @@ export const POST = withAuth(async (request, user) => {
   if (!parsed.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
   const data = parsed.data;
   try {
+    const userName = await getUserEmployeeSignatureName(user.userId, user.nickname);
     const author = {
       userId: user.userId,
-      userName: user.name,
+      userName,
     };
     const item = data.inlineEntry
       ? await saveQcTemplateInlineFeedback(data.context, data.inlineEntry, author)
@@ -67,7 +68,7 @@ export const POST = withAuth(async (request, user) => {
     const message = error instanceof Error ? error.message : "保存反馈失败";
     return NextResponse.json({ error: message }, { status: 400 });
   }
-}, (userId) => authorize({ user: userId, resourceKey: "production.qcTemplates", action: "write" }));
+});
 
 export const PATCH = withAuth(async (request, user) => {
   const body = await request.json().catch(() => null);
@@ -78,9 +79,10 @@ export const PATCH = withAuth(async (request, user) => {
   if (!parsed.success) return NextResponse.json({ error: "缺少反馈 key" }, { status: 400 });
   const data = parsed.data;
   try {
+    const userName = await getUserEmployeeSignatureName(user.userId, user.nickname);
     const item = await updateQcTemplateFeedbackResolved(data.key, data.resolved === true, {
       userId: user.userId,
-      userName: user.name,
+      userName,
     }, {
       type: data.targetType === "section" || data.targetType === "inline" ? data.targetType : undefined,
       id: String(data.targetId ?? "").trim() || undefined,
@@ -90,4 +92,4 @@ export const PATCH = withAuth(async (request, user) => {
     const message = error instanceof Error ? error.message : "更新反馈状态失败";
     return NextResponse.json({ error: message }, { status: 400 });
   }
-}, (userId) => authorize({ user: userId, resourceKey: "production.qcTemplates", action: "write" }));
+});

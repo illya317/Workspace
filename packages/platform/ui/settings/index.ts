@@ -1,10 +1,6 @@
 export { default as SettingsClient } from "./SettingsClient";
-export { default as PasswordModal } from "./PasswordModal";
-export { default as UsernameModal } from "./UsernameModal";
+export { default as AccountSettingsPanel } from "./AccountSettingsPanel";
+export { default as ApiAccessClient } from "./ApiAccessClient";
 export {
   SettingsAccountPage,
-  SettingsApiPage,
-  SettingsGovernancePage,
-  SettingsGovernanceToolbarPreviewPage,
-  SettingsGovernanceUiRegistryPage,
 } from "./pages";

@@ -226,10 +226,9 @@ export const registeredModuleDefinitions = [
         { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions", resourceKey: "docs.positions", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
         { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company", resourceKey: "docs.company", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
         { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense", resourceKey: "docs.expense", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
-        { key: "api", label: "接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide", resourceKey: "docs.api", resourceMaxRoleKey: "access", noApiReason: "文档可见性由页面权限控制，API key 管理属于 settings.api" },
       ],
     },
-    routes: ["/docs", "/docs/positions", "/docs/positions/GMP", "/docs/company", "/docs/expense", "/docs/api-guide"],
+    routes: ["/docs", "/docs/positions", "/docs/positions/GMP", "/docs/company", "/docs/expense"],
   },
   {
     packageName: "@workspace/library",
@@ -270,19 +269,22 @@ export const registeredModuleDefinitions = [
       color: "orange",
       resourceKey: "settings",
       resourceMaxRoleKey: "access",
-      resourceSortOrder: 9,
+      resourceSortOrder: 100,
       children: [
-        { key: "account", label: "账号与接入", desc: "账号、安全密码和个人偏好", href: "/settings/account", resourceKey: "settings.account", resourceMaxRoleKey: "access", resourceHidden: true, apiPrefixes: ["/api/settings/account"] },
+        { key: "account", label: "账号与接入", desc: "", href: "/settings/account", resourceKey: "settings.account", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/account"] },
         { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", resourceKey: "settings.admin", apiPrefixes: ["/api/settings/admin"] },
-        { key: "governance", label: "数据治理", desc: "注册表、审计、编码和治理策略", href: "/settings/governance", resourceKey: "settings.governance", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/governance"] },
-        { key: "api", label: "API 接入", desc: "API key、接入策略和接口文档入口", href: "/settings/api", resourceKey: "settings.api", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/api"] },
       ],
     },
-    routes: ["/settings", "/settings/account", "/settings/admin", "/settings/governance", "/settings/api"],
+    routes: ["/settings", "/settings/account", "/settings/admin"],
+    apiRoutes: [
+      { method: "GET", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
+      { method: "POST", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
+      { method: "PUT", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
+      { method: "PATCH", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
+      { method: "DELETE", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
+    ],
     apiGuards: [
       ...apiResourceGuards("/api/settings/admin", "settings.admin", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
-      ...apiResourceGuards("/api/settings/governance", "settings.governance", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
-      ...apiResourceGuards("/api/settings/api", "settings.api", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
     ],
   },
   {
@@ -299,10 +301,11 @@ export const registeredModuleDefinitions = [
       noPageReason: "全局浮窗能力，没有独立页面入口",
       resourceKey: "agent",
       resourceMaxRoleKey: "access",
-      resourceSortOrder: 10,
+      resourceSortOrder: 90,
     },
-    apiGuards: [
-      ...apiResourceGuards("/api/agent", "agent", ["GET", "POST"]),
+    apiRoutes: [
+      { method: "GET", pathPrefix: "/api/agent", access: "protected", resourceKey: "agent", action: "access" },
+      { method: "POST", pathPrefix: "/api/agent", access: "protected", resourceKey: "agent", action: "access" },
     ],
   },
   {

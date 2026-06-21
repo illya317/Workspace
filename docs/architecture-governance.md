@@ -92,13 +92,13 @@ API route 只做：
 4. 调用 service。
 5. 返回 DTO。
 
-Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。`withAuth`、`withFinance*`、`checkHRAccess`、`requireResourceAccess` 等平台 wrapper 必须委托 `authorize()`，新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
+Level 1 起，业务资源权限入口统一为 registry 派生门禁。页面使用 `requireRouteAccess("<href>")`，API 使用 `requireApiAccess(request)` 或已经接入它的 `with-auth` wrapper；调用点不得手写 resource key 作为主门禁。底层授权仍统一委托 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。新增 API route 不得直接调用 `checkPermission()`、裸 `authenticate()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
 
 `npm run arch:gate` 的 auth 阶段会强制：
 
 - `packages/platform/server/auth/authorize.ts` 存在并导出 `authorize()`。
 - 核心业务 auth helper 委托 `authorize()`；root admin helper 委托 `isRootAdminUser()`。
-- 新增 API route 必须有认证/授权 gate、明确代理到兼容 route、显式转调 package service，或是文档化的 public/disabled handler。
+- 新增业务 API route 必须命中 registry API contract，并调用 `requireApiAccess(request)` 或 `with-auth` wrapper；明确的 public/dev/internal/disabled handler 必须在 API contract 中声明。
 - 新增 API route 不得新增裸 `checkPermission()` 或裸 `prisma.`。当前历史债由 `scripts/check/level1-api-baseline.json` 锁定，只能减少，不能新增。
 
 `npm run arch:gate` 的 AST 阶段不是 advisory：命中即 `exit 1`。它会阻断 `checkPermission`、`hasAccess`、`canAccess`、`roleCheck`、`rbacCheck` 等替代权限入口，阻断 `if (user.role)` 一类角色分支，阻断 `authorize()`/RBAC service 外新增 RBAC 表直查，并阻断业务包通过 `@/server/*` 或相对路径绕过边界。已有历史债只允许出现在 `scripts/arch/level15-baseline.json`，迁移删除文件时必须同时删 baseline 项；新增违规不能把 baseline 当白名单扩写。
@@ -133,10 +133,8 @@ Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/a
 API 一级目录只表达系统能力类型：
 
 - `/api/auth/*`：登录、回调、改密、session check。
-- `/api/settings/account/*`：当前登录用户自己的偏好、目标、routine、week-info。
+- `/api/settings/account/*`：当前登录用户自己的账号、安全密码、头像、API key、目标、routine、week-info。
 - `/api/settings/admin/*`：系统管理，包含用户、权限、资源和系统配置。
-- `/api/settings/governance/*`：平台治理，包含审计、registry、编码和治理配置。
-- `/api/settings/api/*`：API 接入管理，包含 API key 与接入策略。
 - `/api/agent/*`：智能体对话、能力清单和变更提案。
 - `/api/modules/<module>/*`：业务模块数据入口，例如 HR、Finance、Work、Production、Library、Administration。
 - `/api/integrations/*`：飞书、企业微信、外部 webhook 等系统集成。
@@ -184,13 +182,13 @@ app/* route shell
 - L2 以下 capability 属于业务能力，不自动进入全局页面 L2。capability 必须声明 `capabilityOwnerKey` 指向已注册 L2；它不能用 `parentKey` 继承 owner 权限，但可以用 `runtimeParentKey` 跟随 owner 的模块启停。Settings/Admin 只是 capability 的统一配置容器，授权管理仍按 owner/resource 的可管理范围判断，不强制要求 `settings.admin`。
 - 资源注册中的 `parentKey` 只表达权限树继承；模块启停级联使用 `runtimeParentKey`。不要用 `parentKey` 同时表达权限继承和运行态归属；当一个资源不能继承父权限、但必须随模块 disable 一起失效时，保持 `parentKey` 为空并设置 `runtimeParentKey`。典型例子是 `work.projects.viewAll`：它不能继承 `work.projects` 模块权限，但必须随 `work.projects` disabled 一起失效。
 - Headless/global 能力必须显式声明 `presentation: "headless"` 和 `noPageReason`。例如 Agent 是全局浮窗和 API 能力，不要求真实 `/agent` 页面，但入口显示、API 和 runtime disabled 仍必须绑定 `agent` resource。
-- `settings.account` 属于登录用户自助设置 contract，不进入普通 RBAC 授权矩阵；`docs.api` 和 `settings.api` 是两个资源，API 文档可见按并集授权，API key/接入管理只按 `settings.api`。
+- `settings.account` 属于登录用户自助设置 contract，不进入普通 RBAC 授权矩阵；个人 API key、接入说明和接口契约归 `settings.account` 正文。API key 只作为身份凭证，调用业务 API 仍必须通过目标业务 resource。
 
 这些规则由 `npm run arch:gate` 中的 module registry、app route hierarchy、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
 
 页面组件注册表：
 
-- `packages/core/ui/component-registry.ts` 是 Core UI primitive 和页面骨架的注册表。非 Core 包只能消费 registry 中登记的 Core UI 名字；新增 Core UI 入口必须先由 Architecture/Core 任务登记，再导出给 Feature 使用。注册项必须填写中文 `description` 和中文 `example`，`/settings/governance/ui-registry` 会自动读取并展示注册名、分类、说明、使用案例、组合子组件和当前消费文件。
+- `packages/core/ui/component-registry.ts` 是 Core UI primitive 和页面骨架的注册表。非 Core 包只能消费 registry 中登记的 Core UI 名字；新增 Core UI 入口必须先由 Architecture/Core 任务登记，再导出给 Feature 使用。注册项必须填写中文 `description` 和中文 `example`，并由架构检查读取注册名、分类、说明、使用案例、组合子组件和当前消费文件。
 - 该 registry 是 `scripts/arch/level2.ts` 的输入，仍通过唯一 `npm run arch:gate` 的 Level 2 ratchet 执行；不要新增独立组件检查脚本或第二套 CI。
 - Core UI 的 value export 必须全部出现在 `component-registry.ts`，或明确列入 `scripts/arch/level2.ts` 的非组件导出集合；注册名重复会直接进入 `duplicateCoreUiRegistrations`。这两类 baseline 为空，新增即失败。
 - 非 Core 包新增手写页面设计壳会进入 `pageDesignDriftFiles` 检测：在 `packages/*/ui` 中直接用原生 JSX 容器拼 `bg-white`、`rounded`、`shadow/border`、sticky header、页面级 grid 等页面结构时视为漂移。历史债由 `scripts/arch/level2-baseline.json` 锁定，Feature/UI 迁走后必须删对应 baseline 项。

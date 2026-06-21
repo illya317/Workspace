@@ -4,10 +4,9 @@
  */
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getCurrentUser } from "@workspace/platform/server/auth";
+import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
 import { financeAgentTools } from "@workspace/finance/server/agent-tools";
 import { hrAgentTools } from "@workspace/hr/server/agent-tools";
-import { authorize } from "@workspace/platform/server/auth";
 import { processMessage, type HistoryMessage } from "@workspace/platform/server/agent";
 
 const agentMessageSchema = z.object({
@@ -19,13 +18,12 @@ const agentMessageSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const user = await getCurrentUser();
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+
+  const user = await getSessionUserFromAuthPayload(auth.user);
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  if (!(await authorize({ user: user.id, resourceKey: "agent", action: "access" }))) {
-    return NextResponse.json({ error: "无权限使用智能体" }, { status: 403 });
   }
 
   let body: z.infer<typeof agentMessageSchema>;

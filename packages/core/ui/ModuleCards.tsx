@@ -14,7 +14,7 @@ export interface ModuleCardAction {
 
 export interface ModuleCardProps {
   title: string;
-  description: string;
+  description?: ReactNode;
   icon?: ReactNode;
   color?: ModuleCardColor;
   href?: string;
@@ -71,7 +71,7 @@ export function ModuleCardBody({
           </span>
         )}
       </div>
-      <p className="mt-1.5 text-xs leading-5 text-gray-500">{description}</p>
+      {description && <p className="mt-1.5 text-xs leading-5 text-gray-500">{description}</p>}
       {actions.length > 0 && (
         <div className="mt-5 flex flex-wrap justify-center gap-2">
           {actions.map((action) => {

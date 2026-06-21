@@ -26,11 +26,11 @@ export async function authenticate(request: Request) {
     const user = await prisma.user.findUnique({ where: { username } });
     if (user && user.apiKey === apiKey) {
       if (!user.canLogin) return null;
-      if (!(await authorize({ user: user.id, resourceKey: "settings.api", action: "access" }))) return null;
+      if (!(await authorize({ user: user.id, resourceKey: "settings.account", action: "access" }))) return null;
       return {
         userId: user.id,
         wxUserId: user.wxUserId ?? "",
-        name: user.name,
+        nickname: user.nickname,
         departmentId: 0,
       };
     }

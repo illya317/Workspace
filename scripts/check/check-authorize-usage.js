@@ -23,6 +23,33 @@ const PUBLIC_API_ROUTES = new Set([
   "app/api/auth/dev-login-bypass/route.ts",
   "app/api/settings/account/week-info/route.ts",
 ]);
+const API_ACCESS_IMPORTS = [
+  "@workspace/platform/server/auth",
+  "@workspace/platform/server/api-access",
+];
+const WITH_AUTH_IMPORT = "@workspace/platform/server/with-auth";
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function hasNamedImport(code, name, sources) {
+  return sources.some((source) => {
+    const escaped = escapeRegExp(source);
+    const regex = new RegExp(`import\\s*\\{([^}]*)\\}\\s*from\\s*["']${escaped}["']`, "g");
+    let match;
+    while ((match = regex.exec(code))) {
+      const names = match[1].split(",").map((item) => item.trim().split(/\s+as\s+/)[0]?.trim());
+      if (names.includes(name)) return true;
+    }
+    return false;
+  });
+}
+
+function hasWithAuthImport(code) {
+  const escaped = escapeRegExp(WITH_AUTH_IMPORT);
+  return new RegExp(`import\\s*\\{[^}]*with[A-Za-z]*(?:Access|Write|Delete|Auth)[^}]*\\}\\s*from\\s*["']${escaped}["']`).test(code);
+}
 
 function walk(dir, files = []) {
   if (!fs.existsSync(dir)) return files;
@@ -54,6 +81,7 @@ const REQUIRED_DELEGATE_FILES = [
   "packages/platform/server/auth/authenticate.ts",
   "packages/platform/server/auth/guard.ts",
   "packages/platform/server/auth/library.ts",
+  "packages/platform/server/api-access.ts",
 ];
 const ROOT_ADMIN_GATE_FILE = "packages/platform/server/auth/admin.ts";
 
@@ -87,7 +115,9 @@ for (const file of walk(API_ROOT)) {
 
   if (isRoute && exportsHandler && !PUBLIC_API_ROUTES.has(rel)) {
     const hasAuthGate = /\bauthorize\s*\(/.test(code) ||
-      /\bwith(?:Auth|[A-Z][A-Za-z]*(?:Access|Write|Delete))\s*\(/.test(code);
+      (hasNamedImport(code, "requireApiAccess", API_ACCESS_IMPORTS) && /\brequireApiAccess\s*\(/.test(code)) ||
+      (hasNamedImport(code, "requireAdminApiAccess", API_ACCESS_IMPORTS) && /\brequireAdminApiAccess\s*\(/.test(code)) ||
+      (hasWithAuthImport(code) && /\bwith(?:Auth|[A-Z][A-Za-z]*(?:Access|Write|Delete))\s*\(/.test(code));
     const usesLegacyGate = /\bauthenticate\s*\(/.test(code) ||
       /\bgetCurrentUser\s*\(/.test(code) ||
       /\brequireCurrentUser\s*\(/.test(code);

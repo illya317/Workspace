@@ -6,8 +6,8 @@ export function LayoutPreview({ variant }: { variant: "page" | "module" | "split
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-4 text-center shadow-sm">
         <ModuleCardBody
-          title="数据治理"
-          description="统一注册、约束和引用检查入口。"
+          title="模块入口"
+          description="统一展示入口说明、状态和操作。"
           color="blue"
           badge="Core"
           icon={<span className="text-lg font-bold">UI</span>}

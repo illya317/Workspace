@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireResourceAccess } from "@workspace/platform/server/auth";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { getQcBatch, getQcTemplateDetail } from "@workspace/production/server/qc";
 import { QcBatchRecordStageList, QcModuleShell } from "@workspace/production/ui";
 
@@ -8,7 +8,7 @@ interface Props {
 }
 
 export default async function QcBatchRecordPage({ params }: Props) {
-  const [{ batchId }, user] = await Promise.all([params, requireResourceAccess("production.qcBatches")]);
+  const [{ batchId }, user] = await Promise.all([params, requireRouteAccess("/production/qc-batches")]);
   const batch = await getQcBatch(Number(batchId));
   if (!batch) notFound();
   const detail = await getQcTemplateDetail(batch.productKey).catch(() => null);

@@ -6,6 +6,10 @@ import { prisma } from "@workspace/platform/server/prisma";
 import type { ReviewReclassParams, ReclassResultRow } from "./types";
 import { syncReclassRuleResults } from "../reclass-rules/sync";
 
+function userEmployeeName(user: { nickname: string; employees?: Array<{ name: string }> } | null | undefined) {
+  return user?.employees?.[0]?.name ?? user?.nickname ?? null;
+}
+
 export async function reviewReclassResult(
   params: ReviewReclassParams,
 ): Promise<ReclassResultRow> {
@@ -27,7 +31,7 @@ export async function reviewReclassResult(
         },
       },
       rule: { select: { abnormalSide: true } },
-      reviewer: { select: { name: true } },
+      reviewer: { select: { nickname: true, employees: { select: { name: true }, take: 1 } } },
     },
   });
 
@@ -104,7 +108,7 @@ export async function reviewReclassResult(
         },
       },
       rule: { select: { abnormalSide: true } },
-      reviewer: { select: { name: true } },
+      reviewer: { select: { nickname: true, employees: { select: { name: true }, take: 1 } } },
     },
   });
 
@@ -137,7 +141,7 @@ export async function reviewReclassResult(
     status: updated.status as ReclassResultRow["status"],
     note: updated.note,
     adjustedBy: updated.adjustedBy,
-    adjustedByName: updated.reviewer?.name ?? null,
+    adjustedByName: userEmployeeName(updated.reviewer),
     adjustedAt: updated.adjustedAt?.toISOString() ?? null,
   };
 }
@@ -187,7 +191,7 @@ export async function createManualReclassResult(params: {
     include: {
       voucherItem: { select: { relatedEntity: true, description: true, account: { select: { name: true } }, voucher: { select: { voucherNo: true, date: true } } } },
       rule: { select: { abnormalSide: true } },
-      reviewer: { select: { name: true } },
+      reviewer: { select: { nickname: true, employees: { select: { name: true }, take: 1 } } },
     },
   });
 
@@ -212,7 +216,7 @@ export async function createManualReclassResult(params: {
     abnormalSide: created.rule?.abnormalSide ?? null, itemDebit: 0, itemCredit: 0,
     targetAccount: created.targetAccount, amount: created.amount,
     status: created.status as ReclassResultRow["status"],
-    note: created.note, adjustedBy: created.adjustedBy, adjustedByName: created.reviewer?.name ?? null,
+    note: created.note, adjustedBy: created.adjustedBy, adjustedByName: userEmployeeName(created.reviewer),
     adjustedAt: created.adjustedAt?.toISOString() ?? null,
   };
 }

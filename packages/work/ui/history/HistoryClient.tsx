@@ -26,8 +26,8 @@ interface Report {
   reportGroupId?: number | null;
   items: ReportItemData[];
   user?: {
-    name: string;
-    departmentName: string | null;
+    nickname: string;
+    employees?: Array<{ name: string }>;
   };
 }
 
@@ -141,9 +141,9 @@ export default function HistoryPage({ hideShell: _hideShell }: { hideShell?: boo
                     </div>
                     <p className="text-sm text-gray-500">
                       {report.taskName}
-                      {report.user?.name && (
+                      {report.user && (
                         <span className="ml-2 text-xs text-gray-400">
-                          填写人：{report.user.name}
+                          填写人：{report.user.employees?.[0]?.name || report.user.nickname}
                         </span>
                       )}
                     </p>

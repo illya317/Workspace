@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { deleteAdminDepartment, listAdminDepartments } from "@workspace/hr/server/admin-departments";
-import { authenticate, isSuperAdmin } from "@workspace/platform/server/auth";
+import { requireAdminApiAccess, isSuperAdmin } from "@workspace/platform/server/auth";
 
 const deleteDepartmentSchema = z.object({
   departmentId: z.coerce.number().int().positive(),
@@ -13,8 +13,9 @@ async function canAdminSystem(userId: number) {
 }
 
 export async function GET(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await canAdminSystem(payload.userId))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
@@ -23,8 +24,9 @@ export async function GET(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await canAdminSystem(payload.userId))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }

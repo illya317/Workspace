@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate } from "@workspace/platform/server/auth";
-import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
+import { requireApiAccess } from "@workspace/platform/server/auth";
 import {
   canAccessTarget,
   canEditWorkTask,
@@ -23,11 +22,10 @@ const createWorkItemSchema = z.object({
 }).passthrough();
 
 export async function GET(request: Request) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
 
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   const { searchParams } = new URL(request.url);
   const category = searchParams.get("category") || undefined;
@@ -52,11 +50,10 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
 
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   const body = await request.json().catch(() => null);
   const parsedBody = createWorkItemSchema.safeParse(body);

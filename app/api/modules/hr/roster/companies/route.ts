@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
-import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { z } from "zod";
-import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
+import { requireApiAccess, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCompany, deleteCompanyById, listCompanies, upsertCompany } from "@workspace/hr/server";
 
@@ -24,12 +23,9 @@ const upsertCompanySchema = z.object({
 }).passthrough();
 
 export async function GET(request: Request) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await checkHRAccess(payload.userId, "access", "hr.roster"))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
@@ -44,6 +40,9 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+
   const body = await request.clone().json().catch(() => null);
   const parsedBody = createCompanySchema.safeParse(body);
   if (!parsedBody.success) return NextResponse.json({ error: "缺少 code/name" }, { status: 400 });
@@ -51,10 +50,9 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await checkHRWrite(payload.userId, "hr.roster"))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }
@@ -68,10 +66,9 @@ export async function PUT(request: Request) {
 }
 
 export async function DELETE(request: Request) {
-  const disabledResponse = disabledApiResponseForRequest(request);
-  if (disabledResponse) return disabledResponse;
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
   if (!(await checkHRDelete(payload.userId, "hr.roster"))) {
     return NextResponse.json({ error: "无权限" }, { status: 403 });
   }

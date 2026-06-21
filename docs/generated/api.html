@@ -68,13 +68,13 @@
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/api/api-key</span>
+  <span class="path">/api/settings/account/api-key</span>
   <span class="auth">登录</span>
   <span class="desc">获取我的API Key</span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/settings/api/api-key</span>
+  <span class="path">/api/settings/account/api-key</span>
   <span class="auth">登录</span>
   <span class="desc">申请/重新申请API Key</span>
 </div>
@@ -277,76 +277,40 @@
   <span class="desc">更新工作项</span>
 </div>
 </div>
-<div class="group"><div class="group-title">Admin — 编码管理</div>
+<div class="group"><div class="group-title">HR — 编码管理</div>
 <div class="endpoint">
   <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/settings/governance/company-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">删除公司编码</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/governance/company-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">公司编码列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/settings/governance/company-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/governance/company-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">更新公司编码</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/settings/governance/company-codes/:id</span>
-  <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/governance/company-codes/:id</span>
-  <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/settings/governance/department-codes</span>
+  <span class="path">/api/modules/hr/roster/department-codes</span>
   <span class="auth">登录 + HR权限</span>
   <span class="desc">删除部门编码</span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/governance/department-codes</span>
+  <span class="path">/api/modules/hr/roster/department-codes</span>
   <span class="auth">登录 + HR权限</span>
   <span class="desc">部门编码列表</span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/governance/department-codes</span>
+  <span class="path">/api/modules/hr/roster/department-codes</span>
   <span class="auth">登录 + HR权限</span>
   <span class="desc">更新部门编码</span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/settings/governance/position-codes</span>
+  <span class="path">/api/modules/hr/roster/position-codes</span>
   <span class="auth">登录 + HR权限</span>
   <span class="desc">删除岗位编码</span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/governance/position-codes</span>
+  <span class="path">/api/modules/hr/roster/position-codes</span>
   <span class="auth">登录 + HR权限</span>
   <span class="desc">岗位编码列表</span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/governance/position-codes</span>
+  <span class="path">/api/modules/hr/roster/position-codes</span>
   <span class="auth">登录 + HR权限</span>
   <span class="desc">更新岗位编码</span>
 </div>
@@ -473,51 +437,7 @@
   <span class="desc">更新用户信息</span>
 </div>
 </div>
-<div class="group"><div class="group-title">Admin — 编辑历史</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/governance/edit-history</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">编辑历史查询</span>
-</div>
-</div>
 <div class="group"><div class="group-title">Admin — 其他</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/governance/audit-log</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/settings/governance/audit-log/restore</span>
-  <span class="auth">登录</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/governance/company-relations</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/settings/governance/company-relations</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/settings/governance/company-relations/:id</span>
-  <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/governance/company-relations/:id</span>
-  <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/settings/admin/permission-grants</span>

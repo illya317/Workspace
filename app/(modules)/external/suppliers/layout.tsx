@@ -1,6 +1,6 @@
-import { requireResourceAccess } from "@workspace/platform/server/auth";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
 
 export default async function SuppliersLayout({ children }: { children: React.ReactNode }) {
-  await requireResourceAccess("external.suppliers");
+  await requireRouteAccess("/external/suppliers");
   return children;
 }

@@ -23,7 +23,7 @@ export default function PortalClient({ user }: { user: SessionUser }) {
         />
       }
       title={process.env.NEXT_PUBLIC_APP_NAME || "工作台"}
-      summary={`欢迎，${user.name}`}
+      summary={`欢迎，${user.employeeName || user.nickname}`}
     >
       {entries.map((entry) => (
         <ModuleCard

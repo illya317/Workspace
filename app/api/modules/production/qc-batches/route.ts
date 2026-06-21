@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { withAuth } from "@workspace/platform/server/with-auth";
-import { authorize } from "@workspace/platform/server/auth";
 import { createQcBatch, listQcBatches } from "@workspace/production/server/qc";
 
 const createQcBatchSchema = z.object({
@@ -11,7 +10,7 @@ const createQcBatchSchema = z.object({
 
 export const GET = withAuth(async () => {
   return NextResponse.json({ data: await listQcBatches() });
-}, (userId) => authorize({ user: userId, resourceKey: "production.qcBatches", action: "access" }));
+});
 
 export const POST = withAuth(async (request) => {
   const body = await request.json().catch(() => null);
@@ -30,4 +29,4 @@ export const POST = withAuth(async (request) => {
     const message = error instanceof Error ? error.message : "创建批次失败";
     return NextResponse.json({ error: message }, { status: 400 });
   }
-}, (userId) => authorize({ user: userId, resourceKey: "production.qcBatches", action: "write" }));
+});

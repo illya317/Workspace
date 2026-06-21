@@ -16,9 +16,16 @@ export {
   requireAnyResourceAccess,
   requireAdminManageAccess,
   requireResourceAccess,
+  requireRouteAccess,
 } from "./auth/guard";
 export {
+  requireAdminApiAccess,
+  requireApiAccess,
+  type ApiAccessResult,
+} from "./api-access";
+export {
   getCurrentUser,
+  getSessionUserFromAuthPayload,
   requireAuth,
   requireCurrentUser,
 } from "./auth/session";

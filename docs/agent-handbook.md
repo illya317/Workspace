@@ -73,8 +73,8 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 | Core 底座 | `packages/core/` | 通用 UI、hooks、字段、弹窗、日期、FK 搜索、tag 输入、routing/search helper |
 | Platform 主体 | `packages/platform/` | 登录、权限、资源树、模块注册、导航、审计、用户、Portal、平台 server runtime 契约 |
 | Apps 业务包 | `packages/hr/`, `packages/production/`, `packages/finance/`, `packages/<domain>/` | 各业务模块自己的 UI、server、types、constants、import、module 注册 |
-| 业务页面壳 | `app/<domain>/` | Next 路由 facade，只组合 package UI，保留领域 `ARCHITECTURE.md` |
-| API 路由壳 | `app/api/<domain>/` | 鉴权、权限、参数校验、调用 package service、返回 DTO |
+| 业务页面壳 | `app/(modules)/<domain>/` | Next 路由 facade，只组合 package UI，保留领域 `ARCHITECTURE.md` |
+| API 路由壳 | `app/api/modules/<domain>/<l2-kebab>/` | 鉴权、权限、参数校验、调用 package service、返回 DTO |
 | 开发辅助 | `app/api/auth/dev-login-bypass/` | 开发环境快速登录，仅本地 |
 | 旧业务服务 | `server/services/<domain>/` | 存量兼容/待迁移旧代码；新增业务 service 不再优先放这里 |
 | 认证权限 | `@workspace/platform/server/auth`, `@workspace/platform/permissions`, `packages/platform/server/auth/`, `packages/platform/server/rbac/` | 登录、session、RBAC、资源树；新代码使用 Platform 契约 |
@@ -111,26 +111,27 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 
 仅适用于“新增业务模块 / 新 domain”。如果是在已有模块内新增 Tab、审核流、规则页、CRUD 能力，改看 `docs/existing-module-feature-checklist.md`。
 
-1. 在业务包 `module.ts` 的 `resourceDefs` 注册资源 key，动作只用 `access / write / delete / admin`；需要 RBAC 常量时使用 `@workspace/platform/permissions`。
-2. 在 seed 中注册资源树，设置 `parentId / maxRoleKey / sortOrder`。
-3. 在 `packages/platform/module-registry.ts` 注册模块，并让 `packages/<domain>/module.ts` 导出 registry 中的 `moduleDefinition`。
+1. 在 `packages/platform/module-registry.ts` 注册 L1/L2：`moduleDef`、`children`、`href`、`resourceKey`、`apiPrefixes` 或 `noApiReason` 必须一次写齐。
+2. L1/L2 RBAC resource 由 module registry 自动派生；不要在业务包里重复手写主资源，也不要在 seed 里维护第二套资源树。需要 RBAC 常量时使用 `@workspace/platform/permissions`。
+3. `packages/<domain>/module.ts` 必须导出 registry 中的 `moduleDefinition`，不要在业务包本地重新定义模块。
 4. 模块展示名、描述、隐藏和启停优先改 `packages/platform/module-overrides.ts`；不要为了中文 rename 改 `resourceKey`、FK key、API path 或 URL path。
-5. `parentKey` 只表达 RBAC 权限继承；不能继承父权限、但必须随模块启停的资源使用 `runtimeParentKey`，例如 `work.projects.viewAll`。
-6. 创建 `app/<domain>/ARCHITECTURE.md`，写清楚数据来源、事实字段、计算字段、权限、页面。
+5. `parentKey` 只表达 RBAC 权限继承；不能继承父权限、但必须随模块启停的 capability 使用 `runtimeParentKey`，例如 `work.projects.viewAll`。
+6. 创建 `app/(modules)/<domain>/ARCHITECTURE.md`，写清楚数据来源、事实字段、计算字段、权限、页面。
 7. 如需新表，创建 `prisma/models/<domain>.prisma`，同步 migration/seed，并更新数据库文档。
 8. 在 `packages/<domain>/server/` 写业务逻辑；`server/services/<domain>/` 只用于尚未迁移的存量代码。API route 只做认证、权限、参数校验、调用 service、返回 DTO。
-9. 在 `app/api/<domain>/` 写 route handler，GET/POST/PUT/PATCH/DELETE 必须匹配权限动作。
-10. 在 `packages/<domain>/ui/` 写主要 UI；`app/<domain>/` 只放 Next route facade。模块首页用 Platform 的 `ModuleHome`，子页面用 Platform 的 `AppShell`。
-11. 对需要独立权限的子页面，在对应子目录加 `layout.tsx`，调用 `requireResourceAccess("<resourceKey>")` 做路由门禁。
-12. 同步更新 `README.md`、`AGENTS.md` 或 docs、`docs/new-module-checklist.md` 和对应模块文档。
-13. 交付前运行硬约束，并提交一个清晰 commit。
+9. 在 `app/api/modules/<domain>/<l2-kebab>/` 写 route handler，GET/POST/PUT/PATCH/DELETE 必须匹配 registry 中同一个 L2 的 resource/action。系统设置例外走 `/api/settings/<l2>`，认证和 Agent 是独立 L1。
+10. 在 `packages/<domain>/ui/` 写主要 UI；`app/(modules)/<domain>/` 只放 Next route facade。模块首页用 Platform 的 `ModuleHomePage`，子页面用 Platform 的 `AppShell`。
+11. 对需要独立权限的子页面，在对应子目录加 `layout.tsx`，调用 `requireRouteAccess("<href>")` 做路由门禁；不要在页面手写 resource key。
+12. 删除 L1/L2 时同步删除 registry、真实 app route、API route、docs 和相关引用；`scripts/seed-resources.ts` 会清理 DB 中未注册的 stale resources 及其授权，不要留下 hidden/disabled 旧 resource 当兼容层，除非任务明确要求。
+13. 同步更新 `README.md`、`AGENTS.md` 或 docs、`docs/new-module-checklist.md` 和对应模块文档。
+14. 交付前运行硬约束，并提交一个清晰 commit。
 
 摘要：
 
 | 步骤 | 内容 |
 |------|------|
-| 1. RBAC | 业务包 `resourceDefs` + seed 注册资源树 |
-| 2. 导航 | `packages/platform/module-registry.ts` 注册，`packages/<domain>/module.ts` 导出 `moduleDefinition`，配 `resourceKey` |
+| 1. L1/L2 注册 | `packages/platform/module-registry.ts` 注册页面、API contract、resourceKey；主 RBAC resource 自动派生 |
+| 2. 导航 | `packages/<domain>/module.ts` 导出 registry 中的 `moduleDefinition`，不要维护第二套导航 |
 | 3. 数据库 | `prisma/models/<domain>.prisma` + migration + seed |
 | 4. 页面 | facade server component + 子目录 `layout.tsx` 路由门禁 |
 | 5. API | 认证 -> 权限 -> 参数校验 -> 调 package service -> 返回 DTO |
@@ -195,7 +196,7 @@ rm data/dev.db && npx prisma db push
 | 工作清单 | `/work/tasks` | 登录 |
 | 人事行政 | `/hr` | `hr.access` |
 | 管理后台 | `/settings/admin` | 可管理任一资源 |
-| 接入指南 | `/docs/api-guide` | `docs.api.access` 或 `settings.api.access` |
+| API 接入 | `/settings/account` | `settings.account.access`（登录态自助；业务 API 仍按目标 resource 授权） |
 | 设置 | `/settings` | 登录 |
 | 智能助手 | `/api/agent` | 登录，权限随用户 |
 | 外部关系 | `/external` | 登录 |

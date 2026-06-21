@@ -9,8 +9,6 @@ export const RES = {
     root: "settings",
     account: "settings.account",
     admin: "settings.admin",
-    governance: "settings.governance",
-    api: "settings.api",
   },
   agent: {
     root: "agent",
@@ -26,7 +24,6 @@ export const RES = {
     positions: "docs.positions",
     company: "docs.company",
     expense: "docs.expense",
-    api: "docs.api",
   },
   work: {
     root: "work",

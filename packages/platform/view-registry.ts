@@ -269,14 +269,6 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/docs/api-guide",
-    moduleKey: "docs",
-    label: "接入指南",
-    views: [
-      { key: "api-guide", label: "API 指南" },
-    ],
-  },
-  {
     route: "/library/basic-info",
     moduleKey: "library",
     label: "基本资料",

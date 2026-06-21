@@ -22,7 +22,7 @@ async function initLink() {
   let unmatched: string[] = [];
 
   for (const user of users) {
-    const emp = uniqueEmployees.get(user.name);
+    const emp = uniqueEmployees.get(user.nickname);
     if (emp) {
       await prisma.employee.update({
         where: { employeeId: emp.employeeId },
@@ -30,7 +30,7 @@ async function initLink() {
       });
       matched++;
     } else {
-      unmatched.push(user.name);
+      unmatched.push(user.nickname);
     }
   }
 

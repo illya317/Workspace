@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate } from "@workspace/platform/server/auth";
-import { canManageResourceGrant, setGrant } from "@workspace/platform/server/auth";
+import { requireAdminApiAccess, canManageResourceGrant, setGrant } from "@workspace/platform/server/auth";
 
 const userPermissionSchema = z.object({
   userId: z.coerce.number().int().positive(),
@@ -11,10 +10,9 @@ const userPermissionSchema = z.object({
 });
 
 export async function PUT(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   const parsedBody = userPermissionSchema.safeParse(await request.json());
   if (!parsedBody.success) {

@@ -158,7 +158,7 @@ export const UserScalarFieldEnum = {
   wxUserId: 'wxUserId',
   username: 'username',
   password: 'password',
-  name: 'name',
+  nickname: 'nickname',
   avatar: 'avatar',
   routineItems: 'routineItems',
   canLogin: 'canLogin',

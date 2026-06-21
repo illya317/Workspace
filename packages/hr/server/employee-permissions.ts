@@ -79,7 +79,7 @@ export async function getEmployeesWithPermissions(): Promise<EmployeePermission[
   const users = await prisma.user.findMany({
     select: {
       id: true,
-      name: true,
+      employeeId: true,
       username: true,
       canLogin: true,
       apiKey: true,
@@ -103,10 +103,12 @@ export async function getEmployeesWithPermissions(): Promise<EmployeePermission[
   const userByEmployeeId = new Map(
     users.filter((u) => employeeIdByUserId.has(u.id)).map((u) => [employeeIdByUserId.get(u.id)!, u])
   );
-  const userByName = new Map(users.map((u) => [u.name, u]));
+  for (const user of users) {
+    if (user.employeeId && !userByEmployeeId.has(user.employeeId)) userByEmployeeId.set(user.employeeId, user);
+  }
 
   return Array.from(mergedMap.values()).map((item) => {
-    const linkedUser = userByEmployeeId.get(item.employeeId) || userByName.get(item.name);
+    const linkedUser = userByEmployeeId.get(item.employeeId);
     const rrs = linkedUser?.resourceRoles ?? [];
     return {
       employeeId: item.employeeId,
@@ -152,7 +154,7 @@ export async function syncUserGrants(employeeId: string, name: string, grants?: 
     : null;
 
   if (!user) {
-    user = await prisma.user.findFirst({ where: { name } });
+    user = await prisma.user.findFirst({ where: { employeeId } });
     if (user) {
       await prisma.employee.update({
         where: { employeeId },

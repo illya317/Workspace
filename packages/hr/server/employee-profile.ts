@@ -28,7 +28,7 @@ export async function getEmployeeProfileByKey(key: string) {
 
   const employee = await prisma.employee.findUnique({
     where,
-    include: { user: { select: { id: true, name: true, username: true } } },
+    include: { user: { select: { id: true, nickname: true, username: true } } },
   });
   if (!employee) return { status: "not_found" as const };
   const employeeId = employee.id;
@@ -110,7 +110,7 @@ export async function getEmployeeProfileByKey(key: string) {
         idNumber: employee.idNumber,
         otherId: employee.otherId,
         userId: employee.userId,
-        userName: employee.user?.name ?? null,
+        userName: employee.user?.nickname ?? null,
         username: employee.user?.username ?? null,
       },
       summary: {

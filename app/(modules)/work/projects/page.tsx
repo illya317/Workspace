@@ -1,4 +1,4 @@
-import { requireResourceAccess } from "@workspace/platform/server/auth";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { getResourceDef } from "@workspace/platform/resources";
 import AppShell from "@workspace/platform/ui/AppShell";
 import { ProjectTab } from "@workspace/work/ui";
@@ -8,7 +8,7 @@ import type { WorkUser } from "@workspace/work/types";
 function toWorkUser(user: SessionUser): WorkUser {
   return {
     id: user.id,
-    name: user.name,
+    name: user.employeeName || user.nickname,
     visibleResourceKeys: user.visibleResourceKeys || [],
     visibleWriteResourceKeys: user.visibleWriteResourceKeys || [],
     isAdmin: user.isSuperAdmin ?? false,
@@ -17,7 +17,7 @@ function toWorkUser(user: SessionUser): WorkUser {
 }
 
 export default async function WorkProjectsPage() {
-  const user = await requireResourceAccess("work.projects");
+  const user = await requireRouteAccess("/work/projects");
   const title = getResourceDef("work.projects")?.name ?? "项目管理";
   return (
     <AppShell

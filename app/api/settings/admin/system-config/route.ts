@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate, isSuperAdmin } from "@workspace/platform/server/auth";
+import { requireAdminApiAccess, isSuperAdmin } from "@workspace/platform/server/auth";
 import {
   getSystemConfig,
   updateSystemConfig,
@@ -11,8 +11,9 @@ const systemConfigSchema = z.object({
 });
 
 export async function GET(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   if (!(await isSuperAdmin(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
@@ -20,8 +21,9 @@ export async function GET(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const payload = await authenticate(request);
-  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
   if (!(await isSuperAdmin(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 

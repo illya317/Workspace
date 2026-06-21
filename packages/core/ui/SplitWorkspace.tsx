@@ -65,6 +65,9 @@ export default function SplitWorkspace({
   children,
   splitRatio = [3, 7],
 }: SplitWorkspaceProps) {
+  const contentClassName = sideOpen
+    ? "min-w-0 max-lg:mx-auto max-lg:w-full max-lg:max-w-[680px] lg:max-w-none"
+    : "min-w-0";
   const [sideFr, contentFr] = splitRatio;
   const splitStyle = {
     "--split-side-fr": `${sideFr}fr`,
@@ -92,7 +95,7 @@ export default function SplitWorkspace({
         style={splitStyle}
       >
         {sideOpen && <div className="hidden min-w-0 lg:block">{renderSide("desktop")}</div>}
-        <div className="min-w-0">{children}</div>
+        <div className={contentClassName}>{children}</div>
       </div>
     </>
   );

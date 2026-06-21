@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { authenticate } from "@workspace/platform/server/auth";
+import { requireApiAccess } from "@workspace/platform/server/auth";
 import { changeUserPassword } from "@workspace/platform/server/account";
 
 const changePasswordSchema = z.object({
@@ -9,10 +9,9 @@ const changePasswordSchema = z.object({
 });
 
 export async function POST(request: Request) {
-  const user = await authenticate(request);
-  if (!user) {
-    return NextResponse.json({ error: "未登录" }, { status: 401 });
-  }
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const user = auth.user;
 
   const body = await request.json().catch(() => null);
   const parsed = changePasswordSchema.safeParse(body);

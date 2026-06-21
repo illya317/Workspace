@@ -12,8 +12,8 @@ GET: 31 | POST: 10 | PUT: 19 | DELETE: 12
 | **DELETE** | `/api/auth/dev-login` | 公开 | 退出登录 |
 | **POST** | `/api/auth/dev-login` | 公开 | 开发环境登录 |
 | **GET** | `/api/auth/me` | 登录 | 获取当前登录用户信息 |
-| **GET** | `/api/settings/api/api-key` | `settings.api.access` | 获取我的API Key |
-| **POST** | `/api/settings/api/api-key` | `settings.api.access` | 申请/重新申请API Key |
+| **GET** | `/api/settings/account/api-key` | 登录 | 获取我的API Key |
+| **POST** | `/api/settings/account/api-key` | 登录 | 申请/重新申请API Key |
 | **GET** | `/api/settings/account/routine` | 登录 | 获取用户日常模板 |
 | **PUT** | `/api/settings/account/routine` | 登录 | 更新用户日常模板 |
 
@@ -79,19 +79,16 @@ GET: 31 | POST: 10 | PUT: 19 | DELETE: 12
 | **DELETE** | `/api/modules/work/tasks/:id` | 登录 + 系统管理员 | 删除工作项 |
 | **PUT** | `/api/modules/work/tasks/:id` | 登录 + 系统管理员 | 更新工作项 |
 
-## Admin — 编码管理
+## HR — 编码管理
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| **DELETE** | `/api/settings/governance/company-codes` | 登录 + HR权限 | 删除公司编码 |
-| **GET** | `/api/settings/governance/company-codes` | 登录 + HR权限 | 公司编码列表 |
-| **PUT** | `/api/settings/governance/company-codes` | 登录 + HR权限 | 更新公司编码 |
-| **DELETE** | `/api/settings/governance/department-codes` | 登录 + HR权限 | 删除部门编码 |
-| **GET** | `/api/settings/governance/department-codes` | 登录 + HR权限 | 部门编码列表 |
-| **PUT** | `/api/settings/governance/department-codes` | 登录 + HR权限 | 更新部门编码 |
-| **DELETE** | `/api/settings/governance/position-codes` | 登录 + HR权限 | 删除岗位编码 |
-| **GET** | `/api/settings/governance/position-codes` | 登录 + HR权限 | 岗位编码列表 |
-| **PUT** | `/api/settings/governance/position-codes` | 登录 + HR权限 | 更新岗位编码 |
+| **DELETE** | `/api/modules/hr/roster/department-codes` | 登录 + HR权限 | 删除部门编码 |
+| **GET** | `/api/modules/hr/roster/department-codes` | 登录 + HR权限 | 部门编码列表 |
+| **PUT** | `/api/modules/hr/roster/department-codes` | 登录 + HR权限 | 更新部门编码 |
+| **DELETE** | `/api/modules/hr/roster/position-codes` | 登录 + HR权限 | 删除岗位编码 |
+| **GET** | `/api/modules/hr/roster/position-codes` | 登录 + HR权限 | 岗位编码列表 |
+| **PUT** | `/api/modules/hr/roster/position-codes` | 登录 + HR权限 | 更新岗位编码 |
 
 ## Admin — 部门管理
 
@@ -130,15 +127,3 @@ GET: 31 | POST: 10 | PUT: 19 | DELETE: 12
 | **GET** | `/api/settings/admin/users` | 登录 + 系统管理员 | 用户列表 |
 | **POST** | `/api/settings/admin/users/:id` | 登录 + 系统管理员 | 重置用户密码 |
 | **PUT** | `/api/settings/admin/users/:id` | 登录 + 系统管理员 | 更新用户信息 |
-
-## Admin — 编辑历史
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| **GET** | `/api/settings/governance/edit-history` | 登录 + HR权限 | 编辑历史查询 |
-
-## Admin — 其他
-
-| Method | Path | Auth | Description |
-|--------|------|------|-------------|
-| **GET** | `/api/settings/governance/company-relations` | 登录 + HR权限 |  |

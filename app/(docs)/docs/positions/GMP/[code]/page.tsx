@@ -1,4 +1,4 @@
-import { requireResourceAccess } from "@workspace/platform/server/auth";
+import { requireRouteAccess } from "@workspace/platform/server/auth";
 import { GmpPositionDetailPage as PlatformGmpPositionDetailPage } from "@workspace/platform/ui/docs";
 
 export default async function GmpPositionDetailPage({
@@ -7,6 +7,6 @@ export default async function GmpPositionDetailPage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  const user = await requireResourceAccess("docs.positions");
+  const user = await requireRouteAccess("/docs/positions");
   return <PlatformGmpPositionDetailPage code={code} user={user} />;
 }

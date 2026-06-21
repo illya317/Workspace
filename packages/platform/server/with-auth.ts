@@ -1,10 +1,6 @@
-import { NextResponse } from "next/server";
-
 import {
-  authenticate,
-  isKicked,
-} from "./auth/authenticate";
-import { disabledApiResponseForRequest } from "./module-runtime";
+  requireApiAccess,
+} from "./api-access";
 import {
   checkContractAccess,
   checkFinanceAccess,
@@ -60,28 +56,11 @@ export function withAuth(
   checkAccess?: AccessChecker,
 ): (req: Request, ctx?: RouteContext) => Promise<Response> {
   return async (req: Request, ctx?: RouteContext) => {
-    const disabledResponse = disabledApiResponseForRequest(req);
-    if (disabledResponse) return disabledResponse;
-
-    const payload = await authenticate(req);
-    if (!payload) {
-      if (await isKicked(req)) {
-        const response = NextResponse.json(
-          { error: "已在其他设备登录" },
-          { status: 401 },
-        );
-        response.cookies.set("kicked", "1", {
-          httpOnly: false,
-          secure: false,
-          path: "/",
-          maxAge: 60,
-        });
-        return response;
-      }
-      return NextResponse.json({ error: "未登录" }, { status: 401 });
-    }
+    const auth = await requireApiAccess(req);
+    if (!auth.ok) return auth.response;
+    const payload = auth.user;
     if (checkAccess && !(await checkAccess(payload.userId))) {
-      return NextResponse.json({ error: "无权限" }, { status: 403 });
+      return Response.json({ error: "无权限" }, { status: 403 });
     }
     return handler(req, payload, ctx);
   };

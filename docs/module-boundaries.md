@@ -56,7 +56,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/administration` 已接收合同台账的 module、UI、server、types，`app/(modules)/administration/contracts/page.tsx` 和 `app/api/modules/administration/contracts/*` 只保留 Next 壳。
 - `packages/library` 已接收资料库 module、UI、server、types，`app/(modules)/library/page.tsx` 和 `app/api/modules/library/basic-info/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。
 - 每个业务包的 `module.ts` 必须导出 `moduleDefinition`，同时保留领域兼容别名（例如 `financePackage`）。`moduleDefinition` 必须来自 `packages/platform/module-registry.ts` 的 `getRegisteredModuleDefinition("@workspace/<domain>")`；`npm run arch:gate` 会校验业务包导出、registry 注册和重复 module key。
-- `packages/platform/ui/docs` 已接收文档中心和接入指南 UI；`app/(docs)/docs/*` 只保留鉴权/参数/挂载壳。
+- `packages/platform/ui/docs` 已接收文档中心 UI；个人 API 接入和接口契约展示归 `packages/platform/ui/settings` 的 `/settings/account` 正文。
 - `app/lib/module-nav.tsx` 是兼容出口，现有页面暂时继续从这里导入。
 - `app/components/ConfirmModal.tsx`、`ConfirmProvider.tsx`、`DetailModal.tsx`、`FilterBar.tsx`、`FilterToolbar.tsx`、`Toast.tsx`、`SelectField.tsx`、`StatusBadge.tsx`、`StatusToggle.tsx`、`NumberCell.tsx`、`AmountCell.tsx`、`ColumnToggle.tsx`、`TabBar.tsx`、`DataTable.tsx`、`EditToolbar.tsx` 和 `app/hooks/useCSV.tsx`、`app/hooks/useToast.ts` 已降级为兼容 re-export。
 - `app/hooks/useCompanyOptions.ts` 已降级为 `@workspace/platform/hooks` 的兼容 re-export。
