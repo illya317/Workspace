@@ -115,12 +115,12 @@ legal               access  法务
 | 开关 | system.admin 行为 |
 |------|------------------|
 | ON（默认） | 对所有业务资源拥有 access/write/delete/admin |
-| OFF | 只保证进入 `/admin`；业务模块需单独授权 |
+| OFF | 只保证进入 `/settings/admin`；业务模块需单独授权 |
 
 ### 始终保留
 
 - `system.*` 资源不受开关影响（管理员始终能管理系统后台）。
-- `/admin`、权限矩阵、用户管理、系统配置始终可进入。
+- `/settings/admin`、权限矩阵、用户管理、系统配置始终可进入。
 - `system.admin` 不可被 `maxRoleKey` 降级。
 
 ## 权限判断流程

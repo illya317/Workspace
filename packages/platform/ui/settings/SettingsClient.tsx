@@ -115,7 +115,7 @@ export default function SettingsClient({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4" />
                 </svg>
               }
-              href="/admin"
+              href="/settings/admin"
             />
           )}
 

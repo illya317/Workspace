@@ -4,7 +4,7 @@
 
 | 页面 | 路由 | 组件 |
 |------|------|------|
-| 管理后台 | `/admin` | `app/admin/page.tsx` → `AdminClient.tsx` |
+| 管理后台 | `/settings/admin` | `app/(system)/settings/admin/page.tsx` → `AdminClient.tsx` |
 
 ## 页面结构
 

@@ -1,4 +1,5 @@
 import { checkAuth } from "./auth";
+import { checkAppRouteHierarchy } from "./app-route-hierarchy";
 import { checkDeps } from "./deps";
 import { checkLevel2Ratchet } from "./level2-enforce";
 import { checkModules } from "./modules";
@@ -11,6 +12,7 @@ export async function archGate() {
     ["scan", scan],
     ["deps", checkDeps],
     ["modules", checkModules],
+    ["app-route-hierarchy", checkAppRouteHierarchy],
     ["level2-ratchet", checkLevel2Ratchet],
     ["auth", checkAuth],
   ];

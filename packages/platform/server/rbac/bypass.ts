@@ -1,7 +1,7 @@
 /**
  * system.admin 业务模块 bypass 开关。
  * ON (默认): system.admin 可 bypass 所有业务权限（兼容旧行为）
- * OFF: system.admin 只保证能进入 /admin，业务页面需单独授权
+ * OFF: system.admin 只保证能进入 /settings/admin，业务页面需单独授权
  */
 import { prisma } from "@workspace/platform/server/prisma";
 

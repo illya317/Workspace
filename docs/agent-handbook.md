@@ -190,7 +190,7 @@ rm data/dev.db && npx prisma db push
 | 历史记录 | `/work/history` | 登录 |
 | 工作清单 | `/work/tasks` | 登录 |
 | 人事行政 | `/hr` | `people.access` |
-| 管理后台 | `/admin` | `system.admin` 或 `people.access` |
+| 管理后台 | `/settings/admin` | `system.admin` 或 `people.access` |
 | 接入指南 | `/docs/api-guide` | `system.api.access` |
 | 设置 | `/settings` | 登录 |
 | 智能助手 | `/api/system/agent` | 登录，权限随用户 |

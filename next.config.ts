@@ -25,15 +25,6 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: workspaceRoot,
   },
-  async redirects() {
-    return [
-      {
-        source: "/@workspace/hr/:path*",
-        destination: "/hr/:path*",
-        permanent: false,
-      },
-    ];
-  },
 };
 
 export default nextConfig;

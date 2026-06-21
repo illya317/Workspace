@@ -62,19 +62,19 @@ const hasFinance = financeKeys.some(ma);
 
 | 页面 | 当前权限 | 新权限 |
 |------|---------|--------|
-| `/reports` | `canAccessWorks` | `requireResourceAccess("work.report")` 或保留仅登录 |
-| `/works` | `canAccessWorks` | `requireResourceAccess("work.task")` 或保留仅登录 |
-| `/admin` | `canAccessAdmin` | `requireResourceAccess("system")` 或保留仅登录 |
-| `/contracts` | `canAccessContract` | `requireResourceAccess("administration.contract")` |
+| `/work/reports` | `canAccessWorks` | `requireResourceAccess("work.report")` |
+| `/work/tasks` | `canAccessWorks` | `requireResourceAccess("work.task")` |
+| `/settings/admin` | `canAccessAdmin` | `requireResourceAccess("system")` 或保留仅登录 |
+| `/administration/contracts` | `canAccessContract` | `requireResourceAccess("administration.contract")` |
 | `/docs` | `canAccessDocs` | `requireResourceAccess("docs")` |
-| `/inventory` | `canAccessInventory` | `requireResourceAccess("production.inventory")` |
+| 生产库存页面 | `canAccessInventory` | 当前无独立页面入口 |
 | `/production` | `canAccessInventory` | `requireResourceAccess("production")` |
 | `/finance` | `canAccessFinance` | `requireResourceAccess("finance")` |
 | `/administration` | `canAccessContract` | `requireResourceAccess("administration")` |
 | `/external` | `canAccessExternal` | `requireResourceAccess("external")` |
 | `/hr` | 手动 `visibleResourceKeys` OR 链 | `requireResourceAccess("people")` |
 
-**注意**：`/settings`、`/portal`、`/history` 保持仅登录可见，无需 resourceKey。
+**注意**：`/settings`、`/portal` 保持仅登录可见，无需 resourceKey。
 
 **模式**：每个 page.tsx 的修改是同一模式：
 ```tsx
@@ -136,7 +136,7 @@ export default async function Page() {
 - `app/hr/analytics/HRAnalyticsClient.tsx`：同上，已正确
 - `packages/platform/ui/settings/SettingsClient.tsx`：`canAccessApi`、`canAccessAdmin` → 改为检查 `visibleResourceKeys`
 - `app/docs/DocsClient.tsx`：`canAccessApi` → 改为检查 `visibleResourceKeys`
-- `app/admin/page.tsx`：`canAccessAdmin` → Phase 1 已改
+- `app/(system)/settings/admin/page.tsx`：`canAccessAdmin` → Phase 1 已改
 - `app/finance/lib/nav-utils.ts`：`canAccessFinanceCost/Ledger/Report/Budget/Analysis/Import` → 改为 `visibleResourceKeys.includes("finance.cost")` 等
 - `server/services/agent/tools/finance.ts`：`canAccessFinanceBudget` → 改为 `visibleResourceKeys.includes("finance.budget")`
 - `app/api/modules/library/[...path]/route.ts`：`canAccessLibrary` → 改为 `visibleResourceKeys.includes("library")`
@@ -200,13 +200,12 @@ NODE_OPTIONS="--max-old-space-size=8192" npm run build
 | `app/finance/page.tsx` | `canAccessFinance` → `requireResourceAccess("finance")` |
 | `app/external/page.tsx` | `canAccessExternal` → `requireResourceAccess("external")` |
 | `app/production/page.tsx` | `canAccessInventory` → `requireResourceAccess("production")` |
-| `app/inventory/page.tsx` | `canAccessInventory` → `requireResourceAccess("production.inventory")` |
-| `app/administration/page.tsx` | `canAccessContract` → `requireResourceAccess("administration")` |
-| `app/contracts/page.tsx` | `canAccessContract` → `requireResourceAccess("administration.contract")` |
+| `app/(modules)/administration/page.tsx` | `canAccessContract` → `requireResourceAccess("administration")` |
+| `app/(modules)/administration/contracts/page.tsx` | `canAccessContract` → `requireResourceAccess("administration.contract")` |
 | `app/docs/page.tsx` | `canAccessDocs` → `requireResourceAccess("docs")` |
-| `app/reports/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.report")` 或仅登录 |
-| `app/works/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.task")` 或仅登录 |
-| `app/admin/page.tsx` | `canAccessAdmin` → `requireResourceAccess("system")` 或仅登录 |
+| `app/(modules)/work/reports/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.report")` |
+| `app/(modules)/work/tasks/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.task")` |
+| `app/(system)/settings/admin/page.tsx` | `canAccessAdmin` → `requireResourceAccess("system")` 或仅登录 |
 | `app/hr/page.tsx` | `visibleResourceKeys` OR 链 → `requireResourceAccess("people")` |
 | `packages/platform/ui/settings/SettingsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("system.api")` |
 | `app/docs/DocsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("system.api")` |
@@ -218,5 +217,5 @@ NODE_OPTIONS="--max-old-space-size=8192" npm run build
 ## 依赖与风险
 
 - **TypeScript 类型删除是破坏性变更**：所有引用 `canAccess*` 的类型都需要同步改。改动量大，但模式统一，适合派 agent 并行处理。
-- **/reports 和 /works 的权限**：这两个页面比较特殊（`work.report` 和 `work.task` 在工作汇报体系里是独立的）。如果不应该受 resourceKey 控制，保持仅登录可见也可以。
-- **/admin 的权限**：当前用 `canAccessAdmin`（含 `isAdmin || canManagePermissions`）。如果改为 `requireResourceAccess("system")`，需要确认后台权限矩阵中 `system` 资源是否被正确授予。
+- **Work 子页面权限**：`work.report` 和 `work.task` 在工作管理体系里是独立资源，必须分别使用对应 resourceKey。
+- **/settings/admin 的权限**：当前用 `canAccessAdmin`（含 `isAdmin || canManagePermissions`）。如果改为 `requireResourceAccess("system")`，需要确认后台权限矩阵中 `system` 资源是否被正确授予。

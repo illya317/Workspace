@@ -28,7 +28,7 @@ export async function requireResourceAccess(resourceKey: string): Promise<Sessio
 
 /**
  * Require the user to manage at least one resource.
- * Resource admins can enter /admin without broad system access.
+ * Resource admins can enter /settings/admin without broad system access.
  */
 export async function requireAdminManageAccess(): Promise<SessionUser> {
   const user = await getCurrentUser();
