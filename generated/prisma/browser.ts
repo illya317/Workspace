@@ -208,6 +208,16 @@ export type FinanceStatementReview = Prisma.FinanceStatementReviewModel
  */
 export type FinanceStatementReviewLine = Prisma.FinanceStatementReviewLineModel
 /**
+ * Model DepartmentDescription
+ * 部门职责说明书（原始 JSON 导入，details 为 JSON blob）
+ */
+export type DepartmentDescription = Prisma.DepartmentDescriptionModel
+/**
+ * Model PositionDescription
+ * 岗位说明书（原始 JSON 导入，details 为 JSON blob）
+ */
+export type PositionDescription = Prisma.PositionDescriptionModel
+/**
  * Model Employee
  * 员工基础信息
  */
@@ -233,11 +243,6 @@ export type CompanyRelation = Prisma.CompanyRelationModel
  */
 export type Department = Prisma.DepartmentModel
 /**
- * Model DepartmentDescription
- * 部门职责说明书（原始 JSON 导入，details 为 JSON blob）
- */
-export type DepartmentDescription = Prisma.DepartmentDescriptionModel
-/**
  * Model Position
  * 岗位定义
  */
@@ -247,21 +252,6 @@ export type Position = Prisma.PositionModel
  * 员工-部门-岗位关联（EmployeePosition 别名）
  */
 export type EDP = Prisma.EDPModel
-/**
- * Model Project
- * 项目/虚拟团队
- */
-export type Project = Prisma.ProjectModel
-/**
- * Model EmployeeProject
- * 员工-项目关联
- */
-export type EmployeeProject = Prisma.EmployeeProjectModel
-/**
- * Model PositionDescription
- * 岗位说明书（原始 JSON 导入，details 为 JSON blob）
- */
-export type PositionDescription = Prisma.PositionDescriptionModel
 /**
  * Model EditHistory
  * 实体编辑历史（版本快照）
@@ -365,6 +355,16 @@ export type SystemConfig = Prisma.SystemConfigModel
  * 登录尝试审计日志
  */
 export type LoginAttempt = Prisma.LoginAttemptModel
+/**
+ * Model Project
+ * 项目/虚拟团队
+ */
+export type Project = Prisma.ProjectModel
+/**
+ * Model EmployeeProject
+ * 员工-项目关联
+ */
+export type EmployeeProject = Prisma.EmployeeProjectModel
 /**
  * Model WorkItem
  * 工作清单条目

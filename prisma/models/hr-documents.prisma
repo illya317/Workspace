@@ -1,0 +1,39 @@
+/// 部门职责说明书（原始 JSON 导入，details 为 JSON blob）
+model DepartmentDescription {
+  id           Int        @id @default(autoincrement())
+  departmentId Int
+  code         String
+  name         String
+  sourceFile   String
+  codeRaw      String?
+  details      String?
+  editedBy     Int?
+  editedAt     DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @default(now()) @updatedAt
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@index([departmentId])
+  @@index([code])
+}
+
+/// 岗位说明书（原始 JSON 导入，details 为 JSON blob）
+model PositionDescription {
+  id              Int        @id @default(autoincrement())
+  code            String     @unique
+  name            String
+  departmentName  String?
+  reportTo        String?
+  positionPurpose String?
+  summary         String?
+  headcount       Int?
+  version         String?
+  effectiveDate   String?
+  sourceFile      String
+  details         String?
+  editedBy        Int?
+  editedAt        DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @default(now()) @updatedAt
+  positions       Position[]
+}

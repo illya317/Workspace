@@ -438,16 +438,6 @@ export type DepartmentDescriptionUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type DepartmentDescriptionListRelationFilter = {
-  every?: Prisma.DepartmentDescriptionWhereInput
-  some?: Prisma.DepartmentDescriptionWhereInput
-  none?: Prisma.DepartmentDescriptionWhereInput
-}
-
-export type DepartmentDescriptionOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
 export type DepartmentDescriptionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
@@ -500,6 +490,16 @@ export type DepartmentDescriptionSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   departmentId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
+}
+
+export type DepartmentDescriptionListRelationFilter = {
+  every?: Prisma.DepartmentDescriptionWhereInput
+  some?: Prisma.DepartmentDescriptionWhereInput
+  none?: Prisma.DepartmentDescriptionWhereInput
+}
+
+export type DepartmentDescriptionOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type DepartmentDescriptionCreateNestedManyWithoutDepartmentInput = {

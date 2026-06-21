@@ -3,12 +3,12 @@ const path = require("path");
 const { execSync } = require("child_process");
 
 let exitCode = 0;
+const MODEL_FILE_MAX_NON_EMPTY_LINES = 260;
+const FINANCE_COST_ARCHITECTURE_PATH = "app/(modules)/finance/cost/ARCHITECTURE.md";
+
 function fail(msg) {
   console.error("✗ " + msg);
   exitCode = 1;
-}
-function warn(msg) {
-  console.warn("⚠ " + msg);
 }
 function ok(msg) {
   console.log("✓ " + msg);
@@ -33,10 +33,8 @@ for (const file of modelFiles) {
 
   // 规则 3: 行数检查
   const nonEmptyLines = lines.filter((l) => l.trim() !== "").length;
-  if (nonEmptyLines > 350) {
-    fail(`${file} 超过 350 行（实际 ${nonEmptyLines} 行）`);
-  } else if (nonEmptyLines > 260) {
-    warn(`${file} 超过 260 行（实际 ${nonEmptyLines} 行），建议拆分`);
+  if (nonEmptyLines > MODEL_FILE_MAX_NON_EMPTY_LINES) {
+    fail(`${file} 超过 ${MODEL_FILE_MAX_NON_EMPTY_LINES} 行（实际 ${nonEmptyLines} 行），必须拆分`);
   }
 
   // 规则 2: 每个 model 前一行非空内容必须是 ///
@@ -116,12 +114,12 @@ try {
 if (stagedFiles.length > 0) {
   const hasFinanceCostModel = stagedFiles.some((f) => f === "prisma/models/finance-cost.prisma");
   if (hasFinanceCostModel) {
-    const hasFinanceCostArch = stagedFiles.some((f) => f === "app/finance/cost/ARCHITECTURE.md");
+    const hasFinanceCostArch = stagedFiles.some((f) => f === FINANCE_COST_ARCHITECTURE_PATH);
     const archTracked =
       !hasFinanceCostArch &&
       (() => {
         try {
-          execSync("git ls-files --error-unmatch app/finance/cost/ARCHITECTURE.md", {
+          execSync(`git ls-files --error-unmatch "${FINANCE_COST_ARCHITECTURE_PATH}"`, {
             encoding: "utf-8",
             cwd: path.join(__dirname, "..", ".."),
             stdio: "pipe",
@@ -132,7 +130,7 @@ if (stagedFiles.length > 0) {
         }
       })();
     if (!hasFinanceCostArch && !archTracked) {
-      fail("修改 prisma/models/finance-cost.prisma 时，必须同时提交 app/finance/cost/ARCHITECTURE.md");
+      fail(`修改 prisma/models/finance-cost.prisma 时，必须同时提交 ${FINANCE_COST_ARCHITECTURE_PATH}`);
     }
   }
 

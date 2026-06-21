@@ -14,7 +14,9 @@
 | `system.prisma` | 系统 | SystemConfig, LoginAttempt |
 | `reports.prisma` | 工作汇报 | Report, ReportItem, ReportHistory |
 | `works.prisma` | 工作清单 | WorkItem, WorkParticipant |
-| `hr.prisma` | 人事行政 | Employee, Employment, Company, CompanyRelation, Department, Position, EDP, Project, EmployeeProject, PositionDescription, EditHistory |
+| `hr.prisma` | 人事行政 | Employee, Employment, Company, CompanyRelation, Department, Position, EDP, EditHistory |
+| `hr-documents.prisma` | 人事说明书 | DepartmentDescription, PositionDescription |
+| `work-projects.prisma` | 工作项目 | Project, EmployeeProject |
 | `finance-ledger.prisma` | 财务总账 | FinanceAccount, FinancePeriod, FinanceVoucher, FinanceVoucherItem, FinanceLedgerImport, FinanceAccountBalance, FinanceBalanceSnapshot, FinanceBalanceSnapshotRow |
 | `finance-reclass.prisma` | 重分类 | FinanceReclassRule, FinanceReclassItemRule, FinanceBalanceReclassAdjustment, ReclassResult |
 | `finance-statement.prisma` | 报表底稿与校对 | FinanceStatementAccountMapping, FinanceStatementLineConfig, FinanceStatementWorkpaper, FinanceStatementWorkpaperLine, FinanceStatementReview, FinanceStatementReviewLine |
@@ -39,19 +41,25 @@ model Employee {
 }
 ```
 
-## 3. 事实字段原则
+## 3. Model 文件行数红线
+
+- 每个 `prisma/models/*.prisma` 文件最多 260 行非空内容。
+- 超过 260 行会导致 `npm run schema:check` 失败，必须按更细领域继续拆分。
+- `prisma/schema.prisma` 只保留 `generator` 和 `datasource`，不得通过把 model 写回主文件绕过行数红线。
+
+## 4. 事实字段原则
 
 - **DB 只存事实字段**：原始输入、状态、时间、金额、数量等不可再拆的基础数据。
 - **Service 层计算结果**：合计、百分比、毛利、单位成本、未回款、排名等派生结果禁止存入 DB。
 - **UI 展示结果**：前端展示的计算值应从 API/service 获取，不直接读取派生字段。
 
-## 4. Finance Cost 特殊规则
+## 5. Finance Cost 特殊规则
 
 - 所有成本模型必须包含 `sourceFile` / `sourceSheet` / `sourceRow` 追溯字段（或明确说明例外）。
 - 禁止把 normalized JSON 原样映射成 DB schema。
 - 禁止出现以下派生字段名：`total`, `subtotal`, `ratio`, `rate`, `percent`, `percentage`, `share`, `unitCost`, `grossProfit`, `margin`, `unreceivedAmount`, `remainingAmount`。
 
-## 5. 修改流程
+## 6. 修改流程
 
 修改 schema 时：
 1. 同步更新对应 `ARCHITECTURE.md`：

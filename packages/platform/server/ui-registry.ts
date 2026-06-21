@@ -72,9 +72,9 @@ export function getCoreUiRegistryUsageRows(): CoreUiRegistryUsageRow[] {
   const usageByName = new Map<string, string[]>(
     coreUiComponentRegistry.map((component) => [component.name, []]),
   );
-  const rootDir = process.cwd();
+  const rootDir = path.resolve(/*turbopackIgnore: true*/ process.cwd());
   const sourceFiles = SCAN_ROOTS.flatMap((root) =>
-    listSourceFiles(path.join(rootDir, root)),
+    listSourceFiles(path.join(/*turbopackIgnore: true*/ rootDir, root)),
   );
 
   for (const filePath of sourceFiles) {

@@ -86,17 +86,15 @@ export const ModelName = {
   FinanceStatementWorkpaperLine: 'FinanceStatementWorkpaperLine',
   FinanceStatementReview: 'FinanceStatementReview',
   FinanceStatementReviewLine: 'FinanceStatementReviewLine',
+  DepartmentDescription: 'DepartmentDescription',
+  PositionDescription: 'PositionDescription',
   Employee: 'Employee',
   Employment: 'Employment',
   Company: 'Company',
   CompanyRelation: 'CompanyRelation',
   Department: 'Department',
-  DepartmentDescription: 'DepartmentDescription',
   Position: 'Position',
   EDP: 'EDP',
-  Project: 'Project',
-  EmployeeProject: 'EmployeeProject',
-  PositionDescription: 'PositionDescription',
   EditHistory: 'EditHistory',
   StockRawMaterial: 'StockRawMaterial',
   StockPackaging: 'StockPackaging',
@@ -117,6 +115,8 @@ export const ModelName = {
   ReportHistory: 'ReportHistory',
   SystemConfig: 'SystemConfig',
   LoginAttempt: 'LoginAttempt',
+  Project: 'Project',
+  EmployeeProject: 'EmployeeProject',
   WorkItem: 'WorkItem',
   WorkParticipant: 'WorkParticipant',
   DepartmentWorkAssignee: 'DepartmentWorkAssignee',
@@ -827,6 +827,45 @@ export const FinanceStatementReviewLineScalarFieldEnum = {
 export type FinanceStatementReviewLineScalarFieldEnum = (typeof FinanceStatementReviewLineScalarFieldEnum)[keyof typeof FinanceStatementReviewLineScalarFieldEnum]
 
 
+export const DepartmentDescriptionScalarFieldEnum = {
+  id: 'id',
+  departmentId: 'departmentId',
+  code: 'code',
+  name: 'name',
+  sourceFile: 'sourceFile',
+  codeRaw: 'codeRaw',
+  details: 'details',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DepartmentDescriptionScalarFieldEnum = (typeof DepartmentDescriptionScalarFieldEnum)[keyof typeof DepartmentDescriptionScalarFieldEnum]
+
+
+export const PositionDescriptionScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  departmentName: 'departmentName',
+  reportTo: 'reportTo',
+  positionPurpose: 'positionPurpose',
+  summary: 'summary',
+  headcount: 'headcount',
+  version: 'version',
+  effectiveDate: 'effectiveDate',
+  sourceFile: 'sourceFile',
+  details: 'details',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PositionDescriptionScalarFieldEnum = (typeof PositionDescriptionScalarFieldEnum)[keyof typeof PositionDescriptionScalarFieldEnum]
+
+
 export const EmployeeScalarFieldEnum = {
   id: 'id',
   employeeId: 'employeeId',
@@ -936,23 +975,6 @@ export const DepartmentScalarFieldEnum = {
 export type DepartmentScalarFieldEnum = (typeof DepartmentScalarFieldEnum)[keyof typeof DepartmentScalarFieldEnum]
 
 
-export const DepartmentDescriptionScalarFieldEnum = {
-  id: 'id',
-  departmentId: 'departmentId',
-  code: 'code',
-  name: 'name',
-  sourceFile: 'sourceFile',
-  codeRaw: 'codeRaw',
-  details: 'details',
-  editedBy: 'editedBy',
-  editedAt: 'editedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type DepartmentDescriptionScalarFieldEnum = (typeof DepartmentDescriptionScalarFieldEnum)[keyof typeof DepartmentDescriptionScalarFieldEnum]
-
-
 export const PositionScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -987,77 +1009,6 @@ export const EDPScalarFieldEnum = {
 } as const
 
 export type EDPScalarFieldEnum = (typeof EDPScalarFieldEnum)[keyof typeof EDPScalarFieldEnum]
-
-
-export const ProjectScalarFieldEnum = {
-  id: 'id',
-  code: 'code',
-  name: 'name',
-  type: 'type',
-  description: 'description',
-  status: 'status',
-  priority: 'priority',
-  stage: 'stage',
-  plan: 'plan',
-  goal: 'goal',
-  milestones: 'milestones',
-  budgetAmount: 'budgetAmount',
-  budgetNote: 'budgetNote',
-  riskNote: 'riskNote',
-  remark: 'remark',
-  startDate: 'startDate',
-  endDate: 'endDate',
-  parentId: 'parentId',
-  leadingDepartmentId: 'leadingDepartmentId',
-  isArchived: 'isArchived',
-  archivedAt: 'archivedAt',
-  editedBy: 'editedBy',
-  editedAt: 'editedAt',
-  version: 'version',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
-
-
-export const EmployeeProjectScalarFieldEnum = {
-  id: 'id',
-  employeeId: 'employeeId',
-  projectId: 'projectId',
-  role: 'role',
-  startDate: 'startDate',
-  endDate: 'endDate',
-  editedBy: 'editedBy',
-  editedAt: 'editedAt',
-  version: 'version',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type EmployeeProjectScalarFieldEnum = (typeof EmployeeProjectScalarFieldEnum)[keyof typeof EmployeeProjectScalarFieldEnum]
-
-
-export const PositionDescriptionScalarFieldEnum = {
-  id: 'id',
-  code: 'code',
-  name: 'name',
-  departmentName: 'departmentName',
-  reportTo: 'reportTo',
-  positionPurpose: 'positionPurpose',
-  summary: 'summary',
-  headcount: 'headcount',
-  version: 'version',
-  effectiveDate: 'effectiveDate',
-  sourceFile: 'sourceFile',
-  details: 'details',
-  editedBy: 'editedBy',
-  editedAt: 'editedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type PositionDescriptionScalarFieldEnum = (typeof PositionDescriptionScalarFieldEnum)[keyof typeof PositionDescriptionScalarFieldEnum]
 
 
 export const EditHistoryScalarFieldEnum = {
@@ -1385,6 +1336,55 @@ export const LoginAttemptScalarFieldEnum = {
 } as const
 
 export type LoginAttemptScalarFieldEnum = (typeof LoginAttemptScalarFieldEnum)[keyof typeof LoginAttemptScalarFieldEnum]
+
+
+export const ProjectScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  name: 'name',
+  type: 'type',
+  description: 'description',
+  status: 'status',
+  priority: 'priority',
+  stage: 'stage',
+  plan: 'plan',
+  goal: 'goal',
+  milestones: 'milestones',
+  budgetAmount: 'budgetAmount',
+  budgetNote: 'budgetNote',
+  riskNote: 'riskNote',
+  remark: 'remark',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  parentId: 'parentId',
+  leadingDepartmentId: 'leadingDepartmentId',
+  isArchived: 'isArchived',
+  archivedAt: 'archivedAt',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProjectScalarFieldEnum = (typeof ProjectScalarFieldEnum)[keyof typeof ProjectScalarFieldEnum]
+
+
+export const EmployeeProjectScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  projectId: 'projectId',
+  role: 'role',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeeProjectScalarFieldEnum = (typeof EmployeeProjectScalarFieldEnum)[keyof typeof EmployeeProjectScalarFieldEnum]
 
 
 export const WorkItemScalarFieldEnum = {

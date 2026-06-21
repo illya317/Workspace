@@ -538,11 +538,6 @@ export type PositionDescriptionUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type PositionDescriptionNullableScalarRelationFilter = {
-  is?: Prisma.PositionDescriptionWhereInput | null
-  isNot?: Prisma.PositionDescriptionWhereInput | null
-}
-
 export type PositionDescriptionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   code?: Prisma.SortOrder
@@ -610,6 +605,11 @@ export type PositionDescriptionSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   headcount?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
+}
+
+export type PositionDescriptionNullableScalarRelationFilter = {
+  is?: Prisma.PositionDescriptionWhereInput | null
+  isNot?: Prisma.PositionDescriptionWhereInput | null
 }
 
 export type PositionDescriptionCreateNestedOneWithoutPositionsInput = {

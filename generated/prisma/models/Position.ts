@@ -599,6 +599,48 @@ export type PositionUpdateOneWithoutFinanceWorkshopReportsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PositionUpdateToOneWithWhereWithoutFinanceWorkshopReportsInput, Prisma.PositionUpdateWithoutFinanceWorkshopReportsInput>, Prisma.PositionUncheckedUpdateWithoutFinanceWorkshopReportsInput>
 }
 
+export type PositionCreateNestedManyWithoutPositionDescriptionInput = {
+  create?: Prisma.XOR<Prisma.PositionCreateWithoutPositionDescriptionInput, Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput> | Prisma.PositionCreateWithoutPositionDescriptionInput[] | Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput[]
+  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput | Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput[]
+  createMany?: Prisma.PositionCreateManyPositionDescriptionInputEnvelope
+  connect?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
+}
+
+export type PositionUncheckedCreateNestedManyWithoutPositionDescriptionInput = {
+  create?: Prisma.XOR<Prisma.PositionCreateWithoutPositionDescriptionInput, Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput> | Prisma.PositionCreateWithoutPositionDescriptionInput[] | Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput[]
+  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput | Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput[]
+  createMany?: Prisma.PositionCreateManyPositionDescriptionInputEnvelope
+  connect?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
+}
+
+export type PositionUpdateManyWithoutPositionDescriptionNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionCreateWithoutPositionDescriptionInput, Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput> | Prisma.PositionCreateWithoutPositionDescriptionInput[] | Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput[]
+  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput | Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput[]
+  upsert?: Prisma.PositionUpsertWithWhereUniqueWithoutPositionDescriptionInput | Prisma.PositionUpsertWithWhereUniqueWithoutPositionDescriptionInput[]
+  createMany?: Prisma.PositionCreateManyPositionDescriptionInputEnvelope
+  set?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
+  disconnect?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
+  delete?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
+  connect?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
+  update?: Prisma.PositionUpdateWithWhereUniqueWithoutPositionDescriptionInput | Prisma.PositionUpdateWithWhereUniqueWithoutPositionDescriptionInput[]
+  updateMany?: Prisma.PositionUpdateManyWithWhereWithoutPositionDescriptionInput | Prisma.PositionUpdateManyWithWhereWithoutPositionDescriptionInput[]
+  deleteMany?: Prisma.PositionScalarWhereInput | Prisma.PositionScalarWhereInput[]
+}
+
+export type PositionUncheckedUpdateManyWithoutPositionDescriptionNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionCreateWithoutPositionDescriptionInput, Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput> | Prisma.PositionCreateWithoutPositionDescriptionInput[] | Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput[]
+  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput | Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput[]
+  upsert?: Prisma.PositionUpsertWithWhereUniqueWithoutPositionDescriptionInput | Prisma.PositionUpsertWithWhereUniqueWithoutPositionDescriptionInput[]
+  createMany?: Prisma.PositionCreateManyPositionDescriptionInputEnvelope
+  set?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
+  disconnect?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
+  delete?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
+  connect?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
+  update?: Prisma.PositionUpdateWithWhereUniqueWithoutPositionDescriptionInput | Prisma.PositionUpdateWithWhereUniqueWithoutPositionDescriptionInput[]
+  updateMany?: Prisma.PositionUpdateManyWithWhereWithoutPositionDescriptionInput | Prisma.PositionUpdateManyWithWhereWithoutPositionDescriptionInput[]
+  deleteMany?: Prisma.PositionScalarWhereInput | Prisma.PositionScalarWhereInput[]
+}
+
 export type PositionCreateNestedManyWithoutDepartmentInput = {
   create?: Prisma.XOR<Prisma.PositionCreateWithoutDepartmentInput, Prisma.PositionUncheckedCreateWithoutDepartmentInput> | Prisma.PositionCreateWithoutDepartmentInput[] | Prisma.PositionUncheckedCreateWithoutDepartmentInput[]
   connectOrCreate?: Prisma.PositionCreateOrConnectWithoutDepartmentInput | Prisma.PositionCreateOrConnectWithoutDepartmentInput[]
@@ -655,48 +697,6 @@ export type PositionUpdateOneWithoutEdpsNestedInput = {
   delete?: Prisma.PositionWhereInput | boolean
   connect?: Prisma.PositionWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.PositionUpdateToOneWithWhereWithoutEdpsInput, Prisma.PositionUpdateWithoutEdpsInput>, Prisma.PositionUncheckedUpdateWithoutEdpsInput>
-}
-
-export type PositionCreateNestedManyWithoutPositionDescriptionInput = {
-  create?: Prisma.XOR<Prisma.PositionCreateWithoutPositionDescriptionInput, Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput> | Prisma.PositionCreateWithoutPositionDescriptionInput[] | Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput[]
-  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput | Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput[]
-  createMany?: Prisma.PositionCreateManyPositionDescriptionInputEnvelope
-  connect?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
-}
-
-export type PositionUncheckedCreateNestedManyWithoutPositionDescriptionInput = {
-  create?: Prisma.XOR<Prisma.PositionCreateWithoutPositionDescriptionInput, Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput> | Prisma.PositionCreateWithoutPositionDescriptionInput[] | Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput[]
-  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput | Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput[]
-  createMany?: Prisma.PositionCreateManyPositionDescriptionInputEnvelope
-  connect?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
-}
-
-export type PositionUpdateManyWithoutPositionDescriptionNestedInput = {
-  create?: Prisma.XOR<Prisma.PositionCreateWithoutPositionDescriptionInput, Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput> | Prisma.PositionCreateWithoutPositionDescriptionInput[] | Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput[]
-  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput | Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput[]
-  upsert?: Prisma.PositionUpsertWithWhereUniqueWithoutPositionDescriptionInput | Prisma.PositionUpsertWithWhereUniqueWithoutPositionDescriptionInput[]
-  createMany?: Prisma.PositionCreateManyPositionDescriptionInputEnvelope
-  set?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
-  disconnect?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
-  delete?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
-  connect?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
-  update?: Prisma.PositionUpdateWithWhereUniqueWithoutPositionDescriptionInput | Prisma.PositionUpdateWithWhereUniqueWithoutPositionDescriptionInput[]
-  updateMany?: Prisma.PositionUpdateManyWithWhereWithoutPositionDescriptionInput | Prisma.PositionUpdateManyWithWhereWithoutPositionDescriptionInput[]
-  deleteMany?: Prisma.PositionScalarWhereInput | Prisma.PositionScalarWhereInput[]
-}
-
-export type PositionUncheckedUpdateManyWithoutPositionDescriptionNestedInput = {
-  create?: Prisma.XOR<Prisma.PositionCreateWithoutPositionDescriptionInput, Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput> | Prisma.PositionCreateWithoutPositionDescriptionInput[] | Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput[]
-  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput | Prisma.PositionCreateOrConnectWithoutPositionDescriptionInput[]
-  upsert?: Prisma.PositionUpsertWithWhereUniqueWithoutPositionDescriptionInput | Prisma.PositionUpsertWithWhereUniqueWithoutPositionDescriptionInput[]
-  createMany?: Prisma.PositionCreateManyPositionDescriptionInputEnvelope
-  set?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
-  disconnect?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
-  delete?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
-  connect?: Prisma.PositionWhereUniqueInput | Prisma.PositionWhereUniqueInput[]
-  update?: Prisma.PositionUpdateWithWhereUniqueWithoutPositionDescriptionInput | Prisma.PositionUpdateWithWhereUniqueWithoutPositionDescriptionInput[]
-  updateMany?: Prisma.PositionUpdateManyWithWhereWithoutPositionDescriptionInput | Prisma.PositionUpdateManyWithWhereWithoutPositionDescriptionInput[]
-  deleteMany?: Prisma.PositionScalarWhereInput | Prisma.PositionScalarWhereInput[]
 }
 
 export type PositionCreateWithoutResourceRolesInput = {
@@ -863,6 +863,82 @@ export type PositionUncheckedUpdateWithoutFinanceWorkshopReportsInput = {
   resourceRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutPositionNestedInput
 }
 
+export type PositionCreateWithoutPositionDescriptionInput = {
+  code: string
+  alias?: string | null
+  name: string
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  edps?: Prisma.EDPCreateNestedManyWithoutPositionInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutPositionInput
+  department?: Prisma.DepartmentCreateNestedOneWithoutPositionsInput
+  resourceRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutPositionInput
+}
+
+export type PositionUncheckedCreateWithoutPositionDescriptionInput = {
+  id?: number
+  code: string
+  alias?: string | null
+  name: string
+  departmentId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutPositionInput
+  resourceRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutPositionInput
+}
+
+export type PositionCreateOrConnectWithoutPositionDescriptionInput = {
+  where: Prisma.PositionWhereUniqueInput
+  create: Prisma.XOR<Prisma.PositionCreateWithoutPositionDescriptionInput, Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput>
+}
+
+export type PositionCreateManyPositionDescriptionInputEnvelope = {
+  data: Prisma.PositionCreateManyPositionDescriptionInput | Prisma.PositionCreateManyPositionDescriptionInput[]
+}
+
+export type PositionUpsertWithWhereUniqueWithoutPositionDescriptionInput = {
+  where: Prisma.PositionWhereUniqueInput
+  update: Prisma.XOR<Prisma.PositionUpdateWithoutPositionDescriptionInput, Prisma.PositionUncheckedUpdateWithoutPositionDescriptionInput>
+  create: Prisma.XOR<Prisma.PositionCreateWithoutPositionDescriptionInput, Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput>
+}
+
+export type PositionUpdateWithWhereUniqueWithoutPositionDescriptionInput = {
+  where: Prisma.PositionWhereUniqueInput
+  data: Prisma.XOR<Prisma.PositionUpdateWithoutPositionDescriptionInput, Prisma.PositionUncheckedUpdateWithoutPositionDescriptionInput>
+}
+
+export type PositionUpdateManyWithWhereWithoutPositionDescriptionInput = {
+  where: Prisma.PositionScalarWhereInput
+  data: Prisma.XOR<Prisma.PositionUpdateManyMutationInput, Prisma.PositionUncheckedUpdateManyWithoutPositionDescriptionInput>
+}
+
+export type PositionScalarWhereInput = {
+  AND?: Prisma.PositionScalarWhereInput | Prisma.PositionScalarWhereInput[]
+  OR?: Prisma.PositionScalarWhereInput[]
+  NOT?: Prisma.PositionScalarWhereInput | Prisma.PositionScalarWhereInput[]
+  id?: Prisma.IntFilter<"Position"> | number
+  code?: Prisma.StringFilter<"Position"> | string
+  alias?: Prisma.StringNullableFilter<"Position"> | string | null
+  name?: Prisma.StringFilter<"Position"> | string
+  departmentId?: Prisma.IntNullableFilter<"Position"> | number | null
+  positionDescriptionId?: Prisma.IntNullableFilter<"Position"> | number | null
+  isArchived?: Prisma.BoolFilter<"Position"> | boolean
+  archivedAt?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
+  endDate?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
+  editedBy?: Prisma.IntNullableFilter<"Position"> | number | null
+  editedAt?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
+  version?: Prisma.IntFilter<"Position"> | number
+}
+
 export type PositionCreateWithoutDepartmentInput = {
   code: string
   alias?: string | null
@@ -919,24 +995,6 @@ export type PositionUpdateWithWhereUniqueWithoutDepartmentInput = {
 export type PositionUpdateManyWithWhereWithoutDepartmentInput = {
   where: Prisma.PositionScalarWhereInput
   data: Prisma.XOR<Prisma.PositionUpdateManyMutationInput, Prisma.PositionUncheckedUpdateManyWithoutDepartmentInput>
-}
-
-export type PositionScalarWhereInput = {
-  AND?: Prisma.PositionScalarWhereInput | Prisma.PositionScalarWhereInput[]
-  OR?: Prisma.PositionScalarWhereInput[]
-  NOT?: Prisma.PositionScalarWhereInput | Prisma.PositionScalarWhereInput[]
-  id?: Prisma.IntFilter<"Position"> | number
-  code?: Prisma.StringFilter<"Position"> | string
-  alias?: Prisma.StringNullableFilter<"Position"> | string | null
-  name?: Prisma.StringFilter<"Position"> | string
-  departmentId?: Prisma.IntNullableFilter<"Position"> | number | null
-  positionDescriptionId?: Prisma.IntNullableFilter<"Position"> | number | null
-  isArchived?: Prisma.BoolFilter<"Position"> | boolean
-  archivedAt?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
-  endDate?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
-  editedBy?: Prisma.IntNullableFilter<"Position"> | number | null
-  editedAt?: Prisma.DateTimeNullableFilter<"Position"> | Date | string | null
-  version?: Prisma.IntFilter<"Position"> | number
 }
 
 export type PositionCreateWithoutEdpsInput = {
@@ -1021,23 +1079,7 @@ export type PositionUncheckedUpdateWithoutEdpsInput = {
   resourceRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutPositionNestedInput
 }
 
-export type PositionCreateWithoutPositionDescriptionInput = {
-  code: string
-  alias?: string | null
-  name: string
-  isArchived?: boolean
-  archivedAt?: Date | string | null
-  endDate?: Date | string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  edps?: Prisma.EDPCreateNestedManyWithoutPositionInput
-  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutPositionInput
-  department?: Prisma.DepartmentCreateNestedOneWithoutPositionsInput
-  resourceRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutPositionInput
-}
-
-export type PositionUncheckedCreateWithoutPositionDescriptionInput = {
+export type PositionCreateManyPositionDescriptionInput = {
   id?: number
   code: string
   alias?: string | null
@@ -1049,34 +1091,53 @@ export type PositionUncheckedCreateWithoutPositionDescriptionInput = {
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
-  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionInput
-  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutPositionInput
-  resourceRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutPositionInput
 }
 
-export type PositionCreateOrConnectWithoutPositionDescriptionInput = {
-  where: Prisma.PositionWhereUniqueInput
-  create: Prisma.XOR<Prisma.PositionCreateWithoutPositionDescriptionInput, Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput>
+export type PositionUpdateWithoutPositionDescriptionInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  edps?: Prisma.EDPUpdateManyWithoutPositionNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutPositionNestedInput
+  department?: Prisma.DepartmentUpdateOneWithoutPositionsNestedInput
+  resourceRoles?: Prisma.PositionResourceRoleUpdateManyWithoutPositionNestedInput
 }
 
-export type PositionCreateManyPositionDescriptionInputEnvelope = {
-  data: Prisma.PositionCreateManyPositionDescriptionInput | Prisma.PositionCreateManyPositionDescriptionInput[]
+export type PositionUncheckedUpdateWithoutPositionDescriptionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutPositionNestedInput
+  resourceRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutPositionNestedInput
 }
 
-export type PositionUpsertWithWhereUniqueWithoutPositionDescriptionInput = {
-  where: Prisma.PositionWhereUniqueInput
-  update: Prisma.XOR<Prisma.PositionUpdateWithoutPositionDescriptionInput, Prisma.PositionUncheckedUpdateWithoutPositionDescriptionInput>
-  create: Prisma.XOR<Prisma.PositionCreateWithoutPositionDescriptionInput, Prisma.PositionUncheckedCreateWithoutPositionDescriptionInput>
-}
-
-export type PositionUpdateWithWhereUniqueWithoutPositionDescriptionInput = {
-  where: Prisma.PositionWhereUniqueInput
-  data: Prisma.XOR<Prisma.PositionUpdateWithoutPositionDescriptionInput, Prisma.PositionUncheckedUpdateWithoutPositionDescriptionInput>
-}
-
-export type PositionUpdateManyWithWhereWithoutPositionDescriptionInput = {
-  where: Prisma.PositionScalarWhereInput
-  data: Prisma.XOR<Prisma.PositionUpdateManyMutationInput, Prisma.PositionUncheckedUpdateManyWithoutPositionDescriptionInput>
+export type PositionUncheckedUpdateManyWithoutPositionDescriptionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type PositionCreateManyDepartmentInput = {
@@ -1132,67 +1193,6 @@ export type PositionUncheckedUpdateManyWithoutDepartmentInput = {
   alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   positionDescriptionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-}
-
-export type PositionCreateManyPositionDescriptionInput = {
-  id?: number
-  code: string
-  alias?: string | null
-  name: string
-  departmentId?: number | null
-  isArchived?: boolean
-  archivedAt?: Date | string | null
-  endDate?: Date | string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-}
-
-export type PositionUpdateWithoutPositionDescriptionInput = {
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  edps?: Prisma.EDPUpdateManyWithoutPositionNestedInput
-  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutPositionNestedInput
-  department?: Prisma.DepartmentUpdateOneWithoutPositionsNestedInput
-  resourceRoles?: Prisma.PositionResourceRoleUpdateManyWithoutPositionNestedInput
-}
-
-export type PositionUncheckedUpdateWithoutPositionDescriptionInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionNestedInput
-  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutPositionNestedInput
-  resourceRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutPositionNestedInput
-}
-
-export type PositionUncheckedUpdateManyWithoutPositionDescriptionInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null

@@ -681,6 +681,20 @@ export type DepartmentUpdateOneRequiredWithoutResourceRolesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutResourceRolesInput, Prisma.DepartmentUpdateWithoutResourceRolesInput>, Prisma.DepartmentUncheckedUpdateWithoutResourceRolesInput>
 }
 
+export type DepartmentCreateNestedOneWithoutDescriptionsInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutDescriptionsInput, Prisma.DepartmentUncheckedCreateWithoutDescriptionsInput>
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutDescriptionsInput
+  connect?: Prisma.DepartmentWhereUniqueInput
+}
+
+export type DepartmentUpdateOneRequiredWithoutDescriptionsNestedInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutDescriptionsInput, Prisma.DepartmentUncheckedCreateWithoutDescriptionsInput>
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutDescriptionsInput
+  upsert?: Prisma.DepartmentUpsertWithoutDescriptionsInput
+  connect?: Prisma.DepartmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutDescriptionsInput, Prisma.DepartmentUpdateWithoutDescriptionsInput>, Prisma.DepartmentUncheckedUpdateWithoutDescriptionsInput>
+}
+
 export type DepartmentCreateNestedOneWithoutChildrenInput = {
   create?: Prisma.XOR<Prisma.DepartmentCreateWithoutChildrenInput, Prisma.DepartmentUncheckedCreateWithoutChildrenInput>
   connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutChildrenInput
@@ -737,20 +751,6 @@ export type DepartmentUncheckedUpdateManyWithoutParentNestedInput = {
   update?: Prisma.DepartmentUpdateWithWhereUniqueWithoutParentInput | Prisma.DepartmentUpdateWithWhereUniqueWithoutParentInput[]
   updateMany?: Prisma.DepartmentUpdateManyWithWhereWithoutParentInput | Prisma.DepartmentUpdateManyWithWhereWithoutParentInput[]
   deleteMany?: Prisma.DepartmentScalarWhereInput | Prisma.DepartmentScalarWhereInput[]
-}
-
-export type DepartmentCreateNestedOneWithoutDescriptionsInput = {
-  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutDescriptionsInput, Prisma.DepartmentUncheckedCreateWithoutDescriptionsInput>
-  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutDescriptionsInput
-  connect?: Prisma.DepartmentWhereUniqueInput
-}
-
-export type DepartmentUpdateOneRequiredWithoutDescriptionsNestedInput = {
-  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutDescriptionsInput, Prisma.DepartmentUncheckedCreateWithoutDescriptionsInput>
-  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutDescriptionsInput
-  upsert?: Prisma.DepartmentUpsertWithoutDescriptionsInput
-  connect?: Prisma.DepartmentWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutDescriptionsInput, Prisma.DepartmentUpdateWithoutDescriptionsInput>, Prisma.DepartmentUncheckedUpdateWithoutDescriptionsInput>
 }
 
 export type DepartmentCreateNestedOneWithoutPositionsInput = {
@@ -1004,6 +1004,108 @@ export type DepartmentUncheckedUpdateWithoutResourceRolesInput = {
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
+export type DepartmentCreateWithoutDescriptionsInput = {
+  code: string
+  name: string
+  alias?: string | null
+  level?: number
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
+  parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
+  children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
+  resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
+  leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
+  edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
+  positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
+}
+
+export type DepartmentUncheckedCreateWithoutDescriptionsInput = {
+  id?: number
+  code: string
+  name: string
+  alias?: string | null
+  level?: number
+  parentId?: number | null
+  managerUserId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
+  resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
+  leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
+  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
+}
+
+export type DepartmentCreateOrConnectWithoutDescriptionsInput = {
+  where: Prisma.DepartmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutDescriptionsInput, Prisma.DepartmentUncheckedCreateWithoutDescriptionsInput>
+}
+
+export type DepartmentUpsertWithoutDescriptionsInput = {
+  update: Prisma.XOR<Prisma.DepartmentUpdateWithoutDescriptionsInput, Prisma.DepartmentUncheckedUpdateWithoutDescriptionsInput>
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutDescriptionsInput, Prisma.DepartmentUncheckedCreateWithoutDescriptionsInput>
+  where?: Prisma.DepartmentWhereInput
+}
+
+export type DepartmentUpdateToOneWithWhereWithoutDescriptionsInput = {
+  where?: Prisma.DepartmentWhereInput
+  data: Prisma.XOR<Prisma.DepartmentUpdateWithoutDescriptionsInput, Prisma.DepartmentUncheckedUpdateWithoutDescriptionsInput>
+}
+
+export type DepartmentUpdateWithoutDescriptionsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
+  parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
+  resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
+  leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
+  edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
+}
+
+export type DepartmentUncheckedUpdateWithoutDescriptionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
+  resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
+  leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
+  edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
+}
+
 export type DepartmentCreateWithoutChildrenInput = {
   code: string
   name: string
@@ -1172,108 +1274,6 @@ export type DepartmentUpdateWithWhereUniqueWithoutParentInput = {
 export type DepartmentUpdateManyWithWhereWithoutParentInput = {
   where: Prisma.DepartmentScalarWhereInput
   data: Prisma.XOR<Prisma.DepartmentUpdateManyMutationInput, Prisma.DepartmentUncheckedUpdateManyWithoutParentInput>
-}
-
-export type DepartmentCreateWithoutDescriptionsInput = {
-  code: string
-  name: string
-  alias?: string | null
-  level?: number
-  isArchived?: boolean
-  archivedAt?: Date | string | null
-  endDate?: Date | string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
-  parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
-  children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
-  resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
-  workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
-  leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
-  positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
-}
-
-export type DepartmentUncheckedCreateWithoutDescriptionsInput = {
-  id?: number
-  code: string
-  name: string
-  alias?: string | null
-  level?: number
-  parentId?: number | null
-  managerUserId?: number | null
-  isArchived?: boolean
-  archivedAt?: Date | string | null
-  endDate?: Date | string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
-  resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
-  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
-  leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
-  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
-}
-
-export type DepartmentCreateOrConnectWithoutDescriptionsInput = {
-  where: Prisma.DepartmentWhereUniqueInput
-  create: Prisma.XOR<Prisma.DepartmentCreateWithoutDescriptionsInput, Prisma.DepartmentUncheckedCreateWithoutDescriptionsInput>
-}
-
-export type DepartmentUpsertWithoutDescriptionsInput = {
-  update: Prisma.XOR<Prisma.DepartmentUpdateWithoutDescriptionsInput, Prisma.DepartmentUncheckedUpdateWithoutDescriptionsInput>
-  create: Prisma.XOR<Prisma.DepartmentCreateWithoutDescriptionsInput, Prisma.DepartmentUncheckedCreateWithoutDescriptionsInput>
-  where?: Prisma.DepartmentWhereInput
-}
-
-export type DepartmentUpdateToOneWithWhereWithoutDescriptionsInput = {
-  where?: Prisma.DepartmentWhereInput
-  data: Prisma.XOR<Prisma.DepartmentUpdateWithoutDescriptionsInput, Prisma.DepartmentUncheckedUpdateWithoutDescriptionsInput>
-}
-
-export type DepartmentUpdateWithoutDescriptionsInput = {
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  level?: Prisma.IntFieldUpdateOperationsInput | number
-  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
-  parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
-  children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
-  resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
-  workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
-  leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
-  positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
-}
-
-export type DepartmentUncheckedUpdateWithoutDescriptionsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  level?: Prisma.IntFieldUpdateOperationsInput | number
-  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
-  resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
-  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
-  leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
-  positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
 }
 
 export type DepartmentCreateWithoutPositionsInput = {
