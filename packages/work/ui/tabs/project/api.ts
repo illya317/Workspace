@@ -52,6 +52,18 @@ export async function updateProjectField(projectId: number, field: string, value
   }
 }
 
+export async function syncChildProjects(projectId: number, childProjectIds: number[]) {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}`), {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ field: "childProjectIds", value: childProjectIds }),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "保存下级项目失败");
+  }
+}
+
 async function createMember(projectId: number, member: EmployeeTag, role: string | null) {
   const res = await fetch(workspacePath("/api/modules/work/projects/members"), {
     method: "POST",

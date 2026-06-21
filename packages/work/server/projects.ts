@@ -250,6 +250,12 @@ export async function updateProjectField(request: Request, params: Promise<{ id:
     await snapshotHistory("Project", projectId, payload.userId);
     return NextResponse.json({ success: true });
   }
+  if (body.field === "childProjectIds") {
+    if (!canManage) return NextResponse.json({ error: "无权限" }, { status: 403 });
+    const result = await syncProjectChildren(projectId, body.value, payload.userId);
+    if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
+    return NextResponse.json({ success: true });
+  }
 
   if (PROJECT_MANAGE_FIELDS.has(body.field) && !canManage) return NextResponse.json({ error: "无权限" }, { status: 403 });
   if (PROJECT_EDIT_FIELDS.has(body.field) && !canEdit) return NextResponse.json({ error: "无权限" }, { status: 403 });
@@ -275,6 +281,72 @@ export async function updateProjectField(request: Request, params: Promise<{ id:
   });
   await snapshotHistory("Project", projectId, payload.userId);
   return NextResponse.json({ success: true });
+}
+
+async function syncProjectChildren(projectId: number, value: unknown, userId: number) {
+  if (!Array.isArray(value)) return { ok: false as const, error: "下级项目无效" };
+  const childIds = Array.from(new Set(value.map((item) => Number(item))));
+  if (childIds.some((id) => !Number.isInteger(id) || id <= 0)) {
+    return { ok: false as const, error: "下级项目无效" };
+  }
+  if (childIds.includes(projectId)) return { ok: false as const, error: "下级项目不能选择当前项目" };
+
+  const children = childIds.length > 0
+    ? await prisma.project.findMany({
+        where: { id: { in: childIds } },
+        select: { id: true, parentId: true, isArchived: true },
+      })
+    : [];
+  const childById = new Map(children.map((child) => [child.id, child]));
+  for (const childId of childIds) {
+    const child = childById.get(childId);
+    if (!child) return { ok: false as const, error: "下级项目不存在" };
+    if (child.isArchived) return { ok: false as const, error: "归档项目不能设为下级项目" };
+    if (!(await canViewProject(userId, childId))) return { ok: false as const, error: "下级项目无权限", status: 403 };
+    const hierarchy = await normalizeProjectParentId(projectId, childId);
+    if ("error" in hierarchy) return { ok: false as const, error: hierarchy.error };
+  }
+
+  const existingChildren = await prisma.project.findMany({
+    where: { parentId: projectId, isArchived: false },
+    select: { id: true, parentId: true },
+  });
+  const targetIds = new Set(childIds);
+  const changedIds = new Set<number>();
+
+  await prisma.$transaction(async (tx) => {
+    for (const child of existingChildren) {
+      if (targetIds.has(child.id)) continue;
+      await tx.project.update({
+        where: { id: child.id },
+        data: {
+          parentId: null,
+          editedBy: userId,
+          editedAt: new Date(),
+          version: { increment: 1 },
+        },
+      });
+      changedIds.add(child.id);
+    }
+
+    for (const child of children) {
+      if (child.parentId === projectId) continue;
+      await tx.project.update({
+        where: { id: child.id },
+        data: {
+          parentId: projectId,
+          editedBy: userId,
+          editedAt: new Date(),
+          version: { increment: 1 },
+        },
+      });
+      changedIds.add(child.id);
+    }
+  });
+
+  for (const changedId of changedIds) await snapshotHistory("Project", changedId, userId);
+  if (changedIds.size > 0) await snapshotHistory("Project", projectId, userId);
+  return { ok: true as const };
 }
 
 export async function deleteProject(request: Request, params: Promise<{ id: string }>) {

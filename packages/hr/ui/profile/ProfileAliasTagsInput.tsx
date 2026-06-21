@@ -2,11 +2,10 @@
 
 import { useMemo, useState } from "react";
 import {
-  TagRemoveButton,
+  RemovableTag,
   TextField,
   getTagInlineInputClassName,
   getTagInputShellClassName,
-  getTagPillClassName,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import type { ProfileField } from "@workspace/hr/types";
@@ -75,10 +74,14 @@ export function AliasTagEditor({
   return (
     <div className={getTagInputShellClassName()}>
       {tags.map((tag, index) => (
-        <span key={`${tag}-${index}`} className={getTagPillClassName()}>
-          <span className="truncate">{tag}</span>
-          {!disabled && <TagRemoveButton label={`删除别名 ${tag}`} onClick={() => removeTag(index)} />}
-        </span>
+        <RemovableTag
+          key={`${tag}-${index}`}
+          label={`删除别名 ${tag}`}
+          disabled={disabled}
+          onRemove={() => removeTag(index)}
+        >
+          {tag}
+        </RemovableTag>
       ))}
       {disabled ? (
         tags.length === 0 ? <span className="text-slate-400">未设置</span> : null

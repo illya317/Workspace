@@ -3,15 +3,14 @@
 import { useState, type ReactNode } from "react";
 import {
   ActionToolbar,
-  ActionButton,
   FkFieldInput,
   FormField,
   PanelCard,
+  RemovableTag,
   TextField,
   getFieldInputClassName,
   getReadOnlyFieldClassName,
   getTagInputShellClassName,
-  getTagPillClassName,
   useConfirmDelete,
 } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
@@ -23,29 +22,7 @@ export const compactFormInputClassName = getFieldInputClassName("h-10 py-0");
 export const readOnlyInputClassName = getReadOnlyFieldClassName("h-10 py-0");
 export const compactReadOnlyInputClassName = getReadOnlyFieldClassName();
 const tagInputShellClassName = getTagInputShellClassName("content-start");
-const longTextTagPillClassName = getTagPillClassName(
-  "h-auto min-h-6 items-start rounded-xl py-1 leading-snug"
-);
 export { OptionTagListEditor } from "./option-tag-list-editor";
-
-function InlineTagRemoveButton({
-  label,
-  onClick,
-}: {
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <ActionButton
-      aria-label={label}
-      title={label}
-      onClick={onClick}
-      className="ml-0.5 !grid !size-4 shrink-0 !place-items-center rounded-full !border-sky-200 !bg-sky-50 !p-0 text-[12px] !text-sky-700 hover:!border-rose-200 hover:!bg-rose-50 hover:!text-rose-600"
-    >
-      −
-    </ActionButton>
-  );
-}
 
 export function sectionTitle(title: string, extra?: ReactNode) {
   return (
@@ -174,18 +151,17 @@ export function StringListEditor({
       <span className="text-xs font-medium text-slate-500">{label}</span>
       <div className={tagInputShellClassName}>
         {items.map((item, index) => (
-          <span
+          <RemovableTag
             key={`${item}-${index}`}
-            className={longTextTagPillClassName}
+            label={`删除${label} ${item || index + 1}`}
+            confirmMessage={`确定删除「${items[index] || label}」吗？删除后需要保存才会生效。`}
+            disabled={disabled}
+            onRemove={() => removeItem(index)}
+            className="h-auto min-h-6 items-start rounded-xl py-1 leading-snug"
+            textClassName="min-w-0 whitespace-normal break-words leading-snug"
           >
-            <span className="min-w-0 whitespace-normal break-words leading-snug">{item}</span>
-            {!disabled && (
-              <InlineTagRemoveButton
-                label={`删除${label} ${item || index + 1}`}
-                onClick={() => void removeItem(index)}
-              />
-            )}
-          </span>
+            {item}
+          </RemovableTag>
         ))}
         {disabled ? (
           items.length === 0 ? <span className="text-slate-400">未设置</span> : null

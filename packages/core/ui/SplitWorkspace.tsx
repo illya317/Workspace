@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 export type SplitWorkspaceMode = "desktop" | "drawer";
 
@@ -10,6 +10,7 @@ export interface SplitWorkspaceProps {
   onDrawerOpenChange: (open: boolean) => void;
   renderSide: (mode: SplitWorkspaceMode) => ReactNode;
   children: ReactNode;
+  splitRatio?: readonly [number, number];
 }
 
 export interface SplitWorkspaceToolbarProps {
@@ -62,7 +63,14 @@ export default function SplitWorkspace({
   onDrawerOpenChange,
   renderSide,
   children,
+  splitRatio = [3, 7],
 }: SplitWorkspaceProps) {
+  const [sideFr, contentFr] = splitRatio;
+  const splitStyle = {
+    "--split-side-fr": `${sideFr}fr`,
+    "--split-content-fr": `${contentFr}fr`,
+  } as CSSProperties;
+
   return (
     <>
       {drawerOpen && (
@@ -79,7 +87,10 @@ export default function SplitWorkspace({
         </div>
       )}
 
-      <div className={`grid grid-cols-1 gap-5 ${sideOpen ? "lg:grid-cols-[minmax(0,3fr)_minmax(0,7fr)]" : ""}`}>
+      <div
+        className={`grid grid-cols-1 gap-5 ${sideOpen ? "lg:grid-cols-[minmax(0,var(--split-side-fr))_minmax(0,var(--split-content-fr))]" : ""}`}
+        style={splitStyle}
+      >
         {sideOpen && <div className="hidden min-w-0 lg:block">{renderSide("desktop")}</div>}
         <div className="min-w-0">{children}</div>
       </div>

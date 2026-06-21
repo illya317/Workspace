@@ -136,6 +136,8 @@ export type {
 } from "./PickerParts";
 export { default as RegistryBrowserCard } from "./RegistryBrowserCard";
 export type { RegistryBrowserCardProps, RegistryBrowserItem } from "./RegistryBrowserCard";
+export { default as RemovableTag } from "./RemovableTag";
+export type { RemovableTagProps } from "./RemovableTag";
 export { default as RatingControl } from "./RatingControl";
 export type { RatingControlProps } from "./RatingControl";
 export { default as SelectField } from "./SelectField";

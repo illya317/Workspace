@@ -23,6 +23,7 @@
         "SwitchField",
         "StatusBadge",
         "StatusToggle",
+        "RemovableTag",
         "TagRemoveButton",
         "AmountCell",
         "NumberCell",

@@ -3,8 +3,9 @@
 import { useState } from "react";
 import CalendarDateInput from "../CalendarDateInput";
 import FormField from "../FormField";
-import { getTagInputShellClassName, getTagPillClassName } from "../FormStyles";
+import { getTagInputShellClassName } from "../FormStyles";
 import OptionPicker from "../OptionPicker";
+import RemovableTag from "../RemovableTag";
 import SearchableOptionInput from "../SearchableOptionInput";
 import TextField from "../TextField";
 import { usePageStylePreviewSamples } from "./sample-context";
@@ -49,10 +50,9 @@ function PreviewTags() {
   return (
     <div className={getTagInputShellClassName()}>
       {["Jone", "大张"].map((item) => (
-        <span key={item} className={getTagPillClassName()}>
+        <RemovableTag key={item} label={`删除 ${item}`} onRemove={() => {}}>
           {item}
-          <span className="text-slate-400">×</span>
-        </span>
+        </RemovableTag>
       ))}
     </div>
   );

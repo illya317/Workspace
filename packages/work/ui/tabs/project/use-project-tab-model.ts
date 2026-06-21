@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FkFieldOption } from "@workspace/core/ui";
+import type { SearchableOption } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { type WorkUser, workCanEdit } from "@workspace/work/types";
-import { createProject, syncMembers, updateProjectField } from "./api";
+import { createProject, syncChildProjects, syncMembers, updateProjectField } from "./api";
 import {
   MULTI_PROJECT_ROLES,
   createEmptyProjectDraft,
@@ -35,7 +36,7 @@ const PROJECT_CONTENT_SYNC_FIELDS = [
   "endDate",
 ] as const;
 
-const PROJECT_MANAGE_SYNC_FIELDS = ["parentId", "leadingDepartmentId"] as const;
+const PROJECT_MANAGE_SYNC_FIELDS = ["leadingDepartmentId"] as const;
 
 export function useProjectTabModel(user: WorkUser) {
   const canEdit = workCanEdit(user);
@@ -60,8 +61,11 @@ export function useProjectTabModel(user: WorkUser) {
     () => selectedProject ? entries.filter((entry) => entry.projectId === selectedProject.id) : [],
     [entries, selectedProject]
   );
-  const childProjects = useMemo(() => selectedProject?.childProjects ?? [], [selectedProject]);
-  const parentProjectOptions = useMemo(() => buildParentProjectOptions(projects, draft?.id ?? null), [draft?.id, projects]);
+  const childProjects = useMemo(() => buildChildProjectTags(projects, draft?.childProjectIds ?? []), [draft?.childProjectIds, projects]);
+  const childProjectOptions = useMemo(
+    () => buildChildProjectOptions(projects, draft?.id ?? null, draft?.childProjectIds ?? []),
+    [draft?.childProjectIds, draft?.id, projects]
+  );
   const dirty = draftSnapshot(draft) !== baseline;
   const canEditCurrent = draft?.id ? Boolean(selectedProject?.permissions.canEdit) : canEdit;
   const canManageCurrent = draft?.id ? Boolean(selectedProject?.permissions.canManage) : canEdit;
@@ -137,6 +141,20 @@ export function useProjectTabModel(user: WorkUser) {
     });
   }
 
+  function setChildProjects(nextChildren: { id: number; name: string }[]) {
+    setDraft((prev) => {
+      if (!prev) return prev;
+      const seen = new Set<number>();
+      const childProjectIds: number[] = [];
+      for (const child of nextChildren) {
+        if (!child.id || child.id === prev.id || seen.has(child.id)) continue;
+        seen.add(child.id);
+        childProjectIds.push(child.id);
+      }
+      return { ...prev, childProjectIds };
+    });
+  }
+
   async function saveProject() {
     if (!draft || !dirty) return;
     const name = draft.name.trim();
@@ -164,6 +182,7 @@ export function useProjectTabModel(user: WorkUser) {
           if ((selectedProject[field] ?? null) !== value) await updateProjectField(projectId, field, value);
         }
       }
+      if (canManageCurrent) await syncChildProjects(projectId, draft.childProjectIds);
       if (canManageCurrent) await syncMembers(projectId, { ...draft, id: projectId, name }, entries);
       setToast({ type: "success", message: "项目信息已保存" });
       await loadData();
@@ -191,32 +210,41 @@ export function useProjectTabModel(user: WorkUser) {
 
   return {
     canCreateProject: canEdit, canEditCurrent, canManageCurrent, canSave, childProjects, creating, dirty, draft, error,
-    loading, parentProjectOptions, projectListDrawerOpen, projectListOpen, projects, saving,
+    childProjectOptions, loading, projectListDrawerOpen, projectListOpen, projects, saving,
     selectedProject, selection, toast,
-    cancelCreateProject, saveProject, setCreating, setLeader, startCreateProject,
+    cancelCreateProject, saveProject, setChildProjects, setCreating, setLeader, startCreateProject,
     setProjectListDrawerOpen, setProjectListOpen, setRoleMembers, setSelection,
     setToast, updateDraft,
   };
 }
 
-function buildParentProjectOptions(projects: ProjectItem[], draftId: number | null) {
-  const excluded = new Set<number>();
+function buildChildProjectTags(projects: ProjectItem[], childProjectIds: number[]) {
+  const projectById = new Map(projects.map((project) => [project.id, project]));
+  return childProjectIds
+    .map((id) => {
+      const project = projectById.get(id);
+      return project ? { id: project.id, name: project.name } : null;
+    })
+    .filter((project): project is { id: number; name: string } => Boolean(project));
+}
+
+function buildChildProjectOptions(projects: ProjectItem[], draftId: number | null, childProjectIds: number[]): SearchableOption[] {
+  const excluded = new Set<number>(childProjectIds);
   if (draftId) {
     excluded.add(draftId);
-    const childrenByParent = new Map<number, ProjectItem[]>();
-    for (const project of projects) {
-      if (!project.parentId) continue;
-      const children = childrenByParent.get(project.parentId) || [];
-      children.push(project);
-      childrenByParent.set(project.parentId, children);
-    }
-    const stack = [...(childrenByParent.get(draftId) || [])];
-    while (stack.length > 0) {
-      const child = stack.pop()!;
-      if (excluded.has(child.id)) continue;
-      excluded.add(child.id);
-      stack.push(...(childrenByParent.get(child.id) || []));
+    let cursor = projects.find((project) => project.id === draftId)?.parentId ?? null;
+    while (cursor) {
+      if (excluded.has(cursor)) break;
+      excluded.add(cursor);
+      cursor = projects.find((project) => project.id === cursor)?.parentId ?? null;
     }
   }
-  return projects.filter((project) => !excluded.has(project.id)).map((project) => ({ value: String(project.id), label: project.name }));
+  return projects
+    .filter((project) => !excluded.has(project.id))
+    .map((project) => ({
+      value: String(project.id),
+      label: project.name,
+      subtitle: project.code ?? undefined,
+      searchText: [project.name, project.code, project.parentName].filter(Boolean).join(" "),
+    }));
 }

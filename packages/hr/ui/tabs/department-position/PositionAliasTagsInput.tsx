@@ -2,16 +2,14 @@
 
 import { useMemo, useState } from "react";
 import {
-  TagRemoveButton,
+  RemovableTag,
   TextField,
   getTagInputShellClassName,
-  getTagPillClassName,
   useConfirmDelete,
 } from "@workspace/core/ui";
 import { splitAliasText } from "./utils";
 
 const tagInputShellClassName = getTagInputShellClassName("content-start");
-const tagPillClassName = getTagPillClassName();
 
 export default function PositionAliasTagsInput({
   value,
@@ -48,16 +46,15 @@ export default function PositionAliasTagsInput({
   return (
     <div className={tagInputShellClassName}>
       {tags.map((tag, index) => (
-        <span key={`${tag}-${index}`} className={tagPillClassName}>
-          <span className="truncate">{tag}</span>
-          {!disabled && (
-            <TagRemoveButton
-              label={`删除别名 ${tag}`}
-              confirmMessage={`确定删除别名「${tag}」吗？删除后需要保存才会生效。`}
-              onConfirm={() => removeTag(index)}
-            />
-          )}
-        </span>
+        <RemovableTag
+          key={`${tag}-${index}`}
+          label={`删除别名 ${tag}`}
+          confirmMessage={`确定删除别名「${tag}」吗？删除后需要保存才会生效。`}
+          disabled={disabled}
+          onRemove={() => removeTag(index)}
+        >
+          {tag}
+        </RemovableTag>
       ))}
       {disabled ? (
         tags.length === 0 ? <span className="text-slate-400">未设置</span> : null

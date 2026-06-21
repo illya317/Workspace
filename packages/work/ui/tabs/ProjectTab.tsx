@@ -19,6 +19,7 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
         onSideOpenChange={model.setProjectListOpen}
         onDrawerOpenChange={model.setProjectListDrawerOpen}
         showSideControls={false}
+        splitRatio={[2, 8]}
         renderSide={() => <EmptyStateCard compact={false}>{model.loading ? "加载中..." : "暂无项目"}</EmptyStateCard>}
       >
         <EmptyStateCard compact={false} className={model.error ? "border-red-200 text-red-600" : ""}>
@@ -37,6 +38,7 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
         onSideOpenChange={model.setProjectListOpen}
         onDrawerOpenChange={model.setProjectListDrawerOpen}
         showSideControls={false}
+        splitRatio={[2, 8]}
         renderSide={(mode) => (
           <ProjectListPanel
             mode={mode}
@@ -61,11 +63,12 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
           saving={model.saving}
           canSave={model.canSave}
           childProjects={model.childProjects}
-          parentProjectOptions={model.parentProjectOptions}
+          childProjectOptions={model.childProjectOptions}
           creating={model.creating}
           onCancelCreate={model.cancelCreateProject}
           onCreate={model.startCreateProject}
           onSave={() => void model.saveProject()}
+          onChildProjectsChange={model.setChildProjects}
           onDraftChange={model.updateDraft}
           onLeaderChange={model.setLeader}
           onRoleMembersChange={model.setRoleMembers}

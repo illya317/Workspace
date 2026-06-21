@@ -128,6 +128,7 @@ export const coreUiComponentRegistry = [
   { name: "PickerShell", kind: "picker", description: "选择器外壳，统一搜索、列表、空态和候选项区域。", example: "组合搜索框、候选列表和无匹配提示的选择器外壳。", includes: ["SearchInput"] },
   { name: "PickerSegmentedControl", kind: "picker", description: "选择器弹层内的分段切换器，统一组选项切换样式。", example: "职级选择器中切换 M、P、T 三个序列。" },
   { name: "RegistryBrowserCard", kind: "data", description: "注册表浏览卡片，以 3/7 分栏展示分类和注册项明细。", example: "数据治理页展示 Core UI 分类、说明、示例和消费文件。" },
+  { name: "RemovableTag", kind: "form", description: "可删除标签模板，统一 chip 外观、内置 x 删除入口和确认弹窗；业务不要手写 tag 内删除按钮。", example: "项目成员、岗位别名、人事标签列表都用 RemovableTag，点击 x 删除，点击标签文本不触发删除。", includes: ["TagRemoveButton"] },
   { name: "RatingControl", kind: "form", description: "星级评分 primitive，统一只读和可编辑评分按钮样式。", example: "工作清单中展示或编辑重要度、紧急度评分。" },
   { name: "SearchableOptionInput", kind: "picker", description: "可搜索选项输入，统一输入、清空、候选列表和键盘选择交互。", example: "学校、供应商或本地白名单实体通过中文、拼音和别名搜索后选择。" },
   { name: "SearchInput", kind: "form", description: "统一搜索输入，覆盖页面搜索、工具栏搜索和紧凑搜索。", example: "输入“张”按姓名、编码、拼音搜索或筛选记录。" },

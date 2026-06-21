@@ -78,6 +78,7 @@ export type ProjectDraft = {
   riskNote: string | null;
   remark: string | null;
   parentId: number | null;
+  childProjectIds: number[];
   leadingDepartmentId: number | null;
   leadingDepartmentName: string | null;
   leadingDepartmentCode: string | null;
@@ -172,6 +173,7 @@ export function draftSnapshot(draft: ProjectDraft | null) {
     riskNote: draft.riskNote || null,
     remark: draft.remark || null,
     parentId: draft.parentId ?? null,
+    childProjectIds: [...draft.childProjectIds].sort((a, b) => a - b),
     leadingDepartmentId: draft.leadingDepartmentId ?? null,
     startDate: draft.startDate || null,
     endDate: draft.endDate || null,
@@ -214,6 +216,7 @@ export function createProjectDraft(project: ProjectItem | null, entries: Project
     riskNote: project?.riskNote ?? null,
     remark: project?.remark ?? null,
     parentId: project?.parentId ?? null,
+    childProjectIds: (project?.childProjects ?? []).map((child) => child.id),
     leadingDepartmentId: project?.leadingDepartmentId ?? null,
     leadingDepartmentName: project?.leadingDepartmentName ?? null,
     leadingDepartmentCode: project?.leadingDepartmentCode ?? null,
@@ -242,6 +245,7 @@ export function createEmptyProjectDraft(): ProjectDraft {
     riskNote: null,
     remark: null,
     parentId: null,
+    childProjectIds: [],
     leadingDepartmentId: null,
     leadingDepartmentName: null,
     leadingDepartmentCode: null,

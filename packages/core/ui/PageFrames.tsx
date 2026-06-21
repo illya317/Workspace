@@ -46,6 +46,7 @@ export interface WorkspaceSplitPageProps {
   className?: string;
   contentClassName?: string;
   showSideControls?: boolean;
+  splitRatio?: readonly [number, number];
 }
 
 export function WorkspaceSplitPage({
@@ -62,6 +63,7 @@ export function WorkspaceSplitPage({
   className = "",
   contentClassName = "",
   showSideControls = true,
+  splitRatio,
 }: WorkspaceSplitPageProps) {
   return (
     <PageContent className={contentClassName}>
@@ -82,6 +84,7 @@ export function WorkspaceSplitPage({
           drawerOpen={drawerOpen}
           onDrawerOpenChange={onDrawerOpenChange}
           renderSide={renderSide}
+          splitRatio={splitRatio}
         >
           {children}
         </SplitWorkspace>
