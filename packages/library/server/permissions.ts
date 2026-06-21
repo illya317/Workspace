@@ -4,44 +4,44 @@ import { authorize } from "@workspace/platform/server/auth";
  * Library confidentiality levels:
  *   1 — public
  *   2 — internal (default, visible with library access)
- *   3 — secret     (requires library.secret)
- *   4 — top secret (requires library.top_secret)
+ *   3 — secret     (requires library.basicInfo.secret)
+ *   4 — top secret (requires library.basicInfo.topSecret)
  */
 
 /** Check basic library access (confidentiality ≤ 2). */
 export async function checkLibraryAccess(userId: number): Promise<boolean> {
   if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
-  return authorize({ user: userId, resourceKey: "library", action: "access" });
+  return authorize({ user: userId, resourceKey: "library.basicInfo", action: "access" });
 }
 
 /** Check library write permission (edit summary/title/category). */
 export async function checkLibraryWrite(userId: number): Promise<boolean> {
   if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
-  return authorize({ user: userId, resourceKey: "library.write", action: "write" });
+  return authorize({ user: userId, resourceKey: "library.basicInfo.write", action: "write" });
 }
 
 /** Check library delete permission (soft delete / archive). */
 export async function checkLibraryDelete(userId: number): Promise<boolean> {
   if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
-  return authorize({ user: userId, resourceKey: "library.write", action: "delete" });
+  return authorize({ user: userId, resourceKey: "library.basicInfo.write", action: "delete" });
 }
 
 /** Check library admin permission (edit confidentialityLevel). */
 export async function checkLibraryAdmin(userId: number): Promise<boolean> {
   if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
-  return authorize({ user: userId, resourceKey: "library.write", action: "admin" });
+  return authorize({ user: userId, resourceKey: "library.basicInfo.write", action: "admin" });
 }
 
-/** Check library.secret access (confidentiality 3). */
+/** Check library.basicInfo.secret access (confidentiality 3). */
 export async function checkLibrarySecret(userId: number): Promise<boolean> {
   if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
-  return authorize({ user: userId, resourceKey: "library.secret", action: "access" });
+  return authorize({ user: userId, resourceKey: "library.basicInfo.secret", action: "access" });
 }
 
-/** Check library.top_secret access (confidentiality 4). */
+/** Check library.basicInfo.topSecret access (confidentiality 4). */
 export async function checkLibraryTopSecret(userId: number): Promise<boolean> {
   if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
-  return authorize({ user: userId, resourceKey: "library.top_secret", action: "access" });
+  return authorize({ user: userId, resourceKey: "library.basicInfo.topSecret", action: "access" });
 }
 
 /** Return the highest confidentiality level visible to the user. */

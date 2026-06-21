@@ -68,9 +68,11 @@ docs                access  文档中心
   docs.api          access  API文档
 
 library              write   资料库
-  library.write      write   资料库编辑
-  library.secret     access  保密资料
-  library.top_secret access  绝密资料
+  library.basicInfo  write   基本资料
+
+library.basicInfo.write     write   资料库编辑（capability）
+library.basicInfo.secret    access  保密资料（capability）
+library.basicInfo.topSecret access  绝密资料（capability）
 
 external            delete  外部关系
   external.investors delete  投资人关系

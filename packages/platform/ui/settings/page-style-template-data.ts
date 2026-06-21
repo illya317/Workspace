@@ -164,12 +164,12 @@ const baseModuleTemplates: ModuleTemplate[] = [
     label: "资料库",
     summary: "目录、文件列表、详情和上传",
     overviewLabel: "资料库",
-    entryRoutes: ["/library"],
+    entryRoutes: ["/library/basic-info"],
     pages: [
-      { key: "catalog", label: "目录", title: "资料目录", kind: "split", section: "资料管理", group: "资料浏览", routes: ["/library"], listItems: ["01 公司基本情况", "02 生产资料", "03 财务资料", "04 合同资料"], fields: ["目录名称", "层级", "文件数", "负责人", "保密等级", "状态"] },
-      { key: "files", label: "现用文件", title: "资料文件", kind: "table", section: "资料管理", group: "资料浏览", routes: ["/library"], tableColumns: ["文件名", "简介", "保密等级", "标签", "更新时间", "状态"], embedded: { title: "文件详情", kind: "document", routes: ["/library/files/[id]"] } },
-      { key: "files-missing", label: "缺失文件", title: "缺失资料", kind: "table", section: "资料管理", group: "资料浏览", routes: ["/library"], tableColumns: ["资料项", "目录", "负责人", "截止日", "状态"] },
-      { key: "upload", label: "上传", title: "上传资料", kind: "upload", section: "资料管理", group: "上传处理", routes: ["/library"], fields: ["资料类型", "目录", "保密等级", "标签", "负责人", "状态"], previewAction: true },
+      { key: "catalog", label: "目录", title: "资料目录", kind: "split", section: "资料管理", group: "资料浏览", routes: ["/library/basic-info"], listItems: ["01 公司基本情况", "02 生产资料", "03 财务资料", "04 合同资料"], fields: ["目录名称", "层级", "文件数", "负责人", "保密等级", "状态"] },
+      { key: "files", label: "现用文件", title: "资料文件", kind: "table", section: "资料管理", group: "资料浏览", routes: ["/library/basic-info"], tableColumns: ["文件名", "简介", "保密等级", "标签", "更新时间", "状态"], embedded: { title: "文件详情", kind: "document", routes: ["/library/basic-info/files/[id]"] } },
+      { key: "files-missing", label: "缺失文件", title: "缺失资料", kind: "table", section: "资料管理", group: "资料浏览", routes: ["/library/basic-info"], tableColumns: ["资料项", "目录", "负责人", "截止日", "状态"] },
+      { key: "upload", label: "上传", title: "上传资料", kind: "upload", section: "资料管理", group: "上传处理", routes: ["/library/basic-info"], fields: ["资料类型", "目录", "保密等级", "标签", "负责人", "状态"], previewAction: true },
     ],
   },
 ];

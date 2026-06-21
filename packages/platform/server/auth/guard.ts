@@ -30,7 +30,10 @@ export async function requireResourceAccess(resourceKey: string): Promise<Sessio
     });
     redirect(`/module-disabled?${params.toString()}`);
   }
-  if (!(await authorize({ user, resourceKey, action: "access" }))) redirect("/portal");
+  if (
+    !(user.visibleResourceKeys || []).includes(resourceKey) &&
+    !(await authorize({ user, resourceKey, action: "access" }))
+  ) redirect("/portal");
   return user;
 }
 
@@ -39,6 +42,7 @@ export async function requireAnyResourceAccess(resourceKeys: string[]): Promise<
   if (!user) redirect("/login");
   for (const resourceKey of resourceKeys) {
     if (!isResourceEnabled(resourceKey)) continue;
+    if ((user.visibleResourceKeys || []).includes(resourceKey)) return user;
     if (await authorize({ user, resourceKey, action: "access" })) return user;
   }
   redirect("/portal");

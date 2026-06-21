@@ -19,10 +19,10 @@ app/(modules)/library/
   hooks/                      # useLibraryDocuments, useLibraryFilters, useLibraryCategories
   components/                 # LibrarySidebar, LibraryTable, LibraryDetailModal
 
-app/api/modules/library/
+app/api/modules/library/basic-info/
   [...path]/route.ts          # 文件下载 API（保留，增加 documentId 权限校验）
-  documents/route.ts          # GET /api/modules/library/documents（Phase 2）
-  scan/route.ts               # POST /api/modules/library/scan（Phase 2）
+  documents/route.ts          # GET /api/modules/library/basic-info/documents（Phase 2）
+  scan/route.ts               # POST /api/modules/library/basic-info/scan（Phase 2）
   documents/[id]/route.ts     # GET / PATCH（Phase 2）
   documents/[id]/versions/route.ts  # GET（Phase 2）
   generated-sources/route.ts            # GET 已启用生成来源列表（Phase 6）
@@ -89,7 +89,7 @@ Phase 6 自动生成接口配置表。每个来源定义：
 - `defaultConfidentialityLevel`: 默认保密等级
 - `enabled`: 是否启用
 
-生成流程：前端选来源 → 填标题/简介/保密等级 → POST `/api/modules/library/generated-sources/:key/generate` → 调注册表中的 `GeneratorFn` → `upsertGeneratedDocument` 写文件到 `LIBRARY_ROOT/generated/` → upsert `LibraryDocument`（`stableKey = generated:${key}:${slug}-${hash}`）→ 内容变化时创建 `LibraryDocumentVersion`。
+生成流程：前端选来源 → 填标题/简介/保密等级 → POST `/api/modules/library/basic-info/generated-sources/:key/generate` → 调注册表中的 `GeneratorFn` → `upsertGeneratedDocument` 写文件到 `LIBRARY_ROOT/generated/` → upsert `LibraryDocument`（`stableKey = generated:${key}:${slug}-${hash}`）→ 内容变化时创建 `LibraryDocumentVersion`。
 
 同标题重复生成时，若输出内容不变（生成器幂等），则 checksum 不变，不会创建新版本。
 
@@ -97,13 +97,15 @@ Phase 6 自动生成接口配置表。每个来源定义：
 
 | 资源 key | 说明 | maxRole |
 |---------|------|---------|
-| `library` | 资料库入口，查看保密等级 ≤2 的材料 | write |
-| `library.write` | 编辑元数据、上传、扫描触发 | write |
-| `library.secret` | 查看保密等级 3 的材料 | access |
-| `library.top_secret` | 查看保密等级 4 的材料 | access |
+| `library` | 资料库 L1 容器入口 | write |
+| `library.basicInfo` | 基本资料 L2，资料内容访问与保密等级 ≤2 的材料 | write |
+| `library.basicInfo.write` | 编辑元数据、上传、扫描触发 | write |
+| `library.basicInfo.secret` | 查看保密等级 3 的材料 | access |
+| `library.basicInfo.topSecret` | 查看保密等级 4 的材料 | access |
 
 - 保密等级过滤在 service 层执行，API 必须过滤，不只是页面隐藏。
-- 默认用户（有 `library` 资源）最高可看 `confidentialityLevel <= 2`。
+- `library` 只代表资料库模块入口；真实资料内容访问必须具备 `library.basicInfo`。
+- 默认用户（有 `library.basicInfo` 资源）最高可看 `confidentialityLevel <= 2`。
 - 若问题命中更高等级资料，显示"存在更高等级候选，需要权限/审批"，但不默认选择。
 
 ## 安全
@@ -149,7 +151,7 @@ Phase 6 自动生成接口配置表。每个来源定义：
 - 右侧资料表：标题、分类、更新时间、版本、简介、大小、保密等级、状态
 - 筛选：分类、保密等级、来源、文件类型、更新时间
 - 详情弹窗：编辑简介、分类、保密等级、版本备注
-- 下载链接走 `/api/modules/library/documents/:id/download`，后端按 `doc.id` 查 DB 取当前 `relativePath` 再返回文件流，权限和路径校验都在服务端完成，前端不再拼接路径
+- 下载链接走 `/api/modules/library/basic-info/documents/:id/download`，后端按 `doc.id` 查 DB 取当前 `relativePath` 再返回文件流，权限和路径校验都在服务端完成，前端不再拼接路径
 
 ## 未来扩展方向
 

@@ -147,7 +147,7 @@ API 一级目录只表达系统能力类型：
 - 财务：`/api/modules/finance/*`
 - Work：`/api/modules/work/*`
 - 生产：`/api/modules/production/*`
-- 资料库：`/api/modules/library/*`
+- 资料库：`/api/modules/library/basic-info/*`
 - 行政：`/api/modules/administration/*`
 
 `/api/modules/<module>` 只是路由归属和权限归属，不表示 API 层可以写业务逻辑。真实逻辑仍然在 `packages/<module>/server/*`；route 只能做认证、权限、参数校验、调用 package service 或 Platform 通用 factory、返回 DTO。

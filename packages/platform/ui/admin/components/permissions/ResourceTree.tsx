@@ -20,9 +20,8 @@ export default function ResourceTree({
     <div>
       {resources.map((r) => {
         const isSelected = selectedResource === r.key;
-        const isAncestor = !!selectedResource && selectedResource.startsWith(r.key + ".");
         const hasChildren = !!(r.children && r.children.length > 0);
-        const expanded = (isSelected || isAncestor) && hasChildren;
+        const expanded = hasChildren;
 
         return (
           <div key={r.key}>

@@ -254,16 +254,18 @@ export const registeredModuleDefinitions = [
       resourceKey: "library",
       resourceMaxRoleKey: "write",
       resourceSortOrder: 7,
+      children: [
+        { key: "basicInfo", label: "基本资料", desc: "资料目录、文件、生成文档和保密等级", href: "/library/basic-info", resourceKey: "library.basicInfo", resourceMaxRoleKey: "write", apiPrefixes: ["/api/modules/library/basic-info"] },
+      ],
     },
     resourceDefs: [
-      { key: "library.write", name: "资料库编辑", kind: "capability", capabilityOwnerKey: "library", runtimeParentKey: "library", maxRoleKey: "admin", sortOrder: 0 },
-      { key: "library.secret", name: "保密资料", kind: "capability", capabilityOwnerKey: "library", runtimeParentKey: "library", maxRoleKey: "access", sortOrder: 1 },
-      { key: "library.top_secret", name: "绝密资料", kind: "capability", capabilityOwnerKey: "library", runtimeParentKey: "library", maxRoleKey: "access", sortOrder: 2 },
+      { key: "library.basicInfo.write", name: "资料库编辑", kind: "capability", capabilityOwnerKey: "library.basicInfo", runtimeParentKey: "library.basicInfo", maxRoleKey: "admin", sortOrder: 0 },
+      { key: "library.basicInfo.secret", name: "保密资料", kind: "capability", capabilityOwnerKey: "library.basicInfo", runtimeParentKey: "library.basicInfo", maxRoleKey: "access", sortOrder: 1 },
+      { key: "library.basicInfo.topSecret", name: "绝密资料", kind: "capability", capabilityOwnerKey: "library.basicInfo", runtimeParentKey: "library.basicInfo", maxRoleKey: "access", sortOrder: 2 },
     ],
-    routes: ["/library"],
+    routes: ["/library", "/library/basic-info"],
     apiGuards: [
-      ...apiResourceGuards("/api/modules/library", "library", ["GET"]),
-      ...apiResourceGuards("/api/modules/library", "library.write", ["POST", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/modules/library/basic-info", "library.basicInfo"),
     ],
   },
   {

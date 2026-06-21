@@ -277,10 +277,10 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/library",
+    route: "/library/basic-info",
     moduleKey: "library",
-    label: "资料库",
-    recordRoutes: ["/library/files/[id]"],
+    label: "基本资料",
+    recordRoutes: ["/library/basic-info/files/[id]"],
     views: [
       {
         key: "catalog",

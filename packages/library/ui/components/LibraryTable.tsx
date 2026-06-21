@@ -77,7 +77,7 @@ export default function LibraryTable({
       required: true,
       render: (d) => d.status === "active" ? (
         <a
-          href={workspacePath(`/api/modules/library/documents/${d.id}/download`)}
+          href={workspacePath(`/api/modules/library/basic-info/documents/${d.id}/download`)}
           className="inline-flex items-center text-emerald-600 hover:text-emerald-700"
           title="下载"
           target="_blank"
