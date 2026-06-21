@@ -17,7 +17,8 @@
 3. 读取 `AGENTS.md` 的“文档入口”表、对应 `docs/roles/*.md`，以及本任务命中的专题文档。
 4. 如果收到 Architecture 拆出的 Level 2 任务包，先读 `docs/level2-agent-execution.md`，确认目标文件、动作、依赖和禁止触碰范围。
 5. 写清楚本次只会改哪些文件；发现别的 agent 文件已修改时，只保留，不回滚、不格式化、不提交。
-6. 改完按风险运行验证；架构相关验证只跑 `npm run arch:gate` 这一条入口。
+6. 开发中不要为每个小 patch 反复跑完整检查；按文件或功能批次做轻量验证即可。
+7. 到独立任务完成、准备 commit、明显切换新话题、交给 Review/部署前，必须按风险运行收尾验证；架构相关验证只跑 `npm run arch:gate` 这一条入口。
 
 ## 2. 角色边界
 
@@ -91,4 +92,7 @@
 - 提交前再次运行 `git status --short`。只 stage 本任务文件。
 - 看到别的 agent 的脏文件时，不要 `git checkout --`、不要批量格式化、不要带进 commit。
 - 需要临时隔离时，先 stage 自己的文件，再使用 `git stash push --keep-index --include-untracked`，验证后恢复；不要 `stash pop` 未确认来源的 stash。
+- commit 前必须有一次与风险匹配的收尾检查。小文档改动优先 `npm run docs:check`；普通 TS/TSX 小改动优先 `npm run lint:changed` + `npm run typecheck:quick`；涉及边界、权限、registry、Core/Platform 或 API contract 时加 `npm run arch:gate`；schema、部署、构建链路或共享行为改动跑完整组。
+- pre-commit 的 `check:quick` 是最后防线，不要用 `--no-verify` 绕过。检查失败时先判断是否由当前任务造成；无关并行失败要在交付说明里标明，不要顺手修或提交别人的文件。
+- 用户切到新话题前，如果上一话题已有可提交改动，先完成收尾检查和独立 commit；不要把两个话题混成一个 commit。
 - 本地开发只允许一个 3000 端口 dev server。需要开 dev 前先查 `lsof -nP -iTCP:3000 -sTCP:LISTEN`。
