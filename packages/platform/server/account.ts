@@ -175,7 +175,7 @@ export async function loginWithPassword(
       departmentId: 0,
       isWorkListAdmin: isAdmin,
       isSuperAdmin: isAdmin,
-      canSelectAnyWeek: visibleWrite.has("work.report"),
+      canSelectAnyWeek: visibleWrite.has("work.reports"),
       visibleResourceKeys: [...visibleAccess],
       visibleWriteResourceKeys: [...visibleWrite],
       manageableResourceKeys: [...manageableKeys],

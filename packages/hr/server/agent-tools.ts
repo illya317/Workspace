@@ -31,7 +31,7 @@ export const searchEmployeesTool: AgentTool = {
   mutates: false,
 
   canUse(user: SessionUser): boolean {
-    return (user.visibleResourceKeys || []).includes("people");
+    return (user.visibleResourceKeys || []).includes("hr");
   },
 
   async execute(params: Record<string, unknown>, _user: SessionUser) {
@@ -76,7 +76,7 @@ export const updateEmployeeDraftTool: AgentTool = {
   mutates: true,
 
   canUse(user: SessionUser): boolean {
-    return (user.visibleWriteResourceKeys || []).includes("people.roster");
+    return (user.visibleWriteResourceKeys || []).includes("hr.roster");
   },
 
   async execute(params: Record<string, unknown>, user: SessionUser) {
@@ -148,7 +148,7 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
   mutates: true,
 
   canUse(user: SessionUser): boolean {
-    return (user.visibleWriteResourceKeys || []).includes("people.roster");
+    return (user.visibleWriteResourceKeys || []).includes("hr.roster");
   },
 
   async execute(params: Record<string, unknown>, user: SessionUser) {
@@ -218,7 +218,7 @@ export async function executeHrAgentProposal(
   payload: Record<string, unknown>,
   user: SessionUser,
 ) {
-  if (!(user.visibleWriteResourceKeys || []).includes("people.roster")) {
+  if (!(user.visibleWriteResourceKeys || []).includes("hr.roster")) {
     throw new Error("无 HR 编辑权限");
   }
 

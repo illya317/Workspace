@@ -30,17 +30,23 @@
 ```
 system              admin   系统管理
   system.audit      admin   审计日志
-  system.agent      access  智能体
-  system.api        access  API接入
 
-people              admin   人事管理
-  people.roster     admin   人事基础资料
-  people.performance admin  考勤绩效
-  people.analytics  admin   人力分析
+settings            access  设置
+  settings.account  access  账号与接入（自助，授权矩阵隐藏）
+  settings.admin    admin   系统管理
+  settings.governance access 数据治理
+  settings.api      access  API接入
+
+agent               access  智能体（headless）
+
+hr                  admin   人事管理
+  hr.roster     admin   人事基础资料
+  hr.performance admin  考勤绩效
+  hr.analytics  admin   人力分析
 
 finance             admin   财务管理
   finance.ledger    admin   总账基础
-  finance.statement admin   财务报表
+  finance.statements admin   财务报表
   finance.budget    admin   预算管理
   finance.analysis  admin   财务分析
   finance.cost      admin   成本管理
@@ -49,17 +55,17 @@ finance             admin   财务管理
   finance.import    admin   数据导入
 
 administration      admin   行政管理
-  administration.contract admin 合同台账
+  administration.contracts admin 合同台账
 
 production          admin   生产管理
-  production.qc     admin   质量检验
-    production.qc.batches admin 批次检验
-    production.qc.templates admin 检验模板
+  production.qcBatches   admin 批次检验
+  production.qcTemplates admin 检验模板
 
 docs                access  文档中心
   docs.positions    access  岗位说明书
   docs.company      access  公司管理
   docs.expense      access  报销规范
+  docs.api          access  API文档
 
 library              write   资料库
   library.write      write   资料库编辑
@@ -67,17 +73,17 @@ library              write   资料库
   library.top_secret access  绝密资料
 
 external            delete  外部关系
-  external.investor delete  投资人关系
-  external.customer delete  客户管理
-  external.supplier delete  供应商管理
+  external.investors delete  投资人关系
+  external.customers delete  客户管理
+  external.suppliers delete  供应商管理
 
 work                admin   工作管理
-  work.project      admin   项目
-  work.task         admin   工作清单
-  work.report       admin   工作汇报
+  work.projects      admin   项目
+  work.tasks         admin   工作清单
+  work.reports       admin   工作汇报
   work.history      admin   历史记录
 
-work.project.view_all access 项目全局查看（独立资源，runtimeParentKey=work.project）
+work.projects.viewAll access 项目全局查看（独立资源，runtimeParentKey=work.projects）
 
 legal               access  法务
   legal.chat        access  法务咨询
@@ -106,7 +112,9 @@ legal               access  法务
 
 登录只看 `User.canLogin`（账号启停用） + `sessionVersion`。**不看 `system.access`**。
 
-`system.access` 已废弃，不作为登录/后台入口/授权管理的判断条件。需要进后台管理权限时，授予对应资源的 `admin` 角色（如 `people.admin`）。Session 暴露 `manageableResourceKeys[]`，后台入口使用“可管理任一资源即可进入”的规则。
+`settings.account` 是明确例外：它是登录用户的个人自助设置 L2，页面和 API contract 仍按 L2 注册，但不进入普通 RBAC 授权矩阵；后端只要求已登录，不要求 `settings.account` grant。
+
+`system.access` 已废弃，不作为登录/后台入口/授权管理的判断条件。需要进后台管理权限时，授予对应资源的 `admin` 角色（如 `hr.admin`）。Session 暴露 `manageableResourceKeys[]`，后台入口使用“可管理任一资源即可进入”的规则。
 
 网页登录和企业微信登录允许多端共存；登录不会递增 `sessionVersion`。改密码、管理员重置密码或账号停用会让旧会话失效。JWT 和 Cookie 默认有效期为 30 天。
 
@@ -134,6 +142,8 @@ checkPermission(userId, resourceKey, roleKey)
   → isSystemAdminBypassEnabled()?
     → ON + 业务资源 → return true
     → ON/OFF + system.* → return true
+  → capability?
+    → owner L1/L2 未授权或已禁用 → false
   → DB 查 Resource
   → maxRoleKey 运行时截断（超过上限 → false）
   → resolveRoleKeys(roleKey): admin→[admin,delete,write,access], delete→[admin,delete], ...
@@ -148,7 +158,7 @@ checkPermission(userId, resourceKey, roleKey)
 ```prisma
 model Resource {
   id              Int     @id
-  key             String  @unique   // "people.roster"
+  key             String  @unique   // "hr.roster"
   name            String            // "人事基础资料"
   parentId        Int?              // DB 父级链
   maxRoleKey      String  @default("admin")
@@ -197,21 +207,21 @@ model DepartmentResourceRole {
 
 工作模块（汇报/清单）的数据访问不走 scope RBAC，改用业务规则 + 指派表。
 
-模块 disabled 优先于所有业务对象权限：`work` disabled 后 `/work` 及子页面、`/api/modules/work/*`、Work FK 目标和 Work 资源均不可用；`work.project` disabled 后项目入口、项目页面、项目 API、项目 FK 和 `work.project.view_all` 一起失效。
+模块 disabled 优先于所有业务对象权限：`work` disabled 后 `/work` 及子页面、`/api/modules/work/*`、Work FK 目标和 Work 资源均不可用；`work.projects` disabled 后项目入口、项目页面、项目 API、项目 FK 和 `work.projects.viewAll` 一起失效。
 
 ### 项目资料（/work/projects）
 
-项目资料使用对象级权限，不使用模块权限放大全量项目范围。`work.project.access` 只表示可以进入项目功能，`work.project.write` 只表示可以发起项目；它们不会授予查看全部项目、管理全部项目或删除全部项目。查看全部项目必须显式授予 `work.project.view_all`，或由 system admin bypass 获得。
+项目资料使用对象级权限，不使用模块权限放大全量项目范围。`work.projects.access` 只表示可以进入项目功能，`work.projects.write` 只表示可以发起项目；它们不会授予查看全部项目、管理全部项目或删除全部项目。查看全部项目必须显式授予 `work.projects.viewAll`，或由 system admin bypass 获得。
 
 | 能力 | 来源 |
 |------|------|
-| 可查看 | 创建人、主导部门负责人、项目 RASCI 成员、`work.project.view_all`、system admin |
+| 可查看 | 创建人、主导部门负责人、项目 RASCI 成员、`work.projects.viewAll`、system admin |
 | 可编辑内容 | 可管理者、项目执行负责/支持协作等编辑角色、system admin |
 | 可管理 | 创建人、主导部门负责人、项目负责人/负责人、system admin |
 | 可删除 | 创建人、主导部门负责人、项目负责人/负责人 |
-| 查看全部 | 显式 `work.project.view_all` 或 system admin |
+| 查看全部 | 显式 `work.projects.viewAll` 或 system admin |
 
-`editedBy` 仅用于审计最近编辑人，不代表项目所有权、管理权或可见性。`work.project.view_all` 不设置 `parentKey`，避免继承 `work.project` 模块权限；它通过 `runtimeParentKey: "work.project"` 随项目模块启停。
+`editedBy` 仅用于审计最近编辑人，不代表项目所有权、管理权或可见性。`work.projects.viewAll` 不设置 `parentKey`，避免继承 `work.projects` 模块权限；它通过 `runtimeParentKey: "work.projects"` 随项目模块启停。
 
 ### 规则
 
@@ -235,17 +245,17 @@ ProjectWorkAssignee(projectId, userId, kind: "task"|"report")
 
 ```
 work.access       → 进入工作模块
-work.task.admin   → 管理所有工作清单
-work.report.admin → 管理所有工作汇报
+work.tasks.admin   → 管理所有工作清单
+work.reports.admin → 管理所有工作汇报
 ```
 
-权限矩阵中 work.task 和 work.report **只开放 management 列**，不显示 access/write/delete。
+权限矩阵中 work.tasks 和 work.reports **只开放 management 列**，不显示 access/write/delete。
 数据访问（谁能看/写某个部门或项目）由业务规则决定：成员关系 + 指派人表。
 不再对每个部门/项目做 scope 授权。
 
 ## 版本历史
 
-- v2026-05 Batch 5.1: getUserTargets 合并 scoped 目标、项目 scope、矩阵 bypass 显示、scope 未选防误授、work.task 边界、deniedTargetIds。
+- v2026-05 Batch 5.1: getUserTargets 合并 scoped 目标、项目 scope、矩阵 bypass 显示、scope 未选防误授、work.tasks 边界、deniedTargetIds。
 - v2026-05 Batch 5: Scoped 权限。checkScopedPermission、scopeId 过滤、后台范围选择器、API scoped 校验。
 - v2026-05 Batch 1-4: Resource.maxRoleKey、DB parent 链、运行时上限、systemAdminBusinessBypass 开关、员工/岗位/部门统一授权。
 - v2025-05: RBAC 基础模型上线。Resource/Role/UserResourceRole 三表。

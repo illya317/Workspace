@@ -5,6 +5,7 @@ const ts = require("typescript");
 const ROOT = path.resolve(__dirname, "..", "..");
 const REGISTRY_GLOBS = [
   path.join(ROOT, "packages", "platform", "module-registry.ts"),
+  path.join(ROOT, "packages", "platform", "module-registry-utils.ts"),
 ];
 
 function getLine(sourceFile, pos) {
@@ -70,6 +71,21 @@ function getArrayStringProperty(obj, name) {
     }));
 }
 
+function getBoolProperty(obj, name) {
+  const prop = getObjectProperty(obj, name);
+  if (!prop || !ts.isPropertyAssignment(prop)) return undefined;
+  if (prop.initializer.kind === ts.SyntaxKind.TrueKeyword) return true;
+  if (prop.initializer.kind === ts.SyntaxKind.FalseKeyword) return false;
+  return undefined;
+}
+
+function getNumberProperty(obj, name) {
+  const prop = getObjectProperty(obj, name);
+  if (!prop || !ts.isPropertyAssignment(prop)) return undefined;
+  if (ts.isNumericLiteral(prop.initializer)) return Number(prop.initializer.text);
+  return undefined;
+}
+
 function collectModuleDefsFromObject(sourceFile, filePath, moduleObj, output) {
   const moduleDefProp = getObjectProperty(moduleObj, "moduleDef");
   if (!moduleDefProp || !ts.isPropertyAssignment(moduleDefProp)) return;
@@ -85,6 +101,13 @@ function collectModuleDefsFromObject(sourceFile, filePath, moduleObj, output) {
     href: getStringProperty(moduleDef, "href"),
     resourceKey: getStringProperty(moduleDef, "resourceKey"),
     hasResourceKey: hasOwnProperty(moduleDef, "resourceKey"),
+    presentation: getStringProperty(moduleDef, "presentation"),
+    noPageReason: getStringProperty(moduleDef, "noPageReason"),
+    resourceMaxRoleKey: getStringProperty(moduleDef, "resourceMaxRoleKey"),
+    resourceHidden: getBoolProperty(moduleDef, "resourceHidden") ?? false,
+    resourceSortOrder: getNumberProperty(moduleDef, "resourceSortOrder"),
+    apiPrefixes: getArrayStringProperty(moduleDef, "apiPrefixes").map((item) => item.value),
+    noApiReason: getStringProperty(moduleDef, "noApiReason"),
     parentKey: null,
   });
   for (const child of getChildren(moduleDef)) {
@@ -98,6 +121,13 @@ function collectModuleDefsFromObject(sourceFile, filePath, moduleObj, output) {
       href: getStringProperty(child, "href"),
       resourceKey: getStringProperty(child, "resourceKey"),
       hasResourceKey: hasOwnProperty(child, "resourceKey"),
+      presentation: getStringProperty(child, "presentation"),
+      noPageReason: getStringProperty(child, "noPageReason"),
+      resourceMaxRoleKey: getStringProperty(child, "resourceMaxRoleKey"),
+      resourceHidden: getBoolProperty(child, "resourceHidden") ?? false,
+      resourceSortOrder: getNumberProperty(child, "resourceSortOrder"),
+      apiPrefixes: getArrayStringProperty(child, "apiPrefixes").map((item) => item.value),
+      noApiReason: getStringProperty(child, "noApiReason"),
       parentKey: key,
     });
   }
@@ -112,9 +142,40 @@ function collectResourceDefsFromObject(sourceFile, filePath, moduleObj, output) 
       line: getLine(sourceFile, resourceDef.getStart(sourceFile)),
       filePath,
       name: getStringProperty(resourceDef, "name"),
+      kind: getStringProperty(resourceDef, "kind") ?? null,
+      capabilityOwnerKey: getStringProperty(resourceDef, "capabilityOwnerKey") ?? null,
       parentKey: getStringProperty(resourceDef, "parentKey") ?? null,
       runtimeParentKey: getStringProperty(resourceDef, "runtimeParentKey") ?? null,
       maxRoleKey: getStringProperty(resourceDef, "maxRoleKey") ?? null,
+      hidden: getBoolProperty(resourceDef, "hidden") ?? false,
+    });
+  }
+}
+
+function collectApiContractsFromObject(sourceFile, filePath, moduleObj, output) {
+  for (const guard of getArrayObjectProperty(moduleObj, "apiGuards")) {
+    const pathPrefix = getStringProperty(guard, "pathPrefix");
+    const resourceKey = getStringProperty(guard, "resourceKey");
+    if (!pathPrefix || !resourceKey) continue;
+    output.push({
+      pathPrefix,
+      resourceKey,
+      line: getLine(sourceFile, guard.getStart(sourceFile)),
+      filePath,
+      source: "apiGuards",
+    });
+  }
+  for (const route of getArrayObjectProperty(moduleObj, "apiRoutes")) {
+    const pathPrefix = getStringProperty(route, "pathPrefix");
+    const resourceKey = getStringProperty(route, "resourceKey");
+    if (!pathPrefix) continue;
+    output.push({
+      pathPrefix,
+      resourceKey: resourceKey ?? null,
+      access: getStringProperty(route, "access") ?? null,
+      line: getLine(sourceFile, route.getStart(sourceFile)),
+      filePath,
+      source: "apiRoutes",
     });
   }
 }
@@ -204,9 +265,55 @@ function collectRoutes(filePaths = REGISTRY_GLOBS) {
   return output;
 }
 
+function collectApiContracts(filePaths = REGISTRY_GLOBS) {
+  const output = [];
+  for (const filePath of filePaths) {
+    if (!fs.existsSync(filePath)) continue;
+    const text = fs.readFileSync(filePath, "utf8");
+    const sourceFile = ts.createSourceFile(
+      filePath,
+      text,
+      ts.ScriptTarget.Latest,
+      true,
+      filePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+    );
+
+    for (const match of text.matchAll(/apiResourceGuards\(\s*["']([^"']+)["']\s*,\s*["']([^"']+)["']/g)) {
+      output.push({
+        pathPrefix: match[1],
+        resourceKey: match[2],
+        line: getLine(sourceFile, match.index ?? 0),
+        filePath,
+        source: "apiResourceGuards",
+      });
+    }
+    for (const match of text.matchAll(/apiRoutes\(\s*["']([^"']+)["']\s*,\s*["']([^"']+)["']/g)) {
+      output.push({
+        pathPrefix: match[1],
+        resourceKey: null,
+        access: match[2],
+        line: getLine(sourceFile, match.index ?? 0),
+        filePath,
+        source: "apiRoutes",
+      });
+    }
+
+    function visit(node) {
+      if (ts.isObjectLiteralExpression(node)) {
+        collectApiContractsFromObject(sourceFile, filePath, node, output);
+      }
+      ts.forEachChild(node, visit);
+    }
+
+    visit(sourceFile);
+  }
+  return output;
+}
+
 module.exports = {
   ROOT,
   REGISTRY_GLOBS,
+  collectApiContracts,
   collectModuleDefs,
   collectResourceDefs,
   collectRoutes,

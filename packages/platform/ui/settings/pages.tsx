@@ -1,10 +1,10 @@
-import { redirect } from "next/navigation";
 import { PageStyleShowcase, RegistryBrowserCard } from "@workspace/core/ui";
 import type { CoreUiRegistryUsageRow, SessionUser } from "@workspace/platform/types";
 import { getPageStyleRouteModules, pageViewDefinitions } from "@workspace/platform/view-registry";
 import AppShell from "../AppShell";
 import { DatabasePageFrame } from "@workspace/core/ui";
 import SettingsClient from "./SettingsClient";
+import ApiGuideClient from "../docs/ApiGuideClient";
 import { pageStylePreviewSamples } from "./page-style-sample-data";
 import { getTemplateRoutes, moduleTemplates } from "./page-style-template-data";
 
@@ -21,11 +21,17 @@ export function SettingsGovernancePage({
 }: {
   user: SessionUser;
 }) {
-  if ((user.manageableResourceKeys?.length ?? 0) === 0) redirect("/settings");
-
   return (
     <AppShell title="数据治理" backHref="/settings" user={user}>
       <SettingsClient user={user} hideShell view="governance" />
+    </AppShell>
+  );
+}
+
+export function SettingsApiPage({ user }: { user: SessionUser }) {
+  return (
+    <AppShell title="API 接入" backHref="/settings" user={user}>
+      <ApiGuideClient hideShell initialUser={user} />
     </AppShell>
   );
 }
@@ -37,8 +43,6 @@ export function SettingsGovernanceUiRegistryPage({
   user: SessionUser;
   coreUiRegistryRows: CoreUiRegistryUsageRow[];
 }) {
-  if ((user.manageableResourceKeys?.length ?? 0) === 0) redirect("/settings");
-
   return (
     <AppShell title="Core UI 注册表" backHref="/settings/governance" user={user}>
       <DatabasePageFrame contentClassName="py-8">
@@ -57,7 +61,6 @@ export function SettingsGovernanceToolbarPreviewPage({
 }: {
   user: SessionUser;
 }) {
-  if ((user.manageableResourceKeys?.length ?? 0) === 0) redirect("/settings");
   const templateRoutesByModule = new Map(
     moduleTemplates.map((module) => [module.key, new Set(getTemplateRoutes(module))]),
   );

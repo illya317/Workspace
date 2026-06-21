@@ -7,7 +7,7 @@ import {
 } from "./auth";
 import { prisma } from "./prisma";
 
-const PEOPLE_RESOURCE_KEY = "people";
+const PEOPLE_RESOURCE_KEY = "hr";
 const ADMIN_ROLE_KEY = "admin";
 
 type DepartmentAdminInput = {

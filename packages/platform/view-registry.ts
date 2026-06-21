@@ -143,13 +143,13 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/production/qc/batches",
+    route: "/production/qc-batches",
     moduleKey: "production",
     label: "批次检验",
     recordRoutes: [
-      "/production/qc/batches/[batchId]",
-      "/production/qc/batches/[batchId]/[stageKey]",
-      "/production/qc/batches/[batchId]/[stageKey]/[testName]",
+      "/production/qc-batches/[batchId]",
+      "/production/qc-batches/[batchId]/[stageKey]",
+      "/production/qc-batches/[batchId]/[stageKey]/[testName]",
     ],
     views: [],
   },
@@ -328,7 +328,7 @@ export const pageViewDefinitions: PageViewDefinition[] = basePageViewDefinitions
 
 export function getPageStyleRouteModules(): PageStyleRouteModule[] {
   return effectiveModuleDefinitions.flatMap(({ moduleDef }) => {
-    if (!moduleDef || moduleDef.enabled === false || moduleDef.hidden) return [];
+    if (!moduleDef || moduleDef.presentation === "headless" || moduleDef.enabled === false || moduleDef.hidden) return [];
     const children = moduleDef.children?.length
       ? moduleDef.children.filter((child) => child.enabled !== false && !child.hidden).map((child) => ({
           key: child.key,

@@ -78,7 +78,7 @@
 ```txt
 目标: Finance period API route 去业务逻辑化
 范围: finance
-文件: app/api/modules/finance/periods/route.ts, packages/finance/server/ledger/periods.ts
+文件: app/api/modules/finance/ledger/periods/route.ts, packages/finance/server/ledger/periods.ts
 动作: refactor
 目标层: api-shell + package
 依赖: 先补 package service，再缩薄 route，最后 ratchet baseline

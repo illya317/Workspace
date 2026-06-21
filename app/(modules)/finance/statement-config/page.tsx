@@ -3,7 +3,7 @@ import AppShell from "@workspace/platform/ui/AppShell";
 import { FinanceShell, StatementConfigClient } from "@workspace/finance/ui";
 
 export default async function StatementConfigPage() {
-  const user = await requireResourceAccess("finance.statement");
+  const user = await requireResourceAccess("finance.statementConfig");
   return (
     <AppShell title="报表配置" backHref="/finance" user={user}>
       <FinanceShell activeNav="statementConfig" user={user} hideShell>

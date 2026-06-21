@@ -92,7 +92,7 @@ export async function normalizeProjectParentId(value: unknown, currentProjectId?
   if (!parentId) return { value: null };
   if (currentProjectId && parentId === currentProjectId) return { error: "上级项目不能选择自己" };
   const validation = await validateFkValue(WORK_FK_REGISTRY, {
-    fkKey: "work.project.parent",
+    fkKey: "work.projects.parent",
     value: parentId,
     requiredLabel: "上级项目",
   });
@@ -116,7 +116,7 @@ export async function normalizeLeadingDepartmentId(value: unknown): Promise<Lead
   const leadingDepartmentId = normalizeNullablePositiveInt(value);
   if (Number.isNaN(leadingDepartmentId) || !leadingDepartmentId) return { error: "主导部门不能为空" };
   const validation = await validateFkValue(WORK_FK_REGISTRY, {
-    fkKey: "work.project.leadingDepartment",
+    fkKey: "work.projects.leadingDepartment",
     value: leadingDepartmentId,
     requiredLabel: "主导部门",
   });

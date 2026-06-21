@@ -66,9 +66,9 @@ const baseModuleTemplates: ModuleTemplate[] = [
     overviewLabel: "生产管理",
     entryRoutes: ["/production"],
     pages: [
-      { key: "batches", label: "批次列表", title: "批次检验记录", kind: "table", section: "批次检验", group: "检验记录", routes: ["/production/qc/batches"], tableColumns: ["批号", "产品", "规格", "阶段", "负责人", "状态"], embedded: { title: "检验记录", kind: "production", paperMode: "record", previewAction: true, routes: ["/production/qc/batches/[batchId]", "/production/qc/batches/[batchId]/[stageKey]", "/production/qc/batches/[batchId]/[stageKey]/[testName]"] } },
-      { key: "templates", label: "模板结构", title: "检验模板", kind: "production", paperMode: "template", section: "检验模板", group: "模板维护", routes: ["/production/qc/templates"], toolbar: false, footer: false },
-      { key: "template-feedback", label: "反馈", title: "模板反馈", kind: "table", section: "检验模板", group: "模板反馈", routes: ["/production/qc/templates"], tableColumns: ["位置", "问题", "反馈人", "状态", "处理人", "更新时间"] },
+      { key: "batches", label: "批次列表", title: "批次检验记录", kind: "table", section: "批次检验", group: "检验记录", routes: ["/production/qc-batches"], tableColumns: ["批号", "产品", "规格", "阶段", "负责人", "状态"], embedded: { title: "检验记录", kind: "production", paperMode: "record", previewAction: true, routes: ["/production/qc-batches/[batchId]", "/production/qc-batches/[batchId]/[stageKey]", "/production/qc-batches/[batchId]/[stageKey]/[testName]"] } },
+      { key: "templates", label: "模板结构", title: "检验模板", kind: "production", paperMode: "template", section: "检验模板", group: "模板维护", routes: ["/production/qc-templates"], toolbar: false, footer: false },
+      { key: "template-feedback", label: "反馈", title: "模板反馈", kind: "table", section: "检验模板", group: "模板反馈", routes: ["/production/qc-templates"], tableColumns: ["位置", "问题", "反馈人", "状态", "处理人", "更新时间"] },
     ],
   },
   {

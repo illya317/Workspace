@@ -12,11 +12,14 @@
 
 ## 2. RBAC 资源
 
+- [ ] L2 先按用户认知钉死：L2 = `moduleDef.children[*]` 中的业务入口单元，不按 resource key 点号数量猜。
+- [ ] 每个 L2 必须具备四件套：直接二级 app route、同名 RBAC resource、明确 API contract 前缀或 `noApiReason`、权限页可授权资源。
+- [ ] L2 的 `resourceKey` 必须等于 `module.key + "." + child.key`，例如 `finance.statementConfig`；多个页面不能共用一个模糊 resource。
 - [ ] `scripts/seed-resources.ts` 注册资源树：
   - L1 模块资源：`maxRoleKey: "admin"`（业务动作上线后改）
-  - 子页面/子功能按需加子资源
+  - L2 页面/功能资源必须与 registry child key 一致
 - [ ] 新增的子资源必须设 `parentKey` 指向正确的父资源；只有不应继承父权限的独立能力例外
-- [ ] 独立业务能力如果不能继承父资源权限，但仍归属某模块启停，必须保持 `parentKey` 为空并设置 `runtimeParentKey` 指向模块资源，例如全量查看、导出或跨对象辅助权限
+- [ ] L2 以下 capability 不进入全局页面 L2；它必须声明 `capabilityOwnerKey` 指向已注册 L2。如果不能继承父资源权限但仍归属模块启停，保持 `parentKey` 为空并设置 `runtimeParentKey` 指向 owner，例如全量查看、导出或跨对象辅助权限
 - [ ] `packages/platform/module-registry.ts` 注册模块，不能只在业务包本地定义
 - [ ] `packages/<domain>/module.ts` 导出来自 registry 的 `moduleDefinition` / `resourceDefs` / `routes`
 - [ ] `packages/platform/modules.tsx` 只消费 registry；`app/lib/module-nav.tsx` 只作为兼容出口
@@ -24,6 +27,7 @@
 ## 3. 页面
 
 - [ ] `app/<domain>/page.tsx` 服务端组件 facade，只组合 `packages/<domain>/ui` 导出的组件
+- [ ] L2 app route 必须是直接二级路径，例如 `/production/qc-batches`，禁止用嵌套三级路径作为 L2。
 - [ ] 目录下有子页面的，加 `layout.tsx` 统一做路由级门禁：
   ```tsx
   import { requireResourceAccess } from "@workspace/platform/server/auth";
@@ -36,7 +40,8 @@
 
 ## 4. API
 
-- [ ] `app/api/<domain>/route.ts` — 四件事：认证、参数校验、调 package service、返回 DTO
+- [ ] `app/api/modules/<domain>/<l2>/route.ts` — 四件事：认证、参数校验、调 package service、返回 DTO
+- [ ] 每个 L2 在 registry child 上声明 `apiPrefixes`；没有 API 时写清 `noApiReason`。宽泛 `/api/modules/<domain>` 不能作为 L2 最终契约。
 - [ ] GET → 至少 `access`；POST/PUT → `write`；DELETE → `delete`
 - [ ] 权限入口必须使用 `packages/platform/server/auth/authorize.ts` 的 `authorize()`，或委托给 `@workspace/platform/server/auth` 中已经使用 `authorize()` 的 Platform wrapper
 - [ ] API route 不超过 120 行，超了拆 service

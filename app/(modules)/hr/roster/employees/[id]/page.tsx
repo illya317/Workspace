@@ -20,7 +20,7 @@ function toHRUser(user: Awaited<ReturnType<typeof requireResourceAccess>>): HRUs
 }
 
 export default async function EmployeeProfilePage({ params }: Props) {
-  const [{ id }, user] = await Promise.all([params, requireResourceAccess("people.roster")]);
+  const [{ id }, user] = await Promise.all([params, requireResourceAccess("hr.roster")]);
   const employeeKey = decodeURIComponent(id).trim();
   if (!employeeKey) notFound();
 

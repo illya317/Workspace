@@ -18,6 +18,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
 
   const [resources, setResources] = useState<ResourceItem[]>([]);
   const [fullResourceTree, setFullResourceTree] = useState<ResourceItem[]>([]);
+  const [capabilitiesByOwner, setCapabilitiesByOwner] = useState<Record<string, ResourceItem[]>>({});
   const [conflictStrategy, setConflictStrategy] = useState("union");
 
   const { toast, showToast, closeToast } = useToast();
@@ -26,16 +27,17 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     let cancelled = false;
     async function loadInitial() {
       try {
-        const resRes = await fetch(workspacePath("/api/system/admin/permissions"));
+        const resRes = await fetch(workspacePath("/api/settings/admin/permissions"));
         if (!cancelled) {
           if (!resRes.ok) showToast("加载权限资源失败: " + resRes.status, "error");
           const resData = await resRes.json();
           // API already filters by manageableKeys — no client-side second filter needed
           setResources((resData.resources || []) as ResourceItem[]);
+          setCapabilitiesByOwner((resData.capabilitiesByOwner || {}) as Record<string, ResourceItem[]>);
           // Full tree for badge computation (unscoped)
           setFullResourceTree((resData.resourceTree || resData.resources || []) as ResourceItem[]);
           try {
-            const cfgRes = await fetch(workspacePath("/api/system/admin/system-config"));
+            const cfgRes = await fetch(workspacePath("/api/settings/admin/system-config"));
             if (cfgRes.ok) {
               const cfgData = await cfgRes.json();
               setConflictStrategy(cfgData.conflictStrategy || "union");
@@ -53,7 +55,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   }, [showToast, isSuperAdmin]);
 
   async function saveConflictStrategy(strategy: string) {
-    const res = await fetch(workspacePath("/api/system/admin/system-config"), {
+    const res = await fetch(workspacePath("/api/settings/admin/system-config"), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ conflictStrategy: strategy }),
@@ -89,7 +91,13 @@ export default function AdminClient({ user }: { user: SessionUser }) {
       >
         <div className="space-y-4">
           {activeTab === "users" && <AdminUsersTab showToast={showToast} resources={fullResourceTree} />}
-          {activeTab === "permissions" && <PermissionsTab resources={resources} showToast={showToast} />}
+          {activeTab === "permissions" && (
+            <PermissionsTab
+              resources={resources}
+              capabilitiesByOwner={capabilitiesByOwner}
+              showToast={showToast}
+            />
+          )}
         </div>
 
         {/* System Config */}

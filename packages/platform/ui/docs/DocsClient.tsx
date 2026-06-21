@@ -6,7 +6,8 @@ import type { SessionUser } from "@workspace/platform/types";
 import ModuleCard from "../ModuleCard";
 
 function getDocCategories(user: SessionUser): Record<string, Array<{ title: string; href: string }>> {
-  const hasApiAccess = (user.visibleResourceKeys || []).includes("system.api");
+  const visibleResourceKeys = user.visibleResourceKeys || [];
+  const hasApiAccess = visibleResourceKeys.includes("docs.api") || visibleResourceKeys.includes("settings.api");
   return {
   "入职指南": [
     { title: "入职流程说明", href: "/docs/onboarding" },

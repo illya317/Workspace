@@ -46,7 +46,7 @@ export default function ReviewClient() {
     setLoading(true);
     setError(null);
     clear();
-    const response = await fetch(workspacePath(`/api/modules/finance/statement-workpapers?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt}`));
+    const response = await fetch(workspacePath(`/api/modules/finance/statement-review/workpapers?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt}`));
     if (!response.ok) {
       setError(`加载底稿失败 (${response.status})`);
       setLoading(false);
@@ -55,7 +55,7 @@ export default function ReviewClient() {
     const result = await response.json();
     setWp(result.id ? result : { ...result, id: 0 });
     if (result.id) {
-      const reviewResponse = await fetch(workspacePath(`/api/modules/finance/statement-reviews?workpaperId=${result.id}`));
+      const reviewResponse = await fetch(workspacePath(`/api/modules/finance/statement-review/reviews?workpaperId=${result.id}`));
       if (reviewResponse.ok) {
         const reviewResult = await reviewResponse.json();
         if (reviewResult.review) setRv(reviewResult.review);
@@ -68,7 +68,7 @@ export default function ReviewClient() {
     if (!wp?.id) return;
     setLoading(true);
     setError(null);
-    const response = await fetch(workspacePath("/api/modules/finance/statement-reviews"), {
+    const response = await fetch(workspacePath("/api/modules/finance/statement-review/reviews"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ workpaperId: wp.id }),
@@ -89,7 +89,7 @@ export default function ReviewClient() {
     setSaving(true);
     setError(null);
     const lines = [...edits.entries()].map(([lineCode, edit]) => ({ lineCode, ...edit }));
-    const response = await fetch(workspacePath(`/api/modules/finance/statement-reviews/${rv.id}`), {
+    const response = await fetch(workspacePath(`/api/modules/finance/statement-review/reviews/${rv.id}`), {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ lines }),
@@ -109,7 +109,7 @@ export default function ReviewClient() {
     if (!rv) return;
     setSaving(true);
     setError(null);
-    const response = await fetch(workspacePath(`/api/modules/finance/statement-reviews/${rv.id}/confirm`), { method: "POST" });
+    const response = await fetch(workspacePath(`/api/modules/finance/statement-review/reviews/${rv.id}/confirm`), { method: "POST" });
     const result = await response.json();
     if (!response.ok) {
       setError(result.error || "确认失败");

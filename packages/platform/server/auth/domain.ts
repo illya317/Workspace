@@ -13,6 +13,10 @@ export {
   checkFinanceReportAccess,
   checkFinanceReportWrite,
   checkFinanceReportDelete,
+  checkFinanceStatementConfigAccess,
+  checkFinanceStatementConfigWrite,
+  checkFinanceStatementReviewAccess,
+  checkFinanceStatementReviewWrite,
   checkFinanceBudgetAccess,
   checkFinanceBudgetWrite,
   checkFinanceBudgetDelete,
@@ -27,35 +31,35 @@ export {
 /**
  * Check HR access for a specific resource key.
  *
- * @param resourceKey — the most specific resource to check (e.g. "people.roster").
- *   Defaults to "people" for backward compat. Also checks "people" parent as a
+ * @param resourceKey — the most specific resource to check (e.g. "hr.roster").
+ *   Defaults to "hr" for backward compat. Also checks "hr" parent as a
  *   fallback so broad grants still work.
  */
 export async function checkHRAccess(
   userId: number,
   roleKey: AuthorizeAction = "access",
-  resourceKey: string = "people",
+  resourceKey: string = "hr",
 ): Promise<boolean> {
   if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
 
   if (await authorize({ user: userId, resourceKey, action: roleKey })) return true;
   if (
-    resourceKey !== "people" &&
-    await authorize({ user: userId, resourceKey: "people", action: roleKey })
+    resourceKey !== "hr" &&
+    await authorize({ user: userId, resourceKey: "hr", action: roleKey })
   ) return true;
   return false;
 }
 
 export async function checkHRWrite(
   userId: number,
-  resourceKey: string = "people",
+  resourceKey: string = "hr",
 ): Promise<boolean> {
   return checkHRAccess(userId, "write", resourceKey);
 }
 
 export async function checkHRDelete(
   userId: number,
-  resourceKey: string = "people",
+  resourceKey: string = "hr",
 ): Promise<boolean> {
   return checkHRAccess(userId, "delete", resourceKey);
 }
@@ -66,7 +70,7 @@ export async function checkWorkAccess(
 ): Promise<boolean> {
   return (
     (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
-    (await authorize({ user: userId, resourceKey: "work.project", action: roleKey })) ||
+    (await authorize({ user: userId, resourceKey: "work.projects", action: roleKey })) ||
     (await authorize({ user: userId, resourceKey: "work", action: roleKey }))
   );
 }
@@ -93,7 +97,7 @@ export async function checkInventoryAccess(userId: number): Promise<boolean> {
 export async function checkContractAccess(userId: number): Promise<boolean> {
   return (
     (await authorize({ user: userId, resourceKey: "system", action: "admin" })) ||
-    (await authorize({ user: userId, resourceKey: "administration.contract", action: "access" }))
+    (await authorize({ user: userId, resourceKey: "administration.contracts", action: "access" }))
   );
 }
 

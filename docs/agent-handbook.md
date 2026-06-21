@@ -115,7 +115,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 2. 在 seed 中注册资源树，设置 `parentId / maxRoleKey / sortOrder`。
 3. 在 `packages/platform/module-registry.ts` 注册模块，并让 `packages/<domain>/module.ts` 导出 registry 中的 `moduleDefinition`。
 4. 模块展示名、描述、隐藏和启停优先改 `packages/platform/module-overrides.ts`；不要为了中文 rename 改 `resourceKey`、FK key、API path 或 URL path。
-5. `parentKey` 只表达 RBAC 权限继承；不能继承父权限、但必须随模块启停的资源使用 `runtimeParentKey`，例如 `work.project.view_all`。
+5. `parentKey` 只表达 RBAC 权限继承；不能继承父权限、但必须随模块启停的资源使用 `runtimeParentKey`，例如 `work.projects.viewAll`。
 6. 创建 `app/<domain>/ARCHITECTURE.md`，写清楚数据来源、事实字段、计算字段、权限、页面。
 7. 如需新表，创建 `prisma/models/<domain>.prisma`，同步 migration/seed，并更新数据库文档。
 8. 在 `packages/<domain>/server/` 写业务逻辑；`server/services/<domain>/` 只用于尚未迁移的存量代码。API route 只做认证、权限、参数校验、调用 service、返回 DTO。
@@ -193,11 +193,11 @@ rm data/dev.db && npx prisma db push
 | 工作汇报 | `/work/reports` | 登录 |
 | 历史记录 | `/work/history` | 登录 |
 | 工作清单 | `/work/tasks` | 登录 |
-| 人事行政 | `/hr` | `people.access` |
-| 管理后台 | `/settings/admin` | `system.admin` 或 `people.access` |
-| 接入指南 | `/docs/api-guide` | `system.api.access` |
+| 人事行政 | `/hr` | `hr.access` |
+| 管理后台 | `/settings/admin` | 可管理任一资源 |
+| 接入指南 | `/docs/api-guide` | `docs.api.access` 或 `settings.api.access` |
 | 设置 | `/settings` | 登录 |
-| 智能助手 | `/api/system/agent` | 登录，权限随用户 |
+| 智能助手 | `/api/agent` | 登录，权限随用户 |
 | 外部关系 | `/external` | 登录 |
 | 文档中心 | `/docs` | 登录 |
 | 资料库 | `/library` | 登录 |
@@ -218,7 +218,7 @@ API 权限规则：
 - GET 使用 `access`；POST/PUT/PATCH 使用 `write`；DELETE 使用 `delete`；授权和系统配置使用 `admin` 或 `system.admin`。
 - 新 API route 只允许做四件事：认证、参数校验、调用 service、返回 DTO。
 - 复杂查询、导入、汇总、派生字段计算必须放到 `packages/<domain>/server/`；旧 `server/services/<domain>/` 只作为存量兼容位置。
-- 旧兼容 API 可以保留代理，但新功能必须走领域入口，例如 HR 新接口走 `app/api/modules/hr/*`，财务成本走 `app/api/modules/finance/cost/*`。
+- 旧兼容 API 可以保留代理，但新功能必须走领域入口，例如 HR 新接口走 `app/api/modules/hr/roster/*`，财务成本走 `app/api/modules/finance/cost/*`。
 
 ## 11. 业务规则
 

@@ -11,7 +11,7 @@ export interface ModuleRuntimeOverride {
 export type ModuleRuntimeOverrideMap = Record<string, ModuleRuntimeOverride>;
 
 export const moduleRuntimeOverrides = {
-  "work.project": {
+  "work.projects": {
     label: "项目管理",
   },
 } satisfies ModuleRuntimeOverrideMap;

@@ -73,7 +73,7 @@ export function useProjectTabModel(user: WorkUser) {
     try {
       const [projectRes, entryRes] = await Promise.all([
         fetch(workspacePath("/api/modules/work/projects?pageSize=500")),
-        fetch(workspacePath("/api/modules/work/project-members?pageSize=500")),
+        fetch(workspacePath("/api/modules/work/projects/members?pageSize=500")),
       ]);
       if (!projectRes.ok || !entryRes.ok) throw new Error("加载失败");
       const [projectData, entryData] = await Promise.all([projectRes.json(), entryRes.json()]);

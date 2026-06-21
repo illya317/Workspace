@@ -63,7 +63,7 @@ export function DocsPositionsIndex({ user }: { user: SessionUser }) {
 export function DocsApiGuidePage({ user }: { user: SessionUser }) {
   return (
     <AppShell title="接入指南" backHref="/docs" user={user}>
-      <ApiGuideClient hideShell />
+      <ApiGuideClient hideShell initialUser={user} />
     </AppShell>
   );
 }

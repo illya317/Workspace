@@ -27,7 +27,7 @@
 
 不在第一阶段做：
 
-- 不新增独立财务子资源，先复用 `finance.statement`
+- 不新增独立财务子资源，先复用 `finance.statements`
 - 不做三表完整 UI，一期先把资产负债表打通
 - 不做拖拽式配置
 - 不删除 `prefixesJson` / `subtractPrefixesJson`，先兼容迁移
@@ -703,7 +703,7 @@ npx tsc --noEmit
 改动：
 
 - `/finance/statement-config/page.tsx` 改为 server component
-- 调用 `requireResourceAccess("finance.statement")`
+- 调用 `requireResourceAccess("finance.statements")`
 - 把现有 client UI 移到 `StatementConfigClient.tsx`
 - 在 `app/lib/module-nav.tsx` finance children 挂出“报表配置”
 - 在 `app/finance/lib/nav-utils.ts` 顶部导航挂出“报表配置”
@@ -823,15 +823,15 @@ children leaf closingDebit / closingCredit sum
 页面：
 
 ```text
-/finance/statement-config -> requireResourceAccess("finance.statement")
+/finance/statement-config -> requireResourceAccess("finance.statementConfig")
 ```
 
 API：
 
 | API | 权限 |
 |---|---|
-| GET `/api/modules/finance/statement-config` | `finance.statement.access` |
-| PUT `/api/modules/finance/statement-config` | `finance.statement.write` 或现有报表写 wrapper |
+| GET `/api/modules/finance/statement-config` | `finance.statementConfig.access` |
+| PUT `/api/modules/finance/statement-config` | `finance.statementConfig.write` |
 
 如果当前没有 `withFinanceReportWrite`，建议新增 wrapper，不要复用 ledger write。
 

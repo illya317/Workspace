@@ -22,6 +22,7 @@ export type PermissionsTabState = ReturnType<typeof usePermissionsTab>;
 
 export function usePermissionsTab(
   resources: ResourceItem[],
+  resourceLookup: ResourceItem[],
   showToast: (msg: string, type?: "success" | "error") => void
 ) {
   const [subjectType, setSubjectType] = useState<SubjectType>("user");
@@ -39,14 +40,10 @@ export function usePermissionsTab(
   const systemAdminIds = useSystemAdminIds();
 
   const roles = useMemo(() => {
-    // Work collaboration subresources only need module-level admin grants in this matrix.
-    if (selectedResource === "work.task" || selectedResource === "work.report" || selectedResource === "work.project" || selectedResource === "work.history") {
-      return [{ key: "admin", ...(ROLE_META.admin || { name: "管理", color: "purple" }) }];
-    }
     // DB-driven: business roles capped by maxRoleKey, admin always available
     let maxAction: string = "admin";
     if (selectedResource) {
-      const found = findResourceInTree(resources, selectedResource);
+      const found = findResourceInTree(resourceLookup, selectedResource);
       if (found?.effectiveMaxRoleKey) maxAction = found.effectiveMaxRoleKey;
     }
     const H = { access: 0, write: 1, delete: 2, admin: 3 } as Record<string, number>;
@@ -54,7 +51,7 @@ export function usePermissionsTab(
     const keys: string[] = (["access", "write", "delete"] as const).filter((k) => (H[k] ?? 0) <= maxLvl);
     keys.push("admin"); // always available
     return keys.map((k) => ({ key: k, ...(ROLE_META[k] || { name: k, color: "gray" }) }));
-  }, [selectedResource, resources]);
+  }, [selectedResource, resourceLookup]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -63,7 +60,7 @@ export function usePermissionsTab(
       params.set("subjectType", subjectType);
       if (selectedResource) params.set("resourceKey", selectedResource);
 
-      const res = await fetch(workspacePath(`/api/system/admin/permission-grants?${params.toString()}`)
+      const res = await fetch(workspacePath(`/api/settings/admin/permission-grants?${params.toString()}`)
       );
       if (res.ok) {
         const data = await res.json();
@@ -92,9 +89,9 @@ export function usePermissionsTab(
   // Child resource keys for gray checkmark (no parent grant but child has)
   const childResourceKeys = useMemo(() => {
     if (!selectedResource) return [];
-    const node = findResourceInTree(resources, selectedResource);
+    const node = findResourceInTree(resourceLookup, selectedResource);
     return (node?.children || []).map((c) => c.key);
-  }, [selectedResource, resources]);
+  }, [selectedResource, resourceLookup]);
 
   const getPermissionState = useCallback(
     (subject: Subject, roleKey: string) =>
@@ -128,7 +125,7 @@ export function usePermissionsTab(
     }
 
     try {
-      const res = await fetch(workspacePath("/api/system/admin/permission-grants"), {
+      const res = await fetch(workspacePath("/api/settings/admin/permission-grants"), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -154,7 +151,7 @@ export function usePermissionsTab(
   const updateMaxRole = useCallback(async (newMax: string) => {
     if (!selectedResource) return;
     try {
-      const res = await fetch(workspacePath("/api/system/admin/permission-grants/max-role"), {
+      const res = await fetch(workspacePath("/api/settings/admin/permission-grants/max-role"), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ resourceKey: selectedResource, maxRoleKey: newMax }),

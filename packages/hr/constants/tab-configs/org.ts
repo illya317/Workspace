@@ -34,7 +34,7 @@ const companyFields: FieldConfig[] = [
 
 export const companyConfig: TabConfig = {
   title: "公司信息",
-  apiPath: "/api/modules/hr/companies",
+  apiPath: "/api/modules/hr/roster/companies",
   entityType: "Company",
   fields: companyFields,
   advancedFilters: [
@@ -54,7 +54,7 @@ const companyRelationFields: FieldConfig[] = [
 
 export const companyRelationConfig: TabConfig = {
   title: "公司关系",
-  apiPath: "/api/modules/hr/company-relations",
+  apiPath: "/api/modules/hr/roster/company-relations",
   entityType: "CompanyRelation",
   fields: companyRelationFields,
   fkFields: {
@@ -81,7 +81,7 @@ const departmentFields: FieldConfig[] = [
 
 export const departmentConfig: TabConfig = {
   title: "部门",
-  apiPath: "/api/modules/hr/departments",
+  apiPath: "/api/modules/hr/roster/departments",
   entityType: "Department",
   fields: departmentFields,
   fkFields: {
@@ -107,7 +107,7 @@ const positionFields: FieldConfig[] = [
 
 export const positionConfig: TabConfig = {
   title: "岗位",
-  apiPath: "/api/modules/hr/positions",
+  apiPath: "/api/modules/hr/roster/positions",
   entityType: "Position",
   fields: positionFields,
   fkFields: {

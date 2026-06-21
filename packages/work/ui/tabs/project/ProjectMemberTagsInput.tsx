@@ -77,7 +77,7 @@ export default function ProjectMemberTagsInput({
             {pickerOpen && (
               <div className="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-72 border border-slate-200 bg-slate-50/95 p-2 shadow-xl">
                 <FkFieldInput
-                  fkKey="work.project.member.employee"
+                  fkKey="work.projects.member.employee"
                   endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
                   value=""
                   placeholder="搜索员工"

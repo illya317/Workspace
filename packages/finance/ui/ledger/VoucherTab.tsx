@@ -67,7 +67,7 @@ export default function VoucherTab({ canWrite }: { canWrite: boolean }) {
       params.set("pageSize", String(pageSize));
 
       try {
-        const res = await fetch(workspacePath(`/api/modules/finance/vouchers?${params.toString()}`), { signal: ctrl.signal });
+        const res = await fetch(workspacePath(`/api/modules/finance/ledger/vouchers?${params.toString()}`), { signal: ctrl.signal });
         if (cancelled) return;
         if (res.ok) {
           const data: VoucherResponse = await res.json();

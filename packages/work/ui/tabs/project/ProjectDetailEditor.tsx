@@ -126,7 +126,7 @@ export default function ProjectDetailEditor({
               </FormField>
               <FormField label="主导部门" required={draft.projectType === "department"} className="md:col-span-2">
                 <FkFieldInput
-                  fkKey="work.project.leadingDepartment"
+                  fkKey="work.projects.leadingDepartment"
                   endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
                   value={draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : ""}
                   displayValue={draft.leadingDepartmentName || ""}
@@ -176,7 +176,7 @@ export default function ProjectDetailEditor({
             <div className="space-y-3">
               <FormField label="项目负责人">
                 <FkFieldInput
-                  fkKey="work.project.member.employee"
+                  fkKey="work.projects.member.employee"
                   endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
                   value={draft.leader?.employeeNumber || ""}
                   displayValue={draft.leader?.name || ""}

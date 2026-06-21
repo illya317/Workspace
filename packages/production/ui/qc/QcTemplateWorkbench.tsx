@@ -44,7 +44,7 @@ export default function QcTemplateWorkbench({ templates, feedbackStates }: Props
   async function loadTemplateDetail(templateId: string) {
     const cached = detailCache.get(templateId);
     if (cached) return cached;
-    const response = await fetch(workspacePath(`/api/modules/production/qc/templates/${encodeURIComponent(templateId)}`));
+    const response = await fetch(workspacePath(`/api/modules/production/qc-templates/${encodeURIComponent(templateId)}`));
     if (!response.ok) throw new Error("模板详情加载失败");
     const body = await response.json() as { data?: QcTemplateDetail };
     if (!body.data) throw new Error("模板详情为空");

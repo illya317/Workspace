@@ -143,7 +143,7 @@ export default function EmployeeDirectory({
         params.set("filterValue", filterValue);
       }
       try {
-        const res = await fetch(workspacePath(`/api/modules/hr/employees?${params.toString()}`));
+        const res = await fetch(workspacePath(`/api/modules/hr/roster/employees?${params.toString()}`));
         if (!res.ok) throw new Error(`加载失败 (${res.status})`);
         const data = (await res.json()) as EmployeeListResponse;
         if (!cancelled) {
@@ -170,7 +170,7 @@ export default function EmployeeDirectory({
     setCreating(true);
     setError(null);
     try {
-      const res = await fetch(workspacePath("/api/modules/hr/employees"), {
+      const res = await fetch(workspacePath("/api/modules/hr/roster/employees"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

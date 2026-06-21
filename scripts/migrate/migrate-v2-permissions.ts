@@ -14,16 +14,17 @@ async function main() {
   const resDefs = [
     { key: "system", name: "系统管理", sortOrder: 0 },
     { key: "system.audit", name: "审计日志", sortOrder: 2, parentKey: "system" },
-    { key: "people", name: "人员", sortOrder: 10 },
-    { key: "people.employee", name: "员工档案", sortOrder: 11, parentKey: "people" },
-    { key: "people.org", name: "组织架构", sortOrder: 12, parentKey: "people" },
+    { key: "hr", name: "人事管理", sortOrder: 10 },
+    { key: "hr.roster", name: "人事基础资料", sortOrder: 11, parentKey: "hr" },
+    { key: "hr.performance", name: "考勤绩效", sortOrder: 12, parentKey: "hr" },
+    { key: "hr.analytics", name: "人力分析", sortOrder: 13, parentKey: "hr" },
     { key: "docs", name: "文档", sortOrder: 20 },
     { key: "docs.policy", name: "制度", sortOrder: 21, parentKey: "docs" },
     { key: "docs.manual", name: "培训手册", sortOrder: 22, parentKey: "docs" },
     { key: "docs.form", name: "表单", sortOrder: 23, parentKey: "docs" },
     { key: "work", name: "工作", sortOrder: 30 },
-    { key: "work.report", name: "周报", sortOrder: 31, parentKey: "work" },
-    { key: "work.task", name: "工作清单", sortOrder: 32, parentKey: "work" },
+    { key: "work.reports", name: "周报", sortOrder: 31, parentKey: "work" },
+    { key: "work.tasks", name: "工作清单", sortOrder: 32, parentKey: "work" },
     { key: "finance", name: "财务", sortOrder: 40 },
   ];
 

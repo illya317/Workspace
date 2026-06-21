@@ -5,7 +5,7 @@
  * must use one of these instead of a bare `getCurrentUser() + redirect`.
  *
  * Usage:
- *   const user = await requireResourceAccess("external.investor");
+ *   const user = await requireResourceAccess("external.investors");
  *   // user is guaranteed authenticated + has visibleResourceKeys including the argument.
  */
 
@@ -32,6 +32,16 @@ export async function requireResourceAccess(resourceKey: string): Promise<Sessio
   }
   if (!(await authorize({ user, resourceKey, action: "access" }))) redirect("/portal");
   return user;
+}
+
+export async function requireAnyResourceAccess(resourceKeys: string[]): Promise<SessionUser> {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  for (const resourceKey of resourceKeys) {
+    if (!isResourceEnabled(resourceKey)) continue;
+    if (await authorize({ user, resourceKey, action: "access" })) return user;
+  }
+  redirect("/portal");
 }
 
 /**

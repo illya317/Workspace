@@ -39,9 +39,9 @@ model Supplier { ... }
 ## 权限
 
 - `/external`：`requireResourceAccess("external")`
-- `/external/investors`：`requireResourceAccess("external.investor")`
-- `/external/customers`：`requireResourceAccess("external.customer")`
-- `/external/suppliers`：`requireResourceAccess("external.supplier")`
+- `/external/investors`：`requireResourceAccess("external.investors")`
+- `/external/customers`：`requireResourceAccess("external.customers")`
+- `/external/suppliers`：`requireResourceAccess("external.suppliers")`
 
 ## 状态
 

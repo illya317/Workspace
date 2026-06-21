@@ -14,10 +14,12 @@ function toModuleDef(moduleDef: ModuleRegistration): ModuleDef {
 export const MODULES: ModuleDef[] = workspacePackages
   .map((pkg) => pkg.moduleDef)
   .filter((moduleDef): moduleDef is ModuleRegistration => Boolean(moduleDef))
+  .filter((moduleDef) => moduleDef.presentation !== "headless")
   .filter((moduleDef) => moduleDef.enabled !== false && !moduleDef.hidden)
   .map(toModuleDef);
 
-function isResourceVisible(user: SessionUser, resourceKey?: string): boolean {
+function isResourceVisible(user: SessionUser, resourceKey?: string, moduleKey?: string): boolean {
+  if (moduleKey === "settings" && (!resourceKey || resourceKey === "settings.account")) return true;
   if (resourceKey) {
     return (user.visibleResourceKeys || []).includes(resourceKey);
   }
@@ -26,9 +28,9 @@ function isResourceVisible(user: SessionUser, resourceKey?: string): boolean {
 
 export function getAccessibleModules(user: SessionUser): ModuleDef[] {
   return MODULES.filter((m) => {
-    if (isResourceVisible(user, m.resourceKey)) return true;
+    if (isResourceVisible(user, m.resourceKey, m.key)) return true;
     if (m.children?.length) {
-      return m.children.some((c) => isResourceVisible(user, c.resourceKey));
+      return m.children.some((c) => isResourceVisible(user, c.resourceKey, m.key));
     }
     return false;
   });
@@ -37,7 +39,7 @@ export function getAccessibleModules(user: SessionUser): ModuleDef[] {
 export function getSubModules(user: SessionUser, moduleKey: string): SubModuleDef[] {
   const mod = MODULES.find((m) => m.key === moduleKey);
   if (!mod?.children) return [];
-  return mod.children.filter((c) => isResourceVisible(user, c.resourceKey));
+  return mod.children.filter((c) => isResourceVisible(user, c.resourceKey, mod.key));
 }
 
 export function getEmptyMessage(_moduleKey: string): string {

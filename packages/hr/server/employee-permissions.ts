@@ -118,15 +118,15 @@ export async function getEmployeesWithPermissions(): Promise<EmployeePermission[
       username: linkedUser?.username ?? null,
       isWorkListAdmin: rrs.some((rr) => rr.resource.key === "system" && rr.role.key === "admin"),
       canAccessHR: rrs.some((rr) =>
-        (rr.resource.key === "people" || rr.resource.key.startsWith("people.")) &&
+        (rr.resource.key === "hr" || rr.resource.key.startsWith("hr.")) &&
         rr.role.key === "access",
       ),
       canEditHR: rrs.some((rr) =>
-        (rr.resource.key === "people" || rr.resource.key.startsWith("people.")) &&
+        (rr.resource.key === "hr" || rr.resource.key.startsWith("hr.")) &&
         (rr.role.key === "write" || rr.role.key === "delete" || rr.role.key === "admin"),
       ) || rrs.some((rr) => rr.resource.key === "system" && rr.role.key === "admin"),
       canDeleteHR: rrs.some((rr) =>
-        (rr.resource.key === "people" || rr.resource.key.startsWith("people.")) &&
+        (rr.resource.key === "hr" || rr.resource.key.startsWith("hr.")) &&
         (rr.role.key === "delete" || rr.role.key === "admin"),
       ) || rrs.some((rr) => rr.resource.key === "system" && rr.role.key === "admin"),
       resourceRoles: rrs,

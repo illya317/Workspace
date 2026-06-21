@@ -10,28 +10,10 @@
 
 const fs = require("fs");
 const path = require("path");
+const { collectApiContracts, collectModuleDefs } = require("./module-registry-reader");
 
 const WORKSPACE_ROOT = path.resolve(__dirname, "../..");
 const ROOT = path.join(WORKSPACE_ROOT, "app/api");
-const MODULE_REGISTRY = path.join(WORKSPACE_ROOT, "packages/platform/module-registry.ts");
-const DIRECT_AUTH_DISABLED_GUARD_BASELINE = new Set([
-  "modules/hr/autocomplete/route.ts",
-  "modules/hr/companies/route.ts",
-  "modules/hr/company-relations/route.ts",
-  "modules/hr/contracts/[id]/route.ts",
-  "modules/hr/contracts/route.ts",
-  "modules/hr/edps/route.ts",
-  "modules/hr/employee-profiles/[id]/contracts/route.ts",
-  "modules/hr/employee-profiles/[id]/edps/route.ts",
-  "modules/hr/employee-profiles/[id]/history/route.ts",
-  "modules/hr/employee-profiles/[id]/route.ts",
-  "modules/hr/employees/search/route.ts",
-  "modules/hr/employments/route.ts",
-  "modules/hr/position-description-templates/route.ts",
-  "modules/hr/position-descriptions/route.ts",
-  "modules/hr/positions/route.ts",
-  "modules/hr/roster/route.ts",
-]);
 
 function walkRoutes(dir) {
   const results = [];
@@ -47,22 +29,46 @@ function walkRoutes(dir) {
 }
 
 const KNOWN_PREFIXES = [
+  "agent",
   "auth",
   "integrations",
-  "me",
   "modules",
-  "system",
+  "settings",
 ];
 
-function registeredApiModules() {
-  const source = fs.readFileSync(MODULE_REGISTRY, "utf8");
-  return new Set(
-    Array.from(source.matchAll(/apiResourceGuards\(\s*["']\/api\/modules\/([^/"']+)/g))
-      .map((match) => match[1])
-  );
+const MODULE_DEFS = collectModuleDefs();
+const KNOWN_MODULES = new Set(MODULE_DEFS.filter((moduleDef) => !moduleDef.parentKey).map((moduleDef) => moduleDef.key));
+const MODULES_WITH_CHILDREN = new Set(MODULE_DEFS.filter((moduleDef) => moduleDef.parentKey).map((moduleDef) => moduleDef.parentKey));
+const REGISTERED_L2_API_BASES = new Set(
+  MODULE_DEFS
+    .filter((moduleDef) => moduleDef.parentKey)
+    .flatMap((moduleDef) => moduleDef.apiPrefixes || []),
+);
+const REGISTERED_L1_ONLY_API_BASES = new Set(
+  collectApiContracts()
+    .filter((contract) => contract.source === "apiResourceGuards")
+    .map((contract) => contract.pathPrefix)
+    .filter((prefix) => {
+      const parts = prefix.split("/").filter(Boolean);
+      const moduleName = parts[2];
+      return parts[0] === "api" && parts[1] === "modules" && moduleName && !MODULES_WITH_CHILDREN.has(moduleName);
+    }),
+);
+const EXPLICIT_NON_L2_API_CONTRACTS = collectApiContracts()
+  .filter((contract) => contract.source === "apiRoutes" && ["disabled", "internal"].includes(contract.access))
+  .map((contract) => contract.pathPrefix);
+
+function routePathFromRel(rel) {
+  return `/api/${rel.replace(/\/route\.ts$/, "")}`;
 }
 
-const KNOWN_MODULES = registeredApiModules();
+function isCoveredByExplicitNonL2Contract(pathname) {
+  return EXPLICIT_NON_L2_API_CONTRACTS.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
+
+function isCoveredByL1OnlyContract(pathname) {
+  return [...REGISTERED_L1_ONLY_API_BASES].some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`));
+}
 
 let errors = 0;
 
@@ -75,15 +81,26 @@ for (const file of allRoutes) {
   // 检查是否在已知 API 能力前缀下
   const firstSegment = rel.split("/")[0];
   if (!KNOWN_PREFIXES.includes(firstSegment)) {
-    console.error(`❌ ${rel} 缺少 API 能力前缀，应放到 /api/{auth,me,system,modules,integrations}/*`);
+    console.error(`❌ ${rel} 缺少 API 能力前缀，应放到 /api/{auth,agent,settings,modules,integrations}/*`);
     errors++;
     continue;
   }
 
   if (firstSegment === "modules") {
-    const moduleName = rel.split("/")[1];
+    const parts = rel.split("/");
+    const moduleName = parts[1];
     if (!KNOWN_MODULES.has(moduleName)) {
       console.error(`❌ ${rel} 的模块名未在 module-registry apiGuards 登记，应放到 /api/modules/<registered-module>/*`);
+      errors++;
+    }
+    const routePath = routePathFromRel(rel);
+    const l2Base = parts.length >= 3 ? `/api/modules/${parts[1]}/${parts[2]}` : null;
+    if (
+      !isCoveredByExplicitNonL2Contract(routePath) &&
+      !isCoveredByL1OnlyContract(routePath) &&
+      (!l2Base || !REGISTERED_L2_API_BASES.has(l2Base))
+    ) {
+      console.error(`❌ ${rel} 未命中注册的 L2 API base；应放到 /api/modules/<l1>/<registered-l2>/*，当前 L2 base 为 ${l2Base || "缺失"}`);
       errors++;
     }
 
@@ -93,8 +110,7 @@ for (const file of allRoutes) {
     if (
       usesDirectAuthenticate &&
       !hasDisabledRuntimeGuard &&
-      !usesAuthWrapper &&
-      !DIRECT_AUTH_DISABLED_GUARD_BASELINE.has(rel)
+      !usesAuthWrapper
     ) {
       console.error(`❌ ${rel} 手写 authenticate() 时必须先调用 disabledApiResponseForRequest()，避免 contract disabled 后仍进入业务逻辑`);
       errors++;

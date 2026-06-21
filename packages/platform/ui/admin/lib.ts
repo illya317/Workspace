@@ -151,7 +151,7 @@ export function computePermissionState(
 export function isTopLevelResource(key: string): boolean {
   return [
     "system",
-    "people",
+    "hr",
     "work",
     "docs",
     "finance",

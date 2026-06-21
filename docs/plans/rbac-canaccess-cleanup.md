@@ -23,7 +23,7 @@
 `session.ts:64-71` 的硬编码 OR 链：
 ```ts
 const financeKeys = ["finance", "finance.cost", "finance.ledger",
-                     "finance.statement", "finance.budget",
+                     "finance.statements", "finance.budget",
                      "finance.analysis", "finance.import"];
 const hasFinance = financeKeys.some(ma);
 ```
@@ -62,17 +62,17 @@ const hasFinance = financeKeys.some(ma);
 
 | 页面 | 当前权限 | 新权限 |
 |------|---------|--------|
-| `/work/reports` | `canAccessWorks` | `requireResourceAccess("work.report")` |
-| `/work/tasks` | `canAccessWorks` | `requireResourceAccess("work.task")` |
+| `/work/reports` | `canAccessWorks` | `requireResourceAccess("work.reports")` |
+| `/work/tasks` | `canAccessWorks` | `requireResourceAccess("work.tasks")` |
 | `/settings/admin` | `canAccessAdmin` | `requireResourceAccess("system")` 或保留仅登录 |
-| `/administration/contracts` | `canAccessContract` | `requireResourceAccess("administration.contract")` |
+| `/administration/contracts` | `canAccessContract` | `requireResourceAccess("administration.contracts")` |
 | `/docs` | `canAccessDocs` | `requireResourceAccess("docs")` |
 | 生产库存页面 | `canAccessInventory` | 当前无独立页面入口 |
 | `/production` | `canAccessInventory` | `requireResourceAccess("production")` |
 | `/finance` | `canAccessFinance` | `requireResourceAccess("finance")` |
 | `/administration` | `canAccessContract` | `requireResourceAccess("administration")` |
 | `/external` | `canAccessExternal` | `requireResourceAccess("external")` |
-| `/hr` | 手动 `visibleResourceKeys` OR 链 | `requireResourceAccess("people")` |
+| `/hr` | 手动 `visibleResourceKeys` OR 链 | `requireResourceAccess("hr")` |
 
 **注意**：`/settings`、`/portal` 保持仅登录可见，无需 resourceKey。
 
@@ -130,7 +130,7 @@ export default async function Page() {
 
 **3c. 所有引用旧字段的 frontend 代码**
 搜索并替换所有 `user.canAccess*` 引用，改为 `visibleResourceKeys.includes(resourceKey)`：
-- `app/hr/page.tsx`：`HR_KEYS.some((k) => user.visibleResourceKeys?.includes(k))` → 改为 `requireResourceAccess("people")`
+- `app/hr/page.tsx`：`HR_KEYS.some((k) => user.visibleResourceKeys?.includes(k))` → 改为 `requireResourceAccess("hr")`
 - `app/hr/HRClient.tsx`：`(user.visibleResourceKeys || []).includes(key)` → 已正确，保留
 - `app/hr/performance/HRPerformanceClient.tsx`：同上，已正确
 - `app/hr/analytics/HRAnalyticsClient.tsx`：同上，已正确
@@ -201,14 +201,14 @@ NODE_OPTIONS="--max-old-space-size=8192" npm run build
 | `app/external/page.tsx` | `canAccessExternal` → `requireResourceAccess("external")` |
 | `app/production/page.tsx` | `canAccessInventory` → `requireResourceAccess("production")` |
 | `app/(modules)/administration/page.tsx` | `canAccessContract` → `requireResourceAccess("administration")` |
-| `app/(modules)/administration/contracts/page.tsx` | `canAccessContract` → `requireResourceAccess("administration.contract")` |
+| `app/(modules)/administration/contracts/page.tsx` | `canAccessContract` → `requireResourceAccess("administration.contracts")` |
 | `app/docs/page.tsx` | `canAccessDocs` → `requireResourceAccess("docs")` |
-| `app/(modules)/work/reports/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.report")` |
-| `app/(modules)/work/tasks/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.task")` |
+| `app/(modules)/work/reports/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.reports")` |
+| `app/(modules)/work/tasks/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.tasks")` |
 | `app/(system)/settings/admin/page.tsx` | `canAccessAdmin` → `requireResourceAccess("system")` 或仅登录 |
-| `app/hr/page.tsx` | `visibleResourceKeys` OR 链 → `requireResourceAccess("people")` |
-| `packages/platform/ui/settings/SettingsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("system.api")` |
-| `app/docs/DocsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("system.api")` |
+| `app/hr/page.tsx` | `visibleResourceKeys` OR 链 → `requireResourceAccess("hr")` |
+| `packages/platform/ui/settings/SettingsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("settings.api")` |
+| `app/docs/DocsClient.tsx` | `canAccessApi` → `visibleResourceKeys.includes("settings.api")` |
 | `lib/types.ts` | 删除所有 `canAccess*` 字段 |
 | `server/auth/session.ts` | 删除旧字段生成逻辑 |
 | `scripts/check/check-module-page-gates.js` | 缩减 LEGACY_EXCEPTIONS |
@@ -217,5 +217,5 @@ NODE_OPTIONS="--max-old-space-size=8192" npm run build
 ## 依赖与风险
 
 - **TypeScript 类型删除是破坏性变更**：所有引用 `canAccess*` 的类型都需要同步改。改动量大，但模式统一，适合派 agent 并行处理。
-- **Work 子页面权限**：`work.report` 和 `work.task` 在工作管理体系里是独立资源，必须分别使用对应 resourceKey。
+- **Work 子页面权限**：`work.reports` 和 `work.tasks` 在工作管理体系里是独立资源，必须分别使用对应 resourceKey。
 - **/settings/admin 的权限**：当前用 `canAccessAdmin`（含 `isAdmin || canManagePermissions`）。如果改为 `requireResourceAccess("system")`，需要确认后台权限矩阵中 `system` 资源是否被正确授予。

@@ -37,6 +37,7 @@ export async function authorize({
 
   const userId = getAuthorizeUserId(user);
   if (!userId) return false;
+  if (resourceKey === "settings.account" && action === "access") return true;
   return evaluatePermission(userId, resourceKey, action);
 }
 

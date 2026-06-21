@@ -138,7 +138,7 @@ export async function createEdp(request: Request) {
 export async function updateEdpField(request: Request, params: Promise<{ id: string }>) {
   const payload = await authenticate(request);
   if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
-  if (!(await checkHRWrite(payload.userId, "people.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+  if (!(await checkHRWrite(payload.userId, "hr.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
   const { id } = await params;
   const recordId = Number(id);

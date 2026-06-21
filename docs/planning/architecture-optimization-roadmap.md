@@ -22,7 +22,7 @@
 |---|---|---|
 | 业务模块继续增加 | 已有 HR、Finance、Inventory、Contracts，后续还会有绩效、采购、生产 | ✅ 新模块模板已确定，新增模块有标准目录和权限契约 |
 | Prisma schema 过长 | `prisma/schema.prisma` 已超过 800 行 | ✅ 已按领域拆分为 `prisma/models/*.prisma`，主文件只保留 generator/datasource |
-| API 入口并存 | 有 `/api/modules/hr/*`，也有 `/api/modules/hr/roster`、`/api/modules/hr/positions` 等旧入口 | ✅ 旧入口已改为纯代理，前端已全部迁移到 `/api/modules/hr/*` |
+| API 入口并存 | 有 `/api/modules/hr/roster/*`，也有 `/api/modules/hr/roster`、`/api/modules/hr/roster/positions` 等旧入口 | ✅ 旧入口已改为纯代理，前端已全部迁移到 `/api/modules/hr/roster/*` |
 | admin 旧权限文件残留 | 新权限矩阵已存在，但旧 ByUser/ByPosition 等文件还在 | ✅ 旧权限文件已删除，权限页只剩用户账号 + 权限管理两个主 tab |
 | 超长文件仍存在 | `PermissionsTab.tsx`、`usePermissionsTab.ts`、`CodeTable.tsx` 超过 300 行 | ✅ 已拆分：PermissionsTab 132 行、usePermissionsTab 203 行、CodeTable 152 行 |
 | service 层不均匀 | finance-cost 已开始有 service，但其他模块仍有 API/页面承担业务逻辑 | ✅ admin permission-grants 已下沉到 `server/services/admin/`，finance-cost 持续维护 |
@@ -129,7 +129,7 @@ npm run build
 
 | 领域 | 新入口 |
 |---|---|
-| HR | `/api/modules/hr/*` |
+| HR | `/api/modules/hr/roster/*` |
 | 财务总账 | `/api/modules/finance/*` |
 | 财务成本 | `/api/modules/finance/cost/*` |
 | 库存 | `/api/modules/production/inventory/*` |
@@ -141,17 +141,17 @@ npm run build
 完成状态：
 
 - 新增 `/api/modules/hr/roster`：承载原 `/api/modules/hr/roster` 的花名册扁平化 + Excel 导出逻辑。
-- 新增 `/api/modules/hr/employees/search`：员工搜索（含岗位展开）。
+- 新增 `/api/modules/hr/roster/employees/search`：员工搜索（含岗位展开）。
 - 旧入口已全部改为纯代理：
   - `/api/modules/hr/roster` → `/api/modules/hr/roster`
-  - `/api/modules/hr/employees/search` → `/api/modules/hr/employees/search`
-  - `/api/modules/hr/autocomplete` → `/api/modules/hr/autocomplete`
-  - `/api/modules/hr/positions` → `/api/modules/hr/positions`
-  - `/api/modules/hr/edps` → `/api/modules/hr/edps`
-  - `/api/modules/hr/departments` → `/api/modules/hr/departments`
-  - `/api/modules/work/plans` → `/api/modules/hr/projects`
-  - `/api/modules/work/plan-members` → `/api/modules/hr/employee-projects`
-- 前端已全部迁移到 `/api/modules/hr/*`：
+  - `/api/modules/hr/roster/employees/search` → `/api/modules/hr/roster/employees/search`
+  - `/api/modules/hr/roster/autocomplete` → `/api/modules/hr/roster/autocomplete`
+  - `/api/modules/hr/roster/positions` → `/api/modules/hr/roster/positions`
+  - `/api/modules/hr/roster/edps` → `/api/modules/hr/roster/edps`
+  - `/api/modules/hr/roster/departments` → `/api/modules/hr/roster/departments`
+  - `/api/modules/work/plans` → `/api/modules/hr/roster/projects`
+  - `/api/modules/work/plan-members` → `/api/modules/hr/roster/employee-projects`
+- 前端已全部迁移到 `/api/modules/hr/roster/*`：
   - 旧 `app/hooks/useSearch.ts` 已删除；HR 实体搜索走 `@workspace/hr/ui` 的 `EntitySearchInput` 和 `@workspace/hr/server` 的搜索 service
   - `RosterTab.tsx` → `/api/modules/hr/roster`
   - `useCodeData.ts` → `/api/modules/hr/roster`
@@ -164,7 +164,7 @@ npm run build
 验收：
 
 ```bash
-rg '/api/modules/hr/roster|/api/modules/hr/positions|/api/modules/hr/departments' app/ --type-add 'web:*.{ts,tsx}' -tweb
+rg '/api/modules/hr/roster|/api/modules/hr/roster/positions|/api/modules/hr/roster/departments' app/ --type-add 'web:*.{ts,tsx}' -tweb
 # 只剩纯代理文件和文档中的兼容层说明
 ```
 
@@ -318,7 +318,7 @@ access / write / delete / admin
 - [x] `chore(docs): add project map and architecture roadmap`
 - [x] `chore(schema): split prisma schema by domain`
 - [x] `chore(api): mark legacy HR APIs as compatibility routes`（Phase 3）
-- [x] `fix(api): complete Phase 3 rework — migrate frontend to /api/modules/hr/*, old routes pure proxy, docs updated`
+- [x] `fix(api): complete Phase 3 rework — migrate frontend to /api/modules/hr/roster/*, old routes pure proxy, docs updated`
 - [x] `refactor(admin): split permissions matrix files`（Phase 4）
 - [x] `refactor(hr-code): finish code table decomposition`（Phase 4）
 - [x] `chore(service): migrate admin permission-grants to service layer`（Phase 5）

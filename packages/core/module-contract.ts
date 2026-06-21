@@ -35,6 +35,11 @@ export interface SubModuleRegistration {
   desc: string;
   href: string;
   resourceKey: string;
+  resourceMaxRoleKey?: "access" | "write" | "delete" | "admin";
+  resourceHidden?: boolean;
+  resourceSortOrder?: number;
+  apiPrefixes?: string[];
+  noApiReason?: string;
   lifecycleStatus?: ModuleLifecycleStatus;
   enabled?: boolean;
   hidden?: boolean;
@@ -48,7 +53,12 @@ export interface ModuleRegistration {
   href: string;
   iconKey: ModuleIconKey;
   color: ModuleColor;
+  presentation?: "page" | "headless";
+  noPageReason?: string;
   resourceKey?: string;
+  resourceMaxRoleKey?: "access" | "write" | "delete" | "admin";
+  resourceHidden?: boolean;
+  resourceSortOrder?: number;
   lifecycleStatus?: ModuleLifecycleStatus;
   children?: SubModuleRegistration[];
   enabled?: boolean;
@@ -66,6 +76,8 @@ export interface ModuleDef extends Omit<ModuleRegistration, "iconKey" | "childre
 export interface ResourceRegistration {
   key: string;
   name: string;
+  kind?: "capability";
+  capabilityOwnerKey?: string;
   parentKey?: string;
   runtimeParentKey?: string;
   maxRoleKey?: "access" | "write" | "delete" | "admin";
@@ -82,7 +94,7 @@ export interface ApiGuardRegistration {
   action: "access" | "write" | "delete" | "admin";
 }
 
-export type ApiRouteAccessMode = "protected" | "public" | "dev" | "disabled";
+export type ApiRouteAccessMode = "protected" | "public" | "dev" | "disabled" | "internal";
 
 export interface ApiRouteRegistration {
   method: ApiGuardRegistration["method"];

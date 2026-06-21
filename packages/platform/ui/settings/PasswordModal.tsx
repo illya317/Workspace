@@ -38,7 +38,7 @@ export default function PasswordModal({ open, onClose }: PasswordModalProps) {
       return;
     }
 
-    const res = await fetch(workspacePath("/api/auth/change-password"), {
+    const res = await fetch(workspacePath("/api/settings/account/password"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ oldPassword: oldPwd, newPassword: newPwd }),

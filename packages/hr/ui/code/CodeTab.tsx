@@ -22,7 +22,7 @@ export function CodesTab({
   const [selectedDept, setSelectedDept] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(workspacePath("/api/modules/hr/companies?active=1"))
+    fetch(workspacePath("/api/modules/hr/roster/companies?active=1"))
       .then((r) => r.json())
       .then((data) => {
         const found = (data.companies || []).find(
@@ -38,7 +38,7 @@ export function CodesTab({
         <CodeTab
           user={user}
           type="department"
-          apiPath="/api/system/admin/department-codes"
+          apiPath="/api/settings/governance/department-codes"
           title="部门编码"
           companyCode={companyCode}
           selectedCompany={selectedCompany}
@@ -52,7 +52,7 @@ export function CodesTab({
         <CodeTab
           user={user}
           type="position"
-          apiPath="/api/system/admin/position-codes"
+          apiPath="/api/settings/governance/position-codes"
           title="岗位编码"
           companyCode={companyCode}
           selectedCompany={selectedCompany}
@@ -132,7 +132,7 @@ export default function CodeTab({
       <ActionToolbar
         className="border-0 bg-transparent p-0 shadow-none"
         leftSlot={title}
-        rightSlot={hrCanAccess(user, "people.roster") ? (
+        rightSlot={hrCanAccess(user, "hr.roster") ? (
           <EditToolbar
             editMode={editMode}
             onStartEdit={() => setEditMode(true)}

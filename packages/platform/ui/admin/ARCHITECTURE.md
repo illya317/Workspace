@@ -28,30 +28,30 @@ page.tsx
 
 ## 数据流
 
-1. **AdminClient** 加载权限资源树 `/api/system/admin/permissions`
+1. **AdminClient** 加载权限资源树 `/api/settings/admin/permissions`
 2. **PermissionsTab** 按 `subjectType`（user/position/department）切换，加载对应授权数据
-3. **API 路由** 在 `app/api/system/admin/` 下，分功能子目录（permissions、permission-grants、users 等）
+3. **API 路由** 在 `app/api/settings/admin/` 下，分功能子目录（permissions、permission-grants、users 等）
 
 ## API 规范
 
-Admin API 在 `app/api/system/admin/` 下：
+Admin API 在 `app/api/settings/admin/` 下：
 
 | 端点 | 说明 |
 |------|------|
-| `/api/system/admin/permissions` | 权限资源树 |
-| `/api/system/admin/permission-grants` | 统一授权设置 |
-| `/api/system/admin/user-permissions` | 用户权限切换 |
-| `/api/system/admin/position-permissions` | 岗位权限切换 |
-| `/api/system/admin/department-permissions` | 部门权限切换 |
-| `/api/system/admin/users` | 用户列表/更新 |
-| `/api/system/admin/audit-log` | 审计日志查询 |
-| `/api/system/admin/edit-history` | 编辑历史查询 |
-| `/api/system/admin/system-config` | 系统配置（冲突策略） |
+| `/api/settings/admin/permissions` | 权限资源树 |
+| `/api/settings/admin/permission-grants` | 统一授权设置 |
+| `/api/settings/admin/user-permissions` | 用户权限切换 |
+| `/api/settings/admin/position-permissions` | 岗位权限切换 |
+| `/api/settings/admin/department-permissions` | 部门权限切换 |
+| `/api/settings/admin/users` | 用户列表/更新 |
+| `/api/settings/governance/audit-log` | 审计日志查询 |
+| `/api/settings/governance/edit-history` | 编辑历史查询 |
+| `/api/settings/admin/system-config` | 系统配置（冲突策略） |
 
 ## 权限标准
 
 - `system.admin` — 系统管理员，拥有全部权限
-- `people.access` — 可进入管理后台（用户账号 Tab 可见性）
+- `hr.roster.access` — 可进入管理后台（用户账号 Tab 可见性）
 - 资源级权限通过 RBAC 矩阵管理，支持用户/岗位/部门三种授权对象
 
 前端只做显示控制（按钮隐藏），API 必须做最终权限校验。

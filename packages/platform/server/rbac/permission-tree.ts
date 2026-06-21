@@ -1,5 +1,5 @@
 import { prisma } from "@workspace/platform/server/prisma";
-import { RESOURCE_KEYS } from "@workspace/platform/resources";
+import { RESOURCE_DEFS, RESOURCE_KEYS, getCapabilityOwnerKey, isCapabilityResource, isMainRbacResource } from "@workspace/platform/resources";
 
 import { getResourceMaxRole } from "./maxRole";
 
@@ -31,15 +31,20 @@ export type PermissionResourceNode = {
   children?: PermissionResourceNode[];
 };
 
+export type PermissionCapabilityNode = Omit<PermissionResourceNode, "children"> & {
+  ownerKey: string;
+};
+
 function toPermissionNode(
   resource: ResourceTreeRow,
   countMap: Map<number, number>,
   visibleKeys: Set<string>,
+  renderableKeys: Set<string>,
   maxRoleMap: Map<string, string>,
 ): PermissionResourceNode {
   const children = (resource.children || [])
-    .map((child) => toPermissionNode(child, countMap, visibleKeys, maxRoleMap))
-    .filter((child) => visibleKeys.has(child.key));
+    .map((child) => toPermissionNode(child, countMap, visibleKeys, renderableKeys, maxRoleMap))
+    .filter((child) => visibleKeys.has(child.key) && renderableKeys.has(child.key));
 
   return {
     id: resource.id,
@@ -62,6 +67,8 @@ export async function listPermissionResources(input: {
   manageableResourceKeys: Iterable<string>;
 }) {
   const activeResourceKeys = new Set(RESOURCE_KEYS);
+  const hiddenResourceKeys = new Set(RESOURCE_DEFS.filter((resource) => resource.hidden).map((resource) => resource.key));
+  const capabilityKeys = new Set(RESOURCE_DEFS.filter((resource) => resource.kind === "capability").map((resource) => resource.key));
   const allResources = await prisma.resource.findMany({
     orderBy: { sortOrder: "asc" },
     include: {
@@ -76,6 +83,8 @@ export async function listPermissionResources(input: {
     },
   });
   const activeResources = allResources.filter((resource) => activeResourceKeys.has(resource.key));
+  const treeResources = activeResources.filter((resource) => !hiddenResourceKeys.has(resource.key) && !capabilityKeys.has(resource.key));
+  const renderableKeys = new Set(treeResources.filter((resource) => isMainRbacResource(resource.key)).map((resource) => resource.key));
 
   const allowedKeys = input.isSystemAdmin
     ? new Set(activeResources.map((resource) => resource.key))
@@ -115,18 +124,42 @@ export async function listPermissionResources(input: {
     }
   }
 
-  const resources = activeResources
-    .filter((resource) => resource.parentId === null && visibleKeys.has(resource.key))
-    .map((resource) => toPermissionNode(resource, countMap, visibleKeys, effectiveMaxRoleMap));
+  const resources = treeResources
+    .filter((resource) => resource.parentId === null && visibleKeys.has(resource.key) && renderableKeys.has(resource.key))
+    .map((resource) => toPermissionNode(resource, countMap, visibleKeys, renderableKeys, effectiveMaxRoleMap));
 
-  const fullTreeVisibleKeys = new Set(activeResources.map((resource) => resource.key));
-  const resourceTree = activeResources
-    .filter((resource) => resource.parentId === null)
-    .map((resource) => toPermissionNode(resource, countMap, fullTreeVisibleKeys, effectiveMaxRoleMap));
+  const fullTreeVisibleKeys = new Set(renderableKeys);
+  const resourceTree = treeResources
+    .filter((resource) => resource.parentId === null && renderableKeys.has(resource.key))
+    .map((resource) => toPermissionNode(resource, countMap, fullTreeVisibleKeys, renderableKeys, effectiveMaxRoleMap));
+
+  const resourceByKey = new Map(activeResources.map((resource) => [resource.key, resource]));
+  const capabilitiesByOwner: Record<string, PermissionCapabilityNode[]> = {};
+  for (const capability of activeResources.filter((resource) => isCapabilityResource(resource.key))) {
+    const ownerKey = getCapabilityOwnerKey(capability.key);
+    if (!ownerKey || !allowedKeys.has(ownerKey)) continue;
+    if (!capabilitiesByOwner[ownerKey]) capabilitiesByOwner[ownerKey] = [];
+    const node = toPermissionNode(capability, countMap, new Set([capability.key]), new Set([capability.key]), effectiveMaxRoleMap);
+    capabilitiesByOwner[ownerKey].push({
+      id: node.id,
+      key: node.key,
+      name: node.name,
+      description: node.description,
+      parentId: node.parentId,
+      sortOrder: node.sortOrder,
+      userCount: node.userCount,
+      maxRoleKey: node.maxRoleKey,
+      effectiveMaxRoleKey: node.effectiveMaxRoleKey,
+      scopeTypes: node.scopeTypes,
+      scopeInheritanceMode: node.scopeInheritanceMode,
+      ownerKey,
+    });
+    if (!resourceByKey.has(ownerKey)) delete capabilitiesByOwner[ownerKey];
+  }
 
   const roles = (await prisma.role.findMany({ orderBy: { sortOrder: "asc" } })).filter(
     (role) => role.key !== "read",
   );
 
-  return { resources, resourceTree, roles };
+  return { resources, resourceTree, roles, capabilitiesByOwner };
 }

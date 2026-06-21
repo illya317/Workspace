@@ -35,7 +35,7 @@ async function normalizeEmployeeProjectFieldUpdate(field: string, value: unknown
   }
   if (field === "projectId") {
     const validation = await validateFkValue(WORK_FK_REGISTRY, {
-      fkKey: "work.project.member.project",
+      fkKey: "work.projects.member.project",
       value,
       requiredLabel: "项目",
     });
@@ -44,7 +44,7 @@ async function normalizeEmployeeProjectFieldUpdate(field: string, value: unknown
   }
   if (field === "employeeId") {
     const validation = await validateFkValue(WORK_FK_REGISTRY, {
-      fkKey: "work.project.member.employee",
+      fkKey: "work.projects.member.employee",
       value,
       requiredLabel: "员工",
     });
@@ -124,13 +124,13 @@ export async function createProjectMember(request: Request) {
   });
   if (!employee) return NextResponse.json({ error: "员工不存在" }, { status: 400 });
   const employeeValidation = await validateFkValue(WORK_FK_REGISTRY, {
-    fkKey: "work.project.member.employee",
+    fkKey: "work.projects.member.employee",
     value: employee.id,
     requiredLabel: "员工",
   });
   if (!employeeValidation.ok) return NextResponse.json({ error: employeeValidation.error }, { status: employeeValidation.status });
   const projectValidation = await validateFkValue(WORK_FK_REGISTRY, {
-    fkKey: "work.project.member.project",
+    fkKey: "work.projects.member.project",
     value: projectNumber,
     requiredLabel: "项目",
   });

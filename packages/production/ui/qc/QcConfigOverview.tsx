@@ -101,7 +101,7 @@ function TemplatesOverview({ overview }: { overview: QcConfigOverview }) {
             {overview.recordTemplates.slice(0, 8).map((template) => (
               <Link
                 key={template.id}
-                href={`/production/qc/templates/${template.id}`}
+                href={`/production/qc-templates/${template.id}`}
                 className="block px-4 py-3 transition hover:bg-slate-50"
               >
                 <div className="text-sm font-medium text-slate-900">{template.productName}</div>

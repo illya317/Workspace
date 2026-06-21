@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { withFinanceReportAccess, withFinanceReportWrite } from "@workspace/platform/server/with-auth";
+import { withFinanceStatementConfigAccess, withFinanceStatementConfigWrite } from "@workspace/platform/server/with-auth";
 import {
   getStatementConfigView,
   saveStatementConfigLines,
@@ -31,8 +31,8 @@ const saveStatementConfigSchema = z.object({
 });
 
 // GET: 报表配置视图（lineConfigs + accountTree + mappingPreview）
-// 权限：finance.statement access
-export const GET = withFinanceReportAccess(async (request) => {
+// 权限：finance.statementConfig access
+export const GET = withFinanceStatementConfigAccess(async (request) => {
   const { searchParams } = new URL(request.url);
   const companyCode = searchParams.get("companyCode");
   const year = searchParams.get("year");
@@ -51,8 +51,8 @@ export const GET = withFinanceReportAccess(async (request) => {
 });
 
 // PUT: 批量保存配置行
-// 权限：finance.statement write
-export const PUT = withFinanceReportWrite(async (request) => {
+// 权限：finance.statementConfig write
+export const PUT = withFinanceStatementConfigWrite(async (request) => {
   const body = await request.json().catch(() => null);
   if (!body || !Array.isArray(body.lines))
     return NextResponse.json({ error: "lines 数组为必填" }, { status: 400 });

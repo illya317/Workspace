@@ -17,8 +17,8 @@ function toWorkUser(user: SessionUser): WorkUser {
 }
 
 export default async function WorkProjectsPage() {
-  const user = await requireResourceAccess("work.project");
-  const title = getResourceDef("work.project")?.name ?? "项目管理";
+  const user = await requireResourceAccess("work.projects");
+  const title = getResourceDef("work.projects")?.name ?? "项目管理";
   return (
     <AppShell
       title={title}

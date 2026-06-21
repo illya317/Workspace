@@ -15,7 +15,7 @@ export function hrCanAccess(user: HRUser, key: string): boolean {
 }
 
 /** Check if user has write permission on a resource. */
-export function hrCanEdit(user: HRUser, key: string = "people.roster"): boolean {
+export function hrCanEdit(user: HRUser, key: string = "hr.roster"): boolean {
   return user.isAdmin || user.visibleWriteResourceKeys.includes(key);
 }
 

@@ -3,7 +3,7 @@ import AppShell from "@workspace/platform/ui/AppShell";
 import { HRClient } from "@workspace/hr/ui";
 
 export default async function HRRosterPage() {
-  const user = await requireResourceAccess("people.roster");
+  const user = await requireResourceAccess("hr.roster");
   return (
     <AppShell title="人事基础资料" backHref="/hr" user={user}>
       <HRClient user={user} hideShell />

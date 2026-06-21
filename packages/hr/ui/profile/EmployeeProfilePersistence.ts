@@ -47,7 +47,7 @@ export async function persistBasic(
   const idNumberResult = validateChineseIdNumber(employeeDraft.idNumber);
   if (!idNumberResult.ok) throw new Error(idNumberResult.error);
   await updateChangedFields(
-    "/api/modules/hr/employees",
+    "/api/modules/hr/roster/employees",
     profile.employee.id,
     profile.employee as unknown as EditableRecord,
     employeeDraft as unknown as EditableRecord,
@@ -58,7 +58,7 @@ export async function persistBasic(
 export async function persistEmployment(profile: EmployeeProfile, row: EmploymentRow) {
   const normalizedRow = row.isActive ? { ...row, leaveDate: null, leaveReason: null, leaveNote: null } : row;
   if (row.isNew) {
-    await requestJson("/api/modules/hr/employments", {
+    await requestJson("/api/modules/hr/roster/employments", {
       method: "POST",
       body: JSON.stringify({
         employeeId: profile.employee.id,
@@ -80,7 +80,7 @@ export async function persistEmployment(profile: EmployeeProfile, row: Employmen
   const original = profile.employments.find((item) => item.id === row.id);
   if (!original) return;
   await updateChangedFields(
-    "/api/modules/hr/employments",
+    "/api/modules/hr/roster/employments",
     row.id,
     original as unknown as EditableRecord,
     normalizedRow as unknown as EditableRecord,
@@ -99,7 +99,7 @@ function serializeContract(row: ContractRow) {
 }
 
 export async function persistContracts(profile: EmployeeProfile, rows: ContractRow[]) {
-  await requestJson(`/api/modules/hr/employee-profiles/${profile.employee.id}/contracts`, {
+  await requestJson(`/api/modules/hr/roster/employee-profiles/${profile.employee.id}/contracts`, {
     method: "PUT",
     body: JSON.stringify({
       rows: rows.map((row) => ({
@@ -114,7 +114,7 @@ export async function persistContracts(profile: EmployeeProfile, rows: ContractR
 export async function persistEdps(profile: EmployeeProfile, rows: EdpRow[]) {
   const percentCheck = validateCurrentWorkPercent(rows);
   if (!percentCheck.ok) throw new Error(percentCheck.message);
-  await requestJson(`/api/modules/hr/employee-profiles/${profile.employee.id}/edps`, {
+  await requestJson(`/api/modules/hr/roster/employee-profiles/${profile.employee.id}/edps`, {
     method: "PUT",
     body: JSON.stringify({ rows }),
   });

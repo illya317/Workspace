@@ -3,7 +3,7 @@ import { AppShell } from "@workspace/platform/ui";
 import { ContractsClient } from "@workspace/administration/ui";
 
 export default async function ContractsPage() {
-  const user = await requireResourceAccess("administration.contract");
+  const user = await requireResourceAccess("administration.contracts");
   return (
     <AppShell title="合同台账" backHref="/administration" user={user}>
       <ContractsClient user={user} hideShell />

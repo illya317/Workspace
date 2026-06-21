@@ -23,7 +23,7 @@ export function useCodeData({
   const resolvedApiPath = workspacePath(apiPath);
 
   useEffect(() => {
-    fetch(workspacePath("/api/modules/hr/companies?active=1"))
+    fetch(workspacePath("/api/modules/hr/roster/companies?active=1"))
       .then((r) => r.json())
       .then((data) => setCompanies(data.companies || []))
       .catch(() => {});

@@ -57,14 +57,14 @@ roster/page.tsx
 1. **tabConfigs.ts** 定义每个 Tab 的字段配置（FieldConfig[]）、FK 映射、API 端点
 2. **packages/hr/ui/hooks/useGenericTab.ts** 提供 HR 批量表 CRUD hook：加载/创建/更新/搜索/筛选/审计日志
 3. **GenericTableTab.tsx** 消费 hook，渲染表格 + 工具栏 + 弹窗
-4. **API 路由** 在 `app/api/modules/hr/` 下，统一通过 `packages/hr/server` service 和 `@workspace/platform/server/crud-factory` 的领域 wrapper 处理字段级 CRUD，搜索使用 HR server helper
+4. **API 路由** 在 `app/api/modules/hr/roster/` 下，统一通过 `packages/hr/server` service 和 `@workspace/platform/server/crud-factory` 的领域 wrapper 处理字段级 CRUD，搜索使用 HR server helper
 
 员工详情页的数据流：
 
-1. `GET /api/modules/hr/employee-profiles/[id]` 聚合读取员工、雇佣、合同、部门岗位。
-2. 基本信息保存复用 `PUT /api/modules/hr/employees/[id]`。
+1. `GET /api/modules/hr/roster/employee-profiles/[id]` 聚合读取员工、雇佣、合同、部门岗位。
+2. 基本信息保存复用 `PUT /api/modules/hr/roster/employees/[id]`。
 3. 雇佣、合同、部门岗位写入复用现有行级 CRUD API。
-4. 员工详情页的部门岗位保存走 `PUT /api/modules/hr/employee-profiles/[id]/edps`，按员工整组保存并校验当前岗位工作占比合计为 1。
+4. 员工详情页的部门岗位保存走 `PUT /api/modules/hr/roster/employee-profiles/[id]/edps`，按员工整组保存并校验当前岗位工作占比合计为 1。
 5. 合同仍读取并写入 `Employment.contracts` JSON，前端沿用 `employmentId * 1000 + index` 的合成合同 ID。
 
 ## Tab 配置 (tabConfigs.ts)
@@ -100,7 +100,7 @@ export interface TabConfig {
 
 ## API 路由规范
 
-HR API 在 `app/api/modules/hr/` 下，采用统一 CRUD 模板：
+HR API 在 `app/api/modules/hr/roster/` 下，采用统一 CRUD 模板：
 - `GET` — 列表（支持 `?keyword=` 搜索，`?company=` 筛选）
 - `POST` — 创建（body 为 JSON，含必填字段校验）
 - `PUT` — 更新（body 含 `id` + 变更字段）
@@ -110,14 +110,14 @@ HR API 在 `app/api/modules/hr/` 下，采用统一 CRUD 模板：
 
 HR 页面和 API 使用同一套 RBAC 权限：
 
-- `people.access` — 控制进入页面和查看数据（GET）
-- `people.write` — 控制新增、编辑（POST / PUT / PATCH）
-- `people.delete` — 控制删除（DELETE）
+- `hr.roster.access` — 控制进入页面和查看数据（GET）
+- `hr.roster.write` — 控制新增、编辑（POST / PUT / PATCH）
+- `hr.roster.delete` — 控制删除（DELETE）
 - `system.admin` — 拥有全部 HR 权限
 
 **权限继承规则**：
 - 岗位授权和部门授权也会生效（通过 `positionResourceRole` / `departmentResourceRole`）
-- 有 `people.write` 或 `people.delete` 的用户自动可以进入 HR 页面（隐含 `access`）
+- 有 `hr.roster.write` 或 `hr.roster.delete` 的用户自动可以进入 HR 页面（隐含 `access`）
 - 前端只做显示控制（隐藏编辑按钮），API 必须做最终权限校验
 
 **API 权限映射**：

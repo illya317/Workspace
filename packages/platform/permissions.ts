@@ -7,34 +7,43 @@ import { RESOURCE_MAX_ROLE } from "./resources";
 export const RES = {
   system: {
     root: "system",
-    audit: "system.audit",
-    agent: "system.agent",
-    api: "system.api",
   },
-  people: {
-    root: "people",
-    roster: "people.roster",
-    performance: "people.performance",
-    analytics: "people.analytics",
+  settings: {
+    root: "settings",
+    account: "settings.account",
+    admin: "settings.admin",
+    governance: "settings.governance",
+    api: "settings.api",
+  },
+  agent: {
+    root: "agent",
+  },
+  hr: {
+    root: "hr",
+    roster: "hr.roster",
+    performance: "hr.performance",
+    analytics: "hr.analytics",
   },
   docs: {
     root: "docs",
     positions: "docs.positions",
     company: "docs.company",
     expense: "docs.expense",
+    api: "docs.api",
   },
   work: {
     root: "work",
-    project: "work.project",
-    report: "work.report",
-    task: "work.task",
+    projects: "work.projects",
+    reports: "work.reports",
+    tasks: "work.tasks",
     history: "work.history",
   },
   finance: {
     root: "finance",
     ledger: "finance.ledger",
-    schedules: "finance.schedules",
-    statement: "finance.statement",
+    statementConfig: "finance.statementConfig",
+    statementReview: "finance.statementReview",
+    statements: "finance.statements",
     budget: "finance.budget",
     analysis: "finance.analysis",
     cost: "finance.cost",
@@ -45,13 +54,12 @@ export const RES = {
   production: {
     root: "production",
     inventory: "production.inventory",
-    qc: "production.qc",
-    qcBatches: "production.qc.batches",
-    qcTemplates: "production.qc.templates",
+    qcBatches: "production.qcBatches",
+    qcTemplates: "production.qcTemplates",
   },
   administration: {
     root: "administration",
-    contract: "administration.contract",
+    contracts: "administration.contracts",
   },
   library: {
     root: "library",
@@ -61,9 +69,9 @@ export const RES = {
   },
   external: {
     root: "external",
-    investor: "external.investor",
-    customer: "external.customer",
-    supplier: "external.supplier",
+    investors: "external.investors",
+    customers: "external.customers",
+    suppliers: "external.suppliers",
   },
   legal: {
     root: "legal",

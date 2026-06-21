@@ -5,6 +5,8 @@ import { getResourceAncestors } from "./resource";
 import { isRoleAllowedForResource } from "./maxRole";
 import { isSystemAdminBypassEnabled } from "./bypass";
 import type { PermissionContext } from "./types";
+import { getCapabilityOwnerKey } from "../../resources";
+import { isResourceEnabled } from "../../effective-module-registry";
 
 function resolveRoleKeys(roleKey: string): string[] {
   const normalized = normalizeRoleKey(roleKey);
@@ -27,25 +29,38 @@ export async function evaluatePermission(
     const isSysAdmin = await evaluatePermission(userId, "system", "admin");
     if (isSysAdmin) {
       // system.* 资源始终 bypass（保证后台管理不受影响）
-      if (resourceKey === "system" || resourceKey.startsWith("system.")) return true;
+      if (
+        resourceKey === "system" ||
+        resourceKey.startsWith("system.") ||
+        resourceKey === "settings" ||
+        resourceKey.startsWith("settings.") ||
+        resourceKey === "agent"
+      ) return true;
       // 业务资源：开关 ON 时 bypass，OFF 时走正常 grant 检查
       if (await isSystemAdminBypassEnabled()) return true;
     }
   }
 
   // 1. Resolve resource
+  const capabilityOwnerKey = getCapabilityOwnerKey(resourceKey);
+  if (capabilityOwnerKey) {
+    if (!isResourceEnabled(capabilityOwnerKey)) return false;
+    if (!(await evaluatePermission(userId, capabilityOwnerKey, roleKey))) return false;
+  }
+
+  // 2. Resolve resource
   const resource = await prisma.resource.findUnique({
     where: { key: resourceKey },
     select: { id: true },
   });
   if (!resource) return false;
 
-  // 2. Check this resource AND all its ancestors (父资源覆盖子资源)
+  // 3. Check this resource AND all its ancestors (父资源覆盖子资源)
   const resourceIds = await getResourceAncestors(resource.id);
   const roleKeys = resolveRoleKeys(roleKey);
   const normalized = normalizeRoleKey(roleKey);
 
-  // 2a. 运行时上限：即使有 grant，超过 maxRoleKey 也拒绝
+  // 3a. 运行时上限：即使有 grant，超过 maxRoleKey 也拒绝
   if (!(await isRoleAllowedForResource(resourceKey, normalized))) return false;
 
   const userGrant = await prisma.userResourceRole.findFirst({
@@ -90,9 +105,23 @@ export async function evaluatePermissionWithContext(
   roleKey: string,
 ): Promise<boolean> {
   if (ctx.isAdmin && !(resourceKey === "system" && normalizeRoleKey(roleKey) === "admin")) {
-    if (resourceKey === "system" || resourceKey.startsWith("system.")) return true;
+    if (
+      resourceKey === "system" ||
+      resourceKey.startsWith("system.") ||
+      resourceKey === "settings" ||
+      resourceKey.startsWith("settings.") ||
+      resourceKey === "agent"
+    ) return true;
     if (await isSystemAdminBypassEnabled()) return true;
   }
+
+  const normalized = normalizeRoleKey(roleKey);
+  const capabilityOwnerKey = getCapabilityOwnerKey(resourceKey);
+  if (capabilityOwnerKey) {
+    if (!isResourceEnabled(capabilityOwnerKey)) return false;
+    if (!(await evaluatePermissionWithContext(ctx, capabilityOwnerKey, roleKey))) return false;
+  }
+  if (!(await isRoleAllowedForResource(resourceKey, normalized))) return false;
 
   // Fast path: use preloaded grant cache (avoids N×3 DB queries)
   if (ctx._grantCache) {
@@ -182,9 +211,6 @@ async function evaluatePermissionSlow(
   if (!resourceIds) return false;
 
   const roleKeys = resolveRoleKeys(roleKey);
-
-  const normRoleKey = normalizeRoleKey(roleKey);
-  if (!(await isRoleAllowedForResource(resourceKey, normRoleKey))) return false;
 
   const userGrant = await prisma.userResourceRole.findFirst({
     where: {

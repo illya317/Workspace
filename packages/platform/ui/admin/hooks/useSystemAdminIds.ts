@@ -8,7 +8,7 @@ export function useSystemAdminIds() {
   const [systemAdminIds, setSystemAdminIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    fetch(workspacePath("/api/system/admin/users"))
+    fetch(workspacePath("/api/settings/admin/users"))
       .then((r) => r.json())
       .then((data) => {
         const users = (data.users || []) as Array<{

@@ -21,7 +21,7 @@ export default function ImportClient({ user: _user }: { user: SessionUser }) {
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
 
   useEffect(() => {
-    fetch(workspacePath("/api/modules/hr/companies"))
+    fetch(workspacePath("/api/modules/hr/roster/companies"))
       .then((r) => r.json())
       .then((data) => {
         const list = (data.companies || []) as Company[];

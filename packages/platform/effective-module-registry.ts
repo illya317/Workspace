@@ -6,6 +6,7 @@ import type {
   WorkspacePackageRegistration,
 } from "@workspace/core";
 import { registeredModuleDefinitions } from "./module-registry";
+import { deriveWorkspaceResourceDefs } from "./module-registry-utils";
 import { moduleRuntimeOverrides, type ModuleRuntimeOverride, type ModuleRuntimeOverrideMap } from "./module-overrides";
 
 type RuntimeState = Required<Pick<ModuleRuntimeOverride, "enabled" | "hidden">> & {
@@ -16,7 +17,7 @@ type RuntimeState = Required<Pick<ModuleRuntimeOverride, "enabled" | "hidden">> 
 
 const DEFAULT_DISABLED_REASON = "模块未启用";
 const TARGET_RESOURCE_KEYS: Record<string, string> = {
-  project: "work.project",
+  project: "work.projects",
 };
 
 function overrideFor(...keys: Array<string | undefined | null>) {
@@ -76,7 +77,7 @@ function applyModuleOverride(moduleDef: ModuleRegistration): ModuleRegistration 
   };
 }
 
-const rawResourceDefs: ResourceRegistration[] = registeredModuleDefinitions.flatMap((definition) => definition.resourceDefs ?? []);
+const rawResourceDefs: ResourceRegistration[] = deriveWorkspaceResourceDefs(registeredModuleDefinitions);
 const resourceRuntimeParentByKey = new Map(rawResourceDefs.map((resource) => [resource.key, resource.runtimeParentKey ?? resource.parentKey ?? null]));
 const moduleByResourceKey = new Map<string, ModuleRegistration>();
 const childByResourceKey = new Map<string, { moduleDef: ModuleRegistration; child: SubModuleRegistration }>();

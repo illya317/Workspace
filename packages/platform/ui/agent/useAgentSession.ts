@@ -117,7 +117,7 @@ export function useAgentSession() {
       .map((m) => ({ role: m.role as "user" | "agent", content: m.content }));
 
     try {
-      const res = await fetch(withAgentBasePath("/api/system/agent"), {
+      const res = await fetch(withAgentBasePath("/api/agent"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text.trim(), history }),
@@ -177,7 +177,7 @@ export function useAgentSession() {
   const confirmProposal = useCallback(async () => {
     const p = pendingRef.current;
     if (!p) return;
-    const res = await fetch(withAgentBasePath(`/api/system/agent/proposals/${p.proposal.id}/confirm`), { method: "POST" });
+    const res = await fetch(withAgentBasePath(`/api/agent/proposals/${p.proposal.id}/confirm`), { method: "POST" });
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: "确认失败" }));
       throw new Error(err.error || "确认失败");
@@ -192,7 +192,7 @@ export function useAgentSession() {
   const cancelProposal = useCallback(async () => {
     const p = pendingRef.current;
     if (!p) return;
-    fetch(withAgentBasePath(`/api/system/agent/proposals/${p.proposal.id}/cancel`), { method: "POST" }).catch(() => {});
+    fetch(withAgentBasePath(`/api/agent/proposals/${p.proposal.id}/cancel`), { method: "POST" }).catch(() => {});
     addMessage("system", "已取消变更");
     setPendingProposal(null);
     setMood("idle");

@@ -133,14 +133,17 @@ Level 1 起，权限入口统一为 `packages/platform/server/auth/authorize.ts`
 API 一级目录只表达系统能力类型：
 
 - `/api/auth/*`：登录、回调、改密、session check。
-- `/api/me/*`：当前登录用户自己的偏好、目标、api-key、routine、week-info。
-- `/api/system/*`：平台治理，包含 admin、权限、审计、agent、registry、系统配置。
+- `/api/settings/account/*`：当前登录用户自己的偏好、目标、routine、week-info。
+- `/api/settings/admin/*`：系统管理，包含用户、权限、资源和系统配置。
+- `/api/settings/governance/*`：平台治理，包含审计、registry、编码和治理配置。
+- `/api/settings/api/*`：API 接入管理，包含 API key 与接入策略。
+- `/api/agent/*`：智能体对话、能力清单和变更提案。
 - `/api/modules/<module>/*`：业务模块数据入口，例如 HR、Finance、Work、Production、Library、Administration。
 - `/api/integrations/*`：飞书、企业微信、外部 webhook 等系统集成。
 
 新业务代码必须使用模块入口：
 
-- HR：`/api/modules/hr/*`
+- HR：`/api/modules/hr/roster/*`
 - 财务：`/api/modules/finance/*`
 - Work：`/api/modules/work/*`
 - 生产：`/api/modules/production/*`
@@ -174,9 +177,14 @@ app/* route shell
 - API route 只做认证、权限、参数校验、调用 service、返回 DTO；复杂业务逻辑必须进入领域 service 或业务包。
 - `app/lib/module-nav.tsx` 只是兼容出口，模块真实注册来源是 `packages/platform/module-registry.ts`。`packages/platform/modules.tsx` 只消费 registry 并生成运行时聚合，不直接 import domain 包。
 - 模块注册的 `href` 和 `routes` 只写不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止把 `@workspace/*` package 名或 `/workspace` basePath 写入 URL。
-- `moduleDef.href` 必须是 L1 根路径，例如 `/work`；`moduleDef.children[*].href` 与 `routes` 必须留在该 L1 下，例如 Work 只能注册 `/work/tasks`、`/work/reports` 这类子路径。
+- `moduleDef.href` 必须是 L1 根路径，例如 `/work`；`moduleDef.children[*]` 是 L2 业务入口单元，必须是直接二级页面 route，例如 `/work/tasks`、`/finance/statement-config`、`/production/qc-batches`。禁止用嵌套三级页面伪装 L2，也禁止在 app 顶层另建绕开 L1/L2 registry 的 route shell。
+- L2 四件套必须统一：`moduleDef.children[*]` 页面入口、真实 app route、API contract 和 RBAC resource 一一对应。L2 的 `resourceKey` 必须等于 `module.key + "." + child.key`，例如 `finance.statementConfig`、`finance.statementReview`、`production.qcBatches`；多个页面不能共用一个模糊 resource，例如旧 `finance.statement`。
+- 每个 L2 必须声明 `apiPrefixes` 或明确 `noApiReason`。`apiPrefixes` 必须绑定到同一个 L2 resource 的 API contract；宽泛的 `/api/modules/<module>` 只能作为迁移兼容，不允许作为 L2 最终契约来蒙混覆盖。
 - `app` 真实页面路径必须落在注册过的 L1 module 或系统保留 route 下。源码可以使用 route groups，例如 `app/(modules)/work/tasks/page.tsx`，但对外 route 仍必须是 `/work/tasks`。禁止重新创建绕开 L1 的顶层 route shell。
-- 资源注册中的 `parentKey` 只表达权限树继承；模块启停级联使用 `runtimeParentKey`。不要用 `parentKey` 同时表达权限继承和运行态归属；当一个资源不能继承父权限、但必须随模块 disable 一起失效时，保持 `parentKey` 为空并设置 `runtimeParentKey`。典型例子是 `work.project.view_all`：它不能继承 `work.project` 模块权限，但必须随 `work.project` disabled 一起失效。
+- L2 以下 capability 属于业务能力，不自动进入全局页面 L2。capability 必须声明 `capabilityOwnerKey` 指向已注册 L2；它不能用 `parentKey` 继承 owner 权限，但可以用 `runtimeParentKey` 跟随 owner 的模块启停。Settings/Admin 只是 capability 的统一配置容器，授权管理仍按 owner/resource 的可管理范围判断，不强制要求 `settings.admin`。
+- 资源注册中的 `parentKey` 只表达权限树继承；模块启停级联使用 `runtimeParentKey`。不要用 `parentKey` 同时表达权限继承和运行态归属；当一个资源不能继承父权限、但必须随模块 disable 一起失效时，保持 `parentKey` 为空并设置 `runtimeParentKey`。典型例子是 `work.projects.viewAll`：它不能继承 `work.projects` 模块权限，但必须随 `work.projects` disabled 一起失效。
+- Headless/global 能力必须显式声明 `presentation: "headless"` 和 `noPageReason`。例如 Agent 是全局浮窗和 API 能力，不要求真实 `/agent` 页面，但入口显示、API 和 runtime disabled 仍必须绑定 `agent` resource。
+- `settings.account` 属于登录用户自助设置 contract，不进入普通 RBAC 授权矩阵；`docs.api` 和 `settings.api` 是两个资源，API 文档可见按并集授权，API key/接入管理只按 `settings.api`。
 
 这些规则由 `npm run arch:gate` 中的 module registry、app route hierarchy、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
 

@@ -38,6 +38,10 @@ function isChildRoute(parent: string, child: string) {
   return normalizedChild.startsWith(`${normalizedParent}/`);
 }
 
+function isL2Route(parent: string, child: string) {
+  return isChildRoute(parent, child) && routeSegments(child).length === 2;
+}
+
 function toRelative(filePath: string) {
   return path.relative(ROOT, filePath).replace(/\\/g, "/");
 }
@@ -78,10 +82,10 @@ function checkRegisteredHierarchy(violations: Violation[]) {
     }
 
     for (const child of moduleDef.children ?? []) {
-      if (!isChildRoute(moduleHref, child.href)) {
+      if (!isL2Route(moduleHref, child.href)) {
         violations.push({
           file: "packages/platform/module-registry.ts",
-          message: `${moduleDef.key}.${child.key}.href must start with ${moduleHref}/, got ${child.href}`,
+          message: `${moduleDef.key}.${child.key}.href must be a direct L2 route under ${moduleHref}, got ${child.href}`,
         });
       }
     }
@@ -121,6 +125,20 @@ function checkRenderedRouteRoots(allowedRouteRoots: Set<string>, violations: Vio
   }
 }
 
+function checkRenderedL2Pages(registeredL2Routes: Set<string>, moduleRouteRoots: Set<string>, violations: Violation[]) {
+  for (const page of walkPages(APP_ROOT)) {
+    const route = normalizeRoute(appRouteFromPage(page));
+    const segments = routeSegments(route);
+    if (segments.length !== 2) continue;
+    if (!moduleRouteRoots.has(segments[0])) continue;
+    if (registeredL2Routes.has(route)) continue;
+    violations.push({
+      file: toRelative(page),
+      message: `route ${route} is an L2 page but is not registered in moduleDef.children`,
+    });
+  }
+}
+
 export function checkAppRouteHierarchy() {
   console.log("\n▶ App route hierarchy guard");
 
@@ -129,12 +147,19 @@ export function checkAppRouteHierarchy() {
     .filter((href): href is string => Boolean(href))
     .map(routeRoot)
     .filter((root): root is string => Boolean(root));
+  const moduleRouteRootSet = new Set(moduleRouteRoots);
+  const registeredL2Routes = new Set(
+    registeredModuleDefinitions.flatMap((registration) =>
+      (registration.moduleDef?.children ?? []).map((child) => normalizeRoute(child.href)),
+    ),
+  );
   const allowedRouteRoots = new Set([...SYSTEM_ROUTE_ROOTS, ...moduleRouteRoots]);
   const violations: Violation[] = [];
 
   checkRegisteredHierarchy(violations);
   checkPhysicalAppRoots(allowedRouteRoots, violations);
   checkRenderedRouteRoots(allowedRouteRoots, violations);
+  checkRenderedL2Pages(registeredL2Routes, moduleRouteRootSet, violations);
 
   if (violations.length > 0) {
     for (const violation of violations) {

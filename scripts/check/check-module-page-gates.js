@@ -26,11 +26,7 @@ function readText(filePath) {
 }
 
 function isWhitelisted(href) {
-  if (WHITELIST_PATHS.has(href)) return true;
-  for (const prefix of WHITELIST_PATHS) {
-    if (href.startsWith(prefix + "/")) return true;
-  }
-  return false;
+  return WHITELIST_PATHS.has(href);
 }
 
 function hrefToPagePath(href) {
@@ -42,6 +38,9 @@ function hrefToPagePath(href) {
 function hasResourceGate(filePath, expectedResourceKey) {
   if (!fs.existsSync(filePath)) return false;
   const text = readText(filePath);
+  if (expectedResourceKey === "settings.admin" && /\brequireAdminManageAccess\s*\(/.test(text)) {
+    return true;
+  }
   const regex = new RegExp(
     `requireResourceAccess\\s*\\(\\s*["']${expectedResourceKey.replace(/\./g, "\\.")}["']\\s*\\)`,
   );

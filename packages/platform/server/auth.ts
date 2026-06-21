@@ -13,6 +13,7 @@ export {
   type AuthorizeUser,
 } from "./auth/authorize";
 export {
+  requireAnyResourceAccess,
   requireAdminManageAccess,
   requireResourceAccess,
 } from "./auth/guard";

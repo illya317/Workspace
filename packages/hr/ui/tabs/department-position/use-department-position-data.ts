@@ -24,8 +24,8 @@ export function useDepartmentPositionData({
     try {
       const archivedQuery = showArchived ? "&archived=1" : "";
       const [deptRes, posRes] = await Promise.all([
-        fetch(workspacePath(`/api/modules/hr/departments?pageSize=500${archivedQuery}`)),
-        fetch(workspacePath(`/api/modules/hr/positions?pageSize=500${archivedQuery}`)),
+        fetch(workspacePath(`/api/modules/hr/roster/departments?pageSize=500${archivedQuery}`)),
+        fetch(workspacePath(`/api/modules/hr/roster/positions?pageSize=500${archivedQuery}`)),
       ]);
       if (!deptRes.ok || !posRes.ok) throw new Error("加载失败");
       const [deptData, posData] = await Promise.all([deptRes.json(), posRes.json()]);

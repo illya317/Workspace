@@ -5,13 +5,13 @@
 | 页面 | 路由 | 权限 |
 |------|------|------|
 | 生产管理首页 | `/production` | `production.access` |
-| 质量检验中转 | `/production/qc` | `production.qc.access` |
-| 批次检验 | `/production/qc/batches` | `production.qc.batches.access` |
-| 批次检验记录 | `/production/qc/batches/[batchId]` | `production.qc.batches.access` |
-| 批次阶段确认 | `/production/qc/batches/[batchId]/[stageKey]` | `production.qc.batches.access` |
-| 批次检测项目 | `/production/qc/batches/[batchId]/[stageKey]/[testName]` | `production.qc.batches.access` |
-| 检验模板 | `/production/qc/templates` | `production.qc.templates.access` |
-| 检验模板详情 | `/production/qc/templates/[templateId]` | `production.qc.templates.access` |
+| 质量检验中转 | `/production/qc` | `production.qcTemplates.access` |
+| 批次检验 | `/production/qc-batches` | `production.qcBatches.access` |
+| 批次检验记录 | `/production/qc-batches/[batchId]` | `production.qcBatches.access` |
+| 批次阶段确认 | `/production/qc-batches/[batchId]/[stageKey]` | `production.qcBatches.access` |
+| 批次检测项目 | `/production/qc-batches/[batchId]/[stageKey]/[testName]` | `production.qcBatches.access` |
+| 检验模板 | `/production/qc-templates` | `production.qcTemplates.access` |
+| 检验模板详情 | `/production/qc-templates/[templateId]` | `production.qcTemplates.access` |
 
 ## 模块边界
 
@@ -31,16 +31,16 @@
 
 1. `packages/production/server/qc/` 默认从 `WORKSPACE_CONFIG_DIR/config/pharma-qc/` 读取 QC 配置；旧的源码内 `config/pharma-ops` 快照不再作为真源。
 1. `packages/production/ui/qc/` 承载 QC 批次、模板、纸面布局和反馈 UI；`app/(modules)/production/qc/*` route 只做鉴权、必要预取和挂载 package component。
-2. `/api/modules/production/qc/config` 返回产品、record templates、methods、layout mapping 的只读概览，并暴露配置源 revision/dirty 状态。
-3. `/production/qc/batches` 提供批次创建、批次台账、草稿/提交状态和记录入口。
-4. `/production/qc/batches/[batchId]` 展示批次检验记录阶段入口。
-5. `/production/qc/batches/[batchId]/[stageKey]` 展示 YAML 驱动的检验前确认表，纸面区域使用仿宋系字体。
-6. `/production/qc/batches/[batchId]/[stageKey]/[testName]` 展开 `layout_mapping.template_id` 指向的 `table_layouts/templates` 组件，支持 include/variant/params、标题段落、项目表头、实验环境、仪器设备、后置标准/异常/清场/结论和常规 table；模板不可用时 fallback 到 YAML 方法字段表，并支持 `formula` 只读计算字段的前端轻量计算。
-7. `/production/qc/templates` 展示组件映射/方法字段反馈工作台，包含产品筛选、阶段折叠、仿宋纸面布局预览、模板展开 layout blocks 预览和反馈弹窗。
-8. `/production/qc/templates/[templateId]` 展示单个 record template 的阶段、检测项、方法字段和组件布局映射。
-9. `/api/modules/production/qc/templates/[templateId]` 返回同一份只读 record-structure DTO，供后续编辑器复用。
-10. `/api/modules/production/qc/template-feedback` 提供模板反馈读写接口。
-11. `/api/modules/production/qc/batches*` 提供 JSON 批次台账读写接口。
+2. `/api/modules/production/qc-templates/config` 返回产品、record templates、methods、layout mapping 的只读概览，并暴露配置源 revision/dirty 状态。
+3. `/production/qc-batches` 提供批次创建、批次台账、草稿/提交状态和记录入口。
+4. `/production/qc-batches/[batchId]` 展示批次检验记录阶段入口。
+5. `/production/qc-batches/[batchId]/[stageKey]` 展示 YAML 驱动的检验前确认表，纸面区域使用仿宋系字体。
+6. `/production/qc-batches/[batchId]/[stageKey]/[testName]` 展开 `layout_mapping.template_id` 指向的 `table_layouts/templates` 组件，支持 include/variant/params、标题段落、项目表头、实验环境、仪器设备、后置标准/异常/清场/结论和常规 table；模板不可用时 fallback 到 YAML 方法字段表，并支持 `formula` 只读计算字段的前端轻量计算。
+7. `/production/qc-templates` 展示组件映射/方法字段反馈工作台，包含产品筛选、阶段折叠、仿宋纸面布局预览、模板展开 layout blocks 预览和反馈弹窗。
+8. `/production/qc-templates/[templateId]` 展示单个 record template 的阶段、检测项、方法字段和组件布局映射。
+9. `/api/modules/production/qc-templates/[templateId]` 返回同一份只读 record-structure DTO，供后续编辑器复用。
+10. `/api/modules/production/qc-templates/feedback` 提供模板反馈读写接口。
+11. `/api/modules/production/qc-batches*` 提供 JSON 批次台账读写接口。
 
 QC 配置概览和模板详情展开会读取并组合 YAML/JSON、layout templates 和方法字段，服务端使用 5 分钟缓存降低模板工作台二次访问延迟；模板反馈列表保持实时读取。
 
@@ -56,8 +56,8 @@ QC 配置概览和模板详情展开会读取并组合 YAML/JSON、layout templa
 
 | 资源 | 用途 |
 |------|------|
-| `production.qc` | QC 根资源，承接质量检验能力 |
-| `production.qc.batches` | 批次检验、记录填写、提交复核 |
-| `production.qc.templates` | 组件映射建议、方法字段、表格模板 |
+| `production.qcTemplates` | QC 根资源，承接质量检验能力 |
+| `production.qcBatches` | 批次检验、记录填写、提交复核 |
+| `production.qcTemplates` | 组件映射建议、方法字段、表格模板 |
 
 页面入口使用 `requireResourceAccess(resourceKey)`；未来 API 查询使用 `access`，保存/提交使用 `write`，删除使用 `delete`，正式模板发布使用 `admin`。

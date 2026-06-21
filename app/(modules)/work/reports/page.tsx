@@ -3,7 +3,7 @@ import AppShell from "@workspace/platform/ui/AppShell";
 import { WorkReportPage } from "@workspace/work/ui";
 
 export default async function WorkReportsPage() {
-  const user = await requireResourceAccess("work.report");
+  const user = await requireResourceAccess("work.reports");
   return (
     <AppShell title="工作汇报" backHref="/work" user={user}>
       <WorkReportPage hideShell />

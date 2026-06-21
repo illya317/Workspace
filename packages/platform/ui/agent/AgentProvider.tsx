@@ -32,7 +32,7 @@ export default function AgentProvider() {
     if (isPublicPath) return;
 
     let cancelled = false;
-    fetch(withAgentBasePath("/api/system/agent/capabilities"))
+    fetch(withAgentBasePath("/api/agent/capabilities"))
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
         if (cancelled) return;
@@ -49,7 +49,7 @@ export default function AgentProvider() {
     if (!enabled || !isOpen) return;
     preloadImages(coreMoods);
     setHintsLoaded(false);
-    fetch(withAgentBasePath("/api/system/agent/capabilities"))
+    fetch(withAgentBasePath("/api/agent/capabilities"))
       .then((r) => r.ok ? r.json() : null)
       .then((d) => {
         setHints(d?.capabilities?.map((c: { label: string }) => c.label) ?? []);

@@ -63,7 +63,7 @@ export default function EmployeeProfileClient({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(workspacePath(`/api/modules/hr/employee-profiles/${employeeId}`));
+      const res = await fetch(workspacePath(`/api/modules/hr/roster/employee-profiles/${employeeId}`));
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || `加载失败 (${res.status})`);
       const nextProfile = data as EmployeeProfile;
@@ -87,7 +87,7 @@ export default function EmployeeProfileClient({
     setHistoryLoading(true);
     setError(null);
     try {
-      const res = await fetch(workspacePath(`/api/modules/hr/employee-profiles/${employeeId}/history`));
+      const res = await fetch(workspacePath(`/api/modules/hr/roster/employee-profiles/${employeeId}/history`));
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || `历史记录加载失败 (${res.status})`);
       setHistoryEntries(data.entries || []);

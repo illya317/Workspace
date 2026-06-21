@@ -27,6 +27,10 @@ import {
   checkFinanceReportAccess,
   checkFinanceReportDelete,
   checkFinanceReportWrite,
+  checkFinanceStatementConfigAccess,
+  checkFinanceStatementConfigWrite,
+  checkFinanceStatementReviewAccess,
+  checkFinanceStatementReviewWrite,
   checkFinanceWrite,
   checkHRAccess,
   checkHRDelete,
@@ -172,6 +176,30 @@ export function withFinanceReportDelete(
   handler: AuthHandler,
 ): (req: Request) => Promise<Response> {
   return withAuth(handler, checkFinanceReportDelete);
+}
+
+export function withFinanceStatementConfigAccess(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceStatementConfigAccess);
+}
+
+export function withFinanceStatementConfigWrite(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceStatementConfigWrite);
+}
+
+export function withFinanceStatementReviewAccess(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceStatementReviewAccess);
+}
+
+export function withFinanceStatementReviewWrite(
+  handler: AuthHandler,
+): (req: Request) => Promise<Response> {
+  return withAuth(handler, checkFinanceStatementReviewWrite);
 }
 
 export function withFinanceBudgetAccess(

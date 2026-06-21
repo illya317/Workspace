@@ -53,7 +53,7 @@ export async function updateProjectField(projectId: number, field: string, value
 }
 
 async function createMember(projectId: number, member: EmployeeTag, role: string | null) {
-  const res = await fetch(workspacePath("/api/modules/work/project-members"), {
+  const res = await fetch(workspacePath("/api/modules/work/projects/members"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ employeeId: member.employeeNumber, projectId, role }),
@@ -65,7 +65,7 @@ async function createMember(projectId: number, member: EmployeeTag, role: string
 }
 
 async function updateMemberRole(entryId: number, role: string | null) {
-  const res = await fetch(workspacePath(`/api/modules/work/project-members/${entryId}`), {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/members/${entryId}`), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ field: "role", value: role }),
@@ -77,7 +77,7 @@ async function updateMemberRole(entryId: number, role: string | null) {
 }
 
 async function deleteMember(entryId: number) {
-  const res = await fetch(workspacePath(`/api/modules/work/project-members/${entryId}`), { method: "DELETE" });
+  const res = await fetch(workspacePath(`/api/modules/work/projects/members/${entryId}`), { method: "DELETE" });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data.error || "删除项目参与人失败");

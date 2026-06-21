@@ -39,7 +39,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/production/types` 已接收生产 QC 模板、布局、批次和模板反馈领域类型。
 - `packages/platform/module-registry.ts` 是模块注册锁。`registeredModuleDefinitions` 是唯一有效注册源；`packages/platform/modules.tsx` 只消费 registry 并导出运行时聚合，不直接 import domain package。
 - `packages/platform/module-overrides.ts` 是模块运行态覆盖层。模块中文名、描述、隐藏和启停优先在这里改；不要为了展示 rename 去散改页面文案、resource name、API path 或 FK key。运行时消费方使用 effective registry，资源和 FK 使用 active registry 自动过滤 disabled 模块。
-- `ResourceRegistration.parentKey` 只用于 RBAC 权限树继承；`runtimeParentKey` 只用于模块启停级联。不要为了让 disabled 级联而把独立权限挂进父资源树。像 `work.project.view_all` 这类不能继承父权限、但必须随项目模块失效的资源，应保持 `parentKey` 为空并设置 `runtimeParentKey: "work.project"`。
+- `ResourceRegistration.parentKey` 只用于 RBAC 权限树继承；`runtimeParentKey` 只用于模块启停级联。不要为了让 disabled 级联而把独立权限挂进父资源树。像 `work.projects.viewAll` 这类不能继承父权限、但必须随项目模块失效的资源，应保持 `parentKey` 为空并设置 `runtimeParentKey: "work.projects"`。
 - `packages/platform/module-nav.tsx` 生成 `MODULES`、`getAccessibleModules`、`getSubModules`。
 - `packages/platform/resources.ts` 从各 package `resourceDefs` 派生 `RESOURCE_DEFS`、`RESOURCE_KEYS` 和 `RESOURCE_MAX_ROLE`，`packages/platform/permissions.ts` 与 `scripts/seed-resources.ts` 复用这个出口；旧 `lib/permissions.ts` 只保留兼容 re-export。
 - `packages/platform/module-lifecycle.ts` 从模块注册的 `lifecycleStatus` 派生资源生命周期提示；`app/lib/module-lifecycle.ts` 保留兼容 re-export。
@@ -51,7 +51,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/platform/server/prisma.ts` 已接收单库 Prisma runtime client，`lib/prisma.ts` 已删除；业务包、server root 和 app route 需要数据库访问时必须依赖 `@workspace/platform/server/prisma`，不要直接依赖 `@/lib/prisma` 或 generated client。
 - `packages/platform/server/history.ts` 已接收审计快照写入契约，`lib/history.ts` 保留兼容 re-export；业务包需要写 EditHistory 时依赖 `@workspace/platform/server/history`。
 - `packages/platform/server/resolve-fk.ts` 已接收 FK 显示名解析契约，`lib/resolve-fk.ts` 保留兼容 re-export；审计日志和业务包需要展示 FK 快照时依赖 `@workspace/platform/server/resolve-fk`。
-- `packages/hr/server/crud.ts` 已接收 HR 字段级 CRUD wrapper，统一注入 `people.roster` 读写删除权限；HR server service 使用这个 wrapper 而不是 app-root `@/lib/crud`。
+- `packages/hr/server/crud.ts` 已接收 HR 字段级 CRUD wrapper，统一注入 `hr.roster` 读写删除权限；HR server service 使用这个 wrapper 而不是 app-root `@/lib/crud`。
 - `packages/platform/ui` 已接收登录后的 Portal、L1 模块首页、AppShell、跨页 NavLink、用户菜单、设置页和审计日志 UI；AppShell 必须复用 Core `PageShell`。根 `app/components/*` 与 `app/portal/PortalClient.tsx` 兼容出口已删除，route 直接挂载 Platform UI。
 - `packages/administration` 已接收合同台账的 module、UI、server、types，`app/(modules)/administration/contracts/page.tsx` 和 `app/api/modules/administration/contracts/*` 只保留 Next 壳。
 - `packages/library` 已接收资料库 module、UI、server、types，`app/(modules)/library/page.tsx` 和 `app/api/modules/library/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。
@@ -61,7 +61,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `app/components/ConfirmModal.tsx`、`ConfirmProvider.tsx`、`DetailModal.tsx`、`FilterBar.tsx`、`FilterToolbar.tsx`、`Toast.tsx`、`SelectField.tsx`、`StatusBadge.tsx`、`StatusToggle.tsx`、`NumberCell.tsx`、`AmountCell.tsx`、`ColumnToggle.tsx`、`TabBar.tsx`、`DataTable.tsx`、`EditToolbar.tsx` 和 `app/hooks/useCSV.tsx`、`app/hooks/useToast.ts` 已降级为兼容 re-export。
 - `app/hooks/useCompanyOptions.ts` 已降级为 `@workspace/platform/hooks` 的兼容 re-export。
 - `app/hr/types.ts`、`app/hr/profile/types.ts`、`app/hr/tabConfigs.ts`、`app/hr/tab-configs/*`、`app/hr/profile/fields.ts`、`app/hr/profile/lunar-birthday.ts`、`app/hr/analytics/*`、`app/hr/profile/*`、第一批 `app/hr/components/*` HR 专用字段组件、`app/hr/code/*` 编码表实现和第一批 `app/hr/tabs/*` 大组件已迁入或降级为兼容 re-export。
-- `app/api/modules/hr/autocomplete`、`app/api/modules/hr/companies`、`app/api/modules/hr/company-relations`、`app/api/modules/hr/contracts`、`app/api/modules/hr/departments`、`app/api/modules/hr/edps`、`app/api/modules/hr/employees`、`app/api/modules/hr/employee-profiles/*`、`app/api/modules/hr/employments`、`app/api/modules/hr/position-description-templates`、`app/api/modules/hr/positions`、`app/api/modules/hr/roster` 和 `app/api/modules/hr/position-descriptions` 已降级为认证/权限/响应壳，业务逻辑下沉到 `@workspace/hr/server`。
+- `app/api/modules/hr/roster/autocomplete`、`app/api/modules/hr/roster/companies`、`app/api/modules/hr/roster/company-relations`、`app/api/modules/hr/roster/contracts`、`app/api/modules/hr/roster/departments`、`app/api/modules/hr/roster/edps`、`app/api/modules/hr/roster/employees`、`app/api/modules/hr/roster/employee-profiles/*`、`app/api/modules/hr/roster/employments`、`app/api/modules/hr/roster/position-description-templates`、`app/api/modules/hr/roster/positions`、`app/api/modules/hr/roster` 和 `app/api/modules/hr/roster/position-descriptions` 已降级为认证/权限/响应壳，业务逻辑下沉到 `@workspace/hr/server`。
 - 模块注册中的 `href` 与 `routes` 必须使用不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止写 `@workspace/...` package 名或 `/workspace/...`，这个规则由 `npm run arch:gate` 校验。
 - `moduleDef.href` 必须是 L1 根路径；`children[*].href` 与 `routes` 必须留在该 L1 下。真实 app page 也必须落在注册 L1 或系统保留 route 下，不允许重新创建绕开 L1 的顶层 route shell。
 - 页面源码使用 Next route groups 收口：业务页放 `app/(modules)/*`，平台/设置/管理放 `app/(system)/*`，登录放 `app/(auth)/*`，文档放 `app/(docs)/*`。这些 group 不改变 URL；不要再新增顶层 `app/<module>` 页面目录。
@@ -116,11 +116,11 @@ Level 1/1.5 只有一个硬门禁入口：
 
 ## Work Project 权限边界
 
-- 模块启停优先于项目对象权限：`work` 或 `work.project` disabled 后，项目入口、`/work/projects`、相关 API、FK 目标和 `work.project.view_all` 都必须统一失效。子项目不需要逐个配置 disable。
-- `work.project.access/write/delete` 是模块功能门禁，表示用户可以进入、发起或使用项目功能；它们不能被解释为查看全部项目、管理全部项目或删除全部项目。
-- 项目对象权限由 `packages/work/server/access.ts` 计算：创建人、主导部门负责人、项目 RASCI 成员、显式 `work.project.view_all` 和 system admin 决定可见、可写、可管理、可删除。`editedBy` 是审计字段，不参与所有权和管理权判断。
-- `work.project.view_all` 是独立资源，不使用 `parentKey: "work.project"`，避免继承模块权限；它使用 `runtimeParentKey: "work.project"`，保证模块 disabled 后一起失效。
-- 项目 FK 候选过滤属于 Work 业务规则。`app/api/modules/work/reference-options` 只做路由壳和权限壳，项目 FK 分支必须留在 `@workspace/work/server`。
+- 模块启停优先于项目对象权限：`work` 或 `work.projects` disabled 后，项目入口、`/work/projects`、相关 API、FK 目标和 `work.projects.viewAll` 都必须统一失效。子项目不需要逐个配置 disable。
+- `work.projects.access/write/delete` 是模块功能门禁，表示用户可以进入、发起或使用项目功能；它们不能被解释为查看全部项目、管理全部项目或删除全部项目。
+- 项目对象权限由 `packages/work/server/access.ts` 计算：创建人、主导部门负责人、项目 RASCI 成员、显式 `work.projects.viewAll` 和 system admin 决定可见、可写、可管理、可删除。`editedBy` 是审计字段，不参与所有权和管理权判断。
+- `work.projects.viewAll` 是独立资源，不使用 `parentKey: "work.projects"`，避免继承模块权限；它使用 `runtimeParentKey: "work.projects"`，保证模块 disabled 后一起失效。
+- 项目 FK 候选过滤属于 Work 业务规则。`app/api/modules/work/projects/reference-options` 只做路由壳和权限壳，项目 FK 分支必须留在 `@workspace/work/server`。
 
 ## 后续拆分顺序
 

@@ -45,7 +45,7 @@ export default function LedgerTab() {
   const [monthFilter, setMonthFilter] = useState("");
 
   useEffect(() => {
-    fetch(workspacePath("/api/modules/finance/periods")).then((r) => r.json()).then((d) => {
+    fetch(workspacePath("/api/modules/finance/ledger/periods")).then((r) => r.json()).then((d) => {
       const list = d.periods || [];
       setPeriods(list);
       // 默认选中第一个期间
@@ -74,7 +74,7 @@ export default function LedgerTab() {
     params.set("month", monthFilter);
     params.set("page", String(page));
     params.set("pageSize", String(pageSize));
-    const res = await fetch(workspacePath(`/api/modules/finance/balances?${params.toString()}`));
+    const res = await fetch(workspacePath(`/api/modules/finance/ledger/balances?${params.toString()}`));
     if (res.ok) {
       const data = await res.json();
       setBalances(data.data || data.balances || []);

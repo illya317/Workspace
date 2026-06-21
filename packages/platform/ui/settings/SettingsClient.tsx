@@ -75,8 +75,10 @@ export default function SettingsClient({
 }) {
   const [user, setUser] = useState<SessionUser>(initialUser);
   const visibleResourceKeys = user.visibleResourceKeys || [];
-  const hasApiAccess = visibleResourceKeys.includes("system.api");
+  const hasApiAccess = visibleResourceKeys.includes("settings.api");
+  const hasDocsApiAccess = visibleResourceKeys.includes("docs.api") || hasApiAccess;
   const hasAdminAccess = (user.manageableResourceKeys?.length ?? 0) > 0;
+  const hasGovernanceAccess = visibleResourceKeys.includes("settings.governance");
 
   const [showUsernameModal, setShowUsernameModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -104,7 +106,7 @@ export default function SettingsClient({
             href="/settings/account"
           />
 
-          {hasAdminAccess && (
+          {hasGovernanceAccess && (
             <ModuleCard
               title="系统管理"
               description="用户、权限、资源和管理员配置。"
@@ -116,6 +118,20 @@ export default function SettingsClient({
                 </svg>
               }
               href="/settings/admin"
+            />
+          )}
+
+          {hasApiAccess && (
+            <ModuleCard
+              title="API 接入"
+              description="API Key、接入说明和接口调用方式。"
+              color="purple"
+              icon={
+                <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10 20l4-16M7 8l-4 4 4 4M17 8l4 4-4 4" />
+                </svg>
+              }
+              href="/settings/api"
             />
           )}
 
@@ -151,7 +167,7 @@ export default function SettingsClient({
             actions={[
               { label: "修改账号", onClick: () => setShowUsernameModal(true), variant: "primary" },
               { label: "修改密码", onClick: () => setShowPasswordModal(true), variant: "secondary" },
-              ...(hasApiAccess ? [{ label: "API 指南", href: "/docs/api-guide", variant: "secondary" as const }] : []),
+              ...(hasDocsApiAccess ? [{ label: "API 指南", href: "/docs/api-guide", variant: "secondary" as const }] : []),
             ]}
           />
         </ModuleGridPage>

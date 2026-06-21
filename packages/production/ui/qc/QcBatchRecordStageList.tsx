@@ -59,7 +59,7 @@ export default function QcBatchRecordStageList({ batch, detail }: QcBatchRecordS
               ) : (
                 <Link
                   key={stage.key}
-                  href={`/production/qc/batches/${batch.id}/${stage.key}`}
+                  href={`/production/qc-batches/${batch.id}/${stage.key}`}
                   className="group grid border-b-2 border-slate-950 transition last:border-b-0 hover:bg-slate-100 md:grid-cols-[12rem_8rem_1fr]"
                 >
                   {content}

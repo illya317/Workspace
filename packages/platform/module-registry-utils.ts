@@ -2,6 +2,7 @@ import type {
   ApiGuardRegistration,
   ApiRouteAccessMode,
   ApiRouteRegistration,
+  ResourceRegistration,
   WorkspacePackageRegistration,
 } from "@workspace/core";
 
@@ -42,20 +43,53 @@ export function apiRoutes(
 
 export function systemApiRoutes(): ApiRouteRegistration[] {
   return [
-    ...apiRoutes("/api/system/admin", "protected", ["GET", "POST", "PUT", "PATCH", "DELETE"], { resourceKey: "system", action: "admin" }),
-    ...apiRoutes("/api/system/agent", "protected", ["GET", "POST"], { resourceKey: "system.agent", action: "access" }),
-    ...apiRoutes("/api/auth/change-password", "protected", ["POST"]),
+    ...apiRoutes("/api/settings/account", "protected", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
+    ...apiRoutes("/api/settings/account/password", "protected", ["POST"]),
     ...apiRoutes("/api/auth/dev-login", "dev", ["POST", "DELETE"]),
     ...apiRoutes("/api/auth/gateway-check", "protected", ["GET"]),
     ...apiRoutes("/api/auth/me", "protected", ["GET"]),
     ...apiRoutes("/api/auth/wecom", "public", ["GET"]),
     ...apiRoutes("/api/auth/dev-login-bypass", "dev", ["GET"]),
     ...apiRoutes("/api/modules/production/inventory", "disabled", ["GET", "POST", "PUT", "DELETE"]),
-    ...apiRoutes("/api/me/api-key", "protected", ["GET", "POST"], { resourceKey: "system.api", action: "access" }),
-    ...apiRoutes("/api/me/targets", "protected", ["GET"]),
-    ...apiRoutes("/api/me/routine", "protected", ["GET", "PUT"]),
-    ...apiRoutes("/api/me/week-info", "public", ["GET"]),
+    ...apiRoutes("/api/settings/account/targets", "protected", ["GET"]),
+    ...apiRoutes("/api/settings/account/routine", "protected", ["GET", "PUT"]),
+    ...apiRoutes("/api/settings/account/week-info", "public", ["GET"]),
   ];
+}
+
+function sortOrderAt(index: number) {
+  return index;
+}
+
+export function deriveWorkspaceResourceDefs(definitions: WorkspacePackageRegistration[]): ResourceRegistration[] {
+  const derived: ResourceRegistration[] = [];
+  const explicit: ResourceRegistration[] = [];
+
+  for (const definition of definitions) {
+    const moduleDef = definition.moduleDef;
+    if (moduleDef?.resourceKey) {
+      derived.push({
+        key: moduleDef.resourceKey,
+        name: moduleDef.label,
+        maxRoleKey: moduleDef.resourceMaxRoleKey,
+        hidden: moduleDef.resourceHidden,
+        sortOrder: moduleDef.resourceSortOrder,
+      });
+      moduleDef.children?.forEach((child, index) => {
+        derived.push({
+          key: child.resourceKey,
+          name: child.label,
+          parentKey: moduleDef.resourceKey,
+          maxRoleKey: child.resourceMaxRoleKey,
+          hidden: child.resourceHidden,
+          sortOrder: child.resourceSortOrder ?? sortOrderAt(index),
+        });
+      });
+    }
+    explicit.push(...(definition.resourceDefs ?? []));
+  }
+
+  return [...derived, ...explicit];
 }
 
 export function validateModuleRegistry(definitions: WorkspacePackageRegistration[], moduleKeys: string[]) {

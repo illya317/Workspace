@@ -50,7 +50,7 @@ export default function QcBatchTestRecord({ batch, productName, detail, stage, t
     setSaveState("idle");
     setStatusText("");
     startTransition(async () => {
-      const response = await fetch(workspacePath(`/api/modules/production/qc/batches/${batch.id}`), {
+      const response = await fetch(workspacePath(`/api/modules/production/qc-batches/${batch.id}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -71,7 +71,7 @@ export default function QcBatchTestRecord({ batch, productName, detail, stage, t
     setSaveState("idle");
     setStatusText("");
     startTransition(async () => {
-      const response = await fetch(workspacePath(`/api/modules/production/qc/batches/${batch.id}`), {
+      const response = await fetch(workspacePath(`/api/modules/production/qc-batches/${batch.id}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "approve_review", stageKey: stage.key, testName: test.englishName }),
@@ -97,16 +97,16 @@ export default function QcBatchTestRecord({ batch, productName, detail, stage, t
     <section>
       <div className="mx-auto max-w-[min(230mm,calc(100vw-2rem))]" style={{ fontFamily: "\"FangSong\", \"STFangsong\", \"仿宋\", serif" }}>
         <nav className="mb-5 flex flex-wrap gap-2 text-xs">
-          <Link href={`/production/qc/batches/${batch.id}`} className="rounded bg-blue-100 px-3 py-2 font-medium text-blue-800">
+          <Link href={`/production/qc-batches/${batch.id}`} className="rounded bg-blue-100 px-3 py-2 font-medium text-blue-800">
             返回批次主页
           </Link>
-          <Link href={`/production/qc/batches/${batch.id}/${stage.key}`} className="rounded bg-slate-100 px-3 py-2 text-slate-700">
+          <Link href={`/production/qc-batches/${batch.id}/${stage.key}`} className="rounded bg-slate-100 px-3 py-2 text-slate-700">
             检验前确认
           </Link>
           {stage.tests.map((item) => (
             <Link
               key={item.englishName}
-              href={`/production/qc/batches/${batch.id}/${stage.key}/${item.englishName}`}
+              href={`/production/qc-batches/${batch.id}/${stage.key}/${item.englishName}`}
               className={`rounded px-3 py-2 ${item.englishName === test.englishName ? "bg-slate-200 font-semibold text-slate-950" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
             >
               {item.sequence} {item.name}

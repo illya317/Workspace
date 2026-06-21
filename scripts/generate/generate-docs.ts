@@ -459,10 +459,10 @@ const METHOD_COLOR: Record<string, string> = {
 
 function permLabel(resource: string, role: string): string {
   if (resource === "system" && role === "admin") return "系统管理员";
-  if (resource === "people" && role === "access") return "人事权限";
-  if (resource === "works" && role === "admin") return "工作清单管理";
-  if (resource === "works" && role === "access") return "工作清单权限";
-  if (resource === "report" && role === "access") return "报告权限";
+  if (resource === "hr" && role === "access") return "人事权限";
+  if (resource === "work.tasks" && role === "admin") return "工作清单管理";
+  if (resource === "work.tasks" && role === "access") return "工作清单权限";
+  if (resource === "work.reports" && role === "access") return "报告权限";
   return `${resource}.${role}`;
 }
 
@@ -649,7 +649,7 @@ function groupEndpoints(endpoints: ApiEndpoint[]): Map<string, ApiEndpoint[]> {
       group = "roster";
     } else if (["works", "reports", "week-info"].includes(firstPart)) {
       group = "work";
-    } else if (["projects", "my-targets"].includes(firstPart) || ep.path.startsWith("/api/modules/work/projects") || ep.path.startsWith("/api/modules/work/project-members")) {
+    } else if (["projects", "my-targets"].includes(firstPart) || ep.path.startsWith("/api/modules/work/projects") || ep.path.startsWith("/api/modules/work/projects/members")) {
       group = "project";
     } else if (["auth", "my-api-key", "user"].includes(firstPart)) {
       group = "auth";

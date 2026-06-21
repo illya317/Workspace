@@ -5,7 +5,7 @@ import AppShell from "@workspace/platform/ui/AppShell";
 import ModuleHome from "@workspace/platform/ui/ModuleHome";
 
 export default async function HRHomePage() {
-  const user = await requireResourceAccess("people");
+  const user = await requireResourceAccess("hr");
 
   const mod = MODULES.find((m) => m.key === "hr");
   if (!mod) redirect("/portal");

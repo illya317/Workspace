@@ -85,25 +85,55 @@ export async function checkFinanceLedgerDelete(userId: number): Promise<boolean>
   return checkFinanceLedgerAccess(userId, "delete");
 }
 
-export async function checkFinanceReportAccess(
+async function checkFinanceStatementResourceAccess(
   userId: number,
+  resourceKey: "finance.statementConfig" | "finance.statementReview" | "finance.statements",
   roleKey: AuthorizeAction = "access",
 ): Promise<boolean> {
   if (await can(userId, "system", "admin")) return true;
   if (roleKey === "access") {
     return (
-      (await can(userId, "finance.statement", "access")) ||
-      (await can(userId, "finance.statement", "write")) ||
-      (await can(userId, "finance.statement", "delete")) ||
+      (await can(userId, resourceKey, "access")) ||
+      (await can(userId, resourceKey, "write")) ||
+      (await can(userId, resourceKey, "delete")) ||
       (await can(userId, "finance", "access")) ||
       (await can(userId, "finance", "write")) ||
       (await can(userId, "finance", "delete"))
     );
   }
   return (
-    (await can(userId, "finance.statement", roleKey)) ||
+    (await can(userId, resourceKey, roleKey)) ||
     (await can(userId, "finance", roleKey))
   );
+}
+
+export async function checkFinanceStatementConfigAccess(
+  userId: number,
+  roleKey: AuthorizeAction = "access",
+): Promise<boolean> {
+  return checkFinanceStatementResourceAccess(userId, "finance.statementConfig", roleKey);
+}
+
+export async function checkFinanceStatementConfigWrite(userId: number): Promise<boolean> {
+  return checkFinanceStatementConfigAccess(userId, "write");
+}
+
+export async function checkFinanceStatementReviewAccess(
+  userId: number,
+  roleKey: AuthorizeAction = "access",
+): Promise<boolean> {
+  return checkFinanceStatementResourceAccess(userId, "finance.statementReview", roleKey);
+}
+
+export async function checkFinanceStatementReviewWrite(userId: number): Promise<boolean> {
+  return checkFinanceStatementReviewAccess(userId, "write");
+}
+
+export async function checkFinanceReportAccess(
+  userId: number,
+  roleKey: AuthorizeAction = "access",
+): Promise<boolean> {
+  return checkFinanceStatementResourceAccess(userId, "finance.statements", roleKey);
 }
 
 export async function checkFinanceReportWrite(userId: number): Promise<boolean> {

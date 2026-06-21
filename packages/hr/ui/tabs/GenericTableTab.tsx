@@ -31,7 +31,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
   // 动态加载公司列表作为编码池选项
   const [companyOptions, setCompanyOptions] = useState<Array<{ label: string; value: string }>>([]);
   useEffect(() => {
-    fetch(workspacePath("/api/modules/hr/companies?active=1"))
+    fetch(workspacePath("/api/modules/hr/roster/companies?active=1"))
       .then((r) => r.json())
       .then((data) => {
         const companies = (data.companies || []) as Array<{ code: string; name: string }>;

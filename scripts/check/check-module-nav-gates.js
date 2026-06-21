@@ -85,17 +85,17 @@ function runFixtures() {
     },
     {
       label: "package name used as href -> fail",
-      text: `export const pkg = { moduleDef: { key: "hr", label: "人事", href: "/hr", iconKey: "hr", color: "blue", resourceKey: "people", children: [{ key: "roster", label: "花名册", href: "@workspace/hr/roster", resourceKey: "people.roster" }] } };`,
+      text: `export const pkg = { moduleDef: { key: "hr", label: "人事", href: "/hr", iconKey: "hr", color: "blue", resourceKey: "hr", children: [{ key: "roster", label: "花名册", href: "@workspace/hr/roster", resourceKey: "hr.roster" }] } };`,
       expectedOk: false,
     },
     {
       label: "basePath used as href -> fail",
-      text: `export const pkg = { moduleDef: { key: "hr", label: "人事", href: "/workspace/hr", iconKey: "hr", color: "blue", resourceKey: "people" } };`,
+      text: `export const pkg = { moduleDef: { key: "hr", label: "人事", href: "/workspace/hr", iconKey: "hr", color: "blue", resourceKey: "hr" } };`,
       expectedOk: false,
     },
     {
       label: "package name used as route -> fail",
-      text: `export const pkg = { moduleDef: { key: "hr", label: "人事", href: "/hr", iconKey: "hr", color: "blue", resourceKey: "people" }, routes: ["/hr", "@workspace/hr/roster"] };`,
+      text: `export const pkg = { moduleDef: { key: "hr", label: "人事", href: "/hr", iconKey: "hr", color: "blue", resourceKey: "hr" }, routes: ["/hr", "@workspace/hr/roster"] };`,
       expectedOk: false,
     },
   ];

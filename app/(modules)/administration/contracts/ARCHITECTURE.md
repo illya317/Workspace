@@ -32,7 +32,7 @@ page.tsx
 
 1. **useContracts.ts** 提供加载/搜索/分页/CRUD hook
 2. **ContractsClient** 消费 hook，渲染筛选 + 表格 + 弹窗
-3. **API** `app/api/modules/administration/contracts/` 和 `app/api/modules/hr/contracts/` 提供合同 CRUD
+3. **API** `app/api/modules/administration/contracts/` 和 `app/api/modules/hr/roster/contracts/` 提供合同 CRUD
 
 ## API 规范
 
@@ -42,14 +42,14 @@ page.tsx
 | `POST /api/modules/administration/contracts` | 创建合同 |
 | `PUT /api/modules/administration/contracts/[id]` | 更新合同 |
 | `DELETE /api/modules/administration/contracts/[id]` | 删除合同 |
-| `GET /api/modules/hr/contracts` | HR 模块内嵌合同列表 |
+| `GET /api/modules/hr/roster/contracts` | HR 模块内嵌合同列表 |
 
 ## 权限标准
 
-- 页面入口：`requireResourceAccess("administration.contract")`
-- GET：`administration.contract.access`
-- POST/PUT：`administration.contract.write`
-- DELETE：`administration.contract.delete`
+- 页面入口：`requireResourceAccess("administration.contracts")`
+- GET：`administration.contracts.access`
+- POST/PUT：`administration.contracts.write`
+- DELETE：`administration.contracts.delete`
 
 合同数据关联 Employee 和 Company，通过 employeeId + companyId 外键关联。
 

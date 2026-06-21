@@ -53,7 +53,7 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
 
   const refreshInlineEntries = useCallback(async () => {
     try {
-      const response = await fetch(workspacePath(`/api/modules/production/qc/template-feedback?key=${encodeURIComponent(contextKey)}`));
+      const response = await fetch(workspacePath(`/api/modules/production/qc-templates/feedback?key=${encodeURIComponent(contextKey)}`));
       const body = await response.json() as FeedbackResponse;
       const allEntries = inlineEntriesFromItems(body.items);
       const currentUserEntries = body.data?.inlineEntries || [];
@@ -141,7 +141,7 @@ export default function TemplateInlineFeedback({ selection, children, onSaved }:
     setSaving(true);
     setError("");
     try {
-      const response = await fetch(workspacePath("/api/modules/production/qc/template-feedback"), {
+      const response = await fetch(workspacePath("/api/modules/production/qc-templates/feedback"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ context, inlineEntry: { target: anchorToTarget(anchor), note } }),

@@ -87,7 +87,7 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
       return;
     }
     startTransition(async () => {
-      const res = await fetch(workspacePath("/api/modules/production/qc/batches"), {
+      const res = await fetch(workspacePath("/api/modules/production/qc-batches"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ productKey, batchNumber }),
@@ -98,7 +98,7 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
         return;
       }
       setCreateOpen(false);
-      router.push(`/production/qc/batches/${body.data.id}`);
+      router.push(`/production/qc-batches/${body.data.id}`);
     });
   }
 
@@ -107,7 +107,7 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
     const target = pendingDelete;
     setPendingDelete(null);
     startTransition(async () => {
-      const res = await fetch(workspacePath(`/api/modules/production/qc/batches/${target.id}`), { method: "DELETE" });
+      const res = await fetch(workspacePath(`/api/modules/production/qc-batches/${target.id}`), { method: "DELETE" });
       if (!res.ok) {
         setToast({ message: "删除失败", type: "error" });
         return;
@@ -162,7 +162,7 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
         totalPages={totalPages}
         total={filtered.length}
         onPageChange={setPage}
-        onView={(batch) => router.push(`/production/qc/batches/${batch.id}`)}
+        onView={(batch) => router.push(`/production/qc-batches/${batch.id}`)}
         onDelete={setPendingDelete}
       />
 

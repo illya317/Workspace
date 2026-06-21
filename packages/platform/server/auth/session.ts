@@ -69,7 +69,7 @@ async function _getCurrentUser(): Promise<SessionUser | null> {
     ...activeVisibleWrite,
   ]);
 
-  const canAnyWeek = isAdmin || await evaluatePermissionWithContext(ctx, "work.report", "write");
+  const canAnyWeek = isAdmin || await evaluatePermissionWithContext(ctx, "work.reports", "write");
 
   const manageableKeys = await getManageableResourceKeys(payload.userId);
 

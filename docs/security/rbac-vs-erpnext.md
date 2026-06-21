@@ -14,7 +14,7 @@
 | **角色层** | Role doctype + Has Role 子表 | `UserResourceRole` / `PositionResourceRole` / `DepartmentResourceRole` |
 | **角色档案层** | Role Profile（预设角色包，一键分配多角色） | 无（岗位 + 部门间接实现角色包效果） |
 | **页面层** | ❌ 无独立页面门禁，Desk 访问由 `desk_access` 控制 | ✅ `requireResourceAccess(resourceKey)` + `module-nav.tsx` 过滤 |
-| **文档/对象层** | DocPerm（doctype JSON 中 `permissions` 数组） | Resource tree（`finance.tax`, `people.roster`） |
+| **文档/对象层** | DocPerm（doctype JSON 中 `permissions` 数组） | Resource tree（`finance.tax`, `hr.roster`） |
 | **字段层** | `permlevel`（0/1/2…）控制字段可见 | 无 |
 | **数据范围层** | User Permission（限制用户能看到哪些文档实例） | 无（目前靠 `companyCode` 做粗过滤） |
 | **状态层** | Workflow + `docstatus`（draft/submitted/cancelled） | 无 |

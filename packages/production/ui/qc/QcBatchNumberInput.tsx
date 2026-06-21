@@ -16,7 +16,7 @@ export default function QcBatchNumberInput({ batchId, initialValue }: Props) {
   function save() {
     if (value.trim() === initialValue.trim()) return;
     startTransition(() => {
-      fetch(workspacePath(`/api/modules/production/qc/batches/${batchId}`), {
+      fetch(workspacePath(`/api/modules/production/qc-batches/${batchId}`), {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ batchNumber: value }),

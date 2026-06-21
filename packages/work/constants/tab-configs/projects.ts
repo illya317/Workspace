@@ -25,8 +25,8 @@ export const projectConfig: TabConfig = {
   entityType: "Project",
   fields: projectFields,
   fkFields: {
-    leadingDepartmentId: fk("department", "leadingDepartmentName", "work.project.leadingDepartment"),
-    parentId: fk("project", "parentName", "work.project.parent"),
+    leadingDepartmentId: fk("department", "leadingDepartmentName", "work.projects.leadingDepartment"),
+    parentId: fk("project", "parentName", "work.projects.parent"),
   },
   canCreate: true,
   canDelete: true,
@@ -43,12 +43,12 @@ const projectMemberFields: FieldConfig[] = [
 
 export const employeeProjectConfig: TabConfig = {
   title: "项目人员",
-  apiPath: "/api/modules/work/project-members",
+  apiPath: "/api/modules/work/projects/members",
   entityType: "EmployeeProject",
   fields: projectMemberFields,
   fkFields: {
-    employeeId: fk("employee", "employeeName", "work.project.member.employee"),
-    projectId: fk("project", "projectName", "work.project.member.project"),
+    employeeId: fk("employee", "employeeName", "work.projects.member.employee"),
+    projectId: fk("project", "projectName", "work.projects.member.project"),
   },
   canCreate: false,
   canDelete: false,

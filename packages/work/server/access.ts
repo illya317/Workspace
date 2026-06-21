@@ -2,7 +2,7 @@ import { authorize } from "@workspace/platform/server/auth";
 import { prisma } from "@workspace/platform/server/prisma";
 import { PROJECT_ROLES } from "../constants/field-options";
 
-export type ProjectAccessRole = "access" | "write" | "delete";
+export type ProjectAccessRole = "access" | "write" | "delete" | "admin";
 
 export async function canUseProject(userId: number, role: ProjectAccessRole = "access") {
   return hasProjectBroadAccess(userId, role);
@@ -10,11 +10,16 @@ export async function canUseProject(userId: number, role: ProjectAccessRole = "a
 
 export async function hasProjectBroadAccess(userId: number, role: ProjectAccessRole = "access") {
   if (await authorize({ user: userId, resourceKey: "system", action: "admin" })) return true;
-  if (await authorize({ user: userId, resourceKey: "work.project", action: role })) return true;
+  if (await authorize({ user: userId, resourceKey: "work.projects", action: role })) return true;
   return authorize({ user: userId, resourceKey: "work", action: role });
 }
 
-const PROJECT_VIEW_ALL_RESOURCE = "work.project.view_all";
+async function hasProjectL2Access(userId: number, role: ProjectAccessRole = "access") {
+  if (await isSystemAdminUser(userId)) return true;
+  return authorize({ user: userId, resourceKey: "work.projects", action: role });
+}
+
+const PROJECT_VIEW_ALL_RESOURCE = "work.projects.viewAll";
 const PROJECT_MANAGER_ROLES = new Set(["负责人", "项目负责人"]);
 const PROJECT_EDITOR_ROLES = new Set(["负责人", "项目负责人", "执行负责", "支持协作"]);
 const PROJECT_VIEWER_ROLES = new Set<string>(PROJECT_ROLES);
@@ -53,6 +58,7 @@ export async function hasProjectViewAll(userId: number) {
 }
 
 export async function buildVisibleProjectWhere(userId: number) {
+  if (!(await hasProjectL2Access(userId, "access"))) return { id: -1 };
   if (await hasProjectViewAll(userId)) return {};
   const employeeIds = await getUserEmployeeIds(userId);
   return {
@@ -70,10 +76,16 @@ export async function getProjectPermissions(
 ): Promise<ProjectPermissionResult> {
   if (await isSystemAdminUser(userId)) return { canView: true, canEdit: true, canManage: true, canDelete: true };
 
-  const [employeeIds, canViewAll] = await Promise.all([
+  const [hasL2Access, hasL2Write, hasL2Delete, hasL2Admin, employeeIds, canViewAll] = await Promise.all([
+    hasProjectL2Access(userId, "access"),
+    hasProjectL2Access(userId, "write"),
+    hasProjectL2Access(userId, "delete"),
+    hasProjectL2Access(userId, "admin"),
     getUserEmployeeIds(userId),
     hasProjectViewAll(userId),
   ]);
+  if (!hasL2Access) return { canView: false, canEdit: false, canManage: false, canDelete: false };
+
   const employeeIdSet = new Set(employeeIds);
   const memberRoles = (project.employees || [])
     .filter((member) => employeeIdSet.has(member.employeeId))
@@ -85,15 +97,15 @@ export async function getProjectPermissions(
   const isProjectEditor = memberRoles.some((role) => PROJECT_EDITOR_ROLES.has(role));
   const isProjectViewer = memberRoles.some((role) => PROJECT_VIEWER_ROLES.has(role));
   const canManageByProject = isCreator || isDepartmentManager || isProjectManager;
-  const canManage = canManageByProject;
-  const canEdit = canManage || isProjectEditor;
-  const canView = canViewAll || canEdit || isProjectViewer;
+  const canManage = hasL2Admin && canManageByProject;
+  const canEdit = hasL2Write && (canManageByProject || isProjectEditor);
+  const canView = canViewAll || canManageByProject || isProjectViewer;
 
   return {
     canView,
     canEdit,
     canManage,
-    canDelete: canManageByProject,
+    canDelete: hasL2Delete && canManageByProject,
   };
 }
 
