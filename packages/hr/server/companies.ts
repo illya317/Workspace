@@ -10,6 +10,7 @@ import {
   buildCompanyFieldUpdateCommand,
   buildCompanyUpsertCommand,
   COMPANY_ALLOWED_FIELDS,
+  validateCompanyDeleteCommand,
 } from "./domain/company-validation";
 
 const COMPANY_CONFIG = {
@@ -82,10 +83,10 @@ export async function upsertCompany(body: Record<string, unknown>, userId: numbe
 }
 
 export async function deleteCompanyById(id: number) {
-  const company = await prisma.company.findUnique({ where: { id } });
-  if (!company) return { ok: false as const, error: "公司不存在", status: 404 };
-  await prisma.companyRelation.deleteMany({ where: { OR: [{ parentId: id }, { childId: id }] } });
-  await prisma.company.delete({ where: { id } });
+  const command = mapValidationToServiceResult(await validateCompanyDeleteCommand(id));
+  if (!command.ok) return command;
+  await prisma.companyRelation.deleteMany({ where: { OR: [{ parentId: command.data.id }, { childId: command.data.id }] } });
+  await prisma.company.delete({ where: { id: command.data.id } });
   invalidateCompanyCache();
   return { ok: true as const, data: { success: true } };
 }

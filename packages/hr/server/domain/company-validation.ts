@@ -69,6 +69,14 @@ export async function buildCompanyUpsertCommand(body: Record<string, unknown>) {
   return okCommand({ id, code, name, dataFields: companyDataFields(body) });
 }
 
+export async function validateCompanyDeleteCommand(id: unknown): Promise<DomainValidationResult<{ id: number }>> {
+  const parsedId = parseOptionalCompanyId(id);
+  if (!parsedId.ok || parsedId.data === null) return failCommand("公司ID无效");
+  const company = await prisma.company.findUnique({ where: { id: parsedId.data }, select: { id: true } });
+  if (!company) return failCommand("公司不存在", 404);
+  return okCommand({ id: parsedId.data });
+}
+
 export function buildCompanyFieldUpdateCommand(field: string, value: unknown): DomainValidationResult<{ field: string; value: unknown }> {
   if (field === "sortOrder") {
     const number = Number(value);

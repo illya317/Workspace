@@ -13,6 +13,7 @@ import {
 } from "./contract-records";
 import {
   buildContractCreateCommand,
+  buildContractDeleteCommand,
   buildContractFieldUpdateCommand,
 } from "./domain/contract-validation";
 export {
@@ -25,7 +26,7 @@ export {
 };
 export type { ContractRow, PaginatedContracts } from "./contract-records";
 
-export async function clearPrimaryContractsForEmployee(
+async function clearPrimaryContractsForEmployee(
   employeeId: number,
   editorId: number,
   exceptEmploymentId?: number,
@@ -89,7 +90,7 @@ export async function getContracts(options: {
   return paginateContracts(rows, options.page, options.pageSize);
 }
 
-export async function addContract(
+async function addContract(
   employeeId: unknown,
   contractData: Record<string, unknown>,
   editorId: number
@@ -191,7 +192,10 @@ export async function updateContractField(
 }
 
 export async function deleteContract(contractId: number, userId: number) {
-  const loaded = await loadSyntheticContract(contractId);
+  const command = mapValidationToServiceResult(buildContractDeleteCommand(contractId));
+  if (!command.ok) return { ok: false as const, error: command.error, status: command.status };
+
+  const loaded = await loadSyntheticContract(command.data.contractId);
   if (!loaded.ok) return loaded;
 
   loaded.contracts.splice(loaded.index, 1);

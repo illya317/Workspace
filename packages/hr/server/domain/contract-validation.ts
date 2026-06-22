@@ -91,6 +91,12 @@ export async function buildContractFieldUpdateCommand(
   return okCommand({ field, value });
 }
 
+export function buildContractDeleteCommand(contractId: unknown): DomainValidationResult<{ contractId: number }> {
+  const id = Number(contractId);
+  if (!Number.isInteger(id) || id <= 0) return failCommand("合同ID无效");
+  return okCommand({ contractId: id });
+}
+
 export async function buildEmployeeProfileContractsCommand(
   employeeId: number,
   rows: unknown,

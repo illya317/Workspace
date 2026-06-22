@@ -101,7 +101,7 @@ API route 只做：
 
 删除的最低平台规则是：删除前必须证明目标 ID 是合法正整数、目标记录存在、请求作用域成立、没有 required FK 或 active reference、目标状态允许删除、删除方式明确，并且引用清理、`snapshotHistory` 和删除/归档/停用处于同一事务边界。通用字段级删除优先走 `@workspace/platform/server/crud-factory`，自定义删除服务优先复用 `@workspace/platform/server/delete-guard`；业务包只补充本领域的归属校验、引用清单和删除方式选择，不要靠 Prisma/DB 报错当业务规则。
 
-新增多入口写入能力时，页面、导入、agent tool 或内部 API 只能新增 input adapter，把输入适配成 domain command；同一个业务字段或业务动作必须收口到同一套 domain validator。HR roster 写服务已作为第一批强制范围，`npm run arch:gate` 会阻断这些 service 重新散落 FK、日期、枚举、百分比、直接上级、合同公司、归档/删除引用保护等业务规则。
+新增多入口写入能力时，页面、导入、agent tool 或内部 API 只能新增 input adapter，把输入适配成 domain command；同一个业务字段或业务动作必须收口到同一套 domain validator。`npm run arch:gate` 会通过通用 domain validation ratchet 检查业务 API route、route-local helper、写 service 和 exported 写入口函数：新增写 service 必须消费本包 `packages/<domain>/server/domain/*-validation.ts`，route 不得直接或通过 package root 间接 import domain validator，service 不得重新散落 FK、日期、枚举、百分比、归档/删除引用保护等底层业务规则。即使一个文件已经 import domain validator，新增 exported `create/update/save/archive/delete/upsert/import` 写入口也必须在入口体内调用 domain validator 或走带校验 hook 的 CRUD helper；其中 `handleDelete` 只有在入口或引用的 config 里显式提供 `onBeforeDelete`，或入口直接调用已登记的 guarded/domain 删除验证入口时，才视为已验证。仅供内部复用的写 helper 不应 export。HR roster 当前 baseline 为 0；其他模块存量债由 `scripts/arch/domain-validation-baseline.json` 锁定，只能减少，不能新增。
 
 Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。`withAuth`、`withFinance*`、`checkHRAccess`、`requireResourceAccess` 等平台 wrapper 必须委托 `authorize()`，新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
 

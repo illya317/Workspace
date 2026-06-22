@@ -108,7 +108,7 @@ app/* route shell
 Level 1/1.5 只有一个硬门禁入口：
 
 - `npm run arch:gate`：串行执行 AST 硬扫描、dependency-cruiser DAG、模块注册锁、资源注册、package 边界和 auth/API 检查。新增 UI 库 import、新增 app 层 UI、替代权限函数、`if (user.role)`、新增 RBAC 表直查、业务包 `@/server/*` alias 绕过、跨业务包 import、循环依赖、未注册或重复 module key 都会立即 `exit 1`。历史债由 `scripts/arch/level15-baseline.json` 和 `scripts/check/level1-api-baseline.json` 锁定，只能减少，不能扩写。
-- `scripts/arch/domain-validation.ts` 是唯一 gate 内的 domain validation 边界检查。第一批强制范围覆盖 HR roster 写服务：员工、雇佣、合同、员工详情合同/EDP、公司、公司关系、部门、岗位、EDP 和岗位说明书必须消费对应 `packages/hr/server/domain/*-validation.ts`，不得重新手写 FK、日期、枚举、百分比、直接上级、合同公司或归档/删除引用保护规则；相关 API route 不得直接或通过 `@workspace/hr/server` 间接 import domain validator。
+- `scripts/arch/domain-validation.ts` 是唯一 gate 内的 domain validation 边界检查。它从 module registry 与 API Contract Registry 推导业务 API root，扫描 `app/api/modules/<domain>/**`、route-local helper 和 `packages/<domain>/server/**/*.ts`，强制新增写 service 走本包 `server/domain/*-validation.ts`，禁止 route 直接或通过 package root 间接 import domain validator，也禁止 service 直接消费 FK、日期、枚举、引用保护等底层业务规则。对于 exported `create/update/save/archive/delete/upsert/import` 写入口，gate 还会检查入口函数体是否调用 domain validator 或走带校验 hook 的 CRUD helper，避免在已合规 service 文件中新增裸写函数；`handleDelete` 必须在入口或引用的 config 中显式提供 `onBeforeDelete`，或入口直接调用已登记的 guarded/domain 删除验证入口。仅供内部复用的写 helper 不应 export。HR roster baseline 为 0；Finance、Work、Production、Administration、Library 等历史债由 `scripts/arch/domain-validation-baseline.json` ratchet 锁定，迁移减少时必须同步删除 baseline 项。
 
 `app/` 层是 routing only：
 
