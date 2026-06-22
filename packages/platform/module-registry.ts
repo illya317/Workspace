@@ -293,6 +293,9 @@ export const registeredModuleDefinitions = [
       { key: "settings.api.manage", name: "Open API Client 管理", runtimeParentKey: "settings.api", maxRoleKey: "write", sortOrder: 0 },
     ],
     routes: ["/settings", "/settings/account", "/settings/admin", "/settings/api", "/settings/api/hr-generated"],
+    apiRoutes: [
+      ...apiRoutes("/api/settings/account", "protected", ["GET", "POST", "PUT"], { resourceKey: "settings.account", action: "access" }),
+    ],
     apiGuards: [
       ...apiResourceGuards("/api/settings/admin", "settings.admin", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
       ...apiResourceGuards("/api/settings/api", "settings.api", ["GET"]),

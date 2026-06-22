@@ -1,6 +1,10 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { verifyToken, getTokenFromCookie } from "../auth-token";
 
+function getPersonalApiKey(request: Request) {
+  return request.headers.get("x-api-key")?.trim() || null;
+}
+
 export async function authenticate(request: Request) {
   const token = getTokenFromCookie(request);
   if (token) {
@@ -14,6 +18,28 @@ export async function authenticate(request: Request) {
       if (user.sessionVersion !== payload.sessionVersion) return null;
       return payload;
     }
+  }
+
+  const apiKey = getPersonalApiKey(request);
+  if (apiKey) {
+    const user = await prisma.user.findUnique({
+      where: { apiKey },
+      select: {
+        id: true,
+        wxUserId: true,
+        nickname: true,
+        canLogin: true,
+        sessionVersion: true,
+      },
+    });
+    if (!user || !user.canLogin) return null;
+    return {
+      userId: user.id,
+      wxUserId: user.wxUserId ?? "",
+      nickname: user.nickname,
+      departmentId: 0,
+      sessionVersion: user.sessionVersion,
+    };
   }
 
   return null;
