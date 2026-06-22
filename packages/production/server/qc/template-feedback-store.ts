@@ -11,6 +11,7 @@ import type {
   QcTemplateInlineFeedbackEntry,
   QcTemplateInlineFeedbackTarget,
 } from "./types";
+import { buildWriteTemplateFeedbackStoreCommand } from "./domain/template-feedback-store-validation";
 
 interface QcTemplateFeedbackStore {
   items: QcTemplateFeedbackItem[];
@@ -60,6 +61,8 @@ export async function readStore(): Promise<QcTemplateFeedbackStore> {
 }
 
 export async function writeStore(store: QcTemplateFeedbackStore) {
+  const command = buildWriteTemplateFeedbackStoreCommand(store);
+  if (!command.ok) throw new Error(command.issue.message);
   const filePath = dataPath();
   await mkdir(path.dirname(filePath), { recursive: true });
   await writeFile(filePath, `${JSON.stringify(store, null, 2)}\n`, "utf8");

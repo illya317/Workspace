@@ -1,6 +1,5 @@
 {
   "missingDomainValidatorImport": [
-    "missingDomainValidatorImport: packages/administration/server/contracts.ts: write service does not import a domain validator",
     "missingDomainValidatorImport: packages/finance/server/budget/budget-data.ts: write service does not import a domain validator",
     "missingDomainValidatorImport: packages/finance/server/budget/budget-version.ts: write service does not import a domain validator",
     "missingDomainValidatorImport: packages/finance/server/budget/service.ts: write service does not import a domain validator",
@@ -25,13 +24,7 @@
     "missingDomainValidatorImport: packages/finance/server/statements/mapping/statement-mappings.ts: write service does not import a domain validator",
     "missingDomainValidatorImport: packages/finance/server/statements/reviews/service.ts: write service does not import a domain validator",
     "missingDomainValidatorImport: packages/finance/server/statements/statement-config-view.ts: write service does not import a domain validator",
-    "missingDomainValidatorImport: packages/finance/server/statements/workpapers/service.ts: write service does not import a domain validator",
-    "missingDomainValidatorImport: packages/library/server/generators/generated-document.ts: write service does not import a domain validator",
-    "missingDomainValidatorImport: packages/library/server/metadata.ts: write service does not import a domain validator",
-    "missingDomainValidatorImport: packages/library/server/scan.ts: write service does not import a domain validator",
-    "missingDomainValidatorImport: packages/production/server/qc/batches.ts: write service does not import a domain validator",
-    "missingDomainValidatorImport: packages/production/server/qc/template-feedback-store.ts: write service does not import a domain validator",
-    "missingDomainValidatorImport: packages/production/server/qc/template-feedback.ts: write service does not import a domain validator"
+    "missingDomainValidatorImport: packages/finance/server/statements/workpapers/service.ts: write service does not import a domain validator"
   ],
   "serviceUsesLowLevelRule": [],
   "routeImportsDomainValidator": [],

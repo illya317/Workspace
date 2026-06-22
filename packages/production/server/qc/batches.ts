@@ -1,10 +1,15 @@
 import "server-only";
 import path from "path";
 import { mkdir, readFile, writeFile } from "fs/promises";
-import { getQcTemplateDetail } from "./template-cache";
 import { qcRuntimeDataPath } from "./runtime-data-path";
-import { buildQcBatchWorkflow, qcSignatureKeys } from "../../qc/workflow";
 import type { QcBatchCreateInput, QcBatchList, QcBatchSummary, QcBatchStatus } from "./types";
+import {
+  buildCreateQcBatchCommand,
+  buildDeleteQcBatchCommand,
+  buildSubmitQcBatchCommand,
+  buildUpdateQcBatchCommand,
+  buildUpdateQcBatchWorkflowCommand,
+} from "./domain/qc-batch-validation";
 
 interface QcBatchStore {
   nextId: number;
@@ -45,11 +50,6 @@ function sortBatches(batches: QcBatchSummary[]) {
   return [...batches].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 }
 
-function assertWritableInspectionField(key: string, stageKey: string, testName: string) {
-  if (key.includes("/signature/")) throw new Error("签名字段只能由服务端流程写入");
-  if (!key.startsWith(`${stageKey}/${testName}/`)) throw new Error(`字段不属于当前检验项目：${key}`);
-}
-
 export async function listQcBatches(): Promise<QcBatchList> {
   const store = await readStore();
   const batches = sortBatches(store.batches.map((batch) => ({ ...batch, status: normalizeStatus(batch.status) })));
@@ -64,20 +64,16 @@ export async function listQcBatches(): Promise<QcBatchList> {
 }
 
 export async function createQcBatch(input: QcBatchCreateInput): Promise<QcBatchSummary> {
-  const productKey = input.productKey.trim();
-  const batchNumber = input.batchNumber.trim();
-  if (!productKey || !batchNumber) throw new Error("productKey and batchNumber are required");
-
-  const detail = await getQcTemplateDetail(productKey);
-  if (!detail.source.available || detail.stages.length === 0) throw new Error("QC product template not found");
+  const command = await buildCreateQcBatchCommand(input);
+  if (!command.ok) throw new Error(command.issue.message);
 
   const store = await readStore();
   const now = new Date().toISOString();
   const batch: QcBatchSummary = {
     id: store.nextId,
-    batchNumber,
-    productKey,
-    productName: detail.productName,
+    batchNumber: command.data.batchNumber,
+    productKey: command.data.productKey,
+    productName: command.data.productName,
     inspector: "",
     status: "draft",
     createdAt: now,
@@ -96,15 +92,15 @@ export async function getQcBatch(batchId: number): Promise<QcBatchSummary | null
 }
 
 export async function updateQcBatch(batchId: number, fields: Record<string, unknown>): Promise<QcBatchSummary | null> {
+  const command = buildUpdateQcBatchCommand(batchId, fields);
+  if (!command.ok) throw new Error(command.issue.message);
   const store = await readStore();
-  const batch = store.batches.find((item) => item.id === batchId);
+  const batch = store.batches.find((item) => item.id === command.data.batchId);
   if (!batch) return null;
-  if (typeof fields.batchNumber === "string") batch.batchNumber = fields.batchNumber.trim();
-  if (typeof fields.inspector === "string") batch.inspector = fields.inspector.trim();
-  if (fields.fields && typeof fields.fields === "object" && !Array.isArray(fields.fields)) {
-    for (const [key, value] of Object.entries(fields.fields)) {
-      batch.fields[key] = value == null ? "" : String(value);
-    }
+  if (command.data.batchNumber !== undefined) batch.batchNumber = command.data.batchNumber;
+  if (command.data.inspector !== undefined) batch.inspector = command.data.inspector;
+  if (command.data.fields) {
+    Object.assign(batch.fields, command.data.fields);
   }
   batch.updatedAt = new Date().toISOString();
   await writeStore(store);
@@ -121,43 +117,19 @@ export async function updateQcBatchWorkflow(batchId: number, input: {
   const store = await readStore();
   const batch = store.batches.find((item) => item.id === batchId);
   if (!batch) return null;
-  const detail = await getQcTemplateDetail(batch.productKey);
-  const stage = detail.stages.find((item) => item.key === input.stageKey);
-  const test = stage?.tests.find((item) => item.englishName === input.testName);
-  if (!stage || !test) throw new Error("检验项目不存在");
-
-  const workflow = buildQcBatchWorkflow(detail, batch, input.actorName);
-  const current = workflow.tests.find((item) => item.stageKey === input.stageKey && item.testName === input.testName);
-  if (!current) throw new Error("检验项目不存在");
-  if (!workflow.stages[current.stageIndex]?.unlocked) throw new Error("前一阶段尚未全部复核完成");
-  if (current.automatic) throw new Error("该成品项目引用待包装品结果，不能手工保存或复核");
-
-  const keys = qcSignatureKeys(input.stageKey, input.testName);
-  if (input.action === "save_inspection") {
-    if (current.reviewed) throw new Error("该项目已复核，不能继续修改");
-    if (!current.canSaveInspection) throw new Error("该项目已由其他检验者完成检验，请进入复核流程");
-    if (input.fields && typeof input.fields === "object" && !Array.isArray(input.fields)) {
-      for (const [key, value] of Object.entries(input.fields)) {
-        assertWritableInspectionField(key, input.stageKey, input.testName);
-        batch.fields[key] = value == null ? "" : String(value);
-      }
-    }
-    batch.fields[keys.inspector] = input.actorName.trim();
-  }
-  if (input.action === "approve_review") {
-    if (!current.inspected) throw new Error("该项目尚未完成检验，不能复核");
-    if (current.reviewed) throw new Error("该项目已复核");
-    if (!current.canApproveReview) throw new Error("检验者不能复核本人检验的项目");
-    batch.fields[keys.reviewer] = input.actorName.trim();
-  }
+  const command = await buildUpdateQcBatchWorkflowCommand(batch, input);
+  if (!command.ok) throw new Error(command.issue.message);
+  Object.assign(batch.fields, command.data.fields);
   batch.updatedAt = new Date().toISOString();
   await writeStore(store);
   return batch;
 }
 
 export async function submitQcBatch(batchId: number): Promise<QcBatchSummary | null> {
+  const command = buildSubmitQcBatchCommand(batchId);
+  if (!command.ok) throw new Error(command.issue.message);
   const store = await readStore();
-  const batch = store.batches.find((item) => item.id === batchId);
+  const batch = store.batches.find((item) => item.id === command.data.batchId);
   if (!batch) return null;
   batch.status = "submitted";
   batch.updatedAt = new Date().toISOString();
@@ -166,8 +138,10 @@ export async function submitQcBatch(batchId: number): Promise<QcBatchSummary | n
 }
 
 export async function deleteQcBatch(batchId: number): Promise<boolean> {
+  const command = buildDeleteQcBatchCommand(batchId);
+  if (!command.ok) throw new Error(command.issue.message);
   const store = await readStore();
-  const next = store.batches.filter((batch) => batch.id !== batchId);
+  const next = store.batches.filter((batch) => batch.id !== command.data.batchId);
   if (next.length === store.batches.length) return false;
   store.batches = next;
   await writeStore(store);

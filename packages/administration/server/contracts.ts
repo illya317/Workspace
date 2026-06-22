@@ -4,6 +4,11 @@ import {
   buildFilterWhere,
 } from "@workspace/platform/server/dal/pagination";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import {
+  buildContractCreateCommand,
+  buildContractDeleteCommand,
+  buildContractUpdateCommand,
+} from "./domain/administration-contract-validation";
 
 export const ContractCreateSchema = z.object({
   name: z.string().min(1, "合同名称必填"),
@@ -35,31 +40,6 @@ export interface ContractListFilters {
   status?: string;
   page?: number;
   pageSize?: number;
-}
-
-function toNullableAmount(value: string | number | null | undefined): number | null {
-  if (value == null || value === "") return null;
-  return Number(value);
-}
-
-function contractData(data: ContractCreateInput | ContractUpdateInput) {
-  return {
-    ...(data.name !== undefined ? { name: data.name } : {}),
-    ...(data.contractNo !== undefined ? { contractNo: data.contractNo ?? null } : {}),
-    ...(data.partyA !== undefined ? { partyA: data.partyA ?? null } : {}),
-    ...(data.partyB !== undefined ? { partyB: data.partyB ?? null } : {}),
-    ...(data.shareholder !== undefined ? { shareholder: data.shareholder ?? null } : {}),
-    ...(data.category !== undefined ? { category: data.category ?? null } : {}),
-    ...(data.content !== undefined ? { content: data.content ?? null } : {}),
-    ...(data.handler !== undefined ? { handler: data.handler ?? null } : {}),
-    ...(data.signDate !== undefined ? { signDate: data.signDate ?? null } : {}),
-    ...(data.endDate !== undefined ? { endDate: data.endDate ?? null } : {}),
-    ...(data.status !== undefined ? { status: data.status ?? null } : {}),
-    ...(data.amount !== undefined ? { amount: toNullableAmount(data.amount) } : {}),
-    ...(data.executedAmount !== undefined ? { executedAmount: toNullableAmount(data.executedAmount) } : {}),
-    ...(data.location !== undefined ? { location: data.location ?? null } : {}),
-    ...(data.remark !== undefined ? { remark: data.remark ?? null } : {}),
-  };
 }
 
 function buildWhere(filters: ContractListFilters): Prisma.ContractWhereInput {
@@ -120,16 +100,22 @@ export async function listContracts(filters: ContractListFilters) {
 }
 
 export async function createContract(data: ContractCreateInput) {
-  return prisma.contract.create({ data: contractData(data) as Prisma.ContractCreateInput });
+  const command = buildContractCreateCommand(data);
+  if (!command.ok) throw new Error(command.issue.message);
+  return prisma.contract.create({ data: command.data.data as Prisma.ContractCreateInput });
 }
 
 export async function updateContract(id: number, data: ContractUpdateInput) {
+  const command = buildContractUpdateCommand(id, data);
+  if (!command.ok) throw new Error(command.issue.message);
   return prisma.contract.update({
-    where: { id },
-    data: { ...contractData(data), version: { increment: 1 } },
+    where: { id: command.data.id },
+    data: { ...command.data.data, version: { increment: 1 } },
   });
 }
 
 export async function deleteContract(id: number) {
-  return prisma.contract.delete({ where: { id } });
+  const command = buildContractDeleteCommand(id);
+  if (!command.ok) throw new Error(command.issue.message);
+  return prisma.contract.delete({ where: { id: command.data.id } });
 }
