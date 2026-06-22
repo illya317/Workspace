@@ -25,6 +25,8 @@ interface Props {
   onColumnsChange?: (visible: string[]) => void;
   canCreate?: boolean;
   onCreate?: () => void;
+  onDownload?: () => void;
+  downloading?: boolean;
   showEdit?: boolean;
   editProps?: EditToolbarProps;
 }
@@ -43,6 +45,8 @@ export default function HRToolbar({
   onColumnsChange,
   canCreate,
   onCreate,
+  onDownload,
+  downloading,
   showEdit,
   editProps,
 }: Props) {
@@ -91,7 +95,7 @@ export default function HRToolbar({
           <RefreshActionButton onClick={onReset} label="重置" />
         </>
       }
-      editActions={showEdit && editProps ? <EditToolbar {...editProps} /> : null}
+      editActions={showEdit && editProps ? <EditToolbar {...editProps} onDownload={onDownload} downloading={downloading} /> : null}
     />
   );
 }

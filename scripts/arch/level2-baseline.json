@@ -23,6 +23,8 @@
   "unregisteredCoreUiExports": [],
   "duplicateCoreUiRegistrations": [],
   "nativeSearchInputFiles": [],
+  "handwrittenSearchMatches": [],
+  "generatedFilterContractDrift": [],
   "pageDesignDriftFiles": [],
   "repeatedServiceGroups": [],
   "routePrimitiveSchemaDuplicates": [],

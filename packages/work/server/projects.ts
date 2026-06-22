@@ -5,48 +5,19 @@ import { parseJson } from "@workspace/platform/server/api";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 import { ProjectCreateSchema } from "./schemas";
-import { guardProjectArchive } from "./reference-guards";
 import {
   buildVisibleProjectWhere,
-  canDeleteProject,
-  canEditProject,
-  canManageProject,
-  canViewProject,
   getProjectPermissions,
-  isSystemAdminUser,
 } from "./access";
 import {
-  PROJECT_CONFIG,
-  PROJECT_PRIORITIES,
-  PROJECT_STAGES,
-  PROJECT_STATUSES,
   formatDate,
-  generateProjectCode,
-  hasValidProjectDates,
-  isAllowedProjectOption,
-  normalizeLeadingDepartmentId,
-  normalizeProjectParentId,
   normalizeProjectType,
-  nullableString,
-  parseDate,
 } from "./project-normalization";
-
-const PROJECT_MANAGE_FIELDS = new Set(["name", "parentId", "leadingDepartmentId", "isArchived"]);
-const PROJECT_EDIT_FIELDS = new Set([
-  "description",
-  "status",
-  "priority",
-  "stage",
-  "plan",
-  "goal",
-  "milestones",
-  "budgetAmount",
-  "budgetNote",
-  "riskNote",
-  "remark",
-  "startDate",
-  "endDate",
-]);
+import {
+  buildProjectCreateCommand,
+  buildProjectFieldUpdateCommand,
+  validateProjectDeleteCommand,
+} from "./domain/project-validation";
 
 export async function listProjects(input: { userId: number; keyword: string; page: number; pageSize: number; archived?: boolean }) {
   const visibleWhere = await buildVisibleProjectWhere(input.userId);
@@ -85,7 +56,7 @@ export async function listProjects(input: { userId: number; keyword: string; pag
       },
       description: project.description,
       status: project.status,
-      priority: project.priority,
+      isMilestone: project.isMilestone,
       stage: project.stage,
       plan: project.plan,
       goal: project.goal,
@@ -117,77 +88,16 @@ export async function listProjects(input: { userId: number; keyword: string; pag
 export async function createProject(request: Request, userId: number) {
   const parsed = await parseJson(request, ProjectCreateSchema);
   if (!parsed.ok) return { ok: false as const, error: parsed.error };
-  if (!hasValidProjectDates(parsed.data.startDate, parsed.data.endDate)) {
-    return { ok: false as const, error: "日期格式错误" };
-  }
-  if (!isAllowedProjectOption(parsed.data.status, PROJECT_STATUSES)) return { ok: false as const, error: "项目状态无效" };
-  if (!isAllowedProjectOption(parsed.data.priority, PROJECT_PRIORITIES)) return { ok: false as const, error: "优先级无效" };
-  if (!isAllowedProjectOption(parsed.data.stage, PROJECT_STAGES)) return { ok: false as const, error: "项目阶段无效" };
-  const projectType = normalizeProjectType(parsed.data.projectType);
-  const parentResult = await normalizeProjectParentId(parsed.data.parentId);
-  if ("error" in parentResult) return { ok: false as const, error: parentResult.error };
-  if (projectType === "subproject" && !parentResult.value) return { ok: false as const, error: "子项目必须关联上级项目" };
-  if (parentResult.value && !(await canViewProject(userId, parentResult.value))) {
-    return { ok: false as const, error: "上级项目无权限", status: 403 };
-  }
-  if (projectType === "subproject" && parentResult.value && !(await canManageProject(userId, parentResult.value))) {
-    return { ok: false as const, error: "无权限创建子项目", status: 403 };
-  }
-  const leadingDepartmentResult = parsed.data.leadingDepartmentId
-    ? await normalizeLeadingDepartmentId(parsed.data.leadingDepartmentId)
-    : null;
-  if (projectType === "department" && !leadingDepartmentResult) return { ok: false as const, error: "部门项目必须选择主导部门" };
-  if (leadingDepartmentResult && "error" in leadingDepartmentResult) return { ok: false as const, error: leadingDepartmentResult.error };
-  if (
-    projectType === "department" &&
-    leadingDepartmentResult &&
-    !("error" in leadingDepartmentResult) &&
-    leadingDepartmentResult.department.managerUserId !== userId &&
-    !(await isSystemAdminUser(userId))
-  ) {
-    return { ok: false as const, error: "只有当前部门负责人可以发起部门项目", status: 403 };
-  }
-  const startDate = parseDate(parsed.data.startDate);
-  const code = projectType === "department" && leadingDepartmentResult && !("error" in leadingDepartmentResult)
-    ? await generateProjectCode(leadingDepartmentResult.department.code, startDate)
-    : null;
-  const leaderEmployee = parsed.data.leaderEmployeeId ? await prisma.employee.findUnique({
-    where: { id: parsed.data.leaderEmployeeId },
-    select: { id: true },
-  }) : await prisma.employee.findFirst({
-    where: { userId },
-    select: { id: true },
-  });
-  if (parsed.data.leaderEmployeeId && !leaderEmployee) return { ok: false as const, error: "负责人不存在" };
+  const command = await buildProjectCreateCommand(userId, parsed.data);
+  if (!command.ok) return { ok: false as const, error: command.issue.message, status: command.issue.status };
   const record = await prisma.$transaction(async (tx) => {
     const created = await tx.project.create({
-      data: {
-        type: projectType,
-        code,
-        name: parsed.data.name,
-        description: nullableString(parsed.data.description),
-        status: nullableString(parsed.data.status),
-        priority: nullableString(parsed.data.priority),
-        stage: nullableString(parsed.data.stage),
-        plan: nullableString(parsed.data.plan),
-        goal: nullableString(parsed.data.goal),
-        milestones: nullableString(parsed.data.milestones),
-        budgetAmount: parsed.data.budgetAmount ?? null,
-        budgetNote: nullableString(parsed.data.budgetNote),
-        riskNote: nullableString(parsed.data.riskNote),
-        remark: nullableString(parsed.data.remark),
-        parentId: parentResult.value,
-        leadingDepartmentId: leadingDepartmentResult && !("error" in leadingDepartmentResult) ? leadingDepartmentResult.value : null,
-        startDate,
-        endDate: parseDate(parsed.data.endDate),
-        createdBy: userId,
-        editedBy: userId,
-      },
+      data: command.data.data,
     });
-    if (leaderEmployee) {
+    if (command.data.leaderEmployeeId) {
       await tx.employeeProject.create({
         data: {
-          employeeId: leaderEmployee.id,
+          employeeId: command.data.leaderEmployeeId,
           projectId: created.id,
           role: "负责人",
           editedBy: userId,
@@ -207,81 +117,22 @@ export async function updateProjectField(request: Request, params: Promise<{ id:
   const { id } = await params;
   const projectId = parseInt(id);
   if (!Number.isInteger(projectId)) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
-  const canManage = await canManageProject(payload.userId, projectId);
-  const canEdit = canManage || await canEditProject(payload.userId, projectId);
-
-  if (body.field === "isArchived") {
-    if (!(await canDeleteProject(payload.userId, projectId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
-    const archived = Boolean(body.value);
-    if (archived) {
-      const blockMessage = await guardProjectArchive(projectId);
-      if (blockMessage) return NextResponse.json({ error: blockMessage }, { status: 409 });
-    }
-    await prisma.project.update({
-      where: { id: projectId },
-      data: {
-        isArchived: archived,
-        archivedAt: archived ? new Date() : null,
-        editedBy: payload.userId,
-        editedAt: new Date(),
-        version: { increment: 1 },
-      },
-    });
-    await snapshotHistory("Project", projectId, payload.userId);
-    return NextResponse.json({ success: true });
-  }
-  if (body.field === "leadingDepartmentId") {
-    if (!canManage) return NextResponse.json({ error: "无权限" }, { status: 403 });
-    const result = await normalizeLeadingDepartmentId(body.value);
-    if ("error" in result) return NextResponse.json({ error: result.error }, { status: 400 });
-    if (result.department.managerUserId !== payload.userId && !(await isSystemAdminUser(payload.userId))) {
-      return NextResponse.json({ error: "只有目标部门负责人可以设置主导部门" }, { status: 403 });
-    }
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
-      select: { id: true, startDate: true, type: true },
-    });
-    if (!project) return NextResponse.json({ error: "记录不存在" }, { status: 404 });
-    const code = normalizeProjectType(project.type) === "department"
-      ? await generateProjectCode(result.department.code, project.startDate)
-      : null;
-    await prisma.project.update({
-      where: { id: projectId },
-      data: {
-        leadingDepartmentId: result.value,
-        code,
-        editedBy: payload.userId,
-        editedAt: new Date(),
-        version: { increment: 1 },
-      },
-    });
-    await snapshotHistory("Project", projectId, payload.userId);
-    return NextResponse.json({ success: true });
-  }
-  if (body.field === "childProjectIds") {
-    if (!canManage) return NextResponse.json({ error: "无权限" }, { status: 403 });
-    const result = await syncProjectChildren(projectId, body.value, payload.userId);
-    if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
+  const command = await buildProjectFieldUpdateCommand({
+    userId: payload.userId,
+    projectId,
+    field: body.field,
+    value: body.value,
+  });
+  if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
+  if (command.data.kind === "children") {
+    await syncProjectChildren(projectId, command.data.childIds, command.data.children, payload.userId);
     return NextResponse.json({ success: true });
   }
 
-  if (PROJECT_MANAGE_FIELDS.has(body.field) && !canManage) return NextResponse.json({ error: "无权限" }, { status: 403 });
-  if (PROJECT_EDIT_FIELDS.has(body.field) && !canEdit) return NextResponse.json({ error: "无权限" }, { status: 403 });
-  if (!PROJECT_MANAGE_FIELDS.has(body.field) && !PROJECT_EDIT_FIELDS.has(body.field)) {
-    return NextResponse.json({ error: "非法字段" }, { status: 400 });
-  }
-
-  const result = await PROJECT_CONFIG.onBeforeUpdate?.(body.field, body.value, projectId);
-  if (!result) return NextResponse.json({ error: "非法字段" }, { status: 400 });
-  if ("error" in result) return NextResponse.json({ error: result.error }, { status: 400 });
-  if (!PROJECT_CONFIG.allowedFields.includes(result.field)) return NextResponse.json({ error: "非法字段" }, { status: 400 });
-  if (result.field === "parentId" && result.value && !(await canViewProject(payload.userId, Number(result.value)))) {
-    return NextResponse.json({ error: "上级项目无权限" }, { status: 403 });
-  }
   await prisma.project.update({
     where: { id: projectId },
     data: {
-      [result.field]: result.value ?? null,
+      ...command.data.data,
       editedBy: payload.userId,
       editedAt: new Date(),
       version: { increment: 1 },
@@ -291,30 +142,12 @@ export async function updateProjectField(request: Request, params: Promise<{ id:
   return NextResponse.json({ success: true });
 }
 
-async function syncProjectChildren(projectId: number, value: unknown, userId: number) {
-  if (!Array.isArray(value)) return { ok: false as const, error: "子项目无效" };
-  const childIds = Array.from(new Set(value.map((item) => Number(item))));
-  if (childIds.some((id) => !Number.isInteger(id) || id <= 0)) {
-    return { ok: false as const, error: "子项目无效" };
-  }
-  if (childIds.includes(projectId)) return { ok: false as const, error: "子项目不能选择当前项目" };
-
-  const children = childIds.length > 0
-    ? await prisma.project.findMany({
-        where: { id: { in: childIds } },
-        select: { id: true, parentId: true, isArchived: true },
-      })
-    : [];
-  const childById = new Map(children.map((child) => [child.id, child]));
-  for (const childId of childIds) {
-    const child = childById.get(childId);
-    if (!child) return { ok: false as const, error: "子项目不存在" };
-    if (child.isArchived) return { ok: false as const, error: "归档项目不能设为子项目" };
-    if (!(await canViewProject(userId, childId))) return { ok: false as const, error: "子项目无权限", status: 403 };
-    const hierarchy = await normalizeProjectParentId(projectId, childId);
-    if ("error" in hierarchy) return { ok: false as const, error: hierarchy.error };
-  }
-
+async function syncProjectChildren(
+  projectId: number,
+  childIds: number[],
+  children: Array<{ id: number; parentId: number | null }>,
+  userId: number,
+) {
   const existingChildren = await prisma.project.findMany({
     where: { parentId: projectId, isArchived: false },
     select: { id: true, parentId: true },
@@ -354,7 +187,6 @@ async function syncProjectChildren(projectId: number, value: unknown, userId: nu
 
   for (const changedId of changedIds) await snapshotHistory("Project", changedId, userId);
   if (changedIds.size > 0) await snapshotHistory("Project", projectId, userId);
-  return { ok: true as const };
 }
 
 export async function deleteProject(request: Request, params: Promise<{ id: string }>) {
@@ -363,12 +195,9 @@ export async function deleteProject(request: Request, params: Promise<{ id: stri
   const { id } = await params;
   const projectId = parseInt(id);
   if (!Number.isInteger(projectId)) return NextResponse.json({ error: "ID 无效" }, { status: 400 });
-  if (!(await canDeleteProject(payload.userId, projectId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
-  const beforeDelete = await PROJECT_CONFIG.onBeforeDelete?.(projectId);
-  if (beforeDelete && "error" in beforeDelete) {
-    return NextResponse.json({ error: beforeDelete.error }, { status: beforeDelete.status || 400 });
-  }
-  await snapshotHistory("Project", projectId, payload.userId);
-  await prisma.project.delete({ where: { id: projectId } });
+  const command = await validateProjectDeleteCommand(payload.userId, projectId);
+  if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
+  await snapshotHistory("Project", command.data.projectId, payload.userId);
+  await prisma.project.delete({ where: { id: command.data.projectId } });
   return NextResponse.json({ success: true });
 }

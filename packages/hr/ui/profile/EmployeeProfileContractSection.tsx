@@ -18,6 +18,7 @@ import {
   type EditableRecord,
 } from "./EmployeeProfileUtils";
 import { RowActions } from "./EmployeeProfileRowActions";
+import { useScrollToAddedItem } from "../hooks/useScrollToAddedItem";
 
 export function ContractSection({
   rows,
@@ -34,6 +35,7 @@ export function ContractSection({
   onChange: (index: number, field: ProfileField, value: unknown, option?: FkFieldOption) => void;
   onDelete: (row: ContractRow, index: number) => Promise<void>;
 }) {
+  const { getItemRef, requestScrollToIndex } = useScrollToAddedItem(rows);
   const cardFields = pickFields(contractFields, [
     "company",
     "isPrimary",
@@ -52,6 +54,11 @@ export function ContractSection({
     "permanentContractDate",
   ]);
 
+  function addRow() {
+    requestScrollToIndex(0);
+    onAdd();
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-4">
@@ -59,17 +66,21 @@ export function ContractSection({
           <EmptyStateCard compact>暂无合同</EmptyStateCard>
         ) : (
           rows.map((row, index) => (
-            <ContractCard
+            <div
               key={row.id ?? `new-contract-${index}`}
-              row={row}
-              index={index}
-              canEdit={canEdit}
-              saving={saving}
-              fields={cardFields}
-              onChange={onChange}
-              onAdd={onAdd}
-              onDelete={onDelete}
-            />
+              ref={getItemRef(index)}
+            >
+              <ContractCard
+                row={row}
+                index={index}
+                canEdit={canEdit}
+                saving={saving}
+                fields={cardFields}
+                onChange={onChange}
+                onAdd={addRow}
+                onDelete={onDelete}
+              />
+            </div>
           ))
         )}
       </div>

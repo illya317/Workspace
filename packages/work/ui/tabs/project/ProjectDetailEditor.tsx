@@ -7,6 +7,7 @@ import {
   OptionPicker,
   PanelCard,
   SectionCard,
+  TextareaField,
   TextField,
   getFieldInputClassName,
   getReadOnlyFieldClassName,
@@ -20,7 +21,7 @@ import ProjectRasciMatrix from "./ProjectRasciMatrix";
 import type { ProjectRasciRow } from "./ProjectRasciMatrix";
 import {
   MULTI_PROJECT_ROLES,
-  PROJECT_PRIORITY_PICKER_OPTIONS,
+  PROJECT_MILESTONE_PICKER_OPTIONS,
   PROJECT_STATUS_PICKER_OPTIONS,
   PROJECT_TYPE_OPTIONS,
   TOP_LEVEL_PROJECT_TYPE_OPTIONS,
@@ -146,9 +147,25 @@ export default function ProjectDetailEditor({
                 />
               </FormField>
               <OptionField label="项目状态" value={draft.status} options={PROJECT_STATUS_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("status", value)} />
-              <OptionField label="优先级" value={draft.priority} options={PROJECT_PRIORITY_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("priority", value)} popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-56 rounded-lg border border-slate-200 bg-white p-3 shadow-xl" />
+              <OptionField
+                label="是否里程碑"
+                value={draft.isMilestone ? "true" : "false"}
+                options={PROJECT_MILESTONE_PICKER_OPTIONS}
+                disabled={!canEditCurrent}
+                onChange={(value) => onDraftChange("isMilestone", value === "true")}
+                popoverClassName="absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-56 rounded-lg border border-slate-200 bg-white p-3 shadow-xl"
+              />
               <DateField label="项目开始时间" value={draft.startDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("startDate", value)} />
               <DateField label="项目结束时间" value={draft.endDate} disabled={!canEditCurrent} onChange={(value) => onDraftChange("endDate", value)} />
+              <FormField label="项目描述" className="md:col-span-2">
+                <TextareaField
+                  value={draft.description || ""}
+                  disabled={!canEditCurrent}
+                  onChange={(value) => onDraftChange("description", value || null)}
+                  rows={3}
+                  className="text-sm"
+                />
+              </FormField>
               <FormField label="子项目" className="md:col-span-2">
                 <ProjectChildTagsInput
                   value={childProjects}

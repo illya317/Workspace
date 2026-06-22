@@ -78,9 +78,21 @@ export const registeredModuleDefinitions = [
         { key: "analytics", label: "人力分析", desc: "员工结构、部门架构、岗位分析、人员流动", href: "/hr/analytics", resourceKey: "hr.analytics", noApiReason: "当前分析数据由 roster DTO 派生，暂无独立 API 前缀" },
       ],
     },
+    resourceDefs: [
+      {
+        key: "hr.roster.generated",
+        name: "花名册生成资料",
+        kind: "capability",
+        capabilityOwnerKey: "hr.roster",
+        runtimeParentKey: "hr.roster",
+        maxRoleKey: "write",
+        sortOrder: 0,
+      },
+    ],
     routes: ["/hr", "/hr/roster", "/hr/performance", "/hr/analytics"],
     fkRegistrations: HR_FK_REGISTRATIONS,
     apiGuards: [
+      ...apiResourceGuards("/api/modules/hr/roster/generated", "hr.roster.generated", ["GET"]),
       ...apiResourceGuards("/api/modules/hr/roster", "hr.roster"),
     ],
   },
@@ -226,6 +238,7 @@ export const registeredModuleDefinitions = [
         { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions", resourceKey: "docs.positions", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
         { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company", resourceKey: "docs.company", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
         { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense", resourceKey: "docs.expense", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
+        { key: "api", label: "接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide", resourceKey: "docs.api", resourceMaxRoleKey: "access", noApiReason: "文档可见性由页面权限控制，Open API 管理属于 settings.api" },
       ],
     },
     routes: ["/docs", "/docs/positions", "/docs/positions/GMP", "/docs/company", "/docs/expense"],
@@ -273,18 +286,19 @@ export const registeredModuleDefinitions = [
       children: [
         { key: "account", label: "账号与接入", desc: "", href: "/settings/account", resourceKey: "settings.account", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/account"] },
         { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", resourceKey: "settings.admin", apiPrefixes: ["/api/settings/admin"] },
+        { key: "governance", label: "数据治理", desc: "注册表、审计、编码和治理策略", href: "/settings/governance", resourceKey: "settings.governance", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/governance"] },
+        { key: "api", label: "API 接入", desc: "Open API Client、Scope 授权和调用日志", href: "/settings/api", resourceKey: "settings.api", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/api"] },
       ],
     },
-    routes: ["/settings", "/settings/account", "/settings/admin"],
-    apiRoutes: [
-      { method: "GET", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
-      { method: "POST", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
-      { method: "PUT", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
-      { method: "PATCH", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
-      { method: "DELETE", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
+    resourceDefs: [
+      { key: "settings.api.manage", name: "Open API Client 管理", runtimeParentKey: "settings.api", maxRoleKey: "write", sortOrder: 0 },
     ],
+    routes: ["/settings", "/settings/account", "/settings/admin", "/settings/governance", "/settings/api", "/settings/api/hr-generated"],
     apiGuards: [
       ...apiResourceGuards("/api/settings/admin", "settings.admin", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/settings/governance", "settings.governance", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/settings/api", "settings.api", ["GET"]),
+      ...apiResourceGuards("/api/settings/api/open/clients", "settings.api.manage", ["POST", "PUT"]),
     ],
   },
   {

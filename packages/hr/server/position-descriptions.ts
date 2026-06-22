@@ -1,30 +1,15 @@
 import { Prisma } from "@workspace/platform/server/prisma";
+import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
-import { getInitials } from "@workspace/core/search";
+import { matchSearchFields } from "@workspace/platform/search";
 import { getManagementGroupByCode } from "./company-directory";
+import {
+  buildPositionDescriptionUpdateCommand,
+  type PositionDescriptionUpdateInput,
+} from "./domain/position-description-validation";
 
 type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
-
-interface PositionDescriptionUpdateInput {
-  id?: unknown;
-  code?: unknown;
-  name?: unknown;
-  departmentName?: unknown;
-  reportTo?: unknown;
-  positionPurpose?: unknown;
-  summary?: unknown;
-  headcount?: unknown;
-  version?: unknown;
-  effectiveDate?: unknown;
-  sourceFile?: unknown;
-  details?: unknown;
-}
-
-function nullableText(value: unknown) {
-  if (value === undefined || value === null || value === "") return null;
-  return String(value);
-}
 
 function parseDetails(details: string | null) {
   if (!details) return null;
@@ -132,13 +117,7 @@ export async function listPositionDescriptions(search: string) {
 
   let result = descriptions;
   if (search) {
-    const q = search.toLowerCase();
-    result = descriptions.filter((description) =>
-      description.code.toLowerCase().includes(q) ||
-      description.name.toLowerCase().includes(q) ||
-      (description.departmentName || "").toLowerCase().includes(q) ||
-      getInitials(description.name).includes(q)
-    );
+    result = descriptions.filter((description) => matchSearchFields(description, search, ["code", "name", "departmentName"]));
   }
   return { positionDescriptions: result, total: result.length };
 }
@@ -147,44 +126,19 @@ export async function updatePositionDescription(
   input: PositionDescriptionUpdateInput,
   userId: number,
 ): Promise<ServiceResult<{ success: true; positionDescription: unknown }>> {
-  if (!input.id) return { ok: false, error: "缺少id" };
-  if (!input.code || !input.name) return { ok: false, error: "说明书编码和名称不能为空" };
-
-  const headcountValue = input.headcount === null || input.headcount === undefined || input.headcount === "" ? null : Number(input.headcount);
-  if (headcountValue === null || !Number.isInteger(headcountValue) || headcountValue < 1) {
-    return { ok: false, error: "编制必须是正整数" };
-  }
-
-  let detailsText: string | null = null;
-  if (input.details !== undefined && input.details !== null && input.details !== "") {
-    try {
-      const parsed = typeof input.details === "string" ? JSON.parse(input.details) : input.details;
-      detailsText = JSON.stringify(parsed);
-    } catch {
-      return { ok: false, error: "说明书 JSON 不是合法格式" };
-    }
-  }
+  const command = mapValidationToServiceResult(buildPositionDescriptionUpdateCommand(input));
+  if (!command.ok) return command;
 
   try {
     const updated = await prisma.positionDescription.update({
-      where: { id: Number(input.id) },
+      where: { id: command.data.id },
       data: {
-        code: String(input.code).trim(),
-        name: String(input.name).trim(),
-        departmentName: nullableText(input.departmentName),
-        reportTo: nullableText(input.reportTo),
-        positionPurpose: nullableText(input.positionPurpose),
-        summary: nullableText(input.summary),
-        headcount: headcountValue,
-        version: nullableText(input.version),
-        effectiveDate: nullableText(input.effectiveDate),
-        sourceFile: input.sourceFile ? String(input.sourceFile) : "",
-        details: detailsText,
+        ...command.data.data,
         editedBy: userId,
         editedAt: new Date(),
       },
     });
-    await snapshotHistory("PositionDescription", Number(input.id), userId);
+    await snapshotHistory("PositionDescription", command.data.id, userId);
     return { ok: true, data: { success: true, positionDescription: updated } };
   } catch (error: unknown) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {

@@ -7,6 +7,7 @@
 | 资源 key | Session 表达 | 动作 |
 |----------|--------------|------|
 | `hr` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
+| `hr.roster.generated` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access（查看生成入口/记录）, write（生成/刷新并发布派生资料） |
 | `finance` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `finance.ledger` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
 | `finance.statementConfig` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
@@ -25,6 +26,10 @@
 | `work.history` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `system` | `manageableResourceKeys` | admin |
 | `settings.admin` | `manageableResourceKeys` | admin |
+| `settings.governance` | `visibleResourceKeys` | access |
+| `settings.api` | `visibleResourceKeys` | access（Open API 控制台读取；不代表外部调用权限） |
+| `settings.api.manage` | `visibleWriteResourceKeys` | write（独立管理资源，Client 创建、secret 轮换、scope 授权；`runtimeParentKey=settings.api`） |
+| `docs.api` | `visibleResourceKeys` | access |
 | `agent` | `visibleResourceKeys` | access |
 
 ## 页面 Guard
@@ -34,8 +39,33 @@
 | 页面 | 权限检查 | 无权限行为 |
 |------|---------|-----------|
 | `/portal` | 无（入口页） | — |
-| L1/L2 页面 | `requireRouteAccess("<href>")` | redirect `/portal` 或模块未启用页 |
-| `/settings/admin` | `requireAdminManageAccess()` | redirect `/portal` |
+| `/hr` | `requireResourceAccess("hr")` | redirect `/portal` |
+| `/hr/roster` | `requireResourceAccess("hr.roster")` | redirect `/portal` |
+| `/hr/performance` | `requireResourceAccess("hr.performance")` | redirect `/portal` |
+| `/hr/analytics` | `requireResourceAccess("hr.analytics")` | redirect `/portal` |
+| `/finance` | `requireResourceAccess("finance")` | redirect `/portal` |
+| `/finance/ledger` | `requireResourceAccess("finance.ledger")` | redirect `/portal` |
+| `/finance/statement-config` | `requireResourceAccess("finance.statementConfig")` | redirect `/portal` |
+| `/finance/statement-review` | `requireResourceAccess("finance.statementReview")` | redirect `/portal` |
+| `/finance/statements` | `requireResourceAccess("finance.statements")` | redirect `/portal` |
+| `/finance/budget` | `requireResourceAccess("finance.budget")` | redirect `/portal` |
+| `/finance/analysis` | `requireResourceAccess("finance.analysis")` | redirect `/portal` |
+| `/finance/cost` | `requireResourceAccess("finance.cost")` | redirect `/portal` |
+| `/finance/import` | `requireResourceAccess("finance.import")` | redirect `/portal` |
+| `/administration` | `requireResourceAccess("administration")` | redirect `/portal` |
+| `/administration/contracts` | `requireResourceAccess("administration.contracts")` | redirect `/portal` |
+| `/production` | `requireResourceAccess("production")` | redirect `/portal` |
+| `/production/qc-batches` | `requireResourceAccess("production.qcBatches")` | redirect `/portal` |
+| `/production/qc-templates` | `requireResourceAccess("production.qcTemplates")` | redirect `/portal` |
+| `/work` | `requireResourceAccess("work")` + module enabled | redirect `/portal` 或模块未启用页 |
+| `/work/projects` | `requireResourceAccess("work.projects")` + module enabled + 项目对象级过滤 | redirect `/portal` 或模块未启用页 |
+| `/work/tasks` | `requireResourceAccess("work.tasks")` + module enabled | redirect `/portal` 或模块未启用页 |
+| `/work/reports` | `requireResourceAccess("work.reports")` + module enabled | redirect `/portal` 或模块未启用页 |
+| `/work/history` | `requireResourceAccess("work.history")` + module enabled | redirect `/portal` 或模块未启用页 |
+| `/docs` | `requireResourceAccess("docs")` | redirect `/portal` |
+| `/docs/api-guide` | `docs.api.access OR settings.api.access` | redirect `/portal` |
+| `/settings/api` | `requireResourceAccess("settings.api")` | redirect `/portal` |
+| `/settings/api/hr-generated` | `requireResourceAccess("settings.api")` | redirect `/portal` |
 
 ## API Guard
 
@@ -87,6 +117,16 @@
 | `/api/modules/work/projects*` | DELETE | `work.projects.delete` + module enabled + 项目对象级删除校验 |
 | `/api/modules/work/projects/members*` | GET/POST/PUT/DELETE | `work.projects` 对应动作 + module enabled + 项目对象级管理校验 |
 | `/api/modules/work/projects/reference-options` | GET | `work.projects.access` + module enabled；项目 FK 候选由 Work service 按对象可见性过滤 |
+| `/api/settings/api/open/*` | GET | `settings.api.access` |
+| `/api/settings/api/open/*` | POST/PUT | `settings.api.access` + `settings.api.manage.write` |
+
+## Open API Scope
+
+开放 API 不进入内部 RBAC `Resource` 表。下列权限由 `OpenApiClientScopeGrant` 授予，并通过 `Authorization: Bearer <secret>` 鉴权。
+
+| API | 方法 | OpenApiScope | 运行态归属 |
+|-----|------|--------------|------------|
+| `/api/open/v1/hr/generated/roster` | GET | `hr.generated.roster.read` | `hr.roster` enabled |
 
 ## Work Project 对象级范围
 

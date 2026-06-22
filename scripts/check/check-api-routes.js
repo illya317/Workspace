@@ -6,6 +6,7 @@
  * 1. API 一级目录只表达系统能力类型
  * 2. 业务 API 必须放在 /api/modules/<module>/* 下
  * 3. module 名必须来自 packages/platform/module-registry.ts 中登记的 API guards
+ * 4. 外部开放 API 必须放在 /api/open/*，且走 Open API registry/scope
  */
 
 const fs = require("fs");
@@ -33,6 +34,7 @@ const KNOWN_PREFIXES = [
   "auth",
   "integrations",
   "modules",
+  "open",
   "settings",
 ];
 
@@ -125,7 +127,7 @@ for (const file of allRoutes) {
   // 检查是否在已知 API 能力前缀下
   const firstSegment = rel.split("/")[0];
   if (!KNOWN_PREFIXES.includes(firstSegment)) {
-    console.error(`❌ ${rel} 缺少 API 能力前缀，应放到 /api/{auth,agent,settings,modules,integrations}/*`);
+    console.error(`❌ ${rel} 缺少 API 能力前缀，应放到 /api/{auth,agent,settings,modules,integrations,open}/*`);
     errors++;
     continue;
   }
@@ -201,6 +203,17 @@ for (const file of allRoutes) {
     }
     if (!usesRegistryGate) {
       console.error(`❌ ${rel} 缺少 agent registry API 门禁；请从 @workspace/platform/server/auth 导入 requireApiAccess`);
+      errors++;
+    }
+  }
+
+  if (firstSegment === "open") {
+    if (!content.includes("withOpenApiScope(")) {
+      console.error(`❌ ${rel} 外部开放 API 必须使用 withOpenApiScope()`);
+      errors++;
+    }
+    if (/\bauthorize\s*\(/.test(content) || /\bwithAuth\s*\(/.test(content) || /\bauthenticate\s*\(/.test(content)) {
+      console.error(`❌ ${rel} 外部开放 API 禁止使用内部 RBAC/auth wrapper`);
       errors++;
     }
   }

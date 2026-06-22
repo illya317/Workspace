@@ -1,18 +1,12 @@
 import { SEARCH_CONFIG } from "./autocomplete-config";
 import { formatDepartmentCodePath, formatDepartmentPath } from "@workspace/hr/utils/department-path";
 import { prisma } from "@workspace/platform/server/prisma";
-import { getInitials } from "@workspace/core/search";
+import { matchSearchFields } from "@workspace/platform/search";
 
 const MAX_RESULTS = 50;
 
 function matchRecord(record: Record<string, unknown>, keyword: string, searchFields: string[]): boolean {
-  const q = keyword.toLowerCase();
-  for (const field of searchFields) {
-    const val = String(record[field] || "").toLowerCase();
-    if (val.includes(q)) return true;
-  }
-  const name = String(record.name || "");
-  return name ? getInitials(name).includes(q) : false;
+  return matchSearchFields(record, keyword, [...searchFields, "name"]);
 }
 
 export async function searchHrAutocomplete(entity: string, keyword: string, activeOnly: boolean) {

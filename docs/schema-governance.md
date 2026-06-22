@@ -11,6 +11,7 @@
 | 文件 | 领域 | 模型 |
 |------|------|------|
 | `auth-rbac.prisma` | 认证与权限 | User, Resource, Role, UserResourceRole, PositionResourceRole, DepartmentResourceRole |
+| `open-api.prisma` | Open API 接入 | OpenApiClient, OpenApiResource, OpenApiScope, OpenApiClientScopeGrant, OpenApiAccessLog |
 | `system.prisma` | 系统 | SystemConfig, LoginAttempt |
 | `reports.prisma` | 工作汇报 | Report, ReportItem, ReportHistory |
 | `works.prisma` | 工作清单 | WorkItem, WorkParticipant |

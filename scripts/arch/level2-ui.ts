@@ -55,6 +55,12 @@ export type NativeSearchInputFile = {
   signals: string[];
 };
 
+export type GeneratedFilterContractDrift = {
+  file: string;
+  expression: string;
+  reason: string;
+};
+
 export type UnregisteredCoreUiExport = {
   exportedName: string;
 };
@@ -420,6 +426,138 @@ export function findNativeSearchInputFiles(files: SourceInfo[]) {
   }
 
   return drift.sort((left, right) => left.file.localeCompare(right.file));
+}
+
+function jsxAttributeExpressionNode(
+  attributes: ts.JsxAttributes,
+  attributeName: string,
+) {
+  for (const property of attributes.properties) {
+    if (!ts.isJsxAttribute(property) || !ts.isIdentifier(property.name)) continue;
+    if (property.name.text !== attributeName) continue;
+    const initializer = property.initializer;
+    if (!initializer) return null;
+    if (ts.isJsxExpression(initializer) && initializer.expression) {
+      return initializer.expression;
+    }
+    return null;
+  }
+  return null;
+}
+
+function collectConstInitializers(sourceFile: ts.SourceFile) {
+  const initializers = new Map<string, ts.Expression>();
+
+  const visit = (node: ts.Node) => {
+    if (ts.isVariableStatement(node)) {
+      const isConst = (node.declarationList.flags & ts.NodeFlags.Const) !== 0;
+      if (isConst) {
+        for (const declaration of node.declarationList.declarations) {
+          if (!ts.isIdentifier(declaration.name) || !declaration.initializer) continue;
+          initializers.set(declaration.name.text, declaration.initializer);
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return initializers;
+}
+
+function collectFieldValueFilterBindings(sourceFile: ts.SourceFile) {
+  const localNames = new Set<string>();
+  const namespaceNames = new Set<string>();
+  for (const statement of sourceFile.statements) {
+    if (!ts.isImportDeclaration(statement) || !statement.importClause) continue;
+    if (!ts.isStringLiteral(statement.moduleSpecifier)) continue;
+    const specifier = statement.moduleSpecifier.text;
+    const clause = statement.importClause;
+    if (specifier === "@workspace/core/ui/FieldValueFilter" && clause.name) localNames.add(clause.name.text);
+    if (specifier !== "@workspace/core/ui") continue;
+    const bindings = clause.namedBindings;
+    if (!bindings) continue;
+    if (ts.isNamespaceImport(bindings)) namespaceNames.add(bindings.name.text);
+    if (ts.isNamedImports(bindings)) {
+      for (const element of bindings.elements) {
+        const importedName = element.propertyName?.text ?? element.name.text;
+        if (importedName === "FieldValueFilter") localNames.add(element.name.text);
+      }
+    }
+  }
+  return { localNames, namespaceNames };
+}
+
+function isFieldValueFilterTag(tagName: ts.JsxTagNameExpression, bindings: ReturnType<typeof collectFieldValueFilterBindings>) {
+  if (ts.isIdentifier(tagName)) return bindings.localNames.has(tagName.text);
+  return ts.isPropertyAccessExpression(tagName) &&
+    ts.isIdentifier(tagName.expression) &&
+    bindings.namespaceNames.has(tagName.expression.text) &&
+    tagName.name.text === "FieldValueFilter";
+}
+
+function isEmptyArrayLiteral(node: ts.Expression) {
+  return ts.isArrayLiteralExpression(node) && node.elements.length === 0;
+}
+
+function isPureFilterContractExpression(
+  node: ts.Expression,
+  initializers: Map<string, ts.Expression>,
+  seen = new Set<string>(),
+): boolean {
+  if (ts.isParenthesizedExpression(node) || ts.isNonNullExpression(node)) {
+    return isPureFilterContractExpression(node.expression, initializers, seen);
+  }
+  if (ts.isAsExpression(node) || ts.isTypeAssertionExpression(node) || ts.isSatisfiesExpression(node)) {
+    return isPureFilterContractExpression(node.expression, initializers, seen);
+  }
+  if (ts.isIdentifier(node)) {
+    if (seen.has(node.text)) return false;
+    const initializer = initializers.get(node.text);
+    return initializer ? isPureFilterContractExpression(initializer, initializers, new Set(seen).add(node.text)) : false;
+  }
+  if (ts.isPropertyAccessExpression(node)) return node.name.text === "filterFields" && ts.isIdentifier(node.expression);
+  if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken) {
+    return isPureFilterContractExpression(node.left, initializers, seen) && isEmptyArrayLiteral(node.right);
+  }
+  if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
+    if (node.expression.text === "mapFilterFields") return node.arguments.length === 1 && isPureFilterContractExpression(node.arguments[0], initializers, seen);
+    if (node.expression.text === "useMemo" && node.arguments.length > 0) {
+      const callback = node.arguments[0];
+      return ts.isArrowFunction(callback) && ts.isExpression(callback.body) && isPureFilterContractExpression(callback.body, initializers, seen);
+    }
+  }
+  return false;
+}
+
+export function findGeneratedFilterContractDrift(files: SourceInfo[]) {
+  const drift: GeneratedFilterContractDrift[] = [];
+
+  for (const file of files) {
+    if (!/^packages\/[^/]+\/ui\/generated\/.+\.tsx$/.test(file.relPath)) continue;
+    const initializers = collectConstInitializers(file.sourceFile);
+    const bindings = collectFieldValueFilterBindings(file.sourceFile);
+
+    const visit = (node: ts.Node) => {
+      if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+        if (isFieldValueFilterTag(node.tagName, bindings)) {
+          const expression = jsxAttributeExpressionNode(node.attributes, "fields");
+          if (expression && !isPureFilterContractExpression(expression, initializers)) {
+            drift.push({
+              file: file.relPath,
+              expression: expression.getText(file.sourceFile),
+              reason: "generated UI FieldValueFilter fields must come from backend filterFields contract",
+            });
+          }
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+
+    visit(file.sourceFile);
+  }
+
+  return drift.sort((left, right) => `${left.file}:${left.expression}`.localeCompare(`${right.file}:${right.expression}`));
 }
 
 export function findAppHookFiles(hooks: HookPatternCandidate[]) {

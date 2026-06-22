@@ -78,7 +78,6 @@ const AUTHORIZE_ENTRY = "packages/platform/server/auth/authorize.ts";
 const REQUIRED_DELEGATE_FILES = [
   "packages/platform/server/auth/domain.ts",
   "packages/platform/server/auth/finance.ts",
-  "packages/platform/server/auth/authenticate.ts",
   "packages/platform/server/auth/guard.ts",
   "packages/platform/server/auth/library.ts",
   "packages/platform/server/api-access.ts",
@@ -115,9 +114,7 @@ for (const file of walk(API_ROOT)) {
 
   if (isRoute && exportsHandler && !PUBLIC_API_ROUTES.has(rel)) {
     const hasAuthGate = /\bauthorize\s*\(/.test(code) ||
-      (hasNamedImport(code, "requireApiAccess", API_ACCESS_IMPORTS) && /\brequireApiAccess\s*\(/.test(code)) ||
-      (hasNamedImport(code, "requireAdminApiAccess", API_ACCESS_IMPORTS) && /\brequireAdminApiAccess\s*\(/.test(code)) ||
-      (hasWithAuthImport(code) && /\bwith(?:Auth|[A-Z][A-Za-z]*(?:Access|Write|Delete))\s*\(/.test(code));
+      /\bwith(?:Auth|[A-Z][A-Za-z]*(?:Access|Write|Delete|Manage))\s*\(/.test(code);
     const usesLegacyGate = /\bauthenticate\s*\(/.test(code) ||
       /\bgetCurrentUser\s*\(/.test(code) ||
       /\brequireCurrentUser\s*\(/.test(code);
@@ -126,8 +123,9 @@ for (const file of walk(API_ROOT)) {
       /\bfetch\s*\(\s*target\b/.test(code) ||
       /\bnew\s+URL\s*\(\s*["']\/api\//.test(code);
     const usesSecretTokenGate = /x-qc-cache-warmup|NEXTAUTH_SECRET/.test(code);
+    const usesOpenApiGate = /\bwithOpenApiScope\s*\(/.test(code);
 
-    if (!hasAuthGate && !usesLegacyGate && !delegatesToPackageService && !delegatesToProxyRoute && !usesSecretTokenGate) {
+    if (!hasAuthGate && !usesLegacyGate && !delegatesToPackageService && !delegatesToProxyRoute && !usesSecretTokenGate && !usesOpenApiGate) {
       errors.push(`${rel} exports API handlers without an authentication/authorization gate`);
     }
   }

@@ -10,6 +10,7 @@ import {
   validateReportType,
   type ReviewLineConfigRow,
 } from "../shared/report-config";
+import { buildWorkpaperSaveCommand } from "../../domain/finance-validation";
 
 // ─── helpers ─────────────────────────────────────────────────
 
@@ -86,6 +87,8 @@ export async function saveWorkpaper(
   input: SaveWorkpaperInput,
   userId?: number,
 ): Promise<WorkpaperOutput> {
+  const command = buildWorkpaperSaveCommand(input, userId);
+  if (!command.ok) throw new Error(command.issue.message);
   const { companyCode, year, month, reportType: rt, note, lines } = input;
   const reportType = validateReportType(rt);
 
@@ -100,10 +103,10 @@ export async function saveWorkpaper(
   const result = await prisma.$transaction(async (tx) => {
     const wp = await tx.financeStatementWorkpaper.upsert({
       where: { companyCode_year_month_reportType: { companyCode, year, month, reportType } },
-      create: { companyCode, year, month, reportType, note: note ?? null, updatedBy: userId ?? null,
-        editedAt: userId ? new Date() : null },
-      update: { note: note ?? null, updatedBy: userId ?? null,
-        editedAt: userId ? new Date() : null, version: { increment: 1 } },
+      create: { companyCode, year, month, reportType, note: note ?? null, updatedBy: command.data.userId ?? null,
+        editedAt: command.data.userId ? new Date() : null },
+      update: { note: note ?? null, updatedBy: command.data.userId ?? null,
+        editedAt: command.data.userId ? new Date() : null, version: { increment: 1 } },
     });
 
     // Delete lines not in this payload, then upsert

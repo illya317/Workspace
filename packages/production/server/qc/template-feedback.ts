@@ -4,17 +4,17 @@ import {
   FEEDBACK_SECTION_LABELS,
   feedbackStates,
   hydrateItem,
-  inlineEntryId,
   itemContextKey,
-  normalizeContext,
-  normalizeInlineTarget,
-  normalizePart,
   normalizeSections,
-  normalizeText,
   readStore,
-  sectionsToNote,
   writeStore,
 } from "./template-feedback-store";
+import {
+  buildSaveTemplateFeedbackCommand,
+  buildSaveTemplateInlineFeedbackCommand,
+  buildUpdateTemplateFeedbackResolvedCommand,
+  qcTemplateFeedbackContextKey,
+} from "./domain/template-feedback-validation";
 import type {
   QcTemplateFeedbackContext,
   QcTemplateFeedbackItem,
@@ -29,12 +29,7 @@ interface FeedbackAuthor {
 interface ResolveTarget { type?: "section" | "inline"; id?: string }
 
 export function qcTemplateFeedbackKey(context: QcTemplateFeedbackContext) {
-  return [
-    normalizePart(context.productKey),
-    normalizePart(context.stageKey),
-    normalizePart(context.itemType),
-    normalizePart(context.testNameEn || context.sequence || context.templateId || context.testName),
-  ].filter(Boolean).join("/");
+  return qcTemplateFeedbackContextKey(context);
 }
 
 function userFeedbackKey(contextKey: string, userId: number) {
@@ -72,12 +67,9 @@ export async function saveQcTemplateFeedback(
   rawSections: unknown,
   author: FeedbackAuthor,
 ): Promise<QcTemplateFeedbackItem | null> {
-  const context = normalizeContext(rawContext);
-  if (!context) throw new Error("反馈上下文不完整");
-  const contextKey = qcTemplateFeedbackKey(context);
-  const key = userFeedbackKey(contextKey, author.userId);
-  const sections = normalizeSections(rawSections);
-  const note = sectionsToNote(sections);
+  const command = buildSaveTemplateFeedbackCommand(rawContext, rawSections, author);
+  if (!command.ok) throw new Error(command.issue.message);
+  const { context, contextKey, key, sections, note } = command.data;
   const store = await readStore();
   const index = store.items.findIndex((item) => item.key === key);
   const legacyIndex = store.items.findIndex((item) => !item.contextKey && item.key === contextKey);
@@ -136,17 +128,9 @@ export async function saveQcTemplateInlineFeedback(
   rawInlineEntry: unknown,
   author: FeedbackAuthor,
 ): Promise<QcTemplateFeedbackItem | null> {
-  const context = normalizeContext(rawContext);
-  if (!context) throw new Error("反馈上下文不完整");
-  if (!rawInlineEntry || typeof rawInlineEntry !== "object" || Array.isArray(rawInlineEntry)) {
-    throw new Error("字段反馈内容不完整");
-  }
-  const data = rawInlineEntry as Record<string, unknown>;
-  const target = normalizeInlineTarget(data.target);
-  if (!target) throw new Error("字段反馈锚点不完整");
-  const note = normalizeText(data.note);
-  const contextKey = qcTemplateFeedbackKey(context);
-  const key = userFeedbackKey(contextKey, author.userId);
+  const command = buildSaveTemplateInlineFeedbackCommand(rawContext, rawInlineEntry, author);
+  if (!command.ok) throw new Error(command.issue.message);
+  const { context, contextKey, key, target, note, entryId } = command.data;
   const store = await readStore();
   const index = store.items.findIndex((item) => item.key === key);
   const legacyIndex = store.items.findIndex((item) => !item.contextKey && item.key === contextKey);
@@ -155,7 +139,6 @@ export async function saveQcTemplateInlineFeedback(
     note: "", sections: normalizeSections(null), inlineEntries: [],
     updatedAt: new Date().toISOString(),
   } as QcTemplateFeedbackItem);
-  const entryId = inlineEntryId(target);
   const nextEntries = [...(existing.inlineEntries || [])];
   const entryIndex = nextEntries.findIndex((entry) => entry.id === entryId);
   const previousNote = entryIndex >= 0 ? nextEntries[entryIndex].note : "";
@@ -216,21 +199,24 @@ export async function updateQcTemplateFeedbackResolved(
   author: FeedbackAuthor,
   target?: ResolveTarget,
 ): Promise<QcTemplateFeedbackItem> {
+  const command = buildUpdateTemplateFeedbackResolvedCommand(key, resolved, author, target);
+  if (!command.ok) throw new Error(command.issue.message);
   const store = await readStore();
-  const index = store.items.findIndex((item) => item.key === key);
+  const index = store.items.findIndex((item) => item.key === command.data.key);
   if (index < 0) throw new Error("反馈不存在");
   const existing = hydrateItem(store.items[index]);
   const sectionResolved = { ...(existing.sectionResolved || {}) };
   const inlineResolved = { ...(existing.inlineResolved || {}) };
-  if (target?.type === "section" && target.id) {
-    sectionResolved[target.id as keyof typeof sectionResolved] = resolved;
-  } else if (target?.type === "inline" && target.id) {
-    inlineResolved[target.id] = resolved;
+  const commandTarget = command.data.target;
+  if (commandTarget?.type === "section" && commandTarget.id) {
+    sectionResolved[commandTarget.id as keyof typeof sectionResolved] = command.data.resolved;
+  } else if (commandTarget?.type === "inline" && commandTarget.id) {
+    inlineResolved[commandTarget.id] = command.data.resolved;
   } else {
     for (const [sectionKey] of FEEDBACK_SECTION_LABELS) {
-      if (existing.sections?.[sectionKey]?.trim()) sectionResolved[sectionKey] = resolved;
+      if (existing.sections?.[sectionKey]?.trim()) sectionResolved[sectionKey] = command.data.resolved;
     }
-    for (const entry of existing.inlineEntries || []) inlineResolved[entry.id] = resolved;
+    for (const entry of existing.inlineEntries || []) inlineResolved[entry.id] = command.data.resolved;
   }
   const item: QcTemplateFeedbackItem = {
     ...existing,
@@ -241,7 +227,7 @@ export async function updateQcTemplateFeedbackResolved(
   };
   item.resolved = allFeedbackLinesResolved(item);
   item.resolvedAt = item.resolved ? new Date().toISOString() : undefined;
-  item.resolvedBy = item.resolved ? author.userName : undefined;
+  item.resolvedBy = item.resolved ? command.data.author.userName : undefined;
   store.items[index] = item;
   await writeStore(store);
   return item;

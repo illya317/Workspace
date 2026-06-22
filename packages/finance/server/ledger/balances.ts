@@ -16,9 +16,12 @@ import {
   getOrCreatePeriod,
   getRangeCurrent,
 } from "./balance-helpers";
+import { buildBalanceComputeCommand, buildBalanceRangeCommand } from "../domain/finance-validation";
 
 export async function computeBalancesForPeriod(periodId: number) {
-  const targetPeriod = await prisma.financePeriod.findUnique({ where: { id: periodId } });
+  const command = buildBalanceComputeCommand(periodId);
+  if (!command.ok) throw new Error(command.issue.message);
+  const targetPeriod = await prisma.financePeriod.findUnique({ where: { id: command.data.id } });
   if (!targetPeriod?.companyCode) throw new Error("期间不存在或缺少公司编码");
   if (targetPeriod.isClosed) throw new Error("期间已结账，不能重新计算");
 
@@ -131,11 +134,13 @@ export async function computeAnnualComparisonBase(
   monthStart: number,
   monthEnd: number,
 ) {
+  const command = buildBalanceRangeCommand({ companyCode, year, monthStart, monthEnd });
+  if (!command.ok) throw new Error(command.issue.message);
   // baseline 年份全年：直接从 snapshot rows 返回
-  const baselineYear = await findActiveBaselineYear(companyCode, year + 1);
-  if (baselineYear && year === baselineYear && monthStart === 1 && monthEnd === 12) {
+  const baselineYear = await findActiveBaselineYear(command.data.companyCode, command.data.year + 1);
+  if (baselineYear && command.data.year === baselineYear && command.data.monthStart === 1 && command.data.monthEnd === 12) {
     const snapshot = await prisma.financeBalanceSnapshot.findFirst({
-      where: { companyCode, year, snapshotType: "baseline", isActive: true },
+      where: { companyCode: command.data.companyCode, year: command.data.year, snapshotType: "baseline", isActive: true },
       include: { rows: { include: { account: true } } },
     });
     if (snapshot) {
@@ -157,16 +162,16 @@ export async function computeAnnualComparisonBase(
   }
 
   // 非 baseline 年份：计算月度范围余额
-  const endPeriod = await getOrCreatePeriod(companyCode, year, monthEnd);
+  const endPeriod = await getOrCreatePeriod(command.data.companyCode, command.data.year, command.data.monthEnd);
   await computeBalancesForPeriod(endPeriod.id);
 
   const [startPeriod, endBalances, accounts] = await Promise.all([
-    getOrCreatePeriod(companyCode, year, monthStart),
+    getOrCreatePeriod(command.data.companyCode, command.data.year, command.data.monthStart),
     prisma.financeAccountBalance.findMany({
       where: { periodId: endPeriod.id },
       include: { account: true },
     }),
-    getAccounts(companyCode, year),
+    getAccounts(command.data.companyCode, command.data.year),
   ]);
 
   const startBalances = await prisma.financeAccountBalance.findMany({
@@ -175,7 +180,7 @@ export async function computeAnnualComparisonBase(
   });
   const startMap = new Map(startBalances.map((row) => [row.account.code, row]));
   const endMap = new Map(endBalances.map((row) => [row.account.code, row]));
-  const currentMap = rollUpByParent(accounts, await getRangeCurrent(companyCode, year, monthStart, monthEnd));
+  const currentMap = rollUpByParent(accounts, await getRangeCurrent(command.data.companyCode, command.data.year, command.data.monthStart, command.data.monthEnd));
 
   const result = new Map<string, ComputedBalance>();
   for (const account of accounts) {

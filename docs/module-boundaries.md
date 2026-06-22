@@ -48,6 +48,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/platform/server/auth.ts` 已接收认证和权限检查的 server 契约；旧 `lib/auth.ts` 聚合 hub 与 root `server/auth` 已删除。业务包和 app route 需要鉴权时依赖 `@workspace/platform/server/auth`，不要新增 `@/lib/auth` 或 root `server/auth` 入口。
 - `packages/platform/server/auth/authorize.ts` 是业务资源权限单入口；平台 auth helper、page guard 和 wrapper 必须委托 `authorize()`，新增 API route 不得新增裸 `checkPermission()`。内置 root admin 不属于 RBAC resource，必须走 `isRootAdminUser()`。
 - `packages/platform/server/crud-factory.ts` 已接收通用 CRUD route helper；业务包需要复用字段级更新/创建/删除时通过本领域 wrapper 使用，不要直接依赖 `@/lib/crud`。
+- `packages/platform/server/delete-guard.ts` 已接收删除最低规则：正整数 ID、目标存在、状态保护、引用策略、作用域 hook、版本保护和事务内审计。业务包需要自定义删除时复用该入口，或通过 `crud-factory` 的删除配置注入本领域引用/归属规则。
 - `packages/platform/server/prisma.ts` 已接收单库 Prisma runtime client，`lib/prisma.ts` 已删除；业务包、server root 和 app route 需要数据库访问时必须依赖 `@workspace/platform/server/prisma`，不要直接依赖 `@/lib/prisma` 或 generated client。
 - `packages/platform/server/history.ts` 已接收审计快照写入契约，`lib/history.ts` 保留兼容 re-export；业务包需要写 EditHistory 时依赖 `@workspace/platform/server/history`。
 - `packages/platform/server/resolve-fk.ts` 已接收 FK 显示名解析契约，`lib/resolve-fk.ts` 保留兼容 re-export；审计日志和业务包需要展示 FK 快照时依赖 `@workspace/platform/server/resolve-fk`。
@@ -70,7 +71,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 
 - `app/(modules)/<domain>` 保留为 Next 路由壳，对外仍暴露 `/domain` URL。后续新增复杂 UI 时，优先放入对应 `packages/<domain>/ui` 后再由页面引用。
 - `app/api/modules/<domain>` 保留为业务 API route 壳，只做认证、权限、参数校验、调用 package service、返回 DTO；不要新增一级业务 API 目录。
-- 业务查询、导入、校验和计算必须优先进入 `packages/<domain>/server`。旧 `server/services/<domain>` 只作为存量兼容位置，不再作为新增业务 service 的默认落点。
+- 业务查询、导入、校验和计算必须优先进入 `packages/<domain>/server`。同一业务字段或业务动作存在多个写入入口时，必须在 `packages/<domain>/server/domain/*-validation.ts` 定义 domain command/validator，入口只做输入适配，service 只消费已验证 command。旧 `server/services/<domain>` 只作为存量兼容位置，不再作为新增业务 service 的默认落点。
 - Prisma 仍使用单一 schema/client；`prisma/models/*.prisma` 继续按领域归属，不拆库。
 
 ## 依赖方向
@@ -107,6 +108,7 @@ app/* route shell
 Level 1/1.5 只有一个硬门禁入口：
 
 - `npm run arch:gate`：串行执行 AST 硬扫描、dependency-cruiser DAG、模块注册锁、资源注册、package 边界和 auth/API 检查。新增 UI 库 import、新增 app 层 UI、替代权限函数、`if (user.role)`、新增 RBAC 表直查、业务包 `@/server/*` alias 绕过、跨业务包 import、循环依赖、未注册或重复 module key 都会立即 `exit 1`。历史债由 `scripts/arch/level15-baseline.json` 和 `scripts/check/level1-api-baseline.json` 锁定，只能减少，不能扩写。
+- `scripts/arch/domain-validation.ts` 是唯一 gate 内的 domain validation 边界检查。它从 module registry 与 API Contract Registry 推导业务 API root，扫描 `app/api/modules/<domain>/**`、route-local helper 和 `packages/<domain>/server/**/*.ts`，强制新增写 service 走本包 `server/domain/*-validation.ts`，禁止 route 直接或通过 package root 间接 import domain validator，也禁止 service 直接消费 FK、日期、枚举、引用保护等底层业务规则。对于 exported `create/update/save/archive/delete/upsert/import` 写入口，gate 还会检查入口函数体是否调用 domain validator 或走带校验 hook 的 CRUD helper，避免在已合规 service 文件中新增裸写函数；`handleDelete` 必须在入口或引用的 config 中显式提供 `onBeforeDelete`，或入口直接调用已登记的 guarded/domain 删除验证入口。仅供内部复用的写 helper 不应 export。HR roster baseline 为 0；Finance、Work、Production、Administration、Library 等历史债由 `scripts/arch/domain-validation-baseline.json` ratchet 锁定，迁移减少时必须同步删除 baseline 项。
 
 `app/` 层是 routing only：
 

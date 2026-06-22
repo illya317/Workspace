@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { withHRAccess, withHRDelete, withHRWrite } from "@workspace/platform/server/with-auth";
 import { jsonServiceResponse, routeIdParamsSchema, validateCompatibilityProxyBody } from "@workspace/platform/server/api";
-import { createDepartment, deleteDepartment, listDepartments, updateDepartment } from "@workspace/hr/server";
+import { createDepartment, deleteDepartmentByParams, listDepartments, updateDepartment } from "@workspace/hr/server";
 
 export const GET = withHRAccess(async (request: Request) => {
   const { searchParams } = new URL(request.url);
@@ -34,5 +34,5 @@ export const DELETE = withHRDelete(async (request: Request) => {
   const parsedQuery = routeIdParamsSchema.safeParse(Object.fromEntries(searchParams.entries()));
   if (!parsedQuery.success) return NextResponse.json({ error: "缺少id" }, { status: 400 });
 
-  return jsonServiceResponse(await deleteDepartment(String(parsedQuery.data.id)));
+  return deleteDepartmentByParams(request, Promise.resolve({ id: String(parsedQuery.data.id) }));
 });

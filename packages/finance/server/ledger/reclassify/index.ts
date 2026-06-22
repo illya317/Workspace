@@ -22,6 +22,7 @@ import type {
   BuildReclassResultsOptions,
 } from "./types";
 import { ensureReclassRulesForYear } from "../reclass-rules/ensure";
+import { buildReclassBuildCommand } from "../../domain/finance-validation";
 
 // ─── 查询 ─────────────────────────────────────────────────
 
@@ -133,21 +134,23 @@ export async function buildReclassResults(
   periodId: number,
   opts: BuildReclassResultsOptions = {},
 ): Promise<ReclassifySummary | ReclassifyExecutionResult> {
+  const command = buildReclassBuildCommand(periodId);
+  if (!command.ok) throw new Error(command.issue.message);
   const { dryRun = true } = opts;
 
   // 0. 查 period 以锁定 (companyCode, year) 范围
   const period = await prisma.financePeriod.findUnique({
-    where: { id: periodId },
+    where: { id: command.data.id },
     select: { companyCode: true, year: true },
   });
-  if (!period) throw new Error(`Period ${periodId} not found`);
-  if (!period.companyCode) throw new Error(`Period ${periodId} has no companyCode`);
+  if (!period) throw new Error(`Period ${command.data.id} not found`);
+  if (!period.companyCode) throw new Error(`Period ${command.data.id} has no companyCode`);
 
   // 确保该年度有规则（无则从上年继承）
   await ensureReclassRulesForYear(period.companyCode, period.year);
 
   // 1. 查询 items + rules
-  const items = await fetchItems(periodId);
+  const items = await fetchItems(command.data.id);
   const rules = await fetchRules(period.companyCode, period.year);
   // 明细例外规则（年度级）
   const itemRules = await prisma.financeReclassItemRule.findMany({
@@ -172,7 +175,7 @@ export async function buildReclassResults(
   const { counts, samples } = aggregateResults(results);
 
   const summary: ReclassifySummary = {
-    periodId,
+    periodId: command.data.id,
     total: results.length,
     matched: counts.matched,
     skipped: counts.skipped,
@@ -189,7 +192,7 @@ export async function buildReclassResults(
   const matched = results.filter((r) => r.status === ItemStatus.MATCHED);
   const { written, skippedAdjusted } =
     matched.length > 0
-      ? await upsertResults(periodId, matched)
+      ? await upsertResults(command.data.id, matched)
       : { written: 0, skippedAdjusted: 0 };
 
   const execResult: ReclassifyExecutionResult = { ...summary, written, skippedAdjusted };

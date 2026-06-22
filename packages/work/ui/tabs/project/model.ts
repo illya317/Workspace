@@ -19,7 +19,7 @@ export type ProjectItem = {
   permissions: ProjectPermissions;
   description: string | null;
   status: string | null;
-  priority: string | null;
+  isMilestone: boolean;
   stage: string | null;
   plan: string | null;
   goal: string | null;
@@ -69,7 +69,7 @@ export type ProjectDraft = {
   name: string;
   description: string | null;
   status: string | null;
-  priority: string | null;
+  isMilestone: boolean;
   stage: string | null;
   plan: string | null;
   goal: string | null;
@@ -102,16 +102,19 @@ export const PROJECT_LIST_FILTER_OPTIONS = [
   { value: "other", label: "其他项目" },
 ] satisfies { value: ProjectListFilter; label: string }[];
 export const PROJECT_STATUS_OPTIONS = ["规划中", "进行中", "暂停", "已完成", "已取消"] as const;
-export const PROJECT_PRIORITY_OPTIONS = ["高", "中", "低"] as const;
 export const PROJECT_STAGE_OPTIONS = ["立项", "规划", "执行", "验收", "收尾"] as const;
+export const PROJECT_MILESTONE_OPTIONS = [
+  { value: "true", label: "是" },
+  { value: "false", label: "否" },
+] as const;
 
 function toPickerOptions(values: readonly string[]): PickerOption[] {
   return values.map((value) => ({ value, label: value }));
 }
 
 export const PROJECT_STATUS_PICKER_OPTIONS = toPickerOptions(PROJECT_STATUS_OPTIONS);
-export const PROJECT_PRIORITY_PICKER_OPTIONS = toPickerOptions(PROJECT_PRIORITY_OPTIONS);
 export const PROJECT_STAGE_PICKER_OPTIONS = toPickerOptions(PROJECT_STAGE_OPTIONS);
+export const PROJECT_MILESTONE_PICKER_OPTIONS = [...PROJECT_MILESTONE_OPTIONS];
 
 export function projectCode(project: ProjectItem | null, draft: ProjectDraft | null) {
   if ((project?.projectType || draft?.projectType) === "personal") return "个人项目无编号";
@@ -173,7 +176,7 @@ export function draftSnapshot(draft: ProjectDraft | null) {
     name: draft.name.trim(),
     description: draft.description || null,
     status: draft.status || null,
-    priority: draft.priority || null,
+    isMilestone: draft.isMilestone,
     stage: draft.stage || null,
     plan: draft.plan || null,
     goal: draft.goal || null,
@@ -216,7 +219,7 @@ export function createProjectDraft(project: ProjectItem | null, entries: Project
     name: project?.name ?? "",
     description: project?.description ?? null,
     status: project?.status ?? null,
-    priority: project?.priority ?? null,
+    isMilestone: project?.isMilestone ?? false,
     stage: project?.stage ?? null,
     plan: project?.plan ?? null,
     goal: project?.goal ?? null,
@@ -245,7 +248,7 @@ export function createEmptyProjectDraft(): ProjectDraft {
     name: "",
     description: null,
     status: null,
-    priority: null,
+    isMilestone: false,
     stage: null,
     plan: null,
     goal: null,

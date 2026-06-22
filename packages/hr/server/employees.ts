@@ -1,36 +1,24 @@
 import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
+import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
+import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
+import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
 import { snapshotHistory } from "@workspace/platform/server/history";
-import { normalizeEmployeeOption, rejectInvalidDateField } from "./field-validation";
-import { serializeHrMajorItems } from "@workspace/hr/constants/field-options";
-import { normalizeHrSchoolValue } from "@workspace/hr/constants/school-options";
 import { prisma } from "@workspace/platform/server/prisma";
 import { fkDisplay, resolveFkValues } from "@workspace/platform/server/resolve-fk";
 import { handleDelete, handleUpdateField } from "./hr-crud";
-import { matchAnyField, matchEmployee } from "@workspace/platform/search";
+import { matchAnyField, matchEmployee, matchText } from "@workspace/platform/search";
+import {
+  buildEmployeeCreateCommand,
+  buildEmployeeFieldUpdateCommand,
+  EMPLOYEE_ALLOWED_FIELDS,
+  validateEmployeeDeleteCommand,
+} from "./domain/employee-validation";
+import { primaryContractCompany } from "./employments";
+import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
 
 const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
-const EMPLOYEE_FIELDS = [
-  "employeeId",
-  "name",
-  "alias",
-  "gender",
-  "birthDate",
-  "ethnicity",
-  "hometown",
-  "politics",
-  "education",
-  "title",
-  "school",
-  "major",
-  "phone",
-  "workStartDate",
-  "idNumber",
-  "otherId",
-  "userId",
-];
-const DATE_FIELDS = ["birthDate", "workStartDate"];
 const EMPLOYEE_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education", "positionName", "directDepartmentName"]);
 
 function randomUsername() {
@@ -71,54 +59,32 @@ function formatAlias(value: string | null) {
   }
 }
 
-function normalizeAliasUpdate(value: unknown) {
-  if (!value) return null;
-  const text = String(value).trim();
-  if (!text) return null;
-  let rawTags: unknown[] = [];
-  try {
-    const parsed = JSON.parse(text);
-    if (Array.isArray(parsed)) rawTags = parsed;
-  } catch {
-    rawTags = text.split(/[,，、;；\n]+/);
-  }
-  const seen = new Set<string>();
-  const tags: string[] = [];
-  for (const item of rawTags) {
-    const tag = String(item).trim();
-    if (!tag || seen.has(tag)) continue;
-    seen.add(tag);
-    tags.push(tag);
-  }
-  return tags.length > 0 ? JSON.stringify(tags) : null;
+async function normalizeEmployeeFieldUpdate(field: string, value: unknown) {
+  const command = await buildEmployeeFieldUpdateCommand(field, value);
+  return command.ok ? command.data : { error: command.issue.message, status: command.issue.status };
 }
 
-async function normalizeEmployeeFieldUpdate(field: string, value: unknown) {
-  if (field === "employeeId") {
-    return { error: "员工编号由系统生成，不能手动修改" };
+async function normalizeEmployeeDelete(id: number, context: DeleteGuardContext) {
+  const command = await validateEmployeeDeleteCommand(id);
+  if (!command.ok) return { error: command.issue.message, status: command.issue.status };
+  const [salaryCount, shipmentCount, workshopCount, projectMemberCount] = await Promise.all([
+    context.tx.financeSalesSalary.count({ where: { employeeId: command.data.id } }),
+    context.tx.financeShipment.count({ where: { employeeId: command.data.id } }),
+    context.tx.financeWorkshopReport.count({ where: { employeeId: command.data.id } }),
+    context.tx.employeeProject.count({ where: currentOpenEndedDateWhere({ employeeId: command.data.id }) }),
+  ]);
+  const blocks = [
+    salaryCount > 0 ? `财务销售工资 ${salaryCount} 条` : null,
+    shipmentCount > 0 ? `财务发货明细 ${shipmentCount} 条` : null,
+    workshopCount > 0 ? `财务车间日报 ${workshopCount} 条` : null,
+    projectMemberCount > 0 ? `现用项目成员记录 ${projectMemberCount} 条` : null,
+  ].filter(Boolean);
+  if (blocks.length > 0) {
+    return { error: `不能删除员工，请先处理引用：${blocks.join("、")}`, status: 409 };
   }
-  const dateResult = rejectInvalidDateField(field, value, DATE_FIELDS);
-  if (!dateResult) return null;
-  if (field === "alias") {
-    return { field, value: normalizeAliasUpdate(value) };
-  }
-  if (field === "major") {
-    return { field, value: serializeHrMajorItems(value) };
-  }
-  if (field === "school") {
-    const result = normalizeHrSchoolValue(value);
-    if (!result.ok) return { error: result.error };
-    return { field, value: result.value };
-  }
-  if (field === "gender") {
-    if (value === "男" || value === true) return { field, value: true };
-    if (value === "女" || value === false) return { field, value: false };
-    return { field, value: null };
-  }
-  if (["ethnicity", "politics", "education", "title", "phone", "idNumber"].includes(field)) {
-    return normalizeEmployeeOption(field, value);
-  }
-  return { field, value };
+  await context.tx.employment.deleteMany({ where: { employeeId: command.data.id } });
+  await context.tx.eDP.deleteMany({ where: { employeeId: command.data.id } });
+  return { ok: true as const };
 }
 
 function getEmployeeDirectoryFilterValue(employee: Record<string, unknown>, field: string) {
@@ -130,8 +96,18 @@ function getEmployeeDirectoryFilterValue(employee: Record<string, unknown>, fiel
   return String(employee[field] ?? "");
 }
 
+function activeFilterValue(value: string | null | undefined) {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return null;
+}
+
 export async function listEmployees(input: {
   employmentStatus?: "active" | "inactive";
+  isActive?: string | null;
+  company?: string;
+  department?: string;
+  position?: string;
   keyword: string;
   filterField?: string;
   filterValue?: string;
@@ -141,35 +117,48 @@ export async function listEmployees(input: {
   let employees = await prisma.employee.findMany({
     include: {
       employments: {
-        select: { isActive: true },
+        select: { isActive: true, currentCompany: true, contracts: true },
         orderBy: [{ isActive: "desc" }, { id: "desc" }],
       },
       positions: {
-        include: {
-          department: true,
-          position: { include: { department: true } },
-        },
+        include: employeePositionFilterInclude,
         orderBy: [{ isPrimary: "desc" }, { id: "asc" }],
       },
     },
     orderBy: { id: "asc" },
   });
+  const isActive = activeFilterValue(input.isActive ?? (input.employmentStatus === "active" ? "true" : input.employmentStatus === "inactive" ? "false" : null));
   for (const employee of employees) {
     const primaryPosition = employee.positions[0];
     (employee as Record<string, unknown>).positionName = primaryPosition?.position?.name ?? null;
     (employee as Record<string, unknown>).directDepartmentName =
       primaryPosition?.position?.department?.name ?? primaryPosition?.department?.name ?? null;
+    const currentEmployment = employee.employments.find((employment) => employment.isActive) ?? employee.employments[0];
+    (employee as Record<string, unknown>).currentCompany = currentEmployment
+      ? primaryContractCompany(currentEmployment.contracts, currentEmployment.currentCompany)
+      : null;
   }
-  if (input.employmentStatus) {
+  if (isActive !== null) {
     employees = employees.filter((employee) => {
       const hasActiveEmployment = employee.employments.some((employment) => employment.isActive);
-      return input.employmentStatus === "active" ? hasActiveEmployment : !hasActiveEmployment;
+      return isActive ? hasActiveEmployment : !hasActiveEmployment;
     });
+  }
+  if (input.company) {
+    employees = employees.filter((employee) =>
+      employee.employments
+        .filter((employment) => isActive === null || employment.isActive === isActive)
+        .some((employment) => primaryContractCompany(employment.contracts, employment.currentCompany) === input.company),
+    );
+  }
+  if (input.department || input.position) {
+    employees = employees.filter((employee) =>
+      employeePositionMatches(employee.positions, { department: input.department, position: input.position }),
+    );
   }
   if (input.keyword) employees = employees.filter((employee) => matchAnyField(employee, input.keyword, "Employee"));
   if (input.filterField && input.filterValue && EMPLOYEE_DIRECTORY_FILTER_FIELDS.has(input.filterField)) {
-    const query = input.filterValue.trim().toLowerCase();
-    employees = employees.filter((employee) => getEmployeeDirectoryFilterValue(employee as unknown as Record<string, unknown>, input.filterField!).toLowerCase().includes(query));
+    employees = employees.filter((employee) => matchText(getEmployeeDirectoryFilterValue(employee as unknown as Record<string, unknown>, input.filterField!), input.filterValue!));
   }
 
   const total = employees.length;
@@ -185,10 +174,8 @@ export async function listEmployees(input: {
 }
 
 export async function createEmployeeWithAccount(name: string, editorUserId: number) {
-  const cleanName = name.trim();
-  if (!cleanName) {
-    return { ok: false as const, error: "姓名必填", status: 400 };
-  }
+  const command = mapValidationToServiceResult(buildEmployeeCreateCommand(name));
+  if (!command.ok) return command;
 
   const employeeId = await nextEmployeeId();
   const username = await uniqueUsername();
@@ -197,7 +184,7 @@ export async function createEmployeeWithAccount(name: string, editorUserId: numb
     const result = await prisma.$transaction(async (tx) => {
       const linkedUser = await tx.user.create({
         data: {
-          nickname: cleanName,
+          nickname: command.data.name,
           username,
           employeeId,
           canLogin: true,
@@ -207,7 +194,7 @@ export async function createEmployeeWithAccount(name: string, editorUserId: numb
       const employee = await tx.employee.create({
         data: {
           employeeId,
-          name: cleanName,
+          name: command.data.name,
           userId: linkedUser.id,
         },
       });
@@ -228,7 +215,7 @@ export async function updateEmployeeField(request: Request, params: Promise<{ id
   return handleUpdateField(request, params, {
     entityType: "Employee",
     modelKey: "employee" as const,
-    allowedFields: EMPLOYEE_FIELDS,
+    allowedFields: EMPLOYEE_ALLOWED_FIELDS,
     onBeforeUpdate: normalizeEmployeeFieldUpdate,
   });
 }
@@ -237,8 +224,10 @@ export async function deleteEmployee(request: Request, params: Promise<{ id: str
   return handleDelete(request, params, {
     entityType: "Employee",
     modelKey: "employee" as const,
-    allowedFields: EMPLOYEE_FIELDS,
+    allowedFields: EMPLOYEE_ALLOWED_FIELDS,
+    deleteMode: "hard" as const,
     onBeforeUpdate: normalizeEmployeeFieldUpdate,
+    onBeforeDelete: normalizeEmployeeDelete,
   });
 }
 

@@ -26,6 +26,7 @@ export function DepartmentPositionActiveWorkspace({
       drawerOpen={drawerOpen}
       onDrawerOpenChange={onDrawerOpenChange}
       showSideControls={false}
+      contentClassName="!max-w-none !px-0 !py-0"
       renderSide={renderSide}
     >
       {children}

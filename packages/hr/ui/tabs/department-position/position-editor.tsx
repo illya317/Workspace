@@ -38,6 +38,7 @@ export function PositionEditor({
   templateDraftName,
   templateDraftFields,
   positionNames,
+  positions,
   departmentNames,
   onSelect,
   onUpdateDraft,
@@ -75,6 +76,7 @@ export function PositionEditor({
   templateDraftName: string;
   templateDraftFields: string[];
   positionNames: Set<string>;
+  positions: Position[];
   departmentNames: Set<string>;
   onSelect: (selection: Selection) => void;
   onUpdateDraft: <K extends keyof PositionDraft>(key: K, value: PositionDraft[K]) => void;
@@ -196,6 +198,7 @@ export function PositionEditor({
           templateDraftName={templateDraftName}
           templateDraftFields={templateDraftFields}
           positionNames={positionNames}
+          positions={positions}
           departmentNames={departmentNames}
           onUpdateDescriptionDraft={onUpdateDescriptionDraft}
           onPositionDescriptionTemplateChange={onPositionDescriptionTemplateChange}

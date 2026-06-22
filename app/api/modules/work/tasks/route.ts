@@ -75,6 +75,7 @@ export async function POST(request: Request) {
     participants: parseParticipants(participants),
     sortOrder,
   });
+  if (!work.ok) return NextResponse.json({ error: work.error }, { status: work.status || 400 });
 
-  return NextResponse.json({ work });
+  return NextResponse.json({ work: work.data });
 }

@@ -17,7 +17,7 @@ export async function createProject(draft: ProjectDraft) {
       name: draft.name,
       description: draft.description,
       status: draft.status,
-      priority: draft.priority,
+      isMilestone: draft.isMilestone,
       stage: draft.stage,
       plan: draft.plan,
       goal: draft.goal,

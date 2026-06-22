@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { matchText } from "@workspace/core/search";
 import { ActionButton, PanelCard, SearchInput } from "@workspace/core/ui";
 import {
   HR_MAJOR_OPTIONS,
@@ -14,9 +15,9 @@ function currentMajor(value: unknown): HRMajorItem | undefined {
 }
 
 function matchMajor(option: HRMajorItem, keyword: string) {
-  const text = keyword.trim().toLowerCase();
+  const text = keyword.trim();
   if (!text) return false;
-  return option.specialty.toLowerCase().includes(text) || option.category.toLowerCase().includes(text);
+  return matchText(option.specialty, text) || matchText(option.category, text);
 }
 
 export default function MajorPicker({

@@ -8,6 +8,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { getLibraryRoots, safeResolve } from "./config";
 import { computeChecksum } from "./checksum";
 import { generateUniqueDocId } from "./doc-id";
+import { buildScanLibraryCommand } from "./domain/scan-validation";
 
 export interface ScanResult {
   scanned: number;
@@ -138,7 +139,11 @@ async function tryLinkMovedFile(info: FileInfo, stableKey: string, checksum: str
 }
 
 export async function scanLibrary(rootKey?: string): Promise<ScanResult> {
-  const key = rootKey || "default";
+  const command = buildScanLibraryCommand(rootKey);
+  if (!command.ok) {
+    return { scanned: 0, created: 0, updated: 0, missing: 0, errors: [command.issue.message] };
+  }
+  const key = command.data.rootKey;
   const roots = getLibraryRoots();
   const root = roots[0];
   if (!root) {

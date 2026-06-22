@@ -32,12 +32,15 @@ import { ExperienceRequirementsEditor, MajorRequirementsEditor, WorkEnvironmentE
 import { EntityTagListEditor, SubordinateTagsEditor } from "./detail-editor-entity-tags";
 import { EntityValueInput, StringListEditor, formInputClassName } from "./detail-editor-primitives";
 import { PositionChangeHistoryEditor, PositionDutyEditor } from "./position-description-repeatable-sections";
+import type { Position } from "./types";
 
 export function PositionDescriptionDetailsEditor({
   value,
   disabled,
   onChange,
   positionNames,
+  currentPosition,
+  positions,
   departmentNames,
   template,
 }: {
@@ -45,6 +48,8 @@ export function PositionDescriptionDetailsEditor({
   disabled?: boolean;
   onChange: (value: string) => void;
   positionNames: Set<string>;
+  currentPosition: Position;
+  positions: Position[];
   departmentNames: Set<string>;
   template: PositionDescriptionTemplate;
 }) {
@@ -78,6 +83,10 @@ export function PositionDescriptionDetailsEditor({
     ...DETAIL_FIELD_ORDER,
     ...Object.keys(parsedDetails).filter((key) => !DETAIL_FIELD_ORDER.includes(key)).sort((a, b) => a.localeCompare(b, "zh-CN")),
   ];
+  const derivedSubordinates = positions
+    .filter((position) => position.id !== currentPosition.id && position.reportTo?.trim() === currentPosition.name.trim())
+    .map((position) => position.name)
+    .filter((name, index, array) => name && array.indexOf(name) === index);
 
   function updateDetailValue(key: string, nextValue: unknown) {
     const next = { ...parsedDetails, [key]: nextValue };
@@ -96,10 +105,7 @@ export function PositionDescriptionDetailsEditor({
         <div key={key} className="md:col-span-2">
           <SubordinateTagsEditor
             label={DETAIL_FIELD_LABELS[key] || key}
-            value={fieldValue}
-            disabled={disabled}
-            positionNames={positionNames}
-            onChange={(items) => updateDetailValue(key, items)}
+            items={derivedSubordinates}
           />
         </div>
       );

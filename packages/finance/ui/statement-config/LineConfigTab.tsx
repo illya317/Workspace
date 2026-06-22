@@ -4,6 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActionButton, DataTable, PanelCard, type DataTableColumn } from "@workspace/core/ui";
 import { useConfirmDelete } from "@workspace/core/ui/ConfirmProvider";
+import { matchSearchFields } from "@workspace/platform/search";
 import { useStatementConfig } from "./StatementConfigContext";
 import LineMappingsPanel from "./LineMappingsPanel";
 import type {
@@ -187,9 +188,8 @@ export default function LineConfigTab() {
     [accounts, effectiveCodes],
   );
   const filteredAccounts = useMemo(() => {
-    const query = accountSearch.toLowerCase().trim();
-    if (!query) return unmappedAccounts;
-    return unmappedAccounts.filter((account) => account.code.includes(query) || account.name.toLowerCase().includes(query));
+    if (!accountSearch.trim()) return unmappedAccounts;
+    return unmappedAccounts.filter((account) => matchSearchFields(account, accountSearch, ["code", "name"]));
   }, [accountSearch, unmappedAccounts]);
   const accountMap = useMemo(() => new Map(accounts.map((account) => [account.code, account])), [accounts]);
 

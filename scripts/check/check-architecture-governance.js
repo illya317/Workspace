@@ -32,6 +32,7 @@ const API_CAPABILITY_ROOTS = new Set([
   "auth",
   "integrations",
   "modules",
+  "open",
   "settings",
 ]);
 
@@ -136,7 +137,7 @@ if (fs.existsSync(apiDir)) {
     if (!hasRouteFile(path.join(apiDir, entry.name))) continue;
     if (!ALLOWED_API_ROOTS.has(entry.name)) {
       fail(
-        `app/api/${entry.name} is not registered. API root must be one of auth, agent, settings, modules, integrations, or an explicit compatibility baseline.`
+        `app/api/${entry.name} is not registered. API root must be one of auth, agent, settings, modules, integrations, open, or an explicit compatibility baseline.`
       );
     }
   }

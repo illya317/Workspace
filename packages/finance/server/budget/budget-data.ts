@@ -2,6 +2,7 @@ import * as xlsx from "xlsx";
 import * as path from "path";
 import * as fs from "fs";
 import { prisma } from "@workspace/platform/server/prisma";
+import { buildBudgetImportCommand } from "../domain/finance-validation";
 
 export interface DeptBudgetItem {
   dept: string;
@@ -85,13 +86,15 @@ export async function importDeptBudgetToDb(
   companyCode: string | undefined,
   versionId: number,
 ) {
+  const command = buildBudgetImportCommand({ year, companyCode, versionId });
+  if (!command.ok) throw new Error(command.issue.message);
   const raw = readDeptBudget();
   const accountMap = await resolveAccountIds(raw.map((i) => i.account));
 
   const data = raw.map((item) => ({
-    versionId,
-    year,
-    companyCode: companyCode ?? null,
+    versionId: command.data.versionId!,
+    year: command.data.year,
+    companyCode: command.data.companyCode ?? null,
     dept: item.dept,
     accountName: item.account,
     expenseType: item.expenseType,
@@ -121,13 +124,15 @@ export async function importRdBudgetToDb(
   companyCode: string | undefined,
   versionId: number,
 ) {
+  const command = buildBudgetImportCommand({ year, companyCode, versionId });
+  if (!command.ok) throw new Error(command.issue.message);
   const raw = readRdBudget();
   const accountMap = await resolveAccountIds(raw.map((i) => i.category));
 
   const data = raw.map((item) => ({
-    versionId,
-    year,
-    companyCode: companyCode ?? null,
+    versionId: command.data.versionId!,
+    year: command.data.year,
+    companyCode: command.data.companyCode ?? null,
     project: item.project,
     category: item.category,
     accountId: accountMap.get(item.category) ?? null,

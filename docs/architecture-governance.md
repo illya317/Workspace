@@ -92,7 +92,20 @@ API route 只做：
 4. 调用 service。
 5. 返回 DTO。
 
-Level 1 起，业务资源权限入口统一为 registry 派生门禁。页面使用 `requireRouteAccess("<href>")`，API 使用 `requireApiAccess(request)` 或已经接入它的 `with-auth` wrapper；调用点不得手写 resource key 作为主门禁。底层授权仍统一委托 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。新增 API route 不得直接调用 `checkPermission()`、裸 `authenticate()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
+输入验证按四层分工：
+
+- 前端负责输入体验，例如选择器、日期控件、数字控件和 FK 候选项查询；前端不是安全边界。
+- Zod / API input schema 只校验请求形状，例如 body 是否为对象、rows 是否为数组、id 是否为正整数、field/value 是否存在。
+- Domain validator 负责业务规则，例如枚举、日期、百分比范围、FK 是否存在且 active、记录归属、跨字段/跨行规则和归档/删除前引用保护。
+- Service 只执行已经验证过的 command，负责事务、Prisma 写库、派生字段落库、`editedBy/editedAt/version`、`snapshotHistory` 和错误映射。
+
+删除的最低平台规则是：删除前必须证明目标 ID 是合法正整数、目标记录存在、请求作用域成立、没有 required FK 或 active reference、目标状态允许删除、删除方式明确，并且引用清理、`snapshotHistory` 和删除/归档/停用处于同一事务边界。通用字段级删除优先走 `@workspace/platform/server/crud-factory`，自定义删除服务优先复用 `@workspace/platform/server/delete-guard`；业务包只补充本领域的归属校验、引用清单和删除方式选择，不要靠 Prisma/DB 报错当业务规则。
+
+新增多入口写入能力时，页面、导入、agent tool 或内部 API 只能新增 input adapter，把输入适配成 domain command；同一个业务字段或业务动作必须收口到同一套 domain validator。`npm run arch:gate` 会通过通用 domain validation ratchet 检查业务 API route、route-local helper、写 service 和 exported 写入口函数：新增写 service 必须消费本包 `packages/<domain>/server/domain/*-validation.ts`，route 不得直接或通过 package root 间接 import domain validator，service 不得重新散落 FK、日期、枚举、百分比、归档/删除引用保护等底层业务规则。即使一个文件已经 import domain validator，新增 exported `create/update/save/archive/delete/upsert/import` 写入口也必须在入口体内调用 domain validator 或走带校验 hook 的 CRUD helper；其中 `handleDelete` 只有在入口或引用的 config 里显式提供 `onBeforeDelete`，或入口直接调用已登记的 guarded/domain 删除验证入口时，才视为已验证。仅供内部复用的写 helper 不应 export。HR roster 当前 baseline 为 0；其他模块存量债由 `scripts/arch/domain-validation-baseline.json` 锁定，只能减少，不能新增。
+
+Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。`withAuth`、`withFinance*`、`checkHRAccess`、`requireResourceAccess` 等平台 wrapper 必须委托 `authorize()`，新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
+
+外部开放 API 使用独立边界：`/api/open/v1/**` 必须通过 `packages/platform/open-api-registry.ts` 注册，并使用 `withOpenApiScope(scopeKey, action, handler)` 校验 `Authorization: Bearer <OpenApiClient secret>`。开放 API 的资源写入 `OpenApiResource/OpenApiScope/OpenApiClientScopeGrant`，不写入内部 RBAC `Resource`，也不得调用 `authorize()`、`withAuth()` 或读取 `visibleResourceKeys`。`runtimeParentResourceKey` 只用于模块启停归属，不表达授权继承。
 
 `npm run arch:gate` 的 auth 阶段会强制：
 
@@ -135,8 +148,11 @@ API 一级目录只表达系统能力类型：
 - `/api/auth/*`：登录、回调、改密、session check。
 - `/api/settings/account/*`：当前登录用户自己的账号、安全密码、头像、API key、目标、routine、week-info。
 - `/api/settings/admin/*`：系统管理，包含用户、权限、资源和系统配置。
+- `/api/settings/governance/*`：平台治理，包含审计、registry、编码和治理配置。
+- `/api/settings/api/*`：Open API 接入管理，包含 Client、Scope 授权和调用日志。
 - `/api/agent/*`：智能体对话、能力清单和变更提案。
 - `/api/modules/<module>/*`：业务模块数据入口，例如 HR、Finance、Work、Production、Library、Administration。
+- `/api/open/v1/*`：外部开放 API，必须由 Open API registry 注册 endpoint 和 scope。
 - `/api/integrations/*`：飞书、企业微信、外部 webhook 等系统集成。
 
 新业务代码必须使用模块入口：
@@ -149,6 +165,8 @@ API 一级目录只表达系统能力类型：
 - 行政：`/api/modules/administration/*`
 
 `/api/modules/<module>` 只是路由归属和权限归属，不表示 API 层可以写业务逻辑。真实逻辑仍然在 `packages/<module>/server/*`；route 只能做认证、权限、参数校验、调用 package service 或 Platform 通用 factory、返回 DTO。
+
+`/api/open/v1/*` 不属于业务模块内部 API，也不复用 L2 RBAC resource。新增开放能力时必须一次性注册管理页面 `consoleHref`、开放资源 `resources`、授权 scope、endpoint、`runtimeParentResourceKey`。`npm run arch:gate` 会检查 registry、页面、route 文件和 route wrapper 是否一致。
 
 禁止新增 `/api/hr`、`/api/finance`、`/api/work`、`/api/employees` 等一级业务目录，也不要用 redirect 或 compatibility proxy 继续延长旧路径。历史旧路径删除时必须同步删除文档、脚本和部署配置中的引用。
 
@@ -182,7 +200,7 @@ app/* route shell
 - L2 以下 capability 属于业务能力，不自动进入全局页面 L2。capability 必须声明 `capabilityOwnerKey` 指向已注册 L2；它不能用 `parentKey` 继承 owner 权限，但可以用 `runtimeParentKey` 跟随 owner 的模块启停。Settings/Admin 只是 capability 的统一配置容器，授权管理仍按 owner/resource 的可管理范围判断，不强制要求 `settings.admin`。
 - 资源注册中的 `parentKey` 只表达权限树继承；模块启停级联使用 `runtimeParentKey`。不要用 `parentKey` 同时表达权限继承和运行态归属；当一个资源不能继承父权限、但必须随模块 disable 一起失效时，保持 `parentKey` 为空并设置 `runtimeParentKey`。典型例子是 `work.projects.viewAll`：它不能继承 `work.projects` 模块权限，但必须随 `work.projects` disabled 一起失效。
 - Headless/global 能力必须显式声明 `presentation: "headless"` 和 `noPageReason`。例如 Agent 是全局浮窗和 API 能力，不要求真实 `/agent` 页面，但入口显示、API 和 runtime disabled 仍必须绑定 `agent` resource。
-- `settings.account` 属于登录用户自助设置 contract，不进入普通 RBAC 授权矩阵；个人 API key、接入说明和接口契约归 `settings.account` 正文。API key 只作为身份凭证，调用业务 API 仍必须通过目标业务 resource。
+- `settings.account` 属于登录用户自助设置 contract，不进入普通 RBAC 授权矩阵；`docs.api` 和 `settings.api` 是两个资源，API 文档可见按并集授权，Open API 控制台读取按 `settings.api.access`，Client 创建、secret 轮换和 scope 授权按独立资源 `settings.api.manage.write`。`settings.api.manage` 不设置 `parentKey`，只用 `runtimeParentKey=settings.api` 跟随控制台启停，避免被父资源 `settings` 的 access 上限截断。
 
 这些规则由 `npm run arch:gate` 中的 module registry、app route hierarchy、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
 

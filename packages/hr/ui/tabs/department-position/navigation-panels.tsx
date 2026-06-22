@@ -77,14 +77,14 @@ export function DirectPositionPanel({
               <ActionButton
                 key={position.id}
                 onClick={() => onSelect({ type: "position", id: position.id })}
-                className={`inline-flex max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium shadow-sm transition ${
+                className={`inline-flex max-w-full items-start gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium shadow-sm transition ${
                   active
                     ? "border-emerald-300 bg-emerald-50 text-emerald-800"
                     : "border-slate-300 bg-white text-slate-800 hover:border-blue-300 hover:bg-blue-50"
                 }`}
               >
-                <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs text-blue-700">{shortPositionCode(position.code)}</span>
-                <span className="truncate">{position.name}</span>
+                <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs text-blue-700">{shortPositionCode(position.code)}</span>
+                <span className="max-w-80 whitespace-normal break-words text-left leading-5">{position.name}</span>
               </ActionButton>
             );
           })}
@@ -138,7 +138,7 @@ export function DepartmentTreePanel({
       className={mode === "drawer" ? "h-full overflow-hidden" : ""}
       actions={mode === "drawer" ? <ActionButton onClick={onClose} className="px-2 py-1">关闭</ActionButton> : undefined}
     >
-      <div className={`${mode === "drawer" ? "h-[calc(100%-48px)]" : "max-h-[760px]"} overflow-auto p-3`}>
+      <div className={`${mode === "drawer" ? "h-[calc(100%-48px)]" : "max-h-[760px]"} overflow-auto p-1`}>
         {loading && <EmptyStateCard compact>加载中...</EmptyStateCard>}
         {error && <EmptyStateCard compact className="border-red-100 bg-red-50 text-red-600">{error}</EmptyStateCard>}
         {!loading && !error && rootDepartments.map((department) => renderDepartmentNode(department))}
@@ -167,7 +167,7 @@ export function OrganizationRootPanel({
       className={mode === "drawer" ? "h-full overflow-hidden" : ""}
       actions={mode === "drawer" ? <ActionButton onClick={onClose} className="px-2 py-1">关闭</ActionButton> : undefined}
     >
-      <div className={`${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-3`}>
+      <div className={`${mode === "drawer" ? "h-full" : "max-h-[760px]"} overflow-auto p-1`}>
         {loading && <EmptyStateCard compact>加载中...</EmptyStateCard>}
         {error && <EmptyStateCard compact className="border-red-100 bg-red-50 text-red-600">{error}</EmptyStateCard>}
         {!loading && !error && departments.length === 0 && <EmptyStateCard>暂无部门</EmptyStateCard>}

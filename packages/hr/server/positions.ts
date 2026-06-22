@@ -1,14 +1,18 @@
 import { Prisma } from "@workspace/platform/server/prisma";
-import { handleCreate, handleDelete, handleUpdateField } from "./hr-crud";
-import { parseJson } from "@workspace/platform/server/api";
-import { validateFkValue } from "@workspace/platform/server/fk-registry";
+import { handleDelete, handleUpdateField } from "./hr-crud";
+import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
-import { PositionCreateSchema } from "./schemas";
 import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
-import { HR_FK_REGISTRY } from "./fk-registry";
-import { guardPositionArchive } from "./reference-guards";
+import {
+  buildPositionCreateCommand,
+  buildPositionUpdateCommand,
+  POSITION_ALLOWED_FIELDS,
+  validatePositionDelete,
+  validatePositionFieldUpdate,
+  type PositionInput,
+} from "./domain/position-validation";
 
 export interface PositionListItem {
   id: number;
@@ -28,7 +32,8 @@ export interface PositionListItem {
   summary: string | null;
   positionPurpose: string | null;
   headcountPlan: number | null;
-  version: string | null;
+  version: number;
+  positionDescriptionVersion: string | null;
   effectiveDate: string | null;
   sourceFile: string | null;
   headcount: number;
@@ -39,11 +44,12 @@ export interface PositionListItem {
 const POSITION_CONFIG = {
   entityType: "Position",
   modelKey: "position" as const,
-  allowedFields: ["code", "name", "alias", "departmentId", "positionDescriptionId", "isArchived", "archivedAt"],
-  onBeforeUpdate: normalizePositionFieldUpdate,
+  allowedFields: POSITION_ALLOWED_FIELDS,
+  deleteMode: "hard" as const,
+  onBeforeUpdate: validatePositionFieldUpdate,
   onBeforeDelete: async (id: number) => {
-    const blockMessage = await guardPositionArchive(id, "删除岗位");
-    return blockMessage ? { error: blockMessage, status: 409 } : { ok: true as const };
+    const validation = await validatePositionDelete(id, "删除岗位");
+    return validation.ok ? { ok: true as const } : { error: validation.issue.message, status: validation.issue.status };
   },
 };
 
@@ -115,7 +121,8 @@ export async function getPositionList(
       summary: position.positionDescription?.summary || null,
       positionPurpose: position.positionDescription?.positionPurpose || null,
       headcountPlan: position.positionDescription?.headcount || null,
-      version: position.positionDescription?.version || null,
+      version: position.version,
+      positionDescriptionVersion: position.positionDescription?.version || null,
       effectiveDate: position.positionDescription?.effectiveDate || null,
       sourceFile: position.positionDescription?.sourceFile || null,
       headcount: position._count.edps,
@@ -131,59 +138,25 @@ export async function getPositionList(
   return { positions: result.slice(start, start + pageSize), total };
 }
 
-export async function createPosition(request: Request) {
-  const parsed = await parseJson(request, PositionCreateSchema);
-  if (!parsed.ok) return { ok: false as const, error: parsed.error };
-  const departmentValidation = await validateFkValue(HR_FK_REGISTRY, {
-    fkKey: "hr.position.department",
-    value: parsed.data.departmentId,
-    requiredLabel: "所属部门",
-  });
-  if (!departmentValidation.ok) return { ok: false as const, error: departmentValidation.error };
-  const descriptionValidation = await validateFkValue(HR_FK_REGISTRY, {
-    fkKey: "hr.positionDescription",
-    value: parsed.data.positionDescriptionId,
-    requiredLabel: "岗位说明书",
-  });
-  if (!descriptionValidation.ok) return { ok: false as const, error: descriptionValidation.error };
-  return {
-    ok: true as const,
-    response: await handleCreate(request, { entityType: "Position", modelKey: "position" as const }, () => ({
-      ...parsed.data,
-      departmentId: departmentValidation.value,
-      positionDescriptionId: descriptionValidation.value,
-    })),
-  };
-}
-
-async function normalizePositionFieldUpdate(field: string, value: unknown, id?: number) {
-  if (field === "departmentId") {
-    const validation = await validateFkValue(HR_FK_REGISTRY, {
-      fkKey: "hr.position.department",
-      value,
-      requiredLabel: "所属部门",
+export async function createPosition(
+  input: PositionInput,
+  userId: number,
+): Promise<DomainServiceResult<{ success: true; record: { id: number } }>> {
+  const command = mapValidationToServiceResult(await buildPositionCreateCommand(input));
+  if (!command.ok) return command;
+  try {
+    const record = await prisma.position.create({
+      data: { ...command.data, editedBy: userId },
+      select: { id: true },
     });
-    if (!validation.ok) return { error: validation.error, status: validation.status };
-    return { field, value: validation.value };
-  }
-  if (field === "positionDescriptionId") {
-    const validation = await validateFkValue(HR_FK_REGISTRY, {
-      fkKey: "hr.positionDescription",
-      value,
-      requiredLabel: "岗位说明书",
-    });
-    if (!validation.ok) return { error: validation.error, status: validation.status };
-    return { field, value: validation.value };
-  }
-  if (field === "isArchived") {
-    const archived = Boolean(value);
-    if (archived && id) {
-      const blockMessage = await guardPositionArchive(id);
-      if (blockMessage) return { error: blockMessage, status: 409 };
+    await snapshotHistory("Position", record.id, userId);
+    return { ok: true, data: { success: true, record } };
+  } catch (error: unknown) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return { ok: false, error: "编码已存在", status: 409 };
     }
-    return { field, value: archived };
+    throw error;
   }
-  return { field, value };
 }
 
 export async function updatePosition(
@@ -198,51 +171,27 @@ export async function updatePosition(
     archivedAt?: Date | string | null;
   },
   userId: number,
-) {
-  const data: Prisma.PositionUncheckedUpdateInput = {};
-  if (body.code !== undefined) data.code = body.code;
-  if (body.name !== undefined) data.name = body.name;
-  if (body.alias !== undefined) data.alias = body.alias || null;
-  if (body.departmentId !== undefined) {
-    const validation = await validateFkValue(HR_FK_REGISTRY, {
-      fkKey: "hr.position.department",
-      value: body.departmentId,
-      requiredLabel: "所属部门",
-    });
-    if (!validation.ok) throw new Error(validation.error);
-    data.departmentId = validation.value;
-  }
-  if (body.positionDescriptionId !== undefined) {
-    const validation = await validateFkValue(HR_FK_REGISTRY, {
-      fkKey: "hr.positionDescription",
-      value: body.positionDescriptionId,
-      requiredLabel: "岗位说明书",
-    });
-    if (!validation.ok) throw new Error(validation.error);
-    data.positionDescriptionId = validation.value;
-  }
-  if (body.isArchived !== undefined) {
-    const archived = Boolean(body.isArchived);
-    if (archived) {
-      const blockMessage = await guardPositionArchive(id);
-      if (blockMessage) throw new Error(blockMessage);
-    }
-    data.isArchived = archived;
-    data.archivedAt = archived ? new Date() : null;
-  }
+): Promise<DomainServiceResult<{ success: true; position: unknown }>> {
+  const command = mapValidationToServiceResult(await buildPositionUpdateCommand(id, body));
+  if (!command.ok) return command;
+  const data = command.data;
   data.editedBy = userId;
   data.editedAt = new Date();
   data.version = { increment: 1 };
 
-  const updated = await prisma.position.update({ where: { id }, data });
-  await snapshotHistory("Position", id, userId);
-  return updated;
-}
-
-export async function deletePosition(id: number) {
-  const blockMessage = await guardPositionArchive(id, "删除岗位");
-  if (blockMessage) throw new Error(blockMessage);
-  await prisma.position.delete({ where: { id } });
+  try {
+    const updated = await prisma.position.update({ where: { id }, data });
+    await snapshotHistory("Position", id, userId);
+    return { ok: true, data: { success: true, position: updated } };
+  } catch (error: unknown) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      return { ok: false, error: "编码已存在", status: 409 };
+    }
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+      return { ok: false, error: "岗位不存在", status: 404 };
+    }
+    throw error;
+  }
 }
 
 export async function updatePositionField(request: Request, params: Promise<{ id: string }>) {

@@ -1,4 +1,10 @@
 import { prisma, Prisma } from "@workspace/platform/server/prisma";
+import {
+  buildFinanceIdCommand,
+  buildFinancePeriodCreateCommand,
+  buildFinancePeriodScopeCommand,
+  buildFinancePeriodUpdateCommand,
+} from "../domain/finance-validation";
 
 export type ListFinancePeriodsInput = {
   year?: number;
@@ -69,18 +75,20 @@ export async function listFinancePeriods(input: ListFinancePeriodsInput) {
 }
 
 export async function createFinancePeriod(input: CreateFinancePeriodInput) {
-  const companyCode = normalizeCompanyCode(input.companyCode);
+  const command = buildFinancePeriodCreateCommand(input);
+  if (!command.ok) throw new Error(command.issue.message);
+  const companyCode = normalizeCompanyCode(command.data.input.companyCode);
   const existing = await prisma.financePeriod.findFirst({
-    where: { year: input.year, month: input.month, companyCode },
+    where: { year: command.data.input.year, month: command.data.input.month, companyCode },
   });
   if (existing) return { success: false, error: "该期间已存在", status: 400 as const };
 
   const period = await prisma.financePeriod.create({
     data: {
-      year: input.year,
-      month: input.month,
-      startDate: input.startDate || periodDate(input.year, input.month, "01"),
-      endDate: input.endDate || periodDate(input.year, input.month, "31"),
+      year: command.data.input.year,
+      month: command.data.input.month,
+      startDate: command.data.input.startDate || periodDate(command.data.input.year, command.data.input.month, "01"),
+      endDate: command.data.input.endDate || periodDate(command.data.input.year, command.data.input.month, "31"),
       companyCode,
     },
   });
@@ -88,15 +96,19 @@ export async function createFinancePeriod(input: CreateFinancePeriodInput) {
 }
 
 export async function updateFinancePeriod(id: number, input: UpdateFinancePeriodInput) {
+  const command = buildFinancePeriodUpdateCommand(id, input);
+  if (!command.ok) throw new Error(command.issue.message);
   const period = await prisma.financePeriod.update({
-    where: { id },
-    data: { isClosed: input.isClosed ?? false },
+    where: { id: command.data.id },
+    data: { isClosed: command.data.input.isClosed ?? false },
   });
   return { success: true, period };
 }
 
 export async function deleteFinancePeriod(id: number) {
-  await prisma.financePeriod.delete({ where: { id } });
+  const command = buildFinanceIdCommand(id);
+  if (!command.ok) throw new Error(command.issue.message);
+  await prisma.financePeriod.delete({ where: { id: command.data.id } });
   return { success: true };
 }
 
@@ -110,17 +122,21 @@ export async function lookupFinancePeriodId(input: LookupFinancePeriodInput) {
 }
 
 export async function initializeFinanceDefaults(input: InitializeFinanceDefaultsInput, userId: number) {
+  const command = buildFinancePeriodScopeCommand(input);
+  if (!command.ok) throw new Error(command.issue.message);
+  const editor = buildFinanceIdCommand(userId, "userId");
+  if (!editor.ok) throw new Error(editor.issue.message);
   let period = await prisma.financePeriod.findFirst({
-    where: { companyCode: input.companyCode, year: input.year, month: input.month },
+    where: { companyCode: command.data.companyCode, year: command.data.year, month: command.data.month },
   });
   if (!period) {
     period = await prisma.financePeriod.create({
       data: {
-        companyCode: input.companyCode,
-        year: input.year,
-        month: input.month,
-        startDate: periodDate(input.year, input.month, "01"),
-        endDate: periodDate(input.year, input.month, "31"),
+        companyCode: command.data.companyCode,
+        year: command.data.year,
+        month: command.data.month!,
+        startDate: periodDate(command.data.year, command.data.month!, "01"),
+        endDate: periodDate(command.data.year, command.data.month!, "31"),
       },
     });
   }
@@ -130,7 +146,7 @@ export async function initializeFinanceDefaults(input: InitializeFinanceDefaults
     const existing = await prisma.financeAccount.findFirst({ where: { code: account.code } });
     if (!existing) {
       const created = await prisma.financeAccount.create({
-        data: { ...account, companyCode: input.companyCode, editedBy: userId },
+        data: { ...account, companyCode: command.data.companyCode, editedBy: editor.data.id },
       });
       createdAccounts.push(created);
     }

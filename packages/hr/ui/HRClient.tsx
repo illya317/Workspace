@@ -1,22 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DatabasePageFrame } from "@workspace/core/ui";
 import { type AccordionTabItem } from "@workspace/core/ui";
-import { getPageViewTabs } from "@workspace/platform/view-registry";
+import { getPageViewTabsForUser } from "@workspace/platform/view-registry";
 
 import GenericTableTab from "./tabs/GenericTableTab";
 import DepartmentPositionTab from "./tabs/DepartmentPositionTab";
 import EmployeeDirectory from "./profile/EmployeeDirectory";
+import RosterGeneratedTab from "./generated/RosterGeneratedTab";
 import {
   contractConfig,
   edpConfig,
   employeeConfig,
   employmentConfig,
 } from "@workspace/hr/constants/tab-configs";
+import { useUnsavedChangesPrompt } from "./hooks/useUnsavedChangesPrompt";
 
 import type { SessionUser } from "@workspace/platform/types";
 import type { HRUser } from "@workspace/hr/types";
+import type { RosterGeneratedVariant } from "@workspace/hr/types";
 
 type HRTab =
   | "employee"
@@ -26,11 +29,9 @@ type HRTab =
   | "position"
   | "edp";
 
-type HRView = "employee" | "organization" | "department-position" | "bulk";
+type HRView = "employee" | "organization" | "department-position" | "bulk" | "generated";
 
 type HRViewTab = AccordionTabItem & { key: HRView };
-
-const rosterViews = getPageViewTabs("/hr/roster") as HRViewTab[];
 
 function toHRUser(user: SessionUser): HRUser {
   return {
@@ -44,19 +45,51 @@ function toHRUser(user: SessionUser): HRUser {
 }
 
 export default function HRClient({ user }: { user: SessionUser; hideShell?: boolean }) {
+  const rosterViews = useMemo(
+    () => getPageViewTabsForUser("/hr/roster", user.visibleResourceKeys || []) as HRViewTab[],
+    [user.visibleResourceKeys],
+  );
   const [activeView, setActiveView] = useState<HRView>("employee");
   const [activeChild, setActiveChild] = useState<string | undefined>(
     rosterViews.find((view) => view.key === "employee")?.children?.[0]?.key,
   );
+  const [focusPositionId, setFocusPositionId] = useState<number | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const confirmNavigation = useUnsavedChangesPrompt(hasUnsavedChanges);
   const hrUser = toHRUser(user);
   const activeBulkTab = (activeChild ?? "employee") as HRTab;
+  const activeGeneratedVariant = (activeChild === "dueDiligence" ? "dueDiligence" : "management") as RosterGeneratedVariant;
   const employeeStatus = activeChild === "inactive" ? "inactive" : "active";
   const departmentLifecycle = activeChild === "archived" ? "archived" : "active";
+  const canEditGenerated = hrUser.isAdmin || hrUser.visibleWriteResourceKeys.includes("hr.roster.generated");
 
-  function changeView(key: string) {
+  async function changeView(key: string) {
+    if (key !== activeView) {
+      const canLeave = await confirmNavigation();
+      if (!canLeave) return;
+      setHasUnsavedChanges(false);
+    }
     const nextView = rosterViews.find((view) => view.key === key);
     setActiveView(key as HRView);
     setActiveChild(nextView?.children?.[0]?.key);
+  }
+
+  async function openPositionDetails(positionId: number) {
+    const canLeave = await confirmNavigation();
+    if (!canLeave) return;
+    setHasUnsavedChanges(false);
+    setFocusPositionId(positionId);
+    setActiveView("department-position");
+    setActiveChild("active");
+  }
+
+  async function changeChild(key: string) {
+    if (key !== activeChild) {
+      const canLeave = await confirmNavigation();
+      if (!canLeave) return;
+      setHasUnsavedChanges(false);
+    }
+    setActiveChild(key);
   }
 
   return (
@@ -65,14 +98,28 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
       activeTab={activeView}
       activeChild={activeChild}
       onTabChange={changeView}
-      onChildChange={setActiveChild}
+      onChildChange={changeChild}
     >
         {activeView === "employee" && <EmployeeDirectory user={hrUser} employmentStatus={employeeStatus} />}
 
-        {activeView === "organization" && <DepartmentPositionTab user={hrUser} mode="organization" />}
+        {activeView === "organization" && (
+          <DepartmentPositionTab
+            user={hrUser}
+            mode="organization"
+            onUnsavedChange={setHasUnsavedChanges}
+            onOpenPositionDetails={(positionId) => void openPositionDetails(positionId)}
+          />
+        )}
 
         {activeView === "department-position" && (
-          <DepartmentPositionTab user={hrUser} mode="position" lifecycle={departmentLifecycle} />
+          <DepartmentPositionTab
+            user={hrUser}
+            mode="position"
+            lifecycle={departmentLifecycle}
+            focusPositionId={focusPositionId}
+            onUnsavedChange={setHasUnsavedChanges}
+            onFocusPositionConsumed={() => setFocusPositionId(null)}
+          />
         )}
 
         {activeView === "bulk" && (
@@ -84,6 +131,10 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
               {activeBulkTab === "contract" && <GenericTableTab config={contractConfig} user={hrUser} />}
             </>
           </>
+        )}
+
+        {activeView === "generated" && (
+          <RosterGeneratedTab variant={activeGeneratedVariant} canEdit={canEditGenerated} />
         )}
     </DatabasePageFrame>
   );

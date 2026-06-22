@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Toast, useConfirmDelete } from "@workspace/core/ui";
+import { Toast, useConfirm, useConfirmDelete } from "@workspace/core/ui";
 import { type HRUser, hrCanEdit } from "@workspace/hr/types";
 import type { DepartmentPositionMode } from "./department-position/types";
 import { DepartmentPositionActiveWorkspace } from "./department-position/active-workspace";
@@ -15,19 +15,38 @@ import { useDepartmentPositionSideEffects } from "./department-position/use-depa
 import { useDepartmentPositionTreeRenderers } from "./department-position/use-department-position-tree-renderers";
 import { useDepartmentPositionViewRenderers } from "./department-position/use-department-position-view-renderers";
 import { usePositionDescriptionTemplates } from "./department-position/use-position-description-templates";
+import { DepartmentPositionToolbar } from "./department-position/department-position-toolbar";
 
 export default function DepartmentPositionTab({
   user,
   mode = "position",
   lifecycle = "active",
+  focusPositionId = null,
+  onFocusPositionConsumed,
+  onOpenPositionDetails,
+  onUnsavedChange,
 }: {
   user: HRUser;
   mode?: DepartmentPositionMode;
   lifecycle?: "active" | "archived";
+  focusPositionId?: number | null;
+  onFocusPositionConsumed?: () => void;
+  onOpenPositionDetails?: (positionId: number) => void;
+  onUnsavedChange?: (dirty: boolean) => void;
 }) {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const confirm = useConfirm();
   const confirmDelete = useConfirmDelete();
+  async function showActionPrompt(title: string, message: string, danger: boolean) {
+    await confirm({
+      title,
+      message,
+      confirmLabel: "关闭",
+      confirmDanger: danger,
+      showCancel: false,
+    });
+  }
   const {
     activeOrganizationRootId,
     archivedTab,
@@ -79,13 +98,18 @@ export default function DepartmentPositionTab({
   const canEditDepartment = canEdit && !isOrganizationMode && !showArchived;
   const canEditPosition = canEdit && !isOrganizationMode && !showArchived;
   const { departments, error, loadData, loading, positions } = useDepartmentPositionData({
-    isOrganizationMode,
-    selection,
     setSelection,
     showArchived,
   });
+  useEffect(() => {
+    if (mode !== "position" || !focusPositionId) return;
+    if (!positions.some((position) => position.id === focusPositionId)) return;
+    setShowArchived(false);
+    setSelection({ type: "position", id: focusPositionId });
+    setTreeDrawerOpen(false);
+    onFocusPositionConsumed?.();
+  }, [focusPositionId, mode, onFocusPositionConsumed, positions, setSelection, setShowArchived, setTreeDrawerOpen]);
   const {
-    activeOrganizationRoot,
     archivedDepartments,
     archivedPositions,
     createPositionCode,
@@ -111,6 +135,9 @@ export default function DepartmentPositionTab({
     search,
     selection,
   });
+  const organizationSelectedDepartment = isOrganizationMode && selectedPosition?.departmentId
+    ? departmentById.get(selectedPosition.departmentId)
+    : selectedDepartment;
   useEffect(() => {
     if (!isOrganizationMode) return;
     setActiveOrganizationRootId((prev) => {
@@ -129,7 +156,6 @@ export default function DepartmentPositionTab({
   }, [activeOrganizationRootId, isOrganizationMode, setCollapsedDepartments]);
   const {
     renderDepartmentNode,
-    renderOrganizationBranch,
     renderOrganizationRoot,
   } = useDepartmentPositionTreeRenderers({
     activeOrganizationRootId,
@@ -164,6 +190,11 @@ export default function DepartmentPositionTab({
     selectedDepartment,
     selectedPosition,
   });
+  const hasUnsavedChanges = dirty || departmentDirty || departmentDescriptionDirty;
+  useEffect(() => {
+    if (isOrganizationMode) return;
+    onUnsavedChange?.(hasUnsavedChanges);
+  }, [hasUnsavedChanges, isOrganizationMode, onUnsavedChange]);
   const {
     createPosition,
     saveDepartmentDescription,
@@ -192,6 +223,7 @@ export default function DepartmentPositionTab({
     setSaving,
     setSelection,
     setToast,
+    showActionPrompt,
   });
 
   const { setAllDepartmentsCollapsed } = useDepartmentPositionSideEffects({
@@ -207,7 +239,6 @@ export default function DepartmentPositionTab({
   const {
     renderArchivedBrowser,
     renderDetailPane,
-    renderOrganizationRootPanel,
     renderTreePanel,
   } = useDepartmentPositionViewRenderers({
     archivedDepartments,
@@ -236,6 +267,7 @@ export default function DepartmentPositionTab({
     positionDescriptionTemplate,
     positionDescriptionTemplates,
     positionNames,
+    positions,
     positionsByDepartment,
     renderDepartmentNode,
     renderOrganizationRoot,
@@ -291,15 +323,20 @@ export default function DepartmentPositionTab({
   if (isOrganizationMode) {
     return (
       <OrganizationModePanel
-        activeOrganizationRoot={activeOrganizationRoot}
-        departments={departments}
+        canEdit={canEdit}
+        drawerOpen={treeDrawerOpen}
         error={error}
         loading={loading}
-        renderOrganizationBranch={renderOrganizationBranch}
-        renderOrganizationRootPanel={renderOrganizationRootPanel}
-        setTreeDrawerOpen={setTreeDrawerOpen}
-        treeDrawerOpen={treeDrawerOpen}
-        visibleRootDepartmentCount={visibleRootDepartments.length}
+        selectedDepartment={organizationSelectedDepartment}
+        selectedPositionId={selectedPosition?.id ?? null}
+        positions={positions}
+        positionsByDepartment={positionsByDepartment}
+        renderSide={renderTreePanel}
+        onDrawerOpenChange={setTreeDrawerOpen}
+        onOpenPositionDetails={onOpenPositionDetails}
+        onSelectPosition={(position) => selectItem({ type: "position", id: position.id })}
+        onUnsavedChange={onUnsavedChange}
+        onReload={loadData}
       />
     );
   }
@@ -310,6 +347,17 @@ export default function DepartmentPositionTab({
 
   return (
     <>
+      <div className="mb-3">
+        <DepartmentPositionToolbar
+          departments={departments}
+          departmentById={departmentById}
+          keyword={search}
+          positions={positions}
+          onKeywordChange={setSearch}
+          onSelect={selectItem}
+        />
+      </div>
+
       <DepartmentPositionActiveWorkspace
         sideOpen={true}
         drawerOpen={treeDrawerOpen}

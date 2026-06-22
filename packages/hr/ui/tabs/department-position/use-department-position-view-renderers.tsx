@@ -50,6 +50,7 @@ export function useDepartmentPositionViewRenderers(props: {
   positionDescriptionTemplate: PositionDescriptionTemplateId;
   positionDescriptionTemplates: PositionDescriptionTemplate[];
   positionNames: Set<string>;
+  positions: Position[];
   positionsByDepartment: Map<number, Position[]>;
   renderDepartmentNode: (department: Department, level?: number) => ReactNode;
   renderOrganizationRoot: (department: Department) => ReactNode;
@@ -126,6 +127,7 @@ export function useDepartmentPositionViewRenderers(props: {
         templateDraftName={props.templateDraftName}
         templateDraftFields={props.templateDraftFields}
         positionNames={props.positionNames}
+        positions={props.positions}
         departmentNames={props.departmentNames}
         onSelect={props.onSelect}
         onUpdateDraft={props.onUpdateDraft}

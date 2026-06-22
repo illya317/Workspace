@@ -48,7 +48,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     ...data,
     ...(participants !== undefined && { participants: parseParticipants(participants) }),
   });
-  return NextResponse.json({ work });
+  if (!work.ok) return NextResponse.json({ error: work.error }, { status: work.status || 400 });
+  return NextResponse.json({ work: work.data });
 }
 
 export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -69,6 +70,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   const allowed = await canEditWorkTask(payload.userId, existing.targetType, existing.targetId ?? 0);
   if (!allowed) return NextResponse.json({ error: "无权限删除工作清单" }, { status: 403 });
 
-  await deleteWorkItem(workId);
+  const result = await deleteWorkItem(workId);
+  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
   return NextResponse.json({ success: true });
 }

@@ -1,26 +1,41 @@
 import { Prisma } from "@workspace/platform/server/prisma";
+import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
+import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 import { handleCreate, handleDelete, handleUpdateField } from "./hr-crud";
 import { invalidateCompanyCache } from "./company-directory";
+import {
+  buildCompanyCreateCommand,
+  buildCompanyFieldUpdateCommand,
+  buildCompanyUpsertCommand,
+  COMPANY_ALLOWED_FIELDS,
+  validateCompanyDeleteCommand,
+} from "./domain/company-validation";
 
-const COMPANY_FIELDS = [
-  "code",
-  "name",
-  "fullName",
-  "registeredCapital",
-  "unifiedCode",
-  "bankName",
-  "registeredAddress",
-  "registeredDate",
-  "legalPerson",
-  "managementGroup",
-  "codePoolCode",
-  "isActive",
-  "sortOrder",
-];
-const COMPANY_CONFIG = { entityType: "Company", modelKey: "company" as const, allowedFields: COMPANY_FIELDS };
+const COMPANY_CONFIG = {
+  entityType: "Company",
+  modelKey: "company" as const,
+  allowedFields: COMPANY_ALLOWED_FIELDS,
+  deleteMode: "hard" as const,
+  onBeforeUpdate: normalizeCompanyFieldUpdate,
+  onBeforeDelete: normalizeCompanyDelete,
+};
+
+async function normalizeCompanyFieldUpdate(field: string, value: unknown) {
+  const command = buildCompanyFieldUpdateCommand(field, value);
+  if (!command.ok) return { error: command.issue.message, status: command.issue.status };
+  invalidateCompanyCache();
+  return command.data;
+}
+
+async function normalizeCompanyDelete(id: number, context: DeleteGuardContext) {
+  const command = await validateCompanyDeleteCommand(id);
+  if (!command.ok) return { error: command.issue.message, status: command.issue.status };
+  await context.tx.companyRelation.deleteMany({ where: { OR: [{ parentId: command.data.id }, { childId: command.data.id }] } });
+  return { ok: true as const };
+}
 
 export async function listCompanies(input: { keyword: string; activeOnly: boolean; page: number; pageSize: number }) {
   const where: { isActive?: boolean } = {};
@@ -42,6 +57,7 @@ export async function listCompanies(input: { keyword: string; activeOnly: boolea
     codePoolCode: company.codePoolCode,
     isActive: company.isActive,
     sortOrder: company.sortOrder,
+    version: company.version,
   }));
 
   const result = input.keyword ? mapped.filter((company) => matchAnyField(company, input.keyword, "Company")) : mapped;
@@ -52,59 +68,27 @@ export async function listCompanies(input: { keyword: string; activeOnly: boolea
 
 export async function createCompany(request: Request) {
   return handleCreate(request, { entityType: "Company", modelKey: "company" as const }, (body) => {
-    for (const field of ["code", "name"]) if (!body[field]) return null;
+    const command = buildCompanyCreateCommand(body);
+    if (!command.ok) return null;
     invalidateCompanyCache();
-    return body;
+    return command.data;
   });
 }
 
-function companyDataFields(body: Record<string, unknown>) {
-  const nullableString = (value: unknown) => (value === null || value === undefined || value === "" ? null : String(value));
-  const sortOrder = Number(body.sortOrder);
-  return {
-    fullName: nullableString(body.fullName),
-    registeredCapital: nullableString(body.registeredCapital),
-    unifiedCode: nullableString(body.unifiedCode),
-    bankName: nullableString(body.bankName),
-    registeredAddress: nullableString(body.registeredAddress),
-    registeredDate: nullableString(body.registeredDate),
-    legalPerson: nullableString(body.legalPerson),
-    managementGroup: nullableString(body.managementGroup) ?? "常规体系",
-    codePoolCode: nullableString(body.codePoolCode),
-    isActive: typeof body.isActive === "boolean" ? body.isActive : true,
-    sortOrder: Number.isInteger(sortOrder) ? sortOrder : 0,
-  };
-}
-
 export async function upsertCompany(body: Record<string, unknown>, userId: number) {
-  const id = body.id ? Number(body.id) : null;
-  const code = String(body.code || "").trim();
-  const name = String(body.name || "").trim();
-  if (!code || !name) return { ok: false as const, error: "缺少 code/name" };
+  const command = mapValidationToServiceResult(await buildCompanyUpsertCommand(body));
+  if (!command.ok) return command;
+  const { id, code, name, dataFields } = command.data;
 
-  const dataFields = companyDataFields(body);
   if (id) {
-    const existing = await prisma.company.findFirst({ where: { code } });
-    if (existing && existing.id !== id) return { ok: false as const, error: "编码已存在" };
     await prisma.company.update({
       where: { id },
       data: { code, name, ...dataFields, editedBy: userId, editedAt: new Date(), version: { increment: 1 } },
     });
     await snapshotHistory("Company", id, userId);
   } else {
-    const existing = await prisma.company.findFirst({ where: { code } });
-    if (existing) return { ok: false as const, error: "编码已存在" };
     await prisma.company.create({ data: { code, name, ...dataFields } });
   }
-  invalidateCompanyCache();
-  return { ok: true as const, data: { success: true } };
-}
-
-export async function deleteCompanyById(id: number) {
-  const company = await prisma.company.findUnique({ where: { id } });
-  if (!company) return { ok: false as const, error: "公司不存在", status: 404 };
-  await prisma.companyRelation.deleteMany({ where: { OR: [{ parentId: id }, { childId: id }] } });
-  await prisma.company.delete({ where: { id } });
   invalidateCompanyCache();
   return { ok: true as const, data: { success: true } };
 }

@@ -49,7 +49,8 @@ Admin API 在 `app/api/settings/admin/` 下：
 ## 权限标准
 
 - 内置 `admin` root 账号 — 拥有全部权限，不属于 RBAC resource
-- `hr.roster.access` — 可进入管理后台（用户账号 Tab 可见性）
+- 可管理任一资源（拥有任意资源的 `admin` 角色）— 可进入管理后台并管理自己负责范围内的权限
+- 仅内置 `admin` root 账号 — 可见用户账号、模块管理和系统配置
 - 资源级权限通过 RBAC 矩阵管理，支持用户/岗位/部门三种授权对象
 
 前端只做显示控制（按钮隐藏），API 必须做最终权限校验。

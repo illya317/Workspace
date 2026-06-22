@@ -1,3 +1,5 @@
+import { buildSideBalanceAddCommand } from "../domain/finance-validation";
+
 export type SideBalance = {
   debit: number;
   credit: number;
@@ -40,10 +42,12 @@ export function toSides(
 }
 
 export function addToMap(map: Map<string, SideBalance>, code: string, debit: number, credit: number) {
-  const current = map.get(code) || { debit: 0, credit: 0 };
-  current.debit += debit;
-  current.credit += credit;
-  map.set(code, current);
+  const command = buildSideBalanceAddCommand(code, debit, credit);
+  if (!command.ok) throw new Error(command.issue.message);
+  const current = map.get(command.data.code) || { debit: 0, credit: 0 };
+  current.debit += command.data.debit;
+  current.credit += command.data.credit;
+  map.set(command.data.code, current);
 }
 
 export function rollUpByParent(accounts: FinanceAccountLike[], direct: Map<string, SideBalance>) {

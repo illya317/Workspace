@@ -1,5 +1,4 @@
-import { getInitials } from "@workspace/core/search";
-import { matchEmployee } from "@workspace/platform/search";
+import { matchEmployee, matchSearchFields } from "@workspace/platform/search";
 
 interface RawContract {
   company?: unknown;
@@ -134,14 +133,9 @@ export function buildContractRows(employments: Array<{
 }
 
 export function filterContracts(rows: ContractRow[], keyword: string): ContractRow[] {
-  const query = keyword.toLowerCase();
   return rows.filter((contract) => {
     if (matchEmployee({ name: contract.employeeName, employeeId: contract.employeeId }, keyword)) return true;
-    for (const field of SEARCH_FIELDS) {
-      const value = String((contract as unknown as Record<string, unknown>)[field] || "").toLowerCase();
-      if (value.includes(query) || getInitials(value).includes(query)) return true;
-    }
-    return CONTRACT_DATE_FIELDS.some((field) => String((contract as unknown as Record<string, unknown>)[field] || "").toLowerCase().includes(query));
+    return matchSearchFields(contract as unknown as Record<string, unknown>, keyword, [...SEARCH_FIELDS, ...CONTRACT_DATE_FIELDS]);
   });
 }
 

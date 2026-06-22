@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { matchText } from "@workspace/core/search";
 import { ActionButton as CoreActionButton, PanelCard } from "@workspace/core/ui";
 import type { QcTemplateDetail, QcTemplateFeedbackState, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
 import {
@@ -27,7 +28,7 @@ interface StageRowsProps {
 
 export function testMatches(test: QcTemplateTestItem, keyword: string) {
   return [test.sequence, test.name, test.englishName, test.methodName, test.layout?.templateId]
-    .some((value) => (value ?? "").toLowerCase().includes(keyword));
+    .some((value) => matchText(String(value ?? ""), keyword));
 }
 
 function ActionButton({
@@ -144,7 +145,7 @@ export default function StageRows({
   onFeedback,
 }: StageRowsProps) {
   const tests = keyword ? stage.tests.filter((test) => testMatches(test, keyword)) : stage.tests;
-  if (keyword && tests.length === 0 && !stage.label.toLowerCase().includes(keyword)) return null;
+  if (keyword && tests.length === 0 && !matchText(stage.label, keyword)) return null;
   const summary = stageFeedbackSummary(template, stage, index, feedbackStates);
 
   function select(previewKind: PreviewKind, testItem?: QcTemplateTestItem): WorkbenchSelection {

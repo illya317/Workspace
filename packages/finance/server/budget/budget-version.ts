@@ -1,4 +1,5 @@
 import { prisma } from "@workspace/platform/server/prisma";
+import { buildBudgetVersionCreateCommand, buildFinanceIdCommand } from "../domain/finance-validation";
 
 export type BudgetVersionStatus = "draft" | "active" | "archived";
 
@@ -12,15 +13,17 @@ export interface CreateVersionInput {
 }
 
 export async function createBudgetVersion(input: CreateVersionInput) {
+  const command = buildBudgetVersionCreateCommand(input);
+  if (!command.ok) throw new Error(command.issue.message);
   return prisma.financeBudgetVersion.create({
     data: {
-      year: input.year,
-      companyCode: input.companyCode ?? null,
-      name: input.name,
+      year: command.data.data.year,
+      companyCode: command.data.data.companyCode ?? null,
+      name: command.data.data.name,
       status: "draft",
-      type: input.type,
-      sourceFile: input.sourceFile ?? null,
-      createdBy: input.createdBy ?? null,
+      type: command.data.data.type,
+      sourceFile: command.data.data.sourceFile ?? null,
+      createdBy: command.data.data.createdBy ?? null,
     },
   });
 }
@@ -45,8 +48,10 @@ export async function getBudgetVersion(versionId: number) {
 }
 
 export async function activateBudgetVersion(versionId: number) {
+  const command = buildFinanceIdCommand(versionId, "versionId");
+  if (!command.ok) throw new Error(command.issue.message);
   const version = await prisma.financeBudgetVersion.findUnique({
-    where: { id: versionId },
+    where: { id: command.data.id },
   });
   if (!version) throw new Error("版本不存在");
   if (version.status === "active") return version;
@@ -57,7 +62,7 @@ export async function activateBudgetVersion(versionId: number) {
       year: version.year,
       companyCode: version.companyCode,
       status: "active",
-      id: { not: versionId },
+      id: { not: command.data.id },
     },
     data: { status: "archived" },
   });
@@ -70,16 +75,20 @@ export async function activateBudgetVersion(versionId: number) {
 }
 
 export async function archiveBudgetVersion(versionId: number) {
+  const command = buildFinanceIdCommand(versionId, "versionId");
+  if (!command.ok) throw new Error(command.issue.message);
   return prisma.financeBudgetVersion.update({
-    where: { id: versionId },
+    where: { id: command.data.id },
     data: { status: "archived" },
   });
 }
 
 export async function deleteBudgetVersion(versionId: number) {
+  const command = buildFinanceIdCommand(versionId, "versionId");
+  if (!command.ok) throw new Error(command.issue.message);
   // Prisma schema has onDelete: Cascade on the relation, but SQLite may not enforce it automatically
   // Manually delete children first to be safe
-  await prisma.financeBudgetDept.deleteMany({ where: { versionId } });
-  await prisma.financeBudgetRd.deleteMany({ where: { versionId } });
-  return prisma.financeBudgetVersion.delete({ where: { id: versionId } });
+  await prisma.financeBudgetDept.deleteMany({ where: { versionId: command.data.id } });
+  await prisma.financeBudgetRd.deleteMany({ where: { versionId: command.data.id } });
+  return prisma.financeBudgetVersion.delete({ where: { id: command.data.id } });
 }

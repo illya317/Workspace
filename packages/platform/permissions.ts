@@ -16,6 +16,7 @@ export const RES = {
   hr: {
     root: "hr",
     roster: "hr.roster",
+    rosterGenerated: "hr.roster.generated",
     performance: "hr.performance",
     analytics: "hr.analytics",
   },

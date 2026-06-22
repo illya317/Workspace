@@ -79,6 +79,9 @@ export async function PUT(
     notes: parsedBody.data.notes || null,
     items: parsedBody.data.items,
   });
+  if (!updated.ok) {
+    return NextResponse.json({ error: updated.error }, { status: updated.status || 400 });
+  }
 
-  return NextResponse.json({ report: updated });
+  return NextResponse.json({ report: updated.data });
 }

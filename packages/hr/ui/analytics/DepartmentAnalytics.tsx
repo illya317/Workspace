@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AnalysisBlock, DataTable, MetricCard, SearchInput, type DataTableColumn } from "@workspace/core/ui";
+import { matchSearchFields } from "@workspace/platform/search";
 import DeptNode from "./DeptNode";
 import type { Department, EDP } from "./useAnalyticsData";
 
@@ -31,14 +32,9 @@ export default function DepartmentAnalytics({ departments, edps }: { departments
   const rootDepts = useMemo(() => {
     let roots = departments.filter((d) => !d.parentId).sort((a, b) => a.id - b.id);
     if (search.trim()) {
-      const q = search.toLowerCase();
       const matched = new Set<number>();
       departments.forEach((d) => {
-        if (
-          d.name.toLowerCase().includes(q) ||
-          (d.alias || "").toLowerCase().includes(q) ||
-          d.code.toLowerCase().includes(q)
-        ) {
+        if (matchSearchFields(d, search, ["name", "alias", "code"])) {
           matched.add(d.id);
           let curr = d;
           while (curr.parentId) {

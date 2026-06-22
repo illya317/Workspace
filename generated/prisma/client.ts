@@ -355,6 +355,31 @@ export type LibraryGeneratedSource = Prisma.LibraryGeneratedSourceModel
  */
 export type LibraryDocumentTag = Prisma.LibraryDocumentTagModel
 /**
+ * Model OpenApiClient
+ * Open API 调用方（事实表，来源于设置页手工创建/轮换）
+ */
+export type OpenApiClient = Prisma.OpenApiClientModel
+/**
+ * Model OpenApiResource
+ * Open API 资源组（事实表，来源于 Open API registry 同步）
+ */
+export type OpenApiResource = Prisma.OpenApiResourceModel
+/**
+ * Model OpenApiScope
+ * Open API 调用 scope（事实表，来源于 Open API registry 同步）
+ */
+export type OpenApiScope = Prisma.OpenApiScopeModel
+/**
+ * Model OpenApiClientScopeGrant
+ * Open API client scope 授权（事实表，来源于设置页手工授权）
+ */
+export type OpenApiClientScopeGrant = Prisma.OpenApiClientScopeGrantModel
+/**
+ * Model OpenApiAccessLog
+ * Open API 调用日志（事实表，来源于开放接口运行时写入）
+ */
+export type OpenApiAccessLog = Prisma.OpenApiAccessLogModel
+/**
  * Model Report
  * 周报/日报主表
  */

@@ -2,7 +2,6 @@
 
 import {
   ActionButton,
-  FkFieldInput,
   FormField,
   PanelCard,
   SelectField,
@@ -10,7 +9,6 @@ import {
   TextField,
   getFieldInputClassName,
 } from "@workspace/core/ui";
-import type { FkFieldOption } from "@workspace/core/ui";
 import {
   NEW_POSITION_DESCRIPTION_TEMPLATE_OPTION,
   type PositionDescriptionTemplate,
@@ -21,11 +19,9 @@ import {
   compactReadOnlyInputClassName,
   formInputClassName,
   sectionTitle,
-  selectedEntityName,
 } from "./detail-editors";
 import { deriveDescriptionMeta } from "./draft-utils";
 import { PositionDescriptionTemplateEditor } from "./position-description-template-editor";
-import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import type { DescriptionDraft, Position } from "./types";
 
 export function PositionDescriptionPanel({
@@ -42,6 +38,7 @@ export function PositionDescriptionPanel({
   templateDraftName,
   templateDraftFields,
   positionNames,
+  positions,
   departmentNames,
   onUpdateDescriptionDraft,
   onPositionDescriptionTemplateChange,
@@ -65,6 +62,7 @@ export function PositionDescriptionPanel({
   templateDraftName: string;
   templateDraftFields: string[];
   positionNames: Set<string>;
+  positions: Position[];
   departmentNames: Set<string>;
   onUpdateDescriptionDraft: <K extends keyof DescriptionDraft>(key: K, value: DescriptionDraft[K]) => void;
   onPositionDescriptionTemplateChange: (value: string) => void;
@@ -130,15 +128,7 @@ export function PositionDescriptionPanel({
           <TextField value={position.departmentName || ""} disabled className={compactReadOnlyInputClassName} />
         </FormField>
         <FormField label="汇报对象">
-          <FkFieldInput
-            fkKey="hr.position"
-            endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
-            value={descriptionDraft.reportTo}
-            displayValue={descriptionDraft.reportTo}
-            disabled={!canEditPosition}
-            placeholder="搜索岗位"
-            onChange={(_label, option?: FkFieldOption) => onUpdateDescriptionDraft("reportTo", selectedEntityName("position", option))}
-          />
+          <TextField value={descriptionDraft.reportTo || "未设置"} disabled className={compactReadOnlyInputClassName} />
         </FormField>
         <FormField label="编制">
           <TextField
@@ -177,6 +167,8 @@ export function PositionDescriptionPanel({
           value={descriptionDraft.details}
           disabled={!canEditPosition}
           positionNames={positionNames}
+          currentPosition={position}
+          positions={positions}
           departmentNames={departmentNames}
           template={selectedPositionDescriptionTemplate}
           onChange={(value) => onUpdateDescriptionDraft("details", value)}

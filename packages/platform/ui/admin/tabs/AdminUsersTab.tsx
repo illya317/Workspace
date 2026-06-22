@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useRef } from "react";
-import { getInitials } from "@workspace/platform/search";
+import { matchSearchFields, matchText } from "@workspace/platform/search";
 import {
   ActionButton,
   DataTable,
@@ -124,10 +124,8 @@ export default function AdminUsersTab({ showToast, resources }: Props) {
 
   const filtered = keyword
     ? users.filter((u) => {
-        const q = keyword.toLowerCase();
-        if (searchMode === "name") return u.name.toLowerCase().includes(q) || getInitials(u.name).includes(q);
-        return u.name.toLowerCase().includes(q) || u.nickname.toLowerCase().includes(q) || (u.username || "").toLowerCase().includes(q)
-          || (u.employeeId || "").toLowerCase().includes(q) || getInitials(u.name).includes(q) || getInitials(u.nickname).includes(q);
+        if (searchMode === "name") return matchText(u.name, keyword);
+        return matchSearchFields(u as unknown as Record<string, unknown>, keyword, ["name", "username", "employeeId"]);
       })
     : users;
 

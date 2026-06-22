@@ -4,6 +4,10 @@ import {
   addAndConditions,
   buildFilterWhere,
 } from "@workspace/platform/server/dal/pagination";
+import {
+  buildArchiveDocumentCommand,
+  buildUpdateDocumentMetadataCommand,
+} from "./domain/metadata-validation";
 
 // ─── Types ───────────────────────────────────────────────────
 
@@ -181,38 +185,32 @@ export async function updateDocumentMetadata(
   input: UpdateMetadataInput,
   userId: number,
 ): Promise<DocumentWithVersion> {
-  const doc = await prisma.libraryDocument.findUnique({ where: { id } });
+  const command = buildUpdateDocumentMetadataCommand(id, input, userId);
+  if (!command.ok) throw new Error(command.issue.message);
+
+  const doc = await prisma.libraryDocument.findUnique({ where: { id: command.data.id } });
   if (!doc) {
     throw new Error("Document not found");
   }
 
-  // 只接受白名单字段，拒绝运行时传入的额外字段
   const data: Record<string, unknown> = {
-    editedBy: userId,
+    ...command.data.data,
+    editedBy: command.data.userId,
     editedAt: new Date(),
     version: { increment: 1 },
   };
-  if (input.title !== undefined) data.title = input.title;
-  if (input.summary !== undefined) data.summary = input.summary;
-  if (input.docId !== undefined) data.docId = input.docId || null;
-  if (input.categoryCode !== undefined) data.categoryCode = input.categoryCode;
-  if (input.categoryName !== undefined) data.categoryName = input.categoryName;
-  if (input.subcategoryPath !== undefined) data.subcategoryPath = input.subcategoryPath;
-  if (input.confidentialityLevel !== undefined) data.confidentialityLevel = input.confidentialityLevel;
-  if (input.status !== undefined) data.status = input.status;
 
   const updated = await prisma.$transaction(async (tx) => {
     const updatedDoc = await tx.libraryDocument.update({
-      where: { id },
+      where: { id: command.data.id },
       data,
     });
 
-    if (input.tags !== undefined) {
-      await tx.libraryDocumentTag.deleteMany({ where: { documentId: id } });
-      const uniqueTags = [...new Set(input.tags.filter((t) => t.trim()))];
-      if (uniqueTags.length > 0) {
+    if (command.data.tags !== undefined) {
+      await tx.libraryDocumentTag.deleteMany({ where: { documentId: command.data.id } });
+      if (command.data.tags.length > 0) {
         await tx.libraryDocumentTag.createMany({
-          data: uniqueTags.map((tag) => ({ documentId: id, tag: tag.trim() })),
+          data: command.data.tags.map((tag) => ({ documentId: command.data.id, tag })),
         });
       }
     }
@@ -226,15 +224,17 @@ export async function updateDocumentMetadata(
 }
 
 export async function archiveDocument(id: number, userId: number): Promise<void> {
-  const doc = await prisma.libraryDocument.findUnique({ where: { id } });
+  const command = buildArchiveDocumentCommand(id, userId);
+  if (!command.ok) throw new Error(command.issue.message);
+  const doc = await prisma.libraryDocument.findUnique({ where: { id: command.data.id } });
   if (!doc) {
     throw new Error("Document not found");
   }
   await prisma.libraryDocument.update({
-    where: { id },
+    where: { id: command.data.id },
     data: {
       status: "archived",
-      editedBy: userId,
+      editedBy: command.data.userId,
       editedAt: new Date(),
       version: { increment: 1 },
     },

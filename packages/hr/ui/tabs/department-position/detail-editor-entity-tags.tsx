@@ -1,12 +1,12 @@
 "use client";
 
-import { FkFieldInput, RemovableTag } from "@workspace/core/ui";
+import { FkFieldInput, RemovableTag, getTagInputShellClassName } from "@workspace/core/ui";
 import type { FkFieldOption } from "@workspace/core/ui";
 import { HR_REFERENCE_OPTIONS_ENDPOINT, fkKeyForEntity } from "../../fk-keys";
 import { primitiveListItems } from "./description-details";
 import { selectedEntityName } from "./detail-editor-primitives";
 
-const tagInputShellClassName = "flex min-h-10 flex-wrap items-center gap-2 rounded-md border border-sky-200 bg-white px-3 py-2 text-sm shadow-sm focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500";
+const tagInputShellClassName = getTagInputShellClassName("content-start");
 
 export function EntityTagListEditor({
   label,
@@ -81,68 +81,26 @@ export function EntityTagListEditor({
 
 export function SubordinateTagsEditor({
   label,
-  value,
-  disabled,
-  onChange,
-  positionNames,
+  items,
 }: {
   label: string;
-  value: unknown;
-  disabled?: boolean;
-  onChange: (items: string[]) => void;
-  positionNames: Set<string>;
+  items: string[];
 }) {
-  const items = primitiveListItems(value);
-
-  function addOption(option?: FkFieldOption) {
-    const next = selectedEntityName("position", option);
-    if (!next) return;
-    onChange([...items, next].filter((item, index, array) => array.indexOf(item) === index));
-  }
-
-  function removeItem(index: number) {
-    onChange(items.filter((_, itemIndex) => itemIndex !== index));
-  }
-
   return (
     <div className="space-y-2">
       <span className="text-xs font-medium text-slate-500">{label}</span>
       <div className={tagInputShellClassName}>
-        {items.map((item, index) => {
-          const matched = item === "无" || positionNames.has(item);
-          return (
-            <RemovableTag
-              key={`${item}-${index}`}
-              title={matched ? undefined : "当前岗位主数据中未找到对应岗位"}
-              label={`删除下属岗位 ${item}`}
-              confirmMessage={`确定删除下属岗位「${items[index]}」吗？删除后需要保存才会生效。`}
-              disabled={disabled}
-              onRemove={() => removeItem(index)}
-              className={`max-w-full text-xs ${
-                matched
-                  ? "border-slate-300 bg-white text-slate-800"
-                  : "border-red-300 bg-red-50 text-red-700"
-              }`}
-            >
-              {item}
-            </RemovableTag>
-          );
-        })}
-        {disabled ? (
-          items.length === 0 ? <span className="text-slate-400">未设置</span> : null
-        ) : (
-          <div className="min-w-40 flex-1">
-            <FkFieldInput
-              fkKey="hr.position"
-              endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
-              value=""
-              displayValue=""
-              disabled={disabled}
-              placeholder={items.length === 0 ? "搜索下属岗位" : "添加下属岗位"}
-              onChange={(_label, option?: FkFieldOption) => addOption(option)}
-            />
-          </div>
-        )}
+        {items.map((item, index) => (
+          <RemovableTag
+            key={`${item}-${index}`}
+            label={`下属岗位 ${item}`}
+            disabled
+            className="max-w-full border-slate-300 bg-white text-xs text-slate-800"
+          >
+            {item}
+          </RemovableTag>
+        ))}
+        {items.length === 0 ? <span className="text-slate-400">未设置</span> : null}
       </div>
     </div>
   );

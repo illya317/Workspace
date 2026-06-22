@@ -6,7 +6,7 @@ model Project {
   type                String                @default("department")
   description         String?
   status              String?
-  priority            String?
+  isMilestone         Boolean               @default(false)
   stage               String?
   plan                String?
   goal                String?

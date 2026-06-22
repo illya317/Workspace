@@ -1,5 +1,11 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
-import { canAccessTarget, canSubmitToTarget } from "./access";
+import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
+import { canAccessTarget } from "./access";
+import {
+  buildCreateReportCommand,
+  buildUpdateReportCommand,
+  type ReportItemCommand,
+} from "./domain/report-validation";
 
 interface ReportFilters {
   date?: string;
@@ -34,14 +40,7 @@ export async function listReports(filters: ReportFilters) {
   });
 }
 
-interface ReportItemInput {
-  category: string;
-  plan: string;
-  completion?: string;
-  nextGoal?: string;
-  sortOrder?: number;
-  workId?: number;
-}
+type ReportItemInput = ReportItemCommand;
 
 interface CreateReportInput {
   userId: number;
@@ -94,25 +93,18 @@ export async function createReportForUser(
     date?: string;
   },
 ) {
-  const targetType = input.targetType ?? "department";
-  const targetId = input.targetId ?? user.departmentId;
-  const allowed = await canSubmitToTarget(user.userId, targetType, targetId);
-  if (!allowed) {
-    return { ok: false as const, error: "无权限提交该目标周报", status: 403 };
-  }
-
-  const date = input.date ?? new Date().toISOString().slice(0, 10);
-  const items = await enrichWithRoutineItems([...input.items], targetType, targetId);
+  const command = await buildCreateReportCommand(user, input);
+  if (!command.ok) return { ok: false as const, error: command.issue.message, status: command.issue.status };
 
   try {
     const report = await createReport({
-      userId: user.userId,
-      taskName: input.taskName,
-      notes: input.notes || null,
-      date,
-      targetType,
-      targetId,
-      items,
+      userId: command.data.userId,
+      taskName: command.data.taskName,
+      notes: command.data.notes,
+      date: command.data.date,
+      targetType: command.data.targetType,
+      targetId: command.data.targetId,
+      items: command.data.items,
     });
     return { ok: true as const, report };
   } catch (error: unknown) {
@@ -123,34 +115,7 @@ export async function createReportForUser(
   }
 }
 
-export async function enrichWithRoutineItems(
-  items: ReportItemInput[],
-  targetType: string,
-  targetId: number,
-): Promise<ReportItemInput[]> {
-  const hasRoutine = items.some((item) => item.category === "routine");
-  if (hasRoutine) return items;
-
-  const works = await prisma.workItem.findMany({
-    where: { targetType, targetId, category: "routine" },
-    orderBy: { sortOrder: "asc" },
-  });
-
-  if (works.length === 0) return items;
-
-  const routineItems = works.map((work, index) => ({
-    category: "routine",
-    plan: work.content,
-    completion: "",
-    nextGoal: "",
-    sortOrder: index,
-    workId: work.id,
-  }));
-
-  return [...routineItems, ...items];
-}
-
-export async function createReport(data: CreateReportInput) {
+async function createReport(data: CreateReportInput) {
   return prisma.report.create({
     data: {
       userId: data.userId,
@@ -198,36 +163,29 @@ export async function updateReportWithHistory(
     notes?: string | null;
     items: ReportItemInput[];
   },
-) {
-  const existing = await prisma.report.findUnique({
-    where: { id: reportId },
-  });
-  if (!existing) return null;
-
-  const currentItems = await prisma.reportItem.findMany({
-    where: { reportId },
-    orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
-  });
+): Promise<DomainServiceResult<unknown>> {
+  const command = await buildUpdateReportCommand(reportId, data);
+  if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
 
   await prisma.$transaction([
     prisma.reportHistory.create({
       data: {
-        reportId,
-        version: existing.version,
-        taskName: existing.taskName,
-        notes: existing.notes,
-        itemsJson: JSON.stringify(currentItems),
+        reportId: command.data.reportId,
+        version: command.data.existing.version,
+        taskName: command.data.existing.taskName,
+        notes: command.data.existing.notes,
+        itemsJson: JSON.stringify(command.data.currentItems),
       },
     }),
-    prisma.reportItem.deleteMany({ where: { reportId } }),
+    prisma.reportItem.deleteMany({ where: { reportId: command.data.reportId } }),
     prisma.report.update({
-      where: { id: reportId },
+      where: { id: command.data.reportId },
       data: {
-        taskName: data.taskName,
-        notes: data.notes || null,
+        taskName: command.data.taskName,
+        notes: command.data.notes,
         version: { increment: 1 },
         items: {
-          create: data.items.map((item, index) => ({
+          create: command.data.items.map((item, index) => ({
             category: item.category,
             workItemId: item.workId ?? null,
             plan: item.plan,
@@ -240,14 +198,15 @@ export async function updateReportWithHistory(
     }),
   ]);
 
-  return prisma.report.findUnique({
-    where: { id: reportId },
+  const report = await prisma.report.findUnique({
+    where: { id: command.data.reportId },
     include: {
       items: {
         orderBy: [{ category: "asc" }, { sortOrder: "asc" }],
       },
     },
   });
+  return { ok: true, data: report };
 }
 
 export async function listReportHistory(reportId: number) {

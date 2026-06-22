@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import type { Prisma } from "./prisma";
 
 // Models with audit fields that can be snapshotted into EditHistory.
 // Keep this list aligned with actual snapshotHistory callers.
@@ -33,11 +34,18 @@ function clientKey(entityType: EntityType): string {
 /**
  * Snapshot the current record into EditHistory after a successful edit.
  */
-export async function snapshotHistory(entityType: string, entityId: number, userId: number) {
+type HistoryClient = Pick<typeof prisma, "editHistory"> & Record<string, unknown>;
+
+export async function snapshotHistory(
+  entityType: string,
+  entityId: number,
+  userId: number,
+  client: HistoryClient | Prisma.TransactionClient = prisma,
+) {
   assertEntityType(entityType);
 
   const record = await (
-    prisma as unknown as Record<
+    client as unknown as Record<
       string,
       { findUnique: (args: { where: { id: number } }) => Promise<Record<string, unknown> | null> }
     >
@@ -48,13 +56,13 @@ export async function snapshotHistory(entityType: string, entityId: number, user
 
   const entityIdStr = String(entityId);
 
-  const maxVer = await prisma.editHistory.findFirst({
+  const maxVer = await client.editHistory.findFirst({
     where: { entityType, entityId: entityIdStr, tag: null },
     orderBy: { version: "desc" },
     select: { version: true },
   });
   const nextVersion = (maxVer?.version || 0) + 1;
-  await prisma.editHistory.create({
+  await client.editHistory.create({
     data: {
       entityType,
       entityId: entityIdStr,

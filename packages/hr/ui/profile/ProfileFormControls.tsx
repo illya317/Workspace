@@ -27,6 +27,7 @@ import { fromPercentDisplay, normalizeInputValue, toPercentDisplay } from "./pro
 interface FieldInputProps {
   field: ProfileField;
   value: unknown;
+  record?: Record<string, unknown>;
   displayValue?: string | null;
   disabled?: boolean;
   onChange: (key: string, value: unknown, option?: FkFieldOption) => void;
@@ -35,6 +36,7 @@ interface FieldInputProps {
 export function ProfileFieldInput({
   field,
   value,
+  record,
   displayValue,
   disabled,
   onChange,
@@ -111,6 +113,13 @@ export function ProfileFieldInput({
 
   if (field.type === "fk" && field.entity) {
     const display = displayValue || (field.valueFrom === "name" ? normalizeInputValue(value) : undefined);
+    const isEdpReportTo = field.fkKey === "hr.edp.reportTo";
+    const rawReportToPositionId = isEdpReportTo ? record?.positionId : null;
+    const reportToPositionId =
+      typeof rawReportToPositionId === "number" || typeof rawReportToPositionId === "string"
+        ? rawReportToPositionId
+        : null;
+    const reportToDisabled = isEdpReportTo && !reportToPositionId;
     if (disabled) {
       return (
         <div
@@ -127,9 +136,10 @@ export function ProfileFieldInput({
         endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
         value={value == null ? "" : String(value)}
         displayValue={display}
-        disabled={disabled}
+        disabled={disabled || reportToDisabled}
         lifecycleScope={field.activeOnly ? "active" : undefined}
-        placeholder={`搜索${field.label}`}
+        queryParams={isEdpReportTo ? { positionId: reportToPositionId } : undefined}
+        placeholder={reportToDisabled ? "先选择岗位" : `搜索${field.label}`}
         size="compact"
         className="w-full"
         onChange={(_label, option) => {

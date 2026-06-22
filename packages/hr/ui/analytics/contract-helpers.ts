@@ -1,3 +1,5 @@
+import { matchSearchFields } from "@workspace/platform/search";
+
 export interface EnrichedContract {
   id: number;
   employeeId: string;
@@ -190,12 +192,7 @@ export function filterContracts(enriched: EnrichedContract[], filter: string, se
   else if (filter === "expired") list = enriched.filter((c) => c.status === "expired");
 
   if (search.trim()) {
-    const q = search.toLowerCase();
-    list = list.filter((c) =>
-      c.employeeName.toLowerCase().includes(q) ||
-      c.employeeId.toLowerCase().includes(q) ||
-      (c.company || "").toLowerCase().includes(q),
-    );
+    list = list.filter((c) => matchSearchFields(c, search, ["employeeName", "employeeId", "company"]));
   }
   return list;
 }

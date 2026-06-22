@@ -123,18 +123,18 @@ export async function searchFkCompanies(keyword: string, lifecycleScope: Lifecyc
   const where = lifecycleScope === "active" ? { isActive: true } : lifecycleScope === "archived" ? { isActive: false } : {};
   const rows = await prisma.company.findMany({
     where,
-    select: { id: true, code: true, name: true, isActive: true },
+    select: { id: true, code: true, name: true, fullName: true, isActive: true },
     orderBy: { id: "asc" },
     take: resultLimit(keyword),
   });
   return rows
+    .filter((row) => matchesFkKeyword([row.name, row.code, row.fullName], keyword))
     .map((row) => ({
       id: row.id,
       name: row.name,
       subtitle: row.code,
       lifecycleStatus: row.isActive ? "active" as const : "inactive" as const,
     }))
-    .filter((row) => matchesFkKeyword([row.name, row.subtitle], keyword))
     .slice(0, MAX_RESULTS);
 }
 

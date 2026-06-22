@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { authenticate } from "./auth";
 import { snapshotHistory } from "./history";
+import {
+  guardedDelete,
+  parsePositiveId,
+  type DeleteGuardContext,
+  type DeleteMode,
+  type DeleteReferenceGuard,
+} from "./delete-guard";
 import { disabledApiResponseForRequest } from "./module-runtime";
 import { prisma } from "./prisma";
 
@@ -19,8 +26,15 @@ export interface CrudFactoryConfig {
   writeCheck?: AccessChecker;
   deleteCheck?: AccessChecker;
   allowedFields?: string[];
+  deleteMode?: DeleteMode;
+  deleteActionLabel?: string;
+  deleteReferences?: DeleteReferenceGuard[];
+  getDeleteExpectedVersion?: (request: Request) => number | undefined;
+  skipDeleteVersionCheck?: boolean;
+  deleteReferencePolicy?: "checked" | "none";
+  onBeforeDeleteScope?: (context: DeleteGuardContext) => Promise<BeforeDeleteResult | null> | BeforeDeleteResult | null;
   onBeforeUpdate?: (field: string, value: unknown, id?: number) => Promise<BeforeUpdateResult | null>;
-  onBeforeDelete?: (id: number) => Promise<BeforeDeleteResult | null>;
+  onBeforeDelete?: (id: number, context: DeleteGuardContext) => Promise<BeforeDeleteResult | null>;
 }
 
 export type DomainCrudConfig = Omit<CrudFactoryConfig, "accessCheck" | "writeCheck" | "deleteCheck">;
@@ -37,6 +51,16 @@ function pickWriteCheck(config: CrudFactoryConfig, fallback: AccessChecker): Acc
 
 function pickDeleteCheck(config: CrudFactoryConfig, fallback: AccessChecker): AccessChecker {
   return config.deleteCheck || config.accessCheck || fallback;
+}
+
+function parseDeleteExpectedVersion(request: Request) {
+  const ifMatch = request.headers.get("if-match")?.replace(/^W\//, "").replace(/^"|"$/g, "");
+  const headerVersion = request.headers.get("x-record-version") ?? ifMatch;
+  const queryVersion = new URL(request.url).searchParams.get("version");
+  const raw = headerVersion ?? queryVersion;
+  if (raw === null || raw === undefined || raw === "") return undefined;
+  const version = Number(raw);
+  return Number.isInteger(version) && version >= 0 ? version : undefined;
 }
 
 export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: AccessChecker) {
@@ -91,16 +115,24 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
       if (!(await deleteCheck(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
       const { id } = await params;
-      const recordId = parseInt(id);
-      if (config.onBeforeDelete) {
-        const result = await config.onBeforeDelete(recordId);
-        if (!result) return NextResponse.json({ error: "删除校验失败" }, { status: 400 });
-        if ("error" in result) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
-      }
-      await snapshotHistory(config.entityType, recordId, payload.userId);
+      const parsedId = parsePositiveId(id);
+      if (!parsedId.ok) return NextResponse.json({ error: parsedId.error }, { status: parsedId.status || 400 });
 
-      const model = prisma[config.modelKey] as unknown as { delete: (args: { where: { id: number } }) => Promise<unknown> };
-      await model.delete({ where: { id: recordId } });
+      const result = await guardedDelete({
+        entityType: config.entityType,
+        modelKey: config.modelKey,
+        id: parsedId.id,
+        userId: payload.userId,
+        actionLabel: config.deleteActionLabel,
+        deleteMode: config.deleteMode,
+        expectedVersion: config.getDeleteExpectedVersion?.(request) ?? parseDeleteExpectedVersion(request),
+        skipVersionCheck: config.skipDeleteVersionCheck,
+        references: config.deleteReferences,
+        referencePolicy: config.deleteReferencePolicy,
+        onBeforeDelete: config.onBeforeDelete,
+        scopeGuard: config.onBeforeDeleteScope,
+      });
+      if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
 
       return NextResponse.json({ success: true });
     },

@@ -454,6 +454,7 @@ const METHOD_COLOR: Record<string, string> = {
   GET: "#2563eb",
   POST: "#059669",
   PUT: "#d97706",
+  PATCH: "#7c3aed",
   DELETE: "#dc2626",
 };
 
@@ -518,7 +519,7 @@ function parseApiRoutes(): ApiEndpoint[] {
       } else if (entry === "route.ts" || entry === "route.tsx") {
         const content = fs.readFileSync(fullPath, "utf-8");
         const methods: string[] = [];
-        const methodMatches = content.matchAll(/export async function (GET|POST|PUT|DELETE)/g);
+        const methodMatches = content.matchAll(/export\s+(?:async function|function|const)\s+(GET|POST|PUT|PATCH|DELETE)\b/g);
         for (const m of methodMatches) methods.push(m[1]);
 
         const auth = extractAuth(content);
@@ -595,8 +596,12 @@ function generateDescription(path: string, method: string): string {
   if (p === "user/routine" && method === "GET") return "获取用户日常模板";
   if (p === "user/routine" && method === "PUT") return "更新用户日常模板";
   if (p === "my-targets" && method === "GET") return "获取我的汇报对象";
-  if (p === "my-api-key" && method === "GET") return "获取我的API Key";
-  if (p === "my-api-key" && method === "POST") return "申请/重新申请API Key";
+  if (p === "open/v1/hr/generated/roster" && method === "GET") return "读取 HR 生成资料花名册";
+  if (p === "settings/api/open/overview" && method === "GET") return "Open API 控制台总览";
+  if (p === "settings/api/open/clients" && method === "GET") return "Open API Client 列表";
+  if (p === "settings/api/open/clients" && method === "POST") return "创建 Open API Client";
+  if (p.startsWith("settings/api/open/clients/") && p.endsWith("/secret") && method === "POST") return "轮换 Open API Client 密钥";
+  if (p.startsWith("settings/api/open/clients/") && p.endsWith("/scopes") && method === "PUT") return "更新 Open API Client Scope";
   if (p === "week-info" && method === "GET") return "获取当前周期信息";
   if (p === "admin/company-codes" && method === "GET") return "公司编码列表";
   if (p === "admin/company-codes" && method === "PUT") return "更新公司编码";
@@ -650,7 +655,9 @@ function groupEndpoints(endpoints: ApiEndpoint[]): Map<string, ApiEndpoint[]> {
       group = "work";
     } else if (["projects", "my-targets"].includes(firstPart) || ep.path.startsWith("/api/modules/work/projects") || ep.path.startsWith("/api/modules/work/projects/members")) {
       group = "project";
-    } else if (["auth", "my-api-key", "user"].includes(firstPart)) {
+    } else if (firstPart === "open" || ep.path.startsWith("/api/settings/api/open")) {
+      group = "open-api";
+    } else if (["auth", "user"].includes(firstPart)) {
       group = "auth";
     }
 
@@ -659,6 +666,7 @@ function groupEndpoints(endpoints: ApiEndpoint[]): Map<string, ApiEndpoint[]> {
       roster: "花名册与组织架构",
       project: "项目管理",
       work: "工作与报告",
+      "open-api": "Open API",
       "admin-codes": "Admin — 编码管理",
       "admin-dept": "Admin — 部门管理",
       "admin-config": "Admin — 系统配置",
@@ -679,6 +687,7 @@ function groupEndpoints(endpoints: ApiEndpoint[]): Map<string, ApiEndpoint[]> {
     "花名册与组织架构",
     "项目管理",
     "工作与报告",
+    "Open API",
     "Admin — 编码管理",
     "Admin — 部门管理",
     "Admin — 系统配置",

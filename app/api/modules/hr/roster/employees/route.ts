@@ -5,6 +5,10 @@ import { createEmployeeWithAccount, listEmployees } from "@workspace/hr/server";
 
 const employeesQuerySchema = z.object({
   keyword: z.string().catch(""),
+  isActive: z.string().nullable().optional(),
+  company: z.string().catch(""),
+  department: z.string().catch(""),
+  position: z.string().catch(""),
   employmentStatus: z.enum(["active", "inactive"]).optional().catch(undefined),
   filterField: z.string().catch(""),
   filterValue: z.string().catch(""),
@@ -20,8 +24,8 @@ export const GET = withHRAccess(async (request: Request, _user) => {
   const { searchParams } = new URL(request.url);
   const parsedQuery = employeesQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
   if (!parsedQuery.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
-  const { employmentStatus, keyword, filterField, filterValue, page, pageSize } = parsedQuery.data;
-  return NextResponse.json(await listEmployees({ employmentStatus, keyword, filterField, filterValue, page, pageSize }));
+  const { company, department, employmentStatus, isActive = null, keyword, filterField, filterValue, page, pageSize, position } = parsedQuery.data;
+  return NextResponse.json(await listEmployees({ company, department, employmentStatus, isActive, keyword, filterField, filterValue, page, pageSize, position }));
 });
 
 export const POST = withHRWrite(async (request: Request, user) => {

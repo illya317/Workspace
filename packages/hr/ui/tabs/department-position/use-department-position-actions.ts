@@ -20,6 +20,7 @@ import {
 } from "./draft-utils";
 
 type ToastSetter = (toast: { message: string; type: "success" | "error" } | null) => void;
+type ActionPrompt = (title: string, message: string, danger: boolean) => Promise<void>;
 type CreateResponse = { record?: { id?: number } };
 
 export function useDepartmentPositionActions({
@@ -43,6 +44,7 @@ export function useDepartmentPositionActions({
   setSaving,
   setSelection,
   setToast,
+  showActionPrompt,
 }: {
   createPositionCode: string;
   createPositionDraft: CreatePositionDraft;
@@ -64,6 +66,7 @@ export function useDepartmentPositionActions({
   setSaving: (saving: boolean) => void;
   setSelection: (selection: Selection) => void;
   setToast: ToastSetter;
+  showActionPrompt: ActionPrompt;
 }) {
   const dirty = positionDirty || descriptionDirty;
 
@@ -153,11 +156,11 @@ export function useDepartmentPositionActions({
   }
 
   async function setDepartmentArchived(departmentId: number, archived: boolean) {
-    await setArchived("/api/modules/hr/roster/departments", departmentId, archived, "部门", loadData, setSaving, setToast);
+    await setArchived("/api/modules/hr/roster/departments", departmentId, archived, "部门", loadData, setSaving, showActionPrompt);
   }
 
   async function setPositionArchived(positionId: number, archived: boolean) {
-    await setArchived("/api/modules/hr/roster/positions", positionId, archived, "岗位", loadData, setSaving, setToast);
+    await setArchived("/api/modules/hr/roster/positions", positionId, archived, "岗位", loadData, setSaving, showActionPrompt);
   }
 
   return { createPosition, saveDepartmentDescription, saveDepartmentInfo, savePosition, setDepartmentArchived, setPositionArchived };
@@ -190,11 +193,16 @@ async function setArchived(
   label: "部门" | "岗位",
   loadData: () => Promise<void>,
   setSaving: (saving: boolean) => void,
-  setToast: ToastSetter,
+  showActionPrompt: ActionPrompt,
 ) {
-  await withSaving(setSaving, setToast, async () => {
+  setSaving(true);
+  try {
     await putJson(path, { id, isArchived: archived }, "操作失败");
-    setToast({ type: "success", message: archived ? `${label}已归档` : `${label}已恢复` });
     await loadData();
-  }, "操作失败");
+    await showActionPrompt(archived ? "归档成功" : "恢复成功", archived ? `${label}已归档` : `${label}已恢复`, false);
+  } catch (err) {
+    await showActionPrompt(archived ? "无法归档" : "无法恢复", err instanceof Error ? err.message : "操作失败", true);
+  } finally {
+    setSaving(false);
+  }
 }

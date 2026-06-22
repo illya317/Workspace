@@ -1,20 +1,23 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { addToMap, type FinanceAccountLike, type SideBalance } from "./balance-utils";
+import { buildFinancePeriodScopeCommand } from "../domain/finance-validation";
 
 export async function getOrCreatePeriod(companyCode: string, year: number, month: number) {
+  const command = buildFinancePeriodScopeCommand({ companyCode, year, month });
+  if (!command.ok) throw new Error(command.issue.message);
   const existing = await prisma.financePeriod.findFirst({
-    where: { companyCode, year, month },
+    where: { companyCode: command.data.companyCode, year: command.data.year, month: command.data.month },
   });
   if (existing) return existing;
 
-  const lastDay = new Date(year, month, 0).getDate();
+  const lastDay = new Date(command.data.year, command.data.month!, 0).getDate();
   return prisma.financePeriod.create({
     data: {
-      companyCode,
-      year,
-      month,
-      startDate: `${year}-${String(month).padStart(2, "0")}-01`,
-      endDate: `${year}-${String(month).padStart(2, "0")}-${lastDay}`,
+      companyCode: command.data.companyCode,
+      year: command.data.year,
+      month: command.data.month!,
+      startDate: `${command.data.year}-${String(command.data.month!).padStart(2, "0")}-01`,
+      endDate: `${command.data.year}-${String(command.data.month!).padStart(2, "0")}-${lastDay}`,
     },
   });
 }

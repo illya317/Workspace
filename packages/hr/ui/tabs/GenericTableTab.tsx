@@ -11,13 +11,30 @@ import GenericCreatePanel from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";
 import GenericToolbarFilters from "../components/GenericToolbarFilters";
 import { useGenericTab } from "../hooks/useGenericTab";
-import EditableTable, { getVal } from "./EditableTable";
+import EditableTable, { formatEditableTableCell } from "./EditableTable";
 import { type TabConfig, type FieldConfig, type HRUser, hrCanEdit } from "@workspace/hr/types";
+
+const EXPORT_PAGE_SIZE = 500;
+
+function escapeCsvCell(value: unknown) {
+  const text = value === null || value === undefined ? "" : String(value);
+  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
+}
+
+function downloadCsv(filename: string, content: string) {
+  const blob = new Blob([`\uFEFF${content}`], { type: "text/csv;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function GenericTableTab({ config, user }: { config: TabConfig; user: HRUser }) {
   const canEdit = hrCanEdit(user);
   const {
-    items, loading, error, keyword, setKeyword, filters, setFilter, resetFilters,
+    items, loading, error, keyword, searchKeyword, setKeyword, filters, setFilter, resetFilters,
     editMode, setEditMode,
     editingCell, editValue, setEditValue, startEdit, cancelEdit, saveCell,
     creating, setCreating, createForm, setCreateForm, submitCreate,
@@ -27,6 +44,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
 
   const { toast, showToast, closeToast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [downloading, setDownloading] = useState(false);
 
   // 动态加载公司列表作为编码池选项
   const [companyOptions, setCompanyOptions] = useState<Array<{ label: string; value: string }>>([]);
@@ -81,14 +99,12 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
   );
 
   function handleStartEdit(item: Record<string, unknown>, field: FieldConfig) {
-    if (!canEdit || !editMode || !field.editable) return;
+    if (!canEdit || !editMode || !field.editable || field.type === "fk") return;
     const itemId = item.id as number;
     if (editingCell?.id === itemId && editingCell?.field === field.key) return;
     let initVal: string | boolean | number | unknown;
     if (field.key === "gender") {
       initVal = item.gender === true ? "男" : item.gender === false ? "女" : "";
-    } else if (field.type === "fk") {
-      initVal = getVal(item, field.key + "Name") ?? getVal(item, config.fkFields?.[field.key]?.displayField ?? field.key) ?? "";
     } else if (config.entityType === "Employee" && field.key === "alias") {
       try {
         const parsed = JSON.parse(String(item.alias || ""));
@@ -113,6 +129,50 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
     const ok = await submitCreate();
     if (ok) showToast("新建成功");
     else showToast("新建失败", "error");
+  }
+
+  async function handleDownload() {
+    setDownloading(true);
+    try {
+      const rows: Record<string, unknown>[] = [];
+      let nextPage = 1;
+      let totalRows = 0;
+      do {
+        const params = new URLSearchParams({
+          page: String(nextPage),
+          pageSize: String(EXPORT_PAGE_SIZE),
+        });
+        if (searchKeyword) params.set("keyword", searchKeyword);
+        for (const [key, value] of Object.entries(filters)) {
+          if (value !== "" && value !== undefined && value !== null) params.set(key, value);
+        }
+        const response = await fetch(`${workspacePath(config.apiPath)}?${params.toString()}`);
+        if (!response.ok) throw new Error("下载失败");
+        const data = await response.json();
+        const pageRows = config.listGetter ? config.listGetter(data) : data.items || data;
+        if (!Array.isArray(pageRows)) throw new Error("下载数据格式错误");
+        rows.push(...(pageRows as Record<string, unknown>[]));
+        totalRows = typeof data.total === "number" ? data.total : rows.length;
+        if (pageRows.length === 0) break;
+        nextPage += 1;
+      } while (rows.length < totalRows);
+
+      const exportFields = tableFields.filter((field) => !field.createOnly);
+      const header = exportFields.map((field) => escapeCsvCell(field.label)).join(",");
+      const body = rows
+        .map((row) =>
+          exportFields
+            .map((field) => escapeCsvCell(formatEditableTableCell(row, field, config).replace(/^-$/, "")))
+            .join(","),
+        )
+        .join("\n");
+      downloadCsv(`${config.title}_${new Date().toISOString().slice(0, 10)}.csv`, `${header}\n${body}`);
+      showToast("下载完成");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "下载失败", "error");
+    } finally {
+      setDownloading(false);
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -142,6 +202,8 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
         }}
         canCreate={!!config.canCreate && canEdit}
         onCreate={() => setCreating(true)}
+        onDownload={handleDownload}
+        downloading={downloading}
       >
         <GenericToolbarFilters
           filters={config.filters || []}

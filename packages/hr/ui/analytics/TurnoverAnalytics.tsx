@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { AnalysisBlock, DataTable, MetricCard, SearchInput, type DataTableColumn } from "@workspace/core/ui";
+import { matchText } from "@workspace/core/search";
 import type { Employee, Employment } from "./useAnalyticsData";
 
 export default function TurnoverAnalytics({ employees: _employees, employments }: { employees: Employee[]; employments: Employment[] }) {
@@ -94,8 +95,7 @@ export default function TurnoverAnalytics({ employees: _employees, employments }
 
   const filteredReasons = useMemo(() => {
     if (!reasonSearch.trim()) return stats.reasons;
-    const q = reasonSearch.toLowerCase();
-    return stats.reasons.filter(([r]) => r.toLowerCase().includes(q));
+    return stats.reasons.filter(([r]) => matchText(r, reasonSearch));
   }, [stats.reasons, reasonSearch]);
   const columns: DataTableColumn<Employment>[] = [
     { key: "employeeName", label: "姓名", required: true, cellClassName: "font-medium", render: (employment) => employment.employeeName },

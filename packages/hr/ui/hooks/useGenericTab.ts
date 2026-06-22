@@ -14,6 +14,7 @@ export interface GenericTabState {
   loading: boolean;
   error: string | null;
   keyword: string;
+  searchKeyword: string;
   setKeyword: (v: string) => void;
   filters: Record<string, string>;
   setFilter: (key: string, value: string) => void;
@@ -209,7 +210,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
 
 
   return {
-    items, loading, error, keyword, setKeyword,
+    items, loading, error, keyword, searchKeyword, setKeyword,
     filters, setFilter, applyFilters, resetFilters,
     editMode, setEditMode,
     editingCell, editValue, setEditValue,

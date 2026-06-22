@@ -53,11 +53,11 @@ export function validateCurrentWorkPercent(rows: EdpRow[]) {
   if (currentRows.length === 0) return { ok: true, message: "" };
   const values = currentRows.map((row) => parseWorkPercent(row.workPercent));
   if (values.some((value) => value === null || Number.isNaN(value))) {
-    return { ok: false, message: "当前岗位工作占比未完整填写。" };
+    return { ok: false, message: "当前岗位工作占比必须填写，且合计必须为 100%。" };
   }
   const total = values.reduce<number>((sum, value) => sum + (value ?? 0), 0);
   if (Math.abs(total - 1) > 0.0001) {
-    return { ok: false, message: "当前岗位工作占比合计不正确。" };
+    return { ok: false, message: `当前岗位工作占比合计为 ${(total * 100).toFixed(2)}%，必须为 100%。` };
   }
   return { ok: true, message: "" };
 }
@@ -108,6 +108,7 @@ export function fieldGrid(
               <ProfileFieldInput
                 field={field}
                 value={field.type === "lunarBirthday" ? record.birthDate : record[field.key]}
+                record={record}
                 displayValue={field.displayKey ? String(record[field.displayKey] || "") : undefined}
                 disabled={disabled || field.readOnly || disabledByStatus || disabledByRule}
                 onChange={onChange}
@@ -196,6 +197,7 @@ export function updateProfileRow<T extends RowBase>(
       next.departmentId = option?.departmentId ?? null;
       next.departmentPath = option?.departmentPath ?? null;
       next.departmentName = option?.departmentPath ?? null;
+      next.reportTo = null;
     }
     return next as T;
   });

@@ -5,6 +5,7 @@ import { createSnapshotFromPreview, materializeBaselineToPeriod } from "../ledge
 import { computeBalancesForPeriod } from "../ledger/balances";
 import { buildReclassResults } from "../ledger/reclassify";
 import { syncBalanceReclassForPeriod } from "../ledger/balance-reclass";
+import { buildConfirmFinanceImportCommand } from "../domain/finance-validation";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -124,9 +125,8 @@ export async function confirmFinanceImport(
   preview: PreviewResult,
   userId?: number,
 ): Promise<FinanceImportConfirmResult> {
-  if (!preview || preview.errors.length > 0) {
-    throw new Error("预览数据有误，无法导入");
-  }
+  const command = buildConfirmFinanceImportCommand(preview);
+  if (!command.ok) throw new Error(command.issue.message);
 
   const totalRows = preview.type === "account"
     ? preview.accounts.length

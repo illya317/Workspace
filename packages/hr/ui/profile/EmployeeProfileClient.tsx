@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { useConfirmDelete } from "@workspace/core/ui";
+import { useConfirm, useConfirmDelete } from "@workspace/core/ui";
 import { hrCanEdit, type HRUser } from "@workspace/hr/types";
 import {
   contractFields,
@@ -16,6 +16,7 @@ import EmployeeProfileView from "./EmployeeProfileView";
 import {
   applyDateFields,
   sameDraft,
+  validateCurrentWorkPercent,
   type EditableRecord,
 } from "./EmployeeProfileUtils";
 import {
@@ -32,6 +33,7 @@ import type {
   EmploymentRow,
 } from "@workspace/hr/types";
 import type { FkFieldOption } from "@workspace/core/ui";
+import { useUnsavedChangesPrompt } from "../hooks/useUnsavedChangesPrompt";
 
 type ProfileSection = "basic" | "employment" | "edp" | "history";
 
@@ -43,6 +45,7 @@ export default function EmployeeProfileClient({
   user: HRUser;
 }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const confirmDelete = useConfirmDelete();
   const canEdit = hrCanEdit(user);
   const [profile, setProfile] = useState<EmployeeProfile | null>(null);
@@ -57,7 +60,7 @@ export default function EmployeeProfileClient({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const message = null;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -113,10 +116,16 @@ export default function EmployeeProfileClient({
       all: basic || employment || edp,
     };
   }, [contracts, edps, employeeDraft, employments, profile]);
+  const confirmNavigation = useUnsavedChangesPrompt(dirtyState.all);
 
-  function showMessage(text: string) {
-    setMessage(text);
-    window.setTimeout(() => setMessage(null), 2600);
+  async function showSavePrompt(title: string, text: string, danger: boolean) {
+    await confirm({
+      title,
+      message: text,
+      confirmLabel: "关闭",
+      confirmDanger: danger,
+      showCancel: false,
+    });
   }
 
   async function runSave(savingKey: string, task: () => Promise<void>, successMessage: string) {
@@ -125,9 +134,9 @@ export default function EmployeeProfileClient({
     try {
       await task();
       await load();
-      showMessage(successMessage);
+      await showSavePrompt("保存成功", successMessage, false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "保存失败");
+      await showSavePrompt("保存失败", err instanceof Error ? err.message : "保存失败", true);
     } finally {
       setSaving(null);
     }
@@ -135,12 +144,24 @@ export default function EmployeeProfileClient({
 
   async function saveAll() {
     if (!profile || !employeeDraft) return;
+    const percentCheck = validateCurrentWorkPercent(edps);
+    if (!percentCheck.ok) {
+      setActiveSection("edp");
+      setError(null);
+      await showSavePrompt("部门岗位无法保存", percentCheck.message, true);
+      return;
+    }
     await runSave("all", async () => {
       await persistBasic(profile, employeeDraft);
       for (const row of employments) await persistEmployment(profile, row);
       await persistContracts(profile, contracts);
       await persistEdps(profile, edps);
     }, "员工资料已全部保存");
+  }
+
+  async function goBack() {
+    const canLeave = await confirmNavigation();
+    if (canLeave) router.push("/hr/roster");
   }
 
   function updateEmployeeField(key: string, value: unknown, option?: FkFieldOption) {
@@ -177,7 +198,7 @@ export default function EmployeeProfileClient({
       setContracts={setContracts}
       setEdps={setEdps}
       setError={setError}
-      onBack={() => router.push("/hr/roster")}
+      onBack={() => void goBack()}
       onSaveAll={saveAll}
       onEmployeeFieldChange={updateEmployeeField}
       onHistoryToggle={(id) => setExpandedHistoryId((current) => (current === id ? null : id))}

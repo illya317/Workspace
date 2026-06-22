@@ -3,13 +3,9 @@ import { workspacePath } from "@workspace/core/routing";
 import type { Department, Position, Selection } from "./types";
 
 export function useDepartmentPositionData({
-  isOrganizationMode,
-  selection,
   setSelection,
   showArchived,
 }: {
-  isOrganizationMode: boolean;
-  selection: Selection;
   setSelection: (selection: Selection | ((prev: Selection) => Selection)) => void;
   showArchived: boolean;
 }) {
@@ -50,11 +46,6 @@ export function useDepartmentPositionData({
   useEffect(() => {
     loadData();
   }, [loadData]);
-
-  useEffect(() => {
-    if (!isOrganizationMode || selection?.type !== "position") return;
-    setSelection(departments[0] ? { type: "department", id: departments[0].id } : null);
-  }, [departments, isOrganizationMode, selection, setSelection]);
 
   return {
     departments,

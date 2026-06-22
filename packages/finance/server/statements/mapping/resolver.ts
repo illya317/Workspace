@@ -89,4 +89,7 @@ async function loadMappingCache(
   return map;
 }
 
-export function clearMappingCache() { _cache = null; _cacheKey = ""; }
+export function invalidateMappingCache() {
+  _cache = null;
+  _cacheKey = "";
+}
