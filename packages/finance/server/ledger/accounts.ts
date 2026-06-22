@@ -1,6 +1,11 @@
 import { matchText } from "@workspace/core/search";
 import { prisma, Prisma } from "@workspace/platform/server/prisma";
 import { snapshotHistory } from "@workspace/platform/server/history";
+import {
+  buildFinanceAccountCreateCommand,
+  buildFinanceAccountUpdateCommand,
+  buildFinanceIdCommand,
+} from "../domain/finance-validation";
 
 export type FinanceAccountScope = "mapped" | "unmapped" | "inactive" | "all";
 
@@ -141,58 +146,64 @@ export async function listFinanceAccounts(input: ListFinanceAccountsInput) {
 }
 
 export async function createFinanceAccount(input: CreateFinanceAccountInput, userId: number) {
+  const command = buildFinanceAccountCreateCommand(input, userId);
+  if (!command.ok) throw new Error(command.issue.message);
   const data: Prisma.FinanceAccountUncheckedCreateInput = {
-    code: input.code,
-    name: input.name,
-    category: input.category,
-    parentId: optionalInt(input.parentId),
-    balanceDirection: optionalString(input.balanceDirection) || "debit",
-    companyCode: optionalString(input.companyCode) || "",
-    mnemonicCode: optionalString(input.mnemonicCode),
-    currency: optionalString(input.currency),
-    groupSubjectCode: optionalString(input.groupSubjectCode),
-    subjectLevel: optionalInt(input.subjectLevel),
-    isActive: input.isActive !== undefined ? Boolean(input.isActive) : true,
-    sortOrder: optionalInt(input.sortOrder) || 0,
-    editedBy: userId,
+    code: command.data.input.code,
+    name: command.data.input.name,
+    category: command.data.input.category,
+    parentId: optionalInt(command.data.input.parentId),
+    balanceDirection: optionalString(command.data.input.balanceDirection) || "debit",
+    companyCode: optionalString(command.data.input.companyCode) || "",
+    mnemonicCode: optionalString(command.data.input.mnemonicCode),
+    currency: optionalString(command.data.input.currency),
+    groupSubjectCode: optionalString(command.data.input.groupSubjectCode),
+    subjectLevel: optionalInt(command.data.input.subjectLevel),
+    isActive: command.data.input.isActive !== undefined ? Boolean(command.data.input.isActive) : true,
+    sortOrder: optionalInt(command.data.input.sortOrder) || 0,
+    editedBy: command.data.userId,
   };
 
   const record = await prisma.financeAccount.create({
     data,
   });
-  await snapshotHistory("FinanceAccount", record.id, userId);
+  await snapshotHistory("FinanceAccount", record.id, command.data.userId);
   return { success: true, record };
 }
 
 export async function updateFinanceAccount(id: number, input: UpdateFinanceAccountInput, userId: number) {
+  const command = buildFinanceAccountUpdateCommand(id, input, userId);
+  if (!command.ok) throw new Error(command.issue.message);
   const updateData: Prisma.FinanceAccountUncheckedUpdateInput = {
-    editedBy: userId,
+    editedBy: command.data.userId,
     editedAt: new Date(),
     version: { increment: 1 },
   };
 
-  if (input.code !== undefined) updateData.code = String(input.code);
-  if (input.name !== undefined) updateData.name = String(input.name);
-  if (input.category !== undefined) updateData.category = String(input.category);
-  if (input.balanceDirection !== undefined) updateData.balanceDirection = String(input.balanceDirection);
-  if (input.isActive !== undefined) updateData.isActive = Boolean(input.isActive);
-  if (input.sortOrder !== undefined) updateData.sortOrder = optionalInt(input.sortOrder) || 0;
-  if (input.reclassTargetCode !== undefined) updateData.reclassTargetCode = optionalString(input.reclassTargetCode);
-  if (input.companyCode !== undefined) updateData.companyCode = optionalString(input.companyCode) || "";
-  if (input.mnemonicCode !== undefined) updateData.mnemonicCode = optionalString(input.mnemonicCode);
-  if (input.currency !== undefined) updateData.currency = optionalString(input.currency);
-  if (input.groupSubjectCode !== undefined) updateData.groupSubjectCode = optionalString(input.groupSubjectCode);
-  if (input.subjectLevel !== undefined) updateData.subjectLevel = optionalInt(input.subjectLevel);
+  if (command.data.input.code !== undefined) updateData.code = String(command.data.input.code);
+  if (command.data.input.name !== undefined) updateData.name = String(command.data.input.name);
+  if (command.data.input.category !== undefined) updateData.category = String(command.data.input.category);
+  if (command.data.input.balanceDirection !== undefined) updateData.balanceDirection = String(command.data.input.balanceDirection);
+  if (command.data.input.isActive !== undefined) updateData.isActive = Boolean(command.data.input.isActive);
+  if (command.data.input.sortOrder !== undefined) updateData.sortOrder = optionalInt(command.data.input.sortOrder) || 0;
+  if (command.data.input.reclassTargetCode !== undefined) updateData.reclassTargetCode = optionalString(command.data.input.reclassTargetCode);
+  if (command.data.input.companyCode !== undefined) updateData.companyCode = optionalString(command.data.input.companyCode) || "";
+  if (command.data.input.mnemonicCode !== undefined) updateData.mnemonicCode = optionalString(command.data.input.mnemonicCode);
+  if (command.data.input.currency !== undefined) updateData.currency = optionalString(command.data.input.currency);
+  if (command.data.input.groupSubjectCode !== undefined) updateData.groupSubjectCode = optionalString(command.data.input.groupSubjectCode);
+  if (command.data.input.subjectLevel !== undefined) updateData.subjectLevel = optionalInt(command.data.input.subjectLevel);
 
   const account = await prisma.financeAccount.update({
-    where: { id },
+    where: { id: command.data.id },
     data: updateData,
   });
   return { success: true, account };
 }
 
 export async function deleteFinanceAccount(id: number, userId: number) {
-  await snapshotHistory("FinanceAccount", id, userId);
-  await prisma.financeAccount.delete({ where: { id } });
+  const command = buildFinanceIdCommand(id);
+  if (!command.ok) throw new Error(command.issue.message);
+  await snapshotHistory("FinanceAccount", command.data.id, userId);
+  await prisma.financeAccount.delete({ where: { id: command.data.id } });
   return { success: true };
 }

@@ -5,10 +5,13 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import type { ReviewReclassParams, ReclassResultRow } from "./types";
 import { syncReclassRuleResults } from "../reclass-rules/sync";
+import { buildManualReclassCommand, buildReclassReviewCommand } from "../../domain/finance-validation";
 
 export async function reviewReclassResult(
   params: ReviewReclassParams,
 ): Promise<ReclassResultRow> {
+  const command = buildReclassReviewCommand(params);
+  if (!command.ok) throw new ReviewError("INVALID_INPUT", command.issue.message);
   const { id, payload, userId } = params;
 
   // 1. 查记录 + period scope
@@ -153,6 +156,8 @@ export async function createManualReclassResult(params: {
   description?: string;
   userId: number;
 }): Promise<ReclassResultRow> {
+  const command = buildManualReclassCommand(params);
+  if (!command.ok) throw new ReviewError("INVALID_INPUT", command.issue.message);
   const { periodId, voucherItemId, sourceAccount, targetAccount, amount, description, userId } = params;
 
   const period = await prisma.financePeriod.findUnique({

@@ -7,6 +7,7 @@ import {
   readRdBudget,
 } from "./budget-data";
 import { createBudgetVersion, getActiveVersion } from "./budget-version";
+import { buildBudgetImportCommand } from "../domain/finance-validation";
 
 export async function loadBudgetOverview(input: {
   year: number;
@@ -34,15 +35,17 @@ export async function importBudgetWorkbook(input: {
   year: number;
   companyCode?: string;
 }) {
+  const command = buildBudgetImportCommand(input);
+  if (!command.ok) throw new Error(command.issue.message);
   const version = await createBudgetVersion({
-    year: input.year,
-    companyCode: input.companyCode,
+    year: command.data.year,
+    companyCode: command.data.companyCode,
     name: `导入于 ${new Date().toLocaleDateString("zh-CN")}`,
     type: "all",
   });
 
-  const deptCount = await importDeptBudgetToDb(input.year, input.companyCode, version.id);
-  const rdCount = await importRdBudgetToDb(input.year, input.companyCode, version.id);
+  const deptCount = await importDeptBudgetToDb(command.data.year, command.data.companyCode, version.id);
+  const rdCount = await importRdBudgetToDb(command.data.year, command.data.companyCode, version.id);
 
   return { version, deptCount, rdCount };
 }

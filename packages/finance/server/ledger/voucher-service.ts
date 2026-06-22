@@ -1,5 +1,10 @@
 import { matchText } from "@workspace/core/search";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import {
+  buildFinanceIdCommand,
+  buildVoucherUpdateCommand,
+  buildVoucherWriteCommand,
+} from "../domain/finance-validation";
 
 interface VoucherItemInput {
   accountId: unknown;
@@ -106,12 +111,14 @@ export async function listVouchers(input: ListVouchersInput) {
 }
 
 export async function createVoucher(body: Record<string, unknown>, editorId: number) {
-  const voucherNo = body.voucherNo as string;
-  const date = body.date as string;
-  const description = body.description as string | undefined;
-  const companyCode = body.companyCode as string | undefined;
-  const items = body.items as VoucherItemInput[] | undefined;
-  const status = body.status as string | undefined;
+  const command = buildVoucherWriteCommand(body, editorId);
+  if (!command.ok) throw new Error(command.issue.message);
+  const voucherNo = command.data.body.voucherNo as string;
+  const date = command.data.body.date as string;
+  const description = command.data.body.description as string | undefined;
+  const companyCode = command.data.body.companyCode as string | undefined;
+  const items = command.data.body.items as VoucherItemInput[] | undefined;
+  const status = command.data.body.status as string | undefined;
 
   if (!voucherNo || !date || !items?.length) {
     return { error: "凭证号、日期、分录为必填", status: 400 };
@@ -156,7 +163,7 @@ export async function createVoucher(body: Record<string, unknown>, editorId: num
       totalCredit: totals.totalCredit,
       status: status || "draft",
       companyCode,
-      editedBy: editorId,
+      editedBy: command.data.editorId,
       items: {
         create: toVoucherItemCreateInput(items),
       },
@@ -172,13 +179,15 @@ export async function updateVoucher(
   body: Record<string, unknown>,
   editorId: number,
 ) {
-  const date = body.date as string | undefined;
-  const description = body.description as string | undefined;
-  const status = body.status as string | undefined;
-  const items = body.items as VoucherItemInput[] | undefined;
+  const command = buildVoucherUpdateCommand(voucherId, body, editorId);
+  if (!command.ok) throw new Error(command.issue.message);
+  const date = command.data.body.date as string | undefined;
+  const description = command.data.body.description as string | undefined;
+  const status = command.data.body.status as string | undefined;
+  const items = command.data.body.items as VoucherItemInput[] | undefined;
 
   const voucher = await prisma.financeVoucher.findUnique({
-    where: { id: voucherId },
+    where: { id: command.data.voucherId },
     include: { items: true },
   });
   if (!voucher) {
@@ -189,7 +198,7 @@ export async function updateVoucher(
   }
 
   const updateData: Record<string, unknown> = {
-    editedBy: editorId,
+    editedBy: command.data.editorId,
     editedAt: new Date(),
     version: { increment: 1 },
   };
@@ -216,12 +225,12 @@ export async function updateVoucher(
     updateData.totalDebit = totals.totalDebit;
     updateData.totalCredit = totals.totalCredit;
 
-    await prisma.financeVoucherItem.deleteMany({ where: { voucherId } });
+    await prisma.financeVoucherItem.deleteMany({ where: { voucherId: command.data.voucherId } });
     updateData.items = { create: toVoucherItemCreateInput(items) };
   }
 
   const updated = await prisma.financeVoucher.update({
-    where: { id: voucherId },
+    where: { id: command.data.voucherId },
     data: updateData as unknown as Prisma.FinanceVoucherUpdateInput,
     include: { items: { include: { account: true } }, period: true },
   });
@@ -230,6 +239,8 @@ export async function updateVoucher(
 }
 
 export async function deleteVoucher(voucherId: number) {
-  await prisma.financeVoucher.delete({ where: { id: voucherId } });
+  const command = buildFinanceIdCommand(voucherId, "voucherId");
+  if (!command.ok) throw new Error(command.issue.message);
+  await prisma.financeVoucher.delete({ where: { id: command.data.id } });
   return { success: true };
 }

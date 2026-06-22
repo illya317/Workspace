@@ -1,6 +1,11 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import type { PreviewResult } from "../import/import";
 import type { SideBalance } from "./balance-utils";
+import {
+  buildBalanceSnapshotCommand,
+  buildFinanceIdCommand,
+  buildFinancePeriodScopeCommand,
+} from "../domain/finance-validation";
 
 /**
  * 查找 targetYear 及之前最近一个 active baseline snapshot 的年份。
@@ -77,8 +82,10 @@ export async function materializeBaselineToPeriod(
   year: number,
   getOrCreatePeriod: (companyCode: string, year: number, month: number) => Promise<{ id: number }>,
 ) {
+  const command = buildFinancePeriodScopeCommand({ companyCode, year });
+  if (!command.ok) throw new Error(command.issue.message);
   const snapshot = await prisma.financeBalanceSnapshot.findFirst({
-    where: { companyCode, year, snapshotType: "baseline", isActive: true },
+    where: { companyCode: command.data.companyCode, year: command.data.year, snapshotType: "baseline", isActive: true },
     include: {
       rows: {
         include: { account: true },
@@ -87,10 +94,10 @@ export async function materializeBaselineToPeriod(
   });
 
   if (!snapshot || snapshot.rows.length === 0) {
-    throw new Error(`请先为公司 ${companyCode} 导入 ${year} 年年度余额表作为 active baseline`);
+    throw new Error(`请先为公司 ${command.data.companyCode} 导入 ${command.data.year} 年年度余额表作为 active baseline`);
   }
 
-  const period = await getOrCreatePeriod(companyCode, year, 12);
+  const period = await getOrCreatePeriod(command.data.companyCode, command.data.year, 12);
   const results = [];
 
   for (const row of snapshot.rows) {
@@ -104,7 +111,7 @@ export async function materializeBaselineToPeriod(
           currentCredit: row.currentCredit,
           closingDebit: row.closingDebit,
           closingCredit: row.closingCredit,
-          companyCode,
+          companyCode: command.data.companyCode,
         },
         create: {
           accountId: row.accountId,
@@ -115,7 +122,7 @@ export async function materializeBaselineToPeriod(
           currentCredit: row.currentCredit,
           closingDebit: row.closingDebit,
           closingCredit: row.closingCredit,
-          companyCode,
+          companyCode: command.data.companyCode,
         },
       }),
     );
@@ -132,6 +139,8 @@ export async function createSnapshotFromPreview(
   preview: PreviewResult,
   accountCodeToId: Map<string, number>,
 ) {
+  const command = buildBalanceSnapshotCommand(preview, accountCodeToId);
+  if (!command.ok) throw new Error(command.issue.message);
   if (!preview.balances || preview.balances.length === 0) return 0;
 
   const snapshotType = preview.year === 2024 ? "baseline" : "reconcile";
@@ -188,7 +197,9 @@ export async function createSnapshotFromPreview(
  * 换 baseline 后，受影响的月度余额缓存需要失效重算。
  */
 export async function setActiveBaseline(snapshotId: number) {
-  const snapshot = await prisma.financeBalanceSnapshot.findUnique({ where: { id: snapshotId } });
+  const command = buildFinanceIdCommand(snapshotId, "snapshotId");
+  if (!command.ok) throw new Error(command.issue.message);
+  const snapshot = await prisma.financeBalanceSnapshot.findUnique({ where: { id: command.data.id } });
   if (!snapshot) throw new Error("Snapshot 不存在");
 
   // 取消同 companyCode+year 下其他 active baseline
@@ -199,7 +210,7 @@ export async function setActiveBaseline(snapshotId: number) {
 
   // promote + activate，返回更新后的记录
   const updated = await prisma.financeBalanceSnapshot.update({
-    where: { id: snapshotId },
+    where: { id: command.data.id },
     data: {
       snapshotType: "baseline",
       isActive: true,
@@ -214,12 +225,14 @@ export async function setActiveBaseline(snapshotId: number) {
  * reconcile snapshot 可直接删；active baseline 必须阻止。
  */
 export async function deleteSnapshot(snapshotId: number) {
-  const snapshot = await prisma.financeBalanceSnapshot.findUnique({ where: { id: snapshotId } });
+  const command = buildFinanceIdCommand(snapshotId, "snapshotId");
+  if (!command.ok) throw new Error(command.issue.message);
+  const snapshot = await prisma.financeBalanceSnapshot.findUnique({ where: { id: command.data.id } });
   if (!snapshot) throw new Error("Snapshot 不存在");
   if (snapshot.isActive) {
     throw new Error("不能删除 active baseline snapshot。请先选择新的 baseline，再删除旧基准。");
   }
 
-  await prisma.financeBalanceSnapshot.delete({ where: { id: snapshotId } });
+  await prisma.financeBalanceSnapshot.delete({ where: { id: command.data.id } });
   return snapshot;
 }

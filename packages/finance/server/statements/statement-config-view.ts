@@ -15,6 +15,7 @@ import {
   type InMemoryMappingResult,
   type StatementMappingEntry,
 } from "./shared/mapping-resolver";
+import { buildStatementConfigLinesCommand } from "../domain/finance-validation";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -115,12 +116,14 @@ export async function getStatementConfigView(
 }
 
 export async function saveStatementConfigLines(input: SaveStatementConfigLinesInput) {
-  for (const line of input.lines) {
+  const command = buildStatementConfigLinesCommand(input);
+  if (!command.ok) throw new Error(command.issue.message);
+  for (const line of command.data.input.lines) {
     await prisma.financeStatementLineConfig.update({
       where: {
         companyCode_year_reportType_lineCode: {
-          companyCode: input.companyCode,
-          year: input.year,
+          companyCode: command.data.input.companyCode,
+          year: command.data.input.year,
           reportType: "balanceSheet",
           lineCode: line.lineCode,
         },
@@ -137,7 +140,7 @@ export async function saveStatementConfigLines(input: SaveStatementConfigLinesIn
     });
   }
 
-  return { success: true, updated: input.lines.length };
+  return { success: true, updated: command.data.input.lines.length };
 }
 
 // ─── Tree conversion ───────────────────────────────────────

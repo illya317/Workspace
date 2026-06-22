@@ -2,6 +2,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 
 import { clearMappingCache } from "./resolver";
 import { ensureStatementMappings } from "./seed-from-config";
+import { buildStatementMappingCommand } from "../../domain/finance-validation";
 
 export type StatementType = "balance";
 export type StatementMappingOperator = "add" | "subtract" | "exclude";
@@ -52,27 +53,29 @@ export async function listStatementMappings(input: ListStatementMappingsInput) {
 }
 
 export async function saveStatementMapping(input: SaveStatementMappingInput) {
-  const statementType = resolveStatementType(input.statementType);
-  const operator = input.operator ?? "add";
+  const command = buildStatementMappingCommand(input, { requireLine: true });
+  if (!command.ok) throw new StatementMappingServiceError(command.issue.message);
+  const statementType = resolveStatementType(command.data.input.statementType);
+  const operator = command.data.input.operator ?? "add";
   const reportType = REPORT_TYPE_BY_STATEMENT_TYPE[statementType];
 
   const [line, account] = await Promise.all([
     prisma.financeStatementLineConfig.findUnique({
       where: {
         companyCode_year_reportType_lineCode: {
-          companyCode: input.companyCode,
-          year: input.year,
+          companyCode: command.data.input.companyCode,
+          year: command.data.input.year,
           reportType,
-          lineCode: input.lineCode,
+          lineCode: command.data.input.lineCode,
         },
       },
     }),
     prisma.financeAccount.findUnique({
       where: {
         code_companyCode_year: {
-          code: input.accountCode,
-          companyCode: input.companyCode,
-          year: input.year,
+          code: command.data.input.accountCode,
+          companyCode: command.data.input.companyCode,
+          year: command.data.input.year,
         },
       },
     }),
@@ -88,22 +91,22 @@ export async function saveStatementMapping(input: SaveStatementMappingInput) {
   const mapping = await prisma.financeStatementAccountMapping.upsert({
     where: {
       companyCode_year_statementType_accountCode: {
-        companyCode: input.companyCode,
-        year: input.year,
+        companyCode: command.data.input.companyCode,
+        year: command.data.input.year,
         statementType,
-        accountCode: input.accountCode,
+        accountCode: command.data.input.accountCode,
       },
     },
     create: {
-      companyCode: input.companyCode,
-      year: input.year,
+      companyCode: command.data.input.companyCode,
+      year: command.data.input.year,
       statementType,
-      accountCode: input.accountCode,
-      lineCode: input.lineCode,
+      accountCode: command.data.input.accountCode,
+      lineCode: command.data.input.lineCode,
       operator,
       source: "manual",
     },
-    update: { lineCode: input.lineCode, operator, source: "manual", note: null },
+    update: { lineCode: command.data.input.lineCode, operator, source: "manual", note: null },
   });
 
   clearMappingCache();
@@ -112,14 +115,16 @@ export async function saveStatementMapping(input: SaveStatementMappingInput) {
 }
 
 export async function deleteStatementMapping(input: DeleteStatementMappingInput) {
-  const statementType = resolveStatementType(input.statementType);
+  const command = buildStatementMappingCommand(input);
+  if (!command.ok) throw new StatementMappingServiceError(command.issue.message);
+  const statementType = resolveStatementType(command.data.input.statementType);
 
   const result = await prisma.financeStatementAccountMapping.deleteMany({
     where: {
-      companyCode: input.companyCode,
-      year: input.year,
+      companyCode: command.data.input.companyCode,
+      year: command.data.input.year,
       statementType,
-      accountCode: input.accountCode,
+      accountCode: command.data.input.accountCode,
     },
   });
 

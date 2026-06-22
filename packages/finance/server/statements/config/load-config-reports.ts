@@ -2,6 +2,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { INCOME_STATEMENT_LINES, type IncomeLineConfig } from "./income-statement-lines";
 import { CASH_FLOW_LINES, type CashFlowLineConfig } from "./cash-flow-lines";
+import { buildStatementConfigLoadCommand } from "../../domain/finance-validation";
 
 /** Pick the prefix list for an income / cash flow line, given the company. */
 function pickReportPrefixes(
@@ -54,18 +55,20 @@ export async function loadIncomeStatementConfig(
   companyCode: string,
   year: number,
 ): Promise<IncomeStatementLineRow[]> {
+  const command = buildStatementConfigLoadCommand(companyCode, year);
+  if (!command.ok) throw new Error(command.issue.message);
   // 1. Try DB config
   const dbLines = await prisma.financeStatementLineConfig.findMany({
-    where: { companyCode, year, reportType: "incomeStatement", enabled: true },
+    where: { companyCode: command.data.companyCode, year: command.data.year, reportType: "incomeStatement", enabled: true },
     orderBy: { sortOrder: "asc" },
   });
   if (dbLines.length > 0) {
     return dbLines.map(toIncomeRow);
   }
   // 2. Inherit from previous year
-  if (year > 2024) {
+  if (command.data.year > 2024) {
     const prevLines = await prisma.financeStatementLineConfig.findMany({
-      where: { companyCode, year: year - 1, reportType: "incomeStatement", enabled: true },
+      where: { companyCode: command.data.companyCode, year: command.data.year - 1, reportType: "incomeStatement", enabled: true },
       orderBy: { sortOrder: "asc" },
     });
     if (prevLines.length > 0) {
@@ -73,7 +76,7 @@ export async function loadIncomeStatementConfig(
         await prisma.financeStatementLineConfig.upsert({
           where: { companyCode_year_reportType_lineCode: { companyCode, year, reportType: "incomeStatement", lineCode: pl.lineCode } },
           create: {
-            companyCode, year, reportType: "incomeStatement",
+            companyCode: command.data.companyCode, year: command.data.year, reportType: "incomeStatement",
             lineCode: pl.lineCode, label: pl.label, displayCode: pl.displayCode,
             section: pl.section, side: pl.side, sortOrder: pl.sortOrder,
             prefixesJson: pl.prefixesJson, subtractPrefixesJson: pl.subtractPrefixesJson,
@@ -85,7 +88,7 @@ export async function loadIncomeStatementConfig(
         });
       }
       const copied = await prisma.financeStatementLineConfig.findMany({
-        where: { companyCode, year, reportType: "incomeStatement", enabled: true },
+        where: { companyCode: command.data.companyCode, year: command.data.year, reportType: "incomeStatement", enabled: true },
         orderBy: { sortOrder: "asc" },
       });
       return copied.map(toIncomeRow);
@@ -94,11 +97,11 @@ export async function loadIncomeStatementConfig(
   // 3. Seed from TS default
   let order = 0;
   for (const line of INCOME_STATEMENT_LINES) {
-    const chnPrefixes = pickReportPrefixes(line, companyCode);
+    const chnPrefixes = pickReportPrefixes(line, command.data.companyCode);
     await prisma.financeStatementLineConfig.upsert({
-      where: { companyCode_year_reportType_lineCode: { companyCode, year, reportType: "incomeStatement", lineCode: line.lineCode } },
+      where: { companyCode_year_reportType_lineCode: { companyCode: command.data.companyCode, year: command.data.year, reportType: "incomeStatement", lineCode: line.lineCode } },
       create: {
-        companyCode, year, reportType: "incomeStatement",
+        companyCode: command.data.companyCode, year: command.data.year, reportType: "incomeStatement",
         lineCode: line.lineCode, label: line.label, displayCode: "",
         section: incomeLineSection(line), side: incomeLineSide(line),
         sortOrder: order++,
@@ -111,7 +114,7 @@ export async function loadIncomeStatementConfig(
     });
   }
   const seeded = await prisma.financeStatementLineConfig.findMany({
-    where: { companyCode, year, reportType: "incomeStatement", enabled: true },
+    where: { companyCode: command.data.companyCode, year: command.data.year, reportType: "incomeStatement", enabled: true },
     orderBy: { sortOrder: "asc" },
   });
   return seeded.map(toIncomeRow);
@@ -175,18 +178,20 @@ export async function loadCashFlowConfig(
   companyCode: string,
   year: number,
 ): Promise<CashFlowLineRow[]> {
+  const command = buildStatementConfigLoadCommand(companyCode, year);
+  if (!command.ok) throw new Error(command.issue.message);
   // 1. Try DB config
   const dbLines = await prisma.financeStatementLineConfig.findMany({
-    where: { companyCode, year, reportType: "cashFlow", enabled: true },
+    where: { companyCode: command.data.companyCode, year: command.data.year, reportType: "cashFlow", enabled: true },
     orderBy: { sortOrder: "asc" },
   });
   if (dbLines.length > 0) {
     return dbLines.map((db) => deriveCashFlowRow(db));
   }
   // 2. Inherit from previous year
-  if (year > 2024) {
+  if (command.data.year > 2024) {
     const prevLines = await prisma.financeStatementLineConfig.findMany({
-      where: { companyCode, year: year - 1, reportType: "cashFlow", enabled: true },
+      where: { companyCode: command.data.companyCode, year: command.data.year - 1, reportType: "cashFlow", enabled: true },
       orderBy: { sortOrder: "asc" },
     });
     if (prevLines.length > 0) {
@@ -194,7 +199,7 @@ export async function loadCashFlowConfig(
         await prisma.financeStatementLineConfig.upsert({
           where: { companyCode_year_reportType_lineCode: { companyCode, year, reportType: "cashFlow", lineCode: pl.lineCode } },
           create: {
-            companyCode, year, reportType: "cashFlow",
+            companyCode: command.data.companyCode, year: command.data.year, reportType: "cashFlow",
             lineCode: pl.lineCode, label: pl.label, displayCode: pl.displayCode,
             section: pl.section, side: pl.side, sortOrder: pl.sortOrder,
             prefixesJson: pl.prefixesJson, subtractPrefixesJson: pl.subtractPrefixesJson,
@@ -206,7 +211,7 @@ export async function loadCashFlowConfig(
         });
       }
       const copied = await prisma.financeStatementLineConfig.findMany({
-        where: { companyCode, year, reportType: "cashFlow", enabled: true },
+        where: { companyCode: command.data.companyCode, year: command.data.year, reportType: "cashFlow", enabled: true },
         orderBy: { sortOrder: "asc" },
       });
       return copied.map(deriveCashFlowRow);
@@ -215,11 +220,11 @@ export async function loadCashFlowConfig(
   // 3. Seed from TS default
   let order = 0;
   for (const line of CASH_FLOW_LINES) {
-    const chnPrefixes = pickReportPrefixes(line, companyCode);
+    const chnPrefixes = pickReportPrefixes(line, command.data.companyCode);
     await prisma.financeStatementLineConfig.upsert({
-      where: { companyCode_year_reportType_lineCode: { companyCode, year, reportType: "cashFlow", lineCode: line.lineCode } },
+      where: { companyCode_year_reportType_lineCode: { companyCode: command.data.companyCode, year: command.data.year, reportType: "cashFlow", lineCode: line.lineCode } },
       create: {
-        companyCode, year, reportType: "cashFlow",
+        companyCode: command.data.companyCode, year: command.data.year, reportType: "cashFlow",
         lineCode: line.lineCode, label: line.label, displayCode: "",
         section: line.section, side: cashFlowLineSide(line),
         sortOrder: order++,
@@ -233,7 +238,7 @@ export async function loadCashFlowConfig(
     });
   }
   const seeded = await prisma.financeStatementLineConfig.findMany({
-    where: { companyCode, year, reportType: "cashFlow", enabled: true },
+    where: { companyCode: command.data.companyCode, year: command.data.year, reportType: "cashFlow", enabled: true },
     orderBy: { sortOrder: "asc" },
   });
   return seeded.map(deriveCashFlowRow);

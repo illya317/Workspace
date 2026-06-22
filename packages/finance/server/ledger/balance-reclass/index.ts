@@ -6,14 +6,17 @@
  * 与 ReclassResult 互补，不重复
  */
 import { prisma } from "@workspace/platform/server/prisma";
+import { buildBalanceComputeCommand, buildReclassRuleScopeCommand } from "../../domain/finance-validation";
 
 export async function syncBalanceReclassForPeriod(periodId: number): Promise<{ written: number; deleted: number }> {
-  const period = await prisma.financePeriod.findUnique({ where: { id: periodId }, select: { companyCode: true, year: true, month: true } });
+  const command = buildBalanceComputeCommand(periodId);
+  if (!command.ok) throw new Error(command.issue.message);
+  const period = await prisma.financePeriod.findUnique({ where: { id: command.data.id }, select: { companyCode: true, year: true, month: true } });
   if (!period?.companyCode) return { written: 0, deleted: 0 };
 
   // 1. 余额
   const balances = await prisma.financeAccountBalance.findMany({
-    where: { periodId },
+    where: { periodId: command.data.id },
     include: { account: { select: { code: true, name: true, balanceDirection: true } } },
   });
 
@@ -50,7 +53,7 @@ export async function syncBalanceReclassForPeriod(periodId: number): Promise<{ w
 
   // 5. 已有 balance adjustment（保护 adjusted/rejected）
   const existing = await prisma.financeBalanceReclassAdjustment.findMany({
-    where: { periodId },
+    where: { periodId: command.data.id },
   });
   const protectedAccounts = new Set(existing.filter(e => e.status === "adjusted" || e.status === "rejected").map(e => e.sourceAccountCode));
 
@@ -70,7 +73,7 @@ export async function syncBalanceReclassForPeriod(periodId: number): Promise<{ w
     } else {
       // 无异常方向余额 → delete any existing auto adjustment
       const del = await prisma.financeBalanceReclassAdjustment.deleteMany({
-        where: { periodId, sourceAccountCode: b.account.code, status: "approved" },
+        where: { periodId: command.data.id, sourceAccountCode: b.account.code, status: "approved" },
       });
       deleted += del.count;
       continue;
@@ -79,7 +82,7 @@ export async function syncBalanceReclassForPeriod(periodId: number): Promise<{ w
     const target = ruleMap.get(`${b.account.code}::${abnormalSide}`);
     if (!target) {
       const del = await prisma.financeBalanceReclassAdjustment.deleteMany({
-        where: { periodId, sourceAccountCode: b.account.code, status: "approved" },
+        where: { periodId: command.data.id, sourceAccountCode: b.account.code, status: "approved" },
       });
       deleted += del.count;
       continue;
@@ -90,15 +93,15 @@ export async function syncBalanceReclassForPeriod(periodId: number): Promise<{ w
 
     if (residual <= 0.005) {
       const del = await prisma.financeBalanceReclassAdjustment.deleteMany({
-        where: { periodId, sourceAccountCode: b.account.code, status: "approved" },
+        where: { periodId: command.data.id, sourceAccountCode: b.account.code, status: "approved" },
       });
       deleted += del.count;
       continue;
     }
 
     await prisma.financeBalanceReclassAdjustment.upsert({
-      where: { periodId_sourceAccountCode: { periodId, sourceAccountCode: b.account.code } },
-      create: { periodId, companyCode: period.companyCode, year: period.year, sourceAccountCode: b.account.code, targetAccountCode: target, amount: Math.round(residual * 100) / 100, sourceType: "balance_residual" },
+      where: { periodId_sourceAccountCode: { periodId: command.data.id, sourceAccountCode: b.account.code } },
+      create: { periodId: command.data.id, companyCode: period.companyCode, year: period.year, sourceAccountCode: b.account.code, targetAccountCode: target, amount: Math.round(residual * 100) / 100, sourceType: "balance_residual" },
       update: { targetAccountCode: target, amount: Math.round(residual * 100) / 100, companyCode: period.companyCode, year: period.year },
     });
     written++;
@@ -108,8 +111,10 @@ export async function syncBalanceReclassForPeriod(periodId: number): Promise<{ w
 }
 
 export async function syncBalanceReclassForYear(companyCode: string, year: number) {
+  const command = buildReclassRuleScopeCommand(companyCode, year);
+  if (!command.ok) throw new Error(command.issue.message);
   const periods = await prisma.financePeriod.findMany({
-    where: { companyCode, year },
+    where: { companyCode: command.data.companyCode, year: command.data.year },
     select: { id: true },
   });
   let totalWritten = 0, totalDeleted = 0;

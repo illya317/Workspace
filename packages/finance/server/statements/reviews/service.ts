@@ -7,6 +7,11 @@ import type {
 } from "./types";
 import { isValidLineStatus } from "./types";
 import { loadLineConfig, validateReportType } from "../shared/report-config";
+import {
+  buildFinanceIdCommand,
+  buildReviewGenerateCommand,
+  buildReviewUpdateCommand,
+} from "../../domain/finance-validation";
 
 // ─── helpers ─────────────────────────────────────────────────
 
@@ -44,8 +49,10 @@ function throw400(msg: string): never {
 export async function generateReview(
   workpaperId: number, userId?: number,
 ): Promise<{ review: ReviewOutput; created: boolean }> {
+  const command = buildReviewGenerateCommand(workpaperId, userId);
+  if (!command.ok) throw400(command.issue.message);
   const wp = await prisma.financeStatementWorkpaper.findUnique({
-    where: { id: workpaperId },
+    where: { id: command.data.workpaperId },
     include: { lines: true },
   });
   if (!wp) throw new Error("底稿不存在");
@@ -80,7 +87,7 @@ export async function generateReview(
           data: {
             status: "draft", generatedFromVersion: wp.version,
             reviewedBy: null, reviewedAt: null, note: null,
-            editedBy: userId ?? null, editedAt: userId ? new Date() : null,
+            editedBy: command.data.userId ?? null, editedAt: command.data.userId ? new Date() : null,
             version: { increment: 1 },
           },
         })
@@ -90,8 +97,8 @@ export async function generateReview(
           data: {
             workpaperId: wp.id, companyCode: wp.companyCode, year: wp.year,
             month: wp.month, reportType: wp.reportType, status: "draft",
-            generatedFromVersion: wp.version, editedBy: userId ?? null,
-            editedAt: userId ? new Date() : null,
+            generatedFromVersion: wp.version, editedBy: command.data.userId ?? null,
+            editedAt: command.data.userId ? new Date() : null,
           },
         })
       ).id;
@@ -147,8 +154,10 @@ export async function getReview(
 export async function updateReviewLines(
   reviewId: number, lines: ReviewLineInput[], note?: string | null, userId?: number,
 ): Promise<ReviewOutput> {
+  const command = buildReviewUpdateCommand(reviewId, lines, userId);
+  if (!command.ok) throw400(command.issue.message);
   const review = await prisma.financeStatementReview.findUnique({
-    where: { id: reviewId },
+    where: { id: command.data.reviewId },
     include: { lines: true, workpaper: { select: { version: true } } },
   });
   if (!review) throw new Error("校对不存在");
@@ -183,14 +192,14 @@ export async function updateReviewLines(
     }
     if (note !== undefined) {
       await tx.financeStatementReview.update({
-        where: { id: reviewId },
-        data: { note, editedBy: userId ?? null, editedAt: userId ? new Date() : null },
+        where: { id: command.data.reviewId },
+        data: { note, editedBy: command.data.userId ?? null, editedAt: command.data.userId ? new Date() : null },
       });
     }
   });
 
   const updated = await prisma.financeStatementReview.findUniqueOrThrow({
-    where: { id: reviewId },
+    where: { id: command.data.reviewId },
     include: { lines: { orderBy: { sortOrder: "asc" } }, workpaper: { select: { version: true } } },
   });
   return toReviewOutput(updated as ReviewRecord & { workpaper: { version: number } | null },
@@ -199,8 +208,12 @@ export async function updateReviewLines(
 
 /** Confirm review: rejects flagged AND pending lines. Only confirmed/adjusted allowed. */
 export async function confirmReview(reviewId: number, userId: number): Promise<ReviewOutput> {
+  const command = buildFinanceIdCommand(reviewId, "reviewId");
+  if (!command.ok) throw400(command.issue.message);
+  const editor = buildFinanceIdCommand(userId, "userId");
+  if (!editor.ok) throw400(editor.issue.message);
   const review = await prisma.financeStatementReview.findUnique({
-    where: { id: reviewId },
+    where: { id: command.data.id },
     include: { lines: true, workpaper: { select: { version: true } } },
   });
   if (!review) throw new Error("校对不存在");
@@ -217,12 +230,12 @@ export async function confirmReview(reviewId: number, userId: number): Promise<R
   }
 
   await prisma.financeStatementReview.update({
-    where: { id: reviewId },
-    data: { status: "confirmed", reviewedBy: userId, reviewedAt: new Date() },
+    where: { id: command.data.id },
+    data: { status: "confirmed", reviewedBy: editor.data.id, reviewedAt: new Date() },
   });
 
   const updated = await prisma.financeStatementReview.findUniqueOrThrow({
-    where: { id: reviewId },
+    where: { id: command.data.id },
     include: { lines: { orderBy: { sortOrder: "asc" } }, workpaper: { select: { version: true } } },
   });
   return toReviewOutput(updated as ReviewRecord & { workpaper: { version: number } | null },

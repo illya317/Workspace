@@ -6,6 +6,7 @@
  */
 import { prisma } from "@workspace/platform/server/prisma";
 import type { MappingResolveResult } from "./types";
+import { buildStatementMappingCommand } from "../../domain/finance-validation";
 
 let _cache: Map<string, { lineCode: string; operator: "add" | "subtract" | "exclude" }> | null = null;
 let _cacheKey = "";
@@ -89,4 +90,9 @@ async function loadMappingCache(
   return map;
 }
 
-export function clearMappingCache() { _cache = null; _cacheKey = ""; }
+export function clearMappingCache() {
+  const command = buildStatementMappingCommand({ companyCode: "cache", year: new Date().getFullYear() });
+  if (!command.ok) throw new Error(command.issue.message);
+  _cache = null;
+  _cacheKey = "";
+}

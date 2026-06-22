@@ -1,5 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import type { PreviewResult } from "./import";
+import { buildVoucherImportCommand } from "../domain/finance-validation";
 
 // ─── Helpers ───────────────────────────────────────────────
 
@@ -34,6 +35,8 @@ export async function importVouchers(
   imported: number; created: number; updated: number; deleted: number;
   skipped: number; blocked: number; warnings: string[]; affectedPeriodIds: number[];
 }> {
+  const command = buildVoucherImportCommand(preview, importId);
+  if (!command.ok) throw new Error(command.issue.message);
   let created = 0, updated = 0, deleted = 0, skipped = 0, blocked = 0;
   const warnings: string[] = [];
   const affectedPeriodIds = new Set<number>();
@@ -75,7 +78,7 @@ export async function importVouchers(
         accountId,
         debit: item.debit, credit: item.credit,
         description: item.description, sortOrder: i,
-        sourceFile: preview.sourceFileName || "", importId,
+        sourceFile: preview.sourceFileName || "", importId: command.data.importId,
       });
     }
 

@@ -4,6 +4,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { buildReclassResults } from "../reclassify";
 import { syncBalanceReclassForYear } from "../balance-reclass";
+import { buildReclassRuleScopeCommand } from "../../domain/finance-validation";
 
 export interface SyncReclassResult {
   periods: number;
@@ -15,8 +16,10 @@ export async function syncReclassRuleResults(
   companyCode: string,
   year: number,
 ): Promise<SyncReclassResult> {
+  const command = buildReclassRuleScopeCommand(companyCode, year);
+  if (!command.ok) throw new Error(command.issue.message);
   const periods = await prisma.financePeriod.findMany({
-    where: { companyCode, year },
+    where: { companyCode: command.data.companyCode, year: command.data.year },
     select: { id: true },
   });
 
@@ -30,7 +33,7 @@ export async function syncReclassRuleResults(
   }
 
   // 同步余额层 residual reclass
-  await syncBalanceReclassForYear(companyCode, year);
+  await syncBalanceReclassForYear(command.data.companyCode, command.data.year);
 
   return { periods: periods.length, synced, skippedAdjusted };
 }

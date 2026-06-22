@@ -1,5 +1,10 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import type { Prisma } from "@workspace/platform/server/prisma";
+import {
+  buildFinanceDataImportCommand,
+  buildFinanceIdCommand,
+  buildFinanceRowsCommand,
+} from "../domain/finance-validation";
 
 export interface ImportCreateInput {
   profile: string;
@@ -15,18 +20,20 @@ export interface ImportCreateInput {
 }
 
 export async function createImport(data: ImportCreateInput) {
+  const command = buildFinanceDataImportCommand(data);
+  if (!command.ok) throw new Error(command.issue.message);
   return prisma.financeDataImport.create({
     data: {
-      profile: data.profile,
-      year: data.year ?? null,
-      sourceFile: data.sourceFile,
-      sourcePath: data.sourcePath ?? null,
-      normalizedJsonPath: data.normalizedJsonPath ?? null,
-      checksum: data.checksum ?? null,
-      importedBy: data.importedBy ?? null,
-      recordCount: data.recordCount,
-      warningCount: data.warningCount,
-      errorCount: data.errorCount,
+      profile: command.data.data.profile,
+      year: command.data.data.year ?? null,
+      sourceFile: command.data.data.sourceFile,
+      sourcePath: command.data.data.sourcePath ?? null,
+      normalizedJsonPath: command.data.data.normalizedJsonPath ?? null,
+      checksum: command.data.data.checksum ?? null,
+      importedBy: command.data.data.importedBy ?? null,
+      recordCount: command.data.data.recordCount,
+      warningCount: command.data.data.warningCount,
+      errorCount: command.data.data.errorCount,
     },
   });
 }
@@ -42,8 +49,10 @@ export async function findExistingImport(profile: string, year: number | undefin
 }
 
 export async function deleteImportById(id: number) {
+  const command = buildFinanceIdCommand(id);
+  if (!command.ok) throw new Error(command.issue.message);
   return prisma.financeDataImport.delete({
-    where: { id },
+    where: { id: command.data.id },
   });
 }
 
@@ -89,9 +98,11 @@ export async function createShipments(
   importId: number,
   rows: Prisma.FinanceShipmentCreateManyInput[],
 ) {
+  const command = buildFinanceRowsCommand(importId, rows);
+  if (!command.ok) throw new Error(command.issue.message);
   if (rows.length === 0) return { count: 0 };
   return prisma.financeShipment.createMany({
-    data: rows.map((r) => ({ ...r, importId })),
+    data: command.data.rows.map((r) => ({ ...r, importId: command.data.id })),
   });
 }
 
@@ -99,9 +110,11 @@ export async function createSalesSalaries(
   importId: number,
   rows: Prisma.FinanceSalesSalaryCreateManyInput[],
 ) {
+  const command = buildFinanceRowsCommand(importId, rows);
+  if (!command.ok) throw new Error(command.issue.message);
   if (rows.length === 0) return { count: 0 };
   return prisma.financeSalesSalary.createMany({
-    data: rows.map((r) => ({ ...r, importId })),
+    data: command.data.rows.map((r) => ({ ...r, importId: command.data.id })),
   });
 }
 
@@ -109,9 +122,11 @@ export async function createCostStructureRows(
   importId: number,
   rows: Prisma.FinanceCostStructureRowCreateManyInput[],
 ) {
+  const command = buildFinanceRowsCommand(importId, rows);
+  if (!command.ok) throw new Error(command.issue.message);
   if (rows.length === 0) return { count: 0 };
   return prisma.financeCostStructureRow.createMany({
-    data: rows.map((r) => ({ ...r, importId })),
+    data: command.data.rows.map((r) => ({ ...r, importId: command.data.id })),
   });
 }
 
@@ -119,9 +134,11 @@ export async function createCostAnalysisRows(
   importId: number,
   rows: Prisma.FinanceCostAnalysisRowCreateManyInput[],
 ) {
+  const command = buildFinanceRowsCommand(importId, rows);
+  if (!command.ok) throw new Error(command.issue.message);
   if (rows.length === 0) return { count: 0 };
   return prisma.financeCostAnalysisRow.createMany({
-    data: rows.map((r) => ({ ...r, importId })),
+    data: command.data.rows.map((r) => ({ ...r, importId: command.data.id })),
   });
 }
 
@@ -129,8 +146,10 @@ export async function createWorkshopReports(
   importId: number,
   rows: Prisma.FinanceWorkshopReportCreateManyInput[],
 ) {
+  const command = buildFinanceRowsCommand(importId, rows);
+  if (!command.ok) throw new Error(command.issue.message);
   if (rows.length === 0) return { count: 0 };
   return prisma.financeWorkshopReport.createMany({
-    data: rows.map((r) => ({ ...r, importId })),
+    data: command.data.rows.map((r) => ({ ...r, importId: command.data.id })),
   });
 }
