@@ -10,7 +10,7 @@ import {
 } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 
-const API_BASE_URL = "https://fh-bio.cn/";
+const API_BASE_URL = "https://fh-bio.cn/workspace";
 
 export type ApiAccessModuleRow = {
   key: string;
@@ -39,9 +39,10 @@ function buildAgentAccessText({
   const lines = [
     `Base URL: ${baseUrl}`,
     `X-API-Key: ${apiKey}`,
-    `X-Username: ${username}`,
+    `User: ${username}`,
     "",
     "API rules:",
+    "- Request URL = Base URL + path below",
     "- Business: /api/modules/<l1>/<l2-kebab>/*",
     "- Settings: /api/settings/<l2>/*",
     "- Auth: /api/auth/*",
