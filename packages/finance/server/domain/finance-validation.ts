@@ -324,11 +324,11 @@ export function buildStatementMappingCommand<T extends {
   accountCode?: string;
   lineCode?: string;
   operator?: string;
-}>(input: T, options: { requireLine?: boolean } = {}): DomainValidationResult<{ input: T }> {
+}>(input: T, options: { requireAccount?: boolean; requireLine?: boolean } = {}): DomainValidationResult<{ input: T }> {
   const scope = buildFinancePeriodScopeCommand({ companyCode: input.companyCode, year: input.year });
   if (!scope.ok) return scope;
   if (input.statementType && input.statementType !== "balance") return failCommand("statementType 暂只支持 balance", 400, "statementType");
-  if (input.accountCode !== undefined) {
+  if (options.requireAccount || input.accountCode !== undefined) {
     const accountCode = requiredText(input.accountCode, "accountCode");
     if (!accountCode.ok) return accountCode;
   }
@@ -340,6 +340,22 @@ export function buildStatementMappingCommand<T extends {
     return failCommand("operator 无效", 400, "operator");
   }
   return okCommand({ input });
+}
+
+export function buildStatementMappingDeleteCommand<T extends {
+  companyCode: string;
+  year: number;
+  statementType?: string;
+  accountCode?: string;
+}>(input: T): DomainValidationResult<{ input: T & { accountCode: string } }> {
+  const command = buildStatementMappingCommand(input, { requireAccount: true });
+  if (!command.ok) return command;
+  return okCommand({
+    input: {
+      ...input,
+      accountCode: command.data.input.accountCode!,
+    },
+  });
 }
 
 export function buildReviewGenerateCommand(workpaperId: unknown, userId?: unknown) {

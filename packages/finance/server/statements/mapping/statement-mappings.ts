@@ -1,8 +1,11 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
-import { clearMappingCache } from "./resolver";
+import { invalidateMappingCache } from "./resolver";
 import { ensureStatementMappings } from "./seed-from-config";
-import { buildStatementMappingCommand } from "../../domain/finance-validation";
+import {
+  buildStatementMappingCommand,
+  buildStatementMappingDeleteCommand,
+} from "../../domain/finance-validation";
 
 export type StatementType = "balance";
 export type StatementMappingOperator = "add" | "subtract" | "exclude";
@@ -53,7 +56,7 @@ export async function listStatementMappings(input: ListStatementMappingsInput) {
 }
 
 export async function saveStatementMapping(input: SaveStatementMappingInput) {
-  const command = buildStatementMappingCommand(input, { requireLine: true });
+  const command = buildStatementMappingCommand(input, { requireAccount: true, requireLine: true });
   if (!command.ok) throw new StatementMappingServiceError(command.issue.message);
   const statementType = resolveStatementType(command.data.input.statementType);
   const operator = command.data.input.operator ?? "add";
@@ -109,13 +112,13 @@ export async function saveStatementMapping(input: SaveStatementMappingInput) {
     update: { lineCode: command.data.input.lineCode, operator, source: "manual", note: null },
   });
 
-  clearMappingCache();
+  invalidateMappingCache();
 
   return { success: true, mapping };
 }
 
 export async function deleteStatementMapping(input: DeleteStatementMappingInput) {
-  const command = buildStatementMappingCommand(input);
+  const command = buildStatementMappingDeleteCommand(input);
   if (!command.ok) throw new StatementMappingServiceError(command.issue.message);
   const statementType = resolveStatementType(command.data.input.statementType);
 
@@ -128,7 +131,7 @@ export async function deleteStatementMapping(input: DeleteStatementMappingInput)
     },
   });
 
-  clearMappingCache();
+  invalidateMappingCache();
 
   return { success: true, deleted: result.count };
 }
