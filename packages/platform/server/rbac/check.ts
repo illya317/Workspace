@@ -5,8 +5,12 @@ import { getResourceAncestors } from "./resource";
 import { isRoleAllowedForResource } from "./maxRole";
 import { isRootAdminUser } from "../auth/root";
 import type { PermissionContext } from "./types";
-import { getCapabilityOwnerKey } from "../../resources";
+import { getCapabilityOwnerKey, RESOURCE_KEYS } from "../../resources";
 import { isResourceEnabled } from "../../effective-module-registry";
+import {
+  hasImplicitAccessGrant,
+  hasAnyAdminGrantForContext,
+} from "./implicit";
 
 function resolveRoleKeys(roleKey: string): string[] {
   const normalized = normalizeRoleKey(roleKey);
@@ -18,18 +22,22 @@ function resolveRoleKeys(roleKey: string): string[] {
   return ["admin", "delete", "write", "access"];                      // 所有角色都隐含 access
 }
 
+const ACTIVE_RESOURCE_KEYS = new Set(RESOURCE_KEYS);
+
 export async function evaluatePermission(
   userId: number,
   resourceKey: string,
   roleKey: string,
 ): Promise<boolean> {
   if (await isRootAdminUser(userId)) return true;
+  const normalized = normalizeRoleKey(roleKey);
+  if (!ACTIVE_RESOURCE_KEYS.has(resourceKey) || !isResourceEnabled(resourceKey)) return false;
 
   // 1. Resolve resource
   const capabilityOwnerKey = getCapabilityOwnerKey(resourceKey);
   if (capabilityOwnerKey) {
     if (!isResourceEnabled(capabilityOwnerKey)) return false;
-    if (!(await evaluatePermission(userId, capabilityOwnerKey, roleKey))) return false;
+    if (!(await evaluatePermission(userId, capabilityOwnerKey, "access"))) return false;
   }
 
   // 2. Resolve resource
@@ -42,10 +50,14 @@ export async function evaluatePermission(
   // 3. Check this resource AND all its ancestors (父资源覆盖子资源)
   const resourceIds = await getResourceAncestors(resource.id);
   const roleKeys = resolveRoleKeys(roleKey);
-  const normalized = normalizeRoleKey(roleKey);
-
   // 3a. 运行时上限：即使有 grant，超过 maxRoleKey 也拒绝
   if (!(await isRoleAllowedForResource(resourceKey, normalized))) return false;
+
+  if (await hasImplicitAccessGrant({
+    roleKey: normalized,
+    resourceIds,
+    isCapability: Boolean(capabilityOwnerKey),
+  })) return true;
 
   const userGrant = await prisma.userResourceRole.findFirst({
     where: {
@@ -80,6 +92,15 @@ export async function evaluatePermission(
     if (deptGrant) return true;
   }
 
+  if (resourceKey === "settings.admin" && normalized === "access") {
+    return hasAnyAdminGrantForContext({
+      userId,
+      isAdmin: false,
+      positionIds: posIds,
+      departmentIds: deptIds,
+    });
+  }
+
   return false;
 }
 
@@ -91,12 +112,25 @@ export async function evaluatePermissionWithContext(
   if (ctx.isAdmin) return true;
 
   const normalized = normalizeRoleKey(roleKey);
+  if (!ACTIVE_RESOURCE_KEYS.has(resourceKey) || !isResourceEnabled(resourceKey)) return false;
   const capabilityOwnerKey = getCapabilityOwnerKey(resourceKey);
   if (capabilityOwnerKey) {
     if (!isResourceEnabled(capabilityOwnerKey)) return false;
-    if (!(await evaluatePermissionWithContext(ctx, capabilityOwnerKey, roleKey))) return false;
+    if (!(await evaluatePermissionWithContext(ctx, capabilityOwnerKey, "access"))) return false;
   }
   if (!(await isRoleAllowedForResource(resourceKey, normalized))) return false;
+
+  const resourceIds = await resolveResourceIds(resourceKey);
+  if (!resourceIds) return false;
+
+  if (await hasImplicitAccessGrant({
+    roleKey: normalized,
+    resourceIds,
+    isCapability: Boolean(capabilityOwnerKey),
+  })) return true;
+  if (resourceKey === "settings.admin" && normalized === "access" && await hasAnyAdminGrantForContext(ctx)) {
+    return true;
+  }
 
   // Fast path: use preloaded grant cache (avoids N×3 DB queries)
   if (ctx._grantCache) {

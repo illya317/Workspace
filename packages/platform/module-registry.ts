@@ -238,7 +238,6 @@ export const registeredModuleDefinitions = [
         { key: "positions", label: "岗位说明书", desc: "GMP 岗位说明书", href: "/docs/positions", resourceKey: "docs.positions", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
         { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company", resourceKey: "docs.company", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
         { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense", resourceKey: "docs.expense", resourceMaxRoleKey: "access", noApiReason: "静态文档页面，无独立业务 API" },
-        { key: "api", label: "接入指南", desc: "API 接入文档与示例", href: "/docs/api-guide", resourceKey: "docs.api", resourceMaxRoleKey: "access", noApiReason: "文档可见性由页面权限控制，Open API 管理属于 settings.api" },
       ],
     },
     routes: ["/docs", "/docs/positions", "/docs/positions/GMP", "/docs/company", "/docs/expense"],
@@ -284,17 +283,20 @@ export const registeredModuleDefinitions = [
       resourceMaxRoleKey: "access",
       resourceSortOrder: 100,
       children: [
-        { key: "account", label: "账号与接入", desc: "", href: "/settings/account", resourceKey: "settings.account", resourceMaxRoleKey: "access", resourceHidden: true, apiPrefixes: ["/api/settings/account"] },
-        { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", resourceKey: "settings.admin", resourceHidden: true, apiPrefixes: ["/api/settings/admin"] },
+        { key: "account", label: "账号与接入", desc: "", href: "/settings/account", resourceKey: "settings.account", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/account"] },
+        { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", resourceKey: "settings.admin", apiPrefixes: ["/api/settings/admin"] },
         { key: "api", label: "API 接入", desc: "Open API Client、Scope 授权和调用日志", href: "/settings/api", resourceKey: "settings.api", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/api"] },
       ],
     },
     resourceDefs: [
-      { key: "settings.api.manage", name: "Open API Client 管理", runtimeParentKey: "settings.api", maxRoleKey: "write", sortOrder: 0 },
+      { key: "settings.account.apiAccess", name: "个人 API 使用", kind: "capability", capabilityOwnerKey: "settings.account", runtimeParentKey: "settings.account", maxRoleKey: "access", sortOrder: 0 },
+      { key: "settings.api.manage", name: "Open API Client 管理", kind: "capability", capabilityOwnerKey: "settings.api", runtimeParentKey: "settings.api", maxRoleKey: "write", sortOrder: 0 },
     ],
     routes: ["/settings", "/settings/account", "/settings/admin", "/settings/api", "/settings/api/hr-generated"],
     apiRoutes: [
-      ...apiRoutes("/api/settings/account", "protected", ["GET", "POST", "PUT"], { resourceKey: "settings.account", action: "access" }),
+      { method: "GET", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
+      { method: "POST", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
+      { method: "PUT", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
     ],
     apiGuards: [
       ...apiResourceGuards("/api/settings/admin", "settings.admin", ["GET", "POST", "PUT", "PATCH", "DELETE"]),

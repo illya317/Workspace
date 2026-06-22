@@ -74,7 +74,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 | Platform 主体 | `packages/platform/` | 登录、权限、资源树、模块注册、导航、审计、用户、Portal、平台 server runtime 契约 |
 | Apps 业务包 | `packages/hr/`, `packages/production/`, `packages/finance/`, `packages/<domain>/` | 各业务模块自己的 UI、server、types、constants、import、module 注册 |
 | 业务页面壳 | `app/(modules)/<domain>/` | Next 路由 facade，只组合 package UI，保留领域 `ARCHITECTURE.md` |
-| API 路由壳 | `app/api/modules/<domain>/<l2-kebab>/` | 鉴权、权限、参数校验、调用 package service、返回 DTO |
+| API 路由壳 | `app/api/modules/<domain>/<l2-kebab>/` | 鉴权、权限、Zod 参数校验、调用 package service、返回 DTO |
 | 开发辅助 | `app/api/auth/dev-login-bypass/` | 开发环境快速登录，仅本地 |
 | 旧业务服务 | `server/services/<domain>/` | 存量兼容/待迁移旧代码；新增业务 service 不再优先放这里 |
 | 认证权限 | `@workspace/platform/server/auth`, `@workspace/platform/permissions`, `packages/platform/server/auth/`, `packages/platform/server/rbac/` | 登录、session、RBAC、资源树；新代码使用 Platform 契约 |
@@ -116,11 +116,11 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 3. `packages/<domain>/module.ts` 必须导出 registry 中的 `moduleDefinition`，不要在业务包本地重新定义模块。
 4. 模块展示名、描述、隐藏和启停优先改 `packages/platform/module-overrides.ts`；不要为了中文 rename 改 `resourceKey`、FK key、API path 或 URL path。
 5. `parentKey` 只表达 RBAC 权限继承；不能继承父权限、但必须随模块启停的 capability 使用 `runtimeParentKey`，例如 `work.projects.viewAll`。
-6. 创建 `app/(modules)/<domain>/ARCHITECTURE.md`，写清楚数据来源、事实字段、计算字段、权限、页面。
+6. 创建模块或 L2 的 `ARCHITECTURE.md`，写清楚数据来源、事实字段、计算字段、权限、页面和 API 边界。
 7. 如需新表，创建 `prisma/models/<domain>.prisma`，同步 migration/seed，并更新数据库文档。
-8. 在 `packages/<domain>/server/` 写业务逻辑；`server/services/<domain>/` 只用于尚未迁移的存量代码。API route 只做认证、权限、参数校验、调用 service、返回 DTO。
+8. 在 `packages/<domain>/server/` 写业务逻辑；`server/services/<domain>/` 只用于尚未迁移的存量代码。API route 只做认证、权限、Zod 参数校验、调用 service、返回 DTO；写入请求按 `Zod schema -> domain validator -> service/Prisma` 落位。
 9. 在 `app/api/modules/<domain>/<l2-kebab>/` 写 route handler，GET/POST/PUT/PATCH/DELETE 必须匹配 registry 中同一个 L2 的 resource/action。系统设置例外走 `/api/settings/<l2>`，认证和 Agent 是独立 L1。
-10. 在 `packages/<domain>/ui/` 写主要 UI；`app/(modules)/<domain>/` 只放 Next route facade。模块首页用 Platform 的 `ModuleHomePage`，子页面用 Platform 的 `AppShell`。
+10. 在 `packages/<domain>/ui/` 写主要 UI；`app/(modules)/<domain>/` 只放 Next route facade。模块首页用 Platform 的 `ModuleHomePage`，L2 子页面用 Platform 的 `AppShell`。
 11. 对需要独立权限的子页面，在对应子目录加 `layout.tsx`，调用 `requireRouteAccess("<href>")` 做路由门禁；不要在页面手写 resource key。
 12. 删除 L1/L2 时同步删除 registry、真实 app route、API route、docs 和相关引用；`scripts/seed-resources.ts` 会清理 DB 中未注册的 stale resources 及其授权，不要留下 hidden/disabled 旧 resource 当兼容层，除非任务明确要求。
 13. 同步更新 `README.md`、`AGENTS.md` 或 docs、`docs/new-module-checklist.md` 和对应模块文档。
@@ -134,7 +134,7 @@ cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
 | 2. 导航 | `packages/<domain>/module.ts` 导出 registry 中的 `moduleDefinition`，不要维护第二套导航 |
 | 3. 数据库 | `prisma/models/<domain>.prisma` + migration + seed |
 | 4. 页面 | facade server component + 子目录 `layout.tsx` 路由门禁 |
-| 5. API | 认证 -> 权限 -> 参数校验 -> 调 package service -> 返回 DTO |
+| 5. API | 认证 -> 权限 -> Zod 参数校验 -> 调 package service -> 返回 DTO；写入继续进 domain validator 和 service |
 | 6. Service | `packages/<domain>/server/` 业务逻辑 |
 | 7. 文档 | `ARCHITECTURE.md` + README/AGENTS/docs/checklist |
 | 8. 硬约束 | `tsc --noEmit` / `lint --max-warnings=0`（含文件行数红线） / `build` / `arch:gate` |
@@ -191,18 +191,19 @@ rm data/dev.db && npx prisma db push
 |------|------|------|
 | 登录 | `/login` | 公开 |
 | 入口 | `/portal` | 登录 |
-| 工作汇报 | `/work/reports` | 登录 |
-| 历史记录 | `/work/history` | 登录 |
-| 工作清单 | `/work/tasks` | 登录 |
+| 工作汇报 | `/work/reports` | `work.access`（登录用户默认有效，L2 继承） |
+| 历史记录 | `/work/history` | `work.access`（登录用户默认有效，L2 继承） |
+| 工作清单 | `/work/tasks` | `work.access`（登录用户默认有效，L2 继承） |
 | 人事行政 | `/hr` | `hr.access` |
-| 管理后台 | `/settings/admin` | 可管理任一资源 |
-| API 接入 | `/settings/account` | `settings.account.access`（登录态自助；业务 API 仍按目标 resource 授权） |
+| 管理后台 | `/settings/admin` | `settings.admin.access`（任意 active resource 管理员默认有效） |
+| 账号与接入 | `/settings/account` | `settings.account.access`（登录用户默认有效） |
+| 个人 API 使用 | `/settings/account` | `settings.account.apiAccess.access`（业务 API 仍按目标 resource 授权） |
 | 设置 | `/settings` | 登录 |
 | 智能助手 | `/api/agent` | 登录，权限随用户 |
-| 外部关系 | `/external` | 登录 |
-| 文档中心 | `/docs` | 登录 |
-| 资料库 | `/library` | 登录 |
-| 财务数据 | `/finance` | 登录 |
+| 外部关系 | `/external` | `external.access` |
+| 文档中心 | `/docs` | `docs.access`（登录用户默认有效） |
+| 资料库 | `/library` | `library.access` |
+| 财务数据 | `/finance` | `finance.access` |
 | 成本管理 | `/finance/cost` | `finance.access` 或 `finance.cost.access` |
 
 ## 10. 认证与 API 权限
@@ -218,7 +219,7 @@ API 权限规则：
 
 - 页面按钮隐藏不是安全边界，所有写入和删除必须在 API 层校验。
 - GET 使用 `access`；POST/PUT/PATCH 使用 `write`；DELETE 使用 `delete`；授权使用对应资源的 `admin`，系统配置仅内置 root admin 可操作。
-- 新 API route 只允许做四件事：认证、参数校验、调用 service、返回 DTO。
+- 新 API route 只允许做四件事：认证、Zod 参数校验、调用 service、返回 DTO；写入必须继续进入 domain validator 和 service。
 - 复杂查询、导入、汇总、派生字段计算必须放到 `packages/<domain>/server/`；旧 `server/services/<domain>/` 只作为存量兼容位置。
 - 旧兼容 API 可以保留代理，但新功能必须走领域入口，例如 HR 新接口走 `app/api/modules/hr/roster/*`，财务成本走 `app/api/modules/finance/cost/*`。
 - 需要对外开放的新接口必须走 `packages/platform/open-api-registry.ts` 注册，并放在 `/api/open/v1/**`，不得直接暴露内部 `/api/modules/**`。

@@ -24,7 +24,7 @@ Review 专门负责审查 lint、架构、边界和交付风险。Review 不做 
 - Core UI 新导出是否登记在 `packages/core/ui/component-registry.ts`，并包含中文 `description`、中文 `example` 和必要 `includes`。
 - 非 Core 包是否新增手写 JSX UI pattern，尤其是 surface、table、form/control、modal overlay、toolbar layout、action button、table scroll shell。
 - `scripts/arch/level2-baseline.json` 是否只减少历史债；禁止为了新违规扩写 baseline。
-- API route 是否保持认证、权限、参数校验、调用 package service、返回 DTO。
+- API route 是否保持认证、权限、Zod 参数校验、调用 package service、返回 DTO；写入是否按 `Zod schema -> domain validator -> service/Prisma` 收口。
 - 业务包之间是否直接 import，业务包是否通过 `@/server/*` 或相对路径绕过边界。
 
 ## 禁止

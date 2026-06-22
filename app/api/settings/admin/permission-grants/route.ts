@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   const resourceKey = searchParams.get("resourceKey") || undefined;
   const scopeId = searchParams.get("scopeId") || undefined;
 
-  const empty = { subjects: [], directGrants: [], positionGrants: [], departmentGrants: [], ancestorResourceKeys: [], maxRoleKey: "admin", isSystemAdmin: false };
+  const empty = { subjects: [], directGrants: [], positionGrants: [], departmentGrants: [], implicitGrants: [], ancestorResourceKeys: [], maxRoleKey: "admin", isSystemAdmin: false };
   if (resourceKey && !isResourceEnabled(resourceKey)) return NextResponse.json(empty);
   if (!isSysAdmin && resourceKey && !manageableKeys.has(resourceKey)) return NextResponse.json(empty);
 

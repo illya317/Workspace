@@ -28,7 +28,7 @@ git status --short --branch
 | 角色 | 执行重点 | 不要做 |
 |---|---|---|
 | Architecture | 规则、文档、`scripts/arch/*`、module/API registry、baseline ratchet、任务包 | 业务功能实现、业务体验细节、数据生成内容 |
-| Feature | `packages/<domain>/ui`、`packages/<domain>/server`、`app/<domain>` 薄壳、`app/api/<domain>` 薄壳 | gate/CI/auth/module enforcement、未分配 baseline |
+| Feature | `packages/<domain>/ui`、`packages/<domain>/server`、`app/(modules)/<domain>` 薄壳、`app/api/modules/<domain>` 薄壳 | gate/CI/auth/module enforcement、未分配 baseline |
 | Data | Prisma、migration、seed、导入脚本、生成脚本和生成物 | 通用 UI、页面体验、架构 gate |
 | Operations | CI、部署、环境、package scripts、运行态脚本 | 领域业务规则、页面 UI、service 业务逻辑 |
 

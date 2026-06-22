@@ -21,6 +21,7 @@ export function sourceLabel(source: string): string {
     case "department": return "部门继承";
     case "ancestor": return "父资源继承";
     case "implied": return "高级权限隐含";
+    case "implicit": return "默认规则";
     case "child": return "子资源已授权";
     default: return source;
   }
@@ -44,6 +45,7 @@ export function computePermissionState(
   directGrants: Grant[],
   positionGrants: Grant[],
   departmentGrants: Grant[],
+  implicitGrants: Grant[],
   subjectType: SubjectType,
   childResourceKeys?: string[],
 ): PermissionState {
@@ -112,7 +114,16 @@ export function computePermissionState(
     if (deptImplied) return { has: true, source: "implied" };
   }
 
-  // 5) Child resource has grant → gray check on parent (no parent grant, but children have)
+  // 5) Built-in effective permissions.
+  const implicit = implicitGrants.find(
+    (g) =>
+      g.subjectId === subject.id &&
+      g.resourceKey === selectedResource &&
+      g.roleKey === roleKey
+  );
+  if (implicit) return { has: true, source: "implicit" };
+
+  // 6) Child resource has grant → gray check on parent (no parent grant, but children have)
   if (childResourceKeys?.length) {
     const childGrant = directGrants.find(
       (g) => g.subjectId === subject.id && childResourceKeys.includes(g.resourceKey) && g.roleKey === roleKey

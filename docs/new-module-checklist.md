@@ -26,7 +26,7 @@
 
 ## 3. 页面
 
-- [ ] `app/(modules)/<domain>/page.tsx` 服务端组件 facade，只组合 `packages/<domain>/ui` 导出的组件
+- [ ] `app/(modules)/<domain>/<l2>/page.tsx` 服务端组件 facade，只组合 `packages/<domain>/ui` 导出的组件
 - [ ] L2 app route 必须是直接二级路径，例如 `/production/qc-batches`，禁止用嵌套三级路径作为 L2。
 - [ ] 目录下有子页面的，加 `layout.tsx` 统一做路由级门禁：
   ```tsx
@@ -40,10 +40,11 @@
 
 ## 4. API
 
-- [ ] `app/api/modules/<domain>/<l2>/route.ts` — 先调用 `requireApiAccess(request)` 或 `with-auth` wrapper，再做参数校验、调 package service、返回 DTO。
+- [ ] `app/api/modules/<domain>/<l2>/route.ts` — 先调用 `requireApiAccess(request)` 或 `with-auth` wrapper，再做 Zod 参数校验、调 package service、返回 DTO。
 - [ ] 每个 L2 在 registry child 上声明 `apiPrefixes`；没有 API 时写清 `noApiReason`。宽泛 `/api/modules/<domain>` 不能作为 L2 最终契约。
 - [ ] GET → 至少 `access`；POST/PUT → `write`；DELETE → `delete`
 - [ ] route 入口不得裸用 `authenticate()`、不得手写 resource key 作为主门禁；resource/action 必须由 registry API contract 派生。
+- [ ] 写入请求固定走 `Zod schema -> domain validator -> service/Prisma`：route schema 只校验请求形状并 strip，domain validator pick 可写字段并检查 FK/状态/归属/跨字段规则，service 负责事务、版本、审计和落库。
 - [ ] API route 不超过 120 行，超了拆 service
 - [ ] 复杂查询、导入、计算必须在 service 层
 
@@ -55,7 +56,7 @@
 
 ## 6. 架构文档
 
-- [ ] `app/(modules)/<domain>/ARCHITECTURE.md`：数据来源、事实/计算字段、权限模型、页面清单
+- [ ] 模块或 L2 的 `ARCHITECTURE.md`：数据来源、事实/计算字段、权限模型、页面清单
 - [ ] 更新 `AGENTS.md` 或 `docs/agent-handbook.md` 的关键路由表（如果模块增加新路由）
 
 ## 7. 构建验证（硬约束，不通过不能提交）

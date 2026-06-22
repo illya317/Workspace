@@ -21,10 +21,10 @@ const REQUIRED_README_SECTIONS = [
 ];
 
 const REQUIRED_AGENT_SECTIONS = [
-  "## 项目速记",
-  "## 文档入口",
-  "## 开发红线",
-  "## 交付前检查",
+  "## 项目地图",
+  "## 先按角色开工",
+  "## 项目硬规则",
+  "## 检查",
 ];
 
 const API_CAPABILITY_ROOTS = new Set([

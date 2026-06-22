@@ -1,5 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { RESOURCE_DEFS, RESOURCE_KEYS, getCapabilityOwnerKey } from "@workspace/platform/resources";
+import { isResourceEnabled } from "../../effective-module-registry";
 import { getResourceDescendants } from "./resource";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
 import { isRootAdminUser } from "../auth/root";
@@ -46,7 +47,7 @@ async function findAdminResourceIds(userId: number): Promise<number[]> {
  * Includes the admin resource itself and all its descendants.
  */
 export async function getManageableResourceKeys(userId: number): Promise<Set<string>> {
-  const activeResourceKeys = new Set(RESOURCE_KEYS);
+  const activeResourceKeys = new Set(RESOURCE_KEYS.filter((key) => isResourceEnabled(key)));
   if (await isRootAdminUser(userId)) return new Set(activeResourceKeys);
 
   const adminResourceIds = await findAdminResourceIds(userId);
@@ -80,7 +81,7 @@ export async function canManageResourceGrant(
   roleKey: string
 ): Promise<boolean> {
   void roleKey;
-  const activeResourceKeys = new Set(RESOURCE_KEYS);
+  const activeResourceKeys = new Set(RESOURCE_KEYS.filter((key) => isResourceEnabled(key)));
   if (!activeResourceKeys.has(resourceKey)) return false;
   if (await isRootAdminUser(userId)) return true;
   const manageable = await getManageableResourceKeys(userId);

@@ -70,7 +70,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 ## 路由和服务迁移原则
 
 - `app/(modules)/<domain>` 保留为 Next 路由壳，对外仍暴露 `/domain` URL。后续新增复杂 UI 时，优先放入对应 `packages/<domain>/ui` 后再由页面引用。
-- `app/api/modules/<domain>` 保留为业务 API route 壳，只做认证、权限、参数校验、调用 package service、返回 DTO；不要新增一级业务 API 目录。
+- `app/api/modules/<domain>` 保留为业务 API route 壳，只做认证、权限、Zod 参数校验、调用 package service、返回 DTO；写入必须继续进入 domain validator 和 service，不要新增一级业务 API 目录。
 - 业务查询、导入、校验和计算必须优先进入 `packages/<domain>/server`。同一业务字段或业务动作存在多个写入入口时，必须在 `packages/<domain>/server/domain/*-validation.ts` 定义 domain command/validator，入口只做输入适配，service 只消费已验证 command。旧 `server/services/<domain>` 只作为存量兼容位置，不再作为新增业务 service 的默认落点。
 - Prisma 仍使用单一 schema/client；`prisma/models/*.prisma` 继续按领域归属，不拆库。
 
@@ -113,7 +113,7 @@ Level 1/1.5 只有一个硬门禁入口：
 `app/` 层是 routing only：
 
 - 页面 route 可以做鉴权、必要预取和挂载 package component。
-- API route 可以做认证、权限、参数校验、调用 package service 和返回 DTO。
+- API route 可以做认证、权限、Zod 参数校验、调用 package service 和返回 DTO；写入路径固定为 `Zod schema -> domain validator -> service/Prisma`。
 - 新增 UI layout、filter、modal、form、table、toolbar、business rendering 都必须进入 `packages/platform/ui` 或对应 `packages/<domain>/ui`；旧 app UI 文件只作为 baseline 债务迁移，不能作为新增范式。
 
 ## Work Project 权限边界

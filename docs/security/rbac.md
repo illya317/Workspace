@@ -29,11 +29,12 @@
 
 ```
   settings            access  设置
-  settings.account  access  账号与接入（自助，授权矩阵隐藏）
-  settings.admin    admin   系统管理（管理入口容器，授权矩阵隐藏）
+  settings.account  access  账号与接入
+  settings.admin    admin   系统管理
   settings.api      access  Open API 接入控制台
 
-settings.api.manage write Open API Client 管理（独立资源，runtimeParentKey=settings.api）
+settings.account.apiAccess access 个人 API 使用（capability，runtimeParentKey=settings.account）
+settings.api.manage        write  Open API Client 管理（capability，runtimeParentKey=settings.api）
 
 agent               access  智能体（headless）
 
@@ -108,15 +109,15 @@ work.projects.viewAll access 项目全局查看（独立资源，runtimeParentKe
 
 登录只看 `User.canLogin`（账号启停用） + `sessionVersion`。**不看 `system.access`**。
 
-`settings.account` 和 `settings.admin` 是明确例外：它们的页面和 API contract 仍按 L2 注册，但不进入普通 RBAC 授权矩阵。`settings.account` 是登录用户自助设置，只要求已登录；`settings.admin` 是管理入口容器，后台入口使用“可管理任一资源即可进入”的规则。
+`settings.account`、`settings.admin`、`settings.api` 都是标准 L2：页面 URL、resource key、RBAC 授权矩阵和 API contract 必须一一对应。内置默认规则只补有效权限：已登录用户默认拥有 `settings.account.access`、`work.access`、`docs.access`；`work.access` 和 `docs.access` 按普通父资源授权继承到 L2，但不授予 capability；拥有任意 active resource `admin` 的用户默认拥有 `settings.admin.access`。
 
-`system.access` 已废弃，不作为登录/后台入口/授权管理的判断条件。需要进后台管理权限时，授予对应资源的 `admin` 角色（如 `hr.admin`）。Session 暴露 `manageableResourceKeys[]`，后台入口使用“可管理任一资源即可进入”的规则。
+`system.access` 已废弃，不作为登录/后台入口/授权管理的判断条件。需要进后台管理权限时，授予对应资源的 `admin` 角色（如 `hr.admin`），系统会计算出 `settings.admin.access` 作为后台入口权限。Session 仍暴露 `manageableResourceKeys[]`，用于限制进入后台后的可管理范围。
 
 网页登录和企业微信登录允许多端共存；登录不会递增 `sessionVersion`。改密码、管理员重置密码或账号停用会让旧会话失效。JWT 和 Cookie 默认有效期为 30 天。
 
 ## Open API 权限边界
 
-外部开放 API 不使用内部 RBAC `Resource`。`settings.api.access` 控制 `/settings/api` 管理台读取；创建 Client、轮换 secret 和更新 scope 还必须授予独立资源 `settings.api.manage.write`。`settings.api.manage` 不挂 `parentKey`，只通过 `runtimeParentKey=settings.api` 跟随控制台启停，避免被父资源 `settings` 的 access 上限截断。真正的外部调用只看 `OpenApiClient`、`OpenApiScope` 和 `OpenApiClientScopeGrant`。
+外部开放 API 不使用内部 RBAC `Resource`。`settings.api.access` 控制 `/settings/api` 管理台读取；创建 Client、轮换 secret 和更新 scope 还必须授予 capability `settings.api.manage.write`。个人 API Key 使用能力归属 `settings.account.apiAccess.access`，与 `settings.api` 控制台权限分离。真正的外部调用只看 `OpenApiClient`、`OpenApiScope` 和 `OpenApiClientScopeGrant`。
 
 - 调用方使用 `Authorization: Bearer <secret>`，secret 只存 hash。
 - Scope 例如 `hr.generated.roster.read`，资源组例如 `hr.generated.roster`，均写入 Open API 专用表。
@@ -129,7 +130,7 @@ work.projects.viewAll access 项目全局查看（独立资源，runtimeParentKe
 
 - root admin 在 auth/session 层设置 `isSuperAdmin = true`。
 - root admin 可绕过 RBAC 检查访问所有已启用资源；模块 disabled 仍优先生效。
-- 普通自然人管理员只通过具体资源的 `admin` 角色获得授权管理能力，例如 `settings.admin.admin` 或 `work.projects.admin`。
+- 普通自然人管理员只通过具体资源的 `admin` 角色获得授权管理能力，例如 `settings.admin.admin` 或 `work.projects.admin`；任意资源 `admin` 会默认获得 `settings.admin.access` 以进入管理后台。
 
 ## 权限判断流程
 

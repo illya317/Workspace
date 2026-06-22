@@ -18,17 +18,18 @@
 | `finance.cost` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
 | `finance.import` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access (preview), write (confirm) |
 | `administration.contracts` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
-| `work` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
+| `work` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access（登录用户默认有效，并继承到普通 L2；不包含 capability）, write, delete, admin |
 | `work.projects` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin（模块门禁，不放大对象范围） |
 | `work.projects.viewAll` | `visibleResourceKeys` | access（独立全量可见资源，`runtimeParentKey=work.projects`） |
 | `work.tasks` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `work.reports` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `work.history` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
-| `system` | `manageableResourceKeys` | admin |
-| `settings.admin` | `manageableResourceKeys` | admin |
+| `settings.account` | `visibleResourceKeys` | access（登录用户默认有效） |
+| `settings.admin` | `visibleResourceKeys` | access（任意资源管理员默认有效） |
 | `settings.api` | `visibleResourceKeys` | access（Open API 控制台读取；不代表外部调用权限） |
-| `settings.api.manage` | `visibleWriteResourceKeys` | write（独立管理资源，Client 创建、secret 轮换、scope 授权；`runtimeParentKey=settings.api`） |
-| `docs.api` | `visibleResourceKeys` | access |
+| `settings.account.apiAccess` | `visibleResourceKeys` | access（个人 API Key 使用能力） |
+| `settings.api.manage` | `visibleWriteResourceKeys` | write（Client 创建、secret 轮换、scope 授权；`runtimeParentKey=settings.api`） |
+| `docs` | `visibleResourceKeys` | access（登录用户默认有效，并继承到普通 L2；不包含 capability） |
 | `agent` | `visibleResourceKeys` | access |
 
 ## 页面 Guard
@@ -62,9 +63,10 @@
 | `/work/reports` | `requireResourceAccess("work.reports")` + module enabled | redirect `/portal` 或模块未启用页 |
 | `/work/history` | `requireResourceAccess("work.history")` + module enabled | redirect `/portal` 或模块未启用页 |
 | `/docs` | `requireResourceAccess("docs")` | redirect `/portal` |
-| `/docs/api-guide` | `docs.api.access OR settings.api.access` | redirect `/portal` |
-| `/settings/api` | `requireResourceAccess("settings.api")` | redirect `/portal` |
-| `/settings/api/hr-generated` | `requireResourceAccess("settings.api")` | redirect `/portal` |
+| `/settings/account` | `requireRouteAccess("/settings/account")` | redirect `/portal` |
+| `/settings/admin` | `requireRouteAccess("/settings/admin")` | redirect `/portal` |
+| `/settings/api` | `requireRouteAccess("/settings/api")` | redirect `/portal` |
+| `/settings/api/hr-generated` | `requireRouteAccess("/settings/api/hr-generated")` | redirect `/portal` |
 
 ## API Guard
 

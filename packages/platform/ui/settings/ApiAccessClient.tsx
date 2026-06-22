@@ -79,17 +79,19 @@ export default function ApiAccessClient({
   user: SessionUser;
   modules: ApiAccessModuleRow[];
 }) {
+  const canUsePersonalApi = (user.visibleResourceKeys || []).includes("settings.account.apiAccess");
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   useEffect(() => {
+    if (!canUsePersonalApi) return;
     fetch(workspacePath("/api/settings/account/api-key"))
       .then((res) => res.ok ? res.json() : Promise.reject())
       .then((data: { apiKey?: string | null }) => setApiKey(data.apiKey || null))
       .catch(() => setApiKey(null));
-  }, []);
+  }, [canUsePersonalApi]);
 
   async function copyConnectionBlock() {
     await navigator.clipboard.writeText(buildAgentAccessText({
@@ -115,6 +117,7 @@ export default function ApiAccessClient({
 
   return (
     <div className="space-y-6 py-6">
+      {canUsePersonalApi && (
       <SectionCard
         title="API 接入"
         actions={
@@ -148,6 +151,7 @@ export default function ApiAccessClient({
           confirmDanger={false}
         />
       </SectionCard>
+      )}
 
     </div>
   );

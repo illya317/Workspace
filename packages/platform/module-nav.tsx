@@ -19,7 +19,7 @@ export const MODULES: ModuleDef[] = workspacePackages
   .map(toModuleDef);
 
 function isResourceVisible(user: SessionUser, resourceKey?: string, moduleKey?: string): boolean {
-  if (moduleKey === "settings" && (!resourceKey || resourceKey === "settings.account")) return true;
+  void moduleKey;
   if (resourceKey) {
     return (user.visibleResourceKeys || []).includes(resourceKey);
   }

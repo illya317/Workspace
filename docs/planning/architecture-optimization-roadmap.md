@@ -274,28 +274,7 @@ scripts/seed/
 
 目标：绩效、采购、生产不要重新发明结构。
 
-历史新模块模板（已被 `packages/<domain>` 模板替代，见 `docs/planning/new-domain-template.md`）：
-
-```txt
-app/<domain>/
-  page.tsx
-  <Domain>Client.tsx
-  types.ts
-  ARCHITECTURE.md
-  components/
-  hooks/
-
-app/api/<domain>/
-  route.ts
-
-server/services/<domain>/
-  index.ts
-  queries.ts
-  mutations.ts
-  summary.ts
-
-prisma/models/<domain>.prisma
-```
+现行新模块模板见 `docs/planning/new-domain-template.md`。页面/API 只保留 Next 壳，真实 UI/service 放 `packages/<domain>`。
 
 权限模板：
 

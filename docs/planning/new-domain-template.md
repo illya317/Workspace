@@ -13,10 +13,10 @@ packages/<domain>/
   constants/            # 模块常量和选项
   import/               # 导入清洗逻辑
 
-app/api/<domain>/
+app/api/modules/<domain>/<l2>/
   route.ts              # API 路由壳（≤120 行）：认证、校验、调 package service、返回 DTO
 
-app/<domain>/
+app/(modules)/<domain>/<l2>/
   page.tsx              # Server Component facade，只组合 package UI
   ARCHITECTURE.md       # 模块架构说明（数据来源、事实字段、计算字段、权限）
 
@@ -25,7 +25,7 @@ prisma/models/<domain>.prisma  # 领域模型（按 schema 治理规则）
 
 ## 权限注册
 
-在业务包 `module.ts` 的 `resourceDefs` 添加资源 key；需要同步 RBAC 常量时使用 `@workspace/platform/permissions`：
+在 `packages/platform/module-registry.ts` 注册 L1/L2，并保持四件事统一：页面 route、导航 URL、resource/RBAC key、API prefix + guard。业务包 `module.ts` 只放本业务包实现和导出；需要同步 RBAC 常量时使用 `@workspace/platform/permissions`：
 
 ```
 <domain>
@@ -82,6 +82,10 @@ const querySchema = z.object({
   keyword: z.string().optional(),
 });
 
+const createSchema = z.object({
+  name: z.string().trim().min(1),
+}).strip();
+
 export async function GET(request: Request) {
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
@@ -95,16 +99,31 @@ export async function GET(request: Request) {
   const data = await service.listItems(parsed.data);
   return NextResponse.json({ items: data });
 }
+
+export async function POST(request: Request) {
+  const auth = await requireApiAccess(request);
+  if (!auth.ok) return auth.response;
+
+  const body = await request.json().catch(() => null);
+  const parsed = createSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ error: "参数无效" }, { status: 400 });
+
+  const result = await service.createItem(parsed.data, auth.user.userId);
+  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
+  return NextResponse.json(result.data);
+}
 ```
+
+写入路径固定为 `Zod schema -> domain validator -> service/Prisma`：route schema 只验证请求形状并 strip，domain 层只 pick 业务字段和业务规则，service 负责事务和落库。
 
 ## 接入检查清单
 
 - [ ] 更新 `README.md` 模块地图
-- [ ] 创建 `app/<domain>/ARCHITECTURE.md`
+- [ ] 创建模块或 L2 的 `ARCHITECTURE.md`
 - [ ] 在 `packages/platform/module-registry.ts` 注册 L1/L2 的 `href`、`resourceKey`、`apiPrefixes` 或 `noApiReason`
 - [ ] 设计 `prisma/models/<domain>.prisma`（事实字段 + 审计字段）
 - [ ] 运行 `npm run db:validate && npm run schema:check`
 - [ ] 实现 `packages/<domain>/server/*`
 - [ ] 实现 `app/api/modules/<domain>/<l2>/route.ts`
-- [ ] 实现 `packages/<domain>/ui` 组件，再由 `app/<domain>/page.tsx` 挂载
+- [ ] 实现 `packages/<domain>/ui` 组件，再由 `app/(modules)/<domain>/<l2>/page.tsx` 挂载
 - [ ] 运行硬约束：`npm run arch:gate && npm run lint -- --max-warnings=0 && npx tsc --noEmit && npm run build`

@@ -8,7 +8,10 @@ export const RES = {
   settings: {
     root: "settings",
     account: "settings.account",
+    accountApiAccess: "settings.account.apiAccess",
     admin: "settings.admin",
+    api: "settings.api",
+    apiManage: "settings.api.manage",
   },
   agent: {
     root: "agent",

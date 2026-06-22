@@ -6,7 +6,7 @@
 
 - Core 负责通用交互契约：下拉、筛选、搜索、日期、确认弹窗、表格、字段展示、tag 输入。
 - Platform 负责登录后平台壳：导航、模块首页、Portal、用户菜单、审计日志、资源注册聚合。
-- Apps 只写业务语义：HR、Finance、Production 只负责把业务字段、选项、校验、DTO 接到 Core/Platform 组件上。
+- Apps 只写业务语义：HR、Finance、Production、Work、Administration、Library 只负责把业务字段、选项、校验、DTO 接到 Core/Platform 组件上。
 - 字段展示和选择方式必须解耦。字段本体看起来应该一致；选择面板可以是普通下拉、分级选择、FK 搜索、tag 选择，但不能让字段展示形态跟着变。
 - 搜索类选择默认支持中文、拼音全拼和拼音首字母。禁止业务组件各自写一套搜索算法。
 - 服务端列表、候选项和高级筛选里的 `keyword` / 模糊文本匹配必须复用 `@workspace/platform/search` 的 `matchAnyField`、`matchSearchFields` 或 `matchText`，保持中文、拼音全拼和首字母规则一致；不要在业务 service 或 UI 里手写 `toLowerCase().includes()` / `.includes(query)` 作为用户搜索，新增会被 `npm run arch:gate` 的 `handwrittenSearchMatches` ratchet 拦住。
@@ -66,7 +66,7 @@ generated 类成果的筛选 contract 要随生成 DTO 一起返回，避免 UI 
 | Portal | `@workspace/platform/ui` 的 `PortalClient` | Workspace 首页入口卡片 |
 | 审计历史 | `@workspace/platform/ui` 的 AuditLog 组件 | 通用编辑历史展示 |
 
-Platform 可以聚合模块注册和导航，但不能写 HR、Finance、Production 的业务字段逻辑，也不能重复实现 Core 已有的页面表头/返回栏结构。
+Platform 可以聚合模块注册和导航，但不能写 HR、Finance、Production、Work、Administration、Library 的业务字段逻辑，也不能重复实现 Core 已有的页面表头/返回栏结构。
 
 ## 页面模板与薄壳 ViewModel
 

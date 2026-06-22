@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { requireApiAccess } from "@workspace/platform/server/auth";
+import { authorize, requireApiAccess } from "@workspace/platform/server/auth";
 import { getUserApiKey, rotateUserApiKey } from "@workspace/platform/server/user-preferences";
 
 const rotateApiKeySchema = z.object({}).passthrough();
@@ -9,6 +9,9 @@ export async function GET(request: Request) {
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
   const payload = auth.user;
+  if (!(await authorize({ user: payload.userId, resourceKey: "settings.account.apiAccess", action: "access" }))) {
+    return NextResponse.json({ error: "无权限" }, { status: 403 });
+  }
 
   const apiKey = await getUserApiKey(payload.userId);
   return NextResponse.json({ apiKey });
@@ -18,6 +21,9 @@ export async function POST(request: Request) {
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
   const payload = auth.user;
+  if (!(await authorize({ user: payload.userId, resourceKey: "settings.account.apiAccess", action: "access" }))) {
+    return NextResponse.json({ error: "无权限" }, { status: 403 });
+  }
 
   const body = await request.json().catch(() => ({}));
   const parsed = rotateApiKeySchema.safeParse(body);

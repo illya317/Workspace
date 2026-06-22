@@ -6,8 +6,6 @@ import { authenticate, isKicked } from "./auth/authenticate";
 import { authorize } from "./auth/authorize";
 import type { AuthPayload } from "./auth-token";
 import { disabledApiResponseForRequest } from "./module-runtime";
-import { getManageableResourceKeys } from "./rbac/admin-scope";
-import { isSuperAdmin } from "./auth/admin";
 
 export type ApiAccessResult =
   | {
@@ -81,12 +79,12 @@ export async function requireAdminApiAccess(request: Request): Promise<ApiAccess
   const payload = await authenticate(request);
   if (!payload) return { ok: false, response: await unauthenticatedResponse(request) };
 
-  const [isSystemAdmin, manageableKeys] = await Promise.all([
-    isSuperAdmin(payload.userId),
-    getManageableResourceKeys(payload.userId),
-  ]);
-
-  if (!isSystemAdmin && manageableKeys.size === 0) {
+  const allowed = await authorize({
+    user: payload.userId,
+    resourceKey: "settings.admin",
+    action: "access",
+  });
+  if (!allowed) {
     return { ok: false, response: jsonError("无权限", 403) };
   }
 

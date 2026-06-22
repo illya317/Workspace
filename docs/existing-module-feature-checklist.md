@@ -25,7 +25,7 @@
 建议先写一句：
 
 ```md
-本次仅扩展现有 `<domain>` 业务包能力，不新增模块入口、不新增 domain；`app/<domain>/...` 只作为路由壳。
+本次仅扩展现有 `<domain>` 业务包能力，不新增模块入口、不新增 domain；`app/(modules)/<domain>/...` 和 `app/api/modules/<domain>/...` 只作为路由壳。
 ```
 
 ## 2. 数据与规则先行
@@ -41,11 +41,12 @@
 - `rules.ts`：纯函数规则
 - `index.ts` 或 `service.ts`：查询、聚合、落库
 
-## 3. API 只做四件事
+## 3. API 写入三段式
 
 - [ ] 认证
-- [ ] 参数校验
-- [ ] 调 service
+- [ ] Zod schema 校验请求形状并 strip
+- [ ] domain validator pick 可写字段并检查业务规则
+- [ ] service/Prisma 落库
 - [ ] 返回 DTO
 
 约束：

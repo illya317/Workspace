@@ -11,12 +11,7 @@ const {
 
 const VALID_MAX_ROLES = new Set(["access", "write", "delete", "admin"]);
 const VALID_KINDS = new Set(["capability"]);
-// settings.account is intentionally self-service: logged-in users may access
-// their own account settings without a normal RBAC grant. It still has an L2
-// page/API contract for route consistency, but the API contract is protected
-// by login state rather than a resourceKey.
-const SELF_SERVICE_L2_RESOURCES = new Set(["settings.account"]);
-
+const REQUIRED_STANDARD_SETTINGS_L2 = new Set(["settings.account", "settings.admin", "settings.api"]);
 function kebabCase(value) {
   return value.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 }
@@ -70,6 +65,25 @@ function runCheck() {
   );
   const derivedResourceKeys = new Set(derivedResources.map((resource) => resource.key));
   const apiByPrefix = new Map(apiContracts.map((contract) => [contract.pathPrefix, contract]));
+
+  for (const resourceKey of REQUIRED_STANDARD_SETTINGS_L2) {
+    const moduleDef = modules.find((item) => item.resourceKey === resourceKey);
+    if (!moduleDef) {
+      violations.push({
+        filePath: REGISTRY_GLOBS[0],
+        line: 1,
+        message: `Settings 标准 L2 缺少注册: ${resourceKey}`,
+      });
+      continue;
+    }
+    if (moduleDef.resourceHidden) {
+      violations.push({
+        filePath: moduleDef.filePath,
+        line: moduleDef.line,
+        message: `Settings 标准 L2 "${resourceKey}" 不能隐藏，必须进入普通 RBAC/resource 树`,
+      });
+    }
+  }
 
   for (const resource of explicitResources) {
     if (derivedResourceKeys.has(resource.key)) {
@@ -249,7 +263,7 @@ function runCheck() {
           message: `L2 "${moduleDef.key}" 的 API prefix ${prefix} 绑定到 ${contract.resourceKey}，应为 ${moduleDef.resourceKey}`,
         });
       }
-      if (!contract.resourceKey && !SELF_SERVICE_L2_RESOURCES.has(moduleDef.resourceKey)) {
+      if (!contract.resourceKey) {
         violations.push({
           filePath: moduleDef.filePath,
           line: moduleDef.line,

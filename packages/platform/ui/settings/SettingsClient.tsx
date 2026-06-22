@@ -25,7 +25,7 @@ export default function SettingsClient({
   const [user, setUser] = useState<SessionUser>(initialUser);
   const visibleResourceKeys = user.visibleResourceKeys || [];
   const hasApiAccess = visibleResourceKeys.includes("settings.api");
-  const hasAdminAccess = (user.manageableResourceKeys?.length ?? 0) > 0;
+  const hasAdminAccess = visibleResourceKeys.includes("settings.admin");
 
   const refreshUser = useCallback(() => {
     fetch(workspacePath("/api/auth/me"))

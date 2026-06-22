@@ -1,5 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { verifyToken, getTokenFromCookie } from "../auth-token";
+import { evaluatePermission } from "../rbac/check";
 
 function getPersonalApiKey(request: Request) {
   return request.headers.get("x-api-key")?.trim() || null;
@@ -33,6 +34,7 @@ export async function authenticate(request: Request) {
       },
     });
     if (!user || !user.canLogin) return null;
+    if (!(await evaluatePermission(user.id, "settings.account.apiAccess", "access"))) return null;
     return {
       userId: user.id,
       wxUserId: user.wxUserId ?? "",

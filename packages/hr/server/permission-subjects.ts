@@ -4,6 +4,7 @@ import {
   type SubjectType,
 } from "@workspace/platform/server/auth";
 import { prisma } from "@workspace/platform/server/prisma";
+import { isCapabilityResource } from "@workspace/platform/resources";
 
 import { loadCompanyMap, getCompanyNameSync } from "./company-directory";
 
@@ -18,7 +19,64 @@ export interface PermissionGrantData {
   directGrants: Awaited<ReturnType<typeof getGrants>>;
   positionGrants: Awaited<ReturnType<typeof getGrants>>;
   departmentGrants: Awaited<ReturnType<typeof getGrants>>;
+  implicitGrants: Array<{
+    subjectId: number;
+    resourceKey: string;
+    roleKey: string;
+    scopeId: string | null;
+  }>;
   ancestorResourceKeys: string[];
+}
+
+function hasAdminGrant(grants: Awaited<ReturnType<typeof getGrants>>, subjectIds: number[]) {
+  const ids = new Set(subjectIds);
+  return grants.some((grant) => ids.has(grant.subjectId) && grant.roleKey === "admin");
+}
+
+function buildImplicitGrants({
+  subjects,
+  subjectType,
+  resourceKey,
+  directGrants,
+  positionGrants,
+  departmentGrants,
+  ancestorResourceKeys,
+}: {
+  subjects: SubjectInfo[];
+  subjectType: SubjectType;
+  resourceKey: string | undefined;
+  directGrants: Awaited<ReturnType<typeof getGrants>>;
+  positionGrants: Awaited<ReturnType<typeof getGrants>>;
+  departmentGrants: Awaited<ReturnType<typeof getGrants>>;
+  ancestorResourceKeys: string[];
+}): PermissionGrantData["implicitGrants"] {
+  if (!resourceKey) return [];
+  const resourceLineage = new Set([resourceKey, ...ancestorResourceKeys]);
+  const hasDefaultAccessRoot =
+    resourceLineage.has("settings.account") ||
+    resourceLineage.has("work") ||
+    resourceLineage.has("docs");
+  if (hasDefaultAccessRoot && !isCapabilityResource(resourceKey)) {
+    if (subjectType !== "user") return [];
+    return subjects
+      .filter((subject) => subject.id > 0 && subject.extra?.hasUser)
+      .map((subject) => ({ subjectId: subject.id, resourceKey, roleKey: "access", scopeId: null }));
+  }
+  if (resourceKey !== "settings.admin") return [];
+
+  return subjects.flatMap((subject) => {
+    const directAdmin = hasAdminGrant(directGrants, [subject.id]);
+    const positionIds = (subject.extra?.positionIds as number[] | undefined) ?? [];
+    const departmentIds = (subject.extra?.departmentIds as number[] | undefined) ?? [];
+    const positionAdmin = subjectType === "user"
+      ? hasAdminGrant(positionGrants, positionIds)
+      : false;
+    const departmentAdmin = subjectType === "user"
+      ? hasAdminGrant(departmentGrants, departmentIds)
+      : false;
+    if (!directAdmin && !positionAdmin && !departmentAdmin) return [];
+    return [{ subjectId: subject.id, resourceKey, roleKey: "access", scopeId: null }];
+  });
 }
 
 export async function getPermissionGrantData(
@@ -46,12 +104,22 @@ export async function getPermissionGrantData(
   }
 
   const ancestorResourceKeys = resourceKey ? await getResourceAncestorKeys(resourceKey) : [];
+  const implicitGrants = buildImplicitGrants({
+    subjects,
+    subjectType,
+    resourceKey,
+    directGrants,
+    positionGrants,
+    departmentGrants,
+    ancestorResourceKeys,
+  });
 
   return {
     subjects,
     directGrants,
     positionGrants,
     departmentGrants,
+    implicitGrants,
     ancestorResourceKeys,
   };
 }

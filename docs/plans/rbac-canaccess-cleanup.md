@@ -1,5 +1,7 @@
 # Plan: 清理 `canAccess*` 旧 boolean 字段，统一为 `visibleResourceKeys` + `requireResourceAccess`
 
+> 历史计划归档：本文记录旧 `canAccess*` 清理过程，部分 Settings 入口描述已被后续统一权限模型取代。现行规则以 `AGENTS.md`、`docs/architecture-governance.md`、`docs/security/rbac.md` 和 `docs/security/permission-matrix.md` 为准。
+
 ## Context
 
 当前权限架构有两套并行的判断逻辑：

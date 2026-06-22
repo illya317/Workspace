@@ -30,6 +30,7 @@ export function usePermissionsTab(
   const [directGrants, setDirectGrants] = useState<Grant[]>([]);
   const [positionGrants, setPositionGrants] = useState<Grant[]>([]);
   const [departmentGrants, setDepartmentGrants] = useState<Grant[]>([]);
+  const [implicitGrants, setImplicitGrants] = useState<Grant[]>([]);
   const [ancestorResourceKeys, setAncestorResourceKeys] = useState<string[]>([]);
   const [maxRoleKey, setMaxRoleKey] = useState("admin");
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
@@ -64,6 +65,7 @@ export function usePermissionsTab(
         setDirectGrants(data.directGrants || []);
         setPositionGrants(data.positionGrants || []);
         setDepartmentGrants(data.departmentGrants || []);
+        setImplicitGrants(data.implicitGrants || []);
         setAncestorResourceKeys(data.ancestorResourceKeys || []);
         setMaxRoleKey(data.maxRoleKey || "admin");
         setIsSystemAdmin(data.isSystemAdmin || false);
@@ -92,12 +94,12 @@ export function usePermissionsTab(
     (subject: Subject, roleKey: string) =>
       computePermissionState(
         subject, roleKey, selectedResource, ancestorResourceKeys,
-        directGrants, positionGrants, departmentGrants, subjectType,
+        directGrants, positionGrants, departmentGrants, implicitGrants, subjectType,
         childResourceKeys,
       ),
     [
       selectedResource, ancestorResourceKeys,
-      directGrants, positionGrants, departmentGrants, subjectType, childResourceKeys,
+      directGrants, positionGrants, departmentGrants, implicitGrants, subjectType, childResourceKeys,
     ]
   );
 

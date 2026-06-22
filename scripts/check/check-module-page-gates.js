@@ -60,9 +60,6 @@ function hrefToPagePath(href) {
 function hasRouteGate(filePath, expectedHref, expectedKey) {
   if (!fs.existsSync(filePath)) return false;
   const text = readText(filePath);
-  if (expectedKey === "settings.admin" && /\brequireAdminManageAccess\s*\(/.test(text)) {
-    return true;
-  }
   if (new RegExp(`ModuleHomePage\\s+moduleKey=["']${expectedKey.replace(/\./g, "\\.")}["']`).test(text)) return true;
   const regex = new RegExp(
     `requireRouteAccess\\s*\\(\\s*["']${expectedHref.replace(/\//g, "\\/")}["']\\s*\\)`,

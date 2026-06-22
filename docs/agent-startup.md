@@ -1,34 +1,33 @@
 # Agent Startup Protocol
 
-这是一张给新 agent 的开工卡片。先按这里完成分流，再进入对应专题文档。
+这是一张给新 agent 的开工卡片。目标是快速判断角色、文件位置和第一批检查点。
 
-## 0. 当前执行模式
+## 0. 项目特点
 
-- Workspace 处于 **Level 2 / Level 2.5**：Architecture 负责发现结构漂移、判断根因、拆成可执行任务包；Feature/Data/Operations 负责按任务包执行。
-- 所有强制校验仍只有一个入口：`npm run arch:gate`。不要新增本地私有 gate、CI 旁路检查或第二套 registry。
-- Level 2 当前只认三件套：`scripts/arch/level2.ts` 负责 AST/pattern scan，`packages/platform/module-registry.ts` 负责模块注册锁，`packages/platform/api-registry.ts` 负责 API Contract。详细执行规则见 `docs/level2-agent-execution.md`。
-- Architecture 输出必须是文件级或模块级动作；Feature/Data/Operations 收到任务后只改自己负责范围。发现任务需要改 gate、baseline、registry 或跨包规则时，先回传 Architecture。
-- 历史债可以由 baseline 锁定，但 baseline 只能减少，不能为了新违规扩写。
+- 三层：`Core -> Platform -> Apps`。
+- App route/API route 是壳；真实 UI/service 在 package。
+- L2 权限四件套：`app route` / `URL href` / `resourceKey + RBAC` / `API contract + guard`。
+- 写入三段式：`Zod schema -> domain validator -> service/Prisma`。
+- Core/Platform 已有大量基础设施，先查再写。
 
 ## 1. 开工顺序
 
 1. 运行 `git status --short --branch`，确认当前分支和已有脏文件。
-2. 判断自己属于哪类 agent：Architecture、Feature、Data、Operations、Review。
-3. 读取 `AGENTS.md` 的“文档入口”表、对应 `docs/roles/*.md`，以及本任务命中的专题文档。
-4. 如果收到 Architecture 拆出的 Level 2 任务包，先读 `docs/level2-agent-execution.md`，确认目标文件、动作、依赖和禁止触碰范围。
-5. 写清楚本次只会改哪些文件；发现别的 agent 文件已修改时，只保留，不回滚、不格式化、不提交。
-6. 开发中不要为每个小 patch 反复跑完整检查；按文件或功能批次做轻量验证即可。
-7. 到独立任务完成、准备 commit、明显切换新话题、交给 Review/部署前，必须按风险运行收尾验证；架构相关验证只跑 `npm run arch:gate` 这一条入口。
+2. 按任务选角色文档：Feature / Data / Architecture / Operations / Review。
+3. 读对应模块 `ARCHITECTURE.md`，再动文件。
+4. 只改本任务文件；看到别人的脏文件，不回滚、不格式化、不提交。
+5. 收尾按风险跑检查。架构相关只认 `npm run arch:gate`。
 
-## 2. 角色边界
+## 2. 按任务开工
 
-| 角色 | 权威说明 |
+| 任务 | 先读 | 常改文件 | 第一判断 |
 |---|---|
-| Architecture | `docs/roles/architecture.md` |
-| Feature | `docs/roles/feature.md` |
-| Data | `docs/roles/data.md` |
-| Operations | `docs/roles/operations.md` |
-| Review | `docs/roles/review.md` |
+| 改 UI | `docs/roles/feature.md`, `docs/reusable-components.md` | `packages/<domain>/ui/**`，必要时 `packages/core/ui/**` | Core/Platform 有没有现成壳、表格、筛选、搜索、日期、确认、Toast、分栏 |
+| 修 BUG | `docs/roles/feature.md`, 模块 `ARCHITECTURE.md` | 从 `app` 壳追到 package UI/service | BUG 属于 UI 展示、API contract、domain 规则、service 落库还是数据 |
+| 写 API/保存 | `docs/architecture-governance.md`, `docs/security/rbac.md` | `app/api/modules/<domain>/**`, `packages/<domain>/server/**` | 是否满足 `Zod -> domain -> service`，route 是否只做壳 |
+| 权限/入口 | `docs/security/rbac.md`, `packages/platform/module-registry.ts` | registry、page shell、API route | 四件套是否统一，是否从 registry 推导 |
+| 新模块/L2 | `docs/new-module-checklist.md` | registry、route shell、API shell、package | 先定 URL/resource/API，再写 UI/service |
+| 现有模块加能力 | `docs/existing-module-feature-checklist.md` | 对应 domain package | 复用现有 resource 和 Core/Platform 基础设施 |
 
 ## 3. 放置规则
 
@@ -37,8 +36,8 @@
 | 通用控件、页面骨架、表格、筛选、日期、确认、Toast、分页、拼音搜索 | `packages/core` |
 | 登录、权限、导航、模块注册、Portal、审计、用户、平台壳 | `packages/platform` |
 | HR / Finance / Production / Work / Administration / Library 业务 UI、server、types、constants、import | `packages/<domain>` |
-| Next 页面入口 | `app/<domain>/page.tsx`，只做鉴权、必要预取、挂载 package component |
-| Next API 入口 | `app/api/<domain>/*/route.ts`，只做认证、权限、参数校验、调用 package service、返回 DTO |
+| Next 页面入口 | `app/(modules)/<domain>/**/page.tsx`，只做鉴权、必要预取、挂载 package component；系统页放 `app/(system)/**` |
+| Next API 入口 | `app/api/modules/<domain>/**/route.ts`，只做认证、权限、Zod 参数校验、调用 package service、返回 DTO；系统 API 放 `app/api/settings/**` |
 | 兼容旧入口 | `app/components`、`app/hooks`、`lib`，只做 re-export 或极少量 Next 必须入口 |
 
 ## 4. 当前并行注意
@@ -49,13 +48,10 @@
 
 ## 5. Level 2 使用方式
 
-- `npm run arch:level2` 是结构智能报告，用来发现重复 UI pattern、API route contract 缺口、route 模板漂移、旧 service 债和 app hook/UI 存量。
-- 报告发现不能直接变成私有规则；要强制就接入唯一 `npm run arch:gate`。
-- baseline 只代表历史债锁定。迁移减少历史债时要同步 ratchet；新增违规不能通过扩写 baseline 放行。
-- Level 2 任务排序固定按系统影响：边界污染 > 校验薄弱 > 抽象缺口 > 迁移债 > 重复代码。
-- Feature/Data/Operations 不需要重新做全量架构分析；执行任务前只确认目标文件、动作类型、依赖顺序和并行避让范围。
-- API Contract 的权威来源是 `packages/platform/api-registry.ts`，并且从 `packages/platform/module-registry.ts` 派生；业务包不得维护第二套 API 清单。
-- 任务执行和 baseline ratchet 细则见 `docs/level2-agent-execution.md`。
+- `npm run arch:level2` 只用于发现结构漂移和拆任务，不是第二个 gate。
+- 强制检查只有 `npm run arch:gate`。
+- baseline 只能减少，不能为新违规扩写。
+- 细则见 `docs/level2-agent-execution.md`。
 
 ## 6. 交接格式
 
@@ -90,9 +86,6 @@
 ## 7. 本地提交纪律
 
 - 提交前再次运行 `git status --short`。只 stage 本任务文件。
-- 看到别的 agent 的脏文件时，不要 `git checkout --`、不要批量格式化、不要带进 commit。
-- 需要临时隔离时，先 stage 自己的文件，再使用 `git stash push --keep-index --include-untracked`，验证后恢复；不要 `stash pop` 未确认来源的 stash。
 - commit 前必须有一次与风险匹配的收尾检查。小文档改动优先 `npm run docs:check`；普通 TS/TSX 小改动优先 `npm run lint:changed` + `npm run typecheck:quick`；涉及边界、权限、registry、Core/Platform 或 API contract 时加 `npm run arch:gate`；schema、部署、构建链路或共享行为改动跑完整组。
 - pre-commit 的 `check:quick` 是最后防线，不要用 `--no-verify` 绕过。检查失败时先判断是否由当前任务造成；无关并行失败要在交付说明里标明，不要顺手修或提交别人的文件。
-- 用户切到新话题前，如果上一话题已有可提交改动，先完成收尾检查和独立 commit；不要把两个话题混成一个 commit。
 - 本地开发只允许一个 3000 端口 dev server。需要开 dev 前先查 `lsof -nP -iTCP:3000 -sTCP:LISTEN`。
