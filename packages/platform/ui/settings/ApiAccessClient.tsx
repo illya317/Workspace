@@ -67,6 +67,11 @@ function buildAgentAccessText({
   return lines.join("\n");
 }
 
+function maskApiKey(apiKey: string) {
+  if (apiKey.length <= 3) return apiKey;
+  return `${apiKey.slice(0, 3)}${"*".repeat(apiKey.length - 3)}`;
+}
+
 export default function ApiAccessClient({
   user,
   modules,
@@ -131,7 +136,7 @@ export default function ApiAccessClient({
       >
         <CodeBlock className="space-y-1">
           <div>URL: {API_BASE_URL}</div>
-          <div>Key: {apiKey || "（先申请）"}</div>
+          <div>Key: {apiKey ? maskApiKey(apiKey) : "（先申请）"}</div>
           <div>User: {user.username || user.nickname || "（未获取）"}</div>
         </CodeBlock>
         <ConfirmModal
