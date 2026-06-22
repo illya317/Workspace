@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { authenticate } from "./auth";
 import { snapshotHistory } from "./history";
+import {
+  guardedDelete,
+  parsePositiveId,
+  type DeleteGuardContext,
+  type DeleteMode,
+  type DeleteReferenceGuard,
+} from "./delete-guard";
 import { disabledApiResponseForRequest } from "./module-runtime";
 import { prisma } from "./prisma";
 
@@ -19,8 +26,13 @@ export interface CrudFactoryConfig {
   writeCheck?: AccessChecker;
   deleteCheck?: AccessChecker;
   allowedFields?: string[];
+  deleteMode?: DeleteMode;
+  deleteActionLabel?: string;
+  deleteReferences?: DeleteReferenceGuard[];
+  getDeleteExpectedVersion?: (request: Request) => number | undefined;
+  onBeforeDeleteScope?: (context: DeleteGuardContext) => Promise<BeforeDeleteResult | null> | BeforeDeleteResult | null;
   onBeforeUpdate?: (field: string, value: unknown, id?: number) => Promise<BeforeUpdateResult | null>;
-  onBeforeDelete?: (id: number) => Promise<BeforeDeleteResult | null>;
+  onBeforeDelete?: (id: number, context: DeleteGuardContext) => Promise<BeforeDeleteResult | null>;
 }
 
 export type DomainCrudConfig = Omit<CrudFactoryConfig, "accessCheck" | "writeCheck" | "deleteCheck">;
@@ -91,16 +103,22 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
       if (!(await deleteCheck(payload.userId))) return NextResponse.json({ error: "无权限" }, { status: 403 });
 
       const { id } = await params;
-      const recordId = parseInt(id);
-      if (config.onBeforeDelete) {
-        const result = await config.onBeforeDelete(recordId);
-        if (!result) return NextResponse.json({ error: "删除校验失败" }, { status: 400 });
-        if ("error" in result) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
-      }
-      await snapshotHistory(config.entityType, recordId, payload.userId);
+      const parsedId = parsePositiveId(id);
+      if (!parsedId.ok) return NextResponse.json({ error: parsedId.error }, { status: parsedId.status || 400 });
 
-      const model = prisma[config.modelKey] as unknown as { delete: (args: { where: { id: number } }) => Promise<unknown> };
-      await model.delete({ where: { id: recordId } });
+      const result = await guardedDelete({
+        entityType: config.entityType,
+        modelKey: config.modelKey,
+        id: parsedId.id,
+        userId: payload.userId,
+        actionLabel: config.deleteActionLabel,
+        deleteMode: config.deleteMode ?? "hard",
+        expectedVersion: config.getDeleteExpectedVersion?.(request),
+        references: config.deleteReferences,
+        onBeforeDelete: config.onBeforeDelete,
+        scopeGuard: config.onBeforeDeleteScope,
+      });
+      if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
 
       return NextResponse.json({ success: true });
     },

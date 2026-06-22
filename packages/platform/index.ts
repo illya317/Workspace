@@ -65,6 +65,19 @@ export type {
   DomainCrudConfig,
 } from "./server/crud-factory";
 export {
+  guardedDelete,
+  parsePositiveId,
+} from "./server/delete-guard";
+export type {
+  DeleteGuardContext,
+  DeleteGuardHookResult,
+  DeleteGuardResult,
+  DeleteMode,
+  DeleteReferenceGuard,
+  GuardedDeleteInput,
+  ParsePositiveIdResult,
+} from "./server/delete-guard";
+export {
   failCommand,
   mapValidationToServiceResult,
   okCommand,

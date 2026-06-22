@@ -26,6 +26,7 @@
     "./server/audit-log": "./server/audit-log.ts",
     "./server/auth": "./server/auth.ts",
     "./server/crud-factory": "./server/crud-factory.ts",
+    "./server/delete-guard": "./server/delete-guard.ts",
     "./server/domain-validation": "./server/domain-validation.ts",
     "./server/dal/pagination": "./server/dal/pagination.ts",
     "./server/department-admins": "./server/department-admins.ts",
