@@ -5,7 +5,7 @@ export const ProjectCreateSchema = z.object({
   name: z.string().min(1, "名称不能为空"),
   description: z.string().optional().nullable(),
   status: z.string().optional().nullable(),
-  priority: z.string().optional().nullable(),
+  isMilestone: z.boolean().optional().default(false),
   stage: z.string().optional().nullable(),
   plan: z.string().optional().nullable(),
   goal: z.string().optional().nullable(),

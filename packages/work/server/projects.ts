@@ -56,7 +56,7 @@ export async function listProjects(input: { userId: number; keyword: string; pag
       },
       description: project.description,
       status: project.status,
-      priority: project.priority,
+      isMilestone: project.isMilestone,
       stage: project.stage,
       plan: project.plan,
       goal: project.goal,

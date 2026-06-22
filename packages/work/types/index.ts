@@ -24,7 +24,7 @@ export interface FieldConfig {
   label: string;
   editable?: boolean;
   required?: boolean;
-  type?: "text" | "textarea" | "number" | "date" | "fk";
+  type?: "text" | "textarea" | "number" | "date" | "fk" | "boolean";
 }
 
 export interface TabConfig {

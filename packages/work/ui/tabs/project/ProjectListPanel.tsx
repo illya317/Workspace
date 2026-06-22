@@ -36,7 +36,7 @@ export default function ProjectListPanel({
           trailing={`人 ${project.employeeCount}`}
           meta={[
             ...(project.status ? [project.status] : []),
-            ...(project.priority ? [project.priority] : []),
+            ...(project.isMilestone ? ["里程碑"] : []),
           ]}
           onClick={() => onSelect(project.id)}
         />
