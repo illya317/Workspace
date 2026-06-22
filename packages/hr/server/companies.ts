@@ -1,5 +1,6 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
+import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
@@ -17,7 +18,9 @@ const COMPANY_CONFIG = {
   entityType: "Company",
   modelKey: "company" as const,
   allowedFields: COMPANY_ALLOWED_FIELDS,
+  deleteMode: "hard" as const,
   onBeforeUpdate: normalizeCompanyFieldUpdate,
+  onBeforeDelete: normalizeCompanyDelete,
 };
 
 async function normalizeCompanyFieldUpdate(field: string, value: unknown) {
@@ -25,6 +28,13 @@ async function normalizeCompanyFieldUpdate(field: string, value: unknown) {
   if (!command.ok) return { error: command.issue.message, status: command.issue.status };
   invalidateCompanyCache();
   return command.data;
+}
+
+async function normalizeCompanyDelete(id: number, context: DeleteGuardContext) {
+  const command = await validateCompanyDeleteCommand(id);
+  if (!command.ok) return { error: command.issue.message, status: command.issue.status };
+  await context.tx.companyRelation.deleteMany({ where: { OR: [{ parentId: command.data.id }, { childId: command.data.id }] } });
+  return { ok: true as const };
 }
 
 export async function listCompanies(input: { keyword: string; activeOnly: boolean; page: number; pageSize: number }) {

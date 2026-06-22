@@ -3,6 +3,7 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
+import { prisma } from "@workspace/platform/server/prisma";
 import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { HR_FK_REGISTRY } from "../fk-registry";
 
@@ -58,4 +59,12 @@ export async function buildCompanyRelationFieldUpdateCommand(
   }
   if (field === "isConsolidated") return okCommand({ field, value: Boolean(value) });
   return okCommand({ field, value });
+}
+
+export async function validateCompanyRelationDeleteCommand(id: unknown): Promise<DomainValidationResult<{ id: number }>> {
+  const relationId = Number(id);
+  if (!Number.isInteger(relationId) || relationId <= 0) return failCommand("公司关系ID无效");
+  const relation = await prisma.companyRelation.findUnique({ where: { id: relationId }, select: { id: true } });
+  if (!relation) return failCommand("公司关系不存在", 404);
+  return okCommand({ id: relationId });
 }

@@ -16,6 +16,7 @@ import {
   buildContractDeleteCommand,
   buildContractFieldUpdateCommand,
 } from "./domain/contract-validation";
+import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
 export {
   buildContractRows,
   clearPrimaryContractFlags,
@@ -55,8 +56,10 @@ async function clearPrimaryContractsForEmployee(
 
 export async function getContracts(options: {
   company?: string;
+  department?: string;
   isActive?: string | null;
   keyword?: string;
+  position?: string;
   page: number;
   pageSize: number;
 }): Promise<PaginatedContracts> {
@@ -67,10 +70,20 @@ export async function getContracts(options: {
   const employments = await prisma.employment.findMany({
     where,
     include: {
-      employee: { select: { id: true, employeeId: true, name: true } },
+      employee: {
+        select: {
+          id: true,
+          employeeId: true,
+          name: true,
+          positions: { include: employeePositionFilterInclude },
+        },
+      },
     },
     orderBy: { id: "asc" },
   });
+  const positionByEmploymentId = new Map(
+    employments.map((employment) => [employment.id, employment.employee?.positions ?? []]),
+  );
 
   let rows = buildContractRows(
     employments.map((e) => ({
@@ -85,6 +98,14 @@ export async function getContracts(options: {
   }
   if (options.company) {
     rows = rows.filter((row) => row.company === options.company);
+  }
+  if (options.department || options.position) {
+    rows = rows.filter((row) =>
+      employeePositionMatches(positionByEmploymentId.get(row.employmentId) ?? [], {
+        department: options.department,
+        position: options.position,
+      }),
+    );
   }
 
   return paginateContracts(rows, options.page, options.pageSize);

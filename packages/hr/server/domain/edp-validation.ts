@@ -238,3 +238,11 @@ export async function buildSaveEmployeeEdpsCommand(
   const deletedIds = existingRows.map((row) => row.id).filter((rowId) => !keptIds.has(rowId));
   return okCommand({ rows: normalizedRows, deletedIds });
 }
+
+export async function validateEdpDeleteCommand(id: unknown): Promise<DomainValidationResult<{ id: number }>> {
+  const recordId = Number(id);
+  if (!Number.isInteger(recordId) || recordId <= 0) return failCommand("岗位记录ID无效");
+  const record = await prisma.eDP.findUnique({ where: { id: recordId }, select: { id: true } });
+  if (!record) return failCommand("岗位记录不存在", 404);
+  return okCommand({ id: recordId });
+}

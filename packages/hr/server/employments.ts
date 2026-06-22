@@ -9,6 +9,7 @@ import {
   buildEmploymentFieldUpdateCommand,
   EMPLOYMENT_ALLOWED_FIELDS,
 } from "./domain/employment-validation";
+import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
 
 const EMPLOYMENT_CONFIG = { entityType: "Employment", modelKey: "employment" as const };
 
@@ -28,6 +29,8 @@ export async function listEmployments(input: {
   keyword: string;
   isActive: string | null;
   company: string;
+  department: string;
+  position: string;
   personnelType: string;
   page: number;
   pageSize: number;
@@ -39,7 +42,16 @@ export async function listEmployments(input: {
 
   const items = await prisma.employment.findMany({
     where,
-    include: { employee: { select: { id: true, employeeId: true, name: true } } },
+    include: {
+      employee: {
+        select: {
+          id: true,
+          employeeId: true,
+          name: true,
+          positions: { include: employeePositionFilterInclude },
+        },
+      },
+    },
     orderBy: { id: "asc" },
   });
 
@@ -47,6 +59,7 @@ export async function listEmployments(input: {
     id: item.id,
     employeeId: item.employeeId,
     employeeName: item.employee?.name || "",
+    employeePositions: item.employee?.positions ?? [],
     isActive: item.isActive,
     currentCompany: primaryContractCompany(item.contracts, item.currentCompany),
     joinDate: item.joinDate,
@@ -67,13 +80,21 @@ export async function listEmployments(input: {
   if (input.company) {
     filtered = filtered.filter((employment) => employment.currentCompany === input.company);
   }
+  if (input.department || input.position) {
+    filtered = filtered.filter((employment) =>
+      employeePositionMatches(employment.employeePositions, { department: input.department, position: input.position }),
+    );
+  }
   if (input.personnelType) {
     filtered = filtered.filter((employment) => employment.personnelType === input.personnelType);
   }
 
   const total = filtered.length;
   const start = (input.page - 1) * input.pageSize;
-  return { items: filtered.slice(start, start + input.pageSize), total };
+  return {
+    items: filtered.slice(start, start + input.pageSize).map(({ employeePositions: _employeePositions, ...item }) => item),
+    total,
+  };
 }
 
 export async function createEmployment(request: Request) {

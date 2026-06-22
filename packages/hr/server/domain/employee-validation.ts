@@ -3,6 +3,7 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
+import { prisma } from "@workspace/platform/server/prisma";
 import { serializeHrMajorItems } from "@workspace/hr/constants/field-options";
 import { normalizeHrSchoolValue } from "@workspace/hr/constants/school-options";
 import { normalizeEmployeeOption, rejectInvalidDateField } from "../field-validation";
@@ -90,4 +91,12 @@ export function buildEmployeeFieldUpdateCommand(
     return okCommand({ field: result.field, value: result.value });
   }
   return okCommand({ field, value });
+}
+
+export async function validateEmployeeDeleteCommand(id: unknown): Promise<DomainValidationResult<{ id: number }>> {
+  const employeeId = Number(id);
+  if (!Number.isInteger(employeeId) || employeeId <= 0) return failCommand("员工ID无效");
+  const employee = await prisma.employee.findUnique({ where: { id: employeeId }, select: { id: true } });
+  if (!employee) return failCommand("员工不存在", 404);
+  return okCommand({ id: employeeId });
 }

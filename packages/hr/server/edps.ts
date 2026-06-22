@@ -11,6 +11,7 @@ import {
   buildEdpCreateCommand,
   buildEdpFieldUpdateCommand,
   EDP_ALLOWED_FIELDS,
+  validateEdpDeleteCommand,
   type EdpCreateInput,
 } from "./domain/edp-validation";
 import {
@@ -24,7 +25,15 @@ const EDP_CONFIG = {
   entityType: "EDP",
   modelKey: "eDP" as const,
   allowedFields: EDP_ALLOWED_FIELDS,
+  deleteMode: "hard" as const,
+  deleteReferencePolicy: "none" as const,
+  onBeforeDelete: normalizeEdpDelete,
 };
+
+async function normalizeEdpDelete(id: number) {
+  const command = await validateEdpDeleteCommand(id);
+  return command.ok ? { ok: true as const } : { error: command.issue.message, status: command.issue.status };
+}
 
 function activeFilterValue(value: string | null | undefined) {
   if (value === "true") return true;
@@ -32,7 +41,15 @@ function activeFilterValue(value: string | null | undefined) {
   return null;
 }
 
-export async function listEdps(input: { keyword: string; isActive?: string | null; company?: string; page: number; pageSize: number }) {
+export async function listEdps(input: {
+  keyword: string;
+  isActive?: string | null;
+  company?: string;
+  department?: string;
+  position?: string;
+  page: number;
+  pageSize: number;
+}) {
   const employees = await prisma.employee.findMany({
     select: {
       id: true,
@@ -89,6 +106,12 @@ export async function listEdps(input: { keyword: string; isActive?: string | nul
         .filter((employment) => isActive === null || employment.isActive === isActive)
         .some((employment) => primaryContractCompany(employment.contracts, employment.currentCompany) === input.company),
     );
+  }
+  if (input.department) {
+    rows = rows.filter((row) => row.departmentName === input.department);
+  }
+  if (input.position) {
+    rows = rows.filter((row) => row.positionName === input.position);
   }
 
   if (input.keyword) {

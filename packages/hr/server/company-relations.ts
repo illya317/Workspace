@@ -5,18 +5,27 @@ import {
   buildCompanyRelationCreateCommand,
   buildCompanyRelationFieldUpdateCommand,
   COMPANY_RELATION_ALLOWED_FIELDS,
+  validateCompanyRelationDeleteCommand,
 } from "./domain/company-relation-validation";
 
 const COMPANY_RELATION_CONFIG = {
   entityType: "CompanyRelation",
   modelKey: "companyRelation" as const,
   allowedFields: COMPANY_RELATION_ALLOWED_FIELDS,
+  deleteMode: "hard" as const,
+  deleteReferencePolicy: "none" as const,
   onBeforeUpdate: normalizeCompanyRelationFieldUpdate,
+  onBeforeDelete: normalizeCompanyRelationDelete,
 };
 
 async function normalizeCompanyRelationFieldUpdate(field: string, value: unknown) {
   const command = await buildCompanyRelationFieldUpdateCommand(field, value);
   return command.ok ? command.data : { error: command.issue.message, status: command.issue.status };
+}
+
+async function normalizeCompanyRelationDelete(id: number) {
+  const command = await validateCompanyRelationDeleteCommand(id);
+  return command.ok ? { ok: true as const } : { error: command.issue.message, status: command.issue.status };
 }
 
 export async function listCompanyRelations(input: { keyword: string; page: number; pageSize: number }) {

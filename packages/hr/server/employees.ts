@@ -1,6 +1,7 @@
 import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
+import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { fkDisplay, resolveFkValues } from "@workspace/platform/server/resolve-fk";
@@ -10,8 +11,10 @@ import {
   buildEmployeeCreateCommand,
   buildEmployeeFieldUpdateCommand,
   EMPLOYEE_ALLOWED_FIELDS,
+  validateEmployeeDeleteCommand,
 } from "./domain/employee-validation";
 import { primaryContractCompany } from "./employments";
+import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
 
 const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -60,6 +63,28 @@ async function normalizeEmployeeFieldUpdate(field: string, value: unknown) {
   return command.ok ? command.data : { error: command.issue.message, status: command.issue.status };
 }
 
+async function normalizeEmployeeDelete(id: number, context: DeleteGuardContext) {
+  const command = await validateEmployeeDeleteCommand(id);
+  if (!command.ok) return { error: command.issue.message, status: command.issue.status };
+  const [salaryCount, shipmentCount, workshopCount] = await Promise.all([
+    context.tx.financeSalesSalary.count({ where: { employeeId: command.data.id } }),
+    context.tx.financeShipment.count({ where: { employeeId: command.data.id } }),
+    context.tx.financeWorkshopReport.count({ where: { employeeId: command.data.id } }),
+  ]);
+  const blocks = [
+    salaryCount > 0 ? `财务销售工资 ${salaryCount} 条` : null,
+    shipmentCount > 0 ? `财务发货明细 ${shipmentCount} 条` : null,
+    workshopCount > 0 ? `财务车间日报 ${workshopCount} 条` : null,
+  ].filter(Boolean);
+  if (blocks.length > 0) {
+    return { error: `不能删除员工，请先处理引用：${blocks.join("、")}`, status: 409 };
+  }
+  await context.tx.employment.deleteMany({ where: { employeeId: command.data.id } });
+  await context.tx.eDP.deleteMany({ where: { employeeId: command.data.id } });
+  await context.tx.employeeProject.deleteMany({ where: { employeeId: command.data.id } });
+  return { ok: true as const };
+}
+
 function getEmployeeDirectoryFilterValue(employee: Record<string, unknown>, field: string) {
   if (field === "gender") {
     if (employee.gender === true) return "男";
@@ -79,6 +104,8 @@ export async function listEmployees(input: {
   employmentStatus?: "active" | "inactive";
   isActive?: string | null;
   company?: string;
+  department?: string;
+  position?: string;
   keyword: string;
   filterField?: string;
   filterValue?: string;
@@ -92,10 +119,7 @@ export async function listEmployees(input: {
         orderBy: [{ isActive: "desc" }, { id: "desc" }],
       },
       positions: {
-        include: {
-          department: true,
-          position: { include: { department: true } },
-        },
+        include: employeePositionFilterInclude,
         orderBy: [{ isPrimary: "desc" }, { id: "asc" }],
       },
     },
@@ -123,6 +147,11 @@ export async function listEmployees(input: {
       employee.employments
         .filter((employment) => isActive === null || employment.isActive === isActive)
         .some((employment) => primaryContractCompany(employment.contracts, employment.currentCompany) === input.company),
+    );
+  }
+  if (input.department || input.position) {
+    employees = employees.filter((employee) =>
+      employeePositionMatches(employee.positions, { department: input.department, position: input.position }),
     );
   }
   if (input.keyword) employees = employees.filter((employee) => matchAnyField(employee, input.keyword, "Employee"));
@@ -194,7 +223,9 @@ export async function deleteEmployee(request: Request, params: Promise<{ id: str
     entityType: "Employee",
     modelKey: "employee" as const,
     allowedFields: EMPLOYEE_ALLOWED_FIELDS,
+    deleteMode: "hard" as const,
     onBeforeUpdate: normalizeEmployeeFieldUpdate,
+    onBeforeDelete: normalizeEmployeeDelete,
   });
 }
 
