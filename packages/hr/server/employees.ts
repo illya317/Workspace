@@ -1,36 +1,19 @@
 import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
+import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import { snapshotHistory } from "@workspace/platform/server/history";
-import { normalizeEmployeeOption, rejectInvalidDateField } from "./field-validation";
-import { serializeHrMajorItems } from "@workspace/hr/constants/field-options";
-import { normalizeHrSchoolValue } from "@workspace/hr/constants/school-options";
 import { prisma } from "@workspace/platform/server/prisma";
 import { fkDisplay, resolveFkValues } from "@workspace/platform/server/resolve-fk";
 import { handleDelete, handleUpdateField } from "./hr-crud";
 import { matchAnyField, matchEmployee, matchText } from "@workspace/platform/search";
+import {
+  buildEmployeeCreateCommand,
+  buildEmployeeFieldUpdateCommand,
+  EMPLOYEE_ALLOWED_FIELDS,
+} from "./domain/employee-validation";
 
 const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
-const EMPLOYEE_FIELDS = [
-  "employeeId",
-  "name",
-  "alias",
-  "gender",
-  "birthDate",
-  "ethnicity",
-  "hometown",
-  "politics",
-  "education",
-  "title",
-  "school",
-  "major",
-  "phone",
-  "workStartDate",
-  "idNumber",
-  "otherId",
-  "userId",
-];
-const DATE_FIELDS = ["birthDate", "workStartDate"];
 const EMPLOYEE_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education", "positionName", "directDepartmentName"]);
 
 function randomUsername() {
@@ -71,54 +54,9 @@ function formatAlias(value: string | null) {
   }
 }
 
-function normalizeAliasUpdate(value: unknown) {
-  if (!value) return null;
-  const text = String(value).trim();
-  if (!text) return null;
-  let rawTags: unknown[] = [];
-  try {
-    const parsed = JSON.parse(text);
-    if (Array.isArray(parsed)) rawTags = parsed;
-  } catch {
-    rawTags = text.split(/[,，、;；\n]+/);
-  }
-  const seen = new Set<string>();
-  const tags: string[] = [];
-  for (const item of rawTags) {
-    const tag = String(item).trim();
-    if (!tag || seen.has(tag)) continue;
-    seen.add(tag);
-    tags.push(tag);
-  }
-  return tags.length > 0 ? JSON.stringify(tags) : null;
-}
-
 async function normalizeEmployeeFieldUpdate(field: string, value: unknown) {
-  if (field === "employeeId") {
-    return { error: "员工编号由系统生成，不能手动修改" };
-  }
-  const dateResult = rejectInvalidDateField(field, value, DATE_FIELDS);
-  if (!dateResult) return null;
-  if (field === "alias") {
-    return { field, value: normalizeAliasUpdate(value) };
-  }
-  if (field === "major") {
-    return { field, value: serializeHrMajorItems(value) };
-  }
-  if (field === "school") {
-    const result = normalizeHrSchoolValue(value);
-    if (!result.ok) return { error: result.error };
-    return { field, value: result.value };
-  }
-  if (field === "gender") {
-    if (value === "男" || value === true) return { field, value: true };
-    if (value === "女" || value === false) return { field, value: false };
-    return { field, value: null };
-  }
-  if (["ethnicity", "politics", "education", "title", "phone", "idNumber"].includes(field)) {
-    return normalizeEmployeeOption(field, value);
-  }
-  return { field, value };
+  const command = await buildEmployeeFieldUpdateCommand(field, value);
+  return command.ok ? command.data : { error: command.issue.message, status: command.issue.status };
 }
 
 function getEmployeeDirectoryFilterValue(employee: Record<string, unknown>, field: string) {
@@ -184,10 +122,8 @@ export async function listEmployees(input: {
 }
 
 export async function createEmployeeWithAccount(name: string, editorUserId: number) {
-  const cleanName = name.trim();
-  if (!cleanName) {
-    return { ok: false as const, error: "姓名必填", status: 400 };
-  }
+  const command = mapValidationToServiceResult(buildEmployeeCreateCommand(name));
+  if (!command.ok) return command;
 
   const employeeId = await nextEmployeeId();
   const username = await uniqueUsername();
@@ -196,7 +132,7 @@ export async function createEmployeeWithAccount(name: string, editorUserId: numb
     const result = await prisma.$transaction(async (tx) => {
       const linkedUser = await tx.user.create({
         data: {
-          name: cleanName,
+          name: command.data.name,
           username,
           employeeId,
           canLogin: true,
@@ -206,7 +142,7 @@ export async function createEmployeeWithAccount(name: string, editorUserId: numb
       const employee = await tx.employee.create({
         data: {
           employeeId,
-          name: cleanName,
+          name: command.data.name,
           userId: linkedUser.id,
         },
       });
@@ -227,7 +163,7 @@ export async function updateEmployeeField(request: Request, params: Promise<{ id
   return handleUpdateField(request, params, {
     entityType: "Employee",
     modelKey: "employee" as const,
-    allowedFields: EMPLOYEE_FIELDS,
+    allowedFields: EMPLOYEE_ALLOWED_FIELDS,
     onBeforeUpdate: normalizeEmployeeFieldUpdate,
   });
 }
@@ -236,7 +172,7 @@ export async function deleteEmployee(request: Request, params: Promise<{ id: str
   return handleDelete(request, params, {
     entityType: "Employee",
     modelKey: "employee" as const,
-    allowedFields: EMPLOYEE_FIELDS,
+    allowedFields: EMPLOYEE_ALLOWED_FIELDS,
     onBeforeUpdate: normalizeEmployeeFieldUpdate,
   });
 }

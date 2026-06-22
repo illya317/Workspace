@@ -16,14 +16,41 @@ const HR_SERVICE_RULES = [
     file: "packages/hr/server/positions.ts",
     requiredImport: "./domain/position-validation",
   },
+  {
+    file: "packages/hr/server/employees.ts",
+    requiredImport: "./domain/employee-validation",
+  },
+  {
+    file: "packages/hr/server/employments.ts",
+    requiredImport: "./domain/employment-validation",
+  },
+  {
+    file: "packages/hr/server/contracts.ts",
+    requiredImport: "./domain/contract-validation",
+  },
+  {
+    file: "packages/hr/server/employee-contracts.ts",
+    requiredImport: "./domain/contract-validation",
+  },
+  {
+    file: "packages/hr/server/departments.ts",
+    requiredImport: "./domain/department-validation",
+  },
+  {
+    file: "packages/hr/server/companies.ts",
+    requiredImport: "./domain/company-validation",
+  },
+  {
+    file: "packages/hr/server/company-relations.ts",
+    requiredImport: "./domain/company-relation-validation",
+  },
+  {
+    file: "packages/hr/server/position-descriptions.ts",
+    requiredImport: "./domain/position-description-validation",
+  },
 ] as const;
 
-const HR_ROUTE_FILES = [
-  "app/api/modules/hr/roster/edps/route.ts",
-  "app/api/modules/hr/roster/edps/[id]/route.ts",
-  "app/api/modules/hr/roster/positions/route.ts",
-  "app/api/modules/hr/roster/positions/[id]/route.ts",
-] as const;
+const HR_ROUTE_ROOT = "app/api/modules/hr/roster";
 
 const HR_SERVER_INDEX = "packages/hr/server/index.ts";
 
@@ -31,8 +58,15 @@ const FORBIDDEN_SERVICE_RULE_TOKENS = [
   "validateFkValue",
   "parseWorkPercent",
   "isValidDateValue",
+  "rejectInvalidDateField",
   "validateEdpReportTo",
+  "validateEmploymentOption",
+  "validateContractOption",
+  "isValidCompanyName",
+  "normalizeEmployeeOption",
   "guardPositionArchive",
+  "guardDepartmentArchive",
+  "guardEmployeeInactive",
 ];
 
 const FORBIDDEN_ROUTE_DOMAIN_EXPORTS = [
@@ -47,8 +81,39 @@ const FORBIDDEN_ROUTE_DOMAIN_EXPORTS = [
   "buildPositionUpdateCommand",
   "validatePositionDelete",
   "validatePositionFieldUpdate",
+  "buildEmployeeCreateCommand",
+  "buildEmployeeFieldUpdateCommand",
+  "buildEmploymentCreateCommand",
+  "buildEmploymentFieldUpdateCommand",
+  "buildContractCreateCommand",
+  "buildContractFieldUpdateCommand",
+  "buildEmployeeProfileContractsCommand",
+  "buildDepartmentCreateCommand",
+  "buildDepartmentFieldUpdateCommand",
+  "buildDepartmentUpdateCommand",
+  "validateDepartmentDelete",
+  "buildCompanyCreateCommand",
+  "buildCompanyFieldUpdateCommand",
+  "buildCompanyUpsertCommand",
+  "buildCompanyRelationCreateCommand",
+  "buildCompanyRelationFieldUpdateCommand",
+  "buildPositionDescriptionUpdateCommand",
+  "validateFkValue",
+  "parseWorkPercent",
+  "isValidDateValue",
+  "rejectInvalidDateField",
+  "validateEdpReportTo",
+  "validateEmploymentOption",
+  "validateContractOption",
+  "isValidCompanyName",
+  "normalizeEmployeeOption",
   "EDP_ALLOWED_FIELDS",
   "POSITION_ALLOWED_FIELDS",
+  "EMPLOYEE_ALLOWED_FIELDS",
+  "EMPLOYMENT_ALLOWED_FIELDS",
+  "DEPARTMENT_ALLOWED_FIELDS",
+  "COMPANY_ALLOWED_FIELDS",
+  "COMPANY_RELATION_ALLOWED_FIELDS",
 ];
 
 function readRequired(relPath: string) {
@@ -63,6 +128,18 @@ function hasImport(source: string, specifier: string) {
 
 function hasToken(source: string, token: string) {
   return new RegExp(`\\b${token}\\b`).test(source);
+}
+
+function collectRouteFiles(dir: string): string[] {
+  const fullDir = path.join(ROOT, dir);
+  if (!fs.existsSync(fullDir)) return [];
+  const files: string[] = [];
+  for (const entry of fs.readdirSync(fullDir, { withFileTypes: true })) {
+    const relPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) files.push(...collectRouteFiles(relPath));
+    if (entry.isFile() && entry.name === "route.ts") files.push(relPath);
+  }
+  return files.sort();
 }
 
 function forbiddenHrServerRouteImport(source: string) {
@@ -100,7 +177,7 @@ export function checkDomainValidation() {
       }
     }
 
-    for (const file of HR_ROUTE_FILES) {
+    for (const file of collectRouteFiles(HR_ROUTE_ROOT)) {
       const source = readRequired(file);
       if (/from\s+["'][^"']*\/domain\/[^"']*["']/.test(source)) {
         console.error(`✗ ${file} must call HR services, not domain validators directly.`);

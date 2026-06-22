@@ -1,12 +1,23 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchSearchFields } from "@workspace/platform/search";
 import { handleCreate, handleDelete, handleUpdateField } from "./hr-crud";
+import {
+  buildCompanyRelationCreateCommand,
+  buildCompanyRelationFieldUpdateCommand,
+  COMPANY_RELATION_ALLOWED_FIELDS,
+} from "./domain/company-relation-validation";
 
 const COMPANY_RELATION_CONFIG = {
   entityType: "CompanyRelation",
   modelKey: "companyRelation" as const,
-  allowedFields: ["parentId", "childId", "shareRatio", "isConsolidated"],
+  allowedFields: COMPANY_RELATION_ALLOWED_FIELDS,
+  onBeforeUpdate: normalizeCompanyRelationFieldUpdate,
 };
+
+async function normalizeCompanyRelationFieldUpdate(field: string, value: unknown) {
+  const command = await buildCompanyRelationFieldUpdateCommand(field, value);
+  return command.ok ? command.data : { error: command.issue.message, status: command.issue.status };
+}
 
 export async function listCompanyRelations(input: { keyword: string; page: number; pageSize: number }) {
   const relations = await prisma.companyRelation.findMany({
@@ -36,8 +47,7 @@ export async function listCompanyRelations(input: { keyword: string; page: numbe
 
 export async function createCompanyRelation(request: Request) {
   return handleCreate(request, { entityType: "CompanyRelation", modelKey: "companyRelation" as const }, (body) => {
-    for (const field of ["parentId", "childId"]) if (!body[field]) return null;
-    return body;
+    return buildCompanyRelationCreateCommand(body).then((command) => (command.ok ? command.data : null));
   });
 }
 

@@ -1,27 +1,16 @@
 import { NextResponse } from "next/server";
 import { Prisma } from "@workspace/platform/server/prisma";
 import { handleCreate, handleUpdateField } from "./hr-crud";
-import { isValidDateValue, rejectInvalidDateField, validateEmploymentOption } from "./field-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchEmployee } from "@workspace/platform/search";
 import { parseContracts } from "./contracts";
-import { guardEmployeeInactive } from "./reference-guards";
+import {
+  buildEmploymentCreateCommand,
+  buildEmploymentFieldUpdateCommand,
+  EMPLOYMENT_ALLOWED_FIELDS,
+} from "./domain/employment-validation";
 
-const DATE_FIELDS = ["joinDate", "leaveDate"];
 const EMPLOYMENT_CONFIG = { entityType: "Employment", modelKey: "employment" as const };
-const EMPLOYMENT_FIELDS = [
-  "employeeId",
-  "isActive",
-  "joinDate",
-  "leaveDate",
-  "leaveReason",
-  "leaveNote",
-  "officeLocation",
-  "personnelType",
-  "rank",
-  "title",
-  "contracts",
-];
 
 function primaryContractCompany(contractsJson: string | null, fallback: string | null) {
   const contracts = parseContracts(contractsJson);
@@ -31,25 +20,8 @@ function primaryContractCompany(contractsJson: string | null, fallback: string |
 }
 
 async function normalizeEmploymentFieldUpdate(field: string, value: unknown, id?: number) {
-  const dateResult = rejectInvalidDateField(field, value, DATE_FIELDS);
-  if (!dateResult) return null;
-  const optionResult = validateEmploymentOption(field, value);
-  if (!optionResult) return null;
-  if (field === "isActive" && (value === false || value === "false") && id) {
-    const employment = await prisma.employment.findUnique({
-      where: { id },
-      select: { employeeId: true },
-    });
-    if (!employment) return { error: "雇佣记录不存在", status: 404 };
-    const otherActiveCount = await prisma.employment.count({
-      where: { employeeId: employment.employeeId, id: { not: id }, isActive: true },
-    });
-    if (otherActiveCount === 0) {
-      const blockMessage = await guardEmployeeInactive(employment.employeeId);
-      if (blockMessage) return { error: blockMessage, status: 409 };
-    }
-  }
-  return { field, value };
+  const command = await buildEmploymentFieldUpdateCommand(field, value, id);
+  return command.ok ? command.data : { error: command.issue.message, status: command.issue.status };
 }
 
 export async function listEmployments(input: {
@@ -106,24 +78,15 @@ export async function listEmployments(input: {
 
 export async function createEmployment(request: Request) {
   return handleCreate(request, EMPLOYMENT_CONFIG, async (body) => {
-    if (!body.employeeId) return null;
-    for (const field of DATE_FIELDS) if (!isValidDateValue(body[field])) return null;
-    if (!validateEmploymentOption("officeLocation", body.officeLocation)) return null;
-    if (!validateEmploymentOption("personnelType", body.personnelType)) return null;
-    if (!validateEmploymentOption("rank", body.rank)) return null;
-    if (!validateEmploymentOption("title", body.title)) return null;
-    if (!validateEmploymentOption("leaveReason", body.leaveReason)) return null;
-    const safeBody = { ...body };
-    delete safeBody.currentCompany;
-    delete safeBody.attendanceType;
-    return safeBody;
+    const command = buildEmploymentCreateCommand(body);
+    return command.ok ? command.data : null;
   });
 }
 
 export async function updateEmploymentField(request: Request, params: Promise<{ id: string }>) {
   return handleUpdateField(request, params, {
     ...EMPLOYMENT_CONFIG,
-    allowedFields: EMPLOYMENT_FIELDS,
+    allowedFields: EMPLOYMENT_ALLOWED_FIELDS,
     onBeforeUpdate: normalizeEmploymentFieldUpdate,
   });
 }

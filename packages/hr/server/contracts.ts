@@ -1,10 +1,8 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { Prisma } from "@workspace/platform/server/prisma";
+import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import { snapshotHistory } from "@workspace/platform/server/history";
-import { isValidCompanyName, isValidDateValue, validateContractOption } from "./field-validation";
 import {
-  ALLOWED_CONTRACT_FIELDS,
-  CONTRACT_DATE_FIELDS,
   buildContractRows,
   clearPrimaryContractFlags,
   filterContracts,
@@ -13,6 +11,10 @@ import {
   parseContracts,
   type PaginatedContracts,
 } from "./contract-records";
+import {
+  buildContractCreateCommand,
+  buildContractFieldUpdateCommand,
+} from "./domain/contract-validation";
 export {
   buildContractRows,
   clearPrimaryContractFlags,
@@ -123,21 +125,9 @@ export async function createEmployeeContract(input: {
   contractData: Record<string, unknown>;
   editorId: number;
 }) {
-  for (const field of CONTRACT_DATE_FIELDS) {
-    if (!isValidDateValue(input.contractData[field])) {
-      return { success: false, error: "日期格式无效", status: 400 };
-    }
-  }
-  if (!(await isValidCompanyName(input.contractData.company))) {
-    return { success: false, error: "公司不存在", status: 400 };
-  }
-  for (const field of ["legalRelation", "contractType", "employmentForm", "insuranceStatus"]) {
-    if (!validateContractOption(field, input.contractData[field])) {
-      return { success: false, error: "字段值不在允许范围内", status: 400 };
-    }
-  }
-
-  return addContract(input.employeeId, input.contractData, input.editorId);
+  const command = mapValidationToServiceResult(await buildContractCreateCommand(input.employeeId, input.contractData));
+  if (!command.ok) return { success: false, error: command.error, status: command.status };
+  return addContract(command.data.employeeId, command.data.contract, input.editorId);
 }
 
 function decodeSyntheticContractId(contractId: number) {
@@ -171,24 +161,16 @@ export async function updateContractField(
   value: unknown,
   userId: number,
 ) {
-  if (!ALLOWED_CONTRACT_FIELDS.includes(field)) return { ok: false as const, error: "非法字段", status: 400 };
-  if (CONTRACT_DATE_FIELDS.includes(field) && !isValidDateValue(value)) {
-    return { ok: false as const, error: "日期格式无效", status: 400 };
-  }
-  if (field === "company" && !(await isValidCompanyName(value))) {
-    return { ok: false as const, error: "公司不存在", status: 400 };
-  }
-  if (!validateContractOption(field, value)) {
-    return { ok: false as const, error: "字段值不在允许范围内", status: 400 };
-  }
+  const command = mapValidationToServiceResult(await buildContractFieldUpdateCommand(field, value));
+  if (!command.ok) return { ok: false as const, error: command.error, status: command.status };
 
   const loaded = await loadSyntheticContract(contractId);
   if (!loaded.ok) return loaded;
 
   let contracts = loaded.contracts;
-  contracts[loaded.index][field] = value ?? null;
+  contracts[loaded.index][command.data.field] = command.data.value ?? null;
   contracts[loaded.index] = normalizeContractRecord(contracts[loaded.index]);
-  if (field === "isPrimary" && value === true) {
+  if (command.data.field === "isPrimary" && command.data.value === true) {
     const result = clearPrimaryContractFlags(contracts, loaded.index);
     contracts = result.contracts.map(normalizeContractRecord);
     await clearPrimaryContractsForEmployee(loaded.employment.employeeId, userId, loaded.employmentId);
