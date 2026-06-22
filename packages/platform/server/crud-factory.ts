@@ -30,6 +30,8 @@ export interface CrudFactoryConfig {
   deleteActionLabel?: string;
   deleteReferences?: DeleteReferenceGuard[];
   getDeleteExpectedVersion?: (request: Request) => number | undefined;
+  skipDeleteVersionCheck?: boolean;
+  deleteReferencePolicy?: "checked" | "none";
   onBeforeDeleteScope?: (context: DeleteGuardContext) => Promise<BeforeDeleteResult | null> | BeforeDeleteResult | null;
   onBeforeUpdate?: (field: string, value: unknown, id?: number) => Promise<BeforeUpdateResult | null>;
   onBeforeDelete?: (id: number, context: DeleteGuardContext) => Promise<BeforeDeleteResult | null>;
@@ -49,6 +51,16 @@ function pickWriteCheck(config: CrudFactoryConfig, fallback: AccessChecker): Acc
 
 function pickDeleteCheck(config: CrudFactoryConfig, fallback: AccessChecker): AccessChecker {
   return config.deleteCheck || config.accessCheck || fallback;
+}
+
+function parseDeleteExpectedVersion(request: Request) {
+  const ifMatch = request.headers.get("if-match")?.replace(/^W\//, "").replace(/^"|"$/g, "");
+  const headerVersion = request.headers.get("x-record-version") ?? ifMatch;
+  const queryVersion = new URL(request.url).searchParams.get("version");
+  const raw = headerVersion ?? queryVersion;
+  if (raw === null || raw === undefined || raw === "") return undefined;
+  const version = Number(raw);
+  return Number.isInteger(version) && version >= 0 ? version : undefined;
 }
 
 export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: AccessChecker) {
@@ -112,9 +124,11 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
         id: parsedId.id,
         userId: payload.userId,
         actionLabel: config.deleteActionLabel,
-        deleteMode: config.deleteMode ?? "hard",
-        expectedVersion: config.getDeleteExpectedVersion?.(request),
+        deleteMode: config.deleteMode,
+        expectedVersion: config.getDeleteExpectedVersion?.(request) ?? parseDeleteExpectedVersion(request),
+        skipVersionCheck: config.skipDeleteVersionCheck,
         references: config.deleteReferences,
+        referencePolicy: config.deleteReferencePolicy,
         onBeforeDelete: config.onBeforeDelete,
         scopeGuard: config.onBeforeDeleteScope,
       });

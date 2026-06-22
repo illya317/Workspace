@@ -44,7 +44,9 @@ export interface GuardedDeleteInput {
   actionLabel?: string;
   deleteMode?: DeleteMode;
   expectedVersion?: number;
+  skipVersionCheck?: boolean;
   references?: DeleteReferenceGuard[];
+  referencePolicy?: "checked" | "none";
   onBeforeDelete?: (
     id: number,
     context: DeleteGuardContext,
@@ -107,6 +109,27 @@ function assertDeleteModeFields(record: RecordData, mode: DeleteMode, actionLabe
   }
   if (mode === "deactivate" && !("isActive" in record)) {
     return { ok: false, error: `不能${actionLabel}，目标未定义停用字段 isActive`, status: 500 };
+  }
+  return null;
+}
+
+function assertDeleteContract(input: GuardedDeleteInput, mode: DeleteMode, actionLabel: string): DeleteGuardResult | null {
+  if (!input.deleteMode) {
+    return { ok: false, error: `不能${actionLabel}，删除方式未声明`, status: 500 };
+  }
+  if (mode === "hard" && !input.onBeforeDelete && !input.references?.length && input.referencePolicy !== "none") {
+    return { ok: false, error: `不能${actionLabel}，硬删必须声明引用保护或显式无引用`, status: 500 };
+  }
+  return null;
+}
+
+function assertVersionGuard(input: GuardedDeleteInput, record: RecordData): DeleteGuardResult | null {
+  if (!("version" in record) || input.skipVersionCheck) return null;
+  if (input.expectedVersion === undefined) {
+    return { ok: false, error: "删除缺少版本号，请刷新后重试", status: 409 };
+  }
+  if (record.version !== input.expectedVersion) {
+    return { ok: false, error: "目标记录已被其他人修改，请刷新后重试", status: 409 };
   }
   return null;
 }
@@ -190,6 +213,8 @@ export async function guardedDelete(input: GuardedDeleteInput): Promise<DeleteGu
   const actionLabel = input.actionLabel ?? `删除${input.entityType}`;
   const mode = input.deleteMode ?? "forbidden";
   if (mode === "forbidden") return { ok: false, error: `不能${actionLabel}，该对象禁止删除`, status: 405 };
+  const contractBlock = assertDeleteContract(input, mode, actionLabel);
+  if (contractBlock) return contractBlock;
 
   try {
     return await prisma.$transaction(async (tx) => {
@@ -198,9 +223,8 @@ export async function guardedDelete(input: GuardedDeleteInput): Promise<DeleteGu
       if (!record) return { ok: false, error: "目标记录不存在", status: 404 };
 
       const context = { id: input.id, userId: input.userId, record, tx };
-      if (input.expectedVersion !== undefined && record.version !== input.expectedVersion) {
-        return { ok: false, error: "目标记录已被其他人修改，请刷新后重试", status: 409 };
-      }
+      const versionBlock = assertVersionGuard(input, record);
+      if (versionBlock) return versionBlock;
 
       const lifecycleBlock = blockedByLifecycle(record, actionLabel);
       if (lifecycleBlock) return lifecycleBlock;
