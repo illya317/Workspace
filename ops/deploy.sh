@@ -149,8 +149,8 @@ function walk(name) {
   }
 }
 
-walk("@prisma/config");
-for (const name of [...seen].filter((value) => !value.startsWith("@prisma/")).sort()) {
+walk("prisma");
+for (const name of [...seen].filter((value) => value !== "prisma" && !value.startsWith("@prisma/")).sort()) {
   console.log(name);
 }
 NODE
