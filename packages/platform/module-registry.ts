@@ -287,14 +287,18 @@ export const registeredModuleDefinitions = [
         { key: "account", label: "账号与接入", desc: "账号、安全密码和个人偏好", href: "/settings/account", resourceKey: "settings.account", resourceMaxRoleKey: "access", resourceHidden: true, apiPrefixes: ["/api/settings/account"] },
         { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", resourceKey: "settings.admin", apiPrefixes: ["/api/settings/admin"] },
         { key: "governance", label: "数据治理", desc: "注册表、审计、编码和治理策略", href: "/settings/governance", resourceKey: "settings.governance", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/governance"] },
-        { key: "api", label: "API 接入", desc: "Open API Client、Scope 授权和调用日志", href: "/settings/api", resourceKey: "settings.api", resourceMaxRoleKey: "write", apiPrefixes: ["/api/settings/api"] },
+        { key: "api", label: "API 接入", desc: "Open API Client、Scope 授权和调用日志", href: "/settings/api", resourceKey: "settings.api", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/api"] },
       ],
     },
+    resourceDefs: [
+      { key: "settings.api.manage", name: "Open API Client 管理", runtimeParentKey: "settings.api", maxRoleKey: "write", sortOrder: 0 },
+    ],
     routes: ["/settings", "/settings/account", "/settings/admin", "/settings/governance", "/settings/api", "/settings/api/hr-generated"],
     apiGuards: [
       ...apiResourceGuards("/api/settings/admin", "settings.admin", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
       ...apiResourceGuards("/api/settings/governance", "settings.governance", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
-      ...apiResourceGuards("/api/settings/api", "settings.api", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/settings/api", "settings.api", ["GET"]),
+      ...apiResourceGuards("/api/settings/api/open/clients", "settings.api.manage", ["POST", "PUT"]),
     ],
   },
   {

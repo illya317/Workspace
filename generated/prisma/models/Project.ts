@@ -53,7 +53,7 @@ export type ProjectMinAggregateOutputType = {
   type: string | null
   description: string | null
   status: string | null
-  priority: string | null
+  isMilestone: boolean | null
   stage: string | null
   plan: string | null
   goal: string | null
@@ -83,7 +83,7 @@ export type ProjectMaxAggregateOutputType = {
   type: string | null
   description: string | null
   status: string | null
-  priority: string | null
+  isMilestone: boolean | null
   stage: string | null
   plan: string | null
   goal: string | null
@@ -113,7 +113,7 @@ export type ProjectCountAggregateOutputType = {
   type: number
   description: number
   status: number
-  priority: number
+  isMilestone: number
   stage: number
   plan: number
   goal: number
@@ -165,7 +165,7 @@ export type ProjectMinAggregateInputType = {
   type?: true
   description?: true
   status?: true
-  priority?: true
+  isMilestone?: true
   stage?: true
   plan?: true
   goal?: true
@@ -195,7 +195,7 @@ export type ProjectMaxAggregateInputType = {
   type?: true
   description?: true
   status?: true
-  priority?: true
+  isMilestone?: true
   stage?: true
   plan?: true
   goal?: true
@@ -225,7 +225,7 @@ export type ProjectCountAggregateInputType = {
   type?: true
   description?: true
   status?: true
-  priority?: true
+  isMilestone?: true
   stage?: true
   plan?: true
   goal?: true
@@ -342,7 +342,7 @@ export type ProjectGroupByOutputType = {
   type: string
   description: string | null
   status: string | null
-  priority: string | null
+  isMilestone: boolean
   stage: string | null
   plan: string | null
   goal: string | null
@@ -395,7 +395,7 @@ export type ProjectWhereInput = {
   type?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.StringNullableFilter<"Project"> | string | null
-  priority?: Prisma.StringNullableFilter<"Project"> | string | null
+  isMilestone?: Prisma.BoolFilter<"Project"> | boolean
   stage?: Prisma.StringNullableFilter<"Project"> | string | null
   plan?: Prisma.StringNullableFilter<"Project"> | string | null
   goal?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -430,7 +430,7 @@ export type ProjectOrderByWithRelationInput = {
   type?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrderInput | Prisma.SortOrder
-  priority?: Prisma.SortOrderInput | Prisma.SortOrder
+  isMilestone?: Prisma.SortOrder
   stage?: Prisma.SortOrderInput | Prisma.SortOrder
   plan?: Prisma.SortOrderInput | Prisma.SortOrder
   goal?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -468,7 +468,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   type?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.StringNullableFilter<"Project"> | string | null
-  priority?: Prisma.StringNullableFilter<"Project"> | string | null
+  isMilestone?: Prisma.BoolFilter<"Project"> | boolean
   stage?: Prisma.StringNullableFilter<"Project"> | string | null
   plan?: Prisma.StringNullableFilter<"Project"> | string | null
   goal?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -503,7 +503,7 @@ export type ProjectOrderByWithAggregationInput = {
   type?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrderInput | Prisma.SortOrder
-  priority?: Prisma.SortOrderInput | Prisma.SortOrder
+  isMilestone?: Prisma.SortOrder
   stage?: Prisma.SortOrderInput | Prisma.SortOrder
   plan?: Prisma.SortOrderInput | Prisma.SortOrder
   goal?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -541,7 +541,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   type?: Prisma.StringWithAggregatesFilter<"Project"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   status?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
-  priority?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
+  isMilestone?: Prisma.BoolWithAggregatesFilter<"Project"> | boolean
   stage?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   plan?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   goal?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
@@ -570,7 +570,7 @@ export type ProjectCreateInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -603,7 +603,7 @@ export type ProjectUncheckedCreateInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -635,7 +635,7 @@ export type ProjectUpdateInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -668,7 +668,7 @@ export type ProjectUncheckedUpdateInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -701,7 +701,7 @@ export type ProjectCreateManyInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -730,7 +730,7 @@ export type ProjectUpdateManyMutationInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -758,7 +758,7 @@ export type ProjectUncheckedUpdateManyInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -803,7 +803,7 @@ export type ProjectCountOrderByAggregateInput = {
   type?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  priority?: Prisma.SortOrder
+  isMilestone?: Prisma.SortOrder
   stage?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   goal?: Prisma.SortOrder
@@ -843,7 +843,7 @@ export type ProjectMaxOrderByAggregateInput = {
   type?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  priority?: Prisma.SortOrder
+  isMilestone?: Prisma.SortOrder
   stage?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   goal?: Prisma.SortOrder
@@ -873,7 +873,7 @@ export type ProjectMinOrderByAggregateInput = {
   type?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
-  priority?: Prisma.SortOrder
+  isMilestone?: Prisma.SortOrder
   stage?: Prisma.SortOrder
   plan?: Prisma.SortOrder
   goal?: Prisma.SortOrder
@@ -1045,7 +1045,7 @@ export type ProjectCreateWithoutLeadingDepartmentInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -1077,7 +1077,7 @@ export type ProjectUncheckedCreateWithoutLeadingDepartmentInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -1137,7 +1137,7 @@ export type ProjectScalarWhereInput = {
   type?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringNullableFilter<"Project"> | string | null
   status?: Prisma.StringNullableFilter<"Project"> | string | null
-  priority?: Prisma.StringNullableFilter<"Project"> | string | null
+  isMilestone?: Prisma.BoolFilter<"Project"> | boolean
   stage?: Prisma.StringNullableFilter<"Project"> | string | null
   plan?: Prisma.StringNullableFilter<"Project"> | string | null
   goal?: Prisma.StringNullableFilter<"Project"> | string | null
@@ -1166,7 +1166,7 @@ export type ProjectCreateWithoutChildrenInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -1198,7 +1198,7 @@ export type ProjectUncheckedCreateWithoutChildrenInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -1234,7 +1234,7 @@ export type ProjectCreateWithoutParentInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -1266,7 +1266,7 @@ export type ProjectUncheckedCreateWithoutParentInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -1317,7 +1317,7 @@ export type ProjectUpdateWithoutChildrenInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1349,7 +1349,7 @@ export type ProjectUncheckedUpdateWithoutChildrenInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1396,7 +1396,7 @@ export type ProjectCreateWithoutEmployeesInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -1428,7 +1428,7 @@ export type ProjectUncheckedCreateWithoutEmployeesInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -1475,7 +1475,7 @@ export type ProjectUpdateWithoutEmployeesInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1507,7 +1507,7 @@ export type ProjectUncheckedUpdateWithoutEmployeesInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1538,7 +1538,7 @@ export type ProjectCreateWithoutWorkAssigneesInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -1570,7 +1570,7 @@ export type ProjectUncheckedCreateWithoutWorkAssigneesInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -1617,7 +1617,7 @@ export type ProjectUpdateWithoutWorkAssigneesInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1649,7 +1649,7 @@ export type ProjectUncheckedUpdateWithoutWorkAssigneesInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1681,7 +1681,7 @@ export type ProjectCreateManyLeadingDepartmentInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -1709,7 +1709,7 @@ export type ProjectUpdateWithoutLeadingDepartmentInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1741,7 +1741,7 @@ export type ProjectUncheckedUpdateWithoutLeadingDepartmentInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1773,7 +1773,7 @@ export type ProjectUncheckedUpdateManyWithoutLeadingDepartmentInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1802,7 +1802,7 @@ export type ProjectCreateManyParentInput = {
   type?: string
   description?: string | null
   status?: string | null
-  priority?: string | null
+  isMilestone?: boolean
   stage?: string | null
   plan?: string | null
   goal?: string | null
@@ -1830,7 +1830,7 @@ export type ProjectUpdateWithoutParentInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1862,7 +1862,7 @@ export type ProjectUncheckedUpdateWithoutParentInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1894,7 +1894,7 @@ export type ProjectUncheckedUpdateManyWithoutParentInput = {
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  priority?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
   stage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1972,7 +1972,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   type?: boolean
   description?: boolean
   status?: boolean
-  priority?: boolean
+  isMilestone?: boolean
   stage?: boolean
   plan?: boolean
   goal?: boolean
@@ -2008,7 +2008,7 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   type?: boolean
   description?: boolean
   status?: boolean
-  priority?: boolean
+  isMilestone?: boolean
   stage?: boolean
   plan?: boolean
   goal?: boolean
@@ -2040,7 +2040,7 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   type?: boolean
   description?: boolean
   status?: boolean
-  priority?: boolean
+  isMilestone?: boolean
   stage?: boolean
   plan?: boolean
   goal?: boolean
@@ -2072,7 +2072,7 @@ export type ProjectSelectScalar = {
   type?: boolean
   description?: boolean
   status?: boolean
-  priority?: boolean
+  isMilestone?: boolean
   stage?: boolean
   plan?: boolean
   goal?: boolean
@@ -2095,7 +2095,7 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "type" | "description" | "status" | "priority" | "stage" | "plan" | "goal" | "milestones" | "budgetAmount" | "budgetNote" | "riskNote" | "remark" | "startDate" | "endDate" | "parentId" | "leadingDepartmentId" | "isArchived" | "archivedAt" | "createdBy" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "type" | "description" | "status" | "isMilestone" | "stage" | "plan" | "goal" | "milestones" | "budgetAmount" | "budgetNote" | "riskNote" | "remark" | "startDate" | "endDate" | "parentId" | "leadingDepartmentId" | "isArchived" | "archivedAt" | "createdBy" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   parent?: boolean | Prisma.Project$parentArgs<ExtArgs>
   children?: boolean | Prisma.Project$childrenArgs<ExtArgs>
@@ -2129,7 +2129,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     type: string
     description: string | null
     status: string | null
-    priority: string | null
+    isMilestone: boolean
     stage: string | null
     plan: string | null
     goal: string | null
@@ -2584,7 +2584,7 @@ export interface ProjectFieldRefs {
   readonly type: Prisma.FieldRef<"Project", 'String'>
   readonly description: Prisma.FieldRef<"Project", 'String'>
   readonly status: Prisma.FieldRef<"Project", 'String'>
-  readonly priority: Prisma.FieldRef<"Project", 'String'>
+  readonly isMilestone: Prisma.FieldRef<"Project", 'Boolean'>
   readonly stage: Prisma.FieldRef<"Project", 'String'>
   readonly plan: Prisma.FieldRef<"Project", 'String'>
   readonly goal: Prisma.FieldRef<"Project", 'String'>

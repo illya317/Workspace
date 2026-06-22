@@ -15,7 +15,16 @@ export function withOpenApiConsoleAccess(handler: AuthHandler) {
 }
 
 export function withOpenApiConsoleManage(handler: AuthHandler) {
-  return withOpenApiConsolePermission("write", handler);
+  return withAuth(
+    handler,
+    async (userId) => {
+      const [canReadConsole, canManageClients] = await Promise.all([
+        authorize({ user: userId, resourceKey: "settings.api", action: "access" }),
+        authorize({ user: userId, resourceKey: "settings.api.manage", action: "write" }),
+      ]);
+      return canReadConsole && canManageClients;
+    },
+  );
 }
 
 export async function readRouteId(params: Promise<Record<string, string>> | undefined, key = "id") {
