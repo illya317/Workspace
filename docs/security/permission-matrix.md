@@ -26,7 +26,6 @@
 | `work.history` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `system` | `manageableResourceKeys` | admin |
 | `settings.admin` | `manageableResourceKeys` | admin |
-| `settings.governance` | `visibleResourceKeys` | access |
 | `settings.api` | `visibleResourceKeys` | access（Open API 控制台读取；不代表外部调用权限） |
 | `settings.api.manage` | `visibleWriteResourceKeys` | write（独立管理资源，Client 创建、secret 轮换、scope 授权；`runtimeParentKey=settings.api`） |
 | `docs.api` | `visibleResourceKeys` | access |

@@ -148,7 +148,6 @@ API 一级目录只表达系统能力类型：
 - `/api/auth/*`：登录、回调、改密、session check。
 - `/api/settings/account/*`：当前登录用户自己的账号、安全密码、头像、API key、目标、routine、week-info。
 - `/api/settings/admin/*`：系统管理，包含用户、权限、资源和系统配置。
-- `/api/settings/governance/*`：平台治理，包含审计、registry、编码和治理配置。
 - `/api/settings/api/*`：Open API 接入管理，包含 Client、Scope 授权和调用日志。
 - `/api/agent/*`：智能体对话、能力清单和变更提案。
 - `/api/modules/<module>/*`：业务模块数据入口，例如 HR、Finance、Work、Production、Library、Administration。

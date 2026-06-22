@@ -28,10 +28,9 @@
 ## 资源树
 
 ```
-settings            access  设置
+  settings            access  设置
   settings.account  access  账号与接入（自助，授权矩阵隐藏）
   settings.admin    admin   系统管理
-  settings.governance access 数据治理
   settings.api      access  Open API 接入控制台
 
 settings.api.manage write Open API Client 管理（独立资源，runtimeParentKey=settings.api）
