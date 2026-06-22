@@ -12,10 +12,13 @@ import {
   SearchInput,
   ToolbarOptionGroup,
   type ColumnDef,
+  type FieldValueFilterField,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
+import { HR_REFERENCE_OPTIONS_ENDPOINT } from "@workspace/hr/ui/fk-keys";
 import type {
   RosterGeneratedColumn,
+  RosterGeneratedFilterField,
   RosterGeneratedGroup,
   RosterGeneratedPreview,
   RosterGeneratedStatus,
@@ -26,15 +29,6 @@ const statusOptions = [
   { value: "all", label: "全部" },
   { value: "active", label: "在职" },
   { value: "inactive", label: "离职" },
-];
-
-const filterFields = [
-  { value: "currentCompany", label: "公司" },
-  { value: "departmentName", label: "部门" },
-  { value: "positionName", label: "岗位" },
-  { value: "education", label: "学历" },
-  { value: "rank", label: "职级" },
-  { value: "personnelType", label: "人员类型" },
 ];
 
 export default function RosterGeneratedTab({ variant, canEdit }: { variant: RosterGeneratedVariant; canEdit: boolean }) {
@@ -65,6 +59,7 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
     () => columns.filter((column) => column.required || visibleColumnSet.has(column.key)),
     [columns, visibleColumnSet],
   );
+  const filterFields = useMemo(() => mapFilterFields(preview?.filterFields ?? []), [preview?.filterFields]);
 
   useEffect(() => {
     void loadPreview();
@@ -161,6 +156,7 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
             <FieldValueFilter
               fields={filterFields}
               valueOptions={{}}
+              referenceEndpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
               fieldKey={filterField}
               onFieldKeyChange={setFilterField}
               value={filterValue}
@@ -298,6 +294,17 @@ function EditableCell({ value, editMode, onChange }: { value: string; editMode: 
 
 function defaultVisibleColumns(columns: RosterGeneratedColumn[]) {
   return columns.filter((column) => column.required || column.defaultVisible).map((column) => column.key);
+}
+
+function mapFilterFields(fields: RosterGeneratedFilterField[]): FieldValueFilterField[] {
+  return fields.map((field) => ({
+    value: field.key,
+    label: field.label,
+    valueKind: field.valueKind,
+    fkKey: field.fkKey,
+    fkReturnField: field.fkReturnField,
+    lifecycleScope: field.lifecycleScope,
+  }));
 }
 
 function buildCsv(columns: RosterGeneratedColumn[], groups: RosterGeneratedGroup[], blankMergedCells: boolean) {

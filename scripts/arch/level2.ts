@@ -32,6 +32,7 @@ import {
   findAppHookFiles,
   findAppHookImplementationFiles,
   findDuplicateCoreUiRegistrations,
+  findGeneratedFilterContractDrift,
   findHookPatternCandidates,
   findNativeSearchInputFiles,
   findPageDesignDriftFiles,
@@ -39,6 +40,7 @@ import {
   findUnregisteredCoreUiExports,
   findUnregisteredCoreUiImports,
   type DuplicateCoreUiRegistration,
+  type GeneratedFilterContractDrift,
   type HookPatternCandidate,
   type NativeSearchInputFile,
   type PageDesignDriftFile,
@@ -153,6 +155,7 @@ type Level2Report = {
     pageDesignDriftFiles: number;
     nativeSearchInputFiles: number;
     handwrittenSearchMatchFiles: number;
+    generatedFilterContractDriftFiles: number;
   };
   registries: {
     modules: Array<{
@@ -177,6 +180,7 @@ type Level2Report = {
     pageDesignDriftFiles: PageDesignDriftFile[];
     nativeSearchInputFiles: NativeSearchInputFile[];
     handwrittenSearchMatches: HandwrittenSearchMatchCandidate[];
+    generatedFilterContractDrift: GeneratedFilterContractDrift[];
   };
   drift: {
     appJsxFiles: string[];
@@ -207,6 +211,7 @@ type Level2Report = {
     pageDesignDriftFiles: PageDesignDriftFile[];
     nativeSearchInputFiles: NativeSearchInputFile[];
     handwrittenSearchMatches: HandwrittenSearchMatchCandidate[];
+    generatedFilterContractDrift: GeneratedFilterContractDrift[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -267,6 +272,14 @@ function walk(dir: string, files: string[] = []) {
   }
 
   return files;
+}
+
+function walkGeneratedUiFiles() {
+  const packagesDir = path.join(ROOT, "packages");
+  if (!fs.existsSync(packagesDir)) return [];
+  return fs.readdirSync(packagesDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && !entry.name.startsWith("."))
+    .flatMap((entry) => walk(path.join(packagesDir, entry.name, "ui", "generated")));
 }
 
 function hasJsx(sourceFile: ts.SourceFile) {
@@ -712,6 +725,9 @@ export function createLevel2Report(): Level2Report {
     .flatMap((rootName) => walk(path.join(ROOT, rootName)))
     .sort()
     .map(readSourceInfo);
+  const generatedUiSourceFiles = walkGeneratedUiFiles()
+    .sort()
+    .map(readSourceInfo);
 
   const uiPatternCandidates = findUiPatternCandidates(sourceFiles);
   const apiRouteMethods = findApiRouteMethods(sourceFiles);
@@ -724,6 +740,7 @@ export function createLevel2Report(): Level2Report {
   const pageDesignDriftFiles = findPageDesignDriftFiles(sourceFiles);
   const nativeSearchInputFiles = findNativeSearchInputFiles(sourceFiles);
   const handwrittenSearchMatches = findHandwrittenSearchMatches(sourceFiles);
+  const generatedFilterContractDrift = findGeneratedFilterContractDrift(generatedUiSourceFiles);
   const repeatedServiceGroups = findRepeatedServiceGroups(sourceFiles);
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
   const apiRoutesWithDirectPrismaSignal = apiRouteMethods.filter((route) => route.hasDirectPrismaSignal);
@@ -804,6 +821,7 @@ export function createLevel2Report(): Level2Report {
       pageDesignDriftFiles: pageDesignDriftFiles.length,
       nativeSearchInputFiles: nativeSearchInputFiles.length,
       handwrittenSearchMatchFiles: new Set(handwrittenSearchMatches.map((candidate) => candidate.file)).size,
+      generatedFilterContractDriftFiles: new Set(generatedFilterContractDrift.map((candidate) => candidate.file)).size,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -830,6 +848,7 @@ export function createLevel2Report(): Level2Report {
       pageDesignDriftFiles,
       nativeSearchInputFiles,
       handwrittenSearchMatches,
+      generatedFilterContractDrift,
     },
     drift: {
       appJsxFiles: findAppJsxFiles(sourceFiles),
@@ -860,6 +879,7 @@ export function createLevel2Report(): Level2Report {
       pageDesignDriftFiles,
       nativeSearchInputFiles,
       handwrittenSearchMatches,
+      generatedFilterContractDrift,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,

@@ -55,6 +55,12 @@ export type NativeSearchInputFile = {
   signals: string[];
 };
 
+export type GeneratedFilterContractDrift = {
+  file: string;
+  expression: string;
+  reason: string;
+};
+
 export type UnregisteredCoreUiExport = {
   exportedName: string;
 };
@@ -420,6 +426,80 @@ export function findNativeSearchInputFiles(files: SourceInfo[]) {
   }
 
   return drift.sort((left, right) => left.file.localeCompare(right.file));
+}
+
+function jsxAttributeExpression(
+  attributes: ts.JsxAttributes,
+  sourceFile: ts.SourceFile,
+  attributeName: string,
+) {
+  for (const property of attributes.properties) {
+    if (!ts.isJsxAttribute(property) || !ts.isIdentifier(property.name)) continue;
+    if (property.name.text !== attributeName) continue;
+    const initializer = property.initializer;
+    if (!initializer) return "";
+    if (ts.isJsxExpression(initializer) && initializer.expression) {
+      return initializer.expression.getText(sourceFile);
+    }
+    return initializer.getText(sourceFile);
+  }
+  return "";
+}
+
+function collectConstInitializers(sourceFile: ts.SourceFile) {
+  const initializers = new Map<string, string>();
+
+  const visit = (node: ts.Node) => {
+    if (ts.isVariableStatement(node)) {
+      const isConst = (node.declarationList.flags & ts.NodeFlags.Const) !== 0;
+      if (isConst) {
+        for (const declaration of node.declarationList.declarations) {
+          if (!ts.isIdentifier(declaration.name) || !declaration.initializer) continue;
+          initializers.set(declaration.name.text, declaration.initializer.getText(sourceFile));
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return initializers;
+}
+
+function isBackendFilterContractExpression(expression: string, initializers: Map<string, string>) {
+  if (/\.filterFields\b/.test(expression)) return true;
+  const initializer = initializers.get(expression);
+  return initializer ? /\.filterFields\b/.test(initializer) : false;
+}
+
+export function findGeneratedFilterContractDrift(files: SourceInfo[]) {
+  const drift: GeneratedFilterContractDrift[] = [];
+
+  for (const file of files) {
+    if (!/^packages\/[^/]+\/ui\/generated\/.+\.tsx$/.test(file.relPath)) continue;
+    const initializers = collectConstInitializers(file.sourceFile);
+
+    const visit = (node: ts.Node) => {
+      if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+        const tagName = node.tagName.getText(file.sourceFile);
+        if (tagName === "FieldValueFilter") {
+          const expression = jsxAttributeExpression(node.attributes, file.sourceFile, "fields");
+          if (expression && !isBackendFilterContractExpression(expression, initializers)) {
+            drift.push({
+              file: file.relPath,
+              expression,
+              reason: "generated UI FieldValueFilter fields must come from backend filterFields contract",
+            });
+          }
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+
+    visit(file.sourceFile);
+  }
+
+  return drift.sort((left, right) => `${left.file}:${left.expression}`.localeCompare(`${right.file}:${right.expression}`));
 }
 
 export function findAppHookFiles(hooks: HookPatternCandidate[]) {

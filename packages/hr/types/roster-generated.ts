@@ -12,6 +12,17 @@ export interface RosterGeneratedColumn {
   defaultVisible?: boolean;
 }
 
+export type RosterGeneratedFilterValueKind = "text" | "fk";
+
+export interface RosterGeneratedFilterField {
+  key: string;
+  label: string;
+  valueKind: RosterGeneratedFilterValueKind;
+  fkKey?: string;
+  fkReturnField?: "id" | "name";
+  lifecycleScope?: "active" | "all" | "archived";
+}
+
 export interface RosterGeneratedRow {
   key: string;
   cells: Record<string, string>;
@@ -36,6 +47,7 @@ export interface RosterGeneratedPreview {
   title: string;
   generatedAt: string;
   filters: RosterGeneratedFilters;
+  filterFields: RosterGeneratedFilterField[];
   columns: RosterGeneratedColumn[];
   groups: RosterGeneratedGroup[];
   totalEmployees: number;

@@ -10,6 +10,7 @@
 - 字段展示和选择方式必须解耦。字段本体看起来应该一致；选择面板可以是普通下拉、分级选择、FK 搜索、tag 选择，但不能让字段展示形态跟着变。
 - 搜索类选择默认支持中文、拼音全拼和拼音首字母。禁止业务组件各自写一套搜索算法。
 - 服务端列表、候选项和高级筛选里的 `keyword` / 模糊文本匹配必须复用 `@workspace/platform/search` 的 `matchAnyField`、`matchSearchFields` 或 `matchText`，保持中文、拼音全拼和首字母规则一致；不要在业务 service 或 UI 里手写 `toLowerCase().includes()` / `.includes(query)` 作为用户搜索，新增会被 `npm run arch:gate` 的 `handwrittenSearchMatches` ratchet 拦住。
+- generated / snapshot / export 类页面的二段式筛选字段必须由后端 DTO 明确返回，例如 `preview.filterFields`，UI 只能把后端 contract 映射给 Core `FieldValueFilter`。禁止在 `packages/*/ui/generated` 里本地声明 `FieldValueFilter` 字段；新增会被 `npm run arch:gate` 的 `generatedFilterContractDrift` ratchet 拦住。
 - 旧 `app/components/SearchBox` / `app/hooks/useSearch` 已废弃并由 `arch:gate` 禁止复活；通用关键词筛选用 Core `FilterToolbar`，业务 FK/实体选择用对应业务包组件。
 - 搜索型原生 input 的历史债为 0：除 `packages/core/ui/SearchInput.tsx` 内部实现外，`app/` 和 `packages/` 不得出现 `type="search"` 或 `placeholder/aria-label` 带搜索语义的原生 `<input>`。新增会被 `npm run arch:gate` 的 `nativeSearchInputFiles` ratchet 拦住。
 - Core UI 可用入口以 `packages/core/ui/component-registry.ts` 为准。业务包、Platform 页面和 app 壳不得引用未注册 Core UI 名字，也不得在 `packages/*/ui` 新增手写页面卡片/筛选/分栏/表格壳；新增同类结构会被 `npm run arch:gate` 的 Level 2 ratchet 拦住。
@@ -53,6 +54,8 @@
 关键约束：选择面板可以复杂，字段展示必须统一。比如“专业”可以用“门类 -> 专业类”选择，但保存后字段只显示 `药学类`，不能在不同页面显示成按钮组、卡片组或两格输入。
 
 高级筛选必须基于显式查询 contract，而不是复用编辑字段配置自动生成。每个筛选项都要声明后端实际支持的 `queryParam` 和值类型；例如“姓名”是 `keyword contains 张`，可以直接应用并返回一组员工；“员工 FK”才是从候选里选定一个员工实体。没有后端 query contract 的字段不能出现在高级筛选里。
+
+generated 类成果的筛选 contract 要随生成 DTO 一起返回，避免 UI 自己猜字段、值类型和候选来源。公司、部门、岗位等已有 FK/候选体系的字段必须声明 `fkKey` 并走对应 `reference-options` 后端搜索；普通文本字段也必须先由后端列入 contract，UI 不能额外开放本地字段。
 
 ## Platform 模板
 

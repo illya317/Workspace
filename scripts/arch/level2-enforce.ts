@@ -30,6 +30,7 @@ type Level2Baseline = {
   pageDesignDriftFiles: string[];
   nativeSearchInputFiles: string[];
   handwrittenSearchMatches: string[];
+  generatedFilterContractDrift: string[];
   repeatedServiceGroups: string[];
   routePrimitiveSchemaDuplicates: string[];
   apiRouteHelperDuplicates: string[];
@@ -84,6 +85,10 @@ function nativeSearchInputFileKey(candidate: { file: string; signals: string[] }
 
 function handwrittenSearchMatchKey(candidate: { file: string; line: number; signal: string }) {
   return `${candidate.file}:${candidate.line}: ${candidate.signal}`;
+}
+
+function generatedFilterContractDriftKey(candidate: { file: string; expression: string; reason: string }) {
+  return `${candidate.file}: ${candidate.expression} (${candidate.reason})`;
 }
 
 function diff(left: string[], right: string[]) {
@@ -180,6 +185,10 @@ export function checkLevel2Ratchet() {
       [
         "handwrittenSearchMatches",
         report.drift.handwrittenSearchMatches.map(handwrittenSearchMatchKey),
+      ],
+      [
+        "generatedFilterContractDrift",
+        report.drift.generatedFilterContractDrift.map(generatedFilterContractDriftKey),
       ],
       [
         "repeatedServiceGroups",

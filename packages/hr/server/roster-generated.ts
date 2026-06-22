@@ -3,6 +3,7 @@ import { matchSearchFields } from "@workspace/platform/search";
 import { prisma } from "@workspace/platform/server/prisma";
 import type {
   RosterGeneratedColumn,
+  RosterGeneratedFilterField,
   RosterGeneratedFilters,
   RosterGeneratedGroup,
   RosterGeneratedPreview,
@@ -55,6 +56,17 @@ const DUE_DILIGENCE_COLUMNS: RosterGeneratedColumn[] = [
   { key: "endDate", label: "合同终止", scope: "row" },
 ];
 
+const FILTER_FIELDS: RosterGeneratedFilterField[] = [
+  { key: "currentCompany", label: "公司", valueKind: "fk", fkKey: "hr.company", fkReturnField: "name", lifecycleScope: "all" },
+  { key: "departmentName", label: "部门", valueKind: "fk", fkKey: "hr.department", fkReturnField: "name", lifecycleScope: "all" },
+  { key: "positionName", label: "岗位", valueKind: "fk", fkKey: "hr.position", fkReturnField: "name", lifecycleScope: "all" },
+  { key: "education", label: "学历", valueKind: "text" },
+  { key: "rank", label: "职级", valueKind: "text" },
+  { key: "personnelType", label: "人员类型", valueKind: "text" },
+];
+
+const FILTER_FIELD_KEYS = new Set(FILTER_FIELDS.map((field) => field.key));
+
 export interface RosterGeneratedPreviewInput extends RosterGeneratedFilters {
   page?: number;
   pageSize?: number;
@@ -95,6 +107,7 @@ export async function previewRosterGenerated(input: RosterGeneratedPreviewInput)
       filterField: input.filterField || undefined,
       filterValue: input.filterValue || undefined,
     },
+    filterFields: FILTER_FIELDS,
     columns,
     groups,
     totalEmployees: filtered.length,
@@ -175,7 +188,8 @@ function filterEmployees(
       rank: primaryEmployment?.rank ?? "",
       personnelType: primaryEmployment?.personnelType ?? "",
     };
-    if (filters.filterField && filters.filterValue && !matchSearchFields(searchable, filters.filterValue, [filters.filterField])) {
+    const filterField = FILTER_FIELD_KEYS.has(filters.filterField) ? filters.filterField : "";
+    if (filterField && filters.filterValue && !matchSearchFields(searchable, filters.filterValue, [filterField])) {
       return false;
     }
     if (filters.keyword && !matchSearchFields(searchable, filters.keyword, ["employeeId", "name", "currentCompany", "departmentName", "positionName"])) {
