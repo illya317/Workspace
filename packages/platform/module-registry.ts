@@ -284,8 +284,8 @@ export const registeredModuleDefinitions = [
       resourceMaxRoleKey: "access",
       resourceSortOrder: 100,
       children: [
-        { key: "account", label: "账号与接入", desc: "", href: "/settings/account", resourceKey: "settings.account", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/account"] },
-        { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", resourceKey: "settings.admin", apiPrefixes: ["/api/settings/admin"] },
+        { key: "account", label: "账号与接入", desc: "", href: "/settings/account", resourceKey: "settings.account", resourceMaxRoleKey: "access", resourceHidden: true, apiPrefixes: ["/api/settings/account"] },
+        { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", resourceKey: "settings.admin", resourceHidden: true, apiPrefixes: ["/api/settings/admin"] },
         { key: "api", label: "API 接入", desc: "Open API Client、Scope 授权和调用日志", href: "/settings/api", resourceKey: "settings.api", resourceMaxRoleKey: "access", apiPrefixes: ["/api/settings/api"] },
       ],
     },

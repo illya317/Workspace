@@ -30,7 +30,7 @@
 ```
   settings            access  设置
   settings.account  access  账号与接入（自助，授权矩阵隐藏）
-  settings.admin    admin   系统管理
+  settings.admin    admin   系统管理（管理入口容器，授权矩阵隐藏）
   settings.api      access  Open API 接入控制台
 
 settings.api.manage write Open API Client 管理（独立资源，runtimeParentKey=settings.api）
@@ -108,7 +108,7 @@ work.projects.viewAll access 项目全局查看（独立资源，runtimeParentKe
 
 登录只看 `User.canLogin`（账号启停用） + `sessionVersion`。**不看 `system.access`**。
 
-`settings.account` 是明确例外：它是登录用户的个人自助设置 L2，页面和 API contract 仍按 L2 注册，但不进入普通 RBAC 授权矩阵；后端只要求已登录，不要求 `settings.account` grant。
+`settings.account` 和 `settings.admin` 是明确例外：它们的页面和 API contract 仍按 L2 注册，但不进入普通 RBAC 授权矩阵。`settings.account` 是登录用户自助设置，只要求已登录；`settings.admin` 是管理入口容器，后台入口使用“可管理任一资源即可进入”的规则。
 
 `system.access` 已废弃，不作为登录/后台入口/授权管理的判断条件。需要进后台管理权限时，授予对应资源的 `admin` 角色（如 `hr.admin`）。Session 暴露 `manageableResourceKeys[]`，后台入口使用“可管理任一资源即可进入”的规则。
 
