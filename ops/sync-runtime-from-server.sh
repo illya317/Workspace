@@ -55,6 +55,8 @@ SERVER="${SERVER:-}"
 REMOTE_DIR="${REMOTE_DIR:-$TARGET_REMOTE_DIR}"
 REMOTE_WORKSPACE_CONFIG_DIR="${REMOTE_WORKSPACE_CONFIG_DIR:-$TARGET_WORKSPACE_CONFIG_DIR}"
 LOCAL_WORKSPACE_CONFIG_DIR="${LOCAL_WORKSPACE_CONFIG_DIR:-${WORKSPACE_CONFIG_DIR:-$DEFAULT_LOCAL_WORKSPACE_CONFIG_DIR}}"
+BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
+BACKUP_RETENTION_COUNT="${BACKUP_RETENTION_COUNT:-20}"
 
 if [ -z "$SERVER" ]; then
   echo "[错误] 缺少 SERVER。请配置 ops/server.env.sh 或环境变量 SERVER。"
@@ -77,6 +79,17 @@ fi
 
 LOCAL_WORKSPACE_CONFIG_DIR="$(cd "$LOCAL_WORKSPACE_CONFIG_DIR" && pwd -P)"
 LOCAL_WORKSPACE_BACKUP_DIR="${LOCAL_WORKSPACE_BACKUP_DIR:-$(dirname "$LOCAL_WORKSPACE_CONFIG_DIR")/.workspace.backups}"
+
+case "$BACKUP_RETENTION_DAYS" in
+  ''|*[!0-9]*) echo "[错误] BACKUP_RETENTION_DAYS 必须是非负整数"; exit 1 ;;
+esac
+case "$BACKUP_RETENTION_COUNT" in
+  ''|*[!0-9]*) echo "[错误] BACKUP_RETENTION_COUNT 必须是非负整数"; exit 1 ;;
+esac
+if [ "$BACKUP_RETENTION_COUNT" -lt 1 ]; then
+  echo "[错误] BACKUP_RETENTION_COUNT 必须至少为 1，避免删除本次同步备份"
+  exit 1
+fi
 
 server_host="${SERVER#*@}"
 server_host="${server_host%%:*}"
@@ -117,6 +130,30 @@ print(os.path.relpath(sys.argv[1], os.path.dirname(sys.argv[2])))
 PY
 }
 
+cleanup_local_backups() {
+  python3 - "$LOCAL_WORKSPACE_BACKUP_DIR" "$BACKUP_RETENTION_DAYS" "$BACKUP_RETENTION_COUNT" <<'PY'
+from pathlib import Path
+import sys
+import time
+
+backup_dir = Path(sys.argv[1])
+retention_days = int(sys.argv[2])
+retention_count = int(sys.argv[3])
+cutoff = time.time() - retention_days * 86400
+files = sorted(
+    backup_dir.glob('workspace-runtime-before-pull-*.tgz'),
+    key=lambda path: path.stat().st_mtime,
+    reverse=True,
+)
+for index, path in enumerate(files):
+    too_many = index >= retention_count
+    too_old = retention_days > 0 and path.stat().st_mtime < cutoff
+    if too_many or too_old:
+        path.unlink()
+print(f'Local runtime backups kept: {len(list(backup_dir.glob("workspace-runtime-before-pull-*.tgz")))}')
+PY
+}
+
 rsync_ssh=(ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new)
 rsync_flags=(-az --stats --progress)
 if [ "$DELETE_REMOTE_REMOVED" = "1" ]; then
@@ -140,6 +177,8 @@ if [ "$DRY_RUN" = "0" ]; then
   echo "==> 备份本地运行态: $backup"
   tar -C "$(dirname "$LOCAL_WORKSPACE_CONFIG_DIR")" -czf "$backup" "$(basename "$LOCAL_WORKSPACE_CONFIG_DIR")"
   ls -lh "$backup"
+  echo "==> 清理本地运行态备份（保留 ${BACKUP_RETENTION_DAYS} 天，最多 ${BACKUP_RETENTION_COUNT} 份）..."
+  cleanup_local_backups
 else
   echo "==> dry-run：跳过本地备份写入"
 fi

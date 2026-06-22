@@ -25,7 +25,7 @@ git status --short
 git add <files>
 git commit -m "<message>"
 git push github main
-git push origin main
+git -c credential.helper= -c credential.helper='!cnb git-credential' push origin main
 ```
 
 生产发布必须基于已同步到 GitHub 与 CNB 的 commit，通过 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger`：
@@ -33,7 +33,7 @@ git push origin main
 ```bash
 sha="$(git rev-parse HEAD)"
 cnb build start-build \
-  --repo illya317/workspace \
+  --repo illya317/Workspace \
   --branch main \
   --sha "$sha" \
   --event api_trigger \
@@ -45,7 +45,7 @@ cnb build start-build \
 部署后用返回的 `sn` 查询状态：
 
 ```bash
-cnb build get-build-status --repo illya317/workspace --sn "<sn>" --verbose
+cnb build get-build-status --repo illya317/Workspace --sn "<sn>" --verbose
 ```
 
 如果部署失败，用同一个 `sn` 和 pipeline/stage id 拉取失败 stage 日志；不要再额外 push 一次制造第二条部署记录。
@@ -81,19 +81,23 @@ bash ./ops/deploy.sh
 | `REMOTE_WORKSPACE_CONFIG_DIR` | 服务器运行态目录，默认 `$(dirname REMOTE_DIR)/.workspace` |
 | `HEALTHCHECK_URL` | 可选，部署后在服务器本机执行的健康检查地址，例如 `http://127.0.0.1:3000/` |
 | `RUN_LOCAL_CHECKS` | 可选，默认 `1`；设为 `0` 时跳过 CI 机上的静态检查 |
+| `BACKUP_RETENTION_DAYS` | 可选，运行态备份保留天数，默认 `30` |
+| `BACKUP_RETENTION_COUNT` | 可选，运行态备份最多保留份数，默认 `20` |
 
 ## 部署行为
 
 1. 本地提交后先 push 到 GitHub 跑 CI，再 push 到 CNB 同步发布源码；push 本身不发布生产。
 2. 用 CNB API/CLI 触发 `api_trigger`。
 3. CNB deploy job 先执行 `.cnb.yml` 里的部署前检查。
-4. CNB/Linux CD 容器执行 `npm ci`、部署前检查和 `npm run build`。
-5. CNB 将 `.next/standalone`、`.next/static`、`public` 打包为 standalone 产物。
-6. CNB 通过 SSH 上传产物到服务器，服务器解包到 `REMOTE_DIR/releases/<release>`。
-7. 服务器把 `.env`、数据库、品牌资源、Agent 头像等运行态资源继续指向 `$REMOTE_WORKSPACE_CONFIG_DIR`。
-8. 服务器在切换 release 前备份 `$REMOTE_WORKSPACE_CONFIG_DIR` 到 `workspace-runtime-backups/`。
-9. 服务器清空 `REMOTE_DIR` 里的旧源码、旧 `.next`、旧 `node_modules` 等杂物，只保留 `releases/` 和 `current`。
-10. 使用 PM2 重新启动 `server.js` 并保存进程列表。
+4. CNB/Linux CD 容器执行 `npm ci`，并无条件执行 `npm run db:migration:check`。
+5. CNB/Linux CD 容器执行部署前检查和 `npm run build`。
+6. CNB 将 `.next/standalone`、`.next/static`、`public`、`prisma/` 和 `prisma.config.ts` 打包为 standalone 产物。
+7. 服务器在切换 release 前备份 `$REMOTE_WORKSPACE_CONFIG_DIR` 到 `$REMOTE_DIR/.workspace.backups/`。
+8. 服务器自动清理运行态备份：默认保留最近 30 天且最多 20 份。
+9. 服务器在启动新 PM2 进程前执行 `prisma migrate deploy --schema=./prisma`。
+10. 服务器把 `.env`、数据库、品牌资源、Agent 头像等运行态资源继续指向 `$REMOTE_WORKSPACE_CONFIG_DIR`。
+11. 服务器清空 `REMOTE_DIR` 里的旧源码、旧 `.next`、旧 `node_modules` 等杂物，只保留 `releases/`、`.workspace` 和 `.workspace.backups`。
+12. 使用 PM2 重新启动 `server.js` 并保存进程列表。
 
 这套策略把发布构建放在 CNB/CD 容器里，CVM 只负责运行指定版本；日常 CI 消耗放在 GitHub Actions，避免 CNB 私有项目消耗核时。
 
@@ -111,6 +115,51 @@ bash ./ops/deploy.sh
 - `.workspace/cache/`
 
 运行态目录规则见 [environment.md](/Users/koito/Project/workspace/workspace/docs/ops/environment.md)。
+
+## 数据库迁移
+
+Prisma schema 结构变更必须提交 migration。只改 `prisma/models/*.prisma` 或 `prisma/schema.prisma`，但没有提交 `prisma/migrations/<timestamp>_<name>/migration.sql`，视为不完整变更。
+
+本地生成 migration：
+
+```bash
+npx prisma migrate dev --name <change-name> --schema=./prisma
+npm run db:migration:check
+```
+
+生产部署会在 PM2 切换前自动执行：
+
+```bash
+npx prisma migrate deploy --schema=./prisma
+```
+
+迁移失败时，部署失败且不会启动新 release。旧 PM2 服务会尽量保持在线。不要把手工 SQL 当作正式流程；止血 SQL 必须随后补成 Prisma migration。
+
+## 运行态备份与恢复
+
+部署前会把服务器运行态目录打包到：
+
+```text
+/home/ubuntu/workspace/.workspace.backups/workspace-runtime-YYYYMMDDHHMMSS.tgz
+```
+
+默认保留最近 30 天且最多 20 份，可用环境变量覆盖：
+
+```bash
+BACKUP_RETENTION_DAYS=30
+BACKUP_RETENTION_COUNT=20
+```
+
+手工恢复时，先停 PM2，再解压指定备份覆盖 `.workspace`：
+
+```bash
+pm2 stop workspace
+cd /home/ubuntu/workspace
+tar -xzf .workspace.backups/workspace-runtime-YYYYMMDDHHMMSS.tgz
+pm2 restart workspace --update-env
+```
+
+本地 `npm run workspace:pull` 也会在 `.workspace.backups/` 下创建拉取前备份，并使用同样的保留策略。
 
 ## 常见问题
 

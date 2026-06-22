@@ -12,6 +12,9 @@ RUN_LOCAL_CHECKS="${RUN_LOCAL_CHECKS:-1}"
 ALLOW_NON_LINUX_BUILD="${ALLOW_NON_LINUX_BUILD:-0}"
 ENV_CONTENT="${ENV_CONTENT:-}"
 REMOTE_BACKUP_DIR="${REMOTE_BACKUP_DIR:-}"
+REMOTE_WORKSPACE_BACKUP_DIR="${REMOTE_WORKSPACE_BACKUP_DIR:-}"
+BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
+BACKUP_RETENTION_COUNT="${BACKUP_RETENTION_COUNT:-20}"
 if [ -n "$ENV_CONTENT" ]; then
   ENV_CONTENT_B64="$(printf '%s' "$ENV_CONTENT" | base64 | tr -d '\n')"
 else
@@ -35,11 +38,26 @@ elif [ "$REMOTE_WORKSPACE_CONFIG_DIR" != "$REMOTE_DIR/.workspace" ]; then
   REMOTE_WORKSPACE_CONFIG_DIR="$REMOTE_DIR/.workspace"
 fi
 
+if [ -z "$REMOTE_BACKUP_DIR" ] && [ -n "$REMOTE_WORKSPACE_BACKUP_DIR" ]; then
+  REMOTE_BACKUP_DIR="$REMOTE_WORKSPACE_BACKUP_DIR"
+fi
+
 if [ -z "$REMOTE_BACKUP_DIR" ]; then
   REMOTE_BACKUP_DIR="$REMOTE_DIR/.workspace.backups"
 elif [ "$REMOTE_BACKUP_DIR" != "$REMOTE_DIR/.workspace.backups" ]; then
   echo "[警告] REMOTE_BACKUP_DIR 已统一为 $REMOTE_DIR/.workspace.backups，忽略旧值: $REMOTE_BACKUP_DIR"
   REMOTE_BACKUP_DIR="$REMOTE_DIR/.workspace.backups"
+fi
+
+case "$BACKUP_RETENTION_DAYS" in
+  ''|*[!0-9]*) echo "[错误] BACKUP_RETENTION_DAYS 必须是非负整数"; exit 1 ;;
+esac
+case "$BACKUP_RETENTION_COUNT" in
+  ''|*[!0-9]*) echo "[错误] BACKUP_RETENTION_COUNT 必须是非负整数"; exit 1 ;;
+esac
+if [ "$BACKUP_RETENTION_COUNT" -lt 1 ]; then
+  echo "[错误] BACKUP_RETENTION_COUNT 必须至少为 1，避免删除本次部署备份"
+  exit 1
 fi
 
 TMPKEY=""
@@ -85,6 +103,30 @@ copy_runtime_package() {
   rm -rf ".next/standalone/node_modules/$pkg"
   mkdir -p ".next/standalone/node_modules/$(dirname "$pkg")"
   cp -R "node_modules/$pkg" ".next/standalone/node_modules/$pkg"
+}
+
+copy_prisma_deploy_files() {
+  echo "==> 打包 Prisma schema、migrations 和 CLI..."
+  test -f prisma.config.ts
+  test -f prisma/schema.prisma
+  test -f prisma/migrations/migration_lock.toml
+
+  rm -rf .next/standalone/prisma .next/standalone/prisma.config.ts
+  mkdir -p .next/standalone/prisma
+  cp prisma/schema.prisma .next/standalone/prisma/schema.prisma
+  cp -R prisma/models .next/standalone/prisma/models
+  cp -R prisma/migrations .next/standalone/prisma/migrations
+  cp prisma.config.ts .next/standalone/prisma.config.ts
+
+  rm -rf .next/standalone/node_modules/prisma .next/standalone/node_modules/@prisma
+  mkdir -p .next/standalone/node_modules
+  cp -R node_modules/prisma .next/standalone/node_modules/prisma
+  cp -R node_modules/@prisma .next/standalone/node_modules/@prisma
+
+  test -f .next/standalone/prisma/schema.prisma
+  test -f .next/standalone/prisma/migrations/migration_lock.toml
+  test -f .next/standalone/prisma.config.ts
+  test -f .next/standalone/node_modules/prisma/build/index.js
 }
 
 run_local_checks() {
@@ -148,6 +190,7 @@ build_artifact() {
   for pkg in better-sqlite3 @prisma/adapter-better-sqlite3 @prisma/client dotenv; do
     copy_runtime_package "$pkg"
   done
+  copy_prisma_deploy_files
 
   rm -rf .next/standalone/generated/prisma
   mkdir -p .next/standalone/generated
@@ -266,6 +309,35 @@ backup_remote_runtime() {
   "
 }
 
+cleanup_remote_backups() {
+  echo "==> 清理服务器运行态备份（保留 ${BACKUP_RETENTION_DAYS} 天，最多 ${BACKUP_RETENTION_COUNT} 份）..."
+  ssh_cmd "
+    set -e
+    mkdir -p '$REMOTE_BACKUP_DIR'
+    python3 - <<'PY'
+from pathlib import Path
+import time
+
+backup_dir = Path('$REMOTE_BACKUP_DIR')
+retention_days = int('$BACKUP_RETENTION_DAYS')
+retention_count = int('$BACKUP_RETENTION_COUNT')
+now = time.time()
+cutoff = now - retention_days * 86400
+files = sorted(
+    backup_dir.glob('workspace-runtime-*.tgz'),
+    key=lambda path: path.stat().st_mtime,
+    reverse=True,
+)
+for index, path in enumerate(files):
+    too_many = index >= retention_count
+    too_old = retention_days > 0 and path.stat().st_mtime < cutoff
+    if too_many or too_old:
+        path.unlink()
+print(f'Runtime backups kept: {len(list(backup_dir.glob(\"workspace-runtime-*.tgz\")))}')
+PY
+  "
+}
+
 deploy_remote_artifact() {
   local release_id
   local remote_tar
@@ -315,13 +387,19 @@ deploy_remote_artifact() {
 
     grep -q '^WORKSPACE_CONFIG_DIR=' \"\$release_dir/.env\"
     grep -q '^DATABASE_URL=' \"\$release_dir/.env\"
+    test -f \"\$release_dir/prisma/schema.prisma\"
+    test -f \"\$release_dir/prisma/migrations/migration_lock.toml\"
+    test -f \"\$release_dir/node_modules/prisma/build/index.js\"
 
-    pm2 delete '$PM2_NAME' 2>/dev/null || true
     cd \"\$release_dir\"
     set -a
     . \"\$release_dir/.env\"
     set +a
     export NODE_ENV=production
+    echo '==> 执行 Prisma 数据库迁移...'
+    node \"\$release_dir/node_modules/prisma/build/index.js\" migrate deploy --schema=\"\$release_dir/prisma\"
+
+    pm2 delete '$PM2_NAME' 2>/dev/null || true
     pm2 start \"\$release_dir/\$server_entry\" --name '$PM2_NAME' --cwd \"\$app_dir\" --update-env
     qc_cache_ready=0
     for i in \$(seq 1 20); do
@@ -370,6 +448,9 @@ else
   echo "==> 跳过本地静态检查（RUN_LOCAL_CHECKS=${RUN_LOCAL_CHECKS}）"
 fi
 
+echo "==> 强制校验 Prisma migrations..."
+npm run db:migration:check
+
 build_artifact
 
 echo "==> 验证服务器连接..."
@@ -378,6 +459,7 @@ ssh_cmd "echo CONNECTED && whoami && mkdir -p '$REMOTE_DIR'"
 prepare_remote_runtime
 validate_remote_runtime
 backup_remote_runtime
+cleanup_remote_backups
 deploy_remote_artifact
 run_healthcheck
 
