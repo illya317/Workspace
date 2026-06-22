@@ -106,7 +106,7 @@ export default function SettingsClient({
             href="/settings/account"
           />
 
-          {hasGovernanceAccess && (
+          {hasAdminAccess && (
             <ModuleCard
               title="系统管理"
               description="用户、权限、资源和管理员配置。"
@@ -135,7 +135,7 @@ export default function SettingsClient({
             />
           )}
 
-          {hasAdminAccess && (
+          {hasGovernanceAccess && (
             <ModuleCard
               title="数据治理"
               description="FK、生命周期、必填、编码、引用阻断和审计策略。"
@@ -173,7 +173,7 @@ export default function SettingsClient({
         </ModuleGridPage>
       )}
 
-      {view === "governance" && hasAdminAccess && (
+      {view === "governance" && hasGovernanceAccess && (
         <ModuleGridPage
           title="数据治理"
           summary="FK、生命周期、必填、编码、引用阻断和审计策略"
