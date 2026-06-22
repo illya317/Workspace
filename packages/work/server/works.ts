@@ -1,4 +1,10 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
+import {
+  buildWorkItemCreateCommand,
+  buildWorkItemUpdateCommand,
+  validateWorkItemDeleteCommand,
+} from "./domain/work-item-validation";
 
 export function parseParticipants(input?: string): string[] {
   if (!input) return [];
@@ -37,23 +43,26 @@ export async function createWorkItem(opts: {
   urgency?: number;
   participants?: string[];
   sortOrder?: number;
-}) {
-  return prisma.workItem.create({
+}): Promise<DomainServiceResult<unknown>> {
+  const command = buildWorkItemCreateCommand(opts);
+  if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
+  const work = await prisma.workItem.create({
     data: {
-      targetType: opts.targetType,
-      targetId: opts.targetId,
-      category: opts.category,
-      content: opts.content,
-      importance: opts.importance ?? 3,
-      urgency: opts.urgency ?? 3,
-      sortOrder: opts.sortOrder ?? 0,
+      targetType: command.data.targetType,
+      targetId: command.data.targetId,
+      category: command.data.category,
+      content: command.data.content,
+      importance: command.data.importance,
+      urgency: command.data.urgency,
+      sortOrder: command.data.sortOrder,
       participants:
-        opts.participants && opts.participants.length > 0
-          ? { create: opts.participants.map((name) => ({ name })) }
+        command.data.participants.length > 0
+          ? { create: command.data.participants.map((name) => ({ name })) }
           : undefined,
     },
     include: { participants: true },
   });
+  return { ok: true, data: work };
 }
 
 export async function getWorkItemAccessMetadata(workId: number) {
@@ -77,30 +86,36 @@ export async function updateWorkItem(
     sortOrder?: number;
     isArchived?: boolean;
   },
-) {
+): Promise<DomainServiceResult<unknown>> {
+  const command = buildWorkItemUpdateCommand(workId, opts);
+  if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
   const data: Prisma.WorkItemUpdateInput = {
-    ...(opts.category !== undefined && { category: opts.category }),
-    ...(opts.content !== undefined && { content: opts.content }),
-    ...(opts.importance !== undefined && { importance: opts.importance }),
-    ...(opts.urgency !== undefined && { urgency: opts.urgency }),
-    ...(opts.sortOrder !== undefined && { sortOrder: opts.sortOrder }),
-    ...(opts.isArchived !== undefined && { isArchived: opts.isArchived }),
+    ...(command.data.data.category !== undefined && { category: command.data.data.category }),
+    ...(command.data.data.content !== undefined && { content: command.data.data.content }),
+    ...(command.data.data.importance !== undefined && { importance: command.data.data.importance }),
+    ...(command.data.data.urgency !== undefined && { urgency: command.data.data.urgency }),
+    ...(command.data.data.sortOrder !== undefined && { sortOrder: command.data.data.sortOrder }),
+    ...(command.data.data.isArchived !== undefined && { isArchived: command.data.data.isArchived }),
   };
 
-  if (opts.participants !== undefined) {
+  if (command.data.data.participants !== undefined) {
     data.participants = {
       deleteMany: {},
-      create: opts.participants.map((name) => ({ name })),
+      create: command.data.data.participants.map((name) => ({ name })),
     };
   }
 
-  return prisma.workItem.update({
-    where: { id: workId },
+  const work = await prisma.workItem.update({
+    where: { id: command.data.workId },
     data,
     include: { participants: true },
   });
+  return { ok: true, data: work };
 }
 
-export async function deleteWorkItem(workId: number) {
-  await prisma.workItem.delete({ where: { id: workId } });
+export async function deleteWorkItem(workId: number): Promise<DomainServiceResult<{ success: true }>> {
+  const command = validateWorkItemDeleteCommand(workId);
+  if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
+  await prisma.workItem.delete({ where: { id: command.data.workId } });
+  return { ok: true, data: { success: true } };
 }

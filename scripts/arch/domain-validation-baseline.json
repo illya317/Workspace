@@ -31,15 +31,9 @@
     "missingDomainValidatorImport: packages/library/server/scan.ts: write service does not import a domain validator",
     "missingDomainValidatorImport: packages/production/server/qc/batches.ts: write service does not import a domain validator",
     "missingDomainValidatorImport: packages/production/server/qc/template-feedback-store.ts: write service does not import a domain validator",
-    "missingDomainValidatorImport: packages/production/server/qc/template-feedback.ts: write service does not import a domain validator",
-    "missingDomainValidatorImport: packages/work/server/project-members.ts: write service does not import a domain validator",
-    "missingDomainValidatorImport: packages/work/server/projects.ts: write service does not import a domain validator",
-    "missingDomainValidatorImport: packages/work/server/reports.ts: write service does not import a domain validator",
-    "missingDomainValidatorImport: packages/work/server/works.ts: write service does not import a domain validator"
+    "missingDomainValidatorImport: packages/production/server/qc/template-feedback.ts: write service does not import a domain validator"
   ],
-  "serviceUsesLowLevelRule": [
-    "serviceUsesLowLevelRule: packages/work/server/project-members.ts: uses validateFkValue, isValidDateValue, rejectInvalidDateField"
-  ],
+  "serviceUsesLowLevelRule": [],
   "routeImportsDomainValidator": [],
   "serverRootReexportsDomainValidator": []
 }
