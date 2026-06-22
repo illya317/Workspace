@@ -32,7 +32,8 @@ export interface PositionListItem {
   summary: string | null;
   positionPurpose: string | null;
   headcountPlan: number | null;
-  version: string | null;
+  version: number;
+  positionDescriptionVersion: string | null;
   effectiveDate: string | null;
   sourceFile: string | null;
   headcount: number;
@@ -120,7 +121,8 @@ export async function getPositionList(
       summary: position.positionDescription?.summary || null,
       positionPurpose: position.positionDescription?.positionPurpose || null,
       headcountPlan: position.positionDescription?.headcount || null,
-      version: position.positionDescription?.version || null,
+      version: position.version,
+      positionDescriptionVersion: position.positionDescription?.version || null,
       effectiveDate: position.positionDescription?.effectiveDate || null,
       sourceFile: position.positionDescription?.sourceFile || null,
       headcount: position._count.edps,

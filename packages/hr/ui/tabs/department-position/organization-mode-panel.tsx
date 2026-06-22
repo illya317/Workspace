@@ -254,7 +254,7 @@ export function OrganizationModePanel({
           positionPurpose: position.positionPurpose || null,
           summary: position.summary || null,
           headcount: position.headcountPlan,
-          version: position.version || null,
+          version: position.positionDescriptionVersion || null,
           effectiveDate: position.effectiveDate || null,
           sourceFile: position.sourceFile || "",
           details: positionDetailsText(position),

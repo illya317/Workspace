@@ -57,6 +57,7 @@ export async function listCompanies(input: { keyword: string; activeOnly: boolea
     codePoolCode: company.codePoolCode,
     isActive: company.isActive,
     sortOrder: company.sortOrder,
+    version: company.version,
   }));
 
   const result = input.keyword ? mapped.filter((company) => matchAnyField(company, input.keyword, "Company")) : mapped;

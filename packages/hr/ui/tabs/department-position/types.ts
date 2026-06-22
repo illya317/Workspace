@@ -11,6 +11,7 @@ export type Department = {
   headcount: number;
   isArchived: boolean;
   archivedAt: string | null;
+  version: number;
   children: { id: number; name: string }[];
   descriptions: DepartmentDescription[];
 };
@@ -43,7 +44,8 @@ export type Position = {
   summary: string | null;
   positionPurpose: string | null;
   headcountPlan: number | null;
-  version: string | null;
+  version: number;
+  positionDescriptionVersion: string | null;
   effectiveDate: string | null;
   sourceFile: string | null;
   headcount: number;

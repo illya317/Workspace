@@ -75,6 +75,7 @@ export async function listDepartments(input: { keyword: string; page: number; pa
     managerName: department.manager?.name || null,
     isArchived: department.isArchived,
     archivedAt: department.archivedAt?.toISOString() || null,
+    version: department.version,
     headcount: department._count.edps,
     children: department.children.map((child) => ({ id: child.id, name: child.name })),
     descriptions: department.descriptions.map((description) => ({

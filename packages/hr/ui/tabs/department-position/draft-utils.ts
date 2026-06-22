@@ -98,7 +98,7 @@ export function createDescriptionDraft(position: Position): DescriptionDraft | n
     positionPurpose: position.positionPurpose || "",
     summary: position.summary || "",
     headcount: position.headcountPlan === null || position.headcountPlan === undefined ? "" : String(position.headcountPlan),
-    version: position.version || "",
+    version: position.positionDescriptionVersion || "",
     effectiveDate: position.effectiveDate || "",
     sourceFile: position.sourceFile || "",
     details: JSON.stringify(position.positionDescriptionDetails || {}, null, 2),
