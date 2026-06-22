@@ -122,11 +122,46 @@ copy_prisma_deploy_files() {
   mkdir -p .next/standalone/node_modules
   cp -R node_modules/prisma .next/standalone/node_modules/prisma
   cp -R node_modules/@prisma .next/standalone/node_modules/@prisma
+  node - <<'NODE' | while IFS= read -r pkg; do
+const fs = require("fs");
+const path = require("path");
+
+const root = process.cwd();
+const seen = new Set();
+
+function packageDir(name) {
+  if (name.startsWith("@")) {
+    return path.join(root, "node_modules", ...name.split("/"));
+  }
+  return path.join(root, "node_modules", name);
+}
+
+function walk(name) {
+  if (seen.has(name)) return;
+  seen.add(name);
+  const packageJson = path.join(packageDir(name), "package.json");
+  if (!fs.existsSync(packageJson)) {
+    throw new Error(`Missing Prisma CLI dependency: ${name}`);
+  }
+  const pkg = JSON.parse(fs.readFileSync(packageJson, "utf8"));
+  for (const dependency of Object.keys(pkg.dependencies || {})) {
+    walk(dependency);
+  }
+}
+
+walk("@prisma/config");
+for (const name of [...seen].filter((value) => !value.startsWith("@prisma/")).sort()) {
+  console.log(name);
+}
+NODE
+    copy_runtime_package "$pkg"
+  done
 
   test -f .next/standalone/prisma/schema.prisma
   test -f .next/standalone/prisma/migrations/migration_lock.toml
   test -f .next/standalone/prisma.config.ts
   test -f .next/standalone/node_modules/prisma/build/index.js
+  test -f .next/standalone/node_modules/effect/package.json
 }
 
 run_local_checks() {
