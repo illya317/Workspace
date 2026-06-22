@@ -166,6 +166,8 @@ export { default as StructuredTable } from "./StructuredTable";
 export type { StructuredTableCell, StructuredTableProps } from "./StructuredTable";
 export { default as TabBar } from "./TabBar";
 export type { TabBarProps, TabDef } from "./TabBar";
+export { default as TagPillButton } from "./TagPillButton";
+export type { TagPillButtonProps } from "./TagPillButton";
 export { default as TagRemoveButton } from "./TagRemoveButton";
 export type { TagRemoveButtonProps } from "./TagRemoveButton";
 export { default as TableScrollFrame } from "./TableScrollFrame";

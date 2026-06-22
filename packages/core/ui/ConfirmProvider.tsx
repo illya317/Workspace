@@ -9,6 +9,7 @@ export interface ConfirmOptions {
   confirmLabel?: string;
   cancelLabel?: string;
   confirmDanger?: boolean;
+  showCancel?: boolean;
 }
 
 interface ConfirmRequest extends Required<Omit<ConfirmOptions, "message">> {
@@ -33,6 +34,7 @@ export default function ConfirmProvider({ children }: { children: ReactNode }) {
       confirmLabel: options.confirmLabel ?? "确定",
       cancelLabel: options.cancelLabel ?? "取消",
       confirmDanger: options.confirmDanger ?? false,
+      showCancel: options.showCancel ?? true,
       resolve,
     });
   }), []);
@@ -63,6 +65,7 @@ export default function ConfirmProvider({ children }: { children: ReactNode }) {
         confirmLabel={request?.confirmLabel}
         cancelLabel={request?.cancelLabel}
         confirmDanger={request?.confirmDanger}
+        showCancel={request?.showCancel}
         onConfirm={() => close(true)}
         onCancel={() => close(false)}
       />

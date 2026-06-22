@@ -48,6 +48,7 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
   const [activeChild, setActiveChild] = useState<string | undefined>(
     rosterViews.find((view) => view.key === "employee")?.children?.[0]?.key,
   );
+  const [focusPositionId, setFocusPositionId] = useState<number | null>(null);
   const hrUser = toHRUser(user);
   const activeBulkTab = (activeChild ?? "employee") as HRTab;
   const employeeStatus = activeChild === "inactive" ? "inactive" : "active";
@@ -69,10 +70,26 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
     >
         {activeView === "employee" && <EmployeeDirectory user={hrUser} employmentStatus={employeeStatus} />}
 
-        {activeView === "organization" && <DepartmentPositionTab user={hrUser} mode="organization" />}
+        {activeView === "organization" && (
+          <DepartmentPositionTab
+            user={hrUser}
+            mode="organization"
+            onOpenPositionDetails={(positionId) => {
+              setFocusPositionId(positionId);
+              setActiveView("department-position");
+              setActiveChild("active");
+            }}
+          />
+        )}
 
         {activeView === "department-position" && (
-          <DepartmentPositionTab user={hrUser} mode="position" lifecycle={departmentLifecycle} />
+          <DepartmentPositionTab
+            user={hrUser}
+            mode="position"
+            lifecycle={departmentLifecycle}
+            focusPositionId={focusPositionId}
+            onFocusPositionConsumed={() => setFocusPositionId(null)}
+          />
         )}
 
         {activeView === "bulk" && (

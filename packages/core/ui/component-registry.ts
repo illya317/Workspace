@@ -142,6 +142,7 @@ export const coreUiComponentRegistry = [
   { name: "SwitchField", kind: "form", description: "开关输入 primitive，统一布尔字段的切换外观、可访问性和禁用态。", example: "在行内编辑中切换“启用 / 停用”或“是 / 否”。" },
   { name: "StructuredTable", kind: "data", description: "结构化表格 primitive，支持 colSpan、rowSpan、列宽和单元格内容插槽。", example: "检验记录、键值摘要或纸面格式表格只传通用行列结构，不在业务包手写 table。" },
   { name: "TabBar", kind: "navigation", description: "页内 Tab 切换 primitive，仅用于确实需要并列视图的场景。", example: "在模块内切换“科目设置 / 凭证明细 / 余额表”。" },
+  { name: "TagPillButton", kind: "form", description: "可点击标签按钮，统一 chip 外观、单行省略、hover 和焦点态。", example: "在关系表里点击一个岗位标签跳转到对应实体，同时长文本自动省略。", includes: ["getTagPillClassName"] },
   { name: "TagRemoveButton", kind: "form", description: "标签删除按钮 primitive，统一 chip 内删除动作尺寸、hover、禁用态和删除确认弹窗。", example: "员工别名、岗位别名或标签输入中删除某个 chip；业务只传 onConfirm 和确认文案。" },
   { name: "TableScrollFrame", kind: "data", description: "表格横向滚动外壳，避免业务包重复手写 overflow-x-auto 表格容器。", example: "宽表格在小屏幕中横向滚动，DataTable 本身只负责表格结构。", includes: ["DataTable"] },
   { name: "TemplateWorkbenchFrame", kind: "layout", description: "模板结构工作台骨架，统一左侧模板选择、顶部搜索筛选、右侧阶段/项目行和行级动作承载区。", example: "生产检验模板页把产品、阶段、检测项和业务反馈/预览动作映射进来，特化弹窗留在业务包设计。", includes: ["CommandToolbar", "SearchInput", "SelectorCard", "PanelCard", "StatusBadge", "ActionButton"] },

@@ -53,11 +53,11 @@ export function validateCurrentWorkPercent(rows: EdpRow[]) {
   if (currentRows.length === 0) return { ok: true, message: "" };
   const values = currentRows.map((row) => parseWorkPercent(row.workPercent));
   if (values.some((value) => value === null || Number.isNaN(value))) {
-    return { ok: false, message: "当前岗位工作占比未完整填写。" };
+    return { ok: false, message: "当前岗位工作占比必须填写，且合计必须为 100%。" };
   }
   const total = values.reduce<number>((sum, value) => sum + (value ?? 0), 0);
   if (Math.abs(total - 1) > 0.0001) {
-    return { ok: false, message: "当前岗位工作占比合计不正确。" };
+    return { ok: false, message: `当前岗位工作占比合计为 ${(total * 100).toFixed(2)}%，必须为 100%。` };
   }
   return { ok: true, message: "" };
 }

@@ -90,6 +90,9 @@ export default function FkFieldInput({
   );
 
   function handleInputChange(nextValue: string) {
+    if (!nextValue && selectedName) {
+      onChange("");
+    }
     setKeyword(nextValue);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => search(nextValue), 250);

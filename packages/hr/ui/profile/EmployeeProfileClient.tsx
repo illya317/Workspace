@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { useConfirmDelete } from "@workspace/core/ui";
+import { useConfirm, useConfirmDelete } from "@workspace/core/ui";
 import { hrCanEdit, type HRUser } from "@workspace/hr/types";
 import {
   contractFields,
@@ -16,6 +16,7 @@ import EmployeeProfileView from "./EmployeeProfileView";
 import {
   applyDateFields,
   sameDraft,
+  validateCurrentWorkPercent,
   type EditableRecord,
 } from "./EmployeeProfileUtils";
 import {
@@ -43,6 +44,7 @@ export default function EmployeeProfileClient({
   user: HRUser;
 }) {
   const router = useRouter();
+  const confirm = useConfirm();
   const confirmDelete = useConfirmDelete();
   const canEdit = hrCanEdit(user);
   const [profile, setProfile] = useState<EmployeeProfile | null>(null);
@@ -57,7 +59,7 @@ export default function EmployeeProfileClient({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const message = null;
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -114,9 +116,14 @@ export default function EmployeeProfileClient({
     };
   }, [contracts, edps, employeeDraft, employments, profile]);
 
-  function showMessage(text: string) {
-    setMessage(text);
-    window.setTimeout(() => setMessage(null), 2600);
+  async function showSavePrompt(title: string, text: string, danger: boolean) {
+    await confirm({
+      title,
+      message: text,
+      confirmLabel: "关闭",
+      confirmDanger: danger,
+      showCancel: false,
+    });
   }
 
   async function runSave(savingKey: string, task: () => Promise<void>, successMessage: string) {
@@ -125,9 +132,9 @@ export default function EmployeeProfileClient({
     try {
       await task();
       await load();
-      showMessage(successMessage);
+      await showSavePrompt("保存成功", successMessage, false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "保存失败");
+      await showSavePrompt("保存失败", err instanceof Error ? err.message : "保存失败", true);
     } finally {
       setSaving(null);
     }
@@ -135,6 +142,13 @@ export default function EmployeeProfileClient({
 
   async function saveAll() {
     if (!profile || !employeeDraft) return;
+    const percentCheck = validateCurrentWorkPercent(edps);
+    if (!percentCheck.ok) {
+      setActiveSection("edp");
+      setError(null);
+      await showSavePrompt("部门岗位无法保存", percentCheck.message, true);
+      return;
+    }
     await runSave("all", async () => {
       await persistBasic(profile, employeeDraft);
       for (const row of employments) await persistEmployment(profile, row);

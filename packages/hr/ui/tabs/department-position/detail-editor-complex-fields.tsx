@@ -5,7 +5,9 @@ import {
   EmptyStateCard,
   FormField,
   PanelCard,
+  RemovableTag,
   TextField,
+  getTagInputShellClassName,
   useConfirmDelete,
 } from "@workspace/core/ui";
 import {
@@ -16,6 +18,8 @@ import { OptionPicker } from "@workspace/core/ui";
 import MajorPicker from "../../components/MajorPicker";
 import { ENVIRONMENT_FACTOR_OPTIONS, WORK_AREA_OPTIONS, pickerOptions, primitiveListItems } from "./description-details";
 import { OptionTagListEditor } from "./detail-editor-primitives";
+
+const tagInputShellClassName = getTagInputShellClassName("content-start");
 
 type WorkEnvironmentItem = {
   area: string;
@@ -165,72 +169,51 @@ export function MajorRequirementsEditor({
   disabled?: boolean;
   onChange: (items: HRMajorItem[]) => void;
 }) {
-  const confirmDelete = useConfirmDelete();
   const items = normalizeHrMajorItems(value);
 
-  function updateItem(index: number, patch: Partial<HRMajorItem>) {
-    onChange(items.map((item, itemIndex) => {
-      if (itemIndex !== index) return item;
-      return { ...item, ...patch };
-    }));
-  }
-
-  function addItem() {
-    onChange([...items, { category: "待选择", specialty: "" }]);
-  }
-
-  function updateMajor(index: number, next: string | null) {
+  function addItem(next: string | null) {
     const selected = normalizeHrMajorItems(next)[0] ?? { category: "待选择", specialty: "" };
-    updateItem(index, selected);
+    if (!selected.specialty) return;
+    const nextItems = [
+      ...items.filter((item) => item.specialty !== selected.specialty),
+      selected,
+    ];
+    onChange(nextItems);
   }
 
-  async function removeItem(index: number) {
-    const item = items[index];
-    const confirmed = await confirmDelete({
-      message: `确定删除专业要求「${item?.category || ""}${item?.specialty ? ` / ${item.specialty}` : ""}」吗？删除后需要保存才会生效。`,
-    });
-    if (!confirmed) return;
+  function removeItem(index: number) {
     onChange(items.filter((_, itemIndex) => itemIndex !== index));
   }
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center gap-3">
-        <span className="text-xs font-medium text-slate-500">{label}</span>
-        {!disabled && (
-          <ActionButton
-            onClick={addItem}
-            variant="secondary"
-            className="px-2 py-1 text-xs"
+      <span className="text-xs font-medium text-slate-500">{label}</span>
+      <div className={tagInputShellClassName}>
+        {items.map((item, index) => (
+          <RemovableTag
+            key={`${item.category}-${item.specialty}-${index}`}
+            label={`删除${label} ${item.specialty || item.category}`}
+            title={item.category ? `${item.category} / ${item.specialty}` : item.specialty}
+            confirmMessage={`确定删除专业要求「${item.category || ""}${item.specialty ? ` / ${item.specialty}` : ""}」吗？删除后需要保存才会生效。`}
+            disabled={disabled}
+            onRemove={() => removeItem(index)}
           >
-            新增
-          </ActionButton>
+            {item.specialty || item.category}
+          </RemovableTag>
+        ))}
+        {disabled ? (
+          items.length === 0 ? <span className="text-slate-400">未设置</span> : null
+        ) : (
+          <div className="min-w-40 flex-1">
+            <MajorPicker
+              value=""
+              disabled={disabled}
+              onChange={addItem}
+              className="w-full"
+            />
+          </div>
         )}
       </div>
-      <PanelCard bodyClassName="space-y-2 p-3">
-        {items.map((item, index) => (
-          <PanelCard key={index} bodyClassName="grid grid-cols-1 gap-2 p-3 md:grid-cols-[minmax(0,1fr)_40px]">
-            <FormField label="专业">
-              <MajorPicker
-                value={[item]}
-                disabled={disabled}
-                onChange={(next) => updateMajor(index, next)}
-              />
-            </FormField>
-            {!disabled && (
-              <ActionButton
-                aria-label={`删除${label} ${index + 1}`}
-                onClick={() => void removeItem(index)}
-                variant="danger"
-                className="mt-5 grid size-9 place-items-center rounded-full border-0 bg-transparent p-0 text-slate-400 shadow-none hover:bg-red-50 hover:text-red-500"
-              >
-                ×
-              </ActionButton>
-            )}
-          </PanelCard>
-        ))}
-        {items.length === 0 && <EmptyStateCard compact>未设置</EmptyStateCard>}
-      </PanelCard>
     </div>
   );
 }
@@ -254,7 +237,7 @@ export function ExperienceRequirementsEditor({
   }
 
   function addItem() {
-    onChange([...items, { years: "", requirement: "" }]);
+    onChange([...items, { years: "1", requirement: "" }]);
   }
 
   async function removeItem(index: number) {

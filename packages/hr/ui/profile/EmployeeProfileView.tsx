@@ -27,7 +27,6 @@ import {
 import {
   groupedFieldGrid,
   updateProfileRow,
-  validateCurrentWorkPercent,
   type EditableRecord,
 } from "./EmployeeProfileUtils";
 
@@ -173,10 +172,8 @@ export default function EmployeeProfileView({
             onDelete={async (row, index) => {
               const ok = await confirmDelete({ message: `确定删除这条岗位记录${row.positionName ? `（${row.positionName}）` : ""}吗？` });
               if (!ok) return;
-              const nextRows = edps.filter((_, i) => i !== index);
-              const percentCheck = validateCurrentWorkPercent(nextRows);
-              if (!percentCheck.ok) return setError(percentCheck.message);
-              setEdps(nextRows);
+              setError(null);
+              setEdps((rows) => rows.filter((_, i) => i !== index));
             }}
           />
         )}

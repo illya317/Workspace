@@ -9,6 +9,7 @@ export interface ConfirmModalProps {
   confirmLabel?: string;
   cancelLabel?: string;
   confirmDanger?: boolean;
+  showCancel?: boolean;
   busy?: boolean;
   onConfirm: () => void | Promise<void>;
   onCancel: () => void;
@@ -21,6 +22,7 @@ export default function ConfirmModal({
   confirmLabel = "确定",
   cancelLabel = "取消",
   confirmDanger = true,
+  showCancel = true,
   busy = false,
   onConfirm,
   onCancel,
@@ -67,13 +69,15 @@ export default function ConfirmModal({
           </div>
         </div>
         <div className="flex justify-end gap-3">
-          <button
-            onClick={onCancel}
-            disabled={busy}
-            className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {cancelLabel}
-          </button>
+          {showCancel && (
+            <button
+              onClick={onCancel}
+              disabled={busy}
+              className="rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {cancelLabel}
+            </button>
+          )}
           <button
             onClick={onConfirm}
             disabled={busy}

@@ -1,11 +1,9 @@
 "use client";
 
 import type { Dispatch, ReactNode, SetStateAction } from "react";
-import { ActionButton, FkFieldInput, FormField, HierarchyBadge, MetricCard, PanelCard, TextField } from "@workspace/core/ui";
-import type { FkFieldOption } from "@workspace/core/ui";
-import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
+import { ActionButton, FormField, HierarchyBadge, MetricCard, PanelCard, TextField } from "@workspace/core/ui";
 import PositionAliasTagsInput from "./PositionAliasTagsInput";
-import { DetailSectionHeader, formInputClassName, readOnlyInputClassName, selectedEntityName } from "./detail-editors";
+import { DetailSectionHeader, formInputClassName, readOnlyInputClassName } from "./detail-editors";
 import { DepartmentDescriptionsPanel } from "./department-descriptions-panel";
 import { DirectPositionPanel } from "./navigation-panels";
 import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, Position, Selection } from "./types";
@@ -159,18 +157,7 @@ export function DepartmentDetailPane({
                     />
                   </FormField>
                   <FormField label="部门负责人">
-                    <FkFieldInput
-                      fkKey="hr.position"
-                      endpoint={HR_REFERENCE_OPTIONS_ENDPOINT}
-                      value={departmentDraft.managerPositionName}
-                      displayValue={departmentDraft.managerPositionName}
-                      disabled={!canEditDepartment}
-                      placeholder="搜索部门负责人"
-                      size="compact"
-                      onChange={(_label, option?: FkFieldOption) => {
-                        onUpdateDepartmentDraft("managerPositionName", selectedEntityName("position", option));
-                      }}
-                    />
+                    <TextField value={departmentDraft.managerPositionName || "未设置"} disabled className={readOnlyInputClassName} />
                   </FormField>
                   <div className="block min-w-0">
                     <span className="mb-0.5 block text-xs font-semibold text-slate-500">状态</span>
