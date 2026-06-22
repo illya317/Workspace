@@ -14,6 +14,7 @@ export * from "./employee-history";
 export * from "./employee-permissions";
 export * from "./employee-profile";
 export * from "./employees";
+export * from "./edp-report-to";
 export * from "./employments";
 export * from "./field-validation";
 export * from "./position-descriptions";

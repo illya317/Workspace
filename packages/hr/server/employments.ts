@@ -90,11 +90,7 @@ export async function listEmployments(input: {
 
   let filtered = mapped;
   if (input.keyword) {
-    filtered = mapped.filter(
-      (employment) =>
-        matchEmployee({ name: employment.employeeName, employeeId: String(employment.employeeId) }, input.keyword) ||
-        employment.employeeName?.includes(input.keyword),
-    );
+    filtered = mapped.filter((employment) => matchEmployee({ name: employment.employeeName, employeeId: String(employment.employeeId) }, input.keyword));
   }
   if (input.company) {
     filtered = filtered.filter((employment) => employment.currentCompany === input.company);

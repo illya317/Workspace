@@ -24,6 +24,7 @@ export default function DepartmentPositionTab({
   focusPositionId = null,
   onFocusPositionConsumed,
   onOpenPositionDetails,
+  onUnsavedChange,
 }: {
   user: HRUser;
   mode?: DepartmentPositionMode;
@@ -31,6 +32,7 @@ export default function DepartmentPositionTab({
   focusPositionId?: number | null;
   onFocusPositionConsumed?: () => void;
   onOpenPositionDetails?: (positionId: number) => void;
+  onUnsavedChange?: (dirty: boolean) => void;
 }) {
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
@@ -188,6 +190,11 @@ export default function DepartmentPositionTab({
     selectedDepartment,
     selectedPosition,
   });
+  const hasUnsavedChanges = dirty || departmentDirty || departmentDescriptionDirty;
+  useEffect(() => {
+    if (isOrganizationMode) return;
+    onUnsavedChange?.(hasUnsavedChanges);
+  }, [hasUnsavedChanges, isOrganizationMode, onUnsavedChange]);
   const {
     createPosition,
     saveDepartmentDescription,
@@ -328,6 +335,7 @@ export default function DepartmentPositionTab({
         onDrawerOpenChange={setTreeDrawerOpen}
         onOpenPositionDetails={onOpenPositionDetails}
         onSelectPosition={(position) => selectItem({ type: "position", id: position.id })}
+        onUnsavedChange={onUnsavedChange}
         onReload={loadData}
       />
     );

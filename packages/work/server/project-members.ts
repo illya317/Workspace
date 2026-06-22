@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { authenticate } from "@workspace/platform/server/auth";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { validateFkValue } from "@workspace/platform/server/fk-registry";
+import { matchSearchFields } from "@workspace/platform/search";
 import {
   isValidDateValue,
   rejectInvalidDateField,
@@ -92,12 +93,8 @@ export async function listProjectMembers(input: {
 
   let result = mapped;
   if (input.keyword) {
-    const q = input.keyword.toLowerCase();
-    result = mapped.filter(
-      (entry) =>
-        (entry.employeeName || "").toLowerCase().includes(q) ||
-        (entry.projectName || "").toLowerCase().includes(q) ||
-        (entry.role || "").toLowerCase().includes(q),
+    result = mapped.filter((entry) =>
+      matchSearchFields(entry, input.keyword, ["employeeName", "employeeNumber", "projectName", "role"]),
     );
   }
 

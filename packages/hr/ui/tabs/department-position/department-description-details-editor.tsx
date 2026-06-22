@@ -9,6 +9,7 @@ import {
   TextField,
   useConfirmDelete,
 } from "@workspace/core/ui";
+import { useScrollToAddedItem } from "../../hooks/useScrollToAddedItem";
 import { detailFieldRows, detailValueToText, isPrimitiveArray, parseDetailsObject, textToDetailValue } from "./description-details";
 import { StringListEditor } from "./detail-editor-primitives";
 
@@ -23,6 +24,11 @@ export function DepartmentDescriptionDetailsEditor({
 }) {
   const confirmDelete = useConfirmDelete();
   const details = parseDetailsObject(value);
+  const dutyKey = "部门职责描述";
+  const dutyRecordsForScroll = details && Array.isArray(details[dutyKey])
+    ? details[dutyKey] as Array<Record<string, unknown>>
+    : [];
+  const { getItemRef, requestScrollToIndex } = useScrollToAddedItem(dutyRecordsForScroll);
   if (!details) {
     return (
       <FormField
@@ -48,12 +54,13 @@ export function DepartmentDescriptionDetailsEditor({
   }
 
   function renderDutyDescription() {
-    const key = "部门职责描述";
+    const key = dutyKey;
     const records = Array.isArray(parsedDetails[key]) ? parsedDetails[key] as Array<Record<string, unknown>> : [];
     function updateRecord(index: number, patch: Record<string, unknown>) {
       updateDetailValue(key, records.map((record, recordIndex) => recordIndex === index ? { ...record, ...patch } : record));
     }
     function addRecord() {
+      requestScrollToIndex(records.length);
       updateDetailValue(key, [...records, { title: "", items: [] }]);
     }
     async function removeRecord(index: number) {
@@ -79,36 +86,38 @@ export function DepartmentDescriptionDetailsEditor({
         {records.map((record, index) => {
           const items = Array.isArray(record.items) ? record.items : [];
           return (
-            <PanelCard key={index} bodyClassName="p-3">
-              <div className="mb-2 flex items-center gap-3">
-                <span className="text-xs font-medium text-slate-500">职责 {index + 1}</span>
-                {!disabled && (
-                  <ActionButton
-                    aria-label={`删除部门职责 ${index + 1}`}
-                    onClick={() => void removeRecord(index)}
-                    className="!h-auto rounded-full !px-2 !py-0.5 text-[11px] hover:!border-rose-200 hover:!bg-rose-50 hover:!text-rose-600"
-                  >
-                    移除
-                  </ActionButton>
-                )}
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                <TextField
-                  value={String(record.title || "")}
-                  disabled={disabled}
-                  placeholder="职责标题"
-                  onChange={(next) => updateRecord(index, { title: next })}
-                  className="w-full rounded-md border border-sky-200 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-sky-100/60"
-                />
-                <StringListEditor
-                  label="职责条目"
-                  value={items}
-                  disabled={disabled}
-                  placeholder="新增职责条目"
-                  onChange={(nextItems) => updateRecord(index, { items: nextItems })}
-                />
-              </div>
-            </PanelCard>
+            <div key={index} ref={getItemRef(index)}>
+              <PanelCard bodyClassName="p-3">
+                <div className="mb-2 flex items-center gap-3">
+                  <span className="text-xs font-medium text-slate-500">职责 {index + 1}</span>
+                  {!disabled && (
+                    <ActionButton
+                      aria-label={`删除部门职责 ${index + 1}`}
+                      onClick={() => void removeRecord(index)}
+                      className="!h-auto rounded-full !px-2 !py-0.5 text-[11px] hover:!border-rose-200 hover:!bg-rose-50 hover:!text-rose-600"
+                    >
+                      移除
+                    </ActionButton>
+                  )}
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  <TextField
+                    value={String(record.title || "")}
+                    disabled={disabled}
+                    placeholder="职责标题"
+                    onChange={(next) => updateRecord(index, { title: next })}
+                    className="w-full rounded-md border border-sky-200 bg-white px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-sky-100/60"
+                  />
+                  <StringListEditor
+                    label="职责条目"
+                    value={items}
+                    disabled={disabled}
+                    placeholder="新增职责条目"
+                    onChange={(nextItems) => updateRecord(index, { items: nextItems })}
+                  />
+                </div>
+              </PanelCard>
+            </div>
           );
         })}
         {records.length === 0 && <EmptyStateCard compact>未设置</EmptyStateCard>}

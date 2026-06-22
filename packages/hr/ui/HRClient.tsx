@@ -14,6 +14,7 @@ import {
   employeeConfig,
   employmentConfig,
 } from "@workspace/hr/constants/tab-configs";
+import { useUnsavedChangesPrompt } from "./hooks/useUnsavedChangesPrompt";
 
 import type { SessionUser } from "@workspace/platform/types";
 import type { HRUser } from "@workspace/hr/types";
@@ -49,15 +50,40 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
     rosterViews.find((view) => view.key === "employee")?.children?.[0]?.key,
   );
   const [focusPositionId, setFocusPositionId] = useState<number | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const confirmNavigation = useUnsavedChangesPrompt(hasUnsavedChanges);
   const hrUser = toHRUser(user);
   const activeBulkTab = (activeChild ?? "employee") as HRTab;
   const employeeStatus = activeChild === "inactive" ? "inactive" : "active";
   const departmentLifecycle = activeChild === "archived" ? "archived" : "active";
 
-  function changeView(key: string) {
+  async function changeView(key: string) {
+    if (key !== activeView) {
+      const canLeave = await confirmNavigation();
+      if (!canLeave) return;
+      setHasUnsavedChanges(false);
+    }
     const nextView = rosterViews.find((view) => view.key === key);
     setActiveView(key as HRView);
     setActiveChild(nextView?.children?.[0]?.key);
+  }
+
+  async function openPositionDetails(positionId: number) {
+    const canLeave = await confirmNavigation();
+    if (!canLeave) return;
+    setHasUnsavedChanges(false);
+    setFocusPositionId(positionId);
+    setActiveView("department-position");
+    setActiveChild("active");
+  }
+
+  async function changeChild(key: string) {
+    if (key !== activeChild) {
+      const canLeave = await confirmNavigation();
+      if (!canLeave) return;
+      setHasUnsavedChanges(false);
+    }
+    setActiveChild(key);
   }
 
   return (
@@ -66,7 +92,7 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
       activeTab={activeView}
       activeChild={activeChild}
       onTabChange={changeView}
-      onChildChange={setActiveChild}
+      onChildChange={changeChild}
     >
         {activeView === "employee" && <EmployeeDirectory user={hrUser} employmentStatus={employeeStatus} />}
 
@@ -74,11 +100,8 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
           <DepartmentPositionTab
             user={hrUser}
             mode="organization"
-            onOpenPositionDetails={(positionId) => {
-              setFocusPositionId(positionId);
-              setActiveView("department-position");
-              setActiveChild("active");
-            }}
+            onUnsavedChange={setHasUnsavedChanges}
+            onOpenPositionDetails={(positionId) => void openPositionDetails(positionId)}
           />
         )}
 
@@ -88,6 +111,7 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
             mode="position"
             lifecycle={departmentLifecycle}
             focusPositionId={focusPositionId}
+            onUnsavedChange={setHasUnsavedChanges}
             onFocusPositionConsumed={() => setFocusPositionId(null)}
           />
         )}

@@ -24,8 +24,6 @@ const DEFAULT_SEARCH_FIELDS: Record<string, string[]> = {
   Position: ["code", "name", "alias"],
 };
 
-const PINYIN_FIELDS = new Set(["name", "alias"]);
-
 export function aliasSearchText(value: unknown): string {
   if (!value) return "";
   const text = String(value);
@@ -46,17 +44,16 @@ export function matchEmployee(
   },
   keyword: string,
 ): boolean {
-  const query = keyword.toLowerCase();
-  const alias = aliasSearchText(employee.alias);
-  if ((employee.name || "").toLowerCase().includes(query)) return true;
-  if (alias.toLowerCase().includes(query)) return true;
-  if ((employee.employeeId || "").toLowerCase().includes(query)) return true;
-  if ((employee.username || "").toLowerCase().includes(query)) return true;
-  if (getInitials(employee.name || "").includes(query)) return true;
-  if (getInitials(alias).includes(query)) return true;
-  if (getPinyinText(employee.name || "").includes(query)) return true;
-  if (getPinyinText(alias).includes(query)) return true;
-  return false;
+  return matchSearchFields(
+    {
+      name: employee.name,
+      alias: employee.alias,
+      employeeId: employee.employeeId,
+      username: employee.username,
+    },
+    keyword,
+    ["name", "alias", "employeeId", "username"],
+  );
 }
 
 export function matchAnyField(
@@ -64,26 +61,26 @@ export function matchAnyField(
   keyword: string,
   modelName?: string,
 ): boolean {
-  const query = keyword.trim().toLowerCase();
-  if (!query) return true;
-
   const fields = modelName ? DEFAULT_SEARCH_FIELDS[modelName] : undefined;
   if (modelName && !fields) return false;
+  return matchSearchFields(record, keyword, fields);
+}
 
+export function matchSearchFields(
+  record: object,
+  keyword: string,
+  fields?: readonly string[],
+): boolean {
+  const query = keyword.trim();
+  if (!query) return true;
+  const values = record as Record<string, unknown>;
   const entries = fields
-    ? fields.map((field) => [field, record[field]] as const)
-    : Object.entries(record);
-
-  for (const [field, raw] of entries) {
+    ? fields.map((field) => [field, values[field]] as const)
+    : Object.entries(values);
+  return entries.some(([field, raw]) => {
     const rawValue = field === "alias" ? aliasSearchText(raw) : raw;
-    const value = String(rawValue ?? "").toLowerCase();
-    if (value.includes(query)) return true;
-    if (PINYIN_FIELDS.has(field)) {
-      if (getInitials(value).includes(query)) return true;
-      if (getPinyinText(value).includes(query)) return true;
-    }
-  }
-  return false;
+    return matchText(String(rawValue ?? ""), query);
+  });
 }
 
 export function getSearchFields(modelName: string): string[] {

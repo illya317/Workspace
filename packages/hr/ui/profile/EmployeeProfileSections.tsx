@@ -27,6 +27,7 @@ import {
 } from "./EmployeeProfileUtils";
 import { ContractSection } from "./EmployeeProfileContractSection";
 import { RowActions } from "./EmployeeProfileRowActions";
+import { useScrollToAddedItem } from "../hooks/useScrollToAddedItem";
 export { HistorySection, type ProfileHistoryEntry } from "./EmployeeProfileHistorySection";
 
 export function RowsSection<T extends RowBase>({
@@ -158,6 +159,12 @@ export function EdpSection({
     ...pickFields(edpFields, ["departmentId", "positionId", "isPrimary", "workPercent", "reportTo"]),
     ...pickFields(edpFields, ["startDate", "endDate"]),
   ];
+  const { getItemRef, requestScrollToIndex } = useScrollToAddedItem(rows);
+
+  function addRow() {
+    requestScrollToIndex(0);
+    onAdd();
+  }
 
   return (
     <SectionShell
@@ -171,28 +178,29 @@ export function EdpSection({
           rows.map((row, index) => {
             const current = isCurrentByEndDate(row.endDate);
             return (
-              <FieldRegion
-                key={row.id ?? `new-edp-${index}`}
-                title={(
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span>{row.isNew ? "新增岗位记录" : row.positionName || `岗位记录 #${row.id}`}</span>
-                    <StatusBadge label={current ? "当前岗位" : "历史岗位"} variant={current ? "green" : "gray"} />
-                    {row.isPrimary && <StatusBadge label="主岗" variant="blue" />}
-                    <span className="text-xs font-medium text-slate-500">{row.departmentName || "未设置部门"} · 占比 {row.workPercent || "未设置"}</span>
-                  </div>
-                )}
-                actions={canEdit ? (
-                  <>
-                    <ActionButton onClick={onAdd} disabled={saving !== null} variant="secondary" className="px-3 py-1.5 text-xs">新增</ActionButton>
-                    <RowActions canEdit={canEdit} saving={saving} onDelete={() => onDelete(row, index)} />
-                  </>
-                ) : null}
-              >
-                {fieldGrid(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
-                  const field = edpFields.find((item) => item.key === key);
-                  if (field) onChange(index, field, value, option);
-                })}
-              </FieldRegion>
+              <div key={row.id ?? `new-edp-${index}`} ref={getItemRef(index)}>
+                <FieldRegion
+                  title={(
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span>{row.isNew ? "新增岗位记录" : row.positionName || `岗位记录 #${row.id}`}</span>
+                      <StatusBadge label={current ? "当前岗位" : "历史岗位"} variant={current ? "green" : "gray"} />
+                      {row.isPrimary && <StatusBadge label="主岗" variant="blue" />}
+                      <span className="text-xs font-medium text-slate-500">{row.departmentName || "未设置部门"} · 占比 {row.workPercent || "未设置"}</span>
+                    </div>
+                  )}
+                  actions={canEdit ? (
+                    <>
+                      <ActionButton onClick={addRow} disabled={saving !== null} variant="secondary" className="px-3 py-1.5 text-xs">新增</ActionButton>
+                      <RowActions canEdit={canEdit} saving={saving} onDelete={() => onDelete(row, index)} />
+                    </>
+                  ) : null}
+                >
+                  {fieldGrid(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {
+                    const field = edpFields.find((item) => item.key === key);
+                    if (field) onChange(index, field, value, option);
+                  })}
+                </FieldRegion>
+              </div>
             );
           })
         )}

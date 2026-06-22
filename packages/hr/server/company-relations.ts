@@ -1,4 +1,5 @@
 import { prisma } from "@workspace/platform/server/prisma";
+import { matchSearchFields } from "@workspace/platform/search";
 import { handleCreate, handleDelete, handleUpdateField } from "./hr-crud";
 
 const COMPANY_RELATION_CONFIG = {
@@ -25,12 +26,7 @@ export async function listCompanyRelations(input: { keyword: string; page: numbe
 
   let result = mapped;
   if (input.keyword) {
-    const q = input.keyword.toLowerCase();
-    result = mapped.filter(
-      (relation) =>
-        (relation.parentName || "").toLowerCase().includes(q) ||
-        (relation.childName || "").toLowerCase().includes(q),
-    );
+    result = mapped.filter((relation) => matchSearchFields(relation, input.keyword, ["parentName", "childName"]));
   }
 
   const total = result.length;

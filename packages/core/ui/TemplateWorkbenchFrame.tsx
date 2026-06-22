@@ -8,6 +8,7 @@ import CommandToolbar from "./CommandToolbar";
 import SearchInput from "./SearchInput";
 import SelectorCard, { type SelectorCardMetaItem } from "./SelectorCard";
 import StatusBadge, { type StatusBadgeProps } from "./StatusBadge";
+import { matchText } from "../search";
 
 export interface TemplateWorkbenchSelectorItem {
   key: string;
@@ -82,7 +83,7 @@ interface SectionView extends TemplateWorkbenchSection {
 const indicatorClassNames = { danger: "bg-red-600", success: "bg-emerald-700" } as const;
 
 function textMatches(values: Array<ReactNode | string | number | null | undefined>, keyword: string) {
-  return values.some((value) => String(value ?? "").toLowerCase().includes(keyword));
+  return values.some((value) => matchText(String(value ?? ""), keyword));
 }
 
 function RowAction({ action }: { action: TemplateWorkbenchRowAction }) {
@@ -156,7 +157,7 @@ export default function TemplateWorkbenchFrame({
   const [expandedOverrides, setExpandedOverrides] = useState<Record<string, boolean>>({});
   const selectedKey = activeSelectorKey ?? innerSelectorKey;
   const searchValue = query ?? innerQuery;
-  const keyword = searchValue.trim().toLowerCase();
+  const keyword = searchValue.trim();
 
   const updateSelector = (key: string) => {
     setInnerSelectorKey(key);

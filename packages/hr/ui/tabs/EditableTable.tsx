@@ -79,29 +79,32 @@ export default function EditableTable({
   onStartEdit,
 }: EditableTableProps) {
   const columns = useMemo<DataTableColumn<Record<string, unknown>>[]>(
-    () => fields.map((field) => ({
-      key: field.key,
-      label: field.label,
-      required: field.required,
-      defaultVisible: field.defaultVisible,
-      headerClassName: "text-left text-gray-600",
-      cellClassName: `text-gray-700 ${editMode && field.editable && canEdit ? "cursor-pointer hover:bg-emerald-50" : ""}`,
-      render: (item) => {
-        const isEditing = editingCell?.id === item.id && editingCell?.field === field.key;
-        return (
-          <span
-            className="block min-w-max"
-            style={{ width: field.width }}
-            onClick={(event) => {
-              event.stopPropagation();
-              onStartEdit(item, field);
-            }}
-          >
-            {isEditing ? renderEditInput(field.key) : renderCell(item, field, config)}
-          </span>
-        );
-      },
-    })),
+    () => fields.map((field) => {
+      const editableCell = editMode && field.editable && field.type !== "fk" && canEdit;
+      return {
+        key: field.key,
+        label: field.label,
+        required: field.required,
+        defaultVisible: field.defaultVisible,
+        headerClassName: "text-left text-gray-600",
+        cellClassName: `text-gray-700 ${editableCell ? "cursor-pointer hover:bg-emerald-50" : ""}`,
+        render: (item) => {
+          const isEditing = editingCell?.id === item.id && editingCell?.field === field.key;
+          return (
+            <span
+              className="block min-w-max"
+              style={{ width: field.width }}
+              onClick={(event) => {
+                event.stopPropagation();
+                if (editableCell) onStartEdit(item, field);
+              }}
+            >
+              {isEditing ? renderEditInput(field.key) : renderCell(item, field, config)}
+            </span>
+          );
+        },
+      };
+    }),
     [canEdit, config, editMode, editingCell, fields, onStartEdit, renderEditInput],
   );
 

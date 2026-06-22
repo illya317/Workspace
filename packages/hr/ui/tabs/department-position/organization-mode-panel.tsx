@@ -90,6 +90,7 @@ export function OrganizationModePanel({
   onDrawerOpenChange,
   onOpenPositionDetails,
   onSelectPosition,
+  onUnsavedChange,
   onReload,
 }: {
   drawerOpen: boolean;
@@ -104,6 +105,7 @@ export function OrganizationModePanel({
   onDrawerOpenChange: (open: boolean) => void;
   onOpenPositionDetails?: (positionId: number) => void;
   onSelectPosition: (position: Position) => void;
+  onUnsavedChange?: (dirty: boolean) => void;
   onReload: () => Promise<void>;
 }) {
   const [draftReports, setDraftReports] = useState<Record<number, string>>({});
@@ -122,6 +124,9 @@ export function OrganizationModePanel({
   const dirtyPositions = directPositions.filter((position) => reportValue(position, draftReports) !== normalizeName(position.reportTo));
   const managerDirty = selectedDepartment ? normalizeName(managerDraft) !== normalizeName(currentManagerName) : false;
   const dirtyChangeCount = dirtyPositions.length + (managerDirty ? 1 : 0);
+  useEffect(() => {
+    onUnsavedChange?.(dirtyChangeCount > 0);
+  }, [dirtyChangeCount, onUnsavedChange]);
   const relations = directPositions.map((position) => ({
     position,
     reportTo: reportValue(position, draftReports),

@@ -3,12 +3,14 @@ import { authenticate, checkHRWrite } from "@workspace/platform/server/auth";
 import { parseJson } from "@workspace/platform/server/api";
 import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { snapshotHistory } from "@workspace/platform/server/history";
+import { matchSearchFields } from "@workspace/platform/search";
 import { formatDepartmentPath } from "@workspace/hr/utils/department-path";
 import { isValidDateValue, parseWorkPercent, rejectInvalidDateField } from "./field-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 import { EDPCreateSchema } from "./schemas";
 import { handleCreate, handleDelete } from "./hr-crud";
 import { HR_FK_REGISTRY } from "./fk-registry";
+import { validateEdpReportTo } from "./edp-report-to";
 
 const DATE_FIELDS = ["startDate", "endDate"];
 const EDP_FIELDS = ["positionId", "isPrimary", "startDate", "endDate", "reportTo", "workPercent"];
@@ -19,7 +21,7 @@ const EDP_CONFIG = {
   onBeforeUpdate: normalizeEdpFieldUpdate,
 };
 
-async function normalizeEdpFieldUpdate(field: string, value: unknown) {
+async function normalizeEdpFieldUpdate(field: string, value: unknown, recordId?: number) {
   if (field === "departmentId" || field === "dept1") {
     return { error: "部门由岗位自动确定，不能手动修改" };
   }
@@ -42,6 +44,17 @@ async function normalizeEdpFieldUpdate(field: string, value: unknown) {
     }
     const validation = await validateFkValue(HR_FK_REGISTRY, { fkKey: "hr.edp.position", value: nextValue, requiredLabel: "岗位" });
     if (!validation.ok) return { error: validation.error, status: validation.status };
+    return { field, value: validation.value };
+  }
+  if (field === "reportTo") {
+    const record = recordId
+      ? await prisma.eDP.findUnique({ where: { id: recordId }, select: { positionId: true } })
+      : null;
+    const validation = await validateEdpReportTo({
+      positionId: record?.positionId ?? null,
+      reportTo: value,
+    });
+    if (!validation.ok) return { error: validation.error, status: 400 };
     return { field, value: validation.value };
   }
   if (field === "workPercent") {
@@ -87,14 +100,13 @@ export async function listEdps(input: { keyword: string; page: number; pageSize:
   });
 
   if (input.keyword) {
-    const q = input.keyword.toLowerCase();
-    rows = rows.filter(
-      (row) =>
-        (row.employeeName || "").toLowerCase().includes(q) ||
-        String(row.employeeId || "").toLowerCase().includes(q) ||
-        (row.departmentName || "").toLowerCase().includes(q) ||
-        (row.positionName || "").toLowerCase().includes(q),
-    );
+    rows = rows.filter((row) => {
+      const employee = employeeMap.get(Number(row.employeeId));
+      return matchSearchFields({
+        ...row,
+        employeeCode: employee?.employeeId,
+      }, input.keyword, ["employeeName", "employeeCode", "employeeId", "departmentName", "positionName", "reportTo"]);
+    });
   }
 
   const total = rows.length;
@@ -125,12 +137,22 @@ export async function createEdp(request: Request) {
       response: NextResponse.json({ error: positionValidation.error }, { status: positionValidation.status || 400 }),
     };
   }
+  const reportToValidation = await validateEdpReportTo({
+    positionId: positionValidation.value,
+    reportTo: parsed.data.reportTo,
+  });
+  if (!reportToValidation.ok) {
+    return {
+      ok: false as const,
+      response: NextResponse.json({ error: reportToValidation.error }, { status: 400 }),
+    };
+  }
   const response = await handleCreate(request, { entityType: "EDP", modelKey: "eDP" as const }, async () => {
     const positionId = parsed.data.positionId ?? null;
     const position = positionId
       ? await prisma.position.findUnique({ where: { id: positionId }, select: { departmentId: true } })
       : null;
-    return { ...parsed.data, departmentId: position?.departmentId ?? null };
+    return { ...parsed.data, reportTo: reportToValidation.value, departmentId: position?.departmentId ?? null };
   });
   return { ok: true as const, response };
 }
@@ -146,7 +168,7 @@ export async function updateEdpField(request: Request, params: Promise<{ id: str
 
   const body = await request.json();
   let { field, value } = body as { field: string; value: unknown };
-  const result = await normalizeEdpFieldUpdate(field, value);
+  const result = await normalizeEdpFieldUpdate(field, value, recordId);
   if (!result) return NextResponse.json({ error: "非法字段" }, { status: 400 });
   if ("error" in result) return NextResponse.json({ error: result.error }, { status: 400 });
   field = result.field;
@@ -165,6 +187,7 @@ export async function updateEdpField(request: Request, params: Promise<{ id: str
       ? await prisma.position.findUnique({ where: { id: positionId }, select: { departmentId: true } })
       : null;
     data.departmentId = position?.departmentId ?? null;
+    data.reportTo = null;
   }
 
   await prisma.eDP.update({ where: { id: recordId }, data });

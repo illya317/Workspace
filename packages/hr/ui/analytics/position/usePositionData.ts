@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { matchSearchFields } from "@workspace/platform/search";
 import type { Position, EDP, Department } from "../useAnalyticsData";
 
 export interface EnrichedPosition extends Position {
@@ -209,14 +210,7 @@ export function usePositionData(
   const filtered = useMemo(() => {
     let list = [...enriched];
     if (search.trim()) {
-      const q = search.toLowerCase();
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.code.toLowerCase().includes(q) ||
-          (p.alias || "").toLowerCase().includes(q) ||
-          (p.departmentName || "").toLowerCase().includes(q)
-      );
+      list = list.filter((p) => matchSearchFields(p, search, ["name", "code", "alias", "departmentName"]));
     }
     return [...list].sort((a, b) => {
       let av: string | number, bv: string | number;

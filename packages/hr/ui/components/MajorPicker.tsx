@@ -15,7 +15,7 @@ function currentMajor(value: unknown): HRMajorItem | undefined {
 }
 
 function matchMajor(option: HRMajorItem, keyword: string) {
-  const text = keyword.trim().toLowerCase();
+  const text = keyword.trim();
   if (!text) return false;
   return matchText(option.specialty, text) || matchText(option.category, text);
 }

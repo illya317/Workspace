@@ -63,7 +63,7 @@ export const employeeConfig: TabConfig = {
 };
 
 const employmentFields: FieldConfig[] = [
-  { key: "employeeId", label: "员工", type: "fk", editable: true, required: true, defaultVisible: true },
+  { key: "employeeId", label: "员工", type: "fk", editable: false, required: true, defaultVisible: true },
   { key: "isActive", label: "在职", editable: true, type: "boolean", booleanLabels: { true: "在职", false: "离职" }, defaultVisible: true },
   { key: "currentCompany", label: "当前公司", editable: false, defaultVisible: true },
   { key: "personnelType", label: "人员类型", editable: true, type: "select", options: personnelTypeOptions, defaultVisible: true },
@@ -95,11 +95,11 @@ export const employmentConfig: TabConfig = {
 const edpFields: FieldConfig[] = [
   { key: "employeeId", label: "员工", type: "fk", editable: false, required: true, defaultVisible: true },
   { key: "departmentId", label: "部门", type: "fk", editable: false, defaultVisible: true },
-  { key: "positionId", label: "岗位", type: "fk", editable: true, required: true, defaultVisible: true },
+  { key: "positionId", label: "岗位", type: "fk", editable: false, required: true, defaultVisible: true },
   { key: "isPrimary", label: "主岗", editable: true, type: "boolean", defaultVisible: true },
   { key: "startDate", label: "开始日期", editable: true, type: "date" },
   { key: "endDate", label: "结束日期", editable: true, type: "date" },
-  { key: "reportTo", label: "直接上级", type: "fk", editable: true, displayField: "reportTo", defaultVisible: true },
+  { key: "reportTo", label: "直接上级", type: "fk", editable: false, displayField: "reportTo", defaultVisible: true },
   { key: "workPercent", label: "工作占比", editable: true, defaultVisible: true },
 ];
 

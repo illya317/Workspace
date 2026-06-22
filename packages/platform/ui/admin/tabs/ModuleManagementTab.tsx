@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { matchText } from "@workspace/platform/search";
 import { workspacePath } from "@workspace/core/routing";
 import {
   EmptyStateCard,
@@ -89,7 +90,7 @@ function moduleMatches(module: ModuleNode, query: string) {
     module.pageHref ?? "",
     module.resourceKey,
     ...module.apiPrefixes,
-  ].join(" ").toLowerCase().includes(query);
+  ].some((value) => matchText(String(value ?? ""), query));
 }
 
 function StatusPill({ status }: { status: ModuleStatus }) {
@@ -145,7 +146,7 @@ export default function ModuleManagementTab({ showToast }: Props) {
   );
   const moduleTree = useMemo(() => {
     if (!data) return [];
-    const normalizedQuery = query.trim().toLowerCase();
+    const normalizedQuery = query.trim();
     function toTreeNode(module: ModuleNode): ResourceTreeNode | null {
       const children = module.children.flatMap((child) => {
         const node = toTreeNode(child);

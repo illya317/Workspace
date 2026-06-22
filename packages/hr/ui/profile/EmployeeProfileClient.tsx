@@ -33,6 +33,7 @@ import type {
   EmploymentRow,
 } from "@workspace/hr/types";
 import type { FkFieldOption } from "@workspace/core/ui";
+import { useUnsavedChangesPrompt } from "../hooks/useUnsavedChangesPrompt";
 
 type ProfileSection = "basic" | "employment" | "edp" | "history";
 
@@ -115,6 +116,7 @@ export default function EmployeeProfileClient({
       all: basic || employment || edp,
     };
   }, [contracts, edps, employeeDraft, employments, profile]);
+  const confirmNavigation = useUnsavedChangesPrompt(dirtyState.all);
 
   async function showSavePrompt(title: string, text: string, danger: boolean) {
     await confirm({
@@ -157,6 +159,11 @@ export default function EmployeeProfileClient({
     }, "员工资料已全部保存");
   }
 
+  async function goBack() {
+    const canLeave = await confirmNavigation();
+    if (canLeave) router.push("/hr/roster");
+  }
+
   function updateEmployeeField(key: string, value: unknown, option?: FkFieldOption) {
     setEmployeeDraft((current) => {
       if (!current) return current;
@@ -191,7 +198,7 @@ export default function EmployeeProfileClient({
       setContracts={setContracts}
       setEdps={setEdps}
       setError={setError}
-      onBack={() => router.push("/hr/roster")}
+      onBack={() => void goBack()}
       onSaveAll={saveAll}
       onEmployeeFieldChange={updateEmployeeField}
       onHistoryToggle={(id) => setExpandedHistoryId((current) => (current === id ? null : id))}

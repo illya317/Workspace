@@ -25,6 +25,10 @@ import {
   findLegacyServiceFiles,
 } from "./level2-legacy";
 import {
+  findHandwrittenSearchMatches,
+  type HandwrittenSearchMatchCandidate,
+} from "./level2-search";
+import {
   findAppHookFiles,
   findAppHookImplementationFiles,
   findDuplicateCoreUiRegistrations,
@@ -148,6 +152,7 @@ type Level2Report = {
     duplicateCoreUiRegistrations: number;
     pageDesignDriftFiles: number;
     nativeSearchInputFiles: number;
+    handwrittenSearchMatchFiles: number;
   };
   registries: {
     modules: Array<{
@@ -171,6 +176,7 @@ type Level2Report = {
     duplicateCoreUiRegistrations: DuplicateCoreUiRegistration[];
     pageDesignDriftFiles: PageDesignDriftFile[];
     nativeSearchInputFiles: NativeSearchInputFile[];
+    handwrittenSearchMatches: HandwrittenSearchMatchCandidate[];
   };
   drift: {
     appJsxFiles: string[];
@@ -200,6 +206,7 @@ type Level2Report = {
     duplicateCoreUiRegistrations: DuplicateCoreUiRegistration[];
     pageDesignDriftFiles: PageDesignDriftFile[];
     nativeSearchInputFiles: NativeSearchInputFile[];
+    handwrittenSearchMatches: HandwrittenSearchMatchCandidate[];
     repeatedServiceGroups: ServicePatternGroup[];
     routePrimitiveSchemaDuplicates: RoutePrimitiveSchemaCandidate[];
     apiRouteHelperDuplicates: ApiRouteHelperCandidate[];
@@ -716,6 +723,7 @@ export function createLevel2Report(): Level2Report {
   const duplicateCoreUiRegistrations = findDuplicateCoreUiRegistrations();
   const pageDesignDriftFiles = findPageDesignDriftFiles(sourceFiles);
   const nativeSearchInputFiles = findNativeSearchInputFiles(sourceFiles);
+  const handwrittenSearchMatches = findHandwrittenSearchMatches(sourceFiles);
   const repeatedServiceGroups = findRepeatedServiceGroups(sourceFiles);
   const uncontractedApiRouteMethods = apiRouteMethods.filter((route) => route.contractKey === null);
   const apiRoutesWithDirectPrismaSignal = apiRouteMethods.filter((route) => route.hasDirectPrismaSignal);
@@ -795,6 +803,7 @@ export function createLevel2Report(): Level2Report {
       duplicateCoreUiRegistrations: duplicateCoreUiRegistrations.length,
       pageDesignDriftFiles: pageDesignDriftFiles.length,
       nativeSearchInputFiles: nativeSearchInputFiles.length,
+      handwrittenSearchMatchFiles: new Set(handwrittenSearchMatches.map((candidate) => candidate.file)).size,
     },
     registries: {
       modules: registeredModuleDefinitions
@@ -820,6 +829,7 @@ export function createLevel2Report(): Level2Report {
       duplicateCoreUiRegistrations,
       pageDesignDriftFiles,
       nativeSearchInputFiles,
+      handwrittenSearchMatches,
     },
     drift: {
       appJsxFiles: findAppJsxFiles(sourceFiles),
@@ -849,6 +859,7 @@ export function createLevel2Report(): Level2Report {
       duplicateCoreUiRegistrations,
       pageDesignDriftFiles,
       nativeSearchInputFiles,
+      handwrittenSearchMatches,
       repeatedServiceGroups,
       routePrimitiveSchemaDuplicates,
       apiRouteHelperDuplicates,

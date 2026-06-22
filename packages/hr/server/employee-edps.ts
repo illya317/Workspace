@@ -3,6 +3,7 @@ import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { isValidDateValue, parseWorkPercent } from "./field-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 import { HR_FK_REGISTRY } from "./fk-registry";
+import { validateEdpReportTo } from "./edp-report-to";
 
 type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
 type EdpBodyRow = Record<string, unknown>;
@@ -67,6 +68,9 @@ async function normalizeEdpRow(row: EdpBodyRow, employeeId: number): Promise<Nor
     return null;
   }
 
+  const reportTo = await validateEdpReportTo({ positionId, reportTo: row.reportTo });
+  if (!reportTo.ok) return null;
+
   return {
     id,
     employeeId,
@@ -75,7 +79,7 @@ async function normalizeEdpRow(row: EdpBodyRow, employeeId: number): Promise<Nor
     isPrimary: Boolean(row.isPrimary),
     startDate,
     endDate,
-    reportTo: nullableString(row.reportTo),
+    reportTo: reportTo.value,
     workPercent,
   };
 }

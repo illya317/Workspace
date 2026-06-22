@@ -1,7 +1,7 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
-import { getInitials } from "@workspace/core/search";
+import { matchSearchFields } from "@workspace/platform/search";
 import { getManagementGroupByCode } from "./company-directory";
 
 type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
@@ -132,13 +132,7 @@ export async function listPositionDescriptions(search: string) {
 
   let result = descriptions;
   if (search) {
-    const q = search.toLowerCase();
-    result = descriptions.filter((description) =>
-      description.code.toLowerCase().includes(q) ||
-      description.name.toLowerCase().includes(q) ||
-      (description.departmentName || "").toLowerCase().includes(q) ||
-      getInitials(description.name).includes(q)
-    );
+    result = descriptions.filter((description) => matchSearchFields(description, search, ["code", "name", "departmentName"]));
   }
   return { positionDescriptions: result, total: result.length };
 }

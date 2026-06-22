@@ -7,7 +7,7 @@ import { normalizeHrSchoolValue } from "@workspace/hr/constants/school-options";
 import { prisma } from "@workspace/platform/server/prisma";
 import { fkDisplay, resolveFkValues } from "@workspace/platform/server/resolve-fk";
 import { handleDelete, handleUpdateField } from "./hr-crud";
-import { matchAnyField, matchEmployee } from "@workspace/platform/search";
+import { matchAnyField, matchEmployee, matchText } from "@workspace/platform/search";
 
 const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -168,8 +168,7 @@ export async function listEmployees(input: {
   }
   if (input.keyword) employees = employees.filter((employee) => matchAnyField(employee, input.keyword, "Employee"));
   if (input.filterField && input.filterValue && EMPLOYEE_DIRECTORY_FILTER_FIELDS.has(input.filterField)) {
-    const query = input.filterValue.trim().toLowerCase();
-    employees = employees.filter((employee) => getEmployeeDirectoryFilterValue(employee as unknown as Record<string, unknown>, input.filterField!).toLowerCase().includes(query));
+    employees = employees.filter((employee) => matchText(getEmployeeDirectoryFilterValue(employee as unknown as Record<string, unknown>, input.filterField!), input.filterValue!));
   }
 
   const total = employees.length;

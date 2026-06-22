@@ -11,7 +11,7 @@ import GenericCreatePanel from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";
 import GenericToolbarFilters from "../components/GenericToolbarFilters";
 import { useGenericTab } from "../hooks/useGenericTab";
-import EditableTable, { getVal } from "./EditableTable";
+import EditableTable from "./EditableTable";
 import { type TabConfig, type FieldConfig, type HRUser, hrCanEdit } from "@workspace/hr/types";
 
 export default function GenericTableTab({ config, user }: { config: TabConfig; user: HRUser }) {
@@ -81,14 +81,12 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
   );
 
   function handleStartEdit(item: Record<string, unknown>, field: FieldConfig) {
-    if (!canEdit || !editMode || !field.editable) return;
+    if (!canEdit || !editMode || !field.editable || field.type === "fk") return;
     const itemId = item.id as number;
     if (editingCell?.id === itemId && editingCell?.field === field.key) return;
     let initVal: string | boolean | number | unknown;
     if (field.key === "gender") {
       initVal = item.gender === true ? "男" : item.gender === false ? "女" : "";
-    } else if (field.type === "fk") {
-      initVal = getVal(item, field.key + "Name") ?? getVal(item, config.fkFields?.[field.key]?.displayField ?? field.key) ?? "";
     } else if (config.entityType === "Employee" && field.key === "alias") {
       try {
         const parsed = JSON.parse(String(item.alias || ""));

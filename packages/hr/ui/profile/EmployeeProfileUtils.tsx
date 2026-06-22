@@ -108,6 +108,7 @@ export function fieldGrid(
               <ProfileFieldInput
                 field={field}
                 value={field.type === "lunarBirthday" ? record.birthDate : record[field.key]}
+                record={record}
                 displayValue={field.displayKey ? String(record[field.displayKey] || "") : undefined}
                 disabled={disabled || field.readOnly || disabledByStatus || disabledByRule}
                 onChange={onChange}
@@ -196,6 +197,7 @@ export function updateProfileRow<T extends RowBase>(
       next.departmentId = option?.departmentId ?? null;
       next.departmentPath = option?.departmentPath ?? null;
       next.departmentName = option?.departmentPath ?? null;
+      next.reportTo = null;
     }
     return next as T;
   });

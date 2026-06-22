@@ -24,6 +24,7 @@ export interface FkFieldInputProps {
   placeholder?: string;
   disabled?: boolean;
   lifecycleScope?: LifecycleScope;
+  queryParams?: Record<string, string | number | boolean | null | undefined>;
   size?: SearchInputSize;
   className?: string;
 }
@@ -37,6 +38,7 @@ export default function FkFieldInput({
   placeholder = "输入搜索...",
   disabled,
   lifecycleScope = "active",
+  queryParams,
   size = "compact",
   className,
 }: FkFieldInputProps) {
@@ -75,6 +77,10 @@ export default function FkFieldInput({
           keyword: q,
           lifecycleScope,
         });
+        for (const [key, item] of Object.entries(queryParams ?? {})) {
+          if (item === null || item === undefined || item === "") continue;
+          params.set(key, String(item));
+        }
         const response = await fetch(workspacePath(`${endpoint}?${params.toString()}`));
         if (response.ok) {
           const data = (await response.json()) as { items?: FkFieldOption[] };
@@ -86,7 +92,7 @@ export default function FkFieldInput({
         setLoading(false);
       }
     },
-    [endpoint, fkKey, lifecycleScope],
+    [endpoint, fkKey, lifecycleScope, queryParams],
   );
 
   function handleInputChange(nextValue: string) {
