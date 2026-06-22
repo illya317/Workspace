@@ -27,7 +27,7 @@ export default function PermissionCell({
       return (
         <ActionButton
           onClick={onClick}
-          className="px-2 py-1 text-xs"
+          className={`py-1 text-xs ${isChild ? "!px-2" : "!px-4"}`}
           title={isChild ? "子资源已授权，点击添加直接授权" : state.source ? `来源: ${sourceLabel(state.source)}，点击添加直接授权` : "点击添加直接授权"}
         >
           <span className="opacity-60">✓</span>
