@@ -14,7 +14,7 @@ export function getVal(obj: unknown, path: string): unknown {
   }, obj);
 }
 
-function renderCell(item: Record<string, unknown>, field: FieldConfig, config: TabConfig): string {
+export function formatEditableTableCell(item: Record<string, unknown>, field: FieldConfig, config: TabConfig): string {
   if (config.entityType === "Employee" && field.key === "alias") {
     const value = item.alias;
     if (!value) return "-";
@@ -99,7 +99,7 @@ export default function EditableTable({
                 if (editableCell) onStartEdit(item, field);
               }}
             >
-              {isEditing ? renderEditInput(field.key) : renderCell(item, field, config)}
+              {isEditing ? renderEditInput(field.key) : formatEditableTableCell(item, field, config)}
             </span>
           );
         },

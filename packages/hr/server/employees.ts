@@ -11,6 +11,7 @@ import {
   buildEmployeeFieldUpdateCommand,
   EMPLOYEE_ALLOWED_FIELDS,
 } from "./domain/employee-validation";
+import { primaryContractCompany } from "./employments";
 
 const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const USERNAME_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
@@ -68,8 +69,16 @@ function getEmployeeDirectoryFilterValue(employee: Record<string, unknown>, fiel
   return String(employee[field] ?? "");
 }
 
+function activeFilterValue(value: string | null | undefined) {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return null;
+}
+
 export async function listEmployees(input: {
   employmentStatus?: "active" | "inactive";
+  isActive?: string | null;
+  company?: string;
   keyword: string;
   filterField?: string;
   filterValue?: string;
@@ -79,7 +88,7 @@ export async function listEmployees(input: {
   let employees = await prisma.employee.findMany({
     include: {
       employments: {
-        select: { isActive: true },
+        select: { isActive: true, currentCompany: true, contracts: true },
         orderBy: [{ isActive: "desc" }, { id: "desc" }],
       },
       positions: {
@@ -92,17 +101,29 @@ export async function listEmployees(input: {
     },
     orderBy: { id: "asc" },
   });
+  const isActive = activeFilterValue(input.isActive ?? (input.employmentStatus === "active" ? "true" : input.employmentStatus === "inactive" ? "false" : null));
   for (const employee of employees) {
     const primaryPosition = employee.positions[0];
     (employee as Record<string, unknown>).positionName = primaryPosition?.position?.name ?? null;
     (employee as Record<string, unknown>).directDepartmentName =
       primaryPosition?.position?.department?.name ?? primaryPosition?.department?.name ?? null;
+    const currentEmployment = employee.employments.find((employment) => employment.isActive) ?? employee.employments[0];
+    (employee as Record<string, unknown>).currentCompany = currentEmployment
+      ? primaryContractCompany(currentEmployment.contracts, currentEmployment.currentCompany)
+      : null;
   }
-  if (input.employmentStatus) {
+  if (isActive !== null) {
     employees = employees.filter((employee) => {
       const hasActiveEmployment = employee.employments.some((employment) => employment.isActive);
-      return input.employmentStatus === "active" ? hasActiveEmployment : !hasActiveEmployment;
+      return isActive ? hasActiveEmployment : !hasActiveEmployment;
     });
+  }
+  if (input.company) {
+    employees = employees.filter((employee) =>
+      employee.employments
+        .filter((employment) => isActive === null || employment.isActive === isActive)
+        .some((employment) => primaryContractCompany(employment.contracts, employment.currentCompany) === input.company),
+    );
   }
   if (input.keyword) employees = employees.filter((employee) => matchAnyField(employee, input.keyword, "Employee"));
   if (input.filterField && input.filterValue && EMPLOYEE_DIRECTORY_FILTER_FIELDS.has(input.filterField)) {

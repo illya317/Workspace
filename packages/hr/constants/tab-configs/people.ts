@@ -12,7 +12,7 @@ import {
   HR_POLITICS,
   HR_RANKS,
 } from "@workspace/hr/constants/field-options";
-import type { FieldConfig, TabConfig } from "../../types";
+import type { AdvancedFilterConfig, FieldConfig, FilterConfig, TabConfig } from "../../types";
 import { extractFK, fk } from "./shared";
 
 const officeLocationOptions = HR_OFFICE_LOCATIONS.map((value) => ({ label: value, value }));
@@ -27,6 +27,25 @@ const ethnicityOptions = HR_ETHNICITIES.map((value) => ({ label: value, value })
 const leaveReasonOptions = HR_LEAVE_REASONS.map((value) => ({ label: value, value }));
 const educationOptions = HR_EDUCATIONS.map((value) => ({ label: value, value }));
 const politicsOptions = HR_POLITICS.map((value) => ({ label: value, value }));
+
+const activeStatusFilter: FilterConfig = { key: "isActive", label: "在职状态", type: "boolean", defaultValue: "true" };
+const companyFilter: AdvancedFilterConfig = {
+  key: "company",
+  label: "公司",
+  kind: "fk",
+  queryParam: "company",
+  entity: "company",
+  fkKey: "hr.company",
+  returnField: "name",
+  placeholder: "搜索公司",
+};
+
+function employeeSubtableFilters(advancedFilters: AdvancedFilterConfig[] = []) {
+  return {
+    filters: [activeStatusFilter],
+    advancedFilters: [companyFilter, ...advancedFilters],
+  };
+}
 
 const employeeFields: FieldConfig[] = [
   { key: "employeeId", label: "员工编号", editable: false, defaultVisible: true },
@@ -54,9 +73,9 @@ export const employeeConfig: TabConfig = {
   entityType: "Employee",
   fields: employeeFields,
   fkFields: { userId: fk("user", "userName", "platform.user") },
-  advancedFilters: [
+  ...employeeSubtableFilters([
     { key: "name", label: "姓名", kind: "text", queryParam: "keyword", placeholder: "输入姓名关键字" },
-  ],
+  ]),
   canCreate: true,
   canDelete: false,
   listGetter: (d: unknown) => (d as Record<string, unknown>).employees as unknown[],
@@ -85,11 +104,9 @@ export const employmentConfig: TabConfig = {
   canCreate: true,
   canDelete: false,
   buildCreateBody: (form) => extractFK(form, ["employeeId"]),
-  filters: [{ key: "isActive", label: "在职状态", type: "boolean", defaultValue: "true" }],
-  advancedFilters: [
-    { key: "company", label: "当前公司", kind: "fk", queryParam: "company", entity: "company", fkKey: "hr.company", returnField: "name", placeholder: "搜索公司" },
+  ...employeeSubtableFilters([
     { key: "personnelType", label: "人员类型", kind: "select", queryParam: "personnelType", options: personnelTypeOptions },
-  ],
+  ]),
 };
 
 const edpFields: FieldConfig[] = [
@@ -118,11 +135,11 @@ export const edpConfig: TabConfig = {
   canDelete: true,
   listGetter: (d: unknown) => (d as Record<string, unknown>).positions as unknown[],
   buildCreateBody: (form) => extractFK(form, ["employeeId", "positionId"]),
-  advancedFilters: [
+  ...employeeSubtableFilters([
     { key: "employee", label: "员工", kind: "fk", queryParam: "keyword", entity: "employee", fkKey: "hr.employee", returnField: "name", placeholder: "搜索员工" },
     { key: "department", label: "部门", kind: "fk", queryParam: "keyword", entity: "department", fkKey: "hr.department", returnField: "name", placeholder: "搜索部门" },
     { key: "position", label: "岗位", kind: "fk", queryParam: "keyword", entity: "position", fkKey: "hr.position", returnField: "name", placeholder: "搜索岗位" },
-  ],
+  ]),
 };
 
 const contractFields: FieldConfig[] = [
@@ -156,8 +173,7 @@ export const contractConfig: TabConfig = {
   fkFields: { employeeId: fk("employee", "employeeName", "hr.employee") },
   buildCreateBody: (form) => extractFK(form, ["employeeId"]),
   listGetter: (d: unknown) => (d as Record<string, unknown>).contracts as unknown[],
-  advancedFilters: [
+  ...employeeSubtableFilters([
     { key: "employeeName", label: "姓名", kind: "text", queryParam: "keyword", placeholder: "输入姓名或员工编号" },
-    { key: "company", label: "公司", kind: "fk", queryParam: "company", entity: "company", fkKey: "hr.company", returnField: "name", placeholder: "搜索公司" },
-  ],
+  ]),
 };

@@ -7,6 +7,8 @@ import { createEdp, EDPCreateSchema, listEdps } from "@workspace/hr/server";
 
 const edpsQuerySchema = z.object({
   keyword: z.string().catch(""),
+  isActive: z.string().nullable().optional(),
+  company: z.string().catch(""),
   page: z.coerce.number().int().min(1).catch(1),
   pageSize: z.coerce.number().int().min(1).max(500).catch(50),
 }).passthrough();
@@ -25,8 +27,8 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const parsedQuery = edpsQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
   if (!parsedQuery.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
-  const { keyword, page, pageSize } = parsedQuery.data;
-  return NextResponse.json(await listEdps({ keyword, page, pageSize }));
+  const { company, isActive = null, keyword, page, pageSize } = parsedQuery.data;
+  return NextResponse.json(await listEdps({ company, isActive, keyword, page, pageSize }));
 }
 
 export async function POST(request: Request) {

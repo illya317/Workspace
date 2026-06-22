@@ -18,6 +18,7 @@ import {
   validateEdpCreateCurrentTotal,
   validateEdpFieldUpdateCurrentTotal,
 } from "./domain/edp-total-validation";
+import { primaryContractCompany } from "./employments";
 
 const EDP_CONFIG = {
   entityType: "EDP",
@@ -25,9 +26,23 @@ const EDP_CONFIG = {
   allowedFields: EDP_ALLOWED_FIELDS,
 };
 
-export async function listEdps(input: { keyword: string; page: number; pageSize: number }) {
+function activeFilterValue(value: string | null | undefined) {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return null;
+}
+
+export async function listEdps(input: { keyword: string; isActive?: string | null; company?: string; page: number; pageSize: number }) {
   const employees = await prisma.employee.findMany({
-    select: { id: true, employeeId: true, name: true },
+    select: {
+      id: true,
+      employeeId: true,
+      name: true,
+      employments: {
+        select: { isActive: true, currentCompany: true, contracts: true },
+        orderBy: [{ isActive: "desc" }, { id: "desc" }],
+      },
+    },
     orderBy: { id: "asc" },
   });
   const employeeIds = employees.map((employee) => employee.id);
@@ -42,12 +57,14 @@ export async function listEdps(input: { keyword: string; page: number; pageSize:
     orderBy: [{ id: "asc" }],
   });
 
+  const isActive = activeFilterValue(input.isActive);
   let rows = edps.map((edp) => {
     const employee = employeeMap.get(edp.employeeId);
     return {
       id: edp.id,
       employeeId: edp.employeeId,
       employeeName: employee?.name || "",
+      employeeEmployments: employee?.employments ?? [],
       departmentId: edp.departmentId,
       departmentName: formatDepartmentPath(edp.department) || edp.department?.name || "",
       positionId: edp.positionId,
@@ -59,6 +76,20 @@ export async function listEdps(input: { keyword: string; page: number; pageSize:
       workPercent: edp.workPercent,
     };
   });
+
+  if (isActive !== null) {
+    rows = rows.filter((row) => {
+      const hasActiveEmployment = row.employeeEmployments.some((employment) => employment.isActive);
+      return isActive ? hasActiveEmployment : !hasActiveEmployment;
+    });
+  }
+  if (input.company) {
+    rows = rows.filter((row) =>
+      row.employeeEmployments
+        .filter((employment) => isActive === null || employment.isActive === isActive)
+        .some((employment) => primaryContractCompany(employment.contracts, employment.currentCompany) === input.company),
+    );
+  }
 
   if (input.keyword) {
     rows = rows.filter((row) => {
@@ -72,7 +103,10 @@ export async function listEdps(input: { keyword: string; page: number; pageSize:
 
   const total = rows.length;
   const start = (input.page - 1) * input.pageSize;
-  return { positions: rows.slice(start, start + input.pageSize), total };
+  return {
+    positions: rows.slice(start, start + input.pageSize).map(({ employeeEmployments: _employeeEmployments, ...row }) => row),
+    total,
+  };
 }
 
 export async function createEdp(

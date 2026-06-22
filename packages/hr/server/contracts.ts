@@ -54,12 +54,14 @@ export async function clearPrimaryContractsForEmployee(
 
 export async function getContracts(options: {
   company?: string;
+  isActive?: string | null;
   keyword?: string;
   page: number;
   pageSize: number;
 }): Promise<PaginatedContracts> {
-  const where: Prisma.EmploymentWhereInput = { isActive: true };
-  if (options.company) where.currentCompany = options.company;
+  const where: Prisma.EmploymentWhereInput = {};
+  if (options.isActive === "true") where.isActive = true;
+  if (options.isActive === "false") where.isActive = false;
 
   const employments = await prisma.employment.findMany({
     where,
@@ -79,6 +81,9 @@ export async function getContracts(options: {
 
   if (options.keyword) {
     rows = filterContracts(rows, options.keyword);
+  }
+  if (options.company) {
+    rows = rows.filter((row) => row.company === options.company);
   }
 
   return paginateContracts(rows, options.page, options.pageSize);

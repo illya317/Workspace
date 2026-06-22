@@ -130,14 +130,14 @@ function hasToken(source: string, token: string) {
   return new RegExp(`\\b${token}\\b`).test(source);
 }
 
-function collectRouteFiles(dir: string): string[] {
+function collectApiTreeTsFiles(dir: string): string[] {
   const fullDir = path.join(ROOT, dir);
   if (!fs.existsSync(fullDir)) return [];
   const files: string[] = [];
   for (const entry of fs.readdirSync(fullDir, { withFileTypes: true })) {
     const relPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) files.push(...collectRouteFiles(relPath));
-    if (entry.isFile() && entry.name === "route.ts") files.push(relPath);
+    if (entry.isDirectory()) files.push(...collectApiTreeTsFiles(relPath));
+    if (entry.isFile() && entry.name.endsWith(".ts")) files.push(relPath);
   }
   return files.sort();
 }
@@ -177,10 +177,10 @@ export function checkDomainValidation() {
       }
     }
 
-    for (const file of collectRouteFiles(HR_ROUTE_ROOT)) {
+    for (const file of collectApiTreeTsFiles(HR_ROUTE_ROOT)) {
       const source = readRequired(file);
       if (/from\s+["'][^"']*\/domain\/[^"']*["']/.test(source)) {
-        console.error(`✗ ${file} must call HR services, not domain validators directly.`);
+        console.error(`✗ ${file} must call HR services, not domain validators directly or through route-local helpers.`);
         return false;
       }
       const forbidden = forbiddenHrServerRouteImport(source);

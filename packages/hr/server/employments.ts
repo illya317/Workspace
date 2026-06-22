@@ -12,7 +12,7 @@ import {
 
 const EMPLOYMENT_CONFIG = { entityType: "Employment", modelKey: "employment" as const };
 
-function primaryContractCompany(contractsJson: string | null, fallback: string | null) {
+export function primaryContractCompany(contractsJson: string | null, fallback: string | null) {
   const contracts = parseContracts(contractsJson);
   const primaryCompany = String(contracts.find((contract) => contract.isPrimary === true && contract.company)?.company ?? "");
   const firstCompany = String(contracts.find((contract) => contract.company)?.company ?? "");

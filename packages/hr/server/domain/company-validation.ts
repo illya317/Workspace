@@ -42,6 +42,13 @@ function companyDataFields(body: Record<string, unknown>) {
   };
 }
 
+function parseOptionalCompanyId(value: unknown): DomainValidationResult<number | null> {
+  if (value === null || value === undefined || value === "") return okCommand(null);
+  const id = Number(value);
+  if (!Number.isInteger(id) || id <= 0) return failCommand("公司ID无效");
+  return okCommand(id);
+}
+
 export function buildCompanyCreateCommand(body: Record<string, unknown>) {
   const code = String(body.code || "").trim();
   const name = String(body.name || "").trim();
@@ -50,7 +57,9 @@ export function buildCompanyCreateCommand(body: Record<string, unknown>) {
 }
 
 export async function buildCompanyUpsertCommand(body: Record<string, unknown>) {
-  const id = body.id ? Number(body.id) : null;
+  const parsedId = parseOptionalCompanyId(body.id);
+  if (!parsedId.ok) return parsedId;
+  const id = parsedId.data;
   const code = String(body.code || "").trim();
   const name = String(body.name || "").trim();
   if (!code || !name) return failCommand("缺少 code/name");

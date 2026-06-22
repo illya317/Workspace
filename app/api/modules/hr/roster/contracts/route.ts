@@ -9,6 +9,7 @@ import {
 
 const contractsQuerySchema = z.object({
   company: z.string().optional(),
+  isActive: z.string().nullable().optional(),
   keyword: z.string().optional(),
   page: z.coerce.number().int().min(1).catch(1),
   pageSize: z.coerce.number().int().min(1).max(500).catch(50),
@@ -28,9 +29,9 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const parsedQuery = contractsQuerySchema.safeParse(Object.fromEntries(searchParams.entries()));
   if (!parsedQuery.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
-  const { company, keyword, page, pageSize } = parsedQuery.data;
+  const { company, isActive = null, keyword, page, pageSize } = parsedQuery.data;
 
-  const result = await getContracts({ company, keyword, page, pageSize });
+  const result = await getContracts({ company, isActive, keyword, page, pageSize });
   return NextResponse.json(result);
 }
 
