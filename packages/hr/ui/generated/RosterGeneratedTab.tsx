@@ -186,6 +186,8 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
             onDownload={downloadCsv}
             canEdit={canEdit}
             downloading={false}
+            saveLabel="应用到预览"
+            editLabel="编辑预览"
             saving={saving}
           />
         )}
@@ -194,6 +196,7 @@ export default function RosterGeneratedTab({ variant, canEdit }: { variant: Rost
             <span>{preview.title}</span>
             <span>{preview.totalEmployees} 人</span>
             <span>{preview.totalRows} 行</span>
+            {editMode && <span>编辑仅影响本次预览和导出</span>}
           </>
         ) : null}
       />

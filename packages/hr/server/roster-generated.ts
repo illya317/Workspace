@@ -175,11 +175,13 @@ function filterEmployees(
       rank: primaryEmployment?.rank ?? "",
       personnelType: primaryEmployment?.personnelType ?? "",
     };
-    if (filters.filterField && filters.filterValue) {
-      return matchSearchFields(searchable, filters.filterValue, [filters.filterField]);
+    if (filters.filterField && filters.filterValue && !matchSearchFields(searchable, filters.filterValue, [filters.filterField])) {
+      return false;
     }
-    if (!filters.keyword) return true;
-    return matchSearchFields(searchable, filters.keyword, ["employeeId", "name", "currentCompany", "departmentName", "positionName"]);
+    if (filters.keyword && !matchSearchFields(searchable, filters.keyword, ["employeeId", "name", "currentCompany", "departmentName", "positionName"])) {
+      return false;
+    }
+    return true;
   });
 }
 
