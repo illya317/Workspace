@@ -92,6 +92,15 @@ API route 只做：
 4. 调用 service。
 5. 返回 DTO。
 
+输入验证按四层分工：
+
+- 前端负责输入体验，例如选择器、日期控件、数字控件和 FK 候选项查询；前端不是安全边界。
+- Zod / API input schema 只校验请求形状，例如 body 是否为对象、rows 是否为数组、id 是否为正整数、field/value 是否存在。
+- Domain validator 负责业务规则，例如枚举、日期、百分比范围、FK 是否存在且 active、记录归属、跨字段/跨行规则和归档/删除前引用保护。
+- Service 只执行已经验证过的 command，负责事务、Prisma 写库、派生字段落库、`editedBy/editedAt/version`、`snapshotHistory` 和错误映射。
+
+新增多入口写入能力时，页面、导入、agent tool 或内部 API 只能新增 input adapter，把输入适配成 domain command；同一个业务字段或业务动作必须收口到同一套 domain validator。第一批强制试点是 HR EDP 和岗位，`npm run arch:gate` 会阻断这些 service 重新散落 FK、日期、百分比、直接上级或岗位归档引用规则。
+
 Level 1 起，业务资源权限入口统一为 `packages/platform/server/auth/authorize.ts` 的 `authorize()`。`withAuth`、`withFinance*`、`checkHRAccess`、`requireResourceAccess` 等平台 wrapper 必须委托 `authorize()`，新增 API route 不得直接调用 `checkPermission()` 或在 route 内重写角色判断。唯一例外是内置 root admin gate：`auth/admin.ts` 必须委托 `isRootAdminUser()`，且不得把 `system` 注册或判断为 RBAC resource。
 
 `npm run arch:gate` 的 auth 阶段会强制：

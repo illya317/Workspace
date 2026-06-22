@@ -51,6 +51,7 @@ import/    # HR 导入解析、清洗和校验流程
 - `server/positions.ts`：岗位列表、创建、更新和删除。
 - `server/roster.ts`：HR 名册列表、导出和筛选选项。
 - `server/search.ts`：HR 员工和主数据搜索语义。
+- `server/domain/edp-validation.ts` 和 `server/domain/position-validation.ts`：HR 输入验证试点，统一收口 EDP/岗位的 domain command、FK 校验、跨字段/跨行规则和归档引用保护。`edps.ts`、`employee-edps.ts`、`positions.ts` 只消费这些 validator 后执行写库和审计，不能重新散落业务规则。
 
 旧的 `app/hr/*` 类型和 helper 文件保留为 re-export，避免一次性改动大量页面引用。
 旧的 HR UI 大组件和第一批字段组件路径保留为 re-export，Next route 和现有页面入口保持不变。

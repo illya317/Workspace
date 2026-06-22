@@ -1,6 +1,7 @@
 import { checkAuth } from "./auth";
 import { checkAppRouteHierarchy } from "./app-route-hierarchy";
 import { checkDeps } from "./deps";
+import { checkDomainValidation } from "./domain-validation";
 import { checkLevel2Ratchet } from "./level2-enforce";
 import { checkModules } from "./modules";
 import { scan } from "./scan";
@@ -13,6 +14,7 @@ export async function archGate() {
     ["deps", checkDeps],
     ["modules", checkModules],
     ["app-route-hierarchy", checkAppRouteHierarchy],
+    ["domain-validation", checkDomainValidation],
     ["level2-ratchet", checkLevel2Ratchet],
     ["auth", checkAuth],
   ];

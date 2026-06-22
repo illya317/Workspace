@@ -64,6 +64,16 @@ export type {
   DomainCrudAccessChecks,
   DomainCrudConfig,
 } from "./server/crud-factory";
+export {
+  failCommand,
+  mapValidationToServiceResult,
+  okCommand,
+} from "./server/domain-validation";
+export type {
+  DomainServiceResult,
+  DomainValidationIssue,
+  DomainValidationResult,
+} from "./server/domain-validation";
 export { snapshotHistory } from "./server/history";
 export { prisma } from "./server/prisma";
 export { fkDisplay, resolveFkValues } from "./server/resolve-fk";

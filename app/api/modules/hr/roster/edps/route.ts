@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { z } from "zod";
 import { authenticate, checkHRAccess, checkHRWrite } from "@workspace/platform/server/auth";
+import { jsonServiceResponse } from "@workspace/platform/server/api";
 import { createEdp, EDPCreateSchema, listEdps } from "@workspace/hr/server";
 
 const edpsQuerySchema = z.object({
@@ -41,6 +42,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: parsedBody.error.issues[0]?.message || "参数错误" }, { status: 400 });
   }
 
-  const result = await createEdp(request);
-  return result.response;
+  return jsonServiceResponse(await createEdp(parsedBody.data, payload.userId));
 }
