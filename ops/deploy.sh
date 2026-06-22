@@ -136,7 +136,9 @@ build_artifact() {
   mkdir -p "$standalone_app_dir/.next"
   cp -r .next/static "$standalone_app_dir/.next/static"
   rm -rf "$standalone_app_dir/public"
-  cp -rL public "$standalone_app_dir/public"
+  # Keep runtime asset symlinks as symlinks in CI. The server-side deploy step
+  # below relinks them to REMOTE_WORKSPACE_CONFIG_DIR after extraction.
+  cp -R public "$standalone_app_dir/public"
   rm -rf "$standalone_app_dir/data"
   rm -f "$standalone_app_dir/.env"
 
