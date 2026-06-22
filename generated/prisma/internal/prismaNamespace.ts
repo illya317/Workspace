@@ -443,6 +443,11 @@ export const ModelName = {
   DueDiligenceMaterialSelection: 'DueDiligenceMaterialSelection',
   LibraryGeneratedSource: 'LibraryGeneratedSource',
   LibraryDocumentTag: 'LibraryDocumentTag',
+  OpenApiClient: 'OpenApiClient',
+  OpenApiResource: 'OpenApiResource',
+  OpenApiScope: 'OpenApiScope',
+  OpenApiClientScopeGrant: 'OpenApiClientScopeGrant',
+  OpenApiAccessLog: 'OpenApiAccessLog',
   Report: 'Report',
   ReportItem: 'ReportItem',
   ReportHistory: 'ReportHistory',
@@ -469,7 +474,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "departmentDescription" | "positionDescription" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "project" | "employeeProject" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
+    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "contract" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "departmentDescription" | "positionDescription" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "report" | "reportItem" | "reportHistory" | "systemConfig" | "loginAttempt" | "project" | "employeeProject" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4839,6 +4844,376 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    OpenApiClient: {
+      payload: Prisma.$OpenApiClientPayload<ExtArgs>
+      fields: Prisma.OpenApiClientFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OpenApiClientFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OpenApiClientFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientPayload>
+        }
+        findFirst: {
+          args: Prisma.OpenApiClientFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OpenApiClientFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientPayload>
+        }
+        findMany: {
+          args: Prisma.OpenApiClientFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientPayload>[]
+        }
+        create: {
+          args: Prisma.OpenApiClientCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientPayload>
+        }
+        createMany: {
+          args: Prisma.OpenApiClientCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OpenApiClientCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientPayload>[]
+        }
+        delete: {
+          args: Prisma.OpenApiClientDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientPayload>
+        }
+        update: {
+          args: Prisma.OpenApiClientUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientPayload>
+        }
+        deleteMany: {
+          args: Prisma.OpenApiClientDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OpenApiClientUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OpenApiClientUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientPayload>[]
+        }
+        upsert: {
+          args: Prisma.OpenApiClientUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientPayload>
+        }
+        aggregate: {
+          args: Prisma.OpenApiClientAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOpenApiClient>
+        }
+        groupBy: {
+          args: Prisma.OpenApiClientGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpenApiClientGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OpenApiClientCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpenApiClientCountAggregateOutputType> | number
+        }
+      }
+    }
+    OpenApiResource: {
+      payload: Prisma.$OpenApiResourcePayload<ExtArgs>
+      fields: Prisma.OpenApiResourceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OpenApiResourceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiResourcePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OpenApiResourceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiResourcePayload>
+        }
+        findFirst: {
+          args: Prisma.OpenApiResourceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiResourcePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OpenApiResourceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiResourcePayload>
+        }
+        findMany: {
+          args: Prisma.OpenApiResourceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiResourcePayload>[]
+        }
+        create: {
+          args: Prisma.OpenApiResourceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiResourcePayload>
+        }
+        createMany: {
+          args: Prisma.OpenApiResourceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OpenApiResourceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiResourcePayload>[]
+        }
+        delete: {
+          args: Prisma.OpenApiResourceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiResourcePayload>
+        }
+        update: {
+          args: Prisma.OpenApiResourceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiResourcePayload>
+        }
+        deleteMany: {
+          args: Prisma.OpenApiResourceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OpenApiResourceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OpenApiResourceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiResourcePayload>[]
+        }
+        upsert: {
+          args: Prisma.OpenApiResourceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiResourcePayload>
+        }
+        aggregate: {
+          args: Prisma.OpenApiResourceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOpenApiResource>
+        }
+        groupBy: {
+          args: Prisma.OpenApiResourceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpenApiResourceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OpenApiResourceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpenApiResourceCountAggregateOutputType> | number
+        }
+      }
+    }
+    OpenApiScope: {
+      payload: Prisma.$OpenApiScopePayload<ExtArgs>
+      fields: Prisma.OpenApiScopeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OpenApiScopeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiScopePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OpenApiScopeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiScopePayload>
+        }
+        findFirst: {
+          args: Prisma.OpenApiScopeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiScopePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OpenApiScopeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiScopePayload>
+        }
+        findMany: {
+          args: Prisma.OpenApiScopeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiScopePayload>[]
+        }
+        create: {
+          args: Prisma.OpenApiScopeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiScopePayload>
+        }
+        createMany: {
+          args: Prisma.OpenApiScopeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OpenApiScopeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiScopePayload>[]
+        }
+        delete: {
+          args: Prisma.OpenApiScopeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiScopePayload>
+        }
+        update: {
+          args: Prisma.OpenApiScopeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiScopePayload>
+        }
+        deleteMany: {
+          args: Prisma.OpenApiScopeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OpenApiScopeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OpenApiScopeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiScopePayload>[]
+        }
+        upsert: {
+          args: Prisma.OpenApiScopeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiScopePayload>
+        }
+        aggregate: {
+          args: Prisma.OpenApiScopeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOpenApiScope>
+        }
+        groupBy: {
+          args: Prisma.OpenApiScopeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpenApiScopeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OpenApiScopeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpenApiScopeCountAggregateOutputType> | number
+        }
+      }
+    }
+    OpenApiClientScopeGrant: {
+      payload: Prisma.$OpenApiClientScopeGrantPayload<ExtArgs>
+      fields: Prisma.OpenApiClientScopeGrantFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OpenApiClientScopeGrantFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientScopeGrantPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OpenApiClientScopeGrantFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientScopeGrantPayload>
+        }
+        findFirst: {
+          args: Prisma.OpenApiClientScopeGrantFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientScopeGrantPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OpenApiClientScopeGrantFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientScopeGrantPayload>
+        }
+        findMany: {
+          args: Prisma.OpenApiClientScopeGrantFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientScopeGrantPayload>[]
+        }
+        create: {
+          args: Prisma.OpenApiClientScopeGrantCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientScopeGrantPayload>
+        }
+        createMany: {
+          args: Prisma.OpenApiClientScopeGrantCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OpenApiClientScopeGrantCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientScopeGrantPayload>[]
+        }
+        delete: {
+          args: Prisma.OpenApiClientScopeGrantDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientScopeGrantPayload>
+        }
+        update: {
+          args: Prisma.OpenApiClientScopeGrantUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientScopeGrantPayload>
+        }
+        deleteMany: {
+          args: Prisma.OpenApiClientScopeGrantDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OpenApiClientScopeGrantUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OpenApiClientScopeGrantUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientScopeGrantPayload>[]
+        }
+        upsert: {
+          args: Prisma.OpenApiClientScopeGrantUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiClientScopeGrantPayload>
+        }
+        aggregate: {
+          args: Prisma.OpenApiClientScopeGrantAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOpenApiClientScopeGrant>
+        }
+        groupBy: {
+          args: Prisma.OpenApiClientScopeGrantGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpenApiClientScopeGrantGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OpenApiClientScopeGrantCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpenApiClientScopeGrantCountAggregateOutputType> | number
+        }
+      }
+    }
+    OpenApiAccessLog: {
+      payload: Prisma.$OpenApiAccessLogPayload<ExtArgs>
+      fields: Prisma.OpenApiAccessLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.OpenApiAccessLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiAccessLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.OpenApiAccessLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiAccessLogPayload>
+        }
+        findFirst: {
+          args: Prisma.OpenApiAccessLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiAccessLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.OpenApiAccessLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiAccessLogPayload>
+        }
+        findMany: {
+          args: Prisma.OpenApiAccessLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiAccessLogPayload>[]
+        }
+        create: {
+          args: Prisma.OpenApiAccessLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiAccessLogPayload>
+        }
+        createMany: {
+          args: Prisma.OpenApiAccessLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.OpenApiAccessLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiAccessLogPayload>[]
+        }
+        delete: {
+          args: Prisma.OpenApiAccessLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiAccessLogPayload>
+        }
+        update: {
+          args: Prisma.OpenApiAccessLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiAccessLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.OpenApiAccessLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.OpenApiAccessLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.OpenApiAccessLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiAccessLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.OpenApiAccessLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$OpenApiAccessLogPayload>
+        }
+        aggregate: {
+          args: Prisma.OpenApiAccessLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateOpenApiAccessLog>
+        }
+        groupBy: {
+          args: Prisma.OpenApiAccessLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpenApiAccessLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.OpenApiAccessLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.OpenApiAccessLogCountAggregateOutputType> | number
+        }
+      }
+    }
     Report: {
       payload: Prisma.$ReportPayload<ExtArgs>
       fields: Prisma.ReportFieldRefs
@@ -6829,6 +7204,81 @@ export const LibraryDocumentTagScalarFieldEnum = {
 export type LibraryDocumentTagScalarFieldEnum = (typeof LibraryDocumentTagScalarFieldEnum)[keyof typeof LibraryDocumentTagScalarFieldEnum]
 
 
+export const OpenApiClientScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  keyHash: 'keyHash',
+  status: 'status',
+  ownerUserId: 'ownerUserId',
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OpenApiClientScalarFieldEnum = (typeof OpenApiClientScalarFieldEnum)[keyof typeof OpenApiClientScalarFieldEnum]
+
+
+export const OpenApiResourceScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  label: 'label',
+  registrationKey: 'registrationKey',
+  runtimeParentResourceKey: 'runtimeParentResourceKey',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OpenApiResourceScalarFieldEnum = (typeof OpenApiResourceScalarFieldEnum)[keyof typeof OpenApiResourceScalarFieldEnum]
+
+
+export const OpenApiScopeScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  label: 'label',
+  action: 'action',
+  resourceId: 'resourceId',
+  registrationKey: 'registrationKey',
+  runtimeParentResourceKey: 'runtimeParentResourceKey',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OpenApiScopeScalarFieldEnum = (typeof OpenApiScopeScalarFieldEnum)[keyof typeof OpenApiScopeScalarFieldEnum]
+
+
+export const OpenApiClientScopeGrantScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  scopeId: 'scopeId',
+  action: 'action',
+  createdAt: 'createdAt'
+} as const
+
+export type OpenApiClientScopeGrantScalarFieldEnum = (typeof OpenApiClientScopeGrantScalarFieldEnum)[keyof typeof OpenApiClientScopeGrantScalarFieldEnum]
+
+
+export const OpenApiAccessLogScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  clientName: 'clientName',
+  endpointKey: 'endpointKey',
+  scopeKey: 'scopeKey',
+  method: 'method',
+  path: 'path',
+  status: 'status',
+  durationMs: 'durationMs',
+  errorCode: 'errorCode',
+  ip: 'ip',
+  createdAt: 'createdAt'
+} as const
+
+export type OpenApiAccessLogScalarFieldEnum = (typeof OpenApiAccessLogScalarFieldEnum)[keyof typeof OpenApiAccessLogScalarFieldEnum]
+
+
 export const ReportScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -7214,6 +7664,11 @@ export type GlobalOmitConfig = {
   dueDiligenceMaterialSelection?: Prisma.DueDiligenceMaterialSelectionOmit
   libraryGeneratedSource?: Prisma.LibraryGeneratedSourceOmit
   libraryDocumentTag?: Prisma.LibraryDocumentTagOmit
+  openApiClient?: Prisma.OpenApiClientOmit
+  openApiResource?: Prisma.OpenApiResourceOmit
+  openApiScope?: Prisma.OpenApiScopeOmit
+  openApiClientScopeGrant?: Prisma.OpenApiClientScopeGrantOmit
+  openApiAccessLog?: Prisma.OpenApiAccessLogOmit
   report?: Prisma.ReportOmit
   reportItem?: Prisma.ReportItemOmit
   reportHistory?: Prisma.ReportHistoryOmit

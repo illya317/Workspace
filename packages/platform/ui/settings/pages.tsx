@@ -4,7 +4,7 @@ import { getPageStyleRouteModules, pageViewDefinitions } from "@workspace/platfo
 import AppShell from "../AppShell";
 import { DatabasePageFrame } from "@workspace/core/ui";
 import SettingsClient from "./SettingsClient";
-import ApiGuideClient from "../docs/ApiGuideClient";
+import SettingsApiClient from "./SettingsApiClient";
 import { pageStylePreviewSamples } from "./page-style-sample-data";
 import { getTemplateRoutes, moduleTemplates } from "./page-style-template-data";
 
@@ -28,10 +28,16 @@ export function SettingsGovernancePage({
   );
 }
 
-export function SettingsApiPage({ user }: { user: SessionUser }) {
+export function SettingsApiPage({
+  user,
+  focusRegistrationKey,
+}: {
+  user: SessionUser;
+  focusRegistrationKey?: string;
+}) {
   return (
     <AppShell title="API 接入" backHref="/settings" user={user}>
-      <ApiGuideClient hideShell initialUser={user} />
+      <SettingsApiClient focusRegistrationKey={focusRegistrationKey} />
     </AppShell>
   );
 }

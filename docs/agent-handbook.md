@@ -6,7 +6,7 @@
 
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
 - **数据库**: Prisma ORM + SQLite (`data/dev.db`)
-- **认证**: JWT Cookie + API Key (个人)
+- **认证**: JWT Cookie + Open API Bearer Client
 - **CI/CD**: GitHub Actions 负责公开 CI；CNB API/CLI 只触发私有生产发布，CNB/Linux CD 容器构建 standalone 产物，CVM + PM2 只解包产物并重启
 
 ## 2. 部署与运行态同步
@@ -209,8 +209,9 @@ rm data/dev.db && npx prisma db push
 认证方式：
 
 1. 网页版：Cookie JWT (`token`)
-2. API 接入：`X-API-Key` 个人密钥 + `X-Username` + `X-Password`
-3. 权限校验：优先使用 `@workspace/platform/server/auth` 中的平台契约；旧 `lib/auth.ts` 聚合 hub 已删除，不要恢复同类兼容入口。
+2. 内部 API：`/api/modules/**` 使用 Cookie 会话 + RBAC `authorize()` 或平台 wrapper。
+3. 外部 Open API：`/api/open/v1/**` 使用 `Authorization: Bearer <OpenApiClient secret>` + `OpenApiScope` grant，不读取内部 RBAC `Resource`。
+4. 权限校验：优先使用 `@workspace/platform/server/auth` 中的平台契约；旧 `lib/auth.ts` 聚合 hub 已删除，不要恢复同类兼容入口。
 
 API 权限规则：
 
@@ -219,6 +220,7 @@ API 权限规则：
 - 新 API route 只允许做四件事：认证、参数校验、调用 service、返回 DTO。
 - 复杂查询、导入、汇总、派生字段计算必须放到 `packages/<domain>/server/`；旧 `server/services/<domain>/` 只作为存量兼容位置。
 - 旧兼容 API 可以保留代理，但新功能必须走领域入口，例如 HR 新接口走 `app/api/modules/hr/roster/*`，财务成本走 `app/api/modules/finance/cost/*`。
+- 需要对外开放的新接口必须走 `packages/platform/open-api-registry.ts` 注册，并放在 `/api/open/v1/**`，不得直接暴露内部 `/api/modules/**`。
 
 ## 11. 业务规则
 

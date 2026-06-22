@@ -77,7 +77,7 @@ export const coreUiComponentRegistry = [
   { name: "CheckboxField", kind: "form", description: "复选框输入 primitive，统一 checked、disabled 和焦点样式。", example: "在创建表单中勾选是否启用、是否默认或是否归档。" },
   { name: "ChoiceGroup", kind: "form", description: "单选/复选组选项 primitive，统一隐藏原生输入、选中标记和候选项排列。", example: "纸面记录里选择“是 / 否”，业务只传选项和值。" },
   { name: "ColumnToggle", kind: "data", description: "表格列显隐控制，和 DataTable 共用列定义。", example: "在财务明细表里让用户切换显示字段 3/5。" },
-  { name: "CodeBlock", kind: "data", description: "代码块和密钥信息展示 primitive，统一技术文本、背景和等宽字体。", example: "API 接入指南中展示 X-API-Key 和 X-Username 请求头。" },
+  { name: "CodeBlock", kind: "data", description: "代码块和密钥信息展示 primitive，统一技术文本、背景和等宽字体。", example: "API 接入指南中展示 Bearer Client secret 请求头。" },
   { name: "CommandToolbar", kind: "toolbar", description: "综合命令栏容器，按隐藏/显示、新建、搜索、互斥筛选、字段筛选、刷新、页面动作、编辑动作和分页信息分区；一行优先，空间不足自动换行。", example: "列表页同时承载左右分栏控制、新建入口、搜索筛选、导出、编辑保存和分页信息。", includes: ["SearchInput", "ToolbarOptionGroup", "FieldValueFilter", "IconActionButton", "RefreshActionButton", "ActionButton", "SelectField"] },
   { name: "ConfirmModal", kind: "overlay", description: "确认弹窗基础组件，统一危险操作和取消确认体验。", example: "删除合同、归档项目或停用记录前显示确认文案和危险按钮。" },
   { name: "ConfirmProvider", kind: "overlay", description: "确认弹窗上下文入口，提供命令式 confirm/delete 能力。", example: "页面调用 confirm()，由 Provider 统一渲染确认弹窗。", includes: ["ConfirmModal"] },

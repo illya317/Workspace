@@ -124,7 +124,7 @@ export default function SettingsClient({
           {hasApiAccess && (
             <ModuleCard
               title="API 接入"
-              description="API Key、接入说明和接口调用方式。"
+              description="Open API Client、Scope 授权和调用日志。"
               color="purple"
               icon={
                 <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

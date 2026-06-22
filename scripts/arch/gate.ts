@@ -4,6 +4,7 @@ import { checkDeps } from "./deps";
 import { checkDomainValidation } from "./domain-validation";
 import { checkLevel2Ratchet } from "./level2-enforce";
 import { checkModules } from "./modules";
+import { checkOpenApi } from "./open-api";
 import { scan } from "./scan";
 
 type GateCheck = [name: string, run: () => boolean | Promise<boolean>];
@@ -13,6 +14,7 @@ export async function archGate() {
     ["scan", scan],
     ["deps", checkDeps],
     ["modules", checkModules],
+    ["open-api", checkOpenApi],
     ["app-route-hierarchy", checkAppRouteHierarchy],
     ["domain-validation", checkDomainValidation],
     ["level2-ratchet", checkLevel2Ratchet],

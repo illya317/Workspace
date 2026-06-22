@@ -1,0 +1,81 @@
+/// Open API 调用方（事实表，来源于设置页手工创建/轮换）
+model OpenApiClient {
+  id          Int                       @id @default(autoincrement())
+  name        String
+  description String?
+  keyHash     String                    @unique
+  status      String                    @default("active")
+  ownerUserId Int?
+  expiresAt   DateTime?
+  lastUsedAt  DateTime?
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime                  @updatedAt
+  grants      OpenApiClientScopeGrant[]
+  accessLogs  OpenApiAccessLog[]
+}
+
+/// Open API 资源组（事实表，来源于 Open API registry 同步）
+model OpenApiResource {
+  id                       Int            @id @default(autoincrement())
+  key                      String         @unique
+  label                    String
+  registrationKey          String
+  runtimeParentResourceKey String?
+  sortOrder                Int            @default(0)
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
+  scopes                   OpenApiScope[]
+}
+
+/// Open API 调用 scope（事实表，来源于 Open API registry 同步）
+model OpenApiScope {
+  id                       Int                       @id @default(autoincrement())
+  key                      String                    @unique
+  label                    String
+  action                   String
+  resourceId               Int
+  registrationKey          String
+  runtimeParentResourceKey String?
+  sortOrder                Int                       @default(0)
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+  resource                 OpenApiResource           @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  grants                   OpenApiClientScopeGrant[]
+
+  @@index([resourceId])
+}
+
+/// Open API client scope 授权（事实表，来源于设置页手工授权）
+model OpenApiClientScopeGrant {
+  id        Int           @id @default(autoincrement())
+  clientId  Int
+  scopeId   Int
+  action    String
+  createdAt DateTime      @default(now())
+  client    OpenApiClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  scope     OpenApiScope  @relation(fields: [scopeId], references: [id], onDelete: Cascade)
+
+  @@unique([clientId, scopeId, action])
+  @@index([scopeId])
+}
+
+/// Open API 调用日志（事实表，来源于开放接口运行时写入）
+model OpenApiAccessLog {
+  id          Int            @id @default(autoincrement())
+  clientId    Int?
+  clientName  String?
+  endpointKey String
+  scopeKey    String
+  method      String
+  path        String
+  status      Int
+  durationMs  Int
+  errorCode   String?
+  ip          String?
+  createdAt   DateTime       @default(now())
+  client      OpenApiClient? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  @@index([clientId])
+  @@index([scopeKey])
+  @@index([createdAt])
+}

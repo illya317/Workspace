@@ -31,23 +31,17 @@
 <body>
 <div class="container">
 <h1>HR API Reference</h1>
-<p class="subtitle">139 endpoints across 14 groups</p>
+<p class="subtitle">220 endpoints across 6 groups</p>
 <div class="summary">
   <div class="summary-grid">
-    <div class="summary-item"><div class="num">52</div><div class="label">GET</div></div>
-    <div class="summary-item"><div class="num">25</div><div class="label">POST</div></div>
-    <div class="summary-item"><div class="num">34</div><div class="label">PUT</div></div>
-    <div class="summary-item"><div class="num">28</div><div class="label">DELETE</div></div>
+    <div class="summary-item"><div class="num">94</div><div class="label">GET</div></div>
+    <div class="summary-item"><div class="num">47</div><div class="label">POST</div></div>
+    <div class="summary-item"><div class="num">41</div><div class="label">PUT</div></div>
+    <div class="summary-item"><div class="num">31</div><div class="label">DELETE</div></div>
   </div>
 </div>
 
 <div class="group"><div class="group-title">认证与账户</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/settings/account/password</span>
-  <span class="auth">登录</span>
-  <span class="desc">修改密码</span>
-</div>
 <div class="endpoint">
   <span class="method" style="background:#dc2626">DELETE</span>
   <span class="path">/api/auth/dev-login</span>
@@ -62,485 +56,213 @@
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/auth/dev-login-bypass</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/auth/gateway-check</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/auth/me</span>
   <span class="auth">公开</span>
   <span class="desc">获取当前登录用户信息</span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/api/api-key</span>
-  <span class="auth">登录</span>
-  <span class="desc">获取我的API Key</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/settings/api/api-key</span>
-  <span class="auth">登录</span>
-  <span class="desc">申请/重新申请API Key</span>
+  <span class="path">/api/auth/wecom/callback</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/account/routine</span>
-  <span class="auth">登录</span>
-  <span class="desc">获取用户日常模板</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/account/routine</span>
-  <span class="auth">登录</span>
-  <span class="desc">更新用户日常模板</span>
-</div>
-</div>
-<div class="group"><div class="group-title">花名册与组织架构</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/hr/roster/departments</span>
+  <span class="path">/api/auth/wecom/start</span>
   <span class="auth">公开</span>
-  <span class="desc">部门列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/modules/hr/roster/departments</span>
-  <span class="auth">公开</span>
-  <span class="desc">创建部门</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/hr/roster/edps</span>
-  <span class="auth">公开</span>
-  <span class="desc">员工岗位关联列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/modules/hr/roster/edps</span>
-  <span class="auth">公开</span>
-  <span class="desc">创建员工岗位关联</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/work/projects/members</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">员工项目关联列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/modules/work/projects/members</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">创建员工项目关联</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/work/projects/members/:id</span>
-  <span class="auth">公开</span>
-  <span class="desc">删除员工项目关联</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/modules/work/projects/members/:id</span>
-  <span class="auth">公开</span>
-  <span class="desc">更新员工项目关联</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/hr/roster</span>
-  <span class="auth">公开</span>
-  <span class="desc">员工列表（含岗位信息扁平化）</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/hr/roster/autocomplete</span>
-  <span class="auth">公开</span>
-  <span class="desc">员工自动补全</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/hr/roster/employees/search</span>
-  <span class="auth">公开</span>
-  <span class="desc">员工搜索（姓名/工号/拼音）</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/hr/roster/positions</span>
-  <span class="auth">公开</span>
-  <span class="desc">删除岗位</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/hr/roster/positions</span>
-  <span class="auth">公开</span>
-  <span class="desc">岗位列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/modules/hr/roster/positions</span>
-  <span class="auth">公开</span>
-  <span class="desc">创建岗位</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/modules/hr/roster/positions</span>
-  <span class="auth">公开</span>
-  <span class="desc">更新岗位</span>
+  <span class="desc"></span>
 </div>
 </div>
 <div class="group"><div class="group-title">项目管理</div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/account/targets</span>
-  <span class="auth">登录</span>
-  <span class="desc">获取我的汇报对象</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/work/projects</span>
-  <span class="auth">公开</span>
-  <span class="desc">项目列表</span>
+  <span class="auth">登录</span>
+  <span class="desc">项目管理列表</span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#059669">POST</span>
   <span class="path">/api/modules/work/projects</span>
-  <span class="auth">公开</span>
-  <span class="desc">创建项目</span>
+  <span class="auth">登录</span>
+  <span class="desc">新建项目管理记录</span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#dc2626">DELETE</span>
   <span class="path">/api/modules/work/projects/:id</span>
   <span class="auth">公开</span>
-  <span class="desc">删除项目</span>
+  <span class="desc">删除项目管理记录</span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#d97706">PUT</span>
   <span class="path">/api/modules/work/projects/:id</span>
   <span class="auth">公开</span>
-  <span class="desc">更新项目</span>
+  <span class="desc">更新项目管理记录</span>
 </div>
-</div>
-<div class="group"><div class="group-title">工作与报告</div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/work/reports</span>
+  <span class="path">/api/modules/work/projects/members</span>
   <span class="auth">登录</span>
-  <span class="desc">周报列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/modules/work/reports</span>
-  <span class="auth">登录</span>
-  <span class="desc">提交周报</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/modules/work/reports/:id</span>
-  <span class="auth">登录</span>
-  <span class="desc">更新周报</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/work/reports/:id/versions</span>
-  <span class="auth">登录</span>
-  <span class="desc">查看周报版本</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/work/reports/:id/versions/:version</span>
-  <span class="auth">登录</span>
-  <span class="desc">查看周报版本</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/account/week-info</span>
-  <span class="auth">公开</span>
-  <span class="desc">获取当前周期信息</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/work/tasks</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">工作清单列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/modules/work/tasks</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">创建工作项</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/work/tasks/:id</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">删除工作项</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/modules/work/tasks/:id</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">更新工作项</span>
-</div>
-</div>
-<div class="group"><div class="group-title">Admin — 编码管理</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/settings/governance/company-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">删除公司编码</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/governance/company-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">公司编码列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/settings/governance/company-codes</span>
-  <span class="auth">登录 + HR权限</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/governance/company-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">更新公司编码</span>
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/work/projects/members</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/settings/governance/company-codes/:id</span>
+  <span class="path">/api/modules/work/projects/members/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc">删除项目管理记录</span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/work/projects/members/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc">更新项目管理记录</span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/work/projects/reference-options</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
 </div>
+</div>
+<div class="group"><div class="group-title">Open API</div>
 <div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/governance/company-codes/:id</span>
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/open/v1/hr/generated/roster</span>
   <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/settings/governance/department-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">删除部门编码</span>
+  <span class="desc">读取 HR 生成资料花名册</span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/governance/department-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">部门编码列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/governance/department-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">更新部门编码</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/settings/governance/position-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">删除岗位编码</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/governance/position-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">岗位编码列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/governance/position-codes</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">更新岗位编码</span>
-</div>
-</div>
-<div class="group"><div class="group-title">Admin — 部门管理</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/settings/admin/department-admins</span>
-  <span class="auth">登录</span>
-  <span class="desc">移除部门管理员</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/admin/department-admins</span>
-  <span class="auth">登录</span>
-  <span class="desc">部门管理员列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/admin/department-admins</span>
-  <span class="auth">登录</span>
-  <span class="desc">设置部门管理员</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/settings/admin/departments</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">Admin删除部门</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/admin/departments</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">Admin部门列表</span>
-</div>
-</div>
-<div class="group"><div class="group-title">Admin — 系统配置</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/admin/system-config</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">系统配置列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/admin/system-config</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">更新系统配置</span>
-</div>
-</div>
-<div class="group"><div class="group-title">Admin — 权限管理</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/admin/department-permissions</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">部门权限列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/admin/department-permissions</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">切换部门权限</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/admin/employee-permissions</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">员工权限列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/admin/employee-permissions</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">切换员工权限</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/admin/permissions</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">权限树</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/admin/position-permissions</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">岗位权限列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/admin/position-permissions</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">切换岗位权限</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/admin/user-permissions</span>
-  <span class="auth">登录</span>
-  <span class="desc">切换用户权限</span>
-</div>
-</div>
-<div class="group"><div class="group-title">Admin — 用户管理</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/admin/users</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">用户列表</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/settings/admin/users</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/settings/admin/users/:id</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">重置用户密码</span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/admin/users/:id</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc">更新用户信息</span>
-</div>
-</div>
-<div class="group"><div class="group-title">Admin — 编辑历史</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/governance/edit-history</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc">编辑历史查询</span>
-</div>
-</div>
-<div class="group"><div class="group-title">Admin — 其他</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/governance/audit-log</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/settings/governance/audit-log/restore</span>
-  <span class="auth">登录</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/governance/company-relations</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/settings/governance/company-relations</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/settings/governance/company-relations/:id</span>
+  <span class="path">/api/settings/api/open/clients</span>
   <span class="auth">公开</span>
-  <span class="desc"></span>
+  <span class="desc">Open API Client 列表</span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/settings/api/open/clients</span>
+  <span class="auth">公开</span>
+  <span class="desc">创建 Open API Client</span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/governance/company-relations/:id</span>
+  <span class="path">/api/settings/api/open/clients/:id/scopes</span>
+  <span class="auth">公开</span>
+  <span class="desc">更新 Open API Client Scope</span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/settings/api/open/clients/:id/secret</span>
+  <span class="auth">公开</span>
+  <span class="desc">轮换 Open API Client 密钥</span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/api/open/overview</span>
+  <span class="auth">公开</span>
+  <span class="desc">Open API 控制台总览</span>
+</div>
+</div>
+<div class="group"><div class="group-title">agent</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/agent</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/settings/admin/permission-grants</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/settings/admin/permission-grants</span>
-  <span class="auth">登录 + 系统管理员</span>
-  <span class="desc"></span>
-</div>
-</div>
-<div class="group"><div class="group-title">finance</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/finance/ledger/accounts/:id</span>
+  <span class="path">/api/agent/capabilities</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/modules/finance/ledger/accounts/:id</span>
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/agent/proposals/:id/cancel</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/agent/proposals/:id/confirm</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+</div>
+<div class="group"><div class="group-title">modules</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/administration/contracts</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/administration/contracts</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/modules/administration/contracts/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#7c3aed">PATCH</span>
+  <span class="path">/api/modules/administration/contracts/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/analysis/budget</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/budget</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/budget</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/budget/versions</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/budget/versions</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/budget/versions/:id/activate</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
 </div>
@@ -605,6 +327,78 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/import/confirm</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/import/preview</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/ledger/accounts</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/ledger/accounts</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/modules/finance/ledger/accounts/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/finance/ledger/accounts/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/ledger/balances</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/ledger/balances</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/ledger/balances/reconcile</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/ledger/init</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/ledger/periods</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/ledger/periods</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
   <span class="method" style="background:#dc2626">DELETE</span>
   <span class="path">/api/modules/finance/ledger/periods/:id</span>
   <span class="auth">公开</span>
@@ -613,6 +407,72 @@
 <div class="endpoint">
   <span class="method" style="background:#d97706">PUT</span>
   <span class="path">/api/modules/finance/ledger/periods/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/ledger/reclass-results</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/ledger/reclass-results</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#7c3aed">PATCH</span>
+  <span class="path">/api/modules/finance/ledger/reclass-results/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/ledger/reclass-results/all-items</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/ledger/reclass-results/lookup-period</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/ledger/reclass-rules</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/finance/ledger/reclass-rules</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/modules/finance/ledger/reclass-rules/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/ledger/schedules/reclassify</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/ledger/vouchers</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/ledger/vouchers</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
 </div>
@@ -628,8 +488,90 @@
   <span class="auth">公开</span>
   <span class="desc"></span>
 </div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/statement-config</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
 </div>
-<div class="group"><div class="group-title">hr</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/finance/statement-config</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/modules/finance/statement-config/mappings</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/statement-config/mappings</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/statement-config/mappings</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/statement-review/reviews</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/statement-review/reviews</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/finance/statement-review/reviews/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/finance/statement-review/reviews/:id/confirm</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/statement-review/workpapers</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/finance/statement-review/workpapers</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/statements/reports</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/statements/reports/detail</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/hr/roster</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/hr/roster/autocomplete</span>
@@ -721,7 +663,25 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/modules/hr/roster/departments</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/hr/roster/departments</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
   <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/hr/roster/departments</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
   <span class="path">/api/modules/hr/roster/departments</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
@@ -763,6 +723,42 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/hr/roster/employee-profiles/:id</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/hr/roster/employee-profiles/:id/contracts</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/hr/roster/employee-profiles/:id/edps</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/hr/roster/employee-profiles/:id/history</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/hr/roster/employees</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/hr/roster/employees</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
   <span class="method" style="background:#dc2626">DELETE</span>
   <span class="path">/api/modules/hr/roster/employees/:id</span>
   <span class="auth">公开</span>
@@ -777,7 +773,7 @@
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/hr/roster/employees/search</span>
-  <span class="auth">登录 + 系统管理员</span>
+  <span class="auth">登录</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
@@ -805,52 +801,574 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/hr/roster/positions</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/hr/roster/positions</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/modules/hr/roster/positions</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/modules/hr/roster/positions</span>
-  <span class="auth">登录 + HR权限</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/hr/roster/positions/:id</span>
-  <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/modules/hr/roster/positions/:id</span>
+  <span class="path">/api/modules/hr/roster/generated/export</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/hr/roster</span>
+  <span class="path">/api/modules/hr/roster/generated/preview</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/hr/roster/position-description-templates</span>
   <span class="auth">登录 + HR权限</span>
   <span class="desc"></span>
 </div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/hr/roster/position-description-templates</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
 </div>
-<div class="group"><div class="group-title">position-descriptions</div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/hr/roster/position-descriptions</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/hr/roster/position-descriptions</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/modules/hr/roster/positions</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/hr/roster/positions</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/hr/roster/positions</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/hr/roster/positions</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/modules/hr/roster/positions/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/hr/roster/positions/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/hr/roster/reference-options</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/library/basic-info/:...path</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/library/basic-info/categories</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/library/basic-info/directories</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/library/basic-info/documents</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/modules/library/basic-info/documents/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/library/basic-info/documents/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#7c3aed">PATCH</span>
+  <span class="path">/api/modules/library/basic-info/documents/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/library/basic-info/documents/:id/download</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/library/basic-info/documents/:id/versions</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/library/basic-info/generated-sources</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/library/basic-info/generated-sources/:key/generate</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/library/basic-info/scan</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/production/qc-batches</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/production/qc-batches</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/modules/production/qc-batches/:batchId</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/production/qc-batches/:batchId</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#7c3aed">PATCH</span>
+  <span class="path">/api/modules/production/qc-batches/:batchId</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/production/qc-batches/:batchId/submit</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/production/qc-templates/:templateId</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/production/qc-templates/config</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/production/qc-templates/feedback</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#7c3aed">PATCH</span>
+  <span class="path">/api/modules/production/qc-templates/feedback</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/production/qc-templates/feedback</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/production/qc/cache</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/work/reports</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/work/reports</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/work/reports/:id</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/work/reports/:id/versions</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/work/reports/:id/versions/:version</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/work/tasks</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/work/tasks</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/modules/work/tasks/:id</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/work/tasks/:id</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+</div>
+<div class="group"><div class="group-title">settings</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/settings/account/password</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/account/routine</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/account/routine</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/account/targets</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/account/week-info</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/settings/admin/department-admins</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/admin/department-admins</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/admin/department-admins</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/admin/department-permissions</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/admin/department-permissions</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/settings/admin/departments</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/admin/departments</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/admin/employee-permissions</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/admin/employee-permissions</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/admin/modules</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#7c3aed">PATCH</span>
+  <span class="path">/api/settings/admin/modules</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/admin/permission-grants</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/admin/permission-grants</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#7c3aed">PATCH</span>
+  <span class="path">/api/settings/admin/permission-grants/max-role</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/admin/permissions</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/admin/position-permissions</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/admin/position-permissions</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/admin/projects</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/admin/system-config</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/admin/system-config</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/admin/user-permissions</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/admin/users</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/settings/admin/users</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/settings/admin/users/:id</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/admin/users/:id</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/governance/audit-log</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/settings/governance/audit-log/restore</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/settings/governance/company-codes</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/governance/company-codes</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/settings/governance/company-codes</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/governance/company-codes</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/settings/governance/company-codes/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/governance/company-codes/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/governance/company-relations</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/settings/governance/company-relations</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/settings/governance/company-relations/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/governance/company-relations/:id</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/settings/governance/department-codes</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/governance/department-codes</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/governance/department-codes</span>
+  <span class="auth">登录</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/governance/edit-history</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#dc2626">DELETE</span>
+  <span class="path">/api/settings/governance/position-codes</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/settings/governance/position-codes</span>
+  <span class="auth">登录 + HR权限</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/settings/governance/position-codes</span>
   <span class="auth">登录 + HR权限</span>
   <span class="desc"></span>
 </div>

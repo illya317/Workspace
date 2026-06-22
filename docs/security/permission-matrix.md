@@ -27,7 +27,7 @@
 | `system` | `manageableResourceKeys` | admin |
 | `settings.admin` | `manageableResourceKeys` | admin |
 | `settings.governance` | `visibleResourceKeys` | access |
-| `settings.api` | `visibleResourceKeys` | access |
+| `settings.api` | `visibleResourceKeys` | access（Open API 控制台，不代表外部调用权限） |
 | `docs.api` | `visibleResourceKeys` | access |
 | `agent` | `visibleResourceKeys` | access |
 
@@ -61,6 +61,8 @@
 | `/work/history` | `requireResourceAccess("work.history")` + module enabled | redirect `/portal` 或模块未启用页 |
 | `/docs` | `requireResourceAccess("docs")` | redirect `/portal` |
 | `/docs/api-guide` | `docs.api.access OR settings.api.access` | redirect `/portal` |
+| `/settings/api` | `requireResourceAccess("settings.api")` | redirect `/portal` |
+| `/settings/api/hr-generated` | `requireResourceAccess("settings.api")` | redirect `/portal` |
 
 ## API Guard
 
@@ -112,6 +114,15 @@
 | `/api/modules/work/projects*` | DELETE | `work.projects.delete` + module enabled + 项目对象级删除校验 |
 | `/api/modules/work/projects/members*` | GET/POST/PUT/DELETE | `work.projects` 对应动作 + module enabled + 项目对象级管理校验 |
 | `/api/modules/work/projects/reference-options` | GET | `work.projects.access` + module enabled；项目 FK 候选由 Work service 按对象可见性过滤 |
+| `/api/settings/api/open/*` | GET/POST/PUT | `settings.api.access` |
+
+## Open API Scope
+
+开放 API 不进入内部 RBAC `Resource` 表。下列权限由 `OpenApiClientScopeGrant` 授予，并通过 `Authorization: Bearer <secret>` 鉴权。
+
+| API | 方法 | OpenApiScope | 运行态归属 |
+|-----|------|--------------|------------|
+| `/api/open/v1/hr/generated/roster` | GET | `hr.generated.roster.read` | `hr.roster` enabled |
 
 ## Work Project 对象级范围
 

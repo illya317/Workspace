@@ -106,6 +106,19 @@ HR API 在 `app/api/modules/hr/roster/` 下，采用统一 CRUD 模板：
 - `PUT` — 更新（body 含 `id` + 变更字段）
 - `DELETE` — 删除（`?id=` 参数，已对大部分实体禁用）
 
+## Open API
+
+HR 生成资料对外开放 API 使用独立 Open API 注册体系，不复用内部 RBAC `Resource`：
+
+| 能力 | Endpoint | Scope | Runtime parent |
+|------|----------|-------|----------------|
+| HR 生成资料花名册 | `GET /api/open/v1/hr/generated/roster` | `hr.generated.roster.read` | `hr.roster` |
+
+- 注册源：`packages/platform/open-api-registry.ts` 的 `hr.generated`。
+- 控制台：`/settings/api/hr-generated`，进入权限仍是内部 `settings.api`。
+- 调用鉴权：`Authorization: Bearer <OpenApiClient secret>` + `OpenApiClientScopeGrant`。
+- `runtimeParentResourceKey = "hr.roster"` 只控制模块启停，不继承 `hr.roster` RBAC 授权。
+
 ## HR 权限标准
 
 HR 页面和 API 使用同一套 RBAC 权限：
@@ -125,4 +138,4 @@ HR 页面和 API 使用同一套 RBAC 权限：
 - `POST` / `PUT` / `PATCH` → `checkHRAccess(userId, "write")`
 - `DELETE` → `checkHRAccess(userId, "delete")`
 
-所有路由使用 `authenticate()` + 按 HTTP 方法区分的权限检查鉴权。
+内部 `/api/modules/hr/**` 路由使用 `withAuth()` 或平台授权 wrapper 按 HTTP 方法区分权限；外部 `/api/open/v1/hr/**` 只能使用 `withOpenApiScope()`。

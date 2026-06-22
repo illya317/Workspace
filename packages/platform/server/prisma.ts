@@ -38,7 +38,7 @@ function getDbPath(): string {
   return dbPath;
 }
 
-const REQUIRED_DELEGATES = ["financeBalanceSnapshot", "financeBalanceSnapshotRow", "agentProposal"] as const;
+const REQUIRED_DELEGATES = ["financeBalanceSnapshot", "financeBalanceSnapshotRow", "agentProposal", "openApiClient"] as const;
 
 type RequiredDelegate = (typeof REQUIRED_DELEGATES)[number];
 type CachedPrismaClient = PrismaClient & Partial<Record<RequiredDelegate, unknown>>;

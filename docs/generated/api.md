@@ -1,8 +1,6 @@
 # HR API Reference
 
-**72 endpoints** across 11 groups
-
-GET: 31 | POST: 10 | PUT: 19 | DELETE: 12
+手写摘要；完整自动清单见 `docs/generated/api.html`。
 
 ## 认证与账户
 
@@ -12,10 +10,16 @@ GET: 31 | POST: 10 | PUT: 19 | DELETE: 12
 | **DELETE** | `/api/auth/dev-login` | 公开 | 退出登录 |
 | **POST** | `/api/auth/dev-login` | 公开 | 开发环境登录 |
 | **GET** | `/api/auth/me` | 登录 | 获取当前登录用户信息 |
-| **GET** | `/api/settings/api/api-key` | `settings.api.access` | 获取我的API Key |
-| **POST** | `/api/settings/api/api-key` | `settings.api.access` | 申请/重新申请API Key |
 | **GET** | `/api/settings/account/routine` | 登录 | 获取用户日常模板 |
 | **PUT** | `/api/settings/account/routine` | 登录 | 更新用户日常模板 |
+
+## Open API
+
+外部调用使用 `Authorization: Bearer <OpenApiClient secret>`，授权来自 `OpenApiScope`，不复用内部 RBAC `Resource`。
+
+| Method | Path | Scope | Description |
+|--------|------|-------|-------------|
+| **GET** | `/api/open/v1/hr/generated/roster` | `hr.generated.roster.read` | 读取 HR 生成资料花名册 |
 
 ## 花名册与组织架构（Canonical）
 

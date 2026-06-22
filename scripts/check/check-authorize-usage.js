@@ -51,7 +51,6 @@ const AUTHORIZE_ENTRY = "packages/platform/server/auth/authorize.ts";
 const REQUIRED_DELEGATE_FILES = [
   "packages/platform/server/auth/domain.ts",
   "packages/platform/server/auth/finance.ts",
-  "packages/platform/server/auth/authenticate.ts",
   "packages/platform/server/auth/guard.ts",
   "packages/platform/server/auth/library.ts",
 ];
@@ -96,8 +95,9 @@ for (const file of walk(API_ROOT)) {
       /\bfetch\s*\(\s*target\b/.test(code) ||
       /\bnew\s+URL\s*\(\s*["']\/api\//.test(code);
     const usesSecretTokenGate = /x-qc-cache-warmup|NEXTAUTH_SECRET/.test(code);
+    const usesOpenApiGate = /\bwithOpenApiScope\s*\(/.test(code);
 
-    if (!hasAuthGate && !usesLegacyGate && !delegatesToPackageService && !delegatesToProxyRoute && !usesSecretTokenGate) {
+    if (!hasAuthGate && !usesLegacyGate && !delegatesToPackageService && !delegatesToProxyRoute && !usesSecretTokenGate && !usesOpenApiGate) {
       errors.push(`${rel} exports API handlers without an authentication/authorization gate`);
     }
   }

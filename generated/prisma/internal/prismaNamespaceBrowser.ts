@@ -110,6 +110,11 @@ export const ModelName = {
   DueDiligenceMaterialSelection: 'DueDiligenceMaterialSelection',
   LibraryGeneratedSource: 'LibraryGeneratedSource',
   LibraryDocumentTag: 'LibraryDocumentTag',
+  OpenApiClient: 'OpenApiClient',
+  OpenApiResource: 'OpenApiResource',
+  OpenApiScope: 'OpenApiScope',
+  OpenApiClientScopeGrant: 'OpenApiClientScopeGrant',
+  OpenApiAccessLog: 'OpenApiAccessLog',
   Report: 'Report',
   ReportItem: 'ReportItem',
   ReportHistory: 'ReportHistory',
@@ -1274,6 +1279,81 @@ export const LibraryDocumentTagScalarFieldEnum = {
 } as const
 
 export type LibraryDocumentTagScalarFieldEnum = (typeof LibraryDocumentTagScalarFieldEnum)[keyof typeof LibraryDocumentTagScalarFieldEnum]
+
+
+export const OpenApiClientScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  keyHash: 'keyHash',
+  status: 'status',
+  ownerUserId: 'ownerUserId',
+  expiresAt: 'expiresAt',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OpenApiClientScalarFieldEnum = (typeof OpenApiClientScalarFieldEnum)[keyof typeof OpenApiClientScalarFieldEnum]
+
+
+export const OpenApiResourceScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  label: 'label',
+  registrationKey: 'registrationKey',
+  runtimeParentResourceKey: 'runtimeParentResourceKey',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OpenApiResourceScalarFieldEnum = (typeof OpenApiResourceScalarFieldEnum)[keyof typeof OpenApiResourceScalarFieldEnum]
+
+
+export const OpenApiScopeScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  label: 'label',
+  action: 'action',
+  resourceId: 'resourceId',
+  registrationKey: 'registrationKey',
+  runtimeParentResourceKey: 'runtimeParentResourceKey',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OpenApiScopeScalarFieldEnum = (typeof OpenApiScopeScalarFieldEnum)[keyof typeof OpenApiScopeScalarFieldEnum]
+
+
+export const OpenApiClientScopeGrantScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  scopeId: 'scopeId',
+  action: 'action',
+  createdAt: 'createdAt'
+} as const
+
+export type OpenApiClientScopeGrantScalarFieldEnum = (typeof OpenApiClientScopeGrantScalarFieldEnum)[keyof typeof OpenApiClientScopeGrantScalarFieldEnum]
+
+
+export const OpenApiAccessLogScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  clientName: 'clientName',
+  endpointKey: 'endpointKey',
+  scopeKey: 'scopeKey',
+  method: 'method',
+  path: 'path',
+  status: 'status',
+  durationMs: 'durationMs',
+  errorCode: 'errorCode',
+  ip: 'ip',
+  createdAt: 'createdAt'
+} as const
+
+export type OpenApiAccessLogScalarFieldEnum = (typeof OpenApiAccessLogScalarFieldEnum)[keyof typeof OpenApiAccessLogScalarFieldEnum]
 
 
 export const ReportScalarFieldEnum = {
