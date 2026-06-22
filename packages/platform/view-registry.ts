@@ -25,6 +25,7 @@ const basePageViewDefinitions: PageViewDefinition[] = [
           { key: "edp", label: "部门岗位" },
         ],
       },
+      { key: "generated", label: "花名册" },
     ],
   },
   {

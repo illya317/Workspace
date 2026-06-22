@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DatabasePageFrame } from "@workspace/core/ui";
+import { DatabasePageFrame, EmptyStateCard } from "@workspace/core/ui";
 import { type AccordionTabItem } from "@workspace/core/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 
@@ -27,7 +27,7 @@ type HRTab =
   | "position"
   | "edp";
 
-type HRView = "employee" | "organization" | "department-position" | "bulk";
+type HRView = "employee" | "organization" | "department-position" | "bulk" | "generated";
 
 type HRViewTab = AccordionTabItem & { key: HRView };
 
@@ -126,6 +126,8 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
             </>
           </>
         )}
+
+        {activeView === "generated" && <EmptyStateCard>暂无花名册生成记录</EmptyStateCard>}
     </DatabasePageFrame>
   );
 }

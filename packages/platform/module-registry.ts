@@ -78,6 +78,17 @@ export const registeredModuleDefinitions = [
         { key: "analytics", label: "人力分析", desc: "员工结构、部门架构、岗位分析、人员流动", href: "/hr/analytics", resourceKey: "hr.analytics", noApiReason: "当前分析数据由 roster DTO 派生，暂无独立 API 前缀" },
       ],
     },
+    resourceDefs: [
+      {
+        key: "hr.roster.generated",
+        name: "花名册生成资料",
+        kind: "capability",
+        capabilityOwnerKey: "hr.roster",
+        runtimeParentKey: "hr.roster",
+        maxRoleKey: "write",
+        sortOrder: 0,
+      },
+    ],
     routes: ["/hr", "/hr/roster", "/hr/performance", "/hr/analytics"],
     fkRegistrations: HR_FK_REGISTRATIONS,
     apiGuards: [

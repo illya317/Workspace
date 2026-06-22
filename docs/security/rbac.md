@@ -41,6 +41,8 @@ hr                  admin   人事管理
   hr.performance admin  考勤绩效
   hr.analytics  admin   人力分析
 
+hr.roster.generated write 花名册生成资料（capability，runtimeParentKey=hr.roster）
+
 finance             admin   财务管理
   finance.ledger    admin   总账基础
   finance.statements admin   财务报表
