@@ -5,6 +5,7 @@ import {
   listOpenApiConsoleData,
   toOpenApiClientSummary,
   withOpenApiConsoleAccess,
+  withOpenApiConsoleManage,
 } from "@workspace/platform/server/open-api";
 
 const createClientSchema = z.object({
@@ -18,7 +19,7 @@ export const GET = withOpenApiConsoleAccess(async () => {
   return Response.json({ clients: data.clients });
 });
 
-export const POST = withOpenApiConsoleAccess(async (request) => {
+export const POST = withOpenApiConsoleManage(async (request) => {
   const parsed = createClientSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return Response.json({ error: "参数错误" }, { status: 400 });
 

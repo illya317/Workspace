@@ -86,7 +86,7 @@ for (const file of walk(API_ROOT)) {
 
   if (isRoute && exportsHandler && !PUBLIC_API_ROUTES.has(rel)) {
     const hasAuthGate = /\bauthorize\s*\(/.test(code) ||
-      /\bwith(?:Auth|[A-Z][A-Za-z]*(?:Access|Write|Delete))\s*\(/.test(code);
+      /\bwith(?:Auth|[A-Z][A-Za-z]*(?:Access|Write|Delete|Manage))\s*\(/.test(code);
     const usesLegacyGate = /\bauthenticate\s*\(/.test(code) ||
       /\bgetCurrentUser\s*\(/.test(code) ||
       /\brequireCurrentUser\s*\(/.test(code);

@@ -4,12 +4,12 @@ import {
   readRouteId,
   rotateOpenApiClientSecret,
   toOpenApiClientSummary,
-  withOpenApiConsoleAccess,
+  withOpenApiConsoleManage,
 } from "@workspace/platform/server/open-api";
 
 const rotateSecretSchema = z.object({}).passthrough();
 
-export const POST = withOpenApiConsoleAccess(async (request, _user, context) => {
+export const POST = withOpenApiConsoleManage(async (request, _user, context) => {
   const clientId = await readRouteId(context?.params);
   if (!clientId) return Response.json({ error: "Client 不存在" }, { status: 404 });
   const parsed = rotateSecretSchema.safeParse(await request.json().catch(() => ({})));

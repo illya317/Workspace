@@ -3,14 +3,14 @@ import { z } from "zod";
 import {
   readRouteId,
   updateOpenApiClientScopes,
-  withOpenApiConsoleAccess,
+  withOpenApiConsoleManage,
 } from "@workspace/platform/server/open-api";
 
 const updateScopesSchema = z.object({
   scopeKeys: z.array(z.string().min(1)).max(200),
 });
 
-export const PUT = withOpenApiConsoleAccess(async (request, _user, context) => {
+export const PUT = withOpenApiConsoleManage(async (request, _user, context) => {
   const clientId = await readRouteId(context?.params);
   if (!clientId) return Response.json({ error: "Client 不存在" }, { status: 404 });
 

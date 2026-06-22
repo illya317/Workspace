@@ -200,7 +200,7 @@ app/* route shell
 - L2 以下 capability 属于业务能力，不自动进入全局页面 L2。capability 必须声明 `capabilityOwnerKey` 指向已注册 L2；它不能用 `parentKey` 继承 owner 权限，但可以用 `runtimeParentKey` 跟随 owner 的模块启停。Settings/Admin 只是 capability 的统一配置容器，授权管理仍按 owner/resource 的可管理范围判断，不强制要求 `settings.admin`。
 - 资源注册中的 `parentKey` 只表达权限树继承；模块启停级联使用 `runtimeParentKey`。不要用 `parentKey` 同时表达权限继承和运行态归属；当一个资源不能继承父权限、但必须随模块 disable 一起失效时，保持 `parentKey` 为空并设置 `runtimeParentKey`。典型例子是 `work.projects.viewAll`：它不能继承 `work.projects` 模块权限，但必须随 `work.projects` disabled 一起失效。
 - Headless/global 能力必须显式声明 `presentation: "headless"` 和 `noPageReason`。例如 Agent 是全局浮窗和 API 能力，不要求真实 `/agent` 页面，但入口显示、API 和 runtime disabled 仍必须绑定 `agent` resource。
-- `settings.account` 属于登录用户自助设置 contract，不进入普通 RBAC 授权矩阵；`docs.api` 和 `settings.api` 是两个资源，API 文档可见按并集授权，Open API Client/Scope/日志管理只按 `settings.api`。
+- `settings.account` 属于登录用户自助设置 contract，不进入普通 RBAC 授权矩阵；`docs.api` 和 `settings.api` 是两个资源，API 文档可见按并集授权，Open API 控制台读取按 `settings.api.access`，Client 创建、secret 轮换和 scope 授权按 `settings.api.write`。
 
 这些规则由 `npm run arch:gate` 中的 module registry、app route hierarchy、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
 

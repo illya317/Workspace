@@ -27,7 +27,7 @@
 | `system` | `manageableResourceKeys` | admin |
 | `settings.admin` | `manageableResourceKeys` | admin |
 | `settings.governance` | `visibleResourceKeys` | access |
-| `settings.api` | `visibleResourceKeys` | access（Open API 控制台，不代表外部调用权限） |
+| `settings.api` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access（Open API 控制台读取）, write（Client/secret/scope 管理；不代表外部调用权限） |
 | `docs.api` | `visibleResourceKeys` | access |
 | `agent` | `visibleResourceKeys` | access |
 
@@ -114,7 +114,8 @@
 | `/api/modules/work/projects*` | DELETE | `work.projects.delete` + module enabled + 项目对象级删除校验 |
 | `/api/modules/work/projects/members*` | GET/POST/PUT/DELETE | `work.projects` 对应动作 + module enabled + 项目对象级管理校验 |
 | `/api/modules/work/projects/reference-options` | GET | `work.projects.access` + module enabled；项目 FK 候选由 Work service 按对象可见性过滤 |
-| `/api/settings/api/open/*` | GET/POST/PUT | `settings.api.access` |
+| `/api/settings/api/open/*` | GET | `settings.api.access` |
+| `/api/settings/api/open/*` | POST/PUT | `settings.api.write` |
 
 ## Open API Scope
 
