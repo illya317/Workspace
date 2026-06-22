@@ -14,9 +14,23 @@ const employmentsQuerySchema = z.object({
   pageSize: z.coerce.number().int().min(1).max(500).catch(50),
 }).passthrough();
 
+const dateStringSchema = z.union([z.literal(""), z.string().regex(/^\d{4}-\d{2}-\d{2}$/)]).nullable().optional();
+const optionalTextSchema = z.string().nullable().optional();
+const optionalBooleanSchema = z.union([z.boolean(), z.enum(["true", "false"]).transform((value) => value === "true")]).optional();
+
 const createEmploymentSchema = z.object({
-  employeeId: z.unknown(),
-}).passthrough();
+  employeeId: z.coerce.number().int().positive(),
+  isActive: optionalBooleanSchema,
+  joinDate: dateStringSchema,
+  leaveDate: dateStringSchema,
+  leaveReason: optionalTextSchema,
+  leaveNote: optionalTextSchema,
+  officeLocation: optionalTextSchema,
+  personnelType: optionalTextSchema,
+  rank: optionalTextSchema,
+  title: optionalTextSchema,
+  contracts: optionalTextSchema,
+});
 
 export async function GET(request: Request) {
   const auth = await requireApiAccess(request);
@@ -38,5 +52,5 @@ export async function POST(request: Request) {
   const body = await request.clone().json().catch(() => null);
   const parsedBody = createEmploymentSchema.safeParse(body);
   if (!parsedBody.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
-  return createEmployment(request);
+  return createEmployment(new Request(request, { body: JSON.stringify(parsedBody.data) }));
 }

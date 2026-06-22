@@ -57,9 +57,9 @@ export const employeeProjectConfig: TabConfig = {
     const out = extractFK(form, ["projectId"]);
     const emp = form.employeeId as Record<string, unknown>;
     if (emp && typeof emp === "object" && "subtitle" in emp) {
-      out.employeeId = emp.subtitle;
+      out.employeeNumber = emp.subtitle;
     } else if (emp && typeof emp === "object" && "name" in emp) {
-      out.employeeId = emp.name;
+      out.employeeNumber = emp.name;
     }
     return out;
   },

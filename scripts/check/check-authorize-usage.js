@@ -51,6 +51,13 @@ function hasWithAuthImport(code) {
   return new RegExp(`import\\s*\\{[^}]*with[A-Za-z]*(?:Access|Write|Delete|Auth)[^}]*\\}\\s*from\\s*["']${escaped}["']`).test(code);
 }
 
+function hasApiAccessGate(code) {
+  return ["requireApiAccess", "requireAdminApiAccess"].some((name) =>
+    hasNamedImport(code, name, API_ACCESS_IMPORTS) &&
+    new RegExp(`\\b${name}\\s*\\(`).test(code),
+  );
+}
+
 function walk(dir, files = []) {
   if (!fs.existsSync(dir)) return files;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -114,7 +121,8 @@ for (const file of walk(API_ROOT)) {
 
   if (isRoute && exportsHandler && !PUBLIC_API_ROUTES.has(rel)) {
     const hasAuthGate = /\bauthorize\s*\(/.test(code) ||
-      /\bwith(?:Auth|[A-Z][A-Za-z]*(?:Access|Write|Delete|Manage))\s*\(/.test(code);
+      /\bwith(?:Auth|[A-Z][A-Za-z]*(?:Access|Write|Delete|Manage))\s*\(/.test(code) ||
+      hasApiAccessGate(code);
     const usesLegacyGate = /\bauthenticate\s*\(/.test(code) ||
       /\bgetCurrentUser\s*\(/.test(code) ||
       /\brequireCurrentUser\s*\(/.test(code);

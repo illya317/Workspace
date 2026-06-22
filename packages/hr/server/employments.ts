@@ -99,8 +99,8 @@ export async function listEmployments(input: {
 
 export async function createEmployment(request: Request) {
   return handleCreate(request, EMPLOYMENT_CONFIG, async (body) => {
-    const command = buildEmploymentCreateCommand(body);
-    return command.ok ? command.data : null;
+    const command = await buildEmploymentCreateCommand(body);
+    return command.ok ? command.data : { error: command.issue.message, status: command.issue.status };
   });
 }
 

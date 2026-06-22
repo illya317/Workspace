@@ -97,7 +97,7 @@ async function createMember(projectId: number, member: EmployeeTag, role: string
   const res = await fetch(workspacePath("/api/modules/work/projects/members"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ employeeId: member.employeeNumber, projectId, role }),
+    body: JSON.stringify({ employeeNumber: member.employeeNumber, projectId, role }),
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));

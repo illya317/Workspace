@@ -10,6 +10,7 @@ const DATE_FIELDS = ["startDate", "endDate"];
 
 export interface ProjectMemberCreateCommand {
   employeeId: number;
+  employeeNumber: string;
   projectId: number;
   role: string;
   startDate: string | null;
@@ -66,8 +67,9 @@ export async function buildProjectMemberCreateCommand(
   userId: number,
   body: Record<string, unknown>,
 ): Promise<DomainValidationResult<ProjectMemberCreateCommand>> {
-  const { employeeId, projectId, role, startDate, endDate } = body;
-  if (!employeeId || !projectId) return failCommand("数据校验失败");
+  const employeeNumber = body.employeeNumber ?? body.employeeId;
+  const { projectId, role, startDate, endDate } = body;
+  if (!employeeNumber || !projectId) return failCommand("数据校验失败");
   for (const field of DATE_FIELDS) {
     if (!rejectInvalidDateField(field, body[field], DATE_FIELDS)) return failCommand("日期格式错误");
   }
@@ -77,7 +79,7 @@ export async function buildProjectMemberCreateCommand(
   if (!(await canManageProject(userId, projectNumber))) return failCommand("无权限", 403);
 
   const employee = await prisma.employee.findUnique({
-    where: { employeeId: String(employeeId) },
+    where: { employeeId: String(employeeNumber) },
     select: { id: true },
   });
   if (!employee) return failCommand("员工不存在");
@@ -107,6 +109,7 @@ export async function buildProjectMemberCreateCommand(
 
   return okCommand({
     employeeId: employee.id,
+    employeeNumber: String(employeeNumber),
     projectId: projectNumber,
     role: normalizedRole,
     startDate: startDate ? String(startDate) : null,

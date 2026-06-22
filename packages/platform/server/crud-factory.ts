@@ -15,9 +15,11 @@ type PrismaModelKey = keyof typeof prisma;
 export type AccessChecker = (userId: number) => Promise<boolean>;
 type BeforeUpdateResult = { field: string; value: unknown } | { error: string; status?: number };
 type BeforeDeleteResult = { ok: true } | { error: string; status?: number };
+type CrudBuildError = { error: string; status?: number };
+type CrudBuildResult = Record<string, unknown> | CrudBuildError | null;
 type CrudBuildData = (
   body: Record<string, unknown>,
-) => Promise<Record<string, unknown> | null> | Record<string, unknown> | null;
+) => Promise<CrudBuildResult> | CrudBuildResult;
 
 export interface CrudFactoryConfig {
   entityType: string;
@@ -61,6 +63,10 @@ function parseDeleteExpectedVersion(request: Request) {
   if (raw === null || raw === undefined || raw === "") return undefined;
   const version = Number(raw);
   return Number.isInteger(version) && version >= 0 ? version : undefined;
+}
+
+function isCrudBuildError(result: CrudBuildResult): result is CrudBuildError {
+  return Boolean(result && typeof result === "object" && typeof (result as { error?: unknown }).error === "string");
 }
 
 export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: AccessChecker) {
@@ -139,9 +145,7 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
 
     async handleCreate(
       request: Request,
-      buildData?: (
-        body: Record<string, unknown>,
-      ) => Promise<Record<string, unknown> | null> | Record<string, unknown> | null,
+      buildData?: CrudBuildData,
     ) {
       const disabledResponse = disabledApiResponseForRequest(request);
       if (disabledResponse) return disabledResponse;
@@ -153,6 +157,7 @@ export function createCrudHandlers(config: CrudFactoryConfig, fallbackAccess?: A
       const body = (await request.json()) as Record<string, unknown>;
       const data = buildData ? await buildData(body) : body;
       if (!data) return NextResponse.json({ error: "数据校验失败" }, { status: 400 });
+      if (buildData && isCrudBuildError(data)) return NextResponse.json({ error: data.error }, { status: data.status || 400 });
 
       const model = prisma[config.modelKey] as unknown as {
         create: (args: { data: Record<string, unknown> }) => Promise<{ id: number }>;
