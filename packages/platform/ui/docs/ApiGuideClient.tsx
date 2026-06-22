@@ -59,6 +59,8 @@ type EndpointRow = {
   perm?: string;
 };
 
+const HR_DELETE_VERSION_PARAMS = "必填：?version=<记录version>，或 Header If-Match / x-record-version";
+
 const ENDPOINTS: EndpointRow[] = [
   { method: "GET", path: "/api/modules/work/tasks", note: "查看工作清单", params: "targetType, targetId, ?category, ?includeArchived" },
   { method: "POST", path: "/api/modules/work/tasks", note: "创建工作项", params: "category, content, importance, urgency" },
@@ -69,27 +71,27 @@ const ENDPOINTS: EndpointRow[] = [
   { method: "PUT", path: "/api/modules/work/reports/:id", note: "更新汇报", params: "taskName, notes, items" },
   { method: "GET", path: "/api/modules/hr/roster/employees", note: "员工列表", params: "?keyword, ?company", perm: "hr.roster.access" },
   { method: "PUT", path: "/api/modules/hr/roster/employees/:id", note: "更新员工单字段", params: "{field, value}", perm: "hr.roster.write" },
-  { method: "DELETE", path: "/api/modules/hr/roster/employees/:id", note: "删除员工", perm: "hr.roster.delete" },
+  { method: "DELETE", path: "/api/modules/hr/roster/employees/:id", note: "删除员工", params: HR_DELETE_VERSION_PARAMS, perm: "hr.roster.delete" },
   { method: "GET", path: "/api/modules/hr/roster/employments", note: "雇佣关系列表", perm: "hr.roster.access" },
   { method: "POST", path: "/api/modules/hr/roster/employments", note: "新建雇佣关系", perm: "hr.roster.write" },
   { method: "PUT", path: "/api/modules/hr/roster/employments/:id", note: "更新雇佣关系", perm: "hr.roster.write" },
-  { method: "DELETE", path: "/api/modules/hr/roster/employments/:id", note: "删除雇佣关系", perm: "hr.roster.delete" },
+  { method: "DELETE", path: "/api/modules/hr/roster/employments/:id", note: "删除雇佣关系", params: HR_DELETE_VERSION_PARAMS, perm: "hr.roster.delete" },
   { method: "GET", path: "/api/modules/hr/roster/departments", note: "部门列表", params: "?keyword", perm: "hr.roster.access" },
   { method: "POST", path: "/api/modules/hr/roster/departments", note: "新建部门", perm: "hr.roster.write" },
   { method: "PUT", path: "/api/modules/hr/roster/departments/:id", note: "更新部门", perm: "hr.roster.write" },
-  { method: "DELETE", path: "/api/modules/hr/roster/departments/:id", note: "删除部门", perm: "hr.roster.delete" },
+  { method: "DELETE", path: "/api/modules/hr/roster/departments/:id", note: "删除部门", params: HR_DELETE_VERSION_PARAMS, perm: "hr.roster.delete" },
   { method: "GET", path: "/api/modules/hr/roster/positions", note: "岗位列表", params: "?keyword", perm: "hr.roster.access" },
   { method: "POST", path: "/api/modules/hr/roster/positions", note: "新建岗位", perm: "hr.roster.write" },
   { method: "PUT", path: "/api/modules/hr/roster/positions/:id", note: "更新岗位", perm: "hr.roster.write" },
-  { method: "DELETE", path: "/api/modules/hr/roster/positions/:id", note: "删除岗位", perm: "hr.roster.delete" },
+  { method: "DELETE", path: "/api/modules/hr/roster/positions/:id", note: "删除岗位", params: HR_DELETE_VERSION_PARAMS, perm: "hr.roster.delete" },
   { method: "GET", path: "/api/modules/hr/roster/edps", note: "EDP 列表", perm: "hr.roster.access" },
   { method: "POST", path: "/api/modules/hr/roster/edps", note: "新建 EDP", perm: "hr.roster.write" },
   { method: "PUT", path: "/api/modules/hr/roster/edps/:id", note: "更新 EDP", perm: "hr.roster.write" },
-  { method: "DELETE", path: "/api/modules/hr/roster/edps/:id", note: "删除 EDP", perm: "hr.roster.delete" },
+  { method: "DELETE", path: "/api/modules/hr/roster/edps/:id", note: "删除 EDP", params: HR_DELETE_VERSION_PARAMS, perm: "hr.roster.delete" },
   { method: "GET", path: "/api/modules/hr/roster/companies", note: "公司列表", perm: "hr.roster.access" },
   { method: "POST", path: "/api/modules/hr/roster/companies", note: "新建公司", perm: "hr.roster.write" },
   { method: "PUT", path: "/api/modules/hr/roster/companies/:id", note: "更新公司", perm: "hr.roster.write" },
-  { method: "DELETE", path: "/api/modules/hr/roster/companies/:id", note: "删除公司", perm: "hr.roster.delete" },
+  { method: "DELETE", path: "/api/modules/hr/roster/companies/:id", note: "删除公司", params: HR_DELETE_VERSION_PARAMS, perm: "hr.roster.delete" },
   { method: "GET", path: "/api/modules/work/projects", note: "项目管理列表", perm: "work.projects.access" },
   { method: "POST", path: "/api/modules/work/projects", note: "新建项目管理记录", perm: "work.projects.write" },
   { method: "DELETE", path: "/api/modules/work/projects/:id", note: "删除项目管理记录", perm: "work.projects.delete" },
