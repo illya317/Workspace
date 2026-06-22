@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
 import { jsonServiceResponse, routeIdParamsSchema, validateCompatibilityProxyBody } from "@workspace/platform/server/api";
-import { createPosition, deletePosition, getPositionList, PositionCreateSchema, updatePosition } from "@workspace/hr/server";
+import { createPosition, deletePositionByParams, getPositionList, PositionCreateSchema, updatePosition } from "@workspace/hr/server";
 
 export async function GET(request: Request) {
   const disabledResponse = disabledApiResponseForRequest(request);
@@ -67,5 +67,5 @@ export async function DELETE(request: Request) {
   const parsedQuery = routeIdParamsSchema.safeParse(Object.fromEntries(searchParams.entries()));
   if (!parsedQuery.success) return NextResponse.json({ error: "缺少id" }, { status: 400 });
 
-  return jsonServiceResponse(await deletePosition(parsedQuery.data.id));
+  return deletePositionByParams(request, Promise.resolve({ id: String(parsedQuery.data.id) }));
 }

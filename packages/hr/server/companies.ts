@@ -92,15 +92,6 @@ export async function upsertCompany(body: Record<string, unknown>, userId: numbe
   return { ok: true as const, data: { success: true } };
 }
 
-export async function deleteCompanyById(id: number) {
-  const command = mapValidationToServiceResult(await validateCompanyDeleteCommand(id));
-  if (!command.ok) return command;
-  await prisma.companyRelation.deleteMany({ where: { OR: [{ parentId: command.data.id }, { childId: command.data.id }] } });
-  await prisma.company.delete({ where: { id: command.data.id } });
-  invalidateCompanyCache();
-  return { ok: true as const, data: { success: true } };
-}
-
 export async function updateCompanyField(request: Request, params: Promise<{ id: string }>) {
   return handleUpdateField(request, params, COMPANY_CONFIG);
 }

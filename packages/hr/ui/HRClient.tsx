@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { DatabasePageFrame, EmptyStateCard } from "@workspace/core/ui";
+import { useMemo, useState } from "react";
+import { DatabasePageFrame } from "@workspace/core/ui";
 import { type AccordionTabItem } from "@workspace/core/ui";
-import { getPageViewTabs } from "@workspace/platform/view-registry";
+import { getPageViewTabsForUser } from "@workspace/platform/view-registry";
 
 import GenericTableTab from "./tabs/GenericTableTab";
 import DepartmentPositionTab from "./tabs/DepartmentPositionTab";
 import EmployeeDirectory from "./profile/EmployeeDirectory";
+import RosterGeneratedTab from "./generated/RosterGeneratedTab";
 import {
   contractConfig,
   edpConfig,
@@ -18,6 +19,7 @@ import { useUnsavedChangesPrompt } from "./hooks/useUnsavedChangesPrompt";
 
 import type { SessionUser } from "@workspace/platform/types";
 import type { HRUser } from "@workspace/hr/types";
+import type { RosterGeneratedVariant } from "@workspace/hr/types";
 
 type HRTab =
   | "employee"
@@ -31,8 +33,6 @@ type HRView = "employee" | "organization" | "department-position" | "bulk" | "ge
 
 type HRViewTab = AccordionTabItem & { key: HRView };
 
-const rosterViews = getPageViewTabs("/hr/roster") as HRViewTab[];
-
 function toHRUser(user: SessionUser): HRUser {
   return {
     id: user.id,
@@ -45,6 +45,10 @@ function toHRUser(user: SessionUser): HRUser {
 }
 
 export default function HRClient({ user }: { user: SessionUser; hideShell?: boolean }) {
+  const rosterViews = useMemo(
+    () => getPageViewTabsForUser("/hr/roster", user.visibleResourceKeys || []) as HRViewTab[],
+    [user.visibleResourceKeys],
+  );
   const [activeView, setActiveView] = useState<HRView>("employee");
   const [activeChild, setActiveChild] = useState<string | undefined>(
     rosterViews.find((view) => view.key === "employee")?.children?.[0]?.key,
@@ -54,8 +58,10 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
   const confirmNavigation = useUnsavedChangesPrompt(hasUnsavedChanges);
   const hrUser = toHRUser(user);
   const activeBulkTab = (activeChild ?? "employee") as HRTab;
+  const activeGeneratedVariant = (activeChild === "dueDiligence" ? "dueDiligence" : "management") as RosterGeneratedVariant;
   const employeeStatus = activeChild === "inactive" ? "inactive" : "active";
   const departmentLifecycle = activeChild === "archived" ? "archived" : "active";
+  const canEditGenerated = hrUser.isAdmin || hrUser.visibleWriteResourceKeys.includes("hr.roster.generated");
 
   async function changeView(key: string) {
     if (key !== activeView) {
@@ -127,7 +133,9 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
           </>
         )}
 
-        {activeView === "generated" && <EmptyStateCard>暂无花名册生成记录</EmptyStateCard>}
+        {activeView === "generated" && (
+          <RosterGeneratedTab variant={activeGeneratedVariant} canEdit={canEditGenerated} />
+        )}
     </DatabasePageFrame>
   );
 }

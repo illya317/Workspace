@@ -25,7 +25,15 @@ const basePageViewDefinitions: PageViewDefinition[] = [
           { key: "edp", label: "部门岗位" },
         ],
       },
-      { key: "generated", label: "花名册" },
+      {
+        key: "generated",
+        label: "花名册",
+        resourceKey: "hr.roster.generated",
+        children: [
+          { key: "management", label: "管理版" },
+          { key: "dueDiligence", label: "尽调版" },
+        ],
+      },
     ],
   },
   {
@@ -355,12 +363,25 @@ export function getPageViewTabs(route: string): AccordionTabItem[] {
   return toAccordionTabs(getPageViewDefinition(route)?.views ?? []);
 }
 
+export function getPageViewTabsForUser(route: string, visibleResourceKeys: readonly string[]): AccordionTabItem[] {
+  const visible = new Set(visibleResourceKeys);
+  return toAccordionTabs(filterViewNodesByResource(getPageViewDefinition(route)?.views ?? [], visible));
+}
+
 export function toAccordionTabs(nodes: PageViewNode[]): AccordionTabItem[] {
   return nodes.map((node) => ({
     key: node.key,
     label: node.label,
     children: node.children?.map((child) => ({ key: child.key, label: child.label })),
   }));
+}
+
+function filterViewNodesByResource(nodes: PageViewNode[], visibleResourceKeys: Set<string>): PageViewNode[] {
+  return nodes.flatMap((node) => {
+    if (node.resourceKey && !visibleResourceKeys.has(node.resourceKey)) return [];
+    const children = node.children ? filterViewNodesByResource(node.children, visibleResourceKeys) : undefined;
+    return [{ ...node, children }];
+  });
 }
 
 export function getFirstView(definition?: PageViewDefinition) {

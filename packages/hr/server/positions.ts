@@ -44,6 +44,7 @@ const POSITION_CONFIG = {
   entityType: "Position",
   modelKey: "position" as const,
   allowedFields: POSITION_ALLOWED_FIELDS,
+  deleteMode: "hard" as const,
   onBeforeUpdate: validatePositionFieldUpdate,
   onBeforeDelete: async (id: number) => {
     const validation = await validatePositionDelete(id, "删除岗位");
@@ -186,23 +187,6 @@ export async function updatePosition(
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
       return { ok: false, error: "岗位不存在", status: 404 };
-    }
-    throw error;
-  }
-}
-
-export async function deletePosition(id: number): Promise<DomainServiceResult<{ success: true }>> {
-  const command = mapValidationToServiceResult(await validatePositionDelete(id, "删除岗位"));
-  if (!command.ok) return command;
-  try {
-    await prisma.position.delete({ where: { id } });
-    return { ok: true, data: { success: true } };
-  } catch (error: unknown) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-      return { ok: false, error: "岗位不存在", status: 404 };
-    }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
-      return { ok: false, error: "该岗位下有关联员工，无法删除", status: 409 };
     }
     throw error;
   }

@@ -24,4 +24,5 @@ export * from "./positions";
 export * from "./permission-subjects";
 export * from "./permission-grants";
 export * from "./roster";
+export * from "./roster-generated";
 export * from "./schemas";

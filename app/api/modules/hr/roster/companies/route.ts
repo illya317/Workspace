@@ -3,7 +3,7 @@ import { disabledApiResponseForRequest } from "@workspace/platform/server/module
 import { z } from "zod";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
-import { createCompany, deleteCompanyById, listCompanies, upsertCompany } from "@workspace/hr/server";
+import { createCompany, deleteCompanyByParams, listCompanies, upsertCompany } from "@workspace/hr/server";
 
 const companiesQuerySchema = z.object({
   keyword: z.string().catch(""),
@@ -79,7 +79,5 @@ export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
   const parsedQuery = routeIdParamsSchema.safeParse(Object.fromEntries(searchParams.entries()));
   if (!parsedQuery.success) return NextResponse.json({ error: "缺少id" }, { status: 400 });
-  const result = await deleteCompanyById(parsedQuery.data.id);
-  if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });
-  return NextResponse.json(result.data);
+  return deleteCompanyByParams(request, Promise.resolve({ id: String(parsedQuery.data.id) }));
 }

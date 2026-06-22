@@ -55,6 +55,7 @@ export interface PageStyleRouteModule {
 export interface PageViewNode {
   key: string;
   label: string;
+  resourceKey?: string;
   children?: PageViewNode[];
 }
 

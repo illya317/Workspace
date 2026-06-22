@@ -19,6 +19,7 @@ const DEPARTMENT_CONFIG = {
   entityType: "Department",
   modelKey: "department" as const,
   allowedFields: DEPARTMENT_ALLOWED_FIELDS,
+  deleteMode: "hard" as const,
   onBeforeUpdate: normalizeDepartmentFieldUpdate,
   onBeforeDelete: async (id: number) => {
     const command = await validateDepartmentDelete(id, "删除部门");
@@ -144,25 +145,6 @@ export async function updateDepartment(input: DepartmentUpdateInput, userId: num
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
       return { ok: false as const, error: "部门不存在", status: 404 };
-    }
-    throw error;
-  }
-}
-
-export async function deleteDepartment(idText: string | null) {
-  if (!idText) return { ok: false as const, error: "缺少id" };
-  const id = parseInt(idText, 10);
-  const command = mapValidationToServiceResult(await validateDepartmentDelete(id, "删除部门"));
-  if (!command.ok) return command;
-  try {
-    await prisma.department.delete({ where: { id } });
-    return { ok: true as const, data: { success: true } };
-  } catch (error: unknown) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-      return { ok: false as const, error: "部门不存在", status: 404 };
-    }
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
-      return { ok: false as const, error: "该部门下有关联岗位，无法删除", status: 409 };
     }
     throw error;
   }

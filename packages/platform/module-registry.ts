@@ -92,6 +92,7 @@ export const registeredModuleDefinitions = [
     routes: ["/hr", "/hr/roster", "/hr/performance", "/hr/analytics"],
     fkRegistrations: HR_FK_REGISTRATIONS,
     apiGuards: [
+      ...apiResourceGuards("/api/modules/hr/roster/generated", "hr.roster.generated", ["GET"]),
       ...apiResourceGuards("/api/modules/hr/roster", "hr.roster"),
     ],
   },

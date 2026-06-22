@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate, checkHRAccess, checkHRWrite, checkHRDelete } from "@workspace/platform/server/auth";
 import { jsonServiceResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
-import { deleteCompanyById, listCompanies, upsertCompany } from "@workspace/hr/server";
+import { deleteCompanyByParams, listCompanies, upsertCompany } from "@workspace/hr/server";
 
 const companyBodySchema = z.object({
   code: z.string().trim().min(1),
@@ -77,5 +77,5 @@ export async function DELETE(request: Request) {
   const parsedQuery = routeIdParamsSchema.safeParse({ id: searchParams.get("id") });
   if (!parsedQuery.success) return NextResponse.json({ error: "缺少id" }, { status: 400 });
 
-  return jsonServiceResponse(await deleteCompanyById(parsedQuery.data.id));
+  return deleteCompanyByParams(request, Promise.resolve({ id: String(parsedQuery.data.id) }));
 }

@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import { NextResponse } from "next/server";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
+import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { fkDisplay, resolveFkValues } from "@workspace/platform/server/resolve-fk";
@@ -66,22 +67,23 @@ async function normalizeEmployeeFieldUpdate(field: string, value: unknown) {
 async function normalizeEmployeeDelete(id: number, context: DeleteGuardContext) {
   const command = await validateEmployeeDeleteCommand(id);
   if (!command.ok) return { error: command.issue.message, status: command.issue.status };
-  const [salaryCount, shipmentCount, workshopCount] = await Promise.all([
+  const [salaryCount, shipmentCount, workshopCount, projectMemberCount] = await Promise.all([
     context.tx.financeSalesSalary.count({ where: { employeeId: command.data.id } }),
     context.tx.financeShipment.count({ where: { employeeId: command.data.id } }),
     context.tx.financeWorkshopReport.count({ where: { employeeId: command.data.id } }),
+    context.tx.employeeProject.count({ where: currentOpenEndedDateWhere({ employeeId: command.data.id }) }),
   ]);
   const blocks = [
     salaryCount > 0 ? `财务销售工资 ${salaryCount} 条` : null,
     shipmentCount > 0 ? `财务发货明细 ${shipmentCount} 条` : null,
     workshopCount > 0 ? `财务车间日报 ${workshopCount} 条` : null,
+    projectMemberCount > 0 ? `现用项目成员记录 ${projectMemberCount} 条` : null,
   ].filter(Boolean);
   if (blocks.length > 0) {
     return { error: `不能删除员工，请先处理引用：${blocks.join("、")}`, status: 409 };
   }
   await context.tx.employment.deleteMany({ where: { employeeId: command.data.id } });
   await context.tx.eDP.deleteMany({ where: { employeeId: command.data.id } });
-  await context.tx.employeeProject.deleteMany({ where: { employeeId: command.data.id } });
   return { ok: true as const };
 }
 

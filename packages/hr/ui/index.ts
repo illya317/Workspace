@@ -24,6 +24,7 @@ export { default as ProfessionalTitlePicker } from "./components/ProfessionalTit
 export { default as RankPicker } from "./components/RankPicker";
 export { default as SchoolPicker } from "./components/SchoolPicker";
 export { default as EmployeeDirectory } from "./profile/EmployeeDirectory";
+export { default as RosterGeneratedTab } from "./generated/RosterGeneratedTab";
 export { default as EmployeeProfileClient } from "./profile/EmployeeProfileClient";
 export { ProfileFieldInput, SectionShell } from "./profile/ProfileFormControls";
 export { default as DepartmentPositionTab } from "./tabs/DepartmentPositionTab";

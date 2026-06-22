@@ -218,20 +218,6 @@ function reexportsDomainValidator(source: string) {
   return /export\s+(?:\*|\{[^}]*\})\s+from\s+["']\.\/domain\/[^"']*-validation["']/.test(source);
 }
 
-function importedNames(source: string, specifier: string) {
-  const names: string[] = [];
-  const regex = new RegExp(`import\\s*\\{([^}]+)\\}\\s*from\\s*["']${escapeRegex(specifier)}["']`, "g");
-  for (const match of source.matchAll(regex)) {
-    names.push(
-      ...match[1]
-        .split(",")
-        .map((name) => name.trim().split(/\s+as\s+/)[0]?.trim())
-        .filter(Boolean),
-    );
-  }
-  return names;
-}
-
 function workspaceServerImports(source: string, packageName: string): WorkspaceServerImports {
   const named: string[] = [];
   const namespaces: string[] = [];
@@ -427,7 +413,7 @@ function referencedCrudConfigNames(entryText: string, helperName: "handleCreate"
 function crudHookPattern(helperName: "handleCreate" | "handleUpdateField" | "handleDelete") {
   if (helperName === "handleDelete") return /\bonBeforeDelete\s*:/;
   if (helperName === "handleUpdateField") return /\bonBefore(?:Update|UpdateField)\s*:/;
-  return /\bonBefore(?:Create|Update|UpdateField)\s*:/;
+  return /\bonBeforeCreate\s*:/;
 }
 
 function crudHelperCallIsValidated(
@@ -523,8 +509,7 @@ export function createDomainValidationReport() {
           );
         }
 
-        const rootImports = importedNames(source, `${pkg.packageName}/server`);
-        const forbidden = rootImports.find((name) => forbiddenRouteRootNames.has(name));
+        const forbidden = serverImports.named.find((name) => forbiddenRouteRootNames.has(name));
         if (forbidden) {
           violations.push(
             createViolation(
