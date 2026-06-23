@@ -1,6 +1,6 @@
 # Work Architecture
 
-Work 是工作管理业务域，承接工作计划、项目管理、工作汇报和历史记录。
+Work 是工作管理业务域，承接工作计划和项目管理。
 
 ## 边界
 
@@ -15,8 +15,6 @@ Work 是工作管理业务域，承接工作计划、项目管理、工作汇报
 | --- | --- | --- |
 | 项目管理 | `app/(modules)/work/projects/page.tsx` | `packages/work/ui/tabs/project/*` |
 | 工作计划 | `app/(modules)/work/tasks/page.tsx` | `packages/work/ui/works/*` |
-| 工作汇报 | `app/(modules)/work/reports/page.tsx` | `packages/work/ui/reports/*` |
-| 历史记录 | `app/(modules)/work/history/page.tsx` | `packages/work/ui/history/*` |
 
 Work 不保留顶层兼容 route shell；所有页面都挂在 `/work/*` 下。
 
@@ -24,8 +22,7 @@ Work 不保留顶层兼容 route shell；所有页面都挂在 `/work/*` 下。
 
 - `work.tasks` / `/work/tasks`：工作计划，承接个人计划、待办任务和执行跟踪。
 - `work.projects` / `/work/projects`：项目管理，承接组织项目、项目人员、项目计划、项目甘特和公司甘特；不处理个人计划。
-- `work.reports` / `/work/reports`：工作汇报。
-- `work.history` / `/work/history`：历史记录。
+- 旧工作汇报与独立历史入口已废弃；Work 不再维护独立汇报/历史入口。
 
 当前没有为 Work 的每个 L2 单独维护 `ARCHITECTURE.md`；Work 先使用这份 L1 文档记录 L2 边界。若某个 L2 继续膨胀到独立领域，再在对应 route/package 子目录下补 L2 文档。
 

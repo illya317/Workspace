@@ -188,7 +188,7 @@ async function isAssignee(
   userId: number,
   targetType: string,
   targetId: number,
-  kind: "task" | "report",
+  kind: "task",
 ): Promise<boolean> {
   if (targetType === "department") {
     const assignee = await prisma.departmentWorkAssignee.findFirst({
@@ -215,16 +215,6 @@ export async function canAccessTarget(
   if (targetType === "user" && targetId === userId) return true;
   if (await authorize({ user: userId, resourceKey: "work", action: "admin" })) return true;
   return isMemberOfTarget(userId, targetType, targetId);
-}
-
-export async function canSubmitToTarget(
-  userId: number,
-  targetType: string,
-  targetId: number,
-): Promise<boolean> {
-  if (targetType === "user" && targetId === userId) return true;
-  if (await authorize({ user: userId, resourceKey: "work", action: "admin" })) return true;
-  return isAssignee(userId, targetType, targetId, "report");
 }
 
 export async function canEditWorkTask(

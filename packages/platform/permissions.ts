@@ -32,9 +32,7 @@ export const RES = {
   work: {
     root: "work",
     projects: "work.projects",
-    reports: "work.reports",
     tasks: "work.tasks",
-    history: "work.history",
   },
   finance: {
     root: "finance",

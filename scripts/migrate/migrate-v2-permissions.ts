@@ -21,7 +21,6 @@ async function main() {
     { key: "docs.manual", name: "培训手册", sortOrder: 22, parentKey: "docs" },
     { key: "docs.form", name: "表单", sortOrder: 23, parentKey: "docs" },
     { key: "work", name: "工作", sortOrder: 30 },
-    { key: "work.reports", name: "周报", sortOrder: 31, parentKey: "work" },
     { key: "work.tasks", name: "工作清单", sortOrder: 32, parentKey: "work" },
     { key: "finance", name: "财务", sortOrder: 40 },
   ];

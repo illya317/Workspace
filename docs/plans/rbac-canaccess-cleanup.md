@@ -64,7 +64,6 @@ const hasFinance = financeKeys.some(ma);
 
 | 页面 | 当前权限 | 新权限 |
 |------|---------|--------|
-| `/work/reports` | `canAccessWorks` | `requireResourceAccess("work.reports")` |
 | `/work/tasks` | `canAccessWorks` | `requireResourceAccess("work.tasks")` |
 | `/settings/admin` | `canAccessAdmin` | `requireAdminManageAccess()` |
 | `/administration/contracts` | `canAccessContract` | `requireResourceAccess("administration.contracts")` |
@@ -203,7 +202,6 @@ NODE_OPTIONS="--max-old-space-size=8192" npm run build
 | `app/(modules)/administration/page.tsx` | `canAccessContract` → `requireResourceAccess("administration")` |
 | `app/(modules)/administration/contracts/page.tsx` | `canAccessContract` → `requireResourceAccess("administration.contracts")` |
 | `app/docs/page.tsx` | `canAccessDocs` → `requireResourceAccess("docs")` |
-| `app/(modules)/work/reports/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.reports")` |
 | `app/(modules)/work/tasks/page.tsx` | `canAccessWorks` → `requireResourceAccess("work.tasks")` |
 | `app/(system)/settings/admin/page.tsx` | `canAccessAdmin` → `requireAdminManageAccess()` |
 | `app/hr/page.tsx` | `visibleResourceKeys` OR 链 → `requireResourceAccess("hr")` |
@@ -217,5 +215,5 @@ NODE_OPTIONS="--max-old-space-size=8192" npm run build
 ## 依赖与风险
 
 - **TypeScript 类型删除是破坏性变更**：所有引用 `canAccess*` 的类型都需要同步改。改动量大，但模式统一，适合派 agent 并行处理。
-- **Work 子页面权限**：`work.reports` 和 `work.tasks` 在工作管理体系里是独立资源，必须分别使用对应 resourceKey。
+- **Work 子页面权限**：`work.tasks` 在工作管理体系里是独立资源，必须使用对应 resourceKey。
 - **/settings/admin 的权限**：使用 `requireAdminManageAccess()`；内置 root admin 或可管理任一资源的用户可进入，`system` 不再是 RBAC resource。

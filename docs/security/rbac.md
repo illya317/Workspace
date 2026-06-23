@@ -82,8 +82,6 @@ external            delete  外部关系
 work                admin   工作管理
   work.projects      admin   项目
   work.tasks         admin   工作计划
-  work.reports       admin   工作汇报
-  work.history      admin   历史记录
 
 work.projects.viewAll access 项目全局查看（独立资源，runtimeParentKey=work.projects）
 ```
@@ -223,16 +221,16 @@ model DepartmentResourceRole {
 
 | 场景 | 可查看 | 可编辑 |
 |------|--------|--------|
-| 本人个人汇报/工作计划 | 本人 | 本人 |
-| 部门汇报/工作计划 | 本部门成员 | 部门指派人（DepartmentWorkAssignee） |
-| 项目汇报/工作计划 | 本项目成员 | 项目指派人（ProjectWorkAssignee） |
+| 本人个人工作计划 | 本人 | 本人 |
+| 部门工作计划 | 本部门成员 | 部门指派人（DepartmentWorkAssignee） |
+| 项目工作计划 | 本项目成员 | 项目指派人（ProjectWorkAssignee） |
 | 全局 | `work.admin` | `work.admin` |
 
 ### 指派表
 
 ```
-DepartmentWorkAssignee(departmentId, userId, kind: "task"|"report")
-ProjectWorkAssignee(projectId, userId, kind: "task"|"report")
+DepartmentWorkAssignee(departmentId, userId, kind: "task")
+ProjectWorkAssignee(projectId, userId, kind: "task")
 ```
 
 指派表是业务配置，不在权限矩阵中管理。指派人配置放在人事行政/项目管理页面。
@@ -242,10 +240,9 @@ ProjectWorkAssignee(projectId, userId, kind: "task"|"report")
 ```
 work.access       → 进入工作模块
 work.tasks.admin   → 管理所有工作计划
-work.reports.admin → 管理所有工作汇报
 ```
 
-权限矩阵中 work.tasks 和 work.reports **只开放 management 列**，不显示 access/write/delete。
+权限矩阵中 work.tasks **只开放 management 列**，不显示 access/write/delete。
 数据访问（谁能看/写某个部门或项目）由业务规则决定：成员关系 + 指派人表。
 不再对每个部门/项目做 scope 授权。
 

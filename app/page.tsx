@@ -9,7 +9,7 @@ export default async function Home() {
   if (token) {
     const payload = await verifyToken(token);
     if (payload) {
-      redirect("/work/reports");
+      redirect("/work/tasks");
     }
   }
 

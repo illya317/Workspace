@@ -9,8 +9,6 @@
 - Work 下承接：
   - 项目管理：原 HR Project / EmployeeProject 的归属迁移，以及项目任务、计划阶段、依赖、基线和甘特。
   - 工作计划：`/work/tasks`。
-  - 工作汇报：`/work/reports`。
-  - 历史记录：`/work/history`。
 - HR 页面不再展示“项目”入口。
 - HR 的批量表格不再展示“项目员工”分组；相关表格迁到 Work 侧独立分组。
 

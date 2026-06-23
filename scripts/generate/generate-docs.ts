@@ -462,7 +462,6 @@ function permLabel(resource: string, role: string): string {
   if (resource === "hr" && role === "access") return "人事权限";
   if (resource === "work.tasks" && role === "admin") return "工作清单管理";
   if (resource === "work.tasks" && role === "access") return "工作清单权限";
-  if (resource === "work.reports" && role === "access") return "报告权限";
   return `${resource}.${role}`;
 }
 
@@ -589,10 +588,6 @@ function generateDescription(path: string, method: string): string {
   if (p === "works" && method === "POST") return "创建工作项";
   if (p.startsWith("works/") && method === "PUT") return "更新工作项";
   if (p.startsWith("works/") && method === "DELETE") return "删除工作项";
-  if (p === "reports" && method === "GET") return "周报列表";
-  if (p === "reports" && method === "POST") return "提交周报";
-  if (p.startsWith("reports/") && p.includes("versions") && method === "GET") return "查看周报版本";
-  if (p.startsWith("reports/") && method === "PUT") return "更新周报";
   if (p === "user/routine" && method === "GET") return "获取用户日常模板";
   if (p === "user/routine" && method === "PUT") return "更新用户日常模板";
   if (p === "my-targets" && method === "GET") return "获取我的汇报对象";
@@ -651,7 +646,7 @@ function groupEndpoints(endpoints: ApiEndpoint[]): Map<string, ApiEndpoint[]> {
       else group = "admin-other";
     } else if (["employees", "employee-positions", "employee-projects", "departments", "department-positions", "positions"].includes(firstPart)) {
       group = "roster";
-    } else if (["works", "reports", "week-info"].includes(firstPart)) {
+    } else if (["works", "week-info"].includes(firstPart)) {
       group = "work";
     } else if (["projects", "my-targets"].includes(firstPart) || ep.path.startsWith("/api/modules/work/projects") || ep.path.startsWith("/api/modules/work/projects/members")) {
       group = "project";

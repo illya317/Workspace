@@ -18,7 +18,6 @@ model User {
   employees                Employee[]               @relation("EmployeeUser")
   editedFinanceAccounts    FinanceAccount[]         @relation("FinanceAccountEditor")
   editedFinanceVouchers    FinanceVoucher[]         @relation("FinanceVoucherEditor")
-  reports                  Report[]
   editedStockFinishedGoods StockFinishedGoods[]     @relation("StockFinishedGoodsEditor")
   stockOperations          StockOperation[]         @relation("StockOperationEditor")
   editedStockPackagings    StockPackaging[]         @relation("StockPackagingEditor")

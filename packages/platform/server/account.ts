@@ -41,7 +41,6 @@ export type PasswordLoginResult =
         departmentId: number;
         isWorkListAdmin: boolean;
         isSuperAdmin: boolean;
-        canSelectAnyWeek: boolean;
         visibleResourceKeys: string[];
         visibleWriteResourceKeys: string[];
         manageableResourceKeys: string[];
@@ -232,7 +231,6 @@ export async function loginWithPassword(
       departmentId: 0,
       isWorkListAdmin: isAdmin,
       isSuperAdmin: isAdmin,
-      canSelectAnyWeek: isAdmin || visibleWrite.has("work.reports"),
       visibleResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleAccess,
       visibleWriteResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleWrite,
       manageableResourceKeys: isAdmin ? [...new Set([...manageableKeys, ...RESOURCE_KEYS])] : [...manageableKeys],

@@ -17,8 +17,7 @@ const GROUPS = [
       "DepartmentResourceRole",
     ],
   },
-  { title: "3. Reports", models: ["Report", "ReportItem", "ReportHistory"] },
-  { title: "4. Tasks", models: ["WorkItem", "WorkParticipant"] },
+  { title: "3. Tasks", models: ["WorkItem", "WorkParticipant"] },
   {
     title: "5. Roster & Org",
     models: [

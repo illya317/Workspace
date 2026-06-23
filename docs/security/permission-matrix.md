@@ -22,8 +22,6 @@
 | `work.projects` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin（模块门禁，不放大对象范围） |
 | `work.projects.viewAll` | `visibleResourceKeys` | access（独立全量可见资源，`runtimeParentKey=work.projects`） |
 | `work.tasks` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
-| `work.reports` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
-| `work.history` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `settings.account` | `visibleResourceKeys` | access（登录用户默认有效） |
 | `settings.admin` | `visibleResourceKeys` | access（任意资源管理员默认有效） |
 | `settings.api` | `visibleResourceKeys` | access（Open API 控制台读取；不代表外部调用权限） |
@@ -60,8 +58,6 @@
 | `/work` | `requireResourceAccess("work")` + module enabled | redirect `/portal` 或模块未启用页 |
 | `/work/projects` | `requireResourceAccess("work.projects")` + module enabled + 项目对象级过滤 | redirect `/portal` 或模块未启用页 |
 | `/work/tasks` | `requireResourceAccess("work.tasks")` + module enabled | redirect `/portal` 或模块未启用页 |
-| `/work/reports` | `requireResourceAccess("work.reports")` + module enabled | redirect `/portal` 或模块未启用页 |
-| `/work/history` | `requireResourceAccess("work.history")` + module enabled | redirect `/portal` 或模块未启用页 |
 | `/docs` | `requireResourceAccess("docs")` | redirect `/portal` |
 | `/settings/account` | `requireRouteAccess("/settings/account")` | redirect `/portal` |
 | `/settings/admin` | `requireRouteAccess("/settings/admin")` | redirect `/portal` |

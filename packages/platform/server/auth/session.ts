@@ -3,7 +3,6 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { verifyToken } from "../auth-token";
 import { getPermissionContext } from "../rbac/context";
-import { evaluatePermissionWithContext } from "../rbac/check";
 import { getManageableResourceKeys } from "../rbac/admin-scope";
 import { prisma } from "@workspace/platform/server/prisma";
 import { isRootAdminUsername } from "./root";
@@ -71,7 +70,6 @@ async function buildSessionUser(userId: number, expectedSessionVersion?: number)
     ...activeVisibleWrite,
   ]);
 
-  const canAnyWeek = isAdmin || await evaluatePermissionWithContext(ctx, "work.reports", "write");
 
   const manageableKeys = await getManageableResourceKeys(userId);
 
@@ -79,7 +77,6 @@ async function buildSessionUser(userId: number, expectedSessionVersion?: number)
     ...userWithPerms,
     isWorkListAdmin: isAdmin,
     isSuperAdmin: isAdmin,
-    canSelectAnyWeek: canAnyWeek,
     visibleResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleAccess,
     visibleWriteResourceKeys: isAdmin ? [...allResourceKeys] : activeVisibleWrite,
     manageableResourceKeys: isAdmin ? [...new Set([...manageableKeys, ...RESOURCE_KEYS])] : [...manageableKeys],

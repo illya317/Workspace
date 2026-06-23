@@ -58,7 +58,6 @@
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| **GET** | `/api/settings/account/targets` | 登录 | 获取我的汇报对象 |
 | **GET** | `/api/modules/work/projects` | 登录 + 项目权限 | 项目管理列表 |
 | **POST** | `/api/modules/work/projects` | 登录 + 项目权限 | 新建项目管理记录 |
 | **PUT** | `/api/modules/work/projects/:id` | 登录 + 项目权限 | 更新项目管理记录 |
@@ -68,15 +67,10 @@
 | **PUT** | `/api/modules/work/projects/members/:id` | 登录 + 项目权限 | 更新项目人员 |
 | **DELETE** | `/api/modules/work/projects/members/:id` | 登录 + 项目权限 | 删除项目人员 |
 
-## 工作与报告
+## 工作计划
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| **GET** | `/api/modules/work/reports` | 登录 | 周报列表 |
-| **POST** | `/api/modules/work/reports` | 登录 | 提交周报 |
-| **PUT** | `/api/modules/work/reports/:id` | 登录 | 更新周报 |
-| **GET** | `/api/modules/work/reports/:id/versions` | 登录 | 查看周报版本 |
-| **GET** | `/api/modules/work/reports/:id/versions/:version` | 登录 | 查看周报版本 |
 | **GET** | `/api/settings/account/week-info` | 公开 | 获取当前周期信息 |
 | **GET** | `/api/modules/work/tasks` | 登录 + 系统管理员 | 工作计划列表 |
 | **POST** | `/api/modules/work/tasks` | 登录 + 系统管理员 | 创建工作项 |

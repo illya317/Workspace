@@ -11,7 +11,6 @@ model WorkItem {
   isPrivate    Boolean           @default(false)
   sortOrder    Int               @default(0)
   createdAt    DateTime          @default(now())
-  reportItems  ReportItem[]
   participants WorkParticipant[]
 
   @@index([targetType, targetId, category])
@@ -34,7 +33,7 @@ model DepartmentWorkAssignee {
   id           Int        @id @default(autoincrement())
   departmentId Int
   userId       Int
-  kind         String // "task" | "report"
+  kind         String // "task"
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -46,7 +45,7 @@ model ProjectWorkAssignee {
   id        Int     @id @default(autoincrement())
   projectId Int
   userId    Int
-  kind      String // "task" | "report"
+  kind      String // "task"
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 

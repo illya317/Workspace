@@ -27,7 +27,7 @@ export const registeredModuleDefinitions = [
     moduleDef: {
       key: "work",
       label: "工作管理",
-      desc: "计划、项目、汇报和历史记录",
+      desc: "计划和项目管理",
       href: "/work",
       iconKey: "reports",
       color: "emerald",
@@ -36,8 +36,6 @@ export const registeredModuleDefinitions = [
       children: [
         { key: "tasks", label: "工作计划", desc: "个人计划、待办任务和执行跟踪", href: "/work/tasks", resourceKey: "work.tasks", apiPrefixes: ["/api/modules/work/tasks"] },
         { key: "projects", label: "项目管理", desc: "组织项目、角色分工、预算和风险", href: "/work/projects", resourceKey: "work.projects", apiPrefixes: ["/api/modules/work/projects"] },
-        { key: "reports", label: "工作汇报", desc: "周报、月报、季报、年报", href: "/work/reports", resourceKey: "work.reports", apiPrefixes: ["/api/modules/work/reports"] },
-        { key: "history", label: "历史记录", desc: "变更和操作记录", href: "/work/history", resourceKey: "work.history", noApiReason: "历史记录由页面内审计视图读取，不提供独立业务 API" },
       ],
     },
     resourceDefs: [
@@ -51,12 +49,11 @@ export const registeredModuleDefinitions = [
         sortOrder: 4,
       },
     ],
-    routes: ["/work", "/work/projects", "/work/tasks", "/work/reports", "/work/history"],
+    routes: ["/work", "/work/projects", "/work/tasks"],
     fkRegistrations: WORK_FK_REGISTRATIONS,
     apiGuards: [
       ...apiResourceGuards("/api/modules/work/projects", "work.projects", ["GET", "POST", "PUT", "DELETE"]),
       ...apiResourceGuards("/api/modules/work/tasks", "work.tasks", ["GET", "POST", "PUT", "DELETE"]),
-      ...apiResourceGuards("/api/modules/work/reports", "work.reports", ["GET", "POST", "PUT"]),
     ],
   },
   {

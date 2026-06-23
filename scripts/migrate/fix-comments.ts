@@ -33,7 +33,7 @@ const DESC: Record<string, string> = {
   resourceId: "资源ID → Resource",
   roleId: "角色ID → Role",
   scopeId: "范围ID（null=全局开关）",
-  scopeType: "归属维度（report_group/department/personal）",
+  scopeType: "归属维度（department/personal）",
   userId: "用户ID",
   reportGroupId: "周报分组ID",
   reportId: "周报ID",

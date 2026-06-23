@@ -15,8 +15,6 @@ async function main() {
     { key: "module.hr", name: "人事行政", description: "访问人事行政管理 /hr" },
     { key: "module.works", name: "工作清单", description: "访问工作清单 /work/tasks" },
     { key: "department", name: "部门", description: "部门管理权限" },
-    { key: "report", name: "周报", description: "周报填写、补填与查看权限" },
-    { key: "report_group", name: "周报分组", description: "周报分组管理权限" },
   ];
   const resourceMap = new Map<string, number>();
   for (const r of resources) {
@@ -88,9 +86,6 @@ async function main() {
   for (const [old, res] of Object.entries({
     "module.hr": "module.hr",
     "module.works": "module.works",
-    "report.admin": "report_group",
-    "report.member": "report_group",
-    "report.viewer": "report_group",
     "dept.admin": "department",
   })) {
     backupPermKeyToResource.set(old, res);
@@ -100,9 +95,6 @@ async function main() {
   for (const [old, role] of Object.entries({
     "module.hr": "access",
     "module.works": "access",
-    "report.admin": "admin",
-    "report.write": "write",
-    "report.read": "access",
     "dept.admin": "admin",
   })) {
     backupPermKeyToRole.set(old, role);
@@ -179,31 +171,6 @@ async function main() {
     }
   }
   console.log(`   ✓ ${daCount} department admins`);
-
-  // ─── Step 6: ReportGroupMembership → UserResourceRole ────
-  console.log("\n7. Migrating ReportGroupMembership → UserResourceRole...");
-  const rgResId = resourceMap.get("report_group")!;
-  let rgCount = 0;
-
-  if (backup.reportGroupMemberships) {
-    for (const rm of backup.reportGroupMemberships) {
-      const roleKey = rm.role || "write";
-      const roleId = roleMap.get(roleKey);
-      if (!roleId) continue;
-      try {
-        await prisma.userResourceRole.create({
-          data: {
-            userId: rm.userId,
-            resourceId: rgResId,
-            roleId,
-            scopeId: String(rm.reportGroupId),
-          },
-        });
-        rgCount++;
-      } catch { /* skip */ }
-    }
-  }
-  console.log(`   ✓ ${rgCount} report group memberships`);
 
   // ─── Summary ────────────────────────────────────────────
   console.log("\n=== Migration Complete ===");

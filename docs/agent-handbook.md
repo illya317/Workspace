@@ -189,8 +189,6 @@ rm data/dev.db && npx prisma db push
 |------|------|------|
 | 登录 | `/login` | 公开 |
 | 入口 | `/portal` | 登录 |
-| 工作汇报 | `/work/reports` | `work.access` |
-| 历史记录 | `/work/history` | `work.access` |
 | 工作计划 | `/work/tasks` | `work.tasks.access` |
 | 人事行政 | `/hr` | `hr.access` |
 | 管理后台 | `/settings/admin` | `settings.admin.access` |

@@ -9,7 +9,6 @@ export interface SessionUser {
   canLogin?: boolean;
   isWorkListAdmin?: boolean;
   isSuperAdmin?: boolean;
-  canSelectAnyWeek?: boolean;
   visibleResourceKeys?: string[];
   visibleWriteResourceKeys?: string[];
   manageableResourceKeys?: string[];

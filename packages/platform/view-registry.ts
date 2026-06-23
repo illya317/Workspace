@@ -188,22 +188,6 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/work/reports",
-    moduleKey: "work",
-    label: "工作汇报",
-    views: [
-      { key: "reports", label: "汇报台账", children: [{ key: "reports", label: "周报" }, { key: "reports-month", label: "月报" }] },
-    ],
-  },
-  {
-    route: "/work/history",
-    moduleKey: "work",
-    label: "历史记录",
-    views: [
-      { key: "history", label: "操作历史" },
-    ],
-  },
-  {
     route: "/administration/contracts",
     moduleKey: "administration",
     label: "合同台账",
