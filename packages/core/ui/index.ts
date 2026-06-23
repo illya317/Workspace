@@ -3,6 +3,8 @@ export { coreUiComponentRegistry, registeredCoreUiComponentNames } from "./compo
 export type { CoreUiComponentKind, CoreUiComponentRegistration } from "./component-registry";
 export { default as CodeBlock } from "./CodeBlock";
 export type { CodeBlockProps } from "./CodeBlock";
+export { default as BlockCreatePanel } from "./BlockCreatePanel";
+export type { BlockCreatePanelProps } from "./BlockCreatePanel";
 export { default as AccordionTabBar } from "./AccordionTabBar";
 export type { AccordionTabBarProps, AccordionTabChild, AccordionTabItem } from "./AccordionTabBar";
 export { default as Toolbar } from "./CommandToolbar";
@@ -55,6 +57,8 @@ export {
   getFieldGridValueClassName,
   getFieldGroupTitleClassName,
 } from "./FormStyles";
+export { CreateConfirmActions, CreateStartButton } from "./CreateActionControls";
+export type { CreateConfirmActionsProps, CreateStartButtonProps } from "./CreateActionControls";
 export { default as InlineCreatePanel } from "./InlineCreatePanel";
 export type { InlineCreatePanelProps } from "./InlineCreatePanel";
 export { default as Toast } from "./Toast";

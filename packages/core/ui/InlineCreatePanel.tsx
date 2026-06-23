@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ActionButton } from "./ActionControls";
+import { CreateConfirmActions } from "./CreateActionControls";
 import { joinClassNames } from "./card-utils";
 
 export interface InlineCreatePanelProps {
@@ -38,26 +38,7 @@ export default function InlineCreatePanel({
         <div className="flex min-w-0 max-w-full flex-wrap items-center gap-x-3 gap-y-2 [&_[data-field-control]]:w-28 [&_[data-field-control]>*]:w-full [&_[data-field-label]]:text-xs [&>label]:!w-auto [&>label]:!max-w-none [&>label]:gap-2">
           {children}
         </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <ActionButton
-            type="submit"
-            aria-label="创建"
-            title="创建"
-            disabled={submitDisabled || submitting}
-            variant="primary"
-            className="!w-10 !px-0 !text-lg"
-          >
-            ✓
-          </ActionButton>
-          <ActionButton
-            aria-label="取消"
-            title="取消"
-            onClick={onCancel}
-            className="!w-10 !px-0 !text-lg"
-          >
-            ×
-          </ActionButton>
-        </div>
+        <CreateConfirmActions onSubmit={onSubmit} onCancel={onCancel} submitDisabled={submitDisabled} submitting={submitting} />
       </form>
     </section>
   );

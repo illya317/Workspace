@@ -2,23 +2,16 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ActionButton,
+  BlockCreatePanel,
   DataTable,
   DataTableActionsCell,
   EmptyStateCard,
-  FkFieldInput,
-  FormField,
-  OptionPicker,
   SectionCard,
   TableScrollFrame,
-  TextareaField,
-  getFieldInputClassName,
   useConfirmDelete,
   type DataTableColumn,
-  type FkFieldOption,
   type PickerOption,
 } from "@workspace/core/ui";
-import CalendarDateInput from "@workspace/core/ui/CalendarDateInput";
 import {
   createProjectTask,
   deleteProjectTask,
@@ -26,17 +19,12 @@ import {
   updateProjectTask,
 } from "./api";
 import {
-  PROJECT_MILESTONE_PICKER_OPTIONS,
   createEmptyProjectTaskDraft,
   createProjectTaskDraft,
   type ProjectTaskDraft,
   type ProjectTaskItem,
 } from "./model";
-import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
-
-const inputClassName = getFieldInputClassName("h-10");
-const pickerButtonClassName = `${inputClassName} text-left`;
-const pickerPopoverClassName = "absolute left-0 top-[calc(100%+0.35rem)] z-50 w-full min-w-64 rounded-lg border border-slate-200 bg-white p-3 shadow-xl";
+import { ProjectTaskDetail, ProjectTaskForm } from "./ProjectTaskFields";
 
 export default function ProjectTasksSection({
   projectId,
@@ -53,6 +41,8 @@ export default function ProjectTasksSection({
   const [tasks, setTasks] = useState<ProjectTaskItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [creatingTask, setCreatingTask] = useState(false);
+  const [detailTaskId, setDetailTaskId] = useState<number | null>(null);
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
   const [createDraft, setCreateDraft] = useState<ProjectTaskDraft>(() => createEmptyProjectTaskDraft());
   const [editDraft, setEditDraft] = useState<ProjectTaskDraft | null>(null);
@@ -75,13 +65,18 @@ export default function ProjectTasksSection({
   useEffect(() => { void loadTasks(); }, [loadTasks]);
 
   useEffect(() => {
+    setDetailTaskId(null);
     setEditingTaskId(null);
     setEditDraft(null);
+    setCreatingTask(false);
+  }, [projectId]);
+
+  useEffect(() => {
     setCreateDraft(createEmptyProjectTaskDraft(nextSortOrder(tasks)));
-  }, [projectId, tasks]);
+  }, [tasks]);
 
   const taskOptions = useMemo<PickerOption[]>(
-    () => tasks.map((task) => ({ value: String(task.id), label: task.description })),
+    () => tasks.map((task) => ({ value: String(task.id), label: task.name || task.description })),
     [tasks],
   );
 
@@ -92,13 +87,16 @@ export default function ProjectTasksSection({
       required: true,
       cellClassName: "min-w-64 max-w-xl whitespace-normal",
       render: (task) => (
-        <div className="flex min-w-0 flex-col gap-1">
+        <div className="flex min-w-0 flex-col gap-1.5">
+          {task.predecessorTaskNames.length > 0 && (
+            <span className="text-xs text-slate-400">前置：{task.predecessorTaskNames.join("、")}</span>
+          )}
           <div className="flex min-w-0 items-center gap-2">
-            {task.isMilestone && <span className="shrink-0 rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">里程碑</span>}
             <span className="min-w-0 break-words text-sm font-medium text-slate-900">{task.description}</span>
+            {task.isMilestone && <span className="shrink-0 rounded bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700">里程碑</span>}
           </div>
           {task.successorTasks.length > 0 && (
-            <span className="text-xs text-slate-400">后置：{task.successorTasks.map((item) => item.description).join("、")}</span>
+            <span className="text-xs text-slate-400">后置：{task.successorTasks.map((item) => item.name).join("、")}</span>
           )}
         </div>
       ),
@@ -110,45 +108,45 @@ export default function ProjectTasksSection({
       render: (task) => task.ownerEmployeeName || "未设置",
     },
     {
-      key: "dates",
-      label: "起止时间",
+      key: "startDate",
+      label: "开始时间",
       defaultVisible: true,
-      render: (task) => `${task.startDate || "未定"} - ${task.endDate || "未定"}`,
+      render: (task) => task.startDate || "未定",
     },
     {
-      key: "predecessor",
-      label: "前置任务",
+      key: "endDate",
+      label: "完成时间",
       defaultVisible: true,
-      cellClassName: "max-w-xs truncate",
-      render: (task) => task.predecessorTaskName || "无",
+      render: (task) => task.endDate || "未定",
     },
     {
       key: "actions",
       label: "操作",
       required: true,
-      render: (task) => canEdit ? (
+      render: (task) => (
         <DataTableActionsCell
           actions={[
             {
-              key: "edit",
-              kind: "edit",
-              label: "编辑任务",
+              key: "detail",
+              kind: "view",
+              label: detailTaskId === task.id ? "收起详情" : "查看详情",
               onClick: () => {
-                setEditingTaskId(task.id);
-                setEditDraft(createProjectTaskDraft(task));
+                setDetailTaskId((current) => current === task.id ? null : task.id);
+                setEditingTaskId(null);
+                setEditDraft(null);
               },
               disabled: saving || disabled,
             },
-            {
+            ...(canEdit ? [{
               key: "delete",
               kind: "delete",
               label: "删除任务",
               onClick: () => void handleDelete(task),
               disabled: saving || disabled,
-            },
+            } as const] : []),
           ]}
         />
-      ) : "只读",
+      ),
     },
   ];
 
@@ -165,12 +163,26 @@ export default function ProjectTasksSection({
     try {
       await createProjectTask(projectId, draft);
       setCreateDraft(createEmptyProjectTaskDraft(nextSortOrder(tasks)));
+      setCreatingTask(false);
       await reloadAfterSave("项目任务已新建");
     } catch (err) {
       onToast({ type: "error", message: err instanceof Error ? err.message : "新建项目任务失败" });
     } finally {
       setSaving(false);
     }
+  }
+
+  function handleStartEdit() {
+    if (!detailTaskId || saving) return;
+    const task = tasks.find((item) => item.id === detailTaskId);
+    if (!task) return;
+    setEditingTaskId(task.id);
+    setEditDraft(createProjectTaskDraft(task));
+  }
+
+  function handleCancelEdit() {
+    setEditingTaskId(null);
+    setEditDraft(null);
   }
 
   async function handleUpdate() {
@@ -200,6 +212,7 @@ export default function ProjectTasksSection({
     setSaving(true);
     try {
       await deleteProjectTask(projectId, task.id);
+      if (detailTaskId === task.id) setDetailTaskId(null);
       if (editingTaskId === task.id) {
         setEditingTaskId(null);
         setEditDraft(null);
@@ -221,163 +234,51 @@ export default function ProjectTasksSection({
   }
 
   return (
-    <SectionCard title="项目任务">
-      <div className="space-y-4">
-        {canEdit && (
-          <ProjectTaskForm
-            draft={createDraft}
-            disabled={disabled || saving}
-            taskOptions={taskOptions}
-            excludedTaskId={null}
-            submitLabel={saving ? "保存中..." : "新增任务"}
-            onChange={setCreateDraft}
-            onSubmit={() => void handleCreate()}
-          />
-        )}
-
+    <BlockCreatePanel
+      title="项目任务"
+      canCreate={canEdit}
+      creating={creatingTask}
+      disabled={disabled || saving}
+      submitting={saving}
+      submitDisabled={disabled || saving || !createDraft.description.trim()}
+      editing={editingTaskId !== null}
+      canEdit={canEdit}
+      editDisabled={!detailTaskId || disabled || saving || creatingTask}
+      editSubmitDisabled={disabled || saving || !editDraft?.description.trim()}
+      addLabel="新增任务"
+      submitLabel="保存任务"
+      editLabel="编辑任务"
+      editSubmitLabel="保存任务"
+      onStartCreate={() => setCreatingTask(true)}
+      onCancelCreate={() => setCreatingTask(false)}
+      onSubmitCreate={() => void handleCreate()}
+      onStartEdit={handleStartEdit}
+      onCancelEdit={handleCancelEdit}
+      onSubmitEdit={() => void handleUpdate()}
+      createContent={<ProjectTaskForm draft={createDraft} disabled={disabled || saving} taskOptions={taskOptions} excludedTaskId={null} framed={false} onChange={setCreateDraft} />}
+    >
         <TableScrollFrame className="overflow-y-hidden">
           <DataTable
             rows={tasks}
             columns={columns}
-            visibleColumns={["owner", "dates", "predecessor"]}
             density="compact"
             loading={loading}
             emptyText="暂无项目任务"
             rowKey={(task) => task.id}
-            expandedRowKey={editingTaskId}
+            visibleColumns={["owner", "startDate", "endDate"]}
+            expandedRowKey={detailTaskId}
             renderExpandedRow={(task) => editDraft && editingTaskId === task.id ? (
               <ProjectTaskForm
                 draft={editDraft}
                 disabled={disabled || saving}
                 taskOptions={taskOptions}
                 excludedTaskId={task.id}
-                submitLabel={saving ? "保存中..." : "保存任务"}
                 onChange={setEditDraft}
-                onSubmit={() => void handleUpdate()}
-                onCancel={() => {
-                  setEditingTaskId(null);
-                  setEditDraft(null);
-                }}
               />
-            ) : null}
+            ) : <ProjectTaskDetail task={task} />}
           />
         </TableScrollFrame>
-      </div>
-    </SectionCard>
-  );
-}
-
-function ProjectTaskForm({
-  draft,
-  disabled,
-  taskOptions,
-  excludedTaskId,
-  submitLabel,
-  onChange,
-  onSubmit,
-  onCancel,
-}: {
-  draft: ProjectTaskDraft;
-  disabled: boolean;
-  taskOptions: PickerOption[];
-  excludedTaskId: number | null;
-  submitLabel: string;
-  onChange: (draft: ProjectTaskDraft) => void;
-  onSubmit: () => void;
-  onCancel?: () => void;
-}) {
-  const predecessorOptions = taskOptions.filter((option) => option.value !== String(excludedTaskId));
-
-  function patch(next: Partial<ProjectTaskDraft>) {
-    onChange({ ...draft, ...next });
-  }
-
-  function setOwner(option?: FkFieldOption) {
-    patch({
-      ownerEmployeeId: option?.id ?? null,
-      ownerEmployeeNumber: option?.subtitle ?? null,
-      ownerEmployeeName: option?.name ?? null,
-    });
-  }
-
-  return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3">
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
-        <FormField label="负责人">
-          <FkFieldInput
-            fkKey="work.projects.member.employee"
-            endpoint={WORK_REFERENCE_OPTIONS_ENDPOINT}
-            value={draft.ownerEmployeeNumber || ""}
-            displayValue={draft.ownerEmployeeName || ""}
-            disabled={disabled}
-            placeholder="搜索负责人"
-            onChange={(_label, option) => setOwner(option)}
-          />
-        </FormField>
-        <FormField label="里程碑">
-          <OptionPicker
-            value={draft.isMilestone ? "true" : "false"}
-            options={PROJECT_MILESTONE_PICKER_OPTIONS}
-            disabled={disabled}
-            onChange={(value) => patch({ isMilestone: value === "true" })}
-            visibleCount={2}
-            buttonClassName={pickerButtonClassName}
-            popoverClassName={pickerPopoverClassName}
-          />
-        </FormField>
-        <DateField label="开始时间" value={draft.startDate} disabled={disabled} onChange={(value) => patch({ startDate: value })} />
-        <DateField label="结束时间" value={draft.endDate} disabled={disabled} onChange={(value) => patch({ endDate: value })} />
-        <FormField label="任务描述" required className="lg:col-span-4">
-          <TextareaField
-            value={draft.description}
-            disabled={disabled}
-            rows={2}
-            className="text-sm"
-            onChange={(value) => patch({ description: value })}
-          />
-        </FormField>
-        <FormField label="前置任务" className="lg:col-span-4">
-          <OptionPicker
-            value={draft.predecessorTaskId ? String(draft.predecessorTaskId) : null}
-            options={predecessorOptions}
-            disabled={disabled || predecessorOptions.length === 0}
-            placeholder="无"
-            onChange={(value) => patch({ predecessorTaskId: value ? Number(value) : null })}
-            visibleCount={6}
-            buttonClassName={pickerButtonClassName}
-            popoverClassName={pickerPopoverClassName}
-          />
-        </FormField>
-      </div>
-      <div className="mt-3 flex flex-wrap justify-end gap-2">
-        {onCancel && <ActionButton disabled={disabled} onClick={onCancel}>取消</ActionButton>}
-        <ActionButton variant="primary" disabled={disabled} onClick={onSubmit}>{submitLabel}</ActionButton>
-      </div>
-    </div>
-  );
-}
-
-function DateField({
-  label,
-  value,
-  disabled,
-  onChange,
-}: {
-  label: string;
-  value: string | null;
-  disabled: boolean;
-  onChange: (value: string | null) => void;
-}) {
-  return (
-    <FormField label={label}>
-      <CalendarDateInput
-        value={value}
-        disabled={disabled}
-        onChange={onChange}
-        className={inputClassName}
-        popoverMode="fixed"
-      />
-    </FormField>
+    </BlockCreatePanel>
   );
 }
 
