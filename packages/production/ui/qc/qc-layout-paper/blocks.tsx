@@ -203,7 +203,7 @@ export function RenderAttachmentPages({ blocks, context }: { blocks: NumberedBlo
     <section className="qc-a4-attachment-page mt-6 pt-5">
       <div className="space-y-4">
         {attachments.map((attachment) => (
-          <figure key={attachment.id} className="break-inside-avoid">
+          <figure key={attachment.id} className="flex min-h-48 w-full break-inside-avoid items-center justify-center border border-slate-950 p-2">
             {/* eslint-disable-next-line @next/next/no-img-element -- User-uploaded data URLs are not served through Next image optimization. */}
             <img src={attachment.dataUrl} alt={attachment.name} className="mx-auto max-h-[220mm] max-w-full object-contain" />
           </figure>
