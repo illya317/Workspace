@@ -6,9 +6,9 @@
 
 - 将原 HR 中的“项目”剥离为独立 Work 业务包。
 - 新包为 `packages/work`，模块名为“工作管理”。
-- Work 下先承接：
-  - 项目：原 HR Project / EmployeeProject 的归属迁移。
-  - 工作清单：`/work/tasks`。
+- Work 下承接：
+  - 项目管理：原 HR Project / EmployeeProject 的归属迁移，以及项目任务、计划阶段、依赖、基线和甘特。
+  - 工作计划：`/work/tasks`。
   - 工作汇报：`/work/reports`。
   - 历史记录：`/work/history`。
 - HR 页面不再展示“项目”入口。
@@ -18,7 +18,7 @@
 
 - 不要继续在 HR 里新增或修复 Project / EmployeeProject 业务能力。
 - 不要把项目相关 UI、API、server service、constants 继续塞回 HR。
-- 不要新增 `packages/project`；Project / EmployeeProject 只是旧 DB 表名和兼容概念，业务入口统一叫 Work / 项目。
+- 不要新增 `packages/project`；Project / EmployeeProject 只是旧 DB 表名和兼容概念，业务入口统一叫 Work / 项目管理。
 - 不要为项目/项目再引入新的原生控件；后续应按 Core 控件契约收口。
 - 若正在做全局 Core / Platform / Apps 改造，请把 Work 视为新的 Apps 业务包纳入边界检查。
 

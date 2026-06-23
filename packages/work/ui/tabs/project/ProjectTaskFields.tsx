@@ -88,7 +88,7 @@ export function ProjectTaskForm({
         <FormField label="任务名称" required className="lg:col-span-2">
           <TextField value={draft.name} disabled={disabled} className={inputClassName} onChange={(value) => patch({ name: value })} unstyled />
         </FormField>
-        <FormField label="项目阶段">
+        <FormField label="计划阶段">
           <OptionPicker
             value={draft.planPhaseId ? String(draft.planPhaseId) : null}
             options={phaseOptions}
@@ -171,7 +171,7 @@ export function ProjectTaskForm({
 export function ProjectTaskDetail({ task }: { task: ProjectTaskItem }) {
   const detailItems = [
     { label: "任务名称", value: task.name },
-    { label: "项目阶段", value: task.planPhaseName || "未分阶段" },
+    { label: "计划阶段", value: task.planPhaseName || "未分阶段" },
     { label: "负责人", value: task.ownerEmployeeName || "未设置" },
     { label: "基线时间", value: [task.baselineStartDate || "未定", task.baselineEndDate || "未定"].join(" - ") },
     { label: "实际时间", value: [task.startDate || "未定", task.endDate || "未定"].join(" - ") },

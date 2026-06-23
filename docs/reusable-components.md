@@ -90,7 +90,7 @@ C 渲染：<CoreTemplate {...viewModel} />
 
 ## Work 体验统一方向
 
-Work 是业务包，不是 Platform。项目、工作清单、工作汇报、历史记录统一归 `packages/work` 和 `/work` 路由壳；不要把 Project / EmployeeProject 修回 HR，也不要新增 `packages/project`。
+Work 是业务包，不是 Platform。工作计划、项目管理、工作汇报、历史记录统一归 `packages/work` 和 `/work` 路由壳；不要把 Project / EmployeeProject 修回 HR，也不要新增 `packages/project`。
 
 当前 `/work/projects` 的项目列表展开目标是左右分栏：左侧保留项目列表，右侧继续展示当前详情编辑区。列表展开不应遮罩整页、不应灰掉主内容，也不要做成覆盖详情区的临时 drawer。若这个交互需要通用布局，应先在 Core UI 增加可复用分栏组件，再让 Work 传入业务列表、详情和状态；Work 包只承接项目字段、DTO、服务和业务规则。
 

@@ -15,7 +15,7 @@ interface Props {
   title: string;
   backHref?: string;
   backLabel?: string;
-  /** 顶部栏的跨页导航链接（如工作汇报/工作清单/历史记录） */
+  /** 顶部栏的跨页导航链接（如工作汇报/工作计划/历史记录） */
   navLinks?: NavLinkDef[];
   hasUnsavedChanges?: boolean;
   user: SessionUser;

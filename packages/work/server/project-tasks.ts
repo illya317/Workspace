@@ -32,7 +32,7 @@ async function validatePlanPhase(projectId: number, planPhaseId: number | null |
     where: { id: planPhaseId },
     select: { projectId: true },
   });
-  if (!phase || phase.projectId !== projectId) return "项目阶段不存在";
+  if (!phase || phase.projectId !== projectId) return "计划阶段不存在";
   return null;
 }
 

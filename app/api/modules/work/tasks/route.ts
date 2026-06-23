@@ -66,7 +66,7 @@ export async function POST(request: Request) {
   const finalTargetId = targetId ?? (finalTargetType === "department" ? deptId : null) ?? payload.departmentId;
 
   const allowed = await canEditWorkTask(payload.userId, finalTargetType, finalTargetId);
-  if (!allowed) return NextResponse.json({ error: "无权限编辑工作清单" }, { status: 403 });
+  if (!allowed) return NextResponse.json({ error: "无权限编辑工作计划" }, { status: 403 });
 
   const work = await createWorkItem({
     targetType: finalTargetType,

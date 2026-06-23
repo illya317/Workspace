@@ -14,10 +14,10 @@
 | `open-api.prisma` | Open API 接入 | OpenApiClient, OpenApiResource, OpenApiScope, OpenApiClientScopeGrant, OpenApiAccessLog |
 | `system.prisma` | 系统 | SystemConfig, LoginAttempt |
 | `reports.prisma` | 工作汇报 | Report, ReportItem, ReportHistory |
-| `works.prisma` | 工作清单 | WorkItem, WorkParticipant |
+| `works.prisma` | 工作计划 | WorkItem, WorkParticipant |
 | `hr.prisma` | 人事行政 | Employee, Employment, Company, CompanyRelation, Department, Position, EDP, EditHistory |
 | `hr-documents.prisma` | 人事说明书 | DepartmentDescription, PositionDescription |
-| `work-projects.prisma` | 工作项目 | Project, EmployeeProject |
+| `work-projects.prisma` | 项目管理 | Project, EmployeeProject, ProjectTask, ProjectTaskAssignment, ProjectPlanPhase, ProjectPlanDependency, ProjectPlanBaseline, ProjectPlanBaselineItem |
 | `finance-ledger.prisma` | 财务总账 | FinanceAccount, FinancePeriod, FinanceVoucher, FinanceVoucherItem, FinanceLedgerImport, FinanceAccountBalance, FinanceBalanceSnapshot, FinanceBalanceSnapshotRow |
 | `finance-reclass.prisma` | 重分类 | FinanceReclassRule, FinanceReclassItemRule, FinanceBalanceReclassAdjustment, ReclassResult |
 | `finance-statement.prisma` | 报表底稿与校对 | FinanceStatementAccountMapping, FinanceStatementLineConfig, FinanceStatementWorkpaper, FinanceStatementWorkpaperLine, FinanceStatementReview, FinanceStatementReviewLine |

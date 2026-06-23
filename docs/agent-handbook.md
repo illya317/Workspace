@@ -191,7 +191,7 @@ rm data/dev.db && npx prisma db push
 | 入口 | `/portal` | 登录 |
 | 工作汇报 | `/work/reports` | `work.access` |
 | 历史记录 | `/work/history` | `work.access` |
-| 工作清单 | `/work/tasks` | `work.access` |
+| 工作计划 | `/work/tasks` | `work.tasks.access` |
 | 人事行政 | `/hr` | `hr.access` |
 | 管理后台 | `/settings/admin` | `settings.admin.access` |
 | 账号与接入 | `/settings/account` | `settings.account.access` |
@@ -281,7 +281,7 @@ API 权限规则：
 | `@workspace/platform/server/resolve-fk` | FK 展示名 | 审计和 DTO 中的 FK 快照显示名解析 |
 | `@workspace/hr/server` | HR 业务服务 | HR 查询、保存、导入、校验、DTO |
 | `@workspace/hr/ui` | HR UI | 员工资料、部门岗位、项目资料等 HR 页面组件 |
-| `@workspace/work/server` | Work 业务服务 | 项目、工作清单、工作汇报和目标权限 |
+| `@workspace/work/server` | Work 业务服务 | 工作计划、项目管理、工作汇报和目标权限 |
 | `@workspace/production` | 生产包 | 生产/QC 模块注册、类型和后续 UI/server |
 | `@workspace/finance` | 财务包 | 财务模块注册、类型和后续 UI/server |
 | `lib/security.ts` | 登录安全 | `checkBruteForce`, `recordAttempt` |

@@ -76,7 +76,7 @@ export default function ProjectPlanPhasePanel({
   }
 
   async function handleDelete(phaseId: number) {
-    const confirmed = await confirmDelete({ message: "删除计划阶段后，已归属到该阶段的子项目和任务会回到未分阶段。确定删除吗？" });
+    const confirmed = await confirmDelete({ message: "删除计划阶段后，已归属到该阶段的任务会回到未分阶段。确定删除吗？" });
     if (!confirmed) return;
     setBusy(true);
     try {

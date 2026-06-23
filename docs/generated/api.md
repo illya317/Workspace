@@ -78,7 +78,7 @@
 | **GET** | `/api/modules/work/reports/:id/versions` | 登录 | 查看周报版本 |
 | **GET** | `/api/modules/work/reports/:id/versions/:version` | 登录 | 查看周报版本 |
 | **GET** | `/api/settings/account/week-info` | 公开 | 获取当前周期信息 |
-| **GET** | `/api/modules/work/tasks` | 登录 + 系统管理员 | 工作清单列表 |
+| **GET** | `/api/modules/work/tasks` | 登录 + 系统管理员 | 工作计划列表 |
 | **POST** | `/api/modules/work/tasks` | 登录 + 系统管理员 | 创建工作项 |
 | **DELETE** | `/api/modules/work/tasks/:id` | 登录 + 系统管理员 | 删除工作项 |
 | **PUT** | `/api/modules/work/tasks/:id` | 登录 + 系统管理员 | 更新工作项 |

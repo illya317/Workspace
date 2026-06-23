@@ -36,7 +36,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
   if (!existing) return NextResponse.json({ error: "工作项不存在" }, { status: 404 });
 
   const allowed = await canEditWorkTask(payload.userId, existing.targetType, existing.targetId ?? 0);
-  if (!allowed) return NextResponse.json({ error: "无权限编辑工作清单" }, { status: 403 });
+  if (!allowed) return NextResponse.json({ error: "无权限编辑工作计划" }, { status: 403 });
 
   const parsedBody = updateWorkItemSchema.safeParse(await request.json());
   if (!parsedBody.success) {
@@ -68,7 +68,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   if (!existing) return NextResponse.json({ error: "工作项不存在" }, { status: 404 });
 
   const allowed = await canEditWorkTask(payload.userId, existing.targetType, existing.targetId ?? 0);
-  if (!allowed) return NextResponse.json({ error: "无权限删除工作清单" }, { status: 403 });
+  if (!allowed) return NextResponse.json({ error: "无权限删除工作计划" }, { status: 403 });
 
   const result = await deleteWorkItem(workId);
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status || 400 });

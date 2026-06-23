@@ -81,7 +81,7 @@ external            delete  外部关系
 
 work                admin   工作管理
   work.projects      admin   项目
-  work.tasks         admin   工作清单
+  work.tasks         admin   工作计划
   work.reports       admin   工作汇报
   work.history      admin   历史记录
 
@@ -201,7 +201,7 @@ model DepartmentResourceRole {
 
 ## 工作模块数据权限（业务规则）
 
-工作模块（汇报/清单）的数据访问不走 scope RBAC，改用业务规则 + 指派表。
+工作模块（汇报/工作计划）的数据访问不走 scope RBAC，改用业务规则 + 指派表。
 
 模块 disabled 优先于所有业务对象权限：`work` disabled 后 `/work` 及子页面、`/api/modules/work/*`、Work FK 目标和 Work 资源均不可用；`work.projects` disabled 后项目入口、项目页面、项目 API、项目 FK 和 `work.projects.viewAll` 一起失效。
 
@@ -223,9 +223,9 @@ model DepartmentResourceRole {
 
 | 场景 | 可查看 | 可编辑 |
 |------|--------|--------|
-| 本人个人汇报/清单 | 本人 | 本人 |
-| 部门汇报/清单 | 本部门成员 | 部门指派人（DepartmentWorkAssignee） |
-| 项目汇报/清单 | 本项目成员 | 项目指派人（ProjectWorkAssignee） |
+| 本人个人汇报/工作计划 | 本人 | 本人 |
+| 部门汇报/工作计划 | 本部门成员 | 部门指派人（DepartmentWorkAssignee） |
+| 项目汇报/工作计划 | 本项目成员 | 项目指派人（ProjectWorkAssignee） |
 | 全局 | `work.admin` | `work.admin` |
 
 ### 指派表
@@ -241,7 +241,7 @@ ProjectWorkAssignee(projectId, userId, kind: "task"|"report")
 
 ```
 work.access       → 进入工作模块
-work.tasks.admin   → 管理所有工作清单
+work.tasks.admin   → 管理所有工作计划
 work.reports.admin → 管理所有工作汇报
 ```
 
