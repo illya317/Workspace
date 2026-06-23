@@ -20,19 +20,11 @@ function underlineBaseWidth(part: QcLayoutPart) {
   return part.width || "3rem";
 }
 
-function looksNumericValue(value?: string) {
-  const text = String(value || "").trim();
-  if (!text) return false;
-  return /^[-+]?[\d.,]+$/.test(text);
-}
-
-function inputAlignClass(part: QcLayoutPart, value?: string) {
-  if (part.underline === true && looksNumericValue(value)) return "text-right tabular-nums";
+function inputAlignClass() {
   return "text-center tabular-nums";
 }
 
-function inputPaddingClass(part: QcLayoutPart, value?: string) {
-  if (part.underline === true && looksNumericValue(value)) return "pl-0.5 pr-0";
+function inputPaddingClass() {
   return "px-1";
 }
 
@@ -116,7 +108,7 @@ export function QcPaperLineInput({
         rows={part.rows || 2}
         title={error}
         unstyled
-        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-[8em] resize-y border-0 bg-transparent ${inputPaddingClass(part, currentValue)} ${inputAlignClass(part, currentValue)} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
+        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-[8em] resize-y border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
         style={inputWidth(part, inTable, currentValue)}
       />
     );
@@ -133,7 +125,7 @@ export function QcPaperLineInput({
       type={textInputType(part)}
       title={error}
       unstyled
-      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass(part, currentValue)} ${inputAlignClass(part, currentValue)} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
+      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass()} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
       style={inputWidth(part, inTable, currentValue)}
     />
   );
