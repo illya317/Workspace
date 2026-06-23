@@ -15,6 +15,8 @@ import type { ProfileHistoryEntry } from "./EmployeeProfileSections";
 import EmployeeProfileView from "./EmployeeProfileView";
 import {
   applyDateFields,
+  persistableContractRows,
+  persistableEdpRows,
   sameDraft,
   validateCurrentWorkPercent,
   type EditableRecord,
@@ -36,6 +38,65 @@ import type { FkFieldOption } from "@workspace/core/ui";
 import { useUnsavedChangesPrompt } from "../hooks/useUnsavedChangesPrompt";
 
 type ProfileSection = "basic" | "employment" | "edp" | "history";
+
+function newEmploymentRow(profile: EmployeeProfile): EmploymentRow {
+  return {
+    employeeId: profile.employee.id,
+    isActive: true,
+    currentCompany: null,
+    joinDate: null,
+    leaveDate: null,
+    leaveReason: null,
+    leaveNote: null,
+    officeLocation: null,
+    personnelType: null,
+    rank: null,
+    title: null,
+    isNew: true,
+  };
+}
+
+function newEdpRow(profile: EmployeeProfile): EdpRow {
+  return {
+    employeeId: profile.employee.id,
+    departmentId: null,
+    departmentName: null,
+    positionId: null,
+    positionName: null,
+    isPrimary: false,
+    startDate: null,
+    endDate: null,
+    reportTo: null,
+    workPercent: null,
+    isNew: true,
+  };
+}
+
+function newContractRow(profile: EmployeeProfile, employments: EmploymentRow[]): ContractRow {
+  return {
+    employmentId: employments.find((row) => row.isActive)?.id ?? employments[0]?.id,
+    employeeId: profile.employee.employeeId,
+    employeeName: profile.employee.name,
+    company: "",
+    isPrimary: false,
+    isInsuredHere: false,
+    insuranceStatus: null,
+    legalRelation: "",
+    contractType: "",
+    employmentForm: "",
+    firstContractStartDate: null,
+    firstContractEndDate: null,
+    secondContractStartDate: null,
+    secondContractEndDate: null,
+    thirdContractStartDate: null,
+    thirdContractEndDate: null,
+    permanentContractDate: null,
+    confidentialityDate: null,
+    nonCompeteDate: null,
+    endDate: null,
+    isNew: true,
+  };
+}
 
 export default function EmployeeProfileClient({
   employeeId,
@@ -74,9 +135,13 @@ export default function EmployeeProfileClient({
       const nextProfile = data as EmployeeProfile;
       setProfile(nextProfile);
       setEmployeeDraft(applyDateFields(nextProfile.employee as unknown as EditableRecord, employeeFields) as unknown as EmployeeProfileEmployee);
-      setEmployments(nextProfile.employments.map((item) => applyDateFields(item as unknown as EditableRecord, employmentFields) as unknown as EmploymentRow));
-      setContracts(nextProfile.contracts.map((item) => applyDateFields(item as unknown as EditableRecord, contractFields) as unknown as ContractRow));
-      setEdps(nextProfile.edps.map((item) => applyDateFields(item as unknown as EditableRecord, edpFields) as unknown as EdpRow));
+      const nextEmployments = nextProfile.employments.map((item) => applyDateFields(item as unknown as EditableRecord, employmentFields) as unknown as EmploymentRow);
+      const nextEmploymentRows = nextEmployments.length > 0 ? nextEmployments : [newEmploymentRow(nextProfile)];
+      setEmployments(nextEmploymentRows);
+      const nextContracts = nextProfile.contracts.map((item) => applyDateFields(item as unknown as EditableRecord, contractFields) as unknown as ContractRow);
+      setContracts(nextContracts.length > 0 ? nextContracts : [newContractRow(nextProfile, nextEmploymentRows)]);
+      const nextEdps = nextProfile.edps.map((item) => applyDateFields(item as unknown as EditableRecord, edpFields) as unknown as EdpRow);
+      setEdps(nextEdps.length > 0 ? nextEdps : [newEdpRow(nextProfile)]);
     } catch (err) {
       setError(err instanceof Error ? err.message : "加载失败");
     } finally {
@@ -109,8 +174,8 @@ export default function EmployeeProfileClient({
 
   const dirtyState = useMemo(() => {
     const basic = Boolean(profile && employeeDraft && !sameDraft(employeeDraft, profile.employee));
-    const employment = Boolean(profile && (!sameDraft(employments, profile.employments) || !sameDraft(contracts, profile.contracts)));
-    const edp = Boolean(profile && !sameDraft(edps, profile.edps));
+    const employment = Boolean(profile && (!sameDraft(employments, profile.employments) || !sameDraft(persistableContractRows(contracts), profile.contracts)));
+    const edp = Boolean(profile && !sameDraft(persistableEdpRows(edps), profile.edps));
     return {
       basic,
       employment,
@@ -150,18 +215,26 @@ export default function EmployeeProfileClient({
 
   async function saveAll() {
     if (!profile || !employeeDraft) return;
-    const percentCheck = validateCurrentWorkPercent(edps);
-    if (!percentCheck.ok) {
-      setActiveSection("edp");
-      setError(null);
-      await showSavePrompt("部门岗位无法保存", percentCheck.message, true);
-      return;
+    if (dirtyState.edp) {
+      const percentCheck = validateCurrentWorkPercent(persistableEdpRows(edps));
+      if (!percentCheck.ok) {
+        setActiveSection("edp");
+        setError(null);
+        await showSavePrompt("部门岗位无法保存", percentCheck.message, true);
+        return;
+      }
     }
     await runSave("all", async () => {
-      await persistBasic(profile, employeeDraft);
-      for (const row of employments) await persistEmployment(profile, row);
-      await persistContracts(profile, contracts);
-      await persistEdps(profile, edps);
+      if (dirtyState.basic) await persistBasic(profile, employeeDraft);
+      if (dirtyState.employment) {
+        const employmentsDirty = !sameDraft(employments, profile.employments);
+        const contractsDirty = !sameDraft(persistableContractRows(contracts), profile.contracts);
+        if (employmentsDirty) {
+          for (const row of employments) await persistEmployment(profile, row);
+        }
+        if (contractsDirty) await persistContracts(profile, contracts);
+      }
+      if (dirtyState.edp) await persistEdps(profile, edps);
     }, "员工资料已全部保存");
   }
 
@@ -170,10 +243,9 @@ export default function EmployeeProfileClient({
     if (canLeave) router.push("/hr/roster");
   }
 
-  async function changeSection(section: ProfileSection) {
+  function changeSection(section: ProfileSection) {
     if (section === activeSection) return;
-    const canLeave = await confirmNavigation();
-    if (canLeave) setActiveSection(section);
+    setActiveSection(section);
   }
 
   function updateEmployeeField(key: string, value: unknown, option?: FkFieldOption) {
@@ -198,7 +270,7 @@ export default function EmployeeProfileClient({
       canEdit={canEdit}
       saving={saving}
       activeSection={activeSection}
-      onSectionChange={(section) => void changeSection(section)}
+      onSectionChange={changeSection}
       dirtyState={dirtyState}
       employments={employments}
       contracts={contracts}
@@ -212,6 +284,10 @@ export default function EmployeeProfileClient({
       setError={setError}
       onBack={() => void goBack()}
       onSaveAll={saveAll}
+      onAddContract={() => {
+        if (!profile) return;
+        setContracts((rows) => [newContractRow(profile, employments), ...rows]);
+      }}
       onEmployeeFieldChange={updateEmployeeField}
       onHistoryToggle={(id) => setExpandedHistoryId((current) => (current === id ? null : id))}
       onHistoryRefresh={loadHistory}

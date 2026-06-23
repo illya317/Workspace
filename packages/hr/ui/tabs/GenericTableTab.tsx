@@ -5,7 +5,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import HRToolbar from "../components/HRToolbar";
 import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
 import Toast from "@workspace/core/ui/Toast";
-import { Pagination, PanelCard } from "@workspace/core/ui";
+import { Pagination, PanelCard, useConfirm } from "@workspace/core/ui";
 import { useToast } from "@workspace/core/hooks";
 import GenericCreatePanel from "../components/GenericCreatePanel";
 import GenericFieldInput from "../components/GenericFieldInput";
@@ -43,6 +43,7 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
   } = useGenericTab(config);
 
   const { toast, showToast, closeToast } = useToast();
+  const confirm = useConfirm();
   const inputRef = useRef<HTMLInputElement>(null);
   const [downloading, setDownloading] = useState(false);
 
@@ -120,9 +121,18 @@ export default function GenericTableTab({ config, user }: { config: TabConfig; u
 
   async function handleSave() {
     if (!editingCell) { setEditMode(false); return; }
-    const ok = await saveCell();
-    if (ok) showToast("保存成功");
-    else showToast("保存失败", "error");
+    const result = await saveCell();
+    if (result.ok) {
+      showToast("保存成功");
+      return;
+    }
+    await confirm({
+      title: "保存失败",
+      message: result.error || "保存失败",
+      confirmLabel: "关闭",
+      confirmDanger: true,
+      showCancel: false,
+    });
   }
 
   async function handleCreate() {

@@ -126,6 +126,8 @@ model Notification {
   href            String?
   payloadJson     String?
   isImportant     Boolean   @default(false)
+  isStrongReminder Boolean  @default(false)
+  requiresAcknowledgement Boolean @default(false)
   readAt          DateTime?
   acknowledgedAt  DateTime?
   rejectedAt      DateTime?

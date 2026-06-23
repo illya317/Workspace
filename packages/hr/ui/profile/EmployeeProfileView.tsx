@@ -62,6 +62,7 @@ export default function EmployeeProfileView({
   setError,
   onBack,
   onSaveAll,
+  onAddContract,
   onEmployeeFieldChange,
   onHistoryToggle,
   onHistoryRefresh,
@@ -89,6 +90,7 @@ export default function EmployeeProfileView({
   setError: (message: string | null) => void;
   onBack: () => void;
   onSaveAll: () => Promise<void>;
+  onAddContract: () => void;
   onEmployeeFieldChange: (key: string, value: unknown, option?: FkFieldOption) => void;
   onHistoryToggle: (id: number) => void;
   onHistoryRefresh: () => void;
@@ -155,7 +157,7 @@ export default function EmployeeProfileView({
             onChange={(field, value, option) => setEmployments((rows) => changeEmployment(rows, activeEmploymentIndex, field, value, option))}
             contracts={contracts}
             className={sectionCardClassName}
-            onAddContract={() => setContracts((rows) => [newContract(profile, employments), ...rows])}
+            onAddContract={onAddContract}
             onChangeContract={(index, field, value, option) => setContracts((rows) => changeContract(rows, index, field, value, option))}
             onDeleteContract={(row, index) => removeRow(row.company, "合同记录", index, setContracts, confirmDelete)}
           />
@@ -206,32 +208,6 @@ function changeContract(rows: ContractRow[], index: number, field: ProfileField,
 async function removeRow<T>(name: string | null | undefined, label: string, index: number, setRows: Dispatch<SetStateAction<T[]>>, confirmDelete: (options: { message: string }) => Promise<boolean>) {
   const ok = await confirmDelete({ message: `确定删除这条${label}${name ? `（${name}）` : ""}吗？` });
   if (ok) setRows((rows) => rows.filter((_, i) => i !== index));
-}
-
-function newContract(profile: EmployeeProfile, employments: EmploymentRow[]): ContractRow {
-  return {
-    employmentId: employments.find((row) => row.isActive)?.id ?? employments[0]?.id,
-    employeeId: profile.employee.employeeId,
-    employeeName: profile.employee.name,
-    company: profile.summary.currentCompany || "",
-    isPrimary: false,
-    isInsuredHere: false,
-    insuranceStatus: null,
-    legalRelation: "",
-    contractType: "",
-    employmentForm: "",
-    firstContractStartDate: null,
-    firstContractEndDate: null,
-    secondContractStartDate: null,
-    secondContractEndDate: null,
-    thirdContractStartDate: null,
-    thirdContractEndDate: null,
-    permanentContractDate: null,
-    confidentialityDate: null,
-    nonCompeteDate: null,
-    endDate: null,
-    isNew: true,
-  };
 }
 
 function newEdp(profile: EmployeeProfile): EdpRow {

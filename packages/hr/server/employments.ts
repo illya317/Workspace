@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
+import { authenticate, checkHRWrite } from "@workspace/platform/server/auth";
+import { disabledApiResponseForRequest } from "@workspace/platform/server/module-runtime";
 import { Prisma } from "@workspace/platform/server/prisma";
 import { handleCreate, handleUpdateField } from "./hr-crud";
+import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
+import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import { matchEmployee } from "@workspace/platform/search";
 import { parseContracts } from "./contracts";
 import {
@@ -12,6 +16,18 @@ import {
 import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
 
 const EMPLOYMENT_CONFIG = { entityType: "Employment", modelKey: "employment" as const };
+type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
+
+function isFalseValue(value: unknown) {
+  return value === false || value === "false";
+}
+
+function openEndedAtDateWhere(employeeId: number, date: string) {
+  return {
+    employeeId,
+    OR: [{ endDate: null }, { endDate: "" }, { endDate: { gte: date } }],
+  };
+}
 
 export function primaryContractCompany(contractsJson: string | null, fallback: string | null) {
   const contracts = parseContracts(contractsJson);
@@ -104,12 +120,97 @@ export async function createEmployment(request: Request) {
   });
 }
 
-export async function updateEmploymentField(request: Request, params: Promise<{ id: string }>) {
-  return handleUpdateField(request, params, {
-    ...EMPLOYMENT_CONFIG,
-    allowedFields: EMPLOYMENT_ALLOWED_FIELDS,
-    onBeforeUpdate: normalizeEmploymentFieldUpdate,
+export async function createEmploymentRecord(
+  input: Record<string, unknown>,
+  userId: number,
+): Promise<ServiceResult<{ success: true; record: { id: number } }>> {
+  const command = mapValidationToServiceResult(await buildEmploymentCreateCommand(input));
+  if (!command.ok) return command;
+
+  const record = await prisma.employment.create({
+    data: { ...command.data, editedBy: userId } as Prisma.EmploymentUncheckedCreateInput,
+    select: { id: true },
   });
+  await snapshotHistory("Employment", record.id, userId);
+  return { ok: true, data: { success: true, record } };
+}
+
+export async function updateEmploymentField(request: Request, params: Promise<{ id: string }>) {
+  const disabledResponse = disabledApiResponseForRequest(request);
+  if (disabledResponse) return disabledResponse;
+
+  const payload = await authenticate(request);
+  if (!payload) return NextResponse.json({ error: "未登录" }, { status: 401 });
+  if (!(await checkHRWrite(payload.userId, "hr.roster"))) return NextResponse.json({ error: "无权限" }, { status: 403 });
+
+  const { id } = await params;
+  const recordId = Number(id);
+  if (!Number.isInteger(recordId) || recordId <= 0) return NextResponse.json({ error: "记录ID无效" }, { status: 400 });
+
+  const body = (await request.json()) as { field: string; value: unknown };
+  if (body.field !== "isActive" || !isFalseValue(body.value)) {
+    return handleUpdateField(
+      new Request(request.url, {
+        method: request.method,
+        headers: request.headers,
+        body: JSON.stringify(body),
+      }),
+      Promise.resolve({ id }),
+      {
+        ...EMPLOYMENT_CONFIG,
+        allowedFields: EMPLOYMENT_ALLOWED_FIELDS,
+        onBeforeUpdate: normalizeEmploymentFieldUpdate,
+      },
+    );
+  }
+
+  const command = await buildEmploymentFieldUpdateCommand(body.field, body.value, recordId);
+  if (!command.ok) return NextResponse.json({ error: command.issue.message }, { status: command.issue.status || 400 });
+
+  const employment = await prisma.employment.findUnique({
+    where: { id: recordId },
+    select: { employeeId: true, leaveDate: true },
+  });
+  if (!employment) return NextResponse.json({ error: "雇佣记录不存在" }, { status: 404 });
+
+  const endDate = employment.leaveDate || new Date().toISOString().slice(0, 10);
+
+  await prisma.$transaction(async (tx) => {
+    await tx.employment.update({
+      where: { id: recordId },
+      data: { isActive: false, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+    });
+
+    const [edps, projectMembers] = await Promise.all([
+      tx.eDP.findMany({
+        where: openEndedAtDateWhere(employment.employeeId, endDate),
+        select: { id: true },
+      }),
+      tx.employeeProject.findMany({
+        where: openEndedAtDateWhere(employment.employeeId, endDate),
+        select: { id: true },
+      }),
+    ]);
+
+    if (edps.length > 0) {
+      await tx.eDP.updateMany({
+        where: { id: { in: edps.map((row) => row.id) } },
+        data: { endDate, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+      });
+    }
+    if (projectMembers.length > 0) {
+      await tx.employeeProject.updateMany({
+        where: { id: { in: projectMembers.map((row) => row.id) } },
+        data: { endDate, editedBy: payload.userId, editedAt: new Date(), version: { increment: 1 } },
+      });
+    }
+
+    for (const row of edps) await snapshotHistory("EDP", row.id, payload.userId, tx);
+    for (const row of projectMembers) await snapshotHistory("EmployeeProject", row.id, payload.userId, tx);
+    await snapshotHistory("Employment", recordId, payload.userId, tx);
+  });
+
+  return NextResponse.json({ success: true });
 }
 
 export function rejectEmploymentDelete() {

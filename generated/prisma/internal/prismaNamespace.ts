@@ -6319,6 +6319,8 @@ export const NotificationScalarFieldEnum = {
   href: 'href',
   payloadJson: 'payloadJson',
   isImportant: 'isImportant',
+  isStrongReminder: 'isStrongReminder',
+  requiresAcknowledgement: 'requiresAcknowledgement',
   readAt: 'readAt',
   acknowledgedAt: 'acknowledgedAt',
   rejectedAt: 'rejectedAt',

@@ -23,10 +23,3 @@ export async function guardPositionArchive(positionId: number, actionLabel = "�
     { label: "在职员工岗位记录", count: () => prisma.eDP.count({ where: currentActiveEmployeeEdpWhere({ positionId }) }) },
   ]);
 }
-
-export async function guardEmployeeInactive(employeeId: number, actionLabel = "办理离职") {
-  return guardActiveReferences(actionLabel, [
-    { label: "现用部门岗位记录", count: () => prisma.eDP.count({ where: currentOpenEndedDateWhere({ employeeId }) }) },
-    { label: "现用项目成员记录", count: () => prisma.employeeProject.count({ where: currentOpenEndedDateWhere({ employeeId }) }) },
-  ]);
-}

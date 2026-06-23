@@ -9,6 +9,11 @@ export interface TabItem {
   [key: string]: unknown;
 }
 
+export interface SaveCellResult {
+  ok: boolean;
+  error?: string;
+}
+
 export interface GenericTabState {
   items: TabItem[];
   loading: boolean;
@@ -27,7 +32,7 @@ export interface GenericTabState {
   setEditValue: (v: unknown) => void;
   startEdit: (id: number, field: string, initialValue: unknown) => void;
   cancelEdit: () => void;
-  saveCell: () => Promise<boolean>;
+  saveCell: () => Promise<SaveCellResult>;
   creating: boolean;
   setCreating: (v: boolean) => void;
   createForm: Record<string, unknown>;
@@ -161,7 +166,7 @@ export function useGenericTab(config: TabConfig): GenericTabState {
   }, []);
 
   const saveCell = useCallback(async () => {
-    if (!editingCell) return false;
+    if (!editingCell) return { ok: false, error: "没有正在编辑的单元格" };
     setSaving(true);
     try {
       const { id, field } = editingCell;
@@ -179,12 +184,15 @@ export function useGenericTab(config: TabConfig): GenericTabState {
           prev.map((item) => (item.id === id ? { ...item, [field]: newValue } : item))
         );
         setEditingCell(null);
-        return true;
+        return { ok: true };
       }
+      const data = await res.json().catch(() => null) as { error?: string } | null;
+      return { ok: false, error: data?.error || `保存失败 (${res.status})` };
+    } catch (error) {
+      return { ok: false, error: error instanceof Error ? error.message : "网络错误" };
     } finally {
       setSaving(false);
     }
-    return false;
   }, [editingCell, editValue, apiPath]);
 
   const submitCreate = useCallback(async () => {

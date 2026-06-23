@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireApiAccess, checkHRAccess } from "@workspace/platform/server/auth";
-import { createEmployment, listEmployments } from "@workspace/hr/server";
+import { jsonServiceResponse } from "@workspace/platform/server/api";
+import { createEmploymentRecord, listEmployments } from "@workspace/hr/server";
 
 const employmentsQuerySchema = z.object({
   keyword: z.string().catch(""),
@@ -48,9 +49,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
+  const payload = auth.user;
 
-  const body = await request.clone().json().catch(() => null);
+  const body = await request.json().catch(() => null);
   const parsedBody = createEmploymentSchema.safeParse(body);
   if (!parsedBody.success) return NextResponse.json({ error: "参数错误" }, { status: 400 });
-  return createEmployment(new Request(request, { body: JSON.stringify(parsedBody.data) }));
+  return jsonServiceResponse(await createEmploymentRecord(parsedBody.data, payload.userId));
 }

@@ -16,6 +16,8 @@ import { validateChineseIdNumber } from "@workspace/hr/utils/identity";
 import {
   normalizeContractRow,
   normalizeValue,
+  persistableContractRows,
+  persistableEdpRows,
   validateCurrentWorkPercent,
   valuesEqual,
   type EditableRecord,
@@ -99,10 +101,11 @@ function serializeContract(row: ContractRow) {
 }
 
 export async function persistContracts(profile: EmployeeProfile, rows: ContractRow[]) {
+  const rowsToPersist = persistableContractRows(rows);
   await requestJson(`/api/modules/hr/roster/employee-profiles/${profile.employee.id}/contracts`, {
     method: "PUT",
     body: JSON.stringify({
-      rows: rows.map((row) => ({
+      rows: rowsToPersist.map((row) => ({
         id: row.id ?? null,
         employmentId: row.employmentId ?? null,
         ...serializeContract(row),
@@ -112,10 +115,11 @@ export async function persistContracts(profile: EmployeeProfile, rows: ContractR
 }
 
 export async function persistEdps(profile: EmployeeProfile, rows: EdpRow[]) {
-  const percentCheck = validateCurrentWorkPercent(rows);
+  const rowsToPersist = persistableEdpRows(rows);
+  const percentCheck = validateCurrentWorkPercent(rowsToPersist);
   if (!percentCheck.ok) throw new Error(percentCheck.message);
   await requestJson(`/api/modules/hr/roster/employee-profiles/${profile.employee.id}/edps`, {
     method: "PUT",
-    body: JSON.stringify({ rows }),
+    body: JSON.stringify({ rows: rowsToPersist }),
   });
 }

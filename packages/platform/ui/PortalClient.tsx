@@ -12,7 +12,6 @@ export default function PortalClient({ user }: { user: SessionUser }) {
 
   return (
     <ModuleGridPage
-      fullScreen
       leading={
         <Image
           src={workspacePath("/company/logo.png")}

@@ -62,6 +62,44 @@ export function validateCurrentWorkPercent(rows: EdpRow[]) {
   return { ok: true, message: "" };
 }
 
+export function isBlankNewEdp(row: EdpRow) {
+  return Boolean(row.isNew)
+    && !row.positionId
+    && !row.startDate
+    && !row.endDate
+    && !row.reportTo
+    && !row.workPercent
+    && !row.isPrimary;
+}
+
+export function persistableEdpRows(rows: EdpRow[]) {
+  return rows.filter((row) => !isBlankNewEdp(row));
+}
+
+export function isBlankNewContract(row: ContractRow) {
+  return Boolean(row.isNew)
+    && !row.company
+    && !row.insuranceStatus
+    && !row.legalRelation
+    && !row.contractType
+    && !row.employmentForm
+    && !row.firstContractStartDate
+    && !row.firstContractEndDate
+    && !row.secondContractStartDate
+    && !row.secondContractEndDate
+    && !row.thirdContractStartDate
+    && !row.thirdContractEndDate
+    && !row.permanentContractDate
+    && !row.confidentialityDate
+    && !row.nonCompeteDate
+    && !row.isPrimary
+    && !row.isInsuredHere;
+}
+
+export function persistableContractRows(rows: ContractRow[]) {
+  return rows.filter((row) => !isBlankNewContract(row));
+}
+
 export function formatAlias(value: string | null) {
   if (!value) return "";
   try {

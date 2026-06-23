@@ -48,6 +48,8 @@ export type NotificationMinAggregateOutputType = {
   href: string | null
   payloadJson: string | null
   isImportant: boolean | null
+  isStrongReminder: boolean | null
+  requiresAcknowledgement: boolean | null
   readAt: Date | null
   acknowledgedAt: Date | null
   rejectedAt: Date | null
@@ -66,6 +68,8 @@ export type NotificationMaxAggregateOutputType = {
   href: string | null
   payloadJson: string | null
   isImportant: boolean | null
+  isStrongReminder: boolean | null
+  requiresAcknowledgement: boolean | null
   readAt: Date | null
   acknowledgedAt: Date | null
   rejectedAt: Date | null
@@ -84,6 +88,8 @@ export type NotificationCountAggregateOutputType = {
   href: number
   payloadJson: number
   isImportant: number
+  isStrongReminder: number
+  requiresAcknowledgement: number
   readAt: number
   acknowledgedAt: number
   rejectedAt: number
@@ -116,6 +122,8 @@ export type NotificationMinAggregateInputType = {
   href?: true
   payloadJson?: true
   isImportant?: true
+  isStrongReminder?: true
+  requiresAcknowledgement?: true
   readAt?: true
   acknowledgedAt?: true
   rejectedAt?: true
@@ -134,6 +142,8 @@ export type NotificationMaxAggregateInputType = {
   href?: true
   payloadJson?: true
   isImportant?: true
+  isStrongReminder?: true
+  requiresAcknowledgement?: true
   readAt?: true
   acknowledgedAt?: true
   rejectedAt?: true
@@ -152,6 +162,8 @@ export type NotificationCountAggregateInputType = {
   href?: true
   payloadJson?: true
   isImportant?: true
+  isStrongReminder?: true
+  requiresAcknowledgement?: true
   readAt?: true
   acknowledgedAt?: true
   rejectedAt?: true
@@ -257,6 +269,8 @@ export type NotificationGroupByOutputType = {
   href: string | null
   payloadJson: string | null
   isImportant: boolean
+  isStrongReminder: boolean
+  requiresAcknowledgement: boolean
   readAt: Date | null
   acknowledgedAt: Date | null
   rejectedAt: Date | null
@@ -298,6 +312,8 @@ export type NotificationWhereInput = {
   href?: Prisma.StringNullableFilter<"Notification"> | string | null
   payloadJson?: Prisma.StringNullableFilter<"Notification"> | string | null
   isImportant?: Prisma.BoolFilter<"Notification"> | boolean
+  isStrongReminder?: Prisma.BoolFilter<"Notification"> | boolean
+  requiresAcknowledgement?: Prisma.BoolFilter<"Notification"> | boolean
   readAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   acknowledgedAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   rejectedAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
@@ -318,6 +334,8 @@ export type NotificationOrderByWithRelationInput = {
   href?: Prisma.SortOrderInput | Prisma.SortOrder
   payloadJson?: Prisma.SortOrderInput | Prisma.SortOrder
   isImportant?: Prisma.SortOrder
+  isStrongReminder?: Prisma.SortOrder
+  requiresAcknowledgement?: Prisma.SortOrder
   readAt?: Prisma.SortOrderInput | Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   rejectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -341,6 +359,8 @@ export type NotificationWhereUniqueInput = Prisma.AtLeast<{
   href?: Prisma.StringNullableFilter<"Notification"> | string | null
   payloadJson?: Prisma.StringNullableFilter<"Notification"> | string | null
   isImportant?: Prisma.BoolFilter<"Notification"> | boolean
+  isStrongReminder?: Prisma.BoolFilter<"Notification"> | boolean
+  requiresAcknowledgement?: Prisma.BoolFilter<"Notification"> | boolean
   readAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   acknowledgedAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   rejectedAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
@@ -361,6 +381,8 @@ export type NotificationOrderByWithAggregationInput = {
   href?: Prisma.SortOrderInput | Prisma.SortOrder
   payloadJson?: Prisma.SortOrderInput | Prisma.SortOrder
   isImportant?: Prisma.SortOrder
+  isStrongReminder?: Prisma.SortOrder
+  requiresAcknowledgement?: Prisma.SortOrder
   readAt?: Prisma.SortOrderInput | Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   rejectedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -387,6 +409,8 @@ export type NotificationScalarWhereWithAggregatesInput = {
   href?: Prisma.StringNullableWithAggregatesFilter<"Notification"> | string | null
   payloadJson?: Prisma.StringNullableWithAggregatesFilter<"Notification"> | string | null
   isImportant?: Prisma.BoolWithAggregatesFilter<"Notification"> | boolean
+  isStrongReminder?: Prisma.BoolWithAggregatesFilter<"Notification"> | boolean
+  requiresAcknowledgement?: Prisma.BoolWithAggregatesFilter<"Notification"> | boolean
   readAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Notification"> | Date | string | null
   acknowledgedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Notification"> | Date | string | null
   rejectedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Notification"> | Date | string | null
@@ -402,6 +426,8 @@ export type NotificationCreateInput = {
   href?: string | null
   payloadJson?: string | null
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: Date | string | null
   acknowledgedAt?: Date | string | null
   rejectedAt?: Date | string | null
@@ -422,6 +448,8 @@ export type NotificationUncheckedCreateInput = {
   href?: string | null
   payloadJson?: string | null
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: Date | string | null
   acknowledgedAt?: Date | string | null
   rejectedAt?: Date | string | null
@@ -437,6 +465,8 @@ export type NotificationUpdateInput = {
   href?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isImportant?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isStrongReminder?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresAcknowledgement?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -457,6 +487,8 @@ export type NotificationUncheckedUpdateInput = {
   href?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isImportant?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isStrongReminder?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresAcknowledgement?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -475,6 +507,8 @@ export type NotificationCreateManyInput = {
   href?: string | null
   payloadJson?: string | null
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: Date | string | null
   acknowledgedAt?: Date | string | null
   rejectedAt?: Date | string | null
@@ -490,6 +524,8 @@ export type NotificationUpdateManyMutationInput = {
   href?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isImportant?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isStrongReminder?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresAcknowledgement?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -508,6 +544,8 @@ export type NotificationUncheckedUpdateManyInput = {
   href?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isImportant?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isStrongReminder?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresAcknowledgement?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -536,6 +574,8 @@ export type NotificationCountOrderByAggregateInput = {
   href?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   isImportant?: Prisma.SortOrder
+  isStrongReminder?: Prisma.SortOrder
+  requiresAcknowledgement?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrder
   rejectedAt?: Prisma.SortOrder
@@ -560,6 +600,8 @@ export type NotificationMaxOrderByAggregateInput = {
   href?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   isImportant?: Prisma.SortOrder
+  isStrongReminder?: Prisma.SortOrder
+  requiresAcknowledgement?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrder
   rejectedAt?: Prisma.SortOrder
@@ -578,6 +620,8 @@ export type NotificationMinOrderByAggregateInput = {
   href?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   isImportant?: Prisma.SortOrder
+  isStrongReminder?: Prisma.SortOrder
+  requiresAcknowledgement?: Prisma.SortOrder
   readAt?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrder
   rejectedAt?: Prisma.SortOrder
@@ -683,6 +727,8 @@ export type NotificationCreateWithoutRecipientInput = {
   href?: string | null
   payloadJson?: string | null
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: Date | string | null
   acknowledgedAt?: Date | string | null
   rejectedAt?: Date | string | null
@@ -701,6 +747,8 @@ export type NotificationUncheckedCreateWithoutRecipientInput = {
   href?: string | null
   payloadJson?: string | null
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: Date | string | null
   acknowledgedAt?: Date | string | null
   rejectedAt?: Date | string | null
@@ -725,6 +773,8 @@ export type NotificationCreateWithoutActorInput = {
   href?: string | null
   payloadJson?: string | null
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: Date | string | null
   acknowledgedAt?: Date | string | null
   rejectedAt?: Date | string | null
@@ -743,6 +793,8 @@ export type NotificationUncheckedCreateWithoutActorInput = {
   href?: string | null
   payloadJson?: string | null
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: Date | string | null
   acknowledgedAt?: Date | string | null
   rejectedAt?: Date | string | null
@@ -789,6 +841,8 @@ export type NotificationScalarWhereInput = {
   href?: Prisma.StringNullableFilter<"Notification"> | string | null
   payloadJson?: Prisma.StringNullableFilter<"Notification"> | string | null
   isImportant?: Prisma.BoolFilter<"Notification"> | boolean
+  isStrongReminder?: Prisma.BoolFilter<"Notification"> | boolean
+  requiresAcknowledgement?: Prisma.BoolFilter<"Notification"> | boolean
   readAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   acknowledgedAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
   rejectedAt?: Prisma.DateTimeNullableFilter<"Notification"> | Date | string | null
@@ -822,6 +876,8 @@ export type NotificationCreateManyRecipientInput = {
   href?: string | null
   payloadJson?: string | null
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: Date | string | null
   acknowledgedAt?: Date | string | null
   rejectedAt?: Date | string | null
@@ -839,6 +895,8 @@ export type NotificationCreateManyActorInput = {
   href?: string | null
   payloadJson?: string | null
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: Date | string | null
   acknowledgedAt?: Date | string | null
   rejectedAt?: Date | string | null
@@ -854,6 +912,8 @@ export type NotificationUpdateWithoutRecipientInput = {
   href?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isImportant?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isStrongReminder?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresAcknowledgement?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -872,6 +932,8 @@ export type NotificationUncheckedUpdateWithoutRecipientInput = {
   href?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isImportant?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isStrongReminder?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresAcknowledgement?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -889,6 +951,8 @@ export type NotificationUncheckedUpdateManyWithoutRecipientInput = {
   href?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isImportant?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isStrongReminder?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresAcknowledgement?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -904,6 +968,8 @@ export type NotificationUpdateWithoutActorInput = {
   href?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isImportant?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isStrongReminder?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresAcknowledgement?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -922,6 +988,8 @@ export type NotificationUncheckedUpdateWithoutActorInput = {
   href?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isImportant?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isStrongReminder?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresAcknowledgement?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -939,6 +1007,8 @@ export type NotificationUncheckedUpdateManyWithoutActorInput = {
   href?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isImportant?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isStrongReminder?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  requiresAcknowledgement?: Prisma.BoolFieldUpdateOperationsInput | boolean
   readAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   rejectedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -959,6 +1029,8 @@ export type NotificationSelect<ExtArgs extends runtime.Types.Extensions.Internal
   href?: boolean
   payloadJson?: boolean
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: boolean
   acknowledgedAt?: boolean
   rejectedAt?: boolean
@@ -979,6 +1051,8 @@ export type NotificationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   href?: boolean
   payloadJson?: boolean
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: boolean
   acknowledgedAt?: boolean
   rejectedAt?: boolean
@@ -999,6 +1073,8 @@ export type NotificationSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   href?: boolean
   payloadJson?: boolean
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: boolean
   acknowledgedAt?: boolean
   rejectedAt?: boolean
@@ -1019,6 +1095,8 @@ export type NotificationSelectScalar = {
   href?: boolean
   payloadJson?: boolean
   isImportant?: boolean
+  isStrongReminder?: boolean
+  requiresAcknowledgement?: boolean
   readAt?: boolean
   acknowledgedAt?: boolean
   rejectedAt?: boolean
@@ -1027,7 +1105,7 @@ export type NotificationSelectScalar = {
   updatedAt?: boolean
 }
 
-export type NotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "recipientUserId" | "actorUserId" | "type" | "title" | "body" | "href" | "payloadJson" | "isImportant" | "readAt" | "acknowledgedAt" | "rejectedAt" | "clearedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["notification"]>
+export type NotificationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "recipientUserId" | "actorUserId" | "type" | "title" | "body" | "href" | "payloadJson" | "isImportant" | "isStrongReminder" | "requiresAcknowledgement" | "readAt" | "acknowledgedAt" | "rejectedAt" | "clearedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["notification"]>
 export type NotificationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   recipient?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   actor?: boolean | Prisma.Notification$actorArgs<ExtArgs>
@@ -1057,6 +1135,8 @@ export type $NotificationPayload<ExtArgs extends runtime.Types.Extensions.Intern
     href: string | null
     payloadJson: string | null
     isImportant: boolean
+    isStrongReminder: boolean
+    requiresAcknowledgement: boolean
     readAt: Date | null
     acknowledgedAt: Date | null
     rejectedAt: Date | null
@@ -1497,6 +1577,8 @@ export interface NotificationFieldRefs {
   readonly href: Prisma.FieldRef<"Notification", 'String'>
   readonly payloadJson: Prisma.FieldRef<"Notification", 'String'>
   readonly isImportant: Prisma.FieldRef<"Notification", 'Boolean'>
+  readonly isStrongReminder: Prisma.FieldRef<"Notification", 'Boolean'>
+  readonly requiresAcknowledgement: Prisma.FieldRef<"Notification", 'Boolean'>
   readonly readAt: Prisma.FieldRef<"Notification", 'DateTime'>
   readonly acknowledgedAt: Prisma.FieldRef<"Notification", 'DateTime'>
   readonly rejectedAt: Prisma.FieldRef<"Notification", 'DateTime'>

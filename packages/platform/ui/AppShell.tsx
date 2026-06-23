@@ -13,13 +13,13 @@ interface NavLinkDef { label: string; href: string; }
 
 interface Props {
   title: string;
-  backHref: string;
+  backHref?: string;
   backLabel?: string;
   /** 顶部栏的跨页导航链接（如工作汇报/工作清单/历史记录） */
   navLinks?: NavLinkDef[];
   hasUnsavedChanges?: boolean;
   user: SessionUser;
-  children: ReactNode;
+  children?: ReactNode;
 }
 
 export default function AppShell({ title, backHref, backLabel, navLinks, hasUnsavedChanges = false, user, children }: Props) {
@@ -35,7 +35,7 @@ export default function AppShell({ title, backHref, backLabel, navLinks, hasUnsa
     <PageShell
       title={title}
       backLabel={backLabel}
-      onBack={() => void navigate(backHref)}
+      onBack={backHref ? () => void navigate(backHref) : undefined}
       actions={navLinks?.map((link) => ({ label: link.label, onClick: () => void navigate(link.href) }))}
       leading={(
         <ActionButton

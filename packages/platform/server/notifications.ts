@@ -1,5 +1,4 @@
 import { prisma } from "./prisma";
-import { snapshotHistory } from "./history";
 
 export type NotificationAction = "read" | "acknowledge" | "reject" | "clear";
 
@@ -12,6 +11,8 @@ export interface CreateNotificationInput {
   href?: string | null;
   payload?: unknown;
   isImportant?: boolean;
+  isStrongReminder?: boolean;
+  requiresAcknowledgement?: boolean;
 }
 
 export async function createNotification(input: CreateNotificationInput) {
@@ -26,35 +27,44 @@ export async function createNotification(input: CreateNotificationInput) {
       href: input.href ?? null,
       payloadJson: input.payload === undefined ? null : JSON.stringify(input.payload),
       isImportant: input.isImportant ?? false,
+      isStrongReminder: input.isStrongReminder ?? false,
+      requiresAcknowledgement: input.requiresAcknowledgement ?? input.isImportant ?? false,
     },
   });
-}
-
-function parseNotificationPayload(payloadJson: string | null) {
-  if (!payloadJson) return null;
-  try {
-    return JSON.parse(payloadJson) as Record<string, unknown>;
-  } catch {
-    return null;
-  }
 }
 
 export async function listUserNotifications(userId: number, limit = 5, offset = 0) {
   const take = Math.min(Math.max(limit, 1), 50);
   const skip = Math.max(offset, 0);
   const visibleWhere = { recipientUserId: userId, clearedAt: null };
-  const [items, total, unreadCount, pendingCount] = await Promise.all([
-    prisma.notification.findMany({
-      where: visibleWhere,
-      include: { actor: { select: { id: true, nickname: true, username: true, avatar: true } } },
-      orderBy: { createdAt: "desc" },
-      take,
-      skip,
-    }),
+  const [orderedIds, total, unreadCount, pendingCount] = await Promise.all([
+    prisma.$queryRaw<{ id: number }[]>`
+      SELECT id
+      FROM Notification
+      WHERE recipientUserId = ${userId}
+        AND clearedAt IS NULL
+      ORDER BY
+        CASE
+          WHEN requiresAcknowledgement = 1 AND acknowledgedAt IS NULL AND rejectedAt IS NULL THEN 0
+          WHEN isImportant = 1 AND readAt IS NULL THEN 1
+          ELSE 2
+        END ASC,
+        createdAt DESC
+      LIMIT ${take}
+      OFFSET ${skip}
+    `,
     prisma.notification.count({ where: visibleWhere }),
     prisma.notification.count({ where: { ...visibleWhere, readAt: null } }),
-    prisma.notification.count({ where: { ...visibleWhere, isImportant: true, acknowledgedAt: null, rejectedAt: null } }),
+    prisma.notification.count({ where: { ...visibleWhere, requiresAcknowledgement: true, acknowledgedAt: null, rejectedAt: null } }),
   ]);
+  const itemIds = orderedIds.map((item) => item.id);
+  const itemOrder = new Map(itemIds.map((id, index) => [id, index]));
+  const items = itemIds.length === 0
+    ? []
+    : (await prisma.notification.findMany({
+        where: { id: { in: itemIds } },
+        include: { actor: { select: { id: true, nickname: true, username: true, avatar: true } } },
+      })).sort((a, b) => (itemOrder.get(a.id) ?? 0) - (itemOrder.get(b.id) ?? 0));
 
   return {
     items: items.map((item) => ({
@@ -64,6 +74,8 @@ export async function listUserNotifications(userId: number, limit = 5, offset = 
       body: item.body,
       href: item.href,
       isImportant: item.isImportant,
+      isStrongReminder: item.isStrongReminder,
+      requiresAcknowledgement: item.requiresAcknowledgement,
       readAt: item.readAt?.toISOString() ?? null,
       acknowledgedAt: item.acknowledgedAt?.toISOString() ?? null,
       rejectedAt: item.rejectedAt?.toISOString() ?? null,
@@ -83,48 +95,6 @@ export async function listUserNotifications(userId: number, limit = 5, offset = 
   };
 }
 
-async function rejectProjectMemberNotification(userId: number, notificationId: number) {
-  const notification = await prisma.notification.findFirst({
-    where: {
-      id: notificationId,
-      recipientUserId: userId,
-      type: { in: ["work.project.member.added", "work.project.member.roleChanged"] },
-    },
-    select: { id: true, payloadJson: true },
-  });
-  if (!notification) return { success: false as const, error: "通知不存在", status: 404 };
-
-  const payload = parseNotificationPayload(notification.payloadJson);
-  const projectId = Number(payload?.projectId);
-  const employeeId = Number(payload?.employeeId);
-  if (!Number.isInteger(projectId) || !Number.isInteger(employeeId)) {
-    return { success: false as const, error: "通知数据无效", status: 400 };
-  }
-
-  const employee = await prisma.employee.findFirst({
-    where: { id: employeeId, userId },
-    select: { id: true },
-  });
-  if (!employee) return { success: false as const, error: "只能拒绝自己的项目邀请", status: 403 };
-
-  const member = await prisma.employeeProject.findUnique({
-    where: { employeeId_projectId: { employeeId, projectId } },
-    select: { id: true },
-  });
-  const now = new Date();
-  await prisma.$transaction(async (tx) => {
-    if (member) {
-      await snapshotHistory("EmployeeProject", member.id, userId, tx);
-      await tx.employeeProject.delete({ where: { id: member.id } });
-    }
-    await tx.notification.update({
-      where: { id: notificationId },
-      data: { readAt: now, rejectedAt: now },
-    });
-  });
-  return { success: true as const };
-}
-
 export async function updateUserNotification(userId: number, notificationId: number, action: NotificationAction) {
   const existing = await prisma.notification.findFirst({
     where: { id: notificationId, recipientUserId: userId },
@@ -133,7 +103,6 @@ export async function updateUserNotification(userId: number, notificationId: num
   if (!existing) return { success: false as const, error: "通知不存在", status: 404 };
 
   const now = new Date();
-  if (action === "reject") return rejectProjectMemberNotification(userId, notificationId);
 
   await prisma.notification.update({
     where: { id: notificationId },
@@ -141,6 +110,8 @@ export async function updateUserNotification(userId: number, notificationId: num
       ? { readAt: now, clearedAt: now }
       : action === "acknowledge"
         ? { readAt: now, acknowledgedAt: now, rejectedAt: null }
+        : action === "reject"
+          ? { readAt: now, acknowledgedAt: null, rejectedAt: now }
         : { readAt: now },
   });
   return { success: true as const };
@@ -154,6 +125,11 @@ export async function clearReadUserNotifications(userId: number) {
       clearedAt: null,
       readAt: { not: null },
       isImportant: false,
+      OR: [
+        { requiresAcknowledgement: false },
+        { acknowledgedAt: { not: null } },
+        { rejectedAt: { not: null } },
+      ],
     },
     data: { clearedAt: now },
   });

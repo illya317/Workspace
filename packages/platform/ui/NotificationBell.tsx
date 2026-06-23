@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { workspacePath } from "@workspace/core/routing";
-import { ActionButton } from "@workspace/core/ui";
 
 type NotificationItem = {
   id: number;
@@ -12,6 +11,8 @@ type NotificationItem = {
   body: string;
   href: string | null;
   isImportant: boolean;
+  isStrongReminder: boolean;
+  requiresAcknowledgement: boolean;
   readAt: string | null;
   acknowledgedAt: string | null;
   rejectedAt: string | null;
@@ -28,6 +29,39 @@ type NotificationResponse = {
 };
 
 const PAGE_SIZE = 5;
+const POLL_INTERVAL_MS = 60_000;
+const RECENT_TIME_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+const WEEKDAY_LABELS = ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"] as const;
+
+function formatClock(date: Date) {
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
+
+function formatNotificationTime(value: string) {
+  const date = new Date(value);
+  const timestamp = date.getTime();
+  if (Number.isNaN(timestamp)) return "";
+
+  const now = new Date();
+  const diff = now.getTime() - timestamp;
+  const clock = formatClock(date);
+  if (diff >= 0 && diff < RECENT_TIME_WINDOW_MS) return `${WEEKDAY_LABELS[date.getDay()]} ${clock}`;
+  if (date.getFullYear() === now.getFullYear()) return `${date.getMonth() + 1}-${date.getDate()} ${clock}`;
+  return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${clock}`;
+}
+
+function mergeNotificationItems(current: NotificationItem[], next: NotificationItem[]) {
+  const seen = new Set<number>();
+  const merged: NotificationItem[] = [];
+  for (const item of [...current, ...next]) {
+    if (seen.has(item.id)) continue;
+    seen.add(item.id);
+    merged.push(item);
+  }
+  return merged;
+}
 
 export default function NotificationBell({
   onBeforeNavigate,
@@ -37,6 +71,7 @@ export default function NotificationBell({
   const router = useRouter();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const buttonRef = useRef<HTMLButtonElement | null>(null);
+  const readingIdsRef = useRef<Set<number>>(new Set());
   const [open, setOpen] = useState(false);
   const [data, setData] = useState<NotificationResponse>({ items: [], total: 0, hasMore: false, unreadCount: 0, pendingCount: 0 });
   const [busyId, setBusyId] = useState<number | null>(null);
@@ -48,11 +83,18 @@ export default function NotificationBell({
     const res = await fetch(workspacePath(`/api/settings/account/notifications?limit=${PAGE_SIZE}&offset=${offset}`));
     if (!res.ok) return;
     const next = await res.json() as NotificationResponse;
-    setData((current) => append ? { ...next, items: [...current.items, ...next.items] } : next);
+    setData((current) => append ? { ...next, items: mergeNotificationItems(current.items, next.items) } : next);
   }, []);
 
   useEffect(() => {
     void load(0);
+  }, [load]);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      void load(0);
+    }, POLL_INTERVAL_MS);
+    return () => window.clearInterval(timer);
   }, [load]);
 
   const updatePanelPosition = useCallback(() => {
@@ -108,6 +150,29 @@ export default function NotificationBell({
     }
   }
 
+  async function markNotificationRead(item: NotificationItem) {
+    if (item.readAt || readingIdsRef.current.has(item.id)) return;
+    readingIdsRef.current.add(item.id);
+    const readAt = new Date().toISOString();
+    setData((current) => ({
+      ...current,
+      unreadCount: Math.max(0, current.unreadCount - 1),
+      items: current.items.map((entry) => entry.id === item.id ? { ...entry, readAt } : entry),
+    }));
+    try {
+      const res = await fetch(workspacePath(`/api/settings/account/notifications/${item.id}`), {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "read" }),
+      });
+      if (!res.ok) await load(0);
+    } catch {
+      await load(0);
+    } finally {
+      readingIdsRef.current.delete(item.id);
+    }
+  }
+
   async function clearNotifications() {
     setClearing(true);
     try {
@@ -141,7 +206,6 @@ export default function NotificationBell({
   }
 
   const count = data.pendingCount || data.unreadCount;
-  const isProjectInvite = (item: NotificationItem) => item.type === "work.project.member.added" || item.type === "work.project.member.roleChanged";
 
   return (
     <div ref={rootRef} className="relative">
@@ -205,72 +269,85 @@ export default function NotificationBell({
               <p className="px-4 py-8 text-center text-sm text-slate-400">暂无通知</p>
             ) : (
               data.items.map((item) => {
-                const pendingImportant = item.isImportant && !item.acknowledgedAt && !item.rejectedAt;
-                const itemToneClass = pendingImportant
-                  ? "bg-amber-50/50"
-                  : item.readAt
-                    ? "bg-white"
-                    : "bg-sky-50/40";
+                const pendingAcknowledgement = item.requiresAcknowledgement && !item.acknowledgedAt && !item.rejectedAt;
+                const unread = !item.readAt;
+                const itemToneClass = item.isImportant
+                  ? "bg-red-50/60"
+                  : unread
+                    ? "bg-sky-50/40"
+                    : "bg-white";
+                const titleToneClass = unread && item.isImportant
+                  ? "font-semibold text-red-600"
+                  : unread
+                    ? "font-semibold text-slate-950"
+                    : "font-medium text-slate-700";
+                const titleHoverClass = unread && item.isImportant ? "hover:text-red-700" : "hover:text-emerald-700";
                 return (
-                <div key={item.id} className={`border-b border-slate-100 px-4 py-3 last:border-b-0 ${itemToneClass}`}>
+                <div
+                  key={item.id}
+                  className={`border-b border-slate-100 px-4 py-3 last:border-b-0 ${itemToneClass}`}
+                  onMouseEnter={() => void markNotificationRead(item)}
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex min-w-0 items-center gap-1.5">
-                        {item.isImportant && (
-                          <span title="重要通知" className="grid size-4 shrink-0 place-items-center rounded-full bg-amber-100 text-[10px] font-bold leading-none text-amber-700">!</span>
+                        {unread && <span aria-label="未读" className="size-1.5 shrink-0 rounded-full bg-sky-500" />}
+                        {item.href ? (
+                          <button
+                            type="button"
+                            className={`min-w-0 truncate text-left text-sm ${titleToneClass} ${titleHoverClass}`}
+                            onClick={() => void openHref(item)}
+                          >
+                            {item.title}
+                          </button>
+                        ) : (
+                          <div className={`truncate text-sm ${titleToneClass}`}>{item.title}</div>
                         )}
-                        <div className="truncate text-sm font-semibold text-slate-900">{item.title}</div>
+                        {item.rejectedAt ? (
+                          <span className="shrink-0 rounded-full bg-red-50 px-2 py-1 text-[11px] font-medium leading-none text-red-600">已拒绝</span>
+                        ) : item.acknowledgedAt ? (
+                          <span className="shrink-0 rounded-full bg-emerald-50 px-2 py-1 text-[11px] font-medium leading-none text-emerald-700">已确认</span>
+                        ) : pendingAcknowledgement ? (
+                          <span className="shrink-0 rounded-full bg-amber-100 px-2 py-1 text-[11px] font-medium leading-none text-amber-700">待确认</span>
+                        ) : null}
                       </div>
                       <div className="mt-1 text-xs leading-5 text-slate-600">{item.body}</div>
-                      <div className="mt-1 text-[11px] text-slate-400">
-                        {item.actor ? `${item.actor.name} · ` : ""}{new Date(item.createdAt).toLocaleString("zh-CN", { hour12: false })}
-                      </div>
                     </div>
-                    {item.rejectedAt ? (
-                      <span className="shrink-0 rounded-full bg-red-50 px-2 py-0.5 text-[11px] font-medium text-red-600">已拒绝</span>
-                    ) : item.acknowledgedAt ? (
-                      <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">已确认</span>
-                    ) : pendingImportant ? (
-                      <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700">待确认</span>
-                    ) : item.readAt ? (
-                      <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">已读</span>
-                    ) : (
-                      <span className="shrink-0 rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-medium text-sky-700">未读</span>
-                    )}
-                  </div>
-                  <div className="mt-3 flex justify-end gap-2">
-                    {item.href && (
-                      <ActionButton className="h-8 px-3 py-1 text-[11px]" onClick={() => void openHref(item)}>
-                        查看
-                      </ActionButton>
-                    )}
-                    {pendingImportant && (
-                      <ActionButton
-                        variant="primary"
-                        className="h-8 px-3 py-1 text-[11px]"
-                        disabled={busyId === item.id}
-                        onClick={() => void updateNotification(item.id, "acknowledge")}
-                      >
-                        确认
-                      </ActionButton>
-                    )}
-                    {pendingImportant && isProjectInvite(item) && (
-                      <ActionButton
-                        variant="danger"
-                        className="h-8 px-3 py-1 text-[11px]"
-                        disabled={busyId === item.id}
-                        onClick={() => void updateNotification(item.id, "reject")}
-                      >
-                        拒绝
-                      </ActionButton>
-                    )}
-                    <ActionButton
-                      className="h-8 px-3 py-1 text-[11px]"
+                    <button
+                      type="button"
+                      aria-label="清除通知"
+                      title="清除"
+                      className="grid size-6 shrink-0 place-items-center rounded-full text-lg leading-none text-slate-300 transition hover:bg-slate-100 hover:text-slate-600 disabled:cursor-not-allowed disabled:text-slate-200"
                       disabled={busyId === item.id}
                       onClick={() => void updateNotification(item.id, "clear")}
                     >
-                      清除
-                    </ActionButton>
+                      ×
+                    </button>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between gap-3">
+                    <div className="min-w-0 truncate text-left text-[11px] text-slate-400">
+                      {item.actor ? `${item.actor.name} · ` : ""}{formatNotificationTime(item.createdAt)}
+                    </div>
+                    {pendingAcknowledgement && (
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        <button
+                          type="button"
+                          className="rounded-full bg-emerald-600 px-2.5 py-1 text-[11px] font-medium leading-none text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                          disabled={busyId === item.id}
+                          onClick={() => void updateNotification(item.id, "acknowledge")}
+                        >
+                          确认
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium leading-none text-red-600 ring-1 ring-red-100 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          disabled={busyId === item.id}
+                          onClick={() => void updateNotification(item.id, "reject")}
+                        >
+                          拒绝
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
                 );

@@ -5,7 +5,6 @@ import {
 } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 import { isValidDateValue, rejectInvalidDateField, validateEmploymentOption } from "../field-validation";
-import { guardEmployeeInactive } from "../reference-guards";
 
 const DATE_FIELDS = ["joinDate", "leaveDate"];
 const OPTION_FIELDS = ["officeLocation", "personnelType", "rank", "title", "leaveReason"];
@@ -78,26 +77,12 @@ export async function buildEmploymentCreateCommand(
 export async function buildEmploymentFieldUpdateCommand(
   field: string,
   value: unknown,
-  id?: number,
+  _id?: number,
 ): Promise<DomainValidationResult<EmploymentFieldUpdateCommand>> {
   if (field === "employeeId") return failCommand("雇佣记录员工不可修改");
   const dateResult = rejectInvalidDateField(field, value, DATE_FIELDS);
   if (!dateResult) return failCommand("日期格式无效");
   const optionResult = validateEmploymentOption(field, value);
   if (!optionResult) return failCommand("字段值不在允许范围内");
-  if (field === "isActive" && (value === false || value === "false") && id) {
-    const employment = await prisma.employment.findUnique({
-      where: { id },
-      select: { employeeId: true },
-    });
-    if (!employment) return failCommand("雇佣记录不存在", 404);
-    const otherActiveCount = await prisma.employment.count({
-      where: { employeeId: employment.employeeId, id: { not: id }, isActive: true },
-    });
-    if (otherActiveCount === 0) {
-      const blockMessage = await guardEmployeeInactive(employment.employeeId);
-      if (blockMessage) return failCommand(blockMessage, 409);
-    }
-  }
   return okCommand({ field, value });
 }
