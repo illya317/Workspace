@@ -149,7 +149,7 @@ export const coreUiComponentRegistry = [
   { name: "TemplateWorkbenchFrame", kind: "layout", description: "模板结构工作台骨架，统一左侧模板选择、顶部搜索筛选、右侧阶段/项目行和行级动作承载区。", example: "生产检验模板页把产品、阶段、检测项和业务反馈/预览动作映射进来，特化弹窗留在业务包设计。", includes: ["CommandToolbar", "SearchInput", "SelectorCard", "PanelCard", "StatusBadge", "ActionButton"] },
   { name: "TextareaField", kind: "form", description: "多行文本输入 primitive，替代业务包手写 textarea。", example: "在人事备注、合同说明或资料描述中输入多行文本。" },
   { name: "TextField", kind: "form", description: "通用文本输入 primitive，替代业务包直接手写原生 input。", example: "设置弹窗中输入用户名、密码或短文本字段。" },
-  { name: "Toast", kind: "feedback", description: "轻量提示组件，用于成功、失败和操作反馈。", example: "保存成功后显示绿色提示，失败时显示错误提示。" },
+  { name: "Toast", kind: "feedback", description: "轻量成功提示组件；错误反馈统一转为默认弹窗。", example: "保存成功后显示绿色提示，失败时显示确认弹窗。" },
   { name: "Toolbar", kind: "toolbar", description: "CommandToolbar 的兼容别名导出，保留旧消费路径，新增代码优先使用 CommandToolbar。", example: "旧业务文件 import Toolbar 时仍获得统一命令栏实现。", includes: ["CommandToolbar"] },
   { name: "ToolbarShowcase", kind: "toolbar", description: "页面样式预览的兼容导出入口，真实实现已收敛到 PageStyleShowcase。", example: "旧页面继续 import ToolbarShowcase 时仍进入统一页面样式预览。", includes: ["PageStyleShowcase"] },
   { name: "page-style-preview", kind: "layout", description: "页面样式预览配置深导入命名空间，用于设置页和平台视图注册读取模板数据。", example: "设置页从 page-style-preview/template-data 获取页面模板路由和分组。" },

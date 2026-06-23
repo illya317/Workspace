@@ -6,7 +6,7 @@ const projectFields: FieldConfig[] = [
   { key: "leadingDepartmentId", label: "主导部门", type: "fk", editable: true, required: true },
   { key: "parentId", label: "上级项目", type: "fk", editable: true },
   { key: "status", label: "状态", editable: true },
-  { key: "isMilestone", label: "是否里程碑", editable: true, type: "boolean" },
+  { key: "isMilestone", label: "里程碑", editable: true, type: "boolean" },
   { key: "stage", label: "阶段", editable: true },
   { key: "description", label: "说明", editable: true, type: "textarea" },
   { key: "plan", label: "项目规划", editable: true, type: "textarea" },

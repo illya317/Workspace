@@ -12,6 +12,15 @@ export function getFieldInputClassName(className = "") {
   ].filter(Boolean).join(" ");
 }
 
+export function getTextareaInputClassName(className = "") {
+  return [
+    `min-h-9 w-full rounded-md border border-sky-200 bg-white px-3 py-2 font-sans ${FIELD_CONTROL_TEXT_CLASS} leading-6 text-slate-800 shadow-sm`,
+    "focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500",
+    "disabled:bg-sky-100/60 disabled:text-slate-500",
+    className,
+  ].filter(Boolean).join(" ");
+}
+
 export function getReadOnlyFieldClassName(className = "") {
   return [
     `flex ${FIELD_CONTROL_HEIGHT_CLASS} w-full items-center rounded-md border border-sky-200 bg-sky-100/60 px-3 py-0 font-sans ${FIELD_CONTROL_TEXT_CLASS} text-slate-600 shadow-sm tabular-nums`,

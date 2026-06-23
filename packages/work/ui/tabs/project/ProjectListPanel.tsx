@@ -29,15 +29,11 @@ export default function ProjectListPanel({
       {projects.map((project) => (
         <SelectorCard
           key={project.id}
-          title={project.name}
+          title={<ProjectTitle name={project.name} status={project.status} />}
           subtitle={projectCode(project, null)}
           active={selection === project.id}
           archived={project.isArchived}
-          trailing={`人 ${project.employeeCount}`}
-          meta={[
-            ...(project.status ? [project.status] : []),
-            ...(project.isMilestone ? ["里程碑"] : []),
-          ]}
+          meta={project.isMilestone ? ["里程碑"] : []}
           onClick={() => onSelect(project.id)}
         />
       ))}
@@ -46,6 +42,27 @@ export default function ProjectListPanel({
       )}
     </PanelCard>
   );
+}
+
+function ProjectTitle({ name, status }: { name: string; status: string | null }) {
+  return (
+    <span className="flex min-w-0 items-center gap-1.5">
+      <span className="truncate">{name}</span>
+      {status && (
+        <span className={`shrink-0 rounded px-1.5 py-0.5 text-xs font-medium ${projectStatusClassName(status)}`}>
+          {status}
+        </span>
+      )}
+    </span>
+  );
+}
+
+function projectStatusClassName(status: string) {
+  if (status === "暂停") return "bg-amber-50 text-amber-700";
+  if (status === "进行中") return "bg-emerald-50 text-emerald-700";
+  if (status === "已完成") return "bg-slate-100 text-slate-500";
+  if (status === "已取消") return "bg-rose-50 text-rose-600";
+  return "bg-sky-50 text-sky-700";
 }
 
 function emptyTextForFilter(filter: ProjectListFilter) {

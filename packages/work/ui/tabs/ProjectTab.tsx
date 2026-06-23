@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { CommandToolbar, EmptyStateCard, IconActionButton, Toast, ToolbarOptionGroup, WorkspaceSplitPage, useConfirmDelete } from "@workspace/core/ui";
+import { CommandToolbar, EmptyStateCard, IconActionButton, Toast, ToolbarOptionGroup, WorkspaceSplitPage, useConfirm, useConfirmDelete } from "@workspace/core/ui";
 import type { WorkUser } from "@workspace/work/types";
 import ProjectDetailEditor from "./project/ProjectDetailEditor";
 import ProjectListPanel from "./project/ProjectListPanel";
@@ -12,6 +12,7 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
   const searchParams = useSearchParams();
   const requestedProjectId = Number(searchParams.get("projectId") || "");
   const model = useProjectTabModel(user, Number.isInteger(requestedProjectId) && requestedProjectId > 0 ? requestedProjectId : null);
+  const confirm = useConfirm();
   const confirmDelete = useConfirmDelete();
   const editorTitle = model.creating ? "新建项目" : model.selectedProject ? "项目信息" : "项目详情";
   const startDepartmentProjectCreate = () => {
@@ -27,7 +28,17 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
       message: `确定删除项目「${model.selectedProject.name}」吗？此操作不可撤销。`,
       confirmLabel: "删除项目",
     });
-    if (ok) await model.deleteSelectedProject();
+    if (!ok) return;
+    const result = await model.deleteSelectedProject();
+    if (!result?.ok) {
+      await confirm({
+        title: "删除失败",
+        message: result?.error || "删除项目失败",
+        confirmLabel: "关闭",
+        confirmDanger: true,
+        showCancel: false,
+      });
+    }
   };
 
   if (model.loading || model.error) {

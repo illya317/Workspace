@@ -221,7 +221,7 @@ export default function ProjectTasksSection({
   }
 
   return (
-    <SectionCard title="项目任务" subtitle="任务只记录前置依赖，后置任务由系统反向计算。">
+    <SectionCard title="项目任务">
       <div className="space-y-4">
         {canEdit && (
           <ProjectTaskForm
@@ -235,7 +235,7 @@ export default function ProjectTasksSection({
           />
         )}
 
-        <TableScrollFrame>
+        <TableScrollFrame className="overflow-y-hidden">
           <DataTable
             rows={tasks}
             columns={columns}
@@ -303,15 +303,6 @@ function ProjectTaskForm({
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-3">
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-4">
-        <FormField label="任务描述" required className="lg:col-span-2">
-          <TextareaField
-            value={draft.description}
-            disabled={disabled}
-            rows={2}
-            className="text-sm"
-            onChange={(value) => patch({ description: value })}
-          />
-        </FormField>
         <FormField label="负责人">
           <FkFieldInput
             fkKey="work.projects.member.employee"
@@ -323,7 +314,7 @@ function ProjectTaskForm({
             onChange={(_label, option) => setOwner(option)}
           />
         </FormField>
-        <FormField label="是否里程碑">
+        <FormField label="里程碑">
           <OptionPicker
             value={draft.isMilestone ? "true" : "false"}
             options={PROJECT_MILESTONE_PICKER_OPTIONS}
@@ -336,7 +327,16 @@ function ProjectTaskForm({
         </FormField>
         <DateField label="开始时间" value={draft.startDate} disabled={disabled} onChange={(value) => patch({ startDate: value })} />
         <DateField label="结束时间" value={draft.endDate} disabled={disabled} onChange={(value) => patch({ endDate: value })} />
-        <FormField label="前置任务" className="lg:col-span-2">
+        <FormField label="任务描述" required className="lg:col-span-4">
+          <TextareaField
+            value={draft.description}
+            disabled={disabled}
+            rows={2}
+            className="text-sm"
+            onChange={(value) => patch({ description: value })}
+          />
+        </FormField>
+        <FormField label="前置任务" className="lg:col-span-4">
           <OptionPicker
             value={draft.predecessorTaskId ? String(draft.predecessorTaskId) : null}
             options={predecessorOptions}
@@ -375,6 +375,7 @@ function DateField({
         disabled={disabled}
         onChange={onChange}
         className={inputClassName}
+        popoverMode="fixed"
       />
     </FormField>
   );

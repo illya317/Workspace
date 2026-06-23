@@ -13,6 +13,7 @@ const AUDITED_MODELS = [
   "EDP",
   "Project",
   "EmployeeProject",
+  "ProjectTask",
   "PositionDescription",
 ] as const;
 

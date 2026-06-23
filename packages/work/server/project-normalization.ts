@@ -2,7 +2,6 @@ import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { isValidDateValue, rejectInvalidDateField } from "@workspace/platform/server/api";
 import { prisma } from "@workspace/platform/server/prisma";
 import { WORK_FK_REGISTRY } from "./fk-registry";
-import { guardProjectArchive } from "./reference-guards";
 
 const DATE_FIELDS = ["startDate", "endDate"];
 const NUMBER_FIELDS = ["budgetAmount"];
@@ -43,10 +42,6 @@ export const PROJECT_CONFIG = {
     "archivedAt",
   ],
   onBeforeUpdate: normalizeProjectFieldUpdate,
-  onBeforeDelete: async (id: number) => {
-    const blockMessage = await guardProjectArchive(id, "删除项目");
-    return blockMessage ? { error: blockMessage, status: 409 } : { ok: true as const };
-  },
 };
 
 export function formatDate(value: Date | string | null | undefined) {

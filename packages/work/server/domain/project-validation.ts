@@ -143,10 +143,6 @@ export async function buildProjectFieldUpdateCommand(input: {
   if (field === "isArchived") {
     if (!(await canDeleteProject(userId, projectId))) return failCommand("无权限", 403);
     const archived = Boolean(value);
-    if (archived) {
-      const beforeDelete = await PROJECT_CONFIG.onBeforeDelete?.(projectId);
-      if (beforeDelete && "error" in beforeDelete) return failCommand(beforeDelete.error ?? "删除前校验失败", beforeDelete.status || 400);
-    }
     return okCommand({
       kind: "field",
       data: { isArchived: archived, archivedAt: archived ? new Date() : null },
@@ -222,7 +218,5 @@ export async function validateProjectDeleteCommand(
   projectId: number,
 ): Promise<DomainValidationResult<ProjectDeleteCommand>> {
   if (!(await canDeleteProject(userId, projectId))) return failCommand("无权限", 403);
-  const beforeDelete = await PROJECT_CONFIG.onBeforeDelete?.(projectId);
-  if (beforeDelete && "error" in beforeDelete) return failCommand(beforeDelete.error ?? "删除前校验失败", beforeDelete.status || 400);
   return okCommand({ projectId });
 }

@@ -236,7 +236,7 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   }
 
   async function deleteSelectedProject() {
-    if (!selectedProject || saving) return;
+    if (!selectedProject || saving) return { ok: false as const, error: "未选择项目" };
     setSaving(true);
     try {
       await deleteProject(selectedProject.id);
@@ -246,8 +246,9 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
       setBaseline("");
       setSelection(null);
       await loadData();
+      return { ok: true as const };
     } catch (err) {
-      setToast({ type: "error", message: err instanceof Error ? err.message : "删除项目失败" });
+      return { ok: false as const, error: err instanceof Error ? err.message : "删除项目失败" };
     } finally {
       setSaving(false);
     }

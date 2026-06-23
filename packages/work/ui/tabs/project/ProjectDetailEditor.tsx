@@ -167,7 +167,7 @@ export default function ProjectDetailEditor({
                 </FormField>
                 <OptionField label="项目状态" value={draft.status} options={PROJECT_STATUS_PICKER_OPTIONS} disabled={!canEditCurrent} onChange={(value) => onDraftChange("status", value)} />
                 <OptionField
-                  label="是否里程碑"
+                  label="里程碑"
                   value={draft.isMilestone ? "true" : "false"}
                   options={PROJECT_MILESTONE_PICKER_OPTIONS}
                   disabled={!canEditCurrent}
